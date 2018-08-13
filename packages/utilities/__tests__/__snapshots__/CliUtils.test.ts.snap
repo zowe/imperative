@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CliUtils should be able to produce the --dash-form of any options 1`] = `"--some-option"`;
+
+exports[`CliUtils should be able to produce the --dash-form of any options 2`] = `"-s"`;
+
+exports[`CliUtils should be able to produce the --dash-form of any options 3`] = `"---some-option"`;
+
+exports[`CliUtils should be able to produce the --dash-form of any options 4`] = `"----some-option"`;
+
+exports[`CliUtils should be able to produce the --dash-form of any options 5`] = `"---s"`;
+
+exports[`CliUtils should be able to produce the --dash-form of any options 6`] = `"----s"`;
+
+exports[`CliUtils should be able to produce the --dash-form of any options 7`] = `"A null or blank option was supplied. Please correct the option definition."`;

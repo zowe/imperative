@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AbstractRestClient tests should error when chunking JSON data that does not parse 1`] = `
+"The get request appeared to succeed, but the response was not in the expected format:
+Unexpected end of JSON input"
+`;
+
+exports[`AbstractRestClient tests should error when chunking JSON data that does not parse and allow post payload 1`] = `
+"The post request appeared to succeed, but the response was not in the expected format:
+Unexpected end of JSON input"
+`;
+
+exports[`AbstractRestClient tests should error when chunking JSON data that does not parse and allow post payload 2`] = `undefined`;
+
+exports[`AbstractRestClient tests should error with request rejection when status code is not in 200 range 1`] = `"Rest API failure with HTTP(S) status 400"`;
+
+exports[`AbstractRestClient tests should error with request rejection when status code is not in 200 range 2`] = `"400"`;
+
+exports[`AbstractRestClient tests should error with request rejection when status code is not in 200 range 3`] = `"{\\"newData\\":\\"response data\\"}"`;
+
+exports[`AbstractRestClient tests should error with request rejection when status code is not in 200 range 4`] = `
+"Resource: /resource
+Request: PUT
+Headers: [{\\"My-Header\\":\\"value is here\\"}]
+Payload: { 'my payload object': 'hello' }"
+`;
+
+exports[`AbstractRestClient tests should give an error message when error event is called 1`] = `"http(s) request error event called"`;
+
+exports[`AbstractRestClient tests should give an error when no resource URI is provided 1`] = `"Expect Error: Required parameter 'resource' must not be blank"`;
+
+exports[`AbstractRestClient tests should give an error when no session is provided 1`] = `"Expect Error: Required object must be defined"`;
+
+exports[`AbstractRestClient tests should not append any headers to a request by default 1`] = `
+Array [
+  "Test",
+]
+`;
+
+exports[`AbstractRestClient tests should not append any headers to a request by default 2`] = `Array []`;
+
+exports[`AbstractRestClient tests should not error when chunking data and payload data are present in outgoing request 1`] = `
+Object {
+  "newData": "response data",
+}
+`;
+
+exports[`AbstractRestClient tests should not error when data and end events are sent 1`] = `"Sample data"`;
+
+exports[`AbstractRestClient tests should not error when headers and payload data are present in outgoing request 1`] = `
+Object {
+  "newData": "response data",
+}
+`;

@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Hello World should print help if the option is specified 1`] = `
+"
+ DESCRIPTION
+ -----------
+
+   The Hello World! CLI. Say hello to the world!
+
+ USAGE
+ -----
+
+   hello-world-cli [command]
+
+ COMMANDS
+ --------
+
+   hello The hello command
+
+ OPTIONS
+ -------
+
+   --version  | -V (flag) (optional)
+
+      Display the current version of Hello World CLI!
+
+ GLOBAL OPTIONS
+ --------------
+
+   --response-format-json  | --rfj (flag) (optional)
+
+      Produce the command response as a JSON document
+
+   --help  | -h (flag) (optional)
+
+      Display help text
+
+"
+`;
+
+exports[`Hello World should print version if the option is specified 1`] = `
+"0.0.0
+"
+`;
+
+exports[`Hello World should print world from the hello command 1`] = `
+"World!
+"
+`;

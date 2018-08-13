@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`cmd-cli respond with-log-messages should display a syntax error if no parameters are specified 1`] = `
+"
+Syntax Error:
+Missing Required Option:
+--format-string 
+
+Option Description:
+A format string that will be used to create a message
+
+Syntax Error:
+Missing Required Option:
+--format-values 
+
+Option Description:
+The set of values to use in the format string.
+
+Use \\"cmd-cli respond with-log-messages --help\\" to view command description, usage, and options.
+"
+`;
+
+exports[`cmd-cli respond with-log-messages should display display a few log messages and allow format strings 1`] = `
+"Format String: %s Seller! I'm going into %s!
+Values Array: Potion,battle
+Formatted:
+Potion Seller! I'm going into battle!
+thesemessagesshoulddisplayonthesamelinewithnospaces"
+`;
+
+exports[`cmd-cli respond with-log-messages should display display a few log messages and allow format strings and produce a JSON response 1`] = `
+"Format String: %s Seller! I'm going into %s!
+Values Array: Potion,battle
+Formatted:
+Potion Seller! I'm going into battle!
+thesemessagesshoulddisplayonthesamelinewithnospaces"
+`;
+
+exports[`cmd-cli respond with-log-messages should display the help 1`] = `
+"
+ COMMAND NAME
+ ------------
+
+   with-log-messages
+
+ DESCRIPTION
+ -----------
+
+   Reponds with a few log messages.
+
+ USAGE
+ -----
+
+   cmd-cli respond with-log-messages [options]
+
+ OPTIONS
+ -------
+
+   --format-string  (string)
+
+      A format string that will be used to create a message
+
+   --format-values  (array)
+
+      The set of values to use in the format string.
+
+ GLOBAL OPTIONS
+ --------------
+
+   --response-format-json  | --rfj (flag) (optional)
+
+      Produce the command response as a JSON document
+
+   --help  | -h (flag) (optional)
+
+      Display help text
+
+{
+  \\"success\\": true,
+  \\"message\\": \\"The help was constructed for command: with-log-messages.\\",
+  \\"stdout\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-log-messages\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Reponds with a few log messages.\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-log-messages [options]\\\\n\\\\n OPTIONS\\\\n -------\\\\n\\\\n   --format-string  (string)\\\\n\\\\n      A format string that will be used to create a message\\\\n\\\\n   --format-values  (array)\\\\n\\\\n      The set of values to use in the format string.\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (flag) (optional)\\\\n\\\\n      Produce the command response as a JSON document\\\\n\\\\n   --help  | -h (flag) (optional)\\\\n\\\\n      Display help text\\\\n\\\\n\\",
+  \\"stderr\\": \\"\\",
+  \\"data\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-log-messages\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Reponds with a few log messages.\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-log-messages [options]\\\\n\\\\n OPTIONS\\\\n -------\\\\n\\\\n   --format-string  (string)\\\\n\\\\n      A format string that will be used to create a message\\\\n\\\\n   --format-values  (array)\\\\n\\\\n      The set of values to use in the format string.\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (flag) (optional)\\\\n\\\\n      Produce the command response as a JSON document\\\\n\\\\n   --help  | -h (flag) (optional)\\\\n\\\\n      Display help text\\\\n\\\\n\\"
+}"
+`;

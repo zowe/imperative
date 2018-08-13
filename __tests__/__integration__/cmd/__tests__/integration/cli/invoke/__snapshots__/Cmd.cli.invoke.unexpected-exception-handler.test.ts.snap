@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`cmd-cli invoke unexpected-exception-handler should display the help 1`] = `
+"
+ COMMAND NAME
+ ------------
+
+   unexpected-exception-handler
+
+ DESCRIPTION
+ -----------
+
+   The unexpected exception handler attempts to perform an operation that will
+   result in an exception.
+
+ USAGE
+ -----
+
+   cmd-cli invoke unexpected-exception-handler [options]
+
+ GLOBAL OPTIONS
+ --------------
+
+   --response-format-json  | --rfj (flag) (optional)
+
+      Produce the command response as a JSON document
+
+   --help  | -h (flag) (optional)
+
+      Display help text
+
+"
+`;
+
+exports[`cmd-cli invoke unexpected-exception-handler should fail because of an unexpected exception and produce a JSON response 1`] = `"Unexpected Command Error: Cannot read property 'split' of undefined"`;
+
+exports[`cmd-cli invoke unexpected-exception-handler should fail because of an unexpected exception and produce a JSON response 2`] = `"Cannot read property 'split' of undefined"`;

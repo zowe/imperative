@@ -1,0 +1,103 @@
+{
+  "name": "hello-world-cli",
+  "version": "0.0.0",
+  "description": "Hello World Sample CLI",
+  "license": "EPL 2.0",
+  "repository": "",
+  "bin": {
+    "hello-world-cli": "./lib/__tests__/__integration__/hello_world/src/index.js"
+  },
+  "author": {
+    "name": "",
+    "email": "",
+    "url": ""
+  },
+  "keywords": [
+    ""
+  ],
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "imperative": {
+    "configurationModule": "lib/__tests__/__integration__/hello_world/src/config.js"
+  },
+  "scripts": {
+    "clean": "rimraf lib && rimraf coverage",
+    "lint": "tslint --force --format verbose \"src/**/*.ts\"",
+    "prebuild": "npm run clean && npm run lint && echo Using TypeScript && tsc --version",
+    "build": "tsc --pretty",
+    "pretest": "npm install -g",
+    "test": "jest",
+    "posttest": "npm uninstall -g",
+    "watch": "npm run build -- --watch"
+  },
+  "dependencies": {
+    "@types/yargs": "8.0.1",
+    "body-parser": "1.18.0",
+    "chalk": "2.1.0",
+    "cli-table2": "0.2.0",
+    "csv": "1.1.1",
+    "express": "4.16.2",
+    "filewatcher": "3.0.1",
+    "find-up": "2.1.0",
+    "glob": "7.1.1",
+    "js-yaml": "3.10.0",
+    "jsonfile": "4.0.0",
+    "jsonschema": "1.1.1",
+    "levenshtein": "1.0.5",
+    "lodash": "4.17.4",
+    "log4js": "2.4.1",
+    "merge-objects": "1.0.5",
+    "mkdirp": "^0.5.1",
+    "moment": "2.20.1",
+    "mustache": "2.3.0",
+    "nested-property": "0.0.7",
+    "node-forge": "0.7.1",
+    "opn": "5.1.0",
+    "prettyjson": "1.2.1",
+    "progress": "2.0.0",
+    "rimraf": "2.6.2",
+    "simple-ssh": "1.0.0",
+    "stack-trace": "0.0.10",
+    "dataobject-parser": "1.1.3",
+    "string-argv": "0.0.2",
+    "tmp": "0.0.33",
+    "wrap-ansi": "3.0.1",
+    "yamljs": "0.3.0",
+    "yargs": "8.0.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^20.0.5",
+    "@types/node": "^8.0.0",
+    "coveralls": "^2.0.0",
+    "gulp": "^3.9.1",
+    "jest": "^20.0.4",
+    "jest-environment-node-debug": "^2.0.0",
+    "ts-jest": "^20.0.7",
+    "ts-node": "^3.2.0",
+    "tslint": "^5.0.0",
+    "typescript": "^2.3.0",
+    "upath": "^1.0.2"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "jest": {
+    "transform": {
+      ".(ts)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(test|spec)\\.ts$",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "testEnvironment": "node"
+  },
+  "jest-html-reporter": {
+    "pageTitle": "Sample \"hello world\" integration CLI Tests",
+    "outputPath": "../../__results__/__integration__/hello_world/results.html",
+    "includeFailureMsg": true
+  }
+}
