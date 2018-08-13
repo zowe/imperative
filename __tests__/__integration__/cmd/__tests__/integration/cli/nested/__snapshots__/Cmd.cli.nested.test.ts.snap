@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`cmd-cli nested should display both groups and commands in the help 1`] = `
+"
+ DESCRIPTION
+ -----------
+
+   Test a more complex command structure of nested commands
+
+ USAGE
+ -----
+
+   cmd-cli nested [group|command]
+
+ GROUPS
+ ------
+
+   first-group | fg The first group under nested
+
+ COMMANDS
+ --------
+
+   nested-group-command | ngc A command in the nested group
+
+ GLOBAL OPTIONS
+ --------------
+
+   --response-format-json  | --rfj (boolean)
+
+      Produce the command response as a JSON document
+
+   --help  | -h (boolean)
+
+      Display help text
+
+"
+`;

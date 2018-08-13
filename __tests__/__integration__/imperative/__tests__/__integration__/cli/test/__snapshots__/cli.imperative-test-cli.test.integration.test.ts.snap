@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`imperative-test-cli test command should display the help 1`] = `
+"
+ DESCRIPTION
+ -----------
+
+   Test that various imperative features are working
+
+ USAGE
+ -----
+
+   imperative-test-cli test [command]
+
+ COMMANDS
+ --------
+
+   logging Test imperative logging
+
+ GLOBAL OPTIONS
+ --------------
+
+   --response-format-json  | --rfj (boolean)
+
+      Produce the command response as a JSON document
+
+   --help  | -h (boolean)
+
+      Display help text
+
+{
+  \\"success\\": true,
+  \\"message\\": \\"The help was constructed for command: test.\\",
+  \\"stdout\\": \\"\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Test that various imperative features are working\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   imperative-test-cli test [command]\\\\n\\\\n COMMANDS\\\\n --------\\\\n\\\\n   logging Test imperative logging\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce the command response as a JSON document\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\",
+  \\"stderr\\": \\"\\",
+  \\"data\\": \\"\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Test that various imperative features are working\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   imperative-test-cli test [command]\\\\n\\\\n COMMANDS\\\\n --------\\\\n\\\\n   logging Test imperative logging\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce the command response as a JSON document\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\"
+}"
+`;

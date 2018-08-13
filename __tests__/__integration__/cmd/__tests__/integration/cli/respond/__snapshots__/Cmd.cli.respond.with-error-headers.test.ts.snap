@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`cmd-cli respond with-error-headers should display a few error headers and not fail the command 1`] = `
+"Error:
+An error has occurred.
+Fatal Error!
+A fatal error has occurred.
+"
+`;
+
+exports[`cmd-cli respond with-error-headers should display a few error headers and not fail the command and produce a JSON response 1`] = `
+"Error:
+An error has occurred.
+Fatal Error!
+A fatal error has occurred.
+"
+`;
+
+exports[`cmd-cli respond with-error-headers should display the help 1`] = `
+"
+ COMMAND NAME
+ ------------
+
+   with-error-headers
+
+ DESCRIPTION
+ -----------
+
+   Responds with a few error headers (colorized in red).
+
+ USAGE
+ -----
+
+   cmd-cli respond with-error-headers [options]
+
+ GLOBAL OPTIONS
+ --------------
+
+   --response-format-json  | --rfj (boolean)
+
+      Produce the command response as a JSON document
+
+   --help  | -h (boolean)
+
+      Display help text
+
+{
+  \\"success\\": true,
+  \\"message\\": \\"The help was constructed for command: with-error-headers.\\",
+  \\"stdout\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-error-headers\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Responds with a few error headers (colorized in red).\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-error-headers [options]\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce the command response as a JSON document\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\",
+  \\"stderr\\": \\"\\",
+  \\"data\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-error-headers\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Responds with a few error headers (colorized in red).\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-error-headers [options]\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce the command response as a JSON document\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\"
+}"
+`;

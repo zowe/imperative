@@ -1,0 +1,381 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Default Help Generator error handling should detect an invalid command definition type 1`] = `"Help Generator Error: Unknown command definition type specified: \\"fake\\""`;
+
+exports[`Default Help Generator help text builder buildCommandAndAliases test 1`] = `"hello"`;
+
+exports[`Default Help Generator help text builder buildCommandAndAliases test 2`] = `"hello"`;
+
+exports[`Default Help Generator help text builder buildUsageDiagram test 1`] = `"test-help a_parent hello [options]"`;
+
+exports[`Default Help Generator help text builder buildUsageDiagram test 2`] = `"test-help a_experimental_parent hello <positional_argument> [options]"`;
+
+exports[`Default Help Generator help text builder buildUsageDiagram test 3`] = `"test-help child [command]"`;
+
+exports[`Default Help Generator help text builder buildUsageDiagram test 4`] = `"test-help a_experimental_parent [group|command]"`;
+
+exports[`Default Help Generator help text builder buildUsageDiagram test 5`] = `"Help Generator Error: Unknown or unsupported command type \\"notexist\\" used in command definition."`;
+
+exports[`Default Help Generator help text builder buildUsageDiagram test 6`] = `"test-help empty_group_def [options]"`;
+
+exports[`Default Help Generator help text builder buildUsageDiagram test 7`] = `"test-help empty_group_def [options]"`;
+
+exports[`Default Help Generator help text builder getCommandHelpText test 1`] = `
+"
+ COMMAND NAME
+ ------------
+
+   hello
+
+ DESCRIPTION
+ -----------
+
+   my command
+
+ USAGE
+ -----
+
+   test-help a_parent hello [options]
+
+ UNDEFINED
+ ---------
+
+   --aReaLOption  (boolean)
+
+      Part of must specify one group
+
+   --elmo  (boolean)
+
+      Part of must specify one group
+
+ GLOBAL OPTIONS
+ --------------
+
+"
+`;
+
+exports[`Default Help Generator help text builder getCommandHelpText test 2`] = `
+"
+ COMMAND NAME
+ ------------
+
+   hello   (experimental command)
+
+ DESCRIPTION
+ -----------
+
+   my command
+
+ USAGE
+ -----
+
+   test-help a_experimental_parent hello <positional_argument> [options]
+
+ POSITIONAL ARGUMENTS
+ --------------------
+
+   positional_argument		 (number)
+
+      the number of the day is...
+
+ UNDEFINED
+ ---------
+
+   --aReaLOption  | --aro | --real (boolean)
+
+      Part of must specify one group
+
+   --aRequiredOption  (string)
+
+      Part of must specify one group
+
+   --elmo  (boolean)
+
+      Part of must specify one group
+
+ GLOBAL OPTIONS
+ --------------
+
+ ABOUT EXPERIMENTAL COMMANDS
+ ---------------------------
+
+   Experimental commands are commands that are not ready for general availability.
+   If you decide to use these commands, you might encounter bugs, incompatibilities
+   with your system, or incomplete help text.
+
+"
+`;
+
+exports[`Default Help Generator help text builder getExperimentalCommandSection test 1`] = `""`;
+
+exports[`Default Help Generator help text builder getExperimentalCommandSection test 2`] = `
+" ABOUT EXPERIMENTAL COMMANDS
+ ---------------------------
+
+   Experimental commands are commands that are not ready for general availability.
+   If you decide to use these commands, you might encounter bugs, incompatibilities
+   with your system, or incomplete help text.
+
+"
+`;
+
+exports[`Default Help Generator help text builder getGroupHelpText test 1`] = `"Cannot read property 'sort' of undefined"`;
+
+exports[`Default Help Generator help text builder getGroupHelpText test 2`] = `
+"
+ DESCRIPTION
+ -----------
+
+   undefined
+
+ USAGE
+ -----
+
+   test-help a_experimental_parent [command]
+
+ COMMANDS
+ --------
+
+   hello (experimental) my command
+
+ GLOBAL OPTIONS
+ --------------
+
+"
+`;
+
+exports[`Default Help Generator help text builder getGroupHelpText test 3`] = `
+"
+ DESCRIPTION
+ -----------
+
+   my_command_child
+
+ USAGE
+ -----
+
+   test-help child [command]
+
+ COMMANDS
+ --------
+
+   hello (experimental) my command
+
+ GLOBAL OPTIONS
+ --------------
+
+"
+`;
+
+exports[`Default Help Generator help text builder getPrintedActionsOrGroups test 1`] = `"Cannot read property 'sort' of undefined"`;
+
+exports[`Default Help Generator help text builder getPrintedActionsOrGroups test 2`] = `
+" COMMANDS
+ --------
+
+   hello (experimental) my command
+
+"
+`;
+
+exports[`Default Help Generator help text builder getPrintedDescription test 1`] = `
+" DESCRIPTION
+ -----------
+
+   my command
+
+"
+`;
+
+exports[`Default Help Generator help text builder getPrintedDescription test 2`] = `
+" DESCRIPTION
+ -----------
+
+   my command
+
+"
+`;
+
+exports[`Default Help Generator help text builder getPrintedExamplesText test 1`] = `""`;
+
+exports[`Default Help Generator help text builder getPrintedExamplesText test 2`] = `
+" ABOUT EXPERIMENTAL COMMANDS
+ ---------------------------
+
+   Experimental commands are commands that are not ready for general availability.
+   If you decide to use these commands, you might encounter bugs, incompatibilities
+   with your system, or incomplete help text.
+
+"
+`;
+
+exports[`Default Help Generator help text builder getPrintedGlobalOptions test 1`] = `
+" GLOBAL OPTIONS
+ --------------
+
+"
+`;
+
+exports[`Default Help Generator help text builder getPrintedGlobalOptions test 2`] = `
+" GLOBAL OPTIONS
+ --------------
+
+"
+`;
+
+exports[`Default Help Generator help text builder getPrintedNonGlobalOptions test 1`] = `
+" UNDEFINED
+ ---------
+
+   --aReaLOption  (boolean)
+
+      Part of must specify one group
+
+   --elmo  (boolean)
+
+      Part of must specify one group
+
+"
+`;
+
+exports[`Default Help Generator help text builder getPrintedNonGlobalOptions test 2`] = `
+" UNDEFINED
+ ---------
+
+   --aReaLOption  | --aro | --real (boolean)
+
+      Part of must specify one group
+
+   --aRequiredOption  (string)
+
+      Part of must specify one group
+
+   --elmo  (boolean)
+
+      Part of must specify one group
+
+"
+`;
+
+exports[`Default Help Generator help text builder getPrintedOptionGroup test 1`] = `
+" A_PARENT
+ --------
+
+"
+`;
+
+exports[`Default Help Generator help text builder getPrintedOptionGroup test 2`] = `
+" A_EXPERIMENTAL_PARENT
+ ---------------------
+
+"
+`;
+
+exports[`Default Help Generator help text builder getPrintedOptionGroup test 3`] = `"Null or empty header provided; could not be formatted."`;
+
+exports[`Default Help Generator help text builder getPrintedOptionGroup test 4`] = `"Null or empty header provided; could not be formatted."`;
+
+exports[`Default Help Generator help text builder getPrintedOptionOrAction test 1`] = `
+"   aReaLOption
+
+      Part of must specify one group
+
+"
+`;
+
+exports[`Default Help Generator help text builder getPrintedOptionOrAction test 2`] = `
+"   aReaLOption
+
+      Part of must specify one group
+
+"
+`;
+
+exports[`Default Help Generator help text builder getPrintedOptionOrAction test 3`] = `
+"   
+
+
+
+"
+`;
+
+exports[`Default Help Generator help text builder getPrintedPositionalOptions test 1`] = `"Help Generator Error: Unable to print positional arguments: None were supplied."`;
+
+exports[`Default Help Generator help text builder getPrintedPositionalOptions test 2`] = `
+" POSITIONAL ARGUMENTS
+ --------------------
+
+   positional_argument		 (number)
+
+      the number of the day is...
+
+"
+`;
+
+exports[`Default Help Generator help text builder getPrintedUsage test 1`] = `
+" USAGE
+ -----
+
+   test-help a_parent hello [options]
+
+"
+`;
+
+exports[`Default Help Generator help text builder getPrintedUsage test 2`] = `
+" USAGE
+ -----
+
+   test-help a_experimental_parent hello <positional_argument> [options]
+
+"
+`;
+
+exports[`Default Help Generator help text builder should build full help text given a command tree 1`] = `
+"
+ COMMAND NAME
+ ------------
+
+   hello
+
+ DESCRIPTION
+ -----------
+
+   my command
+
+ USAGE
+ -----
+
+   test-help a_parent hello [options]
+
+ UNDEFINED
+ ---------
+
+   --aReaLOption  (boolean)
+
+      Part of must specify one group
+
+   --elmo  (boolean)
+
+      Part of must specify one group
+
+ GLOBAL OPTIONS
+ --------------
+
+"
+`;
+
+exports[`Default Help Generator help text builder should construct multiple tables if a group has children of multiple types 1`] = `
+" COMMANDS
+ --------
+
+   first-command  the first child is a command 
+   second-command the second child is a command
+
+ GROUPS
+ ------
+
+   first-group  the third child is a group 
+   second-group the fourth child is a group
+
+"
+`;

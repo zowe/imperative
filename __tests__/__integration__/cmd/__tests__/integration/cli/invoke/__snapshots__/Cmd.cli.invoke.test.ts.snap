@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`cmd-cli invoke should display the help 1`] = `
+"================ISSUING INVOKE WITH HELP===============
+
+ DESCRIPTION
+ -----------
+
+   The invoke command allows you to invoke handlers and other test commands.
+
+ USAGE
+ -----
+
+   cmd-cli invoke [command]
+
+ COMMANDS
+ --------
+
+   test-async-handler           Test basic async command handler completion
+   test-handler                 Test handler with promise                  
+   unexpected-exception-handler Test an unexpected exception               
+
+ GLOBAL OPTIONS
+ --------------
+
+   --response-format-json  | --rfj (boolean)
+
+      Produce the command response as a JSON document
+
+   --help  | -h (boolean)
+
+      Display help text
+
+================ISSUING INVOKE HELP WITH RFJ===========
+{
+  \\"success\\": true,
+  \\"message\\": \\"The help was constructed for command: invoke.\\",
+  \\"stdout\\": \\"\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   The invoke command allows you to invoke handlers and other test commands.\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli invoke [command]\\\\n\\\\n COMMANDS\\\\n --------\\\\n\\\\n   test-async-handler           Test basic async command handler completion\\\\n   test-handler                 Test handler with promise                  \\\\n   unexpected-exception-handler Test an unexpected exception               \\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce the command response as a JSON document\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\",
+  \\"stderr\\": \\"\\",
+  \\"data\\": \\"\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   The invoke command allows you to invoke handlers and other test commands.\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli invoke [command]\\\\n\\\\n COMMANDS\\\\n --------\\\\n\\\\n   test-async-handler           Test basic async command handler completion\\\\n   test-handler                 Test handler with promise                  \\\\n   unexpected-exception-handler Test an unexpected exception               \\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce the command response as a JSON document\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\"
+}"
+`;

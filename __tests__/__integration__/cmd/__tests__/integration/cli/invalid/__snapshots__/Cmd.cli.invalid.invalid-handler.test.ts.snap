@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`cmd-cli invalid no-handler should fail the command with a message if the command definition of type command omits a handler 1`] = `
+"Handler Instantiation Failed:
+Could not instantiate the handler invalid-handler for command invalid-handler
+Error Details:
+Cannot find module 'invalid-handler'
+"
+`;
+
+exports[`cmd-cli invalid no-handler should fail the command with a message if the command definition of type command omits a handler 2`] = `
+"{
+  \\"success\\": false,
+  \\"message\\": \\"Could not instantiate the handler invalid-handler for command invalid-handler\\",
+  \\"stdout\\": \\"\\",
+  \\"stderr\\": \\"Handler Instantiation Failed:\\\\nCould not instantiate the handler invalid-handler for command invalid-handler\\\\nError Details:\\\\nCannot find module 'invalid-handler'\\\\n\\",
+  \\"data\\": {},
+  \\"error\\": {
+    \\"msg\\": \\"Could not instantiate the handler invalid-handler for command invalid-handler\\",
+    \\"additionalDetails\\": \\"Cannot find module 'invalid-handler'\\"
+  }
+}"
+`;
