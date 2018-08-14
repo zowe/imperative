@@ -37,7 +37,7 @@ exports[`cmd-cli gen-help example-test should display the help with allowable op
 
    --response-format-json  | --rfj (boolean)
 
-      Produce the command response as a JSON document
+      Produce JSON formatted data from a command
 
    --help  | -h (boolean)
 

@@ -29,7 +29,7 @@ exports[`cmd-cli nested first-group should display both groups and commands in t
 
    --response-format-json  | --rfj (boolean)
 
-      Produce the command response as a JSON document
+      Produce JSON formatted data from a command
 
    --help  | -h (boolean)
 

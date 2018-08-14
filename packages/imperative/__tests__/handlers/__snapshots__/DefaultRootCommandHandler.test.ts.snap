@@ -40,7 +40,7 @@ exports[`Default Root Command Handler should display the help if no options are 
 
    --response-format-json  | --rfj (boolean)
 
-      Produce the command response as a JSON document
+      Produce JSON formatted data from a command
 
    --help  | -h (boolean)
 

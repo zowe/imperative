@@ -11,7 +11,6 @@
 
 import { ICommandDefinition } from "../src/doc/ICommandDefinition";
 import { CommandPreparer } from "../src/CommandPreparer";
-import { OriginalAndExpected } from "./definitions/OriginalAndExpected";
 import { TestLogger } from "../../../__tests__/TestLogger";
 import { inspect } from "util";
 import {
@@ -19,8 +18,9 @@ import {
     PASS_ON_MULTIPLE_GROUPS,
     SUPPRESS_OPTION_MULTIPLE_GROUPS,
     VALID_COMPLEX_COMMAND,
-    VALIDATE_MULTIPLE_GROUPS
-} from "./definitions/CommandDefinitions";
+    VALIDATE_MULTIPLE_GROUPS,
+    ORIGINAL_DEFINITIONS
+} from "./__resources__/CommandDefinitions";
 import { ImperativeError } from "../../error/src/ImperativeError";
 import { UnitTestUtils } from "../../../__tests__/src/UnitTestUtils";
 
@@ -28,8 +28,8 @@ UnitTestUtils.replaceIt();
 
 describe("Command Preparer", () => {
     it("should prepare the final command document for imperative usage", () => {
-        OriginalAndExpected.forEach((test) => {
-            const prepared: ICommandDefinition = CommandPreparer.prepare(test.original);
+        ORIGINAL_DEFINITIONS.forEach((test) => {
+            const prepared: ICommandDefinition = CommandPreparer.prepare(test);
             TestLogger.getTestLogger().debug("Prepared command definition:");
             TestLogger.getTestLogger().debug("\n" + inspect(prepared, {showHidden: true, depth: null}));
             expect(prepared).toMatchSnapshot();
