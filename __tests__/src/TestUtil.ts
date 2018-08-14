@@ -24,7 +24,7 @@ import {ICommandResponse} from "../../packages/cmd";
 import {ICompareParms} from "./doc/ICompareParms";
 import {TestLogger} from "../TestLogger";
 import * as nodePath from "path";
-import {basename, resolve} from "path";
+import {basename, join, resolve} from "path";
 import {mkdirpSync} from "fs-extra";
 import * as fs from "fs";
 
@@ -416,5 +416,73 @@ export function runCliScript(scriptPath: string, cwd: string, args: any = [], en
         return spawnSync("sh", [`${scriptPath}`].concat(args), {cwd, env: childEnv});
     } else {
         throw new Error("The script directory doesn't exist");
+    }
+}
+
+/**
+ * Create a symbolic link to a directory.
+ *
+ * @param {string} newSymLinkPath - the path new symbolic link to be created
+ * @param {string} existingDirPath - the path the existing directory that we will link to
+ */
+export function mkSymlinkToDir(newSymLinkPath: string, existingDirPath: string) {
+    try {
+        if (fs.existsSync(newSymLinkPath)) {
+            // Get the file status to determine if it is a symlink.
+            const fileStats = fs.lstatSync(newSymLinkPath);
+            if (fileStats.isSymbolicLink()) {
+                fs.unlinkSync(newSymLinkPath);
+                console.log("Deleted existing symbolic link = " + newSymLinkPath);
+
+                fs.symlinkSync(existingDirPath, newSymLinkPath, "dir");
+                console.log("Created symbolic link from '" + newSymLinkPath +
+                    "' to '" + existingDirPath + "'."
+                );
+            } else {
+                console.log("The path '" + newSymLinkPath +
+                    "' is not a symbolic link. So, we did not create a symlink from there to '" +
+                    existingDirPath + "'."
+                );
+            }
+        } else {
+            fs.symlinkSync(existingDirPath, newSymLinkPath, "dir");
+            console.log("Created symbolic link from '" + newSymLinkPath +
+                "' to '" + existingDirPath + "'."
+            );
+        }
+    } catch (exception) {
+        console.log("Got error creating symbolic link from '" + testCliImpLink +
+            "' to '" + existingDirPath + "'\n" +
+            "Reason: " + exception.message + "\n" +
+            "Full exception: " + exception
+        );
+    }
+}
+
+/**
+ * Delete a symbolic link.
+ *
+ * @param {string} symLinkPath - the path to a symbolic link to be deleted
+ */
+export function unlink(symLinkPath: string) {
+    if (!fs.existsSync(symLinkPath)) {
+        return;
+    }
+
+    // Get the file status to determine if it is a symlink.
+    const fileStats = fs.lstatSync(symLinkPath);
+    if (!fileStats.isSymbolicLink()) {
+        console.log("Your specified name\n   " + symLinkPath + "\nis not a symbolic link.");
+        return;
+    }
+
+    try {
+        fs.unlinkSync(symLinkPath);
+        console.log("Deleted symbolic link " + symLinkPath);
+    } catch(ioExcept) {
+        console.log("Failed to delete\n    " + symLinkPath +
+            "\ndue to following error:\n" +
+            ioExcept.message
+        );
     }
 }
