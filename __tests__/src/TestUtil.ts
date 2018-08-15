@@ -446,9 +446,6 @@ export function mkSymlinkToDir(newSymLinkPath: string, existingDirPath: string) 
             }
         } else {
             fs.symlinkSync(existingDirPath, newSymLinkPath, "dir");
-            console.log("Created symbolic link from '" + newSymLinkPath +
-                "' to '" + existingDirPath + "'."
-            );
         }
     } catch (exception) {
         console.log("Got error creating symbolic link from '" + testCliImpLink +
@@ -478,7 +475,6 @@ export function unlink(symLinkPath: string) {
 
     try {
         fs.unlinkSync(symLinkPath);
-        console.log("Deleted symbolic link " + symLinkPath);
     } catch(ioExcept) {
         console.log("Failed to delete\n    " + symLinkPath +
             "\ndue to following error:\n" +
