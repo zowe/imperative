@@ -16,6 +16,7 @@ import { ProcessUtils } from "../../../utilities";
 import { MockHttpRequestResponse } from "./__model__/MockHttpRequestResponse";
 import { CustomRestClient } from "./__model__/CustomRestClient";
 import { CustomRestClientWithProcessError, EXPECTED_REST_ERROR } from "./__model__/CustomRestClientWithProcessError";
+import { getRandomBytes } from "../../../../__tests__/src/TestUtil";
 
 /**
  * RestClient is already tested vie the AbstractRestClient test, so we will extend RestClient
@@ -127,6 +128,78 @@ describe("RestClient tests", () => {
         }
         expect(error).toBeDefined();
         expect(error.message).toContain(EXPECTED_REST_ERROR.msg);
+    });
+
+    it("should be able to return a buffer from various types of requests", async () => {
+
+        const randomByteLength = 40;
+        let randomBytes1 = await getRandomBytes(randomByteLength);
+        let randomBytes2 = await getRandomBytes(randomByteLength);
+        const emitter = new MockHttpRequestResponse();
+        const requestFnc = jest.fn((options, callback) => {
+            ProcessUtils.nextTick(async () => {
+
+                const newEmit = new MockHttpRequestResponse();
+                newEmit.statusCode = "200";
+                callback(newEmit);
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("data", randomBytes1);
+                });
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("data", randomBytes2);
+                });
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("end"); // request is finished
+                });
+            });
+            return emitter;
+        });
+
+        (https.request as any) = requestFnc;
+
+        let error;
+        let response: Buffer;
+        try {
+            response = await CustomRestClient.getExpectBuffer(new Session({hostname: "test"}), "/resource");
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error).toBeUndefined();
+        expect(response).toEqual(Buffer.concat([randomBytes1, randomBytes2]));
+
+        randomBytes1 = await getRandomBytes(randomByteLength);
+        randomBytes2 = await getRandomBytes(randomByteLength);
+        try {
+            response = await CustomRestClient.deleteExpectBuffer(new Session({hostname: "test"}), "/resource");
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error).toBeUndefined();
+        expect(response).toEqual(Buffer.concat([randomBytes1, randomBytes2]));
+
+        randomBytes1 = await getRandomBytes(randomByteLength);
+        randomBytes2 = await getRandomBytes(randomByteLength);
+        try {
+            response = await CustomRestClient.postExpectBuffer(new Session({hostname: "test"}), "/resource");
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error).toBeUndefined();
+        expect(response).toEqual(Buffer.concat([randomBytes1, randomBytes2]));
+
+
+        randomBytes1 = await getRandomBytes(randomByteLength);
+        randomBytes2 = await getRandomBytes(randomByteLength);
+        try {
+            response = await CustomRestClient.putExpectBuffer(new Session({hostname: "test"}), "/resource", [], {});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error).toBeUndefined();
+        expect(response).toEqual(Buffer.concat([randomBytes1, randomBytes2]));
     });
 
 });
