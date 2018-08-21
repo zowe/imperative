@@ -133,6 +133,8 @@ describe("DefaultCredentialManager", () => {
           }
 
           expect(caughtError.message).toEqual("Unable to delete credentials!");
+          expect((caughtError as ImperativeError).additionalDetails).toContain(values.account);
+          expect((caughtError as ImperativeError).additionalDetails).toContain(service);
         });
       });
 
@@ -160,6 +162,8 @@ describe("DefaultCredentialManager", () => {
           }
 
           expect(caughtError.message).toEqual("Unable to load credentials!");
+          expect((caughtError as ImperativeError).additionalDetails).toContain(values.account);
+          expect((caughtError as ImperativeError).additionalDetails).toContain(service);
         });
       });
 
