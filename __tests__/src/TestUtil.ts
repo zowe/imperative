@@ -6,7 +6,6 @@
 * SPDX-License-Identifier: EPL-2.0                                                *
 *                                                                                 *
 * Copyright Contributors to the Zowe Project.                                     *
-*                                                                                 *
 */
 
 // This class imports and exports a lot of code that is used throughout a lot of the tests.

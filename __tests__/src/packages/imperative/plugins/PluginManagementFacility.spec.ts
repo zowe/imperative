@@ -35,6 +35,7 @@ export const cliBin: string = join(__dirname, "test_cli", "TestCLI.ts");
 export const pluginGroup: string = "plugins";
 
 const testCliImpSymLink = join(__dirname, "test_cli", "node_modules", "@brightside", "imperative");
+const impLibDir = join(__dirname, "../../../../../lib");
 
 describe("Plugin Management Facility", () => {
     const home = config.defaultHome;
@@ -48,7 +49,7 @@ describe("Plugin Management Facility", () => {
          * from the TestCLI back up to our own imperative source tree's lib directory.
          * All of the modules then find things where they expect to see them.
          */
-        T.mkSymlinkToDir(testCliImpSymLink, "../../../../../../../../lib");
+        T.mkSymlinkToDir(testCliImpSymLink, impLibDir);
     });
 
     beforeEach(() => {
