@@ -145,7 +145,7 @@ export function generateRandomAlphaNumericString(length: number, upToLength: boo
  * Get a buffer full of random data
  * @param dataSize - the number of bytes to generate
  */
-export async function getRandomBytes(dataSize: number): Promise<Buffer> {
+export function getRandomBytes(dataSize: number): Promise<Buffer> {
     return new Promise<Buffer>((resolveBytes, reject) => {
         randomBytes(dataSize, (randomErr: Error, randomData: Buffer) => {
             if (randomErr != null) {
