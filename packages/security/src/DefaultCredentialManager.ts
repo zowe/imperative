@@ -109,7 +109,7 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
         if (!await this.keytar.deletePassword(this.service, account)) {
             throw new ImperativeError({
                 msg: "Unable to delete credentials!",
-                additionalDetails: `Could not find an entry for the service ${this.service} and account ${account} in the credential vault!`
+                additionalDetails: this.getMissingEntryMessage(account)
             });
         }
     }
@@ -131,7 +131,7 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
         if (password == null) {
             throw new ImperativeError({
                 msg: "Unable to load credentials!",
-                additionalDetails: `Could not find an entry for the service ${this.service} and account ${account} in the credential vault!`
+                additionalDetails: this.getMissingEntryMessage(account)
             });
         }
 
@@ -182,5 +182,14 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
                 throw this.loadError;
             }
         }
+    }
+
+    private getMissingEntryMessage(account: string) {
+        return `Could not find an entry for the service ${this.service} and account ${account} in the credential vault!\n\n` +
+            "Possible Causes:\n" +
+            "  This could have been caused by any manual removal of credentials from your vault.\n\n" +
+            "Resolutions: \n" +
+            "  Recreate the credentials in the vault for the particular service in the vault. If the error was within a profile, this " +
+            "can be achieved by recreating the profile with the --ow flag\n";
     }
 }
