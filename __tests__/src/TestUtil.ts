@@ -448,7 +448,7 @@ export function mkSymlinkToDir(newSymLinkPath: string, existingDirPath: string) 
             fs.symlinkSync(existingDirPath, newSymLinkPath, "dir");
         }
     } catch (exception) {
-        console.log("Got error creating symbolic link from '" + testCliImpLink +
+        console.log("Got error creating symbolic link from '" + newSymLinkPath +
             "' to '" + existingDirPath + "'\n" +
             "Reason: " + exception.message + "\n" +
             "Full exception: " + exception
