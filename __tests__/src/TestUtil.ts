@@ -6,6 +6,7 @@
 * SPDX-License-Identifier: EPL-2.0                                                *
 *                                                                                 *
 * Copyright Contributors to the Zowe Project.                                     *
+*                                                                                 *
 */
 
 // This class imports and exports a lot of code that is used throughout a lot of the tests.
@@ -447,7 +448,7 @@ export function mkSymlinkToDir(newSymLinkPath: string, existingDirPath: string) 
             fs.symlinkSync(existingDirPath, newSymLinkPath, "dir");
         }
     } catch (exception) {
-        console.log("Got error creating symbolic link from '" + testCliImpLink +
+        console.log("Got error creating symbolic link from '" + newSymLinkPath +
             "' to '" + existingDirPath + "'\n" +
             "Reason: " + exception.message + "\n" +
             "Full exception: " + exception
