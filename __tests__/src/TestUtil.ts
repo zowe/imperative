@@ -27,6 +27,7 @@ import * as nodePath from "path";
 import {basename, join, resolve} from "path";
 import {mkdirpSync} from "fs-extra";
 import * as fs from "fs";
+import { randomBytes } from "crypto";
 
 /**
  * Requires for non-typed.
@@ -139,6 +140,23 @@ export function generateRandomAlphaNumericString(length: number, upToLength: boo
     }
     return result;
 }
+
+/**
+ * Get a buffer full of random data
+ * @param dataSize - the number of bytes to generate
+ */
+export function getRandomBytes(dataSize: number): Promise<Buffer> {
+    return new Promise<Buffer>((resolveBytes, reject) => {
+        randomBytes(dataSize, (randomErr: Error, randomData: Buffer) => {
+            if (randomErr != null) {
+                reject(randomErr);
+                return;
+            }
+            resolveBytes(randomData);
+        });
+    });
+}
+
 
 export enum CMD_TYPE {
     JSON, // only  with the json flag
