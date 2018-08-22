@@ -12,7 +12,7 @@
 import {ICommandDefinition} from "../../src/doc/ICommandDefinition";
 import {CommandPreparer} from "../../src/CommandPreparer";
 import {ICommandOptionDefinition} from "../../src/doc/option/ICommandOptionDefinition";
-import {COMPLEX_COMMAND, MULTIPLE_GROUPS} from "../definitions/CommandDefinitions";
+import {COMPLEX_COMMAND, MULTIPLE_GROUPS} from "../__resources__/CommandDefinitions";
 import {TestLogger} from "../../../../__tests__/TestLogger";
 import {inspect} from "util";
 import { UnitTestUtils } from "../../../../__tests__/src/UnitTestUtils";
