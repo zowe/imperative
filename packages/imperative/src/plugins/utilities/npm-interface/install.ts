@@ -176,37 +176,11 @@ function linkPluginToCli(pluginName: string): void {
         }
     ];
 
-    try {
-        for (const nextLink of linksToMake) {
-            if (fs.existsSync(nextLink.pluginPath)) {
-                // Get the file status to determine if it is a symlink.
-                const fileStats = fs.lstatSync(nextLink.pluginPath);
-                if (fileStats.isSymbolicLink()) {
-                    fs.unlinkSync(nextLink.pluginPath);
-                    impLogger.debug("Deleted existing symbolic link = " + nextLink.pluginPath);
-
-                    fs.symlinkSync(nextLink.cliPath, nextLink.pluginPath, "dir");
-                    impLogger.debug("Created symbolic link from '" + nextLink.pluginPath +
-                        "' to '" + nextLink.cliPath + "'."
-                    );
-                } else {
-                    impLogger.error("The path '" + nextLink.pluginPath +
-                        "' is not a symbolic link. So, we did not create a symlink from there to '" +
-                        nextLink.cliPath + "'."
-                    );
-                }
-            } else {
-                fs.symlinkSync(nextLink.cliPath, nextLink.pluginPath, "dir");
-                impLogger.debug("Created symbolic link from '" + nextLink.pluginPath +
-                    "' to '" + nextLink.cliPath + "'."
-                );
-            }
-        }
-    } catch (exception) {
-        throw new ImperativeError({
-            msg: exception.message,
-            causeErrors: exception
-        });
+    for (const nextLink of linksToMake) {
+        impLogger.error("Creating symlink from '" + nextLink.pluginPath +
+            "' to '" + nextLink.cliPath + "', as needed."
+        );
+        IO.createSymlinkToDir(nextLink.pluginPath, nextLink.cliPath);
     }
 }
 

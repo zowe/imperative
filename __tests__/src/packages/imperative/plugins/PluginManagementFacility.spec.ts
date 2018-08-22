@@ -9,9 +9,9 @@
 */
 
 import { IImperativeConfig } from "../../../../../packages/imperative";
+import {IO} from "../../../../../packages/io";
 import * as T from "../../../../src/TestUtil";
 import {join} from "path";
-import {execSync} from "child_process";
 
 /////////////////////////////////////////////////////////////////////////////
 //////////// USE ONLY FROM WITHIN /test/src/packages/plugins ////////////////
@@ -34,7 +34,7 @@ export const cliBin: string = join(__dirname, "test_cli", "TestCLI.ts");
  */
 export const pluginGroup: string = "plugins";
 
-const testCliImpSymLink = join(__dirname, "test_cli", "node_modules", "@brightside", "imperative");
+const testCliNodeModulePath = join(__dirname, "test_cli", "node_modules");
 const impLibDir = join(__dirname, "../../../../../lib");
 
 describe("Plugin Management Facility", () => {
@@ -49,7 +49,10 @@ describe("Plugin Management Facility", () => {
          * from the TestCLI back up to our own imperative source tree's lib directory.
          * All of the modules then find things where they expect to see them.
          */
-        T.mkSymlinkToDir(testCliImpSymLink, impLibDir);
+        const namespaceDirPath = join(testCliNodeModulePath, "@brightside");
+        IO.mkdirp(namespaceDirPath);
+        const testCliImpSymLink = join(namespaceDirPath, "imperative");
+        IO.createSymlinkToDir(testCliImpSymLink, impLibDir);
     });
 
     beforeEach(() => {
@@ -57,12 +60,8 @@ describe("Plugin Management Facility", () => {
     });
 
     afterAll(() => {
-        /* The link we created points to one our own ancestor directories.
-         * This can create problems for any program that traverses the entire
-         * directory tree (like a backup program).
-         * So now that we are done with the link, remove it.
-         */
-        T.unlink(testCliImpSymLink);
+        // remove the subdirectories and symbolic link that we created
+        IO.deleteDirTree(testCliNodeModulePath);
     });
 
     require("./suites/InstallingPlugins");

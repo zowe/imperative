@@ -155,6 +155,45 @@ export class IO {
     }
 
     /**
+     * Create a symbolic link to a directory. If the symbolic link already exists,
+     * re-create it with the specified target directory.
+     *
+     * @param {string} newSymLinkPath - the path new symbolic link to be created
+     * @param {string} existingDirPath - the path the existing directory that we will link to
+     */
+    public static createSymlinkToDir(newSymLinkPath: string, existingDirPath: string) {
+        try {
+            if (!fs.existsSync(newSymLinkPath)) {
+                fs.symlinkSync(existingDirPath, newSymLinkPath, "dir");
+                return;
+            }
+
+            // Get the file status of the existing intended symlink to ensure it is a symlink.
+            const fileStats = fs.lstatSync(newSymLinkPath);
+            if (fileStats.isSymbolicLink()) {
+                fs.unlinkSync(newSymLinkPath);
+                fs.symlinkSync(existingDirPath, newSymLinkPath, "dir");
+                return;
+            }
+        } catch (exception) {
+            throw new ImperativeError({
+                    msg: "Failed to create symbolic link from '" + newSymLinkPath +
+                        "' to '" + existingDirPath + "'\n" +
+                        "Reason: " + exception.message + "\n" +
+                        "Full exception: " + exception
+                }
+            );
+        }
+
+        throw new ImperativeError({
+                msg: "The intended symlink '" + newSymLinkPath +
+                    "' already exists and is not a symbolic link. So, we did not create a symlink from there to '" +
+                    existingDirPath + "'."
+            }
+        );
+    }
+
+    /**
      * Uses the mkdirp package to create a directory (and all subdirectories)
      * @static
      * @param {string} dir - the directory (do not include a file name)
@@ -316,4 +355,72 @@ export class IO {
         fs.rmdirSync(dir);
     }
 
+    /**
+     * Recursively delete all files and subdirectories of the specified directory.
+     * Ensure that we do not follow a symlink. Just delete the link.
+     *
+     * @params {string} pathToTreeToDelete - Path to top directory of the tree
+     *      to delete.
+     */
+    public static deleteDirTree(pathToTreeToDelete: string) {
+        try {
+            // if pathToTreeToDelete is a symlink, just delete the link file
+            if (fs.existsSync(pathToTreeToDelete)) {
+                const fileStats = fs.lstatSync(pathToTreeToDelete);
+                if (fileStats.isSymbolicLink() || fileStats.isFile()) {
+                    fs.unlinkSync(pathToTreeToDelete);
+                    return;
+                }
+
+                // read all of the children of this directory
+                fs.readdirSync(pathToTreeToDelete).forEach((nextChild, index) => {
+                    // recursively delete the child
+                    IO.deleteDirTree(pathToTreeToDelete + path.sep + nextChild);
+                });
+
+                // delete our starting directory
+                fs.rmdirSync(pathToTreeToDelete);
+            }
+        } catch (exception) {
+            throw new ImperativeError({
+                    msg: "Failed to delete the directory tree '" + pathToTreeToDelete +
+                        "'\nReason: " + exception.message + "\n" +
+                        "Full exception: " + exception
+                }
+            );
+        }
+    }
+
+    /**
+     * Delete a symbolic link.
+     *
+     * @param {string} symLinkPath - the path to a symbolic link to be deleted
+     */
+    public static deleteSymLink(symLinkPath: string) {
+        try {
+            if (!fs.existsSync(symLinkPath)) {
+                return;
+            }
+
+            // Get the file status to determine if it is a symlink.
+            const fileStats = fs.lstatSync(symLinkPath);
+            if (fileStats.isSymbolicLink()) {
+                fs.unlinkSync(symLinkPath);
+                return;
+            }
+        } catch (ioExcept) {
+            throw new ImperativeError({
+                msg: "Failed to delete the symbolic link '" + symLinkPath +
+                    "'\nReason: " + ioExcept.message + "\n" +
+                    "Full exception: " + ioExcept
+                }
+            );
+        }
+
+        throw new ImperativeError({
+            msg: "The specified symlink '" + symLinkPath +
+                "' already exists and is not a symbolic link. So, we did not delete it."
+            }
+        );
+    }
 }
