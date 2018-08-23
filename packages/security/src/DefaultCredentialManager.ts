@@ -190,6 +190,6 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
             "  This could have been caused by any manual removal of credentials from your vault.\n\n" +
             "Resolutions: \n" +
             "  Recreate the credentials in the vault for the particular service in the vault. If the error was within a profile, this " +
-            "can be achieved by recreating the profile with the --ow flag\n";
+            "can be achieved by recreating the profile with the --ow flag.\n";
     }
 }
