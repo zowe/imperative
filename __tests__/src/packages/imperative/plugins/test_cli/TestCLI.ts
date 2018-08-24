@@ -9,7 +9,7 @@
 *                                                                                 *
 */
 
-import { Imperative } from "@brightside/imperative";
+import { Imperative } from "../../../../../../lib";
 import { join } from "path";
 
 
