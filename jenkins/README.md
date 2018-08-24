@@ -14,7 +14,9 @@ This document covers important information about the Jenkins environment.
 
 The pipeline script is found in the project root's Jenkinsfile. Refer to that file for information about the pipeline steps.
 
-## Keytar Requirements
+## Keytar Requirements (Historical Information)
+
+***08-24-2018:** Information in this section has been left for historical purposes. The processes have been improved by incorporating these techniques in the base docker-containers.*
 
 The following sections describe the steps that were taken to ensure that the keytar Node module can be used on the agent.
 
@@ -25,7 +27,19 @@ In the Integration Test step of the pipeline, note the following statement:
 sh "chmod +x $TEST_SCRIPT && dbus-launch $TEST_SCRIPT"
 ```
 
-This command is used to run the tests. `$TEST_SCRIPT` is a string that points to [./jenkins/integration_tests.sh](./integration_tests.sh). The next section talks about that command in further detail.
+This command is used to run the tests. `$TEST_SCRIPT` is a string that points to `./jenkins/integration_test.sh`. The next section talks about that command in further detail.
+
+***08-24-2018:** The script linked to has been deleted. Here were the contents at the time of the deletion.*
+
+```bash
+#!/usr/bin/env bash
+
+# Unlock the keyring
+echo 'jenkins' | gnome-keyring-daemon --unlock
+
+# Run the tests
+npm run test:integration
+```
 
 At a high level, this command performs the following actions: 
 

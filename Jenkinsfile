@@ -410,20 +410,22 @@ pipeline {
                 JEST_JUNIT_TITLE="{title}"
                 JEST_HTML_REPORTER_OUTPUT_PATH = "${INTEGRATION_RESULTS}/index.html"
                 JEST_HTML_REPORTER_PAGE_TITLE = "${BRANCH_NAME} - Integration Test"
-                TEST_SCRIPT = "./jenkins/integration_tests.sh"
             }
             steps {
                 timeout(time: 30, unit: 'MINUTES') {
                     echo 'Integration Test'
 
                     /**************************************************************************
-                     * Welp, IDK even how to describe this witchcraft in a simple fashion so
-                     * just checkout the README in the jenkins folder for a more in depth
-                     * explanation for what is going on here.
+                     * This used to be much more complicated to explain but now all we have to
+                     * do is unlock the daemon and run integration tests. I think we have to
+                     * unlock the keyring because of some PAM security misconfiguration in the
+                     * base image. For now, I call this progress :)
                      *
-                     * THE README IS EXTREMELY DENSE WITH CONTENT. READ AT YOUR OWN RISK!
+                     * If you would like to read how it was before, just take a look at the
+                     * README file in the jenkins folder.
                      *************************************************************************/
-                    sh "chmod +x $TEST_SCRIPT && dbus-launch $TEST_SCRIPT"
+                    sh "echo 'jenkins' | gnome-keyring-daemon --unlock"
+                    sh "npm run test:integration"
 
                     junit JEST_JUNIT_OUTPUT
 
