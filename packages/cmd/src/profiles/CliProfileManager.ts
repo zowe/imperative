@@ -219,7 +219,8 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                         `associated with profile "${profile.name}" of type "${this.profileType}".`
                     );
 
-                    const additionalDetails: string = err.message + (err.additionalDetails ? `\n${err.additionalDetails}` : "");
+                    let additionalDetails: string = err.message + (err.additionalDetails ? `\n${err.additionalDetails}` : "");
+                    additionalDetails = this.addProfileInstruction(additionalDetails);
 
                     this.log.error(`Error: ${additionalDetails}`);
                     throw new ImperativeError({
@@ -267,7 +268,8 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                 this.log.error(`Unable to delete secure field "${propertyNamePath}" ` +
                     `associated with profile "${parms.name}" of type "${this.profileType}".`);
 
-                const additionalDetails: string = err.message + (err.additionalDetails ? `\n${err.additionalDetails}` : "");
+                let additionalDetails: string = err.message + (err.additionalDetails ? `\n${err.additionalDetails}` : "");
+                additionalDetails = this.addProfileInstruction(additionalDetails);
                 this.log.error(`Error: ${additionalDetails}`);
 
                 throw new ImperativeError({
@@ -302,6 +304,26 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             this.log.trace(`Skipping the validate for profile (as it's being built): "${parms.profile.name}"`);
             return {message: "Skipping validation until profile is built"};
         }
+    }
+
+    /**
+     * After the DefaultCredentialManager reports an error resolution of recreating
+     * a credential, add instruction to recreate the profile.
+     *
+     * @param {String} errDetails - The additional details of an error thrown
+     *      by DefaultCredentialManager.
+     *
+     * @returns {string} An error details string that contains an instruction to
+     *      recreate the profile (when appropriate).
+     */
+    private addProfileInstruction(errDetails: string): string {
+        const recreateCredText: string = "Recreate the credentials in the vault";
+        const recreateProfileText: string =
+            "  To recreate credentials, issue a 'profiles create' sub-command with the --ow flag.\n";
+        if ( errDetails.includes(recreateCredText) ) {
+            errDetails += recreateProfileText;
+        }
+        return errDetails;
     }
 
     /**
@@ -382,7 +404,8 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                 this.log.error(`Unable to store secure field "${propertyNamePath}" ` +
                     `associated with profile "${profile.name}" of type "${this.profileType}".`);
 
-                const additionalDetails: string = err.message + (err.additionalDetails ? `\n${err.additionalDetails}` : "");
+                let additionalDetails: string = err.message + (err.additionalDetails ? `\n${err.additionalDetails}` : "");
+                additionalDetails = this.addProfileInstruction(additionalDetails);
                 this.log.error(`Error: ${additionalDetails}`);
 
                 throw new ImperativeError({
