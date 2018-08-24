@@ -13,10 +13,10 @@ Review the following topics to get Imperative CLI Framework up and running quick
 ### Prerequisite Software
 Node.js® is a JavaScript runtime environment on which we architected Imperative CLI Framework. You use the Node.js package manager (npm) to install the framework. You install the framework after you install Node.js using the npm.
 
-To install Node.js, go to the [*Installing Node.js via package manager*](https://nodejs.org/en/download/package-manager) website at the following URL, and follow the instructions for installing Node.js on your computer's operating system:    
+To install Node.js, go to the [*Installing Node.js via package manager*](https://nodejs.org/en/download/package-manager) website at the following URL, and follow the instructions for installing Node.js on your computer's operating system:
 [https://nodejs.org/en/download/package-manager](https://nodejs.org/en/download/package-manager)
 
-In addition to Node.js, you must have a means to execute ".sh" (bash) scripts (required for running integration tests). On Windows, you can install "Git Bash" (bundled with the standard [Git](https://git-scm.com/downloads) installation - check "Use Git and Unix Tools from Windows Command Prompt" installation option).
+In addition to Node.js, you must have a means to execute ".sh" (bash) scripts (required for running integration tests). On Windows, you can install "Git Bash" (bundled with the standard [Git](https://git-scm.com/downloads) installation - check "Use Git and Unix Tools from Windows Command Prompt" installation option). When running the integration tests on Windows, you must have Administrative authority to enable the integration tests to create symbolic links.
 
 After downloading/installing the prerequisites ensure you can perform the following (and receive success responses):
 1. `node --version`
@@ -26,11 +26,9 @@ After downloading/installing the prerequisites ensure you can perform the follow
 **Note:** CA Technologies does not maintain the prerequisite software that Imperative CLI Framework requires. You are responsible for updating Node.js and other prerequisites on your computer. We recommend that you update Node.js regularly to the latest Long Term Support (LTS) version.
 
 ### Build and Install Imperative CLI Framework from Source
-Until we release a published version of the Imperative CLI Framework to an npm registry, you must build the framework from source.
-
 To build and install the Imperative CLI Framework, follow these steps:
 
-1. Install node-gyp. node-gyp is a tool that you use to build Node.js native addons. For more information, see the node-gyp installation instructions at https://github.com/nodejs/node-gyp.   
+1. Install node-gyp. node-gyp is a tool that you use to build Node.js native addons. For more information, see the node-gyp installation instructions at https://github.com/nodejs/node-gyp.
 **Note:** You can skip to the next step if you installed node-gyp previously.
 2. Clone the [Imperative CLI Framework project](**REMOVED**) to your PC.
 3. From the command line, issue `cd [relative path]/imperative`
@@ -55,14 +53,14 @@ Command | Description
 1. `gulp build:install-all-cli-dependencies`
 2. `gulp build:all-clis`
 3. `gulp test:installSampleClis`
- 
- **Note:** For more information about the tasks (details and descriptions), issue the following gulp command:    
+
+ **Note:** For more information about the tasks (details and descriptions), issue the following gulp command:
  `gulp --tasks`
 
 ### Sample Applications
 Imperative CLI Framework contains the following sample applications:
 * **Sample CLI:** We provide a sample CLI application that you can use to get started developing your own command line interface applications. The sample contains examples of how to code your applications to implement custom user profiles, commands, logging, and more. Refer to the code examples in the sample to understand how to implement each Imperative CLI Framework feature. For more information, see the [README.md](**REMOVED**) file in the [imperative-sample repository](**REMOVED**).
-* **Sample Plugins:** Imperative CLI Framework lets you extend the functionalities of your applications by implementing plug-ins. We provide a sample plug-in that you can use to get started developing your own plug-ins. For more information, see the [README.md](**REMOVED**) file in the [imperative-plugins repository](**REMOVED**). 
+* **Sample Plugins:** Imperative CLI Framework lets you extend the functionalities of your applications by implementing plug-ins. We provide a sample plug-in that you can use to get started developing your own plug-ins. For more information, see the [README.md](**REMOVED**) file in the [imperative-plugins repository](**REMOVED**).
 
 ## Imperative CLI Framework Documentation
 With Imperative CLI Framework, we provide you with content that describes how to define commands, Imperative CLI Framework core features and functionality, working with user profiles, plug-ins and more! For more information, see the [Imperative CLI Framework wiki](**REMOVED**).
