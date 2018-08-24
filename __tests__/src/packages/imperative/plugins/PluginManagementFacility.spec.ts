@@ -9,6 +9,7 @@
 */
 
 import { IImperativeConfig } from "../../../../../packages/imperative";
+import {IO} from "../../../../../packages/io";
 import * as T from "../../../../src/TestUtil";
 import {join} from "path";
 
@@ -33,17 +34,40 @@ export const cliBin: string = join(__dirname, "test_cli", "TestCLI.ts");
  */
 export const pluginGroup: string = "plugins";
 
+const testCliNodeModulePath = join(__dirname, "test_cli", "node_modules");
+const impLibDir = join(__dirname, "../../../../../lib");
+
 describe("Plugin Management Facility", () => {
-  const home = config.defaultHome;
+    const home = config.defaultHome;
 
-  beforeEach(() => {
-    T.rimraf(home);
-  });
+    beforeAll(() => {
+        /**
+         * Plugin installation creates an imperative link from the plugin
+         * to the installing CLI. Our TestCLI does not have a real imperative
+         * node_module - it is only a test CLI. Also, this entire test environment
+         * lives under the imperative source tree. So, we create a symbolic link
+         * from the TestCLI back up to our own imperative source tree's lib directory.
+         * All of the modules then find things where they expect to see them.
+         */
+        const namespaceDirPath = join(testCliNodeModulePath, "@brightside");
+        IO.mkdirp(namespaceDirPath);
+        const testCliImpSymLink = join(namespaceDirPath, "imperative");
+        IO.createSymlinkToDir(testCliImpSymLink, impLibDir);
+    });
 
-  require("./suites/InstallingPlugins");
-  require("./suites/ValidatePlugin");
-  require("./suites/UsingPlugins");
-  require("./suites/UninstallPlugins");
-  require("./suites/ListPlugins");
-  require("./suites/UpdatePlugins");
+    beforeEach(() => {
+        T.rimraf(home);
+    });
+
+    afterAll(() => {
+        // remove the subdirectories and symbolic link that we created
+        IO.deleteDirTree(testCliNodeModulePath);
+    });
+
+    require("./suites/InstallingPlugins");
+    require("./suites/ValidatePlugin");
+    require("./suites/UsingPlugins");
+    require("./suites/UninstallPlugins");
+    require("./suites/ListPlugins");
+    require("./suites/UpdatePlugins");
 });
