@@ -219,10 +219,10 @@ export class PluginManagementFacility {
                 // log the issue list for this plugin
                 const issueListForPlugin = this.pluginIssues.getIssueListForPlugin(pluginName);
                 if (issueListForPlugin.length > 0) {
-                    this.impLogger.debug("addPluginsToHostCli: Issues for plugin = '" + pluginName + "':\n" +
+                    this.impLogger.info("addPluginsToHostCli: Issues for plugin = '" + pluginName + "':\n" +
                         JSON.stringify(issueListForPlugin, null, 2));
                 } else {
-                    this.impLogger.debug("addPluginsToHostCli: Plugin = '" + pluginName +
+                    this.impLogger.info("addPluginsToHostCli: Plugin = '" + pluginName +
                         "' was successfully validated with no issues.");
                 }
             }
@@ -313,9 +313,11 @@ export class PluginManagementFacility {
         }
 
         // add the new plugin group into the imperative command tree
-        this.impLogger.debug("addPlugin: Adding plug-in commands to Imperative for plugin = '" +
-            pluginName + "' with this plugin command group:\n" +
-            JSON.stringify(pluginCmdGroup, null, 2)
+        this.impLogger.info("addPlugin: Adding commands for plug-in '" +
+            pluginName + "' to CLI command tree. Plugin command details at trace level of logging."
+        );
+        this.impLogger.trace("addPlugin: Commands for plugin = '" +
+            pluginName + "':\n" + JSON.stringify(pluginCmdGroup, null, 2)
         );
         if (!this.addCmdGrpToResolvedCliCmdTree(pluginName, pluginCmdGroup)) {
             return;
@@ -825,9 +827,13 @@ export class PluginManagementFacility {
             return false;
         }
 
-        this.impLogger.debug("validatePlugin: Validating plugin = '" +
-            pluginName + "' with config:\n" +
-            JSON.stringify(pluginConfig, null, 2));
+        this.impLogger.info("validatePlugin: Validating plugin '" +
+            pluginName + "'. Plugin config details at trace level of logging."
+        );
+        this.impLogger.trace("validatePlugin: Config for plugin '" +
+            pluginName + "':\n" +
+            JSON.stringify(pluginConfig, null, 2)
+        );
 
         // is there an imperative.name property?
         if (!pluginConfig.hasOwnProperty("name")) {

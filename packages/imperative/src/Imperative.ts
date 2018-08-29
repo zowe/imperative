@@ -145,12 +145,16 @@ export class Imperative {
                 this.mHelpGeneratorFactory = new ImperativeHelpGeneratorFactory(this.rootCommandName, ImperativeConfig.instance.loadedConfig);
 
                 // resolve command module globs, forming the root of the CLI command tree
-                this.log.debug("The following config was found: " + JSON.stringify(config, null, 2));
+                this.log.info(`Loaded and validated config for '${config.name}'. Config details at trace level of logging.`);
+                this.log.trace(`The config object for '${config.name}' is:\n` +
+                    JSON.stringify(config, null, 2)
+                );
                 const resolvedHostCliCmdTree: ICommandDefinition = ImperativeConfig.instance.resolvedCmdTree;
 
                 // If plugins are allowed, add plugins' commands and profiles to the CLI command tree
                 if (config.allowPlugins) {
                   PluginManagementFacility.instance.addPluginsToHostCli(resolvedHostCliCmdTree);
+                  this.log.info("Plugins added to the CLI command tree.");
                 }
 
                 // final preparation of the command tree
@@ -164,6 +168,12 @@ export class Imperative {
                 /**
                  * Define all known commands
                  */
+                this.log.info("Inherited traits applied to CLI command tree children. " +
+                    "Cmd tree details at trace level of logging."
+                );
+                this.log.trace("The CLI command tree before being defined to yargs: " +
+                    JSON.stringify(preparedHostCliCmdTree, null, 2)
+                );
                 this.defineCommands(preparedHostCliCmdTree);
 
                 /**
@@ -367,7 +377,6 @@ export class Imperative {
      *        which has already prepared by ImperativeConfig.getPreparedCmdTree.
      */
     private static defineCommands(preparedHostCliCmdTree: ICommandDefinition) {
-        this.log.debug("The following command tree was defined: " + JSON.stringify(preparedHostCliCmdTree, null, 2));
         const commandResponseParms: ICommandResponseParms = {
             primaryTextColor: ImperativeConfig.instance.loadedConfig.primaryTextColor,
             progressBarSpinner: ImperativeConfig.instance.loadedConfig.progressBarSpinner
