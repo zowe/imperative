@@ -527,11 +527,11 @@ export class CommandProcessor {
 
     /**
      * Respond to an error encountered when invoking a command handler
-     * @param {Error} handlerErr - the error that was encountered
+     * @param {Error | string} handlerErr - the error that was encountered
      * @param {CommandResponse} response - a response object to print error messages to
      * @param {string}  handlerPath - path to the handler with which an error was encountered
      */
-    private handleHandlerError(handlerErr: Error, response: CommandResponse, handlerPath: string): void {
+    private handleHandlerError(handlerErr: Error | string, response: CommandResponse, handlerPath: string): void {
         // Mark the command as failed
         this.log.error(`Handler for command "${this.definition.name}" failed.`);
         response.failed();
