@@ -78,7 +78,9 @@ describe("Imperative", () => {
         configurable: true,
         get: jest.fn(() => {
           return {
-            debug: jest.fn()
+            debug: jest.fn(),
+            info: jest.fn(),
+            trace: jest.fn()
           };
         })
       });
@@ -109,7 +111,9 @@ describe("Imperative", () => {
         configurable: true,
         get: jest.fn(() => {
           return {
-            debug: jest.fn()
+            debug: jest.fn(),
+            info: jest.fn(),
+            trace: jest.fn()
           };
         })
       });
