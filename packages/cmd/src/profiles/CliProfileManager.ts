@@ -104,10 +104,8 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             }
             this.log.trace(`All loads complete.`);
         } catch (e) {
-            const msg: string = `An error occurred attempting to load all profiles of every type. ` +
-                `Load List: ${loadList}\nError Details: "${e.message}"`;
-            this.log.error(msg);
-            throw new ImperativeError({msg});
+            this.log.error(e.message);
+            throw new ImperativeError({msg: e.message, additionalDetails: e.additionalDetails, causeErrors: e});
         }
 
         return allProfiles;
@@ -207,20 +205,29 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             const securelyLoadValue: SecureOperationFunction = async (propertyNamePath: string): Promise<any> => {
                 let ret;
                 try {
-                    this.log.debug(`Loading secured field with key ${propertyNamePath} for profile` +
-                        ` ("${profile.name}" of type "${this.profileType}").`);
+                    this.log.debug(
+                        `Loading secured field with key ${propertyNamePath} for profile` +
+                        ` ("${profile.name}" of type "${this.profileType}").`
+                    );
                     // Use the Credential Manager to store the credentials
                     ret = await CredentialManagerFactory.manager.load(
                         ProfileUtils.getProfilePropertyKey(this.profileType, profile.name, propertyNamePath)
                     );
                 } catch (err) {
-                    this.log.error(`Unable to load secure field "${propertyNamePath}" "+
-          "associated with profile "${profile.name}" of type "${this.profileType}".`);
-                    this.log.error(`Error: ${err.message}`);
+                    this.log.error(
+                        `Unable to load secure field "${propertyNamePath}" ` +
+                        `associated with profile "${profile.name}" of type "${this.profileType}".`
+                    );
+
+                    let additionalDetails: string = err.message + (err.additionalDetails ? `\n${err.additionalDetails}` : "");
+                    additionalDetails = this.addProfileInstruction(additionalDetails);
+
+                    this.log.error(`Error: ${additionalDetails}`);
                     throw new ImperativeError({
                         msg: `Unable to load the secure field "${propertyNamePath}" associated with ` +
-                        `the profile "${profile.name}" of type "${this.profileType}".`,
-                        additionalDetails: err.message
+                            `the profile "${profile.name}" of type "${this.profileType}".`,
+                        additionalDetails,
+                        causeErrors: err
                     });
                 }
 
@@ -260,11 +267,16 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             } catch (err) {
                 this.log.error(`Unable to delete secure field "${propertyNamePath}" ` +
                     `associated with profile "${parms.name}" of type "${this.profileType}".`);
-                this.log.error(`Error: ${err.message}`);
+
+                let additionalDetails: string = err.message + (err.additionalDetails ? `\n${err.additionalDetails}` : "");
+                additionalDetails = this.addProfileInstruction(additionalDetails);
+                this.log.error(`Error: ${additionalDetails}`);
+
                 throw new ImperativeError({
                     msg: `Unable to delete the secure field "${propertyNamePath}" associated with ` +
-                    `the profile "${parms.name}" of type "${this.profileType}".`,
-                    additionalDetails: err.message
+                        `the profile "${parms.name}" of type "${this.profileType}".`,
+                    additionalDetails,
+                    causeErrors: err
                 });
             }
         };
@@ -292,6 +304,26 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             this.log.trace(`Skipping the validate for profile (as it's being built): "${parms.profile.name}"`);
             return {message: "Skipping validation until profile is built"};
         }
+    }
+
+    /**
+     * After the DefaultCredentialManager reports an error resolution of recreating
+     * a credential, add instruction to recreate the profile.
+     *
+     * @param {String} errDetails - The additional details of an error thrown
+     *      by DefaultCredentialManager.
+     *
+     * @returns {string} An error details string that contains an instruction to
+     *      recreate the profile (when appropriate).
+     */
+    private addProfileInstruction(errDetails: string): string {
+        const recreateCredText: string = "Recreate the credentials in the vault";
+        const recreateProfileText: string =
+            "  To recreate credentials, issue a 'profiles create' sub-command with the --ow flag.\n";
+        if ( errDetails.includes(recreateCredText) ) {
+            errDetails += recreateProfileText;
+        }
+        return errDetails;
     }
 
     /**
@@ -371,11 +403,16 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             } catch (err) {
                 this.log.error(`Unable to store secure field "${propertyNamePath}" ` +
                     `associated with profile "${profile.name}" of type "${this.profileType}".`);
-                this.log.error(`Error: ${err.message}`);
+
+                let additionalDetails: string = err.message + (err.additionalDetails ? `\n${err.additionalDetails}` : "");
+                additionalDetails = this.addProfileInstruction(additionalDetails);
+                this.log.error(`Error: ${additionalDetails}`);
+
                 throw new ImperativeError({
                     msg: `Unable to store the secure field "${propertyNamePath}" associated with ` +
-                    `the profile "${profile.name}" of type "${this.profileType}".`,
-                    additionalDetails: err.message
+                        `the profile "${profile.name}" of type "${this.profileType}".`,
+                    additionalDetails,
+                    causeErrors: err
                 });
             }
             return ProfilesConstants.PROFILES_OPTION_SECURELY_STORED;
@@ -411,7 +448,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
         } catch (saveErr) {
             throw new ImperativeError({
                 msg: `An error occurred while saving the modified profile ` +
-                `("${parms.name}" of type "${this.profileType}"): ${saveErr.message}`
+                    `("${parms.name}" of type "${this.profileType}"): ${saveErr.message}`
             });
         }
 
