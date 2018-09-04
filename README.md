@@ -54,8 +54,8 @@ To build only imperative source:
 Command | Description
 --- | ---
 `npm run test` | Run all tests (unit & integration)
-`gulp test:integration` | Run integration tests
-`gulp test:unit` | Run unit tests
+`npm test:integration` | Run integration tests
+`npm test:unit` | Run unit tests
 
 **Note:** To run the integration tests via gulp, install all dependencies for test clis, build all test clis, & install all sample clis globally using the following sequence:
 1. `gulp build:install-all-cli-dependencies`
