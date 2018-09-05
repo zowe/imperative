@@ -1,11 +1,19 @@
 # Imperative CLI Framework
 
-This Readme file contains the information that application developers and systems programmers need to build and install Imperative CLI Framework, develop applications using Imperative CLI Framework, and contribute code to Imperative CLI Framework.
+This Readme file contains the information that CLI developers need to build and install Imperative CLI Framework, develop applications using Imperative CLI Framework, and contribute code to Imperative CLI Framework.
 
 ## About Imperative CLI Framework
-Imperative CLI Framework is a command processing system that enables application developers and systems programmers to quickly build customized command line tools by allowing them to focus on adding features rather than creating infrastructure.
+Imperative CLI Framework is a command processing system that enables developers to quickly build customized command line interfaces by allowing them to focus on adding features rather than creating infrastructure.
 
-Within the imperative repository, we provide you with all the tools that you need to get started with building your own applications and plug-ins.
+Within the imperative repository, we provide you with all the tools that you need to get started with building your own CLIs and plug-ins.
+
+## Install Imperative as a Dependency
+
+Issue the following commands to install Imperative CLI Framework as a dependency:
+``` bash
+npm config set @brightside:registry https://api.bintray.com/npm/ca/brightside
+npm install --save @brightside/imperative
+```
 
 ## Get Started
 Review the following topics to get Imperative CLI Framework up and running quickly.
@@ -46,8 +54,8 @@ To build only imperative source:
 Command | Description
 --- | ---
 `npm run test` | Run all tests (unit & integration)
-`gulp test:integration` | Run integration tests
-`gulp test:unit` | Run unit tests
+`npm test:integration` | Run integration tests
+`npm test:unit` | Run unit tests
 
 **Note:** To run the integration tests via gulp, install all dependencies for test clis, build all test clis, & install all sample clis globally using the following sequence:
 1. `gulp build:install-all-cli-dependencies`
