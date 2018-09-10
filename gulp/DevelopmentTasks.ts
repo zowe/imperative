@@ -38,7 +38,7 @@ function loadDependencies() {
 // use the local versions of tslint and tsc so people don't have to globally install
 const tslintExecutable = "node_modules/tslint/bin/tslint";
 const tscExecutable = "node_modules/typescript/bin/tsc";
-const npmExecutable = "npm" + (require("os").platform() === "win32" ? ".bat" : "");
+const npmExecutable = "npm" + (require("os").platform() === "win32" ? ".cmd" : "");
 const madgeExecutable = "node_modules/madge/bin/cli.js";
 
 function isLowerCase(str: string) {

@@ -65,7 +65,6 @@
     "@types/jsonfile": "4.0.1",
     "@types/keytar": "4.0.1",
     "@types/lodash": "4.14.106",
-    "@types/log4js": "0.0.33",
     "@types/mustache": "0.8.29",
     "@types/node": "8.0.28",
     "@types/progress": "2.0.0",
