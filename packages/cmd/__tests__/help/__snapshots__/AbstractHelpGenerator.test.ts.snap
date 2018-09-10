@@ -76,7 +76,6 @@ InheritedHelpGenerator {
     "mJsLogger": Logger {
       "category": "imperative",
       "context": Object {},
-      "dispatch": [Function],
     },
   },
   "mPrimaryHighlightColor": "blue",
@@ -130,7 +129,6 @@ InheritedHelpGenerator {
     "mJsLogger": Logger {
       "category": "imperative",
       "context": Object {},
-      "dispatch": [Function],
     },
   },
   "mPrimaryHighlightColor": "blue",
