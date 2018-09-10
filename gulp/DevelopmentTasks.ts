@@ -38,7 +38,7 @@ function loadDependencies() {
 // use the local versions of tslint and tsc so people don't have to globally install
 const tslintExecutable = "node_modules/tslint/bin/tslint";
 const tscExecutable = "node_modules/typescript/bin/tsc";
-const nspExecutable = "node_modules/nsp/bin/nsp";
+const npmExecutable = "npm" + (require("os").platform() === "win32" ? ".bat" : "");
 const madgeExecutable = "node_modules/madge/bin/cli.js";
 
 function isLowerCase(str: string) {
@@ -50,7 +50,7 @@ const lint: ITaskFunction = (done) => {
     let lintProcess: SpawnSyncReturns<string>;
     try {
         lintProcess = childProcess.spawnSync("node", [tslintExecutable,
-            "--format", "verbose", "packages/**/*.ts"], { stdio: "inherit" });
+            "--format", "verbose", "packages/**/*.ts"], {stdio: "inherit"});
 
     } catch (e) {
         gutil.log(gutil.colors.red("Error encountered trying to run tslint"));
@@ -112,12 +112,12 @@ const license: ITaskFunction = (done: (err: Error) => void) => {
         const desiredLineLength = 80;
         let alreadyContainedCopyright = 0;
         const header = "/*\n" + fs.readFileSync("LICENSE_HEADER").toString()
-            .split(/\r?\n/g).map((line: string) => {
-                const lenAdjust = desiredLineLength - line.length;
-                const pad = Array((lenAdjust < 0) ? 0 : lenAdjust).join(" ");
-                return "* " + line + pad + " *";
-            })
-            .join(require("os").EOL) + require("os").EOL + "*/" +
+                .split(/\r?\n/g).map((line: string) => {
+                    const lenAdjust = desiredLineLength - line.length;
+                    const pad = Array((lenAdjust < 0) ? 0 : lenAdjust).join(" ");
+                    return "* " + line + pad + " *";
+                })
+                .join(require("os").EOL) + require("os").EOL + "*/" +
             require("os").EOL + require("os").EOL;
         try {
             for (const filePath of filePaths) {
@@ -153,7 +153,7 @@ const license: ITaskFunction = (done: (err: Error) => void) => {
 const watch: ITaskFunction = (done) => {
     loadDependencies();
     gulp.watch("packages/**", ["lint"]);
-    const watchProcess = childProcess.spawn("node", [tscExecutable, "--watch"], { stdio: "inherit" });
+    const watchProcess = childProcess.spawn("node", [tscExecutable, "--watch"], {stdio: "inherit"});
     watchProcess.on("error", (error: Error) => {
         gutil.log(error);
         throw error;
@@ -195,16 +195,16 @@ const build: ITaskFunction = (done) => {
                         done(lintWarning);
                         return;
                     }
-                    const nsp = childProcess.spawnSync("node", [nspExecutable, "check"]);
-                    gutil.log(nsp.output.join(""));
-                    if (nsp.status !== 0) {
-                        const nspError: IGulpError = new Error("NSP check failed!" +
+                    const audit = childProcess.spawnSync(npmExecutable, ["audit"]);
+                    gutil.log(audit.output.join(""));
+                    if (audit.status !== 0) {
+                        const auditError: IGulpError = new Error("npm audit failed!" +
                             " There may be security vulnerabilities in the dependencies.");
-                        nspError.showStack = false;
-                        done(nspError);
+                        auditError.showStack = false;
+                        done(auditError);
                         return;
                     }
-                    gutil.log(gutil.colors.blue("NSP check passed"));
+                    gutil.log(gutil.colors.blue("NPM audit passed"));
                     checkCircularDependencies((madgeError?: Error) => {
                         if (madgeError) {
                             done(madgeError);
@@ -226,7 +226,7 @@ const installAllCliDependencies: ITaskFunction = async () => {
         // Perform an NPM install
         gutil.log(`Executing "npm install" for "${dir}" cli to obtain dependencies...`);
         const installResponse = spawnSync((process.platform === "win32") ? "npm.cmd" : "npm", ["install"],
-            { cwd: __dirname + `/../__tests__/__integration__/${dir}/` });
+            {cwd: __dirname + `/../__tests__/__integration__/${dir}/`});
         if (installResponse.stdout && installResponse.stdout.toString().length > 0) {
             gutil.log(`***INSTALL "${dir}" stdout:\n${installResponse.stdout.toString()}`);
         }
@@ -248,7 +248,7 @@ const buildAllClis: ITaskFunction = async () => {
         // Build them all
         gutil.log(`Build "${dir}" cli...`);
         const buildResponse = spawnSync((process.platform === "win32") ? "npm.cmd" : "npm", ["run", "build"],
-            { cwd: __dirname + `/../__tests__/__integration__/${dir}/` });
+            {cwd: __dirname + `/../__tests__/__integration__/${dir}/`});
         if (buildResponse.stdout && buildResponse.stdout.toString().length > 0) {
             gutil.log(`***BUILD "${dir}" stdout:\n${buildResponse.stdout.toString()}`);
         }
