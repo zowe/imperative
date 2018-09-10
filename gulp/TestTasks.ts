@@ -296,6 +296,7 @@ const uninstallSampleClis: ITaskFunction = (done: any) => {
         }
         gutil.log(`Global uninstall for "${dir}" cli completed successfully.`);
     });
+    done();
 };
 
 function getDirectories(path: string) {
