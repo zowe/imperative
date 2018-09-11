@@ -250,6 +250,7 @@ const runTestsWithPattern: ITaskFunction = (done: any) => {
 const removeTestResultsDir: ITaskFunction = (done: any) => {
     const rimraf = require("rimraf").sync;
     rimraf(testResultsDir);
+    done();
 };
 
 const installSampleClis: ITaskFunction = (done: any) => {
