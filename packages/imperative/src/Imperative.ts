@@ -312,21 +312,21 @@ export class Imperative {
      * TODO(Kelosky): handle level setting via global config (trace enabling and such)
      */
     private static initLogging() {
-
+        /**
+         * Save reference to our instance
+         */
+        this.mLog = Logger.getImperativeLogger();
+        // this.mLog = Logger.getConsoleLogger();
         /**
          * Build logging config from imperative config
          */
         const loggingConfig = LoggingConfigurer.configureLogger(ImperativeConfig.instance.cliHome, ImperativeConfig.instance.loadedConfig);
 
+        this.mLog.debug("test log4js");
         /**
          * Setup log4js
          */
         Logger.initLogger(loggingConfig);
-
-        /**
-         * Save reference to our instance
-         */
-        this.mLog = Logger.getImperativeLogger();
 
         /**
          * Set log levels from environmental variable settings
