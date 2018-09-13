@@ -26,6 +26,7 @@ import { TextUtils } from "../../utilities";
 import { ImperativeReject } from "../../interfaces";
 import { LoggingConfigurer } from "./LoggingConfigurer";
 import { ImperativeError } from "../../error";
+import { IPluginCfgProps } from "./plugins/doc/IPluginCfgProps";
 import { PluginManagementFacility } from "./plugins/PluginManagementFacility";
 import {
     CliProfileManager,
@@ -98,21 +99,10 @@ export class Imperative {
                 ConfigurationValidator.validate(config);
                 ImperativeConfig.instance.loadedConfig = config;
 
-                /**
-                 * Once we have a complete representation of the config object, we should be able to
-                 * use that and populate all required categories and expose them on our API object
-                 * so that an app using imperative can write to the imperative log, its own log, or
-                 * even a plug-in log.
-                 *
-                 * Any other initialization added to this routine should occur after logging has been initialized.
+                /* TODO: Create some logger placeholder that just caches messages
+                 * until we can initialize logging. This allows us to call methods that
+                 * use logging just like any method (but before logging is initialized).
                  */
-                this.initLogging();
-
-                /**
-                 * Now we should apply any overrides to default Imperative functionality. This is where CLI
-                 * developers are able to really start customizing Imperative and how it operates internally.
-                 */
-                await OverridesLoader.load(ImperativeConfig.instance.loadedConfig);
 
                 /**
                  * Get the command name from the package bin.
@@ -130,9 +120,29 @@ export class Imperative {
                 }
 
                 // If plugins are allowed, enable core plugins commands
+                let allPluginCfgProps: IPluginCfgProps[] = [];
                 if (config.allowPlugins) {
                     PluginManagementFacility.instance.init();
+
+                    // load the configuration of every installed plugin for later processing
+                    allPluginCfgProps = PluginManagementFacility.instance.loadAllPluginCfgProps();
                 }
+
+                /**
+                 * Once we have a complete representation of the config object, we should be able to
+                 * use that and populate all required categories and expose them on our API object
+                 * so that an app using imperative can write to the imperative log, its own log, or
+                 * even a plug-in log.
+                 *
+                 * Any other initialization added to this routine should occur after logging has been initialized.
+                 */
+                this.initLogging();
+
+                /**
+                 * Now we should apply any overrides to default Imperative functionality. This is where CLI
+                 * developers are able to really start customizing Imperative and how it operates internally.
+                 */
+                await OverridesLoader.load(ImperativeConfig.instance.loadedConfig);
 
                 /**
                  * Build API object
@@ -153,8 +163,8 @@ export class Imperative {
 
                 // If plugins are allowed, add plugins' commands and profiles to the CLI command tree
                 if (config.allowPlugins) {
-                  PluginManagementFacility.instance.addPluginsToHostCli(resolvedHostCliCmdTree);
-                  this.log.info("Plugins added to the CLI command tree.");
+                    PluginManagementFacility.instance.addAllPluginsToHostCli(allPluginCfgProps, resolvedHostCliCmdTree);
+                    this.log.info("Plugins added to the CLI command tree.");
                 }
 
                 // final preparation of the command tree
