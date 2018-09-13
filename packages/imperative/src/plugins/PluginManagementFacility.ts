@@ -18,6 +18,8 @@ import { existsSync, mkdirSync } from "fs";
 import { PMFConstants } from "./utilities/PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { IPluginIssues } from "./doc/IPluginIssues";
+import { IPluginCfgProps } from "./doc/IPluginCfgProps";
+import { IPluginJson } from "./doc/IPluginJson";
 import { ICommandDefinition, ICommandProfileTypeConfiguration } from "../../../cmd";
 import { IssueSeverity, PluginIssues } from "./utilities/PluginIssues";
 import { ConfigurationValidator } from "../ConfigurationValidator";
@@ -53,6 +55,11 @@ export class PluginManagementFacility {
 
         return this.mInstance;
     }
+
+    /**
+     * Used as a short-name access to PMF constants.
+     */
+    private pmfConst: PMFConstants = PMFConstants.instance;
 
     /**
      * The CLI command tree with module globs already resolved.
@@ -95,31 +102,7 @@ export class PluginManagementFacility {
      * @private
      * @type {string}
      */
-    private mCurrPluginName: string = null;
-
-    /**
-     * Get the name of the plugin currently being processed.
-     * @returns {string} - plugin name
-     */
-    public get currPluginName(): string {
-        return this.mCurrPluginName;
-    }
-
-    /**
-     * Get the name of the plugin currently being processed.
-     * @returns {string} - plugin name
-     */
-    public set currPluginName(pluginName: string) {
-        this.mCurrPluginName = pluginName;
-    }
-
-    /**
-     * The NPM package name from the current plugin's package.json 'name' property.
-     *
-     * @private
-     * @type {string}
-     */
-    private npmPkgName: string = null;
+    private currPluginName: string = null;
 
     /**
      * A set of bright dependencies used by plugins. Each item in the
@@ -129,18 +112,7 @@ export class PluginManagementFacility {
      * @type {Object}
      */
     private readonly npmPkgNmProp = "name";
-    private readonly brightCorePkgName = "@brightside/core";
-    private readonly noPeerDependency = "NoPeerDepSupplied";
-    private pluginBrightDeps = {
-        cliCoreDep: {
-            pluginPropName: this.brightCorePkgName,
-            pluginVer: this.noPeerDependency
-        },
-        imperativeDep: {
-            pluginPropName: "@brightside/imperative",
-            pluginVer: this.noPeerDependency
-        }
-    };
+    private readonly noPeerDependency = "-1";
 
     /**
      * The semantic versioning module (which does not have the
@@ -164,18 +136,6 @@ export class PluginManagementFacility {
      */
     public init(): void {
         this.impLogger.debug("PluginManagementFacility.init() - Start");
-        const pmf: PMFConstants = PMFConstants.instance;
-
-        // Initialize the plugin.json file if needed
-        if (!existsSync(pmf.PLUGIN_JSON)) {
-            if (!existsSync(pmf.PMF_ROOT)) {
-                this.impLogger.debug("Creating PMF_ROOT directory");
-                mkdirSync(pmf.PMF_ROOT);
-            }
-
-            this.impLogger.debug("Creating PLUGIN_JSON file");
-            writeFileSync(pmf.PLUGIN_JSON, {});
-        }
 
         // Add the plugin group and related commands.
         ImperativeConfig.instance.addCmdGrpToLoadedConfig({
@@ -202,31 +162,75 @@ export class PluginManagementFacility {
     /**
      * Add all installed plugins' commands and profiles into the host CLI's command tree.
      *
-     * @param {ICommandDefinition} resolvedCliCmdTree - The CLI command tree with
+     * @param allPluginCfgProps - An array containing the configurations of
+     *        all installed plugins.
+     *
+     * @param resolvedCliCmdTree - The CLI command tree with
      *        module globs already resolved.
      */
-    public addPluginsToHostCli(resolvedCliCmdTree: ICommandDefinition): void {
+    public addAllPluginsToHostCli(
+        allPluginCfgProps: IPluginCfgProps[],
+        resolvedCliCmdTree: ICommandDefinition
+    ): void {
         // Store the host CLI command tree. Later functions will use it.
         this.resolvedCliCmdTree = resolvedCliCmdTree;
 
-        // loop through each plugin installed in our plugins file
-        const installedPlugins = this.pluginIssues.getInstalledPlugins();
-        for (const pluginName in installedPlugins) {
-            if (installedPlugins.hasOwnProperty(pluginName)) {
-                this.mCurrPluginName = pluginName;
-                this.addPlugin(pluginName);
+        // Loop through each plugin and add it to the CLI command tree
+        for (const nextPluginCfgProps of allPluginCfgProps) {
+            this.addPluginToHostCli(nextPluginCfgProps);
 
-                // log the issue list for this plugin
-                const issueListForPlugin = this.pluginIssues.getIssueListForPlugin(pluginName);
-                if (issueListForPlugin.length > 0) {
-                    this.impLogger.info("addPluginsToHostCli: Issues for plugin = '" + pluginName + "':\n" +
-                        JSON.stringify(issueListForPlugin, null, 2));
-                } else {
-                    this.impLogger.info("addPluginsToHostCli: Plugin = '" + pluginName +
-                        "' was successfully validated with no issues.");
-                }
+            // log the issue list for this plugin
+            const issueListForPlugin = this.pluginIssues.getIssueListForPlugin(nextPluginCfgProps.pluginName);
+            if (issueListForPlugin.length > 0) {
+                this.impLogger.warn("addAllPluginsToHostCli: Issues for plugin = '" +
+                    nextPluginCfgProps.pluginName + "':\n" +
+                    JSON.stringify(issueListForPlugin, null, 2));
+            } else {
+                this.impLogger.info("addAllPluginsToHostCli: Plugin = '" +
+                    nextPluginCfgProps.pluginName +
+                    "' was successfully validated with no issues."
+                );
             }
         }
+    }
+
+    // __________________________________________________________________________
+    /**
+     * Loads the configuration properties of each plugin. The configuration
+     * information is used when overriding a piece of the imperative
+     * infrastructure with a plugin's capability, when validating each plugin,
+     * and when adding each plugin's commands to the CLI command tree.
+     *
+     * @returns {IPluginCfgProps} - An array containing configuration properties
+     *    for each plugin. Errors are recorded in PluginIssues.
+     */
+    public loadAllPluginCfgProps(): IPluginCfgProps[] {
+        // Initialize the plugin.json file if needed
+        if (!existsSync(this.pmfConst.PLUGIN_JSON)) {
+            if (!existsSync(this.pmfConst.PMF_ROOT)) {
+                this.impLogger.debug("Creating PMF_ROOT directory");
+                mkdirSync(this.pmfConst.PMF_ROOT);
+            }
+
+            this.impLogger.debug("Creating PLUGIN_JSON file");
+            writeFileSync(this.pmfConst.PLUGIN_JSON, {});
+        }
+
+        // iterate through all of our installed plugins
+        const allPluginCfgProps: IPluginCfgProps[] = [];
+        for (const nextPluginNm of Object.keys(this.pluginIssues.getInstalledPlugins())) {
+            const nextPluginCfgProps = this.loadPluginCfgProps(nextPluginNm);
+            if ( nextPluginCfgProps) {
+                allPluginCfgProps.push(nextPluginCfgProps);
+            } else {
+                this.impLogger.error(
+                    "loadAllPluginCfgProps: Unable to load the configuration for the plug-in named '" +
+                    nextPluginNm + "' The plug-in was not added to the host CLI."
+                );
+            }
+        }
+
+        return allPluginCfgProps;
     }
 
     // __________________________________________________________________________
@@ -240,14 +244,13 @@ export class PluginManagementFacility {
      * @returns {any} - The content exported from the specified module.
      */
     public requirePluginModule(relativePath: string): any {
-        const pluginName: string = this.currPluginName;
-        const pluginModuleRuntimePath = this.formPluginRuntimePath(pluginName, relativePath);
+        const pluginModuleRuntimePath = this.formPluginRuntimePath(this.currPluginName, relativePath);
         try {
             return require(pluginModuleRuntimePath);
         } catch (requireError) {
-            PluginIssues.instance.recordIssue(pluginName, IssueSeverity.ERROR,
+            PluginIssues.instance.recordIssue(this.currPluginName, IssueSeverity.ERROR,
                 "Unable to load the following module for plug-in '" +
-                pluginName + "' :\n" + pluginModuleRuntimePath + "\n" +
+                this.currPluginName + "' :\n" + pluginModuleRuntimePath + "\n" +
                 "Reason = " + requireError.message
             );
             return "{}";
@@ -256,88 +259,78 @@ export class PluginManagementFacility {
 
     // __________________________________________________________________________
     /**
-     * Add the specified plugin to the imperative configuration.
+     * Add the specified plugin to the imperative command tree.
      *
-     * @param {string} pluginName - the name of the plugin to initialize
+     * @param {IPluginCfgProps} pluginCfgProps - The configuration properties for this plugin
      */
-    private addPlugin(pluginName: string): void {
-        // read plugin's config from its package.json
-        const pluginConfig = this.readPluginConfig(pluginName);
-        if (pluginConfig == null) {
-            this.impLogger.error(
-                "addPlugin: Unable to read the configuration for the plug-in named '" +
-                pluginName + "' The plug-in was not added to the available commands."
-            );
-            return;
-        }
-
+    private addPluginToHostCli(pluginCfgProps: IPluginCfgProps): void {
         /* Form a top-level command group for this plugin.
          * Resolve all means of command definition into the pluginCmdGroup.children
          */
         let pluginCmdGroup: ICommandDefinition = null;
         try {
             pluginCmdGroup = {
-                name: pluginConfig.name,
-                description: pluginConfig.rootCommandDescription,
+                name: pluginCfgProps.impConfig.name,
+                description: pluginCfgProps.impConfig.rootCommandDescription,
                 type: "group",
                 children: DefinitionTreeResolver.combineAllCmdDefs(
-                    this.formPluginRuntimePath(pluginName, "./lib"),
-                    pluginConfig.definitions, pluginConfig.commandModuleGlobs
+                    this.formPluginRuntimePath(pluginCfgProps.pluginName, "./lib"),
+                    pluginCfgProps.impConfig.definitions, pluginCfgProps.impConfig.commandModuleGlobs
                 )
             };
             /**
              * Fill in the optional aliases and summary fields,
              * if specified.
              */
-            if (pluginConfig.pluginSummary != null) {
+            if (pluginCfgProps.impConfig.pluginSummary != null) {
                 this.impLogger.debug("Adding summary from pluginSummary field of configuration");
-                pluginCmdGroup.summary = pluginConfig.pluginSummary;
+                pluginCmdGroup.summary = pluginCfgProps.impConfig.pluginSummary;
             }
-            if (pluginConfig.pluginAliases != null) {
+            if (pluginCfgProps.impConfig.pluginAliases != null) {
                 this.impLogger.debug("Adding aliases from pluginAliases field of configuration");
-                pluginCmdGroup.aliases = pluginConfig.pluginAliases;
+                pluginCmdGroup.aliases = pluginCfgProps.impConfig.pluginAliases;
             }
         }
         catch (impErr) {
             const errMsg = "Failed to combine command definitions. Reason = " + impErr.message;
-            this.impLogger.error("addPlugin: DefinitionTreeResolver.combineAllCmdDefs: " + errMsg);
-            this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR, errMsg);
+            this.impLogger.error("addPluginToHostCli: DefinitionTreeResolver.combineAllCmdDefs: " + errMsg);
+            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR, errMsg);
             return;
         }
 
         // validate the plugin's configuration
-        if (this.validatePlugin(pluginName, pluginConfig, pluginCmdGroup) === false) {
-            this.impLogger.error("addPlugin: The plug-in named '" + pluginName +
+        if (this.validatePlugin(pluginCfgProps, pluginCmdGroup) === false) {
+            this.impLogger.error("addPluginToHostCli: The plug-in named '" + pluginCfgProps.pluginName +
                 "' failed validation and was not added to the available commands.");
             return;
         }
 
         // add the new plugin group into the imperative command tree
-        this.impLogger.info("addPlugin: Adding commands for plug-in '" +
-            pluginName + "' to CLI command tree. Plugin command details at trace level of logging."
+        this.impLogger.info("addPluginToHostCli: Adding commands for plug-in '" +
+            pluginCfgProps.pluginName + "' to CLI command tree. Plugin command details at trace level of logging."
         );
-        this.impLogger.trace("addPlugin: Commands for plugin = '" +
-            pluginName + "':\n" + JSON.stringify(pluginCmdGroup, null, 2)
+        this.impLogger.trace("addPluginToHostCli: Commands for plugin = '" +
+            pluginCfgProps.pluginName + "':\n" + JSON.stringify(pluginCmdGroup, null, 2)
         );
-        if (!this.addCmdGrpToResolvedCliCmdTree(pluginName, pluginCmdGroup)) {
+        if (!this.addCmdGrpToResolvedCliCmdTree(pluginCfgProps.pluginName, pluginCmdGroup)) {
             return;
         }
 
         // add the profiles for this plugin to our imperative config object
-        if (pluginConfig.profiles && pluginConfig.profiles.length > 0) {
-            this.impLogger.debug("addPlugin: Adding these profiles for plug-in = '" +
-                pluginName + "':\n" +
-                JSON.stringify(pluginConfig.profiles, null, 2)
+        if (pluginCfgProps.impConfig.profiles && pluginCfgProps.impConfig.profiles.length > 0) {
+            this.impLogger.debug("addPluginToHostCli: Adding these profiles for plug-in = '" +
+                pluginCfgProps.pluginName + "':\n" +
+                JSON.stringify(pluginCfgProps.impConfig.profiles, null, 2)
             );
             try {
-                ImperativeConfig.instance.addProfiles(pluginConfig.profiles);
+                ImperativeConfig.instance.addProfiles(pluginCfgProps.impConfig.profiles);
             }
             catch (impErr) {
-                const errMsg = "Failed to add profiles for the plug-in = '" + pluginName +
+                const errMsg = "Failed to add profiles for the plug-in = '" + pluginCfgProps.pluginName +
                     "'.\nReason = " + impErr.message +
                     "\nBecause of profile error, removing commands for this plug-in";
-                this.impLogger.error("addPlugin: " + errMsg);
-                this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR, errMsg);
+                this.impLogger.error("addPluginToHostCli: " + errMsg);
+                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR, errMsg);
                 this.removeCmdGrpFromResolvedCliCmdTree(pluginCmdGroup);
             }
         }
@@ -416,7 +409,7 @@ export class PluginManagementFacility {
         const cliCmdName = this.getCliCmdName();
         try {
             if (!this.semver.intersects(cliVerVal, pluginVerVal, false)) {
-                this.pluginIssues.recordIssue(this.mCurrPluginName, IssueSeverity.WARNING,
+                this.pluginIssues.recordIssue(this.currPluginName, IssueSeverity.WARNING,
                     "The version value (" + pluginVerVal + ") of the plugin's '" +
                     pluginVerPropNm + "' property is incompatible with the version value (" +
                     cliVerVal + ") of the " + cliCmdName + " command's '" +
@@ -424,7 +417,7 @@ export class PluginManagementFacility {
                 );
             }
         } catch (semverExcept) {
-            PluginIssues.instance.recordIssue(this.mCurrPluginName, IssueSeverity.WARNING,
+            PluginIssues.instance.recordIssue(this.currPluginName, IssueSeverity.WARNING,
                 "Failed to compare the version value (" +
                 pluginVerVal + ") of the plugin's '" + pluginVerPropNm +
                 "' property with the version value (" + cliVerVal +
@@ -498,7 +491,7 @@ export class PluginManagementFacility {
      *
      * @param {string} pluginName - The name of the plugin that we are checking.
      *
-     * @param {string} pluginGroupNm - A plugin's top-level group name.
+     * @param {ICommandDefinition} pluginGroupDefinition - A plugin's command group definition..
      *
      * @param {ICommandDefinition} cmdTreeDef - A top-level command tree
      *        definition against which we compare the supplied
@@ -587,7 +580,7 @@ export class PluginManagementFacility {
         pluginName: string,
         relativePath: string = ""
     ): string {
-        const pluginRuntimeDir = join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, pluginName);
+        const pluginRuntimeDir = join(this.pmfConst.PLUGIN_NODE_MODULE_LOCATION, pluginName);
 
         if (relativePath.length === 0) {
             return pluginRuntimeDir;
@@ -605,17 +598,31 @@ export class PluginManagementFacility {
 
     // __________________________________________________________________________
     /**
-     * Read a plugin's configuration object from the 'imperative' property of
-     * the plugin's package.json file.
+     * Read a plugin's configuration properties. The properties are obtained
+     * from the plugins package.json file, including'its imperative property.
      *
      * @param {string} pluginName - the name of the plugin
      *
-     * @returns {IImperativeConfig} - The plugin's configuration object
+     * @returns {IPluginCfgProps} - The plugin's configuration properties
      *    or null if the plugin's configuration cannot be retrieved.
      *    Errors are recorded in PluginIssues.
      */
-    private readPluginConfig(pluginName: string): IImperativeConfig {
-        this.impLogger.debug("readPluginConfig: Reading configuration for plugin = '" +
+    private loadPluginCfgProps(pluginName: string): IPluginCfgProps {
+        const pluginCfgProps: IPluginCfgProps = {
+            pluginName,
+            npmPackageName: "PluginHasNoNpmPkgName",
+            impConfig: {},
+            cliDependency: {
+                peerDepName: this.pmfConst.CLI_CORE_PKG_NAME,
+                peerDepVer: this.noPeerDependency
+            },
+            impDependency: {
+                peerDepName: this.pmfConst.IMPERATIVE_PKG_NAME,
+                peerDepVer: this.noPeerDependency
+            }
+        };
+
+        this.impLogger.trace("loadPluginCfgProps: Reading configuration for plugin = '" +
             pluginName + "' from its package.json file.");
 
         // this is the starting point for reporting plugin issues, so clear old ones
@@ -651,52 +658,53 @@ export class PluginManagementFacility {
 
         // extract the plugin npm package name property for later use in class
         if (pkgJsonData.hasOwnProperty(this.npmPkgNmProp)) {
-            this.npmPkgName = pkgJsonData[this.npmPkgNmProp];
+            pluginCfgProps.npmPackageName = pkgJsonData[this.npmPkgNmProp];
         }
 
         // use the CLI's package name as a peer dependency in the plugin
         const cliPkgName = this.getCliPkgName();
         const cliCmdName = this.getCliCmdName();
         if (cliPkgName === "NoNameInCliPkgJson"){
-            this.pluginIssues.recordIssue(this.mCurrPluginName, IssueSeverity.WARNING,
+            this.pluginIssues.recordIssue(pluginName, IssueSeverity.WARNING,
                 "The property '" + this.npmPkgNmProp +
                 "' does not exist in the package.json file of the '" +
                 cliCmdName + "' project. Defaulting to " +
-                "'" + this.brightCorePkgName + "',"
+                "'" + pluginCfgProps.cliDependency.peerDepName + "',"
             );
         } else {
-            this.pluginBrightDeps.cliCoreDep.pluginPropName = cliPkgName;
+            pluginCfgProps.cliDependency.peerDepName = cliPkgName;
         }
 
         // confirm that the peerDependencies property exists in plugin's package.json
         const peerDepPropNm = "peerDependencies";
         if (pkgJsonData.hasOwnProperty(peerDepPropNm)) {
             // get the version of the host CLI dependency for this plugin
-            if (pkgJsonData[peerDepPropNm].hasOwnProperty(this.pluginBrightDeps.cliCoreDep.pluginPropName)) {
-                this.pluginBrightDeps.cliCoreDep.pluginVer =
-                    pkgJsonData[peerDepPropNm][this.pluginBrightDeps.cliCoreDep.pluginPropName];
+            if (pkgJsonData[peerDepPropNm].hasOwnProperty(pluginCfgProps.cliDependency.peerDepName)) {
+                pluginCfgProps.cliDependency.peerDepVer =
+                    pkgJsonData[peerDepPropNm][pluginCfgProps.cliDependency.peerDepName];
             } else {
                 this.pluginIssues.recordIssue(pluginName, IssueSeverity.WARNING,
-                    "The property '" + this.pluginBrightDeps.cliCoreDep.pluginPropName +
+                    "The property '" + pluginCfgProps.cliDependency.peerDepName +
                     "' does not exist within the '" + peerDepPropNm +
                     "' property in the file '" + pluginPkgJsonPathNm + "'."
                 );
             }
 
             // get the version of the imperative dependency for this plugin
-            if (pkgJsonData[peerDepPropNm].hasOwnProperty(this.pluginBrightDeps.imperativeDep.pluginPropName)) {
-                this.pluginBrightDeps.imperativeDep.pluginVer =
-                    pkgJsonData[peerDepPropNm][this.pluginBrightDeps.imperativeDep.pluginPropName];
+            if (pkgJsonData[peerDepPropNm].hasOwnProperty(pluginCfgProps.impDependency.peerDepName)) {
+                pluginCfgProps.impDependency.peerDepVer =
+                    pkgJsonData[peerDepPropNm][pluginCfgProps.impDependency.peerDepName];
             } else {
                 this.pluginIssues.recordIssue(pluginName, IssueSeverity.WARNING,
-                    "The property '" + this.pluginBrightDeps.imperativeDep.pluginPropName +
+                    "The property '" + pluginCfgProps.impDependency.peerDepName +
                     "' does not exist within the '" + peerDepPropNm +
                     "' property in the file '" + pluginPkgJsonPathNm + "'."
                 );
             }
         } else {
             this.pluginIssues.recordIssue(pluginName, IssueSeverity.WARNING,
-                "Your @brightside dependencies must be contained within a '" + peerDepPropNm +
+                "Your '" + this.pmfConst.NPM_NAMESPACE +
+                "' dependencies must be contained within a '" + peerDepPropNm +
                 "' property. That property does not exist in the file '" +
                 pluginPkgJsonPathNm + "'."
             );
@@ -712,6 +720,7 @@ export class PluginManagementFacility {
 
         // use the core imperative loader because it will load config modules
         let pluginConfig: IImperativeConfig;
+        this.currPluginName = pluginName;
         try {
             pluginConfig = ConfigurationLoader.load(
                 null, pkgJsonData, this.requirePluginModule.bind(this)
@@ -726,7 +735,8 @@ export class PluginManagementFacility {
             return null;
         }
 
-        return pluginConfig;
+        pluginCfgProps.impConfig = pluginConfig;
+        return pluginCfgProps;
     }
 
     // __________________________________________________________________________
@@ -742,25 +752,25 @@ export class PluginManagementFacility {
      *
      * Any errors are recorded in PluginIssues.
      *
-     * @param {string} pluginName - The name of the plugin being validated.
+     * @param {IPluginCfgProps} pluginCfgProps - The configuration properties for this plugin
      */
-    private validatePeerDepVersions(pluginName: string): void {
+    private validatePeerDepVersions(pluginCfgProps: IPluginCfgProps): void {
         // get the name of the base CLI for error messages
         const cliCmdName = this.getCliCmdName();
         const cliPackageJson: any = ImperativeConfig.instance.callerPackageJson;
         let cliVerPropName = "version";
 
         // compare the plugin's requested CLI version with the CLI's actual version
-        if ( this.pluginBrightDeps.cliCoreDep.pluginVer !== this.noPeerDependency) {
+        if ( pluginCfgProps.cliDependency.peerDepVer !== this.noPeerDependency) {
             if (cliPackageJson.hasOwnProperty(cliVerPropName)) {
                 this.comparePluginVersionToCli(
-                    this.pluginBrightDeps.cliCoreDep.pluginPropName,
-                    this.pluginBrightDeps.cliCoreDep.pluginVer,
+                    pluginCfgProps.cliDependency.peerDepName,
+                    pluginCfgProps.cliDependency.peerDepVer,
                     cliVerPropName,
                     cliPackageJson[cliVerPropName]
                 );
             } else {
-                this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
                     "The property '" + cliVerPropName +
                     "' does not exist within the package.json file of the '" +
                     cliCmdName + "' project."
@@ -769,22 +779,22 @@ export class PluginManagementFacility {
         }
 
         // compare the plugin's requested imperative version with the CLI's actual version
-        if ( this.pluginBrightDeps.imperativeDep.pluginVer !== this.noPeerDependency) {
+        if ( pluginCfgProps.impDependency.peerDepVer !== this.noPeerDependency) {
             /* The CLI's imperative version is within its dependencies property
              * under the same property name as the plugin uses.
              */
             const cliDepPropName = "dependencies";
-            cliVerPropName = this.pluginBrightDeps.imperativeDep.pluginPropName;
+            cliVerPropName = pluginCfgProps.impDependency.peerDepName;
             if (cliPackageJson.hasOwnProperty(cliDepPropName)) {
                 if (cliPackageJson[cliDepPropName].hasOwnProperty(cliVerPropName)) {
                     this.comparePluginVersionToCli(
-                        this.pluginBrightDeps.imperativeDep.pluginPropName,
-                        this.pluginBrightDeps.imperativeDep.pluginVer,
+                        pluginCfgProps.impDependency.peerDepName,
+                        pluginCfgProps.impDependency.peerDepVer,
                         cliVerPropName,
                         cliPackageJson[cliDepPropName][cliVerPropName]
                     );
                 } else {
-                    this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+                    this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
                         "The property '" + cliVerPropName +
                         "' does not exist within the '" + cliDepPropName +
                         "' property in the package.json file of the '" +
@@ -792,7 +802,7 @@ export class PluginManagementFacility {
                     );
                 }
             } else {
-                this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
                     "The property '" + cliDepPropName +
                     "' does not exist in the package.json file of the '" +
                     cliCmdName + "' project."
@@ -805,9 +815,7 @@ export class PluginManagementFacility {
     /**
      * Validate the plugin.
      *
-     * @param {string} pluginName - the name of the plugin to validate
-     *
-     * @param {IImperativeConfig} pluginConfig - The config object for this plugin.
+     * @param {IPluginCfgProps} pluginCfgProps - The configuration properties for this plugin
      *
      * @param {ICommandDefinition} pluginCmdGroup - The command group to be added
      *        for this plugin, with all commands resolved into its children property.
@@ -816,53 +824,55 @@ export class PluginManagementFacility {
      *        PluginIssues contains the set of issues.
      */
     private validatePlugin(
-        pluginName: string,
-        pluginConfig: IImperativeConfig,
+        pluginCfgProps: IPluginCfgProps,
         pluginCmdGroup: ICommandDefinition
     ): boolean {
-        if (JsUtils.isObjEmpty(pluginConfig)) {
+        if (JsUtils.isObjEmpty(pluginCfgProps.impConfig)) {
             // without a config object, we can do no further validation
-            this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
                 "The plugin's configuration is empty.");
             return false;
         }
 
         this.impLogger.info("validatePlugin: Validating plugin '" +
-            pluginName + "'. Plugin config details at trace level of logging."
+            pluginCfgProps.pluginName + "'. Plugin config details at trace level of logging."
         );
         this.impLogger.trace("validatePlugin: Config for plugin '" +
-            pluginName + "':\n" +
-            JSON.stringify(pluginConfig, null, 2)
+            pluginCfgProps.pluginName + "':\n" +
+            JSON.stringify(pluginCfgProps.impConfig, null, 2)
         );
 
         // is there an imperative.name property?
-        if (!pluginConfig.hasOwnProperty("name")) {
+        if (!pluginCfgProps.impConfig.hasOwnProperty("name")) {
             // can we default to the npm package name?
-            if (this.npmPkgName == null) {
-                this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+            if (pluginCfgProps.npmPackageName === "PluginHasNoNpmPkgName" ||
+                pluginCfgProps.npmPackageName.length === 0)
+            {
+                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
                     "The plugin's configuration does not contain an '" +
                     this.impConfigPropNm + ".name' property, or an npm package 'name' property in package.json.");
             } else {
-                pluginConfig.name = this.npmPkgName;
+                pluginCfgProps.impConfig.name = pluginCfgProps.npmPackageName;
             }
         }
 
         /* Confirm that the plugin group name does not conflict with another
          * top-level item in the imperative command tree.
          */
-        if (pluginConfig.hasOwnProperty("name")) {
+        if (pluginCfgProps.impConfig.hasOwnProperty("name")) {
             for (const nextImpCmdDef of this.resolvedCliCmdTree.children) {
-                const conflictAndMessage = this.conflictingNameOrAlias(pluginName, pluginCmdGroup, nextImpCmdDef);
+                const conflictAndMessage = this.conflictingNameOrAlias(pluginCfgProps.pluginName,
+                    pluginCmdGroup, nextImpCmdDef);
                 if (conflictAndMessage.hasConflict) {
-                    this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+                    this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
                         conflictAndMessage.message);
                     break;
                 }
             }
         }
 
-        if (!pluginConfig.hasOwnProperty("rootCommandDescription")) {
-            this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+        if (!pluginCfgProps.impConfig.hasOwnProperty("rootCommandDescription")) {
+            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
                 "The plugin's configuration does not contain an '" +
                 this.impConfigPropNm + ".rootCommandDescription' property.");
         }
@@ -870,39 +880,39 @@ export class PluginManagementFacility {
         /* Validate that versions of the imperative framework and
          * host CLI program are compatible with those of the host CLI.
          */
-        this.validatePeerDepVersions(pluginName);
+        this.validatePeerDepVersions(pluginCfgProps);
 
         // check if the plugin has a healthCheck() function
-        if (!pluginConfig.hasOwnProperty("pluginHealthCheck")) {
-            this.pluginIssues.recordIssue(pluginName, IssueSeverity.WARNING,
+        if (!pluginCfgProps.impConfig.hasOwnProperty("pluginHealthCheck")) {
+            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.WARNING,
                 "The plugin's configuration does not contain an '" +
                 this.impConfigPropNm + ".pluginHealthCheck' property.");
         } else {
             const healthChkModulePath =
-                this.formPluginRuntimePath(pluginName, pluginConfig.pluginHealthCheck);
+                this.formPluginRuntimePath(pluginCfgProps.pluginName, pluginCfgProps.impConfig.pluginHealthCheck);
             const healthChkFilePath = healthChkModulePath + ".js";
             if (existsSync(healthChkFilePath)) {
                 // replace relative path with absolute path in the healthCheck property
-                pluginConfig.pluginHealthCheck = healthChkModulePath;
+                pluginCfgProps.impConfig.pluginHealthCheck = healthChkModulePath;
             } else {
-                this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
                     "The program for the '" + this.impConfigPropNm +
                     ".pluginHealthCheck' property does not exist: " + healthChkFilePath);
             }
         }
         if (!pluginCmdGroup.children || pluginCmdGroup.children.length <= 0) {
-            this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
                 "The plugin's configuration defines no children.");
         } else {
             // recursively validate the plugin's command definitions
-            this.validatePluginCmdDefs(pluginName, pluginCmdGroup.children);
+            this.validatePluginCmdDefs(pluginCfgProps.pluginName, pluginCmdGroup.children);
         }
 
         /* Plugins are not required to have profiles.
          * So, if they do not exist, just move on.
          */
-        if (pluginConfig.profiles) {
-            this.validatePluginProfiles(pluginName, pluginConfig.profiles);
+        if (pluginCfgProps.impConfig.profiles) {
+            this.validatePluginProfiles(pluginCfgProps.pluginName, pluginCfgProps.impConfig.profiles);
         }
 
         /* Now that we have done plugin-specific validation, let the imperative
@@ -915,7 +925,7 @@ export class PluginManagementFacility {
          *
          * We place this check last, since it finds one error and throws an exception.
          */
-        const pluginConfigToValidate: IImperativeConfig = {...pluginConfig};
+        const pluginConfigToValidate: IImperativeConfig = {...pluginCfgProps.impConfig};
         if (!pluginConfigToValidate.hasOwnProperty("defaultHome")) {
             pluginConfigToValidate.defaultHome = "defaultHome-ForValidation";
         }
@@ -927,13 +937,13 @@ export class PluginManagementFacility {
             ConfigurationValidator.validate(pluginConfigToValidate);
         }
         catch (impError) {
-            this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
                 "The plugin configuration is invalid.\nReason = " +
                 impError.message
             );
         }
 
-        return !this.pluginIssues.doesPluginHaveError(pluginName);
+        return !this.pluginIssues.doesPluginHaveError(pluginCfgProps.pluginName);
     }
 
     // __________________________________________________________________________
