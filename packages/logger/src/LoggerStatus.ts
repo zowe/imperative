@@ -25,13 +25,11 @@ export class LoggerStatus {
     }
 
     public queueMessage(category: string, method: string, message: string){
-        this.mMsgMessages.push({
+        this.mMsgMessages.unshift({
             category,
             method,
             message
         });
-
-        console.log(this.mMsgMessages);
     }
 
     public get QueuedMessages(): IQueuedMessage[] {

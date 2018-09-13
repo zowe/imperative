@@ -123,23 +123,45 @@ export class Logger {
 
     constructor(private mJsLogger: log4js.Logger | Console, private category?: string) {
         if (LoggerStatus.instance.isLoggerInit && LoggerStatus.instance.QueuedMessages.length > 0) {
-
-            LoggerStatus.instance.QueuedMessages.forEach((value, index, array) => {
+            LoggerStatus.instance.QueuedMessages.slice().reverse().forEach((value, index) => {
                 if (this.category === value.category) {
-                    switch (value.method) {
-                        case "debug":
-                            mJsLogger.debug(value.message);
-                            break;
-                        default:
-                            mJsLogger.info(value.message);
-                            break;
-                    }
-                    array.splice(index, 1);
+                    this.logMessage(value.method, value.message);
+                    LoggerStatus.instance.QueuedMessages.splice(LoggerStatus.instance.QueuedMessages.indexOf(value), 1);
                 }
             });
         }
 
         this.initStatus = LoggerStatus.instance.isLoggerInit;
+    }
+
+    public logMessage(method: string, message: string) {
+        const logger = this.mJsLogger;
+        switch (method) {
+            case "trace":
+                logger.trace(message);
+                break;
+            case "debug":
+                logger.debug(message);
+                break;
+            case "info":
+                logger.info(message);
+                break;
+            case "warn":
+                logger.warn(message);
+                break;
+            case "error":
+                logger.error(message);
+                break;
+            case "fatal":
+                logger.fatal(message);
+                break;
+            case "simple":
+                logger.info(message);
+                break;
+            default:
+                logger.info(message);
+                break;
+        }
     }
 
     // TODO: Can we find trace info for TypeScript to have e.g.  [ERROR] Jobs.ts : 43 - Error encountered
@@ -169,7 +191,7 @@ export class Logger {
         if (LoggerStatus.instance.isLoggerInit) {
             this.logService.debug(this.getCallerFileAndLineTag() + finalMessage);
         } else {
-            LoggerStatus.instance.queueMessage(this.category, "debug", finalMessage);
+            LoggerStatus.instance.queueMessage(this.category, "debug", this.getCallerFileAndLineTag() + finalMessage);
         }
 
         return finalMessage;
@@ -184,7 +206,12 @@ export class Logger {
      */
     public info(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        this.logService.info(this.getCallerFileAndLineTag() + finalMessage);
+        if (LoggerStatus.instance.isLoggerInit) {
+            this.logService.info(this.getCallerFileAndLineTag() + finalMessage);
+        } else {
+            LoggerStatus.instance.queueMessage(this.category, "info", this.getCallerFileAndLineTag() + finalMessage);
+        }
+
         return finalMessage;
     }
 
@@ -332,16 +359,12 @@ export class Logger {
      */
     private get logService() {
         if (this.initStatus !== LoggerStatus.instance.isLoggerInit) {
-            console.log("update logger: " + this.category);
             const newLogger = Logger.getLoggerCategory(this.category);
             this.mJsLogger = newLogger.mJsLogger;
-            console.log("newLogger.mJsLogger" + newLogger.initStatus);
             this.initStatus = newLogger.initStatus;
         }
 
-        const logger = this.mJsLogger;
-
-        return logger;
+        return this.mJsLogger;
     }
 
     /**

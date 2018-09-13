@@ -315,14 +315,16 @@ export class Imperative {
         /**
          * Save reference to our instance
          */
-        this.mLog = Logger.getImperativeLogger();
-        // this.mLog = Logger.getConsoleLogger();
+        // this.mLog = Logger.getImperativeLogger();
+        this.mLog = Logger.getConsoleLogger();
         /**
          * Build logging config from imperative config
          */
         const loggingConfig = LoggingConfigurer.configureLogger(ImperativeConfig.instance.cliHome, ImperativeConfig.instance.loadedConfig);
 
-        this.mLog.debug("test log4js");
+        this.mLog.debug("message 1");
+        this.mLog.info("message 2");
+        this.mLog.info("message 3");
         /**
          * Setup log4js
          */
