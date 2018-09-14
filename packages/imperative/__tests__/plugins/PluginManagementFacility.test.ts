@@ -346,14 +346,12 @@ describe("Plugin Management Facility", () => {
             });
 
             it("should record an error when both plugin group name property and npm name do not exist", () => {
-                // remove name property from config
-                badPluginConfig = JSON.parse(JSON.stringify(basePluginConfig));
-                delete badPluginConfig.name;
+                // remove imperative cfg name and NPM pkg name properties
+                const pluginCfgPropsNoName = JSON.parse(JSON.stringify(basePluginCfgProps));
+                delete pluginCfgPropsNoName.impConfig.name;
+                pluginCfgPropsNoName.npmPackageName = "PluginHasNoNpmPkgName";
 
-                // remove the npm name property
-                PMF.npmPkgName = null;
-
-                isValid = PMF.validatePlugin(pluginName, badPluginConfig, basePluginCmdDef);
+                isValid = PMF.validatePlugin(pluginCfgPropsNoName, basePluginCmdDef);
                 expect(isValid).toBe(false);
 
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
@@ -363,17 +361,17 @@ describe("Plugin Management Facility", () => {
             });
 
             it("should use npm package name when plugin's name property does not exist", () => {
-                PMF.conflictingNameOrAlias = realConflictName;
-                // remove name property from config
-                badPluginConfig = JSON.parse(JSON.stringify(basePluginConfig));
-                delete badPluginConfig.name;
-                PMF.npmPkgName = "NpmPackageName";
+                // remove imperative cfg name
+                const pluginCfgPropsOnlyNpmName = JSON.parse(JSON.stringify(basePluginCfgProps));
+                delete pluginCfgPropsOnlyNpmName.impConfig.name;
+                pluginCfgPropsOnlyNpmName.npmPackageName = "WeHaveAnNpmPackageName";
 
                 // Ensure we get to the function that we want to validate
                 mocks.existsSync.mockReturnValue(true);
+                PMF.conflictingNameOrAlias = realConflictName;
                 PMF.areVersionsCompatible = realAreVersionsCompatible;
 
-                isValid = PMF.validatePlugin(pluginName, badPluginConfig, basePluginCmdDef);
+                isValid = PMF.validatePlugin(pluginCfgPropsOnlyNpmName, basePluginCmdDef);
 
                 expect(isValid).toBe(true);
                 expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
