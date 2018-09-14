@@ -55,6 +55,7 @@ import * as jsonfile from "jsonfile";
 
 export class Imperative {
 
+    public static readonly DEFAULT_DEBUG_FILE = join(process.cwd(), "imperative_debug.log");
     /**
      *  Retrieve the root command name.
      *  @example
@@ -209,8 +210,9 @@ export class Imperative {
                  */
                 initializationComplete();
             } catch (error) {
+                LoggerManager.instance.dumpQueuedMessages(Imperative.DEFAULT_DEBUG_FILE);
                 if (error.report) {
-                    writeFileSync(`${process.cwd()}/imperative_debug.log`, error.report);
+                    writeFileSync(Imperative.DEFAULT_DEBUG_FILE, error.report);
                 }
                 initializationFailed(
                     error instanceof ImperativeError ?
@@ -323,7 +325,6 @@ export class Imperative {
 
     private static yargs = require("yargs");
     private static mApi: ImperativeApi;
-    // private static mLog: Logger;
     private static mConsoleLog: Logger;
     private static mFullCommandTree: ICommandDefinition;
     private static mRootCommandName: string;

@@ -118,6 +118,9 @@ export class Logger {
 
     }
 
+    /**
+     * This flag is being used to monitor the log4js configure status.
+     */
     private initStatus: boolean;
 
     constructor(private mJsLogger: log4js.Logger | Console, private category?: string, private logInMemory?: boolean) {
@@ -385,6 +388,9 @@ export class Logger {
 
     /**
      * Get underlying logger service
+     *
+     * This function also check to see if log4js is configured since the last time it
+     * was called.  If yes, then update the logger with to leverage the new configuration.
      */
     private get logService() {
         if (this.initStatus !== LoggerManager.instance.isLoggerInit) {

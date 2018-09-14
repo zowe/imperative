@@ -11,6 +11,7 @@
 
 import {IQueuedMessage} from "./doc/IQueuedMessage";
 import { Console } from "../../console";
+import {writeFileSync} from "fs";
 
 /**
  * LoggerManager is a singleton class used to contain logger information.
@@ -39,6 +40,10 @@ export class LoggerManager {
         this.mMaxQueueSize = LoggerManager.DEFAULT_MAX_QUEUE_SIZE;
     }
 
+    /**
+     * The following flag is used to monitor if the Logger.initLogger function
+     * have been called to set the configuration of log4js.
+     */
     public get isLoggerInit(): boolean {
         return this.mIsLoggerInit;
     }
@@ -47,6 +52,10 @@ export class LoggerManager {
         this.mIsLoggerInit = status;
     }
 
+    /**
+     * The following flag is used to control if the log message should be store
+     * in memory while log4js have yet to be configured.
+     */
     public get logInMemory(): boolean {
         return this.mLogInMemory;
     }
@@ -55,6 +64,10 @@ export class LoggerManager {
         this.mLogInMemory = status;
     }
 
+    /**
+     * The following value is used to control the max number of messages allowed
+     * to be stored in memory at all time.
+     */
     public get maxQueueSize(): number {
         return this.mMaxQueueSize;
     }
@@ -64,8 +77,16 @@ export class LoggerManager {
     }
 
     /**
+     * This function returned an array that contain all of the messages.
+     */
+    public get QueuedMessages(): IQueuedMessage[] {
+        return this.mQueuedMessages;
+    }
+
+    /**
      * This function is responsible for gathering all of the input parameters and
      * store them in the message queue array.
+     *
      * New messages are to be stored at the top of the array instead of the bottom.
      * This allow easy removing message from array while looping the array.
      * @param category - logger category
@@ -74,22 +95,32 @@ export class LoggerManager {
      */
     public queueMessage(category: string, method: string, message: string){
         if (this.logInMemory) {
-            this.mQueuedMessages.unshift({
+            this.QueuedMessages.unshift({
                 category,
                 method,
                 message
             });
 
-            if (this.mQueuedMessages.length > this.maxQueueSize) {
-                this.mQueuedMessages.pop();
+            if (this.QueuedMessages.length > this.maxQueueSize) {
+                this.QueuedMessages.pop();
             }
         } else {
             this.console.info(message);
         }
     }
 
-    public get QueuedMessages(): IQueuedMessage[] {
-        return this.mQueuedMessages;
+    /**
+     * Dump all of the log messages in memory to the specified file
+     * @param file log file
+     */
+    public dumpQueuedMessages(file: string) {
+        if (this.QueuedMessages.length > 0) {
+            this.console.debug(`Writting all logged messages in memrory to ${file}`);
+            this.QueuedMessages.slice().reverse().forEach((value, index) => {
+                this.console.debug(value.message);
+                writeFileSync(file, value.message);
+            });
+        }
     }
-
 }
+
