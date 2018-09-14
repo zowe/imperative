@@ -58,6 +58,18 @@ export class PluginManagementFacility {
     }
 
     /**
+     * Internal reference to the set of configuration properties for all loaded plugins.
+     */
+    private mAllPluginCfgProps: IPluginCfgProps[] = [];
+
+    /**
+     * Get the set of configuration properties for all loaded plugins.
+     */
+    public get allPluginCfgProps(): IPluginCfgProps[] {
+        return this.mAllPluginCfgProps;
+    }
+
+    /**
      * Internal reference to the overrides provided by plugins.
      */
     private mPluginOverrides: IImperativeOverrides = {};
@@ -175,21 +187,15 @@ export class PluginManagementFacility {
     /**
      * Add all installed plugins' commands and profiles into the host CLI's command tree.
      *
-     * @param allPluginCfgProps - An array containing the configurations of
-     *        all installed plugins.
-     *
      * @param resolvedCliCmdTree - The CLI command tree with
      *        module globs already resolved.
      */
-    public addAllPluginsToHostCli(
-        allPluginCfgProps: IPluginCfgProps[],
-        resolvedCliCmdTree: ICommandDefinition
-    ): void {
+    public addAllPluginsToHostCli(resolvedCliCmdTree: ICommandDefinition): void {
         // Store the host CLI command tree. Later functions will use it.
         this.resolvedCliCmdTree = resolvedCliCmdTree;
 
         // Loop through each plugin and add it to the CLI command tree
-        for (const nextPluginCfgProps of allPluginCfgProps) {
+        for (const nextPluginCfgProps of this.mAllPluginCfgProps) {
             this.addPluginToHostCli(nextPluginCfgProps);
 
             // log the issue list for this plugin
@@ -213,11 +219,9 @@ export class PluginManagementFacility {
      * information is used when overriding a piece of the imperative
      * infrastructure with a plugin's capability, when validating each plugin,
      * and when adding each plugin's commands to the CLI command tree.
-     *
-     * @returns {IPluginCfgProps} - An array containing configuration properties
-     *    for each plugin. Errors are recorded in PluginIssues.
+     * Errors are recorded in PluginIssues.
      */
-    public loadAllPluginCfgProps(): IPluginCfgProps[] {
+    public loadAllPluginCfgProps(): void {
         // Initialize the plugin.json file if needed
         if (!existsSync(this.pmfConst.PLUGIN_JSON)) {
             if (!existsSync(this.pmfConst.PMF_ROOT)) {
@@ -230,11 +234,10 @@ export class PluginManagementFacility {
         }
 
         // iterate through all of our installed plugins
-        const allPluginCfgProps: IPluginCfgProps[] = [];
         for (const nextPluginNm of Object.keys(this.pluginIssues.getInstalledPlugins())) {
             const nextPluginCfgProps = this.loadPluginCfgProps(nextPluginNm);
             if ( nextPluginCfgProps) {
-                allPluginCfgProps.push(nextPluginCfgProps);
+                this.mAllPluginCfgProps.push(nextPluginCfgProps);
 
                 // @TODO CLEANUP THE OVERRIDES LATER USING SETTINGS CONCEPT
                 // For now we will just keep merging objects
@@ -247,8 +250,6 @@ export class PluginManagementFacility {
                 );
             }
         }
-
-        return allPluginCfgProps;
     }
 
     // __________________________________________________________________________
