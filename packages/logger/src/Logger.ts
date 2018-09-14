@@ -16,8 +16,7 @@ import * as path from "path";
 import {TextUtils} from "../../utilities";
 import {IO} from "../../io";
 import {IConfigLogging} from "./doc/IConfigLogging";
-import {IQueuedMessage} from "./doc/IQueuedMessage";
-import {LoggerStatus} from "./LoggerStatus";
+import {LoggerManager} from "./LoggerManager";
 import * as log4js from "log4js";
 import {Console} from "../../console";
 import { exists } from "fs";
@@ -37,11 +36,11 @@ export class Logger {
      * @param {string} category - category of logger to obtain
      * @return {Logger} - instance of logger set to our app's category
      */
-    public static getLoggerCategory(category: string) {
-        if (category === Logger.DEFAULT_CONSOLE_NAME) {
+    public static getLoggerCategory(category: string, loginMemory?: boolean) {
+        if (category === Logger.DEFAULT_CONSOLE_NAME || loginMemory === false) {
             return new Logger(new Console(), Logger.DEFAULT_CONSOLE_NAME);
         } else {
-            return new Logger(log4js.getLogger(category), category);
+            return new Logger(log4js.getLogger(category), category, loginMemory);
         }
     }
 
@@ -50,16 +49,16 @@ export class Logger {
      * Logger.getLogger.info("important log info goes here");
      * @return {Logger} - instance of logger set to our app's category
      */
-    public static getImperativeLogger() {
-        return Logger.getLoggerCategory(Logger.DEFAULT_IMPERATIVE_NAME);
+    public static getImperativeLogger(loginMemory?: boolean) {
+        return Logger.getLoggerCategory(Logger.DEFAULT_IMPERATIVE_NAME, loginMemory);
     }
 
     /**
      * Get log4js instance directed at our app's category.
      * @return {Logger} - instance of logger set to our app's category
      */
-    public static getAppLogger() {
-        return Logger.getLoggerCategory(Logger.DEFAULT_APP_NAME);
+    public static getAppLogger(loginMemory?: boolean) {
+        return Logger.getLoggerCategory(Logger.DEFAULT_APP_NAME, loginMemory);
     }
 
     /**
@@ -109,7 +108,7 @@ export class Logger {
             log4js.configure(loggingConfig.log4jsConfig as any);
             logger = log4js.getLogger();
             logger.level = "debug";
-            LoggerStatus.instance.isLoggerInit = true;
+            LoggerManager.instance.isLoggerInit = true;
             return new Logger(logger);
         } catch (err) {
             const cons = new Console();
@@ -121,17 +120,17 @@ export class Logger {
 
     private initStatus: boolean;
 
-    constructor(private mJsLogger: log4js.Logger | Console, private category?: string) {
-        if (LoggerStatus.instance.isLoggerInit && LoggerStatus.instance.QueuedMessages.length > 0) {
-            LoggerStatus.instance.QueuedMessages.slice().reverse().forEach((value, index) => {
+    constructor(private mJsLogger: log4js.Logger | Console, private category?: string, private logInMemory?: boolean) {
+        if (LoggerManager.instance.isLoggerInit && LoggerManager.instance.QueuedMessages.length > 0) {
+            LoggerManager.instance.QueuedMessages.slice().reverse().forEach((value, index) => {
                 if (this.category === value.category) {
                     this.logMessage(value.method, value.message);
-                    LoggerStatus.instance.QueuedMessages.splice(LoggerStatus.instance.QueuedMessages.indexOf(value), 1);
+                    LoggerManager.instance.QueuedMessages.splice(LoggerManager.instance.QueuedMessages.indexOf(value), 1);
                 }
             });
         }
 
-        this.initStatus = LoggerStatus.instance.isLoggerInit;
+        this.initStatus = LoggerManager.instance.isLoggerInit;
     }
 
     /**
@@ -184,10 +183,10 @@ export class Logger {
      */
     public trace(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        if (LoggerStatus.instance.isLoggerInit) {
+        if (LoggerManager.instance.isLoggerInit) {
             this.logService.trace(this.getCallerFileAndLineTag() + finalMessage);
         } else {
-            LoggerStatus.instance.queueMessage(this.category, "trace", this.getCallerFileAndLineTag() + finalMessage);
+            LoggerManager.instance.queueMessage(this.category, "trace", this.getCallerFileAndLineTag() + finalMessage);
         }
 
         return finalMessage;
@@ -202,10 +201,10 @@ export class Logger {
      */
     public debug(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        if (LoggerStatus.instance.isLoggerInit) {
+        if (LoggerManager.instance.isLoggerInit) {
             this.logService.debug(this.getCallerFileAndLineTag() + finalMessage);
         } else {
-            LoggerStatus.instance.queueMessage(this.category, "debug", this.getCallerFileAndLineTag() + finalMessage);
+            LoggerManager.instance.queueMessage(this.category, "debug", this.getCallerFileAndLineTag() + finalMessage);
         }
 
         return finalMessage;
@@ -220,10 +219,10 @@ export class Logger {
      */
     public info(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        if (LoggerStatus.instance.isLoggerInit) {
+        if (LoggerManager.instance.isLoggerInit) {
             this.logService.info(this.getCallerFileAndLineTag() + finalMessage);
         } else {
-            LoggerStatus.instance.queueMessage(this.category, "info", this.getCallerFileAndLineTag() + finalMessage);
+            LoggerManager.instance.queueMessage(this.category, "info", this.getCallerFileAndLineTag() + finalMessage);
         }
 
         return finalMessage;
@@ -238,10 +237,10 @@ export class Logger {
      */
     public warn(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        if (LoggerStatus.instance.isLoggerInit) {
+        if (LoggerManager.instance.isLoggerInit) {
             this.logService.warn(this.getCallerFileAndLineTag() + finalMessage);
         } else {
-            LoggerStatus.instance.queueMessage(this.category, "warn", this.getCallerFileAndLineTag() + finalMessage);
+            LoggerManager.instance.queueMessage(this.category, "warn", this.getCallerFileAndLineTag() + finalMessage);
         }
         return finalMessage;
     }
@@ -255,10 +254,10 @@ export class Logger {
      */
     public error(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        if (LoggerStatus.instance.isLoggerInit) {
+        if (LoggerManager.instance.isLoggerInit) {
             this.logService.error(this.getCallerFileAndLineTag() + finalMessage);
         } else {
-            LoggerStatus.instance.queueMessage(this.category, "error", this.getCallerFileAndLineTag() + finalMessage);
+            LoggerManager.instance.queueMessage(this.category, "error", this.getCallerFileAndLineTag() + finalMessage);
         }
         return finalMessage;
     }
@@ -272,10 +271,10 @@ export class Logger {
      */
     public fatal(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        if (LoggerStatus.instance.isLoggerInit) {
+        if (LoggerManager.instance.isLoggerInit) {
             this.logService.fatal(this.getCallerFileAndLineTag() + finalMessage);
         } else {
-            LoggerStatus.instance.queueMessage(this.category, "fatal", this.getCallerFileAndLineTag() + finalMessage);
+            LoggerManager.instance.queueMessage(this.category, "fatal", this.getCallerFileAndLineTag() + finalMessage);
         }
         return finalMessage;
     }
@@ -289,10 +288,10 @@ export class Logger {
      */
     public simple(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        if (LoggerStatus.instance.isLoggerInit) {
+        if (LoggerManager.instance.isLoggerInit) {
             this.logService.info(finalMessage);
         } else {
-            LoggerStatus.instance.queueMessage(this.category, "simple", finalMessage);
+            LoggerManager.instance.queueMessage(this.category, "simple", finalMessage);
         }
         return finalMessage;
     }
@@ -388,7 +387,7 @@ export class Logger {
      * Get underlying logger service
      */
     private get logService() {
-        if (this.initStatus !== LoggerStatus.instance.isLoggerInit) {
+        if (this.initStatus !== LoggerManager.instance.isLoggerInit) {
             const newLogger = Logger.getLoggerCategory(this.category);
             this.mJsLogger = newLogger.mJsLogger;
             this.initStatus = newLogger.initStatus;

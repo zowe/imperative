@@ -10,26 +10,34 @@
 */
 
 import {IQueuedMessage} from "./doc/IQueuedMessage";
+import { Console } from "../../console";
 
 /**
- * LoggerStatus is a singleton class used to contain logger information.
+ * LoggerManager is a singleton class used to contain logger information.
  */
 
-export class LoggerStatus {
+export class LoggerManager {
+    private static readonly DEFAULT_MAX_QUEUE_SIZE = 10000;
+    private static mInstance: LoggerManager = null;
 
-    private static mInstance: LoggerStatus = null;
-
-    public static get instance(): LoggerStatus {
+    public static get instance(): LoggerManager {
         if (this.mInstance == null) {
-            this.mInstance = new LoggerStatus();
+            this.mInstance = new LoggerManager();
         }
 
         return this.mInstance;
     }
 
-
     private mIsLoggerInit: boolean = false;
+    private mLogInMemory: boolean = false;
+    private mMaxQueueSize: number;
+    private console: Console;
     private mQueuedMessages: IQueuedMessage[] = [];
+
+    constructor() {
+        this.console = new Console();
+        this.mMaxQueueSize = LoggerManager.DEFAULT_MAX_QUEUE_SIZE;
+    }
 
     public get isLoggerInit(): boolean {
         return this.mIsLoggerInit;
@@ -37,6 +45,22 @@ export class LoggerStatus {
 
     public set isLoggerInit(status: boolean) {
         this.mIsLoggerInit = status;
+    }
+
+    public get logInMemory(): boolean {
+        return this.mLogInMemory;
+    }
+
+    public set logInMemory(status: boolean) {
+        this.mLogInMemory = status;
+    }
+
+    public get maxQueueSize(): number {
+        return this.mMaxQueueSize;
+    }
+
+    public set maxQueueSize(size: number){
+        this.mMaxQueueSize = size;
     }
 
     /**
@@ -49,16 +73,23 @@ export class LoggerStatus {
      * @param message - log message
      */
     public queueMessage(category: string, method: string, message: string){
-        this.mQueuedMessages.unshift({
-            category,
-            method,
-            message
-        });
+        if (this.logInMemory) {
+            this.mQueuedMessages.unshift({
+                category,
+                method,
+                message
+            });
+
+            if (this.mQueuedMessages.length > this.maxQueueSize) {
+                this.mQueuedMessages.pop();
+            }
+        } else {
+            this.console.info(message);
+        }
     }
 
     public get QueuedMessages(): IQueuedMessage[] {
         return this.mQueuedMessages;
     }
-
 
 }

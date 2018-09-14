@@ -47,6 +47,7 @@ import { OverridesLoader } from "./OverridesLoader";
 import { ImperativeProfileManagerFactory } from "./profiles/ImperativeProfileManagerFactory";
 import { ImperativeConfig } from "./ImperativeConfig";
 import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
+import { LoggerManager } from "../../logger/src/LoggerManager";
 
 export class Imperative {
 
@@ -68,6 +69,11 @@ export class Imperative {
         return this.mFullCommandTree;
     }
 
+    public static get mLog(): Logger {
+        // return Logger.getImperativeLogger();
+        return Logger.getConsoleLogger();
+    }
+
     /**
      * Initialize the configuration for your CLI.
      * Wipes out any existing config that has already been set.
@@ -85,6 +91,11 @@ export class Imperative {
     public static init(config?: IImperativeConfig): Promise<void> {
         return new Promise<void>(async (initializationComplete: () => void, initializationFailed: ImperativeReject) => {
             try {
+                /**
+                 * Config Logger Manager to enable log messages in memory prior to logger init.
+                 */
+                LoggerManager.instance.logInMemory = true;
+
                 /**
                  * Identify caller's location on the system
                  */
@@ -302,7 +313,7 @@ export class Imperative {
 
     private static yargs = require("yargs");
     private static mApi: ImperativeApi;
-    private static mLog: Logger;
+    // private static mLog: Logger;
     private static mConsoleLog: Logger;
     private static mFullCommandTree: ICommandDefinition;
     private static mRootCommandName: string;
@@ -326,15 +337,12 @@ export class Imperative {
          * Save reference to our instance
          */
         // this.mLog = Logger.getImperativeLogger();
-        this.mLog = Logger.getConsoleLogger();
+        // this.mLog = Logger.getConsoleLogger();
         /**
          * Build logging config from imperative config
          */
         const loggingConfig = LoggingConfigurer.configureLogger(ImperativeConfig.instance.cliHome, ImperativeConfig.instance.loadedConfig);
 
-        this.mLog.debug("message 1");
-        this.mLog.info("message 2");
-        this.mLog.info("message 3");
         /**
          * Setup log4js
          */
