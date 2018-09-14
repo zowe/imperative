@@ -126,6 +126,12 @@ export class Imperative {
 
                     // load the configuration of every installed plugin for later processing
                     allPluginCfgProps = PluginManagementFacility.instance.loadAllPluginCfgProps();
+
+                    // Override the config object with things loaded from plugins
+                    Object.assign(
+                        ImperativeConfig.instance.loadedConfig.overrides,
+                        PluginManagementFacility.instance.pluginOverrides
+                    );
                 }
 
                 /**

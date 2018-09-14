@@ -25,6 +25,7 @@ import { IssueSeverity, PluginIssues } from "./utilities/PluginIssues";
 import { ConfigurationValidator } from "../ConfigurationValidator";
 import { ConfigurationLoader } from "../ConfigurationLoader";
 import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
+import {IImperativeOverrides} from "../doc/IImperativeOverrides";
 
 /**
  * This class is the main engine for the Plugin Management Facility. The
@@ -54,6 +55,18 @@ export class PluginManagementFacility {
         }
 
         return this.mInstance;
+    }
+
+    /**
+     * Internal reference to the overrides provided by plugins.
+     */
+    private mPluginOverrides: IImperativeOverrides = {};
+
+    /**
+     * Object that defines what overrides will be provided by all plugins.
+     */
+    public get pluginOverrides(): IImperativeOverrides {
+        return this.mPluginOverrides;
     }
 
     /**
@@ -222,6 +235,11 @@ export class PluginManagementFacility {
             const nextPluginCfgProps = this.loadPluginCfgProps(nextPluginNm);
             if ( nextPluginCfgProps) {
                 allPluginCfgProps.push(nextPluginCfgProps);
+
+                // @TODO CLEANUP THE OVERRIDES LATER USING SETTINGS CONCEPT
+                // For now we will just keep merging objects
+                Object.assign(this.mPluginOverrides, nextPluginCfgProps.impConfig.overrides);
+                // @TODO END
             } else {
                 this.impLogger.error(
                     "loadAllPluginCfgProps: Unable to load the configuration for the plug-in named '" +
