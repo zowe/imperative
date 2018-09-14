@@ -134,6 +134,15 @@ export class Logger {
         this.initStatus = LoggerStatus.instance.isLoggerInit;
     }
 
+    /**
+     * general log message function used by the constructor to log queueud messages
+     * stored in member prior to Logger init was called.
+     * this function using the logger that was created during the time the class is
+     * constructed.  Therefore, if log4js is not config properly prior to the function
+     * was called, then the message may not log to any file.
+     * @param method - log method to log the message with.
+     * @param message - message to log.
+     */
     public logMessage(method: string, message: string) {
         const logger = this.mJsLogger;
         switch (method) {
@@ -175,7 +184,12 @@ export class Logger {
      */
     public trace(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        this.logService.trace(this.getCallerFileAndLineTag() + finalMessage);
+        if (LoggerStatus.instance.isLoggerInit) {
+            this.logService.trace(this.getCallerFileAndLineTag() + finalMessage);
+        } else {
+            LoggerStatus.instance.queueMessage(this.category, "trace", this.getCallerFileAndLineTag() + finalMessage);
+        }
+
         return finalMessage;
     }
 
@@ -224,7 +238,11 @@ export class Logger {
      */
     public warn(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        this.logService.warn(this.getCallerFileAndLineTag() + finalMessage);
+        if (LoggerStatus.instance.isLoggerInit) {
+            this.logService.warn(this.getCallerFileAndLineTag() + finalMessage);
+        } else {
+            LoggerStatus.instance.queueMessage(this.category, "warn", this.getCallerFileAndLineTag() + finalMessage);
+        }
         return finalMessage;
     }
 
@@ -237,7 +255,11 @@ export class Logger {
      */
     public error(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        this.logService.error(this.getCallerFileAndLineTag() + finalMessage);
+        if (LoggerStatus.instance.isLoggerInit) {
+            this.logService.error(this.getCallerFileAndLineTag() + finalMessage);
+        } else {
+            LoggerStatus.instance.queueMessage(this.category, "error", this.getCallerFileAndLineTag() + finalMessage);
+        }
         return finalMessage;
     }
 
@@ -250,7 +272,11 @@ export class Logger {
      */
     public fatal(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        this.logService.fatal(this.getCallerFileAndLineTag() + finalMessage);
+        if (LoggerStatus.instance.isLoggerInit) {
+            this.logService.fatal(this.getCallerFileAndLineTag() + finalMessage);
+        } else {
+            LoggerStatus.instance.queueMessage(this.category, "fatal", this.getCallerFileAndLineTag() + finalMessage);
+        }
         return finalMessage;
     }
 
@@ -263,7 +289,11 @@ export class Logger {
      */
     public simple(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        this.logService.info(finalMessage);
+        if (LoggerStatus.instance.isLoggerInit) {
+            this.logService.info(finalMessage);
+        } else {
+            LoggerStatus.instance.queueMessage(this.category, "simple", finalMessage);
+        }
         return finalMessage;
     }
 
