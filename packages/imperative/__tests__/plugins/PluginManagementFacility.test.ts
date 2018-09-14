@@ -30,6 +30,7 @@ import { ConfigurationValidator } from "../../src/ConfigurationValidator";
 import { ICommandProfileTypeConfiguration } from "../../../cmd";
 import { DefinitionTreeResolver } from "../../src/DefinitionTreeResolver";
 import { ImperativeError } from "../../../error";
+import {IPluginCfgProps} from "../../src/plugins/doc/IPluginCfgProps";
 
 describe("Plugin Management Facility", () => {
     const mocks = {
@@ -180,40 +181,120 @@ describe("Plugin Management Facility", () => {
         impCfg.findPackageBinName = realFindPackageBinName;
     });
 
-    describe("Initializes plugin files", () => {
-        it("should create the file and directory", () => {
+    describe("loadAllPluginCfgProps function", () => {
+        const mockInstalledPlugins: IPluginJson = {
+            firstPlugin: {package: "1", registry: "1", version: "1"},
+            secondPlugin: {package: "2", registry: "2", version: "2"}
+        };
+        const loadPluginCfgPropsReal: any = PMF.loadPluginCfgProps;
+        const loadPluginCfgPropsMock = jest.fn();
+
+        beforeAll(() => {
+            // loadPluginCfgProps is a sub-function that we do not want to run
+            PMF.loadPluginCfgProps = loadPluginCfgPropsMock;
+        });
+
+        afterAll(() => {
+            PMF.loadPluginCfgProps = loadPluginCfgPropsReal;
+        });
+
+        beforeEach(() => {
+            // supply data for PluginIssues.getInstalledPlugins()
+            mocks.readFileSync.mockReturnValue(mockInstalledPlugins);
+        });
+
+        it("should create the plugins.json file and directory", () => {
             mocks.existsSync
-                .mockReturnValueOnce(false)
-                .mockReturnValueOnce(false);
+                .mockReturnValueOnce(false)   // directory does not exist
+                .mockReturnValueOnce(false);  // plugins.json does not exist
 
-            PluginManagementFacility.instance.init();
+            PluginManagementFacility.instance.loadAllPluginCfgProps();
 
+            // confirm it created the plugins directory
             expect(mocks.mkdirSync).toHaveBeenCalledWith(PMFConstants.instance.PMF_ROOT);
 
+            // confirm it wrote plugins.json
             // Can't check toHaveBeenCalledWith because of magic typescript voodoo. Apparently the compiled
             // JavaScript has extra parameters.
             expect(mocks.writeFileSync).toHaveBeenCalledTimes(1);
             expect(mocks.writeFileSync.mock.calls[0][0]).toBe(PMFConstants.instance.PLUGIN_JSON);
         });
 
-        it("should create the file but not the directory", () => {
+        it("should create the plugins.json file but not the directory", () => {
             mocks.existsSync
-                .mockReturnValueOnce(false)
-                .mockReturnValueOnce(true);
+                .mockReturnValueOnce(false) // directory does not exist
+                .mockReturnValueOnce(true); // file does exist
 
-            PluginManagementFacility.instance.init();
+            PluginManagementFacility.instance.loadAllPluginCfgProps();
 
+            // confirm that we created the directory and wrote the file
             expect(mocks.mkdirSync).not.toHaveBeenCalled();
             expect(mocks.writeFileSync).toHaveBeenCalledTimes(1);
         });
 
         it("should not create the file", () => {
-            mocks.existsSync.mockReturnValue(true);
-            PluginManagementFacility.instance.init();
+            mocks.existsSync.mockReturnValue(true);  // both directory and file exists
+            PluginManagementFacility.instance.loadAllPluginCfgProps();
 
+            // confirm that we did not write plugins.json
             expect(mocks.writeFileSync).not.toHaveBeenCalled();
         });
-    });
+
+        it("should not crash when loadPluginCfgProps returns null", () => {
+            mocks.existsSync.mockReturnValue(true);  // both directory and file exists
+            loadPluginCfgPropsMock.mockReturnValue(null);
+
+            PluginManagementFacility.instance.loadAllPluginCfgProps();
+        });
+
+        it("should not crash when loadPluginCfgProps has no overrides", () => {
+            const pluginCfgProps: IPluginCfgProps = {
+                pluginName,
+                npmPackageName: "PluginHasNoNpmPkgName",
+                impConfig: {},
+                cliDependency: {
+                    peerDepName: "@brightside/core",
+                    peerDepVer: "-1"
+                },
+                impDependency: {
+                    peerDepName: "@brightside/imperative",
+                    peerDepVer: "-1"
+                }
+            };
+
+            mocks.existsSync.mockReturnValue(true);  // both directory and file exists
+            loadPluginCfgPropsMock.mockReturnValue(pluginCfgProps);
+
+            PluginManagementFacility.instance.loadAllPluginCfgProps();
+        });
+
+        it("should store the CredentialManager override", () => {
+            const credMgrOverride = {
+                CredentialManager: "CredentialManagerOverrideString"
+            };
+            const pluginCfgProps: IPluginCfgProps = {
+                pluginName,
+                npmPackageName: "PluginHasNoNpmPkgName",
+                impConfig: {
+                    overrides: credMgrOverride
+                },
+                cliDependency: {
+                    peerDepName: "@brightside/core",
+                    peerDepVer: "-1"
+                },
+                impDependency: {
+                    peerDepName: "@brightside/imperative",
+                    peerDepVer: "-1"
+                }
+            };
+
+            mocks.existsSync.mockReturnValue(true);  // both directory and file exists
+            loadPluginCfgPropsMock.mockReturnValue(pluginCfgProps);
+
+            PluginManagementFacility.instance.loadAllPluginCfgProps();
+            expect(PMF.pluginOverrides).toEqual(credMgrOverride);
+        });
+    }); // end loadAllPluginCfgProps
 
     describe("Plugin validation", () => {
         let badPluginConfig: IImperativeConfig = null;
