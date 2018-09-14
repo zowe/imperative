@@ -47,6 +47,10 @@ import { OverridesLoader } from "./OverridesLoader";
 import { ImperativeProfileManagerFactory } from "./profiles/ImperativeProfileManagerFactory";
 import { ImperativeConfig } from "./ImperativeConfig";
 import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
+import { AppSettings } from "../../settings";
+import {join} from "path";
+import {existsSync, mkdirSync, writeFileSync} from "fs";
+import * as jsonfile from "jsonfile";
 
 export class Imperative {
 
@@ -98,6 +102,9 @@ export class Imperative {
                 );
                 ConfigurationValidator.validate(config);
                 ImperativeConfig.instance.loadedConfig = config;
+
+                // Initialize our settings file
+                this.initAppSettings();
 
                 /* TODO: Create some logger placeholder that just caches messages
                  * until we can initialize logging. This allows us to call methods that
@@ -196,6 +203,9 @@ export class Imperative {
                  */
                 initializationComplete();
             } catch (error) {
+                if (error.report) {
+                    writeFileSync(`${process.cwd()}/imperative_debug.log`, error.report);
+                }
                 initializationFailed(
                     error instanceof ImperativeError ?
                         error :
@@ -318,6 +328,30 @@ export class Imperative {
      */
     private static get log(): Logger {
         return this.mLog;
+    }
+
+    /**
+     * Load the correct {@link AppSettings} instance from values located in the
+     * cli home folder.
+     */
+    private static initAppSettings() {
+        const cliSettingsRoot = join(ImperativeConfig.instance.cliHome, "settings");
+        const cliSettingsFile = join(cliSettingsRoot, "imperative.json");
+
+        AppSettings.initialize(
+            cliSettingsFile,
+            (settingsFile, defaultSettings) => {
+                if (!existsSync(cliSettingsRoot)) {
+                    mkdirSync(cliSettingsRoot);
+                }
+
+                jsonfile.writeFileSync(settingsFile, defaultSettings, {
+                    spaces: 2
+                });
+
+                return defaultSettings;
+            }
+        );
     }
 
     /**
@@ -493,5 +527,4 @@ export class Imperative {
         }
         return api;
     }
-
 }
