@@ -9,9 +9,10 @@
  *                                                                                       *
  */
 
-import {readFileSync} from "jsonfile";
+import {readFileSync, writeFile} from "jsonfile";
 import {existsSync} from "fs";
 import {ISettingsFile} from "./doc/ISettingsFile";
+import {Logger} from "../../logger";
 
 /**
  * A recovery function to handle when a settings file is missing on an initialization function.
@@ -106,9 +107,18 @@ export class AppSettings {
                 throw up;
             }
         }
-        this.settings = {
-            ...defaultSettings,
-            ...settings
-        };
+
+        // Merge objects loaded recursively
+        const mergeObjects = require("merge-objects");
+        this.settings = mergeObjects(defaultSettings, settings);
+
+        writeFile(settingsFile, this.settings, {
+            spaces: 2
+        }, (err) => {
+            if (err) {
+                Logger.getImperativeLogger().error("Unable to save settings");
+                Logger.getImperativeLogger().error(err.toString());
+            }
+        });
     }
 }
