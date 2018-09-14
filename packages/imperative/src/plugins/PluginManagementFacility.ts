@@ -127,7 +127,7 @@ export class PluginManagementFacility {
      * @private
      * @type {string}
      */
-    private currPluginName: string = null;
+    private pluginNmForUseInCallback: string = "NoPluginNameAssigned";
 
     /**
      * A set of bright dependencies used by plugins. Each item in the
@@ -263,13 +263,13 @@ export class PluginManagementFacility {
      * @returns {any} - The content exported from the specified module.
      */
     public requirePluginModule(relativePath: string): any {
-        const pluginModuleRuntimePath = this.formPluginRuntimePath(this.currPluginName, relativePath);
+        const pluginModuleRuntimePath = this.formPluginRuntimePath(this.pluginNmForUseInCallback, relativePath);
         try {
             return require(pluginModuleRuntimePath);
         } catch (requireError) {
-            PluginIssues.instance.recordIssue(this.currPluginName, IssueSeverity.ERROR,
+            PluginIssues.instance.recordIssue(this.pluginNmForUseInCallback, IssueSeverity.ERROR,
                 "Unable to load the following module for plug-in '" +
-                this.currPluginName + "' :\n" + pluginModuleRuntimePath + "\n" +
+                this.pluginNmForUseInCallback + "' :\n" + pluginModuleRuntimePath + "\n" +
                 "Reason = " + requireError.message
             );
             return "{}";
@@ -410,6 +410,8 @@ export class PluginManagementFacility {
      * If the versions do not intersect (according so semver rules), then a
      * PluginIssue is recorded.
      *
+     * @param  pluginName - The name of the plugin.
+     *
      * @param  pluginVerPropNm - The name of the plugin property containing a version.
      *
      * @param  pluginVerVal - value of the plugin's version.
@@ -420,6 +422,7 @@ export class PluginManagementFacility {
      *
      */
     private comparePluginVersionToCli(
+        pluginName: string,
         pluginVerPropNm: string,
         pluginVerVal: string,
         cliVerPropNm: string,
@@ -428,7 +431,7 @@ export class PluginManagementFacility {
         const cliCmdName = this.getCliCmdName();
         try {
             if (!this.semver.intersects(cliVerVal, pluginVerVal, false)) {
-                this.pluginIssues.recordIssue(this.currPluginName, IssueSeverity.WARNING,
+                this.pluginIssues.recordIssue(pluginName, IssueSeverity.WARNING,
                     "The version value (" + pluginVerVal + ") of the plugin's '" +
                     pluginVerPropNm + "' property is incompatible with the version value (" +
                     cliVerVal + ") of the " + cliCmdName + " command's '" +
@@ -436,7 +439,7 @@ export class PluginManagementFacility {
                 );
             }
         } catch (semverExcept) {
-            PluginIssues.instance.recordIssue(this.currPluginName, IssueSeverity.WARNING,
+            PluginIssues.instance.recordIssue(pluginName, IssueSeverity.WARNING,
                 "Failed to compare the version value (" +
                 pluginVerVal + ") of the plugin's '" + pluginVerPropNm +
                 "' property with the version value (" + cliVerVal +
@@ -739,7 +742,7 @@ export class PluginManagementFacility {
 
         // use the core imperative loader because it will load config modules
         let pluginConfig: IImperativeConfig;
-        this.currPluginName = pluginName;
+        this.pluginNmForUseInCallback = pluginName;
         try {
             pluginConfig = ConfigurationLoader.load(
                 null, pkgJsonData, this.requirePluginModule.bind(this)
@@ -753,6 +756,7 @@ export class PluginManagementFacility {
             );
             return null;
         }
+        this.pluginNmForUseInCallback = "NoPluginNameAssigned";
 
         pluginCfgProps.impConfig = pluginConfig;
         return pluginCfgProps;
@@ -783,6 +787,7 @@ export class PluginManagementFacility {
         if ( pluginCfgProps.cliDependency.peerDepVer !== this.noPeerDependency) {
             if (cliPackageJson.hasOwnProperty(cliVerPropName)) {
                 this.comparePluginVersionToCli(
+                    pluginCfgProps.pluginName,
                     pluginCfgProps.cliDependency.peerDepName,
                     pluginCfgProps.cliDependency.peerDepVer,
                     cliVerPropName,
@@ -807,6 +812,7 @@ export class PluginManagementFacility {
             if (cliPackageJson.hasOwnProperty(cliDepPropName)) {
                 if (cliPackageJson[cliDepPropName].hasOwnProperty(cliVerPropName)) {
                     this.comparePluginVersionToCli(
+                        pluginCfgProps.pluginName,
                         pluginCfgProps.impDependency.peerDepName,
                         pluginCfgProps.impDependency.peerDepVer,
                         cliVerPropName,
