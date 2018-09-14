@@ -47,6 +47,11 @@ import { OverridesLoader } from "./OverridesLoader";
 import { ImperativeProfileManagerFactory } from "./profiles/ImperativeProfileManagerFactory";
 import { ImperativeConfig } from "./ImperativeConfig";
 import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
+import { LoggerManager } from "../../logger/src/LoggerManager";
+import { AppSettings } from "../../settings";
+import {join} from "path";
+import {existsSync, mkdirSync, writeFileSync} from "fs";
+import * as jsonfile from "jsonfile";
 
 export class Imperative {
 
@@ -68,6 +73,11 @@ export class Imperative {
         return this.mFullCommandTree;
     }
 
+    public static get mLog(): Logger {
+        // return Logger.getImperativeLogger();
+        return Logger.getConsoleLogger();
+    }
+
     /**
      * Initialize the configuration for your CLI.
      * Wipes out any existing config that has already been set.
@@ -86,6 +96,11 @@ export class Imperative {
         return new Promise<void>(async (initializationComplete: () => void, initializationFailed: ImperativeReject) => {
             try {
                 /**
+                 * Config Logger Manager to enable log messages in memory prior to logger init.
+                 */
+                LoggerManager.instance.logInMemory = true;
+
+                /**
                  * Identify caller's location on the system
                  */
                 ImperativeConfig.instance.callerLocation = process.mainModule.filename;
@@ -98,6 +113,9 @@ export class Imperative {
                 );
                 ConfigurationValidator.validate(config);
                 ImperativeConfig.instance.loadedConfig = config;
+
+                // Initialize our settings file
+                this.initAppSettings();
 
                 /* TODO: Create some logger placeholder that just caches messages
                  * until we can initialize logging. This allows us to call methods that
@@ -196,6 +214,9 @@ export class Imperative {
                  */
                 initializationComplete();
             } catch (error) {
+                if (error.report) {
+                    writeFileSync(`${process.cwd()}/imperative_debug.log`, error.report);
+                }
                 initializationFailed(
                     error instanceof ImperativeError ?
                         error :
@@ -307,7 +328,7 @@ export class Imperative {
 
     private static yargs = require("yargs");
     private static mApi: ImperativeApi;
-    private static mLog: Logger;
+    // private static mLog: Logger;
     private static mConsoleLog: Logger;
     private static mFullCommandTree: ICommandDefinition;
     private static mRootCommandName: string;
@@ -321,13 +342,41 @@ export class Imperative {
     }
 
     /**
+     * Load the correct {@link AppSettings} instance from values located in the
+     * cli home folder.
+     */
+    private static initAppSettings() {
+        const cliSettingsRoot = join(ImperativeConfig.instance.cliHome, "settings");
+        const cliSettingsFile = join(cliSettingsRoot, "imperative.json");
+
+        AppSettings.initialize(
+            cliSettingsFile,
+            (settingsFile, defaultSettings) => {
+                if (!existsSync(cliSettingsRoot)) {
+                    mkdirSync(cliSettingsRoot);
+                }
+
+                jsonfile.writeFileSync(settingsFile, defaultSettings, {
+                    spaces: 2
+                });
+
+                return defaultSettings;
+            }
+        );
+    }
+
+    /**
      * Init log object such that subsequent calls to the Logger.getImperativeLogger() (or
      * other similar calls), will contain all necessary categories for logging.
      *
      * TODO(Kelosky): handle level setting via global config (trace enabling and such)
      */
     private static initLogging() {
-
+        /**
+         * Save reference to our instance
+         */
+        // this.mLog = Logger.getImperativeLogger();
+        // this.mLog = Logger.getConsoleLogger();
         /**
          * Build logging config from imperative config
          */
@@ -337,11 +386,6 @@ export class Imperative {
          * Setup log4js
          */
         Logger.initLogger(loggingConfig);
-
-        /**
-         * Save reference to our instance
-         */
-        this.mLog = Logger.getImperativeLogger();
 
         /**
          * Set log levels from environmental variable settings
@@ -493,5 +537,4 @@ export class Imperative {
         }
         return api;
     }
-
 }

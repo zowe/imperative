@@ -16,8 +16,10 @@ import * as path from "path";
 import {TextUtils} from "../../utilities";
 import {IO} from "../../io";
 import {IConfigLogging} from "./doc/IConfigLogging";
+import {LoggerManager} from "./LoggerManager";
 import * as log4js from "log4js";
 import {Console} from "../../console";
+import { exists } from "fs";
 
 /**
  * Note(Kelosky): it seems from the log4js doc that you only get a single
@@ -26,6 +28,7 @@ import {Console} from "../../console";
 export class Logger {
     public static readonly DEFAULT_IMPERATIVE_NAME = "imperative";
     public static readonly DEFAULT_APP_NAME = "app";
+    public static readonly DEFAULT_CONSOLE_NAME = "console";
 
     /**
      * Get accessibility to logging service to invoke log calls, e.g
@@ -33,8 +36,12 @@ export class Logger {
      * @param {string} category - category of logger to obtain
      * @return {Logger} - instance of logger set to our app's category
      */
-    public static getLoggerCategory(category: string) {
-        return new Logger(log4js.getLogger(category));
+    public static getLoggerCategory(category: string, loginMemory?: boolean) {
+        if (category === Logger.DEFAULT_CONSOLE_NAME || loginMemory === false) {
+            return new Logger(new Console(), Logger.DEFAULT_CONSOLE_NAME);
+        } else {
+            return new Logger(log4js.getLogger(category), category, loginMemory);
+        }
     }
 
     /**
@@ -42,16 +49,16 @@ export class Logger {
      * Logger.getLogger.info("important log info goes here");
      * @return {Logger} - instance of logger set to our app's category
      */
-    public static getImperativeLogger() {
-        return Logger.getLoggerCategory("imperative");
+    public static getImperativeLogger(loginMemory?: boolean) {
+        return Logger.getLoggerCategory(Logger.DEFAULT_IMPERATIVE_NAME, loginMemory);
     }
 
     /**
      * Get log4js instance directed at our app's category.
      * @return {Logger} - instance of logger set to our app's category
      */
-    public static getAppLogger() {
-        return Logger.getLoggerCategory("app");
+    public static getAppLogger(loginMemory?: boolean) {
+        return Logger.getLoggerCategory(Logger.DEFAULT_APP_NAME, loginMemory);
     }
 
     /**
@@ -65,7 +72,7 @@ export class Logger {
      * @return {Logger} - instance of logger set to our app's category
      */
     public static getConsoleLogger() {
-        return new Logger(new Console());
+        return Logger.getLoggerCategory(Logger.DEFAULT_CONSOLE_NAME);
     }
 
     /**
@@ -101,6 +108,7 @@ export class Logger {
             log4js.configure(loggingConfig.log4jsConfig as any);
             logger = log4js.getLogger();
             logger.level = "debug";
+            LoggerManager.instance.isLoggerInit = true;
             return new Logger(logger);
         } catch (err) {
             const cons = new Console();
@@ -110,7 +118,58 @@ export class Logger {
 
     }
 
-    constructor(private mJsLogger: log4js.Logger | Console) {
+    private initStatus: boolean;
+
+    constructor(private mJsLogger: log4js.Logger | Console, private category?: string, private logInMemory?: boolean) {
+        if (LoggerManager.instance.isLoggerInit && LoggerManager.instance.QueuedMessages.length > 0) {
+            LoggerManager.instance.QueuedMessages.slice().reverse().forEach((value, index) => {
+                if (this.category === value.category) {
+                    this.logMessage(value.method, value.message);
+                    LoggerManager.instance.QueuedMessages.splice(LoggerManager.instance.QueuedMessages.indexOf(value), 1);
+                }
+            });
+        }
+
+        this.initStatus = LoggerManager.instance.isLoggerInit;
+    }
+
+    /**
+     * general log message function used by the constructor to log queueud messages
+     * stored in member prior to Logger init was called.
+     * this function using the logger that was created during the time the class is
+     * constructed.  Therefore, if log4js is not config properly prior to the function
+     * was called, then the message may not log to any file.
+     * @param method - log method to log the message with.
+     * @param message - message to log.
+     */
+    public logMessage(method: string, message: string) {
+        const logger = this.mJsLogger;
+        switch (method) {
+            case "trace":
+                logger.trace(message);
+                break;
+            case "debug":
+                logger.debug(message);
+                break;
+            case "info":
+                logger.info(message);
+                break;
+            case "warn":
+                logger.warn(message);
+                break;
+            case "error":
+                logger.error(message);
+                break;
+            case "fatal":
+                logger.fatal(message);
+                break;
+            case "simple":
+                logger.info(message);
+                break;
+            default:
+                logger.info(message);
+                break;
+        }
     }
 
     // TODO: Can we find trace info for TypeScript to have e.g.  [ERROR] Jobs.ts : 43 - Error encountered
@@ -124,7 +183,12 @@ export class Logger {
      */
     public trace(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        this.logService.trace(this.getCallerFileAndLineTag() + finalMessage);
+        if (LoggerManager.instance.isLoggerInit) {
+            this.logService.trace(this.getCallerFileAndLineTag() + finalMessage);
+        } else {
+            LoggerManager.instance.queueMessage(this.category, "trace", this.getCallerFileAndLineTag() + finalMessage);
+        }
+
         return finalMessage;
     }
 
@@ -137,7 +201,12 @@ export class Logger {
      */
     public debug(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        this.logService.debug(this.getCallerFileAndLineTag() + finalMessage);
+        if (LoggerManager.instance.isLoggerInit) {
+            this.logService.debug(this.getCallerFileAndLineTag() + finalMessage);
+        } else {
+            LoggerManager.instance.queueMessage(this.category, "debug", this.getCallerFileAndLineTag() + finalMessage);
+        }
+
         return finalMessage;
     }
 
@@ -150,7 +219,12 @@ export class Logger {
      */
     public info(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        this.logService.info(this.getCallerFileAndLineTag() + finalMessage);
+        if (LoggerManager.instance.isLoggerInit) {
+            this.logService.info(this.getCallerFileAndLineTag() + finalMessage);
+        } else {
+            LoggerManager.instance.queueMessage(this.category, "info", this.getCallerFileAndLineTag() + finalMessage);
+        }
+
         return finalMessage;
     }
 
@@ -163,7 +237,11 @@ export class Logger {
      */
     public warn(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        this.logService.warn(this.getCallerFileAndLineTag() + finalMessage);
+        if (LoggerManager.instance.isLoggerInit) {
+            this.logService.warn(this.getCallerFileAndLineTag() + finalMessage);
+        } else {
+            LoggerManager.instance.queueMessage(this.category, "warn", this.getCallerFileAndLineTag() + finalMessage);
+        }
         return finalMessage;
     }
 
@@ -176,7 +254,11 @@ export class Logger {
      */
     public error(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        this.logService.error(this.getCallerFileAndLineTag() + finalMessage);
+        if (LoggerManager.instance.isLoggerInit) {
+            this.logService.error(this.getCallerFileAndLineTag() + finalMessage);
+        } else {
+            LoggerManager.instance.queueMessage(this.category, "error", this.getCallerFileAndLineTag() + finalMessage);
+        }
         return finalMessage;
     }
 
@@ -189,7 +271,11 @@ export class Logger {
      */
     public fatal(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        this.logService.fatal(this.getCallerFileAndLineTag() + finalMessage);
+        if (LoggerManager.instance.isLoggerInit) {
+            this.logService.fatal(this.getCallerFileAndLineTag() + finalMessage);
+        } else {
+            LoggerManager.instance.queueMessage(this.category, "fatal", this.getCallerFileAndLineTag() + finalMessage);
+        }
         return finalMessage;
     }
 
@@ -202,7 +288,11 @@ export class Logger {
      */
     public simple(message: string, ...args: any[]): string {
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
-        this.logService.info(finalMessage);
+        if (LoggerManager.instance.isLoggerInit) {
+            this.logService.info(finalMessage);
+        } else {
+            LoggerManager.instance.queueMessage(this.category, "simple", finalMessage);
+        }
         return finalMessage;
     }
 
@@ -297,6 +387,12 @@ export class Logger {
      * Get underlying logger service
      */
     private get logService() {
+        if (this.initStatus !== LoggerManager.instance.isLoggerInit) {
+            const newLogger = Logger.getLoggerCategory(this.category);
+            this.mJsLogger = newLogger.mJsLogger;
+            this.initStatus = newLogger.initStatus;
+        }
+
         return this.mJsLogger;
     }
 
