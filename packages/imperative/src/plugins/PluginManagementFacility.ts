@@ -25,6 +25,7 @@ import { IssueSeverity, PluginIssues } from "./utilities/PluginIssues";
 import { ConfigurationValidator } from "../ConfigurationValidator";
 import { ConfigurationLoader } from "../ConfigurationLoader";
 import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
+import {IImperativeOverrides} from "../doc/IImperativeOverrides";
 
 /**
  * This class is the main engine for the Plugin Management Facility. The
@@ -54,6 +55,30 @@ export class PluginManagementFacility {
         }
 
         return this.mInstance;
+    }
+
+    /**
+     * Internal reference to the set of configuration properties for all loaded plugins.
+     */
+    private mAllPluginCfgProps: IPluginCfgProps[] = [];
+
+    /**
+     * Get the set of configuration properties for all loaded plugins.
+     */
+    public get allPluginCfgProps(): IPluginCfgProps[] {
+        return this.mAllPluginCfgProps;
+    }
+
+    /**
+     * Internal reference to the overrides provided by plugins.
+     */
+    private mPluginOverrides: IImperativeOverrides = {};
+
+    /**
+     * Object that defines what overrides will be provided by all plugins.
+     */
+    public get pluginOverrides(): IImperativeOverrides {
+        return this.mPluginOverrides;
     }
 
     /**
@@ -102,7 +127,7 @@ export class PluginManagementFacility {
      * @private
      * @type {string}
      */
-    private currPluginName: string = null;
+    private pluginNmForUseInCallback: string = "NoPluginNameAssigned";
 
     /**
      * A set of bright dependencies used by plugins. Each item in the
@@ -162,21 +187,15 @@ export class PluginManagementFacility {
     /**
      * Add all installed plugins' commands and profiles into the host CLI's command tree.
      *
-     * @param allPluginCfgProps - An array containing the configurations of
-     *        all installed plugins.
-     *
      * @param resolvedCliCmdTree - The CLI command tree with
      *        module globs already resolved.
      */
-    public addAllPluginsToHostCli(
-        allPluginCfgProps: IPluginCfgProps[],
-        resolvedCliCmdTree: ICommandDefinition
-    ): void {
+    public addAllPluginsToHostCli(resolvedCliCmdTree: ICommandDefinition): void {
         // Store the host CLI command tree. Later functions will use it.
         this.resolvedCliCmdTree = resolvedCliCmdTree;
 
         // Loop through each plugin and add it to the CLI command tree
-        for (const nextPluginCfgProps of allPluginCfgProps) {
+        for (const nextPluginCfgProps of this.mAllPluginCfgProps) {
             this.addPluginToHostCli(nextPluginCfgProps);
 
             // log the issue list for this plugin
@@ -200,11 +219,9 @@ export class PluginManagementFacility {
      * information is used when overriding a piece of the imperative
      * infrastructure with a plugin's capability, when validating each plugin,
      * and when adding each plugin's commands to the CLI command tree.
-     *
-     * @returns {IPluginCfgProps} - An array containing configuration properties
-     *    for each plugin. Errors are recorded in PluginIssues.
+     * Errors are recorded in PluginIssues.
      */
-    public loadAllPluginCfgProps(): IPluginCfgProps[] {
+    public loadAllPluginCfgProps(): void {
         // Initialize the plugin.json file if needed
         if (!existsSync(this.pmfConst.PLUGIN_JSON)) {
             if (!existsSync(this.pmfConst.PMF_ROOT)) {
@@ -217,11 +234,15 @@ export class PluginManagementFacility {
         }
 
         // iterate through all of our installed plugins
-        const allPluginCfgProps: IPluginCfgProps[] = [];
         for (const nextPluginNm of Object.keys(this.pluginIssues.getInstalledPlugins())) {
             const nextPluginCfgProps = this.loadPluginCfgProps(nextPluginNm);
             if ( nextPluginCfgProps) {
-                allPluginCfgProps.push(nextPluginCfgProps);
+                this.mAllPluginCfgProps.push(nextPluginCfgProps);
+
+                // @TODO CLEANUP THE OVERRIDES LATER USING SETTINGS CONCEPT
+                // For now we will just keep merging objects
+                Object.assign(this.mPluginOverrides, nextPluginCfgProps.impConfig.overrides);
+                // @TODO END
             } else {
                 this.impLogger.error(
                     "loadAllPluginCfgProps: Unable to load the configuration for the plug-in named '" +
@@ -229,8 +250,6 @@ export class PluginManagementFacility {
                 );
             }
         }
-
-        return allPluginCfgProps;
     }
 
     // __________________________________________________________________________
@@ -244,13 +263,13 @@ export class PluginManagementFacility {
      * @returns {any} - The content exported from the specified module.
      */
     public requirePluginModule(relativePath: string): any {
-        const pluginModuleRuntimePath = this.formPluginRuntimePath(this.currPluginName, relativePath);
+        const pluginModuleRuntimePath = this.formPluginRuntimePath(this.pluginNmForUseInCallback, relativePath);
         try {
             return require(pluginModuleRuntimePath);
         } catch (requireError) {
-            PluginIssues.instance.recordIssue(this.currPluginName, IssueSeverity.ERROR,
+            PluginIssues.instance.recordIssue(this.pluginNmForUseInCallback, IssueSeverity.ERROR,
                 "Unable to load the following module for plug-in '" +
-                this.currPluginName + "' :\n" + pluginModuleRuntimePath + "\n" +
+                this.pluginNmForUseInCallback + "' :\n" + pluginModuleRuntimePath + "\n" +
                 "Reason = " + requireError.message
             );
             return "{}";
@@ -391,6 +410,8 @@ export class PluginManagementFacility {
      * If the versions do not intersect (according so semver rules), then a
      * PluginIssue is recorded.
      *
+     * @param  pluginName - The name of the plugin.
+     *
      * @param  pluginVerPropNm - The name of the plugin property containing a version.
      *
      * @param  pluginVerVal - value of the plugin's version.
@@ -401,6 +422,7 @@ export class PluginManagementFacility {
      *
      */
     private comparePluginVersionToCli(
+        pluginName: string,
         pluginVerPropNm: string,
         pluginVerVal: string,
         cliVerPropNm: string,
@@ -409,7 +431,7 @@ export class PluginManagementFacility {
         const cliCmdName = this.getCliCmdName();
         try {
             if (!this.semver.intersects(cliVerVal, pluginVerVal, false)) {
-                this.pluginIssues.recordIssue(this.currPluginName, IssueSeverity.WARNING,
+                this.pluginIssues.recordIssue(pluginName, IssueSeverity.WARNING,
                     "The version value (" + pluginVerVal + ") of the plugin's '" +
                     pluginVerPropNm + "' property is incompatible with the version value (" +
                     cliVerVal + ") of the " + cliCmdName + " command's '" +
@@ -417,7 +439,7 @@ export class PluginManagementFacility {
                 );
             }
         } catch (semverExcept) {
-            PluginIssues.instance.recordIssue(this.currPluginName, IssueSeverity.WARNING,
+            PluginIssues.instance.recordIssue(pluginName, IssueSeverity.WARNING,
                 "Failed to compare the version value (" +
                 pluginVerVal + ") of the plugin's '" + pluginVerPropNm +
                 "' property with the version value (" + cliVerVal +
@@ -720,7 +742,7 @@ export class PluginManagementFacility {
 
         // use the core imperative loader because it will load config modules
         let pluginConfig: IImperativeConfig;
-        this.currPluginName = pluginName;
+        this.pluginNmForUseInCallback = pluginName;
         try {
             pluginConfig = ConfigurationLoader.load(
                 null, pkgJsonData, this.requirePluginModule.bind(this)
@@ -734,6 +756,7 @@ export class PluginManagementFacility {
             );
             return null;
         }
+        this.pluginNmForUseInCallback = "NoPluginNameAssigned";
 
         pluginCfgProps.impConfig = pluginConfig;
         return pluginCfgProps;
@@ -764,6 +787,7 @@ export class PluginManagementFacility {
         if ( pluginCfgProps.cliDependency.peerDepVer !== this.noPeerDependency) {
             if (cliPackageJson.hasOwnProperty(cliVerPropName)) {
                 this.comparePluginVersionToCli(
+                    pluginCfgProps.pluginName,
                     pluginCfgProps.cliDependency.peerDepName,
                     pluginCfgProps.cliDependency.peerDepVer,
                     cliVerPropName,
@@ -788,6 +812,7 @@ export class PluginManagementFacility {
             if (cliPackageJson.hasOwnProperty(cliDepPropName)) {
                 if (cliPackageJson[cliDepPropName].hasOwnProperty(cliVerPropName)) {
                     this.comparePluginVersionToCli(
+                        pluginCfgProps.pluginName,
                         pluginCfgProps.impDependency.peerDepName,
                         pluginCfgProps.impDependency.peerDepVer,
                         cliVerPropName,

@@ -89,7 +89,7 @@ export abstract class AbstractCredentialManager {
    *
    * @param {string} account The account (or profile identifier) associated with credentials
    *
-   * @returns {Promise<ILoadPassword>} The username and password associated with the account.
+   * @returns {Promise<string>} The username and password associated with the account.
    */
   public async load(account: string): Promise<string> {
     const encodedString = await this.loadCredentials(account);

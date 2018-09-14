@@ -12,7 +12,11 @@
 import {ICredentialManagerConstructor} from "../../../security";
 
 /**
- * All of the Default Imperative classes that can be changed by your Imperative CLI app
+ * All of the Default Imperative classes that can be changed by your Imperative CLI app.
+ *
+ * A plugin can also define overrides through the same means as an Imperative CLI app.
+ * When additional overrides provided by plugins are present, Imperative will favor
+ * those classes over ones provided by your application. @TODO ADD MORE DETAILS HERE LATER
  */
 export interface IImperativeOverrides {
   /**

@@ -48,6 +48,10 @@ import { ImperativeProfileManagerFactory } from "./profiles/ImperativeProfileMan
 import { ImperativeConfig } from "./ImperativeConfig";
 import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
 import { LoggerManager } from "../../logger/src/LoggerManager";
+import { AppSettings } from "../../settings";
+import {join} from "path";
+import {existsSync, mkdirSync, writeFileSync} from "fs";
+import * as jsonfile from "jsonfile";
 
 export class Imperative {
 
@@ -110,6 +114,9 @@ export class Imperative {
                 ConfigurationValidator.validate(config);
                 ImperativeConfig.instance.loadedConfig = config;
 
+                // Initialize our settings file
+                this.initAppSettings();
+
                 /* TODO: Create some logger placeholder that just caches messages
                  * until we can initialize logging. This allows us to call methods that
                  * use logging just like any method (but before logging is initialized).
@@ -131,12 +138,17 @@ export class Imperative {
                 }
 
                 // If plugins are allowed, enable core plugins commands
-                let allPluginCfgProps: IPluginCfgProps[] = [];
                 if (config.allowPlugins) {
                     PluginManagementFacility.instance.init();
 
                     // load the configuration of every installed plugin for later processing
-                    allPluginCfgProps = PluginManagementFacility.instance.loadAllPluginCfgProps();
+                    PluginManagementFacility.instance.loadAllPluginCfgProps();
+
+                    // Override the config object with things loaded from plugins
+                    Object.assign(
+                        ImperativeConfig.instance.loadedConfig.overrides,
+                        PluginManagementFacility.instance.pluginOverrides
+                    );
                 }
 
                 /**
@@ -174,7 +186,7 @@ export class Imperative {
 
                 // If plugins are allowed, add plugins' commands and profiles to the CLI command tree
                 if (config.allowPlugins) {
-                    PluginManagementFacility.instance.addAllPluginsToHostCli(allPluginCfgProps, resolvedHostCliCmdTree);
+                    PluginManagementFacility.instance.addAllPluginsToHostCli(resolvedHostCliCmdTree);
                     this.log.info("Plugins added to the CLI command tree.");
                 }
 
@@ -202,6 +214,9 @@ export class Imperative {
                  */
                 initializationComplete();
             } catch (error) {
+                if (error.report) {
+                    writeFileSync(`${process.cwd()}/imperative_debug.log`, error.report);
+                }
                 initializationFailed(
                     error instanceof ImperativeError ?
                         error :
@@ -324,6 +339,30 @@ export class Imperative {
      */
     private static get log(): Logger {
         return this.mLog;
+    }
+
+    /**
+     * Load the correct {@link AppSettings} instance from values located in the
+     * cli home folder.
+     */
+    private static initAppSettings() {
+        const cliSettingsRoot = join(ImperativeConfig.instance.cliHome, "settings");
+        const cliSettingsFile = join(cliSettingsRoot, "imperative.json");
+
+        AppSettings.initialize(
+            cliSettingsFile,
+            (settingsFile, defaultSettings) => {
+                if (!existsSync(cliSettingsRoot)) {
+                    mkdirSync(cliSettingsRoot);
+                }
+
+                jsonfile.writeFileSync(settingsFile, defaultSettings, {
+                    spaces: 2
+                });
+
+                return defaultSettings;
+            }
+        );
     }
 
     /**
@@ -498,5 +537,4 @@ export class Imperative {
         }
         return api;
     }
-
 }
