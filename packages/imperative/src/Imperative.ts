@@ -378,17 +378,12 @@ export class Imperative {
         const loggingConfig = LoggingConfigurer.configureLogger(ImperativeConfig.instance.cliHome, ImperativeConfig.instance.loadedConfig);
 
         /**
-         * Setup log4js
-         */
-        Logger.initLogger(loggingConfig);
-
-        /**
          * Set log levels from environmental variable settings
          */
         const envSettings = EnvironmentalVariableSettings.read(this.envVariablePrefix);
         if (envSettings.imperativeLogLevel.value != null) {
             // set the imperative log level based on the user's environmental variable, if any
-            this.log.level = envSettings.imperativeLogLevel.value;
+            loggingConfig.log4jsConfig.categories[Logger.DEFAULT_IMPERATIVE_NAME].level = envSettings.imperativeLogLevel.value;
             this.log.info("Set imperative log level to %s from environmental variable setting '%s'",
                 envSettings.imperativeLogLevel.value, envSettings.imperativeLogLevel.key);
         } else {
@@ -397,12 +392,17 @@ export class Imperative {
 
         if (envSettings.appLogLevel.value != null) {
             // set the app log level based on the user's environmental variable, if any
-            Logger.getAppLogger().level = envSettings.appLogLevel.value;
+            loggingConfig.log4jsConfig.categories[Logger.DEFAULT_APP_NAME].level = envSettings.appLogLevel.value;
             this.log.info("Set app log level to %s from environmental variable setting '%s'",
                 envSettings.appLogLevel.value, envSettings.appLogLevel.key);
         } else {
             this.log.info("Environmental setting for app log level ('%s') was blank.", envSettings.appLogLevel.key);
         }
+
+        /**
+         * Setup log4js
+         */
+        Logger.initLogger(loggingConfig);
     }
 
     /**

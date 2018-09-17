@@ -62,7 +62,7 @@ export class LoggerConfigBuilder {
      * Returns the constant values defined within the LoggerConfigBuilder for this config object
      * @return {IConfigLogging} - default object built
      */
-    public static addConsoleAppender(config: IConfigLogging, key: string, categoryName = key) {
+    public static addConsoleAppender(config: IConfigLogging, key: string, categoryName = key, logLevel?: string): IConfigLogging {
         config.log4jsConfig.appenders[key] = {
             type: LoggerConfigBuilder.DEFAULT_LOG_TYPE_CONSOLE,
             layout: {
@@ -72,7 +72,7 @@ export class LoggerConfigBuilder {
         };
         config.log4jsConfig.categories[categoryName] = {
             appenders: [key],
-            level: LoggerConfigBuilder.DEFAULT_LOG_LEVEL,
+            level: logLevel ? logLevel : LoggerConfigBuilder.DEFAULT_LOG_LEVEL,
         };
         return config;
     }
@@ -82,7 +82,8 @@ export class LoggerConfigBuilder {
      * @return {IConfigLogging} - default object built
      */
     public static addFileAppender(config: IConfigLogging, key: string, categoryName = key,
-                                  filename = LoggerConfigBuilder.buildFullLogFile(LoggerConfigBuilder.getDefaultFileName(key))): IConfigLogging {
+                                  filename = LoggerConfigBuilder.buildFullLogFile(LoggerConfigBuilder.getDefaultFileName(key)),
+                                  logLevel?: string): IConfigLogging {
         config.log4jsConfig.appenders[key] = {
             filename,
             type: LoggerConfigBuilder.DEFAULT_LOG_TYPE_FILE_SYNC,
@@ -93,7 +94,7 @@ export class LoggerConfigBuilder {
         };
         config.log4jsConfig.categories[categoryName] = {
             appenders: [key],
-            level: LoggerConfigBuilder.DEFAULT_LOG_LEVEL,
+            level: logLevel ? logLevel : LoggerConfigBuilder.DEFAULT_LOG_LEVEL,
         };
         return config;
     }

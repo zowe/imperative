@@ -36,11 +36,11 @@ export class Logger {
      * @param {string} category - category of logger to obtain
      * @return {Logger} - instance of logger set to our app's category
      */
-    public static getLoggerCategory(category: string, loginMemory?: boolean) {
-        if (category === Logger.DEFAULT_CONSOLE_NAME || loginMemory === false) {
+    public static getLoggerCategory(category: string) {
+        if (category === Logger.DEFAULT_CONSOLE_NAME) {
             return new Logger(new Console(), Logger.DEFAULT_CONSOLE_NAME);
         } else {
-            return new Logger(log4js.getLogger(category), category, loginMemory);
+            return new Logger(log4js.getLogger(category), category);
         }
     }
 
@@ -49,16 +49,16 @@ export class Logger {
      * Logger.getLogger.info("important log info goes here");
      * @return {Logger} - instance of logger set to our app's category
      */
-    public static getImperativeLogger(loginMemory?: boolean) {
-        return Logger.getLoggerCategory(Logger.DEFAULT_IMPERATIVE_NAME, loginMemory);
+    public static getImperativeLogger() {
+        return Logger.getLoggerCategory(Logger.DEFAULT_IMPERATIVE_NAME);
     }
 
     /**
      * Get log4js instance directed at our app's category.
      * @return {Logger} - instance of logger set to our app's category
      */
-    public static getAppLogger(loginMemory?: boolean) {
-        return Logger.getLoggerCategory(Logger.DEFAULT_APP_NAME, loginMemory);
+    public static getAppLogger() {
+        return Logger.getLoggerCategory(Logger.DEFAULT_APP_NAME);
     }
 
     public static setLogInMemory(status: boolean) {
@@ -131,7 +131,7 @@ export class Logger {
      */
     private initStatus: boolean;
 
-    constructor(private mJsLogger: log4js.Logger | Console, private category?: string, private logInMemory?: boolean) {
+    constructor(private mJsLogger: log4js.Logger | Console, private category?: string) {
 
         if (LoggerManager.instance.isLoggerInit && LoggerManager.instance.QueuedMessages.length > 0) {
             LoggerManager.instance.QueuedMessages.slice().reverse().forEach((value, index) => {
