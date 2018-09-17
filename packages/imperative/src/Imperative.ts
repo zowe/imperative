@@ -47,7 +47,6 @@ import { OverridesLoader } from "./OverridesLoader";
 import { ImperativeProfileManagerFactory } from "./profiles/ImperativeProfileManagerFactory";
 import { ImperativeConfig } from "./ImperativeConfig";
 import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
-import { LoggerManager } from "../../logger/src/LoggerManager";
 import { AppSettings } from "../../settings";
 import {join} from "path";
 import {existsSync, mkdirSync, writeFileSync} from "fs";
@@ -211,7 +210,7 @@ export class Imperative {
                  */
                 initializationComplete();
             } catch (error) {
-                LoggerManager.instance.dumpQueuedMessages(Imperative.DEFAULT_DEBUG_FILE);
+                Logger.dumpInMemoryMessages(Imperative.DEFAULT_DEBUG_FILE);
                 if (error.report) {
                     writeFileSync(Imperative.DEFAULT_DEBUG_FILE, error.report);
                 }
