@@ -120,7 +120,6 @@ export class AppSettings {
         Logger.getImperativeLogger().trace("Loaded Settings:");
         Logger.getImperativeLogger().trace(this.settings as any); // This works because someone does the object translation
 
-        Logger.getConsoleLogger().info("test");
         writeFile(settingsFile, this.settings, {
             spaces: 2
         }, (err) => {
