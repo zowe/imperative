@@ -19,7 +19,6 @@ import {IConfigLogging} from "./doc/IConfigLogging";
 import {LoggerManager} from "./LoggerManager";
 import * as log4js from "log4js";
 import {Console} from "../../console";
-import { exists } from "fs";
 
 /**
  * Note(Kelosky): it seems from the log4js doc that you only get a single
@@ -59,6 +58,10 @@ export class Logger {
      */
     public static getAppLogger(loginMemory?: boolean) {
         return Logger.getLoggerCategory(Logger.DEFAULT_APP_NAME, loginMemory);
+    }
+
+    public static setLogInMemory(status: boolean) {
+        LoggerManager.instance.logInMemory = status;
     }
 
     /**
