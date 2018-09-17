@@ -178,7 +178,7 @@ function linkPluginToCli(pluginName: string): void {
     ];
 
     for (const nextLink of linksToMake) {
-        impLogger.error("Creating symlink from '" + nextLink.pluginPath +
+        impLogger.info("Creating symlink from '" + nextLink.pluginPath +
             "' to '" + nextLink.cliPath + "', as needed."
         );
         IO.createSymlinkToDir(nextLink.pluginPath, nextLink.cliPath);
