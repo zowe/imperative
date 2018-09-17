@@ -337,7 +337,7 @@ export class PluginManagementFacility {
 
         // add the profiles for this plugin to our imperative config object
         if (pluginCfgProps.impConfig.profiles && pluginCfgProps.impConfig.profiles.length > 0) {
-            this.impLogger.debug("addPluginToHostCli: Adding these profiles for plug-in = '" +
+            this.impLogger.trace("addPluginToHostCli: Adding these profiles for plug-in = '" +
                 pluginCfgProps.pluginName + "':\n" +
                 JSON.stringify(pluginCfgProps.impConfig.profiles, null, 2)
             );
