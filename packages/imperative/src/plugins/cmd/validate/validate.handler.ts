@@ -101,7 +101,7 @@ export default class ValidateHandler implements ICommandHandler {
       let msgColor: string = "yellow";
       if (this.pluginIssues.doesPluginHaveError(pluginName)) {
         msgColor = "red";
-        valResultsMsg += "No commands from this plugin will be available for future commands.\n";
+        valResultsMsg += "No operations from this plugin will be available for future commands.\n";
       }
 
       cmdResponse.console.log(TextUtils.chalk[msgColor](valResultsMsg));

@@ -973,9 +973,16 @@ export class PluginManagementFacility {
                     ".pluginHealthCheck' property does not exist: " + healthChkFilePath);
             }
         }
-        if (!pluginCmdGroup.children || pluginCmdGroup.children.length <= 0) {
+
+        /* If a plugin does neither of the following actions, we reject it:
+         *   - define commands
+         *   - override an infrastructure component
+         */
+        if ((!pluginCmdGroup.children || pluginCmdGroup.children.length <= 0) &&
+            (!pluginCfgProps.impConfig.overrides || Object.keys(pluginCfgProps.impConfig.overrides).length <= 0))
+        {
             this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
-                "The plugin's configuration defines no children.");
+                "The plugin defines no commands and overrides no framework components.");
         } else {
             // recursively validate the plugin's command definitions
             this.validatePluginCmdDefs(pluginCfgProps.pluginName, pluginCmdGroup.children);
