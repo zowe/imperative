@@ -26,6 +26,8 @@ import { ConfigurationValidator } from "../ConfigurationValidator";
 import { ConfigurationLoader } from "../ConfigurationLoader";
 import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
 import {IImperativeOverrides} from "../doc/IImperativeOverrides";
+import {AppSettings} from "../../../settings";
+import {ICredentialManagerConstructor} from "../../../security";
 
 /**
  * This class is the main engine for the Plugin Management Facility. The
@@ -233,11 +235,16 @@ export class PluginManagementFacility {
             writeFileSync(this.pmfConst.PLUGIN_JSON, {});
         }
 
+        const loadedOverrides: {[key: string]: IImperativeOverrides} = {};
+
         // iterate through all of our installed plugins
         for (const nextPluginNm of Object.keys(this.pluginIssues.getInstalledPlugins())) {
             const nextPluginCfgProps = this.loadPluginCfgProps(nextPluginNm);
             if ( nextPluginCfgProps) {
                 this.mAllPluginCfgProps.push(nextPluginCfgProps);
+
+                // Remember the overrides as a key of our temporary object
+                loadedOverrides[nextPluginNm] = nextPluginCfgProps.impConfig.overrides;
 
                 // @TODO CLEANUP THE OVERRIDES LATER USING SETTINGS CONCEPT
                 // For now we will just keep merging objects
@@ -250,6 +257,39 @@ export class PluginManagementFacility {
                 );
             }
         }
+
+        // Loop through each overrides setting here. Setting is an override that we are modifying while
+        // plugin is the pluginName from which to get the setting. This is probably the ugliest piece
+        // of code that I have ever written :/
+        for (const [setting, pluginName] of Object.entries(AppSettings.instance.settings.overrides)) {
+            if (pluginName !== false) {
+                Logger.getImperativeLogger().debug(
+                    `PluginOverride: Attempting to overwrite "${setting}" with value provided by plugin "${pluginName}"`
+                );
+
+                // Like the cli the overrides can be the actual class or the string path
+                let loadedSetting: string | object = (loadedOverrides[pluginName] as any)[setting];
+
+                // If the overrides loaded is a string path, just resolve it here since it would be much
+                // to do so in the overrides loader.
+                if (typeof loadedSetting === "string") {
+                    if (!isAbsolute(loadedSetting)) {
+                        Logger.getImperativeLogger().debug(`PluginOverride: Resolving ${loadedSetting} in ${pluginName}`);
+                        loadedSetting = join(this.formPluginRuntimePath(pluginName), loadedSetting);
+                    }
+
+                    Logger.getImperativeLogger().debug(`PluginOverride: Load override from "${loadedSetting}"`);
+                    loadedSetting = require(loadedSetting);
+                }
+
+
+                // Save the setting in the mPluginsOverrides object that was stored previously in
+                // the loadedOverrides object as the plugin name.
+                (this.mPluginOverrides as any)[setting] = loadedSetting;
+            }
+        }
+
+        console.log(this.mPluginOverrides);
     }
 
     // __________________________________________________________________________
@@ -337,7 +377,7 @@ export class PluginManagementFacility {
 
         // add the profiles for this plugin to our imperative config object
         if (pluginCfgProps.impConfig.profiles && pluginCfgProps.impConfig.profiles.length > 0) {
-            this.impLogger.debug("addPluginToHostCli: Adding these profiles for plug-in = '" +
+            this.impLogger.trace("addPluginToHostCli: Adding these profiles for plug-in = '" +
                 pluginCfgProps.pluginName + "':\n" +
                 JSON.stringify(pluginCfgProps.impConfig.profiles, null, 2)
             );

@@ -95,7 +95,7 @@ export class Imperative {
                 /**
                  * Config Logger Manager to enable log messages in memory prior to logger init.
                  */
-                LoggerManager.instance.logInMemory = true;
+                Logger.setLogInMemory(true);
 
                 /**
                  * Identify caller's location on the system
@@ -211,6 +211,8 @@ export class Imperative {
                  */
                 initializationComplete();
             } catch (error) {
+                Logger.getImperativeLogger().fatal(error);
+
                 LoggerManager.instance.dumpQueuedMessages(Imperative.DEFAULT_DEBUG_FILE);
                 if (error.report) {
                     writeFileSync(Imperative.DEFAULT_DEBUG_FILE, error.report);

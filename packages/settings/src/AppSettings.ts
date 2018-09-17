@@ -85,7 +85,7 @@ export class AppSettings {
      * @param settingsFile  The full path to a settings file to load.
      * @param missingFileRecovery A recovery function for when the settings file didn't exist
      */
-    constructor(settingsFile: string, missingFileRecovery ?: FileRecovery) {
+    constructor(private readonly settingsFile: string, missingFileRecovery ?: FileRecovery) {
         let settings: ISettingsFile;
         const defaultSettings: ISettingsFile = {
             overrides: {
