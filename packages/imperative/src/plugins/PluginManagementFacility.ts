@@ -250,6 +250,10 @@ export class PluginManagementFacility {
                 // For now we will just keep merging objects
                 Object.assign(this.mPluginOverrides, nextPluginCfgProps.impConfig.overrides);
                 // @TODO END
+
+                this.impLogger.trace("Next plugin's configuration properties:\n" +
+                    JSON.stringify(nextPluginCfgProps, null, 2)
+                );
             } else {
                 this.impLogger.error(
                     "loadAllPluginCfgProps: Unable to load the configuration for the plug-in named '" +
@@ -289,7 +293,7 @@ export class PluginManagementFacility {
             }
         }
 
-        console.log(this.mPluginOverrides);
+        this.impLogger.info("All plugin configurations have been loaded. Details at trace level of logging.");
     }
 
     // __________________________________________________________________________
