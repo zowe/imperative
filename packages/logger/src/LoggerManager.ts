@@ -11,7 +11,7 @@
 
 import {IQueuedMessage} from "./doc/IQueuedMessage";
 import { Console } from "../../console";
-import {writeFileSync} from "fs";
+import {appendFileSync} from "fs";
 
 /**
  * LoggerManager is a singleton class used to contain logger information.
@@ -118,7 +118,7 @@ export class LoggerManager {
             this.console.debug(`Writting all logged messages in memrory to ${file}`);
             this.QueuedMessages.slice().reverse().forEach((value, index) => {
                 this.console.debug(value.message);
-                writeFileSync(file, value.message);
+                appendFileSync(file, `${value.message}\n`);
             });
         }
     }
