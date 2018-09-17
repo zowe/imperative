@@ -9,7 +9,7 @@
 *                                                                                 *
 */
 
-import {readFileSync, writeFile} from "jsonfile";
+import {readFileSync, writeFile, writeFileSync} from "jsonfile";
 import {existsSync} from "fs";
 import {ISettingsFile} from "./doc/ISettingsFile";
 import {Logger} from "../../logger";
@@ -119,14 +119,40 @@ export class AppSettings {
 
         Logger.getImperativeLogger().trace("Loaded Settings:");
         Logger.getImperativeLogger().trace(this.settings as any); // This works because someone does the object translation
+    }
 
-        writeFile(settingsFile, this.settings, {
-            spaces: 2
-        }, (err) => {
-            if (err) {
-                Logger.getImperativeLogger().error("Unable to save settings");
-                Logger.getImperativeLogger().error(err.toString());
-            }
+    /**
+     * Set a new override and save it to the settings file.
+     *
+     * @param override The override being set
+     * @param value The new value
+     *
+     * @returns A promise of completion
+     */
+    public setNewOverride(override: keyof ISettingsFile["overrides"], value: string | false): Promise<void> {
+        this.settings.overrides[override] = value;
+        return this.writeSettingsFile();
+    }
+
+    /**
+     * Writes settings to the file.
+     *
+     * @returns A promise of completion
+     */
+    private writeSettingsFile(): Promise<void>{
+        return new Promise((resolve, reject) => {
+            writeFile(this.settingsFile, this.settings, {
+                spaces: 2
+            }, (err) => {
+                if (err) {
+                    Logger.getImperativeLogger().error("Unable to save settings");
+                    Logger.getImperativeLogger().error(err.toString());
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
         });
     }
+
 }
