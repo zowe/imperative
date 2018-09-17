@@ -240,7 +240,7 @@ export class PluginManagementFacility {
         // iterate through all of our installed plugins
         for (const nextPluginNm of Object.keys(this.pluginIssues.getInstalledPlugins())) {
             const nextPluginCfgProps = this.loadPluginCfgProps(nextPluginNm);
-            if ( nextPluginCfgProps) {
+            if (nextPluginCfgProps) {
                 this.mAllPluginCfgProps.push(nextPluginCfgProps);
 
                 // Remember the overrides as a key of our temporary object
