@@ -19,6 +19,7 @@ import {IConfigLogging} from "./doc/IConfigLogging";
 import {LoggerManager} from "./LoggerManager";
 import * as log4js from "log4js";
 import {Console} from "../../console";
+import { Writable } from "stream";
 
 /**
  * Note(Kelosky): it seems from the log4js doc that you only get a single
@@ -127,55 +128,17 @@ export class Logger {
     private initStatus: boolean;
 
     constructor(private mJsLogger: log4js.Logger | Console, private category?: string, private logInMemory?: boolean) {
+
         if (LoggerManager.instance.isLoggerInit && LoggerManager.instance.QueuedMessages.length > 0) {
             LoggerManager.instance.QueuedMessages.slice().reverse().forEach((value, index) => {
                 if (this.category === value.category) {
-                    this.logMessage(value.method, value.message);
+                    (mJsLogger as any)[value.method](value.message);
                     LoggerManager.instance.QueuedMessages.splice(LoggerManager.instance.QueuedMessages.indexOf(value), 1);
                 }
             });
         }
 
         this.initStatus = LoggerManager.instance.isLoggerInit;
-    }
-
-    /**
-     * general log message function used by the constructor to log queueud messages
-     * stored in member prior to Logger init was called.
-     * this function using the logger that was created during the time the class is
-     * constructed.  Therefore, if log4js is not config properly prior to the function
-     * was called, then the message may not log to any file.
-     * @param method - log method to log the message with.
-     * @param message - message to log.
-     */
-    public logMessage(method: string, message: string) {
-        const logger = this.mJsLogger;
-        switch (method) {
-            case "trace":
-                logger.trace(message);
-                break;
-            case "debug":
-                logger.debug(message);
-                break;
-            case "info":
-                logger.info(message);
-                break;
-            case "warn":
-                logger.warn(message);
-                break;
-            case "error":
-                logger.error(message);
-                break;
-            case "fatal":
-                logger.fatal(message);
-                break;
-            case "simple":
-                logger.info(message);
-                break;
-            default:
-                logger.info(message);
-                break;
-        }
     }
 
     // TODO: Can we find trace info for TypeScript to have e.g.  [ERROR] Jobs.ts : 43 - Error encountered
@@ -297,7 +260,7 @@ export class Logger {
         if (LoggerManager.instance.isLoggerInit || this.category === Logger.DEFAULT_CONSOLE_NAME) {
             this.logService.info(finalMessage);
         } else {
-            LoggerManager.instance.queueMessage(this.category, "simple", finalMessage);
+            LoggerManager.instance.queueMessage(this.category, "info", finalMessage);
         }
         return finalMessage;
     }
