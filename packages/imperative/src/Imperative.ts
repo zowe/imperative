@@ -52,6 +52,7 @@ import { AppSettings } from "../../settings";
 import {join} from "path";
 import {existsSync, mkdirSync, writeFileSync} from "fs";
 import * as jsonfile from "jsonfile";
+import {IO} from "../../io";
 
 export class Imperative {
 
@@ -348,9 +349,7 @@ export class Imperative {
         AppSettings.initialize(
             cliSettingsFile,
             (settingsFile, defaultSettings) => {
-                if (!existsSync(cliSettingsRoot)) {
-                    mkdirSync(cliSettingsRoot);
-                }
+                IO.createDirsSyncFromFilePath(settingsFile);
 
                 jsonfile.writeFileSync(settingsFile, defaultSettings, {
                     spaces: 2
