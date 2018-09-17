@@ -14,8 +14,6 @@ import {Imperative} from "../../../../";
 import {IssueSeverity} from "./PluginIssues";
 import {Logger} from "../../../../logger";
 import {PMFConstants} from "./PMFConstants";
-import * as path from "path";
-import {IO} from "../../../../io";
 
 /**
  * Run another instance of the host CLI command to validate a plugin that has
@@ -27,29 +25,17 @@ import {IO} from "../../../../io";
  * in a new process, we start with a clean slate and we get accurate results.
  *
  * @param pluginName - The name of a plugin to be validated.
+ *
+ * @returns - The text output of the validate plugin command.
  */
 export function runValidatePlugin(pluginName: string): string {
-    if (Imperative.rootCommandName == null) {
-        return `Imperative.rootCommandName is NULL. Unable to validate plugin = '${pluginName}'`;
-    }
-
-    /* When imperative fails to find a rootCommandName in the package.json bin
-     * property, it uses the path to the CLI's typescript file. While this has
-     * only been seen in system test scripts, we check for such a situation.
-     * If the rootCommandName does not start with a 'node' command, but
-     * specifies a typescript or javascript file, we add the 'node' command.
-     */
     const extLen = 3;
-    const nodeCmd = "node";
-    let cmdToRun = Imperative.rootCommandName;
-    const rootCmdPartToCompare = cmdToRun.trim().substring(0, nodeCmd.length);
-    if (rootCmdPartToCompare !== nodeCmd ) {
-        if (cmdToRun.substring(cmdToRun.length - extLen) === ".js") {
-            cmdToRun = "node " + Imperative.rootCommandName;
-        } else if (cmdToRun.substring(cmdToRun.length - extLen) === ".ts") {
-            cmdToRun = "node --require ts-node/register " + Imperative.rootCommandName;
-        }
+    let cmdToRun = "node";
+    const cliPgmToRun = process.mainModule.filename;
+    if (cliPgmToRun.substring(cliPgmToRun.length - extLen) === ".ts") {
+        cmdToRun += " --require ts-node/register";
     }
+    cmdToRun += " " + cliPgmToRun;
 
     const impLogger = Logger.getImperativeLogger();
     impLogger.debug(`Running plugin validation command = ${cmdToRun} plugins validate ${pluginName} --response-format-json`);
