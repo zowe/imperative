@@ -245,6 +245,10 @@ export class PluginManagementFacility {
 
                 // Remember the overrides as a key of our temporary object
                 loadedOverrides[nextPluginNm] = nextPluginCfgProps.impConfig.overrides;
+
+                this.impLogger.trace("Next plugin's configuration properties:\n" +
+                    JSON.stringify(nextPluginCfgProps, null, 2)
+                );
             } else {
                 this.impLogger.error(
                     "loadAllPluginCfgProps: Unable to load the configuration for the plug-in named '" +
@@ -292,6 +296,7 @@ export class PluginManagementFacility {
                 (this.mPluginOverrides as any)[setting] = loadedSetting;
             }
         }
+        this.impLogger.info("All plugin configurations have been loaded. Details at trace level of logging.");
     }
 
     // __________________________________________________________________________
