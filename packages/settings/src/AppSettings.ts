@@ -9,7 +9,7 @@
 *                                                                                 *
 */
 
-import {readFileSync, writeFile, writeFileSync} from "jsonfile";
+import {readFileSync, writeFile} from "jsonfile";
 import {existsSync} from "fs";
 import {ISettingsFile} from "./doc/ISettingsFile";
 import {Logger} from "../../logger";

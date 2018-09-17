@@ -269,7 +269,7 @@ export class PluginManagementFacility {
                 // to do so in the overrides loader.
                 if (typeof loadedSetting === "string") {
                     if (!isAbsolute(loadedSetting)) {
-                        Logger.getImperativeLogger().debug(`PluginOverride: Resolving ${loadedSetting} in ${pluginName}`);
+                        Logger.getImperativeLogger().trace(`PluginOverride: Resolving ${loadedSetting} in ${pluginName}`);
 
                         // This is actually kind of disgusting. What is happening is that we are getting the
                         // entry file of the plugin using require.resolve since the modules loaded are different
@@ -281,9 +281,10 @@ export class PluginManagementFacility {
                             "../",
                             loadedSetting
                         );
+
+                        Logger.getImperativeLogger().trace(`PluginOverride: Load override from "${loadedSetting}"`);
                     }
 
-                    Logger.getImperativeLogger().debug(`PluginOverride: Load override from "${loadedSetting}"`);
                     loadedSetting = require(loadedSetting);
                 }
 
