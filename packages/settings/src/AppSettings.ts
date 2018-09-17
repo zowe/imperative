@@ -96,11 +96,16 @@ export class AppSettings {
         try {
             // Try to load the file immediately, if it fails we will then
             // try to recover
+            Logger.getImperativeLogger().trace(`Attempting to load settings file: ${settingsFile}`);
             settings = readFileSync(settingsFile);
+            Logger.getImperativeLogger().trace("Settings were loaded");
         } catch (up) {
             if (missingFileRecovery && !existsSync(settingsFile)) {
+                Logger.getImperativeLogger().trace("Executing missing file recovery.");
                 settings = missingFileRecovery(settingsFile, defaultSettings);
             } else {
+                Logger.getImperativeLogger().error("Unable to recover from load failure");
+                Logger.getImperativeLogger().error(up.toString());
                 // Throw up if there is no recovery function or there was a recovery
                 // function but the file already existed. (Indicates there was a bigger
                 // issue at play)
@@ -112,6 +117,10 @@ export class AppSettings {
         const mergeObjects = require("merge-objects");
         this.settings = mergeObjects(defaultSettings, settings);
 
+        Logger.getImperativeLogger().trace("Loaded Settings:");
+        Logger.getImperativeLogger().trace(this.settings as any); // This works because someone does the object translation
+
+        Logger.getConsoleLogger().info("test");
         writeFile(settingsFile, this.settings, {
             spaces: 2
         }, (err) => {

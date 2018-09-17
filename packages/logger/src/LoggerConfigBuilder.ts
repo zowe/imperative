@@ -23,7 +23,7 @@ export class LoggerConfigBuilder {
     public static readonly DEFAULT_LOG_LEVEL = "DEBUG";
     public static readonly DEFAULT_LOG_TYPE_CONSOLE = "console";
     public static readonly DEFAULT_LOG_TYPE_PAT = "pattern";
-    public static readonly DEFAULT_LOG_LAYOUT = "[%d{yyyy/MM/dd} %r] [%p] %m";
+    public static readonly DEFAULT_LOG_LAYOUT = "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m";
     public static readonly DEFAULT_COLOR_LAYOUT = "%[" + LoggerConfigBuilder.DEFAULT_LOG_LAYOUT + "%]";
     public static readonly DEFAULT_LOG_TYPE_FILE_SYNC = "fileSync";
     public static readonly DEFAULT_BACKEND = "NONE";
