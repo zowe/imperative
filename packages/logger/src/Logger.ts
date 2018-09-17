@@ -65,6 +65,10 @@ export class Logger {
         LoggerManager.instance.logInMemory = status;
     }
 
+    public static dumpInMemoryMessages(file: string) {
+        LoggerManager.instance.dumpQueuedMessages(file);
+    }
+
     /**
      * Return an instance to the console logger which applies TextUtils invoked
      * through this Logger class.
