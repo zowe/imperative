@@ -245,11 +245,6 @@ export class PluginManagementFacility {
 
                 // Remember the overrides as a key of our temporary object
                 loadedOverrides[nextPluginNm] = nextPluginCfgProps.impConfig.overrides;
-
-                // @TODO CLEANUP THE OVERRIDES LATER USING SETTINGS CONCEPT
-                // For now we will just keep merging objects
-                Object.assign(this.mPluginOverrides, nextPluginCfgProps.impConfig.overrides);
-                // @TODO END
             } else {
                 this.impLogger.error(
                     "loadAllPluginCfgProps: Unable to load the configuration for the plug-in named '" +
@@ -275,21 +270,28 @@ export class PluginManagementFacility {
                 if (typeof loadedSetting === "string") {
                     if (!isAbsolute(loadedSetting)) {
                         Logger.getImperativeLogger().debug(`PluginOverride: Resolving ${loadedSetting} in ${pluginName}`);
-                        loadedSetting = join(this.formPluginRuntimePath(pluginName), loadedSetting);
+
+                        // This is actually kind of disgusting. What is happening is that we are getting the
+                        // entry file of the plugin using require.resolve since the modules loaded are different
+                        // when using node or ts-node. This require gets us the index.js/index.ts file that
+                        // the plugin defines. So we then cd up a directory and resolve the path relative
+                        // to the plugin entry file.
+                        loadedSetting = join(
+                            require.resolve(this.formPluginRuntimePath(pluginName)),
+                            "../",
+                            loadedSetting
+                        );
                     }
 
                     Logger.getImperativeLogger().debug(`PluginOverride: Load override from "${loadedSetting}"`);
                     loadedSetting = require(loadedSetting);
                 }
 
-
                 // Save the setting in the mPluginsOverrides object that was stored previously in
                 // the loadedOverrides object as the plugin name.
                 (this.mPluginOverrides as any)[setting] = loadedSetting;
             }
         }
-
-        console.log(this.mPluginOverrides);
     }
 
     // __________________________________________________________________________
