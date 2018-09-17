@@ -210,6 +210,7 @@ export class Imperative {
                  */
                 initializationComplete();
             } catch (error) {
+                Logger.getImperativeLogger().fatal(error);
                 Logger.dumpInMemoryMessages(Imperative.DEFAULT_DEBUG_FILE);
                 if (error.report) {
                     writeFileSync(Imperative.DEFAULT_DEBUG_FILE, error.report);
