@@ -95,7 +95,7 @@ export class Imperative {
                 /**
                  * Config Logger Manager to enable log messages in memory prior to logger init.
                  */
-                LoggerManager.instance.logInMemory = true;
+                Logger.setLogInMemory(true);
 
                 /**
                  * Identify caller's location on the system
