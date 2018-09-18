@@ -19,7 +19,6 @@ import { existsSync } from "fs";
 import { SettingsAlreadyInitialized, SettingsNotInitialized } from "../src/errors";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { ISettingsFile } from "../src/doc/ISettingsFile";
-import over = require("lodash/fp/over");
 
 fdescribe("AppSettings", () => {
     const mocks = {
@@ -110,7 +109,7 @@ fdescribe("AppSettings", () => {
             const recoveryFcn = jest.fn((arg1, arg2) => {
                 expect(arg1).toEqual(fileName);
                 expect(arg2).toEqual(defaultSettings);
-                console.log("passed here");
+
                 return overwriteSettings;
             });
 
@@ -118,7 +117,22 @@ fdescribe("AppSettings", () => {
 
             expect(AppSettings.instance.settings).toEqual(overwriteSettings);
             expect(recoveryFcn).toHaveBeenCalledTimes(1);
-            // expect(recoveryFcn).toHaveBeenCalledWith(fileName, defaultSettings); // Jest has a bug :) @TODO
+
+            // The below check doesn't work because jest doesn't clone arugments.
+            // expect(recoveryFcn).toHaveBeenCalledWith(fileName, defaultSettings);
+        });
+
+        it("should merge settings provided from the file", () => {
+            const settings = [
+                {
+                    overrides: {
+                        CredentialManager: "some-plugin"
+                    }
+                },
+                {
+                    abcd: "here"
+                }
+            ];
         });
     });
 });
