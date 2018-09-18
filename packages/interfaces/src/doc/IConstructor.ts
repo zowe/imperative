@@ -9,5 +9,9 @@
 *                                                                                 *
 */
 
-export * from "./src/types/ImperativeReject";
-export * from "./src/doc/IConstructor";
+/**
+ * An interface that defines a class constructor
+ */
+export interface IConstructor<T> {
+    new(...args: any[]): T;
+}
