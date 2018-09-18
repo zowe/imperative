@@ -7,7 +7,7 @@ Object {
       "app": Object {
         "filename": "/someHome/sample/logs/sample.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -15,7 +15,7 @@ Object {
       "default": Object {
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -23,7 +23,7 @@ Object {
       "imperative": Object {
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -62,7 +62,7 @@ Object {
       "app": Object {
         "filename": "/someHome/different/location/log.txt",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -70,7 +70,7 @@ Object {
       "default": Object {
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -78,7 +78,7 @@ Object {
       "imperative": Object {
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -115,7 +115,7 @@ Object {
       "app": Object {
         "filename": "/someHome/different/location/log.txt",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -123,7 +123,7 @@ Object {
       "default": Object {
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -131,7 +131,7 @@ Object {
       "extraOne": Object {
         "filename": "/someHome/extraOne/logs/extraOne.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -139,7 +139,7 @@ Object {
       "extraTwo": Object {
         "filename": "/someHome/to/the/moon.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -147,7 +147,7 @@ Object {
       "imperative": Object {
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -196,7 +196,7 @@ Object {
       "app": Object {
         "filename": "/someHome/sample/logs/sample.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -204,7 +204,7 @@ Object {
       "default": Object {
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -212,7 +212,7 @@ Object {
       "imperative": Object {
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -249,7 +249,7 @@ Object {
       "app": Object {
         "filename": "/someHome/notSample/logs/notSample.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -257,7 +257,7 @@ Object {
       "default": Object {
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -265,7 +265,7 @@ Object {
       "imperative": Object {
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -302,7 +302,7 @@ Object {
       "app": Object {
         "filename": "/someHome/sample/logs/sample.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -310,7 +310,7 @@ Object {
       "default": Object {
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -318,7 +318,7 @@ Object {
       "imperative": Object {
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -355,7 +355,7 @@ Object {
       "app": Object {
         "filename": "/someHome/sample/logs/sample.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -363,7 +363,7 @@ Object {
       "default": Object {
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -371,7 +371,7 @@ Object {
       "imperative": Object {
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",

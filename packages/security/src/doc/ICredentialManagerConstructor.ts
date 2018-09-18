@@ -22,13 +22,13 @@ import { AbstractCredentialManager } from "../..";
  *  3. Your constructor has matching parameter types for all parameters accepted
  */
 export interface ICredentialManagerConstructor {
-  /**
-   * The constructor function for a Credential Manager. All the parameters specified here
-   * will be sent in during the {@link CredentialManagerFactory.initialize} function.
-   *
-   * @param {string} cliName - The name of the cli. The default manager uses this as the service.
-   *
-   * @returns {AbstractCredentialManager} - An instantiated class that extends {@link AbstractCredentialManager}
-   */
-  new (cliName: string): AbstractCredentialManager;
+    /**
+     * The constructor function for a Credential Manager. All the parameters specified here
+     * will be sent in during the {@link CredentialManagerFactory.initialize} function.
+     *
+     * @param {string} cliName - The name of the cli. The default manager uses this as the service.
+     *
+     * @returns {AbstractCredentialManager} - An instantiated class that extends {@link AbstractCredentialManager}
+     */
+    new(cliName: string): AbstractCredentialManager;
 }
