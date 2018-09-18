@@ -73,6 +73,8 @@ InheritedHelpGenerator {
   },
   "mExperimentalCommandDescription": "Experimental commands are commands that are not ready for general availability. If you decide to use these commands, you might encounter bugs, incompatibilities with your system, or incomplete help text. ",
   "mLog": Logger {
+    "category": "imperative",
+    "initStatus": false,
     "mJsLogger": Logger {
       "category": "imperative",
       "context": Object {},
@@ -127,6 +129,8 @@ InheritedHelpGenerator {
   },
   "mExperimentalCommandDescription": "Experimental commands are commands that are not ready for general availability. If you decide to use these commands, you might encounter bugs, incompatibilities with your system, or incomplete help text. ",
   "mLog": Logger {
+    "category": "imperative",
+    "initStatus": false,
     "mJsLogger": Logger {
       "category": "imperative",
       "context": Object {},
