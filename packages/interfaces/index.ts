@@ -10,3 +10,4 @@
 */
 
 export * from "./src/types/ImperativeReject";
+export * from "./src/doc/IConstructor";

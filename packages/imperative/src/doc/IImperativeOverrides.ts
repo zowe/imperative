@@ -9,7 +9,29 @@
 *                                                                                 *
 */
 
-import {ICredentialManagerConstructor} from "../../../security";
+import { AbstractCredentialManager, ICredentialManagerConstructor } from "../../../security";
+import { IConstructor } from "../../../interfaces";
+
+/**
+ * Type of the {@link IImperativeOverrides} interface. This will ensure that all keys
+ * are pointing to a constructor or a string.
+ *
+ * Based on architectural decisions and ease of development, all future additions to
+ * the {@link IImperativeOverrides} object must represent one of the following 2 types:
+ *
+ * - **{@link IConstructor}** - This is a reference to a class constructor that will be used
+ *                              by the {@link OverridesLoader} when creating the various
+ *                              overrides factories.
+ * - **string** - An absolute or relative path to an import module from which either the
+ *                {@link OverridesLoader} or the {@link PluginManagementFacility} will
+ *                load before using the constructor in a factory. If defined in this
+ *                sense, all type checks will be lost and we gain the ability to reside
+ *                in a static file.
+ *
+ */
+interface IOverridesRestriction {
+    [key: string]: IConstructor<any> | string;
+}
 
 /**
  * All of the Default Imperative classes that can be changed by your Imperative CLI app.
@@ -19,9 +41,8 @@ import {ICredentialManagerConstructor} from "../../../security";
  * those classes over ones provided by your application.
  *
  * @TODO ADD MORE DETAILS HERE LATER
- * @TODO Make restriction that everything must be class or string
  */
-export interface IImperativeOverrides {
+export interface IImperativeOverrides extends IOverridesRestriction {
   /**
    * A class that your Imperative CLI app can provide us in place of our
    * {@link DefaultCredentialManager}, so that you can meet your security

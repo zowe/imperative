@@ -89,6 +89,8 @@ export class AppSettings {
      */
     constructor(private readonly settingsFile: string, missingFileRecovery?: FileRecovery) {
         let settings: ISettingsFile;
+
+        // NOTE: All overrides key values should be false in the default object.
         const defaultSettings: ISettingsFile = {
             overrides: {
                 CredentialManager: false
