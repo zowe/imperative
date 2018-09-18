@@ -9,10 +9,10 @@
 *                                                                                 *
 */
 
-import {readFileSync, writeFile} from "jsonfile";
-import {existsSync} from "fs";
-import {ISettingsFile} from "./doc/ISettingsFile";
-import {Logger} from "../../logger";
+import { readFileSync, writeFile } from "jsonfile";
+import { existsSync } from "fs";
+import { ISettingsFile } from "./doc/ISettingsFile";
+import { Logger } from "../../logger";
 
 /**
  * A recovery function to handle when a settings file is missing on an initialization function.
@@ -26,7 +26,8 @@ export type FileRecovery = (settingsFile: string, defaultSettings: ISettingsFile
 
 /**
  * This class represents settings for an Imperative CLI application that can be configured
- * by an end user by modifying a settings file. @TODO expand on this doc
+ * by an end user by modifying a settings file. Settings are stored in {@link AppSettings#settings}
+ * in a format specified by {@link ISettingsFile}.
  */
 export class AppSettings {
     /**
@@ -34,13 +35,15 @@ export class AppSettings {
      * @param settingsFile The settings file to load from.
      * @param missingFileRecovery A recovery function when the settings file isn't found
      *
+     * @returns A reference to the created instance. This is the same instance returned by {@link AppSettings.instance}
+     *
      * @throws {@link SettingsAlreadyInitialized} When the settings singleton has previously been initialized.
      */
-    public static initialize(settingsFile: string, missingFileRecovery ?: FileRecovery): AppSettings {
+    public static initialize(settingsFile: string, missingFileRecovery?: FileRecovery): AppSettings {
         if (AppSettings.mInstance) {
             // Throw an error imported at runtime so that we minimize file that get included
             // on startup.
-            const { SettingsAlreadyInitialized } = require("./errors/index");
+            const {SettingsAlreadyInitialized} = require("./errors/index");
             throw new SettingsAlreadyInitialized();
         }
 
@@ -66,7 +69,7 @@ export class AppSettings {
         if (AppSettings.mInstance == null) {
             // Throw an error imported at runtime so that we minimize file that get included
             // on startup.
-            const { SettingsNotInitialized } = require("./errors/index");
+            const {SettingsNotInitialized} = require("./errors/index");
             throw new SettingsNotInitialized();
         }
 
@@ -74,8 +77,7 @@ export class AppSettings {
     }
 
     /**
-     * Internal reference to the overrides settings. The defaults should
-     * all be false, indicating that there are no overrides to be done.
+     * The settings loaded from the file specified in the constructor.
      */
     public readonly settings: ISettingsFile;
 
@@ -85,7 +87,7 @@ export class AppSettings {
      * @param settingsFile  The full path to a settings file to load.
      * @param missingFileRecovery A recovery function for when the settings file didn't exist
      */
-    constructor(private readonly settingsFile: string, missingFileRecovery ?: FileRecovery) {
+    constructor(private readonly settingsFile: string, missingFileRecovery?: FileRecovery) {
         let settings: ISettingsFile;
         const defaultSettings: ISettingsFile = {
             overrides: {
@@ -139,7 +141,7 @@ export class AppSettings {
      *
      * @returns A promise of completion
      */
-    private writeSettingsFile(): Promise<void>{
+    private writeSettingsFile(): Promise<void> {
         return new Promise((resolve, reject) => {
             writeFile(this.settingsFile, this.settings, {
                 spaces: 2
