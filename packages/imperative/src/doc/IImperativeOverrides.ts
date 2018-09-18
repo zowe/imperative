@@ -20,13 +20,13 @@ import { IConstructor } from "../../../interfaces";
  * the {@link IImperativeOverrides} object must represent one of the following 2 types:
  *
  * - **{@link IConstructor}** - This is a reference to a class constructor that will be used
- *                              by the {@link OverridesLoader} when creating the various
- *                              overrides factories.
+ * by the {@link OverridesLoader} when creating the various
+ * overrides factories.
  * - **string** - An absolute or relative path to an import module from which either the
- *                {@link OverridesLoader} or the {@link PluginManagementFacility} will
- *                load before using the constructor in a factory. If defined in this
- *                sense, all type checks will be lost and we gain the ability to reside
- *                in a static file.
+ * {@link OverridesLoader} or the {@link PluginManagementFacility} will
+ * load before using the constructor in a factory. If defined in thi
+ * sense, all type checks will be lost and we gain the ability to reside
+ * in a static file.
  *
  */
 interface IOverridesRestriction {
