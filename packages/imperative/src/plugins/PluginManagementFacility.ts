@@ -368,19 +368,26 @@ export class PluginManagementFacility {
         // validate the plugin's configuration
         if (this.validatePlugin(pluginCfgProps, pluginCmdGroup) === false) {
             this.impLogger.error("addPluginToHostCli: The plug-in named '" + pluginCfgProps.pluginName +
-                "' failed validation and was not added to the available commands.");
+                "' failed validation and was not added to the host CLI app.");
             return;
         }
 
-        // add the new plugin group into the imperative command tree
-        this.impLogger.info("addPluginToHostCli: Adding commands for plug-in '" +
-            pluginCfgProps.pluginName + "' to CLI command tree. Plugin command details at trace level of logging."
-        );
-        this.impLogger.trace("addPluginToHostCli: Commands for plugin = '" +
-            pluginCfgProps.pluginName + "':\n" + JSON.stringify(pluginCmdGroup, null, 2)
-        );
-        if (!this.addCmdGrpToResolvedCliCmdTree(pluginCfgProps.pluginName, pluginCmdGroup)) {
-            return;
+        if (pluginCmdGroup.children.length <= 0) {
+            this.impLogger.info("addPluginToHostCli: The plugin '" +
+                pluginCfgProps.pluginName +
+                "' has no commands, so no new commands will be added to the host CLI app."
+            );
+        } else {
+            // add the new plugin group into the imperative command tree
+            this.impLogger.info("addPluginToHostCli: Adding commands for plug-in '" +
+                pluginCfgProps.pluginName + "' to CLI command tree. Plugin command details at trace level of logging."
+            );
+            this.impLogger.trace("addPluginToHostCli: Commands for plugin = '" +
+                pluginCfgProps.pluginName + "':\n" + JSON.stringify(pluginCmdGroup, null, 2)
+            );
+            if (!this.addCmdGrpToResolvedCliCmdTree(pluginCfgProps.pluginName, pluginCmdGroup)) {
+                return;
+            }
         }
 
         // add the profiles for this plugin to our imperative config object
