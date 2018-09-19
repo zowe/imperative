@@ -59,25 +59,12 @@ export function runValidatePlugin(pluginName: string): string {
 function formValidateMsg(valResultJsonObj: any) {
     const validateOutput = valResultJsonObj.stdout;
     const validateErr = valResultJsonObj.stderr;
-    const issueIndicator = "___ ";
-    let resultMsg = "";
     let fullMsg = "";
     if (validateErr && validateErr.length > 0) {
         fullMsg += validateErr + "\n";
     }
     if (validateOutput && validateOutput.length > 0) {
-        if (validateOutput.includes(issueIndicator + IssueSeverity.ERROR)) {
-            resultMsg = `This plugin has errors and will be excluded from the '${Imperative.rootCommandName}' application.`;
-        } else if (validateOutput.includes(issueIndicator + IssueSeverity.WARNING)) {
-            resultMsg = `This plugin has warnings, but will be included in the '${Imperative.rootCommandName}' application.`;
-        } else {
-            resultMsg = `This plugin was successfully validated. Enjoy the '${Imperative.rootCommandName}' application.`;
-        }
-
-        fullMsg = validateOutput;
-    }
-    if (resultMsg.length > 0) {
-        fullMsg += resultMsg;
+        fullMsg += validateOutput + "\n";
     }
     return fullMsg;
 }
