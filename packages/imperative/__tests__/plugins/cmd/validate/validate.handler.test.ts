@@ -160,7 +160,7 @@ describe("Plugin validate command handler", () => {
       const errorMsg = (params.response.console.log as Mock).mock.calls[0][0];
       expect(errorMsg).toContain(testPlugin);
       expect(errorMsg).toContain(`${IssueSeverity.ERROR}: ${testErrorText}`);
-      expect(errorMsg).toContain("No commands from this plugin will be available for future commands");
+      expect(errorMsg).toContain("No operations from this plugin will be available for future commands");
     });
   });
 
