@@ -368,11 +368,6 @@ export class Imperative {
      */
     private static initLogging() {
         /**
-         * Save reference to our instance
-         */
-        // this.mLog = Logger.getImperativeLogger();
-        // this.mLog = Logger.getConsoleLogger();
-        /**
          * Build logging config from imperative config
          */
         const loggingConfig = LoggingConfigurer.configureLogger(ImperativeConfig.instance.cliHome, ImperativeConfig.instance.loadedConfig);
