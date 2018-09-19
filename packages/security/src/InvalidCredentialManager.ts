@@ -30,15 +30,15 @@ export class InvalidCredentialManager extends AbstractCredentialManager {
         super(service);
     }
 
-    public async deleteCredentials(account: string): Promise<void> {
+    protected async deleteCredentials(account: string): Promise<void> {
         throw new BadCredentialManagerError(this.causeError);
     }
 
-    public async loadCredentials(account: string): Promise<SecureCredential> {
+    protected async loadCredentials(account: string): Promise<SecureCredential> {
         throw new BadCredentialManagerError(this.causeError);
     }
 
-    public async saveCredentials(account: string, credentials: SecureCredential): Promise<void> {
+    protected async saveCredentials(account: string, credentials: SecureCredential): Promise<void> {
         throw new BadCredentialManagerError(this.causeError);
     }
 }
