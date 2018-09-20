@@ -266,30 +266,49 @@ export class PluginManagementFacility {
                     `PluginOverride: Attempting to overwrite "${setting}" with value provided by plugin "${pluginName}"`
                 );
 
+                if (!loadedOverrides.hasOwnProperty(pluginName)) {
+                    // the plugin name specified in our settings is not available
+                    Logger.getImperativeLogger().error(`The plugin-overridable "${setting}" setting ` +
+                        `specifies a plugin name "${pluginName}" that is not installed and loadable.` +
+                        `\nWe will use a purposely-invalid "${setting}" until you reconfigure.`
+                    );
+                    continue;
+                }
+
                 // Like the cli the overrides can be the actual class or the string path
                 let loadedSetting: string | object = (loadedOverrides[pluginName] as any)[setting];
 
                 // If the overrides loaded is a string path, just resolve it here since it would be much
                 // to do so in the overrides loader.
                 if (typeof loadedSetting === "string") {
-                    if (!isAbsolute(loadedSetting)) {
-                        Logger.getImperativeLogger().trace(`PluginOverride: Resolving ${loadedSetting} in ${pluginName}`);
+                    let pathToPluginOverride = loadedSetting;
+                    try {
+                        if (!isAbsolute(pathToPluginOverride)) {
+                            Logger.getImperativeLogger().trace(`PluginOverride: Resolving ${pathToPluginOverride} in ${pluginName}`);
 
-                        // This is actually kind of disgusting. What is happening is that we are getting the
-                        // entry file of the plugin using require.resolve since the modules loaded are different
-                        // when using node or ts-node. This require gets us the index.js/index.ts file that
-                        // the plugin defines. So we then cd up a directory and resolve the path relative
-                        // to the plugin entry file.
-                        loadedSetting = join(
-                            require.resolve(this.formPluginRuntimePath(pluginName)),
-                            "../",
-                            loadedSetting
+                            // This is actually kind of disgusting. What is happening is that we are getting the
+                            // entry file of the plugin using require.resolve since the modules loaded are different
+                            // when using node or ts-node. This require gets us the index.js/index.ts file that
+                            // the plugin defines. So we then cd up a directory and resolve the path relative
+                            // to the plugin entry file.
+                            pathToPluginOverride = join(
+                                require.resolve(this.formPluginRuntimePath(pluginName)),
+                                "../",
+                                pathToPluginOverride
+                            );
+                        }
+                        loadedSetting = require(pathToPluginOverride);
+                        Logger.getImperativeLogger().info(`PluginOverride: Overrode "${setting}" ` +
+                            `with "${pathToPluginOverride}" from plugin "${pluginName}"`);
+                    } catch (requireError) {
+                        PluginIssues.instance.recordIssue(pluginName, IssueSeverity.OVER_ERROR,
+                            `Unable to override "${setting}" with "${pathToPluginOverride}" ` +
+                            `from plugin "${pluginName}"\n` +
+                            "Reason = " + requireError.message +
+                            `\nWe will use a purposely-invalid "${setting}" until you reconfigure.`
                         );
-
-                        Logger.getImperativeLogger().trace(`PluginOverride: Load override from "${loadedSetting}"`);
+                        continue;
                     }
-
-                    loadedSetting = require(loadedSetting);
                 }
 
                 // Save the setting in the mPluginsOverrides object that was stored previously in
