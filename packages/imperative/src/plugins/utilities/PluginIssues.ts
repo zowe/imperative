@@ -20,9 +20,24 @@ import {readFileSync} from "jsonfile";
  */
 export enum IssueSeverity {
   /**
-   * Errors will prevent a plugin from being added to the imperative command tree.
+   * Configuration errors. We cannot even properly define this plugin.
+   * The plugin cannot be used.
    */
-  ERROR = "Error",
+  CFG_ERROR = "CfgError",
+
+  /**
+   * An error in a plugin's set of commands.
+   * The plugin's commands will not be loaded into the host CLI app.
+   * It's overrides may be used.
+   */
+  CMD_ERROR = "CmdError",
+
+  /**
+   * An error in a plugin's override component.
+   * The plugin's overrides will not be used by imperative
+   * It's commands may be added to the host CLI app.
+   */
+  OVER_ERROR = "OverrideError",
 
   /**
    * Warnings identify optional items not implemented by a plugin.
@@ -81,14 +96,25 @@ export class PluginIssues {
 
   // ___________________________________________________________________________
   /**
-   * Reports whether or not a plugin has any errors.
+   * Reports whether or not a plugin has any issues with any of the specified
+   * severities.
+   *
    * @param {string} pluginName - The name of the plugin
-   * @returns {boolean} - True if any plugin issues are errors.
+   *
+   * @param {string} issueSevs - An array of issue severities.
+   *
+   * @returns {boolean} - True if any plugin issues have any of the severities.
    *                      False otherwise.
    */
-  public doesPluginHaveError(pluginName: string): boolean {
+  public doesPluginHaveIssueSev(pluginName: string, issueSevs: IssueSeverity[]): boolean {
     if (this.pluginIssues.hasOwnProperty(pluginName)) {
-      return this.pluginIssues[pluginName].hasSevError;
+      for (const nextSev of issueSevs) {
+        for (const nextIssue of this.pluginIssues[pluginName].issueList) {
+          if (nextIssue.issueSev === nextSev) {
+            return true;
+          }
+        }
+      }
     }
     return false;
   }
@@ -167,14 +193,10 @@ export class PluginIssues {
     if (this.pluginIssues.hasOwnProperty(pluginName)) {
       // add to an existing issue list for this plugin
       this.pluginIssues[pluginName].issueList.push(issue);
-      if (issueSev === IssueSeverity.ERROR) {
-        this.pluginIssues[pluginName].hasSevError = true;
-      }
     } else {
       // create an new issue object for this plugin
       this.pluginIssues[pluginName] = {
-        issueList: [issue],
-        hasSevError: (issueSev === IssueSeverity.ERROR)
+        issueList: [issue]
       };
     }
   }

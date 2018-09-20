@@ -12,7 +12,7 @@
 import { ICommandHandler, ICommandResponse, IHandlerParameters, IHandlerResponseApi } from "../../../../../cmd";
 import { TextUtils } from "../../../../../utilities";
 import { ImperativeError } from "../../../../../error";
-import { PluginIssues } from "../../utilities/PluginIssues";
+import {IssueSeverity, PluginIssues} from "../../utilities/PluginIssues";
 import { IPluginJson } from "../../doc/IPluginJson";
 
 /**
@@ -87,21 +87,40 @@ export default class ValidateHandler implements ICommandHandler {
    */
   private displayPluginIssues(pluginName: string, cmdResponse: IHandlerResponseApi): void {
     // display any plugin issues
-    let valResultsMsg: string = "\nValidation results for plugin '" + pluginName +
-      "':\n";
+    let valResultsMsg: string = "\n_______________________________________________________________\n" +
+      "Validation results for plugin '" + pluginName + "':\n";
     const issueListForPlugin = this.pluginIssues.getIssueListForPlugin(pluginName);
     if (issueListForPlugin.length === 0) {
-      valResultsMsg += "Successfully validated.";
+      valResultsMsg += "This plugin was successfully validated. Enjoy the plugin.";
       cmdResponse.console.log(valResultsMsg);
     } else {
+      const setOfIssueSevs: IssueSeverity[] = [];
       for (const nextIssue of issueListForPlugin) {
-        valResultsMsg += "___ " + nextIssue.issueSev + ": " + nextIssue.issueText + "\n";
+        valResultsMsg += "\n___ " + nextIssue.issueSev + ": " + nextIssue.issueText + "\n";
+        if (!setOfIssueSevs.includes(nextIssue.issueSev)) {
+            setOfIssueSevs.push(nextIssue.issueSev);
+        }
       }
 
+      valResultsMsg += "\n";
       let msgColor: string = "yellow";
-      if (this.pluginIssues.doesPluginHaveError(pluginName)) {
+      if (setOfIssueSevs.includes(IssueSeverity.CFG_ERROR)) {
         msgColor = "red";
-        valResultsMsg += "No operations from this plugin will be available for future commands.\n";
+        valResultsMsg += "This plugin has configuration errors. No component of the plugin will be available.";
+      } else {
+        if (setOfIssueSevs.includes(IssueSeverity.CMD_ERROR)) {
+          msgColor = "red";
+          valResultsMsg += "This plugin has command errors. No plugin commands will be available.\n";
+        }
+        if (setOfIssueSevs.includes(IssueSeverity.OVER_ERROR)) {
+          msgColor = "red";
+          valResultsMsg += "This plugin has override errors. This plugin will not override a framework component.";
+        }
+      }
+
+      // if we had no errors, only warnings are left
+      if (msgColor === "yellow") {
+          valResultsMsg += "This plugin has warnings. Any commands and framework overrides will still be available.";
       }
 
       cmdResponse.console.log(TextUtils.chalk[msgColor](valResultsMsg));

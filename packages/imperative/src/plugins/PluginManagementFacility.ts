@@ -123,7 +123,7 @@ export class PluginManagementFacility {
 
     /**
      * The name of the plugin currently being processed.
-     * This is required by callback function requirePluginModule, whose signature
+     * This is required by callback function requirePluginModuleCallback, whose signature
      * is fixed, and cannot have the plugin name passed in.
      *
      * @private
@@ -303,19 +303,20 @@ export class PluginManagementFacility {
     // __________________________________________________________________________
     /**
      * Require a module from a plugin using a relative path name to the module.
-     * Used to load configuration handlers.
+     * Used as a callback function from the ConfigurationLoader to load
+     * configuration handlers.
      *
      * @param {string} relativePath - A relative path from plugin's root.
      *        Typically supplied as ./lib/blah/blah/blah.
      *
      * @returns {any} - The content exported from the specified module.
      */
-    public requirePluginModule(relativePath: string): any {
+    public requirePluginModuleCallback(relativePath: string): any {
         const pluginModuleRuntimePath = this.formPluginRuntimePath(this.pluginNmForUseInCallback, relativePath);
         try {
             return require(pluginModuleRuntimePath);
         } catch (requireError) {
-            PluginIssues.instance.recordIssue(this.pluginNmForUseInCallback, IssueSeverity.ERROR,
+            PluginIssues.instance.recordIssue(this.pluginNmForUseInCallback, IssueSeverity.CMD_ERROR,
                 "Unable to load the following module for plug-in '" +
                 this.pluginNmForUseInCallback + "' :\n" + pluginModuleRuntimePath + "\n" +
                 "Reason = " + requireError.message
@@ -361,26 +362,33 @@ export class PluginManagementFacility {
         catch (impErr) {
             const errMsg = "Failed to combine command definitions. Reason = " + impErr.message;
             this.impLogger.error("addPluginToHostCli: DefinitionTreeResolver.combineAllCmdDefs: " + errMsg);
-            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR, errMsg);
+            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CMD_ERROR, errMsg);
             return;
         }
 
         // validate the plugin's configuration
         if (this.validatePlugin(pluginCfgProps, pluginCmdGroup) === false) {
             this.impLogger.error("addPluginToHostCli: The plug-in named '" + pluginCfgProps.pluginName +
-                "' failed validation and was not added to the available commands.");
+                "' failed validation and was not added to the host CLI app.");
             return;
         }
 
-        // add the new plugin group into the imperative command tree
-        this.impLogger.info("addPluginToHostCli: Adding commands for plug-in '" +
-            pluginCfgProps.pluginName + "' to CLI command tree. Plugin command details at trace level of logging."
-        );
-        this.impLogger.trace("addPluginToHostCli: Commands for plugin = '" +
-            pluginCfgProps.pluginName + "':\n" + JSON.stringify(pluginCmdGroup, null, 2)
-        );
-        if (!this.addCmdGrpToResolvedCliCmdTree(pluginCfgProps.pluginName, pluginCmdGroup)) {
-            return;
+        if (pluginCmdGroup.children.length <= 0) {
+            this.impLogger.info("addPluginToHostCli: The plugin '" +
+                pluginCfgProps.pluginName +
+                "' has no commands, so no new commands will be added to the host CLI app."
+            );
+        } else {
+            // add the new plugin group into the imperative command tree
+            this.impLogger.info("addPluginToHostCli: Adding commands for plug-in '" +
+                pluginCfgProps.pluginName + "' to CLI command tree. Plugin command details at trace level of logging."
+            );
+            this.impLogger.trace("addPluginToHostCli: Commands for plugin = '" +
+                pluginCfgProps.pluginName + "':\n" + JSON.stringify(pluginCmdGroup, null, 2)
+            );
+            if (!this.addCmdGrpToResolvedCliCmdTree(pluginCfgProps.pluginName, pluginCmdGroup)) {
+                return;
+            }
         }
 
         // add the profiles for this plugin to our imperative config object
@@ -397,7 +405,7 @@ export class PluginManagementFacility {
                     "'.\nReason = " + impErr.message +
                     "\nBecause of profile error, removing commands for this plug-in";
                 this.impLogger.error("addPluginToHostCli: " + errMsg);
-                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR, errMsg);
+                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CMD_ERROR, errMsg);
                 this.removeCmdGrpFromResolvedCliCmdTree(pluginCmdGroup);
             }
         }
@@ -422,7 +430,7 @@ export class PluginManagementFacility {
                 "Imperative should have created an empty command definition array.";
             this.impLogger.error("addCmdGrpToResolvedCliCmdTree: While adding plugin = '" +
                 pluginName + "', " + errMsg);
-            this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR, errMsg);
+            this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR, errMsg);
             return false;
         }
 
@@ -431,7 +439,7 @@ export class PluginManagementFacility {
                 "Imperative should have created an empty children array.";
             this.impLogger.error("addCmdGrpToResolvedCliCmdTree: While adding plugin = '" +
                 pluginName + "', " + errMsg);
-            this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR, errMsg);
+            this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR, errMsg);
             return false;
         }
 
@@ -442,7 +450,7 @@ export class PluginManagementFacility {
             const errMsg = "The command group = '" + cmdDefToAdd.name +
                 "' already exists. Plugin management should have already rejected this plugin.";
             this.impLogger.error("addCmdGrpToResolvedCliCmdTree: " + errMsg);
-            this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR, errMsg);
+            this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR, errMsg);
             return false;
         }
         this.impLogger.debug("Adding definition = '" + cmdDefToAdd.name + "' to the resolved command tree.");
@@ -701,7 +709,7 @@ export class PluginManagementFacility {
         // confirm that we can find the path to the plugin node_module
         const pluginRunTimeRootPath = this.formPluginRuntimePath(pluginName);
         if (!existsSync(pluginRunTimeRootPath)) {
-            this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+            this.pluginIssues.recordIssue(pluginName, IssueSeverity.CFG_ERROR,
                 "The path to the plugin does not exist: " + pluginRunTimeRootPath);
             return null;
         }
@@ -709,7 +717,7 @@ export class PluginManagementFacility {
         // confirm that we can find the path to the plugin's package.json
         const pluginPkgJsonPathNm = join(pluginRunTimeRootPath, "package.json");
         if (!existsSync(pluginPkgJsonPathNm)) {
-            this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+            this.pluginIssues.recordIssue(pluginName, IssueSeverity.CFG_ERROR,
                 "Configuration file does not exist: '" + pluginPkgJsonPathNm + "'");
             return null;
         }
@@ -720,7 +728,7 @@ export class PluginManagementFacility {
             pkgJsonData = readFileSync(pluginPkgJsonPathNm);
         }
         catch (ioErr) {
-            this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+            this.pluginIssues.recordIssue(pluginName, IssueSeverity.CFG_ERROR,
                 "Cannot read '" + pluginPkgJsonPathNm +
                 "' Reason = " + ioErr.message);
             return null;
@@ -782,7 +790,7 @@ export class PluginManagementFacility {
 
         // extract the imperative property
         if (!pkgJsonData.hasOwnProperty(this.impConfigPropNm)) {
-            this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+            this.pluginIssues.recordIssue(pluginName, IssueSeverity.CFG_ERROR,
                 "The required property '" + this.impConfigPropNm +
                 "' does not exist in file '" + pluginPkgJsonPathNm + "'.");
             return null;
@@ -793,11 +801,11 @@ export class PluginManagementFacility {
         this.pluginNmForUseInCallback = pluginName;
         try {
             pluginConfig = ConfigurationLoader.load(
-                null, pkgJsonData, this.requirePluginModule.bind(this)
+                null, pkgJsonData, this.requirePluginModuleCallback.bind(this)
             );
         }
         catch (impError) {
-            this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+            this.pluginIssues.recordIssue(pluginName, IssueSeverity.CFG_ERROR,
                 "Failed to load the plugin's configuration from:\n" +
                 pluginPkgJsonPathNm +
                 "\nReason = " + impError.message
@@ -842,7 +850,7 @@ export class PluginManagementFacility {
                     cliPackageJson[cliVerPropName]
                 );
             } else {
-                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
+                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CFG_ERROR,
                     "The property '" + cliVerPropName +
                     "' does not exist within the package.json file of the '" +
                     cliCmdName + "' project."
@@ -867,7 +875,7 @@ export class PluginManagementFacility {
                         cliPackageJson[cliDepPropName][cliVerPropName]
                     );
                 } else {
-                    this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
+                    this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CFG_ERROR,
                         "The property '" + cliVerPropName +
                         "' does not exist within the '" + cliDepPropName +
                         "' property in the package.json file of the '" +
@@ -875,7 +883,7 @@ export class PluginManagementFacility {
                     );
                 }
             } else {
-                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
+                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CFG_ERROR,
                     "The property '" + cliDepPropName +
                     "' does not exist in the package.json file of the '" +
                     cliCmdName + "' project."
@@ -902,7 +910,7 @@ export class PluginManagementFacility {
     ): boolean {
         if (JsUtils.isObjEmpty(pluginCfgProps.impConfig)) {
             // without a config object, we can do no further validation
-            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
+            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CFG_ERROR,
                 "The plugin's configuration is empty.");
             return false;
         }
@@ -921,7 +929,7 @@ export class PluginManagementFacility {
             if (pluginCfgProps.npmPackageName === "PluginHasNoNpmPkgName" ||
                 pluginCfgProps.npmPackageName.length === 0)
             {
-                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
+                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CFG_ERROR,
                     "The plugin's configuration does not contain an '" +
                     this.impConfigPropNm + ".name' property, or an npm package 'name' property in package.json.");
             } else {
@@ -937,7 +945,7 @@ export class PluginManagementFacility {
                 const conflictAndMessage = this.conflictingNameOrAlias(pluginCfgProps.pluginName,
                     pluginCmdGroup, nextImpCmdDef);
                 if (conflictAndMessage.hasConflict) {
-                    this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
+                    this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CMD_ERROR,
                         conflictAndMessage.message);
                     break;
                 }
@@ -945,7 +953,7 @@ export class PluginManagementFacility {
         }
 
         if (!pluginCfgProps.impConfig.hasOwnProperty("rootCommandDescription")) {
-            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
+            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CMD_ERROR,
                 "The plugin's configuration does not contain an '" +
                 this.impConfigPropNm + ".rootCommandDescription' property.");
         }
@@ -968,7 +976,7 @@ export class PluginManagementFacility {
                 // replace relative path with absolute path in the healthCheck property
                 pluginCfgProps.impConfig.pluginHealthCheck = healthChkModulePath;
             } else {
-                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
+                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CMD_ERROR,
                     "The program for the '" + this.impConfigPropNm +
                     ".pluginHealthCheck' property does not exist: " + healthChkFilePath);
             }
@@ -981,7 +989,7 @@ export class PluginManagementFacility {
         if ((!pluginCmdGroup.children || pluginCmdGroup.children.length <= 0) &&
             (!pluginCfgProps.impConfig.overrides || Object.keys(pluginCfgProps.impConfig.overrides).length <= 0))
         {
-            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
+            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CFG_ERROR,
                 "The plugin defines no commands and overrides no framework components.");
         } else {
             // recursively validate the plugin's command definitions
@@ -1017,13 +1025,14 @@ export class PluginManagementFacility {
             ConfigurationValidator.validate(pluginConfigToValidate);
         }
         catch (impError) {
-            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.ERROR,
+            this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CFG_ERROR,
                 "The plugin configuration is invalid.\nReason = " +
                 impError.message
             );
         }
 
-        return !this.pluginIssues.doesPluginHaveError(pluginCfgProps.pluginName);
+        return !this.pluginIssues.doesPluginHaveIssueSev(pluginCfgProps.pluginName,
+            [IssueSeverity.CFG_ERROR, IssueSeverity.CMD_ERROR]);
     }
 
     // __________________________________________________________________________
@@ -1051,27 +1060,27 @@ export class PluginManagementFacility {
             if (pluginCmdDef.hasOwnProperty("name")) {
                 pluginCmdName = pluginCmdDef.name + " (at depth = " + cmdTreeDepth + ")";
             } else {
-                this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+                this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
                     "Command definition at depth " + cmdTreeDepth + " has no 'name' property");
                 pluginCmdName = "No name supplied at depth = " + cmdTreeDepth;
             }
 
             // check for description property
             if (!pluginCmdDef.hasOwnProperty("description")) {
-                this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+                this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
                     "Name = '" + pluginCmdName + "' has no 'description' property");
             }
 
             // check for type property
             if (!pluginCmdDef.hasOwnProperty("type")) {
-                this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+                this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
                     "Name = '" + pluginCmdName + "' has no 'type' property");
             } else {
                 // is this entry a command?
                 if (pluginCmdDef.type.toLowerCase() === "command") {
                     // a command must have a handler
                     if (!pluginCmdDef.hasOwnProperty("handler")) {
-                        this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+                        this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
                             "Command name = '" + pluginCmdName + "' has no 'handler' property");
                     } else {
                         // the handler file must exist
@@ -1082,7 +1091,7 @@ export class PluginManagementFacility {
                             // replace relative path with absolute path in the handler property
                             pluginCmdDef.handler = handlerModulePath;
                         } else {
-                            this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+                            this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
                                 "The handler for command = '" + pluginCmdName +
                                 "' does not exist: " + handlerFilePath);
                         }
@@ -1093,13 +1102,13 @@ export class PluginManagementFacility {
                             // validate children at the next level down in the plugin command tree
                             this.validatePluginCmdDefs(pluginName, pluginCmdDef.children, cmdTreeDepth + 1);
                         } else {
-                            this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+                            this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
                                 "Group name = '" + pluginCmdName +
                                 "' has a 'children' property with no children");
                         }
                     } else {
                         // A group must have the children property.
-                        this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+                        this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
                             "Group name = '" + pluginCmdName + "' has no 'children' property");
                     }
                 } // end group
@@ -1121,7 +1130,7 @@ export class PluginManagementFacility {
         pluginProfiles: ICommandProfileTypeConfiguration[]
     ): void {
         if (JsUtils.isObjEmpty(pluginProfiles)) {
-            this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+            this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
                 "The plugin's existing 'profiles' property is empty.");
             return;
         }
@@ -1140,7 +1149,7 @@ export class PluginManagementFacility {
             let nextProfInx = currProfInx + 1;
             while (nextProfInx < pluginProfLength) {
                 if (pluginProfiles[currProfInx].type === pluginProfiles[nextProfInx].type) {
-                    this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+                    this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
                         "The plugin's profiles at indexes = '" + currProfInx +
                         "' and '" + nextProfInx + "' have the same 'type' property = '" +
                         pluginProfiles[currProfInx].type + "'."
@@ -1157,7 +1166,7 @@ export class PluginManagementFacility {
             }
             for (const impProfile of ImperativeConfig.instance.loadedConfig.profiles) {
                 if (pluginProfiles[currProfInx].type === impProfile.type) {
-                    this.pluginIssues.recordIssue(pluginName, IssueSeverity.ERROR,
+                    this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
                         "The plugin's profile type = '" + pluginProfiles[currProfInx].type +
                         "' already exists within existing profiles."
                     );

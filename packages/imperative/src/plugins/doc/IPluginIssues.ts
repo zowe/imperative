@@ -20,7 +20,6 @@ export interface IPluginIssues {
    */
   [pluginName: string]: {
     issueList: IPluginIssue[];
-    hasSevError: boolean;   // at least one issue was severity PluginIssues.ERROR
   };
 }
 
@@ -29,5 +28,5 @@ export interface IPluginIssue {
    * Each entry is the text of the issue and the severity of the issue.
    */
   issueText: string;
-  issueSev: IssueSeverity;   // use PluginIssues.ERROR or PluginIssues.WARNING
+  issueSev: IssueSeverity;   // one of PluginIssues.IssueSeverity enum
 }
