@@ -9,6 +9,9 @@
 *                                                                                 *
 */
 
+import { join } from "path";
+import { generateRandomAlphaNumericString } from "../../../__tests__/src/TestUtil";
+
 describe("Imperative", () => {
     const loadImperative = () => {
         return require("../src/Imperative").Imperative;
@@ -21,10 +24,13 @@ describe("Imperative", () => {
         jest.doMock("../src/help/ImperativeHelpGeneratorFactory");
         jest.doMock("../src/ImperativeConfig");
         jest.doMock("../src/plugins/PluginManagementFacility");
+        jest.doMock("../../settings");
 
         const OverridesLoader = require("../src/OverridesLoader").OverridesLoader;
         const ConfigurationLoader = require("../src/ConfigurationLoader").ConfigurationLoader;
         const ConfigurationValidator = require("../src/ConfigurationValidator").ConfigurationValidator.validate;
+        const AppSettings = require("../../settings").AppSettings;
+        const ImperativeConfig = require("../src/ImperativeConfig").ImperativeConfig;
 
         return {
             OverridesLoader: {
@@ -35,7 +41,11 @@ describe("Imperative", () => {
             },
             ConfigurationValidator: {
                 validate: ConfigurationValidator.validate as jest.Mock<typeof ConfigurationValidator.validate>
-            }
+            },
+            AppSettings: {
+                initialize: AppSettings.initialize as jest.Mock<typeof AppSettings.initialize>
+            },
+            ImperativeConfig
         };
     };
 
@@ -51,15 +61,16 @@ describe("Imperative", () => {
     });
 
     describe("init", () => {
-        beforeEach(() => {
-            Imperative.initLogging = jest.fn(() => undefined);
-            (Imperative as any).constructApiObject = jest.fn(() => undefined);
-            (Imperative as any).initProfiles = jest.fn(() => undefined);
-            (Imperative as any).defineCommands = jest.fn(() => undefined);
-        });
+        let defaultConfig = {
+            name: "test-cli",
+            allowPlugins: false,
+            overrides: {
+                CredentialManager: "some-string.ts"
+            }
+        };
 
-        it("should work when passed with nothing", async () => {
-            const config = {
+        beforeEach(() => {
+            defaultConfig = {
                 name: "test-cli",
                 allowPlugins: false,
                 overrides: {
@@ -67,8 +78,12 @@ describe("Imperative", () => {
                 }
             };
 
-            // We also rely on ../src/__mocks__/ImperativeConfig.ts
-            mocks.ConfigurationLoader.load.mockReturnValue(config);
+            Imperative.initLogging = jest.fn(() => undefined);
+            (Imperative as any).constructApiObject = jest.fn(() => undefined);
+            (Imperative as any).initProfiles = jest.fn(() => undefined);
+            (Imperative as any).defineCommands = jest.fn(() => undefined);
+
+            mocks.ConfigurationLoader.load.mockReturnValue(defaultConfig);
             mocks.OverridesLoader.load.mockReturnValue(new Promise((resolve) => resolve()));
 
             /* log is a getter of a property, so mock that property.
@@ -84,44 +99,24 @@ describe("Imperative", () => {
                     };
                 })
             });
+        });
 
+        it("should work when passed with nothing", async () => {
             // the thing that we really want to test
             const result = await Imperative.init();
 
             expect(result).toBeUndefined();
             expect(mocks.OverridesLoader.load).toHaveBeenCalledTimes(1);
-            expect(mocks.OverridesLoader.load).toHaveBeenCalledWith(config);
+            expect(mocks.OverridesLoader.load).toHaveBeenCalledWith(defaultConfig);
         });
 
         it("should call plugin functions when plugins are allowed", async () => {
-            const config = {
-                name: "test-cli",
-                allowPlugins: true,
-                overrides: {
-                    CredentialManager: "some-string.ts"
-                }
-            };
-            mocks.ConfigurationLoader.load.mockReturnValue(config);
-            mocks.OverridesLoader.load.mockReturnValue(new Promise((resolve) => resolve()));
-
-            /* log is a getter of a property, so mock that property.
-             * log contains a debug property that is a function, so mock that also.
-             */
-            Object.defineProperty(Imperative, "log", {
-                configurable: true,
-                get: jest.fn(() => {
-                    return {
-                        debug: jest.fn(),
-                        info: jest.fn(),
-                        trace: jest.fn()
-                    };
-                })
-            });
+            defaultConfig.allowPlugins = true;
 
             // We also rely on ../src/__mocks__/ImperativeConfig.ts
 
             // the thing that we really want to test
-            const result = await Imperative.init();
+            await Imperative.init();
 
             /* Mocks within this test script for PMF.init and PMF.addPluginsToHostCli
              * do not work. So, we rely on ../src/plugins/__mocks__/PluginManagementFacility.ts.
@@ -131,6 +126,50 @@ describe("Imperative", () => {
              * To verify, check code coverage for Imperative.init's calls to PMF.init and PMF.addPluginsToHostCli.
              */
             expect("We did not crash.").toBeTruthy();
+        });
+
+        describe("AppSettings", () => {
+            it("should initialize an app settings instance", async () => {
+                await Imperative.init();
+
+                expect(mocks.AppSettings.initialize).toHaveBeenCalledTimes(1);
+                expect(mocks.AppSettings.initialize).toHaveBeenCalledWith(
+                    join(mocks.ImperativeConfig.instance.cliHome, "settings", "imperative.json"),
+                    expect.any(Function)
+                );
+            });
+
+            it("should create settings.json if it is missing", async () => {
+                await Imperative.init();
+
+                expect(mocks.AppSettings.initialize).toHaveBeenCalledTimes(1);
+
+                // Mimic us executing the callback
+                jest.doMock("../../io");
+                jest.doMock("jsonfile");
+
+                const { IO } = require("../../io");
+                const { writeFileSync } = require("jsonfile");
+
+                const settingsFile = generateRandomAlphaNumericString(16, true); // tslint:disable-line
+                const defaultSetttings = {
+                    test: generateRandomAlphaNumericString(16, true) // tslint:disable-line
+                };
+
+                const returnVal = mocks.AppSettings.initialize.mock.calls[0][1](settingsFile, defaultSetttings);
+
+                expect(IO.createDirsSyncFromFilePath).toHaveBeenCalledTimes(1);
+                expect(IO.createDirsSyncFromFilePath).toHaveBeenCalledWith(settingsFile);
+
+                expect(writeFileSync).toHaveBeenCalledTimes(1);
+                expect(writeFileSync).toHaveBeenCalledWith(settingsFile, defaultSetttings, expect.any(Object));
+
+                expect(returnVal).toBe(defaultSetttings);
+
+
+                jest.dontMock("../../io");
+                jest.dontMock("jsonfile");
+            });
         });
     }); // end describe init
 
