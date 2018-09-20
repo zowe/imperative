@@ -16,6 +16,7 @@ import { BadCredentialManagerError } from "./errors/BadCredentialManagerError";
  * **NOTE** THIS CLASS SHOULD NOT BE EXPORTED FOR PUBLIC CONSUMPTION.
  *
  * This class is the fallback class when a credential manager fails to initialize.
+ * All methods in this class must throw te error passed in by the constructor.
  */
 export class InvalidCredentialManager extends AbstractCredentialManager {
     /**

@@ -13,7 +13,7 @@ import { ImperativeError } from "../../../error";
 
 /**
  * This class represents the error thrown by methods of the {@link InvalidCredentialManager}
- * when initialized in the {@link CredentialManagerFactory}
+ * when initialized by {@link CredentialManagerFactory.initialize}
  */
 export class BadCredentialManagerError extends ImperativeError {
     /**
