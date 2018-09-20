@@ -11,6 +11,7 @@
 
 import { join } from "path";
 import { generateRandomAlphaNumericString } from "../../../__tests__/src/TestUtil";
+import { IImperativeOverrides } from "../src/doc/IImperativeOverrides";
 
 describe("Imperative", () => {
     const loadImperative = () => {
@@ -169,6 +170,39 @@ describe("Imperative", () => {
 
                 expect(PluginManagementFacility.instance.init).toHaveBeenCalledTimes(1);
                 expect(PluginManagementFacility.instance.loadAllPluginCfgProps).toHaveBeenCalledTimes(1);
+
+                expect(PluginManagementFacility.instance.addAllPluginsToHostCli).toHaveBeenCalledTimes(1);
+                expect(
+                    PluginManagementFacility.instance.addAllPluginsToHostCli
+                ).toHaveBeenCalledWith(mocks.ImperativeConfig.instance.resolvedCmdTree);
+            });
+
+            // @FUTURE When there are more overrides we should think about making this function dynamic
+            it("should allow a plugin to override modules", async () => {
+                const testOverrides: IImperativeOverrides = {
+                    CredentialManager: generateRandomAlphaNumericString(16) //tslint:disable-line
+                };
+
+                // Formulate a deep copy of the expected overrides. Ensures that we are comparing values
+                // and not references to values.
+                const expectedConfig = JSON.parse(JSON.stringify(defaultConfig));
+                Object.assign(expectedConfig.overrides, JSON.parse(JSON.stringify(testOverrides)));
+
+                PluginManagementFacility.instance.pluginOverrides = testOverrides;
+
+                await Imperative.init();
+
+                expect(mocks.ImperativeConfig.instance.loadedConfig).toEqual(expectedConfig);
+            });
+
+            it("should not override modules not specified by a plugin", async () => {
+                const expectedConfig = JSON.parse(JSON.stringify(defaultConfig));
+
+                PluginManagementFacility.instance.pluginOverrides = {};
+
+                await Imperative.init();
+
+                expect(mocks.ImperativeConfig.instance.loadedConfig).toEqual(expectedConfig);
             });
         });
     }); // end describe init
