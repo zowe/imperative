@@ -165,24 +165,10 @@ describe("Imperative", () => {
             });
 
             it("should call plugin functions when plugins are allowed", async () => {
-                // We also rely on ../src/__mocks__/ImperativeConfig.ts
-
-                // the thing that we really want to test
                 await Imperative.init();
 
                 expect(PluginManagementFacility.instance.init).toHaveBeenCalledTimes(1);
                 expect(PluginManagementFacility.instance.loadAllPluginCfgProps).toHaveBeenCalledTimes(1);
-
-                /* Mocks within this test script for PMF.init and PMF.addPluginsToHostCli
-                 * do not work. So, we rely on ../src/plugins/__mocks__/PluginManagementFacility.ts.
-                 * See that file for detailed comments.
-                 * Thus, we cannot use things like 'mockInit.toHaveBeenCalledTimes()'.
-                 * If we get this far without crashing, we assume that we called the mock PMF functions.
-                 * To verify, check code coverage for Imperative.init's calls to PMF.init and PMF.addPluginsToHostCli.
-                 */
-
-
-                expect("We did not crash.").toBeTruthy();
             });
         });
     }); // end describe init
