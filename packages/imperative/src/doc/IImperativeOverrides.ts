@@ -104,7 +104,7 @@ export interface IImperativeOverrides extends IOverridesRestriction {
      * those cases where you want to have a bit more control by using `__dirname`) or a relative path.
      *
      * In the case that the string is a relative path, it __MUST__ be a path relative to the entry
-     * point of your CLI.
+     * point of your CLI. (__NOTE:__ In the case of a plugin, this is relative to your require entry point)
      *
      * For example:
      *
