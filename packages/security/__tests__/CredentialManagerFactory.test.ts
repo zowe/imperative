@@ -16,14 +16,22 @@ describe("CredentialManagerFactory", () => {
     const testClassDir = "CredentialManagerFactory-testClasses";
 
     jest.doMock("../src/DefaultCredentialManager");
+    jest.doMock("../../settings/src/AppSettings");
     let {CredentialManagerFactory, DefaultCredentialManager} = require("..");
+    let { AppSettings } = require("../../settings");
+
+    beforeEach(() => {
+        AppSettings.initialize("We are mocked");
+    });
 
     afterEach(async () => {
         // Because initialize can only be called once, we need to reset the module cache everytime and
         // reload our modules. So we will clear the module registry and import again
         jest.resetModuleRegistry();
         jest.doMock("../src/DefaultCredentialManager");
+        jest.doMock("../../settings/src/AppSettings");
         ({CredentialManagerFactory, DefaultCredentialManager} = await import(".."));
+        ({AppSettings} = await import("../../settings"));
     });
 
     it("should throw an error when getting the manager before init", () => {
