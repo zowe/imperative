@@ -31,6 +31,7 @@ describe("Imperative", () => {
         const ConfigurationValidator = require("../src/ConfigurationValidator").ConfigurationValidator.validate;
         const AppSettings = require("../../settings").AppSettings;
         const ImperativeConfig = require("../src/ImperativeConfig").ImperativeConfig;
+        const PluginManagementFacility = require("../src/plugins/PluginManagementFacility").PluginManagementFacility;
 
         return {
             OverridesLoader: {
@@ -45,7 +46,8 @@ describe("Imperative", () => {
             AppSettings: {
                 initialize: AppSettings.initialize as jest.Mock<typeof AppSettings.initialize>
             },
-            ImperativeConfig
+            ImperativeConfig,
+            PluginManagementFacility
         };
     };
 
@@ -110,24 +112,6 @@ describe("Imperative", () => {
             expect(mocks.OverridesLoader.load).toHaveBeenCalledWith(defaultConfig);
         });
 
-        it("should call plugin functions when plugins are allowed", async () => {
-            defaultConfig.allowPlugins = true;
-
-            // We also rely on ../src/__mocks__/ImperativeConfig.ts
-
-            // the thing that we really want to test
-            await Imperative.init();
-
-            /* Mocks within this test script for PMF.init and PMF.addPluginsToHostCli
-             * do not work. So, we rely on ../src/plugins/__mocks__/PluginManagementFacility.ts.
-             * See that file for detailed comments.
-             * Thus, we cannot use things like 'mockInit.toHaveBeenCalledTimes()'.
-             * If we get this far without crashing, we assume that we called the mock PMF functions.
-             * To verify, check code coverage for Imperative.init's calls to PMF.init and PMF.addPluginsToHostCli.
-             */
-            expect("We did not crash.").toBeTruthy();
-        });
-
         describe("AppSettings", () => {
             it("should initialize an app settings instance", async () => {
                 await Imperative.init();
@@ -169,6 +153,36 @@ describe("Imperative", () => {
 
                 jest.dontMock("../../io");
                 jest.dontMock("jsonfile");
+            });
+        });
+
+        describe("Plugins", () => {
+            let PluginManagementFacility = mocks.PluginManagementFacility;
+
+            beforeEach(() => {
+                defaultConfig.allowPlugins = true;
+                PluginManagementFacility = mocks.PluginManagementFacility;
+            });
+
+            it("should call plugin functions when plugins are allowed", async () => {
+                // We also rely on ../src/__mocks__/ImperativeConfig.ts
+
+                // the thing that we really want to test
+                await Imperative.init();
+
+                expect(PluginManagementFacility.instance.init).toHaveBeenCalledTimes(1);
+                expect(PluginManagementFacility.instance.loadAllPluginCfgProps).toHaveBeenCalledTimes(1);
+
+                /* Mocks within this test script for PMF.init and PMF.addPluginsToHostCli
+                 * do not work. So, we rely on ../src/plugins/__mocks__/PluginManagementFacility.ts.
+                 * See that file for detailed comments.
+                 * Thus, we cannot use things like 'mockInit.toHaveBeenCalledTimes()'.
+                 * If we get this far without crashing, we assume that we called the mock PMF functions.
+                 * To verify, check code coverage for Imperative.init's calls to PMF.init and PMF.addPluginsToHostCli.
+                 */
+
+
+                expect("We did not crash.").toBeTruthy();
             });
         });
     }); // end describe init

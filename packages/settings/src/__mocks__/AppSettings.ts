@@ -18,7 +18,7 @@ import * as AppSettingsModule from "../AppSettings";
  */
 
 // Define the constructor of the mock app settings class
-function Settings() {
+function MockAppSettings() {
     this.settings = { // tslint:disable-line
         overrides: {
             CredentialManager: false
@@ -40,7 +40,7 @@ function Settings() {
 }
 
 // Mock the constructor and have Settings be the instance
-const AppSettings: any = jest.fn(Settings);
+const AppSettings: any = jest.fn(MockAppSettings);
 
 // Define the static mInstance private variable
 AppSettings.mInstance = null;
