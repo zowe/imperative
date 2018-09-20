@@ -115,7 +115,7 @@ export class LoggerManager {
      */
     public dumpQueuedMessages(file: string) {
         if (this.QueuedMessages.length > 0) {
-            this.console.debug(`Writting all logged messages in memrory to ${file}`);
+            this.console.debug(`Writting all logged messages in memory to ${file}`);
             this.QueuedMessages.slice().reverse().forEach((value, index) => {
                 (this.console as any)[value.method](value.message);
                 appendFileSync(file, `${value.message}\n`);

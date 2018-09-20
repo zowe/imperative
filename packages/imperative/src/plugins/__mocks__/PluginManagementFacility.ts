@@ -9,32 +9,9 @@
 *                                                                                 *
 */
 
-import {ICommandDefinition} from "../../../../cmd";
+const PluginManagementFacility: any =
+    (jest.genMockFromModule("../PluginManagementFacility") as any).PluginManagementFacility;
 
-/* Used in Imperative.test.ts because jest appears to launch a separate
- * context for the call to 'await Imperative.init()', which in turn, calls
- * functions from the PluginManagementFacility singleton.
- * If you use simple mocks in the test program, they do not appear to
- * be in effect within the sub process, which then calls real
- * PluginManagementFacility functions. This __mocks__ file causes
- * Imperative.init() to use these mocked functions.
- */
-export class PluginManagementFacility {
-    private static mInstance: PluginManagementFacility = null;
+PluginManagementFacility.instance = new PluginManagementFacility();
 
-    public static get instance(): PluginManagementFacility {
-        if (this.mInstance == null) {
-          this.mInstance = new PluginManagementFacility();
-        }
-        return this.mInstance;
-    }
-
-    public init(): void {
-      return;
-    }
-
-    public addPluginsToHostCli(CmdTree: ICommandDefinition): void {
-        return;
-    }
-
-}
+exports.PluginManagementFacility = PluginManagementFacility;
