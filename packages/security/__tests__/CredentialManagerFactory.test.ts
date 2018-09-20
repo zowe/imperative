@@ -127,7 +127,7 @@ describe("CredentialManagerFactory", () => {
 
             expect(actualError).toBeInstanceOf(BadCredentialManagerError);
             expect(actualError.message).toEqual("An invalid credential manager was passed in to the factory function!");
-            expect((actualError as BadCredentialManagerError).additionalDetails).toEqual(
+            expect((actualError as typeof BadCredentialManagerError).additionalDetails).toEqual(
                 "A bad object was provided to the CredentialManagerFactory.initialize() method. This could be " +
                 "due to a bad plugin."
             );
@@ -145,7 +145,7 @@ describe("CredentialManagerFactory", () => {
 
             expect(actualError).toBeInstanceOf(BadCredentialManagerError);
             expect(actualError.message).toEqual("An invalid credential manager was passed in to the factory function!");
-            expect((actualError as BadCredentialManagerError).additionalDetails).toEqual(
+            expect((actualError as typeof BadCredentialManagerError).additionalDetails).toEqual(
                 "Manager is not a constructor"
             );
         });
