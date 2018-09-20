@@ -80,7 +80,6 @@ export class CredentialManagerFactory {
             });
         }
 
-        // @TODO TEST LOGIC
         try {
             let manager: any;
 

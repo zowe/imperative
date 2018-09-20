@@ -10,6 +10,7 @@
  */
 
 import { ISettingsFile } from "../doc/ISettingsFile";
+import * as AppSettingsModule from "../AppSettings";
 
 /*
  * This file mocks the AppSettings class and tries to keep some of the logic in tact.
@@ -18,13 +19,24 @@ import { ISettingsFile } from "../doc/ISettingsFile";
 
 // Define the constructor of the mock app settings class
 function Settings() {
-    this.setNewOverride = jest.fn();
-
     this.settings = { // tslint:disable-line
         overrides: {
             CredentialManager: false
         }
     } as ISettingsFile;
+
+    // Enforces that the type matches that of the calling class
+    const setNewOverrideFn: typeof AppSettingsModule.AppSettings.prototype.setNewOverride = (
+        override: keyof ISettingsFile["overrides"],
+        value: string | false
+    ) => {
+        this.settings.overrides[override] = value;
+        return new Promise((resolve) => {
+            resolve();
+        });
+    };
+
+    this.setNewOverride = jest.fn(setNewOverrideFn);
 }
 
 // Mock the constructor and have Settings be the instance

@@ -11,14 +11,16 @@
 
 import { UnitTestUtils } from "../../../__tests__/src/UnitTestUtils";
 import { resolve } from "path";
+import { generateRandomAlphaNumericString } from "../../../__tests__/src/TestUtil";
 
 describe("CredentialManagerFactory", () => {
     const testClassDir = "CredentialManagerFactory-testClasses";
 
     jest.doMock("../src/DefaultCredentialManager");
     jest.doMock("../../settings/src/AppSettings");
-    let {CredentialManagerFactory, DefaultCredentialManager} = require("..");
-    let { AppSettings } = require("../../settings");
+    let {CredentialManagerFactory, DefaultCredentialManager, BadCredentialManagerError} = require("..");
+    let {InvalidCredentialManager} = require("../src/InvalidCredentialManager");
+    let {AppSettings} = require("../../settings");
 
     beforeEach(() => {
         AppSettings.initialize("We are mocked");
@@ -30,7 +32,8 @@ describe("CredentialManagerFactory", () => {
         jest.resetModuleRegistry();
         jest.doMock("../src/DefaultCredentialManager");
         jest.doMock("../../settings/src/AppSettings");
-        ({CredentialManagerFactory, DefaultCredentialManager} = await import(".."));
+        ({CredentialManagerFactory, DefaultCredentialManager, BadCredentialManagerError} = await import(".."));
+        ({InvalidCredentialManager} = await import("../src/InvalidCredentialManager"));
         ({AppSettings} = await import("../../settings"));
     });
 
@@ -49,33 +52,33 @@ describe("CredentialManagerFactory", () => {
         expect(caughtError.message).toContain("A call to CredentialManagerFactory.initialize has already been made!");
     });
 
+    it("should initialize with the default credential manager", async () => {
+        const cliHome = "abcd";
+
+        await CredentialManagerFactory.initialize(DefaultCredentialManager, cliHome);
+
+        expect(DefaultCredentialManager).toHaveBeenCalledTimes(1);
+        expect(DefaultCredentialManager).toHaveBeenCalledWith(cliHome);
+        expect(CredentialManagerFactory.manager).toBeInstanceOf(DefaultCredentialManager);
+        expect(CredentialManagerFactory.manager.initialize).toHaveBeenCalledTimes(1);
+
+        // Check stuff is frozen
+        expect(Object.isFrozen(CredentialManagerFactory)).toBe(true);
+        expect(Object.isFrozen(CredentialManagerFactory.manager)).toBe(true);
+    });
+
+    it("should initialize a classpath that has no initialize method", async () => {
+        const classFile = resolve(__dirname, testClassDir, "GoodCredentialManager.ts");
+
+        const GoodCredentialManager = await import(classFile);
+
+        await CredentialManagerFactory.initialize(classFile, "efgh");
+
+        expect(CredentialManagerFactory.manager).toBeInstanceOf(GoodCredentialManager);
+        expect((CredentialManagerFactory.manager as any).service).toEqual(GoodCredentialManager.hardcodeService);
+    });
+
     describe("Credential manager provided by base cli", () => {
-        it("should initialize with the default credential manager", async () => {
-            const cliHome = "abcd";
-
-            await CredentialManagerFactory.initialize(DefaultCredentialManager, cliHome);
-
-            expect(DefaultCredentialManager).toHaveBeenCalledTimes(1);
-            expect(DefaultCredentialManager).toHaveBeenCalledWith(cliHome);
-            expect(CredentialManagerFactory.manager).toBeInstanceOf(DefaultCredentialManager);
-            expect(CredentialManagerFactory.manager.initialize).toHaveBeenCalledTimes(1);
-
-            // Check stuff is frozen
-            expect(Object.isFrozen(CredentialManagerFactory)).toBe(true);
-            expect(Object.isFrozen(CredentialManagerFactory.manager)).toBe(true);
-        });
-
-        it("should initialize a classpath that has no initialize method", async () => {
-            const classFile = resolve(__dirname, testClassDir, "GoodCredentialManager.ts");
-
-            const GoodCredentialManager = await import(classFile);
-
-            await CredentialManagerFactory.initialize(classFile, "efgh");
-
-            expect(CredentialManagerFactory.manager).toBeInstanceOf(GoodCredentialManager);
-            expect((CredentialManagerFactory.manager as any).service).toEqual(GoodCredentialManager.hardcodeService);
-        });
-
         it("should throw an error when the class doesn't extend the AbstractCredentialManager", async () => {
             const classFile = resolve(__dirname, testClassDir, "FailToExtend.ts");
             const actualError = await UnitTestUtils.catchError(CredentialManagerFactory.initialize(classFile, "ijkl"));
@@ -94,6 +97,57 @@ describe("CredentialManagerFactory", () => {
             expect(() => {
                 CredentialManagerFactory.manager.initialize();
             }).toThrowError("Credential Manager not yet initialized!");
+        });
+    });
+
+    describe("Emulating a loaded plugin", () => {
+        const nameMaxLength = 32;
+        const emulated: { pluginName: string; cliName: string } = {
+            pluginName: "",
+            cliName: ""
+        };
+
+        beforeEach(async () => {
+            // Generate a random name so we can verify that different names work
+            emulated.pluginName = generateRandomAlphaNumericString(Math.floor((Math.random() * nameMaxLength) + 1));
+            emulated.cliName = generateRandomAlphaNumericString(Math.floor((Math.random() * nameMaxLength) + 1));
+            await AppSettings.instance.setNewOverride("CredentialManager", emulated.pluginName);
+        });
+
+        it("should throw an error when the class doesn't extend the AbstractCredentialManager", async () => {
+            const classFile = require(resolve(__dirname, testClassDir, "FailToExtend.ts"));
+            await CredentialManagerFactory.initialize(classFile, emulated.cliName);
+
+            expect(CredentialManagerFactory.manager).toBeInstanceOf(InvalidCredentialManager);
+
+            // Call a function to see if the error gets thrown up properly
+            const actualError = await UnitTestUtils.catchError(
+                CredentialManagerFactory.manager.save("test", "test")
+            );
+
+            expect(actualError).toBeInstanceOf(BadCredentialManagerError);
+            expect(actualError.message).toEqual("An invalid credential manager was passed in to the factory function!");
+            expect((actualError as BadCredentialManagerError).additionalDetails).toEqual(
+                "A bad object was provided to the CredentialManagerFactory.initialize() method. This could be " +
+                "due to a bad plugin."
+            );
+        });
+
+        it("should handle being passed an object that isn't a class or string", async () => {
+            await CredentialManagerFactory.initialize([] as any, emulated.cliName);
+
+            expect(CredentialManagerFactory.manager).toBeInstanceOf(InvalidCredentialManager);
+
+            // Call a function to see if the error gets thrown up properly
+            const actualError = await UnitTestUtils.catchError(
+                CredentialManagerFactory.manager.save("test", "test")
+            );
+
+            expect(actualError).toBeInstanceOf(BadCredentialManagerError);
+            expect(actualError.message).toEqual("An invalid credential manager was passed in to the factory function!");
+            expect((actualError as BadCredentialManagerError).additionalDetails).toEqual(
+                "Manager is not a constructor"
+            );
         });
     });
 });
