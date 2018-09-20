@@ -36,7 +36,6 @@ export class CredentialManagerFactory {
      *
      * @see {@link IImperativeOverrides.CredentialManager}
      *
-     *
      * ### Immutable Class Creation
      *
      * After this method is complete, the instantiated credential manager will no longer allow changes
@@ -52,6 +51,20 @@ export class CredentialManagerFactory {
      *
      * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
      *
+     * ### Plugin Provided Overrides
+     *
+     * This class attempts to handle a failed plugin override as well. If this method errors out because of problems
+     * with the `Manager` parameter, it will check to see if the override was provided by a plugin loaded in the
+     * {@link PluginManagementFacility}. The check is done by looking at the value present in the {@link AppSettings#settings}
+     * of the singleton present in {@link AppSettings.instance}
+     *
+     * If the it was detected that the Manager was not provided by a plugin, the error encountered is thrown to
+     * the calling function.
+     *
+     * If it was detected that a plugin provided the Manager, we will default using the {@link InvalidCredentialManager}
+     * which implements the {@link AbstractCredentialManager} methods. All these methods have been designed to throw
+     * the error we caught in the **CredentialManagerFactory.initialize** function.
+     *
      * @param {IImperativeOverrides.CredentialManager} Manager - A class that extends {@link AbstractCredentialManager} that will
      *                                                  be instantiated and used as the actual credential manager. If a string is
      *                                                  passed, we will attempt to load the module specified in the string as a
@@ -66,11 +79,9 @@ export class CredentialManagerFactory {
      * @throws {@link ImperativeError} When it has been detected that this method has been called before.
      *         It is important that this method only executes once.
      *
-     * @throws {@link ImperativeError} When the file specified by the Manager string references a module that
-     *         does not extend {@link AbstractCredentialManager}.
-     *
-     * @throws {@link ImperativeError} When the file specified by the Manager string does not exist or does not
-     *         export a class as part of the module.exports clause.
+     * @throws {@link ImperativeError} When the module specified by the Manager string references a module that
+     *         does not extend {@link AbstractCredentialManager} and the override was not provided by a plugin.
+     *         When the override is provided by a plugin, we will fall back to the {@link InvalidCredentialManager}.
      */
     public static async initialize(Manager: IImperativeOverrides["CredentialManager"], cliName: string): Promise<void> {
         if (this.mManager != null) {
@@ -80,7 +91,6 @@ export class CredentialManagerFactory {
             });
         }
 
-        // @TODO TEST LOGIC
         try {
             let manager: any;
 
