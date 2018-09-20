@@ -49,49 +49,51 @@ describe("CredentialManagerFactory", () => {
         expect(caughtError.message).toContain("A call to CredentialManagerFactory.initialize has already been made!");
     });
 
-    it("should initialize with the default credential manager", async () => {
-        const cliHome = "abcd";
+    describe("Credential manager provided by base cli", () => {
+        it("should initialize with the default credential manager", async () => {
+            const cliHome = "abcd";
 
-        await CredentialManagerFactory.initialize(DefaultCredentialManager, cliHome);
+            await CredentialManagerFactory.initialize(DefaultCredentialManager, cliHome);
 
-        expect(DefaultCredentialManager).toHaveBeenCalledTimes(1);
-        expect(DefaultCredentialManager).toHaveBeenCalledWith(cliHome);
-        expect(CredentialManagerFactory.manager).toBeInstanceOf(DefaultCredentialManager);
-        expect(CredentialManagerFactory.manager.initialize).toHaveBeenCalledTimes(1);
+            expect(DefaultCredentialManager).toHaveBeenCalledTimes(1);
+            expect(DefaultCredentialManager).toHaveBeenCalledWith(cliHome);
+            expect(CredentialManagerFactory.manager).toBeInstanceOf(DefaultCredentialManager);
+            expect(CredentialManagerFactory.manager.initialize).toHaveBeenCalledTimes(1);
 
-        // Check stuff is frozen
-        expect(Object.isFrozen(CredentialManagerFactory)).toBe(true);
-        expect(Object.isFrozen(CredentialManagerFactory.manager)).toBe(true);
-    });
+            // Check stuff is frozen
+            expect(Object.isFrozen(CredentialManagerFactory)).toBe(true);
+            expect(Object.isFrozen(CredentialManagerFactory.manager)).toBe(true);
+        });
 
-    it("should initialize a classpath that has no initialize method", async () => {
-        const classFile = resolve(__dirname, testClassDir, "GoodCredentialManager.ts");
+        it("should initialize a classpath that has no initialize method", async () => {
+            const classFile = resolve(__dirname, testClassDir, "GoodCredentialManager.ts");
 
-        const GoodCredentialManager = await import(classFile);
+            const GoodCredentialManager = await import(classFile);
 
-        await CredentialManagerFactory.initialize(classFile, "efgh");
+            await CredentialManagerFactory.initialize(classFile, "efgh");
 
-        expect(CredentialManagerFactory.manager).toBeInstanceOf(GoodCredentialManager);
-        expect((CredentialManagerFactory.manager as any).service).toEqual(GoodCredentialManager.hardcodeService);
-    });
+            expect(CredentialManagerFactory.manager).toBeInstanceOf(GoodCredentialManager);
+            expect((CredentialManagerFactory.manager as any).service).toEqual(GoodCredentialManager.hardcodeService);
+        });
 
-    it("should throw an error when the class doesn't extend the AbstractCredentialManager", async () => {
-        const classFile = resolve(__dirname, testClassDir, "FailToExtend.ts");
-        const actualError = await UnitTestUtils.catchError(CredentialManagerFactory.initialize(classFile, "ijkl"));
+        it("should throw an error when the class doesn't extend the AbstractCredentialManager", async () => {
+            const classFile = resolve(__dirname, testClassDir, "FailToExtend.ts");
+            const actualError = await UnitTestUtils.catchError(CredentialManagerFactory.initialize(classFile, "ijkl"));
 
-        expect(actualError.message).toContain(`${classFile} does not extend AbstractCredentialManager`);
-        expect(() => {
-            CredentialManagerFactory.manager.initialize();
-        }).toThrowError("Credential Manager not yet initialized!");
-    });
+            expect(actualError.message).toContain(`${classFile} does not extend AbstractCredentialManager`);
+            expect(() => {
+                CredentialManagerFactory.manager.initialize();
+            }).toThrowError("Credential Manager not yet initialized!");
+        });
 
-    it("should handle a load failure", async () => {
-        const classFile = resolve(__dirname, testClassDir, "FailToLoad.ts");
-        const actualError = await UnitTestUtils.catchError(CredentialManagerFactory.initialize(classFile, "ijkl"));
+        it("should handle a load failure", async () => {
+            const classFile = resolve(__dirname, testClassDir, "NotAValidFile.ts");
+            const actualError = await UnitTestUtils.catchError(CredentialManagerFactory.initialize(classFile, "ijkl"));
 
-        expect(actualError.message).toEqual(`Unexpected error while trying to load ${classFile}`);
-        expect(() => {
-            CredentialManagerFactory.manager.initialize();
-        }).toThrowError("Credential Manager not yet initialized!");
+            expect(actualError.message).toContain(`Cannot find module '${classFile}'`);
+            expect(() => {
+                CredentialManagerFactory.manager.initialize();
+            }).toThrowError("Credential Manager not yet initialized!");
+        });
     });
 });
