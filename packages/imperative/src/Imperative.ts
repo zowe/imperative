@@ -13,7 +13,7 @@
  * Main class of the Imperative framework, returned when you
  * require("imperative") e.g. const imperative =  require("imperative");
  */
-import { Logger } from "../../logger";
+import { Logger, LoggerConfigBuilder } from "../../logger";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import { Arguments } from "yargs";
 import { ConfigurationLoader } from "./ConfigurationLoader";
@@ -26,7 +26,6 @@ import { TextUtils } from "../../utilities";
 import { ImperativeReject } from "../../interfaces";
 import { LoggingConfigurer } from "./LoggingConfigurer";
 import { ImperativeError } from "../../error";
-import { IPluginCfgProps } from "./plugins/doc/IPluginCfgProps";
 import { PluginManagementFacility } from "./plugins/PluginManagementFacility";
 import {
     CliProfileManager,
@@ -50,6 +49,7 @@ import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettin
 import { AppSettings } from "../../settings";
 import {join} from "path";
 import {existsSync, mkdirSync, writeFileSync} from "fs";
+import { Console } from "../../console";
 
 export class Imperative {
 
@@ -370,6 +370,7 @@ export class Imperative {
      * TODO(Kelosky): handle level setting via global config (trace enabling and such)
      */
     private static initLogging() {
+        let message: string;
         /**
          * Build logging config from imperative config
          */
@@ -386,8 +387,12 @@ export class Imperative {
                 this.log.info("Set imperative log level to %s from environmental variable setting '%s'",
                     envSettings.imperativeLogLevel.value, envSettings.imperativeLogLevel.key);
             } else {
-                this.log.warn("Imperative log level '%s' from environmental variable setting '%s' not recognised ; valid levels are %s",
-                    envSettings.imperativeLogLevel.value, envSettings.imperativeLogLevel.key, Logger.DEFAULT_VALID_LOG_LEVELS.toString());
+                message = "Imperative log level '" + envSettings.imperativeLogLevel.value +
+                          "' from environmental variable setting '" + envSettings.imperativeLogLevel.key + "' is not recognised.  " +
+                          "Logger level is set to '" + LoggerConfigBuilder.DEFAULT_LOG_LEVEL + "'.  " +
+                          "Valid levels are " + Logger.DEFAULT_VALID_LOG_LEVELS.toString();
+                new Console().warn(message);
+                this.log.warn(message);
             }
         } else {
             this.log.warn("Environmental setting for imperative log level ('%s') was blank.", envSettings.imperativeLogLevel.key);
@@ -400,8 +405,12 @@ export class Imperative {
                 this.log.info("Set app log level to %s from environmental variable setting '%s'",
                     envSettings.appLogLevel.value, envSettings.appLogLevel.key);
             } else {
-                this.log.warn("App log level '%s' from environmental variable setting '%s' not recognised ; valid levels are %s",
-                    envSettings.appLogLevel.value, envSettings.appLogLevel.key, Logger.DEFAULT_VALID_LOG_LEVELS.toString());
+                message = "Application log level '" + envSettings.appLogLevel.value +
+                          "from environmental variable setting '" + envSettings.appLogLevel.key + "' is not recognised.  " +
+                          "Logger level is set to '" + LoggerConfigBuilder.DEFAULT_LOG_LEVEL + "'.  " +
+                          "Valid levels are " + Logger.DEFAULT_VALID_LOG_LEVELS.toString();
+                new Console().warn(message);
+                this.log.warn(message);
             }
         } else {
             this.log.warn("Environmental setting for app log level ('%s') was blank.", envSettings.appLogLevel.key);
