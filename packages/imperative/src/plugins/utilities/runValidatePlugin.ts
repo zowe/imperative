@@ -49,8 +49,7 @@ export function runValidatePlugin(pluginName: string): string {
 // _______________________________________________________________________
 /**
  * Form the final validation message. We concatenate the stderr and stdout
- * of the validation command, and append a message about the success or
- * failure of the validation.
+ * of the validation command.
  *
  * @param {string} valResultJsonObj - The output of plugin validation command.
  *

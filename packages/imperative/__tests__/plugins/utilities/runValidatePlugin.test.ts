@@ -31,30 +31,14 @@ describe("runValidatePlugin", () => {
         execSync: execSync as Mock<typeof execSync>
     };
 
-    it("should return a message for success", () => {
+    it("should display both the stdout and stderr of the validate command", () => {
         // mock the output of executing the validatePlugin command
-        cmdOutputJson.stdout = "No errors or warnings means success";
+        cmdOutputJson.stdout = "The validate commands's standard output";
+        cmdOutputJson.stderr = "The validate commands's standard error";
         mocks.execSync.mockReturnValue(JSON.stringify(cmdOutputJson));
         (Imperative as any).mRootCommandName = "dummy";
         const resultMsg = runValidatePlugin(pluginName);
-        expect(resultMsg).toContain("This plugin was successfully validated");
-    });
-
-    it("should return a message for errors", () => {
-        // mock the output of executing the validatePlugin command
-        cmdOutputJson.stdout = "___ Error - This text contains a error.";
-        mocks.execSync.mockReturnValue(JSON.stringify(cmdOutputJson));
-        (Imperative as any).mRootCommandName = "dummy";
-        const resultMsg = runValidatePlugin(pluginName);
-        expect(resultMsg).toContain("This plugin has errors and will be excluded");
-    });
-
-    it("should return a message for warnings", () => {
-        // mock the output of executing the validatePlugin command
-        cmdOutputJson.stdout = "___ Warning - This text contains a warning.";
-        mocks.execSync.mockReturnValue(JSON.stringify(cmdOutputJson));
-        (Imperative as any).mRootCommandName = "dummy";
-        const resultMsg = runValidatePlugin(pluginName);
-        expect(resultMsg).toContain("This plugin has warnings, but will be included");
+        expect(resultMsg).toContain(cmdOutputJson.stdout);
+        expect(resultMsg).toContain(cmdOutputJson.stderr);
     });
 });
