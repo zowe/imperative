@@ -31,7 +31,6 @@ import { ConfigurationValidator } from "../../src/ConfigurationValidator";
 import { ICommandProfileTypeConfiguration } from "../../../cmd";
 import { DefinitionTreeResolver } from "../../src/DefinitionTreeResolver";
 import { IPluginCfgProps } from "../../src/plugins/doc/IPluginCfgProps";
-import {ISettingsFile} from "../../../settings/src/doc/ISettingsFile";
 
 describe("Plugin Management Facility", () => {
     const mocks = {
@@ -152,7 +151,7 @@ describe("Plugin Management Facility", () => {
 
         AppSettings.initialize = jest.fn();
 
-        // get instance is a getter of a property, so mock the property
+        // instance is a getter of a property, so mock the property
         Object.defineProperty(AppSettings, "instance", {
             configurable: true,
             get: jest.fn(() => {
