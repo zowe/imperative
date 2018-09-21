@@ -45,8 +45,8 @@ describe("imperative-test-cli test logging command", () => {
                 // Set the ENV var for the script
                 const response = runCliScript(__dirname + "/__scripts__/test_logging_cmd.sh",
                     TEST_ENVIRONMENT.workingDir);
-                expect(response.status).toBe(0);
                 expect(response.stderr.toString()).toBe("");
+                expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
                 // Make sure the log files are present
@@ -83,8 +83,8 @@ describe("imperative-test-cli test logging command", () => {
                 // Set the ENV var for the script
                 const response = runCliScript(__dirname + "/__scripts__/test_logging_cmd.sh",
                     TEST_ENVIRONMENT.workingDir);
-                expect(response.status).toBe(0);
                 expect(response.stderr.toString()).toBe("");
+                expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
                 // Make sure the log files are present
@@ -126,8 +126,8 @@ describe("imperative-test-cli test logging command", () => {
                 // Set the ENV var for the script
                 const response = runCliScript(__dirname + "/__scripts__/test_logging_cmd.sh",
                     TEST_ENVIRONMENT.workingDir, [], { IMPERATIVE_TEST_CLI_IMPERATIVE_LOG_LEVEL: " " });
-                expect(response.status).toBe(0);
                 expect(response.stderr.toString()).toBe("");
+                expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
                 // Make sure the log files are present
@@ -152,8 +152,8 @@ describe("imperative-test-cli test logging command", () => {
                 // Set the ENV var for the script
                 const response = runCliScript(__dirname + "/__scripts__/test_logging_cmd.sh",
                     TEST_ENVIRONMENT.workingDir, [], { IMPERATIVE_TEST_CLI_IMPERATIVE_LOG_LEVEL: "AWESOME" });
-                expect(response.status).toBe(0);
                 expect(response.stderr.toString()).toBe("");
+                expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
                 // Make sure the log files are present
@@ -190,8 +190,8 @@ describe("imperative-test-cli test logging command", () => {
                 // Set the ENV var for the script
                 const response = runCliScript(__dirname + "/__scripts__/test_logging_cmd.sh",
                     TEST_ENVIRONMENT.workingDir, [], { IMPERATIVE_TEST_CLI_APP_LOG_LEVEL: " " });
-                expect(response.status).toBe(0);
                 expect(response.stderr.toString()).toBe("");
+                expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
                 // Make sure the log files are present
@@ -216,8 +216,8 @@ describe("imperative-test-cli test logging command", () => {
                 // Set the ENV var for the script
                 const response = runCliScript(__dirname + "/__scripts__/test_logging_cmd.sh",
                     TEST_ENVIRONMENT.workingDir, [], { IMPERATIVE_TEST_CLI_APP_LOG_LEVEL: "AWESOME" });
-                expect(response.status).toBe(0);
                 expect(response.stderr.toString()).toBe("");
+                expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
                 // Make sure the log files are present
@@ -259,8 +259,8 @@ describe("imperative-test-cli test logging command", () => {
                 // Set the ENV var for the script
                 const response = runCliScript(__dirname + "/__scripts__/test_logging_cmd.sh",
                     TEST_ENVIRONMENT.workingDir, [], { IMPERATIVE_TEST_CLI_IMPERATIVE_LOG_LEVEL: "OFF" });
-                expect(response.status).toBe(0);
                 expect(response.stderr.toString()).toBe("");
+                expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
                 // Make sure the log files are present
@@ -278,8 +278,8 @@ describe("imperative-test-cli test logging command", () => {
                 // Set the ENV var for the script
                 const response = runCliScript(__dirname + "/__scripts__/test_logging_cmd.sh",
                     TEST_ENVIRONMENT.workingDir, [], { IMPERATIVE_TEST_CLI_IMPERATIVE_LOG_LEVEL: "TRACE" });
-                expect(response.status).toBe(0);
                 expect(response.stderr.toString()).toBe("");
+                expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
                 // Make sure the log files are present
@@ -324,8 +324,8 @@ describe("imperative-test-cli test logging command", () => {
                 // Set the ENV var for the script
                 const response = runCliScript(__dirname + "/__scripts__/test_logging_cmd.sh",
                     TEST_ENVIRONMENT.workingDir, [], { IMPERATIVE_TEST_CLI_APP_LOG_LEVEL: "OFF" });
-                expect(response.status).toBe(0);
                 expect(response.stderr.toString()).toBe("");
+                expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
                 // Make sure the log files are present
@@ -343,8 +343,8 @@ describe("imperative-test-cli test logging command", () => {
                 // Set the ENV var for the script
                 const response = runCliScript(__dirname + "/__scripts__/test_logging_cmd.sh",
                     TEST_ENVIRONMENT.workingDir, [], { IMPERATIVE_TEST_CLI_APP_LOG_LEVEL: "TRACE" });
-                expect(response.status).toBe(0);
                 expect(response.stderr.toString()).toBe("");
+                expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
                 // Make sure the log files are present
@@ -390,8 +390,8 @@ describe("imperative-test-cli test logging command", () => {
                         IMPERATIVE_TEST_CLI_APP_LOG_LEVEL: "OFF",
                         IMPERATIVE_TEST_CLI_IMPERATIVE_LOG_LEVEL: "OFF"
                     });
-                expect(response.status).toBe(0);
                 expect(response.stderr.toString()).toBe("");
+                expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
                 // Make sure the log files are present
@@ -415,8 +415,8 @@ describe("imperative-test-cli test logging command", () => {
                         IMPERATIVE_TEST_CLI_APP_LOG_LEVEL: "TRACE",
                         IMPERATIVE_TEST_CLI_IMPERATIVE_LOG_LEVEL: "TRACE"
                     });
-                expect(response.status).toBe(0);
                 expect(response.stderr.toString()).toBe("");
+                expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
                 // Make sure the log files are present
@@ -470,8 +470,8 @@ describe("imperative-test-cli test logging command", () => {
                         IMPERATIVE_TEST_CLI_APP_LOG_LEVEL: "INFO",
                         IMPERATIVE_TEST_CLI_IMPERATIVE_LOG_LEVEL: "ERROR"
                     });
-                expect(response.status).toBe(0);
                 expect(response.stderr.toString()).toBe("");
+                expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
                 // Make sure the log files are present
@@ -525,8 +525,8 @@ describe("imperative-test-cli test logging command", () => {
                         IMPERATIVE_TEST_CLI_APP_LOG_LEVEL: "INFO",
                         IMPERATIVE_TEST_CLI_IMPERATIVE_LOG_LEVEL: "INFO"
                     });
-                expect(response.status).toBe(0);
                 expect(response.stderr.toString()).toBe("");
+                expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
                 // Make sure the log files are present
@@ -581,8 +581,8 @@ describe("imperative-test-cli test logging command", () => {
                         IMPERATIVE_TEST_CLI_APP_LOG_LEVEL: "OFF",
                         IMPERATIVE_TEST_CLI_IMPERATIVE_LOG_LEVEL: "TRACE"
                     });
-                expect(response.status).toBe(0);
                 expect(response.stderr.toString()).toBe("");
+                expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
                 // Make sure the log files are present
@@ -623,8 +623,8 @@ describe("imperative-test-cli test logging command", () => {
                         IMPERATIVE_TEST_CLI_APP_LOG_LEVEL: "TRACE",
                         IMPERATIVE_TEST_CLI_IMPERATIVE_LOG_LEVEL: "OFF"
                     });
-                expect(response.status).toBe(0);
                 expect(response.stderr.toString()).toBe("");
+                expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
                 // Make sure the log files are present

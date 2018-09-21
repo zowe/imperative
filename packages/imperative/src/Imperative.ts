@@ -209,7 +209,7 @@ export class Imperative {
                 initializationComplete();
             } catch (error) {
                 Logger.getImperativeLogger().fatal(error);
-                Logger.dumpInMemoryMessages(Imperative.DEFAULT_DEBUG_FILE);
+                Logger.writeInMemoryMessages(Imperative.DEFAULT_DEBUG_FILE);
                 if (error.report) {
                     writeFileSync(Imperative.DEFAULT_DEBUG_FILE, error.report);
                 }
@@ -379,22 +379,32 @@ export class Imperative {
          * Set log levels from environmental variable settings
          */
         const envSettings = EnvironmentalVariableSettings.read(this.envVariablePrefix);
-        if (envSettings.imperativeLogLevel.value != null) {
-            // set the imperative log level based on the user's environmental variable, if any
-            loggingConfig.log4jsConfig.categories[Logger.DEFAULT_IMPERATIVE_NAME].level = envSettings.imperativeLogLevel.value;
-            this.log.info("Set imperative log level to %s from environmental variable setting '%s'",
-                envSettings.imperativeLogLevel.value, envSettings.imperativeLogLevel.key);
+        if (envSettings.imperativeLogLevel.value != null && envSettings.imperativeLogLevel.value.trim().length > 0) {
+            if (Logger.isValidLevel(envSettings.imperativeLogLevel.value.trim())) {
+                // set the imperative log level based on the user's environmental variable, if any
+                loggingConfig.log4jsConfig.categories[Logger.DEFAULT_IMPERATIVE_NAME].level = envSettings.imperativeLogLevel.value;
+                this.log.info("Set imperative log level to %s from environmental variable setting '%s'",
+                    envSettings.imperativeLogLevel.value, envSettings.imperativeLogLevel.key);
+            } else {
+                this.log.warn("Imperative log level '%s' from environmental variable setting '%s' not recognised ; valid levels are %s",
+                    envSettings.imperativeLogLevel.value, envSettings.imperativeLogLevel.key, Logger.DEFAULT_VALID_LOG_LEVELS.toString());
+            }
         } else {
-            this.log.info("Environmental setting for imperative log level ('%s') was blank.", envSettings.imperativeLogLevel.key);
+            this.log.warn("Environmental setting for imperative log level ('%s') was blank.", envSettings.imperativeLogLevel.key);
         }
 
-        if (envSettings.appLogLevel.value != null) {
-            // set the app log level based on the user's environmental variable, if any
-            loggingConfig.log4jsConfig.categories[Logger.DEFAULT_APP_NAME].level = envSettings.appLogLevel.value;
-            this.log.info("Set app log level to %s from environmental variable setting '%s'",
-                envSettings.appLogLevel.value, envSettings.appLogLevel.key);
+        if (envSettings.appLogLevel.value != null && envSettings.appLogLevel.value.trim().length > 0) {
+            if (Logger.isValidLevel(envSettings.appLogLevel.value.trim())) {
+                // set the app log level based on the user's environmental variable, if any
+                loggingConfig.log4jsConfig.categories[Logger.DEFAULT_APP_NAME].level = envSettings.appLogLevel.value;
+                this.log.info("Set app log level to %s from environmental variable setting '%s'",
+                    envSettings.appLogLevel.value, envSettings.appLogLevel.key);
+            } else {
+                this.log.warn("App log level '%s' from environmental variable setting '%s' not recognised ; valid levels are %s",
+                    envSettings.appLogLevel.value, envSettings.appLogLevel.key, Logger.DEFAULT_VALID_LOG_LEVELS.toString());
+            }
         } else {
-            this.log.info("Environmental setting for app log level ('%s') was blank.", envSettings.appLogLevel.key);
+            this.log.warn("Environmental setting for app log level ('%s') was blank.", envSettings.appLogLevel.key);
         }
 
         /**
