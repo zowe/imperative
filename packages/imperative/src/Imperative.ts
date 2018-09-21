@@ -13,7 +13,7 @@
  * Main class of the Imperative framework, returned when you
  * require("imperative") e.g. const imperative =  require("imperative");
  */
-import { Logger } from "../../logger";
+import { Logger, LoggerConfigBuilder } from "../../logger";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import { Arguments } from "yargs";
 import { ConfigurationLoader } from "./ConfigurationLoader";
@@ -26,7 +26,6 @@ import { TextUtils } from "../../utilities";
 import { ImperativeReject } from "../../interfaces";
 import { LoggingConfigurer } from "./LoggingConfigurer";
 import { ImperativeError } from "../../error";
-import { IPluginCfgProps } from "./plugins/doc/IPluginCfgProps";
 import { PluginManagementFacility } from "./plugins/PluginManagementFacility";
 import {
     CliProfileManager,
@@ -48,12 +47,13 @@ import { ImperativeProfileManagerFactory } from "./profiles/ImperativeProfileMan
 import { ImperativeConfig } from "./ImperativeConfig";
 import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
 import { AppSettings } from "../../settings";
-import {join} from "path";
-import {existsSync, mkdirSync, writeFileSync} from "fs";
+import { join } from "path";
+import { Console } from "../../console";
 
 export class Imperative {
 
     public static readonly DEFAULT_DEBUG_FILE = join(process.cwd(), "imperative_debug.log");
+
     /**
      *  Retrieve the root command name.
      *  @example
@@ -211,6 +211,7 @@ export class Imperative {
                 Logger.getImperativeLogger().fatal(error);
                 Logger.writeInMemoryMessages(Imperative.DEFAULT_DEBUG_FILE);
                 if (error.report) {
+                    const {writeFileSync} = require("fs");
                     writeFileSync(Imperative.DEFAULT_DEBUG_FILE, error.report);
                 }
                 initializationFailed(
@@ -283,8 +284,8 @@ export class Imperative {
             throw new ImperativeError(
                 {
                     msg: "Imperative API object does not exist.  The Imperative.init() promise " +
-                    "must be fullfilled before the API object can be accessed.  For issuing messages " +
-                    "without the API object, use Imperative.console.",
+                        "must be fullfilled before the API object can be accessed.  For issuing messages " +
+                        "without the API object, use Imperative.console.",
                 },
                 {
                     suppressReport: true, // node-report is unnecessary here
@@ -350,7 +351,7 @@ export class Imperative {
                 // Load required modules on the fly so as to not slow down the
                 // happy path of not needing to create the file.
                 const jsonfile = require("jsonfile");
-                const { IO } = require("../../io");
+                const {IO} = require("../../io");
 
                 IO.createDirsSyncFromFilePath(settingsFile);
 
@@ -370,6 +371,7 @@ export class Imperative {
      * TODO(Kelosky): handle level setting via global config (trace enabling and such)
      */
     private static initLogging() {
+        let message: string;
         /**
          * Build logging config from imperative config
          */
@@ -386,8 +388,12 @@ export class Imperative {
                 this.log.info("Set imperative log level to %s from environmental variable setting '%s'",
                     envSettings.imperativeLogLevel.value, envSettings.imperativeLogLevel.key);
             } else {
-                this.log.warn("Imperative log level '%s' from environmental variable setting '%s' not recognised ; valid levels are %s",
-                    envSettings.imperativeLogLevel.value, envSettings.imperativeLogLevel.key, Logger.DEFAULT_VALID_LOG_LEVELS.toString());
+                message = "Imperative log level '" + envSettings.imperativeLogLevel.value +
+                    "' from environmental variable setting '" + envSettings.imperativeLogLevel.key + "' is not recognised.  " +
+                    "Logger level is set to '" + LoggerConfigBuilder.DEFAULT_LOG_LEVEL + "'.  " +
+                    "Valid levels are " + Logger.DEFAULT_VALID_LOG_LEVELS.toString();
+                new Console().warn(message);
+                this.log.warn(message);
             }
         } else {
             this.log.warn("Environmental setting for imperative log level ('%s') was blank.", envSettings.imperativeLogLevel.key);
@@ -400,8 +406,12 @@ export class Imperative {
                 this.log.info("Set app log level to %s from environmental variable setting '%s'",
                     envSettings.appLogLevel.value, envSettings.appLogLevel.key);
             } else {
-                this.log.warn("App log level '%s' from environmental variable setting '%s' not recognised ; valid levels are %s",
-                    envSettings.appLogLevel.value, envSettings.appLogLevel.key, Logger.DEFAULT_VALID_LOG_LEVELS.toString());
+                message = "Application log level '" + envSettings.appLogLevel.value +
+                    "' from environmental variable setting '" + envSettings.appLogLevel.key + "' is not recognised.  " +
+                    "Logger level is set to '" + LoggerConfigBuilder.DEFAULT_LOG_LEVEL + "'.  " +
+                    "Valid levels are " + Logger.DEFAULT_VALID_LOG_LEVELS.toString();
+                new Console().warn(message);
+                this.log.warn(message);
             }
         } else {
             this.log.warn("Environmental setting for app log level ('%s') was blank.", envSettings.appLogLevel.key);

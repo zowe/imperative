@@ -10,60 +10,70 @@
 */
 
 jest.mock("log4js");
+jest.mock("fs");
 import * as log4js from "log4js";
 import {LoggingConfigurer} from "../../imperative/src/LoggingConfigurer";
 import {IConfigLogging, ILog4jsConfig, Logger} from "../../logger";
+import {LoggerManager} from "../../logger/src/LoggerManager";
 
 import {ImperativeError} from "../../error";
 
 import * as os from "os";
 import * as path from "path";
+import * as fs from "fs";
 import {IO} from "../../io";
 
-let configuration: ILog4jsConfig;
-(log4js.configure as any) = jest.fn((config: any) => {
-    // console.log("config passed to configure: " + require("util").inspect(config));
-    configuration = config;
-});
+describe("Logger tests", () => {
+    const fakeHome = "/home";
+    const name = "sample";
 
-class MockedLoggerInstance {
-    private mLevel: string;
+    beforeAll(() => {
+        let configuration: ILog4jsConfig;
+        (log4js.configure as any) = jest.fn((config: any) => {
+            // console.log("config passed to configure: " + require("util").inspect(config));
+            configuration = config;
+        });
 
-    public set level(newLevel: any) {
-        this.mLevel = newLevel;
-    }
+        class MockedLoggerInstance {
+            private mLevel: string;
 
-    public get level(): any {
-        return {
-            levelStr: this.mLevel
-        };
-    }
-}
+            public set level(newLevel: any) {
+                this.mLevel = newLevel;
+            }
 
-(log4js.getLogger as any) = jest.fn((category: string) => {
-        let configuredLevel = "debug";
-        if (category !== null) {
-            for (const configuredCategory of Object.keys(configuration.categories)) {
-                if (configuredCategory === category) {
-                    configuredLevel = configuration.categories[configuredCategory].level;
-                }
+            public get level(): any {
+                return {
+                    levelStr: this.mLevel
+                };
             }
         }
-        const newLogger = new MockedLoggerInstance();
-        newLogger.level = configuredLevel;
-        return newLogger;
-    }
-);
 
-(os.homedir as any) = jest.fn(() => "/someHome");
-(path.normalize as any) = jest.fn((p: string) => p);
-(IO.createDirsSync as any) = jest.fn((myPath: string) => {
-    // do nothing
-});
+        (log4js.getLogger as any) = jest.fn((category: string) => {
+                let configuredLevel = "debug";
+                if (category !== null) {
+                    for (const configuredCategory of Object.keys(configuration.categories)) {
+                        if (configuredCategory === category) {
+                            configuredLevel = configuration.categories[configuredCategory].level;
+                        }
+                    }
+                }
+                const newLogger = new MockedLoggerInstance();
+                newLogger.level = configuredLevel;
+                return newLogger;
+            }
+        );
 
-const fakeHome = "/home";
-const name = "sample";
-describe("Logger tests", () => {
+        (os.homedir as any) = jest.fn(() => "/someHome");
+        (path.normalize as any) = jest.fn((p: string) => p);
+        (IO.createDirsSync as any) = jest.fn((myPath: string) => {
+            // do nothing
+        });
+    });
+
+    afterEach(() => {
+        (LoggerManager as any).mInstance = null;
+    });
+
     it("Should call underlying service function", () => {
         const config = LoggingConfigurer.configureLogger(fakeHome, {name});
         const logger = Logger.initLogger(config);
@@ -88,6 +98,21 @@ describe("Logger tests", () => {
         expect((logger as any).logService.warn).toBeCalled();
         expect((logger as any).logService.error).toBeCalled();
         expect((logger as any).logService.fatal).toBeCalled();
+    });
+
+    it("Should allow all service function to store message in memory", () => {
+        const logger = Logger.getImperativeLogger();
+        const expectedSize = 6;
+        Logger.setLogInMemory(true);
+
+        logger.trace("test");
+        logger.info("test");
+        logger.debug("test");
+        logger.warn("test");
+        logger.error("test");
+        logger.fatal("test");
+
+        expect(LoggerManager.instance.QueuedMessages.length).toBe(expectedSize);
     });
 
     it("Should error if not given a config on initialization", () => {
@@ -182,6 +207,84 @@ describe("Logger tests", () => {
 
         // this should be identical to imperative
         expect((imperative.level as any).levelStr.toUpperCase()).toBe((imperativeCategory.level as any).levelStr.toUpperCase());
+    });
+
+    it("Should allow enable logging in memory when logger is not configured", () => {
+        const newQueueSize = 10;
+        Logger.setLogInMemory(true, newQueueSize);
+        expect(LoggerManager.instance.logInMemory).toBeTruthy();
+        expect(LoggerManager.instance.maxQueueSize).toBe(newQueueSize);
+
+        Logger.setLogInMemory(false);
+        expect(LoggerManager.instance.logInMemory).toBeFalsy();
+    });
+
+    it("Should allow message to be queue in memory when logger is not configured", () => {
+        const impLogger = Logger.getImperativeLogger();
+        const appLogger = Logger.getAppLogger();
+        const message1 = "test message 1";
+        const message2 = "test message 2";
+
+        Logger.setLogInMemory(true);
+
+        impLogger.debug(message1);
+        expect(LoggerManager.instance.QueuedMessages.length).toBe(1);
+        expect(LoggerManager.instance.QueuedMessages[0].message.toString()).toContain(message1);
+
+        appLogger.debug(message2);
+        expect(LoggerManager.instance.QueuedMessages.length).toBe(2);
+        expect(LoggerManager.instance.QueuedMessages[0].message.toString()).toContain(message2);
+        expect(LoggerManager.instance.QueuedMessages[1].message.toString()).toContain(message1);
+    });
+
+    it("Should not queue message in memory when logInMemory is disabled or already at max queue size", () => {
+        const maxQueueSize = 1;
+        const impLogger = Logger.getImperativeLogger();
+        const appLogger = Logger.getAppLogger();
+        const message1 = "test message 1";
+        const message2 = "test message 2";
+
+        Logger.setLogInMemory(false);
+
+        impLogger.debug(message1);
+        expect(LoggerManager.instance.QueuedMessages.length).toBe(0);
+        appLogger.debug(message2);
+        expect(LoggerManager.instance.QueuedMessages.length).toBe(0);
+
+        Logger.setLogInMemory(true, maxQueueSize);
+        impLogger.debug(message1);
+        expect(LoggerManager.instance.QueuedMessages.length).toBe(1);
+        expect(LoggerManager.instance.QueuedMessages[0].message.toString()).toContain(message1);
+
+        appLogger.debug(message2);
+        expect(LoggerManager.instance.QueuedMessages.length).toBe(1);
+    });
+
+    it("Should allow check if log level value is valid", () => {
+        expect(Logger.isValidLevel("TRACE")).toBeTruthy();
+        expect(Logger.isValidLevel("bad value")).toBeFalsy();
+        expect(Logger.isValidLevel(" ")).toBeFalsy();
+        expect(Logger.isValidLevel(null)).toBeFalsy();
+        expect(Logger.isValidLevel(undefined)).toBeFalsy();
+    });
+
+    it("Should support writting all of the message in memory to file", () => {
+        const logger = Logger.getImperativeLogger();
+        const expectedSize = 6;
+        Logger.setLogInMemory(true);
+
+        logger.trace("test");
+        logger.info("test");
+        logger.debug("test");
+        logger.warn("test");
+        logger.error("test");
+        logger.fatal("test");
+
+        expect(LoggerManager.instance.QueuedMessages.length).toBe(expectedSize);
+
+        fs.appendFileSync = jest.fn();
+        Logger.writeInMemoryMessages("testing.txt");
+        expect(fs.appendFileSync).toHaveBeenCalledTimes(expectedSize);
     });
 
 });

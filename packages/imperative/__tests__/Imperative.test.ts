@@ -9,9 +9,12 @@
 *                                                                                 *
 */
 
+import Mock = jest.Mock;
 import { join } from "path";
 import { generateRandomAlphaNumericString } from "../../../__tests__/src/TestUtil";
 import { IImperativeOverrides } from "../src/doc/IImperativeOverrides";
+import { IConfigLogging } from "../../logger";
+import { IImperativeEnvironmentalVariableSettings } from "..";
 
 describe("Imperative", () => {
     const loadImperative = () => {
@@ -19,37 +22,58 @@ describe("Imperative", () => {
     };
 
     const reloadExternalMocks = () => {
-        jest.doMock("../src/OverridesLoader");
-        jest.doMock("../src/ConfigurationLoader");
-        jest.doMock("../src/ConfigurationValidator");
-        jest.doMock("../src/help/ImperativeHelpGeneratorFactory");
-        jest.doMock("../src/ImperativeConfig");
-        jest.doMock("../src/plugins/PluginManagementFacility");
-        jest.doMock("../../settings");
+        try {
+            jest.doMock("../src/OverridesLoader");
+            jest.doMock("../src/LoggingConfigurer");
+            jest.doMock("../src/ConfigurationLoader");
+            jest.doMock("../src/ConfigurationValidator");
+            jest.doMock("../src/help/ImperativeHelpGeneratorFactory");
+            jest.doMock("../src/ImperativeConfig");
+            jest.doMock("../src/plugins/PluginManagementFacility");
+            jest.doMock("../../settings/src/AppSettings");
+            jest.doMock("../../logger/src/Logger");
+            jest.doMock("../src/env/EnvironmentalVariableSettings");
 
-        const OverridesLoader = require("../src/OverridesLoader").OverridesLoader;
-        const ConfigurationLoader = require("../src/ConfigurationLoader").ConfigurationLoader;
-        const ConfigurationValidator = require("../src/ConfigurationValidator").ConfigurationValidator.validate;
-        const AppSettings = require("../../settings").AppSettings;
-        const ImperativeConfig = require("../src/ImperativeConfig").ImperativeConfig;
-        const PluginManagementFacility = require("../src/plugins/PluginManagementFacility").PluginManagementFacility;
+            const {OverridesLoader} = require("../src/OverridesLoader");
+            const {LoggingConfigurer} = require("../src/LoggingConfigurer");
+            const {ConfigurationLoader} = require("../src/ConfigurationLoader");
+            const ConfigurationValidator = require("../src/ConfigurationValidator").ConfigurationValidator.validate;
+            const {AppSettings} = require("../../settings");
+            const {ImperativeConfig} = require("../src/ImperativeConfig");
+            const {PluginManagementFacility} = require("../src/plugins/PluginManagementFacility");
+            const {Logger} = require("../../logger");
+            const {EnvironmentalVariableSettings} = require("../src/env/EnvironmentalVariableSettings");
 
-        return {
-            OverridesLoader: {
-                load: OverridesLoader.load as jest.Mock<typeof OverridesLoader.load>
-            },
-            ConfigurationLoader: {
-                load: ConfigurationLoader.load as jest.Mock<typeof ConfigurationLoader.load>
-            },
-            ConfigurationValidator: {
-                validate: ConfigurationValidator.validate as jest.Mock<typeof ConfigurationValidator.validate>
-            },
-            AppSettings: {
-                initialize: AppSettings.initialize as jest.Mock<typeof AppSettings.initialize>
-            },
-            ImperativeConfig,
-            PluginManagementFacility
-        };
+            return {
+                OverridesLoader: {
+                    load: OverridesLoader.load as Mock<typeof OverridesLoader.load>
+                },
+                ConfigurationLoader: {
+                    load: ConfigurationLoader.load as Mock<typeof ConfigurationLoader.load>
+                },
+                ConfigurationValidator: {
+                    validate: ConfigurationValidator.validate as Mock<typeof ConfigurationValidator.validate>
+                },
+                AppSettings: {
+                    initialize: AppSettings.initialize as Mock<typeof AppSettings.initialize>
+                },
+                ImperativeConfig,
+                PluginManagementFacility,
+                LoggingConfigurer,
+                Logger,
+                EnvironmentalVariableSettings
+            };
+        } catch (error) {
+            // If we error here, jest silently fails and says the test is empty. So let's make sure
+            // that doesn't happen!
+
+            const { Logger } = (jest as any).requireActual("../../logger/src/Logger");
+
+            Logger.getConsoleLogger().fatal("Imperative.test.ts test execution error!");
+            Logger.getConsoleLogger().fatal(error);
+
+            throw error;
+        }
     };
 
     let mocks = reloadExternalMocks();
@@ -81,27 +105,12 @@ describe("Imperative", () => {
                 }
             };
 
-            Imperative.initLogging = jest.fn(() => undefined);
             (Imperative as any).constructApiObject = jest.fn(() => undefined);
             (Imperative as any).initProfiles = jest.fn(() => undefined);
             (Imperative as any).defineCommands = jest.fn(() => undefined);
 
             mocks.ConfigurationLoader.load.mockReturnValue(defaultConfig);
             mocks.OverridesLoader.load.mockReturnValue(new Promise((resolve) => resolve()));
-
-            /* log is a getter of a property, so mock that property.
-             * log contains a debug property that is a function, so mock that also.
-             */
-            Object.defineProperty(Imperative, "log", {
-                configurable: true,
-                get: jest.fn(() => {
-                    return {
-                        debug: jest.fn(),
-                        info: jest.fn(),
-                        trace: jest.fn()
-                    };
-                })
-            });
         });
 
         it("should work when passed with nothing", async () => {
@@ -133,8 +142,8 @@ describe("Imperative", () => {
                 jest.doMock("../../io");
                 jest.doMock("jsonfile");
 
-                const { IO } = require("../../io");
-                const { writeFileSync } = require("jsonfile");
+                const {IO} = require("../../io");
+                const {writeFileSync} = require("jsonfile");
 
                 const settingsFile = generateRandomAlphaNumericString(16, true); // tslint:disable-line
                 const defaultSetttings = {
@@ -155,7 +164,7 @@ describe("Imperative", () => {
                 jest.dontMock("../../io");
                 jest.dontMock("jsonfile");
             });
-        });
+        }); // End AppSettings
 
         describe("Plugins", () => {
             let PluginManagementFacility = mocks.PluginManagementFacility;
@@ -204,7 +213,99 @@ describe("Imperative", () => {
 
                 expect(mocks.ImperativeConfig.instance.loadedConfig).toEqual(expectedConfig);
             });
-        });
+        }); // End Plugins
+
+        describe("Logging", () => {
+            it("should properly call external methods", async () => {
+                await Imperative.init();
+
+                expect(mocks.LoggingConfigurer.configureLogger).toHaveBeenCalledTimes(1);
+                expect(mocks.LoggingConfigurer.configureLogger).toHaveBeenCalledWith(
+                    mocks.ImperativeConfig.instance.cliHome,
+                    mocks.ImperativeConfig.instance.loadedConfig
+                );
+
+                expect(mocks.Logger.initLogger).toHaveBeenCalledTimes(1);
+                expect(mocks.Logger.initLogger).toHaveBeenCalledWith(
+                    mocks.LoggingConfigurer.configureLogger("a", {})
+                );
+            });
+
+            describe("Environmental Var", () => {
+                let loggingConfig: IConfigLogging;
+                let envConfig: IImperativeEnvironmentalVariableSettings;
+
+                const goodLevel = "WARN";
+                const badLevel = "NOGOOD";
+
+                beforeEach(() => {
+                    loggingConfig = mocks.LoggingConfigurer.configureLogger("dont care", {});
+                    envConfig = mocks.EnvironmentalVariableSettings.read(Imperative.envVariablePrefix);
+                });
+
+                it("should handle a valid imperative log level", async () => {
+                    envConfig.imperativeLogLevel.value = goodLevel;
+                    loggingConfig.log4jsConfig.categories[mocks.Logger.DEFAULT_IMPERATIVE_NAME].level = goodLevel;
+
+                    mocks.EnvironmentalVariableSettings.read.mockReturnValue(envConfig);
+                    mocks.Logger.isValidLevel.mockReturnValue(true);
+
+                    await Imperative.init();
+
+                    expect(mocks.Logger.isValidLevel).toHaveBeenCalledTimes(1);
+                    expect(mocks.Logger.isValidLevel).toHaveBeenCalledWith(goodLevel);
+
+                    expect(mocks.Logger.initLogger).toHaveBeenCalledTimes(1);
+                    expect(mocks.Logger.initLogger).toHaveBeenCalledWith(loggingConfig);
+                });
+
+                it("should handle an invalid imperative log level", async () => {
+                    envConfig.imperativeLogLevel.value = badLevel;
+
+                    mocks.EnvironmentalVariableSettings.read.mockReturnValue(envConfig);
+                    mocks.Logger.isValidLevel.mockReturnValue(false);
+
+                    await Imperative.init();
+
+                    expect(mocks.Logger.isValidLevel).toHaveBeenCalledTimes(1);
+                    expect(mocks.Logger.isValidLevel).toHaveBeenCalledWith(badLevel);
+
+                    expect(mocks.Logger.initLogger).toHaveBeenCalledTimes(1);
+                    expect(mocks.Logger.initLogger).toHaveBeenCalledWith(loggingConfig);
+                });
+
+                it("should handle a valid app log level", async () => {
+                    envConfig.appLogLevel.value = goodLevel;
+                    loggingConfig.log4jsConfig.categories[mocks.Logger.DEFAULT_APP_NAME].level = goodLevel;
+
+                    mocks.EnvironmentalVariableSettings.read.mockReturnValue(envConfig);
+                    mocks.Logger.isValidLevel.mockReturnValue(true);
+
+                    await Imperative.init();
+
+                    expect(mocks.Logger.isValidLevel).toHaveBeenCalledTimes(1);
+                    expect(mocks.Logger.isValidLevel).toHaveBeenCalledWith(goodLevel);
+
+                    expect(mocks.Logger.initLogger).toHaveBeenCalledTimes(1);
+                    expect(mocks.Logger.initLogger).toHaveBeenCalledWith(loggingConfig);
+                });
+
+                it("should handle an invalid imperative log level", async () => {
+                    envConfig.appLogLevel.value = badLevel;
+
+                    mocks.EnvironmentalVariableSettings.read.mockReturnValue(envConfig);
+                    mocks.Logger.isValidLevel.mockReturnValue(false);
+
+                    await Imperative.init();
+
+                    expect(mocks.Logger.isValidLevel).toHaveBeenCalledTimes(1);
+                    expect(mocks.Logger.isValidLevel).toHaveBeenCalledWith(badLevel);
+
+                    expect(mocks.Logger.initLogger).toHaveBeenCalledTimes(1);
+                    expect(mocks.Logger.initLogger).toHaveBeenCalledWith(loggingConfig);
+                });
+            });
+        }); // End Logging
     }); // end describe init
 
     describe("error handling", () => {

@@ -11,7 +11,7 @@
 
 export * from "./src/env/EnvironmentalVariableSettings";
 export * from "./src/doc/IImperativeEnvironmentalVariableSetting";
-export * from "./src/doc/IImperativeEnvironmentalSettings";
+export * from "./src/doc/IImperativeEnvironmentalVariableSettings";
 export * from "./src/ImperativeConfig";
 export * from "./src/doc/IImperativeConfig";
 export * from "./src/doc/IImperativeLoggingConfig";
