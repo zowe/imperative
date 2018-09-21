@@ -407,7 +407,7 @@ export class Imperative {
                     envSettings.appLogLevel.value, envSettings.appLogLevel.key);
             } else {
                 message = "Application log level '" + envSettings.appLogLevel.value +
-                    "from environmental variable setting '" + envSettings.appLogLevel.key + "' is not recognised.  " +
+                    "' from environmental variable setting '" + envSettings.appLogLevel.key + "' is not recognised.  " +
                     "Logger level is set to '" + LoggerConfigBuilder.DEFAULT_LOG_LEVEL + "'.  " +
                     "Valid levels are " + Logger.DEFAULT_VALID_LOG_LEVELS.toString();
                 new Console().warn(message);

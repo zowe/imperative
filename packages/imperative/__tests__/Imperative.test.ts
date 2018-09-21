@@ -13,6 +13,8 @@ import Mock = jest.Mock;
 import { join } from "path";
 import { generateRandomAlphaNumericString } from "../../../__tests__/src/TestUtil";
 import { IImperativeOverrides } from "../src/doc/IImperativeOverrides";
+import { IConfigLogging } from "../../logger";
+import { IImperativeEnvironmentalVariableSettings } from "..";
 
 describe("Imperative", () => {
     const loadImperative = () => {
@@ -154,7 +156,7 @@ describe("Imperative", () => {
                 jest.dontMock("../../io");
                 jest.dontMock("jsonfile");
             });
-        });
+        }); // End AppSettings
 
         describe("Plugins", () => {
             let PluginManagementFacility = mocks.PluginManagementFacility;
@@ -203,20 +205,99 @@ describe("Imperative", () => {
 
                 expect(mocks.ImperativeConfig.instance.loadedConfig).toEqual(expectedConfig);
             });
-        });
+        }); // End Plugins
 
-        // describe("Logging", () => {
-        //     it("should be truthy", () => {
-        //         console.log(mocks.LoggingConfigurer);
-        //         console.log(mocks.Logger);
-        //
-        //         expect(true).toBeTruthy();
-        //     });
-        //
-        //     it("should properly call external methods", () => {
-        //         (mocks.LoggingConfigurer.configureLogger as Mock).mockReturnValue({});
-        //     });
-        // });
+        describe("Logging", () => {
+            it("should properly call external methods", async () => {
+                await Imperative.init();
+
+                expect(mocks.LoggingConfigurer.configureLogger).toHaveBeenCalledTimes(1);
+                expect(mocks.LoggingConfigurer.configureLogger).toHaveBeenCalledWith(
+                    mocks.ImperativeConfig.instance.cliHome,
+                    mocks.ImperativeConfig.instance.loadedConfig
+                );
+
+                expect(mocks.Logger.initLogger).toHaveBeenCalledTimes(1);
+                expect(mocks.Logger.initLogger).toHaveBeenCalledWith(
+                    mocks.LoggingConfigurer.configureLogger("a", {})
+                );
+            });
+
+            describe("Environmental Var", () => {
+                let loggingConfig: IConfigLogging;
+                let envConfig: IImperativeEnvironmentalVariableSettings;
+
+                const goodLevel = "WARN";
+                const badLevel = "NOGOOD";
+
+                beforeEach(() => {
+                    loggingConfig = mocks.LoggingConfigurer.configureLogger("dont care", {});
+                    envConfig = mocks.EnvironmentalVariableSettings.read(Imperative.envVariablePrefix);
+                });
+
+                it("should handle a valid imperative log level", async () => {
+                    envConfig.imperativeLogLevel.value = goodLevel;
+                    loggingConfig.log4jsConfig.categories[mocks.Logger.DEFAULT_IMPERATIVE_NAME].level = goodLevel;
+
+                    mocks.EnvironmentalVariableSettings.read.mockReturnValue(envConfig);
+                    mocks.Logger.isValidLevel.mockReturnValue(true);
+
+                    await Imperative.init();
+
+                    expect(mocks.Logger.isValidLevel).toHaveBeenCalledTimes(1);
+                    expect(mocks.Logger.isValidLevel).toHaveBeenCalledWith(goodLevel);
+
+                    expect(mocks.Logger.initLogger).toHaveBeenCalledTimes(1);
+                    expect(mocks.Logger.initLogger).toHaveBeenCalledWith(loggingConfig);
+                });
+
+                it("should handle an invalid imperative log level", async () => {
+                    envConfig.imperativeLogLevel.value = badLevel;
+
+                    mocks.EnvironmentalVariableSettings.read.mockReturnValue(envConfig);
+                    mocks.Logger.isValidLevel.mockReturnValue(false);
+
+                    await Imperative.init();
+
+                    expect(mocks.Logger.isValidLevel).toHaveBeenCalledTimes(1);
+                    expect(mocks.Logger.isValidLevel).toHaveBeenCalledWith(badLevel);
+
+                    expect(mocks.Logger.initLogger).toHaveBeenCalledTimes(1);
+                    expect(mocks.Logger.initLogger).toHaveBeenCalledWith(loggingConfig);
+                });
+
+                it("should handle a valid app log level", async () => {
+                    envConfig.appLogLevel.value = goodLevel;
+                    loggingConfig.log4jsConfig.categories[mocks.Logger.DEFAULT_APP_NAME].level = goodLevel;
+
+                    mocks.EnvironmentalVariableSettings.read.mockReturnValue(envConfig);
+                    mocks.Logger.isValidLevel.mockReturnValue(true);
+
+                    await Imperative.init();
+
+                    expect(mocks.Logger.isValidLevel).toHaveBeenCalledTimes(1);
+                    expect(mocks.Logger.isValidLevel).toHaveBeenCalledWith(goodLevel);
+
+                    expect(mocks.Logger.initLogger).toHaveBeenCalledTimes(1);
+                    expect(mocks.Logger.initLogger).toHaveBeenCalledWith(loggingConfig);
+                });
+
+                it("should handle an invalid imperative log level", async () => {
+                    envConfig.appLogLevel.value = badLevel;
+
+                    mocks.EnvironmentalVariableSettings.read.mockReturnValue(envConfig);
+                    mocks.Logger.isValidLevel.mockReturnValue(false);
+
+                    await Imperative.init();
+
+                    expect(mocks.Logger.isValidLevel).toHaveBeenCalledTimes(1);
+                    expect(mocks.Logger.isValidLevel).toHaveBeenCalledWith(badLevel);
+
+                    expect(mocks.Logger.initLogger).toHaveBeenCalledTimes(1);
+                    expect(mocks.Logger.initLogger).toHaveBeenCalledWith(loggingConfig);
+                });
+            });
+        }); // End Logging
     }); // end describe init
 
     describe("error handling", () => {
