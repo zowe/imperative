@@ -87,8 +87,8 @@ export default class ValidateHandler implements ICommandHandler {
    */
   private displayPluginIssues(pluginName: string, cmdResponse: IHandlerResponseApi): void {
     // display any plugin issues
-    let valResultsMsg: string = "\n_______________________________________________________________\n" +
-      "Validation results for plugin '" + pluginName + "':\n";
+    let valResultsMsg: string = "\n_____ " + "Validation results for plugin '" +
+        pluginName + "' _____\n";
     const issueListForPlugin = this.pluginIssues.getIssueListForPlugin(pluginName);
     if (issueListForPlugin.length === 0) {
       valResultsMsg += "This plugin was successfully validated. Enjoy the plugin.";
@@ -96,7 +96,7 @@ export default class ValidateHandler implements ICommandHandler {
     } else {
       const setOfIssueSevs: IssueSeverity[] = [];
       for (const nextIssue of issueListForPlugin) {
-        valResultsMsg += "\n___ " + nextIssue.issueSev + ": " + nextIssue.issueText + "\n";
+        valResultsMsg += "\n*** " + nextIssue.issueSev + ": " + nextIssue.issueText + "\n";
         if (!setOfIssueSevs.includes(nextIssue.issueSev)) {
             setOfIssueSevs.push(nextIssue.issueSev);
         }
@@ -120,7 +120,7 @@ export default class ValidateHandler implements ICommandHandler {
 
       // if we had no errors, only warnings are left
       if (msgColor === "yellow") {
-          valResultsMsg += "This plugin has warnings. Any commands and framework overrides will still be available.";
+          valResultsMsg += "This plugin has warnings, but its commands and framework overrides will still be available.";
       }
 
       cmdResponse.console.log(TextUtils.chalk[msgColor](valResultsMsg));
