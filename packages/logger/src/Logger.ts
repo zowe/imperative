@@ -29,6 +29,7 @@ export class Logger {
     public static readonly DEFAULT_IMPERATIVE_NAME = "imperative";
     public static readonly DEFAULT_APP_NAME = "app";
     public static readonly DEFAULT_CONSOLE_NAME = "console";
+    public static readonly DEFAULT_VALID_LOG_LEVELS = ["ALL", "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL", "MARK", "OFF"];
 
     /**
      * Get accessibility to logging service to invoke log calls, e.g
@@ -65,8 +66,25 @@ export class Logger {
         LoggerManager.instance.logInMemory = status;
     }
 
-    public static dumpInMemoryMessages(file: string) {
+    /**
+     * Write all messages that was stored in memory to the input file.
+     * @param {string} file - destination file name
+     */
+    public static writeInMemoryMessages(file: string) {
         LoggerManager.instance.dumpQueuedMessages(file);
+    }
+
+    /**
+     * Test if the input level is a valid value for Log4js.
+     * @param {string} testLevel - input level to be tested
+     * @returns {boolean} - status if the input level is valid 
+     */
+    public static isValidLevel(testLevel: string): boolean {
+        let status: boolean = false;
+        if (Logger.DEFAULT_VALID_LOG_LEVELS.indexOf(testLevel.toUpperCase()) > -1) {
+            status = true;
+        }
+        return status;
     }
 
     /**

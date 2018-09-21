@@ -183,7 +183,7 @@ describe("imperative-test-cli test logging command", () => {
                 });
             });
 
-            fit("should default to DEBUG if a blank is specified", () => {
+            it("should default to DEBUG if a blank is specified", () => {
                 // Log working directory to make it easier to identify the directory for this test
                 TestLogger.info(`Working directory: ${TEST_ENVIRONMENT.workingDir}`);
 
