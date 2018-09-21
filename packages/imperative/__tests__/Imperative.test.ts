@@ -64,6 +64,14 @@ describe("Imperative", () => {
                 EnvironmentalVariableSettings
             };
         } catch (error) {
+            // If we error here, jest silently fails and says the test is empty. So let's make sure
+            // that doesn't happen!
+
+            const { Logger } = (jest as any).requireActual("../../logger/src/Logger");
+
+            Logger.getConsoleLogger().fatal("Imperative.test.ts test execution error!");
+            Logger.getConsoleLogger().fatal(error);
+
             throw error;
         }
     };
