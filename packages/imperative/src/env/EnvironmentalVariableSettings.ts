@@ -9,7 +9,7 @@
 *                                                                                 *
 */
 
-import { IImperativeEnvironmentalVariableSettings } from "../doc/IImperativeEnvironmentalSettings";
+import { IImperativeEnvironmentalVariableSettings } from "../doc/IImperativeEnvironmentalVariableSettings";
 import { ImperativeExpect } from "../../../expect";
 
 /**

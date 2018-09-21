@@ -26,7 +26,6 @@ import { TextUtils } from "../../utilities";
 import { ImperativeReject } from "../../interfaces";
 import { LoggingConfigurer } from "./LoggingConfigurer";
 import { ImperativeError } from "../../error";
-import { IPluginCfgProps } from "./plugins/doc/IPluginCfgProps";
 import { PluginManagementFacility } from "./plugins/PluginManagementFacility";
 import {
     CliProfileManager,
@@ -49,7 +48,7 @@ import { ImperativeConfig } from "./ImperativeConfig";
 import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
 import { AppSettings } from "../../settings";
 import {join} from "path";
-import {existsSync, mkdirSync, writeFileSync} from "fs";
+import {writeFileSync} from "fs";
 
 export class Imperative {
 
