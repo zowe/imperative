@@ -19,7 +19,6 @@ import {IConfigLogging} from "./doc/IConfigLogging";
 import {LoggerManager} from "./LoggerManager";
 import * as log4js from "log4js";
 import {Console} from "../../console";
-import { Writable } from "stream";
 
 /**
  * Note(Kelosky): it seems from the log4js doc that you only get a single
@@ -77,7 +76,7 @@ export class Logger {
     /**
      * Test if the input level is a valid value for Log4js.
      * @param {string} testLevel - input level to be tested
-     * @returns {boolean} - status if the input level is valid 
+     * @returns {boolean} - status if the input level is valid
      */
     public static isValidLevel(testLevel: string): boolean {
         let status: boolean = false;
