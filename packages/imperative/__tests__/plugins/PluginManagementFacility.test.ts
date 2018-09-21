@@ -16,6 +16,7 @@ jest.mock("jsonfile");
 jest.mock("../../src/plugins/utilities/PMFConstants");
 
 import { existsSync, mkdirSync } from "fs";
+import { AppSettings } from "../../../settings";
 import { ICommandDefinition } from "../../../../packages/cmd";
 import { IImperativeConfig } from "../../src/doc/IImperativeConfig";
 import { ImperativeConfig } from "../../src/ImperativeConfig";
@@ -29,8 +30,8 @@ import { ConfigurationLoader } from "../../src/ConfigurationLoader";
 import { ConfigurationValidator } from "../../src/ConfigurationValidator";
 import { ICommandProfileTypeConfiguration } from "../../../cmd";
 import { DefinitionTreeResolver } from "../../src/DefinitionTreeResolver";
-import { ImperativeError } from "../../../error";
 import { IPluginCfgProps } from "../../src/plugins/doc/IPluginCfgProps";
+import {ISettingsFile} from "../../../settings/src/doc/ISettingsFile";
 
 describe("Plugin Management Facility", () => {
     const mocks = {
@@ -44,6 +45,7 @@ describe("Plugin Management Facility", () => {
      * that is called underneath the functions that we want to test.
      */
     const impCfg: ImperativeConfig = ImperativeConfig.instance;
+
     impCfg.loadedConfig = require("./baseCliConfig.testData");
     impCfg.callerLocation = resolve("../../../../imperative-sample/lib/index.js");
 
@@ -147,6 +149,22 @@ describe("Plugin Management Facility", () => {
         realCfgValidator = ConfigurationValidator.validate;
         ConfigurationValidator.validate = mockCfgValidator;
         pluginIssues.removeIssuesForPlugin(pluginName);
+
+        AppSettings.initialize = jest.fn();
+
+        // get instance is a getter of a property, so mock the property
+        Object.defineProperty(AppSettings, "instance", {
+            configurable: true,
+            get: jest.fn(() => {
+                return {
+                    settings: {
+                        overrides: {
+                            CredentialManager: false
+                        }
+                    }
+                };
+            })
+        });
     });
 
     afterEach(() => {
@@ -355,7 +373,7 @@ describe("Plugin Management Facility", () => {
                 expect(isValid).toBe(false);
 
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CFG_ERROR);
                 expect(issue.issueText).toContain(
                     "The plugin's configuration does not contain an 'imperative.name' property, or an npm package 'name' property in package.json.");
             });
@@ -375,7 +393,11 @@ describe("Plugin Management Facility", () => {
 
                 expect(isValid).toBe(true);
                 expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
-                expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(false);
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CFG_ERROR,
+                    IssueSeverity.CMD_ERROR,
+                    IssueSeverity.OVER_ERROR
+                ])).toBe(false);
                 PMF.npmPkgName = null;
             });
 
@@ -392,7 +414,7 @@ describe("Plugin Management Facility", () => {
                     "The plug-in attempted to add a command group named 'sample-plugin'. " +
                     "Your base application already contains a command group named 'sample-plugin'."
                 );
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
             });
 
             it("should record error when rootCommandDescription does not exist", () => {
@@ -406,7 +428,7 @@ describe("Plugin Management Facility", () => {
                 isValid = PMF.validatePlugin(pluginName, badPluginConfig, basePluginCmdDef);
                 expect(isValid).toBe(false);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
                 expect(issue.issueText).toContain(
                     "The plugin's configuration does not contain an 'imperative.rootCommandDescription' property.");
             });
@@ -424,7 +446,7 @@ describe("Plugin Management Facility", () => {
                 isValid = PMF.validatePlugin(pluginName, basePluginConfig, badPluginCmdDef);
                 expect(isValid).toBe(false);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
                 expect(issue.issueText).toContain(
                     "The plugin's configuration defines no children.");
             });
@@ -442,7 +464,7 @@ describe("Plugin Management Facility", () => {
                 isValid = PMF.validatePlugin(pluginName, basePluginConfig, badPluginCmdDef);
                 expect(isValid).toBe(false);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
                 expect(issue.issueText).toContain(
                     "The plugin's configuration defines no children.");
             });
@@ -480,7 +502,7 @@ describe("Plugin Management Facility", () => {
                 expect(isValid).toBe(false);
 
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CFG_ERROR);
                 expect(issue.issueText).toContain(
                     "The program for the 'imperative.pluginHealthCheck' property does not exist: " +
                     join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, pluginName, "This/File/Does/Not/Exist.js"));
@@ -501,7 +523,7 @@ describe("Plugin Management Facility", () => {
                 expect(isValid).toBe(false);
 
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CFG_ERROR);
                 expect(issue.issueText).toContain(
                     "The plugin configuration is invalid.\nReason = Mock validation error");
             });
@@ -516,7 +538,12 @@ describe("Plugin Management Facility", () => {
 
                 expect(isValid).toBe(true);
                 expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
-                expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(false);
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CFG_ERROR,
+                    IssueSeverity.CMD_ERROR,
+                    IssueSeverity.OVER_ERROR,
+                    IssueSeverity.WARNING,
+                ])).toBe(false);
             });
         });
 
@@ -533,7 +560,10 @@ describe("Plugin Management Facility", () => {
 
                 PMF.validatePluginCmdDefs(pluginName, [basePluginCmdDef], 1);
                 expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
-                expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(false);
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CFG_ERROR,
+                    IssueSeverity.CMD_ERROR
+                ])).toBe(false);
             });
 
             it("should record an error when plugin has no children property", () => {
@@ -546,9 +576,11 @@ describe("Plugin Management Facility", () => {
 
                 PMF.validatePluginCmdDefs(pluginName, [badPluginCmdDef], 1);
 
-                expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(true);
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CMD_ERROR
+                ])).toBe(true);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
                 expect(issue.issueText).toContain("has no 'children' property");
             });
 
@@ -562,9 +594,11 @@ describe("Plugin Management Facility", () => {
 
                 PMF.validatePluginCmdDefs(pluginName, [badPluginCmdDef], 1);
 
-                expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(true);
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CMD_ERROR
+                ])).toBe(true);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
                 expect(issue.issueText).toContain("has a 'children' property with no children");
             });
 
@@ -578,9 +612,11 @@ describe("Plugin Management Facility", () => {
 
                 PMF.validatePluginCmdDefs(pluginName, [badPluginCmdDef], 1);
 
-                expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(true);
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CMD_ERROR
+                ])).toBe(true);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
                 expect(issue.issueText).toContain(
                     "Command definition at depth 2 has no 'name' property");
             });
@@ -595,9 +631,11 @@ describe("Plugin Management Facility", () => {
 
                 PMF.validatePluginCmdDefs(pluginName, [badPluginCmdDef], 1);
 
-                expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(true);
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CMD_ERROR
+                ])).toBe(true);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
                 expect(issue.issueText).toContain(
                     "Name = 'foo (at depth = 2)' has no 'type' property");
             });
@@ -612,9 +650,11 @@ describe("Plugin Management Facility", () => {
 
                 PMF.validatePluginCmdDefs(pluginName, [badPluginCmdDef], 1);
 
-                expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(true);
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CMD_ERROR
+                ])).toBe(true);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
                 expect(issue.issueText).toContain(
                     "Command name = 'foo (at depth = 2)' has no 'handler' property");
             });
@@ -629,9 +669,11 @@ describe("Plugin Management Facility", () => {
 
                 PMF.validatePluginCmdDefs(pluginName, [badPluginCmdDef], 1);
 
-                expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(true);
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CMD_ERROR
+                ])).toBe(true);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
                 expect(issue.issueText).toContain(
                     "The handler for command = 'foo (at depth = 2)' does not exist: " +
                     join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, "sample-plugin/This/File/Does/Not/Exist.js"));
@@ -647,9 +689,11 @@ describe("Plugin Management Facility", () => {
 
                 PMF.validatePluginCmdDefs(pluginName, [badPluginCmdDef], 1);
 
-                expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(true);
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CMD_ERROR
+                ])).toBe(true);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
                 expect(issue.issueText).toContain(
                     "Name = 'bar (at depth = 2)' has no 'description' property");
             });
@@ -661,9 +705,11 @@ describe("Plugin Management Facility", () => {
                 const pluginProfiles: ICommandProfileTypeConfiguration[] = null;
 
                 PMF.validatePluginProfiles(pluginName, pluginProfiles);
-                expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(true);
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CMD_ERROR
+                ])).toBe(true);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
                 expect(issue.issueText).toContain(
                     "The plugin's existing 'profiles' property is empty.");
             });
@@ -672,9 +718,11 @@ describe("Plugin Management Facility", () => {
                 const pluginProfiles: ICommandProfileTypeConfiguration[] = [];
 
                 PMF.validatePluginProfiles(pluginName, pluginProfiles);
-                expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(true);
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CMD_ERROR
+                ])).toBe(true);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
                 expect(issue.issueText).toContain(
                     "The plugin's existing 'profiles' property is empty.");
             });
@@ -741,9 +789,11 @@ describe("Plugin Management Facility", () => {
                 ];
 
                 PMF.validatePluginProfiles(pluginName, pluginProfiles);
-                expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(true);
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CMD_ERROR
+                ])).toBe(true);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
                 expect(issue.issueText).toContain(
                     "The plugin's profiles at indexes = '0' and '2' have the same 'type' property = 'sameTypeValue'.");
             });
@@ -772,9 +822,11 @@ describe("Plugin Management Facility", () => {
                 ];
 
                 PMF.validatePluginProfiles(pluginName, pluginProfiles);
-                expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(true);
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CMD_ERROR
+                ])).toBe(true);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
                 expect(issue.issueText).toContain(
                     "The plugin's profile type = 'strawberry' already exists within existing profiles.");
             });
@@ -806,7 +858,10 @@ describe("Plugin Management Facility", () => {
                 ];
 
                 PMF.validatePluginProfiles(pluginName, pluginProfiles);
-                expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(false);
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CFG_ERROR,
+                    IssueSeverity.CMD_ERROR
+                ])).toBe(false);
 
                 impCfg.loadedConfig = goodConfigToRestore;
             });
@@ -835,7 +890,10 @@ describe("Plugin Management Facility", () => {
                 ];
 
                 PMF.validatePluginProfiles(pluginName, pluginProfiles);
-                expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(false);
+                expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CFG_ERROR,
+                    IssueSeverity.CMD_ERROR,
+                ])).toBe(false);
             });
         }); // end validate plugin profile
     }); // end plugin validation
@@ -871,9 +929,11 @@ describe("Plugin Management Facility", () => {
             const loadedCmdDefs = PMF.readPluginConfig(pluginName);
 
             expect(loadedCmdDefs).toBe(null);
-            expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(true);
+            expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                IssueSeverity.CFG_ERROR
+            ])).toBe(true);
             const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-            expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+            expect(issue.issueSev).toBe(IssueSeverity.CFG_ERROR);
             expect(issue.issueText).toContain(
                 "The path to the plugin does not exist: " +
                 join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, "sample-plugin"));
@@ -887,9 +947,11 @@ describe("Plugin Management Facility", () => {
             const loadedCmdDefs = PMF.readPluginConfig(pluginName);
 
             expect(loadedCmdDefs).toBe(null);
-            expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(true);
+            expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                IssueSeverity.CFG_ERROR
+            ])).toBe(true);
             const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-            expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+            expect(issue.issueSev).toBe(IssueSeverity.CFG_ERROR);
             expect(issue.issueText).toContain(
                 "Configuration file does not exist: '" +
                 join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, "sample-plugin/package.json") + "'");
@@ -907,9 +969,11 @@ describe("Plugin Management Facility", () => {
             const loadedCmdDefs = PMF.readPluginConfig(pluginName);
 
             expect(loadedCmdDefs).toBe(null);
-            expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(true);
+            expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                    IssueSeverity.CFG_ERROR,
+                ])).toBe(true);
             const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-            expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+            expect(issue.issueSev).toBe(IssueSeverity.CFG_ERROR);
             expect(issue.issueText).toContain(
                 "Cannot read '" +
                 join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, "sample-plugin/package.json") +
@@ -928,7 +992,9 @@ describe("Plugin Management Facility", () => {
             const loadedCmdDefs = PMF.readPluginConfig(pluginName);
 
             expect(loadedCmdDefs).toBe(null);
-            expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(true);
+            expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                IssueSeverity.WARNING
+            ])).toBe(true);
             const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
             expect(issue.issueSev).toBe(IssueSeverity.WARNING);
             expect(issue.issueText).toContain("dependencies must be contained within a 'peerDependencies' property");
@@ -981,7 +1047,9 @@ describe("Plugin Management Facility", () => {
             const loadedPluginCfg = PMF.readPluginConfig(pluginName);
 
             expect(loadedPluginCfg).toEqual(pluginCfg);
-            expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(false);
+            expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                IssueSeverity.WARNING
+            ])).toBe(false);
             expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(1);
             const recoredIssue = pluginIssues.getIssueListForPlugin(pluginName)[0];
             expect(recoredIssue.issueSev).toBe(IssueSeverity.WARNING);
@@ -1012,7 +1080,11 @@ describe("Plugin Management Facility", () => {
             const loadedPluginCfg = PMF.readPluginConfig(pluginName);
 
             expect(loadedPluginCfg).toEqual(pluginCfg);
-            expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(false);
+            expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                IssueSeverity.CFG_ERROR,
+                IssueSeverity.CMD_ERROR,
+                IssueSeverity.OVER_ERROR
+            ])).toBe(false);
             expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
         });
     }); // end Read plugin config
@@ -1153,7 +1225,7 @@ describe("Plugin Management Facility", () => {
 
             expect(mockCombineAllCmdDefs).toHaveBeenCalledTimes(1);
             const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-            expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+            expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
             expect(issue.issueText).toContain(
                 "Failed to combine command definitions. Reason = Mock combineAllCmdDefs error");
         });
@@ -1197,7 +1269,7 @@ describe("Plugin Management Facility", () => {
             PMF.addPlugin(pluginName);
             expect(impCfg.addProfiles).toHaveBeenCalledTimes(1);
             const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-            expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+            expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
             expect(issue.issueText).toContain("Failed to add profiles for the plug-in");
             expect(issue.issueText).toContain("Reason = Mock addProfiles error");
         });
@@ -1240,7 +1312,7 @@ describe("Plugin Management Facility", () => {
             const result = PMF.addCmdGrpToResolvedCliCmdTree(pluginName, cmdGrpToAdd);
             expect(result).toBe(false);
             const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-            expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+            expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
             expect(issue.issueText).toContain(
                 "The resolved command tree was null. Imperative should have created an empty command definition array.");
         });
@@ -1250,7 +1322,7 @@ describe("Plugin Management Facility", () => {
             const result = PMF.addCmdGrpToResolvedCliCmdTree(pluginName, cmdGrpToAdd);
             expect(result).toBe(false);
             const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-            expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+            expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
             expect(issue.issueText).toContain(
                 "The resolved command tree children was null. Imperative should have created an empty children array.");
         });
@@ -1265,7 +1337,7 @@ describe("Plugin Management Facility", () => {
             const result = PMF.addCmdGrpToResolvedCliCmdTree(pluginName, cmdGrpToAdd);
             expect(result).toBe(false);
             const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-            expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+            expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
             expect(issue.issueText).toContain(
                 "The command group = '" + cmdGrpToAdd.name +
                 "' already exists. Plugin management should have already rejected this plugin.");
@@ -1281,7 +1353,11 @@ describe("Plugin Management Facility", () => {
             const result = PMF.addCmdGrpToResolvedCliCmdTree(pluginName, cmdGrpToAdd);
             expect(result).toBe(true);
             expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
-            expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(false);
+            expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                IssueSeverity.CFG_ERROR,
+                IssueSeverity.CMD_ERROR,
+                IssueSeverity.OVER_ERROR
+            ])).toBe(false);
         });
     }); // end describe addCmdGrpToResolvedCliCmdTree
 
@@ -1424,7 +1500,11 @@ describe("Plugin Management Facility", () => {
             expect(runtimePath).toBe(
                 join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, pluginName, relativePath));
             expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
-            expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(false);
+            expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                IssueSeverity.CFG_ERROR,
+                IssueSeverity.CMD_ERROR,
+                IssueSeverity.OVER_ERROR
+            ])).toBe(false);
         });
 
         it("should return the same path when an absolute path is specified", () => {
@@ -1433,7 +1513,11 @@ describe("Plugin Management Facility", () => {
             const runtimePath = PMF.formPluginRuntimePath(pluginName, absolutePath);
             expect(runtimePath).toBe(absolutePath);
             expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
-            expect(pluginIssues.doesPluginHaveError(pluginName)).toBe(false);
+            expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
+                IssueSeverity.CFG_ERROR,
+                IssueSeverity.CMD_ERROR,
+                IssueSeverity.OVER_ERROR
+            ])).toBe(false);
         });
     }); // end formPluginRuntimePath
 
@@ -1467,7 +1551,7 @@ describe("Plugin Management Facility", () => {
 
             const moduleContent = PMF.requirePluginModule(modulePath);
             const issue = pluginIssues.getIssueListForPlugin(PMF.currPluginName)[0];
-            expect(issue.issueSev).toBe(IssueSeverity.ERROR);
+            expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
             expect(issue.issueText).toContain(
                 "Unable to load the following module for plug-in");
         });
