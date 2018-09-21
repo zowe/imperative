@@ -61,8 +61,12 @@ export class Logger {
         return Logger.getLoggerCategory(Logger.DEFAULT_APP_NAME);
     }
 
-    public static setLogInMemory(status: boolean) {
+    public static setLogInMemory(status: boolean, maxQueueSize?: number) {
         LoggerManager.instance.logInMemory = status;
+
+        if (maxQueueSize != null) {
+            LoggerManager.instance.maxQueueSize = maxQueueSize;
+        }
     }
 
     /**
@@ -80,7 +84,8 @@ export class Logger {
      */
     public static isValidLevel(testLevel: string): boolean {
         let status: boolean = false;
-        if (Logger.DEFAULT_VALID_LOG_LEVELS.indexOf(testLevel.toUpperCase()) > -1) {
+        if (testLevel != null &&
+            Logger.DEFAULT_VALID_LOG_LEVELS.indexOf(testLevel.toUpperCase()) > -1) {
             status = true;
         }
         return status;
