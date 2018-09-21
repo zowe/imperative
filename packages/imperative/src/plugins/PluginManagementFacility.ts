@@ -27,7 +27,6 @@ import { ConfigurationLoader } from "../ConfigurationLoader";
 import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
 import {IImperativeOverrides} from "../doc/IImperativeOverrides";
 import {AppSettings} from "../../../settings";
-import {ICredentialManagerConstructor} from "../../../security";
 
 /**
  * This class is the main engine for the Plugin Management Facility. The
@@ -268,10 +267,32 @@ export class PluginManagementFacility {
 
                 if (!loadedOverrides.hasOwnProperty(pluginName)) {
                     // the plugin name specified in our settings is not available
-                    Logger.getImperativeLogger().error(`The plugin-overridable "${setting}" setting ` +
-                        `specifies a plugin name "${pluginName}" that is not installed and loadable.` +
-                        `\nWe will use a purposely-invalid "${setting}" until you reconfigure.`
-                    );
+                    const overrideErrMsg = `You attempted to override the "${setting}" setting ` +
+                        `with a plugin named "${pluginName}" that is not installed and loadable.` +
+                        `\nWe will use a "${setting}" that purposely fails until you reconfigure.`;
+                    Logger.getImperativeLogger().error(overrideErrMsg);
+
+                    /* We need to assign a class (which always shows an error when
+                     * the CLI tries to use credentials) into the current override setting.
+                     * We also need to embed our error message into that class. We cannot
+                     * create a new object from a class and pass the error into its
+                     * constructor, because the CredentialManagerFactory takes a class and
+                     * it calls the constructor of our supplied class. Thus we need an
+                     * anonymous class so that we can access our 'overrideErrMsg' variable.
+                     * Our trick is that we simply throw an error in the constructor
+                     * of our anonymous class. The CredentialManagerFactory catches
+                     * our error, and places it into its InvalidCredentialManager,
+                     * which in turn shows our error every time the CLI tries to use
+                     * credentials. Finally since lint complains about more than one
+                     * class in a file, we have to temporarily turn off that lint error.
+                     */
+                    /* tslint:disable:max-classes-per-file */
+                    (this.mPluginOverrides as any)[setting] = class {
+                        constructor() {
+                            throw overrideErrMsg;
+                        }
+                    };
+                    /* tslint:enable:max-classes-per-file */
                     continue;
                 }
 
@@ -301,12 +322,19 @@ export class PluginManagementFacility {
                         Logger.getImperativeLogger().info(`PluginOverride: Overrode "${setting}" ` +
                             `with "${pathToPluginOverride}" from plugin "${pluginName}"`);
                     } catch (requireError) {
-                        PluginIssues.instance.recordIssue(pluginName, IssueSeverity.OVER_ERROR,
-                            `Unable to override "${setting}" with "${pathToPluginOverride}" ` +
-                            `from plugin "${pluginName}"\n` +
-                            "Reason = " + requireError.message +
-                            `\nWe will use a purposely-invalid "${setting}" until you reconfigure.`
-                        );
+                        const overrideErrMsg = `Unable to override "${setting}" with "${pathToPluginOverride}" ` +
+                            `from plugin "${pluginName}"\n` + "Reason = " + requireError.message +
+                            `\nWe will use a "${setting}" that purposely fails until you reconfigure.`;
+                        PluginIssues.instance.recordIssue(pluginName, IssueSeverity.OVER_ERROR, overrideErrMsg);
+
+                        // See the big block comment above about using an anonymous class.
+                        /* tslint:disable:max-classes-per-file */
+                        (this.mPluginOverrides as any)[setting] = class {
+                            constructor() {
+                                throw overrideErrMsg;
+                            }
+                        };
+                        /* tslint:enable:max-classes-per-file */
                         continue;
                     }
                 }
