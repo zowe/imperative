@@ -524,12 +524,14 @@ describe("Plugin Management Facility", () => {
                 // remove pluginHealthCheck property from config
                 badPluginConfig = JSON.parse(JSON.stringify(basePluginConfig));
                 delete badPluginConfig.pluginHealthCheck;
+                badPluginCfgProps = JSON.parse(JSON.stringify(basePluginCfgProps));
+                badPluginCfgProps.impConfig = badPluginConfig;
 
                 // Ensure we get to the function that we want to validate
                 mockConflictNmOrAlias.mockReturnValueOnce(false);
                 mockAreVersionsCompatible.mockReturnValueOnce(true);
 
-                isValid = PMF.validatePlugin(pluginName, badPluginConfig, basePluginCmdDef);
+                isValid = PMF.validatePlugin(badPluginCfgProps, basePluginCmdDef);
 
                 // missing healthCheck is just a warning, so we succeed
                 expect(isValid).toBe(true);
@@ -544,12 +546,14 @@ describe("Plugin Management Facility", () => {
                 // set pluginHealthCheck property to a bogus file
                 badPluginConfig = JSON.parse(JSON.stringify(basePluginConfig));
                 badPluginConfig.pluginHealthCheck = "./This/File/Does/Not/Exist";
+                badPluginCfgProps = JSON.parse(JSON.stringify(basePluginCfgProps));
+                badPluginCfgProps.impConfig = badPluginConfig;
 
                 // Ensure we get to the function that we want to validate
                 mockConflictNmOrAlias.mockReturnValueOnce(false);
                 mockAreVersionsCompatible.mockReturnValueOnce(true);
 
-                isValid = PMF.validatePlugin(pluginName, badPluginConfig, basePluginCmdDef);
+                isValid = PMF.validatePlugin(badPluginCfgProps, basePluginCmdDef);
                 expect(isValid).toBe(false);
 
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
@@ -560,8 +564,8 @@ describe("Plugin Management Facility", () => {
             });
 
             it("should record error when ConfigurationValidator throws an exception", () => {
-                PMF.conflictingNameOrAlias = realConflictName;
                 // Ensure we get to the function that we want to validate
+                PMF.conflictingNameOrAlias = realConflictName;
                 mocks.existsSync.mockReturnValue(true);
                 PMF.areVersionsCompatible = realAreVersionsCompatible;
 
@@ -570,7 +574,7 @@ describe("Plugin Management Facility", () => {
                 });
 
                 // this is what we really want to test
-                isValid = PMF.validatePlugin(pluginName, basePluginConfig, basePluginCmdDef);
+                isValid = PMF.validatePlugin(basePluginCfgProps, basePluginCmdDef);
                 expect(isValid).toBe(false);
 
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
@@ -585,7 +589,7 @@ describe("Plugin Management Facility", () => {
                 mocks.existsSync.mockReturnValue(true);
                 PMF.areVersionsCompatible = realAreVersionsCompatible;
 
-                isValid = PMF.validatePlugin(pluginName, basePluginConfig, basePluginCmdDef);
+                isValid = PMF.validatePlugin(basePluginCfgProps, basePluginCmdDef);
 
                 expect(isValid).toBe(true);
                 expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
