@@ -1625,7 +1625,7 @@ describe("Plugin Management Facility", () => {
         it("should record no issue when version is compatible", () => {
             PMF.semver.intersects.mockReturnValueOnce(true);
 
-            PMF.comparePluginVersionToCli("pluginVerPropNm", "pluginVerVal", "cliVerPropNm", "CliVerVal");
+            PMF.comparePluginVersionToCli(pluginName, "pluginVerVal", "cliVerPropNm", "CliVerVal");
 
             expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
         });
@@ -1635,7 +1635,7 @@ describe("Plugin Management Facility", () => {
                 throw new Error("dummy error");
             });
 
-            PMF.comparePluginVersionToCli("pluginVerPropNm", "pluginVerVal", "cliVerPropNm", "CliVerVal");
+            PMF.comparePluginVersionToCli(pluginName, "pluginVerVal", "cliVerPropNm", "CliVerVal");
 
             const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
             expect(issue.issueSev).toBe(IssueSeverity.WARNING);
@@ -1643,7 +1643,7 @@ describe("Plugin Management Facility", () => {
         });
 
         it("should record issue when unable to compare Plugin Version to CLi version", () => {
-            PMF.comparePluginVersionToCli("pluginVerPropNm", "pluginVerVal", "cliVerPropNm", "CliVerVal");
+            PMF.comparePluginVersionToCli(pluginName, "pluginVerVal", "cliVerPropNm", "CliVerVal");
 
             const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
             expect(issue.issueSev).toBe(IssueSeverity.WARNING);
