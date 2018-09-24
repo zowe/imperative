@@ -1023,7 +1023,7 @@ export class PluginManagementFacility {
                 // replace relative path with absolute path in the healthCheck property
                 pluginCfgProps.impConfig.pluginHealthCheck = healthChkModulePath;
             } else {
-                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CMD_ERROR,
+                this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CFG_ERROR,
                     "The program for the '" + this.impConfigPropNm +
                     ".pluginHealthCheck' property does not exist: " + healthChkFilePath);
             }
