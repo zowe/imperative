@@ -1507,32 +1507,37 @@ describe("Plugin Management Facility", () => {
         });
     }); // end describe
 
-    describe("addAllPlugins function", () => {
-        const mockInstalledPlugins: IPluginJson = {
-            firstPlugin: {package: "1", registry: "1", version: "1"},
-            secondPlugin: {package: "2", registry: "2", version: "2"}
-        };
+    describe("addAllPluginsToHostCli function", () => {
+        const mockInstalledPlugins: IPluginCfgProps[] = [
+            {pluginName: "firstPlugin", npmPackageName: "firstPackageName", impConfig: null, cliDependency: null, impDependency: null},
+            {pluginName: "secondPlugin", npmPackageName: "secondPackageName", impConfig: null, cliDependency: null, impDependency: null}
+        ];
         const mockAddPlugin = jest.fn();
         let realAddPlugin: any;
 
         beforeEach(() => {
-            realAddPlugin = PMF.addPlugin;
-            PMF.addPlugin = mockAddPlugin;
+            realAddPlugin = PMF.addPluginToHostCli;
+            PMF.addPluginToHostCli = mockAddPlugin;
         });
 
         afterEach(() => {
-            PMF.addPlugin = realAddPlugin;
+            PMF.addPluginToHostCli = realAddPlugin;
         });
 
-        it("should pass the proper data to addPlugin", () => {
+        it("should pass the proper data to addPluginToHostCli", () => {
             // mocking addPlugin function
             mocks.readFileSync.mockReturnValue(mockInstalledPlugins);
 
-            PMF.addPluginsToHostCli(PMF.resolvedCliCmdTree);
+            const savedPluginCfgProps = PMF.mAllPluginCfgProps;
+            PMF.mAllPluginCfgProps = mockInstalledPlugins;
+
+            PMF.addAllPluginsToHostCli(PMF.resolvedCliCmdTree);
 
             expect(mockAddPlugin).toHaveBeenCalledTimes(2);
-            expect(mockAddPlugin.mock.calls[0][0]).toBe("firstPlugin");
-            expect(mockAddPlugin.mock.calls[1][0]).toBe("secondPlugin");
+            expect(mockAddPlugin.mock.calls[0][0]).toBe(mockInstalledPlugins[0]);
+            expect(mockAddPlugin.mock.calls[1][0]).toBe(mockInstalledPlugins[1]);
+
+            PMF.mAllPluginCfgProps = savedPluginCfgProps;
         });
     }); // end addAllPlugins
 
@@ -1565,7 +1570,7 @@ describe("Plugin Management Facility", () => {
         });
     }); // end formPluginRuntimePath
 
-    describe("requirePluginModule function", () => {
+    describe("requirePluginModuleCallback function", () => {
         const mockFormPluginRuntimePath = jest.fn();
         let realFormPluginRuntimePath: any;
 
@@ -1583,7 +1588,7 @@ describe("Plugin Management Facility", () => {
             const mockContent = require(modulePath);
             mockFormPluginRuntimePath.mockReturnValue(modulePath);
 
-            const moduleContent = PMF.requirePluginModule(modulePath);
+            const moduleContent = PMF.requirePluginModuleCallback(modulePath);
             expect(moduleContent).toBe(mockContent);
 
         });
@@ -1593,8 +1598,8 @@ describe("Plugin Management Facility", () => {
             mockFormPluginRuntimePath.mockReturnValue(modulePath);
             PMF.currPluginName = "PluginWithConfigModule";
 
-            const moduleContent = PMF.requirePluginModule(modulePath);
-            const issue = pluginIssues.getIssueListForPlugin(PMF.currPluginName)[0];
+            const moduleContent = PMF.requirePluginModuleCallback(modulePath);
+            const issue = pluginIssues.getIssueListForPlugin(PMF.pluginNmForUseInCallback)[0];
             expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
             expect(issue.issueText).toContain(
                 "Unable to load the following module for plug-in");
@@ -1670,7 +1675,7 @@ describe("Plugin Management Facility", () => {
         it("should record no issue when version is compatible", () => {
             PMF.semver.intersects.mockReturnValueOnce(true);
 
-            PMF.comparePluginVersionToCli("pluginVerPropNm", "pluginVerVal", "cliVerPropNm", "CliVerVal");
+            PMF.comparePluginVersionToCli(pluginName, "pluginVerVal", "cliVerPropNm", "CliVerVal");
 
             expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
         });
@@ -1680,7 +1685,7 @@ describe("Plugin Management Facility", () => {
                 throw new Error("dummy error");
             });
 
-            PMF.comparePluginVersionToCli("pluginVerPropNm", "pluginVerVal", "cliVerPropNm", "CliVerVal");
+            PMF.comparePluginVersionToCli(pluginName, "pluginVerVal", "cliVerPropNm", "CliVerVal");
 
             const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
             expect(issue.issueSev).toBe(IssueSeverity.WARNING);
@@ -1688,7 +1693,7 @@ describe("Plugin Management Facility", () => {
         });
 
         it("should record issue when unable to compare Plugin Version to CLi version", () => {
-            PMF.comparePluginVersionToCli("pluginVerPropNm", "pluginVerVal", "cliVerPropNm", "CliVerVal");
+            PMF.comparePluginVersionToCli(pluginName, "pluginVerVal", "cliVerPropNm", "CliVerVal");
 
             const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
             expect(issue.issueSev).toBe(IssueSeverity.WARNING);
