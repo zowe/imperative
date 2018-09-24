@@ -31,6 +31,7 @@ import { ConfigurationValidator } from "../../src/ConfigurationValidator";
 import { ICommandProfileTypeConfiguration } from "../../../cmd";
 import { DefinitionTreeResolver } from "../../src/DefinitionTreeResolver";
 import { IPluginCfgProps } from "../../src/plugins/doc/IPluginCfgProps";
+import {Logger} from "../../../logger";
 
 describe("Plugin Management Facility", () => {
     const mocks = {
@@ -164,11 +165,14 @@ describe("Plugin Management Facility", () => {
                 };
             })
         });
+
+        Logger.setLogInMemory(true);
     });
 
     afterEach(() => {
         PMF.addCmdGrpToResolvedCliCmdTree = realAddCmdGrpToResolvedCliCmdTree;
         ConfigurationValidator.validate = realCfgValidator;
+        Logger.writeInMemoryMessages(join(process.cwd(), "/__tests__/__results__/unit/MsgsFromMem.log"));
     });
 
     it("should initialize properly", () => {
@@ -348,6 +352,7 @@ describe("Plugin Management Facility", () => {
 
     describe("Plugin validation", () => {
         let badPluginConfig: IImperativeConfig = null;
+        let badPluginCfgProps: IPluginCfgProps = null;
         const mockValidatePluginCmdDefs = jest.fn();
         const realValidatePluginCmdDefs = PMF.validatePluginCmdDefs;
         const mockAreVersionsCompatible = jest.fn();
@@ -451,7 +456,7 @@ describe("Plugin Management Facility", () => {
                     "Your base application already contains a command group named 'sample-plugin'."
                 });
 
-                isValid = PMF.validatePlugin(pluginName, basePluginConfig, basePluginCmdDef);
+                isValid = PMF.validatePlugin(basePluginCfgProps, basePluginCmdDef);
                 expect(isValid).toBe(false);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
                 expect(issue.issueText).toContain(
@@ -465,11 +470,13 @@ describe("Plugin Management Facility", () => {
                 // remove rootCommandDescription property from config
                 badPluginConfig = JSON.parse(JSON.stringify(basePluginConfig));
                 delete badPluginConfig.rootCommandDescription;
+                badPluginCfgProps = JSON.parse(JSON.stringify(basePluginCfgProps));
+                badPluginCfgProps.impConfig = badPluginConfig;
 
                 // Ensure we get to the function that we want to validate
                 PMF.conflictingNameOrAlias.mockReturnValue({hasConflict: false});
 
-                isValid = PMF.validatePlugin(pluginName, badPluginConfig, basePluginCmdDef);
+                isValid = PMF.validatePlugin(badPluginCfgProps, basePluginCmdDef);
                 expect(isValid).toBe(false);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
                 expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
