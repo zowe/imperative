@@ -361,7 +361,7 @@ describe("Plugin Management Facility", () => {
                 return {
                     CredentialManager: class {
                         constructor() {
-                            throw "SomeError";
+                            throw new Error("Simulate override failure with InvalidCredMgr");
                         }
                     }
                 };
