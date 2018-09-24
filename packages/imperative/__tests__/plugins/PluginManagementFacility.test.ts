@@ -31,6 +31,7 @@ import { ConfigurationValidator } from "../../src/ConfigurationValidator";
 import { ICommandProfileTypeConfiguration } from "../../../cmd";
 import { DefinitionTreeResolver } from "../../src/DefinitionTreeResolver";
 import { IPluginCfgProps } from "../../src/plugins/doc/IPluginCfgProps";
+import {Logger} from "../../../logger";
 
 describe("Plugin Management Facility", () => {
     const mocks = {
@@ -164,11 +165,14 @@ describe("Plugin Management Facility", () => {
                 };
             })
         });
+
+        Logger.setLogInMemory(true);
     });
 
     afterEach(() => {
         PMF.addCmdGrpToResolvedCliCmdTree = realAddCmdGrpToResolvedCliCmdTree;
         ConfigurationValidator.validate = realCfgValidator;
+        Logger.writeInMemoryMessages(join(process.cwd(), "/__tests__/__results__/unit/MsgsFromMem.log"));
     });
 
     it("should initialize properly", () => {
@@ -348,6 +352,7 @@ describe("Plugin Management Facility", () => {
 
     describe("Plugin validation", () => {
         let badPluginConfig: IImperativeConfig = null;
+        let badPluginCfgProps: IPluginCfgProps = null;
         const mockValidatePluginCmdDefs = jest.fn();
         const realValidatePluginCmdDefs = PMF.validatePluginCmdDefs;
         const mockAreVersionsCompatible = jest.fn();
@@ -395,18 +400,6 @@ describe("Plugin Management Facility", () => {
 
         describe("validatePlugin function", () => {
 
-            it("should return false if no plugin config is supplied and cannot be read", () => {
-                const realReadPluginConfig = PMF.readPluginConfig;
-                const mockReadPluginConfig = jest.fn();
-                PMF.readPluginConfig = mockReadPluginConfig;
-                mockReadPluginConfig.mockReturnValue(null);
-
-                isValid = PMF.validatePlugin(pluginName);
-
-                expect(isValid).toBe(false);
-                PMF.readPluginConfig = realReadPluginConfig;
-            });
-
             it("should record an error when both plugin group name property and npm name do not exist", () => {
                 // remove imperative cfg name and NPM pkg name properties
                 const pluginCfgPropsNoName = JSON.parse(JSON.stringify(basePluginCfgProps));
@@ -451,7 +444,7 @@ describe("Plugin Management Facility", () => {
                     "Your base application already contains a command group named 'sample-plugin'."
                 });
 
-                isValid = PMF.validatePlugin(pluginName, basePluginConfig, basePluginCmdDef);
+                isValid = PMF.validatePlugin(basePluginCfgProps, basePluginCmdDef);
                 expect(isValid).toBe(false);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
                 expect(issue.issueText).toContain(
@@ -465,11 +458,13 @@ describe("Plugin Management Facility", () => {
                 // remove rootCommandDescription property from config
                 badPluginConfig = JSON.parse(JSON.stringify(basePluginConfig));
                 delete badPluginConfig.rootCommandDescription;
+                badPluginCfgProps = JSON.parse(JSON.stringify(basePluginCfgProps));
+                badPluginCfgProps.impConfig = badPluginConfig;
 
                 // Ensure we get to the function that we want to validate
                 PMF.conflictingNameOrAlias.mockReturnValue({hasConflict: false});
 
-                isValid = PMF.validatePlugin(pluginName, badPluginConfig, basePluginCmdDef);
+                isValid = PMF.validatePlugin(badPluginCfgProps, basePluginCmdDef);
                 expect(isValid).toBe(false);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
                 expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
@@ -487,12 +482,12 @@ describe("Plugin Management Facility", () => {
                 mockAreVersionsCompatible.mockReturnValueOnce(true);
                 mocks.existsSync.mockReturnValue(true);
 
-                isValid = PMF.validatePlugin(pluginName, basePluginConfig, badPluginCmdDef);
+                isValid = PMF.validatePlugin(basePluginCfgProps, badPluginCmdDef);
                 expect(isValid).toBe(false);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CFG_ERROR);
                 expect(issue.issueText).toContain(
-                    "The plugin's configuration defines no children.");
+                    "The plugin defines no commands and overrides no framework components.");
             });
 
             it("should record error when plugin's children property is empty", () => {
@@ -505,24 +500,26 @@ describe("Plugin Management Facility", () => {
                 mockAreVersionsCompatible.mockReturnValueOnce(true);
                 mocks.existsSync.mockReturnValue(true);
 
-                isValid = PMF.validatePlugin(pluginName, basePluginConfig, badPluginCmdDef);
+                isValid = PMF.validatePlugin(basePluginCfgProps, badPluginCmdDef);
                 expect(isValid).toBe(false);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CFG_ERROR);
                 expect(issue.issueText).toContain(
-                    "The plugin's configuration defines no children.");
+                    "The plugin defines no commands and overrides no framework components.");
             });
 
             it("should record warning if plugin healthCheck property does not exist", () => {
                 // remove pluginHealthCheck property from config
                 badPluginConfig = JSON.parse(JSON.stringify(basePluginConfig));
                 delete badPluginConfig.pluginHealthCheck;
+                badPluginCfgProps = JSON.parse(JSON.stringify(basePluginCfgProps));
+                badPluginCfgProps.impConfig = badPluginConfig;
 
                 // Ensure we get to the function that we want to validate
                 mockConflictNmOrAlias.mockReturnValueOnce(false);
                 mockAreVersionsCompatible.mockReturnValueOnce(true);
 
-                isValid = PMF.validatePlugin(pluginName, badPluginConfig, basePluginCmdDef);
+                isValid = PMF.validatePlugin(badPluginCfgProps, basePluginCmdDef);
 
                 // missing healthCheck is just a warning, so we succeed
                 expect(isValid).toBe(true);
@@ -537,12 +534,14 @@ describe("Plugin Management Facility", () => {
                 // set pluginHealthCheck property to a bogus file
                 badPluginConfig = JSON.parse(JSON.stringify(basePluginConfig));
                 badPluginConfig.pluginHealthCheck = "./This/File/Does/Not/Exist";
+                badPluginCfgProps = JSON.parse(JSON.stringify(basePluginCfgProps));
+                badPluginCfgProps.impConfig = badPluginConfig;
 
                 // Ensure we get to the function that we want to validate
                 mockConflictNmOrAlias.mockReturnValueOnce(false);
                 mockAreVersionsCompatible.mockReturnValueOnce(true);
 
-                isValid = PMF.validatePlugin(pluginName, badPluginConfig, basePluginCmdDef);
+                isValid = PMF.validatePlugin(badPluginCfgProps, basePluginCmdDef);
                 expect(isValid).toBe(false);
 
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
@@ -553,8 +552,8 @@ describe("Plugin Management Facility", () => {
             });
 
             it("should record error when ConfigurationValidator throws an exception", () => {
-                PMF.conflictingNameOrAlias = realConflictName;
                 // Ensure we get to the function that we want to validate
+                PMF.conflictingNameOrAlias = realConflictName;
                 mocks.existsSync.mockReturnValue(true);
                 PMF.areVersionsCompatible = realAreVersionsCompatible;
 
@@ -563,7 +562,7 @@ describe("Plugin Management Facility", () => {
                 });
 
                 // this is what we really want to test
-                isValid = PMF.validatePlugin(pluginName, basePluginConfig, basePluginCmdDef);
+                isValid = PMF.validatePlugin(basePluginCfgProps, basePluginCmdDef);
                 expect(isValid).toBe(false);
 
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
@@ -578,7 +577,7 @@ describe("Plugin Management Facility", () => {
                 mocks.existsSync.mockReturnValue(true);
                 PMF.areVersionsCompatible = realAreVersionsCompatible;
 
-                isValid = PMF.validatePlugin(pluginName, basePluginConfig, basePluginCmdDef);
+                isValid = PMF.validatePlugin(basePluginCfgProps, basePluginCmdDef);
 
                 expect(isValid).toBe(true);
                 expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
@@ -942,7 +941,7 @@ describe("Plugin Management Facility", () => {
         }); // end validate plugin profile
     }); // end plugin validation
 
-    describe("Read plugin config", () => {
+    describe("Load plugin config properties", () => {
         let realCfgLoad: any;
         let realGetCliCmdName: any;
         let realGetCliPkgName: any;
@@ -967,12 +966,24 @@ describe("Plugin Management Facility", () => {
             PMF.getCliPkgName = realGetCliPkgName;
         });
 
+        it("should return false if no plugin config is supplied and cannot be loaded", () => {
+            const loadPluginCfgPropsReal = PMF.loadPluginCfgProps;
+            const loadPluginCfgPropsMock = jest.fn();
+            PMF.loadPluginCfgProps = loadPluginCfgPropsMock;
+            loadPluginCfgPropsMock.mockReturnValue(null);
+
+            isValid = PMF.validatePlugin(pluginName);
+
+            expect(isValid).toBe(false);
+            PMF.loadPluginCfgProps = loadPluginCfgPropsReal;
+        });
+
         it("should record an error when the path to the plugin does not exist", () => {
             mocks.existsSync.mockReturnValue(false);
 
-            const loadedCmdDefs = PMF.readPluginConfig(pluginName);
+            const pluginCfgProps = PMF.loadPluginCfgProps(pluginName);
 
-            expect(loadedCmdDefs).toBe(null);
+            expect(pluginCfgProps).toBe(null);
             expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
                 IssueSeverity.CFG_ERROR
             ])).toBe(true);
@@ -988,9 +999,9 @@ describe("Plugin Management Facility", () => {
                 .mockReturnValueOnce(true)
                 .mockReturnValueOnce(false);
 
-            const loadedCmdDefs = PMF.readPluginConfig(pluginName);
+            const pluginCfgProps = PMF.loadPluginCfgProps(pluginName);
 
-            expect(loadedCmdDefs).toBe(null);
+            expect(pluginCfgProps).toBe(null);
             expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
                 IssueSeverity.CFG_ERROR
             ])).toBe(true);
@@ -1010,9 +1021,9 @@ describe("Plugin Management Facility", () => {
                 throw new Error("Mock I/O error");
             });
 
-            const loadedCmdDefs = PMF.readPluginConfig(pluginName);
+            const pluginCfgProps = PMF.loadPluginCfgProps(pluginName);
 
-            expect(loadedCmdDefs).toBe(null);
+            expect(pluginCfgProps).toBe(null);
             expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
                     IssueSeverity.CFG_ERROR,
                 ])).toBe(true);
@@ -1033,9 +1044,9 @@ describe("Plugin Management Facility", () => {
                 description: "Some description"
             });
 
-            const loadedCmdDefs = PMF.readPluginConfig(pluginName);
+            const pluginCfgProps = PMF.loadPluginCfgProps(pluginName);
 
-            expect(loadedCmdDefs).toBe(null);
+            expect(pluginCfgProps).toBe(null);
             expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
                 IssueSeverity.WARNING
             ])).toBe(true);
@@ -1063,11 +1074,11 @@ describe("Plugin Management Facility", () => {
             });
 
             // this is what we are really testing
-            const loadedPluginCfg = PMF.readPluginConfig(pluginName);
-            expect(loadedPluginCfg).toEqual(null);
+            const pluginCfgProps = PMF.loadPluginCfgProps(pluginName);
+            expect(pluginCfgProps).toEqual(null);
         });
 
-        it("should record warning when defined CLI package name does not existed in 'peerDependencies'", () => {
+        it("should record warning when defined CLI package name does not exist in 'peerDependencies'", () => {
             // Ensure we get to the function that we want to test
             mocks.existsSync.mockReturnValue(true);
             const pluginCfg = {
@@ -1088,16 +1099,16 @@ describe("Plugin Management Facility", () => {
             mockCfgLoad.mockReturnValue(pluginCfg);
 
             // this is what we are really testing
-            const loadedPluginCfg = PMF.readPluginConfig(pluginName);
+            const pluginCfgProps = PMF.loadPluginCfgProps(pluginName);
 
-            expect(loadedPluginCfg).toEqual(pluginCfg);
+            expect(pluginCfgProps).toEqual(pluginCfg);
             expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
                 IssueSeverity.WARNING
             ])).toBe(false);
             expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(1);
-            const recoredIssue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-            expect(recoredIssue.issueSev).toBe(IssueSeverity.WARNING);
-            expect(recoredIssue.issueText).toContain("The property 'nonExisting' does not exist within the 'peerDependencies' property");
+            const recordedIssue = pluginIssues.getIssueListForPlugin(pluginName)[0];
+            expect(recordedIssue.issueSev).toBe(IssueSeverity.WARNING);
+            expect(recordedIssue.issueText).toContain("The property 'nonExisting' does not exist within the 'peerDependencies' property");
         });
 
         it("should return a plugin config when there are no errors", () => {
@@ -1121,9 +1132,9 @@ describe("Plugin Management Facility", () => {
             mockCfgLoad.mockReturnValue(pluginCfg);
 
             // this is what we are really testing
-            const loadedPluginCfg = PMF.readPluginConfig(pluginName);
+            const pluginCfgProps = PMF.loadPluginCfgProps(pluginName);
 
-            expect(loadedPluginCfg).toEqual(pluginCfg);
+            expect(pluginCfgProps).toEqual(pluginCfg);
             expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
                 IssueSeverity.CFG_ERROR,
                 IssueSeverity.CMD_ERROR,
@@ -1131,7 +1142,7 @@ describe("Plugin Management Facility", () => {
             ])).toBe(false);
             expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
         });
-    }); // end Read plugin config
+    }); // end Load plugin config
 
     describe("conflictingNameOrAlias function", () => {
         let groupName: string;
