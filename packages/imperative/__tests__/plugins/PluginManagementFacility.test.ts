@@ -166,13 +166,12 @@ describe("Plugin Management Facility", () => {
             })
         });
 
-        Logger.setLogInMemory(true);
+        Logger.setLogInMemory(true, 0);
     });
 
     afterEach(() => {
         PMF.addCmdGrpToResolvedCliCmdTree = realAddCmdGrpToResolvedCliCmdTree;
         ConfigurationValidator.validate = realCfgValidator;
-        Logger.writeInMemoryMessages(join(process.cwd(), "/__tests__/__results__/unit/MsgsFromMem.log"));
     });
 
     it("should initialize properly", () => {
@@ -1079,66 +1078,77 @@ describe("Plugin Management Facility", () => {
         });
 
         it("should record warning when defined CLI package name does not exist in 'peerDependencies'", () => {
-            // Ensure we get to the function that we want to test
+            // alter basePluginCfgProps to reflect the imperative version in the plugin's package.json
+            const expectedCfgProps = JSON.parse(JSON.stringify(basePluginCfgProps));
+            expectedCfgProps.npmPackageName = pluginName;
+            expectedCfgProps.impDependency.peerDepVer = "1.x";
+
+            // mock reading the package.json file of the plugin
             mocks.existsSync.mockReturnValue(true);
-            const pluginCfg = {
-                name: "sample-plugin"
-            };
             mocks.readFileSync.mockReturnValueOnce({
-                name: "imperative-sample-plugin",
+                name: pluginName,
                 version: "1.0.1",
                 description: "Some description",
-                imperative: pluginCfg,
+                imperative: expectedCfgProps.impConfig,
                 peerDependencies: {
-                    "@brightside/imperative": "dummyImperative"
+                    "@brightside/coreIsNotInPkgJson": "1.x",
+                    "@brightside/imperative": "1.x"
                 }
             });
 
-            mockGetCliPkgName.mockReturnValue("nonExisting");
+            // utility functions mocked to return good values
+            mockGetCliPkgName.mockReturnValue("@brightside/core");
             mockGetCliCmdName.mockReturnValue("testCliName");
-            mockCfgLoad.mockReturnValue(pluginCfg);
+            mockCfgLoad.mockReturnValue(expectedCfgProps.impConfig);
 
             // this is what we are really testing
             const pluginCfgProps = PMF.loadPluginCfgProps(pluginName);
 
-            expect(pluginCfgProps).toEqual(pluginCfg);
+            // interrogate our results
+            expect(pluginCfgProps).toEqual(expectedCfgProps);
             expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
                 IssueSeverity.WARNING
-            ])).toBe(false);
+            ])).toBe(true);
             expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(1);
             const recordedIssue = pluginIssues.getIssueListForPlugin(pluginName)[0];
             expect(recordedIssue.issueSev).toBe(IssueSeverity.WARNING);
-            expect(recordedIssue.issueText).toContain("The property 'nonExisting' does not exist within the 'peerDependencies' property");
+            expect(recordedIssue.issueText).toContain("The property '@brightside/core' does not exist within the 'peerDependencies' property");
         });
 
         it("should return a plugin config when there are no errors", () => {
-            // Ensure we get to the function that we want to test
+            // alter basePluginCfgProps to reflect the imperative version in the plugin's package.json
+            const expectedCfgProps = JSON.parse(JSON.stringify(basePluginCfgProps));
+            expectedCfgProps.npmPackageName = pluginName;
+            expectedCfgProps.cliDependency.peerDepVer = "1.x";
+            expectedCfgProps.impDependency.peerDepVer = "1.x";
+
+            // mock reading the package.json file of the plugin
             mocks.existsSync.mockReturnValue(true);
-            const pluginCfg = {
-                name: "sample-plugin"
-            };
             mocks.readFileSync.mockReturnValueOnce({
-                name: "imperative-sample-plugin",
+                name: pluginName,
                 version: "1.0.1",
                 description: "Some description",
-                imperative: pluginCfg,
+                imperative: expectedCfgProps.impConfig,
                 peerDependencies: {
-                    "@brightside/imperative": "dummyImperative"
+                    "@brightside/core": "1.x",
+                    "@brightside/imperative": "1.x"
                 }
             });
 
-            mockGetCliPkgName.mockReturnValue("@brightside/imperative");
+            // utility functions mocked to return good values
+            mockGetCliPkgName.mockReturnValue("@brightside/core");
             mockGetCliCmdName.mockReturnValue("testCliName");
-            mockCfgLoad.mockReturnValue(pluginCfg);
+            mockCfgLoad.mockReturnValue(expectedCfgProps.impConfig);
 
             // this is what we are really testing
             const pluginCfgProps = PMF.loadPluginCfgProps(pluginName);
 
-            expect(pluginCfgProps).toEqual(pluginCfg);
+            expect(pluginCfgProps).toEqual(expectedCfgProps);
             expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
                 IssueSeverity.CFG_ERROR,
                 IssueSeverity.CMD_ERROR,
-                IssueSeverity.OVER_ERROR
+                IssueSeverity.OVER_ERROR,
+                IssueSeverity.WARNING,
             ])).toBe(false);
             expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
         });
