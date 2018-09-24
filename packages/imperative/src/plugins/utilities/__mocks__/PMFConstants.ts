@@ -27,8 +27,14 @@ export class PMFConstants {
   public readonly PLUGIN_JSON: string;
   public readonly PLUGIN_INSTALL_LOCATION: string;
   public readonly PLUGIN_NODE_MODULE_LOCATION: string;
+  public readonly CLI_CORE_PKG_NAME: string;
+  public readonly IMPERATIVE_PKG_NAME: string;
+  public readonly NPM_NAMESPACE: string;
 
   constructor() {
+    this.NPM_NAMESPACE = "@brightside";
+    this.CLI_CORE_PKG_NAME = `${this.NPM_NAMESPACE}/core`;
+    this.IMPERATIVE_PKG_NAME = `${this.NPM_NAMESPACE}/imperative`;
     this.PMF_ROOT = "/sample-cli/home/plugins/";
     this.PLUGIN_JSON = this.PMF_ROOT + "plugins.json";
     this.PLUGIN_INSTALL_LOCATION = "/sample-cli/install";
