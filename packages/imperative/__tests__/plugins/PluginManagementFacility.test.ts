@@ -494,12 +494,12 @@ describe("Plugin Management Facility", () => {
                 mockAreVersionsCompatible.mockReturnValueOnce(true);
                 mocks.existsSync.mockReturnValue(true);
 
-                isValid = PMF.validatePlugin(pluginName, basePluginConfig, badPluginCmdDef);
+                isValid = PMF.validatePlugin(basePluginCfgProps, badPluginCmdDef);
                 expect(isValid).toBe(false);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CFG_ERROR);
                 expect(issue.issueText).toContain(
-                    "The plugin's configuration defines no children.");
+                    "The plugin defines no commands and overrides no framework components.");
             });
 
             it("should record error when plugin's children property is empty", () => {
@@ -512,12 +512,12 @@ describe("Plugin Management Facility", () => {
                 mockAreVersionsCompatible.mockReturnValueOnce(true);
                 mocks.existsSync.mockReturnValue(true);
 
-                isValid = PMF.validatePlugin(pluginName, basePluginConfig, badPluginCmdDef);
+                isValid = PMF.validatePlugin(basePluginCfgProps, badPluginCmdDef);
                 expect(isValid).toBe(false);
                 const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
-                expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
+                expect(issue.issueSev).toBe(IssueSeverity.CFG_ERROR);
                 expect(issue.issueText).toContain(
-                    "The plugin's configuration defines no children.");
+                    "The plugin defines no commands and overrides no framework components.");
             });
 
             it("should record warning if plugin healthCheck property does not exist", () => {
