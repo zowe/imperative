@@ -1242,9 +1242,14 @@ describe("Plugin Management Facility", () => {
         });
     }); // end conflictingNameOrAlias function
 
-    describe("addPlugin function", () => {
-        const realReadPluginConfig = PMF.readPluginConfig;
-        const mockReadPluginConfig = jest.fn();
+    describe("addPluginToHostCli function", () => {
+        const testPluginCofig = {
+            pluginName,
+            npmPackageName: "firstPackageName",
+            impConfig: {name: "testImpConfig", profiles: []},
+            cliDependency: null,
+            impDependency: null
+        };
 
         const realCombineAllCmdDefs = DefinitionTreeResolver.combineAllCmdDefs;
         const mockCombineAllCmdDefs = jest.fn();
@@ -1256,53 +1261,38 @@ describe("Plugin Management Facility", () => {
         const mockAddProfiles = jest.fn();
 
         beforeEach(() => {
-            PMF.readPluginConfig = mockReadPluginConfig;
             DefinitionTreeResolver.combineAllCmdDefs = mockCombineAllCmdDefs;
             PMF.validatePlugin = mockValidatePlugin;
             impCfg.addProfiles = mockAddProfiles;
         });
 
         afterEach(() => {
-            PMF.readPluginConfig = realReadPluginConfig;
             DefinitionTreeResolver.combineAllCmdDefs = realCombineAllCmdDefs;
             PMF.validatePlugin = realValidatePlugin;
             impCfg.addProfiles = realAddProfiles;
         });
 
-        it("should not call combineAllCmdDefs if readPluginConfig fails", () => {
-            // make readPluginConfig fail
-            mockReadPluginConfig.mockReturnValue(null);
-
-            PMF.addPlugin(pluginName);
-
-            expect(mockReadPluginConfig).toHaveBeenCalledTimes(1);
-            expect(mockCombineAllCmdDefs).toHaveBeenCalledTimes(0);
-        });
-
         it("should record an error if combineAllCmdDefs throws an error", () => {
             // Ensure we get to the function that we want to test
-            mockReadPluginConfig.mockReturnValue(basePluginConfig);
             mockCombineAllCmdDefs.mockImplementationOnce(() => {
                 throw new Error("Mock combineAllCmdDefs error");
             });
 
-            PMF.addPlugin(pluginName);
+            PMF.addPluginToHostCli(testPluginCofig);
 
             expect(mockCombineAllCmdDefs).toHaveBeenCalledTimes(1);
-            const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
+            const issue = pluginIssues.getIssueListForPlugin(testPluginCofig.pluginName)[0];
             expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
             expect(issue.issueText).toContain(
                 "Failed to combine command definitions. Reason = Mock combineAllCmdDefs error");
         });
 
         it("should not call addCmdGrpToResolvedCliCmdTree if validatePlugin fails", () => {
-            // Ensure we get to the function that we want to test
-            mockReadPluginConfig.mockReturnValue(basePluginConfig);
-
+            mockCombineAllCmdDefs.mockReturnValueOnce({});
             // make validatePlugin fail
             mockValidatePlugin.mockReturnValue(false);
 
-            PMF.addPlugin(pluginName);
+            PMF.addPluginToHostCli(testPluginCofig);
 
             expect(mockValidatePlugin).toHaveBeenCalledTimes(1);
             expect(PMF.addCmdGrpToResolvedCliCmdTree).toHaveBeenCalledTimes(0);
@@ -1312,17 +1302,18 @@ describe("Plugin Management Facility", () => {
             // Ensure we get to the function that we want to test
             const badPluginConfig = JSON.parse(JSON.stringify(basePluginConfig));
             badPluginConfig.profiles = [];
-            mockReadPluginConfig.mockReturnValue(badPluginConfig);
+            mockCombineAllCmdDefs.mockReturnValueOnce({});
             mockValidatePlugin.mockReturnValue(true);
 
             // this is what we really want to test
-            PMF.addPlugin(pluginName);
+            PMF.addPluginToHostCli(testPluginCofig);
             expect(impCfg.addProfiles).toHaveBeenCalledTimes(0);
         });
 
         it("should record an error when addProfiles throws an exception", () => {
             // Ensure we get to the function that we want to test
-            mockReadPluginConfig.mockReturnValue(basePluginConfig);
+            testPluginCofig.impConfig.profiles = [{schema: "dummy1"}, {schema: "dummy2"}];
+            mockCombineAllCmdDefs.mockReturnValueOnce({});
             mockValidatePlugin.mockReturnValue(true);
             mockAddCmdGrpToResolvedCliCmdTree.mockReturnValue(true);
 
@@ -1331,7 +1322,7 @@ describe("Plugin Management Facility", () => {
             });
 
             // this is what we really want to test
-            PMF.addPlugin(pluginName);
+            PMF.addPluginToHostCli(testPluginCofig);
             expect(impCfg.addProfiles).toHaveBeenCalledTimes(1);
             const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
             expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
@@ -1341,15 +1332,15 @@ describe("Plugin Management Facility", () => {
 
         it("should call addCmdGrpToResolvedCliCmdTree and addProfiles with the proper parameters", () => {
             // Ensure we get to the function that we want to test
-            mockReadPluginConfig.mockReturnValue(basePluginConfig);
+            testPluginCofig.impConfig.profiles = [{schema: "dummy1"}];
+            mockCombineAllCmdDefs.mockReturnValueOnce({});
             mockValidatePlugin.mockReturnValue(true);
             mockAddCmdGrpToResolvedCliCmdTree.mockReturnValue(true);
             DefinitionTreeResolver.combineAllCmdDefs = realCombineAllCmdDefs;
 
             // this is what we really want to test
-            PMF.addPlugin(pluginName);
-            expect(PMF.addCmdGrpToResolvedCliCmdTree).toHaveBeenCalledWith(pluginName, basePluginCmdDef);
-            expect(impCfg.addProfiles).toHaveBeenCalledWith(basePluginConfig.profiles);
+            PMF.addPluginToHostCli(testPluginCofig);
+            expect(impCfg.addProfiles).toHaveBeenCalledWith(testPluginCofig.impConfig.profiles);
         });
     }); // end addPlugin
 
