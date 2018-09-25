@@ -14,6 +14,7 @@ import { SetupTestEnvironment } from "../../../../../../__src__/environment/Setu
 import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import * as fs from "fs";
 import { TestLogger } from "../../../../../../TestLogger";
+import { LoggerConfigBuilder } from "../../../../../../../packages";
 
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
@@ -145,14 +146,17 @@ describe("imperative-test-cli test logging command", () => {
                 expect(logContents).toContain("[FATAL]");
             });
 
-            it("should default to DEBUG if an invalid level is specified", () => {
+            it("should default to DEBUG if an invalid level is specified and also warn user with the error", () => {
                 // Log working directory to make it easier to identify the directory for this test
                 TestLogger.info(`Working directory: ${TEST_ENVIRONMENT.workingDir}`);
 
                 // Set the ENV var for the script
                 const response = runCliScript(__dirname + "/__scripts__/test_logging_cmd.sh",
                     TEST_ENVIRONMENT.workingDir, [], { IMPERATIVE_TEST_CLI_IMPERATIVE_LOG_LEVEL: "AWESOME" });
-                expect(response.stderr.toString()).toBe("");
+                const errorMsg = response.stderr.toString();
+                expect(errorMsg).toContain("AWESOME");
+                expect(errorMsg).toContain("IMPERATIVE_TEST_CLI_IMPERATIVE_LOG_LEVEL");
+                expect(errorMsg).toContain(LoggerConfigBuilder.DEFAULT_LOG_LEVEL);
                 expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
@@ -209,14 +213,17 @@ describe("imperative-test-cli test logging command", () => {
                 expect(logContents).toContain("[FATAL]");
             });
 
-            it("should default to DEBUG if an invalid level is specified", () => {
+            it("should default to DEBUG if an invalid level is specified also warn user with the error", () => {
                 // Log working directory to make it easier to identify the directory for this test
                 TestLogger.info(`Working directory: ${TEST_ENVIRONMENT.workingDir}`);
 
                 // Set the ENV var for the script
                 const response = runCliScript(__dirname + "/__scripts__/test_logging_cmd.sh",
                     TEST_ENVIRONMENT.workingDir, [], { IMPERATIVE_TEST_CLI_APP_LOG_LEVEL: "AWESOME" });
-                expect(response.stderr.toString()).toBe("");
+                const errorMsg = response.stderr.toString();
+                expect(errorMsg).toContain("AWESOME");
+                expect(errorMsg).toContain("IMPERATIVE_TEST_CLI_APP_LOG_LEVEL");
+                expect(errorMsg).toContain(LoggerConfigBuilder.DEFAULT_LOG_LEVEL);
                 expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
