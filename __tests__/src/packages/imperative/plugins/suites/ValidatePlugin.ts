@@ -154,7 +154,7 @@ describe("Validate plugin", () => {
                 expect(result.stdout).toContain(testPlugin);
                 expect(result.stdout).toContain("Error");
                 expect(result.stdout).toContain(`The program for the 'imperative.pluginHealthCheck' property does not exist:`);
-                expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
+                expect(result.stdout).toContain("This plugin has configuration errors. No component of the plugin will be available");
             });
 
             it("missing peerDependencies properties", () => {
