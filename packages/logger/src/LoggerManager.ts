@@ -118,7 +118,15 @@ export class LoggerManager {
             this.console.debug(`Writting all logged messages in memory to ${file}`);
             this.QueuedMessages.slice().reverse().forEach((value, index) => {
                 (this.console as any)[value.method](value.message);
-                appendFileSync(file, `${value.message}\n`);
+                try {
+                    appendFileSync(file, `${value.message}\n`);
+                } catch (error) {
+                    /**
+                     * For whatever reason causing logger to unable to append to the log file,
+                     * log the error to console so user see and take appropriate action.
+                     */
+                    this.console.info(error);
+                }
             });
         }
     }
