@@ -282,7 +282,7 @@ describe("Logger tests", () => {
 
         expect(LoggerManager.instance.QueuedMessages.length).toBe(expectedSize);
 
-        fs.appendFileSync = jest.fn();
+        (fs as any).appendFileSync = jest.fn();
         Logger.writeInMemoryMessages("testing.txt");
         expect(fs.appendFileSync).toHaveBeenCalledTimes(expectedSize);
     });
