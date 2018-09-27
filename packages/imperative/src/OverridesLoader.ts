@@ -24,28 +24,32 @@ export class OverridesLoader {
    * an override is not provided.
    *
    * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
+   * @param {any} packageJson - the current package.json
    */
   public static async load(
-    config: IImperativeConfig
+    config: IImperativeConfig,
+    packageJson: any
   ): Promise<void> {
     // Initialize the Credential Manager
-    await this.loadCredentialManager(config);
+    await this.loadCredentialManager(config, packageJson);
   }
 
   /**
    * Initialize the Credential Manager using the supplied override when provided.
    *
    * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
+   * @param {any} packageJson - the current package.json
    */
   private static async loadCredentialManager(
-    config: IImperativeConfig
+    config: IImperativeConfig,
+    packageJson: any
   ): Promise<void> {
     const overrides: IImperativeOverrides = config.overrides;
 
     // If the credential manager wasn't set, then we use the DefaultCredentialManager
-    // The default credential manger uses keytar - and we will use it unless the
-    // config explicitly requests keytar=false
-    if (overrides.CredentialManager == null && config.keytar !== false) {
+    // The default credential manger uses keytar - and we will use it if a keytar dependency
+    // is in package.json
+    if (overrides.CredentialManager == null && packageJson.dependencies.keytar != null) {
       overrides.CredentialManager = DefaultCredentialManager;
     }
 

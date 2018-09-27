@@ -18,15 +18,6 @@ import { IImperativeOverrides } from "./IImperativeOverrides";
  */
 export interface IImperativeConfig {
     /**
-     * Specify true to indicate your CLI should use Keytar as the default mechanism to store "secure" profile
-     * properties. If false, the default profile/credential managers will store in plain text. Credential manager
-     * plugins will still take precedence over this option.
-     * @type {boolean}
-     * @memberof IImperativeConfig
-     */
-    keytar?: boolean;
-
-    /**
      * Boolean flag control whether plugins are enable or disable.
      * This option is assumed to be true by default.
      * @type {boolean}
