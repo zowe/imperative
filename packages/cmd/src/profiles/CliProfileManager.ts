@@ -22,20 +22,20 @@ import {
     ProfilesConstants,
     ProfileUtils
 } from "../../../profiles";
-import {inspect, isNullOrUndefined} from "util";
-import {ImperativeError} from "../../../error";
-import {Arguments} from "yargs";
-import {CommandResponse} from "../response/CommandResponse";
-import {ICommandHandlerRequire} from "../doc/handler/ICommandHandlerRequire";
-import {ICommandHandler} from "../../src/doc/handler/ICommandHandler";
-import {ICommandProfileTypeConfiguration} from "../doc/profiles/definition/ICommandProfileTypeConfiguration";
-import {CommandProfiles} from "./CommandProfiles";
-import {ICommandProfileProperty} from "../doc/profiles/definition/ICommandProfileProperty";
-import {CredentialManagerFactory} from "../../../security";
-import {IDeleteProfile, IProfileDeleted, IProfileLoaded} from "../../../profiles/src/doc";
-import {SecureOperationFunction} from "../types/SecureOperationFunction";
-import {ICliILoadProfile} from "../doc/profiles/parms/ICliLoadProfile";
-import {ICliLoadAllProfiles} from "../doc/profiles/parms/ICliLoadAllProfiles";
+import { inspect, isNullOrUndefined } from "util";
+import { ImperativeError } from "../../../error";
+import { Arguments } from "yargs";
+import { CommandResponse } from "../response/CommandResponse";
+import { ICommandHandlerRequire } from "../doc/handler/ICommandHandlerRequire";
+import { ICommandHandler } from "../../src/doc/handler/ICommandHandler";
+import { ICommandProfileTypeConfiguration } from "../doc/profiles/definition/ICommandProfileTypeConfiguration";
+import { CommandProfiles } from "./CommandProfiles";
+import { ICommandProfileProperty } from "../doc/profiles/definition/ICommandProfileProperty";
+import { CredentialManagerFactory } from "../../../security";
+import { IDeleteProfile, IProfileDeleted, IProfileLoaded } from "../../../profiles/src/doc";
+import { SecureOperationFunction } from "../types/SecureOperationFunction";
+import { ICliILoadProfile } from "../doc/profiles/parms/ICliLoadProfile";
+import { ICliLoadAllProfiles } from "../doc/profiles/parms/ICliLoadAllProfiles";
 
 /**
  * A profile management API compatible with transforming command line arguments into
@@ -105,7 +105,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             this.log.trace(`All loads complete.`);
         } catch (e) {
             this.log.error(e.message);
-            throw new ImperativeError({msg: e.message, additionalDetails: e.additionalDetails, causeErrors: e});
+            throw new ImperativeError({ msg: e.message, additionalDetails: e.additionalDetails, causeErrors: e });
         }
 
         return allProfiles;
@@ -126,19 +126,18 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
         validationParms.readyForValidation = true;
 
         if (!isNullOrUndefined(parms.args)) {
-            this.log.trace(`Arguments supplied, constructing profile from arguments:\n${inspect(parms.args, {depth: null})}`);
+            this.log.trace(`Arguments supplied, constructing profile from arguments:\n${inspect(parms.args, { depth: null })}`);
             parms.profile = await this.createProfileFromCommandArguments(parms.args, parms.profile);
             validationParms.profile = parms.profile;
             delete parms.args;
             this.log.debug(`Validating profile build (name: ${validationParms.profile.name}).`);
             await this.validate(validationParms); // validate now that the profile has been built
         } else {
-            // profile should already be ready// profile should already be ready
+            // profile should already be ready
             this.log.trace("No arguments specified, performing the basic validation (schema, etc.).");
             await this.validate(validationParms);
         }
         parms.profile = await this.processSecureProperties(parms.profile);
-
         return await super.saveProfile(parms);
     }
 
@@ -161,7 +160,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             const newManagerParams: IProfileManager<ICommandProfileTypeConfiguration> = JSON.parse(JSON.stringify(this.managerParameters));
             newManagerParams.loadCounter = this.loadCounter;
             newManagerParams.logger = this.log;
-            const loadedProfile = await new CliProfileManager(newManagerParams).loadProfile({name: parms.name});
+            const loadedProfile = await new CliProfileManager(newManagerParams).loadProfile({ name: parms.name });
             updated = await this.updateProfileFromCliArgs(parms, loadedProfile.profile,
                 isNullOrUndefined(parms.profile) ? {
                     type: this.profileType,
@@ -196,13 +195,14 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
         const profile = loadedProfile.profile;
 
         // If noSecure is specified, skip secure loading
-        if (!parms.noSecure) {
+        let securelyLoadValue: SecureOperationFunction;
+        if (!parms.noSecure && CredentialManagerFactory.initialized) {
             /**
              * Securely load a property associated with a given profile
              * @param {string} propertyNamePath - The path to the property
              * @return {Promise<string>}
              */
-            const securelyLoadValue: SecureOperationFunction = async (propertyNamePath: string): Promise<any> => {
+            securelyLoadValue = async (propertyNamePath: string): Promise<any> => {
                 let ret;
                 try {
                     this.log.debug(
@@ -233,10 +233,10 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
 
                 return JSON.parse(ret); // Parse it after loading it. We stringify-ed before saving it
             };
+        }
 
-            for (const prop of Object.keys(this.profileTypeConfiguration.schema.properties)) {
-                profile[prop] = await this.findOptions(this.profileTypeConfiguration.schema.properties[prop], prop, profile[prop], securelyLoadValue);
-            }
+        for (const prop of Object.keys(this.profileTypeConfiguration.schema.properties)) {
+            profile[prop] = await this.findOptions(this.profileTypeConfiguration.schema.properties[prop], prop, profile[prop], securelyLoadValue);
         }
 
         // Return the loaded profile
@@ -252,34 +252,40 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
      * @returns {Promise<IProfileDeleted>} - Promise that is fulfilled when complete (or rejected with an Imperative Error)
      */
     protected async deleteProfile(parms: IDeleteProfile): Promise<IProfileDeleted> {
-        /**
-         * Delete a secure property associated with a given profile
-         * @param {string} propertyNamePath - The path to the property
-         * @return {Promise<string>}
-         */
-        const deleteSecureProperty: SecureOperationFunction = async (propertyNamePath: string): Promise<void> => {
-            try {
-                this.log.debug(`Deleting secured field with key ${propertyNamePath} for profile ("${parms.name}" of type "${this.profileType}").`);
-                // Use the Credential Manager to store the credentials
-                await CredentialManagerFactory.manager.delete(
-                    ProfileUtils.getProfilePropertyKey(this.profileType, parms.name, propertyNamePath)
-                );
-            } catch (err) {
-                this.log.error(`Unable to delete secure field "${propertyNamePath}" ` +
-                    `associated with profile "${parms.name}" of type "${this.profileType}".`);
 
-                let additionalDetails: string = err.message + (err.additionalDetails ? `\n${err.additionalDetails}` : "");
-                additionalDetails = this.addProfileInstruction(additionalDetails);
-                this.log.error(`Error: ${additionalDetails}`);
+        // If the credential manager is null, we are using plain text
+        let deleteSecureProperty: SecureOperationFunction;
+        if (CredentialManagerFactory.initialized) {
+            /**
+             * Delete a secure property associated with a given profile
+             * @param {string} propertyNamePath - The path to the property
+             * @return {Promise<string>}
+             */
+            deleteSecureProperty = async (propertyNamePath: string): Promise<void> => {
+                try {
+                    this.log
+                        .debug(`Deleting secured field with key ${propertyNamePath} for profile ("${parms.name}" of type "${this.profileType}").`);
+                    // Use the Credential Manager to store the credentials
+                    await CredentialManagerFactory.manager.delete(
+                        ProfileUtils.getProfilePropertyKey(this.profileType, parms.name, propertyNamePath)
+                    );
+                } catch (err) {
+                    this.log.error(`Unable to delete secure field "${propertyNamePath}" ` +
+                        `associated with profile "${parms.name}" of type "${this.profileType}".`);
 
-                throw new ImperativeError({
-                    msg: `Unable to delete the secure field "${propertyNamePath}" associated with ` +
-                        `the profile "${parms.name}" of type "${this.profileType}".`,
-                    additionalDetails,
-                    causeErrors: err
-                });
-            }
-        };
+                    let additionalDetails: string = err.message + (err.additionalDetails ? `\n${err.additionalDetails}` : "");
+                    additionalDetails = this.addProfileInstruction(additionalDetails);
+                    this.log.error(`Error: ${additionalDetails}`);
+
+                    throw new ImperativeError({
+                        msg: `Unable to delete the secure field "${propertyNamePath}" associated with ` +
+                            `the profile "${parms.name}" of type "${this.profileType}".`,
+                        additionalDetails,
+                        causeErrors: err
+                    });
+                }
+            };
+        }
 
         for (const prop of Object.keys(this.profileTypeConfiguration.schema.properties)) {
             await this.findOptions(this.profileTypeConfiguration.schema.properties[prop], prop, null, deleteSecureProperty);
@@ -302,7 +308,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             return super.validateProfile(parms);
         } else {
             this.log.trace(`Skipping the validate for profile (as it's being built): "${parms.profile.name}"`);
-            return {message: "Skipping validation until profile is built"};
+            return { message: "Skipping validation until profile is built" };
         }
     }
 
@@ -320,7 +326,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
         const recreateCredText: string = "Recreate the credentials in the vault";
         const recreateProfileText: string =
             "  To recreate credentials, issue a 'profiles create' sub-command with the --ow flag.\n";
-        if ( errDetails.includes(recreateCredText) ) {
+        if (errDetails.includes(recreateCredText)) {
             errDetails += recreateProfileText;
         }
         return errDetails;
@@ -381,46 +387,52 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
      * @return {Promise<IProfile>}
      */
     private async processSecureProperties(profile: IProfile): Promise<IProfile> {
-        /**
-         * Securely store a property associated with a given profile
-         * @param {string} propertyNamePath - The path to the property
-         * @param {string} propertyValue - The value associated with the given profile property
-         * @return {Promise<string>}
-         */
-        const securelyStoreValue: SecureOperationFunction = async (propertyNamePath: string, propertyValue: string): Promise<string> => {
-            if (isNullOrUndefined(propertyValue)) { // prevents from storing null values
-                return null;
-            }
 
-            try {
-                this.log.debug(`Associating secured field with key ${propertyNamePath}` +
-                    ` for profile ("${profile.name}" of type "${this.profileType}").`);
-                // Use the Credential Manager to store the credentials
-                await CredentialManagerFactory.manager.save(
-                    ProfileUtils.getProfilePropertyKey(this.profileType, profile.name, propertyNamePath),
-                    JSON.stringify(propertyValue) // Stringify it before saving it. We will parse after loading it
-                );
-            } catch (err) {
-                this.log.error(`Unable to store secure field "${propertyNamePath}" ` +
-                    `associated with profile "${profile.name}" of type "${this.profileType}".`);
+        // If the credential manager is null, skip secure props and the profile will default to plain text
+        let securelyStoreValue: SecureOperationFunction;
+        if (CredentialManagerFactory.initialized) {
+            /**
+             * Securely store a property associated with a given profile
+             * @param {string} propertyNamePath - The path to the property
+             * @param {string} propertyValue - The value associated with the given profile property
+             * @return {Promise<string>}
+             */
+            securelyStoreValue = async (propertyNamePath: string, propertyValue: string): Promise<string> => {
+                if (isNullOrUndefined(propertyValue)) { // prevents from storing null values
+                    return null;
+                }
 
-                let additionalDetails: string = err.message + (err.additionalDetails ? `\n${err.additionalDetails}` : "");
-                additionalDetails = this.addProfileInstruction(additionalDetails);
-                this.log.error(`Error: ${additionalDetails}`);
+                try {
+                    this.log.debug(`Associating secured field with key ${propertyNamePath}` +
+                        ` for profile ("${profile.name}" of type "${this.profileType}").`);
+                    // Use the Credential Manager to store the credentials
+                    await CredentialManagerFactory.manager.save(
+                        ProfileUtils.getProfilePropertyKey(this.profileType, profile.name, propertyNamePath),
+                        JSON.stringify(propertyValue) // Stringify it before saving it. We will parse after loading it
+                    );
+                } catch (err) {
+                    this.log.error(`Unable to store secure field "${propertyNamePath}" ` +
+                        `associated with profile "${profile.name}" of type "${this.profileType}".`);
 
-                throw new ImperativeError({
-                    msg: `Unable to store the secure field "${propertyNamePath}" associated with ` +
-                        `the profile "${profile.name}" of type "${this.profileType}".`,
-                    additionalDetails,
-                    causeErrors: err
-                });
-            }
-            return ProfilesConstants.PROFILES_OPTION_SECURELY_STORED;
-        };
+                    let additionalDetails: string = err.message + (err.additionalDetails ? `\n${err.additionalDetails}` : "");
+                    additionalDetails = this.addProfileInstruction(additionalDetails);
+                    this.log.error(`Error: ${additionalDetails}`);
+
+                    throw new ImperativeError({
+                        msg: `Unable to store the secure field "${propertyNamePath}" associated with ` +
+                            `the profile "${profile.name}" of type "${this.profileType}".`,
+                        additionalDetails,
+                        causeErrors: err
+                    });
+                }
+                return ProfilesConstants.PROFILES_OPTION_SECURELY_STORED;
+            };
+        }
 
         for (const prop of Object.keys(this.profileTypeConfiguration.schema.properties)) {
             profile[prop] = await this.findOptions(this.profileTypeConfiguration.schema.properties[prop], prop, profile[prop], securelyStoreValue);
         }
+
         return profile;
     }
 
@@ -477,7 +489,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             // if there is a custom update profile handler, they can call mergeProfile
             // from their handler, so we will not do it for them to avoid issues
             this.log.debug("Loading custom update profile handler: " + profileConfig.updateProfileFromArgumentsHandler);
-            const response = new CommandResponse({silent: true});
+            const response = new CommandResponse({ silent: true });
             let handler: ICommandHandler;
             try {
                 const commandHandler: ICommandHandlerRequire = require(profileConfig.updateProfileFromArgumentsHandler);
@@ -541,7 +553,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
     private async createProfileFromCommandArguments(profileArguments: Arguments, starterProfile: IProfile): Promise<IProfile> {
         const profileConfig = this.profileTypeConfiguration;
         if (!isNullOrUndefined(profileConfig.createProfileFromArgumentsHandler)) {
-            const response = new CommandResponse({silent: true, args: profileArguments});
+            const response = new CommandResponse({ silent: true, args: profileArguments });
             let handler: ICommandHandler;
             try {
                 const commandHandler: ICommandHandlerRequire = require(profileConfig.createProfileFromArgumentsHandler);
@@ -583,10 +595,10 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             return finishedProfile;
         } else {
             const profile: IProfile =
-                {
-                    type: this.profileType,
-                    name: starterProfile.name
-                };
+            {
+                type: this.profileType,
+                name: starterProfile.name
+            };
             // default case - no custom handler
             // build profile object directly from command arguments
             await this.insertCliArgumentsIntoProfile(profileArguments, profile);

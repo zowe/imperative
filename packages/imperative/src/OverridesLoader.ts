@@ -43,15 +43,21 @@ export class OverridesLoader {
     const overrides: IImperativeOverrides = config.overrides;
 
     // If the credential manager wasn't set, then we use the DefaultCredentialManager
-    if (overrides.CredentialManager == null) {
+    // The default credential manger uses keytar - and we will use it unless the
+    // config explicitly requests keytar=false
+    if (overrides.CredentialManager == null && config.keytar !== false) {
       overrides.CredentialManager = DefaultCredentialManager;
     }
+
     // If the credential manager is type string and not absolute, we will convert it to an absolute path
     // relative to the process entry file location.
     else if (typeof overrides.CredentialManager === "string" && !isAbsolute(overrides.CredentialManager)) {
       overrides.CredentialManager = resolve(process.mainModule.filename, "../", overrides.CredentialManager);
     }
 
-    await CredentialManagerFactory.initialize(overrides.CredentialManager, config.name);
+    // If the credential manager is present, initialize
+    if (overrides.CredentialManager != null) {
+      await CredentialManagerFactory.initialize(overrides.CredentialManager, config.name);
+    }
   }
 }

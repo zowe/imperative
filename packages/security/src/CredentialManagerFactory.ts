@@ -186,6 +186,15 @@ export class CredentialManagerFactory {
 
         return this.mManager;
     }
+
+    /**
+     * The credential manager may not be initialized if Keytar (or a plugin override) is not present. In this
+     * scenario, the default is to store credentials in plain text.
+     * @returns {boolean} - True if the credential manager has been initialized.
+     */
+    public static get initialized(): boolean {
+        return !(this.mManager == null);
+    }
 }
 
 // This also prevents someone being able to hijack the exported object. Essentially all of these Object.freeze
