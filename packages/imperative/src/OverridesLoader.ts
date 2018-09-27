@@ -49,7 +49,7 @@ export class OverridesLoader {
     // If the credential manager wasn't set, then we use the DefaultCredentialManager
     // The default credential manger uses keytar - and we will use it if a keytar dependency
     // is in package.json
-    if (overrides.CredentialManager == null && packageJson.dependencies.keytar != null) {
+    if (overrides.CredentialManager == null && packageJson.dependencies != null && packageJson.dependencies.keytar != null) {
       overrides.CredentialManager = DefaultCredentialManager;
     }
 
