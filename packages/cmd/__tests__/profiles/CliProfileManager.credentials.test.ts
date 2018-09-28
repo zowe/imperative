@@ -84,6 +84,7 @@ describe("Cli Profile Manager", () => {
         const dummyManager = new DefaultCredentialManager("dummy");
         dummyManager.save = jest.fn();
         Object.defineProperty(CredentialManagerFactory, "manager", {get: jest.fn().mockReturnValue(dummyManager)});
+        Object.defineProperty(CredentialManagerFactory, "initialized", {get: jest.fn().mockReturnValue(true)});
 
         const tempProf: any = {
           name,
