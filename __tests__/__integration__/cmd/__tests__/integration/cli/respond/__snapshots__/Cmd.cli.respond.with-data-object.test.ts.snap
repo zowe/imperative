@@ -80,7 +80,7 @@ exports[`cmd-cli respond with-data-object should display the help 1`] = `
 
    --response-format-json  | --rfj (boolean)
 
-      Produce the command response as a JSON document
+      Produce JSON formatted data from a command
 
    --help  | -h (boolean)
 
@@ -89,8 +89,8 @@ exports[`cmd-cli respond with-data-object should display the help 1`] = `
 {
   \\"success\\": true,
   \\"message\\": \\"The help was constructed for command: with-data-object.\\",
-  \\"stdout\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-data-object\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Formulates a JSON object to pass back when response format JSON is specified.\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-data-object [options]\\\\n\\\\n REQUIRED OPTIONS\\\\n ----------------\\\\n\\\\n   --data-object  | --da (json)\\\\n\\\\n      An well-formed JSON object to place in the command response.\\\\n\\\\n   --message-for-response  | --mfr (string)\\\\n\\\\n      The message that will be placed in the output object.\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce the command response as a JSON document\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\",
+  \\"stdout\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-data-object\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Formulates a JSON object to pass back when response format JSON is specified.\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-data-object [options]\\\\n\\\\n REQUIRED OPTIONS\\\\n ----------------\\\\n\\\\n   --data-object  | --da (json)\\\\n\\\\n      An well-formed JSON object to place in the command response.\\\\n\\\\n   --message-for-response  | --mfr (string)\\\\n\\\\n      The message that will be placed in the output object.\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\",
   \\"stderr\\": \\"\\",
-  \\"data\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-data-object\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Formulates a JSON object to pass back when response format JSON is specified.\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-data-object [options]\\\\n\\\\n REQUIRED OPTIONS\\\\n ----------------\\\\n\\\\n   --data-object  | --da (json)\\\\n\\\\n      An well-formed JSON object to place in the command response.\\\\n\\\\n   --message-for-response  | --mfr (string)\\\\n\\\\n      The message that will be placed in the output object.\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce the command response as a JSON document\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\"
+  \\"data\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-data-object\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Formulates a JSON object to pass back when response format JSON is specified.\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-data-object [options]\\\\n\\\\n REQUIRED OPTIONS\\\\n ----------------\\\\n\\\\n   --data-object  | --da (json)\\\\n\\\\n      An well-formed JSON object to place in the command response.\\\\n\\\\n   --message-for-response  | --mfr (string)\\\\n\\\\n      The message that will be placed in the output object.\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\"
 }"
 `;

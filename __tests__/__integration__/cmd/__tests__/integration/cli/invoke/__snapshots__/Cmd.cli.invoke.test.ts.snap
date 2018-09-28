@@ -25,7 +25,7 @@ exports[`cmd-cli invoke should display the help 1`] = `
 
    --response-format-json  | --rfj (boolean)
 
-      Produce the command response as a JSON document
+      Produce JSON formatted data from a command
 
    --help  | -h (boolean)
 
@@ -35,8 +35,8 @@ exports[`cmd-cli invoke should display the help 1`] = `
 {
   \\"success\\": true,
   \\"message\\": \\"The help was constructed for command: invoke.\\",
-  \\"stdout\\": \\"\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   The invoke command allows you to invoke handlers and other test commands.\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli invoke [command]\\\\n\\\\n COMMANDS\\\\n --------\\\\n\\\\n   test-async-handler           Test basic async command handler completion\\\\n   test-handler                 Test handler with promise                  \\\\n   unexpected-exception-handler Test an unexpected exception               \\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce the command response as a JSON document\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\",
+  \\"stdout\\": \\"\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   The invoke command allows you to invoke handlers and other test commands.\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli invoke [command]\\\\n\\\\n COMMANDS\\\\n --------\\\\n\\\\n   test-async-handler           Test basic async command handler completion\\\\n   test-handler                 Test handler with promise                  \\\\n   unexpected-exception-handler Test an unexpected exception               \\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\",
   \\"stderr\\": \\"\\",
-  \\"data\\": \\"\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   The invoke command allows you to invoke handlers and other test commands.\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli invoke [command]\\\\n\\\\n COMMANDS\\\\n --------\\\\n\\\\n   test-async-handler           Test basic async command handler completion\\\\n   test-handler                 Test handler with promise                  \\\\n   unexpected-exception-handler Test an unexpected exception               \\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce the command response as a JSON document\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\"
+  \\"data\\": \\"\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   The invoke command allows you to invoke handlers and other test commands.\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli invoke [command]\\\\n\\\\n COMMANDS\\\\n --------\\\\n\\\\n   test-async-handler           Test basic async command handler completion\\\\n   test-handler                 Test handler with promise                  \\\\n   unexpected-exception-handler Test an unexpected exception               \\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\"
 }"
 `;

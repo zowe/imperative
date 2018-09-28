@@ -38,7 +38,7 @@ exports[`cmd-cli respond with-error-headers should display the help 1`] = `
 
    --response-format-json  | --rfj (boolean)
 
-      Produce the command response as a JSON document
+      Produce JSON formatted data from a command
 
    --help  | -h (boolean)
 
@@ -47,8 +47,8 @@ exports[`cmd-cli respond with-error-headers should display the help 1`] = `
 {
   \\"success\\": true,
   \\"message\\": \\"The help was constructed for command: with-error-headers.\\",
-  \\"stdout\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-error-headers\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Responds with a few error headers (colorized in red).\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-error-headers [options]\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce the command response as a JSON document\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\",
+  \\"stdout\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-error-headers\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Responds with a few error headers (colorized in red).\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-error-headers [options]\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\",
   \\"stderr\\": \\"\\",
-  \\"data\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-error-headers\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Responds with a few error headers (colorized in red).\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-error-headers [options]\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce the command response as a JSON document\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\"
+  \\"data\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-error-headers\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Responds with a few error headers (colorized in red).\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-error-headers [options]\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\"
 }"
 `;
