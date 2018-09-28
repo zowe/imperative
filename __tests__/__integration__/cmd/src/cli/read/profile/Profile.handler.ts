@@ -9,10 +9,11 @@
 *
 */
 
-import { IHandlerParameters, ICommandHandler } from "../../../../../../../packages/index";
+import { IHandlerParameters, ICommandHandler, TextUtils } from "../../../../../../../packages/index";
 
 export default class FirstGroupCommandOneHandler implements ICommandHandler {
     public async process(params: IHandlerParameters): Promise<void> {
         const prof = params.profiles.get("insecure");
+        params.response.console.log(TextUtils.prettyJson(prof));
     }
 }

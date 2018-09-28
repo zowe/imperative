@@ -16,4 +16,8 @@ export const ProfileCommand: ICommandDefinition = {
     description: "Read some profiles",
     summary: "Read some profiles",
     type: "command",
+    handler: __dirname + "/Profile.handler",
+    profile: {
+        required: ["insecure"]
+    }
 };

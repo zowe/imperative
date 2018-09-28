@@ -19,3 +19,5 @@ export const definition: ICommandDefinition = {
     type: "group",
     children: [ProfileCommand],
 };
+
+module.exports = definition;
