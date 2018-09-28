@@ -309,6 +309,7 @@ describe("Cli Profile Manager", () => {
           return JSON.stringify(ret);
         });
         Object.defineProperty(CredentialManagerFactory, "manager", {get: jest.fn().mockReturnValue(dummyManager)});
+        Object.defineProperty(CredentialManagerFactory, "initialized", {get: jest.fn().mockReturnValue(true)});
 
         // same object but with real values
         const copyTempProf = JSON.parse(JSON.stringify(tempProf));
