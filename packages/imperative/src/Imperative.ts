@@ -111,11 +111,6 @@ export class Imperative {
                 // Initialize our settings file
                 this.initAppSettings();
 
-                /* TODO: Create some logger placeholder that just caches messages
-                 * until we can initialize logging. This allows us to call methods that
-                 * use logging just like any method (but before logging is initialized).
-                 */
-
                 /**
                  * Get the command name from the package bin.
                  * If no command name exists, we will instead use the file name invoked
@@ -438,7 +433,8 @@ export class Imperative {
             CliProfileManager.initialize({
                 configuration: config.profiles,
                 profileRootDirectory: ProfileUtils.constructProfilesRootDirectory(ImperativeConfig.instance.cliHome),
-                reinitialize: false
+                reinitialize: false,
+                productDisplayName: config.productDisplayName
             });
         }
     }

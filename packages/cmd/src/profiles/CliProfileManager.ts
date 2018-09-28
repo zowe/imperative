@@ -36,6 +36,7 @@ import { IDeleteProfile, IProfileDeleted, IProfileLoaded } from "../../../profil
 import { SecureOperationFunction } from "../types/SecureOperationFunction";
 import { ICliILoadProfile } from "../doc/profiles/parms/ICliLoadProfile";
 import { ICliLoadAllProfiles } from "../doc/profiles/parms/ICliLoadAllProfiles";
+import { AppSettings } from "../../../settings";
 
 /**
  * A profile management API compatible with transforming command line arguments into
@@ -387,7 +388,6 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
      * @return {Promise<IProfile>}
      */
     private async processSecureProperties(profile: IProfile): Promise<IProfile> {
-
         // If the credential manager is null, skip secure props and the profile will default to plain text
         let securelyStoreValue: SecureOperationFunction;
         if (CredentialManagerFactory.initialized) {
@@ -425,7 +425,20 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                         causeErrors: err
                     });
                 }
-                return ProfilesConstants.PROFILES_OPTION_SECURELY_STORED;
+
+                let returnText = ProfilesConstants.PROFILES_OPTION_SECURELY_STORED + " CLI";
+
+                if (AppSettings.instance.settings.overrides.CredentialManager) {
+                    returnText = ProfilesConstants.PROFILES_OPTION_SECURELY_STORED + " " +
+                        AppSettings.instance.settings.overrides.CredentialManager;
+                } else {
+                    if (this.productDisplayName != null && this.productDisplayName !== "") {
+                        returnText = ProfilesConstants.PROFILES_OPTION_SECURELY_STORED + " " +
+                        this.productDisplayName;
+                    }
+                }
+
+                return returnText;
             };
         }
 
