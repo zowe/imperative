@@ -35,6 +35,6 @@ describe("imperative-test-cli profiles create secured-profile", () => {
         expect(response.status).toBe(0);
         expect(response.stdout.toString()).not.toContain(secret);
         expect(response.stdout.toString()).toContain(profileName);
-        expect(response.stdout.toString()).toContain("securely_stored");
+        expect(response.stdout.toString()).toContain("managed by");
     });
 });
