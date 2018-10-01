@@ -17,7 +17,6 @@ import { OverridesLoader } from "../src/OverridesLoader";
 import { CredentialManagerFactory, DefaultCredentialManager, AbstractCredentialManager } from "../../security";
 
 import * as path from "path";
-// import { join } from "path";
 
 describe("OverridesLoader", () => {
   beforeEach(() => {
