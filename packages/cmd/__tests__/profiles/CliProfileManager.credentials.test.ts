@@ -340,12 +340,70 @@ describe("Cli Profile Manager", () => {
         (BasicProfileManager.prototype as any).loadProfile.mockRestore();
       });
 
+      it("should not attempt to load secure fields if no credential manager is present", async () => {
+        const dummyManager = new DefaultCredentialManager("dummy");
+        dummyManager.load = jest.fn((propKey: string) => {
+          let ret = null;
+          if (propKey.indexOf("myCode") >= 0) {
+            ret = code;
+          } else if (propKey.indexOf("myFlag") >= 0) {
+            ret = flag;
+          } else if (propKey.indexOf("myMiniBox") >= 0) {
+            ret = {minime};
+          } else if (propKey.indexOf("myPhone") >= 0) {
+            ret = phone;
+          } else if (propKey.indexOf("myPhrase") >= 0) {
+            ret = phrase;
+          } else if (propKey.indexOf("mySet") >= 0) {
+            ret = set;
+          }
+          return JSON.stringify(ret);
+        });
+
+        // Even, though it should not get the manager, we'll add a dummy to test if it gets called
+        const notCalledManager = jest.fn().mockReturnValue(dummyManager);
+        Object.defineProperty(CredentialManagerFactory, "manager", {get: notCalledManager});
+        Object.defineProperty(CredentialManagerFactory, "initialized", {get: jest.fn().mockReturnValue(false)});
+
+        // same object but with real values
+        const copyTempProf = JSON.parse(JSON.stringify(tempProf));
+        copyTempProf.secureBox = {
+          myCode: ProfilesConstants.PROFILES_OPTION_SECURELY_STORED,
+          myFlag: ProfilesConstants.PROFILES_OPTION_SECURELY_STORED,
+          myMiniBox: ProfilesConstants.PROFILES_OPTION_SECURELY_STORED,
+          myPhone: ProfilesConstants.PROFILES_OPTION_SECURELY_STORED,
+          myPhrase: ProfilesConstants.PROFILES_OPTION_SECURELY_STORED,
+          mySet: ProfilesConstants.PROFILES_OPTION_SECURELY_STORED,
+          myEmptyMiniBox: null,
+        };
+
+        jest.spyOn(BasicProfileManager.prototype, "loadProfile" as any).mockReturnValue({
+          profile: copyTempProf
+        });
+
+        const result = await prof.load({name});
+
+        // BasicProfileManager should be called to save the profile with the given options
+        expect((BasicProfileManager.prototype as any).loadProfile).toHaveBeenCalledWith(
+          {name, failNotFound: true, loadDefault: false, loadDependencies: true}
+          );
+
+        // Compare to the modified-by-reference profile
+        expect(result.profile).toMatchSnapshot();
+
+        // The dummy manager should not have been called
+        expect(notCalledManager).toHaveBeenCalledTimes(0);
+
+        (BasicProfileManager.prototype as any).loadProfile.mockRestore();
+      });
+
       it("should fail if the Credential Manager throws an error", async () => {
         const dummyManager = new DefaultCredentialManager("dummy");
         dummyManager.load = jest.fn(() => {
           throw new Error("dummy error");
         });
         Object.defineProperty(CredentialManagerFactory, "manager", {get: jest.fn().mockReturnValue(dummyManager)});
+        Object.defineProperty(CredentialManagerFactory, "initialized", {get: jest.fn().mockReturnValue(true)});
 
         jest.spyOn(BasicProfileManager.prototype, "loadProfile" as any).mockReturnValue({
           profile: tempProf
@@ -369,6 +427,7 @@ describe("Cli Profile Manager", () => {
         const dummyManager = new DefaultCredentialManager("dummy");
         dummyManager.delete = jest.fn();
         Object.defineProperty(CredentialManagerFactory, "manager", {get: jest.fn().mockReturnValue(dummyManager)});
+        Object.defineProperty(CredentialManagerFactory, "initialized", {get: jest.fn().mockReturnValue(false)});
 
         jest.spyOn(ProfileIO, "exists").mockReturnValue(true);
 
@@ -392,6 +451,7 @@ describe("Cli Profile Manager", () => {
           throw new Error("dummy error");
         });
         Object.defineProperty(CredentialManagerFactory, "manager", {get: jest.fn().mockReturnValue(dummyManager)});
+        Object.defineProperty(CredentialManagerFactory, "initialized", {get: jest.fn().mockReturnValue(true)});
 
         jest.spyOn(ProfileIO, "exists").mockReturnValue(true);
 
