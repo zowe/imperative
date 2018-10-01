@@ -13,7 +13,7 @@ import {CommandResponse, ICommandResponse} from "../../";
 import {ICommandHandler} from "../../src/doc/handler/ICommandHandler";
 
 import {inspect} from "util";
-import {MULTIPLE_GROUPS} from "../definitions/CommandDefinitions";
+import {MULTIPLE_GROUPS} from "../__resources__/CommandDefinitions";
 import {TestLogger} from "../../../../__tests__/TestLogger";
 import {ICommandHandlerRequire} from "../../src/doc/handler/ICommandHandlerRequire";
 

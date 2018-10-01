@@ -11,7 +11,7 @@
 
 import { IGulpError, ITaskFunction } from "./GulpHelpers";
 import { isNullOrUndefined } from "util";
-import { execSync, spawnSync } from "child_process";
+import { spawnSync } from "child_process";
 
 /**
  * Tasks related to running automated tests
@@ -250,6 +250,7 @@ const runTestsWithPattern: ITaskFunction = (done: any) => {
 const removeTestResultsDir: ITaskFunction = (done: any) => {
     const rimraf = require("rimraf").sync;
     rimraf(testResultsDir);
+    done();
 };
 
 const installSampleClis: ITaskFunction = (done: any) => {
@@ -259,7 +260,7 @@ const installSampleClis: ITaskFunction = (done: any) => {
         // Globally install them all them all
         gutil.log(`Globally installing "${dir}" cli...`);
         const globalInstallResponse = spawnSync((process.platform === "win32") ? "npm.cmd" : "npm", ["install", "-g"],
-            { cwd: __dirname + `/../__tests__/__integration__/${dir}/` });
+            {cwd: __dirname + `/../__tests__/__integration__/${dir}/`});
         if (globalInstallResponse.stdout && globalInstallResponse.stdout.toString().length > 0) {
             gutil.log(`***GLOBAL INSTALL for "${dir}" stdout:\n${globalInstallResponse.stdout.toString()}`);
         }
@@ -267,11 +268,12 @@ const installSampleClis: ITaskFunction = (done: any) => {
             gutil.log(`***GLOBAL INSTALL "${dir}" stderr:\n${globalInstallResponse.stderr.toString()}`);
         }
         if (globalInstallResponse.status !== 0) {
-            throw new Error(`Global install failed for "${dir}" test CLI. Status code: "${globalInstallResponse.status}". ` +
-                `Please review the stdout/stderr for more details.`);
+            done(new Error(`Global install failed for "${dir}" test CLI. Status code: "${globalInstallResponse.status}". ` +
+                `Please review the stdout/stderr for more details.`));
         }
         gutil.log(`Global install for "${dir}" cli completed successfully.`);
     });
+    done();
 };
 
 const uninstallSampleClis: ITaskFunction = (done: any) => {
@@ -282,7 +284,7 @@ const uninstallSampleClis: ITaskFunction = (done: any) => {
         // Globally uninstall them all them all
         gutil.log(`Globally uninstalling "${dir}" cli...`);
         const globalInstallResponse = spawnSync((process.platform === "win32") ? "npm.cmd" : "npm", ["uninstall", "-g"],
-            { cwd: __dirname + `/../__tests__/__integration__/${dir}/` });
+            {cwd: __dirname + `/../__tests__/__integration__/${dir}/`});
         if (globalInstallResponse.stdout && globalInstallResponse.stdout.toString().length > 0) {
             gutil.log(`***GLOBAL UNINSTALL for "${dir}" stdout:\n${globalInstallResponse.stdout.toString()}`);
         }
@@ -295,6 +297,7 @@ const uninstallSampleClis: ITaskFunction = (done: any) => {
         }
         gutil.log(`Global uninstall for "${dir}" cli completed successfully.`);
     });
+    done();
 };
 
 function getDirectories(path: string) {

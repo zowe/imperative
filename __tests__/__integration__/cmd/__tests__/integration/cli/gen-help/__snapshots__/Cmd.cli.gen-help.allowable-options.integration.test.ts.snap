@@ -69,7 +69,7 @@ exports[`cmd-cli gen-help allowable-options should display the help with allowab
 
    --response-format-json  | --rfj (boolean)
 
-      Produce the command response as a JSON document
+      Produce JSON formatted data from a command
 
    --help  | -h (boolean)
 
