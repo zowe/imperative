@@ -26,6 +26,10 @@ describe("OverridesLoader", () => {
   });
 
   describe("loadCredentialManager", () => {
+    it ("should not set a credential mananger if there are no overrides and keytar is not present", async () => {
+      throw new Error("Not implemented yet");
+    });
+
     it("should load the default when not passed any configuration.", async () => {
       const config: IImperativeConfig = {
         name: "ABCD",
