@@ -26,17 +26,34 @@ describe("OverridesLoader", () => {
   });
 
   describe("loadCredentialManager", () => {
-    it ("should not set a credential mananger if there are no overrides and keytar is not present", async () => {
-      throw new Error("Not implemented yet");
-    });
-
-    it("should load the default when not passed any configuration.", async () => {
+    it("should not set a credential manager if there are no overrides and keytar is not present", async () => {
       const config: IImperativeConfig = {
         name: "ABCD",
         overrides: {}
       };
 
-      await OverridesLoader.load(config);
+      const packageJson = {};
+
+      await OverridesLoader.load(config, packageJson);
+
+      // It should not have called initialize
+      expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(0);
+    });
+
+    it("should load the default when not passed any configuration and keytar is present in dependencies.", async () => {
+      const config: IImperativeConfig = {
+        name: "ABCD",
+        overrides: {}
+      };
+
+      // Fake out package.json for the overrides loader
+      const packageJson = {
+        dependencies: {
+          keytar: "1.0"
+        }
+      };
+
+      await OverridesLoader.load(config, packageJson);
 
       expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
       expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith(DefaultCredentialManager, config.name);
@@ -67,7 +84,9 @@ describe("OverridesLoader", () => {
           }
         };
 
-        await OverridesLoader.load(config);
+        // Fake out package.json for the overrides loader - no keytar
+        const packageJson = {};
+        await OverridesLoader.load(config, packageJson);
 
         expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
         expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith(config.overrides.CredentialManager, config.name);
@@ -83,7 +102,9 @@ describe("OverridesLoader", () => {
 
         jest.spyOn(path, "resolve");
 
-        await OverridesLoader.load(config);
+        // Fake out package.json for the overrides loader - no keytar
+        const packageJson = {};
+        await OverridesLoader.load(config, packageJson);
 
         expect(path.resolve).not.toHaveBeenCalled();
         expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
@@ -105,7 +126,9 @@ describe("OverridesLoader", () => {
         const expectedLocation = "/some/random/dummy/location/DummyFile.ts";
         jest.spyOn(path, "resolve").mockReturnValueOnce(expectedLocation);
 
-        await OverridesLoader.load(config);
+        // Fake out package.json for the overrides loader - no keytar
+        const packageJson = {};
+        await OverridesLoader.load(config, packageJson);
 
         expect(path.resolve).toHaveBeenCalledTimes(1);
         expect(path.resolve).toHaveBeenLastCalledWith(expectedArgs[0], expectedArgs[1], expectedArgs[2]);
