@@ -42,11 +42,11 @@ description is not of a type(s) string
 exports[`Basic Profile Manager Save should detect a type mismatch when saving a profile 1`] = `
 "Expect Error: Could not locate the profile type configuration for \\"strawberry\\" within the input configuration list passed.
 [ { type: 'apple',
-    schema: 
+    schema:
      { title: 'The simple apple configuration',
        description: 'The simple apple configuration',
        type: 'object',
-       properties: 
+       properties:
         { description: { type: 'string' },
           rotten: { type: 'boolean' },
           age: { type: 'number' } },
@@ -109,11 +109,11 @@ exports[`Basic Profile Manager Save should not allow us to save a profile that l
 "Could not save the profile, because one or more dependencies is invalid or does not exist.
 Load Error Details: Expect Error: Could not locate the profile type configuration for \\"pear\\" within the input configuration list passed.
 [ { type: 'apple',
-    schema: 
+    schema:
      { title: 'The simple apple configuration',
        description: 'The simple apple configuration',
        type: 'object',
-       properties: 
+       properties:
         { description: { type: 'string' },
           rotten: { type: 'boolean' },
           age: { type: 'number' } },

@@ -11,11 +11,11 @@ exports[`Basic Profile Manager Constructor should detect no parms when instantia
 exports[`Basic Profile Manager Constructor should detect that a type not found within the configurations 1`] = `
 "Expect Error: Could not locate the profile type configuration for \\"bad_apple\\" within the input configuration list passed.
 [ { type: 'apple',
-    schema: 
+    schema:
      { title: 'The simple apple configuration',
        description: 'The simple apple configuration',
        type: 'object',
-       properties: 
+       properties:
         { description: { type: 'string' },
           rotten: { type: 'boolean' },
           age: { type: 'number' } },
