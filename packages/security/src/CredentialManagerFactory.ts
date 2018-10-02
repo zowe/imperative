@@ -135,7 +135,7 @@ export class CredentialManagerFactory {
 
             if (this.mManager.initialize) {
                 await this.mManager.initialize();
-                Logger.getImperativeLogger().info(`Initialized the "${displayName}" credential manager for "${cliName}".`);
+                Logger.getImperativeLogger().debug(`Initialized the "${displayName}" credential manager for "${cliName}".`);
             }
 
         } catch (error) {
