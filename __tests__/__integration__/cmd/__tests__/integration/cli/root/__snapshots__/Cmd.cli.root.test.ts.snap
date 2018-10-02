@@ -23,6 +23,7 @@ exports[`cmd-cli should display the help 1`] = `
    invoke      Invoke handlers to test promise reject/fulfill
    nested      Test a complex structure                      
    profiles    Create and manage configuration profiles      
+   read        Read some profiles                            
    respond     Invoke handlers that will produce messages    
 
  OPTIONS
@@ -65,6 +66,7 @@ exports[`cmd-cli should display the help 1`] = `
    invoke      Invoke handlers to test promise reject/fulfill
    nested      Test a complex structure                      
    profiles    Create and manage configuration profiles      
+   read        Read some profiles                            
    respond     Invoke handlers that will produce messages    
 
  OPTIONS
@@ -89,7 +91,7 @@ exports[`cmd-cli should display the help 1`] = `
 {
   \\"success\\": true,
   \\"message\\": \\"\\",
-  \\"stdout\\": \\"\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   A test CLI for the 'cmd' imperative package\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli [group]\\\\n\\\\n GROUPS\\\\n ------\\\\n\\\\n   auto-format Invoke handlers to test auto-format           \\\\n   chained     chained handler test commands                 \\\\n   gen-help    Commands to test help generator               \\\\n   invalid     Invalid definitions                           \\\\n   invoke      Invoke handlers to test promise reject/fulfill\\\\n   nested      Test a complex structure                      \\\\n   profiles    Create and manage configuration profiles      \\\\n   respond     Invoke handlers that will produce messages    \\\\n\\\\n OPTIONS\\\\n -------\\\\n\\\\n   --version  | -V (boolean)\\\\n\\\\n      Display the current version of Cmd Package CLI\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce the command response as a JSON document\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\",
+  \\"stdout\\": \\"\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   A test CLI for the 'cmd' imperative package\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli [group]\\\\n\\\\n GROUPS\\\\n ------\\\\n\\\\n   auto-format Invoke handlers to test auto-format           \\\\n   chained     chained handler test commands                 \\\\n   gen-help    Commands to test help generator               \\\\n   invalid     Invalid definitions                           \\\\n   invoke      Invoke handlers to test promise reject/fulfill\\\\n   nested      Test a complex structure                      \\\\n   profiles    Create and manage configuration profiles      \\\\n   read        Read some profiles                            \\\\n   respond     Invoke handlers that will produce messages    \\\\n\\\\n OPTIONS\\\\n -------\\\\n\\\\n   --version  | -V (boolean)\\\\n\\\\n      Display the current version of Cmd Package CLI\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce the command response as a JSON document\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\",
   \\"stderr\\": \\"\\",
   \\"data\\": {}
 }"
