@@ -58,7 +58,7 @@ export class OverridesLoader {
       AppSettings.instance.settings.overrides.CredentialManager as string
       :
       // App settings is not configured - use the CLI name as the manager
-      config.name;
+      config.productDisplayName || config.name;
 
     // If the credential manager wasn't set, then we use the DefaultCredentialManager
     // The default credential manger uses keytar - and we will use it if a keytar dependency
