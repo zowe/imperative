@@ -1,12 +1,12 @@
 /*
-* This program and the accompanying materials are made available under the terms of the *
-* Eclipse Public License v2.0 which accompanies this distribution, and is available at *
-* https://www.eclipse.org/legal/epl-v20.html                                      *
-*                                                                                 *
-* SPDX-License-Identifier: EPL-2.0                                                *
-*                                                                                 *
-* Copyright Contributors to the Zowe Project.                                     *
-*                                                                                 *
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*
 */
 
 import {ImperativeConfig} from "../../ImperativeConfig";
@@ -43,6 +43,21 @@ export class PMFConstants {
     }
 
     /**
+     * The NPM package name for the command line app's core package.
+     */
+    public readonly CLI_CORE_PKG_NAME: string;
+
+    /**
+     * The NPM package name for the command line app's core package.
+     */
+    public readonly IMPERATIVE_PKG_NAME: string;
+
+    /**
+     * The namespace that we use for imperative and our CLI app.
+     */
+    public readonly NPM_NAMESPACE: string;
+
+    /**
      * The root directory for all plugin related items.
      * @type {string}
      */
@@ -71,6 +86,9 @@ export class PMFConstants {
     public readonly PLUGIN_NODE_MODULE_LOCATION: string;
 
     constructor() {
+        this.NPM_NAMESPACE = "@brightside";
+        this.CLI_CORE_PKG_NAME = `${this.NPM_NAMESPACE}/core`;
+        this.IMPERATIVE_PKG_NAME = `${this.NPM_NAMESPACE}/imperative`;
         this.PMF_ROOT = join(ImperativeConfig.instance.cliHome, "plugins");
         this.PLUGIN_JSON = join(this.PMF_ROOT, "plugins.json");
         this.PLUGIN_INSTALL_LOCATION = join(

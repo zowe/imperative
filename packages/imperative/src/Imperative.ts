@@ -1,19 +1,19 @@
 /*
-* This program and the accompanying materials are made available under the terms of the *
-* Eclipse Public License v2.0 which accompanies this distribution, and is available at *
-* https://www.eclipse.org/legal/epl-v20.html                                      *
-*                                                                                 *
-* SPDX-License-Identifier: EPL-2.0                                                *
-*                                                                                 *
-* Copyright Contributors to the Zowe Project.                                     *
-*                                                                                 *
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*
 */
 
 /**
  * Main class of the Imperative framework, returned when you
  * require("imperative") e.g. const imperative =  require("imperative");
  */
-import { Logger } from "../../logger";
+import { Logger, LoggerConfigBuilder } from "../../logger";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import { Arguments } from "yargs";
 import { ConfigurationLoader } from "./ConfigurationLoader";
@@ -46,8 +46,13 @@ import { OverridesLoader } from "./OverridesLoader";
 import { ImperativeProfileManagerFactory } from "./profiles/ImperativeProfileManagerFactory";
 import { ImperativeConfig } from "./ImperativeConfig";
 import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
+import { AppSettings } from "../../settings";
+import { join } from "path";
+import { Console } from "../../console";
 
 export class Imperative {
+
+    public static readonly DEFAULT_DEBUG_FILE = join(process.cwd(), "imperative_debug.log");
 
     /**
      *  Retrieve the root command name.
@@ -85,6 +90,11 @@ export class Imperative {
         return new Promise<void>(async (initializationComplete: () => void, initializationFailed: ImperativeReject) => {
             try {
                 /**
+                 * Config Logger Manager to enable log messages in memory prior to logger init.
+                 */
+                Logger.setLogInMemory(true);
+
+                /**
                  * Identify caller's location on the system
                  */
                 ImperativeConfig.instance.callerLocation = process.mainModule.filename;
@@ -97,6 +107,43 @@ export class Imperative {
                 );
                 ConfigurationValidator.validate(config);
                 ImperativeConfig.instance.loadedConfig = config;
+
+                // Initialize our settings file
+                this.initAppSettings();
+
+                /* TODO: Create some logger placeholder that just caches messages
+                 * until we can initialize logging. This allows us to call methods that
+                 * use logging just like any method (but before logging is initialized).
+                 */
+
+                /**
+                 * Get the command name from the package bin.
+                 * If no command name exists, we will instead use the file name invoked
+                 * and log a debug warning.
+                 */
+                if (!isNullOrUndefined(ImperativeConfig.instance.findPackageBinName())) {
+                    this.mRootCommandName = ImperativeConfig.instance.findPackageBinName();
+                }
+                else {
+                    this.mRootCommandName = ImperativeConfig.instance.callerLocation;
+                    this.log.debug("WARNING: No \"bin\" configuration was found in your package.json," +
+                        " or your package.json could not be found. " +
+                        "Defaulting command name to filepath instead.");
+                }
+
+                // If plugins are allowed, enable core plugins commands
+                if (config.allowPlugins) {
+                    PluginManagementFacility.instance.init();
+
+                    // load the configuration of every installed plugin for later processing
+                    PluginManagementFacility.instance.loadAllPluginCfgProps();
+
+                    // Override the config object with things loaded from plugins
+                    Object.assign(
+                        ImperativeConfig.instance.loadedConfig.overrides,
+                        PluginManagementFacility.instance.pluginOverrides
+                    );
+                }
 
                 /**
                  * Once we have a complete representation of the config object, we should be able to
@@ -113,26 +160,6 @@ export class Imperative {
                  * developers are able to really start customizing Imperative and how it operates internally.
                  */
                 await OverridesLoader.load(ImperativeConfig.instance.loadedConfig);
-
-                /**
-                 * Get the command name from the package bin.
-                 * If no command name exists, we will instead use the file name invoked
-                 * and log a debug warning.
-                 */
-                if (!isNullOrUndefined(ImperativeConfig.instance.findPackageBinName())) {
-                    this.mRootCommandName = ImperativeConfig.instance.findPackageBinName();
-                }
-                else {
-                    this.mRootCommandName = ImperativeConfig.instance.callerLocation;
-                    this.mLog.debug("WARNING: No \"bin\" configuration was found in your package.json," +
-                        " or your package.json could not be found. " +
-                        "Defaulting command name to filepath instead.");
-                }
-
-                // If plugins are allowed, enable core plugins commands
-                if (config.allowPlugins) {
-                    PluginManagementFacility.instance.init();
-                }
 
                 /**
                  * Build API object
@@ -153,8 +180,8 @@ export class Imperative {
 
                 // If plugins are allowed, add plugins' commands and profiles to the CLI command tree
                 if (config.allowPlugins) {
-                  PluginManagementFacility.instance.addPluginsToHostCli(resolvedHostCliCmdTree);
-                  this.log.info("Plugins added to the CLI command tree.");
+                    PluginManagementFacility.instance.addAllPluginsToHostCli(resolvedHostCliCmdTree);
+                    this.log.info("Plugins added to the CLI command tree.");
                 }
 
                 // final preparation of the command tree
@@ -181,6 +208,12 @@ export class Imperative {
                  */
                 initializationComplete();
             } catch (error) {
+                Logger.getImperativeLogger().fatal(error);
+                Logger.writeInMemoryMessages(Imperative.DEFAULT_DEBUG_FILE);
+                if (error.report) {
+                    const {writeFileSync} = require("fs");
+                    writeFileSync(Imperative.DEFAULT_DEBUG_FILE, error.report);
+                }
                 initializationFailed(
                     error instanceof ImperativeError ?
                         error :
@@ -251,8 +284,8 @@ export class Imperative {
             throw new ImperativeError(
                 {
                     msg: "Imperative API object does not exist.  The Imperative.init() promise " +
-                    "must be fullfilled before the API object can be accessed.  For issuing messages " +
-                    "without the API object, use Imperative.console.",
+                        "must be fullfilled before the API object can be accessed.  For issuing messages " +
+                        "without the API object, use Imperative.console.",
                 },
                 {
                     suppressReport: true, // node-report is unnecessary here
@@ -292,7 +325,6 @@ export class Imperative {
 
     private static yargs = require("yargs");
     private static mApi: ImperativeApi;
-    private static mLog: Logger;
     private static mConsoleLog: Logger;
     private static mFullCommandTree: ICommandDefinition;
     private static mRootCommandName: string;
@@ -302,7 +334,34 @@ export class Imperative {
      * Get log instance
      */
     private static get log(): Logger {
-        return this.mLog;
+        return Logger.getImperativeLogger();
+    }
+
+    /**
+     * Load the correct {@link AppSettings} instance from values located in the
+     * cli home folder.
+     */
+    private static initAppSettings() {
+        const cliSettingsRoot = join(ImperativeConfig.instance.cliHome, "settings");
+        const cliSettingsFile = join(cliSettingsRoot, "imperative.json");
+
+        AppSettings.initialize(
+            cliSettingsFile,
+            (settingsFile, defaultSettings) => {
+                // Load required modules on the fly so as to not slow down the
+                // happy path of not needing to create the file.
+                const jsonfile = require("jsonfile");
+                const {IO} = require("../../io");
+
+                IO.createDirsSyncFromFilePath(settingsFile);
+
+                jsonfile.writeFileSync(settingsFile, defaultSettings, {
+                    spaces: 2
+                });
+
+                return defaultSettings;
+            }
+        );
     }
 
     /**
@@ -312,43 +371,56 @@ export class Imperative {
      * TODO(Kelosky): handle level setting via global config (trace enabling and such)
      */
     private static initLogging() {
-
+        let message: string;
         /**
          * Build logging config from imperative config
          */
         const loggingConfig = LoggingConfigurer.configureLogger(ImperativeConfig.instance.cliHome, ImperativeConfig.instance.loadedConfig);
 
         /**
-         * Setup log4js
-         */
-        Logger.initLogger(loggingConfig);
-
-        /**
-         * Save reference to our instance
-         */
-        this.mLog = Logger.getImperativeLogger();
-
-        /**
          * Set log levels from environmental variable settings
          */
         const envSettings = EnvironmentalVariableSettings.read(this.envVariablePrefix);
-        if (envSettings.imperativeLogLevel.value != null) {
-            // set the imperative log level based on the user's environmental variable, if any
-            this.mLog.level = envSettings.imperativeLogLevel.value;
-            this.mLog.info("Set imperative log level to %s from environmental variable setting '%s'",
-                envSettings.imperativeLogLevel.value, envSettings.imperativeLogLevel.key);
+        if (envSettings.imperativeLogLevel.value != null && envSettings.imperativeLogLevel.value.trim().length > 0) {
+            if (Logger.isValidLevel(envSettings.imperativeLogLevel.value.trim())) {
+                // set the imperative log level based on the user's environmental variable, if any
+                loggingConfig.log4jsConfig.categories[Logger.DEFAULT_IMPERATIVE_NAME].level = envSettings.imperativeLogLevel.value;
+                this.log.info("Set imperative log level to %s from environmental variable setting '%s'",
+                    envSettings.imperativeLogLevel.value, envSettings.imperativeLogLevel.key);
+            } else {
+                message = "Imperative log level '" + envSettings.imperativeLogLevel.value +
+                    "' from environmental variable setting '" + envSettings.imperativeLogLevel.key + "' is not recognised.  " +
+                    "Logger level is set to '" + LoggerConfigBuilder.DEFAULT_LOG_LEVEL + "'.  " +
+                    "Valid levels are " + Logger.DEFAULT_VALID_LOG_LEVELS.toString();
+                new Console().warn(message);
+                this.log.warn(message);
+            }
         } else {
-            this.mLog.info("Environmental setting for imperative log level ('%s') was blank.", envSettings.imperativeLogLevel.key);
+            this.log.warn("Environmental setting for imperative log level ('%s') was blank.", envSettings.imperativeLogLevel.key);
         }
 
-        if (envSettings.appLogLevel.value != null) {
-            // set the app log level based on the user's environmental variable, if any
-            Logger.getAppLogger().level = envSettings.appLogLevel.value;
-            this.mLog.info("Set app log level to %s from environmental variable setting '%s'",
-                envSettings.appLogLevel.value, envSettings.appLogLevel.key);
+        if (envSettings.appLogLevel.value != null && envSettings.appLogLevel.value.trim().length > 0) {
+            if (Logger.isValidLevel(envSettings.appLogLevel.value.trim())) {
+                // set the app log level based on the user's environmental variable, if any
+                loggingConfig.log4jsConfig.categories[Logger.DEFAULT_APP_NAME].level = envSettings.appLogLevel.value;
+                this.log.info("Set app log level to %s from environmental variable setting '%s'",
+                    envSettings.appLogLevel.value, envSettings.appLogLevel.key);
+            } else {
+                message = "Application log level '" + envSettings.appLogLevel.value +
+                    "' from environmental variable setting '" + envSettings.appLogLevel.key + "' is not recognised.  " +
+                    "Logger level is set to '" + LoggerConfigBuilder.DEFAULT_LOG_LEVEL + "'.  " +
+                    "Valid levels are " + Logger.DEFAULT_VALID_LOG_LEVELS.toString();
+                new Console().warn(message);
+                this.log.warn(message);
+            }
         } else {
-            this.mLog.info("Environmental setting for app log level ('%s') was blank.", envSettings.appLogLevel.key);
+            this.log.warn("Environmental setting for app log level ('%s') was blank.", envSettings.appLogLevel.key);
         }
+
+        /**
+         * Setup log4js
+         */
+        Logger.initLogger(loggingConfig);
     }
 
     /**
@@ -478,5 +550,4 @@ export class Imperative {
         }
         return api;
     }
-
 }

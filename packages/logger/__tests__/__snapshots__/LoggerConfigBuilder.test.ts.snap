@@ -6,7 +6,7 @@ Object {
     "appenders": Object {
       "sampleConsole": Object {
         "layout": Object {
-          "pattern": "%[[%d{yyyy/MM/dd} %r] [%p] %m%]",
+          "pattern": "%[[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m%]",
           "type": "pattern",
         },
         "type": "console",
@@ -14,7 +14,7 @@ Object {
       "sampleFile": Object {
         "filename": "/someHome/sampleFile/logs/sampleFile.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -54,7 +54,7 @@ Object {
       "sampleFile": Object {
         "filename": "/someHome/sampleFile/logs/sampleFile.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -87,14 +87,14 @@ Object {
     "appenders": Object {
       "sampleConsole1": Object {
         "layout": Object {
-          "pattern": "%[[%d{yyyy/MM/dd} %r] [%p] %m%]",
+          "pattern": "%[[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m%]",
           "type": "pattern",
         },
         "type": "console",
       },
       "sampleConsole2": Object {
         "layout": Object {
-          "pattern": "%[[%d{yyyy/MM/dd} %r] [%p] %m%]",
+          "pattern": "%[[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m%]",
           "type": "pattern",
         },
         "type": "console",
@@ -102,7 +102,7 @@ Object {
       "sampleFile1": Object {
         "filename": "/someHome/sampleFile1/logs/sampleFile1.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",
@@ -110,7 +110,7 @@ Object {
       "sampleFile2": Object {
         "filename": "/someHome/sampleFile2/logs/sampleFile2.log",
         "layout": Object {
-          "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
+          "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
         "type": "fileSync",

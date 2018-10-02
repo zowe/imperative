@@ -8,20 +8,6 @@ exports[`Basic Profile Manager Constructor should detect ill-formed meta profile
 
 exports[`Basic Profile Manager Constructor should detect no parms when instantiating 1`] = `"Expect Error: Profile Manager input parms not supplied."`;
 
-exports[`Basic Profile Manager Constructor should detect that a type not found within the configurations 1`] = `
-"Expect Error: Could not locate the profile type configuration for \\"bad_apple\\" within the input configuration list passed.
-[ { type: 'apple',
-    schema: 
-     { title: 'The simple apple configuration',
-       description: 'The simple apple configuration',
-       type: 'object',
-       properties: 
-        { description: { type: 'string' },
-          rotten: { type: 'boolean' },
-          age: { type: 'number' } },
-       required: [ 'description', 'rotten', 'age' ] } } ]"
-`;
-
 exports[`Basic Profile Manager Constructor should detect that the profile directory is blank 1`] = `"Expect Error: No profile root directory supplied on the profile manager parameters"`;
 
 exports[`Basic Profile Manager Constructor should detect that the profile directory is undefined 1`] = `"Expect Error: No profile root directory supplied on the profile manager parameters"`;

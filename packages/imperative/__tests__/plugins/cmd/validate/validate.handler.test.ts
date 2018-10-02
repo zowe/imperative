@@ -1,12 +1,12 @@
 /*
-* This program and the accompanying materials are made available under the terms of the *
-* Eclipse Public License v2.0 which accompanies this distribution, and is available at *
-* https://www.eclipse.org/legal/epl-v20.html                                      *
-*                                                                                 *
-* SPDX-License-Identifier: EPL-2.0                                                *
-*                                                                                 *
-* Copyright Contributors to the Zowe Project.                                     *
-*                                                                                 *
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*
 */
 
 import Mock = jest.Mock;
@@ -131,7 +131,7 @@ describe("Plugin validate command handler", () => {
     });
 
     it("should call CommandResponse.console.log with proper parameter", () => {
-      const expectedMsg = `\nValidation results for plugin '${testPlugin}':\nSuccessfully validated.`;
+      const expectedMsg = `\n_____ Validation results for plugin '${testPlugin}' _____\nThis plugin was successfully validated. Enjoy the plugin.`;
 
       validateHandler.displayPluginIssues(testPlugin, params.response);
 
@@ -153,14 +153,14 @@ describe("Plugin validate command handler", () => {
     it("should call CommandResponse.console.log with proper error parameter", () => {
       const testErrorText = "test error text";
 
-      pluginIssues.recordIssue(testPlugin, IssueSeverity.ERROR, testErrorText);
+      pluginIssues.recordIssue(testPlugin, IssueSeverity.CMD_ERROR, testErrorText);
       validateHandler.displayPluginIssues(testPlugin, params.response);
 
       expect(params.response.console.log).toHaveBeenCalled();
       const errorMsg = (params.response.console.log as Mock).mock.calls[0][0];
       expect(errorMsg).toContain(testPlugin);
-      expect(errorMsg).toContain(`${IssueSeverity.ERROR}: ${testErrorText}`);
-      expect(errorMsg).toContain("No commands from this plugin will be available for future commands");
+      expect(errorMsg).toContain(`${IssueSeverity.CMD_ERROR}: ${testErrorText}`);
+      expect(errorMsg).toContain("This plugin has command errors. No plugin commands will be available.");
     });
   });
 

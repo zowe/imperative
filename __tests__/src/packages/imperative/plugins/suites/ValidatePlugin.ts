@@ -1,12 +1,12 @@
 /*
-* This program and the accompanying materials are made available under the terms of the *
-* Eclipse Public License v2.0 which accompanies this distribution, and is available at *
-* https://www.eclipse.org/legal/epl-v20.html                                      *
-*                                                                                 *
-* SPDX-License-Identifier: EPL-2.0                                                *
-*                                                                                 *
-* Copyright Contributors to the Zowe Project.                                     *
-*                                                                                 *
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*
 */
 
 import * as T from "../../../../../src/TestUtil";
@@ -32,7 +32,7 @@ describe("Validate plugin", () => {
             cmd = `plugins validate`;
             result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
             expect(result.stderr).toEqual("");
-            expect(result.stdout).toContain("Successfully validated.");
+            expect(result.stdout).toContain("successfully validated.");
         });
 
         it("when provided plugin name is installed successfully", () => {
@@ -45,7 +45,7 @@ describe("Validate plugin", () => {
             cmd = `plugins validate ${pluginName}`;
             result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
             expect(result.stderr).toEqual("");
-            expect(result.stdout).toContain("Successfully validated.");
+            expect(result.stdout).toContain("successfully validated.");
         });
 
         it("when imperative object in package.json does not contains a name property", () => {
@@ -58,7 +58,7 @@ describe("Validate plugin", () => {
             cmd = `plugins validate ${pluginName}`;
             result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
             expect(result.stderr).toEqual("");
-            expect(result.stdout).toContain("Successfully validated.");
+            expect(result.stdout).toContain("successfully validated.");
         });
     });
 
@@ -98,7 +98,7 @@ describe("Validate plugin", () => {
                 expect(result.stdout).toContain(testPlugin);
                 expect(result.stdout).toContain("Error");
                 expect(result.stdout).toContain("Your base application already contains a group with the name");
-                expect(result.stdout).toContain("No commands from this plugin will be available for future commands.");
+                expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
             });
 
             it("duplicated command name with installed plugin", () => {
@@ -121,7 +121,7 @@ describe("Validate plugin", () => {
                 expect(result.stdout).toContain(testPlugin);
                 expect(result.stdout).toContain("Error");
                 expect(result.stdout).toContain("Your base application already contains a group with the name");
-                expect(result.stdout).toContain("No commands from this plugin will be available for future commands.");
+                expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
             });
 
             it("missing pluginHealthCheck property", () => {
@@ -154,7 +154,7 @@ describe("Validate plugin", () => {
                 expect(result.stdout).toContain(testPlugin);
                 expect(result.stdout).toContain("Error");
                 expect(result.stdout).toContain(`The program for the 'imperative.pluginHealthCheck' property does not exist:`);
-                expect(result.stdout).toContain("No commands from this plugin will be available for future commands.");
+                expect(result.stdout).toContain("This plugin has configuration errors. No component of the plugin will be available");
             });
 
             it("missing peerDependencies properties", () => {
@@ -170,7 +170,7 @@ describe("Validate plugin", () => {
                 result.stderr = removeNewline(result.stderr);
                 expect(result.stdout).toContain(testPlugin);
                 expect(result.stdout).toContain("Warning");
-                expect(result.stdout).toContain("Your @brightside dependencies must be contained within a 'peerDependencies' property." +
+                expect(result.stdout).toContain("Your '@brightside' dependencies must be contained within a 'peerDependencies' property." +
                     " That property does not exist in the file");
                 expect(result.stdout).toContain("package.json");
             });
@@ -205,7 +205,7 @@ describe("Validate plugin", () => {
                     result.stderr = removeNewline(result.stderr);
                     expect(result.stdout).toContain(testPlugin);
                     expect(result.stdout).toContain("Error");
-                    expect(result.stdout).toContain("The plugin's configuration defines no children.");
+                    expect(result.stdout).toContain("The plugin defines no commands and overrides no framework components");
                 });
 
                 it("is defined with empty array", () => {
@@ -220,8 +220,9 @@ describe("Validate plugin", () => {
                     result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                     result.stderr = removeNewline(result.stderr);
                     expect(result.stdout).toContain(testPlugin);
-                    expect(result.stdout).toContain("Error: The plugin's configuration defines no children.");
-                    expect(result.stdout).toContain("No commands from this plugin will be available for future commands.");
+                    expect(result.stdout).toContain("Error");
+                    expect(result.stdout).toContain("The plugin defines no commands and overrides no framework components");
+                    expect(result.stdout).toContain("This plugin has configuration errors. No component of the plugin will be available");
                 });
 
                 it("is defined with definition which does not contain name property", () => {
@@ -237,7 +238,7 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain(testPlugin);
                     expect(result.stdout).toContain("Error: Command definition");
                     expect(result.stdout).toContain("no 'name' property");
-                    expect(result.stdout).toContain("No commands from this plugin will be available for future commands.");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
                 });
 
                 it("is defined with definition which does not contain description property", () => {
@@ -253,7 +254,7 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain(testPlugin);
                     expect(result.stdout).toContain("Error");
                     expect(result.stdout).toContain("has no 'description' property");
-                    expect(result.stdout).toContain("No commands from this plugin will be available for future commands.");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
                 });
 
                 it("is defined with definition which does not contain type property", () => {
@@ -269,7 +270,7 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain(testPlugin);
                     expect(result.stdout).toContain("Error");
                     expect(result.stdout).toContain("has no 'type' property");
-                    expect(result.stdout).toContain("No commands from this plugin will be available for future commands.");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
                 });
 
                 it("is defined with definition which does not contain handler property", () => {
@@ -285,7 +286,7 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain(testPlugin);
                     expect(result.stdout).toContain("Error");
                     expect(result.stdout).toContain("has no 'handler' property");
-                    expect(result.stdout).toContain("No commands from this plugin will be available for future commands.");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
                 });
 
                 it("is defined with definition which contains group type and missing children", () => {
@@ -301,7 +302,7 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain(testPlugin);
                     expect(result.stdout).toContain("Error: Group name");
                     expect(result.stdout).toContain("has no 'children' property");
-                    expect(result.stdout).toContain("No commands from this plugin will be available for future commands.");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
                 });
 
                 it("is defined with definition which contains invalid handler", () => {
@@ -317,7 +318,7 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain(testPlugin);
                     expect(result.stdout).toContain("Error: The handler for command");
                     expect(result.stdout).toContain("does not exist:");
-                    expect(result.stdout).toContain("No commands from this plugin will be available for future commands.");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
                 });
             });
 
@@ -335,7 +336,7 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain("");
                     expect(result.stdout).toContain(pluginName);
                     expect(result.stdout).toContain(
-                        "___ Error: The plugin's profiles at indexes = '0' and '1' have the same 'type' property = 'DupProfile'.");
+                        "Error: The plugin's profiles at indexes = '0' and '1' have the same 'type' property = 'DupProfile'.");
                 });
 
                 it("should fail when a plugin contains a profile with the same name as the CLI", () => {
@@ -351,7 +352,7 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain("");
                     expect(result.stdout).toContain(pluginName);
                     expect(result.stdout).toContain(
-                        "___ Error: The plugin's profile type = 'TestProfile1' already exists within existing profiles.");
+                        "Error: The plugin's profile type = 'TestProfile1' already exists within existing profiles.");
                 });
             });
         });

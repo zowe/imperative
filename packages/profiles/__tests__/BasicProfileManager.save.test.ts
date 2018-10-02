@@ -1,12 +1,12 @@
 /*
-* This program and the accompanying materials are made available under the terms of the *
-* Eclipse Public License v2.0 which accompanies this distribution, and is available at *
-* https://www.eclipse.org/legal/epl-v20.html                                      *
-*                                                                                 *
-* SPDX-License-Identifier: EPL-2.0                                                *
-*                                                                                 *
-* Copyright Contributors to the Zowe Project.                                     *
-*                                                                                 *
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*
 */
 
 jest.mock("../src/utils/ProfileIO");
@@ -103,7 +103,9 @@ describe("Basic Profile Manager Save", () => {
     }
     expect(error).toBeDefined();
     expect(error instanceof ImperativeError).toBe(true);
-    expect(error.message).toMatchSnapshot();
+    expect(error.message).toContain(
+      "Expect Error: Could not locate the profile type configuration for \"strawberry\" within the input configuration list passed."
+    );
   });
 
   it("should detect a blank name when creating a profile", async () => {
@@ -562,7 +564,11 @@ describe("Basic Profile Manager Save", () => {
       TestLogger.info(e.message);
     }
     expect(error).toBeDefined();
-    expect(error.message).toMatchSnapshot();
+    expect(error.message).toContain("Could not save the profile, because one or more dependencies is invalid or does not exist.");
+    expect(error.message).toContain(
+      "Load Error Details: Expect Error: Could not locate the profile type " +
+      "configuration for \"pear\" within the input configuration list passed."
+     );
   });
 
   it("should fail a save request if a profile has more properties than defined on the schema", async () => {
