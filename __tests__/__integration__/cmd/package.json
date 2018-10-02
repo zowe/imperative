@@ -77,9 +77,9 @@
     "jest-environment-node-debug": "^2.0.0",
     "jest-html-reporter": "^0.5.7",
     "ts-jest": "21.2.1",
-    "ts-node": "^3.2.0",
+    "ts-node": "^5.0.0",
     "tslint": "^5.0.0",
-    "typescript": "^2.3.0",
+    "typescript": "3.0.3",
     "upath": "^1.0.2"
   },
   "engines": {
