@@ -9,7 +9,7 @@
 *
 */
 
-import { AbstractCredentialManager, ICredentialManagerConstructor } from "../../../security";
+import { ICredentialManagerConstructor } from "../../../security";
 import { IConstructor } from "../../../interfaces";
 
 /**
