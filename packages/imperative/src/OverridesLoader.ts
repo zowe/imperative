@@ -73,7 +73,8 @@ export class OverridesLoader {
       overrides.CredentialManager = resolve(process.mainModule.filename, "../", overrides.CredentialManager);
     }
 
-    // If the credential manager is present, initialize
+    // If the credential manager is present, initialize with the credential manager, the cli package name as
+    // the service/cli name and the display name chosen.
     if (overrides.CredentialManager != null) {
       await CredentialManagerFactory.initialize(overrides.CredentialManager, config.name, managerDisplayName);
     }

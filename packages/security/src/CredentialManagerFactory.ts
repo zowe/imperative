@@ -89,6 +89,8 @@ export class CredentialManagerFactory {
      *         When the override is provided by a plugin, we will fall back to the {@link InvalidCredentialManager}.
      */
     public static async initialize(Manager: IImperativeOverrides["CredentialManager"], cliName: string, displayName?: string): Promise<void> {
+        const { Logger } = await import("../../logger");
+
         // If the display name is not passed, use the cli name
         if (displayName == null) {
             displayName = cliName;
@@ -133,12 +135,12 @@ export class CredentialManagerFactory {
 
             if (this.mManager.initialize) {
                 await this.mManager.initialize();
+                Logger.getImperativeLogger().info(`Initialized the "${displayName}" credential manager for "${cliName}".`);
             }
 
         } catch (error) {
             // Perform dynamic requires when an error happens
             const { InvalidCredentialManager } = await import("./InvalidCredentialManager");
-            const { Logger } = await import("../../logger");
             const appSettings = (await import("../../settings")).AppSettings.instance;
 
             // A value not equal to false indicates that the setting was overridden by a plugin
