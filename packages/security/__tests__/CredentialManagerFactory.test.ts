@@ -58,7 +58,7 @@ describe("CredentialManagerFactory", () => {
         await CredentialManagerFactory.initialize(DefaultCredentialManager, cliHome);
 
         expect(DefaultCredentialManager).toHaveBeenCalledTimes(1);
-        expect(DefaultCredentialManager).toHaveBeenCalledWith(cliHome);
+        expect(DefaultCredentialManager).toHaveBeenCalledWith(cliHome, cliHome);
         expect(CredentialManagerFactory.manager).toBeInstanceOf(DefaultCredentialManager);
         expect(CredentialManagerFactory.manager.initialize).toHaveBeenCalledTimes(1);
 

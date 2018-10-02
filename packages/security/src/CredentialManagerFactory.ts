@@ -79,7 +79,7 @@ export class CredentialManagerFactory {
      * @param {string} displayName - The display name of the credential manager in use. Used in messaging/debugging and
      *                               if the credential manager is managing secure profile fields via the imperative
      *                               "CliProfileManager", then profiles will display "managed by ${displayName}" for
-     *                               secure fields in the profile yaml files.
+     *                               secure fields in the profile yaml files. Defaults the the CLI name.
      *
      * @throws {@link ImperativeError} When it has been detected that this method has been called before.
      *         It is important that this method only executes once.
@@ -88,7 +88,12 @@ export class CredentialManagerFactory {
      *         does not extend {@link AbstractCredentialManager} and the override was not provided by a plugin.
      *         When the override is provided by a plugin, we will fall back to the {@link InvalidCredentialManager}.
      */
-    public static async initialize(Manager: IImperativeOverrides["CredentialManager"], cliName: string, displayName: string): Promise<void> {
+    public static async initialize(Manager: IImperativeOverrides["CredentialManager"], cliName: string, displayName?: string): Promise<void> {
+        // If the display name is not passed, use the cli name
+        if (displayName == null) {
+            displayName = cliName;
+        }
+
         if (this.mManager != null) {
             // Something tried to change the already existing credential manager, we should stop this.
             throw new ImperativeError({
