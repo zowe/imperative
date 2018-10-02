@@ -28,7 +28,7 @@ export class InvalidCredentialManager extends AbstractCredentialManager {
         protected readonly service: string,
         private readonly causeError: Error
     ) {
-        super(service);
+        super(service, "Imperative Invalid Credential Manager");
     }
 
     protected async deleteCredentials(account: string): Promise<void> {

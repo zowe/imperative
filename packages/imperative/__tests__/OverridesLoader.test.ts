@@ -18,6 +18,8 @@ import { CredentialManagerFactory, DefaultCredentialManager, AbstractCredentialM
 
 import * as path from "path";
 
+const TEST_MANAGER_NAME = "test manager";
+
 describe("OverridesLoader", () => {
   beforeEach(() => {
     jest.restoreAllMocks();
@@ -26,8 +28,9 @@ describe("OverridesLoader", () => {
 
   describe("loadCredentialManager", () => {
     it("should not set a credential manager if there are no overrides and keytar is not present", async () => {
+      const cliName = "ABCD";
       const config: IImperativeConfig = {
-        name: "ABCD",
+        name: cliName,
         overrides: {}
       };
 
@@ -55,7 +58,7 @@ describe("OverridesLoader", () => {
       await OverridesLoader.load(config, packageJson);
 
       expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
-      expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith(DefaultCredentialManager, config.name);
+      expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith(DefaultCredentialManager, config.name, config.name);
     });
 
     describe("should load a credential manager specified by the user", () => {
@@ -65,7 +68,7 @@ describe("OverridesLoader", () => {
           overrides: {
             CredentialManager: class extends AbstractCredentialManager {
               constructor(service: string) {
-                super(service);
+                super(service, TEST_MANAGER_NAME);
               }
 
               protected async deleteCredentials(account: string): Promise<void> {
@@ -88,7 +91,7 @@ describe("OverridesLoader", () => {
         await OverridesLoader.load(config, packageJson);
 
         expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
-        expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith(config.overrides.CredentialManager, config.name);
+        expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith(config.overrides.CredentialManager, config.name, config.name);
       });
 
       it("was passed an absolute path", async () => {
@@ -107,10 +110,10 @@ describe("OverridesLoader", () => {
 
         expect(path.resolve).not.toHaveBeenCalled();
         expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
-        expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith(config.overrides.CredentialManager, config.name);
+        expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith(config.overrides.CredentialManager, config.name, config.name);
       });
 
-      it("was passed a relative path", async () => {
+      it("was passed a relative path and app settings were not initialized", async () => {
         const config: IImperativeConfig = {
           name: "IJKL",
           overrides: {
@@ -133,7 +136,7 @@ describe("OverridesLoader", () => {
         expect(path.resolve).toHaveBeenLastCalledWith(expectedArgs[0], expectedArgs[1], expectedArgs[2]);
 
         expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
-        expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith(expectedLocation, config.name);
+        expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith(expectedLocation, config.name, config.name);
       });
     });
   });

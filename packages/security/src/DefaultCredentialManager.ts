@@ -63,12 +63,13 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
      * Pass-through to the superclass constructor.
      *
      * @param {string} service The service string to send to the superclass constructor.
+     * @param {string} displayName The manager display name.
      */
     constructor(service: string) {
         // Always ensure that a manager instantiates the super class, even if the
         // constructor doesn't do anything. Who knows what things might happen in
         // the abstract class initialization in the future.
-        super(service);
+        super(service, "default credential manager");
     }
 
     /**

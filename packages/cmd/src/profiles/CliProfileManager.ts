@@ -426,19 +426,8 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     });
                 }
 
-                let returnText = ProfilesConstants.PROFILES_OPTION_SECURELY_STORED + " CLI";
-
-                if (AppSettings.instance.settings.overrides.CredentialManager) {
-                    returnText = ProfilesConstants.PROFILES_OPTION_SECURELY_STORED + " " +
-                        AppSettings.instance.settings.overrides.CredentialManager;
-                } else {
-                    if (this.productDisplayName != null && this.productDisplayName !== "") {
-                        returnText = ProfilesConstants.PROFILES_OPTION_SECURELY_STORED + " " +
-                        this.productDisplayName;
-                    }
-                }
-
-                return returnText;
+                // The text in the profile will read "managed by <credential manager name>"
+                return `${ProfilesConstants.PROFILES_OPTION_SECURELY_STORED} ${CredentialManagerFactory.manager.name}`;
             };
         }
 

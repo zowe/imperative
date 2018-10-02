@@ -76,6 +76,11 @@ export class CredentialManagerFactory {
      *                           for a custom implementation, so it will be passed every time and it is up to the
      *                           implementer to choose to use it.
      *
+     * @param {string} displayName - The display name of the credential manager in use. Used in messaging/debugging and
+     *                               if the credential manager is managing secure profile fields via the imperative
+     *                               "CliProfileManager", then profiles will display "managed by ${displayName}" for
+     *                               secure fields in the profile yaml files.
+     *
      * @throws {@link ImperativeError} When it has been detected that this method has been called before.
      *         It is important that this method only executes once.
      *
@@ -83,7 +88,7 @@ export class CredentialManagerFactory {
      *         does not extend {@link AbstractCredentialManager} and the override was not provided by a plugin.
      *         When the override is provided by a plugin, we will fall back to the {@link InvalidCredentialManager}.
      */
-    public static async initialize(Manager: IImperativeOverrides["CredentialManager"], cliName: string): Promise<void> {
+    public static async initialize(Manager: IImperativeOverrides["CredentialManager"], cliName: string, displayName: string): Promise<void> {
         if (this.mManager != null) {
             // Something tried to change the already existing credential manager, we should stop this.
             throw new ImperativeError({
@@ -100,9 +105,9 @@ export class CredentialManagerFactory {
                 // that exports a manager class. So we'll load that class and initialize it with the same constructor parameters
                 // that we would do with an actual constructor parameter.
                 const LoadedManager = await import(Manager);
-                manager = new LoadedManager(cliName);
+                manager = new LoadedManager(cliName, displayName);
             } else {
-                manager = new Manager(cliName);
+                manager = new Manager(cliName, displayName);
             }
 
             // After constructing the object, we will ensure that the thing loaded is indeed an
@@ -124,11 +129,12 @@ export class CredentialManagerFactory {
             if (this.mManager.initialize) {
                 await this.mManager.initialize();
             }
+
         } catch (error) {
             // Perform dynamic requires when an error happens
             const { InvalidCredentialManager } = await import("./InvalidCredentialManager");
             const { Logger } = await import("../../logger");
-            const appSettings  = (await import("../../settings")).AppSettings.instance;
+            const appSettings = (await import("../../settings")).AppSettings.instance;
 
             // A value not equal to false indicates that the setting was overridden by a plugin
             // so we should not have a hard crash.
