@@ -10,7 +10,7 @@
 */
 
 import { IImperativeOverrides } from "./doc/IImperativeOverrides";
-import { CredentialManagerFactory, DefaultCredentialManager, ICredentialManagerConstructor } from "../../security";
+import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import { isAbsolute, resolve } from "path";
 import { AppSettings } from "../../settings";
