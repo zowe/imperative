@@ -103,7 +103,9 @@ describe("Basic Profile Manager Save", () => {
     }
     expect(error).toBeDefined();
     expect(error instanceof ImperativeError).toBe(true);
-    expect(error.message).toContain("Expect Error: Could not locate the profile type configuration for \"strawberry\" within the input configuration list passed.");
+    expect(error.message).toContain(
+      "Expect Error: Could not locate the profile type configuration for \"strawberry\" within the input configuration list passed."
+    );
   });
 
   it("should detect a blank name when creating a profile", async () => {
