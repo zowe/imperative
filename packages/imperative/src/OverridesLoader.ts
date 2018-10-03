@@ -48,7 +48,7 @@ export class OverridesLoader {
     const overrides: IImperativeOverrides = config.overrides;
 
     // The manager display name used to populate the "managed by" fields in profiles
-    const managerDisplayName: string = (
+    const displayName: string = (
       overrides.CredentialManager != null
       && AppSettings.initialized
       && AppSettings.instance.settings.overrides != null
@@ -60,23 +60,23 @@ export class OverridesLoader {
       // App settings is not configured - use the CLI display name OR the package name as the manager name
       config.productDisplayName || config.name;
 
-    // If the credential manager wasn't set, then we use the DefaultCredentialManager
-    // The default credential manger uses keytar - and we will use it if a keytar dependency
-    // is in package.json
-    if (overrides.CredentialManager == null && packageJson.dependencies != null && packageJson.dependencies.keytar != null) {
-      overrides.CredentialManager = DefaultCredentialManager;
-    }
+    // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
+    if (overrides.CredentialManager != null || (packageJson.dependencies != null && packageJson.dependencies.keytar != null)) {
+      let Manager = overrides.CredentialManager;
+      if (typeof overrides.CredentialManager === "string" && !isAbsolute(overrides.CredentialManager)) {
+        Manager = resolve(process.mainModule.filename, "../", overrides.CredentialManager);
+      }
 
-    // If the credential manager is type string and not absolute, we will convert it to an absolute path
-    // relative to the process entry file location.
-    else if (typeof overrides.CredentialManager === "string" && !isAbsolute(overrides.CredentialManager)) {
-      overrides.CredentialManager = resolve(process.mainModule.filename, "../", overrides.CredentialManager);
-    }
-
-    // If the credential manager is present, initialize with the credential manager, the cli package name as
-    // the service/cli name and the display name chosen.
-    if (overrides.CredentialManager != null) {
-      await CredentialManagerFactory.initialize(overrides.CredentialManager, config.name, managerDisplayName);
+      await CredentialManagerFactory.initialize({
+        // Init the manager with the override specified OR (if null) default to keytar
+        Manager,
+        // The display name will be the plugin name that introduced the override OR it will default to the CLI name
+        displayName,
+        // The service is always the CLI name (Keytar and other plugins can use this to uniquely identify the service)
+        service: config.name,
+        // If the default is to be used, we won't implant the invalid credential manager
+        invalidOnFailure: !(Manager == null)
+      });
     }
   }
 }

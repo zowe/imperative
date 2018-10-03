@@ -11,7 +11,9 @@
 
 import { AbstractCredentialManager } from "./abstract/AbstractCredentialManager";
 import { ImperativeError } from "../../error";
-import { IImperativeOverrides } from "../../imperative/src/doc/IImperativeOverrides";
+import { ICredentialManagerInit } from "./doc/ICredentialManagerInit";
+import { DefaultCredentialManager } from "./DefaultCredentialManager";
+import { ImperativeExpect } from "../../expect";
 
 /**
  * This is a wrapper class that controls access to the credential manager used within
@@ -88,13 +90,18 @@ export class CredentialManagerFactory {
      *         does not extend {@link AbstractCredentialManager} and the override was not provided by a plugin.
      *         When the override is provided by a plugin, we will fall back to the {@link InvalidCredentialManager}.
      */
-    public static async initialize(Manager: IImperativeOverrides["CredentialManager"], cliName: string, displayName?: string): Promise<void> {
-        const { Logger } = await import("../../logger");
+    public static async initialize(params: ICredentialManagerInit): Promise<void> {
+        // Perform parameter validation
+        ImperativeExpect.toBeDefinedAndNonBlank(params.service, "service", "You must supply a service name for the credential manager.");
 
         // If the display name is not passed, use the cli name
-        if (displayName == null) {
-            displayName = cliName;
-        }
+        const displayName = (params.displayName == null) ? params.service : params.displayName;
+
+        // If a manager override was not passed, use the default keytar manager
+        const Manager = (params.Manager == null) ? DefaultCredentialManager : params.Manager;
+
+        // Default invalid on failure to false if not specified
+        params.invalidOnFailure = (params.invalidOnFailure == null) ? false : params.invalidOnFailure;
 
         if (this.mManager != null) {
             // Something tried to change the already existing credential manager, we should stop this.
@@ -112,9 +119,9 @@ export class CredentialManagerFactory {
                 // that exports a manager class. So we'll load that class and initialize it with the same constructor parameters
                 // that we would do with an actual constructor parameter.
                 const LoadedManager = await import(Manager);
-                manager = new LoadedManager(cliName, displayName);
+                manager = new LoadedManager(params.service, displayName);
             } else {
-                manager = new Manager(cliName, displayName);
+                manager = new Manager(params.service, displayName);
             }
 
             // After constructing the object, we will ensure that the thing loaded is indeed an
@@ -135,20 +142,18 @@ export class CredentialManagerFactory {
 
             if (this.mManager.initialize) {
                 await this.mManager.initialize();
-                Logger.getImperativeLogger().debug(`Initialized the "${displayName}" credential manager for "${cliName}".`);
+                const { Logger } = await import("../../logger");
+                Logger.getImperativeLogger().debug(`Initialized the "${displayName}" credential manager for "${params.service}".`);
             }
 
         } catch (error) {
             // Perform dynamic requires when an error happens
             const { InvalidCredentialManager } = await import("./InvalidCredentialManager");
-            const appSettings = (await import("../../settings")).AppSettings.instance;
+            const { Logger } = await import("../../logger");
 
-            // A value not equal to false indicates that the setting was overridden by a plugin
-            // so we should not have a hard crash.
-            if (appSettings.settings.overrides.CredentialManager !== false) {
-                const logError = "Failed to override the credential manager with one provided by \"" +
-                    appSettings.settings.overrides.CredentialManager +
-                    "\"";
+            // Log appropriate error messages
+            if (Manager !== DefaultCredentialManager) {
+                const logError = `Failed to override the credential manager with one provided by "${displayName}"`;
 
                 // Be sure to log the messages both to the console and to a file
                 // so that support can also see these messages.
@@ -157,8 +162,12 @@ export class CredentialManagerFactory {
 
                 Logger.getImperativeLogger().error(error.toString());
                 Logger.getConsoleLogger().error(error.toString());
+            }
 
-                this.mManager = new InvalidCredentialManager(cliName, error);
+            // If requested, we will instantiate the credential manager with the invalid credential manager,
+            // which will cause any usage of the manager to fail with an error.
+            if (params.invalidOnFailure) {
+                this.mManager = new InvalidCredentialManager(params.service, error);
             } else {
                 this.mManager = undefined;
 

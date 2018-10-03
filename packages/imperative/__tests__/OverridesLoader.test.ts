@@ -45,7 +45,8 @@ describe("OverridesLoader", () => {
     it("should load the default when not passed any configuration and keytar is present in dependencies.", async () => {
       const config: IImperativeConfig = {
         name: "ABCD",
-        overrides: {}
+        overrides: {},
+        productDisplayName: "a fake CLI"
       };
 
       // Fake out package.json for the overrides loader
@@ -58,7 +59,12 @@ describe("OverridesLoader", () => {
       await OverridesLoader.load(config, packageJson);
 
       expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
-      expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith(DefaultCredentialManager, config.name, config.name);
+      expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith({
+        Manager: undefined,
+        displayName: config.productDisplayName,
+        invalidOnFailure: false,
+        service: config.name
+      });
     });
 
     describe("should load a credential manager specified by the user", () => {
@@ -91,7 +97,12 @@ describe("OverridesLoader", () => {
         await OverridesLoader.load(config, packageJson);
 
         expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
-        expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith(config.overrides.CredentialManager, config.name, config.name);
+        expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith({
+          Manager: config.overrides.CredentialManager,
+          displayName: config.name,
+          invalidOnFailure: true,
+          service: config.name
+        });
       });
 
       it("was passed an absolute path", async () => {
@@ -110,7 +121,12 @@ describe("OverridesLoader", () => {
 
         expect(path.resolve).not.toHaveBeenCalled();
         expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
-        expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith(config.overrides.CredentialManager, config.name, config.name);
+        expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith({
+          Manager: config.overrides.CredentialManager,
+          displayName: config.name,
+          invalidOnFailure: true,
+          service: config.name
+        });
       });
 
       it("was passed a relative path and app settings were not initialized", async () => {
@@ -136,7 +152,12 @@ describe("OverridesLoader", () => {
         expect(path.resolve).toHaveBeenLastCalledWith(expectedArgs[0], expectedArgs[1], expectedArgs[2]);
 
         expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
-        expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith(expectedLocation, config.name, config.name);
+        expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith({
+          Manager: expectedLocation,
+          displayName: config.name,
+          invalidOnFailure: true,
+          service: config.name
+        });
       });
     });
   });
