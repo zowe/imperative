@@ -32,11 +32,34 @@ describe("CliUtils", () => {
     });
 
     it("should return the proper option format", () => {
-        console.log(CliUtils.getOptionFormat("this-is-a-test"));
-        console.log(CliUtils.getOptionFormat("thisIsATest"));
-        console.log(CliUtils.getOptionFormat("thisIsATest-hello-world-Test-----TEWST-te-tesTiNg---abdcd----------"));
-        console.log(CliUtils.getOptionFormat("tes--------"));
+        expect(CliUtils.getOptionFormat("hello-world")).toEqual({
+            key: "hello-world",
+            camelCase: "helloWorld",
+            kebabCase: "hello-world"
+        });
 
-        pending("Not complete yet");
+        expect(CliUtils.getOptionFormat("helloWorld")).toEqual({
+            key: "helloWorld",
+            camelCase: "helloWorld",
+            kebabCase: "hello-world"
+        });
+
+        expect(CliUtils.getOptionFormat("hello--------world")).toEqual({
+            key: "hello--------world",
+            camelCase: "helloWorld",
+            kebabCase: "hello-world"
+        });
+
+        expect(CliUtils.getOptionFormat("hello-World-")).toEqual({
+            key: "hello-World-",
+            camelCase: "helloWorld",
+            kebabCase: "hello-world"
+        });
+
+        expect(CliUtils.getOptionFormat("hello-World-----------")).toEqual({
+            key: "hello-World-----------",
+            camelCase: "helloWorld",
+            kebabCase: "hello-world"
+        });
     });
 });
