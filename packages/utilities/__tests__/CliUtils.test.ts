@@ -35,6 +35,7 @@ describe("CliUtils", () => {
         console.log(CliUtils.getOptionFormat("this-is-a-test"));
         console.log(CliUtils.getOptionFormat("thisIsATest"));
         console.log(CliUtils.getOptionFormat("thisIsATest-hello-world-Test-----TEWST-te-tesTiNg---abdcd----------"));
+        console.log(CliUtils.getOptionFormat("tes--------"));
 
         pending("Not complete yet");
     });

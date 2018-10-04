@@ -14,7 +14,6 @@ import { ImperativeError } from "../../error";
 import { Constants } from "../../constants";
 import { Arguments } from "yargs";
 import { TextUtils } from "./TextUtils";
-import camelCase = require("lodash/fp/camelCase");
 import { IOptionFormat } from "./doc/IOptionFormat";
 
 /**
@@ -174,8 +173,9 @@ export class CliUtils {
      */
     public static getOptionFormat(key: string): IOptionFormat {
         return {
-            camelCase: key.replace(/(-\w?)/g, (match, p1) => {
-                return !isNullOrUndefined(p1[1]) ? p1[1].toUpperCase() : "";
+            camelCase: key.replace(/(-+\w?)/g, (match, p1) => {
+                const returnChar = p1.substr(-1).toUpperCase();
+                return  returnChar !== "-" ? returnChar : "";
             }),
             kebabCase: key.replace(/(-*[A-Z]|-{2,}|-$)/g, (match, p1, offset, inputString) => {
                 if (p1.length === 1) {
