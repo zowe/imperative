@@ -187,7 +187,7 @@ export class CliUtils {
                         return "-" + p1.toLowerCase();
                     }
                 } else {
-                    const returnChar = p1[p1.length - 1]; // Get the last character of the sequence
+                    const returnChar = p1.substr(-1); // Get the last character of the sequence
 
                     if (returnChar === "-") {
                         if (offset + p1.length === inputString.length) {
