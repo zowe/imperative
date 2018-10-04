@@ -27,6 +27,9 @@ import { ConfigurationLoader } from "../ConfigurationLoader";
 import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
 import {IImperativeOverrides} from "../doc/IImperativeOverrides";
 import {AppSettings} from "../../../settings";
+import { PluginRequireProvider } from "./PluginRequireProvider";
+
+PluginRequireProvider.createPluginHooks(["@brightside/imperative"]);
 
 /**
  * This class is the main engine for the Plugin Management Facility. The
