@@ -30,4 +30,12 @@ describe("CliUtils", () => {
         }).toThrowErrorMatchingSnapshot();
 
     });
+
+    it("should return the proper option format", () => {
+        console.log(CliUtils.getOptionFormat("this-is-a-test"));
+        console.log(CliUtils.getOptionFormat("thisIsATest"));
+        console.log(CliUtils.getOptionFormat("thisIsATest-hello-world-Test-----TEWST-te-tesTiNg---abdcd----------"));
+
+        pending("Not complete yet");
+    });
 });

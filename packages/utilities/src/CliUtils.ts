@@ -14,6 +14,8 @@ import { ImperativeError } from "../../error";
 import { Constants } from "../../constants";
 import { Arguments } from "yargs";
 import { TextUtils } from "./TextUtils";
+import camelCase = require("lodash/fp/camelCase");
+import { IOptionFormat } from "./doc/IOptionFormat";
 
 /**
  * Cli Utils contains a set of static methods/helpers that are CLI related (forming options, censoring args, etc.)
@@ -128,5 +130,80 @@ export class CliUtils {
         const headerText = TextUtils.formatMessage("{{indent}}{{headerText}}\n{{indent}}{{dashes}}",
             { headerText: header.toUpperCase(), dashes: Array(numDashes).join("-"), indent });
         return TextUtils.chalk[color](headerText);
+    }
+
+    /**
+     * Takes a key and converts it to both camelCase and kebab-case.
+     *
+     * @param key The key to transform
+     *
+     * @returns An object that contains the new format.
+     *
+     * @example <caption>Conversion of keys</caption>
+     *
+     * CliUtils.getOptionFormat("this-is-a-test");
+     *
+     * // returns
+     * const return1 = {
+     *     key: "this-is-a-test",
+     *     camelCase: "thisIsATest",
+     *     kebabCase: "this-is-a-test"
+     * }
+     *
+     * /////////////////////////////////////////////////////
+     *
+     * CliUtils.getOptionFormat("thisIsATest");
+     *
+     * // returns
+     * const return2 = {
+     *     key: "thisIsATest",
+     *     camelCase: "thisIsATest",
+     *     kebabCase: "this-is-a-test"
+     * }
+     *
+     * /////////////////////////////////////////////////////
+     *
+     * CliUtils.getOptionFormat("thisIsATest-hello-world");
+     *
+     * // returns
+     * const return3 = {
+     *     key: "thisIsATest-hello-world",
+     *     camelCase: "thisIsATestHelloWorld",
+     *     kebabCase: "this-is-a-test-hello-world"
+     * }
+     */
+    public static getOptionFormat(key: string): IOptionFormat {
+        return {
+            camelCase: key.replace(/(-\w?)/g, (match, p1) => {
+                return !isNullOrUndefined(p1[1]) ? p1[1].toUpperCase() : "";
+            }),
+            kebabCase: key.replace(/(-*[A-Z]|-{2,}|-$)/g, (match, p1, offset, inputString) => {
+                if (p1.length === 1) {
+                    if (p1 === "-") {
+                        // Strip trailing -
+                        return "";
+                    } else {
+                        // Change "letter" to "-letter"
+                        return "-" + p1.toLowerCase();
+                    }
+                } else {
+                    const returnChar = p1[p1.length - 1]; // Get the last character of the sequence
+
+                    if (returnChar === "-") {
+                        if (offset + p1.length === inputString.length) {
+                            // Strip a trailing -------- sequence
+                            return "";
+                        } else {
+                            // Change a sequence of -------- to a -
+                            return "-";
+                        }
+                    } else {
+                        // Change a sequence of "-------letter" to "-letter"
+                        return "-" + returnChar.toLowerCase();
+                    }
+                }
+            }),
+            key
+        };
     }
 }
