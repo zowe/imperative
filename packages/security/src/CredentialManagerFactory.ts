@@ -63,25 +63,11 @@ export class CredentialManagerFactory {
      * If the it was detected that the Manager was not provided by a plugin, the error encountered is thrown to
      * the calling function.
      *
-     * If it was detected that a plugin provided the Manager, we will default using the {@link InvalidCredentialManager}
+     * If the initialization option "invalidOnFailure" is true, we will default to using the {@link InvalidCredentialManager}
      * which implements the {@link AbstractCredentialManager} methods. All these methods have been designed to throw
      * the error we caught in the **CredentialManagerFactory.initialize** function.
      *
-     * @param {IImperativeOverrides.CredentialManager} Manager - A class that extends {@link AbstractCredentialManager} that will
-     *                                                  be instantiated and used as the actual credential manager. If a string is
-     *                                                  passed, we will attempt to load the module specified in the string as a
-     *                                                  class that extends the __AbstractCredentialManager__. If the class imported
-     *                                                  doesn't extend the abstract class, we will throw an error.
-     *
-     * @param {string} cliName - The cli name to be used in the security manager. This really is only required for the
-     *                           default manager so that the service name for keytar can be the cli name. It may be useful
-     *                           for a custom implementation, so it will be passed every time and it is up to the
-     *                           implementer to choose to use it.
-     *
-     * @param {string} displayName - The display name of the credential manager in use. Used in messaging/debugging and
-     *                               if the credential manager is managing secure profile fields via the imperative
-     *                               "CliProfileManager", then profiles will display "managed by ${displayName}" for
-     *                               secure fields in the profile yaml files. Defaults the the CLI name.
+     * @param {ICredentialManagerInit} - Initialization parameters, see interface for details.
      *
      * @throws {@link ImperativeError} When it has been detected that this method has been called before.
      *         It is important that this method only executes once.
