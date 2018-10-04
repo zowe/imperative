@@ -78,7 +78,7 @@
     "ts-jest": "^20.0.7",
     "ts-node": "^5.0.0",
     "tslint": "^5.0.0",
-    "typescript": "3.0.3",
+    "typescript": "^3.0.3",
     "upath": "^1.0.2"
   },
   "engines": {

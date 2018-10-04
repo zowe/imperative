@@ -148,7 +148,9 @@ describe("Basic Profile Manager Constructor", () => {
       TestLogger.info(error);
     }
     expect(error instanceof ImperativeError).toBe(true);
-    expect(error.message).toMatchSnapshot();
+    expect(error.message).toContain(
+      "Expect Error: Could not locate the profile type configuration for \"bad_apple\" within the input configuration list passed."
+    );
   });
 
   it("should allow us to instantiate the cli profile manager", () => {

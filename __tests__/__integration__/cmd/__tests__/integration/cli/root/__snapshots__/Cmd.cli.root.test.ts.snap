@@ -38,7 +38,7 @@ exports[`cmd-cli should display the help 1`] = `
 
    --response-format-json  | --rfj (boolean)
 
-      Produce the command response as a JSON document
+      Produce JSON formatted data from a command
 
    --help  | -h (boolean)
 
@@ -81,7 +81,7 @@ exports[`cmd-cli should display the help 1`] = `
 
    --response-format-json  | --rfj (boolean)
 
-      Produce the command response as a JSON document
+      Produce JSON formatted data from a command
 
    --help  | -h (boolean)
 

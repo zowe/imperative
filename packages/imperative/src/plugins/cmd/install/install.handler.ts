@@ -161,8 +161,22 @@ export default class InstallHandler implements ICommandHandler {
           }
         }
       } catch (e) {
+        let installResultMsg = "Install Failed";
+        /* When we fail to create symbolic links to core and imperative,
+         * give a special message, as per UX request.
+         */
+        if (e.mMessage) {
+          const matchArray = e.mMessage.match(/The intended symlink.*already exists and is not a symbolic link/);
+          if (matchArray !== null) {
+            installResultMsg = "Installation completed. However, the plugin incorrectly contains\nits own copy of " +
+              `${PMFConstants.instance.CLI_CORE_PKG_NAME} or ${PMFConstants.instance.IMPERATIVE_PKG_NAME}.\n` +
+              "Some plugin operations may not work correctly.";
+          } else if (e.mMessage.includes("Failed to create symbolic link")) {
+            installResultMsg = "Installation completed. However, due to the following error, the plugin will not operate correctly.";
+          }
+        }
         throw new ImperativeError({
-          msg: "Install Failed",
+          msg: installResultMsg,
           causeErrors: e,
           additionalDetails: e.message
         });

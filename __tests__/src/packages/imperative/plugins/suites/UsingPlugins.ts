@@ -17,7 +17,7 @@
 import * as T from "../../../../../src/TestUtil";
 import { cliBin, config } from "../PluginManagementFacility.spec";
 import { join } from "path";
-import { readFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 
 describe("Using a Plugin", () => {
 
@@ -239,4 +239,68 @@ describe("Using a Plugin", () => {
         expect(appLogContent).toContain(`Log message from test plugin: WARN: ${randomTest}`);
         expect(appLogContent).toContain(`Log message from test plugin: ERROR: ${randomTest}`);
     });
+
+    it("should override CredentialManager", () => {
+        const installedPlugin = join(__dirname, "../test_plugins/override_plugin");
+        const pluginName = "override-plugin";
+
+        // install the override plugin
+        let cmd = `plugins install ${installedPlugin}`;
+        let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+        expect(result.stderr).toMatch(/npm.*WARN/);
+        expect(result.stderr).toContain("requires a peer of @brightside/imperative");
+        expect(result.stderr).toContain("You must install peer dependencies yourself");
+
+        // confirm the plugin summary is displayed from zowe help
+        cmd = ``;
+        result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+        expect(result.stderr).toBe("");
+        expect(result.stdout).toContain(pluginName);
+        expect(result.stdout).toContain("imperative override plugin pluginSummary");
+
+        // confirm the plugin command description is displayed from zowe override-plugin help
+        cmd = pluginName;
+        result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+        expect(result.stderr).toBe("");
+        expect(result.stdout).toContain("dummy bar command");
+        expect(result.stdout).toContain("dummy foo command");
+        expect(result.stdout).toContain("imperative override plugin rootCommandDescription");
+
+        // set the CredMgr override setting to the override-plugin
+        setCredMgrOverride(pluginName);
+
+        // Create a zosmf profile. That will trigger the CredMgr.
+        cmd = "profiles create secure-pass-profile TestProfileName --password 'AnyPass' --overwrite";
+        result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+        expect(result.stderr).toBe("");
+        expect(result.stdout).toContain("CredentialManager in sample-plugin is saving these creds:");
+        expect(result.stdout).toContain("name:     TestProfileName");
+        expect(result.stdout).toContain("password: securely_stored");
+
+        // set the CredMgr back to default
+        setCredMgrOverride(false);
+    });
+
+    // ___________________________________________________________________________
+    /**
+     * Set the system's Credential Manager override value.
+     *
+     * @params credMgrValue - plugin name for new CredMgr override, or false for default.
+     */
+    function setCredMgrOverride(credMgrValue: string | false): void {
+        const settingsPathNm = join(config.defaultHome, "settings", "imperative.json");
+        let settingsContent = readFileSync(settingsPathNm).toString();
+
+        if (credMgrValue !== false) {
+            credMgrValue = `"${credMgrValue}"`;
+        }
+
+        settingsContent = settingsContent.replace(/"CredentialManager":.*/,
+            `"CredentialManager": ${credMgrValue}`
+        );
+
+        writeFileSync(settingsPathNm, settingsContent, {
+            spaces: 2
+        });
+    }
 });

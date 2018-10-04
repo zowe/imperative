@@ -29,7 +29,7 @@ exports[`Hello World should print help if the option is specified 1`] = `
 
    --response-format-json  | --rfj (boolean)
 
-      Produce the command response as a JSON document
+      Produce JSON formatted data from a command
 
    --help  | -h (boolean)
 

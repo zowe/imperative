@@ -27,7 +27,7 @@ exports[`cmd-cli nested should display both groups and commands in the help 1`] 
 
    --response-format-json  | --rfj (boolean)
 
-      Produce the command response as a JSON document
+      Produce JSON formatted data from a command
 
    --help  | -h (boolean)
 

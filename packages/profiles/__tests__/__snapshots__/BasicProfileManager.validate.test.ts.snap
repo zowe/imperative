@@ -27,20 +27,6 @@ exports[`Basic Profile Manager Validate should detect a missing profile name 1`]
 
 exports[`Basic Profile Manager Validate should detect a that we are attempting to use the meta name 1`] = `"Expect Error: You cannot specify \\"apple_meta\\" as a profile name. This profile name is reserved for internal Imperative usage."`;
 
-exports[`Basic Profile Manager Validate should detect a type mismatch 1`] = `
-"Expect Error: Could not locate the profile type configuration for \\"strawberry\\" within the input configuration list passed.
-[ { type: 'apple',
-    schema: 
-     { title: 'The simple apple configuration',
-       description: 'The simple apple configuration',
-       type: 'object',
-       properties: 
-        { description: { type: 'string' },
-          rotten: { type: 'boolean' },
-          age: { type: 'number' } },
-       required: [ 'description', 'rotten', 'age' ] } } ]"
-`;
-
 exports[`Basic Profile Manager Validate should detect that the dependencies are not an array 1`] = `"Expect Error: The profile passed (name \\"bad_apple\\" of type \\"apple\\") has dependencies as a property, but it is NOT an array (ill-formed)"`;
 
 exports[`Basic Profile Manager Validate should detect that the dependencies are present, but name is missing 1`] = `"Expect Error: The profile passed (name \\"bad_apple\\" of type \\"apple\\") has dependencies as a property, but an entry does not contain \\"name\\"."`;

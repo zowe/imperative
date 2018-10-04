@@ -447,3 +447,29 @@ export const SUPPRESS_OPTION_MULTIPLE_GROUPS: ICommandDefinition = {
     type: "group",
     children: [SUPRESS_OPTION_COMPLEX_COMMAND]
 };
+
+export const ORIGINAL_DEFINITIONS: ICommandDefinition[] = [
+    {
+        name: "test-command",
+        type: "command",
+        description: "Test Command",
+        profile: {
+            required: ["banana"],
+            optional: ["apple"]
+        }
+    },
+    {
+        name: "test-group",
+        type: "group",
+        description: "Test Group",
+        children: [{
+            experimental: true,
+            name: "test-command",
+            type: "command",
+            description: "Test Command",
+            profile: {
+                required: ["banana"]
+            }
+        }]
+    }
+];

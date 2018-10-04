@@ -62,7 +62,9 @@ describe("Basic Profile Manager Validate", () => {
     }
     expect(error).toBeDefined();
     expect(error instanceof ImperativeError).toBe(true);
-    expect(error.message).toMatchSnapshot();
+    expect(error.message).toContain(
+      "Expect Error: Could not locate the profile type configuration for \"strawberry\" within the input configuration list passed."
+    );
   });
 
   it("should detect a that we are attempting to use the meta name", async () => {

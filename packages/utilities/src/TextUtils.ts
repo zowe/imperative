@@ -155,7 +155,7 @@ export class TextUtils {
     public static getTable(objects: any[], primaryHighlightColor: string,
                            maxColumnWidth?: number, includeHeader: boolean = true, includeBorders: boolean = false,
                            hardWrap: boolean = false): string {
-        const Table = require("cli-table2");
+        const Table = require("cli-table3");
         const headers = [];
         // for every property of every object in the array,
         // make a header for the table

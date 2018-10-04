@@ -406,7 +406,7 @@ export class CommandPreparer {
             name: Constants.JSON_OPTION,
             aliases: [Constants.JSON_OPTION_ALIAS],
             group: Constants.GLOBAL_GROUP,
-            description: "Produce the command response as a JSON document",
+            description: "Produce JSON formatted data from a command",
             type: "boolean"
         });
 

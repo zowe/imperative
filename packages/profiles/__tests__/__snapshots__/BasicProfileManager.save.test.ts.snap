@@ -39,20 +39,6 @@ description is not of a type(s) string
 "
 `;
 
-exports[`Basic Profile Manager Save should detect a type mismatch when saving a profile 1`] = `
-"Expect Error: Could not locate the profile type configuration for \\"strawberry\\" within the input configuration list passed.
-[ { type: 'apple',
-    schema: 
-     { title: 'The simple apple configuration',
-       description: 'The simple apple configuration',
-       type: 'object',
-       properties: 
-        { description: { type: 'string' },
-          rotten: { type: 'boolean' },
-          age: { type: 'number' } },
-       required: [ 'description', 'rotten', 'age' ] } } ]"
-`;
-
 exports[`Basic Profile Manager Save should detect all missing required fields on the schema 1`] = `
 "Errors located in profile \\"bad_strawberry\\" of type \\"strawberry\\":
 profile requires property \\"description\\"
@@ -104,18 +90,3 @@ Error Details: A circular profile dependency was detected. Profile \\"banana_wit
 exports[`Basic Profile Manager Save should not allow a save with no contents 1`] = `"The profile passed (name \\"no_apple_core\\" of type \\"apple\\") does not contain any content."`;
 
 exports[`Basic Profile Manager Save should not allow us to overwrite a profile if overwrite false (or not specified) 1`] = `"Profile \\"good_apple\\" of type \\"apple\\" already exists and overwrite was NOT specified."`;
-
-exports[`Basic Profile Manager Save should not allow us to save a profile that lists dependencies of types that were not defined 1`] = `
-"Could not save the profile, because one or more dependencies is invalid or does not exist.
-Load Error Details: Expect Error: Could not locate the profile type configuration for \\"pear\\" within the input configuration list passed.
-[ { type: 'apple',
-    schema: 
-     { title: 'The simple apple configuration',
-       description: 'The simple apple configuration',
-       type: 'object',
-       properties: 
-        { description: { type: 'string' },
-          rotten: { type: 'boolean' },
-          age: { type: 'number' } },
-       required: [ 'description', 'rotten', 'age' ] } } ]"
-`;
