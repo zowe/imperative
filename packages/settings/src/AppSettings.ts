@@ -142,7 +142,7 @@ export class AppSettings {
      * @returns true if the app settings have been initialized
      */
     public static get initialized(): boolean {
-        return (!this.mInstance == null);
+        return !(this.mInstance == null);
     }
 
     /**

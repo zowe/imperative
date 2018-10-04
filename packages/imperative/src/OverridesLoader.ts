@@ -53,6 +53,7 @@ export class OverridesLoader {
       && AppSettings.initialized
       && AppSettings.instance.settings.overrides != null
       && AppSettings.instance.settings.overrides.CredentialManager != null
+      && AppSettings.instance.settings.overrides.CredentialManager !== false
     ) ?
       // App settings is configured - use the plugin name for the manager name
       AppSettings.instance.settings.overrides.CredentialManager as string
