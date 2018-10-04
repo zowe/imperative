@@ -140,64 +140,119 @@ export class CliUtils {
      *
      * @example <caption>Conversion of keys</caption>
      *
-     * CliUtils.getOptionFormat("this-is-a-test");
+     * CliUtils.getOptionFormat("helloWorld");
      *
      * // returns
      * const return1 = {
-     *     key: "this-is-a-test",
-     *     camelCase: "thisIsATest",
-     *     kebabCase: "this-is-a-test"
+     *     key: "helloWorld",
+     *     camelCase: "helloWorld",
+     *     kebabCase: "hello-world"
      * }
      *
      * /////////////////////////////////////////////////////
      *
-     * CliUtils.getOptionFormat("thisIsATest");
+     * CliUtils.getOptionFormat("hello-world");
      *
      * // returns
      * const return2 = {
-     *     key: "thisIsATest",
-     *     camelCase: "thisIsATest",
-     *     kebabCase: "this-is-a-test"
+     *     key: "hello-world",
+     *     camelCase: "helloWorld",
+     *     kebabCase: "hello-world"
      * }
      *
      * /////////////////////////////////////////////////////
      *
-     * CliUtils.getOptionFormat("thisIsATest-hello-world");
+     * CliUtils.getOptionFormat("hello--------world");
      *
      * // returns
      * const return3 = {
-     *     key: "thisIsATest-hello-world",
-     *     camelCase: "thisIsATestHelloWorld",
-     *     kebabCase: "this-is-a-test-hello-world"
+     *     key: "hello--------world",
+     *     camelCase: "helloWorld",
+     *     kebabCase: "hello-world"
+     * }
+     *
+     * /////////////////////////////////////////////////////
+     *
+     * CliUtils.getOptionFormat("hello-World-");
+     *
+     * // returns
+     * const return4 = {
+     *     key: "hello-World-",
+     *     camelCase: "helloWorld",
+     *     kebabCase: "hello-world"
      * }
      */
     public static getOptionFormat(key: string): IOptionFormat {
         return {
             camelCase: key.replace(/(-+\w?)/g, (match, p1) => {
+                /*
+                 * Regular expression checks for 1 or more "-" characters followed by 0 or 1 word character
+                 * The last character in each match is converted to upper case and returned only if it
+                 * isn't equal to "-"
+                 *
+                 * Examples: (input -> output)
+                 *
+                 * - helloWorld         -> helloWorld
+                 * - hello-world        -> helloWorld
+                 * - hello--------world -> helloWorld
+                 * - hello-World-       -> helloWorld
+                 */
                 const returnChar = p1.substr(-1).toUpperCase();
                 return  returnChar !== "-" ? returnChar : "";
             }),
             kebabCase: key.replace(/(-*[A-Z]|-{2,}|-$)/g, (match, p1, offset, inputString) => {
-                if (p1.length === 1) {
-                    if (p1 === "-") {
+                /*
+                 * Regular expression matches the following:
+                 *
+                 * 1. Any string segment containing 0 or more "-" characters followed by any uppercase letter.
+                 * 2. Any string segment containing 2 or more consecutive "-" characters
+                 * 3. Any string segment where the last character is "-"
+                 *
+                 * Matches for 1.
+                 *
+                 * - "A"           -> If condition 1.2
+                 * - "-B"          -> If condition 2.2
+                 * - "------C"     -> If condition 2.2
+                 *
+                 * Matches for 2.
+                 *
+                 * - "--"          -> If condition 2.1.1
+                 * - "-------"     -> If condition 2.1.1 or 2.1.2
+                 *
+                 * 2.1.1 will be entered if the match is the last sequence of the string
+                 * 2.1.2 will be entered if the match is not the last sequence of the string
+                 *
+                 * Matches for 3.
+                 * - "-<end_of_string>" -> If condition 1.1
+                 *
+                 * Examples: (input -> output)
+                 *
+                 * - helloWorld         -> hello-world
+                 * - hello-world        -> hello-world
+                 * - hello--------world -> hello-world
+                 * - hello-World-       -> hello-world
+                 */
+
+                if (p1.length === 1) {                                          // 1
+                    if (p1 === "-") {                                           // 1.1
                         // Strip trailing -
                         return "";
-                    } else {
+                    } else {                                                    // 1.2
                         // Change "letter" to "-letter"
                         return "-" + p1.toLowerCase();
                     }
-                } else {
+                } else {                                                        // 2
                     const returnChar = p1.substr(-1); // Get the last character of the sequence
 
-                    if (returnChar === "-") {
-                        if (offset + p1.length === inputString.length) {
+                    if (returnChar === "-") {                                   // 2.1
+                        if (offset + p1.length === inputString.length) {        // 2.1.1
                             // Strip a trailing -------- sequence
                             return "";
-                        } else {
+                        } else {                                                // 2.1.2
                             // Change a sequence of -------- to a -
                             return "-";
                         }
-                    } else {
+                    } else {                                                    // 2.2
                         // Change a sequence of "-------letter" to "-letter"
                         return "-" + returnChar.toLowerCase();
                     }
