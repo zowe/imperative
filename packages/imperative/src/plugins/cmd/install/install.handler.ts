@@ -17,10 +17,10 @@ import {install} from "../../utilities/npm-interface";
 import {IPluginJson} from "../../doc/IPluginJson";
 import {IPluginJsonObject} from "../../doc/IPluginJsonObject";
 import {readFileSync} from "jsonfile";
-import {execSync} from "child_process";
 import {TextUtils} from "../../../../../utilities";
 import {ImperativeError} from "../../../../../error";
 import {runValidatePlugin} from "../../utilities/runValidatePlugin";
+import * as npm from "npm";
 
 /**
  * The install command handler for cli plugin install.
@@ -84,9 +84,18 @@ export default class InstallHandler implements ICommandHandler {
 
         // Get the registry to install to
         if (typeof params.arguments.registry === "undefined") {
-          installRegistry = execSync("npm config get registry")
-            .toString()
-            .replace("\n", "");
+            installRegistry = await new Promise((resolveLoad) => {
+                npm.load({}, (err) => {
+                    if (err) {
+                        this.console.error(err.message);
+                        throw new Error(err.message);
+                    }
+                    resolveLoad(new Promise((resolveGetRegistry) => {
+                        resolveGetRegistry(npm.config.get("registry"));
+                    }));
+                });
+            }).toString().replace("\n", "");
+            this.console.info("Registry is " + installRegistry);
         } else {
           installRegistry = params.arguments.registry;
         }
@@ -145,7 +154,7 @@ export default class InstallHandler implements ICommandHandler {
               this.console.debug(`Package: ${packageArgument}`);
 
               params.response.console.log("\n_______________________________________________________________");
-              const pluginName = install(packageArgument, packageInfo.registry, true);
+              const pluginName = await install(packageArgument, packageInfo.registry, true);
               params.response.console.log("Installed plugin name = '" + pluginName + "'");
               params.response.console.log(runValidatePlugin(pluginName));
             }
@@ -155,7 +164,7 @@ export default class InstallHandler implements ICommandHandler {
         } else {
           for (const packageString of params.arguments.plugin) {
             params.response.console.log("\n_______________________________________________________________");
-            const pluginName = install(`${packageString}`, installRegistry);
+            const pluginName = await install(`${packageString}`, installRegistry);
             params.response.console.log("Installed plugin name = '" + pluginName + "'");
             params.response.console.log(runValidatePlugin(pluginName));
           }
