@@ -9,9 +9,7 @@
 *
 */
 
-import {execSync} from "child_process";
 import {PMFConstants} from "../PMFConstants";
-import {homedir} from "os";
 import * as path from "path";
 import * as fs from "fs";
 import {readFileSync, writeFileSync} from "jsonfile";
@@ -20,6 +18,7 @@ import {Logger} from "../../../../../logger";
 import {ImperativeError} from "../../../../../error";
 import {IPluginJsonObject} from "../../doc/IPluginJsonObject";
 import {IO} from "../../../../../io";
+import * as npm from "npm";
 
 
 /**
@@ -50,7 +49,7 @@ import {IO} from "../../../../../io";
  *                                          it.
  * @returns {string} The name of the plugin.
  */
-export function install(packageLocation: string, registry: string, installFromFile = false): string {
+export async function install(packageLocation: string, registry: string, installFromFile = false) {
     const iConsole = Logger.getImperativeLogger();
     let npmPackage = packageLocation;
 
@@ -82,27 +81,51 @@ export function install(packageLocation: string, registry: string, installFromFi
     try {
         iConsole.debug(`Installing from registry ${registry}`);
 
-        // We need to capture stdout but apparently stderr also gives us a progress
-        // bar from the npm install.
-        const pipe = ["pipe", "pipe", process.stderr];
-
-        // Perform the npm install, somehow piping stdout and inheriting stderr gives
-        // some form of a half-assed progress bar. This progress bar doesn't have any
-        // formatting or colors but at least I can get the output of stdout right.
+        // Perform the npm install.
         iConsole.info("Installing packages...this may take some time.");
-        const execOutput = execSync(`npm install "${npmPackage}" --prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} ` +
-            `-g --registry ${registry}`, {
-            cwd: PMFConstants.instance.PMF_ROOT,
-            stdio: pipe
+
+        // Save current working directory to use later.
+        const cwd = process.cwd();
+
+        // Change current working directory to new
+        process.chdir(PMFConstants.instance.PMF_ROOT);
+
+        const npmOptions: object = {
+            prefix: PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
+            global: true,
+            registry
+        };
+
+        const installOutput = await new Promise((resolve) => {
+            npm.load(npmOptions, (err) => {
+                if (err) {
+                    iConsole.error(err.message);
+                    throw new Error(err.message);
+                }
+                resolve(new Promise((resolveInstall) => {
+                    npm.commands.install([...[], npmPackage], (installError, response) => {
+                        if (installError) {
+                            iConsole.error(installError.message);
+                            throw new Error(installError.message);
+                        }
+                        resolveInstall(response[0][0]);
+                    });
+                }));
+            });
         });
 
+        iConsole.info("Installed package " + installOutput);
+
         iConsole.info("Install complete");
+
+        // Change cwd to old one.
+        process.chdir(cwd);
 
         /* We get the package name (aka plugin name)
          * from the output of the npm command.
          * The regex is meant to match: + plugin-name@version.
          */
-        const stringOutput = execOutput.toString();
+        const stringOutput = installOutput.toString();
         const regex = /^\+\s(.*)@(.*)$/gm;
         const match = regex.exec(stringOutput);
         const packageName = match[1];
