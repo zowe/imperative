@@ -10,10 +10,8 @@
 */
 
 import * as http from "http";
-import * as os from "os";
 import { ISession } from "./doc/ISession";
 import { Logger } from "../../../logger";
-import { RestConstants, RestStandAloneUtils } from "../../../rest";
 import { ImperativeError } from "../../../error";
 import { isNullOrUndefined } from "util";
 import { ImperativeExpect } from "../../../expect";
