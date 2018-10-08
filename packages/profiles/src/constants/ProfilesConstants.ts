@@ -14,6 +14,6 @@
  */
 export class ProfilesConstants {
     public static readonly PROFILES_COMMAND_TYPE_KEY = "profileTypeIdentifier";
-    public static readonly PROFILES_OPTION_SECURELY_STORED = "securely_stored";
+    public static readonly PROFILES_OPTION_SECURELY_STORED = "managed by";
 }
 

@@ -11,7 +11,9 @@
 
 import { AbstractCredentialManager } from "./abstract/AbstractCredentialManager";
 import { ImperativeError } from "../../error";
-import { IImperativeOverrides } from "../../imperative/src/doc/IImperativeOverrides";
+import { ICredentialManagerInit } from "./doc/ICredentialManagerInit";
+import { DefaultCredentialManager } from "./DefaultCredentialManager";
+import { ImperativeExpect } from "../../expect";
 
 /**
  * This is a wrapper class that controls access to the credential manager used within
@@ -61,20 +63,11 @@ export class CredentialManagerFactory {
      * If the it was detected that the Manager was not provided by a plugin, the error encountered is thrown to
      * the calling function.
      *
-     * If it was detected that a plugin provided the Manager, we will default using the {@link InvalidCredentialManager}
+     * If the initialization option "invalidOnFailure" is true, we will default to using the {@link InvalidCredentialManager}
      * which implements the {@link AbstractCredentialManager} methods. All these methods have been designed to throw
      * the error we caught in the **CredentialManagerFactory.initialize** function.
      *
-     * @param {IImperativeOverrides.CredentialManager} Manager - A class that extends {@link AbstractCredentialManager} that will
-     *                                                  be instantiated and used as the actual credential manager. If a string is
-     *                                                  passed, we will attempt to load the module specified in the string as a
-     *                                                  class that extends the __AbstractCredentialManager__. If the class imported
-     *                                                  doesn't extend the abstract class, we will throw an error.
-     *
-     * @param {string} cliName - The cli name to be used in the security manager. This really is only required for the
-     *                           default manager so that the service name for keytar can be the cli name. It may be useful
-     *                           for a custom implementation, so it will be passed every time and it is up to the
-     *                           implementer to choose to use it.
+     * @param {ICredentialManagerInit} - Initialization parameters, see interface for details.
      *
      * @throws {@link ImperativeError} When it has been detected that this method has been called before.
      *         It is important that this method only executes once.
@@ -83,7 +76,19 @@ export class CredentialManagerFactory {
      *         does not extend {@link AbstractCredentialManager} and the override was not provided by a plugin.
      *         When the override is provided by a plugin, we will fall back to the {@link InvalidCredentialManager}.
      */
-    public static async initialize(Manager: IImperativeOverrides["CredentialManager"], cliName: string): Promise<void> {
+    public static async initialize(params: ICredentialManagerInit): Promise<void> {
+        // Perform parameter validation
+        ImperativeExpect.toBeDefinedAndNonBlank(params.service, "service", "You must supply a service name for the credential manager.");
+
+        // If the display name is not passed, use the cli name
+        const displayName = (params.displayName == null) ? params.service : params.displayName;
+
+        // If a manager override was not passed, use the default keytar manager
+        const Manager = (params.Manager == null) ? DefaultCredentialManager : params.Manager;
+
+        // Default invalid on failure to false if not specified
+        params.invalidOnFailure = (params.invalidOnFailure == null) ? false : params.invalidOnFailure;
+
         if (this.mManager != null) {
             // Something tried to change the already existing credential manager, we should stop this.
             throw new ImperativeError({
@@ -100,9 +105,9 @@ export class CredentialManagerFactory {
                 // that exports a manager class. So we'll load that class and initialize it with the same constructor parameters
                 // that we would do with an actual constructor parameter.
                 const LoadedManager = await import(Manager);
-                manager = new LoadedManager(cliName);
+                manager = new LoadedManager(params.service, displayName);
             } else {
-                manager = new Manager(cliName);
+                manager = new Manager(params.service, displayName);
             }
 
             // After constructing the object, we will ensure that the thing loaded is indeed an
@@ -123,19 +128,18 @@ export class CredentialManagerFactory {
 
             if (this.mManager.initialize) {
                 await this.mManager.initialize();
+                const { Logger } = await import("../../logger");
+                Logger.getImperativeLogger().debug(`Initialized the "${displayName}" credential manager for "${params.service}".`);
             }
+
         } catch (error) {
             // Perform dynamic requires when an error happens
             const { InvalidCredentialManager } = await import("./InvalidCredentialManager");
             const { Logger } = await import("../../logger");
-            const appSettings  = (await import("../../settings")).AppSettings.instance;
 
-            // A value not equal to false indicates that the setting was overridden by a plugin
-            // so we should not have a hard crash.
-            if (appSettings.settings.overrides.CredentialManager !== false) {
-                const logError = "Failed to override the credential manager with one provided by \"" +
-                    appSettings.settings.overrides.CredentialManager +
-                    "\"";
+            // Log appropriate error messages
+            if (Manager !== DefaultCredentialManager) {
+                const logError = `Failed to override the credential manager with one provided by "${displayName}"`;
 
                 // Be sure to log the messages both to the console and to a file
                 // so that support can also see these messages.
@@ -144,8 +148,12 @@ export class CredentialManagerFactory {
 
                 Logger.getImperativeLogger().error(error.toString());
                 Logger.getConsoleLogger().error(error.toString());
+            }
 
-                this.mManager = new InvalidCredentialManager(cliName, error);
+            // If requested, we will instantiate the credential manager with the invalid credential manager,
+            // which will cause any usage of the manager to fail with an error.
+            if (params.invalidOnFailure) {
+                this.mManager = new InvalidCredentialManager(params.service, error);
             } else {
                 this.mManager = undefined;
 
@@ -185,6 +193,15 @@ export class CredentialManagerFactory {
         }
 
         return this.mManager;
+    }
+
+    /**
+     * The credential manager may not be initialized if Keytar (or a plugin override) is not present. In this
+     * scenario, the default is to store credentials in plain text.
+     * @returns {boolean} - True if the credential manager has been initialized.
+     */
+    public static get initialized(): boolean {
+        return !(this.mManager == null);
     }
 }
 
