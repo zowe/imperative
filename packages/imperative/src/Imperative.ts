@@ -433,8 +433,7 @@ export class Imperative {
             CliProfileManager.initialize({
                 configuration: config.profiles,
                 profileRootDirectory: ProfileUtils.constructProfilesRootDirectory(ImperativeConfig.instance.cliHome),
-                reinitialize: false,
-                productDisplayName: config.productDisplayName
+                reinitialize: false
             });
         }
     }
