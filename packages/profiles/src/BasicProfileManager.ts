@@ -85,8 +85,6 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
         // Set any defaults
         parms.reinitialize = (isNullOrUndefined(parms.reinitialize)) ? false : parms.reinitialize;
 
-        parms.productDisplayName = (isNullOrUndefined(parms.productDisplayName)) ? "" : parms.productDisplayName;
-
         // Create the profile root directory (if necessary)
         ProfileIO.createProfileDirs(parms.profileRootDirectory);
 
