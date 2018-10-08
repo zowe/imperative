@@ -48,10 +48,4 @@ export interface IProfileManagerInit {
      * @memberof IProfileManagerInit
      */
     reinitialize?: boolean;
-    /**
-     * This contain the display name of the CLI to be used when creating profile.
-     * @type {string}
-     * @memberof IProfileManagerInit
-     */
-    productDisplayName?: string;
 }
