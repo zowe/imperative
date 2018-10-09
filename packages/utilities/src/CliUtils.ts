@@ -15,6 +15,7 @@ import { Constants } from "../../constants";
 import { Arguments } from "yargs";
 import { TextUtils } from "./TextUtils";
 import { IOptionFormat } from "./doc/IOptionFormat";
+import { Logger } from "../../logger";
 
 /**
  * Cli Utils contains a set of static methods/helpers that are CLI related (forming options, censoring args, etc.)
@@ -94,6 +95,50 @@ export class CliUtils {
             }
         }
         return newArgs;
+    }
+
+    /**
+     * Get the value of an environment variable associated with the specified option name.
+     * The option name can be specified in camelCase or in kabab-style.
+     * Regardless of the style of the option name, the corresponding environment variable will
+     * be all upper case with underscores where the dashes would be in the kabab style.
+     * The name of the host CLI application and the name of the command will be pre-pended
+     * to the environment variable name.
+     *
+     * Example: someOptionName or some-option-name would retrieve the value of an environment
+     * variable named <CLI Name>_<Command Name>_SOME_OPTION_NAME.
+     *
+     * @param {string} cmdName - The name of the command that is being run.
+     *
+     * @param {string} camelOrKababOption - The name of the option in either camelCase or kabab-style.
+     *
+     * @returns {string | null} - The value of the environment variable which corresponds
+     *      to the supplied option for the supplied command. If no such environment variable
+     *      exists we return null.
+     *
+     * @memberof CliUtils
+     */
+    public static getEnvValForOption(cmdName: string, camelOrKababOption: string): string | null {
+        /* todo: ask for host CLI name as another parameter, or do the find-up ourself.
+           We cannot call findPackageBinName() because of circular dependency.
+
+        const hostCliName = ImperativeConfig.instance.findPackageBinName();
+        if (hostCliName === null) {
+            Logger.getImperativeLogger().error("Unable to retrieve the host CLI name, " +
+                "so cannot form an environment variable name for command = " +
+                `'${cmdName}' and option = '${camelOrKababOption}'.`
+             );
+            return null;
+        }
+        */
+
+        const optChoices: IOptionFormat = CliUtils.getOptionFormat(camelOrKababOption);
+
+        // todo: Form hostCliName, cmdName, and optChoices.kebabCase into an environment variable
+
+        // todo: Get the value of the environment variable
+
+        return null;
     }
 
     /**
