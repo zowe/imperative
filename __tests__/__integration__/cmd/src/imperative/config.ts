@@ -9,7 +9,7 @@
 *
 */
 
-import {IImperativeConfig} from "../../../../../packages/index";
+import { IImperativeConfig } from "../../../../../packages/index";
 
 // Example to use with tsnode: */*CommandDefinitions!(.d).*s
 export const config: IImperativeConfig = {
@@ -18,6 +18,7 @@ export const config: IImperativeConfig = {
         "**/invalid/*definition!(.d).*s",
         "**/chained/*definition!(.d).*s",
         "**/auto-format/*definition!(.d).*s",
+        "**/profile/*definition!(.d).*s",
         "**/nested/*definition!(.d).*s",
         "**/gen-help/*definition!(.d).*s"],
     rootCommandDescription: "A test CLI for the 'cmd' imperative package",
@@ -34,7 +35,7 @@ export const config: IImperativeConfig = {
                 title: "Banana Profile",
                 description: "Banana Profile",
                 properties: {
-                    color: {
+                    "color": {
                         type: "string",
                         optionDefinition: {
                             name: "color",
@@ -42,6 +43,27 @@ export const config: IImperativeConfig = {
                             description: "The color of the banana.",
                             type: "string",
                             required: true,
+                        },
+                    },
+                    "bananaDescription": {
+                        type: "string",
+                        optionDefinition: {
+                            name: "banana-description",
+                            aliases: ["bd"],
+                            description: "A description of the banana",
+                            type: "string"
+                        },
+                    },
+                    /**
+                     * One option in kebab case to make sure fields are still mapped
+                     */
+                    "mold-type": {
+                        type: "string",
+                        optionDefinition: {
+                            name: "mold-type",
+                            aliases: ["mt"],
+                            description: "The type of mold on the banana if any",
+                            type: "string"
                         },
                     },
                 },
