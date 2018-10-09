@@ -18,7 +18,7 @@ import {Logger} from "../../../../../logger";
 import {ImperativeError} from "../../../../../error";
 import {IPluginJsonObject} from "../../doc/IPluginJsonObject";
 import {IO} from "../../../../../io";
-import * as npm from "npm";
+const npm = require("npm");
 
 
 /**
@@ -84,49 +84,38 @@ export async function install(packageLocation: string, registry: string, install
         // Perform the npm install.
         iConsole.info("Installing packages...this may take some time.");
 
-        // Save current working directory to use later.
-        const cwd = process.cwd();
-
-        // Change current working directory to new
-        process.chdir(PMFConstants.instance.PMF_ROOT);
-
         const npmOptions: object = {
-            prefix: PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
             global: true,
             registry
         };
 
         const installOutput = await new Promise((resolve) => {
-            npm.load(npmOptions, (err) => {
+            npm.load(npmOptions, (err: Error) => {
                 if (err) {
                     iConsole.error(err.message);
                     throw new Error(err.message);
                 }
                 resolve(new Promise((resolveInstall) => {
-                    npm.commands.install([...[], npmPackage], (installError, response) => {
+                    npm.commands.install(PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
+                        [npmPackage], (installError: Error, response: any) => {
                         if (installError) {
                             iConsole.error(installError.message);
                             throw new Error(installError.message);
                         }
-                        resolveInstall(response[0][0]);
+                        resolveInstall(response);
                     });
                 }));
             });
         });
 
-        iConsole.info("Installed package " + installOutput);
-
         iConsole.info("Install complete");
-
-        // Change cwd to old one.
-        process.chdir(cwd);
 
         /* We get the package name (aka plugin name)
          * from the output of the npm command.
          * The regex is meant to match: + plugin-name@version.
          */
         const stringOutput = installOutput.toString();
-        const regex = /^\+\s(.*)@(.*)$/gm;
+        const regex = /(@[a-z]*\/[a-z]*)@([0-9][^,]*)/gm;
         const match = regex.exec(stringOutput);
         const packageName = match[1];
         let packageVersion = match[2];

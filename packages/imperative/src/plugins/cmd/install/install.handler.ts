@@ -80,7 +80,7 @@ export default class InstallHandler implements ICommandHandler {
       });
     } else {
       try {
-        let installRegistry: string;
+        let installRegistry: any;
 
         // Get the registry to install to
         if (typeof params.arguments.registry === "undefined") {
@@ -88,14 +88,13 @@ export default class InstallHandler implements ICommandHandler {
                 npm.load({}, (err) => {
                     if (err) {
                         this.console.error(err.message);
-                        throw new Error(err.message);
                     }
                     resolveLoad(new Promise((resolveGetRegistry) => {
                         resolveGetRegistry(npm.config.get("registry"));
                     }));
                 });
-            }).toString().replace("\n", "");
-            this.console.info("Registry is " + installRegistry);
+            });
+            installRegistry.replace("\n", "");
         } else {
           installRegistry = params.arguments.registry;
         }
