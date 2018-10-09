@@ -20,7 +20,8 @@ export const config: IImperativeConfig = {
         "**/auto-format/*definition!(.d).*s",
         "**/profile/*definition!(.d).*s",
         "**/nested/*definition!(.d).*s",
-        "**/gen-help/*definition!(.d).*s"],
+        "**/gen-help/*definition!(.d).*s",
+        "**/read/*definition!(.d).*s"],
     rootCommandDescription: "A test CLI for the 'cmd' imperative package",
     defaultHome: "~/.cmd-cli",
     productDisplayName: "Cmd Package CLI",
@@ -89,6 +90,35 @@ export const config: IImperativeConfig = {
                     },
                 },
                 required: ["amount"],
+            }
+        },
+        {
+            type: "insecure",
+            schema: {
+                type: "object",
+                title: "Test Secured Fields",
+                description: "Test Secured Fields",
+                properties: {
+                    info: {
+                        type: "string",
+                        optionDefinition: {
+                            name: "info",
+                            description: "The info the keep in the profile.",
+                            type: "string",
+                            required: true,
+                        }
+                    },
+                    secret: {
+                        type: "string",
+                        secure: true,
+                        optionDefinition: {
+                            name: "secret",
+                            description: "The secret info the keep in the profile.",
+                            type: "string",
+                            required: true,
+                        }
+                    }
+                }
             }
         }
     ]
