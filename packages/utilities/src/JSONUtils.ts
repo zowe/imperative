@@ -21,19 +21,25 @@ export class JSONUtils {
 
     /**
      * Throw imperative error or return parsed data
-     * @static
      * @template T - type to parse
      * @param {string} data - string input data to parse as JSON
      * @param {string} [failMessage="Parse of " + data + " failed"] - failure message
-     * @returns {T} - parsed object
-     * @memberof JSONUtils
+     *
+     * @returns {T} - parsed object. If data length is 0 then this method will return a null object
+     *
+     * @throws {ImperativeError} When there was a failure trying to parse a non-zero length data string.
      */
     public static parse<T extends object>(data: string, failMessage?: string): T {
         if (isNullOrUndefined(failMessage)) {
             failMessage = "Parse of " + data + " failed";
         }
         try {
-            return JSON.parse(data);
+            // Return an empty object if the string is empty
+            if (data != null && data.trim().length === 0) {
+                return null;
+            } else {
+                return JSON.parse(data);
+            }
         } catch (thrownError) {
             throw new ImperativeError({
                 msg: failMessage + ":\n" + thrownError.message,

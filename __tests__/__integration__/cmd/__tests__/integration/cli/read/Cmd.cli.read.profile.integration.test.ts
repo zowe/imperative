@@ -9,32 +9,25 @@
 *
 */
 
+import { runCliScript } from "../../../../../../src/TestUtil";
 import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
-import { runCliScript } from "../../../../../../src/TestUtil";
-
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
-
-describe("imperative-test-cli profiles create secured-profile", () => {
-
+describe("cmd-cli profiles read profiles", () => {
     // Create the unique test environment
     beforeAll(async () => {
         TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
-            cliHomeEnvVar: "IMPERATIVE_TEST_CLI_CLI_HOME",
-            testName: "imperative_test_cli_test_create_secured_profile_command"
+            cliHomeEnvVar: "CMD_CLI_CLI_HOME",
+            testName: "cmd_read_profiles"
         });
     });
 
-    it("should allow us to create a secured profile, list the contents and the secured fields should be hidden", () => {
-        const secret: string = "supersecretwords";
-        const profileName: string = "my_secret";
-        const response = runCliScript(__dirname + "/__scripts__/secured-profile/create_and_list.sh", TEST_ENVIRONMENT.workingDir,
-            [secret, profileName]);
+    it("should create a profile with a field marked as secure in plain text (no keytar) and be able to read the contents", () => {
+        const response = runCliScript(__dirname + "/__scripts__/profile/create_and_read.sh", TEST_ENVIRONMENT.workingDir);
         expect(response.stderr.toString()).toBe("");
+        expect(response.stdout.toString()).toContain("not so secret info");
+        expect(response.stdout.toString()).not.toContain("managed by");
         expect(response.status).toBe(0);
-        expect(response.stdout.toString()).not.toContain(secret);
-        expect(response.stdout.toString()).toContain(profileName);
-        expect(response.stdout.toString()).toContain("managed by");
     });
 });

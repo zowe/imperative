@@ -9,7 +9,7 @@
 *
 */
 
-import {IImperativeConfig} from "../../../../../packages/index";
+import { IImperativeConfig } from "../../../../../packages/index";
 
 // Example to use with tsnode: */*CommandDefinitions!(.d).*s
 export const config: IImperativeConfig = {
@@ -18,8 +18,10 @@ export const config: IImperativeConfig = {
         "**/invalid/*definition!(.d).*s",
         "**/chained/*definition!(.d).*s",
         "**/auto-format/*definition!(.d).*s",
+        "**/profile/*definition!(.d).*s",
         "**/nested/*definition!(.d).*s",
-        "**/gen-help/*definition!(.d).*s"],
+        "**/gen-help/*definition!(.d).*s",
+        "**/read/*definition!(.d).*s"],
     rootCommandDescription: "A test CLI for the 'cmd' imperative package",
     defaultHome: "~/.cmd-cli",
     productDisplayName: "Cmd Package CLI",
@@ -34,7 +36,7 @@ export const config: IImperativeConfig = {
                 title: "Banana Profile",
                 description: "Banana Profile",
                 properties: {
-                    color: {
+                    "color": {
                         type: "string",
                         optionDefinition: {
                             name: "color",
@@ -42,6 +44,27 @@ export const config: IImperativeConfig = {
                             description: "The color of the banana.",
                             type: "string",
                             required: true,
+                        },
+                    },
+                    "bananaDescription": {
+                        type: "string",
+                        optionDefinition: {
+                            name: "banana-description",
+                            aliases: ["bd"],
+                            description: "A description of the banana",
+                            type: "string"
+                        },
+                    },
+                    /**
+                     * One option in kebab case to make sure fields are still mapped
+                     */
+                    "mold-type": {
+                        type: "string",
+                        optionDefinition: {
+                            name: "mold-type",
+                            aliases: ["mt"],
+                            description: "The type of mold on the banana if any",
+                            type: "string"
                         },
                     },
                 },
@@ -67,6 +90,35 @@ export const config: IImperativeConfig = {
                     },
                 },
                 required: ["amount"],
+            }
+        },
+        {
+            type: "insecure",
+            schema: {
+                type: "object",
+                title: "Test Secured Fields",
+                description: "Test Secured Fields",
+                properties: {
+                    info: {
+                        type: "string",
+                        optionDefinition: {
+                            name: "info",
+                            description: "The info the keep in the profile.",
+                            type: "string",
+                            required: true,
+                        }
+                    },
+                    secret: {
+                        type: "string",
+                        secure: true,
+                        optionDefinition: {
+                            name: "secret",
+                            description: "The secret info the keep in the profile.",
+                            type: "string",
+                            required: true,
+                        }
+                    }
+                }
             }
         }
     ]
