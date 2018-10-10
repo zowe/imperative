@@ -114,9 +114,9 @@ export class CliUtils {
      *      myEnv-Prefix_SOME_COMMAND_NAME_SOME_OPTION_NAME
      *
      * @param {string} envPrefix - The prefix for environment variables for this CLI.
-     *      The value obtained by ImperativeConfig.getEnvVariablePrefix() will use the
-     *      envVariablePrefix from the Imperative config object, and will use the
-     *      rootCommandName as a fallback value.
+     *      Our caller can use the value obtained by ImperativeConfig.getEnvVariablePrefix(),
+     *      which will use the envVariablePrefix from the Imperative config object,
+     *      and will use the rootCommandName as a fallback value.
      *
      * @param {string} subCmdName - The name of the 1st-level sub-command that is being run.
      *
