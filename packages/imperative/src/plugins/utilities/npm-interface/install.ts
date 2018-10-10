@@ -115,7 +115,11 @@ export async function install(packageLocation: string, registry: string, install
          * The regex is meant to match: + plugin-name@version.
          */
         const stringOutput = installOutput.toString();
-        const regex = /(@[a-z]*\/[a-z]*)@([0-9][^,]*)/gm;
+        let regex = /(@[a-z]*\/[a-z0-9]*)@([0-9][^,]*)/gm;
+        if (npmPackage.includes("/") || npmPackage.includes("\\")) {
+            const pluginName = npmPackage.substring((npmPackage.indexOf("/") + 1));
+            regex = new RegExp("(@[a-z]*\\/" + pluginName + ")@([0-9][^,]*)", "gm");
+        }
         const match = regex.exec(stringOutput);
         const packageName = match[1];
         let packageVersion = match[2];

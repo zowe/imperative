@@ -15,6 +15,7 @@ import {readFileSync, writeFileSync} from "jsonfile";
 import {IPluginJson} from "../../doc/IPluginJson";
 import {Logger} from "../../../../../logger";
 import {ImperativeError} from "../../../../../error";
+const npm  = require("npm");
 
 /**
  * @TODO - allow multiple packages to be updated?
@@ -25,15 +26,11 @@ import {ImperativeError} from "../../../../../error";
  * @param {string} registry The npm registry.
  *
  */
-export function update(packageName: string, registry: string): string {
+export async function update(packageName: string, registry: string) {
   const iConsole = Logger.getImperativeLogger();
   const npmPackage = packageName;
 
   iConsole.debug(`updating package: ${packageName}`);
-
-  // We need to capture stdout but apparently stderr also gives us a progress
-  // bar from the npm install.
-  const pipe = ["pipe", "pipe", process.stderr];
 
   // NOTE: Using npm install in order to retrieve the version which may be updated
   //
@@ -41,11 +38,34 @@ export function update(packageName: string, registry: string): string {
   // some form of a half-assed progress bar. This progress bar doesn't have any
   // formatting or colors but at least I can get the output of stdout right. (comment from install handler)
   iConsole.info("updating package...this may take some time.");
-  iConsole.info(`npm install "${npmPackage}" --prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g --registry ${registry}`);
-  const execOutput = execSync(`npm install "${npmPackage}" --prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g --registry ${registry}`, {
-    cwd  : PMFConstants.instance.PMF_ROOT,
-    stdio: pipe
+  const npmOptions: object = {
+      prefix: PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
+      global: true,
+      registry
+  };
+
+  const execOutput = await new Promise((resolve) => {
+      npm.load(npmOptions, (err: Error) => {
+          if (err) {
+              iConsole.error(err.message);
+              throw new Error(err.message);
+          }
+          resolve(new Promise((resolveInstall) => {
+              npm.commands.install(PMFConstants.instance.PMF_ROOT,
+                  [npmPackage], (installError: Error, response: any) => {
+                      if (installError) {
+                          iConsole.error(installError.message);
+                          throw new Error(installError.message);
+                      }
+                      resolveInstall(response);
+                  });
+              npm.commands.update();
+          }));
+      });
   });
+  // const execOutput = execSync(`npm install "${npmPackage}" --prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g --registry ${registry}`, {
+  //   cwd: PMFConstants.instance.PMF_ROOT
+  // });
 
   /* We get the package name (aka plugin name)
    * from the output of the npm command.
@@ -53,7 +73,7 @@ export function update(packageName: string, registry: string): string {
    */
   const stringOutput = execOutput.toString();
   iConsole.info("stringOutput = " + stringOutput);
-  const regex = /^\+\s(.*)@(.*)$/gm;
+  const regex = /(@[a-z]*\/[a-z]*)@([0-9][^,]*)/gm;
   const match = regex.exec(stringOutput);
   const packageVersion = match[2];
 
