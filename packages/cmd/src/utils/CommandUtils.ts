@@ -16,6 +16,7 @@ import {ICommandOptionDefinition} from "../doc/option/ICommandOptionDefinition";
 import {Constants} from "../../../constants";
 import {ImperativeError} from "../../../error";
 import { CliUtils } from "../../../utilities/src/CliUtils";
+import { ICommandArguments } from "../doc/args/ICommandArguments";
 
 /**
  * Command tree entry describes an entry of a command in the full command tree - used when flattening the command
@@ -74,28 +75,26 @@ export class CommandUtils {
         return command.trim();
     }
 
-
     /**
      * Check if an option was specified by the user.
      * @param optionName - the option to check for.
-     * @param {Arguments} commandArguments: The arguments specified by the user.
+     * @param {ICommandArguments["args"]} args: The arguments specified by the user.
      * @param {ICommandDefinition} commandDefinition - the definition for the command
      * @returns {boolean} true: the option was specified by the user.
      *                    false: the option was omitted/set to false
      */
-    public static optionWasSpecified(optionName: string, commandDefinition: ICommandDefinition,
-                                     commandArguments: Arguments): boolean {
+    public static optionWasSpecified(optionName: string, commandDefinition: ICommandDefinition, args: ICommandArguments["args"]): boolean {
         const optionDef = CommandUtils.getOptionDefinitionFromName(optionName, commandDefinition);
-
+        console.log(args);
         if (isNullOrUndefined(optionDef)) {
             // if it's not an option, it's not specified
             return false;
         }
         if ((optionDef.type as string) === "boolean") {
-            return commandArguments[optionName] === true;
+            return args[optionName] === true;
         }
         else {
-            return !isNullOrUndefined(commandArguments[optionName]);
+            return !isNullOrUndefined(args[optionName]);
         }
     }
 

@@ -48,5 +48,5 @@ export const profileMappingCommand: ICommandDefinition = {
                 defaultValue: "mild"
             }
         ],
-    profiles: {optional: ["banana"]}
+    profile: { optional: ["banana"] }
 };

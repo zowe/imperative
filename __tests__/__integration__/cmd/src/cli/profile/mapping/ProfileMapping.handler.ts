@@ -18,10 +18,17 @@ import { ICommandHandler, IHandlerParameters } from "../../../../../../../packag
  * @implements {ICommandHandler}
  */
 export default class ValidationTestCommand implements ICommandHandler {
-    public async process(commandParameters: IHandlerParameters) {
-        commandParameters.response.console.log("Color: " + commandParameters.arguments.color);
-        commandParameters.response.console.log("Description: " + commandParameters.arguments.bananaDescription);
-        commandParameters.response.console.log("Mold type: " + commandParameters.arguments.moldType);
-        commandParameters.response.console.log("Sweetness: " + commandParameters.arguments.sweetness);
+    public async process(params: IHandlerParameters) {
+        params.response.console.log("\nParameters from Yargs:");
+        params.response.console.log("Color: " + params.arguments.color);
+        params.response.console.log("Description: " + params.arguments.bananaDescription);
+        params.response.console.log("Mold type: " + params.arguments.moldType);
+        params.response.console.log("Sweetness: " + params.arguments.sweetness);
+
+        params.response.console.log("\nParameters from Imperative:");
+        params.response.console.log("Color: " + params.args.args.color);
+        params.response.console.log("Description: " + params.args.args.bananaDescription);
+        params.response.console.log("Mold type: " + params.args.args.moldType);
+        params.response.console.log("Sweetness: " + params.args.args.sweetness);
     }
 }

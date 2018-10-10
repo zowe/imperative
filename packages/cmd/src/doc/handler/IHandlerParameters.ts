@@ -9,11 +9,11 @@
 *
 */
 
-import {Arguments} from "yargs";
-import {ICommandDefinition} from "../ICommandDefinition";
-import {IProfile} from "../../../../profiles";
-import {CommandProfiles} from "../../profiles/CommandProfiles";
-import {IHandlerResponseApi} from "../../doc/response/api/handler/IHandlerResponseApi";
+import { Arguments } from "yargs";
+import { ICommandDefinition } from "../ICommandDefinition";
+import { CommandProfiles } from "../../profiles/CommandProfiles";
+import { IHandlerResponseApi } from "../../doc/response/api/handler/IHandlerResponseApi";
+import { ICommandArguments } from "../args/ICommandArguments";
 
 /**
  * The handler parameters are passed to the instantiated command handler and populated by the command processor. The
@@ -27,6 +27,7 @@ import {IHandlerResponseApi} from "../../doc/response/api/handler/IHandlerRespon
  * @interface IHandlerParameters
  */
 export interface IHandlerParameters {
+    args: ICommandArguments;
     /**
      * The response object used to issue messages and build responses to the command. No command should be
      * writing to console/stdout/stderr directly. The response object provides the capability of collecting

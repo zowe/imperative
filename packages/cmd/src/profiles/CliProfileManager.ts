@@ -36,7 +36,7 @@ import { IDeleteProfile, IProfileDeleted, IProfileLoaded } from "../../../profil
 import { SecureOperationFunction } from "../types/SecureOperationFunction";
 import { ICliILoadProfile } from "../doc/profiles/parms/ICliLoadProfile";
 import { ICliLoadAllProfiles } from "../doc/profiles/parms/ICliLoadAllProfiles";
-import { AppSettings } from "../../../settings";
+import { CliUtils } from "../../../utilities/src/CliUtils";
 
 /**
  * A profile management API compatible with transforming command line arguments into
@@ -508,6 +508,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             }
             try {
                 await handler.process({
+                    args: CliUtils.buildBaseArgs(newArguments),
                     arguments: newArguments,
                     response,
                     fullDefinition: undefined,
@@ -572,6 +573,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             }
             try {
                 await handler.process({
+                    args: CliUtils.buildBaseArgs(profileArguments),
                     arguments: profileArguments,
                     response,
                     fullDefinition: undefined,

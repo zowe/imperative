@@ -13,15 +13,7 @@ import { IImperativeConfig } from "../../../../../packages/index";
 
 // Example to use with tsnode: */*CommandDefinitions!(.d).*s
 export const config: IImperativeConfig = {
-    commandModuleGlobs: ["**/invoke/*definition!(.d).*s",
-        "**/respond/*definition!(.d).*s",
-        "**/invalid/*definition!(.d).*s",
-        "**/chained/*definition!(.d).*s",
-        "**/auto-format/*definition!(.d).*s",
-        "**/profile/*definition!(.d).*s",
-        "**/nested/*definition!(.d).*s",
-        "**/gen-help/*definition!(.d).*s",
-        "**/read/*definition!(.d).*s"],
+    commandModuleGlobs: ["**/cli/*/*definition!(.d).*s"],
     rootCommandDescription: "A test CLI for the 'cmd' imperative package",
     defaultHome: "~/.cmd-cli",
     productDisplayName: "Cmd Package CLI",

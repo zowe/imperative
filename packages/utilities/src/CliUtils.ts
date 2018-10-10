@@ -16,6 +16,9 @@ import { Arguments } from "yargs";
 import { TextUtils } from "./TextUtils";
 import { IOptionFormat } from "./doc/IOptionFormat";
 import { Logger } from "../../logger";
+import { ICommandOptionDefinition, ICommandPositionalDefinition, CommandProfiles } from "../../cmd";
+import { ICommandArguments } from "../../cmd/src/doc/args/ICommandArguments";
+import { IProfile } from "../../profiles";
 
 /**
  * Cli Utils contains a set of static methods/helpers that are CLI related (forming options, censoring args, etc.)
@@ -97,6 +100,93 @@ export class CliUtils {
         return newArgs;
     }
 
+
+    /**
+     * Accepts the full set of loaded profiles and attempts to match the option names supplied with profile keys.
+     *
+     * @param {Map<string, IProfile[]>} profileMap - the map of type to loaded profiles. The key is the profile type
+     * and the value is an array of profiles loaded for that type.
+     *
+     * @param {string[]} profileOrder - the order to process the profile types (keys of the map)
+     *
+     * @param {(Array<ICommandOptionDefinition | ICommandPositionalDefinition>)} options - the full set of command options
+     * for the command being processed
+     *
+     * @returns {*}
+     *
+     * @memberof CliUtils
+     */
+    public static extractOptValueFromProfiles(profiles: CommandProfiles, profileOrder: string[],
+                                              options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): any {
+        let args: any = {};
+
+        // Iterate through the profiles in the order they appear in the list provided. For each profile found, we will
+        // attempt to match the option name to a profile property exactly - and extract the value from the profile.
+        profileOrder.forEach((profileType) => {
+
+            // Get the first profile loaded - for now, we won't worry about profiles and double-type loading for dependencies
+            const profile: IProfile = profiles.get(profileType, false);
+            if (profile == null) {
+                throw new ImperativeError({
+                    msg: `Profile of type "${profileType}" does not exist within the loaded profiles for the command.`,
+                    additionalDetails: `Command preparation was attempting to extract option values from profiles.`
+                });
+            }
+
+            // For each option - extract the value if that exact property exists
+            options.forEach((opt) => {
+                console.log("@@@PROF");
+                console.log(profile);
+                if (profile.hasOwnProperty(opt.name) && !args.hasOwnProperty(opt.name) && profile[opt.name] !== undefined) {
+                    const keys =  CliUtils.setOptionValue(opt.name, profile[opt.name]);
+                    args = {...args, ...keys};
+                }
+            });
+        });
+        return args;
+    }
+
+    /**
+     * Using Object.assign(), merges objects in the order they appear in call. Object.assign() copies and overwrites
+     * existing properties in the target object, meaning property precedence is least to most (left to right).
+     *
+     * See details on Object.assign() for nuance.
+     *
+     * @param {...any[]} args - variadic set of objects to be merged
+     *
+     * @returns {*} - the merged object
+     *
+     */
+    public static mergeArguments(...args: any[]): any {
+        let merged = {};
+        args.forEach((obj) => {
+            merged = {...merged, ...obj};
+        });
+        return merged;
+    }
+
+    /**
+     * Accepts the full set of command options and extracts their values from environment variables that are set.
+     *
+     * @param {(Array<ICommandOptionDefinition | ICommandPositionalDefinition>)} options - the full set of options
+     * specified on the command definition. Includes both the option definitions and the positional definitions.
+     *
+     * @returns {ICommandArguments["args"]} - the argument style object with both camel and kebab case keys for each
+     * option specified in environment variables.
+     *
+     */
+    public static extractEnvForOptions(envPrefix: string,
+                                       options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): ICommandArguments["args"] {
+        const args: ICommandArguments["args"] = {};
+        options.forEach((opt) => {
+            const envValue = CliUtils.getEnvValForOption(envPrefix, opt.name);
+            if (envValue != null) {
+                CliUtils.setOptionValue(opt.name, envValue);
+            }
+        });
+        return args;
+    }
+
     /**
      * Get the value of an environment variable associated with the specified option name.
      * The option name can be specified in camelCase or in kabab-style.
@@ -176,6 +266,51 @@ export class CliUtils {
         return TextUtils.chalk[color](headerText);
     }
 
+
+    /**
+     * Accepts an option name and its value and returns the arguments style object.
+     *
+     * @param {string} optName - The command option name, usually in kebab case (or a single word)
+     *
+     * @param {*} value - The value to assign to the argument
+     *
+     * @returns {ICommandArguments["args"]} - The argument style object
+     *
+     * @example <caption>Create Argument Object</caption>
+     *
+     * CliUtils.setOptionValue("my-option", "value");
+     *
+     * // returns
+     * {
+     *    "myOption": "value",
+     *    "my-option": "value"
+     * }
+     *
+     */
+    public static setOptionValue(optName: string, value: any): ICommandArguments["args"] {
+        const names: IOptionFormat = CliUtils.getOptionFormat(optName);
+        const args: ICommandArguments["args"] = {};
+        args[names.camelCase] = value;
+        args[names.kebabCase] = value;
+        return args;
+    }
+
+    public static buildBaseArgs(args: Arguments): ICommandArguments {
+        const impArgs = { ...args };
+        Object.keys(impArgs).forEach((key) => {
+            if (impArgs[key] === undefined) {
+                delete impArgs[key];
+            }
+        });
+        delete impArgs.$0;
+        delete impArgs._;
+        return {
+            commands: args._,
+            executable: args.$0,
+            args: impArgs
+        };
+    }
+
     /**
      * Takes a key and converts it to both camelCase and kebab-case.
      *
@@ -243,7 +378,7 @@ export class CliUtils {
                  * - hello-World-       -> helloWorld
                  */
                 const returnChar = p1.substr(-1).toUpperCase();
-                return  returnChar !== "-" ? returnChar : "";
+                return returnChar !== "-" ? returnChar : "";
             }),
             kebabCase: key.replace(/(-*[A-Z]|-{2,}|-$)/g, (match, p1, offset, inputString) => {
                 /*

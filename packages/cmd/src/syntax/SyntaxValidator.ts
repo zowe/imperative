@@ -9,7 +9,6 @@
 *
 */
 
-import { Arguments } from "yargs";
 import * as fs from "fs";
 import { inspect, isNullOrUndefined } from "util";
 import { syntaxErrorHeader } from "../../../messages";
@@ -26,6 +25,7 @@ import { ICommandValidatorError } from "../doc/response/response/ICommandValidat
 import { CommandResponse } from "../response/CommandResponse";
 import { Logger } from "../../../logger";
 import { TextUtils } from "../../../utilities";
+import { ICommandArguments } from "../doc/args/ICommandArguments";
 /**
  * The Imperative default syntax validator. Accepts the input arguments, command
  * definitions, and a response object. Validates the syntax and issues the
@@ -99,7 +99,7 @@ export class SyntaxValidator {
      * @param {yargs.Arguments} commandArguments
      * @return {Promise<ICommandResponse>}
      */
-    public validate(responseObject: CommandResponse, commandArguments: Arguments): Promise<ICommandValidatorResponse> {
+    public validate(responseObject: CommandResponse, commandArguments: ICommandArguments): Promise<ICommandValidatorResponse> {
         return new Promise<ICommandValidatorResponse>((validationComplete) => {
             const syntaxValid: boolean = this.validateSyntax(commandArguments, responseObject);
             validationComplete({ valid: syntaxValid });
@@ -112,7 +112,7 @@ export class SyntaxValidator {
      * custom validation provided by the user
      * @return {boolean}: True if the options are valid
      */
-    private validateSyntax(commandArguments: Arguments, responseObject: CommandResponse): boolean {
+    private validateSyntax(commandArguments: ICommandArguments, responseObject: CommandResponse): boolean {
         const optionDefs = this.mOptionDefinitionsMap as { [key: string]: ICommandOptionDefinition };
         let valid = true;
 
@@ -125,9 +125,9 @@ export class SyntaxValidator {
          */
         if (!isNullOrUndefined(this.mCommandDefinition.options)) {
             for (const option of this.mCommandDefinition.options) {
-                if (!isNullOrUndefined(commandArguments[option.name]) &&
-                    commandArguments[option.name] === "" ||
-                    (option.type !== "boolean" && commandArguments[option.name] === true)) {
+                if (!isNullOrUndefined(commandArguments.args[option.name]) &&
+                    commandArguments.args[option.name] === "" ||
+                    (option.type !== "boolean" && commandArguments.args[option.name] === true)) {
                     valid = false;
                     this.emptyValueError(responseObject, option.name);
                 }
@@ -140,12 +140,12 @@ export class SyntaxValidator {
          */
         if (this.mCommandDefinition.type === "command" &&
             !isNullOrUndefined(this.mCommandDefinition.name) &&
-            commandArguments._.length > expectedUnderscoreLength) {
+            commandArguments.commands.length > expectedUnderscoreLength) {
             valid = false;
             this.unknownPositionalError(responseObject, commandArguments, expectedUnderscoreLength);
         } else {
             this.mLogger.trace("no unknown positionals. Length of positional arguments was: %s. Contents of _ were %s, Expected " +
-                "\"_\" to have length of %s", commandArguments._.length, commandArguments._, expectedUnderscoreLength);
+                "\"_\" to have length of %s", commandArguments.commands.length, commandArguments.commands, expectedUnderscoreLength);
         }
 
         /**
@@ -155,8 +155,8 @@ export class SyntaxValidator {
         if (this.mCommandDefinition.mustSpecifyOne &&
             this.mCommandDefinition.mustSpecifyOne.length > 0) {
             let atLeastOneRequiredOptionFound = false;
-            for (const option of Object.keys(commandArguments)) {
-                if (util.optionWasSpecified(option, this.mCommandDefinition, commandArguments) &&
+            for (const option of Object.keys(commandArguments.args)) {
+                if (util.optionWasSpecified(option, this.mCommandDefinition, commandArguments.args) &&
                     this.mCommandDefinition.mustSpecifyOne.indexOf(option) >= 0) {
                     atLeastOneRequiredOptionFound = true;
                     this.mLogger.debug(".mustSpecifyOneOf() satisfied by %s", option);
@@ -177,7 +177,7 @@ export class SyntaxValidator {
             this.mCommandDefinition.onlyOneOf.length > 0) {
             const specified: string[] = [];
             for (const option of this.mCommandDefinition.onlyOneOf) {
-                if (util.optionWasSpecified(option, this.mCommandDefinition, commandArguments)) {
+                if (util.optionWasSpecified(option, this.mCommandDefinition, commandArguments.args)) {
                     specified.push(option);
                     this.mLogger.debug(".onlyOneOf option present: %s", option);
                 } else {
@@ -202,7 +202,7 @@ export class SyntaxValidator {
             const missingPositionals: ICommandPositionalDefinition[] = [];
             for (const positional of this.mCommandDefinition.positionals) {
                 if (positional.required) {
-                    if (!commandArguments[positional.name]) {
+                    if (!commandArguments.args[positional.name]) {
                         missingPositionals.push(positional);
                     }
                 }
@@ -216,23 +216,23 @@ export class SyntaxValidator {
              * Validate that the positional parameter matches the supplied regex.
              */
             for (const positional of this.mCommandDefinition.positionals) {
-                if (!isNullOrUndefined(commandArguments[positional.name])) {
+                if (!isNullOrUndefined(commandArguments.args[positional.name])) {
                     if (positional.regex) {
-                        if (isNullOrUndefined(commandArguments[positional.name]
+                        if (isNullOrUndefined(commandArguments.args[positional.name]
                             .toString().match(new RegExp(positional.regex)))) {
                             valid = false;
                             this.positionalParameterInvalid(positional,
-                                commandArguments[positional.name], responseObject);
+                                commandArguments.args[positional.name], responseObject);
                         }
                     }
                     if (positional.type === "number") {
-                        valid = this.validateNumeric(commandArguments[positional.name], positional, responseObject, true) && valid;
+                        valid = this.validateNumeric(commandArguments.args[positional.name], positional, responseObject, true) && valid;
                     }
 
                     if (!isNullOrUndefined(positional.stringLengthRange) &&
                         !isNullOrUndefined(positional.stringLengthRange[0]) &&
                         !isNullOrUndefined(positional.stringLengthRange[1])) {
-                        valid = this.validateOptionValueLength(positional, commandArguments[positional.name], responseObject, true) && valid;
+                        valid = this.validateOptionValueLength(positional, commandArguments.args[positional.name], responseObject, true) && valid;
                     }
                 }
 
@@ -245,7 +245,7 @@ export class SyntaxValidator {
             /**
              * Are any required options omitted?
              */
-            if (optionDef.required && !util.optionWasSpecified(optionName, this.mCommandDefinition, commandArguments)) {
+            if (optionDef.required && !util.optionWasSpecified(optionName, this.mCommandDefinition, commandArguments.args)) {
                 this.missingOptionError(optionDef, responseObject);
                 valid = false;
             }
@@ -256,8 +256,8 @@ export class SyntaxValidator {
              */
             if (!isNullOrUndefined(optionDef.absenceImplications) && optionDef.absenceImplications.length > 0) {
                 for (const implication of optionDef.absenceImplications) {
-                    if (!util.optionWasSpecified(optionName, this.mCommandDefinition, commandArguments)
-                        && !util.optionWasSpecified(implication, this.mCommandDefinition, commandArguments)) {
+                    if (!util.optionWasSpecified(optionName, this.mCommandDefinition, commandArguments.args)
+                        && !util.optionWasSpecified(implication, this.mCommandDefinition, commandArguments.args)) {
                         this.absenceImplicationError(optionDef, responseObject);
                         valid = false;
                         break;
@@ -269,25 +269,25 @@ export class SyntaxValidator {
              * validations that only apply if the option has been specified
              * We consider setting a flag to false  to be "not specifying it"
              */
-            if (util.optionWasSpecified(optionName, this.mCommandDefinition, commandArguments)) {
+            if (util.optionWasSpecified(optionName, this.mCommandDefinition, commandArguments.args)) {
 
                 // yargs puts options specified multiple times into an array even if they are string
                 // type. We want to prevent this.
-                if (optionDef.type !== "array" && Array.isArray(commandArguments[optionName])) {
+                if (optionDef.type !== "array" && Array.isArray(commandArguments.args[optionName])) {
                     valid = false;
                     this.specifiedMultipleTimesError(optionDef, responseObject);
                 }
                 // check if the value of the option conforms to the allowableValues (if any)
                 if (!isNullOrUndefined(optionDef.allowableValues)) {
-                    if (!this.checkIfAllowable(optionDef.allowableValues, commandArguments[optionName])) {
-                        this.invalidOptionError(optionDef, responseObject, commandArguments[optionName]);
+                    if (!this.checkIfAllowable(optionDef.allowableValues, commandArguments.args[optionName])) {
+                        this.invalidOptionError(optionDef, responseObject, commandArguments.args[optionName]);
                         valid = false;
                     }
                 }
 
                 if (!isNullOrUndefined(optionDef.conflictsWith) && optionDef.conflictsWith.length > 0) {
                     for (const conflict of optionDef.conflictsWith) {
-                        if (util.optionWasSpecified(conflict, this.mCommandDefinition, commandArguments)) {
+                        if (util.optionWasSpecified(conflict, this.mCommandDefinition, commandArguments.args)) {
                             this.optionCombinationInvalidError(optionDef,
                                 this.getOptionDefinitionFromName(conflict), responseObject);
                             valid = false;
@@ -300,7 +300,7 @@ export class SyntaxValidator {
                  */
                 if (!isNullOrUndefined(optionDef.implies) && optionDef.implies.length > 0) {
                     for (const implication of optionDef.implies) {
-                        if (!util.optionWasSpecified(implication, this.mCommandDefinition, commandArguments)) {
+                        if (!util.optionWasSpecified(implication, this.mCommandDefinition, commandArguments.args)) {
                             this.optionDependencyError(optionDef, this.mOptionDefinitionsMap[implication],
                                 responseObject);
                             valid = false;
@@ -314,7 +314,7 @@ export class SyntaxValidator {
                 if (!isNullOrUndefined(optionDef.impliesOneOf) && optionDef.impliesOneOf.length > 0) {
                     let implicationSatisfied = false;
                     for (const implication of optionDef.impliesOneOf) {
-                        if (util.optionWasSpecified(implication, this.mCommandDefinition, commandArguments)) {
+                        if (util.optionWasSpecified(implication, this.mCommandDefinition, commandArguments.args)) {
                             this.mLogger.debug(".impliesOneOf() was satisfied by %s", implication);
                             implicationSatisfied = true;
                             break;
@@ -330,12 +330,12 @@ export class SyntaxValidator {
                  * Check whether local files exist if they are supposed to
                  */
                 if (optionDef.type === "existingLocalFile") {
-                    if (!fs.existsSync(commandArguments[optionDef.name])) {
+                    if (!fs.existsSync(commandArguments.args[optionDef.name])) {
                         this.fileOptionError(optionDef, commandArguments, responseObject);
                         valid = false;
                     } else {
                         this.mLogger.debug("the local file %s existed as required",
-                            commandArguments[optionDef.name]);
+                            commandArguments.args[optionDef.name]);
                     }
                 }
 
@@ -344,11 +344,11 @@ export class SyntaxValidator {
                  */
                 else if (optionDef.type === "json") {
                     try {
-                        JSON.parse(commandArguments[optionDef.name]);
+                        JSON.parse(commandArguments.args[optionDef.name]);
                     } catch (e) {
                         valid = false;
                         this.invalidJsonString(e, this.mOptionDefinitionsMap[optionDef.name], responseObject,
-                            commandArguments[optionDef.name]);
+                            commandArguments.args[optionDef.name]);
                     }
                 }
 
@@ -358,7 +358,7 @@ export class SyntaxValidator {
                 if (!isNullOrUndefined(optionDef.numericValueRange) &&
                     !isNullOrUndefined(optionDef.numericValueRange[0]) &&
                     !isNullOrUndefined(optionDef.numericValueRange[1])) {
-                    valid = this.validateOptionValueRange(optionDef, commandArguments[optionDef.name],
+                    valid = this.validateOptionValueRange(optionDef, commandArguments.args[optionDef.name],
                         responseObject) && valid;
                 }
 
@@ -368,7 +368,7 @@ export class SyntaxValidator {
                 if (!isNullOrUndefined(optionDef.stringLengthRange) &&
                     !isNullOrUndefined(optionDef.stringLengthRange[0]) &&
                     !isNullOrUndefined(optionDef.stringLengthRange[1])) {
-                    valid = this.validateOptionValueLength(optionDef, commandArguments[optionDef.name],
+                    valid = this.validateOptionValueLength(optionDef, commandArguments.args[optionDef.name],
                         responseObject) && valid;
                 }
 
@@ -378,7 +378,7 @@ export class SyntaxValidator {
                 if (!isNullOrUndefined(optionDef.type)) {
 
                     if (optionDef.type === "number") {
-                        valid = this.validateNumeric(commandArguments[optionDef.name], optionDef,
+                        valid = this.validateNumeric(commandArguments.args[optionDef.name], optionDef,
                             responseObject) && valid;
                     }
                 }
@@ -388,9 +388,9 @@ export class SyntaxValidator {
                         const implicationObject: ICommandOptionValueImplications
                             = optionDef.valueImplications[value];
                         if ((implicationObject.isCaseSensitive &&
-                            commandArguments[optionName] === value) ||
+                            commandArguments.args[optionName] === value) ||
                             (!implicationObject.isCaseSensitive &&
-                                commandArguments[optionName].toUpperCase() === value.toUpperCase())) {
+                                commandArguments.args[optionName].toUpperCase() === value.toUpperCase())) {
                             for (const impliedOption of implicationObject.impliedOptionNames) {
                                 if (!util.optionWasSpecified(impliedOption,
                                     this.mCommandDefinition, commandArguments)) {
@@ -438,10 +438,10 @@ export class SyntaxValidator {
      * @param isPositional - is the option a positional option? defaults to false
      */
     private fileOptionError(optionDefinition: ICommandOptionDefinition | ICommandPositionalDefinition,
-                            commandArguments: Arguments, responseObject: CommandResponse,
+                            commandArguments: ICommandArguments, responseObject: CommandResponse,
                             isPositional: boolean = false): void {
         const mustacheSummary: any = this.getMustacheSummaryForOption(optionDefinition, isPositional);
-        mustacheSummary.value = commandArguments[optionDefinition.name];
+        mustacheSummary.value = commandArguments.args[optionDefinition.name];
         responseObject.console.errorHeader(syntaxErrorHeader.message);
         const msg: string = responseObject
             .console.error("Invalid file path specified for option:\n{{long}} {{aliases}}\n" +
@@ -863,11 +863,11 @@ export class SyntaxValidator {
     /**
      * If the user specifies an extra positional option
      */
-    private unknownPositionalError(responseObject: CommandResponse, commandArguments: Arguments,
+    private unknownPositionalError(responseObject: CommandResponse, commandArguments: ICommandArguments,
                                    expectedUnderscoreLength: number) {
         responseObject.console.errorHeader(syntaxErrorHeader.message);
 
-        const badOptionsSummary = commandArguments._.slice(expectedUnderscoreLength)
+        const badOptionsSummary = commandArguments.commands.slice(expectedUnderscoreLength)
             .map((argument) => {
                 return "\"" + argument + "\"";
             }).join(", ");
