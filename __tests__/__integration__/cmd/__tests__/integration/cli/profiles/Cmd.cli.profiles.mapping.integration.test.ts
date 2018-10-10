@@ -112,4 +112,26 @@ describe("cmd-cli profile mapping", () => {
         expect(response.stdout.toString()).toContain("Sweetness: mild");
     });
 
+    it("should have environmental variables take precedence over default values", () => {
+        // values used as env variables
+        const envSweetness = "very very";
+
+        // values used as command line arguments
+        const cliColor = "golden";
+        const cliDescription = "delicious";
+        const cliMoldType = "no mold at all";
+
+        const response = runCliScript(__dirname + "/__scripts__/profiles/specify_env_sweetness.sh",
+            TEST_ENVIRONMENT.workingDir, [cliColor, cliDescription, cliMoldType, envSweetness]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        // the output of the command should use the CLI arguments
+        // except for sweetness which was specified by environmental variables
+        expect(response.stdout.toString()).toContain("Color: " + cliColor);
+        expect(response.stdout.toString()).toContain("Description: " + cliDescription);
+        expect(response.stdout.toString()).toContain("Mold type: " + cliMoldType);
+        expect(response.stdout.toString()).toContain("Sweetness: " + envSweetness);
+    });
+
 });
