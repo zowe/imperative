@@ -62,6 +62,13 @@ export class CommandProcessor {
      */
     private mCommandRootName: string;
     /**
+     * Environmental variable name prefix used to construct configuration environmental variables.
+     * @private
+     * @type {string}
+     * @memberof CommandProcessor
+     */
+    private mEnvVariablePrefix: string;
+    /**
      * The command definition node for the command being executed.
      * @private
      * @type {ICommandDefinition}
@@ -117,6 +124,7 @@ export class CommandProcessor {
                 `but no handler was specified.`);
         }
         this.mCommandRootName = params.rootCommandName;
+        this.mEnvVariablePrefix = params.envVariablePrefix;
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["rootCommandName"], `${CommandProcessor.ERROR_TAG} No root command supplied.`);
         // TODO - check if the command definition passed actually exists within the full command definition tree passed
     }
@@ -129,6 +137,16 @@ export class CommandProcessor {
      */
     get rootCommand(): string {
         return this.mCommandRootName;
+    }
+
+    /**
+     * Accessor for the environment variable prefix
+     * @readonly
+     * @type {string}
+     * @memberof CommandProcessor
+     */
+    get envVariablePrefix(): string {
+        return this.mEnvVariablePrefix;
     }
 
     /**

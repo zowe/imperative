@@ -31,6 +31,7 @@ export class YargsDefiner {
     private mYargsInstance: Argv;
     private mPrimaryHighlightColor: string;
     private mRootCommandName: string;
+    private mEnvVariablePrefix: string;
     private mHelpFactory: IHelpGeneratorFactory;
     private mProfileManagerFactory: IProfileManagerFactory<ICommandProfileTypeConfiguration>;
     private mExperimentalCommandDescription: string;
@@ -45,6 +46,7 @@ export class YargsDefiner {
      * @param {yargs.Argv} yargsInstance: The Yargs instance used to define the commands.
      * @param primaryHighlightColor -  main color to highlight help text headings and other text with
      * @param rootCommandName - the display name of the root command (e.g. "bright" or "sample-cli")
+     * @param envVariablePrefix - the environment variable prefix
      * @param profileManagerFactory - profile manager factory that can be used to instantiate new profile managers
      * @param helpGeneratorFactory - help generator factory that can be used to instantiate new help generators
      * @param experimentalCommandDescription - optionally overridden experimental command description to
@@ -53,12 +55,14 @@ export class YargsDefiner {
     constructor(yargsInstance: Argv,
                 primaryHighlightColor: string,
                 rootCommandName: string,
+                envVariablePrefix: string,
                 profileManagerFactory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
                 helpGeneratorFactory: IHelpGeneratorFactory,
                 experimentalCommandDescription: string) {
         this.mYargsInstance = yargsInstance;
         this.mPrimaryHighlightColor = primaryHighlightColor;
         this.mRootCommandName = rootCommandName;
+        this.mEnvVariablePrefix = envVariablePrefix;
         this.mHelpFactory = helpGeneratorFactory;
         this.mProfileManagerFactory = profileManagerFactory;
         this.mExperimentalCommandDescription = experimentalCommandDescription;
@@ -88,7 +92,8 @@ export class YargsDefiner {
                     helpGeneratorFactory: this.mHelpFactory,
                     profileManagerFactory: this.mProfileManagerFactory,
                     experimentalCommandDescription: this.mExperimentalCommandDescription,
-                    rootCommandName: this.mRootCommandName
+                    rootCommandName: this.mRootCommandName,
+                    envVariablePrefix: this.mEnvVariablePrefix
                 }).defineCommandToYargs(commandExecuted);
                 break;
             case "command":
@@ -99,7 +104,8 @@ export class YargsDefiner {
                     helpGeneratorFactory: this.mHelpFactory,
                     profileManagerFactory: this.mProfileManagerFactory,
                     experimentalCommandDescription: this.mExperimentalCommandDescription,
-                    rootCommandName: this.mRootCommandName
+                    rootCommandName: this.mRootCommandName,
+                    envVariablePrefix: this.mEnvVariablePrefix
                 }).defineCommandToYargs(commandExecuted);
                 break;
             default:

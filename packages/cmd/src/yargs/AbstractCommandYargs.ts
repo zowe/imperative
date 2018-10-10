@@ -83,6 +83,14 @@ export abstract class AbstractCommandYargs {
     private mRootCommandName: string;
 
     /**
+     * Environmental variable name prefix used to construct configuration environmental variables.
+     * @private
+     * @type {string}
+     * @memberof AbstractCommandYargs
+     */
+    private mEnvVariablePrefix: string;
+
+    /**
      * Construct the yargs command instance for imperative. Provides the ability to define Imperative commands to Yargs.
      * @param {IYargsParms} yargsParms - Parameter object contains parms for Imperative/Yargs and command response objects
      */
@@ -94,6 +102,7 @@ export abstract class AbstractCommandYargs {
         this.mProfileManagerFactory = yargsParms.profileManagerFactory;
         this.mHelpGeneratorFactory = yargsParms.helpGeneratorFactory;
         this.mRootCommandName = yargsParms.rootCommandName;
+        this.mEnvVariablePrefix = yargsParms.envVariablePrefix;
     }
 
     /**
@@ -105,6 +114,17 @@ export abstract class AbstractCommandYargs {
      */
     protected get rootCommandName(): string {
         return this.mRootCommandName;
+    }
+
+    /**
+     * Accessor for the Environmental variable prefix
+     * @readonly
+     * @protected
+     * @type {string}
+     * @memberof AbstractCommandYargs
+     */
+    protected get envVariablePrefix(): string {
+        return this.mEnvVariablePrefix;
     }
 
     /**
@@ -223,7 +243,8 @@ export abstract class AbstractCommandYargs {
                 fullDefinition: this.constructDefinitionTree(),
                 helpGenerator: newHelpGenerator,
                 profileManagerFactory: this.profileManagerFactory,
-                rootCommandName: this.rootCommandName
+                rootCommandName: this.rootCommandName,
+                envVariablePrefix: this.envVariablePrefix
             }).help(new CommandResponse({
                 silent: false,
                 responseFormat: (args[Constants.JSON_OPTION] || false) ? "json" : "default",

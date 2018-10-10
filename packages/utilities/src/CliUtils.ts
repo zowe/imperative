@@ -189,18 +189,28 @@ export class CliUtils {
 
     /**
      * Get the value of an environment variable associated with the specified option name.
-     * The option name can be specified in camelCase or in kabab-style.
-     * Regardless of the style of the option name, the corresponding environment variable will
-     * be all upper case with underscores where the dashes would be in the kabab style.
-     * The name of the host CLI application and the name of the command will be pre-pended
-     * to the environment variable name.
+     * The environment variable name will be formed by concatenating an environment name prefix,
+     * the subCmdName, and the cmdOption using underscores as delimeters.
      *
-     * Example: someOptionName or some-option-name would retrieve the value of an environment
-     * variable named <CLI Name>_<Command Name>_SOME_OPTION_NAME.
+     * The subCmdName and cmdOption name can be specified in camelCase or in kabab-style.
+     * Regardless of the style, both will be converted to upper case
+     * We replace dashes in Kabab-style values with underscores. We replace each uppercase
+     * character in a camelCase value with underscore and that character.
      *
-     * @param {string} cmdName - The name of the command that is being run.
+     * The envPrefix will be used exactly as specified.
      *
-     * @param {string} camelOrKababOption - The name of the option in either camelCase or kabab-style.
+     * Example: The values myEnv-Prefix, some-command-name someOptionName would retrieve
+     * the value of an environment variable named
+     *      myEnv-Prefix_SOME_COMMAND_NAME_SOME_OPTION_NAME
+     *
+     * @param {string} envPrefix - The prefix for environment variables for this CLI.
+     *      Our caller can use the value obtained by Imperative.envVariablePrefix(),
+     *      which will use the envVariablePrefix from the Imperative config object,
+     *      and will use the rootCommandName as a fallback value.
+     *
+     * @param {string} subCmdName - The name of the 1st-level sub-command that is being run.
+     *
+     * @param {string} cmdOption - The name of the option in either camelCase or kabab-style.
      *
      * @returns {string | null} - The value of the environment variable which corresponds
      *      to the supplied option for the supplied command. If no such environment variable
@@ -208,26 +218,24 @@ export class CliUtils {
      *
      * @memberof CliUtils
      */
-    public static getEnvValForOption(cmdName: string, camelOrKababOption: string): string | null {
-        /* todo: ask for host CLI name as another parameter, or do the find-up ourself.
-           We cannot call findPackageBinName() because of circular dependency.
+    public static getEnvValForOption(
+        envPrefix: string, subCmdName: string, cmdOption: string
+    ): string | null
+    {
+        const cmdNmChoices: IOptionFormat = CliUtils.getOptionFormat(subCmdName);
+        const optChoices: IOptionFormat = CliUtils.getOptionFormat(cmdOption);
 
-        const hostCliName = ImperativeConfig.instance.findPackageBinName();
-        if (hostCliName === null) {
-            Logger.getImperativeLogger().error("Unable to retrieve the host CLI name, " +
-                "so cannot form an environment variable name for command = " +
-                `'${cmdName}' and option = '${camelOrKababOption}'.`
-             );
-            return null;
+        // Form envPrefix, subCmdName, and option into an environment variable
+        const envDelim = "_";
+        let envVarName = cmdNmChoices.kebabCase + envDelim + optChoices.kebabCase;
+        envVarName = envPrefix + envDelim + envVarName.toUpperCase().replace(/-/g, envDelim);
+
+        // Get the value of the environment variable
+        if (process.env.hasOwnProperty(envVarName)) {
+            return process.env[envVarName];
         }
-        */
 
-        const optChoices: IOptionFormat = CliUtils.getOptionFormat(camelOrKababOption);
-
-        // todo: Form hostCliName, cmdName, and optChoices.kebabCase into an environment variable
-
-        // todo: Get the value of the environment variable
-
+        // no corresponding environment variable exists
         return null;
     }
 
