@@ -177,7 +177,7 @@ export class CliUtils {
                                        options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): ICommandArguments["args"] {
         const args: ICommandArguments["args"] = {};
         options.forEach((opt) => {
-            const envValue = CliUtils.getEnvValForOption(envPrefix, "", opt.name);
+            const envValue = CliUtils.getEnvValForOption(envPrefix, opt.name);
             if (envValue != null) {
                 CliUtils.setOptionValue(opt.name, envValue);
             }
@@ -188,25 +188,23 @@ export class CliUtils {
     /**
      * Get the value of an environment variable associated with the specified option name.
      * The environment variable name will be formed by concatenating an environment name prefix,
-     * the subCmdName, and the cmdOption using underscores as delimeters.
+     * and the cmdOption using underscore as the delimiter.
      *
-     * The subCmdName and cmdOption name can be specified in camelCase or in kabab-style.
-     * Regardless of the style, both will be converted to upper case
+     * The cmdOption name can be specified in camelCase or in kabab-style.
+     * Regardless of the style, it will be converted to upper case.
      * We replace dashes in Kabab-style values with underscores. We replace each uppercase
      * character in a camelCase value with underscore and that character.
      *
      * The envPrefix will be used exactly as specified.
      *
-     * Example: The values myEnv-Prefix, some-command-name someOptionName would retrieve
+     * Example: The values myEnv-Prefix and someOptionName would retrieve
      * the value of an environment variable named
-     *      myEnv-Prefix_SOME_COMMAND_NAME_SOME_OPTION_NAME
+     *      myEnv-Prefix_SOME_OPTION_NAME
      *
      * @param {string} envPrefix - The prefix for environment variables for this CLI.
      *      Our caller can use the value obtained by Imperative.envVariablePrefix(),
      *      which will use the envVariablePrefix from the Imperative config object,
      *      and will use the rootCommandName as a fallback value.
-     *
-     * @param {string} subCmdName - The name of the 1st-level sub-command that is being run.
      *
      * @param {string} cmdOption - The name of the option in either camelCase or kabab-style.
      *
@@ -216,16 +214,11 @@ export class CliUtils {
      *
      * @memberof CliUtils
      */
-    public static getEnvValForOption(
-        envPrefix: string, subCmdName: string, cmdOption: string
-    ): string | null
+    public static getEnvValForOption(envPrefix: string, cmdOption: string): string | null
     {
-        const cmdNmChoices: IOptionFormat = CliUtils.getOptionFormat(subCmdName);
-        const optChoices: IOptionFormat = CliUtils.getOptionFormat(cmdOption);
-
-        // Form envPrefix, subCmdName, and option into an environment variable
+        // Form envPrefix and cmdOption into an environment variable
         const envDelim = "_";
-        let envVarName = cmdNmChoices.kebabCase + envDelim + optChoices.kebabCase;
+        let envVarName = CliUtils.getOptionFormat(cmdOption).kebabCase;
         envVarName = envPrefix + envDelim + envVarName.toUpperCase().replace(/-/g, envDelim);
 
         // Get the value of the environment variable
