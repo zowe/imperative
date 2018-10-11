@@ -38,11 +38,10 @@ export interface IHandlerParameters {
     response: IHandlerResponseApi;
     /**
      * The arguments specified by the user on the command line (in the Yargs object format).
-     * TODO: Will this break compilation for plugins/CLIs?
      * @type {Arguments}
      * @memberof IHandlerParameters
      */
-    arguments: Arguments | ICommandArguments;
+    arguments: ICommandArguments;
     /**
      * The set of profiles loaded for this command handler - the map is built with the key being the type and it
      * returns the set of profiles loaded of that type. Multiple profiles can be loaded of the same type - depending

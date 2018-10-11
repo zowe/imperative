@@ -116,8 +116,8 @@ export class CliUtils {
      *
      * @memberof CliUtils
      */
-    public static extractOptValueFromProfiles(profiles: CommandProfiles, profileOrder: string[],
-                                              options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): any {
+    public static getOptValueFromProfiles(profiles: CommandProfiles, profileOrder: string[],
+                                          options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): any {
         let args: any = {};
 
         // Iterate through the profiles in the order they appear in the list provided. For each profile found, we will
@@ -135,9 +135,28 @@ export class CliUtils {
 
             // For each option - extract the value if that exact property exists
             options.forEach((opt) => {
-                if (profile.hasOwnProperty(opt.name) && !args.hasOwnProperty(opt.name) && profile[opt.name] !== undefined) {
-                    const keys =  CliUtils.setOptionValue(opt.name, profile[opt.name]);
-                    args = {...args, ...keys};
+
+                // Get the camel an kebab case
+                const cases = CliUtils.getOptionFormat(opt.name);
+
+                // We have to "deal" with the situation that the profile contains both cases - camel and kebab.
+                // This is to support where the profile options have "-", but the properties are camel case in the
+                // yaml file - which is currently how most imperative CLIs have it coded.
+                const profileKebab = profile[cases.kebabCase];
+                const profileCamel = profile[cases.camelCase];
+
+                // If the profile has either type (or both specified) we'll add it to args if the args object
+                // does NOT already contain the value in any case
+                if ((profileCamel !== undefined || profileKebab !== undefined) &&
+                    (!args.hasOwnProperty(cases.kebabCase) && !args.hasOwnProperty(cases.camelCase))) {
+
+                        // If both case properties are present in the profile, use the one that matches
+                        // the option name explicitly
+                        const value = (profileKebab !== undefined && profileCamel !== undefined) ?
+                            ((opt.name === cases.kebabCase) ? profileKebab : profileCamel) :
+                            ((profileKebab !== undefined) ? profileKebab : profileCamel);
+                        const keys = CliUtils.setOptionValue(opt.name, value);
+                        args = { ...args, ...keys };
                 }
             });
         });
@@ -158,7 +177,7 @@ export class CliUtils {
     public static mergeArguments(...args: any[]): any {
         let merged = {};
         args.forEach((obj) => {
-            merged = {...merged, ...obj};
+            merged = { ...merged, ...obj };
         });
         return merged;
     }
@@ -214,8 +233,7 @@ export class CliUtils {
      *
      * @memberof CliUtils
      */
-    public static getEnvValForOption(envPrefix: string, cmdOption: string): string | null
-    {
+    public static getEnvValForOption(envPrefix: string, cmdOption: string): string | null {
         // Form envPrefix and cmdOption into an environment variable
         const envDelim = "_";
         let envVarName = CliUtils.getOptionFormat(cmdOption).kebabCase;

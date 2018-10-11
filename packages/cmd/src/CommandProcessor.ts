@@ -291,7 +291,6 @@ export class CommandProcessor {
         // Validate that the syntax is correct for the command
         let validator: ICommandValidatorResponse;
         try {
-            // TODO: enhancement/34 - validate should use
             validator = await this.validate(prepared.args, response);
         } catch (e) {
             const errMsg: string = `Unexpected syntax validation error`;
@@ -481,7 +480,7 @@ export class CommandProcessor {
         // we can extract values from them for options arguments
         let profArgs = {};
         if (profileOrder.length > 0) {
-            profArgs = CliUtils.extractOptValueFromProfiles(profiles, profileOrder, allOpts);
+            profArgs = CliUtils.getOptValueFromProfiles(profiles, profileOrder, allOpts);
             this.log.debug(`Arguments extract from the profile:\n${inspect(profArgs)}`);
             args = CliUtils.mergeArguments(profArgs, args);
         }
