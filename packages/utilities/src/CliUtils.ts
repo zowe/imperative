@@ -194,11 +194,12 @@ export class CliUtils {
      */
     public static extractEnvForOptions(envPrefix: string,
                                        options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): ICommandArguments["args"] {
-        const args: ICommandArguments["args"] = {};
+        let args: ICommandArguments["args"] = {};
         options.forEach((opt) => {
             const envValue = CliUtils.getEnvValForOption(envPrefix, opt.name);
             if (envValue != null) {
-                CliUtils.setOptionValue(opt.name, envValue);
+                const keys = CliUtils.setOptionValue(opt.name, envValue);
+                args = {...args, ...keys};
             }
         });
         return args;

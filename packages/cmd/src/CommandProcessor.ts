@@ -440,7 +440,8 @@ export class CommandProcessor {
         // changes made to Yargs
         let args: ICommandArguments = CliUtils.buildBaseArgs(commandArguments);
         this.log.debug(`Base set of arguments from Yargs parse:\n${inspect(args)}`);
-        const allOpts = this.definition.options.concat(this.definition.positionals);
+        let allOpts = (this.definition.options != null) ? this.definition.options : [];
+        allOpts = (this.definition.positionals != null) ? allOpts.concat(this.definition.positionals) : allOpts;
         this.log.trace(`Set of options and positionals defined on the command:\n${inspect(allOpts)}`);
 
         // Extract options supplied via environment variables - we must do this before we load profiles to
