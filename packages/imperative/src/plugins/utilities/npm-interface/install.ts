@@ -85,6 +85,7 @@ export async function install(packageLocation: string, registry: string, install
         iConsole.info("Installing packages...this may take some time.");
 
         const npmOptions: object = {
+            prefix: PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
             global: true,
             registry
         };

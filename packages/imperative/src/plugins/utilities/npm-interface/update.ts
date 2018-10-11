@@ -9,12 +9,8 @@
 *
 */
 
-import {execSync} from "child_process";
 import {PMFConstants} from "../PMFConstants";
-import {readFileSync, writeFileSync} from "jsonfile";
-import {IPluginJson} from "../../doc/IPluginJson";
 import {Logger} from "../../../../../logger";
-import {ImperativeError} from "../../../../../error";
 const npm  = require("npm");
 
 /**
@@ -38,6 +34,7 @@ export async function update(packageName: string, registry: string) {
   // some form of a half-assed progress bar. This progress bar doesn't have any
   // formatting or colors but at least I can get the output of stdout right. (comment from install handler)
   iConsole.info("updating package...this may take some time.");
+
   const npmOptions: object = {
       prefix: PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
       global: true,
@@ -51,7 +48,7 @@ export async function update(packageName: string, registry: string) {
               throw new Error(err.message);
           }
           resolve(new Promise((resolveInstall) => {
-              npm.commands.install(PMFConstants.instance.PMF_ROOT,
+              npm.commands.install(PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
                   [npmPackage], (installError: Error, response: any) => {
                       if (installError) {
                           iConsole.error(installError.message);
@@ -59,13 +56,9 @@ export async function update(packageName: string, registry: string) {
                       }
                       resolveInstall(response);
                   });
-              npm.commands.update();
           }));
       });
   });
-  // const execOutput = execSync(`npm install "${npmPackage}" --prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g --registry ${registry}`, {
-  //   cwd: PMFConstants.instance.PMF_ROOT
-  // });
 
   /* We get the package name (aka plugin name)
    * from the output of the npm command.
@@ -73,7 +66,11 @@ export async function update(packageName: string, registry: string) {
    */
   const stringOutput = execOutput.toString();
   iConsole.info("stringOutput = " + stringOutput);
-  const regex = /(@[a-z]*\/[a-z]*)@([0-9][^,]*)/gm;
+  let regex = /(@[a-z]*\/[a-z0-9]*)@([0-9][^,]*)/gm;
+  if (npmPackage.includes("/") || npmPackage.includes("\\")) {
+      const pluginName = npmPackage.substring((npmPackage.indexOf("/") + 1));
+      regex = new RegExp("(@[a-z]*\\/" + pluginName + ")@([0-9][^,]*)", "gm");
+  }
   const match = regex.exec(stringOutput);
   const packageVersion = match[2];
 
