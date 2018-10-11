@@ -19,7 +19,6 @@ import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { CommandProcessor } from "../CommandProcessor";
 import { ICommandResponse } from "../../src/doc/response/response/ICommandResponse";
 import { CommandResponse } from "../../src/response/CommandResponse";
-import { ICommandResponseApi } from "../doc/response/api/processor/ICommandResponseApi";
 
 /**
  * Define an Imperative Command to Yargs. A command implies that an implementation is present (differs from a "group")
@@ -49,10 +48,6 @@ export class CommandYargs extends AbstractCommandYargs {
                     }
                 }
 
-                // If the default value key is specified, then assign
-                if (option.hasOwnProperty("defaultValue")) {
-                    definition.default = option.defaultValue;
-                }
                 yargsInstance.option(option.name, definition);
             }
         }
