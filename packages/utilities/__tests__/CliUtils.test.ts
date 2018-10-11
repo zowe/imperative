@@ -65,7 +65,7 @@ describe("CliUtils", () => {
 
     it("should return environment value for kabab-style option", () => {
         const expectedEnvVarValue = "The value for kabab-style option";
-        process.env.MYENVPREFIX_MY_OPTION = expectedEnvVarValue;
+        process.env.MYENVPREFIX_OPT_MY_OPTION = expectedEnvVarValue;
 
         const recvEnvValue = CliUtils.getEnvValForOption("MYENVPREFIX",
             "my-option"
@@ -75,7 +75,7 @@ describe("CliUtils", () => {
 
     it("should return environment value for camelCase option", () => {
         const expectedEnvVarValue = "The value for camelCase option";
-        process.env.MYENVPREFIX_MY_OPTION = expectedEnvVarValue;
+        process.env.MYENVPREFIX_OPT_MY_OPTION = expectedEnvVarValue;
 
         const recvEnvValue = CliUtils.getEnvValForOption("MYENVPREFIX",
             "myOption"
@@ -85,7 +85,7 @@ describe("CliUtils", () => {
 
     it("should not alter the environment prefix", () => {
         const expectedEnvVarValue = "The value for camelCase-kabab prefix";
-        process.env["camelCase-kabab-Prefix_MY_OPTION"] = expectedEnvVarValue;
+        process.env["camelCase-kabab-Prefix_OPT_MY_OPTION"] = expectedEnvVarValue;
 
         const recvEnvValue = CliUtils.getEnvValForOption("camelCase-kabab-Prefix",
             "my-option"

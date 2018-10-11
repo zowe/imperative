@@ -238,7 +238,8 @@ export class CliUtils {
         // Form envPrefix and cmdOption into an environment variable
         const envDelim = "_";
         let envVarName = CliUtils.getOptionFormat(cmdOption).kebabCase;
-        envVarName = envPrefix + envDelim + envVarName.toUpperCase().replace(/-/g, envDelim);
+        envVarName = envPrefix + envDelim + "OPT" + envDelim +
+            envVarName.toUpperCase().replace(/-/g, envDelim);
 
         // Get the value of the environment variable
         if (process.env.hasOwnProperty(envVarName)) {
