@@ -19,16 +19,9 @@ import { ICommandHandler, IHandlerParameters } from "../../../../../../../packag
  */
 export default class ValidationTestCommand implements ICommandHandler {
     public async process(params: IHandlerParameters) {
-        params.response.console.log("\nParameters from Yargs:");
         params.response.console.log("Color: " + params.arguments.color);
         params.response.console.log("Description: " + params.arguments.bananaDescription);
         params.response.console.log("Mold type: " + params.arguments.moldType);
         params.response.console.log("Sweetness: " + params.arguments.sweetness);
-
-        params.response.console.log("\nParameters from Imperative:");
-        params.response.console.log("Color: " + params.args.args.color);
-        params.response.console.log("Description: " + params.args.args.bananaDescription);
-        params.response.console.log("Mold type: " + params.args.args.moldType);
-        params.response.console.log("Sweetness: " + params.args.args.sweetness);
     }
 }

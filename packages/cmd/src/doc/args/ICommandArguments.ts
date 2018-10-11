@@ -10,9 +10,7 @@
 */
 
 export interface ICommandArguments {
-    executable?: string;
-    commands?: string[];
-    args: {
-        [key: string]: any
-    };
+    $0: string;
+    _: string[];
+    [key: string]: any;
 }

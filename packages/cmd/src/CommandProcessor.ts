@@ -253,30 +253,7 @@ export class CommandProcessor {
         const response = this.constructResponseObject(params);
         response.succeeded();
 
-        // TODO: enhancement/34 - Move the code after this line and before "validate" phase into "prepare"?
-
-        // Construct the imperative arguments - replacement/wrapper for Yargs to insulate handlers against any
-        // changes made to Yargs
-        const args: ICommandArguments = CliUtils.buildBaseArgs(params.arguments);
-        const allOpts = this.definition.options.concat(this.definition.positionals);
-        console.log("@@@ALL OPTS");
-        console.log(allOpts);
-
-        // Extract options supplied via environment variables - we must do this before we load profiles to
-        // allow the user to specify the profile to load via environment variable. Then merge with already
-        // supplied args from Yargs
-        const envArgs = CliUtils.extractEnvForOptions("TODO_GET_PREFIX", allOpts);
-        console.log("@@@ENV ARGS");
-        console.log(envArgs);
-        // TODO - this shouldn't be null after the changes are made
-        if (envArgs != null) {
-            args.args = CliUtils.mergeArguments(envArgs, args.args);
-            console.log("@@@ENV MERGE ARGS");
-            console.log(args.args);
-        }
-
         // Prepare for command processing - load profiles, stdin, etc.
-        console.log("@@@PREPARING...");
         let prepared: ICommandPrepared;
         try {
             this.log.info(`Preparing (loading profiles, reading stdin, etc.) execution of "${this.definition.name}" command...`);
@@ -311,41 +288,11 @@ export class CommandProcessor {
             return this.finishResponse(response);
         }
 
-        console.log("@@@FINISHED PREPARATION");
-        console.log("@@@DEFINITION");
-        console.log(this.definition);
-
-        // Extract profile options in the order they appear on the definition - starting with required to optional
-        let profileOrder: any = [];
-        if (this.definition.profile != null && this.definition.profile.required != null) {
-            profileOrder = this.definition.profiles.required;
-        }
-        if (this.definition.profile != null && this.definition.profile.optional != null) {
-            profileOrder = profileOrder.concat(this.definition.profile.optional);
-        }
-        let profArgs = {};
-        console.log("@@@PROF ORDER");
-        console.log(profileOrder);
-        if (profileOrder.length > 0) {
-            try {
-                profArgs = CliUtils.extractOptValueFromProfiles(prepared.profiles, profileOrder, allOpts);
-            } catch (e) {
-                console.log(e);
-            }
-        }
-        console.log("@@@CURRENT ARGS");
-        console.log(args.args);
-        console.log("@@@PROF ARGS");
-        console.log(profArgs);
-        args.args = CliUtils.mergeArguments(profArgs, args.args);
-        console.log("@@@FULL MERGE");
-        console.log(args);
-
         // Validate that the syntax is correct for the command
         let validator: ICommandValidatorResponse;
         try {
             // TODO: enhancement/34 - validate should use
-            validator = await this.validate(args, response);
+            validator = await this.validate(prepared.args, response);
         } catch (e) {
             const errMsg: string = `Unexpected syntax validation error`;
             const errReason: string = errMsg + ": " + e.message;
@@ -389,10 +336,9 @@ export class CommandProcessor {
 
             try {
                 await handler.process({
-                    args,
                     response,
                     profiles: prepared.profiles,
-                    arguments: params.arguments,
+                    arguments: prepared.args,
                     definition: this.definition,
                     fullDefinition: this.fullDefinition
                 });
@@ -444,7 +390,6 @@ export class CommandProcessor {
                 chainedResponse.bufferStderr(bufferedStdErr);
                 try {
                     await handler.process({
-                        args,
                         response: chainedResponse,
                         profiles: prepared.profiles,
                         arguments: ChainedHandlerService.getArguments(
@@ -452,7 +397,7 @@ export class CommandProcessor {
                             this.definition.chainedHandlers,
                             chainedHandlerIndex,
                             chainedResponses,
-                            params.arguments,
+                            prepared.args,
                             this.log
                         ),
                         definition: this.definition,
@@ -492,8 +437,27 @@ export class CommandProcessor {
      * @return {Promise<CommandResponse>}: Promise to fulfill when complete.
      */
     private async prepare(response: CommandResponse, commandArguments: Arguments): Promise<ICommandPrepared> {
+
+        // Construct the imperative arguments - replacement/wrapper for Yargs to insulate handlers against any
+        // changes made to Yargs
+        let args: ICommandArguments = CliUtils.buildBaseArgs(commandArguments);
+        this.log.debug(`Base set of arguments from Yargs parse:\n${inspect(args)}`);
+        const allOpts = this.definition.options.concat(this.definition.positionals);
+        this.log.trace(`Set of options and positionals defined on the command:\n${inspect(allOpts)}`);
+
+        // Extract options supplied via environment variables - we must do this before we load profiles to
+        // allow the user to specify the profile to load via environment variable. Then merge with already
+        // supplied args from Yargs
+        const envArgs = CliUtils.extractEnvForOptions(this.envVariablePrefix, allOpts);
+        this.log.debug(`Arguments extracted from :\n${inspect(args)}`);
+        args = CliUtils.mergeArguments(envArgs, args);
+        this.log.debug(`Arguments merged :\n${inspect(args)}`);
+
+        // Extract arguments from stdin
         this.log.trace(`Reading stdin for "${this.definition.name}" command...`);
         await SharedOptions.readStdinIfRequested(commandArguments, response, this.definition.type);
+
+        // Load all profiles for the command
         this.log.trace(`Loading profiles for "${this.definition.name}" command. ` +
             `Profile definitions: ${inspect(this.definition.profile, { depth: null })}`);
         const profiles = await CommandProfileLoader.loader({
@@ -501,7 +465,34 @@ export class CommandProcessor {
             profileManagerFactory: this.profileFactory
         }).loadProfiles(commandArguments);
         this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, { depth: null })}`);
-        return { profiles };
+
+        // Extract profile options in the order they appear on the definition - starting with required to optional
+        let profileOrder: any = [];
+        if (this.definition.profile != null) {
+            if (this.definition.profile.required != null) {
+                profileOrder = this.definition.profiles.required;
+            }
+            if (this.definition.profile.optional != null) {
+                profileOrder = profileOrder.concat(this.definition.profile.optional);
+            }
+        }
+
+        // If we have profiles listed on the command definition (the would be loaded already)
+        // we can extract values from them for options arguments
+        let profArgs = {};
+        if (profileOrder.length > 0) {
+            profArgs = CliUtils.extractOptValueFromProfiles(profiles, profileOrder, allOpts);
+            this.log.debug(`Arguments extract from the profile:\n${inspect(profArgs)}`);
+            args = CliUtils.mergeArguments(profArgs, args);
+        }
+
+        // Ensure that throughout this process we didn't nuke "_" or "$0"
+        args.$0 = commandArguments.$0;
+        args._ = commandArguments._;
+
+        // Log for debugging
+        this.log.debug(`Full argument object constructed:\n${inspect(args)}`);
+        return { profiles, args };
     }
 
     /**

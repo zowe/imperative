@@ -135,8 +135,6 @@ export class CliUtils {
 
             // For each option - extract the value if that exact property exists
             options.forEach((opt) => {
-                console.log("@@@PROF");
-                console.log(profile);
                 if (profile.hasOwnProperty(opt.name) && !args.hasOwnProperty(opt.name) && profile[opt.name] !== undefined) {
                     const keys =  CliUtils.setOptionValue(opt.name, profile[opt.name]);
                     args = {...args, ...keys};
@@ -179,7 +177,7 @@ export class CliUtils {
                                        options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): ICommandArguments["args"] {
         const args: ICommandArguments["args"] = {};
         options.forEach((opt) => {
-            const envValue = CliUtils.getEnvValForOption(envPrefix, opt.name);
+            const envValue = CliUtils.getEnvValForOption(envPrefix, "", opt.name);
             if (envValue != null) {
                 CliUtils.setOptionValue(opt.name, envValue);
             }
@@ -278,6 +276,8 @@ export class CliUtils {
     /**
      * Accepts an option name and its value and returns the arguments style object.
      *
+     * TODO: Add aliases
+     *
      * @param {string} optName - The command option name, usually in kebab case (or a single word)
      *
      * @param {*} value - The value to assign to the argument
@@ -303,20 +303,26 @@ export class CliUtils {
         return args;
     }
 
+
+    /**
+     * Accepts the yargs argument object and constructs the base imperative
+     * argument object. The objects are identical to maintain compatibility with
+     * existing CLIs and plugins, but the intent is to eventually phase out
+     * having CLIs import anything from Yargs (types, etc).
+     *
+     * @param {Arguments} args - Yargs argument object
+     *
+     * @returns {ICommandArguments} - Imperative argument object
+     *
+     */
     public static buildBaseArgs(args: Arguments): ICommandArguments {
-        const impArgs = { ...args };
+        const impArgs: ICommandArguments = { ...args };
         Object.keys(impArgs).forEach((key) => {
-            if (impArgs[key] === undefined) {
+            if (key !== "_" && key !== "$0" && impArgs[key] === undefined) {
                 delete impArgs[key];
             }
         });
-        delete impArgs.$0;
-        delete impArgs._;
-        return {
-            commands: args._,
-            executable: args.$0,
-            args: impArgs
-        };
+        return impArgs;
     }
 
     /**

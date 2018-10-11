@@ -85,7 +85,6 @@ export class CommandUtils {
      */
     public static optionWasSpecified(optionName: string, commandDefinition: ICommandDefinition, args: ICommandArguments["args"]): boolean {
         const optionDef = CommandUtils.getOptionDefinitionFromName(optionName, commandDefinition);
-        console.log(args);
         if (isNullOrUndefined(optionDef)) {
             // if it's not an option, it's not specified
             return false;
