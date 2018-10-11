@@ -12,16 +12,15 @@
 import { ICommandHandler, IHandlerParameters } from "../../../../../../../packages/index";
 
 /**
- * Test of mapping of profile fields to options
+ * Test handler for mapping profile fields to positional options
  * @export
- * @class ProfileMappingHandler
+ * @class ProfileMappingPositionalHandler
  * @implements {ICommandHandler}
  */
-export default class ProfileMappingHandler implements ICommandHandler {
+export default class ProfileMappingPositionalHandler implements ICommandHandler {
     public async process(commandParameters: IHandlerParameters) {
         commandParameters.response.console.log("Color: " + commandParameters.arguments.color);
         commandParameters.response.console.log("Description: " + commandParameters.arguments.bananaDescription);
         commandParameters.response.console.log("Mold type: " + commandParameters.arguments.moldType);
-        commandParameters.response.console.log("Sweetness: " + commandParameters.arguments.sweetness);
     }
 }
