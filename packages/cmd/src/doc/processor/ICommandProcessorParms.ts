@@ -47,6 +47,12 @@ export interface ICommandProcessorParms {
      */
     rootCommandName: string;
     /**
+     * Environmental variable name prefix used to construct configuration environmental variables.
+     * @type {string}
+     * @memberof ICommandProcessorParms
+     */
+    envVariablePrefix: string;
+    /**
      * All ancestors (parents) of the command definition for the command being executed. Used in help generation.
      * @type {ICommandDefinition}
      * @memberof ICommandProcessorParms

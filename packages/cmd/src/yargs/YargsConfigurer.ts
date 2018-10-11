@@ -34,7 +34,9 @@ export class YargsConfigurer {
                 private profileManagerFactory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
                 private helpGeneratorFactory: IHelpGeneratorFactory,
                 private experimentalCommandDescription: string,
-                private rootCommandName: string) {
+                private rootCommandName: string,
+                private envVariablePrefix: string
+    ) {
     }
 
     public configure() {
@@ -83,7 +85,8 @@ export class YargsConfigurer {
                         definition: this.rootCommand, fullDefinition: this.rootCommand,
                         helpGenerator: rootHelpGenerator,
                         profileManagerFactory: this.profileManagerFactory,
-                        rootCommandName: this.rootCommandName
+                        rootCommandName: this.rootCommandName,
+                        envVariablePrefix: this.envVariablePrefix
                     }).invoke({ arguments: argv, silent: false, responseFormat: (jsonResponseFormat) ? "json" : "default" })
                         .then((response) => {
                             Logger.getImperativeLogger().debug("Root help complete.");
@@ -133,7 +136,8 @@ export class YargsConfigurer {
                         fullDefinition: failedCommandDefinition,
                         helpGenerator: rootHelpGenerator,
                         profileManagerFactory: this.profileManagerFactory,
-                        rootCommandName: this.rootCommandName
+                        rootCommandName: this.rootCommandName,
+                        envVariablePrefix: this.envVariablePrefix
                     });
 
                     // Invoke the fail command
@@ -165,7 +169,8 @@ export class YargsConfigurer {
                 fullDefinition: failedCommandDefinition,
                 helpGenerator: failHelpGenerator,
                 profileManagerFactory: this.profileManagerFactory,
-                rootCommandName: this.rootCommandName
+                rootCommandName: this.rootCommandName,
+                envVariablePrefix: this.envVariablePrefix
             });
 
             // Construct the fail command arguments
@@ -201,7 +206,8 @@ export class YargsConfigurer {
                 fullDefinition: failedCommandDefinition,
                 helpGenerator: failHelpGenerator,
                 profileManagerFactory: this.profileManagerFactory,
-                rootCommandName: this.rootCommandName
+                rootCommandName: this.rootCommandName,
+                envVariablePrefix: this.envVariablePrefix
             });
 
             // Construct the arguments

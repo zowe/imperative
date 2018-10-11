@@ -9,7 +9,6 @@
 *
 */
 
-import { Arguments } from "yargs";
 import * as fs from "fs";
 import { inspect, isNullOrUndefined } from "util";
 import { syntaxErrorHeader } from "../../../messages";
@@ -26,6 +25,7 @@ import { ICommandValidatorError } from "../doc/response/response/ICommandValidat
 import { CommandResponse } from "../response/CommandResponse";
 import { Logger } from "../../../logger";
 import { TextUtils } from "../../../utilities";
+import { ICommandArguments } from "../doc/args/ICommandArguments";
 /**
  * The Imperative default syntax validator. Accepts the input arguments, command
  * definitions, and a response object. Validates the syntax and issues the
@@ -96,10 +96,10 @@ export class SyntaxValidator {
     /**
      * Validate the command syntax.
      * @param {CommandResponse} responseObject: The response object to output the messages.
-     * @param {yargs.Arguments} commandArguments
+     * @param {ICommandArguments} commandArguments
      * @return {Promise<ICommandResponse>}
      */
-    public validate(responseObject: CommandResponse, commandArguments: Arguments): Promise<ICommandValidatorResponse> {
+    public validate(responseObject: CommandResponse, commandArguments: ICommandArguments): Promise<ICommandValidatorResponse> {
         return new Promise<ICommandValidatorResponse>((validationComplete) => {
             const syntaxValid: boolean = this.validateSyntax(commandArguments, responseObject);
             validationComplete({ valid: syntaxValid });
@@ -112,7 +112,7 @@ export class SyntaxValidator {
      * custom validation provided by the user
      * @return {boolean}: True if the options are valid
      */
-    private validateSyntax(commandArguments: Arguments, responseObject: CommandResponse): boolean {
+    private validateSyntax(commandArguments: ICommandArguments, responseObject: CommandResponse): boolean {
         const optionDefs = this.mOptionDefinitionsMap as { [key: string]: ICommandOptionDefinition };
         let valid = true;
 
@@ -434,11 +434,11 @@ export class SyntaxValidator {
      * Issue the 'file must exist' error
      * @param {ICommandOptionDefinition} optionDefinition: the option definition for which the user specified a non-existent file
      * @param {CommandResponse} responseObject: The response object for producing messages.
-     * @param {Arguments} commandArguments: The arguments specified by the user.
+     * @param {ICommandArguments} commandArguments: The arguments specified by the user.
      * @param isPositional - is the option a positional option? defaults to false
      */
     private fileOptionError(optionDefinition: ICommandOptionDefinition | ICommandPositionalDefinition,
-                            commandArguments: Arguments, responseObject: CommandResponse,
+                            commandArguments: ICommandArguments, responseObject: CommandResponse,
                             isPositional: boolean = false): void {
         const mustacheSummary: any = this.getMustacheSummaryForOption(optionDefinition, isPositional);
         mustacheSummary.value = commandArguments[optionDefinition.name];
@@ -863,7 +863,7 @@ export class SyntaxValidator {
     /**
      * If the user specifies an extra positional option
      */
-    private unknownPositionalError(responseObject: CommandResponse, commandArguments: Arguments,
+    private unknownPositionalError(responseObject: CommandResponse, commandArguments: ICommandArguments,
                                    expectedUnderscoreLength: number) {
         responseObject.console.errorHeader(syntaxErrorHeader.message);
 

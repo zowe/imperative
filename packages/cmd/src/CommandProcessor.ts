@@ -35,8 +35,9 @@ import * as nodePath from "path";
 import { ICommandHandlerRequire } from "./doc/handler/ICommandHandlerRequire";
 import { ChainedHandlerService } from "./ChainedHandlerUtils";
 import { Constants } from "../../constants";
-import { ICommandOutputFormat, OUTPUT_FORMAT } from "./doc/response/response/ICommandOutputFormat";
-import { CommandUtils } from "..";
+import { ICommandArguments } from "./doc/args/ICommandArguments";
+import { CliUtils } from "../../utilities/src/CliUtils";
+import { CommandUtils } from "./utils/CommandUtils";
 
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
@@ -60,6 +61,13 @@ export class CommandProcessor {
      * @memberof CommandProcessor
      */
     private mCommandRootName: string;
+    /**
+     * Environmental variable name prefix used to construct configuration environmental variables.
+     * @private
+     * @type {string}
+     * @memberof CommandProcessor
+     */
+    private mEnvVariablePrefix: string;
     /**
      * The command definition node for the command being executed.
      * @private
@@ -116,6 +124,7 @@ export class CommandProcessor {
                 `but no handler was specified.`);
         }
         this.mCommandRootName = params.rootCommandName;
+        this.mEnvVariablePrefix = params.envVariablePrefix;
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["rootCommandName"], `${CommandProcessor.ERROR_TAG} No root command supplied.`);
         // TODO - check if the command definition passed actually exists within the full command definition tree passed
     }
@@ -128,6 +137,16 @@ export class CommandProcessor {
      */
     get rootCommand(): string {
         return this.mCommandRootName;
+    }
+
+    /**
+     * Accessor for the environment variable prefix
+     * @readonly
+     * @type {string}
+     * @memberof CommandProcessor
+     */
+    get envVariablePrefix(): string {
+        return this.mEnvVariablePrefix;
     }
 
     /**
@@ -184,11 +203,11 @@ export class CommandProcessor {
     /**
      * Validates the input arguments/options for the command (Performs additional validation outside of what Yargs
      * already provides - ideally, we would like to maintain control over all errors and messages for consistency).
-     * @param {yargs.Argv} commandArguments: The input command arguments from the command line.
+     * @param {ICommandArguments} commandArguments: The input command arguments from the command line.
      * @param {CommandResponse} responseObject: Response object to print.
      * @return {Promise<ICommandValidatorResponse>}: Promise to be fulfilled when validation is complete.
      */
-    public async validate(commandArguments: Arguments, responseObject: CommandResponse): Promise<ICommandValidatorResponse> {
+    public async validate(commandArguments: ICommandArguments, responseObject: CommandResponse): Promise<ICommandValidatorResponse> {
         ImperativeExpect.toNotBeNullOrUndefined(commandArguments, `${CommandProcessor.ERROR_TAG} validate(): No command arguments supplied.`);
         ImperativeExpect.toNotBeNullOrUndefined(responseObject, `${CommandProcessor.ERROR_TAG} validate(): No response object supplied.`);
         this.log.info(`Performing syntax validation for command "${this.definition.name}"...`);
@@ -229,45 +248,10 @@ export class CommandProcessor {
         this.log.trace(`Command definition:\n${inspect(this.definition, { depth: null })}`);
         this.log.trace(`Invoke parameters:\n${inspect(params, { depth: null })}`);
 
-        // Build the response object
-        const response = this.constructResponseObject(params);
-
+        // Build the response object, base args object, and the entire array of options for this command
         // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
+        const response = this.constructResponseObject(params);
         response.succeeded();
-
-        // Validate that the syntax is correct for the command
-        let validator: ICommandValidatorResponse;
-        try {
-            validator = await this.validate(params.arguments, response);
-        } catch (e) {
-            const errMsg: string = `Unexpected syntax validation error`;
-            const errReason: string = errMsg + ": " + e.message;
-            this.log.error(`Validation for command "${this.definition.name}" has failed unexpectedly: ${errReason}`);
-            response.data.setMessage(errReason);
-            response.console.errorHeader(errMsg);
-            response.console.error(e.message);
-            response.setError({
-                msg: errMsg,
-                additionalDetails: e.message,
-            });
-            response.failed();
-            return this.finishResponse(response);
-        }
-
-        // Check if the syntax is valid - if not return immediately.
-        if (!validator.valid) {
-            this.log.error(`Syntax for command "${this.definition.name}" is invalid.`);
-            response.data.setMessage("Command syntax invalid");
-            response.failed();
-            let finalHelp: string;
-            if (params.arguments._.length > 0) {
-                finalHelp = `\nUse "${this.rootCommand} ${params.arguments._.join(" ")} --help" to view command description, usage, and options.`;
-            } else {
-                finalHelp = `\nUse "${this.definition.name} --help" to view command description, usage, and options.`;
-            }
-            response.console.error(finalHelp);
-            return this.finishResponse(response);
-        }
 
         // Prepare for command processing - load profiles, stdin, etc.
         let prepared: ICommandPrepared;
@@ -304,10 +288,43 @@ export class CommandProcessor {
             return this.finishResponse(response);
         }
 
+        // Validate that the syntax is correct for the command
+        let validator: ICommandValidatorResponse;
+        try {
+            // TODO: enhancement/34 - validate should use
+            validator = await this.validate(prepared.args, response);
+        } catch (e) {
+            const errMsg: string = `Unexpected syntax validation error`;
+            const errReason: string = errMsg + ": " + e.message;
+            this.log.error(`Validation for command "${this.definition.name}" has failed unexpectedly: ${errReason}`);
+            response.data.setMessage(errReason);
+            response.console.errorHeader(errMsg);
+            response.console.error(e.message);
+            response.setError({
+                msg: errMsg,
+                additionalDetails: e.message,
+            });
+            response.failed();
+            return this.finishResponse(response);
+        }
+
+        // Check if the syntax is valid - if not return immediately.
+        if (!validator.valid) {
+            this.log.error(`Syntax for command "${this.definition.name}" is invalid.`);
+            response.data.setMessage("Command syntax invalid");
+            response.failed();
+            let finalHelp: string;
+            if (params.arguments._.length > 0) {
+                finalHelp = `\nUse "${this.rootCommand} ${params.arguments._.join(" ")} --help" to view command description, usage, and options.`;
+            } else {
+                finalHelp = `\nUse "${this.definition.name} --help" to view command description, usage, and options.`;
+            }
+            response.console.error(finalHelp);
+            return this.finishResponse(response);
+        }
+
         // Invoke the handler
-
         this.log.info(`Invoking process method of handler for "${this.definition.name}" command.`);
-
 
         if (this.definition.handler != null) {
             // single handler - no chained handlers
@@ -321,7 +338,7 @@ export class CommandProcessor {
                 await handler.process({
                     response,
                     profiles: prepared.profiles,
-                    arguments: params.arguments,
+                    arguments: prepared.args,
                     definition: this.definition,
                     fullDefinition: this.fullDefinition
                 });
@@ -380,7 +397,7 @@ export class CommandProcessor {
                             this.definition.chainedHandlers,
                             chainedHandlerIndex,
                             chainedResponses,
-                            params.arguments,
+                            prepared.args,
                             this.log
                         ),
                         definition: this.definition,
@@ -420,8 +437,27 @@ export class CommandProcessor {
      * @return {Promise<CommandResponse>}: Promise to fulfill when complete.
      */
     private async prepare(response: CommandResponse, commandArguments: Arguments): Promise<ICommandPrepared> {
+
+        // Construct the imperative arguments - replacement/wrapper for Yargs to insulate handlers against any
+        // changes made to Yargs
+        let args: ICommandArguments = CliUtils.buildBaseArgs(commandArguments);
+        this.log.debug(`Base set of arguments from Yargs parse:\n${inspect(args)}`);
+        const allOpts = this.definition.options.concat(this.definition.positionals);
+        this.log.trace(`Set of options and positionals defined on the command:\n${inspect(allOpts)}`);
+
+        // Extract options supplied via environment variables - we must do this before we load profiles to
+        // allow the user to specify the profile to load via environment variable. Then merge with already
+        // supplied args from Yargs
+        const envArgs = CliUtils.extractEnvForOptions(this.envVariablePrefix, allOpts);
+        this.log.debug(`Arguments extracted from :\n${inspect(args)}`);
+        args = CliUtils.mergeArguments(envArgs, args);
+        this.log.debug(`Arguments merged :\n${inspect(args)}`);
+
+        // Extract arguments from stdin
         this.log.trace(`Reading stdin for "${this.definition.name}" command...`);
         await SharedOptions.readStdinIfRequested(commandArguments, response, this.definition.type);
+
+        // Load all profiles for the command
         this.log.trace(`Loading profiles for "${this.definition.name}" command. ` +
             `Profile definitions: ${inspect(this.definition.profile, { depth: null })}`);
         const profiles = await CommandProfileLoader.loader({
@@ -429,7 +465,36 @@ export class CommandProcessor {
             profileManagerFactory: this.profileFactory
         }).loadProfiles(commandArguments);
         this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, { depth: null })}`);
-        return { profiles };
+
+        // Extract profile options in the order they appear on the definition - starting with required to optional
+        let profileOrder: any = [];
+        if (this.definition.profile != null) {
+            if (this.definition.profile.required != null) {
+                profileOrder = this.definition.profiles.required;
+            }
+            if (this.definition.profile.optional != null) {
+                profileOrder = profileOrder.concat(this.definition.profile.optional);
+            }
+        }
+
+        // If we have profiles listed on the command definition (the would be loaded already)
+        // we can extract values from them for options arguments
+        let profArgs = {};
+        if (profileOrder.length > 0) {
+            profArgs = CliUtils.extractOptValueFromProfiles(profiles, profileOrder, allOpts);
+            this.log.debug(`Arguments extract from the profile:\n${inspect(profArgs)}`);
+            args = CliUtils.mergeArguments(profArgs, args);
+        }
+
+        // TODO: enhancement/34 Inject default values here
+
+        // Ensure that throughout this process we didn't nuke "_" or "$0"
+        args.$0 = commandArguments.$0;
+        args._ = commandArguments._;
+
+        // Log for debugging
+        this.log.debug(`Full argument object constructed:\n${inspect(args)}`);
+        return { profiles, args };
     }
 
     /**

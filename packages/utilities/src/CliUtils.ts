@@ -16,6 +16,9 @@ import { Arguments } from "yargs";
 import { TextUtils } from "./TextUtils";
 import { IOptionFormat } from "./doc/IOptionFormat";
 import { Logger } from "../../logger";
+import { ICommandOptionDefinition, ICommandPositionalDefinition, CommandProfiles } from "../../cmd";
+import { ICommandArguments } from "../../cmd/src/doc/args/ICommandArguments";
+import { IProfile } from "../../profiles";
 
 /**
  * Cli Utils contains a set of static methods/helpers that are CLI related (forming options, censoring args, etc.)
@@ -97,20 +100,115 @@ export class CliUtils {
         return newArgs;
     }
 
+
+    /**
+     * Accepts the full set of loaded profiles and attempts to match the option names supplied with profile keys.
+     *
+     * @param {Map<string, IProfile[]>} profileMap - the map of type to loaded profiles. The key is the profile type
+     * and the value is an array of profiles loaded for that type.
+     *
+     * @param {string[]} profileOrder - the order to process the profile types (keys of the map)
+     *
+     * @param {(Array<ICommandOptionDefinition | ICommandPositionalDefinition>)} options - the full set of command options
+     * for the command being processed
+     *
+     * @returns {*}
+     *
+     * @memberof CliUtils
+     */
+    public static extractOptValueFromProfiles(profiles: CommandProfiles, profileOrder: string[],
+                                              options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): any {
+        let args: any = {};
+
+        // Iterate through the profiles in the order they appear in the list provided. For each profile found, we will
+        // attempt to match the option name to a profile property exactly - and extract the value from the profile.
+        profileOrder.forEach((profileType) => {
+
+            // Get the first profile loaded - for now, we won't worry about profiles and double-type loading for dependencies
+            const profile: IProfile = profiles.get(profileType, false);
+            if (profile == null) {
+                throw new ImperativeError({
+                    msg: `Profile of type "${profileType}" does not exist within the loaded profiles for the command.`,
+                    additionalDetails: `Command preparation was attempting to extract option values from profiles.`
+                });
+            }
+
+            // For each option - extract the value if that exact property exists
+            options.forEach((opt) => {
+                if (profile.hasOwnProperty(opt.name) && !args.hasOwnProperty(opt.name) && profile[opt.name] !== undefined) {
+                    const keys =  CliUtils.setOptionValue(opt.name, profile[opt.name]);
+                    args = {...args, ...keys};
+                }
+            });
+        });
+        return args;
+    }
+
+    /**
+     * Using Object.assign(), merges objects in the order they appear in call. Object.assign() copies and overwrites
+     * existing properties in the target object, meaning property precedence is least to most (left to right).
+     *
+     * See details on Object.assign() for nuance.
+     *
+     * @param {...any[]} args - variadic set of objects to be merged
+     *
+     * @returns {*} - the merged object
+     *
+     */
+    public static mergeArguments(...args: any[]): any {
+        let merged = {};
+        args.forEach((obj) => {
+            merged = {...merged, ...obj};
+        });
+        return merged;
+    }
+
+    /**
+     * Accepts the full set of command options and extracts their values from environment variables that are set.
+     *
+     * @param {(Array<ICommandOptionDefinition | ICommandPositionalDefinition>)} options - the full set of options
+     * specified on the command definition. Includes both the option definitions and the positional definitions.
+     *
+     * @returns {ICommandArguments["args"]} - the argument style object with both camel and kebab case keys for each
+     * option specified in environment variables.
+     *
+     */
+    public static extractEnvForOptions(envPrefix: string,
+                                       options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): ICommandArguments["args"] {
+        const args: ICommandArguments["args"] = {};
+        options.forEach((opt) => {
+            const envValue = CliUtils.getEnvValForOption(envPrefix, "", opt.name);
+            if (envValue != null) {
+                CliUtils.setOptionValue(opt.name, envValue);
+            }
+        });
+        return args;
+    }
+
     /**
      * Get the value of an environment variable associated with the specified option name.
-     * The option name can be specified in camelCase or in kabab-style.
-     * Regardless of the style of the option name, the corresponding environment variable will
-     * be all upper case with underscores where the dashes would be in the kabab style.
-     * The name of the host CLI application and the name of the command will be pre-pended
-     * to the environment variable name.
+     * The environment variable name will be formed by concatenating an environment name prefix,
+     * the subCmdName, and the cmdOption using underscores as delimeters.
      *
-     * Example: someOptionName or some-option-name would retrieve the value of an environment
-     * variable named <CLI Name>_<Command Name>_SOME_OPTION_NAME.
+     * The subCmdName and cmdOption name can be specified in camelCase or in kabab-style.
+     * Regardless of the style, both will be converted to upper case
+     * We replace dashes in Kabab-style values with underscores. We replace each uppercase
+     * character in a camelCase value with underscore and that character.
      *
-     * @param {string} cmdName - The name of the command that is being run.
+     * The envPrefix will be used exactly as specified.
      *
-     * @param {string} camelOrKababOption - The name of the option in either camelCase or kabab-style.
+     * Example: The values myEnv-Prefix, some-command-name someOptionName would retrieve
+     * the value of an environment variable named
+     *      myEnv-Prefix_SOME_COMMAND_NAME_SOME_OPTION_NAME
+     *
+     * @param {string} envPrefix - The prefix for environment variables for this CLI.
+     *      Our caller can use the value obtained by Imperative.envVariablePrefix(),
+     *      which will use the envVariablePrefix from the Imperative config object,
+     *      and will use the rootCommandName as a fallback value.
+     *
+     * @param {string} subCmdName - The name of the 1st-level sub-command that is being run.
+     *
+     * @param {string} cmdOption - The name of the option in either camelCase or kabab-style.
      *
      * @returns {string | null} - The value of the environment variable which corresponds
      *      to the supplied option for the supplied command. If no such environment variable
@@ -118,26 +216,24 @@ export class CliUtils {
      *
      * @memberof CliUtils
      */
-    public static getEnvValForOption(cmdName: string, camelOrKababOption: string): string | null {
-        /* todo: ask for host CLI name as another parameter, or do the find-up ourself.
-           We cannot call findPackageBinName() because of circular dependency.
+    public static getEnvValForOption(
+        envPrefix: string, subCmdName: string, cmdOption: string
+    ): string | null
+    {
+        const cmdNmChoices: IOptionFormat = CliUtils.getOptionFormat(subCmdName);
+        const optChoices: IOptionFormat = CliUtils.getOptionFormat(cmdOption);
 
-        const hostCliName = ImperativeConfig.instance.findPackageBinName();
-        if (hostCliName === null) {
-            Logger.getImperativeLogger().error("Unable to retrieve the host CLI name, " +
-                "so cannot form an environment variable name for command = " +
-                `'${cmdName}' and option = '${camelOrKababOption}'.`
-             );
-            return null;
+        // Form envPrefix, subCmdName, and option into an environment variable
+        const envDelim = "_";
+        let envVarName = cmdNmChoices.kebabCase + envDelim + optChoices.kebabCase;
+        envVarName = envPrefix + envDelim + envVarName.toUpperCase().replace(/-/g, envDelim);
+
+        // Get the value of the environment variable
+        if (process.env.hasOwnProperty(envVarName)) {
+            return process.env[envVarName];
         }
-        */
 
-        const optChoices: IOptionFormat = CliUtils.getOptionFormat(camelOrKababOption);
-
-        // todo: Form hostCliName, cmdName, and optChoices.kebabCase into an environment variable
-
-        // todo: Get the value of the environment variable
-
+        // no corresponding environment variable exists
         return null;
     }
 
@@ -174,6 +270,59 @@ export class CliUtils {
         const headerText = TextUtils.formatMessage("{{indent}}{{headerText}}\n{{indent}}{{dashes}}",
             { headerText: header.toUpperCase(), dashes: Array(numDashes).join("-"), indent });
         return TextUtils.chalk[color](headerText);
+    }
+
+
+    /**
+     * Accepts an option name and its value and returns the arguments style object.
+     *
+     * TODO: enhancement/34 - Add aliases as well
+     *
+     * @param {string} optName - The command option name, usually in kebab case (or a single word)
+     *
+     * @param {*} value - The value to assign to the argument
+     *
+     * @returns {ICommandArguments["args"]} - The argument style object
+     *
+     * @example <caption>Create Argument Object</caption>
+     *
+     * CliUtils.setOptionValue("my-option", "value");
+     *
+     * // returns
+     * {
+     *    "myOption": "value",
+     *    "my-option": "value"
+     * }
+     *
+     */
+    public static setOptionValue(optName: string, value: any): ICommandArguments["args"] {
+        const names: IOptionFormat = CliUtils.getOptionFormat(optName);
+        const args: ICommandArguments["args"] = {};
+        args[names.camelCase] = value;
+        args[names.kebabCase] = value;
+        return args;
+    }
+
+
+    /**
+     * Accepts the yargs argument object and constructs the base imperative
+     * argument object. The objects are identical to maintain compatibility with
+     * existing CLIs and plugins, but the intent is to eventually phase out
+     * having CLIs import anything from Yargs (types, etc).
+     *
+     * @param {Arguments} args - Yargs argument object
+     *
+     * @returns {ICommandArguments} - Imperative argument object
+     *
+     */
+    public static buildBaseArgs(args: Arguments): ICommandArguments {
+        const impArgs: ICommandArguments = { ...args };
+        Object.keys(impArgs).forEach((key) => {
+            if (key !== "_" && key !== "$0" && impArgs[key] === undefined) {
+                delete impArgs[key];
+            }
+        });
+        return impArgs;
     }
 
     /**
@@ -243,7 +392,7 @@ export class CliUtils {
                  * - hello-World-       -> helloWorld
                  */
                 const returnChar = p1.substr(-1).toUpperCase();
-                return  returnChar !== "-" ? returnChar : "";
+                return returnChar !== "-" ? returnChar : "";
             }),
             kebabCase: key.replace(/(-*[A-Z]|-{2,}|-$)/g, (match, p1, offset, inputString) => {
                 /*
