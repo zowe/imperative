@@ -16,11 +16,7 @@ then
     exit $CMDRC
 fi
 
-CMD_CLI_OPT_COLOR="$4"
-CMD_CLI_OPT_BANANA_DESCRIPTION="$5"
-CMD_CLI_OPT_MOLD_TYPE="$6"
-
-cmd-cli profile mapping
+CMD_CLI_OPT_COLOR="$4" CMD_CLI_OPT_BANANA_DESCRIPTION="$5" CMD_CLI_OPT_MOLD_TYPE="$6" cmd-cli profile mapping
 CMDRC=$?
 if [ $CMDRC -gt 0 ]
 then

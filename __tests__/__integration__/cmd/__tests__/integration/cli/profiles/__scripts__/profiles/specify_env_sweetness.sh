@@ -13,9 +13,7 @@ then
     exit $CMDRC
 fi
 
-CMD_CLI_OPT_SWEETNESS="$4"
-
-cmd-cli profile mapping --color "$cliColor" --banana-description "$cliDescription" --mold-type "$cliMoldType"
+CMD_CLI_OPT_SWEETNESS="$4" cmd-cli profile mapping --color "$cliColor" --banana-description "$cliDescription" --mold-type "$cliMoldType"
 CMDRC=$?
 if [ $CMDRC -gt 0 ]
 then
