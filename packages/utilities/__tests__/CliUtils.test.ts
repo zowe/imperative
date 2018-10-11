@@ -63,23 +63,21 @@ describe("CliUtils", () => {
         });
     });
 
-    it("should return environment value for kabab-style parms", () => {
-        const expectedEnvVarValue = "The value for kabab-style command and option";
-        process.env.MYENVPREFIX_MY_CMD_NAME_MY_OPTION = expectedEnvVarValue;
+    it("should return environment value for kabab-style option", () => {
+        const expectedEnvVarValue = "The value for kabab-style option";
+        process.env.MYENVPREFIX_MY_OPTION = expectedEnvVarValue;
 
         const recvEnvValue = CliUtils.getEnvValForOption("MYENVPREFIX",
-            "my-cmd-name",
             "my-option"
         );
         expect(recvEnvValue).toEqual(expectedEnvVarValue);
     });
 
-    it("should return environment value for camelCase parms", () => {
-        const expectedEnvVarValue = "The value for camelCase command and option";
-        process.env.MYENVPREFIX_MY_CMD_NAME_MY_OPTION = expectedEnvVarValue;
+    it("should return environment value for camelCase option", () => {
+        const expectedEnvVarValue = "The value for camelCase option";
+        process.env.MYENVPREFIX_MY_OPTION = expectedEnvVarValue;
 
         const recvEnvValue = CliUtils.getEnvValForOption("MYENVPREFIX",
-            "myCmdName",
             "myOption"
         );
         expect(recvEnvValue).toEqual(expectedEnvVarValue);
@@ -87,20 +85,16 @@ describe("CliUtils", () => {
 
     it("should not alter the environment prefix", () => {
         const expectedEnvVarValue = "The value for camelCase-kabab prefix";
-        process.env["camelCase-kabab-Prefix_MY_CMD_NAME_MY_OPTION"] = expectedEnvVarValue;
+        process.env["camelCase-kabab-Prefix_MY_OPTION"] = expectedEnvVarValue;
 
         const recvEnvValue = CliUtils.getEnvValForOption("camelCase-kabab-Prefix",
-            "my-cmd-name",
             "my-option"
         );
         expect(recvEnvValue).toEqual(expectedEnvVarValue);
     });
 
     it("should return NULL when environment variable does not exist", () => {
-        const expectedEnvVarValue = "The value of an existing environment variable";
-
         const recvEnvValue = CliUtils.getEnvValForOption("MYENVPREFIX",
-            "my-cmd-name",
             "not-set-in-env"
         );
         expect(recvEnvValue).toEqual(null);
