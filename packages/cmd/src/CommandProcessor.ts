@@ -466,22 +466,10 @@ export class CommandProcessor {
         }).loadProfiles(commandArguments);
         this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, { depth: null })}`);
 
-        // Extract profile options in the order they appear on the definition - starting with required to optional
-        let profileOrder: any = [];
-        if (this.definition.profile != null) {
-            if (this.definition.profile.required != null) {
-                profileOrder = this.definition.profiles.required;
-            }
-            if (this.definition.profile.optional != null) {
-                profileOrder = profileOrder.concat(this.definition.profile.optional);
-            }
-        }
-
         // If we have profiles listed on the command definition (the would be loaded already)
         // we can extract values from them for options arguments
-        let profArgs = {};
-        if (profileOrder.length > 0) {
-            profArgs = CliUtils.getOptValueFromProfiles(profiles, profileOrder, allOpts);
+        if (this.definition.profile != null) {
+            const profArgs = CliUtils.getOptValueFromProfiles(profiles, this.definition.profile, allOpts);
             this.log.debug(`Arguments extract from the profile:\n${inspect(profArgs)}`);
             args = CliUtils.mergeArguments(profArgs, args);
         }
