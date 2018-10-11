@@ -276,7 +276,7 @@ export class CliUtils {
     /**
      * Accepts an option name and its value and returns the arguments style object.
      *
-     * TODO: Add aliases
+     * TODO: enhancement/34 - Add aliases as well
      *
      * @param {string} optName - The command option name, usually in kebab case (or a single word)
      *
