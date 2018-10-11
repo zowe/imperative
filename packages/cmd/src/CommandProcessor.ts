@@ -491,7 +491,8 @@ export class CommandProcessor {
          */
         for (const option of this.definition.options) {
             if (option.defaultValue != null && args[option.name] == null) {
-                CliUtils.setOptionValue(option.name, option.defaultValue);
+                const defaultedArgs = CliUtils.setOptionValue(option.name, option.defaultValue);
+                args = CliUtils.mergeArguments(defaultedArgs, args);
             }
         }
 
