@@ -486,6 +486,8 @@ export class CommandProcessor {
             args = CliUtils.mergeArguments(profArgs, args);
         }
 
+        // TODO: Inject default values here
+
         // Ensure that throughout this process we didn't nuke "_" or "$0"
         args.$0 = commandArguments.$0;
         args._ = commandArguments._;
