@@ -16,7 +16,7 @@ import { Arguments } from "yargs";
 import { TextUtils } from "./TextUtils";
 import { IOptionFormat } from "./doc/IOptionFormat";
 import { Logger } from "../../logger";
-import { ICommandOptionDefinition, ICommandPositionalDefinition, CommandProfiles } from "../../cmd";
+import { ICommandOptionDefinition, ICommandPositionalDefinition, CommandProfiles, ICommandProfile } from "../../cmd";
 import { ICommandArguments } from "../../cmd/src/doc/args/ICommandArguments";
 import { IProfile } from "../../profiles";
 
@@ -107,7 +107,7 @@ export class CliUtils {
      * @param {Map<string, IProfile[]>} profileMap - the map of type to loaded profiles. The key is the profile type
      * and the value is an array of profiles loaded for that type.
      *
-     * @param {string[]} profileOrder - the order to process the profile types (keys of the map)
+     * @param {definitions} definitions - the profile definition on the command.
      *
      * @param {(Array<ICommandOptionDefinition | ICommandPositionalDefinition>)} options - the full set of command options
      * for the command being processed
@@ -116,49 +116,56 @@ export class CliUtils {
      *
      * @memberof CliUtils
      */
-    public static getOptValueFromProfiles(profiles: CommandProfiles, profileOrder: string[],
+    public static getOptValueFromProfiles(profiles: CommandProfiles, definitions: ICommandProfile,
                                           options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): any {
         let args: any = {};
 
+        // Construct the precedence order to iterate through the profiles
+        let profileOrder: any =  (definitions.required != null) ? definitions.required : [];
+        if (definitions.optional != null) {
+            profileOrder = profileOrder.concat(definitions.optional);
+        }
+
         // Iterate through the profiles in the order they appear in the list provided. For each profile found, we will
         // attempt to match the option name to a profile property exactly - and extract the value from the profile.
-        profileOrder.forEach((profileType) => {
+        profileOrder.forEach((profileType: string) => {
 
             // Get the first profile loaded - for now, we won't worry about profiles and double-type loading for dependencies
             const profile: IProfile = profiles.get(profileType, false);
-            if (profile == null) {
+            if (profile == null && definitions.required != null && definitions.required.indexOf(profileType) >= 0) {
                 throw new ImperativeError({
-                    msg: `Profile of type "${profileType}" does not exist within the loaded profiles for the command.`,
-                    additionalDetails: `Command preparation was attempting to extract option values from profiles.`
+                    msg: `Profile of type "${profileType}" does not exist within the loaded profiles for the command and it is marked as required.`,
+                    additionalDetails: `This is an internal imperative error. ` +
+                    `Command preparation was attempting to extract option values from this profile.`
+                });
+            } else if (profile != null) {
+                // For each option - extract the value if that exact property exists
+                options.forEach((opt) => {
+
+                    // Get the camel an kebab case
+                    const cases = CliUtils.getOptionFormat(opt.name);
+
+                    // We have to "deal" with the situation that the profile contains both cases - camel and kebab.
+                    // This is to support where the profile options have "-", but the properties are camel case in the
+                    // yaml file - which is currently how most imperative CLIs have it coded.
+                    const profileKebab = profile[cases.kebabCase];
+                    const profileCamel = profile[cases.camelCase];
+
+                    // If the profile has either type (or both specified) we'll add it to args if the args object
+                    // does NOT already contain the value in any case
+                    if ((profileCamel !== undefined || profileKebab !== undefined) &&
+                        (!args.hasOwnProperty(cases.kebabCase) && !args.hasOwnProperty(cases.camelCase))) {
+
+                            // If both case properties are present in the profile, use the one that matches
+                            // the option name explicitly
+                            const value = (profileKebab !== undefined && profileCamel !== undefined) ?
+                                ((opt.name === cases.kebabCase) ? profileKebab : profileCamel) :
+                                ((profileKebab !== undefined) ? profileKebab : profileCamel);
+                            const keys = CliUtils.setOptionValue(opt.name, value);
+                            args = { ...args, ...keys };
+                    }
                 });
             }
-
-            // For each option - extract the value if that exact property exists
-            options.forEach((opt) => {
-
-                // Get the camel an kebab case
-                const cases = CliUtils.getOptionFormat(opt.name);
-
-                // We have to "deal" with the situation that the profile contains both cases - camel and kebab.
-                // This is to support where the profile options have "-", but the properties are camel case in the
-                // yaml file - which is currently how most imperative CLIs have it coded.
-                const profileKebab = profile[cases.kebabCase];
-                const profileCamel = profile[cases.camelCase];
-
-                // If the profile has either type (or both specified) we'll add it to args if the args object
-                // does NOT already contain the value in any case
-                if ((profileCamel !== undefined || profileKebab !== undefined) &&
-                    (!args.hasOwnProperty(cases.kebabCase) && !args.hasOwnProperty(cases.camelCase))) {
-
-                        // If both case properties are present in the profile, use the one that matches
-                        // the option name explicitly
-                        const value = (profileKebab !== undefined && profileCamel !== undefined) ?
-                            ((opt.name === cases.kebabCase) ? profileKebab : profileCamel) :
-                            ((profileKebab !== undefined) ? profileKebab : profileCamel);
-                        const keys = CliUtils.setOptionValue(opt.name, value);
-                        args = { ...args, ...keys };
-                }
-            });
         });
         return args;
     }
