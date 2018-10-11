@@ -37,5 +37,5 @@ export const profileMappingPositionalCommand: ICommandDefinition = {
                 required: true
             }
         ],
-    profiles: {optional: ["banana"]}
+    profile: {optional: ["banana"]}
 };
