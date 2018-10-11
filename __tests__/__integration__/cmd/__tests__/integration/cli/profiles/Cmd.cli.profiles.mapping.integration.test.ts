@@ -134,4 +134,35 @@ describe("cmd-cli profile mapping", () => {
         expect(response.stdout.toString()).toContain("Sweetness: " + envSweetness);
     });
 
+    it("should be able to specify positional options via environmental variables", () => {
+        // values used as env variables
+        const envColor = "yellow and black";
+        const envDescription = "A beautiful bunch of ripe banana hides the deadly black tarantula";
+        const envMoldType = "no mold at all";
+        const response = runCliScript(__dirname + "/__scripts__/profiles/specify_env_for_positional.sh",
+            TEST_ENVIRONMENT.workingDir, [envColor, envDescription, envMoldType]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        // the output of the command should use the env variable values
+        expect(response.stdout.toString()).toContain("Color: " + envColor);
+        expect(response.stdout.toString()).toContain("Description: " + envDescription);
+        expect(response.stdout.toString()).toContain("Mold type: " + envMoldType);
+    });
+
+    it("should map profile fields to positional options", () => {
+        const color = "yellow";
+        const description = "A pretty good banana";
+        const moldType = "none";
+        const response = runCliScript(__dirname + "/__scripts__/profiles/map_banana_to_options.sh",
+            TEST_ENVIRONMENT.workingDir, [color, description, moldType]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        // the output of the command should use the profile values
+        expect(response.stdout.toString()).toContain("Color: " + color);
+        expect(response.stdout.toString()).toContain("Description: " + description);
+        expect(response.stdout.toString()).toContain("Mold type: " + moldType);
+    });
+
 });

@@ -12,12 +12,12 @@
 import { ICommandHandler, IHandlerParameters } from "../../../../../../../packages/index";
 
 /**
- * Syntax test handler. Invoked if the syntax for the command is correct.
+ * Test of mapping of profile fields to options
  * @export
- * @class ValidationTestCommand
+ * @class ProfileMappingHandler
  * @implements {ICommandHandler}
  */
-export default class ValidationTestCommand implements ICommandHandler {
+export default class ProfileMappingHandler implements ICommandHandler {
     public async process(params: IHandlerParameters) {
         params.response.console.log("Color: " + params.arguments.color);
         params.response.console.log("Description: " + params.arguments.bananaDescription);
