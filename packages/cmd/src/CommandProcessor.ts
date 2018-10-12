@@ -480,7 +480,11 @@ export class CommandProcessor {
          */
         for (const option of allOpts) {
             if (option.defaultValue != null && args[option.name] == null) {
-                const defaultedArgs = CliUtils.setOptionValue(option.name, option.defaultValue);
+                const defaultedArgs = CliUtils.setOptionValue(option.name,
+                    ("aliases" in option) ? option.aliases : [],
+                    option.defaultValue
+                );
+
                 args = CliUtils.mergeArguments(defaultedArgs, args);
             }
         }

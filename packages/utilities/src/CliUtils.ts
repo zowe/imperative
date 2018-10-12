@@ -161,7 +161,10 @@ export class CliUtils {
                             const value = (profileKebab !== undefined && profileCamel !== undefined) ?
                                 ((opt.name === cases.kebabCase) ? profileKebab : profileCamel) :
                                 ((profileKebab !== undefined) ? profileKebab : profileCamel);
-                            const keys = CliUtils.setOptionValue(opt.name, value);
+                            const keys = CliUtils.setOptionValue(opt.name,
+                                ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
+                                value
+                            );
                             args = { ...args, ...keys };
                     }
                 });
@@ -205,7 +208,10 @@ export class CliUtils {
         options.forEach((opt) => {
             const envValue = CliUtils.getEnvValForOption(envPrefix, opt.name);
             if (envValue != null) {
-                const keys = CliUtils.setOptionValue(opt.name, envValue);
+                const keys = CliUtils.setOptionValue(opt.name,
+                    ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
+                    envValue
+                );
                 args = {...args, ...keys};
             }
         });
@@ -294,11 +300,12 @@ export class CliUtils {
 
 
     /**
-     * Accepts an option name and its value and returns the arguments style object.
-     *
-     * TODO: enhancement/34 - Add aliases as well
+     * Accepts an option name, and array of option aliases, and their value
+     * and returns the arguments style object.
      *
      * @param {string} optName - The command option name, usually in kebab case (or a single word)
+     *
+     * @param {string[]} optAliases - An array of alias names for this option
      *
      * @param {*} value - The value to assign to the argument
      *
@@ -306,20 +313,27 @@ export class CliUtils {
      *
      * @example <caption>Create Argument Object</caption>
      *
-     * CliUtils.setOptionValue("my-option", "value");
+     * CliUtils.setOptionValue("my-option", ["mo", "o"], "value");
      *
      * // returns
      * {
      *    "myOption": "value",
-     *    "my-option": "value"
+     *    "my-option": "value",
+     *    "mo": "value",
+     *    "o": "value"
      * }
      *
      */
-    public static setOptionValue(optName: string, value: any): ICommandArguments["args"] {
-        const names: IOptionFormat = CliUtils.getOptionFormat(optName);
+    public static setOptionValue(optName: string, optAliases: string[], value: any): ICommandArguments["args"] {
+        let names: IOptionFormat = CliUtils.getOptionFormat(optName);
         const args: ICommandArguments["args"] = {};
         args[names.camelCase] = value;
         args[names.kebabCase] = value;
+        for (const optAlias of optAliases) {
+            names = CliUtils.getOptionFormat(optAlias);
+            args[names.camelCase] = value;
+            args[names.kebabCase] = value;
+        }
         return args;
     }
 
