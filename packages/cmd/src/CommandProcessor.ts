@@ -275,7 +275,8 @@ export class CommandProcessor {
             };
 
             // If details are present and of type "string", output the additional details
-            if ((prepareErr as ImperativeError).details.additionalDetails != null
+            if ((prepareErr as ImperativeError).details != null &&
+                (prepareErr as ImperativeError).details.additionalDetails != null
                 && typeof (prepareErr as ImperativeError).details.additionalDetails === "string") {
                 response.console.errorHeader("Error Details");
                 response.console.error((prepareErr as ImperativeError).details.additionalDetails);
