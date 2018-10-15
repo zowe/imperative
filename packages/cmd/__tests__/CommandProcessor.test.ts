@@ -55,6 +55,25 @@ const SAMPLE_COMMAND_REAL_HANDLER: ICommandDefinition = {
     handler: __dirname + "/__model__/TestCmdHandler"
 };
 
+const SAMPLE_COMMAND_REAL_HANDLER_WITH_OPT: ICommandDefinition = {
+    name: "banana",
+    description: "The banana command",
+    type: "command",
+    handler: __dirname + "/__model__/TestCmdHandler",
+    options: [
+        {
+            name: "boolean-opt",
+            type: "boolean",
+            description: "A boolean option.",
+        },
+        {
+            name: "string-opt",
+            type: "string",
+            description: "A string option."
+        }
+    ]
+};
+
 // More complex command
 const SAMPLE_COMPLEX_COMMAND: ICommandDefinition = {
     name: "check",
@@ -72,6 +91,21 @@ const SAMPLE_COMPLEX_COMMAND: ICommandDefinition = {
             description: "The for group",
             type: "group",
             children: [SAMPLE_COMMAND_DEFINITION]
+        }
+    ]
+};
+
+// More complex command
+const SAMPLE_CMD_WITH_OPTS: ICommandDefinition = {
+    name: "sample",
+    description: "The sample group",
+    type: "group",
+    children: [
+        {
+            name: "cmd",
+            description: "The cmd group",
+            type: "group",
+            children: [SAMPLE_COMMAND_REAL_HANDLER_WITH_OPT]
         }
     ]
 };
@@ -252,6 +286,17 @@ describe("Command Processor", () => {
             rootCommandName: SAMPLE_ROOT_COMMAND
         });
         expect(processor.definition).toEqual(SAMPLE_COMMAND_DEFINITION);
+    });
+
+    it("should allow us to get the ENV prefix", () => {
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            definition: SAMPLE_COMMAND_DEFINITION,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+            rootCommandName: SAMPLE_ROOT_COMMAND
+        });
+        expect(processor.envVariablePrefix).toEqual(ENV_VAR_PREFIX);
     });
 
     it("should allow us to get the root command name", () => {
