@@ -12,17 +12,18 @@
 jest.mock("../src/syntax/SyntaxValidator");
 jest.mock("../src/utils/SharedOptions");
 
-import {TestLogger} from "../../../__tests__/TestLogger";
-import {ICommandDefinition} from "../src/doc/ICommandDefinition";
-import {CommandProcessor} from "../src/CommandProcessor";
-import {ICommandResponse} from "../src/doc/response/response/ICommandResponse";
-import {CommandResponse} from "../src/response/CommandResponse";
-import {IHelpGenerator} from "../src/help/doc/IHelpGenerator";
-import {BasicProfileManager, IProfileManagerFactory, IProfileTypeConfiguration} from "../../profiles";
-import {ImperativeError} from "../../error";
-import {ICommandValidatorResponse} from "../src/doc/response/response/ICommandValidatorResponse";
-import {SharedOptions} from "../src/utils/SharedOptions";
-import {CommandProfileLoader} from "../src/profiles/CommandProfileLoader";
+import { TestLogger } from "../../../__tests__/TestLogger";
+import { ICommandDefinition } from "../src/doc/ICommandDefinition";
+import { CommandProcessor } from "../src/CommandProcessor";
+import { ICommandResponse } from "../src/doc/response/response/ICommandResponse";
+import { CommandResponse } from "../src/response/CommandResponse";
+import { IHelpGenerator } from "../src/help/doc/IHelpGenerator";
+import { BasicProfileManager, IProfileManagerFactory, IProfileTypeConfiguration, IProfile } from "../../profiles";
+import { ImperativeError } from "../../error";
+import { ICommandValidatorResponse } from "../src/doc/response/response/ICommandValidatorResponse";
+import { SharedOptions } from "../src/utils/SharedOptions";
+import { CommandProfileLoader } from "../src/profiles/CommandProfileLoader";
+import { CliUtils } from "../../utilities/src/CliUtils";
 
 const testLogger = TestLogger.getTestLogger();
 // Persist the original definitions of process.write
@@ -55,6 +56,47 @@ const SAMPLE_COMMAND_REAL_HANDLER: ICommandDefinition = {
     handler: __dirname + "/__model__/TestCmdHandler"
 };
 
+const SAMPLE_COMMAND_REAL_HANDLER_WITH_OPT: ICommandDefinition = {
+    name: "banana",
+    description: "The banana command",
+    type: "command",
+    handler: __dirname + "/__model__/TestArgHandler",
+    options: [
+        {
+            name: "boolean-opt",
+            type: "boolean",
+            description: "A boolean option.",
+        },
+        {
+            name: "color",
+            type: "string",
+            description: "The banana color.",
+            required: true
+        }
+    ],
+    profile: {
+        optional: ["banana"]
+    }
+};
+
+const SAMPLE_COMMAND_REAL_HANDLER_WITH_POS_OPT: ICommandDefinition = {
+    name: "banana",
+    description: "The banana command",
+    type: "command",
+    handler: __dirname + "/__model__/TestArgHandler",
+    positionals: [
+        {
+            name: "color",
+            type: "string",
+            description: "The banana color.",
+            required: true
+        }
+    ],
+    profile: {
+        optional: ["banana"]
+    }
+};
+
 // More complex command
 const SAMPLE_COMPLEX_COMMAND: ICommandDefinition = {
     name: "check",
@@ -76,6 +118,21 @@ const SAMPLE_COMPLEX_COMMAND: ICommandDefinition = {
     ]
 };
 
+// More complex command
+const SAMPLE_CMD_WITH_OPTS_AND_PROF: ICommandDefinition = {
+    name: "sample",
+    description: "The sample group",
+    type: "group",
+    children: [
+        {
+            name: "cmd",
+            description: "The cmd group",
+            type: "group",
+            children: [SAMPLE_COMMAND_REAL_HANDLER_WITH_OPT]
+        }
+    ]
+};
+
 // A fake instance of the profile manager factory
 const FAKE_PROFILE_MANAGER_FACTORY: IProfileManagerFactory<IProfileTypeConfiguration> = {
     getManager: () => {
@@ -90,6 +147,38 @@ const FAKE_PROFILE_MANAGER_FACTORY: IProfileManagerFactory<IProfileTypeConfigura
                         type: "object",
                         description: "",
                         properties: {}
+                    }
+                }
+            ]
+        });
+    }
+};
+
+// A fake instance of the profile manager factory with props
+const FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS: IProfileManagerFactory<IProfileTypeConfiguration> = {
+    getManager: () => {
+        return new BasicProfileManager({
+            profileRootDirectory: "FAKE_ROOT",
+            type: "banana",
+            typeConfigurations: [
+                {
+                    type: "banana",
+                    schema: {
+                        title: "fake banana schema",
+                        type: "object",
+                        description: "",
+                        properties: {
+                            color: {
+                                type: "string",
+                                optionDefinition: {
+                                    name: "color",
+                                    aliases: ["c"],
+                                    description: "The color of the banana.",
+                                    type: "string",
+                                    required: true,
+                                },
+                            }
+                        }
                     }
                 }
             ]
@@ -254,6 +343,17 @@ describe("Command Processor", () => {
         expect(processor.definition).toEqual(SAMPLE_COMMAND_DEFINITION);
     });
 
+    it("should allow us to get the ENV prefix", () => {
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            definition: SAMPLE_COMMAND_DEFINITION,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+            rootCommandName: SAMPLE_ROOT_COMMAND
+        });
+        expect(processor.envVariablePrefix).toEqual(ENV_VAR_PREFIX);
+    });
+
     it("should allow us to get the root command name", () => {
         const processor: CommandProcessor = new CommandProcessor({
             envVariablePrefix: ENV_VAR_PREFIX,
@@ -355,7 +455,7 @@ describe("Command Processor", () => {
             rootCommandName: SAMPLE_ROOT_COMMAND
         });
 
-        const validateResponse: ICommandValidatorResponse = await processor.validate({_: [], $0: "", valid: true}, new CommandResponse());
+        const validateResponse: ICommandValidatorResponse = await processor.validate({ _: [], $0: "", valid: true }, new CommandResponse());
         expect(validateResponse).toMatchSnapshot();
     });
 
@@ -392,7 +492,7 @@ describe("Command Processor", () => {
 
         let error;
         try {
-            const validateResponse: ICommandValidatorResponse = await processor.validate({_: [], $0: "", valid: true}, undefined);
+            const validateResponse: ICommandValidatorResponse = await processor.validate({ _: [], $0: "", valid: true }, undefined);
         } catch (e) {
             error = e;
         }
@@ -434,7 +534,7 @@ describe("Command Processor", () => {
 
         let error;
         try {
-            const validateResponse: ICommandResponse = await processor.invoke({arguments: undefined});
+            const validateResponse: ICommandResponse = await processor.invoke({ arguments: undefined });
         } catch (e) {
             error = e;
         }
@@ -455,7 +555,7 @@ describe("Command Processor", () => {
 
         let error;
         try {
-            const parms: any = {arguments: {_: [], $0: ""}, responseFormat: "blah", silent: true};
+            const parms: any = { arguments: { _: [], $0: "" }, responseFormat: "blah", silent: true };
             const validateResponse: ICommandResponse = await processor.invoke(parms);
         } catch (e) {
             error = e;
@@ -477,7 +577,7 @@ describe("Command Processor", () => {
 
         let error;
         try {
-            const parms: any = {arguments: {_: undefined, $0: ""}, responseFormat: "json", silent: true};
+            const parms: any = { arguments: { _: undefined, $0: "" }, responseFormat: "json", silent: true };
             const validateResponse: ICommandResponse = await processor.invoke(parms);
         } catch (e) {
             error = e;
@@ -497,7 +597,7 @@ describe("Command Processor", () => {
             rootCommandName: SAMPLE_ROOT_COMMAND
         });
 
-        const parms: any = {arguments: {_: ["banana"], $0: "", valid: false}, responseFormat: "json", silent: true};
+        const parms: any = { arguments: { _: ["banana"], $0: "", valid: false }, responseFormat: "json", silent: true };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
 
         expect(commandResponse).toBeDefined();
@@ -520,7 +620,7 @@ describe("Command Processor", () => {
         });
 
         const parms: any = {
-            arguments: {_: ["check", "for", "banana"], $0: "", valid: false},
+            arguments: { _: ["check", "for", "banana"], $0: "", valid: false },
             responseFormat: "json", silent: true
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
@@ -545,7 +645,7 @@ describe("Command Processor", () => {
         });
 
         const parms: any = {
-            arguments: {_: ["check", "for", "banana"], $0: "", syntaxThrow: true},
+            arguments: { _: ["check", "for", "banana"], $0: "", syntaxThrow: true },
             responseFormat: "json", silent: true
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
@@ -565,7 +665,7 @@ describe("Command Processor", () => {
             rootCommandName: SAMPLE_ROOT_COMMAND
         });
 
-        const parms: any = {arguments: {_: [], $0: "", syntaxThrow: true}, responseFormat: "json", silent: true};
+        const parms: any = { arguments: { _: [], $0: "", syntaxThrow: true }, responseFormat: "json", silent: true };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
 
         expect(commandResponse).toBeDefined();
@@ -590,11 +690,11 @@ describe("Command Processor", () => {
 
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
-            throw new ImperativeError({msg: "Profile loading failed!"});
+            throw new ImperativeError({ msg: "Profile loading failed!" });
         });
 
         const parms: any = {
-            arguments: {_: ["check", "for", "banana"], $0: "", valid: true},
+            arguments: { _: ["check", "for", "banana"], $0: "", valid: true },
             responseFormat: "json", silent: true
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
@@ -1045,6 +1145,237 @@ describe("Command Processor", () => {
         expect(commandResponse).toMatchSnapshot();
     });
 
+    it("should extract arguments not specified on invoke from a profile and merge with args", async () => {
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            fullDefinition: SAMPLE_CMD_WITH_OPTS_AND_PROF,
+            definition: SAMPLE_COMMAND_REAL_HANDLER_WITH_OPT,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
+            rootCommandName: SAMPLE_ROOT_COMMAND
+        });
+
+        // Mock read stdin
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
+            // Nothing to do
+        });
+
+        // Mock the profile loader
+        CommandProfileLoader.loader = jest.fn((args) => {
+            return {
+                loadProfiles: (profArgs) => {
+                    return;
+                }
+            };
+        });
+
+        // return the "fake" args object with values from profile
+        CliUtils.getOptValueFromProfiles = jest.fn((cmdProfiles, profileDef, allOpts) => {
+            return {
+                color: "yellow"
+            };
+        });
+
+        const parms: any = {
+            arguments: {
+                _: ["sample", "cmd", "banana"],
+                $0: "",
+                valid: true
+            },
+            silent: true
+        };
+
+        const commandResponse: ICommandResponse = await processor.invoke(parms);
+        expect(CliUtils.getOptValueFromProfiles).toHaveBeenCalledTimes(1);
+        expect(commandResponse.stdout.toString()).toMatchSnapshot();
+        expect(commandResponse).toBeDefined();
+        expect(commandResponse).toMatchSnapshot();
+    });
+
+
+    it("should extract arguments not specified on invoke from a profile and merge with positional args", async () => {
+        // TODO: Finish for enhancement/34
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            fullDefinition: SAMPLE_CMD_WITH_OPTS_AND_PROF,
+            definition: SAMPLE_COMMAND_REAL_HANDLER_WITH_POS_OPT,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
+            rootCommandName: SAMPLE_ROOT_COMMAND
+        });
+
+        // Mock read stdin
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
+            // Nothing to do
+        });
+
+        // Mock the profile loader
+        CommandProfileLoader.loader = jest.fn((args) => {
+            return {
+                loadProfiles: (profArgs) => {
+                    return;
+                }
+            };
+        });
+
+        // return the "fake" args object with values from profile
+        CliUtils.getOptValueFromProfiles = jest.fn((cmdProfiles, profileDef, allOpts) => {
+            return {
+                color: "yellow"
+            };
+        });
+
+        const parms: any = {
+            arguments: {
+                _: ["sample", "cmd", "banana"],
+                $0: "",
+                valid: true
+            },
+            silent: true
+        };
+
+        const commandResponse: ICommandResponse = await processor.invoke(parms);
+        expect(CliUtils.getOptValueFromProfiles).toHaveBeenCalledTimes(1);
+        expect(commandResponse.stdout.toString()).toMatchSnapshot();
+        expect(commandResponse).toBeDefined();
+        expect(commandResponse).toMatchSnapshot();
+    });
+
+    it("should use the value specified on the CLI positonal option, if the argument is supplied in both CLI and profile", async () => {
+        // TODO: Finish for enhancement/34
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            fullDefinition: SAMPLE_CMD_WITH_OPTS_AND_PROF,
+            definition: SAMPLE_COMMAND_REAL_HANDLER_WITH_POS_OPT,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
+            rootCommandName: SAMPLE_ROOT_COMMAND
+        });
+
+        // Mock read stdin
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
+            // Nothing to do
+        });
+
+        // Mock the profile loader
+        CommandProfileLoader.loader = jest.fn((args) => {
+            return {
+                loadProfiles: (profArgs) => {
+                    return;
+                }
+            };
+        });
+
+        // return the "fake" args object with values from profile
+        CliUtils.getOptValueFromProfiles = jest.fn((cmdProfiles, profileDef, allOpts) => {
+            return {
+                color: "yellow"
+            };
+        });
+
+        const parms: any = {
+            arguments: {
+                _: ["sample", "cmd", "banana"],
+                $0: "",
+                valid: true,
+                color: "green"
+            },
+            silent: true
+        };
+
+        const commandResponse: ICommandResponse = await processor.invoke(parms);
+        expect(CliUtils.getOptValueFromProfiles).toHaveBeenCalledTimes(1);
+        expect(commandResponse.stdout.toString()).toMatchSnapshot();
+        expect(commandResponse).toBeDefined();
+        expect(commandResponse).toMatchSnapshot();
+    });
+
+    it("should use the value specified on the CLI option, if the argument is supplied in both CLI and profile", async () => {
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            fullDefinition: SAMPLE_CMD_WITH_OPTS_AND_PROF,
+            definition: SAMPLE_COMMAND_REAL_HANDLER_WITH_OPT,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
+            rootCommandName: SAMPLE_ROOT_COMMAND
+        });
+
+        // Mock read stdin
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
+            // Nothing to do
+        });
+
+        // Mock the profile loader
+        CommandProfileLoader.loader = jest.fn((args) => {
+            return {
+                loadProfiles: (profArgs) => {
+                    return;
+                }
+            };
+        });
+
+        // return the "fake" args object with values from profile
+        CliUtils.getOptValueFromProfiles = jest.fn((cmdProfiles, profileDef, allOpts) => {
+            return {
+                color: "yellow"
+            };
+        });
+
+        const parms: any = {
+            arguments: {
+                _: ["sample", "cmd", "banana"],
+                $0: "",
+                valid: true,
+                color: "green"
+            },
+            silent: true
+        };
+
+        const commandResponse: ICommandResponse = await processor.invoke(parms);
+        expect(CliUtils.getOptValueFromProfiles).toHaveBeenCalledTimes(1);
+        expect(commandResponse.stdout.toString()).toMatchSnapshot();
+        expect(commandResponse).toBeDefined();
+        expect(commandResponse).toMatchSnapshot();
+    });
+
+    it("should invoke the handler and return success=true if the handler was successful", async () => {
+        // Allocate the command processor
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            fullDefinition: SAMPLE_COMPLEX_COMMAND,
+            definition: SAMPLE_COMMAND_REAL_HANDLER,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+            rootCommandName: SAMPLE_ROOT_COMMAND
+        });
+
+        // Mock read stdin
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
+            // Nothing to do
+        });
+
+        // Mock the profile loader
+        CommandProfileLoader.loader = jest.fn((args) => {
+            return {
+                loadProfiles: (profArgs) => {
+                    // Nothing to do
+                }
+            };
+        });
+
+        const parms: any = {
+            arguments: {
+                _: ["check", "for", "banana"],
+                $0: "",
+                valid: true,
+            },
+            silent: true
+        };
+        const commandResponse: ICommandResponse = await processor.invoke(parms);
+        expect(commandResponse).toBeDefined();
+        expect(commandResponse).toMatchSnapshot();
+    });
+
     it("should allow us to formulate the help for a group", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
@@ -1055,7 +1386,7 @@ describe("Command Processor", () => {
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND
         });
-        const commandResponse: ICommandResponse = await processor.help(new CommandResponse({silent: true}));
+        const commandResponse: ICommandResponse = await processor.help(new CommandResponse({ silent: true }));
         expect(commandResponse).toBeDefined();
         expect(commandResponse).toMatchSnapshot();
     });
