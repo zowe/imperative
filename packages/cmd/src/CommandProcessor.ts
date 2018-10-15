@@ -474,10 +474,9 @@ export class CommandProcessor {
             args = CliUtils.mergeArguments(profArgs, args);
         }
 
-        /**
-         * Set the default value for all options if defaultValue was specified on the command
-         * definition and the option was not specified
-         */
+
+        // Set the default value for all options if defaultValue was specified on the command
+        // definition and the option was not specified
         for (const option of allOpts) {
             if (option.defaultValue != null && args[option.name] == null) {
                 const defaultedArgs = CliUtils.setOptionValue(option.name,
