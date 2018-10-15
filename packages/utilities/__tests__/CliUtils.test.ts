@@ -9,9 +9,51 @@
 *
 */
 
-import {CliUtils} from "../src/CliUtils";
+import { CliUtils } from "../src/CliUtils";
+import { CommandProfiles, ICommandOptionDefinition } from "../../cmd";
+import { IProfile } from "../../profiles";
+import { ImperativeError } from "../../error";
 
 describe("CliUtils", () => {
+    describe("getOptValueFromProfiles", () => {
+
+        const FAKE_OPTS: ICommandOptionDefinition[] = [{
+            name: "fake-string-opt",
+            description: "a fake opt",
+            type: "string"
+        }];
+
+        it("should throw an imperative error if a required profile is not present", () => {
+            let error;
+            try {
+                const args = CliUtils.getOptValueFromProfiles(
+                    new CommandProfiles(new Map<string, IProfile[]>()),
+                    { required: ["banana"] },
+                    FAKE_OPTS);
+            } catch (e) {
+                error = e;
+            }
+            expect(error).toBeDefined();
+            expect(error instanceof ImperativeError).toBe(true);
+            expect(error.message).toMatchSnapshot();
+        });
+
+        it("should return any args if a profile was optional and not loaded", () => {
+            throw new Error("not implemented yet");
+        });
+
+        it("should return args (from definitions with no hyphen in name) extracted from loaded profile", () => {
+            throw new Error("not implemented yet");
+        });
+
+        it("should return args (with both cases) extracted from loaded profile, preferring the camel case", () => {
+            throw new Error("not implemented yet");
+        });
+        
+        it("should return args (with both cases) extracted from loaded profile, preferring the kebab case", () => {
+            throw new Error("not implemented yet");
+        });
+    });
 
     it("should be able to produce the --dash-form of any options", () => {
         // correct uses

@@ -1,5 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`CliUtils getOptValueFromProfiles should throw an imperative error if a required profile is not present 1`] = `"Profile of type \\"banana\\" does not exist within the loaded profiles for the command and it is marked as required."`;
+
 exports[`CliUtils should be able to produce the --dash-form of any options 1`] = `"--some-option"`;
 
 exports[`CliUtils should be able to produce the --dash-form of any options 2`] = `"-s"`;
