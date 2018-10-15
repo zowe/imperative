@@ -102,7 +102,7 @@ export class SyntaxValidator {
     public validate(responseObject: CommandResponse, commandArguments: ICommandArguments): Promise<ICommandValidatorResponse> {
         return new Promise<ICommandValidatorResponse>((validationComplete) => {
             const syntaxValid: boolean = this.validateSyntax(commandArguments, responseObject);
-            validationComplete({ valid: syntaxValid });
+            validationComplete({valid: syntaxValid});
         });
     }
 
@@ -338,7 +338,14 @@ export class SyntaxValidator {
                             commandArguments[optionDef.name]);
                     }
                 }
-
+                else if (optionDef.type === "boolean") {
+                    valid = this.validateBoolean(commandArguments[optionDef.name], optionDef,
+                        responseObject) && valid;
+                }
+                else if (optionDef.type === "number") {
+                    valid = this.validateNumeric(commandArguments[optionDef.name], optionDef,
+                        responseObject) && valid;
+                }
                 /**
                  * Validate that the option's value is valid json.
                  */
@@ -370,17 +377,6 @@ export class SyntaxValidator {
                     !isNullOrUndefined(optionDef.stringLengthRange[1])) {
                     valid = this.validateOptionValueLength(optionDef, commandArguments[optionDef.name],
                         responseObject) && valid;
-                }
-
-                /**
-                 * Validation based on type
-                 */
-                if (!isNullOrUndefined(optionDef.type)) {
-
-                    if (optionDef.type === "number") {
-                        valid = this.validateNumeric(commandArguments[optionDef.name], optionDef,
-                            responseObject) && valid;
-                    }
                 }
 
                 if (!isNullOrUndefined(optionDef.valueImplications) && Object.keys(optionDef.valueImplications).length > 0) {
@@ -427,7 +423,7 @@ export class SyntaxValidator {
             `\nYou specified:\n${valueSpecified}\n` +
             `\nJSON parsing failed with the following error:\n${error.message}`);
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: optionDefinition.name, definition: optionDefinition });
+            {message: msg, optionInError: optionDefinition.name, definition: optionDefinition});
     }
 
     /**
@@ -448,7 +444,7 @@ export class SyntaxValidator {
                 "\nYou specified:\n\"{{&value}}\"\n\nThe file does not exist",
                 mustacheSummary);
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: optionDefinition.name, definition: optionDefinition });
+            {message: msg, optionInError: optionDefinition.name, definition: optionDefinition});
     }
 
     /**
@@ -540,7 +536,7 @@ export class SyntaxValidator {
             "Option Description:\n{{description}}",
             this.getMustacheSummaryForOption(optionDefinition));
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: optionDefinition.name, definition: optionDefinition });
+            {message: msg, optionInError: optionDefinition.name, definition: optionDefinition});
     }
 
     /**
@@ -554,13 +550,13 @@ export class SyntaxValidator {
         responseObject.console.errorHeader(syntaxErrorHeader.message);
         const msg: string =
             responseObject.console.error("Invalid format specified for positional option:\n{{parameter}}\n\n" +
-                  "You specified:\n{{spec}}\n\nOption must match the following regular expression:\n{{format}}",
+                "You specified:\n{{spec}}\n\nOption must match the following regular expression:\n{{format}}",
                 {
                     parameter: positionalDefinition.name, format: positionalDefinition.regex,
                     spec: specified, desc: TextUtils.wordWrap(positionalDefinition.description)
                 });
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: positionalDefinition.name, definition: positionalDefinition });
+            {message: msg, optionInError: positionalDefinition.name, definition: positionalDefinition});
     }
 
     /**
@@ -582,15 +578,15 @@ export class SyntaxValidator {
             const msg: string = responseObject.console.error("Invalid numeric value specified for option:\n{{option}}\n\n" +
                 "You specified:\n{{value}}\n\n" +
                 "Value must be between {{min}} and {{max}} (inclusive)", {
-                    option: this.getDashFormOfOption(optionDefinition.name),
-                    length: optionValue,
-                    value: optionValue,
-                    min,
-                    max,
-                });
+                option: this.getDashFormOfOption(optionDefinition.name),
+                length: optionValue,
+                value: optionValue,
+                min,
+                max,
+            });
             valid = false;
             this.appendValidatorError(responseObject,
-                { message: msg, optionInError: optionDefinition.name, definition: optionDefinition });
+                {message: msg, optionInError: optionDefinition.name, definition: optionDefinition});
         }
 
         return valid;
@@ -616,14 +612,14 @@ export class SyntaxValidator {
             const msg: string = responseObject.console.error("Invalid value length for option:\n{{option}}\n\n" +
                 "You specified a string of length {{length}}:\n{{optionValue}}\n\n" +
                 "The length must be between {{min}} and {{max}} (inclusive)", {
-                    option: isPositional ? optionDefinition.name : this.getDashFormOfOption(optionDefinition.name),
-                    length: optionValue.length,
-                    optionValue,
-                    min,
-                    max
-                });
+                option: isPositional ? optionDefinition.name : this.getDashFormOfOption(optionDefinition.name),
+                length: optionValue.length,
+                optionValue,
+                min,
+                max
+            });
             this.appendValidatorError(responseObject,
-                { message: msg, optionInError: optionDefinition.name, definition: optionDefinition });
+                {message: msg, optionInError: optionDefinition.name, definition: optionDefinition});
             valid = false;
         }
 
@@ -647,9 +643,9 @@ export class SyntaxValidator {
                 dependsOn: this.getDashFormOfOption(optionDef2.name),
             });
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: optionDef1.name, definition: optionDef2 });
+            {message: msg, optionInError: optionDef1.name, definition: optionDef2});
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: optionDef2.name, definition: optionDef2 });
+            {message: msg, optionInError: optionDef2.name, definition: optionDef2});
     }
 
     /**
@@ -670,7 +666,7 @@ export class SyntaxValidator {
                 dependsOn: implications
             });
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: optionDef.name, definition: optionDef });
+            {message: msg, optionInError: optionDef.name, definition: optionDef});
     }
 
     /**
@@ -683,13 +679,13 @@ export class SyntaxValidator {
         responseObject.console.errorHeader(syntaxErrorHeader.message);
         const msg: string = responseObject.console.error("If you do not specify the following option:\n{{option}}\n" +
             "\nYou must specify one of these options:\n[{{dependsOn}}]", {
-                option: this.getDashFormOfOption(optionDef.name),
-                dependsOn: optionDef.absenceImplications.map((option) => {
-                    return this.getDashFormOfOption(this.getOptionDefinitionFromName(option).name);
-                }).join(", ")
-            });
+            option: this.getDashFormOfOption(optionDef.name),
+            dependsOn: optionDef.absenceImplications.map((option) => {
+                return this.getDashFormOfOption(this.getOptionDefinitionFromName(option).name);
+            }).join(", ")
+        });
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: optionDef.name, definition: optionDef });
+            {message: msg, optionInError: optionDef.name, definition: optionDef});
     }
 
     /**
@@ -704,13 +700,13 @@ export class SyntaxValidator {
         responseObject.console.errorHeader(syntaxErrorHeader.message);
         const msg: string
             = responseObject.console.error("The following options conflict (mutually exclusive):\n{{a}}\n{{b}}", {
-                    a: this.getDashFormOfOption(optionDef1.name),
-                    b: this.getDashFormOfOption(optionDef2.name)
-                });
+            a: this.getDashFormOfOption(optionDef1.name),
+            b: this.getDashFormOfOption(optionDef2.name)
+        });
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: optionDef1.name, definition: optionDef1 });
+            {message: msg, optionInError: optionDef1.name, definition: optionDef1});
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: optionDef2.name, definition: optionDef2 });
+            {message: msg, optionInError: optionDef2.name, definition: optionDef2});
     }
 
     /**
@@ -726,7 +722,7 @@ export class SyntaxValidator {
             "You cannot specify the following option multiple times:\n{{long}} {{aliases}}",
             mustacheSummary);
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: failingOption.name, definition: failingOption });
+            {message: msg, optionInError: failingOption.name, definition: failingOption});
     }
 
     /**
@@ -746,7 +742,7 @@ export class SyntaxValidator {
             "The value must match one of the following regular expressions:\n{{allowed}}.",
             mustacheSummary);
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: failingOption.name, definition: failingOption });
+            {message: msg, optionInError: failingOption.name, definition: failingOption});
     }
 
     /**
@@ -768,24 +764,53 @@ export class SyntaxValidator {
         responseObject.console.errorHeader(syntaxErrorHeader.message);
         const msg: string
             = responseObject.console.error("If you specify the value {{value}}" +
-                " for option {{a_long}} {{a_short}}, " +
-                "you must also specify a value for the option  {{b_long}} {{b_short}}\nDescription:\n{{b_description}}",
-                {
-                    value,
-                    a_long: aMustache.long,
-                    a_short: aMustache.aliases,
-                    b_long: bMustache.long,
-                    b_short: bMustache.aliases,
-                    b_description: TextUtils.wordWrap(bMustache.description)
-                });
+            " for option {{a_long}} {{a_short}}, " +
+            "you must also specify a value for the option  {{b_long}} {{b_short}}\nDescription:\n{{b_description}}",
+            {
+                value,
+                a_long: aMustache.long,
+                a_short: aMustache.aliases,
+                b_long: bMustache.long,
+                b_short: bMustache.aliases,
+                b_description: TextUtils.wordWrap(bMustache.description)
+            });
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: optionDef.name, definition: optionDef });
+            {message: msg, optionInError: optionDef.name, definition: optionDef});
     }
+
+    /**
+     * Validate that the option's value is a boolean type
+     * @param {any} value: The value passed to validate.
+     * @param {ICommandOptionDefinition} optionDefinition: The definition for this option.
+     * @param {CommandResponse} responseObject: The response object for producing messages.
+     * @param isPositional - is the option a positional option? defaults to false
+     */
+    private validateBoolean(value: any,
+                            optionDefinition: ICommandOptionDefinition,
+                            responseObject: CommandResponse,
+                            isPositional: boolean = false): boolean {
+        const mustacheSummary: any = this.getMustacheSummaryForOption(optionDefinition, isPositional);
+        mustacheSummary.value = value;
+
+        if (value !== undefined && value !== true && value !== false) {
+            responseObject.console.errorHeader(syntaxErrorHeader.message);
+            const msg: string = responseObject
+                .console.error("Invalid value specified for option:\n{{long}} {{aliases}}\n\n" +
+                    "You specified:\n{{value}}\n\n" +
+                    "The value must be a boolean (true or false).",
+                    mustacheSummary);
+            this.appendValidatorError(responseObject,
+                {message: msg, optionInError: optionDefinition.name, definition: optionDefinition});
+            return false;
+        }
+        return true;
+    }
+
 
     /**
      * Validate that the option's value is numeric.
      * @param {any} value: The value passed to validate.
-     * @param {OptionDefinition} optionDefinition: The definition for this option.
+     * @param {ICommandOptionDefinition| ICommandPositionalDefinition} optionDefinition: The definition for this option.
      * @param {CommandResponse} responseObject: The response object for producing messages.
      * @param isPositional - is the option a positional option? defaults to false
      */
@@ -803,7 +828,7 @@ export class SyntaxValidator {
                     "The value must be a number",
                     mustacheSummary);
             this.appendValidatorError(responseObject,
-                { message: msg, optionInError: optionDefinition.name, definition: optionDefinition });
+                {message: msg, optionInError: optionDefinition.name, definition: optionDefinition});
             return false;
         }
         return true;
@@ -821,7 +846,7 @@ export class SyntaxValidator {
             "You must specify one of the following options for this command:\n[%s]",
             missingOptionNames.join(", "));
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: missingOptionNames.toString() });
+            {message: msg, optionInError: missingOptionNames.toString()});
     }
 
     /**
@@ -840,7 +865,7 @@ export class SyntaxValidator {
             "You specified the following:\n[%s]",
             onlyOneOf.join(", "), specifiedDashForm.join(", "));
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: onlyOneOf.toString() });
+            {message: msg, optionInError: onlyOneOf.toString()});
     }
 
     /**
@@ -857,7 +882,7 @@ export class SyntaxValidator {
             this.getOptionDefinitionFromName(optionName).type,
             TextUtils.wordWrap(this.getOptionDefinitionFromName(optionName).description));
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: optionName });
+            {message: msg, optionInError: optionName});
     }
 
     /**
@@ -878,7 +903,7 @@ export class SyntaxValidator {
             badOptionsSummary
         );
         this.appendValidatorError(responseObject,
-            { message: msg, optionInError: "unknown" });
+            {message: msg, optionInError: "unknown"});
     }
 
     /**
@@ -892,9 +917,9 @@ export class SyntaxValidator {
             responseObject.console.errorHeader(syntaxErrorHeader.message);
             const message: string
                 = responseObject.console.error("Missing Positional Option:\n{{missing}}\n\n" +
-                                               "Option Description:\n" +
-                                               "{{optDesc}}",
-                    { missing: missing.name, optDesc: TextUtils.wordWrap(missing.description) });
+                "Option Description:\n" +
+                "{{optDesc}}",
+                {missing: missing.name, optDesc: TextUtils.wordWrap(missing.description)});
             this.appendValidatorError(responseObject,
                 {
                     message,

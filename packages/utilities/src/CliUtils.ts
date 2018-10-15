@@ -15,8 +15,7 @@ import { Constants } from "../../constants";
 import { Arguments } from "yargs";
 import { TextUtils } from "./TextUtils";
 import { IOptionFormat } from "./doc/IOptionFormat";
-import { Logger } from "../../logger";
-import { ICommandOptionDefinition, ICommandPositionalDefinition, CommandProfiles, ICommandProfile } from "../../cmd";
+import { CommandProfiles, ICommandOptionDefinition, ICommandPositionalDefinition, ICommandProfile } from "../../cmd";
 import { ICommandArguments } from "../../cmd/src/doc/args/ICommandArguments";
 import { IProfile } from "../../profiles";
 
@@ -121,7 +120,7 @@ export class CliUtils {
         let args: any = {};
 
         // Construct the precedence order to iterate through the profiles
-        let profileOrder: any =  (definitions.required != null) ? definitions.required : [];
+        let profileOrder: any = (definitions.required != null) ? definitions.required : [];
         if (definitions.optional != null) {
             profileOrder = profileOrder.concat(definitions.optional);
         }
@@ -136,7 +135,7 @@ export class CliUtils {
                 throw new ImperativeError({
                     msg: `Profile of type "${profileType}" does not exist within the loaded profiles for the command and it is marked as required.`,
                     additionalDetails: `This is an internal imperative error. ` +
-                    `Command preparation was attempting to extract option values from this profile.`
+                        `Command preparation was attempting to extract option values from this profile.`
                 });
             } else if (profile != null) {
                 // For each option - extract the value if that exact property exists
@@ -156,16 +155,16 @@ export class CliUtils {
                     if ((profileCamel !== undefined || profileKebab !== undefined) &&
                         (!args.hasOwnProperty(cases.kebabCase) && !args.hasOwnProperty(cases.camelCase))) {
 
-                            // If both case properties are present in the profile, use the one that matches
-                            // the option name explicitly
-                            const value = (profileKebab !== undefined && profileCamel !== undefined) ?
-                                ((opt.name === cases.kebabCase) ? profileKebab : profileCamel) :
-                                ((profileKebab !== undefined) ? profileKebab : profileCamel);
-                            const keys = CliUtils.setOptionValue(opt.name,
-                                ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
-                                value
-                            );
-                            args = { ...args, ...keys };
+                        // If both case properties are present in the profile, use the one that matches
+                        // the option name explicitly
+                        const value = (profileKebab !== undefined && profileCamel !== undefined) ?
+                            ((opt.name === cases.kebabCase) ? profileKebab : profileCamel) :
+                            ((profileKebab !== undefined) ? profileKebab : profileCamel);
+                        const keys = CliUtils.setOptionValue(opt.name,
+                            ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
+                            value
+                        );
+                        args = {...args, ...keys};
                     }
                 });
             }
@@ -187,7 +186,7 @@ export class CliUtils {
     public static mergeArguments(...args: any[]): any {
         let merged = {};
         args.forEach((obj) => {
-            merged = { ...merged, ...obj };
+            merged = {...merged, ...obj};
         });
         return merged;
     }
@@ -206,8 +205,28 @@ export class CliUtils {
                                        options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): ICommandArguments["args"] {
         let args: ICommandArguments["args"] = {};
         options.forEach((opt) => {
-            const envValue = CliUtils.getEnvValForOption(envPrefix, opt.name);
+            let envValue: any = CliUtils.getEnvValForOption(envPrefix, opt.name);
             if (envValue != null) {
+
+                // convert strings to booleans if the option is boolean type
+                if (opt.type === "boolean") {
+                    if (envValue.toUpperCase() === "TRUE") {
+                        envValue = true;
+                    } else if (envValue.toUpperCase() === "FALSE") {
+                        envValue = false;
+                    }
+                }
+                // convert strings to numbers if the option is number type
+                if (opt.type === "number") {
+                    const BASE_TEN = 10;
+                    const oldEnvValue = envValue;
+                    envValue = parseInt(envValue, BASE_TEN);
+                    // if parsing fails, we'll re-insert the original value so that the
+                    // syntax failure message is clearer
+                    if (isNaN(envValue)) {
+                        envValue = oldEnvValue;
+                    }
+                }
                 const keys = CliUtils.setOptionValue(opt.name,
                     ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
                     envValue
@@ -294,7 +313,7 @@ export class CliUtils {
         }
         const numDashes = header.length + 1;
         const headerText = TextUtils.formatMessage("{{indent}}{{headerText}}\n{{indent}}{{dashes}}",
-            { headerText: header.toUpperCase(), dashes: Array(numDashes).join("-"), indent });
+            {headerText: header.toUpperCase(), dashes: Array(numDashes).join("-"), indent});
         return TextUtils.chalk[color](headerText);
     }
 
@@ -350,7 +369,7 @@ export class CliUtils {
      *
      */
     public static buildBaseArgs(args: Arguments): ICommandArguments {
-        const impArgs: ICommandArguments = { ...args };
+        const impArgs: ICommandArguments = {...args};
         Object.keys(impArgs).forEach((key) => {
             if (key !== "_" && key !== "$0" && impArgs[key] === undefined) {
                 delete impArgs[key];

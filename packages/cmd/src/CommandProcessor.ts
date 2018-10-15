@@ -475,7 +475,6 @@ export class CommandProcessor {
             args = CliUtils.mergeArguments(profArgs, args);
         }
 
-
         // Set the default value for all options if defaultValue was specified on the command
         // definition and the option was not specified
         for (const option of allOpts) {
@@ -484,7 +483,6 @@ export class CommandProcessor {
                     ("aliases" in option) ? option.aliases : [],
                     option.defaultValue
                 );
-
                 args = CliUtils.mergeArguments(args, defaultedArgs);
             }
         }

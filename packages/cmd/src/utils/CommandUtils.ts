@@ -9,12 +9,10 @@
 *
 */
 
-import {Arguments} from "yargs";
-import {isNullOrUndefined} from "util";
-import {ICommandDefinition} from "../doc/ICommandDefinition";
-import {ICommandOptionDefinition} from "../doc/option/ICommandOptionDefinition";
-import {Constants} from "../../../constants";
-import {ImperativeError} from "../../../error";
+import { Arguments } from "yargs";
+import { isNullOrUndefined } from "util";
+import { ICommandDefinition } from "../doc/ICommandDefinition";
+import { ICommandOptionDefinition } from "../doc/option/ICommandOptionDefinition";
 import { CliUtils } from "../../../utilities/src/CliUtils";
 import { ICommandArguments } from "../doc/args/ICommandArguments";
 
@@ -90,7 +88,7 @@ export class CommandUtils {
             return false;
         }
         if ((optionDef.type as string) === "boolean") {
-            return args[optionName] === true;
+            return args[optionName] !== undefined;
         }
         else {
             return !isNullOrUndefined(args[optionName]);
