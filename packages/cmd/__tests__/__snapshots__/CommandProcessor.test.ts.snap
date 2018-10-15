@@ -134,6 +134,36 @@ Object {
 }
 `;
 
+exports[`Command Processor should extract arguments not specified on invoke from a profile and merge with positional args 1`] = `
+"yellow
+"
+`;
+
+exports[`Command Processor should extract arguments not specified on invoke from a profile and merge with positional args 2`] = `
+Object {
+  "data": Object {},
+  "error": undefined,
+  "message": "",
+  "stderr": Object {
+    "data": Array [],
+    "type": "Buffer",
+  },
+  "stdout": Object {
+    "data": Array [
+      121,
+      101,
+      108,
+      108,
+      111,
+      119,
+      10,
+    ],
+    "type": "Buffer",
+  },
+  "success": true,
+}
+`;
+
 exports[`Command Processor should fail the command if syntax validation fails 1`] = `
 "
 Use \\"fruit banana --help\\" to view command description, usage, and options.
@@ -1179,6 +1209,35 @@ exports[`Command Processor should use the value specified on the CLI option, if 
 `;
 
 exports[`Command Processor should use the value specified on the CLI option, if the argument is supplied in both CLI and profile 2`] = `
+Object {
+  "data": Object {},
+  "error": undefined,
+  "message": "",
+  "stderr": Object {
+    "data": Array [],
+    "type": "Buffer",
+  },
+  "stdout": Object {
+    "data": Array [
+      103,
+      114,
+      101,
+      101,
+      110,
+      10,
+    ],
+    "type": "Buffer",
+  },
+  "success": true,
+}
+`;
+
+exports[`Command Processor should use the value specified on the CLI positonal option, if the argument is supplied in both CLI and profile 1`] = `
+"green
+"
+`;
+
+exports[`Command Processor should use the value specified on the CLI positonal option, if the argument is supplied in both CLI and profile 2`] = `
 Object {
   "data": Object {},
   "error": undefined,

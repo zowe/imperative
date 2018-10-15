@@ -79,6 +79,24 @@ const SAMPLE_COMMAND_REAL_HANDLER_WITH_OPT: ICommandDefinition = {
     }
 };
 
+const SAMPLE_COMMAND_REAL_HANDLER_WITH_POS_OPT: ICommandDefinition = {
+    name: "banana",
+    description: "The banana command",
+    type: "command",
+    handler: __dirname + "/__model__/TestArgHandler",
+    positionals: [
+        {
+            name: "color",
+            type: "string",
+            description: "The banana color.",
+            required: true
+        }
+    ],
+    profile: {
+        optional: ["banana"]
+    }
+};
+
 // More complex command
 const SAMPLE_COMPLEX_COMMAND: ICommandDefinition = {
     name: "check",
@@ -174,17 +192,6 @@ const FAKE_HELP_GENERATOR: IHelpGenerator = {
         return "Build help invoked!";
     }
 };
-
-// // Not mocking this to get the desired effect - creating a legit instance
-// const TEST_PROF_MAP: Map<string, IProfile[]> = new Map<string, IProfile[]>();
-// TEST_PROF_MAP.set("banana", [
-//     {
-//         name: "test_banana",
-//         type: "banana",
-
-//     }
-// ]);
-// const TEST_CMD_PROFILES: CommandProfiles = new CommandProfiles(TEST_PROF_MAP);
 
 const ENV_VAR_PREFIX: string = "UNIT_TEST";
 
@@ -1139,7 +1146,6 @@ describe("Command Processor", () => {
     });
 
     it("should extract arguments not specified on invoke from a profile and merge with args", async () => {
-        // TODO: Finish for enhancement/34
         const processor: CommandProcessor = new CommandProcessor({
             envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_CMD_WITH_OPTS_AND_PROF,
@@ -1186,8 +1192,105 @@ describe("Command Processor", () => {
         expect(commandResponse).toMatchSnapshot();
     });
 
-    it("should use the value specified on the CLI option, if the argument is supplied in both CLI and profile", async () => {
+
+    it("should extract arguments not specified on invoke from a profile and merge with positional args", async () => {
         // TODO: Finish for enhancement/34
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            fullDefinition: SAMPLE_CMD_WITH_OPTS_AND_PROF,
+            definition: SAMPLE_COMMAND_REAL_HANDLER_WITH_POS_OPT,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
+            rootCommandName: SAMPLE_ROOT_COMMAND
+        });
+
+        // Mock read stdin
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
+            // Nothing to do
+        });
+
+        // Mock the profile loader
+        CommandProfileLoader.loader = jest.fn((args) => {
+            return {
+                loadProfiles: (profArgs) => {
+                    return;
+                }
+            };
+        });
+
+        // return the "fake" args object with values from profile
+        CliUtils.getOptValueFromProfiles = jest.fn((cmdProfiles, profileDef, allOpts) => {
+            return {
+                color: "yellow"
+            };
+        });
+
+        const parms: any = {
+            arguments: {
+                _: ["sample", "cmd", "banana"],
+                $0: "",
+                valid: true
+            },
+            silent: true
+        };
+
+        const commandResponse: ICommandResponse = await processor.invoke(parms);
+        expect(CliUtils.getOptValueFromProfiles).toHaveBeenCalledTimes(1);
+        expect(commandResponse.stdout.toString()).toMatchSnapshot();
+        expect(commandResponse).toBeDefined();
+        expect(commandResponse).toMatchSnapshot();
+    });
+
+    it("should use the value specified on the CLI positonal option, if the argument is supplied in both CLI and profile", async () => {
+        // TODO: Finish for enhancement/34
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            fullDefinition: SAMPLE_CMD_WITH_OPTS_AND_PROF,
+            definition: SAMPLE_COMMAND_REAL_HANDLER_WITH_POS_OPT,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
+            rootCommandName: SAMPLE_ROOT_COMMAND
+        });
+
+        // Mock read stdin
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
+            // Nothing to do
+        });
+
+        // Mock the profile loader
+        CommandProfileLoader.loader = jest.fn((args) => {
+            return {
+                loadProfiles: (profArgs) => {
+                    return;
+                }
+            };
+        });
+
+        // return the "fake" args object with values from profile
+        CliUtils.getOptValueFromProfiles = jest.fn((cmdProfiles, profileDef, allOpts) => {
+            return {
+                color: "yellow"
+            };
+        });
+
+        const parms: any = {
+            arguments: {
+                _: ["sample", "cmd", "banana"],
+                $0: "",
+                valid: true,
+                color: "green"
+            },
+            silent: true
+        };
+
+        const commandResponse: ICommandResponse = await processor.invoke(parms);
+        expect(CliUtils.getOptValueFromProfiles).toHaveBeenCalledTimes(1);
+        expect(commandResponse.stdout.toString()).toMatchSnapshot();
+        expect(commandResponse).toBeDefined();
+        expect(commandResponse).toMatchSnapshot();
+    });
+
+    it("should use the value specified on the CLI option, if the argument is supplied in both CLI and profile", async () => {
         const processor: CommandProcessor = new CommandProcessor({
             envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_CMD_WITH_OPTS_AND_PROF,
