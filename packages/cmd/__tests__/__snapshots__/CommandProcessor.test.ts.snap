@@ -82,6 +82,8 @@ exports[`Command Processor should detect cli args passed on the arguments object
 
 exports[`Command Processor should detect invalid response format on invoke 1`] = `"Expect Error: Command Processor Error: invoke(): Response format must be one of the following: default,json"`;
 
+exports[`Command Processor should detect missing ENV var prefix 1`] = `"Expect Error: Command Processor Error: No ENV variable prefix supplied."`;
+
 exports[`Command Processor should detect missing arguments on invoke 1`] = `"Expect Error: Command Processor Error: invoke(): No command arguments supplied."`;
 
 exports[`Command Processor should detect missing command parameters to validate 1`] = `"Expect Error: Command Processor Error: validate(): No command arguments supplied."`;

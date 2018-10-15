@@ -225,6 +225,24 @@ describe("Command Processor", () => {
         expect(error.message).toMatchSnapshot();
     });
 
+    it("should detect missing ENV var prefix", () => {
+        let error;
+        try {
+            const processor: CommandProcessor = new CommandProcessor({
+                envVariablePrefix: undefined,
+                definition: SAMPLE_COMMAND_DEFINITION,
+                helpGenerator: FAKE_HELP_GENERATOR,
+                profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+                rootCommandName: SAMPLE_ROOT_COMMAND
+            });
+        } catch (e) {
+            error = e;
+        }
+        expect(error).toBeDefined();
+        expect(error instanceof ImperativeError).toBe(true);
+        expect(error.message).toMatchSnapshot();
+    });
+
     it("should allow us to get the definition", () => {
         const processor: CommandProcessor = new CommandProcessor({
             envVariablePrefix: ENV_VAR_PREFIX,
