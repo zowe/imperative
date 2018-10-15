@@ -21,6 +21,10 @@ describe("CliUtils", () => {
             name: "fake-string-opt",
             description: "a fake opt",
             type: "string"
+        }, {
+            name: "nohyphen",
+            description: "a fake opt",
+            type: "string"
         }];
 
         it("should throw an imperative error if a required profile is not present", () => {
@@ -38,18 +42,28 @@ describe("CliUtils", () => {
             expect(error.message).toMatchSnapshot();
         });
 
-        it("should return any args if a profile was optional and not loaded", () => {
-            throw new Error("not implemented yet");
+        it("should return nothing if a profile was optional and not loaded", () => {
+            const args = CliUtils.getOptValueFromProfiles(
+                new CommandProfiles(new Map<string, IProfile[]>()),
+                { optional: ["banana"] },
+                FAKE_OPTS);
+            expect(Object.keys(args).length).toBe(0);
         });
 
         it("should return args (from definitions with no hyphen in name) extracted from loaded profile", () => {
-            throw new Error("not implemented yet");
+            const map = new Map<string, IProfile[]>();
+            map.set("banana", [{type: "banana", name: "fakebanana", nohyphen: "specified in profile"}]);
+            const args = CliUtils.getOptValueFromProfiles(
+                new CommandProfiles(map),
+                { optional: ["banana"] },
+                FAKE_OPTS);
+            expect(args).toMatchSnapshot();
         });
 
         it("should return args (with both cases) extracted from loaded profile, preferring the camel case", () => {
             throw new Error("not implemented yet");
         });
-        
+
         it("should return args (with both cases) extracted from loaded profile, preferring the kebab case", () => {
             throw new Error("not implemented yet");
         });
