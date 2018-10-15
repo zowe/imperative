@@ -25,6 +25,16 @@ describe("CliUtils", () => {
             name: "nohyphen",
             description: "a fake opt",
             type: "string"
+        }, {
+            name: "couldBeEither",
+            description: "a fake opt",
+            type: "string"
+        },
+        {
+            name: "with-alias",
+            description: "a fake opt",
+            type: "string",
+            aliases: ["w"]
         }];
 
         it("should throw an imperative error if a required profile is not present", () => {
@@ -52,7 +62,7 @@ describe("CliUtils", () => {
 
         it("should return args (from definitions with no hyphen in name) extracted from loaded profile", () => {
             const map = new Map<string, IProfile[]>();
-            map.set("banana", [{type: "banana", name: "fakebanana", nohyphen: "specified in profile"}]);
+            map.set("banana", [{ type: "banana", name: "fakebanana", nohyphen: "specified in profile" }]);
             const args = CliUtils.getOptValueFromProfiles(
                 new CommandProfiles(map),
                 { optional: ["banana"] },
@@ -61,11 +71,75 @@ describe("CliUtils", () => {
         });
 
         it("should return args (with both cases) extracted from loaded profile, preferring the camel case", () => {
-            throw new Error("not implemented yet");
+            const map = new Map<string, IProfile[]>();
+            map.set("banana", [{
+                "type": "banana",
+                "name": "fakebanana",
+                "couldBeEither": "should be me",
+                "could-be-either": "should not be me"
+            }]);
+            const args = CliUtils.getOptValueFromProfiles(
+                new CommandProfiles(map),
+                { optional: ["banana"] },
+                FAKE_OPTS);
+            expect(args).toMatchSnapshot();
         });
 
         it("should return args (with both cases) extracted from loaded profile, preferring the kebab case", () => {
-            throw new Error("not implemented yet");
+            const map = new Map<string, IProfile[]>();
+            map.set("banana", [{
+                "type": "banana",
+                "name": "fakebanana",
+                "fakeStringOpt": "should not be me",
+                "fake-string-opt": "should be me"
+            }]);
+            const args = CliUtils.getOptValueFromProfiles(
+                new CommandProfiles(map),
+                { optional: ["banana"] },
+                FAKE_OPTS);
+            expect(args).toMatchSnapshot();
+        });
+
+        it("should return args with both cases, if the option is camel and the profile is kebab", () => {
+            const map = new Map<string, IProfile[]>();
+            map.set("banana", [{
+                "type": "banana",
+                "name": "fakebanana",
+                "could-be-either": "should be me"
+            }]);
+            const args = CliUtils.getOptValueFromProfiles(
+                new CommandProfiles(map),
+                { optional: ["banana"] },
+                FAKE_OPTS);
+            expect(args).toMatchSnapshot();
+        });
+
+        it("should return args with both cases, if the option is kebab and the profile is camel", () => {
+            const map = new Map<string, IProfile[]>();
+            map.set("banana", [{
+                type: "banana",
+                name: "fakebanana",
+                fakeStringOpt: "should be me"
+            }]);
+            const args = CliUtils.getOptValueFromProfiles(
+                new CommandProfiles(map),
+                { optional: ["banana"] },
+                FAKE_OPTS);
+            expect(args).toMatchSnapshot();
+        });
+
+        it("should return args with aliases if extracted option from a profile", () => {
+            const map = new Map<string, IProfile[]>();
+            map.set("banana", [{
+                type: "banana",
+                name: "fakebanana",
+                withAlias: "should have 'w' on args object too"
+            }]);
+            const args = CliUtils.getOptValueFromProfiles(
+                new CommandProfiles(map),
+                { optional: ["banana"] },
+                FAKE_OPTS);
+            expect(args).toMatchSnapshot();
         });
     });
 
