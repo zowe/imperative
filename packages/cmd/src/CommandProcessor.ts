@@ -125,6 +125,7 @@ export class CommandProcessor {
         this.mCommandRootName = params.rootCommandName;
         this.mEnvVariablePrefix = params.envVariablePrefix;
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["rootCommandName"], `${CommandProcessor.ERROR_TAG} No root command supplied.`);
+        ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["envVariablePrefix"], `${CommandProcessor.ERROR_TAG} No ENV variable prefix supplied.`);
         // TODO - check if the command definition passed actually exists within the full command definition tree passed
     }
 

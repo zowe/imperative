@@ -104,6 +104,8 @@ const FAKE_HELP_GENERATOR: IHelpGenerator = {
     }
 };
 
+const ENV_VAR_PREFIX: string = "UNIT_TEST";
+
 describe("Command Processor", () => {
     // Restore everything after each test
     afterEach(() => {
@@ -113,6 +115,7 @@ describe("Command Processor", () => {
 
     it("should allow us to create an instance", () => {
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -136,6 +139,7 @@ describe("Command Processor", () => {
         let error;
         try {
             const processor: CommandProcessor = new CommandProcessor({
+                envVariablePrefix: ENV_VAR_PREFIX,
                 definition: undefined,
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -153,6 +157,7 @@ describe("Command Processor", () => {
         let error;
         try {
             const processor: CommandProcessor = new CommandProcessor({
+                envVariablePrefix: ENV_VAR_PREFIX,
                 definition: SAMPLE_COMMAND_DEFINITION,
                 helpGenerator: undefined,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -170,6 +175,7 @@ describe("Command Processor", () => {
         let error;
         try {
             const processor: CommandProcessor = new CommandProcessor({
+                envVariablePrefix: ENV_VAR_PREFIX,
                 definition: SAMPLE_COMMAND_DEFINITION,
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: undefined,
@@ -187,6 +193,7 @@ describe("Command Processor", () => {
         let error;
         try {
             const processor: CommandProcessor = new CommandProcessor({
+                envVariablePrefix: ENV_VAR_PREFIX,
                 definition: SAMPLE_COMMAND_DEFINITION,
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -204,6 +211,7 @@ describe("Command Processor", () => {
         let error;
         try {
             const processor: CommandProcessor = new CommandProcessor({
+                envVariablePrefix: ENV_VAR_PREFIX,
                 definition: SAMPLE_COMMAND_DEFINITION,
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -217,8 +225,27 @@ describe("Command Processor", () => {
         expect(error.message).toMatchSnapshot();
     });
 
+    it("should detect missing ENV var prefix", () => {
+        let error;
+        try {
+            const processor: CommandProcessor = new CommandProcessor({
+                envVariablePrefix: undefined,
+                definition: SAMPLE_COMMAND_DEFINITION,
+                helpGenerator: FAKE_HELP_GENERATOR,
+                profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+                rootCommandName: SAMPLE_ROOT_COMMAND
+            });
+        } catch (e) {
+            error = e;
+        }
+        expect(error).toBeDefined();
+        expect(error instanceof ImperativeError).toBe(true);
+        expect(error.message).toMatchSnapshot();
+    });
+
     it("should allow us to get the definition", () => {
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -229,6 +256,7 @@ describe("Command Processor", () => {
 
     it("should allow us to get the root command name", () => {
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -239,6 +267,7 @@ describe("Command Processor", () => {
 
     it("should return the definition if no full definition was supplied", () => {
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -249,6 +278,7 @@ describe("Command Processor", () => {
 
     it("should allow us to get the help generator", () => {
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -259,6 +289,7 @@ describe("Command Processor", () => {
 
     it("should allow us to get the profile factory", () => {
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -273,6 +304,7 @@ describe("Command Processor", () => {
 
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -295,6 +327,7 @@ describe("Command Processor", () => {
     it("should detect missing parameters to help", () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -315,6 +348,7 @@ describe("Command Processor", () => {
     it("should validate the syntax if requested", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -328,6 +362,7 @@ describe("Command Processor", () => {
     it("should detect missing command parameters to validate", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -348,6 +383,7 @@ describe("Command Processor", () => {
     it("should detect missing command parameters to validate", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -368,6 +404,7 @@ describe("Command Processor", () => {
     it("should detect missing parameters on invoke", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -388,6 +425,7 @@ describe("Command Processor", () => {
     it("should detect missing arguments on invoke", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -408,6 +446,7 @@ describe("Command Processor", () => {
     it("should detect invalid response format on invoke", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -429,6 +468,7 @@ describe("Command Processor", () => {
     it("should detect cli args passed on the arguments object to invoke", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -450,6 +490,7 @@ describe("Command Processor", () => {
     it("should fail the command if syntax validation fails", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
@@ -470,6 +511,7 @@ describe("Command Processor", () => {
     it("should formulate the full help command for a more complex command on syntax failure", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
@@ -494,6 +536,7 @@ describe("Command Processor", () => {
     it("should handle an unexpected syntax validation exception", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
@@ -514,6 +557,7 @@ describe("Command Processor", () => {
     it("should just use the primary command (if it cannot infer the rest of the command) in the syntax help message", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
@@ -531,6 +575,7 @@ describe("Command Processor", () => {
     it("should handle an error thrown from the profile loader", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
@@ -561,6 +606,7 @@ describe("Command Processor", () => {
     it("should handle not being able to instantiate the handler", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
@@ -603,6 +649,7 @@ describe("Command Processor", () => {
             handler: "not_a_real_chained_handler"
         }];
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: commandDef,
             helpGenerator: FAKE_HELP_GENERATOR,
@@ -652,6 +699,7 @@ describe("Command Processor", () => {
         ];
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: commandDef,
             helpGenerator: FAKE_HELP_GENERATOR,
@@ -711,6 +759,7 @@ describe("Command Processor", () => {
         }];
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: commandDef,
             helpGenerator: FAKE_HELP_GENERATOR,
@@ -751,6 +800,7 @@ describe("Command Processor", () => {
     it("should not strip tabs from the imperative error message", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
@@ -791,6 +841,7 @@ describe("Command Processor", () => {
     it("should handle an imperative error thrown from the handler", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
@@ -830,6 +881,7 @@ describe("Command Processor", () => {
     it("should handle an error thrown from the handler", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
@@ -878,6 +930,7 @@ describe("Command Processor", () => {
     it("should handle the handler rejecting with a message", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
@@ -917,6 +970,7 @@ describe("Command Processor", () => {
     it("should handle the handler rejecting with no messages", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
@@ -956,6 +1010,7 @@ describe("Command Processor", () => {
     it("should invoke the handler and return success=true if the handler was successful", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
@@ -993,6 +1048,7 @@ describe("Command Processor", () => {
     it("should allow us to formulate the help for a group", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: SAMPLE_COMPLEX_COMMAND,
             helpGenerator: FAKE_HELP_GENERATOR,
@@ -1008,6 +1064,7 @@ describe("Command Processor", () => {
         let error;
         try {
             const processor: CommandProcessor = new CommandProcessor({
+                envVariablePrefix: ENV_VAR_PREFIX,
                 fullDefinition: SAMPLE_COMPLEX_COMMAND,
                 definition: SAMPLE_COMMAND_WIH_NO_HANDLER,
                 helpGenerator: FAKE_HELP_GENERATOR,
@@ -1026,6 +1083,7 @@ describe("Command Processor", () => {
     it("should just include the command name if no args are present in the help when a syntax error occurs", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
@@ -1068,6 +1126,7 @@ describe("Command Processor", () => {
     it("should handle a strange error type being thrown", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_COMPLEX_COMMAND,
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
