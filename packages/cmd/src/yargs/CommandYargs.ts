@@ -47,7 +47,11 @@ export class CommandYargs extends AbstractCommandYargs {
                         definition.type = "string";
                     }
                 }
-
+                // If this is a boolean type option, default it to undefined so that we can distinguish
+                // between the user not specifying the option at all and them specifying =false
+                if (option.type === "boolean") {
+                    definition.default = undefined;
+                }
                 yargsInstance.option(option.name, definition);
             }
         }
