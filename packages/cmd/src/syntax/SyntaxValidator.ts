@@ -283,7 +283,7 @@ export class SyntaxValidator {
                 // that's an error
                 if (optionDef.type === "array" && !Array.isArray(commandArguments[optionName])) {
                     valid = false;
-                    this.notAnArrayError(optionDef, responseObject);
+                    this.notAnArrayError(optionDef, responseObject, commandArguments[optionName]);
                 }
 
                 // check if the value of the option conforms to the allowableValues (if any)
@@ -738,14 +738,18 @@ export class SyntaxValidator {
      * If the option requires one of a set of values and the value provided doesn't match
      * @param {CommandResponse} responseObject: The response object for producing messages.
      * @param {ICommandOptionDefinition} failingOption: The option with the non-allowable value
+     * @param {any} value - the value specified by the user which was not an array
      */
     private notAnArrayError(failingOption: ICommandOptionDefinition,
-                            responseObject: CommandResponse) {
+                            responseObject: CommandResponse, value: any) {
         const mustacheSummary = this.getMustacheSummaryForOption(failingOption);
         responseObject.console.errorHeader(syntaxErrorHeader.message);
         const msg: string = responseObject.console.error(
             "The following option is of type 'array', but an array was not specified:\n{{long}} {{aliases}}" +
-            "\n\nIf you are attempting to specify an array from an environmental variable",
+            "\n\nYou specified: " + value
+            + "\n\nIf you are attempting to specify an array from an environmental variable, specify the value " +
+            "delimited by spaces. If one of the values contains a space, you may surround it with single quotes.\nExample:" +
+            "MY_VAR=\"value1 value2 'value 3 with space'",
             mustacheSummary);
         this.appendValidatorError(responseObject,
             {message: msg, optionInError: failingOption.name, definition: failingOption});

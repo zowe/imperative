@@ -269,9 +269,8 @@ describe("cmd-cli profile mapping", () => {
         expect(response.stdout.toString()).toContain("Color: " + cliColor);
         expect(response.stdout.toString()).toContain("Description: " + cliDescription);
         expect(response.stdout.toString()).toContain("Mold type: " + cliMoldType);
-        expect(response.stdout.toString()).toContain("Ripe: false");
         for (const name of rawNames) {
-            expect(response.stdout.toString()).toContain(name)
+            expect(response.stdout.toString()).toContain(name);
         }
     });
 });
