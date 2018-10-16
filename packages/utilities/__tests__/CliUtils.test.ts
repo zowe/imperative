@@ -15,6 +15,23 @@ import { IProfile } from "../../profiles";
 import { ImperativeError } from "../../error";
 
 describe("CliUtils", () => {
+    describe("setOptionValue", () => {
+        it ("should return both the camel and kebab case with the value set", () => {
+            const args = CliUtils.setOptionValue("my-opt", [], true);
+            expect(args).toMatchSnapshot();
+        });
+
+        it ("should include aliases in the returned args object", () => {
+            const args = CliUtils.setOptionValue("my-opt", ["m", "o"], true);
+            expect(args).toMatchSnapshot();
+        });
+
+        it ("should return just the one property if it cannot be converted to camel/kebab", () => {
+            const args = CliUtils.setOptionValue("myopt", [], true);
+            expect(args).toMatchSnapshot();
+        });
+    });
+
     describe("buildBaseArgs", () => {
         it("should preserve the _ and $0 properties", () => {
             const args = CliUtils.buildBaseArgs({_: ["cmd1", "cmd2"], $0: "test exe"});
@@ -31,6 +48,7 @@ describe("CliUtils", () => {
             expect(args).toMatchSnapshot();
         });
     });
+
     describe("getOptValueFromProfiles", () => {
 
         const FAKE_OPTS: ICommandOptionDefinition[] = [{
