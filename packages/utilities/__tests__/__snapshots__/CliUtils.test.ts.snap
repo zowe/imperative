@@ -81,6 +81,23 @@ Object {
 }
 `;
 
+exports[`CliUtils extractEnvForOptions should transform the env var value to an array if the type is array 1`] = `
+Object {
+  "fake-array-opt": Array [
+    "value 1",
+    "value ' 2",
+    "test1",
+    "test2",
+  ],
+  "fakeArrayOpt": Array [
+    "value 1",
+    "value ' 2",
+    "test1",
+    "test2",
+  ],
+}
+`;
+
 exports[`CliUtils getOptValueFromProfiles should return args (from definitions with no hyphen in name) extracted from loaded profile 1`] = `
 Object {
   "nohyphen": "specified in profile",

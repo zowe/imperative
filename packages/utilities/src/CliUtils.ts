@@ -164,7 +164,7 @@ export class CliUtils {
                             ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
                             value
                         );
-                        args = {...args, ...keys};
+                        args = { ...args, ...keys };
                     }
                 });
             }
@@ -186,7 +186,7 @@ export class CliUtils {
     public static mergeArguments(...args: any[]): any {
         let merged = {};
         args.forEach((obj) => {
-            merged = {...merged, ...obj};
+            merged = { ...merged, ...obj };
         });
         return merged;
     }
@@ -208,30 +208,59 @@ export class CliUtils {
             let envValue: any = CliUtils.getEnvValForOption(envPrefix, opt.name);
             if (envValue != null) {
 
-                // convert strings to booleans if the option is boolean type
-                if (opt.type === "boolean") {
-                    if (envValue.toUpperCase() === "TRUE") {
-                        envValue = true;
-                    } else if (envValue.toUpperCase() === "FALSE") {
-                        envValue = false;
-                    }
+                // Perform the proper conversion if necessary for the type
+                // ENV vars are extracted as strings
+                switch (opt.type) {
+
+                    // convert strings to booleans if the option is boolean type
+                    case "boolean":
+                        if (envValue.toUpperCase() === "TRUE") {
+                            envValue = true;
+                        } else if (envValue.toUpperCase() === "FALSE") {
+                            envValue = false;
+                        }
+                        break;
+
+                    // convert strings to numbers if the option is number type
+                    case "number":
+                        const BASE_TEN = 10;
+                        const oldEnvValue = envValue;
+                        envValue = parseInt(envValue, BASE_TEN);
+                        // if parsing fails, we'll re-insert the original value so that the
+                        // syntax failure message is clearer
+                        if (isNaN(envValue)) {
+                            envValue = oldEnvValue;
+                        }
+                        break;
+
+                    // convert to an array of strings if the type is array
+                    case "array":
+                        const regex = /(["'])(?:(?=(\\?))\2.)*?\1/g;
+                        let arr = [];
+                        let match = regex.exec(envValue);
+                        let removed = envValue;
+                        while (match != null) {
+                            removed = removed.replace(match[0], "");
+                            const replace = match[0].replace("\\'", "'");
+                            const trimmed = replace.replace(/(^')|('$)/g, "");
+                            arr.push(trimmed);
+                            match = regex.exec(envValue);
+                        }
+                        removed = removed.trim();
+                        arr = arr.concat(removed.split(/[\s\n]+/g));
+                        envValue = arr;
+                        break;
+
+                    // Do nothing for other option types
+                    default:
+                        break;
                 }
-                // convert strings to numbers if the option is number type
-                if (opt.type === "number") {
-                    const BASE_TEN = 10;
-                    const oldEnvValue = envValue;
-                    envValue = parseInt(envValue, BASE_TEN);
-                    // if parsing fails, we'll re-insert the original value so that the
-                    // syntax failure message is clearer
-                    if (isNaN(envValue)) {
-                        envValue = oldEnvValue;
-                    }
-                }
+
                 const keys = CliUtils.setOptionValue(opt.name,
                     ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
                     envValue
                 );
-                args = {...args, ...keys};
+                args = { ...args, ...keys };
             }
         });
         return args;
@@ -313,7 +342,7 @@ export class CliUtils {
         }
         const numDashes = header.length + 1;
         const headerText = TextUtils.formatMessage("{{indent}}{{headerText}}\n{{indent}}{{dashes}}",
-            {headerText: header.toUpperCase(), dashes: Array(numDashes).join("-"), indent});
+            { headerText: header.toUpperCase(), dashes: Array(numDashes).join("-"), indent });
         return TextUtils.chalk[color](headerText);
     }
 
@@ -369,7 +398,7 @@ export class CliUtils {
      *
      */
     public static buildBaseArgs(args: Arguments): ICommandArguments {
-        const impArgs: ICommandArguments = {...args};
+        const impArgs: ICommandArguments = { ...args };
         Object.keys(impArgs).forEach((key) => {
             if (key !== "_" && key !== "$0" && impArgs[key] === undefined) {
                 delete impArgs[key];

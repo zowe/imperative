@@ -19,6 +19,7 @@ const boolEnv = TEST_PREFIX + "_OPT_FAKE_BOOL_OPT";
 const stringEnv = TEST_PREFIX + "_OPT_FAKE_STRING_OPT";
 const stringAliasEnv = TEST_PREFIX + "_OPT_FAKE_STRING_OPT_WITH_ALIASES";
 const numberEnv = TEST_PREFIX + "_OPT_FAKE_NUMBER_OPT";
+const arrayEnv = TEST_PREFIX + "_OPT_FAKE_ARRAY_OPT";
 
 describe("CliUtils", () => {
     describe("extractEnvForOptions", () => {
@@ -28,9 +29,14 @@ describe("CliUtils", () => {
             delete process.env[stringEnv];
             delete process.env[numberEnv];
             delete process.env[stringAliasEnv];
+            delete process.env[arrayEnv];
         });
 
         const FAKE_OPTS: ICommandOptionDefinition[] = [{
+            name: "fake-array-opt",
+            description: "a fake opt",
+            type: "array"
+        }, {
             name: "fake-string-opt",
             description: "a fake opt",
             type: "string"
@@ -57,6 +63,12 @@ describe("CliUtils", () => {
 
         it("should accept the env prefix and options array and return an args object with aliases set", () => {
             process.env[stringAliasEnv] = "a test string set via env var";
+            const args = CliUtils.extractEnvForOptions(TEST_PREFIX, FAKE_OPTS);
+            expect(args).toMatchSnapshot();
+        });
+
+        it("should transform the env var value to an array if the type is array", () => {
+            process.env[arrayEnv] = "'value 1' 'value \\' 2' test1 test2";
             const args = CliUtils.extractEnvForOptions(TEST_PREFIX, FAKE_OPTS);
             expect(args).toMatchSnapshot();
         });
