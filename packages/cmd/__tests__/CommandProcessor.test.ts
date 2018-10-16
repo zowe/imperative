@@ -1241,7 +1241,7 @@ describe("Command Processor", () => {
         expect(commandResponse).toMatchSnapshot();
     });
 
-    it("should use the value specified on the CLI positonal option, if the argument is supplied in both CLI and profile", async () => {
+    it("should use the value specified on the CLI positional option, if the argument is supplied in both CLI and profile", async () => {
         // TODO: Finish for enhancement/34
         const processor: CommandProcessor = new CommandProcessor({
             envVariablePrefix: ENV_VAR_PREFIX,

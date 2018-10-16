@@ -1232,12 +1232,12 @@ Object {
 }
 `;
 
-exports[`Command Processor should use the value specified on the CLI positonal option, if the argument is supplied in both CLI and profile 1`] = `
+exports[`Command Processor should use the value specified on the CLI positional option, if the argument is supplied in both CLI and profile 1`] = `
 "green
 "
 `;
 
-exports[`Command Processor should use the value specified on the CLI positonal option, if the argument is supplied in both CLI and profile 2`] = `
+exports[`Command Processor should use the value specified on the CLI positional option, if the argument is supplied in both CLI and profile 2`] = `
 Object {
   "data": Object {},
   "error": undefined,
