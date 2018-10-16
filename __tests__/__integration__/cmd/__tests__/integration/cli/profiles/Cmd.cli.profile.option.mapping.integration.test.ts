@@ -256,7 +256,7 @@ describe("cmd-cli profile mapping", () => {
         const cliColor = "yellow and black";
         const cliDescription = "A beautiful bunch of ripe banana hides the deadly black tarantula";
         const cliMoldType = "no mold at all";
-        const rawNames = ["bananor", "banane", "bana"];
+        const rawNames = ["bananor", "banane", "neener\\'s non", "bana", "bana\\' nana"];
         const envNames = rawNames.map((name) => {
             return "'" + name + "'";
         }).join(" ");
@@ -270,7 +270,7 @@ describe("cmd-cli profile mapping", () => {
         expect(response.stdout.toString()).toContain("Description: " + cliDescription);
         expect(response.stdout.toString()).toContain("Mold type: " + cliMoldType);
         for (const name of rawNames) {
-            expect(response.stdout.toString()).toContain(name);
+            expect(response.stdout.toString()).toContain(name.replace("\\'", "'"));
         }
     });
 });
