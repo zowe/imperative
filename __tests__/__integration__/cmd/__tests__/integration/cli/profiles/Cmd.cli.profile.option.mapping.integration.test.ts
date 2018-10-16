@@ -165,4 +165,89 @@ describe("cmd-cli profile mapping", () => {
         expect(response.stdout.toString()).toContain("Mold type: " + moldType);
     });
 
+    it("should be able to specify valid number type options via environmental variables", () => {
+        // values used as env variables
+        const cliColor = "yellow and black";
+        const cliDescription = "A beautiful bunch of ripe banana hides the deadly black tarantula";
+        const cliMoldType = "no mold at all";
+        const envSides = "443";
+        const response = runCliScript(__dirname + "/__scripts__/profiles/specify_env_for_number.sh",
+            TEST_ENVIRONMENT.workingDir, [cliColor, cliDescription, cliMoldType, envSides]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        // the output of the command should use the env variable values
+        expect(response.stdout.toString()).toContain("Color: " + cliColor);
+        expect(response.stdout.toString()).toContain("Description: " + cliDescription);
+        expect(response.stdout.toString()).toContain("Mold type: " + cliMoldType);
+        expect(response.stdout.toString()).toContain("Sides: " + envSides);
+    });
+
+    it("should get a syntax error when specifying a non-numeric value via environmental variables", () => {
+        // values used as env variables
+        const cliColor = "yellow and black";
+        const cliDescription = "A beautiful bunch of ripe banana hides the deadly black tarantula";
+        const cliMoldType = "no mold at all";
+        const envSides = "glarbles";
+        const response = runCliScript(__dirname + "/__scripts__/profiles/specify_env_for_number.sh",
+            TEST_ENVIRONMENT.workingDir, [cliColor, cliDescription, cliMoldType, envSides]);
+
+        expect(response.stderr.toString()).toContain("failed!");
+        expect(response.stderr.toString()).toContain("Syntax");
+        expect(response.stderr.toString()).toContain("number");
+        expect(response.stderr.toString()).toContain(envSides);
+        expect(response.status).toBe(1);
+    });
+
+    it("should be able to specify valid boolean type options (true) via environmental variables", () => {
+        // values used as env variables
+        const cliColor = "yellow and black";
+        const cliDescription = "A beautiful bunch of ripe banana hides the deadly black tarantula";
+        const cliMoldType = "no mold at all";
+        const envRipe = "true";
+        const response = runCliScript(__dirname + "/__scripts__/profiles/specify_env_for_boolean.sh",
+            TEST_ENVIRONMENT.workingDir, [cliColor, cliDescription, cliMoldType, envRipe]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        // the output of the command should use the env variable values
+        expect(response.stdout.toString()).toContain("Color: " + cliColor);
+        expect(response.stdout.toString()).toContain("Description: " + cliDescription);
+        expect(response.stdout.toString()).toContain("Mold type: " + cliMoldType);
+        expect(response.stdout.toString()).toContain("Ripe: true");
+    });
+
+    it("should be able to specify valid boolean type options (false) via environmental variables", () => {
+        // values used as env variables
+        const cliColor = "yellow and black";
+        const cliDescription = "A beautiful bunch of ripe banana hides the deadly black tarantula";
+        const cliMoldType = "no mold at all";
+        const envRipe = "false";
+        const response = runCliScript(__dirname + "/__scripts__/profiles/specify_env_for_boolean.sh",
+            TEST_ENVIRONMENT.workingDir, [cliColor, cliDescription, cliMoldType, envRipe]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        // the output of the command should use the env variable values
+        expect(response.stdout.toString()).toContain("Color: " + cliColor);
+        expect(response.stdout.toString()).toContain("Description: " + cliDescription);
+        expect(response.stdout.toString()).toContain("Mold type: " + cliMoldType);
+        expect(response.stdout.toString()).toContain("Ripe: false");
+    });
+
+    it("should get a syntax error when specifying a non-boolean value via environmental variables", () => {
+        // values used as env variables
+        const cliColor = "yellow and black";
+        const cliDescription = "A beautiful bunch of ripe banana hides the deadly black tarantula";
+        const cliMoldType = "no mold at all";
+        const envRipe = "gleebles";
+        const response = runCliScript(__dirname + "/__scripts__/profiles/specify_env_for_boolean.sh",
+            TEST_ENVIRONMENT.workingDir, [cliColor, cliDescription, cliMoldType, envRipe]);
+
+        expect(response.stderr.toString()).toContain("failed!");
+        expect(response.stderr.toString()).toContain("Syntax");
+        expect(response.stderr.toString()).toContain("boolean");
+        expect(response.stderr.toString()).toContain(envRipe);
+        expect(response.status).toBe(1);
+    });
 });

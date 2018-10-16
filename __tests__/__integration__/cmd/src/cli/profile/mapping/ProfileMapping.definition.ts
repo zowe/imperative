@@ -46,7 +46,18 @@ export const profileMappingCommand: ICommandDefinition = {
                 type: "string",
                 required: true,
                 defaultValue: "mild"
+            },
+            {
+                name: "ripe",
+                aliases: ["r"],
+                description: "Is the banana ripe?",
+                type: "boolean"
+            },
+            {
+                name: "sides",
+                type: "number",
+                description: "Number of sides on the banana"
             }
         ],
-    profile: { optional: ["banana"] }
+    profile: {optional: ["banana"]}
 };
