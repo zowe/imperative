@@ -1194,7 +1194,6 @@ describe("Command Processor", () => {
 
 
     it("should extract arguments not specified on invoke from a profile and merge with positional args", async () => {
-        // TODO: Finish for enhancement/34
         const processor: CommandProcessor = new CommandProcessor({
             envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_CMD_WITH_OPTS_AND_PROF,
@@ -1242,7 +1241,6 @@ describe("Command Processor", () => {
     });
 
     it("should use the value specified on the CLI positional option, if the argument is supplied in both CLI and profile", async () => {
-        // TODO: Finish for enhancement/34
         const processor: CommandProcessor = new CommandProcessor({
             envVariablePrefix: ENV_VAR_PREFIX,
             fullDefinition: SAMPLE_CMD_WITH_OPTS_AND_PROF,
