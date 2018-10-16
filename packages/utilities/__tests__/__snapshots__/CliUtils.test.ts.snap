@@ -1,5 +1,36 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`CliUtils buildBaseArgs should preserve already set properties (that are not undefined) 1`] = `
+Object {
+  "$0": "test exe",
+  "_": Array [
+    "cmd1",
+    "cmd2",
+  ],
+  "test": true,
+}
+`;
+
+exports[`CliUtils buildBaseArgs should preserve the _ and $0 properties 1`] = `
+Object {
+  "$0": "test exe",
+  "_": Array [
+    "cmd1",
+    "cmd2",
+  ],
+}
+`;
+
+exports[`CliUtils buildBaseArgs should remove properties that are set to undefined 1`] = `
+Object {
+  "$0": "test exe",
+  "_": Array [
+    "cmd1",
+    "cmd2",
+  ],
+}
+`;
+
 exports[`CliUtils getOptValueFromProfiles should return args (from definitions with no hyphen in name) extracted from loaded profile 1`] = `
 Object {
   "nohyphen": "specified in profile",

@@ -15,6 +15,22 @@ import { IProfile } from "../../profiles";
 import { ImperativeError } from "../../error";
 
 describe("CliUtils", () => {
+    describe("buildBaseArgs", () => {
+        it("should preserve the _ and $0 properties", () => {
+            const args = CliUtils.buildBaseArgs({_: ["cmd1", "cmd2"], $0: "test exe"});
+            expect(args).toMatchSnapshot();
+        });
+
+        it("should remove properties that are set to undefined", () => {
+            const args = CliUtils.buildBaseArgs({_: ["cmd1", "cmd2"], $0: "test exe", test: undefined});
+            expect(args).toMatchSnapshot();
+        });
+
+        it("should preserve already set properties (that are not undefined)", () => {
+            const args = CliUtils.buildBaseArgs({_: ["cmd1", "cmd2"], $0: "test exe", test: true});
+            expect(args).toMatchSnapshot();
+        });
+    });
     describe("getOptValueFromProfiles", () => {
 
         const FAKE_OPTS: ICommandOptionDefinition[] = [{
