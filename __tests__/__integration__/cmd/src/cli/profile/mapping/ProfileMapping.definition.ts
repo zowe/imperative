@@ -57,6 +57,11 @@ export const profileMappingCommand: ICommandDefinition = {
                 name: "sides",
                 type: "number",
                 description: "Number of sides on the banana"
+            },
+            {
+                name: "names",
+                type: "array",
+                description: "The names that this banana is known by"
             }
         ],
     profile: {optional: ["banana"]}

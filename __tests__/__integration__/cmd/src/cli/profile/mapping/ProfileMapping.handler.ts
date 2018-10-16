@@ -25,5 +25,8 @@ export default class ProfileMappingHandler implements ICommandHandler {
         params.response.console.log("Sweetness: " + params.arguments.sweetness);
         params.response.console.log("Ripe: " + params.arguments.ripe);
         params.response.console.log("Sides: " + params.arguments.sides);
+        if (params.arguments.names != null) {
+            params.response.console.log("Names:" + params.arguments.names.join(","));
+        }
     }
 }

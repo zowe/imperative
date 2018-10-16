@@ -18,7 +18,7 @@ import { CommandProcessor } from "../src/CommandProcessor";
 import { ICommandResponse } from "../src/doc/response/response/ICommandResponse";
 import { CommandResponse } from "../src/response/CommandResponse";
 import { IHelpGenerator } from "../src/help/doc/IHelpGenerator";
-import { BasicProfileManager, IProfileManagerFactory, IProfileTypeConfiguration, IProfile } from "../../profiles";
+import { BasicProfileManager, IProfileManagerFactory, IProfileTypeConfiguration } from "../../profiles";
 import { ImperativeError } from "../../error";
 import { ICommandValidatorResponse } from "../src/doc/response/response/ICommandValidatorResponse";
 import { SharedOptions } from "../src/utils/SharedOptions";
@@ -131,6 +131,26 @@ const SAMPLE_CMD_WITH_OPTS_AND_PROF: ICommandDefinition = {
             children: [SAMPLE_COMMAND_REAL_HANDLER_WITH_OPT]
         }
     ]
+};
+
+const SAMPLE_COMMAND_REAL_HANDLER_WITH_DEFAULT_OPT: ICommandDefinition = {
+    name: "banana",
+    description: "The banana command",
+    type: "command",
+    handler: __dirname + "/__model__/TestArgHandler",
+    options: [
+        {
+            name: "color",
+            type: "string",
+            aliases: ["c"],
+            description: "The banana color.",
+            required: true,
+            defaultValue: "green"
+        }
+    ],
+    profile: {
+        optional: ["banana"]
+    }
 };
 
 // A fake instance of the profile manager factory
@@ -455,7 +475,11 @@ describe("Command Processor", () => {
             rootCommandName: SAMPLE_ROOT_COMMAND
         });
 
-        const validateResponse: ICommandValidatorResponse = await processor.validate({ _: [], $0: "", valid: true }, new CommandResponse());
+        const validateResponse: ICommandValidatorResponse = await processor.validate({
+            _: [],
+            $0: "",
+            valid: true
+        }, new CommandResponse());
         expect(validateResponse).toMatchSnapshot();
     });
 
@@ -492,7 +516,11 @@ describe("Command Processor", () => {
 
         let error;
         try {
-            const validateResponse: ICommandValidatorResponse = await processor.validate({ _: [], $0: "", valid: true }, undefined);
+            const validateResponse: ICommandValidatorResponse = await processor.validate({
+                _: [],
+                $0: "",
+                valid: true
+            }, undefined);
         } catch (e) {
             error = e;
         }
@@ -534,7 +562,7 @@ describe("Command Processor", () => {
 
         let error;
         try {
-            const validateResponse: ICommandResponse = await processor.invoke({ arguments: undefined });
+            const validateResponse: ICommandResponse = await processor.invoke({arguments: undefined});
         } catch (e) {
             error = e;
         }
@@ -555,7 +583,7 @@ describe("Command Processor", () => {
 
         let error;
         try {
-            const parms: any = { arguments: { _: [], $0: "" }, responseFormat: "blah", silent: true };
+            const parms: any = {arguments: {_: [], $0: ""}, responseFormat: "blah", silent: true};
             const validateResponse: ICommandResponse = await processor.invoke(parms);
         } catch (e) {
             error = e;
@@ -577,7 +605,7 @@ describe("Command Processor", () => {
 
         let error;
         try {
-            const parms: any = { arguments: { _: undefined, $0: "" }, responseFormat: "json", silent: true };
+            const parms: any = {arguments: {_: undefined, $0: ""}, responseFormat: "json", silent: true};
             const validateResponse: ICommandResponse = await processor.invoke(parms);
         } catch (e) {
             error = e;
@@ -597,7 +625,7 @@ describe("Command Processor", () => {
             rootCommandName: SAMPLE_ROOT_COMMAND
         });
 
-        const parms: any = { arguments: { _: ["banana"], $0: "", valid: false }, responseFormat: "json", silent: true };
+        const parms: any = {arguments: {_: ["banana"], $0: "", valid: false}, responseFormat: "json", silent: true};
         const commandResponse: ICommandResponse = await processor.invoke(parms);
 
         expect(commandResponse).toBeDefined();
@@ -620,7 +648,7 @@ describe("Command Processor", () => {
         });
 
         const parms: any = {
-            arguments: { _: ["check", "for", "banana"], $0: "", valid: false },
+            arguments: {_: ["check", "for", "banana"], $0: "", valid: false},
             responseFormat: "json", silent: true
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
@@ -645,7 +673,7 @@ describe("Command Processor", () => {
         });
 
         const parms: any = {
-            arguments: { _: ["check", "for", "banana"], $0: "", syntaxThrow: true },
+            arguments: {_: ["check", "for", "banana"], $0: "", syntaxThrow: true},
             responseFormat: "json", silent: true
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
@@ -665,7 +693,7 @@ describe("Command Processor", () => {
             rootCommandName: SAMPLE_ROOT_COMMAND
         });
 
-        const parms: any = { arguments: { _: [], $0: "", syntaxThrow: true }, responseFormat: "json", silent: true };
+        const parms: any = {arguments: {_: [], $0: "", syntaxThrow: true}, responseFormat: "json", silent: true};
         const commandResponse: ICommandResponse = await processor.invoke(parms);
 
         expect(commandResponse).toBeDefined();
@@ -690,11 +718,11 @@ describe("Command Processor", () => {
 
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
-            throw new ImperativeError({ msg: "Profile loading failed!" });
+            throw new ImperativeError({msg: "Profile loading failed!"});
         });
 
         const parms: any = {
-            arguments: { _: ["check", "for", "banana"], $0: "", valid: true },
+            arguments: {_: ["check", "for", "banana"], $0: "", valid: true},
             responseFormat: "json", silent: true
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
@@ -1192,6 +1220,50 @@ describe("Command Processor", () => {
         expect(commandResponse).toMatchSnapshot();
     });
 
+    it("should add default values if no CLI argument is specified", async () => {
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            fullDefinition: SAMPLE_CMD_WITH_OPTS_AND_PROF,
+            definition: SAMPLE_COMMAND_REAL_HANDLER_WITH_DEFAULT_OPT,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
+            rootCommandName: SAMPLE_ROOT_COMMAND
+        });
+
+        // Mock read stdin
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
+            // Nothing to do
+        });
+
+        // Mock the profile loader
+        CommandProfileLoader.loader = jest.fn((args) => {
+            return {
+                loadProfiles: (profArgs) => {
+                    return;
+                }
+            };
+        });
+
+        // return the "fake" args object with values from profile
+        CliUtils.getOptValueFromProfiles = jest.fn((cmdProfiles, profileDef, allOpts) => {
+            return {};
+        });
+
+        const parms: any = {
+            arguments: {
+                _: ["sample", "cmd", "banana"],
+                $0: "",
+                valid: true
+            },
+            silent: true
+        };
+
+        const commandResponse: ICommandResponse = await processor.invoke(parms);
+        expect(commandResponse.stderr.toString()).toEqual("");
+        expect(commandResponse.stdout.toString()).toContain("green"); // expect the handler to output the default value
+        expect(commandResponse).toBeDefined();
+    });
+
 
     it("should extract arguments not specified on invoke from a profile and merge with positional args", async () => {
         // TODO: Finish for enhancement/34
@@ -1386,7 +1458,7 @@ describe("Command Processor", () => {
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND
         });
-        const commandResponse: ICommandResponse = await processor.help(new CommandResponse({ silent: true }));
+        const commandResponse: ICommandResponse = await processor.help(new CommandResponse({silent: true}));
         expect(commandResponse).toBeDefined();
         expect(commandResponse).toMatchSnapshot();
     });
