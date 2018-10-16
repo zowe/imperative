@@ -14,19 +14,108 @@ import { CommandProfiles, ICommandOptionDefinition } from "../../cmd";
 import { IProfile } from "../../profiles";
 import { ImperativeError } from "../../error";
 
+const TEST_PREFIX = "TEST_CLI_PREFIX";
+const boolEnv = TEST_PREFIX + "_OPT_FAKE_BOOL_OPT";
+const stringEnv = TEST_PREFIX + "_OPT_FAKE_STRING_OPT";
+const stringAliasEnv = TEST_PREFIX + "_OPT_FAKE_STRING_OPT_WITH_ALIASES";
+const numberEnv = TEST_PREFIX + "_OPT_FAKE_NUMBER_OPT";
+const arrayEnv = TEST_PREFIX + "_OPT_FAKE_ARRAY_OPT";
+
 describe("CliUtils", () => {
+    describe("extractEnvForOptions", () => {
+
+        afterEach(() => {
+            delete process.env[boolEnv];
+            delete process.env[stringEnv];
+            delete process.env[numberEnv];
+            delete process.env[stringAliasEnv];
+            delete process.env[arrayEnv];
+        });
+
+        const FAKE_OPTS: ICommandOptionDefinition[] = [{
+            name: "fake-array-opt",
+            description: "a fake opt",
+            type: "array"
+        }, {
+            name: "fake-string-opt",
+            description: "a fake opt",
+            type: "string"
+        }, {
+            name: "fake-string-opt-with-aliases",
+            description: "a fake opt",
+            type: "string",
+            aliases: ["f"]
+        }, {
+            name: "fake-bool-opt",
+            description: "a fake opt",
+            type: "boolean"
+        }, {
+            name: "fake-number-opt",
+            description: "a fake opt",
+            type: "number"
+        }];
+
+        it("should accept the env prefix and options array and return an args object", () => {
+            process.env[stringEnv] = "a test string set via env var";
+            const args = CliUtils.extractEnvForOptions(TEST_PREFIX, FAKE_OPTS);
+            expect(args).toMatchSnapshot();
+        });
+
+        it("should accept the env prefix and options array and return an args object with aliases set", () => {
+            process.env[stringAliasEnv] = "a test string set via env var";
+            const args = CliUtils.extractEnvForOptions(TEST_PREFIX, FAKE_OPTS);
+            expect(args).toMatchSnapshot();
+        });
+
+        it("should transform the env var value to an array if the type is array", () => {
+            process.env[arrayEnv] = "'value 1' 'value \\' 2' test1 test2";
+            const args = CliUtils.extractEnvForOptions(TEST_PREFIX, FAKE_OPTS);
+            expect(args).toMatchSnapshot();
+        });
+
+        it("should transform the env var string to a boolean if the option type is boolean", () => {
+            process.env[boolEnv] = "true";
+            const args = CliUtils.extractEnvForOptions(TEST_PREFIX, FAKE_OPTS);
+            expect(args).toMatchSnapshot();
+        });
+
+        it("should transform the env var string to a boolean (false) if the option type is boolean", () => {
+            process.env[boolEnv] = "false";
+            const args = CliUtils.extractEnvForOptions(TEST_PREFIX, FAKE_OPTS);
+            expect(args).toMatchSnapshot();
+        });
+
+        it("should not transform the env var string to a boolean if the value is not true/false (results in a syntax error later)", () => {
+            process.env[boolEnv] = "not a boolean";
+            const args = CliUtils.extractEnvForOptions(TEST_PREFIX, FAKE_OPTS);
+            expect(args).toMatchSnapshot();
+        });
+
+        it("should not the env var string to a base 10 number if the option type is number", () => {
+            process.env[numberEnv] = "10";
+            const args = CliUtils.extractEnvForOptions(TEST_PREFIX, FAKE_OPTS);
+            expect(args).toMatchSnapshot();
+        });
+
+        it("should not transform the env var string to a base 10 number if the value isn't a number (results in a syntax error later)", () => {
+            process.env[numberEnv] = "not a number";
+            const args = CliUtils.extractEnvForOptions(TEST_PREFIX, FAKE_OPTS);
+            expect(args).toMatchSnapshot();
+        });
+    });
+
     describe("setOptionValue", () => {
-        it ("should return both the camel and kebab case with the value set", () => {
+        it("should return both the camel and kebab case with the value set", () => {
             const args = CliUtils.setOptionValue("my-opt", [], true);
             expect(args).toMatchSnapshot();
         });
 
-        it ("should include aliases in the returned args object", () => {
+        it("should include aliases in the returned args object", () => {
             const args = CliUtils.setOptionValue("my-opt", ["m", "o"], true);
             expect(args).toMatchSnapshot();
         });
 
-        it ("should return just the one property if it cannot be converted to camel/kebab", () => {
+        it("should return just the one property if it cannot be converted to camel/kebab", () => {
             const args = CliUtils.setOptionValue("myopt", [], true);
             expect(args).toMatchSnapshot();
         });
@@ -34,17 +123,17 @@ describe("CliUtils", () => {
 
     describe("buildBaseArgs", () => {
         it("should preserve the _ and $0 properties", () => {
-            const args = CliUtils.buildBaseArgs({_: ["cmd1", "cmd2"], $0: "test exe"});
+            const args = CliUtils.buildBaseArgs({ _: ["cmd1", "cmd2"], $0: "test exe" });
             expect(args).toMatchSnapshot();
         });
 
         it("should remove properties that are set to undefined", () => {
-            const args = CliUtils.buildBaseArgs({_: ["cmd1", "cmd2"], $0: "test exe", test: undefined});
+            const args = CliUtils.buildBaseArgs({ _: ["cmd1", "cmd2"], $0: "test exe", test: undefined });
             expect(args).toMatchSnapshot();
         });
 
         it("should preserve already set properties (that are not undefined)", () => {
-            const args = CliUtils.buildBaseArgs({_: ["cmd1", "cmd2"], $0: "test exe", test: true});
+            const args = CliUtils.buildBaseArgs({ _: ["cmd1", "cmd2"], $0: "test exe", test: true });
             expect(args).toMatchSnapshot();
         });
     });

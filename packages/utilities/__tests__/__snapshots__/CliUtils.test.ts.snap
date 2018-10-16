@@ -31,6 +31,73 @@ Object {
 }
 `;
 
+exports[`CliUtils extractEnvForOptions should accept the env prefix and options array and return an args object 1`] = `
+Object {
+  "fake-string-opt": "a test string set via env var",
+  "fakeStringOpt": "a test string set via env var",
+}
+`;
+
+exports[`CliUtils extractEnvForOptions should accept the env prefix and options array and return an args object with aliases set 1`] = `
+Object {
+  "f": "a test string set via env var",
+  "fake-string-opt-with-aliases": "a test string set via env var",
+  "fakeStringOptWithAliases": "a test string set via env var",
+}
+`;
+
+exports[`CliUtils extractEnvForOptions should not the env var string to a base 10 number if the option type is number 1`] = `
+Object {
+  "fake-number-opt": 10,
+  "fakeNumberOpt": 10,
+}
+`;
+
+exports[`CliUtils extractEnvForOptions should not transform the env var string to a base 10 number if the value isn't a number (results in a syntax error later) 1`] = `
+Object {
+  "fake-number-opt": "not a number",
+  "fakeNumberOpt": "not a number",
+}
+`;
+
+exports[`CliUtils extractEnvForOptions should not transform the env var string to a boolean if the value is not true/false (results in a syntax error later) 1`] = `
+Object {
+  "fake-bool-opt": "not a boolean",
+  "fakeBoolOpt": "not a boolean",
+}
+`;
+
+exports[`CliUtils extractEnvForOptions should transform the env var string to a boolean (false) if the option type is boolean 1`] = `
+Object {
+  "fake-bool-opt": false,
+  "fakeBoolOpt": false,
+}
+`;
+
+exports[`CliUtils extractEnvForOptions should transform the env var string to a boolean if the option type is boolean 1`] = `
+Object {
+  "fake-bool-opt": true,
+  "fakeBoolOpt": true,
+}
+`;
+
+exports[`CliUtils extractEnvForOptions should transform the env var value to an array if the type is array 1`] = `
+Object {
+  "fake-array-opt": Array [
+    "value 1",
+    "value ' 2",
+    "test1",
+    "test2",
+  ],
+  "fakeArrayOpt": Array [
+    "value 1",
+    "value ' 2",
+    "test1",
+    "test2",
+  ],
+}
+`;
+
 exports[`CliUtils getOptValueFromProfiles should return args (from definitions with no hyphen in name) extracted from loaded profile 1`] = `
 Object {
   "nohyphen": "specified in profile",
