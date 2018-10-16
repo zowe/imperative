@@ -12,11 +12,13 @@ Object {
         "type": "console",
       },
       "sampleFile": Object {
+        "backups": 5,
         "filename": "/someHome/sampleFile/logs/sampleFile.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
     },
@@ -52,11 +54,13 @@ Object {
   "log4jsConfig": Object {
     "appenders": Object {
       "sampleFile": Object {
+        "backups": 5,
         "filename": "/someHome/sampleFile/logs/sampleFile.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
     },
@@ -100,19 +104,23 @@ Object {
         "type": "console",
       },
       "sampleFile1": Object {
+        "backups": 5,
         "filename": "/someHome/sampleFile1/logs/sampleFile1.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "sampleFile2": Object {
+        "backups": 5,
         "filename": "/someHome/sampleFile2/logs/sampleFile2.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
     },
