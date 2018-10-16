@@ -250,4 +250,27 @@ describe("cmd-cli profile mapping", () => {
         expect(response.stderr.toString()).toContain(envRipe);
         expect(response.status).toBe(1);
     });
+
+    it("should be able to specify valid array type options via environmental variables", () => {
+        // values used as env variables
+        const cliColor = "yellow and black";
+        const cliDescription = "A beautiful bunch of ripe banana hides the deadly black tarantula";
+        const cliMoldType = "no mold at all";
+        const rawNames = ["bananor", "banane", "neener\\'s non", "bana", "bana\\' nana"];
+        const envNames = rawNames.map((name) => {
+            return "'" + name + "'";
+        }).join(" ");
+        const response = runCliScript(__dirname + "/__scripts__/profiles/specify_env_for_array.sh",
+            TEST_ENVIRONMENT.workingDir, [cliColor, cliDescription, cliMoldType, envNames]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        // the output of the command should use the env variable values
+        expect(response.stdout.toString()).toContain("Color: " + cliColor);
+        expect(response.stdout.toString()).toContain("Description: " + cliDescription);
+        expect(response.stdout.toString()).toContain("Mold type: " + cliMoldType);
+        for (const name of rawNames) {
+            expect(response.stdout.toString()).toContain(name.replace("\\'", "'"));
+        }
+    });
 });

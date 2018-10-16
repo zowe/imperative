@@ -26,6 +26,7 @@ import { CommandResponse } from "../response/CommandResponse";
 import { Logger } from "../../../logger";
 import { TextUtils } from "../../../utilities";
 import { ICommandArguments } from "../doc/args/ICommandArguments";
+
 /**
  * The Imperative default syntax validator. Accepts the input arguments, command
  * definitions, and a response object. Validates the syntax and issues the
@@ -277,6 +278,14 @@ export class SyntaxValidator {
                     valid = false;
                     this.specifiedMultipleTimesError(optionDef, responseObject);
                 }
+
+                // if the option type IS array but the value provided is not an array,
+                // that's an error
+                if (optionDef.type === "array" && !Array.isArray(commandArguments[optionName])) {
+                    valid = false;
+                    this.notAnArrayError(optionDef, responseObject, commandArguments[optionName]);
+                }
+
                 // check if the value of the option conforms to the allowableValues (if any)
                 if (!isNullOrUndefined(optionDef.allowableValues)) {
                     if (!this.checkIfAllowable(optionDef.allowableValues, commandArguments[optionName])) {
@@ -710,9 +719,9 @@ export class SyntaxValidator {
     }
 
     /**
-     * If the option requires one of a set of values and the value provided doesn't match
+     * If the option was specified multiple times despite not being an array type option, that's a syntax error
      * @param {CommandResponse} responseObject: The response object for producing messages.
-     * @param {OptionDefinition} failingOption: The option with the non-allowable value
+     * @param {ICommandOptionDefinition} failingOption: The option with the non-allowable value
      */
     private specifiedMultipleTimesError(failingOption: ICommandOptionDefinition,
                                         responseObject: CommandResponse) {
@@ -728,7 +737,29 @@ export class SyntaxValidator {
     /**
      * If the option requires one of a set of values and the value provided doesn't match
      * @param {CommandResponse} responseObject: The response object for producing messages.
-     * @param {OptionDefinition} failingOption: The option with the non-allowable value
+     * @param {ICommandOptionDefinition} failingOption: The option with the non-allowable value
+     * @param {any} value - the value specified by the user which was not an array
+     */
+    private notAnArrayError(failingOption: ICommandOptionDefinition,
+                            responseObject: CommandResponse, value: any) {
+        const mustacheSummary = this.getMustacheSummaryForOption(failingOption);
+        responseObject.console.errorHeader(syntaxErrorHeader.message);
+        const msg: string = responseObject.console.error(
+            "The following option is of type 'array', but an array was not specified:\n{{long}} {{aliases}}" +
+            "\n\nYou specified: " + value
+            + "\n\nIf you are attempting to specify an array from an environmental variable, specify the value " +
+            "delimited by spaces. If one of the values contains a space, you may surround it with single quotes.\nExample:" +
+            "MY_VAR=\"value1 value2 'value 3 with space'",
+            mustacheSummary);
+        this.appendValidatorError(responseObject,
+            {message: msg, optionInError: failingOption.name, definition: failingOption});
+    }
+
+    /**
+     * If the option requires one of a set of values and the value provided doesn't match
+     * @param {CommandResponse} responseObject: The response object for producing messages.
+     * @param {ICommandOptionDefinition} failingOption: The option with the non-allowable value
+     * @param value - the value that was specified by the user
      */
     private invalidOptionError(failingOption: ICommandOptionDefinition,
                                responseObject: CommandResponse, value: any) {
@@ -749,11 +780,11 @@ export class SyntaxValidator {
      * If this option's specification requires another  option to be present. e.g. '--type TXT' requires that
      * '--maxlinelength' be specified. That condition was not satisfied, so issue an error message
      *
-     * @param {OptionDefinition} optionDef: The option definition whose value requires
+     * @param {ICommandOptionDefinition} optionDef: The option definition whose value requires
      * more options which were not specified
      * (e.g. '--type TXT' the specification of TXT requires that the user specify '--maxlinelength')
      * @param {string} value: The value that requries additional options (e.g. TXT in '--type TXT'
-     * @param {OptionDefinition} requires: The parameter that it requires.
+     * @param {ICommandOptionDefinition} requires: The parameter that it requires.
      * @param {CommandResponse} responseObject: The response object for producing messages.
      */
     private valueRequiresAdditionalOption(optionDef: ICommandOptionDefinition, value: string,
