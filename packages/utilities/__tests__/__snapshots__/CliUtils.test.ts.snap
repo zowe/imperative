@@ -1,5 +1,36 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`CliUtils buildBaseArgs should preserve already set properties (that are not undefined) 1`] = `
+Object {
+  "$0": "test exe",
+  "_": Array [
+    "cmd1",
+    "cmd2",
+  ],
+  "test": true,
+}
+`;
+
+exports[`CliUtils buildBaseArgs should preserve the _ and $0 properties 1`] = `
+Object {
+  "$0": "test exe",
+  "_": Array [
+    "cmd1",
+    "cmd2",
+  ],
+}
+`;
+
+exports[`CliUtils buildBaseArgs should remove properties that are set to undefined 1`] = `
+Object {
+  "$0": "test exe",
+  "_": Array [
+    "cmd1",
+    "cmd2",
+  ],
+}
+`;
+
 exports[`CliUtils getOptValueFromProfiles should return args (from definitions with no hyphen in name) extracted from loaded profile 1`] = `
 Object {
   "nohyphen": "specified in profile",
@@ -43,6 +74,28 @@ Object {
 `;
 
 exports[`CliUtils getOptValueFromProfiles should throw an imperative error if a required profile is not present 1`] = `"Profile of type \\"banana\\" does not exist within the loaded profiles for the command and it is marked as required."`;
+
+exports[`CliUtils setOptionValue should include aliases in the returned args object 1`] = `
+Object {
+  "m": true,
+  "my-opt": true,
+  "myOpt": true,
+  "o": true,
+}
+`;
+
+exports[`CliUtils setOptionValue should return both the camel and kebab case with the value set 1`] = `
+Object {
+  "my-opt": true,
+  "myOpt": true,
+}
+`;
+
+exports[`CliUtils setOptionValue should return just the one property if it cannot be converted to camel/kebab 1`] = `
+Object {
+  "myopt": true,
+}
+`;
 
 exports[`CliUtils should be able to produce the --dash-form of any options 1`] = `"--some-option"`;
 
