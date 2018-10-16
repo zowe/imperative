@@ -5,27 +5,33 @@ Object {
   "log4jsConfig": Object {
     "appenders": Object {
       "app": Object {
+        "backups": 5,
         "filename": "/someHome/sample/logs/sample.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "default": Object {
+        "backups": 5,
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "imperative": Object {
+        "backups": 5,
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
     },
@@ -60,27 +66,33 @@ Object {
   "log4jsConfig": Object {
     "appenders": Object {
       "app": Object {
+        "backups": 5,
         "filename": "/someHome/different/location/log.txt",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "default": Object {
+        "backups": 5,
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "imperative": Object {
+        "backups": 5,
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
     },
@@ -113,43 +125,53 @@ Object {
   "log4jsConfig": Object {
     "appenders": Object {
       "app": Object {
+        "backups": 5,
         "filename": "/someHome/different/location/log.txt",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "default": Object {
+        "backups": 5,
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "extraOne": Object {
+        "backups": 5,
         "filename": "/someHome/extraOne/logs/extraOne.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "extraTwo": Object {
+        "backups": 5,
         "filename": "/someHome/to/the/moon.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "imperative": Object {
+        "backups": 5,
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
     },
@@ -194,27 +216,33 @@ Object {
   "log4jsConfig": Object {
     "appenders": Object {
       "app": Object {
+        "backups": 5,
         "filename": "/someHome/sample/logs/sample.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "default": Object {
+        "backups": 5,
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "imperative": Object {
+        "backups": 5,
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
     },
@@ -247,27 +275,33 @@ Object {
   "log4jsConfig": Object {
     "appenders": Object {
       "app": Object {
+        "backups": 5,
         "filename": "/someHome/notSample/logs/notSample.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "default": Object {
+        "backups": 5,
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "imperative": Object {
+        "backups": 5,
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
     },
@@ -300,27 +334,33 @@ Object {
   "log4jsConfig": Object {
     "appenders": Object {
       "app": Object {
+        "backups": 5,
         "filename": "/someHome/sample/logs/sample.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "default": Object {
+        "backups": 5,
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "imperative": Object {
+        "backups": 5,
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
     },
@@ -353,27 +393,33 @@ Object {
   "log4jsConfig": Object {
     "appenders": Object {
       "app": Object {
+        "backups": 5,
         "filename": "/someHome/sample/logs/sample.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "default": Object {
+        "backups": 5,
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
       "imperative": Object {
+        "backups": 5,
         "filename": "/someHome/imperative/logs/imperative.log",
         "layout": Object {
           "pattern": "[%d{yyyy/MM/dd} %r] [%p] %m",
           "type": "pattern",
         },
+        "maxLogSize": 10000000,
         "type": "fileSync",
       },
     },
