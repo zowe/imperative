@@ -81,7 +81,7 @@ describe("PMF: Install Interface", () => {
    */
   const wasExecSyncCallValid = (expectedPackage: string, expectedRegistry: string) => {
     expect(mocks.execSync).toHaveBeenCalledWith(
-      `npm install "${expectedPackage}" --prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g --registry ${expectedRegistry}`,
+      `npm install "${expectedPackage}" --prefix "${PMFConstants.instance.PLUGIN_INSTALL_LOCATION}" -g --registry "${expectedRegistry}"`,
       {
         cwd  : PMFConstants.instance.PMF_ROOT,
         stdio: ["pipe", "pipe", process.stderr]

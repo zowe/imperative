@@ -89,8 +89,8 @@ export function install(packageLocation: string, registry: string, installFromFi
         // some form of a half-assed progress bar. This progress bar doesn't have any
         // formatting or colors but at least I can get the output of stdout right.
         iConsole.info("Installing packages...this may take some time.");
-        const execOutput = execSync(`npm install "${npmPackage}" --prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} ` +
-            `-g --registry ${registry}`, {
+        const execOutput = execSync(`npm install "${npmPackage}" --prefix "${PMFConstants.instance.PLUGIN_INSTALL_LOCATION}" ` +
+            `-g --registry "${registry}"`, {
             cwd: PMFConstants.instance.PMF_ROOT,
             stdio: pipe
         });
