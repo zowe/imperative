@@ -10,6 +10,7 @@
 */
 
 import { ICommandDefinition } from "./doc/ICommandDefinition";
+import { CommandUtils } from "./utils/CommandUtils";
 import { Arguments } from "yargs";
 import { ICommandValidatorResponse } from "./doc/response/response/ICommandValidatorResponse";
 import { ICommandHandler } from "./doc/handler/ICommandHandler";
@@ -310,21 +311,36 @@ export class CommandProcessor {
 
         // Check if the syntax is valid - if not return immediately.
         if (!validator.valid) {
-            this.log.error(`Syntax for command "${this.definition.name}" is invalid.`);
+            this.log.error(`Syntax for command "${this.mDefinition.name}" is invalid.`);
             response.data.setMessage("Command syntax invalid");
             response.failed();
-            let finalHelp: string;
+            let finalHelp: string = "";
+
+            // Display the first example on error
+            if (this.mDefinition.examples && this.mDefinition.examples.length > 0) {
+                let exampleText = TextUtils.wordWrap(`- ${this.mDefinition.examples[0].description}:\n\n`, undefined, " ");
+                exampleText += `      \$ ${
+                    this.rootCommand
+                } ${
+                    CommandUtils.getFullCommandName(this.mDefinition, this.mFullDefinition)
+                } ${
+                    this.mDefinition.examples[0].options
+                }\n`;
+
+                finalHelp += `\nExample:\n\n${exampleText}`;
+            }
+
             if (params.arguments._.length > 0) {
-                finalHelp = `\nUse "${this.rootCommand} ${params.arguments._.join(" ")} --help" to view command description, usage, and options.`;
+                finalHelp += `\nUse "${this.rootCommand} ${params.arguments._.join(" ")} --help" to view command description, usage, and options.`;
             } else {
-                finalHelp = `\nUse "${this.definition.name} --help" to view command description, usage, and options.`;
+                finalHelp += `\nUse "${this.mDefinition.name} --help" to view command description, usage, and options.`;
             }
             response.console.error(finalHelp);
             return this.finishResponse(response);
         }
 
         // Invoke the handler
-        this.log.info(`Invoking process method of handler for "${this.definition.name}" command.`);
+        this.log.info(`Invoking process method of handler for "${this.mDefinition.name}" command.`);
 
         if (this.definition.handler != null) {
             // single handler - no chained handlers
