@@ -79,5 +79,6 @@ export * from "./src/doc/response/api/handler/IHandlerResponseApi";
 export * from "./src/doc/response/api/handler/IHandlerProgressApi";
 export * from "./src/doc/response/api/handler/IHandlerResponseConsoleApi";
 export * from "./src/doc/response/api/handler/IHandlerResponseDataApi";
+export * from "./src/doc/response/api/handler/IHandlerFormatOutputApi";
 
 export * from "./src/doc/response/response/ICommandOutputFormat";
