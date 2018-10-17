@@ -164,7 +164,7 @@ export class CliUtils {
                             ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
                             value
                         );
-                        args = { ...args, ...keys };
+                        args = {...args, ...keys};
                     }
                 });
             }
@@ -186,7 +186,7 @@ export class CliUtils {
     public static mergeArguments(...args: any[]): any {
         let merged = {};
         args.forEach((obj) => {
-            merged = { ...merged, ...obj };
+            merged = {...merged, ...obj};
         });
         return merged;
     }
@@ -260,7 +260,7 @@ export class CliUtils {
                     ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
                     envValue
                 );
-                args = { ...args, ...keys };
+                args = {...args, ...keys};
             }
         });
         return args;
@@ -342,7 +342,7 @@ export class CliUtils {
         }
         const numDashes = header.length + 1;
         const headerText = TextUtils.formatMessage("{{indent}}{{headerText}}\n{{indent}}{{dashes}}",
-            { headerText: header.toUpperCase(), dashes: Array(numDashes).join("-"), indent });
+            {headerText: header.toUpperCase(), dashes: Array(numDashes).join("-"), indent});
         return TextUtils.chalk[color](headerText);
     }
 
@@ -378,9 +378,14 @@ export class CliUtils {
         args[names.camelCase] = value;
         args[names.kebabCase] = value;
         for (const optAlias of optAliases) {
-            names = CliUtils.getOptionFormat(optAlias);
-            args[names.camelCase] = value;
-            args[names.kebabCase] = value;
+            if (optAlias.length === 1) {
+                // for single character aliases, set the value using the alias verbatim
+                args[optAlias] = value;
+            } else {
+                names = CliUtils.getOptionFormat(optAlias);
+                args[names.camelCase] = value;
+                args[names.kebabCase] = value;
+            }
         }
         return args;
     }
@@ -398,7 +403,7 @@ export class CliUtils {
      *
      */
     public static buildBaseArgs(args: Arguments): ICommandArguments {
-        const impArgs: ICommandArguments = { ...args };
+        const impArgs: ICommandArguments = {...args};
         Object.keys(impArgs).forEach((key) => {
             if (key !== "_" && key !== "$0" && impArgs[key] === undefined) {
                 delete impArgs[key];
