@@ -302,8 +302,7 @@ export class CommandProcessor {
             response.console.error(e.message);
             response.setError({
                 msg: errMsg,
-                additionalDetails: e.message,
-                stack: e.stack
+                additionalDetails: e.message
             });
             response.failed();
             return this.finishResponse(response);
