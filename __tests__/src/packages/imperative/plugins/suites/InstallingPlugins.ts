@@ -229,7 +229,6 @@ describe("Installing Plugins", () => {
     expect(result.stdout).not.toContain(plugins.normal.usage);
 
     // Now go ahead and install the sample
-    console.log(plugins.space_in_path.location);
     result = T.executeTestCLICommand(cliBin, this, [pluginGroup, "install", plugins.space_in_path.location]);
     expect(result.stderr).toMatch(/npm.*WARN/);
     expect(result.stderr).toContain("requires a peer of @brightside/imperative");
