@@ -468,7 +468,7 @@ export class CommandPreparer {
                     child.experimental = true;
                 }
                 // prepare each child
-                return CommandPreparer.prepare(child);
+                return CommandPreparer.appendAutoOptions(child);
             }) : [];
 
         if (definition.enableStdin) {
