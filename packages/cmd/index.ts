@@ -33,6 +33,8 @@ export * from "./src/doc/ICommandDefinition";
 export * from "./src/doc/ICommandDefinitionPassOn";
 export * from "./src/doc/ICommandExampleDefinition";
 
+export * from "./src/doc/args/ICommandArguments";
+
 export * from "./src/handlers/FailedCommandHandler";
 
 export * from "./src/help/abstract/AbstractHelpGenerator";
