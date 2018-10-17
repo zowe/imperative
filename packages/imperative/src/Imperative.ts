@@ -284,7 +284,6 @@ export class Imperative {
                         "without the API object, use Imperative.console.",
                 },
                 {
-                    suppressReport: true, // node-report is unnecessary here
                     logger: Imperative.console,
                 }
             );

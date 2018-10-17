@@ -9,7 +9,5 @@
 *
 */
 
-export * from "./src/doc/IErrorReportParms";
 export * from "./src/doc/IImperativeError";
-export * from "./src/ErrorReport";
 export * from "./src/ImperativeError";
