@@ -11,7 +11,7 @@
 
 import {PMFConstants} from "../PMFConstants";
 import {Logger} from "../../../../../logger";
-const npm  = require("npm");
+import {installPackages} from "../NpmApiFunctions";
 
 /**
  * @TODO - allow multiple packages to be updated?
@@ -35,30 +35,8 @@ export async function update(packageName: string, registry: string) {
   // formatting or colors but at least I can get the output of stdout right. (comment from install handler)
   iConsole.info("updating package...this may take some time.");
 
-  const npmOptions: object = {
-      prefix: PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
-      global: true,
-      registry
-  };
-
-  const execOutput = await new Promise((resolve) => {
-      npm.load(npmOptions, (err: Error) => {
-          if (err) {
-              iConsole.error(err.message);
-              throw new Error(err.message);
-          }
-          resolve(new Promise((resolveInstall) => {
-              npm.commands.install(PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
-                  [npmPackage], (installError: Error, response: any) => {
-                      if (installError) {
-                          iConsole.error(installError.message);
-                          throw new Error(installError.message);
-                      }
-                      resolveInstall(response);
-                  });
-          }));
-      });
-  });
+  const execOutput = await installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
+      registry, true, npmPackage);
 
   /* We get the package name (aka plugin name)
    * from the output of the npm command.
@@ -66,11 +44,7 @@ export async function update(packageName: string, registry: string) {
    */
   const stringOutput = execOutput.toString();
   iConsole.info("stringOutput = " + stringOutput);
-  let regex = /(@[a-z]*\/[a-z0-9]*)@([0-9][^,]*)/gm;
-  if (npmPackage.includes("/") || npmPackage.includes("\\")) {
-      const pluginName = npmPackage.substring((npmPackage.indexOf("/") + 1));
-      regex = new RegExp("(@[a-z]*\\/" + pluginName + ")@([0-9][^,]*)", "gm");
-  }
+  const regex = /\+\s(.*)@(.*)$/gm;
   const match = regex.exec(stringOutput);
   const packageVersion = match[2];
 
