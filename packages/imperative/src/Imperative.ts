@@ -111,11 +111,6 @@ export class Imperative {
                 // Initialize our settings file
                 this.initAppSettings();
 
-                /* TODO: Create some logger placeholder that just caches messages
-                 * until we can initialize logging. This allows us to call methods that
-                 * use logging just like any method (but before logging is initialized).
-                 */
-
                 /**
                  * Get the command name from the package bin.
                  * If no command name exists, we will instead use the file name invoked
@@ -159,7 +154,8 @@ export class Imperative {
                  * Now we should apply any overrides to default Imperative functionality. This is where CLI
                  * developers are able to really start customizing Imperative and how it operates internally.
                  */
-                await OverridesLoader.load(ImperativeConfig.instance.loadedConfig);
+                await OverridesLoader.load(ImperativeConfig.instance.loadedConfig,
+                    ImperativeConfig.instance.callerPackageJson);
 
                 /**
                  * Build API object

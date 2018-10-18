@@ -166,6 +166,14 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     private mProfileTypeMetaFileName: string;
 
     /**
+     * Product display name of the CLI.
+     * @private
+     * @type {string}
+     * @memberof AbstractProfileManager
+     */
+    private mProductDisplayName: string;
+
+    /**
      * Logger instance - must be log4js compatible. Can be the Imperative logger (normally), but is required for
      * profile manager operation.
      * @private
@@ -195,6 +203,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         this.mProfileType = parms.type;
         this.mProfileRootDirectory = parms.profileRootDirectory;
         this.mProfileTypeConfigurations = parms.typeConfigurations;
+        this.mProductDisplayName = parms.productDisplayName;
         if (isNullOrUndefined(this.profileTypeConfigurations) || this.profileTypeConfigurations.length === 0) {
             try {
                 this.mProfileTypeConfigurations = this.collectAllConfigurations();
@@ -269,6 +278,17 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
      */
     protected get profileType(): string {
         return this.mProfileType;
+    }
+
+    /**
+     * Accesor for the product display name.
+     * @readonly
+     * @protected
+     * @type {string}
+     * @memberof AbstractProfileManager
+     */
+    protected get productDisplayName(): string {
+        return this.mProductDisplayName;
     }
 
     /**

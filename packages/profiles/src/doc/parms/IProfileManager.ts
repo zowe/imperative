@@ -66,4 +66,11 @@ export interface IProfileManager<T extends IProfileTypeConfiguration> {
      * Used internally by profile manager classes
      */
     loadCounter?: Map<string, number>;
+
+    /**
+     * Product display name of CLI
+     * @type {string}
+     * @memberof IProfileManager
+     */
+    productDisplayName?: string;
 }

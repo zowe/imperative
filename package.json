@@ -1,6 +1,6 @@
 {
   "name": "@brightside/imperative",
-  "version": "2.0.0-next.201810021948",
+  "version": "2.0.0-next.201810171833",
   "description": "framework for building configurable CLIs",
   "license": "EPL 2.0",
   "repository": "https://github.com/gizafoundation/imperative",
@@ -54,6 +54,7 @@
     "yargs": "8.0.2"
   },
   "devDependencies": {
+    "keytar": "^4.1.0",
     "@types/body-parser": "1.16.4",
     "@types/chai": "4.0.1",
     "@types/chai-string": "1.1.30",
@@ -157,7 +158,6 @@
     "coverageDirectory": "<rootDir>/__tests__/__results__/unit/coverage"
   },
   "optionalDependencies": {
-    "keytar": "^4.1.0",
     "node-report": "^2.2.1"
   }
 }

@@ -69,8 +69,16 @@ export abstract class AbstractCredentialManager {
    *
    * @param {string} service The service that the Credential Manager is running under. Imperative will set this to the
    *                         cliName
+   * @param {string} displayName The display name of this manager. Used in messaging/logging.
    */
-  protected constructor(protected readonly service: string) {
+  protected constructor(protected readonly service: string, private displayName: string) {
+  }
+
+  /**
+   * @returns {string} - the display name of this manager. Use in logging/messaging.
+   */
+  public get name(): string {
+    return this.displayName;
   }
 
   /**

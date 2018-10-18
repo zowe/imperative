@@ -19,8 +19,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const imperative_1 = require("@brightside/imperative");
 module.exports = class CredentialManagerOverrides extends imperative_1.AbstractCredentialManager {
-    constructor(service) {
-        super(service);
+    constructor(service, displayName) {
+        super(service, displayName);
         this.consoleLog = imperative_1.Logger.getConsoleLogger();
     }
     deleteCredentials(account) {

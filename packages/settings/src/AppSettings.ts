@@ -139,6 +139,13 @@ export class AppSettings {
     }
 
     /**
+     * @returns true if the app settings have been initialized
+     */
+    public static get initialized(): boolean {
+        return !(this.mInstance == null);
+    }
+
+    /**
      * Writes settings to the file.
      *
      * @returns A promise of completion
@@ -158,5 +165,4 @@ export class AppSettings {
             });
         });
     }
-
 }
