@@ -27,8 +27,9 @@ export interface ICredentialManagerConstructor {
      * will be sent in during the {@link CredentialManagerFactory.initialize} function.
      *
      * @param {string} cliName - The name of the cli. The default manager uses this as the service.
+     * @param {string} displayName - The manager display name. For messaging/debugging.
      *
      * @returns {AbstractCredentialManager} - An instantiated class that extends {@link AbstractCredentialManager}
      */
-    new(cliName: string): AbstractCredentialManager;
+    new(cliName: string, displayName: string): AbstractCredentialManager;
 }

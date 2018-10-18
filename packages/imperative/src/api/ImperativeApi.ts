@@ -74,7 +74,8 @@ export class ImperativeApi {
             type,
             typeConfigurations: this.mConfig.profiles,
             profileRootDirectory: ProfileUtils.constructProfilesRootDirectory(this.mHome),
-            logger: this.imperativeLogger
+            logger: this.imperativeLogger,
+            productDisplayName: this.mConfig.productDisplayName
         });
     }
 }

@@ -20,8 +20,8 @@ export = class NoInitializeCredentialManager extends AbstractCredentialManager {
 
   public readonly credentials = "username:password";
 
-  constructor() {
-    super(NoInitializeCredentialManager.hardcodeService);
+  constructor(service, displayname) {
+    super(NoInitializeCredentialManager.hardcodeService, displayname);
   }
 
   protected async deleteCredentials(account: string): Promise<void> {
