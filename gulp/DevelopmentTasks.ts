@@ -38,6 +38,8 @@ function loadDependencies() {
 const tslintExecutable = "node_modules/tslint/bin/tslint";
 const tscExecutable = "node_modules/typescript/bin/tsc";
 const nspExecutable = "node_modules/nsp/bin/nsp";
+
+const npmExecutable = "npm" + (require("os").platform() === "win32" ? ".cmd" : "");
 const madgeExecutable = "node_modules/madge/bin/cli.js";
 
 function isLowerCase(str: string) {
@@ -194,16 +196,18 @@ const build: ITaskFunction = (done) => {
                         done(lintWarning);
                         return;
                     }
-                    const nsp = childProcess.spawnSync("node", [nspExecutable, "check"]);
-                    gutil.log(nsp.output.join(""));
-                    if (nsp.status !== 0) {
-                        const nspError: IGulpError = new Error("NSP check failed!" +
+                    const audit = childProcess.spawnSync(npmExecutable, ["audit"]);
+                    gutil.log(audit.output.join(""));
+                    if (audit.status !== 0) {
+                        const auditError: IGulpError = new Error("npm audit failed!" +
                             " There may be security vulnerabilities in the dependencies.");
-                        nspError.showStack = false;
-                        done(nspError);
-                        return;
+                        auditError.showStack = false;
+                        gutil.log(gutil.colors.red("NPM audit failed"));
+                        // done(auditError);
+                        // return;
+                    } else {
+                        gutil.log(gutil.colors.blue("NPM audit passed"));
                     }
-                    gutil.log(gutil.colors.blue("NSP check passed"));
                     checkCircularDependencies((madgeError?: Error) => {
                         if (madgeError) {
                             done(madgeError);
