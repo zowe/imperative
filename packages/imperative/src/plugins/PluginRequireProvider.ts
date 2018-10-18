@@ -11,11 +11,18 @@
 
 import Module = require("module");
 
+import { ImperativeConfig } from "../ImperativeConfig";
+
 /**
  * This class will allow imperative to intercept calls by plugins so that it can
  * provide them with the runtime instance of imperative / base cli when necessary.
  */
 export class PluginRequireProvider {
+    /**
+     * Create hooks for the specified modules to be injected at runtime.
+     *
+     * @param modules An array of modules to inject from the host application.
+     */
     public static createPluginHooks(modules: string[]) {
         if (PluginRequireProvider.mInstance != null) {
             const {PluginRequireAlreadyCreatedError} = require("./errors/PluginRequireAlreadyCreatedError");
@@ -25,10 +32,22 @@ export class PluginRequireProvider {
         this.mInstance = new PluginRequireProvider(modules);
     }
 
-    // public static destroyPluginHooks() {
-    //
-    // }
+    /**
+     * Restore the default node require hook.
+     */
+    public static destroyPluginHooks() {
+        if (PluginRequireProvider.mInstance == null) {
+            const {PluginRequireNotCreatedError} = require("./errors/PluginRequireNotCreatedError");
+            throw new PluginRequireNotCreatedError();
+        }
 
+        // Set everything back to normal
+        Module.prototype.require = PluginRequireProvider.mInstance.origRequire;
+    }
+
+    /**
+     * Reference to the static singleton instance.
+     */
     private static mInstance: PluginRequireProvider;
 
     /**
@@ -36,32 +55,48 @@ export class PluginRequireProvider {
      */
     private origRequire: typeof Module.prototype.require;
 
+    /**
+     * Reference to the new require function.
+     */
     private require: typeof Module.prototype.require;
 
     /**
      * Construct the class and create hooks into require.
      * @param modules The modules that should be injected from the runtime instance
      */
-    private constructor(private modules: string[]) {
-        this.origRequire = Module.prototype.require;
-
-        const that = this;
+    private constructor(private readonly modules: string[]) {
+        const origRequire = this.origRequire = Module.prototype.require;
 
         this.require = Module.prototype.require = function(request: string) {
-            // Check that the import doesn't contain any of the modules
-            if (modules.indexOf(request) !== -1) {
-                return that.origRequire.apply(process.mainModule, arguments);
+            // Check for the module in the import path
+            const doesUseOverrides = !!modules.find((element) => {
+                /*
+                 * Check that the element (or module that we inject) is present at position 0.
+                 * It was designed this way to support submodule imports
+                 *
+                 * Example:
+                 * If modules = ["@brightside/imperative"]
+                 *    request = "@brightside/imperative/lib/errors"
+                 *
+                 * This function will match @brightside/imperative
+                 *
+                 */
+                return request.startsWith(element);
+            });
+
+            if (doesUseOverrides) {
+                // Next we need to check if this is the root module. If so, then
+                // we need to remap the import.
+                if (request.startsWith(ImperativeConfig.instance.hostPackageName)) {
+                    arguments[0] = "./";
+                }
+
+                // Inject it from the main module dependencies
+                return origRequire.apply(process.mainModule, arguments);
             } else {
-                return that.origRequire.apply(this, arguments);
+                // Otherwise use the package dependencies
+                return origRequire.apply(this, arguments);
             }
         };
     }
-
-    /**
-     * Require hook request
-     * @param request The request coming into `require()`
-     */
-    // private require(request: string) {
-    //
-    // }
 }

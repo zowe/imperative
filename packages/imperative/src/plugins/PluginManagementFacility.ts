@@ -27,9 +27,6 @@ import { ConfigurationLoader } from "../ConfigurationLoader";
 import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
 import {IImperativeOverrides} from "../doc/IImperativeOverrides";
 import {AppSettings} from "../../../settings";
-import { PluginRequireProvider } from "./PluginRequireProvider";
-
-PluginRequireProvider.createPluginHooks(["@brightside/imperative"]);
 
 /**
  * This class is the main engine for the Plugin Management Facility. The
@@ -165,6 +162,15 @@ export class PluginManagementFacility {
      */
     public init(): void {
         this.impLogger.debug("PluginManagementFacility.init() - Start");
+
+        // Load lib after the fact to save on speed when plugins not enabled
+        const { PluginRequireProvider } = require("./PluginRequireProvider");
+
+        // Create the hook for imperative and the application cli
+        PluginRequireProvider.createPluginHooks([
+            ImperativeConfig.instance.imperativePackageName,
+            ImperativeConfig.instance.hostPackageName
+        ]);
 
         // Add the plugin group and related commands.
         ImperativeConfig.instance.addCmdGrpToLoadedConfig({
