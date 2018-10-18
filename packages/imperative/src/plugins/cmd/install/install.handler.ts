@@ -20,7 +20,7 @@ import {readFileSync} from "jsonfile";
 import {TextUtils} from "../../../../../utilities";
 import {ImperativeError} from "../../../../../error";
 import {runValidatePlugin} from "../../utilities/runValidatePlugin";
-import * as npm from "npm";
+import {getRegistry} from "../../utilities/NpmApiFunctions";
 
 /**
  * The install command handler for cli plugin install.
@@ -84,16 +84,7 @@ export default class InstallHandler implements ICommandHandler {
 
         // Get the registry to install to
         if (typeof params.arguments.registry === "undefined") {
-            installRegistry = await new Promise((resolveLoad) => {
-                npm.load({}, (err) => {
-                    if (err) {
-                        this.console.error(err.message);
-                    }
-                    resolveLoad(new Promise((resolveGetRegistry) => {
-                        resolveGetRegistry(npm.config.get("registry"));
-                    }));
-                });
-            });
+            installRegistry = await getRegistry();
             installRegistry.replace("\n", "");
         } else {
           installRegistry = params.arguments.registry;

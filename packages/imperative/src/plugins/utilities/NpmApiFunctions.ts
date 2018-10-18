@@ -24,7 +24,7 @@ const npm  = require("npm");
  *
  * @param {string} npmPackage The name of package to install.
  *
- * @return {Promise} Log response from NPM api
+ * @return {Promise<string>} Log response from NPM api
  *
  */
 export async function installPackages(prefix: string, registry: string, global: boolean, npmPackage: string) {
@@ -57,6 +57,20 @@ export async function installPackages(prefix: string, registry: string, global: 
     });
 }
 
-export async function getRegistryName() {
-
+/**
+ * Get the registry to install to.
+ *
+ * @return {Promise<string>}
+ */
+export async function getRegistry() {
+    return new Promise((resolveLoad) => {
+        npm.load({}, (err: Error) => {
+            if (err) {
+                this.console.error(err.message);
+            }
+            resolveLoad(new Promise((resolveGetRegistry) => {
+                resolveGetRegistry(npm.config.get("registry"));
+            }));
+        });
+    });
 }
