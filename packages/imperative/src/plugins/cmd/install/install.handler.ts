@@ -17,10 +17,10 @@ import {install} from "../../utilities/npm-interface";
 import {IPluginJson} from "../../doc/IPluginJson";
 import {IPluginJsonObject} from "../../doc/IPluginJsonObject";
 import {readFileSync} from "jsonfile";
-import {execSync} from "child_process";
 import {TextUtils} from "../../../../../utilities";
 import {ImperativeError} from "../../../../../error";
 import {runValidatePlugin} from "../../utilities/runValidatePlugin";
+import {getRegistry} from "../../utilities/NpmApiFunctions";
 
 /**
  * The install command handler for cli plugin install.
@@ -80,13 +80,12 @@ export default class InstallHandler implements ICommandHandler {
       });
     } else {
       try {
-        let installRegistry: string;
+        let installRegistry: any;
 
         // Get the registry to install to
         if (typeof params.arguments.registry === "undefined") {
-          installRegistry = execSync("npm config get registry")
-            .toString()
-            .replace("\n", "");
+            installRegistry = await getRegistry();
+            installRegistry.replace("\n", "");
         } else {
           installRegistry = params.arguments.registry;
         }
@@ -145,7 +144,7 @@ export default class InstallHandler implements ICommandHandler {
               this.console.debug(`Package: ${packageArgument}`);
 
               params.response.console.log("\n_______________________________________________________________");
-              const pluginName = install(packageArgument, packageInfo.registry, true);
+              const pluginName = await install(packageArgument, packageInfo.registry, true);
               params.response.console.log("Installed plugin name = '" + pluginName + "'");
               params.response.console.log(runValidatePlugin(pluginName));
             }
@@ -155,7 +154,7 @@ export default class InstallHandler implements ICommandHandler {
         } else {
           for (const packageString of params.arguments.plugin) {
             params.response.console.log("\n_______________________________________________________________");
-            const pluginName = install(`${packageString}`, installRegistry);
+            const pluginName = await install(`${packageString}`, installRegistry);
             params.response.console.log("Installed plugin name = '" + pluginName + "'");
             params.response.console.log(runValidatePlugin(pluginName));
           }
