@@ -16,6 +16,6 @@ const DefaultCredentialManager: any =
     (jest.genMockFromModule("../DefaultCredentialManager") as any).DefaultCredentialManager;
 
 // Preserve inheritance
-DefaultCredentialManager.prototype = new (AbstractCredentialManager as any)();
+DefaultCredentialManager.prototype = new (AbstractCredentialManager as any)("dummy", "dummy manager");
 
 exports.DefaultCredentialManager = DefaultCredentialManager;
