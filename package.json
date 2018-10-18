@@ -1,6 +1,6 @@
 {
   "name": "@brightside/imperative",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "framework for building configurable CLIs",
   "license": "EPL 2.0",
   "repository": "https://github.com/gizafoundation/imperative",
