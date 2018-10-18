@@ -22,6 +22,8 @@ export class PluginRequireProvider {
      * Create hooks for the specified modules to be injected at runtime.
      *
      * @param modules An array of modules to inject from the host application.
+     *
+     * @throws {PluginRequireAlreadyCreatedError} when hooks have already been added.
      */
     public static createPluginHooks(modules: string[]) {
         if (PluginRequireProvider.mInstance != null) {
@@ -34,6 +36,8 @@ export class PluginRequireProvider {
 
     /**
      * Restore the default node require hook.
+     *
+     * @throws {PluginRequireNotCreatedError} when hooks haven't been added.
      */
     public static destroyPluginHooks() {
         if (PluginRequireProvider.mInstance == null) {
@@ -56,19 +60,14 @@ export class PluginRequireProvider {
     private origRequire: typeof Module.prototype.require;
 
     /**
-     * Reference to the new require function.
-     */
-    private require: typeof Module.prototype.require;
-
-    /**
      * Construct the class and create hooks into require.
      * @param modules The modules that should be injected from the runtime instance
      */
     private constructor(private readonly modules: string[]) {
         const origRequire = this.origRequire = Module.prototype.require;
 
-        this.require = Module.prototype.require = function(request: string) {
-            // Check for the module in the import path
+        Module.prototype.require = function(request: string) {
+            // Check to see if the module should be injected
             const doesUseOverrides = !!modules.find((element) => {
                 /*
                  * Check that the element (or module that we inject) is present at position 0.
@@ -88,7 +87,12 @@ export class PluginRequireProvider {
                 // Next we need to check if this is the root module. If so, then
                 // we need to remap the import.
                 if (request.startsWith(ImperativeConfig.instance.hostPackageName)) {
-                    arguments[0] = "./";
+                    if (request === ImperativeConfig.instance.hostPackageName) {
+                        arguments[0] = "./";
+                    } else {
+                        const { UnsupportedImportError } = require("./errors/UnsupportedImportError");
+                        throw new UnsupportedImportError(request);
+                    }
                 }
 
                 // Inject it from the main module dependencies
