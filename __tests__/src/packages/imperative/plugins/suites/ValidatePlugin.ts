@@ -35,6 +35,18 @@ describe("Validate plugin", () => {
             expect(result.stdout).toContain("successfully validated.");
         });
 
+        it("when plugin contain space in path is installed sucessfully", () => {
+            const testPlugin = join(testPluginDir, "space in path plugin");
+            const pluginName: string = "space-in-path-plugin";
+            let result = T.executeTestCLICommand(cliBin, this, ["plugins", "install", testPlugin]);
+            expect(result.stdout).toContain(`Installed plugin name = '${pluginName}'`);
+
+            const cmd = `plugins validate`;
+            result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+            expect(result.stderr).toEqual("");
+            expect(result.stdout).toContain("successfully validated.");
+        });
+
         it("when provided plugin name is installed successfully", () => {
             const pluginName = "normal-plugin";
             const testPlugin = join(testPluginDir, "normal_plugin");
