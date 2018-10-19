@@ -199,10 +199,12 @@ const build: ITaskFunction = (done) => {
                         const auditError: IGulpError = new Error("npm audit failed!" +
                             " There may be security vulnerabilities in the dependencies.");
                         auditError.showStack = false;
-                        done(auditError);
-                        return;
+                        gutil.log(gutil.colors.red("NPM audit failed"));
+                        // done(auditError);
+                        // return;
+                    } else {
+                        gutil.log(gutil.colors.blue("NPM audit passed"));
                     }
-                    gutil.log(gutil.colors.blue("NPM audit passed"));
                     checkCircularDependencies((madgeError?: Error) => {
                         if (madgeError) {
                             done(madgeError);

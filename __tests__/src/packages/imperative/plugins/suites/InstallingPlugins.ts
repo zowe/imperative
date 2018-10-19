@@ -69,6 +69,11 @@ describe("Installing Plugins", () => {
       name    : "normal-plugin-3",
       usage   : "normal-plugin-3"
     },
+    space_in_path: {
+      location: join(__dirname, "../", "test_plugins", "space in path plugin"),
+      name    : "space-in-path-plugin",
+      usage   : "space-in-path-plugin"
+    },
     registry: {
       location: "imperative-sample-plugin",
       name    : "imperative-sample-plugin",
@@ -89,8 +94,8 @@ describe("Installing Plugins", () => {
    * @param {string} cmd     The command to execute on the Test CLI
    * @returns {SpawnSyncReturns<string>} The result of the command execution
    */
-  const executeCommandString = (context: any, cmd: string): SpawnSyncReturns<string> =>
-    T.executeTestCLICommand(cliBin, context, cmd.split(" "));
+  const executeCommandString = (context: any, cmd: string): SpawnSyncReturns<string> => 
+    T.executeTestCLICommand(cliBin, context, cmd.split(" "))
 
   /**
    * The registry from the user's environment, which is used when an explicit registry is not supplied.
@@ -213,6 +218,31 @@ describe("Installing Plugins", () => {
 
     result = executeCommandString(this, "--help");
     expect(result.stdout).toEqual(afterInstall.stdout);
+  });
+
+  it("should install a plugin from a file location that contain space in it path", function(){
+
+    let result = executeCommandString(this, "--help");
+
+    // Verify that the sample plugin isn't there
+    expect(result.stderr).toEqual("");
+    expect(result.stdout).not.toContain(plugins.normal.usage);
+
+    // Now go ahead and install the sample
+    result = T.executeTestCLICommand(cliBin, this, [pluginGroup, "install", plugins.space_in_path.location]);
+    expect(result.stderr).toMatch(/npm.*WARN/);
+    expect(result.stderr).toContain("requires a peer of @brightside/imperative");
+    expect(result.stderr).toContain("You must install peer dependencies yourself");
+
+    const strippedOutput = T.stripNewLines(result.stdout);
+    expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
+    expect(strippedOutput).toContain(`Installed plugin name = '${plugins.space_in_path.name}'`);
+
+    // Now verify that it got added to the tree
+    result = executeCommandString(this, "--help");
+
+    expect(result.stderr).toEqual("");
+    expect(result.stdout).toContain(plugins.space_in_path.usage);
   });
 
   /* Again we purposely commented out this test because versioning uses a registry,
