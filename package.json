@@ -70,6 +70,7 @@
     "@types/progress": "2.0.0",
     "@types/stack-trace": "0.0.28",
     "@types/tmp": "0.0.33",
+    "keytar": "^4.1.0",
     "chai": "4.1.2",
     "chai-string": "1.4.0",
     "clear-require": "2.0.0",
@@ -158,7 +159,6 @@
     "coverageDirectory": "<rootDir>/__tests__/__results__/unit/coverage"
   },
   "optionalDependencies": {
-    "keytar": "^4.1.0",
     "node-report": "^2.2.1"
   }
 }
