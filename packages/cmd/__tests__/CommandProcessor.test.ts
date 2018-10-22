@@ -12,7 +12,6 @@
 jest.mock("../src/syntax/SyntaxValidator");
 jest.mock("../src/utils/SharedOptions");
 
-import { TestLogger } from "../../../__tests__/TestLogger";
 import { ICommandDefinition } from "../src/doc/ICommandDefinition";
 import { CommandProcessor } from "../src/CommandProcessor";
 import { ICommandResponse } from "../src/doc/response/response/ICommandResponse";
@@ -25,7 +24,6 @@ import { SharedOptions } from "../src/utils/SharedOptions";
 import { CommandProfileLoader } from "../src/profiles/CommandProfileLoader";
 import { CliUtils } from "../../utilities/src/CliUtils";
 
-const testLogger = TestLogger.getTestLogger();
 // Persist the original definitions of process.write
 const ORIGINAL_STDOUT_WRITE = process.stdout.write;
 const ORIGINAL_STDERR_WRITE = process.stderr.write;
@@ -769,6 +767,7 @@ describe("Command Processor", () => {
         expect(commandResponse).toBeDefined();
         expect(commandResponse).toMatchSnapshot();
     });
+
     it("should handle not being able to instantiate a chained handler", async () => {
         // Allocate the command processor
         const commandDef: ICommandDefinition = JSON.parse(JSON.stringify(SAMPLE_COMMAND_DEFINITION));
@@ -862,7 +861,6 @@ describe("Command Processor", () => {
         const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(commandResponse.success).toBe(true);
     });
-
 
     it("should handle an imperative error thrown from a chained handler", async () => {
         const commandDef: ICommandDefinition = JSON.parse(JSON.stringify(SAMPLE_COMMAND_REAL_HANDLER));
@@ -1263,7 +1261,6 @@ describe("Command Processor", () => {
         expect(commandResponse.stdout.toString()).toContain("green"); // expect the handler to output the default value
         expect(commandResponse).toBeDefined();
     });
-
 
     it("should extract arguments not specified on invoke from a profile and merge with positional args", async () => {
         const processor: CommandProcessor = new CommandProcessor({

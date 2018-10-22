@@ -219,7 +219,7 @@ export class CommandProcessor {
      * Invoke the command handler. Locates and requires the module specified by the command definition document,
      * creates a new object, creates a response object, and invokes the handler. The handler is responsible for
      * fulfilling the promise when complete.
-     * @param {params} IInvokeCommandParms
+     * @param {IInvokeCommandParms} params - The parameters passed to the invoke function
      * @return {Promise<ICommandResponse>} - The promise that is fulfilled. A rejection if the promise indicates a
      * truly exceptional condition (should not occur).
      */
@@ -311,31 +311,7 @@ export class CommandProcessor {
 
         // Check if the syntax is valid - if not return immediately.
         if (!validator.valid) {
-            this.log.error(`Syntax for command "${this.mDefinition.name}" is invalid.`);
-            response.data.setMessage("Command syntax invalid");
-            response.failed();
-            let finalHelp: string = "";
-
-            // Display the first example on error
-            if (this.mDefinition.examples && this.mDefinition.examples.length > 0) {
-                let exampleText = TextUtils.wordWrap(`- ${this.mDefinition.examples[0].description}:\n\n`, undefined, " ");
-                exampleText += `      \$ ${
-                    this.rootCommand
-                } ${
-                    CommandUtils.getFullCommandName(this.mDefinition, this.mFullDefinition)
-                } ${
-                    this.mDefinition.examples[0].options
-                }\n`;
-
-                finalHelp += `\nExample:\n\n${exampleText}`;
-            }
-
-            if (params.arguments._.length > 0) {
-                finalHelp += `\nUse "${this.rootCommand} ${params.arguments._.join(" ")} --help" to view command description, usage, and options.`;
-            } else {
-                finalHelp += `\nUse "${this.mDefinition.name} --help" to view command description, usage, and options.`;
-            }
-            response.console.error(finalHelp);
+            this.invalidSyntaxNotification(params, response);
             return this.finishResponse(response);
         }
 
@@ -441,8 +417,41 @@ export class CommandProcessor {
             // Return the response to the caller
             return this.finishResponse(chainedResponse);
         }
+    }
 
+    /**
+     * This function outputs the final help text when a syntax validation occurs
+     * in {@link CommandProcessor#invoke}
+     *
+     * @param params   The parameters passed to {@link CommandProcessor#invoke}
+     * @param response The response object to output information to.
+     */
+    private invalidSyntaxNotification(params: IInvokeCommandParms, response: CommandResponse) {
+        this.log.error(`Syntax for command "${this.mDefinition.name}" is invalid.`);
+        response.data.setMessage("Command syntax invalid");
+        response.failed();
+        let finalHelp: string = "";
 
+        // Display the first example on error
+        if (this.mDefinition.examples && this.mDefinition.examples.length > 0) {
+            let exampleText = TextUtils.wordWrap(`- ${this.mDefinition.examples[0].description}:\n\n`, undefined, " ");
+            exampleText += `      \$ ${
+                this.rootCommand
+                } ${
+                CommandUtils.getFullCommandName(this.mDefinition, this.mFullDefinition)
+                } ${
+                this.mDefinition.examples[0].options
+                }\n`;
+
+            finalHelp += `\nExample:\n\n${exampleText}`;
+        }
+
+        if (params.arguments._.length > 0) {
+            finalHelp += `\nUse "${this.rootCommand} ${params.arguments._.join(" ")} --help" to view command description, usage, and options.`;
+        } else {
+            finalHelp += `\nUse "${this.mDefinition.name} --help" to view command description, usage, and options.`;
+        }
+        response.console.error(finalHelp);
     }
 
     /**
