@@ -71,11 +71,9 @@ export class PluginRequireProvider {
          * Example:
          * If modules = ["@brightside/imperative"]
          *    request = "@brightside/imperative/lib/errors"
-         *
-         * This regular expression will match /$(@brightside/imperative).* / (space at the end to not escape block comment
-         *
          */
-        const regex = new RegExp(`$(${modules.join("|")}).*`);
+         // This regular expression will match /(@brightside\/imperative).*/
+        const regex = new RegExp(`(${modules.join("|")}).*`);
         const origRequire = this.origRequire = Module.prototype.require;
 
         Module.prototype.require = function(request: string) {
