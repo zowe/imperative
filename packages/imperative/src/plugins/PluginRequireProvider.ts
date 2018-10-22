@@ -64,24 +64,23 @@ export class PluginRequireProvider {
      * @param modules The modules that should be injected from the runtime instance
      */
     private constructor(private readonly modules: string[]) {
+        /*
+         * Check that the element (or module that we inject) is present at position 0.
+         * It was designed this way to support submodule imports
+         *
+         * Example:
+         * If modules = ["@brightside/imperative"]
+         *    request = "@brightside/imperative/lib/errors"
+         *
+         * This regular expression will match /$(@brightside/imperative).* / (space at the end to not escape block comment
+         *
+         */
+        const regex = new RegExp(`$(${modules.join("|")}).*`);
         const origRequire = this.origRequire = Module.prototype.require;
 
         Module.prototype.require = function(request: string) {
             // Check to see if the module should be injected
-            const doesUseOverrides = !!modules.find((element) => {
-                /*
-                 * Check that the element (or module that we inject) is present at position 0.
-                 * It was designed this way to support submodule imports
-                 *
-                 * Example:
-                 * If modules = ["@brightside/imperative"]
-                 *    request = "@brightside/imperative/lib/errors"
-                 *
-                 * This function will match @brightside/imperative
-                 *
-                 */
-                return request.startsWith(element);
-            });
+            const doesUseOverrides = request.match(regex);
 
             if (doesUseOverrides) {
                 // Next we need to check if this is the root module. If so, then
