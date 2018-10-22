@@ -156,8 +156,5 @@
       "cobertura"
     ],
     "coverageDirectory": "<rootDir>/__tests__/__results__/unit/coverage"
-  },
-  "optionalDependencies": {
-    "node-report": "^2.2.1"
   }
 }
