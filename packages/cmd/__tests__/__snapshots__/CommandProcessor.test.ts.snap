@@ -1,5 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Command Processor invalidSyntaxNotification should log an invalid syntax notification with examples 1`] = `
+"
+Example:
+
+ - Unripe Banana:
+
+      $ fruit banana --banana-color green --is-spoiled false
+
+Use \\"fruit bad syntax here --help\\" to view command description, usage, and options."
+`;
+
 exports[`Command Processor should allow us to formulate the help for a group 1`] = `
 Object {
   "data": "Build help invoked!",
