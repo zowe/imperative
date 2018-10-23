@@ -9,5 +9,4 @@
 *
 */
 
-export * from "./src/doc/IImperativeError";
-export * from "./src/ImperativeError";
+export * from './sample-plugin';

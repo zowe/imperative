@@ -1,6 +1,6 @@
 {
   "name": "@brightside/imperative",
-  "version": "2.0.0-next.201810181912",
+  "version": "2.0.0-next.201810221846",
   "description": "framework for building configurable CLIs",
   "license": "EPL 2.0",
   "repository": "https://github.com/gizafoundation/imperative",
@@ -156,8 +156,5 @@
       "cobertura"
     ],
     "coverageDirectory": "<rootDir>/__tests__/__results__/unit/coverage"
-  },
-  "optionalDependencies": {
-    "node-report": "^2.2.1"
   }
 }

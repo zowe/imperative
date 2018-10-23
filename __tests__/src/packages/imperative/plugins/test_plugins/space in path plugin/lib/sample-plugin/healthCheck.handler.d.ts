@@ -9,6 +9,8 @@
 *
 */
 
-export interface IErrorSavedSettings {
-    NODEREPORT_VERBOSE?: string;
+import { ICommandHandler, IHandlerParameters } from "@brightside/imperative";
+
+export default class HealthCheckHandler implements ICommandHandler {
+    process(params: IHandlerParameters): Promise<void>;
 }

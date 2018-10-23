@@ -9,5 +9,6 @@
 *
 */
 
-export * from "./src/doc/IImperativeError";
-export * from "./src/ImperativeError";
+export * from './healthCheck.handler';
+export * from './cmd/foo/foo.handler';
+export * from './cmd/bar/bar.handler';

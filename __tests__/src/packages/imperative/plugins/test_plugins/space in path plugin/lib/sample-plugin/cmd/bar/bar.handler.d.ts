@@ -9,17 +9,11 @@
 *
 */
 
-/**
- * Parms input for ErrorReport
- * @export
- * @interface IErrorReportParms
- */
-export interface IErrorReportParms {
+import { ICommandHandler, IHandlerParameters } from "@brightside/imperative";
 
-    /**
-     * Verbose environment setting for node-report
-     * @type {string}
-     * @memberof IErrorReportParms
-     */
-    verbose: string;
+/**
+ * Defining handler to be use for the 'bar' command.
+ */
+export default class BarHandler implements ICommandHandler {
+    process(params: IHandlerParameters): Promise<void>;
 }

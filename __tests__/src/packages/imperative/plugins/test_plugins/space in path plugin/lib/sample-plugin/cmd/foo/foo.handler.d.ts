@@ -9,5 +9,7 @@
 *
 */
 
-export * from "./src/doc/IImperativeError";
-export * from "./src/ImperativeError";
+import { ICommandHandler, IHandlerParameters } from "@brightside/imperative";
+export default class FooHandler implements ICommandHandler {
+    process(params: IHandlerParameters): Promise<void>;
+}
