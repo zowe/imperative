@@ -88,7 +88,7 @@ export class ImperativeConfig {
     }
 
     public get imperativePackageName(): string {
-        return "@brightside/imperative"
+        return "@brightside/imperative";
     }
 
 }
