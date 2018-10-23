@@ -12,6 +12,8 @@
 import Module = require("module");
 
 import { ImperativeConfig } from "../ImperativeConfig";
+import * as path from "path";
+import * as findUp from "find-up";
 
 /**
  * This class will allow imperative to intercept calls by plugins so that it can
@@ -64,6 +66,13 @@ export class PluginRequireProvider {
      * @param modules The modules that should be injected from the runtime instance
      */
     private constructor(private readonly modules: string[]) {
+        const hostPackageRoot = path.join(
+            findUp.sync("package.json", {cwd: ImperativeConfig.instance.callerLocation}),
+            ".."
+        );
+
+        const hostPackageNameLength = ImperativeConfig.instance.hostPackageName.length;
+
         /*
          * Check that the element (or module that we inject) is present at position 0.
          * It was designed this way to support submodule imports
@@ -87,8 +96,7 @@ export class PluginRequireProvider {
                     if (request === ImperativeConfig.instance.hostPackageName) {
                         arguments[0] = "./";
                     } else {
-                        const { UnsupportedImportError } = require("./errors/UnsupportedImportError");
-                        throw new UnsupportedImportError(request);
+                        arguments[0] = `${hostPackageRoot}${request.substr(hostPackageNameLength)}`;
                     }
                 }
 
