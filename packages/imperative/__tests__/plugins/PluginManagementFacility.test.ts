@@ -14,6 +14,7 @@ import Mock = jest.Mock;
 jest.mock("fs");
 jest.mock("jsonfile");
 jest.mock("../../src/plugins/utilities/PMFConstants");
+jest.mock("../../src/plugins/PluginRequireProvider");
 
 import { existsSync, mkdirSync } from "fs";
 import { AppSettings } from "../../../settings";

@@ -166,8 +166,8 @@ export class PluginManagementFacility {
 
         // Create the hook for imperative and the application cli
         PluginRequireProvider.createPluginHooks([
-            ImperativeConfig.instance.imperativePackageName,
-            ImperativeConfig.instance.hostPackageName
+            PMFConstants.instance.IMPERATIVE_PKG_NAME,
+            PMFConstants.instance.CLI_CORE_PKG_NAME
         ]);
 
         // Add the plugin group and related commands.

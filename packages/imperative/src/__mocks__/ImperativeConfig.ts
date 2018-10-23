@@ -83,4 +83,12 @@ export class ImperativeConfig {
       };
     }
 
+    public get hostPackageName(): string {
+        return "host-package";
+    }
+
+    public get imperativePackageName(): string {
+        return "@brightside/imperative"
+    }
+
 }

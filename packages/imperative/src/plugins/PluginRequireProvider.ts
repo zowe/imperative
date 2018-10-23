@@ -49,6 +49,7 @@ export class PluginRequireProvider {
 
         // Set everything back to normal
         Module.prototype.require = PluginRequireProvider.mInstance.origRequire;
+        PluginRequireProvider.mInstance = undefined;
     }
 
     /**
