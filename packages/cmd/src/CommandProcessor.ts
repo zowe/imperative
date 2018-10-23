@@ -245,30 +245,30 @@ export class CommandProcessor {
         // Log the invoke
         this.log.info(`Invoking command "${this.definition.name}"...`);
         this.log.trace(`Arguments supplied for for the command:\n${TextUtils.prettyJson(params.arguments)}`);
-        this.log.trace(`Command definition:\n${inspect(this.definition, {depth: null})}`);
-        this.log.trace(`Invoke parameters:\n${inspect(params, {depth: null})}`);
+        this.log.trace(`Command definition:\n${inspect(this.definition, { depth: null })}`);
+        this.log.trace(`Invoke parameters:\n${inspect(params, { depth: null })}`);
 
         // Build the response object, base args object, and the entire array of options for this command
         // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
-        const response = this.constructResponseObject(params);
-        response.succeeded();
+        const prepareResponse = this.constructResponseObject(params);
+        prepareResponse.succeeded();
 
         // Prepare for command processing - load profiles, stdin, etc.
         let prepared: ICommandPrepared;
         try {
             this.log.info(`Preparing (loading profiles, reading stdin, etc.) execution of "${this.definition.name}" command...`);
-            prepared = await this.prepare(response, params.arguments);
+            prepared = await this.prepare(prepareResponse, params.arguments);
         } catch (prepareErr) {
 
             // Indicate that the command has failed
-            response.failed();
+            prepareResponse.failed();
 
             // Construct the main error header/message
             const err: string = `${prepareErr.message || "Internal Error: No cause message present."}`;
             this.log.error(err);
-            response.data.setMessage(err);
-            response.console.errorHeader("Command Preparation Failed");
-            response.console.error(err);
+            prepareResponse.data.setMessage(err);
+            prepareResponse.console.errorHeader("Command Preparation Failed");
+            prepareResponse.console.error(err);
 
             // Start constructing the error object for the response
             const impErr: IImperativeError = {
@@ -279,15 +279,20 @@ export class CommandProcessor {
             if ((prepareErr as ImperativeError).details != null &&
                 (prepareErr as ImperativeError).details.additionalDetails != null
                 && typeof (prepareErr as ImperativeError).details.additionalDetails === "string") {
-                response.console.errorHeader("Error Details");
-                response.console.error((prepareErr as ImperativeError).details.additionalDetails);
+                prepareResponse.console.errorHeader("Error Details");
+                prepareResponse.console.error((prepareErr as ImperativeError).details.additionalDetails);
                 impErr.additionalDetails = (prepareErr as ImperativeError).details.additionalDetails;
             }
 
             // Set the error response object and finish the command response
-            response.setError(impErr);
-            return this.finishResponse(response);
+            prepareResponse.setError(impErr);
+            return this.finishResponse(prepareResponse);
         }
+
+        // Recreate the response object with the update params from prepare.
+        params.arguments = prepared.args;
+        const response = this.constructResponseObject(params);
+        response.succeeded();
 
         // Validate that the syntax is correct for the command
         let validator: ICommandValidatorResponse;
@@ -460,12 +465,12 @@ export class CommandProcessor {
 
         // Load all profiles for the command
         this.log.trace(`Loading profiles for "${this.definition.name}" command. ` +
-            `Profile definitions: ${inspect(this.definition.profile, {depth: null})}`);
+            `Profile definitions: ${inspect(this.definition.profile, { depth: null })}`);
         const profiles = await CommandProfileLoader.loader({
             commandDefinition: this.definition,
             profileManagerFactory: this.profileFactory
         }).loadProfiles(commandArguments);
-        this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, {depth: null})}`);
+        this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, { depth: null })}`);
 
         // If we have profiles listed on the command definition (the would be loaded already)
         // we can extract values from them for options arguments
@@ -493,7 +498,7 @@ export class CommandProcessor {
 
         // Log for debugging
         this.log.debug(`Full argument object constructed:\n${inspect(args)}`);
-        return {profiles, args};
+        return { profiles, args };
     }
 
     /**
@@ -585,7 +590,7 @@ export class CommandProcessor {
             }
         }
         this.log.info(`Command "${this.definition.name}" completed with success flag: "${json.success}"`);
-        this.log.trace(`Command "${this.definition.name}" finished. Response object:\n${inspect(json, {depth: null})}`);
+        this.log.trace(`Command "${this.definition.name}" finished. Response object:\n${inspect(json, { depth: null })}`);
         return json;
     }
 
@@ -617,7 +622,7 @@ export class CommandProcessor {
             response.data.setMessage(handlerErr.message);
         } else if (handlerErr instanceof Error) {
             this.log.error(`Handler for ${this.mDefinition.name} rejected by unhandled exception.`);
-            response.setError({msg: handlerErr.message, stack: handlerErr.stack});
+            response.setError({ msg: handlerErr.message, stack: handlerErr.stack });
             response.data.setMessage(unexpectedCommandError.message + ": " + handlerErr.message);
             this.log.error(`An error was thrown during command execution of "${this.definition.name}". Error Details: ${handlerErr.message}`);
             response.console.errorHeader(unexpectedCommandError.message);
@@ -645,11 +650,11 @@ export class CommandProcessor {
             response.console.errorHeader("Command Error");
             response.console.error(handlerErr);
             response.data.setMessage(handlerErr);
-            response.setError({msg: handlerErr});
+            response.setError({ msg: handlerErr });
         } else if (handlerErr == null) {
             this.log.error("The handler rejected the promise with no message or error.");
             response.data.setMessage("Command failed");
-            response.setError({msg: "Command Failed"});
+            response.setError({ msg: "Command Failed" });
         } else {
             this.log.error("The handler rejected the promise via some means other than " +
                 "throwing an Error/ImperativeError or rejecting the promise with a string/nothing.");
