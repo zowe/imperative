@@ -16,8 +16,15 @@ const npm  = require("npm");
 const iConsole = Logger.getImperativeLogger();
 
 /**
- * Common function that installs a npm package.
- *
+ * Common function that installs a npm package using npm APIs.
+ * npm.load doesn't install with passed configuration values such as global and prefix
+ * that's why need to use npm.config functions to install packages globally and to a specific prefix
+ * The link for all configuration values and descriptions:
+ * https://docs.npmjs.com/misc/config
+ * The link for use case:
+ * https://stackoverflow.com/questions/15957529/can-i-install-a-npm-package-from-javascript-running-in-node-js/15957574#15957574
+ * The link how to use NPM programmatically from npm-cli.js documentation:
+ * https://github.com/npm/cli/blob/latest/bin/npm-cli.js#L75
  * @param {string} prefix Path where to install npm the npm package.
  *
  * @param {string} global Option to install a package globally or not.
