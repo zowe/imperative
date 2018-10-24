@@ -256,9 +256,9 @@ export abstract class AbstractRestClient {
             headers: {},
             hostname: this.session.ISession.hostname,
             method: request,
-            path: resource,
+            path: this.session.ISession.basePath + resource,
             port: this.session.ISession.port,
-            rejectUnauthorized: this.session.ISession.rejectUnauthorized,
+            rejectUnauthorized: this.session.ISession.rejectUnauthorized
         };
 
         // NOTE(Kelosky): This cannot be set for http requests
