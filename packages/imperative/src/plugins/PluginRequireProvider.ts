@@ -63,6 +63,13 @@ export class PluginRequireProvider {
     private origRequire: typeof Module.prototype.require;
 
     /**
+     * Reference to the regular expression used to match modules.
+     *
+     * This property was added to make testing easier.
+     */
+    private readonly regex: RegExp;
+
+    /**
      * Construct the class and create hooks into require.
      * @param modules The modules that should be injected from the runtime instance
      */
@@ -83,7 +90,7 @@ export class PluginRequireProvider {
          *    request = "@brightside/imperative/lib/errors"
          */
          // This regular expression will match /(@brightside\/imperative).*/
-        const regex = new RegExp(`(${modules.join("|")}).*`);
+        const regex = this.regex = new RegExp(`(${modules.join("|")}).*`);
         const origRequire = this.origRequire = Module.prototype.require;
 
         Module.prototype.require = function(request: string) {
