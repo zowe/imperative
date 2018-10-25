@@ -22,6 +22,7 @@ import { IHTTPSOptions } from "./doc/IHTTPSOptions";
 import { HTTP_VERB } from "./types/HTTPVerb";
 import { ImperativeExpect } from "../../../expect";
 import { Session } from "../session/Session";
+import * as path from "path";
 
 export type RestClientResolve = (data: string) => void;
 
@@ -256,7 +257,15 @@ export abstract class AbstractRestClient {
             headers: {},
             hostname: this.session.ISession.hostname,
             method: request,
-            path: this.session.ISession.basePath + resource,
+            /* Posix.join forces forward-slash delimiter on Windows.
+             * Path join is ok for just the resource part of the URL.
+             * We also eliminate any whitespace typos at the beginning
+             * or end of basePath or resource.
+             */
+            path: path.posix.join(path.posix.sep,
+                this.session.ISession.basePath.trim(),
+                resource.trim()
+            ),
             port: this.session.ISession.port,
             rejectUnauthorized: this.session.ISession.rejectUnauthorized
         };
