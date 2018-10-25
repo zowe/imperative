@@ -96,8 +96,10 @@ export default class InstallHandler implements ICommandHandler {
           "at your own risk. CA Technologies makes no warranties regarding the use of\n" +
           "3rd party plug-ins.\n\n" +
           "Imperative's plugin installation program handles peer dependencies for modules\n" +
-          "in the @brightside namespace, so you can safely ignore NPM warnings about\n" +
-          "missing peer dependencies related to @brightside modules.\n"
+          "in the @brightside namespace and missing package.json file,\n" +
+          "so you can safely ignore NPM warnings about\n" +
+          "missing peer dependencies related to @brightside modules and absent " +
+          PMFConstants.instance.PLUGIN_INSTALL_LOCATION + "package.json file."
         );
 
         params.response.console.log("Registry = " + installRegistry);
