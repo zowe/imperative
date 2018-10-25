@@ -12,7 +12,7 @@
 import {ICommandHandler, ICommandResponse, IHandlerParameters} from "../../../../../cmd";
 import {Logger} from "../../../../../logger/";
 import {PMFConstants} from "../../utilities/PMFConstants";
-import {resolve} from "path";
+import {resolve, join} from "path";
 import {install} from "../../utilities/npm-interface";
 import {IPluginJson} from "../../doc/IPluginJson";
 import {IPluginJsonObject} from "../../doc/IPluginJsonObject";
@@ -99,7 +99,7 @@ export default class InstallHandler implements ICommandHandler {
           "in the @brightside namespace and missing package.json file,\n" +
           "so you can safely ignore NPM warnings about\n" +
           "missing peer dependencies related to @brightside modules and absent " +
-          PMFConstants.instance.PLUGIN_INSTALL_LOCATION + "package.json file."
+          join(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, "package.json") + " file."
         );
 
         params.response.console.log("Registry = " + installRegistry);
