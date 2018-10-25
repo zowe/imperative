@@ -184,9 +184,9 @@ describe("PluginRequireProvider", () => {
     });
 
     describe("injection tests", () => {
-        describe("use proper regex format", () => {
-            const MAX_NPM_PACKAGE_NAME_LENGTH = 214;
+        const MAX_NPM_PACKAGE_NAME_LENGTH = 214;
 
+        describe("use proper regex format", () => {
             // We don't need to worry about checking anything with a special character
             // including the | since an npm package must be url safe :)
             const tests = {
@@ -232,6 +232,39 @@ describe("PluginRequireProvider", () => {
                     // If all went well, this should be dispatched to the mockedRequire
                     // which should abort the require due to the input being an object.
                     // expect((require as any)(nonMatchingModule, testRequireIndicator)).toBeUndefined();
+                });
+            });
+        });
+
+        describe("module injection", () => {
+            const tests = {
+                "1 module": ["this-is-a-test"],
+                "3 modules": ["this-is-a-test", "@another/module", "and_another_one"],
+                "3 modules of max length": [
+                    generateRandomAlphaNumericString(MAX_NPM_PACKAGE_NAME_LENGTH).toLowerCase(),
+                    generateRandomAlphaNumericString(MAX_NPM_PACKAGE_NAME_LENGTH).toLowerCase(),
+                    generateRandomAlphaNumericString(MAX_NPM_PACKAGE_NAME_LENGTH).toLowerCase(),
+                ],
+                "1 module with periods": ["test.with.periods.for.package"]
+            };
+
+            Object.entries(tests).forEach(([testName, someTestObjectToBeDefinedLater]) => {
+                describe(`${testName}`, () => {
+                    it("should redirect to the original require", () => {
+                        pending();
+                    });
+
+                    it("should redirect to an injected module", () => {
+                        pending();
+                    });
+
+                    it("should redirect to the proper host package", () => {
+                        pending();
+                    });
+
+                    it("should redirect to the proper host package submodule import", () => {
+                        pending();
+                    });
                 });
             });
         });
