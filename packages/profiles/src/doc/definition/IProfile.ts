@@ -75,13 +75,4 @@ export interface IProfile {
      * Indexable.
      */
     [key: string]: any;
-
-    /**
-     * Note:
-     * Among the keys included in the profile, there will be two special ones.
-     *   @type {string} username - The username to be securely saved to this profile.
-     *   @type {string} password - The password for the username to be securely saved to this profile.
-     * The above keys should never be saved in a dedicated file for this profile.
-     * Instead, they will only be securely stored and reterieved by the CredentialManager.
-     */
 }

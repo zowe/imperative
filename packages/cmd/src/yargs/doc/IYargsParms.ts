@@ -68,6 +68,12 @@ export interface IYargsParms {
      */
     rootCommandName: string;
     /**
+     * Environmental variable name prefix used to construct configuration environmental variables.
+     * @type {string}
+     * @memberof IYargsParms
+     */
+    envVariablePrefix: string;
+    /**
      * The Yargs Parent object - only has meaning for nested/group commands.
      * @type {GroupCommandYargs}
      * @memberof IYargsParms
