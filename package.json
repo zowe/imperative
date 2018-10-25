@@ -54,7 +54,6 @@
     "yargs": "8.0.2"
   },
   "devDependencies": {
-    "keytar": "^4.1.0",
     "@types/body-parser": "1.16.4",
     "@types/chai": "4.0.1",
     "@types/chai-string": "1.1.30",
@@ -71,6 +70,7 @@
     "@types/progress": "2.0.0",
     "@types/stack-trace": "0.0.28",
     "@types/tmp": "0.0.33",
+    "keytar": "^4.1.0",
     "chai": "4.1.2",
     "chai-string": "1.4.0",
     "clear-require": "2.0.0",
@@ -96,6 +96,7 @@
     "jest-junit": "3.6.0",
     "jsdoc": "3.5.5",
     "madge": "3.0.0",
+    "npm": "^6.4.1",
     "prompt": "1.0.0",
     "shebang-regex": "2.0.0",
     "through2": "2.0.3",

@@ -20,10 +20,9 @@ jest.mock("../../../../src/plugins/utilities/PMFConstants");
 jest.mock("../../../../../logger");
 jest.mock("../../../../../cmd/src/response/CommandResponse");
 jest.mock("../../../../../cmd/src/response/HandlerResponse");
+jest.mock("../../../../src/plugins/utilities/NpmApiFunctions");
 
-import {CommandResponse} from "../../../../../cmd";
 import {Console} from "../../../../../console";
-import {execSync} from "child_process";
 import {existsSync, lstatSync} from "fs";
 import {ImperativeError} from "../../../../../error";
 import {install} from "../../../../src/plugins/utilities/npm-interface";
@@ -34,12 +33,13 @@ import {Logger} from "../../../../../logger";
 import {PMFConstants} from "../../../../src/plugins/utilities/PMFConstants";
 import {readFileSync, writeFileSync} from "jsonfile";
 import {sync} from "find-up";
+import {installPackages} from "../../../../src/plugins/utilities/NpmApiFunctions";
 
 describe("PMF: Install Interface", () => {
   // Objects created so types are correct.
   const mocks = {
     dirname: dirname as Mock<typeof dirname>,
-    execSync: execSync as Mock<typeof execSync>,
+    installPackages: installPackages as Mock<typeof installPackages>,
     existsSync: existsSync as Mock<typeof existsSync>,
     isAbsolute: isAbsolute as Mock<typeof isAbsolute>,
     join: join as Mock<typeof join>,
@@ -73,21 +73,14 @@ describe("PMF: Install Interface", () => {
   });
 
   /**
-   * Validates that an execSync npm install call was valid based on the parameters passed.
+   * Validates that an npm install call was valid based on the parameters passed.
    *
    * @param {string} expectedPackage The package that should be sent to npm install
    * @param {string} expectedRegistry The registry that should be sent to npm install
-   * @param {boolean} [installFromFile=false] was the install from a file. This affects
-   *                                          the pipe sent to execSync stdio option.
    */
-  const wasExecSyncCallValid = (expectedPackage: string, expectedRegistry: string) => {
-    expect(mocks.execSync).toHaveBeenCalledWith(
-      `npm install "${expectedPackage}" --prefix "${PMFConstants.instance.PLUGIN_INSTALL_LOCATION}" -g --registry "${expectedRegistry}"`,
-      {
-        cwd  : PMFConstants.instance.PMF_ROOT,
-        stdio: ["pipe", "pipe", process.stderr]
-      }
-    );
+  const wasNpmInstallCallValid = (expectedPackage: string, expectedRegistry: string) => {
+      expect(mocks.installPackages).toHaveBeenCalledWith(PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
+          expectedRegistry, true, expectedPackage);
   };
 
   /**
@@ -117,7 +110,7 @@ describe("PMF: Install Interface", () => {
 
   describe("Basic install", () => {
     beforeEach(() => {
-      mocks.execSync.mockReturnValue(`+ ${packageName}@${packageVersion}`);
+      mocks.installPackages.mockReturnValue(`+ ${packageName}@${packageVersion}`);
       mocks.existsSync.mockReturnValue(true);
       mocks.normalize.mockReturnValue("testing");
       mocks.lstatSync.mockReturnValue({
@@ -125,11 +118,11 @@ describe("PMF: Install Interface", () => {
       });
     });
 
-    it("should install from the npm registry", () => {
-      install(packageName, packageRegistry);
+    it("should install from the npm registry", async () => {
+      await install(packageName, packageRegistry);
 
       // Validate the install
-      wasExecSyncCallValid(packageName, packageRegistry);
+      wasNpmInstallCallValid(packageName, packageRegistry);
       wasWriteFileSyncCallValid({}, packageName, {
         package: packageName,
         registry: packageRegistry,
@@ -137,15 +130,15 @@ describe("PMF: Install Interface", () => {
       });
     });
 
-    it("should install an absolute file path", () => {
+    it("should install an absolute file path", async () => {
       const rootFile = "/root/a";
 
       mocks.isAbsolute.mockReturnValue(true);
 
-      install(rootFile, packageRegistry);
+      await install(rootFile, packageRegistry);
 
       // Validate the install
-      wasExecSyncCallValid(rootFile, packageRegistry);
+      wasNpmInstallCallValid(rootFile, packageRegistry);
       wasWriteFileSyncCallValid({}, packageName, {
         package: rootFile,
         registry: packageRegistry,
@@ -163,15 +156,15 @@ describe("PMF: Install Interface", () => {
         mocks.resolve.mockReturnValue(absolutePath);
       });
 
-      it("should install a relative file path", () => {
+      it("should install a relative file path", async () => {
         // Setup mocks for install function
         mocks.existsSync.mockReturnValue(true);
 
         // Call the install function
-        install(relativePath, packageRegistry);
+        await install(relativePath, packageRegistry);
 
         // Validate results
-        wasExecSyncCallValid(absolutePath, packageRegistry);
+        wasNpmInstallCallValid(absolutePath, packageRegistry);
         wasWriteFileSyncCallValid({}, packageName, {
           package: absolutePath,
           registry: packageRegistry,
@@ -180,15 +173,15 @@ describe("PMF: Install Interface", () => {
       });
     });
 
-    it("should install from a url", () => {
+    it("should install from a url", async () => {
       const installUrl = "http://www.example.com";
       mocks.resolve.mockReturnValue(installUrl);
 
       // mocks.isUrl.mockReturnValue(true);
 
-      install(installUrl, packageRegistry);
+      await install(installUrl, packageRegistry);
 
-      wasExecSyncCallValid(installUrl, packageRegistry);
+      wasNpmInstallCallValid(installUrl, packageRegistry);
       wasWriteFileSyncCallValid({}, packageName, {
         package: installUrl,
         registry: packageRegistry,
@@ -198,26 +191,26 @@ describe("PMF: Install Interface", () => {
   });
 
   describe("Advanced install", () => {
-    it("should write even when install from file is true", () => {
+    it("should write even when install from file is true", async () => {
       // This test is constructed in such a way that all if conditions with installFromFile
       // are validated to have been called or not.
       const location = "/this/should/not/change";
 
       mocks.isAbsolute.mockReturnValue(false);
       mocks.existsSync.mockReturnValue(true);
-      mocks.execSync.mockReturnValue(`+ ${packageName}@${packageVersion}`);
+      mocks.installPackages.mockReturnValue(`+ ${packageName}@${packageVersion}`);
       mocks.normalize.mockReturnValue("testing");
       mocks.lstatSync.mockReturnValue({
         isSymbolicLink: jest.fn().mockReturnValue(true)
       });
 
-      install(location, packageRegistry, true);
+      await install(location, packageRegistry, true);
 
-      wasExecSyncCallValid(location, packageRegistry);
+      wasNpmInstallCallValid(location, packageRegistry);
       expect(mocks.writeFileSync).toHaveBeenCalled();
     });
 
-    it("should accept semver properly", () => {
+    it("should accept semver properly", async () => {
       const semverVersion = "^1.5.2";
       const semverPackage = `${packageName}@${semverVersion}`;
 
@@ -232,13 +225,13 @@ describe("PMF: Install Interface", () => {
       mocks.isAbsolute.mockReturnValue(true);
 
       // This is valid under semver ^1.5.2
-      mocks.execSync.mockReturnValue(`+ ${packageName}@1.5.16`);
+      mocks.installPackages.mockReturnValue(`+ ${packageName}@1.5.16`);
 
       // Call the install
-      install(semverPackage, packageRegistry);
+      await install(semverPackage, packageRegistry);
 
       // Test that shit happened
-      wasExecSyncCallValid(semverPackage, packageRegistry);
+      wasNpmInstallCallValid(semverPackage, packageRegistry);
       wasWriteFileSyncCallValid({}, packageName, {
         package: packageName,
         registry: packageRegistry,
@@ -246,7 +239,7 @@ describe("PMF: Install Interface", () => {
       });
     });
 
-    it("should merge contents of previous json file", () => {
+    it("should merge contents of previous json file", async () => {
       // value for our previous plugins.json
       const oneOldPlugin: IPluginJson = {
         plugin1: {
@@ -256,7 +249,7 @@ describe("PMF: Install Interface", () => {
         }
       };
 
-      mocks.execSync.mockReturnValue(`+ ${packageName}@${packageVersion}`);
+      mocks.installPackages.mockReturnValue(`+ ${packageName}@${packageVersion}`);
       mocks.existsSync.mockReturnValue(true);
       mocks.normalize.mockReturnValue("testing");
       mocks.lstatSync.mockReturnValue({
@@ -264,9 +257,9 @@ describe("PMF: Install Interface", () => {
       });
       mocks.readFileSync.mockReturnValue(oneOldPlugin);
 
-      install(packageName, packageRegistry);
+      await install(packageName, packageRegistry);
 
-      wasExecSyncCallValid(packageName, packageRegistry);
+      wasNpmInstallCallValid(packageName, packageRegistry);
       wasWriteFileSyncCallValid(oneOldPlugin, packageName, {
         package: packageName,
         registry: packageRegistry,
@@ -274,10 +267,10 @@ describe("PMF: Install Interface", () => {
       });
     });
 
-    it("should throw errors", () => {
+    it("should throw errors", async () => {
       const error = new Error("This should be caught");
 
-      mocks.execSync.mockImplementation(() => {
+      mocks.installPackages.mockImplementation(() => {
         throw error;
       });
 
@@ -285,7 +278,7 @@ describe("PMF: Install Interface", () => {
       let expectedError: ImperativeError;
 
       try {
-        install("test", "http://www.example.com");
+        await install("test", "http://www.example.com");
       } catch (e) {
         expectedError = e;
       }
