@@ -10,6 +10,7 @@
 */
 
 import { CommandProfiles } from "../../../../src/profiles/CommandProfiles";
+import { ICommandArguments } from "../../../../src/doc/args/ICommandArguments";
 /**
  * Command Processor prepare response.
  * @export
@@ -22,4 +23,11 @@ export interface ICommandPrepared {
      * @memberof ICommandPrepared
      */
     profiles: CommandProfiles;
+    /**
+     * Imperative arguments object. Starts with arguments passed parsed by
+     * Yargs as a base and fills in the rest from ENV/profile/defaults.
+     * Eventually passed to handlers.
+     * @type {ICommandArguments}
+     */
+    args: ICommandArguments;
 }

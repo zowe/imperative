@@ -20,6 +20,7 @@ import { AbstractHelpGenerator } from "../../../../packages/cmd/src/help/abstrac
 import { DefaultHelpGenerator } from "../../../../packages/cmd/src/help/DefaultHelpGenerator";
 import { BasicProfileManagerFactory, IProfileTypeConfiguration } from "../../../../packages/index";
 
+const ENV_PREFIX = "INTEGRATION_TEST";
 const TEST_HOME = createUniqueTestDataDir();
 const logger = TestLogger.getTestLogger();
 const DUMMY_PROFILE_TYPE_CONFIG: IProfileTypeConfiguration[] = [
@@ -82,6 +83,7 @@ describe("Imperative should provide advanced syntax validation rules", function 
                 });
             return new CommandProcessor(
                 {
+                    envVariablePrefix: ENV_PREFIX,
                     definition: ValidationTestCommand,
                     fullDefinition: fakeParent,
                     helpGenerator,
@@ -353,6 +355,7 @@ describe("Imperative should provide advanced syntax validation rules", function 
                             commandDefinition: numberCommand
                         });
                     return new CommandProcessor({
+                        envVariablePrefix: ENV_PREFIX,
                         definition: numberCommand,
                         fullDefinition: fakeParent,
                         helpGenerator,
@@ -380,6 +383,7 @@ describe("Imperative should provide advanced syntax validation rules", function 
                             commandDefinition: numberCommand
                         });
                     return new CommandProcessor({
+                        envVariablePrefix: ENV_PREFIX,
                         definition: numberCommand,
                         fullDefinition: fakeParent,
                         helpGenerator,

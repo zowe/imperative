@@ -457,7 +457,9 @@ export class Imperative {
             new ImperativeProfileManagerFactory(this.api),
             this.mHelpGeneratorFactory,
             ImperativeConfig.instance.loadedConfig.experimentalCommandDescription,
-            this.rootCommandName).configure();
+            Imperative.rootCommandName,
+            Imperative.envVariablePrefix
+        ).configure();
 
         // Define the commands to yargs
         CommandYargs.defineOptionsToYargs(Imperative.yargs, preparedHostCliCmdTree.options);
@@ -465,6 +467,7 @@ export class Imperative {
             Imperative.yargs,
             ImperativeConfig.instance.loadedConfig.primaryTextColor,
             Imperative.rootCommandName,
+            Imperative.envVariablePrefix,
             new ImperativeProfileManagerFactory(this.api),
             this.mHelpGeneratorFactory,
             ImperativeConfig.instance.loadedConfig.experimentalCommandDescription

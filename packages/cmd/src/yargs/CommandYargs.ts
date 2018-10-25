@@ -19,7 +19,6 @@ import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { CommandProcessor } from "../CommandProcessor";
 import { ICommandResponse } from "../../src/doc/response/response/ICommandResponse";
 import { CommandResponse } from "../../src/response/CommandResponse";
-import { ICommandResponseApi } from "../doc/response/api/processor/ICommandResponseApi";
 
 /**
  * Define an Imperative Command to Yargs. A command implies that an implementation is present (differs from a "group")
@@ -48,10 +47,10 @@ export class CommandYargs extends AbstractCommandYargs {
                         definition.type = "string";
                     }
                 }
-
-                // If the default value key is specified, then assign
-                if (option.hasOwnProperty("defaultValue")) {
-                    definition.default = option.defaultValue;
+                // If this is a boolean type option, default it to undefined so that we can distinguish
+                // between the user not specifying the option at all and them specifying =false
+                if (option.type === "boolean") {
+                    definition.default = undefined;
                 }
                 yargsInstance.option(option.name, definition);
             }
@@ -221,7 +220,8 @@ export class CommandYargs extends AbstractCommandYargs {
                                 experimentalCommandsDescription: this.yargsParms.experimentalCommandDescription
                             }),
                             profileManagerFactory: this.profileManagerFactory,
-                            rootCommandName: this.rootCommandName
+                            rootCommandName: this.rootCommandName,
+                            envVariablePrefix: this.envVariablePrefix
                         }).invoke({
                             arguments: argsForHandler,
                             silent: false,

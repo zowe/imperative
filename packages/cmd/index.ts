@@ -33,6 +33,8 @@ export * from "./src/doc/ICommandDefinition";
 export * from "./src/doc/ICommandDefinitionPassOn";
 export * from "./src/doc/ICommandExampleDefinition";
 
+export * from "./src/doc/args/ICommandArguments";
+
 export * from "./src/handlers/FailedCommandHandler";
 
 export * from "./src/help/abstract/AbstractHelpGenerator";
@@ -77,5 +79,6 @@ export * from "./src/doc/response/api/handler/IHandlerResponseApi";
 export * from "./src/doc/response/api/handler/IHandlerProgressApi";
 export * from "./src/doc/response/api/handler/IHandlerResponseConsoleApi";
 export * from "./src/doc/response/api/handler/IHandlerResponseDataApi";
+export * from "./src/doc/response/api/handler/IHandlerFormatOutputApi";
 
 export * from "./src/doc/response/response/ICommandOutputFormat";
