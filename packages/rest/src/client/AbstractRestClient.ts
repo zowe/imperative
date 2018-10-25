@@ -305,8 +305,9 @@ export abstract class AbstractRestClient {
         // set transfer flags
         this.setTransferFlags(options.headers);
 
+        const logResource = (this.session.ISession.basePath == null ? "" : this.session.ISession.basePath) + resource;
         this.log.trace("Rest request: %s %s:%s%s %s", request, this.session.ISession.hostname, this.session.ISession.port,
-            resource, this.session.ISession.user ? "as user " + this.session.ISession.user : "");
+            logResource, this.session.ISession.user ? "as user " + this.session.ISession.user : "");
 
         return options;
     }
@@ -381,10 +382,10 @@ export abstract class AbstractRestClient {
                 msg: "Rest API failure with HTTP(S) status " + errorCode,
                 causeErrors: this.dataString,
                 additionalDetails:
-                "Resource: " + this.mResource +
-                "\nRequest: " + this.mRequest +
-                "\nHeaders: " + headerDetails +
-                "\nPayload: " + payloadDetails,
+                    "Resource: " + this.mResource +
+                    "\nRequest: " + this.mRequest +
+                    "\nHeaders: " + headerDetails +
+                    "\nPayload: " + payloadDetails,
                 errorCode,
             };
             const processedError = this.processError(impError);
