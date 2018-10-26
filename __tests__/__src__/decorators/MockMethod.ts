@@ -15,12 +15,12 @@
  *
  * @example <caption>Class in __mocks__<caption>
  * export class TestClass {
- *   // This method will be wrapped in a jest.fn() call with the implementation
- *   // being the contents of the below function.
- *   @MockMethod()
- *   public test() {
- *     return "string";
- *   }
+ *     // This method will be wrapped in a jest.fn() call with the implementation
+ *     // being the contents of the below function.
+ *     @MockMethod()
+ *     public test() {
+ *         return "string";
+ *     }
  * }
  *
  * // In some other file
