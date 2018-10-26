@@ -46,7 +46,7 @@ export type MockWrapper<T> = {
  * });
  * mockObject.module1Function1.mocks.clear();
  *
- * Module1.function2("horray proper types");
+ * Module1.function2("hooray proper types");
  * expect(module1Function2.mocks.calls[0][0]).toBe("hooray proper types");
  */
 export function getMockWrapper<T extends object>(mock: T): MockWrapper<T> {
