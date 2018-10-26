@@ -245,6 +245,8 @@ export abstract class AbstractHelpGenerator implements IHelpGenerator {
         let explainedType = type as string;
         if (explainedType === "existingLocalFile") {
             explainedType = "local file path";
+        } else if (explainedType === "stringOrEmpty") {
+            explainedType = "string";
         }
         return explainedType;
     }
