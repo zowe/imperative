@@ -84,7 +84,7 @@ export class IO {
      * @memberof IO
      */
     public static normalizeExtension(extension: string): string {
-        ImperativeExpect.toBeDefinedAndNonBlank(extension, "extension");
+        ImperativeExpect.toNotBeNullOrUndefined(extension, "extension");
         if (!isNullOrUndefined(extension) && extension.length > 0 && extension[0] !== ".") {
             // add a '.' character to the extension if omitted
             // (if someone specifies just "bin", make the extension ".bin" )
