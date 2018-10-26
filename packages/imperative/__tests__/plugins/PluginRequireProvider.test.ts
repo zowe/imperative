@@ -46,26 +46,73 @@ describe("PluginRequireProvider", () => {
      * Object that allows access to internals of the PluginRequireProvider.
      */
     const mPluginRequireProvider: {
+        /**
+         * Private access to the instance of the PluginRequireProvider.
+         */
         mInstance: {
+            /**
+             * Access to the private origRequire so tests can check that the module
+             * loader is playing nice with the libraries.
+             */
             origRequire: typeof Module.prototype.require,
+
+            /**
+             * Access to the private modules variable so tests can confirm that
+             * the right information made it down to us.
+             */
             modules: string[],
+
+            /**
+             * Access to the private regex variable used by the module loader
+             * so tests can validate that our checks were created properly.
+             */
             regex: RegExp
         },
+
+        /**
+         * Access to the private sanitizeExpression function so tests can
+         * call it as a utility function and tests that the module loader
+         * will properly sanitize regular expressions. It should be run before
+         * the PluginRequireProvider creates the private regex variable.
+         * @param module
+         */
         sanitizeExpression: (module: string) => string
     } = PluginRequireProvider as any;
 
-    // @TODO document
+    /**
+     * Gives us type access to the internals of ImperativeConfig items used
+     * in the tests.
+     */
     const mImperativeConfig: {
+        /**
+         * Access to the instance object through the getter of ImperativeConfig.
+         */
         instance: {
+            /**
+             * The host package name is used by the module loader to determine
+             * if a special override is necessary.
+             */
             mHostPackageName: string
         }
     } = ImperativeConfig as any;
 
-    // @TODO document
+    /**
+     * This gives us type access to the Module.prototype methods used in the tests.
+     */
     const modulePrototype: {
+        /**
+         * Mapping to the require functionality that is tested.
+         * @param module Same as what goes to `require`
+         * @param check Flag that helps the mock decide if this is a real or
+         *        fake require.
+         */
         require: (module: string, check: typeof testRequireIndicator) => any
     } = Module.prototype as any;
 
+    /**
+     * This is a mock wrapper object so that we can easily access mocking
+     * types of imported objects.
+     */
     const mocks = getMockWrapper({
         findUpSync: findUp.sync,
         join: path.join
@@ -202,6 +249,15 @@ describe("PluginRequireProvider", () => {
         });
 
         describe("use proper regex format", () => {
+            /**
+             * This function will escape modules for testing purposes. Goes through
+             * the same process as the real module loader for consistency. The
+             * sanitize function is tested earlier in the unit tests.
+             *
+             * @param modules An array of modules to escape
+             *
+             * @returns An array of escaped modules
+             */
             const escapeModules = (modules: string[]) => {
                 const escaped: string[] = [];
 
@@ -241,8 +297,6 @@ describe("PluginRequireProvider", () => {
                     PluginRequireProvider.createPluginHooks(injectedModules);
 
                     try {
-
-
                         expect(mPluginRequireProvider.mInstance.regex).toEqual(
                             new RegExp(`^(${modulesForRegex.join("|")})(?:\\/.*)?$`, "gm")
                         );
@@ -309,11 +363,11 @@ describe("PluginRequireProvider", () => {
             // Maintain the imperative config integrity
             let rememberHostPackageName: string;
             beforeEach(() => {
-                rememberHostPackageName = (ImperativeConfig.instance as any).mHostPackageName;
+                rememberHostPackageName = mImperativeConfig.instance.mHostPackageName;
             });
 
             afterEach(() => {
-                (ImperativeConfig.instance as any).mHostPackageName = rememberHostPackageName;
+                mImperativeConfig.instance.mHostPackageName = rememberHostPackageName;
             });
 
             Object.entries(tests).forEach(([testName, testData]) => {
@@ -332,7 +386,7 @@ describe("PluginRequireProvider", () => {
                                 try {
                                     // If all went well, this should be dispatched to the mockedRequire
                                     // which should abort the require due to the input being an object.
-                                    expect((Module.prototype.require as any).call(thisObject, requireDirect, testRequireIndicator)).toBe(thisObject);
+                                    expect(modulePrototype.require.call(thisObject, requireDirect, testRequireIndicator)).toBe(thisObject);
 
                                     expect(mockedRequire).toHaveBeenCalledTimes(1);
                                     expect(mockedRequire).toHaveBeenCalledWith(requireDirect, testRequireIndicator);
@@ -364,7 +418,7 @@ describe("PluginRequireProvider", () => {
                                 mocks.join.mockReturnValue("does-not-matter");
 
                                 // Set the imperative config to what we need
-                                (ImperativeConfig.instance as any).mHostPackageName = nonMatchingHostPackage;
+                                mImperativeConfig.instance.mHostPackageName = nonMatchingHostPackage;
 
                                 PluginRequireProvider.createPluginHooks(testData.modules);
 

@@ -18,6 +18,42 @@ import * as findUp from "find-up";
 /**
  * This class will allow imperative to intercept calls by plugins so that it can
  * provide them with the runtime instance of imperative / base cli when necessary.
+ *
+ * @future Currently this loader is only available from Imperative's internals but
+ *         work could be done to make this a true standalone package that either
+ *         Imperative depends on or ships as a separate folder under packages.
+ *
+ * @example <caption>Proper Use of the Module Loader</caption>
+ * // Ideally this is the first thing that gets called by your application; however,
+ * // the module loader can be created and destroyed at any point by your application.
+ *
+ * // Initializing the loader
+ * PluginRequireProvider.createPluginHooks(["module-a", "module-b"]);
+ *
+ * // Now in all places of the application, module-a and module-b will be loaded
+ * // from the package location of process.mainModule (I.E the Host Package). This
+ * // is useful when the Host Package has some sort of plugin infrastructure that
+ * // might require modules to be injected to the plugins.
+ *
+ * // So this will always be the Host Package module regardless of where it was
+ * // called from.
+ * require("module-a");
+ *
+ * // But this will act as normal
+ * require("module-c");
+ *
+ * // It is not necessary to cleanup the module loader before exiting. Your
+ * // application lifecycle may require it to be brought up and down during the
+ * // course of execution. With this in mind, a method has been provided to remove
+ * // the hooks created by `createPluginHooks`.
+ *
+ * // Calling this
+ * PluginRequirePriovider.destroyPluginHooks();
+ *
+ * // Will now cause this to act as normal regardless of how it would have been
+ * // injected before.
+ * require("module-b");
+ *
  */
 export class PluginRequireProvider {
     /**
