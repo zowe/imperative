@@ -183,7 +183,8 @@ describe("PluginRequireProvider", () => {
         const MAX_NPM_PACKAGE_NAME_LENGTH = 214;
 
         it("should properly prepare modules for injection into a regular expression", () => {
-            pending();
+            expect(mPluginRequireProvider.sanitizeExpression("abcd")).toEqual("abcd");
+            expect(mPluginRequireProvider.sanitizeExpression("this.is.a.test")).toEqual("this\\.is\\.a\\.test");
         });
 
         describe("use proper regex format", () => {
@@ -366,7 +367,9 @@ describe("PluginRequireProvider", () => {
 
                                     // Do it again but to a submodule import
                                     const submodule = `${module}/submodule/import`;
-                                    expect((Module.prototype.require as any).call(thisObject, submodule, testRequireIndicator)).toBe(process.mainModule);
+                                    expect((Module.prototype.require as any).call(
+                                        thisObject, submodule, testRequireIndicator
+                                    )).toBe(process.mainModule);
 
                                     // Expect that the require was just called with the submodule
                                     expect(mockedRequire).toHaveBeenCalledTimes(1);
