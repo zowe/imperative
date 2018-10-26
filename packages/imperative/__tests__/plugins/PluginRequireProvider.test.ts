@@ -9,6 +9,8 @@
 *
 */
 
+// @TODO Validate other regex characters in package names
+
 import { getMockWrapper } from "../../../../__tests__/__src__/types/MockWrapper";
 
 jest.mock("../../src/ImperativeConfig");
@@ -51,6 +53,18 @@ describe("PluginRequireProvider", () => {
         },
         sanitizeExpression: (module: string) => string
     } = PluginRequireProvider as any;
+
+    // @TODO document
+    const mImperativeConfig: {
+        instance: {
+            mHostPackageName: string
+        }
+    } = ImperativeConfig as any;
+
+    // @TODO document
+    const modulePrototype: {
+        require: (module: string, check: typeof testRequireIndicator) => any
+    } = Module.prototype as any;
 
     const mocks = getMockWrapper({
         findUpSync: findUp.sync,
@@ -356,7 +370,7 @@ describe("PluginRequireProvider", () => {
 
                                 try {
                                     // The return should be the main module as that is what the module loader does.
-                                    expect((Module.prototype.require as any).call(thisObject, module, testRequireIndicator)).toBe(process.mainModule);
+                                    expect(modulePrototype.require.call(thisObject, module, testRequireIndicator)).toBe(process.mainModule);
 
                                     // Expect that the require was just called with the module
                                     expect(mockedRequire).toHaveBeenCalledTimes(1);
@@ -367,7 +381,7 @@ describe("PluginRequireProvider", () => {
 
                                     // Do it again but to a submodule import
                                     const submodule = `${module}/submodule/import`;
-                                    expect((Module.prototype.require as any).call(
+                                    expect(modulePrototype.require.call(
                                         thisObject, submodule, testRequireIndicator
                                     )).toBe(process.mainModule);
 
@@ -386,8 +400,34 @@ describe("PluginRequireProvider", () => {
                         }
                     });
 
-                    it("should redirect to the proper host package", () => {
-                        pending();
+                    describe("should redirect to the proper host package", () => {
+                        for (const module of testData.modules) {
+                            it(`passes with module ${module}`, () => {
+                                const packageRoot = "/the/path/to/the/package/";
+                                const thisObject = "This should not be returned";
+                                const mockedRequire = getMockedRequire();
+
+                                mocks.join.mockReturnValue(packageRoot);
+
+                                mImperativeConfig.instance.mHostPackageName = module;
+
+                                PluginRequireProvider.createPluginHooks(testData.modules);
+
+                                try {
+                                    expect(modulePrototype.require.call(
+                                        thisObject, module, testRequireIndicator
+                                    )).toBe(process.mainModule);
+
+                                    expect(mockedRequire).toHaveBeenCalledTimes(1);
+                                    expect(mockedRequire).toHaveBeenCalledWith("./", testRequireIndicator);
+                                } catch (e) {
+                                    PluginRequireProvider.destroyPluginHooks();
+                                    throw e;
+                                }
+
+                                PluginRequireProvider.destroyPluginHooks();
+                            });
+                        }
                     });
 
                     it("should redirect to the proper host package submodule import", () => {
