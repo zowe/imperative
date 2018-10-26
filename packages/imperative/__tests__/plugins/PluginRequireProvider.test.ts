@@ -33,7 +33,9 @@ describe("PluginRequireProvider", () => {
      * @example <caption>Passing to a mocked require</caption>
      *
      * // Assume that all setup has been done
-     * (require as any)(request, testRequireIndicator);
+     * const moduleRequired = (require as any).call("some_value", request, testRequireIndicator);
+     *
+     * // At this point moduleRequired should equal some_value if all went well.
      */
     const testRequireIndicator = "__TEST_REQUIRE__";
 
@@ -100,8 +102,9 @@ describe("PluginRequireProvider", () => {
          * If the indicator variable is not present, then the mock will treat it as
          * a normal require.
          *
-         * If the indicator variable is present, then the mock will abort the require
-         * attempt.
+         * If the indicator variable is present, then the mock will return the this
+         * parameter sent to the function. This can be used to check that the require
+         * provider class used the proper this argument.
          *
          * This method protects the node module loader by allowing genuine requires
          * to still go through while preventing our test requires. This allows
@@ -110,7 +113,7 @@ describe("PluginRequireProvider", () => {
          */
         return (require as any) = Module.prototype.require = jest.fn(function(request: string, testCheck?: typeof testRequireIndicator | any) {
             if (arguments[1] === testRequireIndicator) {
-                return;
+                return this;
             } else {
                 return originalRequire.apply(this, arguments);
             }
@@ -204,12 +207,6 @@ describe("PluginRequireProvider", () => {
             // the requires are correct
             Object.entries(tests).forEach( ([testName, injectedModules]) => {
                 it(`should pass test: ${testName}`, () => {
-                    // const nonMatchingModule = "some-non-matching-test-input";
-
-                    // The first thing to check is that the
-                    // nonMatchingModule isn't in the test array
-                    // expect(injectedModules.indexOf(nonMatchingModule)).toEqual(-1);
-
                     // Inject a dummy require so we can check it.
                     getMockedRequire();
 
@@ -224,34 +221,77 @@ describe("PluginRequireProvider", () => {
                     );
 
                     PluginRequireProvider.destroyPluginHooks();
-
-                    // Force the regex match to always return false so we don't enter the
-                    // require area. That will be a different set of tests
-                    // (nonMatchingModule.match as any).mockReturnValue(false);
-
-                    // If all went well, this should be dispatched to the mockedRequire
-                    // which should abort the require due to the input being an object.
-                    // expect((require as any)(nonMatchingModule, testRequireIndicator)).toBeUndefined();
                 });
             });
         });
 
         describe("module injection", () => {
-            const tests = {
-                "1 module": ["this-is-a-test"],
-                "3 modules": ["this-is-a-test", "@another/module", "and_another_one"],
-                "3 modules of max length": [
-                    generateRandomAlphaNumericString(MAX_NPM_PACKAGE_NAME_LENGTH).toLowerCase(),
-                    generateRandomAlphaNumericString(MAX_NPM_PACKAGE_NAME_LENGTH).toLowerCase(),
-                    generateRandomAlphaNumericString(MAX_NPM_PACKAGE_NAME_LENGTH).toLowerCase(),
-                ],
-                "1 module with periods": ["test.with.periods.for.package"]
+            interface ITestStructure {
+                /**
+                 * The modules to provide to the test.
+                 */
+                modules: string[];
+                shouldRequireDirectly: string[];
+            }
+
+            const randomModuleMaxLength = [
+                generateRandomAlphaNumericString(MAX_NPM_PACKAGE_NAME_LENGTH).toLowerCase(),
+                generateRandomAlphaNumericString(MAX_NPM_PACKAGE_NAME_LENGTH).toLowerCase(),
+                generateRandomAlphaNumericString(MAX_NPM_PACKAGE_NAME_LENGTH).toLowerCase()
+            ];
+
+            const tests: {[key: string]: ITestStructure} = {
+                "1 module": {
+                    modules: ["this-is-a-test"],
+                    shouldRequireDirectly: ["./anything", "this-is-a-test-module", "this-is", "@brightside/imperative"]
+                },
+                "3 modules": {
+                    modules: ["this-is-a-test", "@another/module", "and_another_one"],
+                    shouldRequireDirectly: ["./anything", "@another/module2", "./another/module", "@scope/and_another_one"]
+                },
+                "3 modules of max length": {
+                    modules: randomModuleMaxLength,
+                    shouldRequireDirectly: [
+                        "./anything/goes/here",
+                        randomModuleMaxLength[0].substr(15),  //tslint:disable-line
+                        randomModuleMaxLength[1].substr(200), //tslint:disable-line
+                        randomModuleMaxLength[2].substr(59)   //tslint:disable-line
+                    ]
+                },
+                "1 module with periods": {
+                    modules: ["test.with.periods.for.package"],
+                    shouldRequireDirectly: [
+                        "./",
+                        "some-random-module",
+                        "test-with-periods-for-package", // This one might break the regex with .'s
+                        "./test.with.periods.for.package"
+                    ]
+                }
             };
 
-            Object.entries(tests).forEach(([testName, someTestObjectToBeDefinedLater]) => {
+            Object.entries(tests).forEach(([testName, testData]) => {
                 describe(`${testName}`, () => {
-                    it("should redirect to the original require", () => {
-                        pending();
+                    describe("should redirect to the original require", () => {
+                        for (const requireDirect of testData.shouldRequireDirectly) {
+                            it(`passes with value "${requireDirect}"`, () => {
+                                const thisObject = "This string gets attached as the this to require so we can track if it got called correctly";
+                                const mockedRequire = getMockedRequire();
+
+                                mocks.findUpSync.mockReturnValue("does-not-matter");
+                                mocks.join.mockReturnValue("does-not-matter");
+
+                                PluginRequireProvider.createPluginHooks(testData.modules);
+
+                                // If all went well, this should be dispatched to the mockedRequire
+                                // which should abort the require due to the input being an object.
+                                expect((require as any).call(thisObject, requireDirect, testRequireIndicator)).toBe(thisObject);
+
+                                expect(mockedRequire).toHaveBeenCalledTimes(1);
+                                expect(mockedRequire).toHaveBeenCalledWith(requireDirect, testRequireIndicator);
+
+                                PluginRequireProvider.destroyPluginHooks();
+                            });
+                        }
                     });
 
                     it("should redirect to an injected module", () => {
