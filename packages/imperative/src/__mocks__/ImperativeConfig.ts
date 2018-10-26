@@ -23,6 +23,12 @@ export class ImperativeConfig {
         experimentalCommandDescription: "The quick brown fox jumped over the lazy dog!"
     };
 
+    // Private so that tests can access and change the result of the get
+    private mHostPackageName = "host-package";
+
+    // Private so that tests can access and change the result of the get
+    private mImperativePackageName = "@brightside/imperative";
+
     public static get instance(): ImperativeConfig {
         if (this.mInstance == null) {
           this.mInstance = new ImperativeConfig();
@@ -84,11 +90,10 @@ export class ImperativeConfig {
     }
 
     public get hostPackageName(): string {
-        return "host-package";
+        return this.mHostPackageName;
     }
 
     public get imperativePackageName(): string {
-        return "@brightside/imperative";
+        return this.mImperativePackageName;
     }
-
 }

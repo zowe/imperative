@@ -81,16 +81,37 @@ export class PluginRequireProvider {
 
         const hostPackageNameLength = ImperativeConfig.instance.hostPackageName.length;
 
+        // We must remember to escape periods from modules for regular expression
+        // purposes.
+        const internalModules: string[] = [];
+
+        for (const module of modules) {
+            /*
+             * This replaces special characters that might be present in a regular expression and an
+             * npm package name.
+             *
+             * @see https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
+             */
+            internalModules.push(module.replace(/\./g, "\\$&"));
+        }
+
         /*
          * Check that the element (or module that we inject) is present at position 0.
-         * It was designed this way to support submodule imports
+         * It was designed this way to support submodule imports.
          *
          * Example:
          * If modules = ["@brightside/imperative"]
          *    request = "@brightside/imperative/lib/errors"
          */
-         // This regular expression will match /(@brightside\/imperative).*/
-        const regex = this.regex = new RegExp(`(${modules.join("|")}).*`);
+         // This regular expression will match /(@brightside\/imperative)/.*/
+        /*
+         * The ?: check after the group in the regular expression is to explicitly
+         * require that a submodule import has to match. This is to account for the
+         * case where one of the packages to be injected is some-test-module and
+         * we are requiring some-test-module-from-npm. Without the slash, that
+         * module is incorrectly matched and injected.
+         */
+        const regex = this.regex = new RegExp(`^(${internalModules.join("|")})(?:\\/.*)?$`, "gm");
         const origRequire = this.origRequire = Module.prototype.require;
 
         Module.prototype.require = function(request: string) {

@@ -33,7 +33,8 @@ describe("PluginRequireProvider", () => {
      * @example <caption>Passing to a mocked require</caption>
      *
      * // Assume that all setup has been done
-     * const moduleRequired = (require as any).call("some_value", request, testRequireIndicator);
+     * // Use Module.prototype.require because jest intercepts the real require call.
+     * const moduleRequired = (Module.prototype.require as any).call("some_value", request, testRequireIndicator);
      *
      * // At this point moduleRequired should equal some_value if all went well.
      */
@@ -59,11 +60,6 @@ describe("PluginRequireProvider", () => {
      * Stores the original require passed at the beginning of testing.
      */
     let originalRequire: typeof Module.prototype.require;
-
-    /**
-     * Stores the jest require object so that jest doesn't intercept us
-     */
-    let originalRequireJest: typeof require;
 
     /**
      * Checks that the environment is clean both before and after a test. This check is done
@@ -93,8 +89,6 @@ describe("PluginRequireProvider", () => {
      * while test requires don't try to load anything.
      */
     const getMockedRequire = () => {
-
-
         /*
          * Override the real require method with a jest mock method. Our function
          * will accept a string with an optional second parameter of the indicator.
@@ -111,7 +105,7 @@ describe("PluginRequireProvider", () => {
          * the tests to still function correctly without us mucking up node with
          * bogus test requires.
          */
-        return (require as any) = Module.prototype.require = jest.fn(function(request: string, testCheck?: typeof testRequireIndicator | any) {
+        return Module.prototype.require = jest.fn(function(request: string, testCheck?: typeof testRequireIndicator | any) {
             if (arguments[1] === testRequireIndicator) {
                 return this;
             } else {
@@ -128,7 +122,6 @@ describe("PluginRequireProvider", () => {
         }
 
         originalRequire = Module.prototype.require;
-        originalRequireJest = require;
         checkForCleanEnvironment();
     });
 
@@ -136,7 +129,6 @@ describe("PluginRequireProvider", () => {
     afterEach(() => {
         // Ensure that the proper module loader is set back as the prototype.
         Module.prototype.require = originalRequire;
-        require = originalRequireJest;
         checkForCleanEnvironment(true);
     });
 
@@ -243,7 +235,13 @@ describe("PluginRequireProvider", () => {
             const tests: {[key: string]: ITestStructure} = {
                 "1 module": {
                     modules: ["this-is-a-test"],
-                    shouldRequireDirectly: ["./anything", "this-is-a-test-module", "this-is", "@brightside/imperative"]
+                    shouldRequireDirectly: [
+                        "./anything",
+                        "this-is-a-test-module",
+                        "this-is",
+                        "@brightside/imperative",
+                        "this-is-a-tests"
+                    ]
                 },
                 "3 modules": {
                     modules: ["this-is-a-test", "@another/module", "and_another_one"],
@@ -269,6 +267,16 @@ describe("PluginRequireProvider", () => {
                 }
             };
 
+            // Maintain the imperative config integrity
+            let rememberHostPackageName: string;
+            beforeEach(() => {
+                rememberHostPackageName = (ImperativeConfig.instance as any).mHostPackageName;
+            });
+
+            afterEach(() => {
+                (ImperativeConfig.instance as any).mHostPackageName = rememberHostPackageName;
+            });
+
             Object.entries(tests).forEach(([testName, testData]) => {
                 describe(`${testName}`, () => {
                     describe("should redirect to the original require", () => {
@@ -282,20 +290,73 @@ describe("PluginRequireProvider", () => {
 
                                 PluginRequireProvider.createPluginHooks(testData.modules);
 
-                                // If all went well, this should be dispatched to the mockedRequire
-                                // which should abort the require due to the input being an object.
-                                expect((require as any).call(thisObject, requireDirect, testRequireIndicator)).toBe(thisObject);
+                                try {
+                                    // If all went well, this should be dispatched to the mockedRequire
+                                    // which should abort the require due to the input being an object.
+                                    expect((Module.prototype.require as any).call(thisObject, requireDirect, testRequireIndicator)).toBe(thisObject);
 
-                                expect(mockedRequire).toHaveBeenCalledTimes(1);
-                                expect(mockedRequire).toHaveBeenCalledWith(requireDirect, testRequireIndicator);
+                                    expect(mockedRequire).toHaveBeenCalledTimes(1);
+                                    expect(mockedRequire).toHaveBeenCalledWith(requireDirect, testRequireIndicator);
+                                } catch (e) {
+                                    PluginRequireProvider.destroyPluginHooks();
+
+                                    throw e;
+                                }
 
                                 PluginRequireProvider.destroyPluginHooks();
                             });
                         }
                     });
 
-                    it("should redirect to an injected module", () => {
-                        pending();
+                    describe("should redirect to an injected module", () => {
+                        for (const module of testData.modules) {
+                            it(`passes with module "${module}"`, () => {
+                                const thisObject = "This should not be returned";
+                                const mockedRequire = getMockedRequire();
+
+                                // The host package can't match the module for the purpose of this test
+                                // that test will come at a later date.
+                                const nonMatchingHostPackage = module.split("").reverse().join("");
+
+                                // Account for the possibility that someone made a palindrome
+                                expect(module).not.toEqual(nonMatchingHostPackage);
+
+                                mocks.findUpSync.mockReturnValue("does-not-matter");
+                                mocks.join.mockReturnValue("does-not-matter");
+
+                                // Set the imperative config to what we need
+                                (ImperativeConfig.instance as any).mHostPackageName = nonMatchingHostPackage;
+
+                                PluginRequireProvider.createPluginHooks(testData.modules);
+
+                                try {
+                                    // The return should be the main module as that is what the module loader does.
+                                    expect((Module.prototype.require as any).call(thisObject, module, testRequireIndicator)).toBe(process.mainModule);
+
+                                    // Expect that the require was just called with the module
+                                    expect(mockedRequire).toHaveBeenCalledTimes(1);
+                                    expect(mockedRequire).toHaveBeenCalledWith(module, testRequireIndicator);
+
+                                    // Reset the call stack of the require
+                                    mockedRequire.mockClear();
+
+                                    // Do it again but to a submodule import
+                                    const submodule = `${module}/submodule/import`;
+                                    expect((Module.prototype.require as any).call(thisObject, submodule, testRequireIndicator)).toBe(process.mainModule);
+
+                                    // Expect that the require was just called with the submodule
+                                    expect(mockedRequire).toHaveBeenCalledTimes(1);
+                                    expect(mockedRequire).toHaveBeenCalledWith(submodule, testRequireIndicator);
+                                } catch (e) {
+                                    PluginRequireProvider.destroyPluginHooks();
+
+                                    throw e;
+                                }
+
+                                // Clean up after ourselves
+                                PluginRequireProvider.destroyPluginHooks();
+                            });
+                        }
                     });
 
                     it("should redirect to the proper host package", () => {
