@@ -430,8 +430,35 @@ describe("PluginRequireProvider", () => {
                         }
                     });
 
-                    it("should redirect to the proper host package submodule import", () => {
-                        pending();
+                    describe("should redirect to the proper host package submodule import", () => {
+                        for (const module of testData.modules) {
+                            it(`passes with module ${module}`, () => {
+                                const packageRoot = "/the/path/to/the/package/";
+                                const thisObject = "This should not be returned";
+                                const mockedRequire = getMockedRequire();
+                                const submoduleImport = "/some/submodule/import";
+
+                                mocks.join.mockReturnValue(packageRoot);
+
+                                mImperativeConfig.instance.mHostPackageName = module;
+
+                                PluginRequireProvider.createPluginHooks(testData.modules);
+
+                                try {
+                                    expect(modulePrototype.require.call(
+                                        thisObject, module + submoduleImport, testRequireIndicator
+                                    )).toBe(process.mainModule);
+
+                                    expect(mockedRequire).toHaveBeenCalledTimes(1);
+                                    expect(mockedRequire).toHaveBeenCalledWith(packageRoot + submoduleImport, testRequireIndicator);
+                                } catch (e) {
+                                    PluginRequireProvider.destroyPluginHooks();
+                                    throw e;
+                                }
+
+                                PluginRequireProvider.destroyPluginHooks();
+                            });
+                        }
                     });
                 });
             });
