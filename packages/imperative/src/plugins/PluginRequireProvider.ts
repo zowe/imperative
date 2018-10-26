@@ -58,6 +58,21 @@ export class PluginRequireProvider {
     private static mInstance: PluginRequireProvider;
 
     /**
+     * This regular expression is used by the module loader to
+     * escape any valid characters that might be present in provided
+     * modules.
+     */
+    private static sanitizeExpression(module: string) {
+        /*
+         * This replaces special characters that might be present in a regular expression and an
+         * npm package name.
+         *
+         * @see https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
+         */
+        return module.replace(/\./g, "\\$&");
+    }
+
+    /**
      * Reference to the original require function.
      */
     private origRequire: typeof Module.prototype.require;
@@ -86,13 +101,7 @@ export class PluginRequireProvider {
         const internalModules: string[] = [];
 
         for (const module of modules) {
-            /*
-             * This replaces special characters that might be present in a regular expression and an
-             * npm package name.
-             *
-             * @see https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
-             */
-            internalModules.push(module.replace(/\./g, "\\$&"));
+            internalModules.push(PluginRequireProvider.sanitizeExpression(module));
         }
 
         /*

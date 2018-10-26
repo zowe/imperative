@@ -48,7 +48,8 @@ describe("PluginRequireProvider", () => {
             origRequire: typeof Module.prototype.require,
             modules: string[],
             regex: RegExp
-        }
+        },
+        sanitizeExpression: (module: string) => string
     } = PluginRequireProvider as any;
 
     const mocks = getMockWrapper({
@@ -181,7 +182,21 @@ describe("PluginRequireProvider", () => {
     describe("injection tests", () => {
         const MAX_NPM_PACKAGE_NAME_LENGTH = 214;
 
+        it("should properly prepare modules for injection into a regular expression", () => {
+            pending();
+        });
+
         describe("use proper regex format", () => {
+            const escapeModules = (modules: string[]) => {
+                const escaped: string[] = [];
+
+                for (const module of modules) {
+                    escaped.push(mPluginRequireProvider.sanitizeExpression(module));
+                }
+
+                return escaped;
+            };
+
             // We don't need to worry about checking anything with a special character
             // including the | since an npm package must be url safe :)
             const tests = {
@@ -202,15 +217,24 @@ describe("PluginRequireProvider", () => {
                     // Inject a dummy require so we can check it.
                     getMockedRequire();
 
+                    const modulesForRegex = escapeModules(injectedModules);
+
                     mocks.findUpSync.mockReturnValue("does-not-matter");
                     mocks.join.mockReturnValue("does-not-matter");
 
                     // Inject our test modules
                     PluginRequireProvider.createPluginHooks(injectedModules);
 
-                    expect(mPluginRequireProvider.mInstance.regex).toEqual(
-                        new RegExp(`(${injectedModules.join("|")}).*`)
-                    );
+                    try {
+
+
+                        expect(mPluginRequireProvider.mInstance.regex).toEqual(
+                            new RegExp(`^(${modulesForRegex.join("|")})(?:\\/.*)?$`, "gm")
+                        );
+                    } catch (e) {
+                        PluginRequireProvider.destroyPluginHooks();
+                        throw e;
+                    }
 
                     PluginRequireProvider.destroyPluginHooks();
                 });
