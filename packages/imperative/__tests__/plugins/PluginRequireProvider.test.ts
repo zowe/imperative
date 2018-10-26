@@ -9,8 +9,6 @@
 *
 */
 
-// @TODO Validate other regex characters in package names
-
 import { getMockWrapper } from "../../../../__tests__/__src__/types/MockWrapper";
 
 jest.mock("../../src/ImperativeConfig");
