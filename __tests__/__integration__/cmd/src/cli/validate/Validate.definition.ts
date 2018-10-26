@@ -11,13 +11,14 @@
 
 import { ICommandDefinition } from "../../../../../../packages/index";
 import { syntaxTestCommand } from "./syntax/Syntax.definition";
+import { stringOrEmptyTestCommand } from "./string-or-empty/string-or-empty.definition";
 
 export const definition: ICommandDefinition = {
     name: "validate",
     description: "Invoke commands to validate that syntax checking is working correctly.",
     summary: "Validate syntax checking",
     type: "group",
-    children: [syntaxTestCommand]
+    children: [syntaxTestCommand, stringOrEmptyTestCommand]
 };
 
 module.exports = definition;

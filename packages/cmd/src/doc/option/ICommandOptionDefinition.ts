@@ -18,9 +18,10 @@ import { ICommandOptionValueImplications } from "./ICommandOptionValueImplicatio
  * "existingLocalFile": a file for which fs.existsSync returns true
  * "json": a parseable JSON string
  * "array": an array of strings
+ * "stringOrEmpty" : allow string to be empty when defined
  */
 export type CommandOptionType
-    = "string" | "number" | "json" | "existingLocalFile" | "boolean" | "count" |
+    = "string" | "number" | "json" | "existingLocalFile" | "boolean" | "count" | "stringOrEmpty" |
     "array"; // An array of space delimited values
 
 /**
