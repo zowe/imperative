@@ -52,16 +52,6 @@ describe("IO tests", () => {
         expect(IO.isDir("pretend/file")).toBe(false);
     });
 
-    it("should get an error for no input on normalizeExtension", () => {
-        let error;
-        try {
-            IO.normalizeExtension("   ");
-        } catch (thrownError) {
-            error = thrownError;
-        }
-        expect(error.message).toMatchSnapshot();
-    });
-
     it("should return normalized extension", () => {
         expect(IO.normalizeExtension("bin")).toMatchSnapshot();
     });
