@@ -9,10 +9,11 @@
 *
 */
 
+import { IInvokeCommandParms } from "../src/doc/parms/IInvokeCommandParms";
+
 jest.mock("../src/syntax/SyntaxValidator");
 jest.mock("../src/utils/SharedOptions");
 
-import { TestLogger } from "../../../__tests__/TestLogger";
 import { ICommandDefinition } from "../src/doc/ICommandDefinition";
 import { CommandProcessor } from "../src/CommandProcessor";
 import { ICommandResponse } from "../src/doc/response/response/ICommandResponse";
@@ -25,7 +26,6 @@ import { SharedOptions } from "../src/utils/SharedOptions";
 import { CommandProfileLoader } from "../src/profiles/CommandProfileLoader";
 import { CliUtils } from "../../utilities/src/CliUtils";
 
-const testLogger = TestLogger.getTestLogger();
 // Persist the original definitions of process.write
 const ORIGINAL_STDOUT_WRITE = process.stdout.write;
 const ORIGINAL_STDERR_WRITE = process.stderr.write;
@@ -39,6 +39,30 @@ const SAMPLE_COMMAND_DEFINITION: ICommandDefinition = {
     description: "The banana command",
     type: "command",
     handler: "not_a_real_handler"
+};
+
+/**
+ * A sample command with some examples attached to it
+ */
+const SAMPLE_COMMAND_DEFINITION_WITH_EXAMPLES: ICommandDefinition = {
+    name: "banana",
+    description: "The banana command",
+    type: "command",
+    handler: "not_a_real_handler",
+    examples: [
+        {
+            description: "Unripe Banana",
+            options: "--banana-color green --is-spoiled false"
+        },
+        {
+            description: "Ripe Banana",
+            options: "--banana-color yellow --is-spoiled false"
+        },
+        {
+            description: "Spoiled Banana",
+            options: "--banana-color black --is-spoiled true"
+        }
+    ]
 };
 
 // No handler
@@ -769,6 +793,7 @@ describe("Command Processor", () => {
         expect(commandResponse).toBeDefined();
         expect(commandResponse).toMatchSnapshot();
     });
+
     it("should handle not being able to instantiate a chained handler", async () => {
         // Allocate the command processor
         const commandDef: ICommandDefinition = JSON.parse(JSON.stringify(SAMPLE_COMMAND_DEFINITION));
@@ -862,7 +887,6 @@ describe("Command Processor", () => {
         const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(commandResponse.success).toBe(true);
     });
-
 
     it("should handle an imperative error thrown from a chained handler", async () => {
         const commandDef: ICommandDefinition = JSON.parse(JSON.stringify(SAMPLE_COMMAND_REAL_HANDLER));
@@ -1264,7 +1288,6 @@ describe("Command Processor", () => {
         expect(commandResponse).toBeDefined();
     });
 
-
     it("should extract arguments not specified on invoke from a profile and merge with positional args", async () => {
         const processor: CommandProcessor = new CommandProcessor({
             envVariablePrefix: ENV_VAR_PREFIX,
@@ -1565,5 +1588,134 @@ describe("Command Processor", () => {
         expect(commandResponse.stderr.toString()).toContain("The command indicated failure through an unexpected means.");
         expect(commandResponse.stderr.toString()).toContain("TestCmdHandler");
         expect(commandResponse.data).toMatchSnapshot();
+    });
+
+    describe("invalidSyntaxNotification", () => {
+        /**
+         * Gets a dummy response object for testing.
+         */
+        const getDummyResponseObject = (): CommandResponse => {
+            return {
+                data: {
+                    setMessage: jest.fn()
+                },
+                console: {
+                    error: jest.fn(),
+                },
+                failed: jest.fn()
+            } as any;
+        };
+
+        /**
+         * Gets the params for testing.
+         *
+         * @param doesGenerateArgs Indicate if the arguments._ array is generated.
+         */
+        const getParamsForTesting = (doesGenerateArgs = true): IInvokeCommandParms => {
+            return {
+                arguments: {
+                    _: doesGenerateArgs ? ["bad", "syntax", "here"] : [],
+                    $0: "banana"
+                }
+            };
+        };
+
+        /**
+         * Shorthand for getting the string parameter sent into the response.console.error mock function
+         *
+         * @param mockObject The mock object to extract parameters from.
+         */
+        const getConsoleErrorFromMock = (mockObject: CommandResponse): string => {
+            return (mockObject.console.error as jest.Mock).mock.calls[0][0];
+        };
+
+        it("should log an invalid syntax notification with no examples", () => {
+            const processor: CommandProcessor = new CommandProcessor({
+                envVariablePrefix: ENV_VAR_PREFIX,
+                definition: SAMPLE_COMMAND_DEFINITION,
+                helpGenerator: FAKE_HELP_GENERATOR,
+                profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+                rootCommandName: SAMPLE_ROOT_COMMAND
+            });
+
+            const dummyResponseObject = getDummyResponseObject();
+
+            (processor as any).invalidSyntaxNotification(getParamsForTesting(), dummyResponseObject);
+
+            expect(dummyResponseObject.data.setMessage).toHaveBeenCalledTimes(1);
+            expect(dummyResponseObject.data.setMessage).toHaveBeenCalledWith("Command syntax invalid");
+
+            expect(dummyResponseObject.failed).toHaveBeenCalled();
+
+            expect(dummyResponseObject.console.error).toHaveBeenCalledTimes(1);
+
+            expect(getConsoleErrorFromMock(dummyResponseObject)).toEqual(
+                `\nUse "${SAMPLE_ROOT_COMMAND} bad syntax here --help" to view command description, usage, and options.`
+            );
+        });
+
+        it("should log an invalid syntax notification with no arguments and no examples", () => {
+            const processor: CommandProcessor = new CommandProcessor({
+                envVariablePrefix: ENV_VAR_PREFIX,
+                definition: SAMPLE_COMMAND_DEFINITION,
+                helpGenerator: FAKE_HELP_GENERATOR,
+                profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+                rootCommandName: SAMPLE_ROOT_COMMAND
+            });
+
+            const dummyResponseObject = getDummyResponseObject();
+
+            (processor as any).invalidSyntaxNotification(getParamsForTesting(false), dummyResponseObject);
+
+            expect(dummyResponseObject.data.setMessage).toHaveBeenCalledTimes(1);
+            expect(dummyResponseObject.data.setMessage).toHaveBeenCalledWith("Command syntax invalid");
+
+            expect(dummyResponseObject.failed).toHaveBeenCalled();
+
+            expect(dummyResponseObject.console.error).toHaveBeenCalledTimes(1);
+
+            expect(getConsoleErrorFromMock(dummyResponseObject)).toEqual(
+                `\nUse "${SAMPLE_COMMAND_DEFINITION.name} --help" to view command description, usage, and options.`
+            );
+        });
+
+        it("should log an invalid syntax notification with examples", () => {
+            const processor: CommandProcessor = new CommandProcessor({
+                envVariablePrefix: ENV_VAR_PREFIX,
+                definition: SAMPLE_COMMAND_DEFINITION_WITH_EXAMPLES,
+                helpGenerator: FAKE_HELP_GENERATOR,
+                profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+                rootCommandName: SAMPLE_ROOT_COMMAND
+            });
+
+            const dummyResponseObject = getDummyResponseObject();
+
+            (processor as any).invalidSyntaxNotification(getParamsForTesting(), dummyResponseObject);
+
+            expect(dummyResponseObject.data.setMessage).toHaveBeenCalledTimes(1);
+            expect(dummyResponseObject.data.setMessage).toHaveBeenCalledWith("Command syntax invalid");
+
+            expect(dummyResponseObject.failed).toHaveBeenCalled();
+
+            expect(dummyResponseObject.console.error).toHaveBeenCalledTimes(1);
+
+            expect(getConsoleErrorFromMock(dummyResponseObject)).toEqual(
+                expect.stringContaining(
+                    `Use "${SAMPLE_ROOT_COMMAND} bad syntax here --help" to view command description, usage, and options.`
+                )
+            );
+
+            expect(getConsoleErrorFromMock(dummyResponseObject)).toEqual(
+                expect.stringContaining(`\nExample:\n\n`)
+            );
+
+            expect(getConsoleErrorFromMock(dummyResponseObject)).toEqual(
+                expect.stringContaining("$ fruit banana --banana-color green --is-spoiled false")
+            );
+
+            // If we've gotten here then all the important checks have passed, this
+            // will just check that the syntax generated hasn't changed.
+            expect(getConsoleErrorFromMock(dummyResponseObject)).toMatchSnapshot();
+        });
     });
 });

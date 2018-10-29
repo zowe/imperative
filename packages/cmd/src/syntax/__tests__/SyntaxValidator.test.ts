@@ -9,6 +9,8 @@
 *
 */
 
+import { TextUtils } from "../../../../utilities";
+
 jest.mock("../../../../imperative/src/Imperative");
 import {inspect, isNullOrUndefined} from "util";
 import {TestLogger} from "../../../../../__tests__/TestLogger";
@@ -319,6 +321,74 @@ describe("Imperative should provide advanced syntax validation rules", () => {
                         expect(syntaxResponse.valid).toEqual(true);
                         logger.debug(JSON.stringify(response.buildJsonResponse()));
                     });
+            });
+        });
+
+        describe("Internal Testing", () => {
+            it("should properly mark a missing positional argument", () => {
+                const fakeParent: ICommandDefinition = {
+                    name: undefined,
+                    description: "", type: "group",
+                    children: [ValidationTestCommand]
+                };
+
+                const responseObject = {
+                    console: {
+                        error: jest.fn((arg1) => arg1),
+                        errorHeader: jest.fn()
+                    }
+                };
+
+                const missing = [
+                    {
+                        name: "obj1",
+                        description: "this was missing"
+                    },
+                    {
+                        name: "obj2",
+                        description: "this was also missings"
+                    }
+                ];
+
+                const syntaxValidator = new SyntaxValidator(ValidationTestCommand, fakeParent);
+
+                jest.spyOn(syntaxValidator as any, "appendValidatorError").mockImplementation(() => { return; });
+
+                (syntaxValidator as any).missingPositionalParameter(missing, responseObject);
+
+                expect(responseObject.console.errorHeader).toHaveBeenCalledTimes(2);
+
+                expect(responseObject.console.error).toHaveBeenCalledTimes(2);
+
+                expect(responseObject.console.error).toHaveBeenCalledWith(
+                    "Missing Positional Argument: {{missing}}\nArgument Description: {{optDesc}}",
+                    {missing: missing[0].name, optDesc: TextUtils.wordWrap(missing[0].description)}
+                );
+
+                expect(responseObject.console.error).toHaveBeenCalledWith(
+                    "Missing Positional Argument: {{missing}}\nArgument Description: {{optDesc}}",
+                    {missing: missing[1].name, optDesc: TextUtils.wordWrap(missing[1].description)}
+                );
+
+                expect((syntaxValidator as any).appendValidatorError).toHaveBeenCalledTimes(2);
+
+                expect((syntaxValidator as any).appendValidatorError).toHaveBeenCalledWith(
+                    responseObject,
+                    {
+                        message: "Missing Positional Argument: {{missing}}\nArgument Description: {{optDesc}}",
+                        optionInError: missing[0].name,
+                        definition: missing[0]
+                    }
+                );
+
+                expect((syntaxValidator as any).appendValidatorError).toHaveBeenCalledWith(
+                    responseObject,
+                    {
+                        message: "Missing Positional Argument: {{missing}}\nArgument Description: {{optDesc}}",
+                        optionInError: missing[1].name,
+                        definition: missing[1]
+                    }
+                );
             });
         });
     });
