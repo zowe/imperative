@@ -24,6 +24,14 @@ export const syntaxTestCommand: ICommandDefinition = {
     description: "Tests Imperatives syntax validation capabilities.",
     type: "command",
     handler: __dirname + "/Syntax.handler",
+    positionals: [
+        {
+            name: "position1",
+            description: "first posional parameters",
+            type: "string",
+            required: true
+        }
+    ],
     options:
         [
             {
@@ -130,13 +138,27 @@ export const syntaxTestCommand: ICommandDefinition = {
                 name: "always-required-boolean",
                 description: "this flag is always required",
                 type: "boolean",
-                required: true
+                // required: true
             },
             {
                 name: "always-required-string",
                 description: "this string is always required",
                 type: "string",
-                required: true
+                // required: true
+            },
+        ],
+    examples: [
+            {
+                description: "example 1",
+                options: `"position1" "testposition"`
+            },
+            {
+                description: "example 2",
+                options: `"file.txt" "ibmuser.pds(mem)"`
+            },
+            {
+                description: "example 3",
+                options: `"file.txt" "ibmuser.ps" --mr wait`
             },
         ],
     mustSpecifyOne: ["option-to-specify-1", "option-to-specify-2", "option-to-specify-3"]
