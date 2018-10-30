@@ -52,6 +52,11 @@ describe("IO tests", () => {
         expect(IO.isDir("pretend/file")).toBe(false);
     });
 
+    it("should return no extension for no input on normalizeExtension", () => {
+        expect(IO.normalizeExtension("")).toBe("");
+        expect(IO.normalizeExtension(" ")).toBe("");
+    });
+
     it("should return normalized extension", () => {
         expect(IO.normalizeExtension("bin")).toMatchSnapshot();
     });
