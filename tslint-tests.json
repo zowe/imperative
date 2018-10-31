@@ -4,5 +4,8 @@
   "rules": {
     "no-implicit-dependencies": false
   },
-  "type-check": true
+  "type-check": true,
+  "linterOptions": {
+    "exclude": ["**/node_modules/**/*", "__tests__/__results__/**", "**/*.d.ts"]
+  }
 }

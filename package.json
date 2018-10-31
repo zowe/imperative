@@ -26,8 +26,8 @@
     "test:unit": "gulp test:unit",
     "test:integration": "npm run pretest && gulp test:integration && npm run posttest",
     "lint": "npm run lint:packages && npm run lint:tests",
-    "lint:packages": "tslint --format stylish --exclude \"**/__tests__/**/*.ts\" \"packages/**/*.ts\"",
-    "lint:tests": "tslint --format stylish -c ./tslint-tests.json --exclude \"**/node_modules/**/*\" --exclude \"__tests__/__results__/**\" --exclude \"**/*.d.ts\" \"**/__tests__/**/*.ts\"",
+    "lint:packages": "tslint --format stylish -c ./tslint-packages.json \"packages/**/*.ts\"",
+    "lint:tests": "tslint --format stylish -c ./tslint-tests.json \"**/__tests__/**/*.ts\"",
     "watch": "gulp watch"
   },
   "dependencies": {
