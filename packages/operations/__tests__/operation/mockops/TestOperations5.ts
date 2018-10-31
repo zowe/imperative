@@ -9,9 +9,9 @@
 *
 */
 
-import {TestOperations1} from "./TestOperations1";
-import {TestSubOpDiverge} from "./subops/TestSubOpDiverge";
-import {Operations} from "../../../index";
+import { TestOperations1 } from "./TestOperations1";
+import { TestSubOpDiverge } from "./subops/TestSubOpDiverge";
+import { Operations } from "../../../index";
 
 export class TestOperation5 extends Operations<any> {
 

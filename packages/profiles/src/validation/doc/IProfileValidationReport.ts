@@ -9,9 +9,9 @@
 *
 */
 
-import {IProfileValidationTaskResult} from "./IProfileValidationTaskResult";
-import {VALIDATION_OUTCOME} from "./IProfileValidationTask";
-import {IProfile} from "../../doc/definition/IProfile";
+import { IProfileValidationTaskResult } from "./IProfileValidationTaskResult";
+import { VALIDATION_OUTCOME } from "./IProfileValidationTask";
+import { IProfile } from "../../doc/definition/IProfile";
 
 /**
  * Complete report of the results of profile validation

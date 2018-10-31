@@ -9,7 +9,7 @@
 *
 */
 
-import {ICommandDefinition} from "../../src/doc/ICommandDefinition";
+import { ICommandDefinition } from "../../src/doc/ICommandDefinition";
 
 export const COMPLEX_COMMAND: ICommandDefinition = {
     name: "test-group",

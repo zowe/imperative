@@ -9,7 +9,7 @@
 *
 */
 
-import {ICommandHandlerConstructor} from "./ICommandHandlerConstructor";
+import { ICommandHandlerConstructor } from "./ICommandHandlerConstructor";
 
 /**
  * This interface defines what the expected module.exports variable should be

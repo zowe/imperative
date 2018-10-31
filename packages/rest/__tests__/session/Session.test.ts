@@ -9,7 +9,7 @@
 *
 */
 
-import {Session} from "../../src/session/Session";
+import { Session } from "../../src/session/Session";
 
 describe("Session tests", () => {
 

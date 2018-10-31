@@ -12,11 +12,11 @@
 jest.mock("path");
 jest.mock("../../../../logger");
 
-import {join} from "path";
-import {ImperativeConfig} from "../../../src/ImperativeConfig";
-import {PMFConstants} from "../../../src/plugins/utilities/PMFConstants";
-import {Logger} from "../../../../logger";
-import {Console} from "../../../../console";
+import { join } from "path";
+import { ImperativeConfig } from "../../../src/ImperativeConfig";
+import { PMFConstants } from "../../../src/plugins/utilities/PMFConstants";
+import { Logger } from "../../../../logger";
+import { Console } from "../../../../console";
 import Mock = jest.Mock;
 
 describe("PMFConstants", () => {

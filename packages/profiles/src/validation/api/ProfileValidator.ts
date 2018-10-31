@@ -9,17 +9,17 @@
 *
 */
 
-import {IProfileValidationReport} from "../doc/IProfileValidationReport";
-import {IProfileValidationPlan} from "../doc/IProfileValidationPlan";
-import {IProfileValidationTask, IProfileValidationTaskFunction, VALIDATION_OUTCOME} from "../doc/IProfileValidationTask";
-import {IProfileValidationTaskResult} from "../doc/IProfileValidationTaskResult";
-import {isNullOrUndefined} from "util";
-import {Logger, LoggerUtils} from "../../../../logger";
-import {TextUtils} from "../../../../utilities";
-import {IPromiseWithProgress, ITaskWithStatus, TaskProgress, TaskStage} from "../../../../operations";
-import {ICommandOptionDefinition} from "../../../../cmd";
-import {IProfile} from "../../doc/definition/IProfile";
-import {CliUtils} from "../../../../utilities/src/CliUtils";
+import { IProfileValidationReport } from "../doc/IProfileValidationReport";
+import { IProfileValidationPlan } from "../doc/IProfileValidationPlan";
+import { IProfileValidationTask, IProfileValidationTaskFunction, VALIDATION_OUTCOME } from "../doc/IProfileValidationTask";
+import { IProfileValidationTaskResult } from "../doc/IProfileValidationTaskResult";
+import { isNullOrUndefined } from "util";
+import { Logger, LoggerUtils } from "../../../../logger";
+import { TextUtils } from "../../../../utilities";
+import { IPromiseWithProgress, ITaskWithStatus, TaskProgress, TaskStage } from "../../../../operations";
+import { ICommandOptionDefinition } from "../../../../cmd";
+import { IProfile } from "../../doc/definition/IProfile";
+import { CliUtils } from "../../../../utilities/src/CliUtils";
 
 /**
  * API for going through the full validation test for a Brightside CLI profile

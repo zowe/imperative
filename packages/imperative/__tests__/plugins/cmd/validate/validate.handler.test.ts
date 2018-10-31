@@ -14,11 +14,11 @@ import Mock = jest.Mock;
 jest.mock("../../../../../cmd/src/response/CommandResponse");
 jest.mock("../../../../../cmd/src/response/HandlerResponse");
 
-import {CommandResponse, IHandlerParameters} from "../../../../../cmd";
-import {ImperativeConfig} from "../../../../src/ImperativeConfig";
-import {IssueSeverity, PluginIssues} from "../../../../src/plugins/utilities/PluginIssues";
-import {resolve} from "path";
-import {TextUtils} from "../../../../../utilities";
+import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
+import { ImperativeConfig } from "../../../../src/ImperativeConfig";
+import { IssueSeverity, PluginIssues } from "../../../../src/plugins/utilities/PluginIssues";
+import { resolve } from "path";
+import { TextUtils } from "../../../../../utilities";
 import ValidateHandler from "../../../../src/plugins/cmd/validate/validate.handler";
 
 describe("Plugin validate command handler", () => {

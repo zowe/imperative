@@ -9,8 +9,8 @@
 *
 */
 
-import {ICommandResponse} from "../../../../../packages/cmd/src/doc/response/ICommandResponse";
-import {ICompareParms} from "../../../doc/ICompareParms";
+import { ICommandResponse } from "../../../../../packages/cmd/src/doc/response/ICommandResponse";
+import { ICompareParms } from "../../../doc/ICompareParms";
 
 /**
  * Expected JSON responses from test command output handlers. The intention here is to formulate all the fields

@@ -9,17 +9,17 @@
 *
 */
 
-import {Arguments} from "yargs";
-import {ICommandDefinition} from "../doc/ICommandDefinition";
-import {IProfile, IProfileLoaded, IProfileManagerFactory, ProfileUtils} from "../../../profiles";
-import {ICommandProfileTypeConfiguration} from "../doc/profiles/definition/ICommandProfileTypeConfiguration";
-import {CommandProfiles} from "./CommandProfiles";
-import {inspect, isNullOrUndefined} from "util";
-import {ICommandLoadProfile} from "../doc/profiles/parms/ICommandLoadProfile";
-import {ICommandProfileLoaderParms} from "../doc/profiles/parms/ICommandProfileLoaderParms";
-import {Logger} from "../../../logger";
-import {ImperativeExpect} from "../../../expect";
-import {ImperativeError} from "../../../error";
+import { Arguments } from "yargs";
+import { ICommandDefinition } from "../doc/ICommandDefinition";
+import { IProfile, IProfileLoaded, IProfileManagerFactory, ProfileUtils } from "../../../profiles";
+import { ICommandProfileTypeConfiguration } from "../doc/profiles/definition/ICommandProfileTypeConfiguration";
+import { CommandProfiles } from "./CommandProfiles";
+import { inspect, isNullOrUndefined } from "util";
+import { ICommandLoadProfile } from "../doc/profiles/parms/ICommandLoadProfile";
+import { ICommandProfileLoaderParms } from "../doc/profiles/parms/ICommandProfileLoaderParms";
+import { Logger } from "../../../logger";
+import { ImperativeExpect } from "../../../expect";
+import { ImperativeError } from "../../../error";
 
 /**
  * The command processor profile loader loads all profiles that are required (or optional) given a command

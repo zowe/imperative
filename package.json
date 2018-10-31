@@ -25,7 +25,9 @@
     "posttest": "gulp test:uninstallSampleClis",
     "test:unit": "gulp test:unit",
     "test:integration": "npm run pretest && gulp test:integration && npm run posttest",
-    "lint": "tslint --force --format verbose \"src/**/*.ts\"",
+    "lint": "npm run lint:packages && npm run lint:tests",
+    "lint:packages": "tslint --format stylish --exclude \"**/__tests__/**/*.ts\" \"packages/**/*.ts\"",
+    "lint:tests": "tslint --format stylish -c ./tslint-tests.json --exclude \"**/node_modules/**/*\" --exclude \"__tests__/__results__/**\" \"**/__tests__/**/*.ts\"",
     "watch": "gulp watch"
   },
   "dependencies": {
@@ -102,7 +104,7 @@
     "through2": "2.0.3",
     "ts-jest": "21.2.1",
     "ts-node": "^5.0.0",
-    "tslint": "5.7.0",
+    "tslint": "5.10.0",
     "typedoc": "0.12.0",
     "typescript": "3.0.3",
     "uuid": "3.2.1",

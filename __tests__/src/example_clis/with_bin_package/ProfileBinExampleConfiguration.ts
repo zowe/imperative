@@ -9,7 +9,7 @@
 *
 */
 
-import {IImperativeConfig} from "../../../../packages/imperative";
+import { IImperativeConfig } from "../../../../packages/imperative";
 import { createUniqueTestDataDir } from "../../TestUtil";
 
 const binConfig: IImperativeConfig = {

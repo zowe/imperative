@@ -9,8 +9,8 @@
 *
 */
 
-import {homedir} from "os";
-import {join} from "path";
+import { homedir } from "os";
+import { join } from "path";
 
 
 const PROJECTS_HOME = join(__dirname, "../../");

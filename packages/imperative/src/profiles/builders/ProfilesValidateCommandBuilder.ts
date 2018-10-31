@@ -9,14 +9,14 @@
 *
 */
 
-import {ProfilesCommandBuilder} from "./ProfilesCommandBuilder";
-import {ICommandDefinition, ICommandProfileTypeConfiguration} from "../../../../cmd";
-import {Constants} from "../../../../constants";
-import {deleteProfileNameDesc, validateProfileCommandDesc} from "../../../../messages";
-import {TextUtils} from "../../../../utilities";
-import {Logger} from "../../../../logger/index";
-import {isNullOrUndefined} from "util";
-import {ProfilesConstants, ProfileUtils, ProfileValidator} from "../../../../profiles";
+import { ProfilesCommandBuilder } from "./ProfilesCommandBuilder";
+import { ICommandDefinition, ICommandProfileTypeConfiguration } from "../../../../cmd";
+import { Constants } from "../../../../constants";
+import { deleteProfileNameDesc, validateProfileCommandDesc } from "../../../../messages";
+import { TextUtils } from "../../../../utilities";
+import { Logger } from "../../../../logger/index";
+import { isNullOrUndefined } from "util";
+import { ProfilesConstants, ProfileUtils, ProfileValidator } from "../../../../profiles";
 
 /**
  * Used to build profile validate command definitions.

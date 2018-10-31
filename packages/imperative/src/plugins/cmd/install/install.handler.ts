@@ -9,18 +9,18 @@
 *
 */
 
-import {ICommandHandler, ICommandResponse, IHandlerParameters} from "../../../../../cmd";
-import {Logger} from "../../../../../logger/";
-import {PMFConstants} from "../../utilities/PMFConstants";
-import {resolve, join} from "path";
-import {install} from "../../utilities/npm-interface";
-import {IPluginJson} from "../../doc/IPluginJson";
-import {IPluginJsonObject} from "../../doc/IPluginJsonObject";
-import {readFileSync} from "jsonfile";
-import {TextUtils} from "../../../../../utilities";
-import {ImperativeError} from "../../../../../error";
-import {runValidatePlugin} from "../../utilities/runValidatePlugin";
-import {getRegistry} from "../../utilities/NpmApiFunctions";
+import { ICommandHandler, ICommandResponse, IHandlerParameters } from "../../../../../cmd";
+import { Logger } from "../../../../../logger/";
+import { PMFConstants } from "../../utilities/PMFConstants";
+import { resolve, join } from "path";
+import { install } from "../../utilities/npm-interface";
+import { IPluginJson } from "../../doc/IPluginJson";
+import { IPluginJsonObject } from "../../doc/IPluginJsonObject";
+import { readFileSync } from "jsonfile";
+import { TextUtils } from "../../../../../utilities";
+import { ImperativeError } from "../../../../../error";
+import { runValidatePlugin } from "../../utilities/runValidatePlugin";
+import { getRegistry } from "../../utilities/NpmApiFunctions";
 
 /**
  * The install command handler for cli plugin install.

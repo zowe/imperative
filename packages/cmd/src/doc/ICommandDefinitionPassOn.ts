@@ -13,7 +13,7 @@
  * "Pass On" allows you to indicate fields in the current command definition node to be passed-on (inherited) by
  * all or select children.
  */
-import {ICommandNodeType} from "./ICommandDefinition";
+import { ICommandNodeType } from "./ICommandDefinition";
 
 export interface ICommandDefinitionPassOnIgnore {
     type?: ICommandNodeType;

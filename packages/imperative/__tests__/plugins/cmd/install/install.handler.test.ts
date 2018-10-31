@@ -24,19 +24,19 @@ jest.mock("../../../../../logger");
 jest.mock("../../../../src/Imperative");
 jest.mock("../../../../src/plugins/utilities/NpmApiFunctions");
 
-import {CommandResponse, IHandlerParameters} from "../../../../../cmd";
-import {Console} from "../../../../../console";
-import {ImperativeError} from "../../../../../error";
-import {install} from "../../../../src/plugins/utilities/npm-interface";
-import {runValidatePlugin} from "../../../../src/plugins/utilities/runValidatePlugin";
+import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
+import { Console } from "../../../../../console";
+import { ImperativeError } from "../../../../../error";
+import { install } from "../../../../src/plugins/utilities/npm-interface";
+import { runValidatePlugin } from "../../../../src/plugins/utilities/runValidatePlugin";
 import InstallHandler from "../../../../src/plugins/cmd/install/install.handler";
-import {IPluginJson} from "../../../../src/plugins/doc/IPluginJson";
-import {Logger} from "../../../../../logger";
-import {readFileSync, writeFileSync} from "jsonfile";
-import {PMFConstants} from "../../../../src/plugins/utilities/PMFConstants";
-import {resolve} from "path";
-import {TextUtils} from "../../../../../utilities";
-import {getRegistry} from "../../../../src/plugins/utilities/NpmApiFunctions";
+import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
+import { Logger } from "../../../../../logger";
+import { readFileSync, writeFileSync } from "jsonfile";
+import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
+import { resolve } from "path";
+import { TextUtils } from "../../../../../utilities";
+import { getRegistry } from "../../../../src/plugins/utilities/NpmApiFunctions";
 
 describe("Plugin Management Facility install handler", () => {
 

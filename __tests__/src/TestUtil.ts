@@ -17,15 +17,15 @@
 /**
  * Module imports for TestUtils and testing infrastructure
  */
-import {spawnSync, SpawnSyncReturns} from "child_process";
-import {inspect, isArray, isNullOrUndefined, isString} from "util";
-import {Constants} from "../../packages/constants";
-import {ICommandResponse} from "../../packages/cmd";
-import {ICompareParms} from "./doc/ICompareParms";
-import {TestLogger} from "../TestLogger";
+import { spawnSync, SpawnSyncReturns } from "child_process";
+import { inspect, isArray, isNullOrUndefined, isString } from "util";
+import { Constants } from "../../packages/constants";
+import { ICommandResponse } from "../../packages/cmd";
+import { ICompareParms } from "./doc/ICompareParms";
+import { TestLogger } from "../TestLogger";
 import * as nodePath from "path";
-import {basename, join, resolve} from "path";
-import {mkdirpSync} from "fs-extra";
+import { basename, join, resolve } from "path";
+import { mkdirpSync } from "fs-extra";
 import * as fs from "fs";
 import { randomBytes } from "crypto";
 

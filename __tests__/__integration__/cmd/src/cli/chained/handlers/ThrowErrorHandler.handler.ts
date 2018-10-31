@@ -9,7 +9,7 @@
 *
 */
 
-import {ICommandHandler, IHandlerParameters} from "../../../../../../../packages/index";
+import { ICommandHandler, IHandlerParameters } from "../../../../../../../packages/index";
 
 export default class FieldNotexistHandler implements ICommandHandler {
     public async process(params: IHandlerParameters) {

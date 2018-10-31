@@ -9,9 +9,9 @@
 *
 */
 
-import {ImperativeConfig} from "../../ImperativeConfig";
-import {join} from "path";
-import {Logger} from "../../../../logger";
+import { ImperativeConfig } from "../../ImperativeConfig";
+import { join } from "path";
+import { Logger } from "../../../../logger";
 
 /**
  * Constants used by the PMF.

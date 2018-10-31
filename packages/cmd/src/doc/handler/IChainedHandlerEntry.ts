@@ -9,7 +9,7 @@
 *
 */
 
-import {IChainedHandlerArgumentMapping} from "./IChainedHandlerArgumentMapping";
+import { IChainedHandlerArgumentMapping } from "./IChainedHandlerArgumentMapping";
 
 /**
  * A single link in a chain of chained handlers.

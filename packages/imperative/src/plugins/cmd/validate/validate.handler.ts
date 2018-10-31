@@ -12,7 +12,7 @@
 import { ICommandHandler, ICommandResponse, IHandlerParameters, IHandlerResponseApi } from "../../../../../cmd";
 import { TextUtils } from "../../../../../utilities";
 import { ImperativeError } from "../../../../../error";
-import {IssueSeverity, PluginIssues} from "../../utilities/PluginIssues";
+import { IssueSeverity, PluginIssues } from "../../utilities/PluginIssues";
 import { IPluginJson } from "../../doc/IPluginJson";
 
 /**

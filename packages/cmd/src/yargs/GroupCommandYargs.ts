@@ -9,9 +9,9 @@
 *
 */
 
-import {Arguments, Argv} from "yargs";
-import {AbstractCommandYargs, YargsCommandCompleted} from "./AbstractCommandYargs";
-import {CommandYargs} from "./CommandYargs";
+import { Arguments, Argv } from "yargs";
+import { AbstractCommandYargs, YargsCommandCompleted } from "./AbstractCommandYargs";
+import { CommandYargs } from "./CommandYargs";
 
 /**
  * Bright define group command to Yargs - defines the group and it's children to Yargs.

@@ -9,9 +9,9 @@
 *
 */
 
-import {ITestEnvironment} from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
-import {SetupTestEnvironment} from "../../../../../../__src__/environment/SetupTestEnvironment";
-import {runCliScript} from "../../../../../../src/TestUtil";
+import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
+import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
+import { runCliScript } from "../../../../../../src/TestUtil";
 
 let TEST_ENVIRONMENT: ITestEnvironment;
 
@@ -31,4 +31,4 @@ describe("cmd-cli", () => {
         expect(response.stderr.toString()).toMatchSnapshot();
         expect(response.stdout.toString()).toMatchSnapshot();
     });
-}
+};

@@ -9,16 +9,16 @@
 *
 */
 
-import {PMFConstants} from "../PMFConstants";
+import { PMFConstants } from "../PMFConstants";
 import * as path from "path";
 import * as fs from "fs";
-import {readFileSync, writeFileSync} from "jsonfile";
-import {IPluginJson} from "../../doc/IPluginJson";
-import {Logger} from "../../../../../logger";
-import {ImperativeError} from "../../../../../error";
-import {IPluginJsonObject} from "../../doc/IPluginJsonObject";
-import {IO} from "../../../../../io";
-import {installPackages} from "../NpmApiFunctions";
+import { readFileSync, writeFileSync } from "jsonfile";
+import { IPluginJson } from "../../doc/IPluginJson";
+import { Logger } from "../../../../../logger";
+import { ImperativeError } from "../../../../../error";
+import { IPluginJsonObject } from "../../doc/IPluginJsonObject";
+import { IO } from "../../../../../io";
+import { installPackages } from "../NpmApiFunctions";
 
 
 /**

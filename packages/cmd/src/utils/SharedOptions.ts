@@ -9,13 +9,13 @@
 *
 */
 
-import {Arguments} from "yargs";
-import {ICommandNodeType} from "../doc/ICommandDefinition";
-import {IImperativeError, ImperativeError} from "../../../error";
-import {Constants} from "../../../constants";
-import {isNullOrUndefined} from "util";
-import {CommandResponse} from "../response/CommandResponse";
-import {Logger} from "../../../logger";
+import { Arguments } from "yargs";
+import { ICommandNodeType } from "../doc/ICommandDefinition";
+import { IImperativeError, ImperativeError } from "../../../error";
+import { Constants } from "../../../constants";
+import { isNullOrUndefined } from "util";
+import { CommandResponse } from "../response/CommandResponse";
+import { Logger } from "../../../logger";
 
 /**
  * Options which can be reused between different Brightside commands

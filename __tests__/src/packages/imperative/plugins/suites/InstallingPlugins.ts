@@ -94,8 +94,8 @@ describe("Installing Plugins", () => {
    * @param {string} cmd     The command to execute on the Test CLI
    * @returns {SpawnSyncReturns<string>} The result of the command execution
    */
-  const executeCommandString = (context: any, cmd: string): SpawnSyncReturns<string> => 
-    T.executeTestCLICommand(cliBin, context, cmd.split(" "))
+  const executeCommandString = (context: any, cmd: string): SpawnSyncReturns<string> =>
+    T.executeTestCLICommand(cliBin, context, cmd.split(" "));
 
   /**
    * The registry from the user's environment, which is used when an explicit registry is not supplied.

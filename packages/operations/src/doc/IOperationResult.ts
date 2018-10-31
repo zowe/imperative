@@ -9,7 +9,7 @@
 *
 */
 
-import {Operation} from "../Operation";
+import { Operation } from "../Operation";
 
 export interface IOperationResult<T> {
     "operationName": string;

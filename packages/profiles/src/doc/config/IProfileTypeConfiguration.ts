@@ -9,8 +9,8 @@
 *
 */
 
-import {IProfileSchema} from "../definition/IProfileSchema";
-import {IProfileDependency} from "../definition/IProfileDependency";
+import { IProfileSchema } from "../definition/IProfileSchema";
+import { IProfileDependency } from "../definition/IProfileDependency";
 
 /**
  * The profile "type" configuration document. Provides all configuration information for the "type". A profile

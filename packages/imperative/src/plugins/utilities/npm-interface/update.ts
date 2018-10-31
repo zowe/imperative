@@ -9,9 +9,9 @@
 *
 */
 
-import {PMFConstants} from "../PMFConstants";
-import {Logger} from "../../../../../logger";
-import {installPackages} from "../NpmApiFunctions";
+import { PMFConstants } from "../PMFConstants";
+import { Logger } from "../../../../../logger";
+import { installPackages } from "../NpmApiFunctions";
 
 /**
  * @TODO - allow multiple packages to be updated?

@@ -9,8 +9,8 @@
 *
 */
 
-import {PMFConstants} from "./PMFConstants";
-import {Logger} from "../../../../logger";
+import { PMFConstants } from "./PMFConstants";
+import { Logger } from "../../../../logger";
 const npm  = require("npm");
 
 const iConsole = Logger.getImperativeLogger();

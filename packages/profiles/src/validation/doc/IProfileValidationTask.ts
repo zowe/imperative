@@ -9,7 +9,7 @@
 *
 */
 
-import {IProfileValidationTaskResult} from "./IProfileValidationTaskResult";
+import { IProfileValidationTaskResult } from "./IProfileValidationTaskResult";
 
 export type VALIDATION_OUTCOME = "Failed" | "OK" | "Warning";
 

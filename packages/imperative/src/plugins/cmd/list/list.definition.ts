@@ -9,8 +9,8 @@
 *
 */
 
-import {ICommandDefinition} from "../../../../../cmd";
-import {join} from "path";
+import { ICommandDefinition } from "../../../../../cmd";
+import { join } from "path";
 
 /**
  * Definition of the list command.

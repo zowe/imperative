@@ -9,7 +9,7 @@
 *
 */
 
-import {TextUtils} from "../../../../packages/utilities";
+import { TextUtils } from "../../../../packages/utilities";
 
 describe("TextUtils", () => {
 

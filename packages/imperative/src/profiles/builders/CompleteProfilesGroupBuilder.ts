@@ -9,7 +9,7 @@
 *
 */
 
-import {ICommandDefinition, ICommandProfileTypeConfiguration} from "../../../../cmd";
+import { ICommandDefinition, ICommandProfileTypeConfiguration } from "../../../../cmd";
 import {
     createProfilesCommandDesc,
     deleteProfilesCommandDesc,
@@ -21,16 +21,16 @@ import {
     validateProfileCommandSummary,
     validateProfileGroupDesc
 } from "../../../../messages";
-import {Constants} from "../../../../constants";
-import {ProfilesCreateCommandBuilder} from "./ProfilesCreateCommandBuilder";
-import {ProfilesUpdateCommandBuilder} from "./ProfilesUpdateCommandBuilder";
-import {ProfilesDeleteCommandBuilder} from "./ProfilesDeleteCommandBuilder";
-import {ProfilesValidateCommandBuilder} from "./ProfilesValidateCommandBuilder";
-import {ProfilesListCommandBuilder} from "./ProfilesListCommandBuilder";
-import {ProfilesSetCommandBuilder} from "./ProfilesSetCommandBuilder";
-import {Logger} from "../../../../logger/index";
-import {isNullOrUndefined} from "util";
-import {IProfileTypeConfiguration} from "../../../../profiles";
+import { Constants } from "../../../../constants";
+import { ProfilesCreateCommandBuilder } from "./ProfilesCreateCommandBuilder";
+import { ProfilesUpdateCommandBuilder } from "./ProfilesUpdateCommandBuilder";
+import { ProfilesDeleteCommandBuilder } from "./ProfilesDeleteCommandBuilder";
+import { ProfilesValidateCommandBuilder } from "./ProfilesValidateCommandBuilder";
+import { ProfilesListCommandBuilder } from "./ProfilesListCommandBuilder";
+import { ProfilesSetCommandBuilder } from "./ProfilesSetCommandBuilder";
+import { Logger } from "../../../../logger/index";
+import { isNullOrUndefined } from "util";
+import { IProfileTypeConfiguration } from "../../../../profiles";
 
 /**
  * Generate a complete group of commands for maintaining configuration profiles

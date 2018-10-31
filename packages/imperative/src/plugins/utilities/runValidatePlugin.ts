@@ -9,11 +9,11 @@
 *
 */
 
-import {execSync} from "child_process";
-import {Imperative} from "../../../../";
-import {IssueSeverity} from "./PluginIssues";
-import {Logger} from "../../../../logger";
-import {PMFConstants} from "./PMFConstants";
+import { execSync } from "child_process";
+import { Imperative } from "../../../../";
+import { IssueSeverity } from "./PluginIssues";
+import { Logger } from "../../../../logger";
+import { PMFConstants } from "./PMFConstants";
 
 /**
  * Run another instance of the host CLI command to validate a plugin that has

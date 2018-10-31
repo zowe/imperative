@@ -9,7 +9,7 @@
 *
 */
 
-import {IProfile} from "../definition/IProfile";
+import { IProfile } from "../definition/IProfile";
 
 /**
  * Parameters to update a profile - The basic implementation simply overwrites the existing profile with the new

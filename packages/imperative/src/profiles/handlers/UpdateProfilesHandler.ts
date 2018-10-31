@@ -9,12 +9,12 @@
 *
 */
 
-import {overroteProfileMessage, profileCreatedSuccessfullyAndPath, profileReviewMessage} from "../../../../messages";
-import {Imperative} from "../../Imperative";
-import {ProfilesConstants} from "../../../../profiles";
-import {ICommandHandler, IHandlerParameters} from "../../../../cmd";
-import {Constants} from "../../../../constants";
-import {TextUtils} from "../../../../utilities";
+import { overroteProfileMessage, profileCreatedSuccessfullyAndPath, profileReviewMessage } from "../../../../messages";
+import { Imperative } from "../../Imperative";
+import { ProfilesConstants } from "../../../../profiles";
+import { ICommandHandler, IHandlerParameters } from "../../../../cmd";
+import { Constants } from "../../../../constants";
+import { TextUtils } from "../../../../utilities";
 
 /**
  * Handler for the auto-generated update profile commands

@@ -9,14 +9,14 @@
 *
 */
 
-import {inspect} from "util";
-import {TestLogger} from "../../../../../__tests__/TestLogger";
-import {IProfile} from "../../../src/doc/definition/IProfile";
-import {IProfileValidationPlan} from "../../../src/validation/doc/IProfileValidationPlan";
-import {IProfileValidationReport} from "../../../src/validation/doc/IProfileValidationReport";
-import {IProfileValidationTaskResult} from "../../../src/validation/doc/IProfileValidationTaskResult";
-import {ProfileValidator} from "../../../src/validation/api/ProfileValidator";
-import {IProfileValidationTask} from "../../../";
+import { inspect } from "util";
+import { TestLogger } from "../../../../../__tests__/TestLogger";
+import { IProfile } from "../../../src/doc/definition/IProfile";
+import { IProfileValidationPlan } from "../../../src/validation/doc/IProfileValidationPlan";
+import { IProfileValidationReport } from "../../../src/validation/doc/IProfileValidationReport";
+import { IProfileValidationTaskResult } from "../../../src/validation/doc/IProfileValidationTaskResult";
+import { ProfileValidator } from "../../../src/validation/api/ProfileValidator";
+import { IProfileValidationTask } from "../../../";
 
 jest.mock("../../../../imperative/src/Imperative");
 

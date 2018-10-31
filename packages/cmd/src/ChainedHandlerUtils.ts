@@ -10,11 +10,11 @@
 */
 
 import * as yargs from "yargs";
-import {IChainedHandlerEntry} from "./doc/handler/IChainedHandlerEntry";
-import {IChainedHandlerArgumentMapping} from "./doc/handler/IChainedHandlerArgumentMapping";
-import {ImperativeError} from "../../error";
-import {TextUtils} from "../../utilities";
-import {Logger} from "../../logger";
+import { IChainedHandlerEntry } from "./doc/handler/IChainedHandlerEntry";
+import { IChainedHandlerArgumentMapping } from "./doc/handler/IChainedHandlerArgumentMapping";
+import { ImperativeError } from "../../error";
+import { TextUtils } from "../../utilities";
+import { Logger } from "../../logger";
 
 const DataObjectParser = require("dataobject-parser");
 

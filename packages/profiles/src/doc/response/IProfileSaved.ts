@@ -9,7 +9,7 @@
 *
 */
 
-import {IProfile} from "../definition/IProfile";
+import { IProfile } from "../definition/IProfile";
 /**
  * The success response to the profile "save()" API.
  * @export

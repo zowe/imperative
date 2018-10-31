@@ -9,4 +9,4 @@
 *
 */
 
-export * from './sample-plugin';
+export * from "./sample-plugin";
