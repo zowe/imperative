@@ -30,8 +30,8 @@ export const failurewiththrow: IExpectedJsonResponses = {
     response: {
         success: false,
         message: "",
-        stdout: Buffer.from([77, 101, 115, 115, 97, 103, 101, 32, 102, 114, 111, 109, 32, 102, 97, 105, 108, 117, 114, 101, 32, 104, 97, 110, 100, 108, 101, 114, 32, 119, 105, 116, 104, 32, 116, 104, 114, 111, 119, 46, 10]),
-        stderr: Buffer.from([27, 91, 51, 49, 109, 27, 91, 51, 57, 109, 10, 27, 91, 51, 49, 109, 73, 109, 112, 101, 114, 97, 116, 105, 118, 101, 32, 65, 80, 73, 32, 69, 114, 114, 111, 114, 58, 27, 91, 51, 57, 109, 10, 84, 104, 101, 32, 104, 97, 110, 100, 108, 101, 114, 32, 119, 105, 116, 104, 32, 116, 104, 114, 111, 119, 32, 104, 97, 115, 32, 115, 117, 99, 99, 101, 115, 115, 102, 117, 108, 108, 121, 32, 102, 97, 105, 108, 101, 100, 46, 10]),
+        stdout: Buffer.from("Message from failure handler with throw.\n"),
+        stderr: Buffer.from("\u001b[31m\u001b[39m\n\u001b[31mImperative API Error:\u001b[39m\nThe handler with throw has successfully failed.\n"),
         responseObject: [],
         errors:
             [
@@ -55,7 +55,7 @@ export const failurewithgenericthrow: IExpectedJsonResponses = {
     response: {
         success: false,
         message: "",
-        stdout: Buffer.from([77, 101, 115, 115, 97, 103, 101, 32, 102, 114, 111, 109, 32, 102, 97, 105, 108, 117, 114, 101, 32, 104, 97, 110, 100, 108, 101, 114, 32, 119, 105, 116, 104, 32, 103, 101, 110, 101, 114, 105, 99, 32, 116, 104, 114, 111, 119, 46, 10]),
+        stdout: Buffer.from("Message from failure handler with generic throw.\n"),
         responseObject: [{}],
         errors: []
     },
@@ -73,7 +73,7 @@ export const failurewithpromise: IExpectedJsonResponses = {
         success: false,
         message: "",
         stdout: Buffer.from(""),
-        stderr: Buffer.from([77, 101, 115, 115, 97, 103, 101, 32, 102, 114, 111, 109, 32, 102, 97, 105, 108, 117, 114, 101, 32, 104, 97, 110, 100, 108, 101, 114, 32, 119, 105, 116, 104, 32, 112, 114, 111, 109, 105, 115, 101, 46, 10]),
+        stderr: Buffer.from("Message from failure handler with promise.\n"),
         responseObject: [],
         errors: []
     }
@@ -83,7 +83,7 @@ export const successwithasync: IExpectedJsonResponses = {
     response: {
         success: true,
         message: "",
-        stdout: Buffer.from([77, 101, 115, 115, 97, 103, 101, 32, 102, 114, 111, 109, 32, 115, 117, 99, 99, 101, 115, 115, 32, 97, 115, 121, 110, 99, 32, 104, 97, 110, 100, 108, 101, 114, 46, 10]),
+        stdout: Buffer.from("Message from success handler with promise.\n"),
         stderr: Buffer.from(""),
         responseObject: [],
         errors: []
@@ -94,7 +94,7 @@ export const successwithpromise: IExpectedJsonResponses = {
     response: {
         success: true,
         message: "",
-        stdout: Buffer.from([77, 101, 115, 115, 97, 103, 101, 32, 102, 114, 111, 109, 32, 115, 117, 99, 99, 101, 115, 115, 32, 104, 97, 110, 100, 108, 101, 114, 32, 119, 105, 116, 104, 32, 112, 114, 111, 109, 105, 115, 101, 46, 10]),
+        stdout: Buffer.from("Message from success handler with promise.\n"),
         stderr: Buffer.from(""),
         responseObject: [],
         errors: []
@@ -106,18 +106,9 @@ export const successwithvariousoutput: IExpectedJsonResponses = {
         success: true,
         message: "",
         stdout: Buffer.from("Sdtout message from various output handler.\nData buffer to stdout from various output handler."),
-        stderr: Buffer.from([83, 100, 116, 101, 114, 114, 32, 109, 101, 115, 115, 97, 103, 101, 32, 102, 114, 111,
-            109, 32, 118, 97, 114, 105, 111, 117, 115, 32, 111, 117, 116, 112, 117, 116, 32, 104, 97, 110, 100, 108, 101,
-            114, 46, 10, 68, 97, 116, 97, 32, 98, 117, 102, 102, 101, 114, 32, 116, 111, 32, 115, 116, 100, 101, 114, 114,
-            32, 102, 114, 111, 109, 32, 118, 97, 114, 105, 111, 117, 115, 32, 111, 117, 116, 112, 117, 116, 32, 104, 97,
-            110, 100, 108, 101, 114, 46, 27, 91, 51, 49, 109, 27, 91, 51, 57, 109, 10, 27, 91, 51, 49, 109, 73, 109, 112,
-            101, 114, 97, 116, 105, 118, 101, 32, 65, 80, 73, 32, 69, 114, 114, 111, 114, 58, 27, 91, 51, 57, 109, 10, 73,
-            109, 112, 101, 114, 97, 116, 105, 118, 101, 32, 69, 114, 114, 111, 114, 32, 49, 32, 105, 110, 32, 86, 97, 114,
-            105, 111, 117, 115, 32, 111, 117, 116, 112, 117, 116, 32, 104, 97, 110, 100, 108, 101, 114, 46, 10, 27, 91, 51,
-            49, 109, 27, 91, 51, 57, 109, 10, 27, 91, 51, 49, 109, 73, 109, 112, 101, 114, 97, 116, 105, 118, 101, 32, 65,
-            80, 73, 32, 69, 114, 114, 111, 114, 58, 27, 91, 51, 57, 109, 10, 73, 109, 112, 101, 114, 97, 116, 105, 118,
-            101, 32, 69, 114, 114, 111, 114, 32, 50, 32, 105, 110, 32, 86, 97, 114, 105, 111, 117, 115, 32, 111, 117, 116, 112,
-            117, 116, 32, 104, 97, 110, 100, 108, 101, 114, 46, 10]),
+        stderr: Buffer.from("Sdterr message from various output handler.\nData buffer to stderr from various output handler." +
+            "\u001b[31m\u001b[39m\n\u001b[31mImperative API Error:\u001b[39m\nImperative Error 1 in Various output handler." +
+            "\n\u001b[31m\u001b[39m\n\u001b[31mImperative API Error:\u001b[39m\nImperative Error 2 in Various output handler.\n"),
         responseObject: [{obj1: "object"}, {obj2: "other-object"}],
         errors: [{msg: "Imperative Error 1 in Various output handler."},
             {msg: "Imperative Error 2 in Various output handler."}]

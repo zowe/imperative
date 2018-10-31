@@ -24,7 +24,6 @@ import { ICommandResponse } from "../../packages/cmd";
 import { ICompareParms } from "./doc/ICompareParms";
 import { TestLogger } from "../TestLogger";
 import * as nodePath from "path";
-import { basename, join, resolve } from "path";
 import { mkdirpSync } from "fs-extra";
 import * as fs from "fs";
 import { randomBytes } from "crypto";
@@ -63,7 +62,7 @@ export * from "fs";
 
 export const TEST_HOME: string = process.cwd() + "/__tests__/__results__/data/.testHomeDir";
 
-export const TEST_RESULT_DIR = resolve(__dirname + "/../__results__");
+export const TEST_RESULT_DIR = nodePath.resolve(__dirname + "/../__results__");
 
 /**
  * This function strips any new lines out of the string passed.
