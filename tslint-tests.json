@@ -2,7 +2,10 @@
 {
   "extends": "./tslint.json",
   "rules": {
-    "no-implicit-dependencies": false
+    "no-implicit-dependencies": [true, "dev", "optional"],
+    "only-arrow-functions": false,
+    "space-before-function-paren": false,
+    "no-submodule-imports": false
   },
   "type-check": true,
   "linterOptions": {
