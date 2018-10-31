@@ -55,7 +55,7 @@ class TestProfileValidationPlan1 implements IProfileValidationPlan {
             let outcome: VALIDATION_OUTCOME;
             let description;
             if (profile.importance === "desirable") {
-              if (profile.duration <= 10) {
+              if (profile.duration <= 10) { // tslint:disable-line:no-magic-numbers
                 outcome = "OK";
                 description = "Let's do this";
               } else {
@@ -65,7 +65,7 @@ class TestProfileValidationPlan1 implements IProfileValidationPlan {
             }
 
             if (profile.importance === "critical") {
-              if (profile.duration <= 1000) {
+              if (profile.duration <= 1000) { // tslint:disable-line:no-magic-numbers
                 outcome = "OK";
                 description = "Let's work our butts off";
               } else {
