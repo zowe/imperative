@@ -15,7 +15,7 @@
  * !!!Note: Handlers must "export" the module name via "module.exports=<module name>" for the handler to be
  * instantiated correctly by the bright command processor.
  */
-import {IHandlerParameters} from "./IHandlerParameters";
+import { IHandlerParameters } from "./IHandlerParameters";
 
 export interface ICommandHandler {
     /**

@@ -21,14 +21,14 @@ jest.mock("../../../../../cmd/src/response/CommandResponse");
 jest.mock("../../../../../cmd/src/response/HandlerResponse");
 jest.mock("../../../../src/plugins/utilities/NpmApiFunctions");
 
-import {Console} from "../../../../../console";
-import {existsSync} from "fs";
-import {IPluginJson} from "../../../../src/plugins/doc/IPluginJson";
-import {Logger} from "../../../../../logger";
-import {PMFConstants} from "../../../../src/plugins/utilities/PMFConstants";
-import {readFileSync} from "jsonfile";
-import {update} from "../../../../src/plugins/utilities/npm-interface";
-import {installPackages} from "../../../../src/plugins/utilities/NpmApiFunctions";
+import { Console } from "../../../../../console";
+import { existsSync } from "fs";
+import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
+import { Logger } from "../../../../../logger";
+import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
+import { readFileSync } from "jsonfile";
+import { update } from "../../../../src/plugins/utilities/npm-interface";
+import { installPackages } from "../../../../src/plugins/utilities/NpmApiFunctions";
 
 describe("PMF: update Interface", () => {
   // Objects created so types are correct.

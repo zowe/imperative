@@ -9,10 +9,10 @@
 *
 */
 
-import {TestOperations1} from "./TestOperations1";
-import {TestOperations2} from "./TestOperations2";
-import {TestSubOpFail} from "./subops/TestSubOpFail";
-import {Operations} from "../../../index";
+import { TestOperations1 } from "./TestOperations1";
+import { TestOperations2 } from "./TestOperations2";
+import { TestSubOpFail } from "./subops/TestSubOpFail";
+import { Operations } from "../../../index";
 
 export class TestOperations4 extends Operations<any> {
 

@@ -9,7 +9,7 @@
 *
 */
 
-import {IProfileProperty} from "./IProfileProperty";
+import { IProfileProperty } from "./IProfileProperty";
 
 /**
  * The JSON Validation schema for your profile type.

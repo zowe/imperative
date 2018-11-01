@@ -13,7 +13,7 @@
  * A single result in the report from testing a profile against an IProfileValidationCriterion
  * Used to build the final validation report
  */
-import {VALIDATION_OUTCOME} from "./IProfileValidationTask";
+import { VALIDATION_OUTCOME } from "./IProfileValidationTask";
 
 /**
  * Profile validation results for one particular task

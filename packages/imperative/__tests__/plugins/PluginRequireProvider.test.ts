@@ -18,8 +18,8 @@ jest.mock("path");
 import Module = require("module");
 
 import * as findUp from "find-up";
-import {ImperativeConfig} from "../../src/ImperativeConfig";
-import {PluginRequireProvider} from "../../src/plugins/PluginRequireProvider";
+import { ImperativeConfig } from "../../src/ImperativeConfig";
+import { PluginRequireProvider } from "../../src/plugins/PluginRequireProvider";
 import { PluginRequireAlreadyCreatedError } from "../../src/plugins/errors/PluginRequireAlreadyCreatedError";
 import { PluginRequireNotCreatedError } from "../../src/plugins/errors/PluginRequireNotCreatedError";
 import * as path from "path";

@@ -27,7 +27,9 @@
       true,
       2
     ],
-    "prefer-conditional-expression": false
+    "prefer-conditional-expression": false,
+    "indent": [true, "spaces", 4],
+    "whitespace": [true, "check-module"]
   },
   "type-check": true
 }

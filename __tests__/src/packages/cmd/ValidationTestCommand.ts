@@ -9,7 +9,7 @@
 *
 */
 
-import {ICommandDefinition} from "../../../../packages/cmd/index";
+import { ICommandDefinition } from "../../../../packages/cmd/index";
 
 export const ValidationTestCommand: ICommandDefinition = {
     name: "validation-test",
@@ -84,13 +84,13 @@ export const ValidationTestCommand: ICommandDefinition = {
                 description: "this value should be less than or equal to eight characters long but " +
                 "greater than or equal to 2 characters long",
                 type: "string",
-                stringLengthRange: [2, 8]
+                stringLengthRange: [2, 8] // tslint:disable-line:no-magic-numbers
             },
             {
                 name: "eggs-to-eat",
                 description: "How many eggs to eat out of a dozen",
                 type: "number",
-                numericValueRange: [1, 12]
+                numericValueRange: [1, 12] // tslint:disable-line:no-magic-numbers
             },
             {
                 name: "implies-one-of",

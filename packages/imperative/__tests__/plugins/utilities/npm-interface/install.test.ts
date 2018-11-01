@@ -22,18 +22,18 @@ jest.mock("../../../../../cmd/src/response/CommandResponse");
 jest.mock("../../../../../cmd/src/response/HandlerResponse");
 jest.mock("../../../../src/plugins/utilities/NpmApiFunctions");
 
-import {Console} from "../../../../../console";
-import {existsSync, lstatSync} from "fs";
-import {ImperativeError} from "../../../../../error";
-import {install} from "../../../../src/plugins/utilities/npm-interface";
-import {IPluginJson} from "../../../../src/plugins/doc/IPluginJson";
-import {IPluginJsonObject} from "../../../../src/plugins/doc/IPluginJsonObject";
-import {dirname, isAbsolute, join, resolve, normalize} from "path";
-import {Logger} from "../../../../../logger";
-import {PMFConstants} from "../../../../src/plugins/utilities/PMFConstants";
-import {readFileSync, writeFileSync} from "jsonfile";
-import {sync} from "find-up";
-import {installPackages} from "../../../../src/plugins/utilities/NpmApiFunctions";
+import { Console } from "../../../../../console";
+import { existsSync, lstatSync } from "fs";
+import { ImperativeError } from "../../../../../error";
+import { install } from "../../../../src/plugins/utilities/npm-interface";
+import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
+import { IPluginJsonObject } from "../../../../src/plugins/doc/IPluginJsonObject";
+import { dirname, isAbsolute, join, resolve, normalize } from "path";
+import { Logger } from "../../../../../logger";
+import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
+import { readFileSync, writeFileSync } from "jsonfile";
+import { sync } from "find-up";
+import { installPackages } from "../../../../src/plugins/utilities/NpmApiFunctions";
 
 describe("PMF: Install Interface", () => {
   // Objects created so types are correct.

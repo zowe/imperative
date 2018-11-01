@@ -9,11 +9,10 @@
 *
 */
 
-import {join} from "path";
-import {ITestEnvironment} from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
-import {SetupTestEnvironment} from "../../../../../../__src__/environment/SetupTestEnvironment";
-import {runCliScript} from "../../../../../../src/TestUtil";
-import FailedCommandHandler from "../../../../../../../packages/cmd/src/handlers/FailedCommandHandler";
+import { join } from "path";
+import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
+import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
+import { runCliScript } from "../../../../../../src/TestUtil";
 
 let TEST_ENVIRONMENT: ITestEnvironment;
 
@@ -54,5 +53,4 @@ describe("cmd-cli", () => {
             expect(response.stdout.toString()).toMatchSnapshot();
         });
     });
-
 });

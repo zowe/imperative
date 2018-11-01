@@ -12,12 +12,12 @@
 import { TextUtils } from "../../../../utilities";
 
 jest.mock("../../../../imperative/src/Imperative");
-import {inspect, isNullOrUndefined} from "util";
-import {TestLogger} from "../../../../../__tests__/TestLogger";
-import {CommandResponse, ICommandDefinition, ICommandValidatorResponse} from "../../../";
-import {ValidationTestCommand} from "../../../../../__tests__/src/packages/cmd/ValidationTestCommand";
-import {SyntaxValidator} from "../SyntaxValidator";
-import {Constants} from "../../../../constants";
+import { inspect, isNullOrUndefined } from "util";
+import { TestLogger } from "../../../../../__tests__/TestLogger";
+import { CommandResponse, ICommandDefinition, ICommandValidatorResponse } from "../../../";
+import { ValidationTestCommand } from "../../../../../__tests__/src/packages/cmd/ValidationTestCommand";
+import { SyntaxValidator } from "../SyntaxValidator";
+import { Constants } from "../../../../constants";
 
 
 describe("Imperative should provide advanced syntax validation rules", () => {

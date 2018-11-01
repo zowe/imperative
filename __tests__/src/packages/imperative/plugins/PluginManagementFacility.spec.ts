@@ -10,9 +10,9 @@
 */
 
 import { IImperativeConfig } from "../../../../../packages/imperative";
-import {IO} from "../../../../../packages/io";
+import { IO } from "../../../../../packages/io";
 import * as T from "../../../../src/TestUtil";
-import {join} from "path";
+import { join } from "path";
 
 /////////////////////////////////////////////////////////////////////////////
 //////////// USE ONLY FROM WITHIN /test/src/packages/plugins ////////////////

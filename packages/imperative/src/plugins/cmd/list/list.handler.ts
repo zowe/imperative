@@ -11,11 +11,11 @@
 
 import { ICommandHandler, ICommandResponse, IHandlerParameters, CommandResponse } from "../../../../../cmd";
 import { Logger } from "../../../../../logger/";
-import {readFileSync} from "jsonfile";
+import { readFileSync } from "jsonfile";
 import { IPluginJson } from "../../doc/IPluginJson";
 import { TextUtils } from "../../../../../utilities";
 import { ImperativeError } from "../../../../../error";
-import {PMFConstants} from "../../utilities/PMFConstants";
+import { PMFConstants } from "../../utilities/PMFConstants";
 
 /**
  * The install command handler for cli plugin install.

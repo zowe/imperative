@@ -23,8 +23,8 @@ import { IssueSeverity, PluginIssues } from "./utilities/PluginIssues";
 import { ConfigurationValidator } from "../ConfigurationValidator";
 import { ConfigurationLoader } from "../ConfigurationLoader";
 import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
-import {IImperativeOverrides} from "../doc/IImperativeOverrides";
-import {AppSettings} from "../../../settings";
+import { IImperativeOverrides } from "../doc/IImperativeOverrides";
+import { AppSettings } from "../../../settings";
 
 /**
  * This class is the main engine for the Plugin Management Facility. The

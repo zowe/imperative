@@ -9,7 +9,7 @@
 *
 */
 
-import {IOperationCompleted, IOperationUndoCompleted, Operation} from "../../../../index";
+import { IOperationCompleted, IOperationUndoCompleted, Operation } from "../../../../index";
 
 export class TestSubOpFail extends Operation<any> {
 

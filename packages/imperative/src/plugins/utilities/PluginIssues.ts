@@ -9,11 +9,11 @@
 *
 */
 
-import {IPluginIssues, IPluginIssue} from "../doc/IPluginIssues";
-import {IPluginJson} from "../doc/IPluginJson";
-import {ImperativeError} from "../../../../error";
-import {PMFConstants} from "./PMFConstants";
-import {readFileSync} from "jsonfile";
+import { IPluginIssues, IPluginIssue } from "../doc/IPluginIssues";
+import { IPluginJson } from "../doc/IPluginJson";
+import { ImperativeError } from "../../../../error";
+import { PMFConstants } from "./PMFConstants";
+import { readFileSync } from "jsonfile";
 
 /**
  * This enum represents the possible severity types of a plugin issue.

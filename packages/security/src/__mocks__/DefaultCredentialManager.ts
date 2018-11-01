@@ -9,7 +9,7 @@
 *
 */
 
-import {AbstractCredentialManager} from "../abstract/AbstractCredentialManager";
+import { AbstractCredentialManager } from "../abstract/AbstractCredentialManager";
 
 // Generate the mock
 const DefaultCredentialManager: any =

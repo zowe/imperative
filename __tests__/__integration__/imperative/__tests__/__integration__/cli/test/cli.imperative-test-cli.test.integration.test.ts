@@ -9,9 +9,9 @@
 *
 */
 
-import {runCliScript} from "../../../../../../src/TestUtil";
-import {ITestEnvironment} from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
-import {SetupTestEnvironment} from "../../../../../../__src__/environment/SetupTestEnvironment";
+import { runCliScript } from "../../../../../../src/TestUtil";
+import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
+import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
 
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;

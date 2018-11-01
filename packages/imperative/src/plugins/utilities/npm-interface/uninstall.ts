@@ -9,13 +9,13 @@
 *
 */
 
-import {execSync} from "child_process";
-import {PMFConstants} from "../PMFConstants";
-import {readFileSync, writeFileSync} from "jsonfile";
-import {IPluginJson} from "../../doc/IPluginJson";
-import {Logger} from "../../../../../logger";
-import {ImperativeError} from "../../../../../error";
-import {TextUtils} from "../../../../../utilities";
+import { execSync } from "child_process";
+import { PMFConstants } from "../PMFConstants";
+import { readFileSync, writeFileSync } from "jsonfile";
+import { IPluginJson } from "../../doc/IPluginJson";
+import { Logger } from "../../../../../logger";
+import { ImperativeError } from "../../../../../error";
+import { TextUtils } from "../../../../../utilities";
 
 /**
  * @TODO - allow multiple packages to be uninstalled?

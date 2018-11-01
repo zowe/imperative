@@ -32,7 +32,7 @@ import { ConfigurationValidator } from "../../src/ConfigurationValidator";
 import { ICommandProfileTypeConfiguration } from "../../../cmd";
 import { DefinitionTreeResolver } from "../../src/DefinitionTreeResolver";
 import { IPluginCfgProps } from "../../src/plugins/doc/IPluginCfgProps";
-import {Logger} from "../../../logger";
+import { Logger } from "../../../logger";
 
 describe("Plugin Management Facility", () => {
     const mocks = {

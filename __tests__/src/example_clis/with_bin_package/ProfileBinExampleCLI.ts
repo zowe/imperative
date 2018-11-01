@@ -9,7 +9,7 @@
 *
 */
 
-import {Imperative} from "../../../../packages/imperative";
+import { Imperative } from "../../../../packages/imperative";
 
 Imperative.init({configurationModule: __dirname + "/ProfileBinExampleConfiguration.ts"}).then(() => {
   Imperative.parse();

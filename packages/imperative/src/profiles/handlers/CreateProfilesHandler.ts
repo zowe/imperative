@@ -9,13 +9,13 @@
 *
 */
 
-import {overroteProfileMessage, profileCreatedSuccessfullyAndPath, profileReviewMessage} from "../../../../messages";
-import {Imperative} from "../../Imperative";
-import {IProfileSaved, ProfilesConstants} from "../../../../profiles";
-import {ICommandHandler, IHandlerParameters} from "../../../../cmd";
+import { overroteProfileMessage, profileCreatedSuccessfullyAndPath, profileReviewMessage } from "../../../../messages";
+import { Imperative } from "../../Imperative";
+import { IProfileSaved, ProfilesConstants } from "../../../../profiles";
+import { ICommandHandler, IHandlerParameters } from "../../../../cmd";
 
-import {Constants} from "../../../../constants";
-import {TextUtils} from "../../../../utilities";
+import { Constants } from "../../../../constants";
+import { TextUtils } from "../../../../utilities";
 
 /**
  * Handler that allows creation of a profile from command line arguments. Intended for usage with the automatically

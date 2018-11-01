@@ -11,7 +11,7 @@
 
 import { deleteHandlerPaths, testBuilderProfiles } from "./ProfileBuilderTestConstants";
 import { TestLogger } from "../../../../../__tests__/TestLogger";
-import {ProfilesListCommandBuilder} from "../../../../imperative/src/profiles/builders/ProfilesListCommandBuilder";
+import { ProfilesListCommandBuilder } from "../../../../imperative/src/profiles/builders/ProfilesListCommandBuilder";
 
 
 describe("Profile List Command Builder", () => {

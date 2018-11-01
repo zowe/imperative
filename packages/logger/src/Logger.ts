@@ -9,16 +9,16 @@
 *
 */
 
-import {format, inspect, isNullOrUndefined} from "util";
-import {ImperativeError} from "../../error";
+import { format, inspect, isNullOrUndefined } from "util";
+import { ImperativeError } from "../../error";
 import * as StackTrace from "stack-trace";
 import * as path from "path";
-import {TextUtils} from "../../utilities";
-import {IO} from "../../io";
-import {IConfigLogging} from "./doc/IConfigLogging";
-import {LoggerManager} from "./LoggerManager";
+import { TextUtils } from "../../utilities";
+import { IO } from "../../io";
+import { IConfigLogging } from "./doc/IConfigLogging";
+import { LoggerManager } from "./LoggerManager";
 import * as log4js from "log4js";
-import {Console} from "../../console";
+import { Console } from "../../console";
 
 /**
  * Note(Kelosky): it seems from the log4js doc that you only get a single

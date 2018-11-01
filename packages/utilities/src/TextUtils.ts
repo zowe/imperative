@@ -9,7 +9,7 @@
 *
 */
 
-import {format, isArray, isNullOrUndefined, isNumber, isString} from "util";
+import { format, isArray, isNullOrUndefined, isNumber, isString } from "util";
 
 /**
  * Interface of an explanation map object

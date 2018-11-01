@@ -9,14 +9,14 @@
 *
 */
 
-import {ICommandHandler, ICommandResponse, IHandlerParameters} from "../../../../../cmd";
-import {Logger} from "../../../../../logger";
-import {PMFConstants} from "../../utilities/PMFConstants";
-import {update} from "../../utilities/npm-interface";
-import {ImperativeError} from "../../../../../error";
-import {TextUtils} from "../../../../../utilities";
-import {IPluginJson} from "../../doc/IPluginJson";
-import {readFileSync, writeFileSync} from "jsonfile";
+import { ICommandHandler, ICommandResponse, IHandlerParameters } from "../../../../../cmd";
+import { Logger } from "../../../../../logger";
+import { PMFConstants } from "../../utilities/PMFConstants";
+import { update } from "../../utilities/npm-interface";
+import { ImperativeError } from "../../../../../error";
+import { TextUtils } from "../../../../../utilities";
+import { IPluginJson } from "../../doc/IPluginJson";
+import { readFileSync, writeFileSync } from "jsonfile";
 
 /**
  * The update command handler for cli plugin install.

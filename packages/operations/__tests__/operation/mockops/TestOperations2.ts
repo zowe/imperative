@@ -9,9 +9,9 @@
 *
 */
 
-import {TestSubOp4} from "./subops/TestSubOp4";
-import {TestSubOp5} from "./subops/TestSubOp5";
-import {Operations} from "../../../index";
+import { TestSubOp4 } from "./subops/TestSubOp4";
+import { TestSubOp5 } from "./subops/TestSubOp5";
+import { Operations } from "../../../index";
 
 export class TestOperations2 extends Operations<any> {
 

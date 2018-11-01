@@ -9,8 +9,8 @@
 *
 */
 
-import {ImperativeError} from "../../error";
-import {inspect, isNullOrUndefined} from "util";
+import { ImperativeError } from "../../error";
+import { inspect, isNullOrUndefined } from "util";
 
 const DataObjectParser = require("dataobject-parser");
 

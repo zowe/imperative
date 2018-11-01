@@ -20,15 +20,15 @@ jest.mock("../../../../../cmd/src/doc/handler/IHandlerParameters");
 jest.mock("../../../../../cmd/src/response/CommandResponse");
 jest.mock("../../../../../logger");
 
-import {CommandResponse, IHandlerParameters} from "../../../../../cmd";
-import {Console} from "../../../../../console";
-import {execSync} from "child_process";
-import {readFileSync, writeFileSync} from "jsonfile";
-import {IPluginJson} from "../../../../src/plugins/doc/IPluginJson";
-import {Logger} from "../../../../../logger";
-import {PMFConstants} from "../../../../src/plugins/utilities/PMFConstants";
-import {resolve} from "path";
-import {update} from "../../../../src/plugins/utilities/npm-interface";
+import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
+import { Console } from "../../../../../console";
+import { execSync } from "child_process";
+import { readFileSync, writeFileSync } from "jsonfile";
+import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
+import { Logger } from "../../../../../logger";
+import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
+import { resolve } from "path";
+import { update } from "../../../../src/plugins/utilities/npm-interface";
 import UpdateHandler from "../../../../src/plugins/cmd/update/update.handler";
 
 describe("Plugin Management Facility update handler", () => {

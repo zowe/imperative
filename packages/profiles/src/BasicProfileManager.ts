@@ -9,7 +9,7 @@
 *
 */
 
-import {AbstractProfileManager} from "./abstract/AbstractProfileManager";
+import { AbstractProfileManager } from "./abstract/AbstractProfileManager";
 import {
     IDeleteProfile,
     ILoadProfile,
@@ -28,10 +28,10 @@ import {
     IValidateProfileWithSchema
 } from "./doc";
 
-import {ImperativeExpect} from "../../expect";
-import {isNullOrUndefined} from "util";
-import {ImperativeError} from "../../error";
-import {ProfileIO} from "./utils";
+import { ImperativeExpect } from "../../expect";
+import { isNullOrUndefined } from "util";
+import { ImperativeError } from "../../error";
+import { ProfileIO } from "./utils";
 
 /**
  * Basic Profile Manager is the most basic implementation of the Imperative Profile Manager. In general, it invokes

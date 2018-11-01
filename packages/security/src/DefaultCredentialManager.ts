@@ -9,8 +9,16 @@
 *
 */
 
-import {AbstractCredentialManager, SecureCredential} from "./abstract/AbstractCredentialManager";
-import {ImperativeError} from "../../error";
+/*
+ * tslint rule for missing dependency has been added to this file because it is up to
+ * the host package to specify keytar as a dependency in order for this credential
+ * manager to be used.
+ */
+
+import { AbstractCredentialManager, SecureCredential } from "./abstract/AbstractCredentialManager";
+import { ImperativeError } from "../../error";
+
+// tslint:disable-next-line:no-implicit-dependencies
 import * as keytar from "keytar"; // Used for typing purposes only
 
 /**
@@ -85,6 +93,7 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
      */
     public async initialize(): Promise<void> {
         try {
+            // tslint:disable-next-line:no-implicit-dependencies
             this.keytar = await import("keytar");
         } catch (error) {
             this.loadError = new ImperativeError({

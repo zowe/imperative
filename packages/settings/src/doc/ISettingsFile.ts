@@ -9,7 +9,7 @@
 *
 */
 
-import {IImperativeOverrides} from "../../../imperative/src/doc/IImperativeOverrides";
+import { IImperativeOverrides } from "../../../imperative/src/doc/IImperativeOverrides";
 
 /**
  * This interface defines the structure of the settings file.

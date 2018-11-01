@@ -9,7 +9,7 @@
 *
 */
 
-import {IHeaderContent} from "./doc/IHeaderContent";
+import { IHeaderContent } from "./doc/IHeaderContent";
 
 export class Headers {
     public static readonly CONTENT_TYPE: string = "Content-Type";
