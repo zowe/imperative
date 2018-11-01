@@ -14,7 +14,7 @@ import { CommandPreparer, ICommandDefinition, ICommandProfileTypeConfiguration }
 import { CompleteProfilesGroupBuilder } from "./profiles/builders/CompleteProfilesGroupBuilder";
 import { DefinitionTreeResolver } from "./DefinitionTreeResolver";
 import { Logger } from "../../logger";
-import { dirname } from "path";
+import { dirname, join } from "path";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import { ImperativeError } from "../../error";
 import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
@@ -61,6 +61,21 @@ export class ImperativeConfig {
     private mCallerLocation: string = null;
 
     /**
+     * This is the package name of the host application. It will only be set once accessed to
+     * lessen loads to the host package.json.
+     */
+    private mHostPackageName: string;
+
+    /**
+     * This is the name of our imperative package. It will only be set once accessed to
+     * lessen loads to the imperative package.json.
+     *
+     * It isn't hardcoded so that the name of our package can change without affecting
+     * modules dependent on it.
+     */
+    private mImperativePackageName: string;
+
+    /**
      * Gets a single instance of the PluginIssues. On the first call of
      * ImperativeConfig.instance, a new Plugin Issues object is initialized and returned.
      * Every subsequent call will use the one that was first created.
@@ -105,6 +120,28 @@ export class ImperativeConfig {
      */
     public get loadedConfig(): IImperativeConfig {
         return this.mLoadedConfig;
+    }
+
+    /**
+     * Retrieve the host package name from which imperative was called.
+     */
+    public get hostPackageName(): string {
+        if (!this.mHostPackageName) {
+            this.mHostPackageName = this.callerPackageJson.name;
+        }
+
+        return this.mHostPackageName;
+    }
+
+    /**
+     * Retrieve the package name of the imperative application.
+     */
+    public get imperativePackageName(): string {
+        if (!this.mImperativePackageName) {
+            this.mImperativePackageName = require(join(__dirname, "../../../package.json")).name;
+        }
+
+        return this.mImperativePackageName;
     }
 
     /**
