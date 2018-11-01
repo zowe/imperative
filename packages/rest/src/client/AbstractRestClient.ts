@@ -392,7 +392,10 @@ export abstract class AbstractRestClient {
                 msg: "Rest API failure with HTTP(S) status " + errorCode,
                 causeErrors: this.dataString,
                 additionalDetails:
-                    "Resource: " + this.mResource +
+                    "Host: " + this.mSession.ISession.hostname +
+                    "\nPort: " + this.mSession.ISession.port +
+                    "\nBase Path:" + this.mSession.ISession.basePath +
+                    "\nResource: " + this.mResource +
                     "\nRequest: " + this.mRequest +
                     "\nHeaders: " + headerDetails +
                     "\nPayload: " + payloadDetails,
