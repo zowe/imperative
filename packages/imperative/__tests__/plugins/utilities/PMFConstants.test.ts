@@ -10,79 +10,70 @@
 */
 
 jest.mock("path");
-jest.mock("../../../../logger");
+jest.mock("../../../../logger/src/Logger");
+jest.mock("../../../src/ImperativeConfig");
 
-import { join } from "path";
-import { ImperativeConfig } from "../../../src/ImperativeConfig";
-import { PMFConstants } from "../../../src/plugins/utilities/PMFConstants";
-import { Logger } from "../../../../logger";
-import { Console } from "../../../../console";
 import Mock = jest.Mock;
 
 describe("PMFConstants", () => {
-  const mocks = {
-    join: join as jest.Mock<typeof join>
-  };
+    let {PMFConstants} = require("../../../src/plugins/utilities/PMFConstants");
+    let {ImperativeConfig} = require("../../../src/ImperativeConfig");
+    let {join} = require("path");
 
-  beforeEach(() => {
-    jest.resetAllMocks();
+    const mocks = {
+        join: join as Mock<typeof join>
+    };
 
-    // This needs cleared out before each test
-    (PMFConstants as any).mInstance = null;
+    beforeEach(async () => {
+        jest.resetModules();
+        ({PMFConstants} = await import("../../../src/plugins/utilities/PMFConstants"));
+        ({ImperativeConfig} = await import("../../../src/ImperativeConfig"));
+        ({join} = await import("path"));
 
-    (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
-
-    // Define properties to Imperative CLI that we need
-    Object.defineProperty(ImperativeConfig.instance, "cliHome", {
-      configurable: true, // Allows this to be modified after the first before each
-      get: () => "/sample-cli/home"
+        mocks.join = join;
     });
 
-    Object.defineProperty(ImperativeConfig.instance, "callerFileLocation", {
-      configurable: true, // Allows this to be modified after the first before each
-      get: () => "/"
-    });
-  });
+    it("should initialize properly", () => {
+        const pmfRoot = `${ImperativeConfig.instance.cliHome}/plugins`;
+        const pluginJson = `${pmfRoot}/plugins.json`;
+        const cliInstallDir = "installed";
 
-  it("should initialize properly", () => {
-    const pmfRoot = `${ImperativeConfig.instance.cliHome}/plugins`;
-    const pluginJson = `${pmfRoot}/plugins.json`;
-    const cliInstallDir = "installed";
+        mocks.join
+            .mockReturnValueOnce(pmfRoot)
+            .mockReturnValueOnce(pluginJson)
+            .mockReturnValueOnce(cliInstallDir);
 
-    mocks.join
-      .mockReturnValueOnce(pmfRoot)
-      .mockReturnValueOnce(pluginJson)
-      .mockReturnValueOnce(cliInstallDir);
+        const pmf = PMFConstants.instance;
 
-    const pmf = PMFConstants.instance;
-
-    expect(pmf.PMF_ROOT).toBe(pmfRoot);
-    expect(pmf.PLUGIN_JSON).toBe(pluginJson);
-    expect(pmf.PLUGIN_INSTALL_LOCATION).toBe(cliInstallDir);
-  });
-
-  describe("platform specific checks", () => {
-    // Be sure to remember the current platform
-    const platform = process.platform;
-
-    afterEach(() => {
-      process.platform = platform;
+        expect(pmf.PMF_ROOT).toBe(pmfRoot);
+        expect(pmf.PLUGIN_JSON).toBe(pluginJson);
+        expect(pmf.PLUGIN_INSTALL_LOCATION).toBe(cliInstallDir);
+        expect(pmf.CLI_CORE_PKG_NAME).toBe(ImperativeConfig.instance.hostPackageName);
+        expect(pmf.IMPERATIVE_PKG_NAME).toBe(ImperativeConfig.instance.imperativePackageName);
     });
 
-    it("should point to the correct module location (win32)", () => {
-      process.platform = "win32";
+    describe("platform specific checks", () => {
+        // Be sure to remember the current platform
+        const platform = process.platform;
 
-      const pmf = PMFConstants.instance;
+        afterEach(() => {
+            process.platform = platform;
+        });
 
-      expect(pmf.PLUGIN_INSTALL_LOCATION).toEqual(join(pmf.PLUGIN_INSTALL_LOCATION, "node_modules"));
+        it("should point to the correct module location (win32)", () => {
+            process.platform = "win32";
+
+            const pmf = PMFConstants.instance;
+
+            expect(pmf.PLUGIN_INSTALL_LOCATION).toEqual(join(pmf.PLUGIN_INSTALL_LOCATION, "node_modules"));
+        });
+
+        it("should point to the correct module location (linux)", () => {
+            process.platform = "linux";
+
+            const pmf = PMFConstants.instance;
+
+            expect(pmf.PLUGIN_INSTALL_LOCATION).toEqual(join(pmf.PLUGIN_INSTALL_LOCATION, "lib", "node_modules"));
+        });
     });
-
-    it("should point to the correct module location (linux)", () => {
-      process.platform = "linux";
-
-      const pmf = PMFConstants.instance;
-
-      expect(pmf.PLUGIN_INSTALL_LOCATION).toEqual(join(pmf.PLUGIN_INSTALL_LOCATION, "lib", "node_modules"));
-    });
-  });
 });

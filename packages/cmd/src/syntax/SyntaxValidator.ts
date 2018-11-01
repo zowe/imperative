@@ -127,7 +127,7 @@ export class SyntaxValidator {
         if (!isNullOrUndefined(this.mCommandDefinition.options)) {
             for (const option of this.mCommandDefinition.options) {
                 if (!isNullOrUndefined(commandArguments[option.name]) &&
-                    commandArguments[option.name] === "" ||
+                    (option.type !== "stringOrEmpty" && commandArguments[option.name] === "") ||
                     (option.type !== "boolean" && commandArguments[option.name] === true)) {
                     valid = false;
                     this.emptyValueError(responseObject, option.name);

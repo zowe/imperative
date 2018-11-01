@@ -43,12 +43,13 @@ describe("Plugin Management Facility", () => {
 
     beforeAll(() => {
         /**
-         * Plugin installation creates an imperative link from the plugin
-         * to the installing CLI. Our TestCLI does not have a real imperative
-         * node_module - it is only a test CLI. Also, this entire test environment
-         * lives under the imperative source tree. So, we create a symbolic link
-         * from the TestCLI back up to our own imperative source tree's lib directory.
-         * All of the modules then find things where they expect to see them.
+         * The plugin module loader will inject Imperative to plugins provided
+         * it exists in TestCLI's node modules. Our TestCLI does not have a real
+         * imperative node_module - it is only a test CLI. Also, this entire test
+         * environment lives under the imperative source tree. So, we create a
+         * symbolic link from the TestCLI back up to our own imperative source
+         * tree's lib directory. All of the modules then find things where they
+         * expect to see them.
          */
         const namespaceDirPath = join(testCliNodeModulePath, "@brightside");
         IO.mkdirp(namespaceDirPath);

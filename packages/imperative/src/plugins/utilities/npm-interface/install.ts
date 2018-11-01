@@ -130,9 +130,6 @@ export async function install(packageLocation: string, registry: string, install
             spaces: 2
         });
 
-        // Create a symlink from home/.../imperative to brightside/.../imperative.
-        linkPluginToCli(packageName);
-
         iConsole.info("Plugin '" + packageName + "' successfully installed.");
         return packageName;
     } catch (e) {
@@ -141,67 +138,4 @@ export async function install(packageLocation: string, registry: string, install
             causeErrors: e
         });
     }
-}
-
-// _______________________________________________________________________
-/**
- * Create links from the plugin's node_modules/@brightside directory into
- * subdirectories of the host CLI's project directory.
- *
- * @param {string} pluginName - The name of the plugin that we are installing.
- */
-function linkPluginToCli(pluginName: string): void {
-    const impLogger = Logger.getImperativeLogger();
-    const cliProjPath = getCliProjPath();
-    const pluginBsPath = createPluginBrightsideDir(pluginName);
-    const linksToMake = [
-        {
-            pluginPath: path.join(pluginBsPath, "imperative"),
-            cliPath: path.join(cliProjPath, "node_modules", "@brightside", "imperative")
-        },
-        {
-            pluginPath: path.join(pluginBsPath, "core"),
-            cliPath: cliProjPath
-        }
-    ];
-
-    for (const nextLink of linksToMake) {
-        impLogger.info("Creating symlink from '" + nextLink.pluginPath +
-            "' to '" + nextLink.cliPath + "', as needed."
-        );
-        IO.createSymlinkToDir(nextLink.pluginPath, nextLink.cliPath);
-    }
-}
-
-// _______________________________________________________________________
-/**
- * Get the path to the top-level project directory of our hosting CLI.
- *
- * @returns {String} The path to CLI-dir/node_modules/@brightside/imperative
- */
-function getCliProjPath() {
-    const cliProjPath = path.resolve(
-        path.dirname(
-            require("find-up").sync(
-                "package.json", {cwd: process.mainModule.filename}
-            )
-        )
-    );
-    return cliProjPath;
-}
-
-// _______________________________________________________________________
-/**
- * Create the #brightside directory under the newly installed
- * plugin's node_modules directory.
- *
- * @param {string} pluginName - The name of the plugin that we are installing.
- *
- * @returns {String} The path to the new @brightside directory.
- */
-function createPluginBrightsideDir(pluginName: string) {
-    const pluginBsPath = path.join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION,
-        pluginName, "node_modules", "@brightside");
-    IO.mkdirp(pluginBsPath);
-    return pluginBsPath;
 }

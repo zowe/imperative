@@ -161,6 +161,15 @@ export class PluginManagementFacility {
     public init(): void {
         this.impLogger.debug("PluginManagementFacility.init() - Start");
 
+        // Load lib after the fact to save on speed when plugins not enabled
+        const { PluginRequireProvider } = require("./PluginRequireProvider");
+
+        // Create the hook for imperative and the application cli
+        PluginRequireProvider.createPluginHooks([
+            PMFConstants.instance.IMPERATIVE_PKG_NAME,
+            PMFConstants.instance.CLI_CORE_PKG_NAME
+        ]);
+
         // Add the plugin group and related commands.
         ImperativeConfig.instance.addCmdGrpToLoadedConfig({
             name: "plugins",

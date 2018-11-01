@@ -14,6 +14,7 @@ import Mock = jest.Mock;
 jest.mock("fs");
 jest.mock("jsonfile");
 jest.mock("../../src/plugins/utilities/PMFConstants");
+jest.mock("../../src/plugins/PluginRequireProvider");
 
 import { existsSync, mkdirSync } from "fs";
 import { AppSettings } from "../../../settings";
@@ -54,6 +55,8 @@ describe("Plugin Management Facility", () => {
 
     const mockCfgValidator = jest.fn();
     let realCfgValidator: any;
+
+    let { PluginRequireProvider } = require("../../src/plugins/PluginRequireProvider");
 
     const pluginName = "sample-plugin";
     const PMF = PluginManagementFacility.instance as any;
@@ -152,6 +155,8 @@ describe("Plugin Management Facility", () => {
 
         AppSettings.initialize = jest.fn();
 
+        ({ PluginRequireProvider } = require("../../src/plugins/PluginRequireProvider"));
+
         // instance is a getter of a property, so mock the property
         Object.defineProperty(AppSettings, "instance", {
             configurable: true,
@@ -197,6 +202,12 @@ describe("Plugin Management Facility", () => {
         expect((PluginManagementFacility.instance as any).wasInitCalled).toBe(false);
         PluginManagementFacility.instance.init();
         expect((PluginManagementFacility.instance as any).wasInitCalled).toBe(true);
+
+        // Validate that the module loader was called.
+        expect(PluginRequireProvider.createPluginHooks).toHaveBeenCalledWith(
+            [ PMFConstants.instance.IMPERATIVE_PKG_NAME, PMFConstants.instance.CLI_CORE_PKG_NAME ]
+        );
+
 
         expect(impCfg.addCmdGrpToLoadedConfig).toHaveBeenCalledWith({
             name: "plugins",
