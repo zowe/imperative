@@ -394,7 +394,7 @@ export abstract class AbstractRestClient {
                 additionalDetails:
                     "Host: " + this.mSession.ISession.hostname +
                     "\nPort: " + this.mSession.ISession.port +
-                    "\nBase Path:" + this.mSession.ISession.basePath +
+                    "\nBase Path: " + this.mSession.ISession.basePath +
                     "\nResource: " + this.mResource +
                     "\nRequest: " + this.mRequest +
                     "\nHeaders: " + headerDetails +

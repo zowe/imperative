@@ -21,7 +21,7 @@ exports[`AbstractRestClient tests should error with request rejection when statu
 exports[`AbstractRestClient tests should error with request rejection when status code is not in 200 range 4`] = `
 "Host: test
 Port: 443
-Base Path:
+Base Path: 
 Resource: /resource
 Request: PUT
 Headers: [{\\"My-Header\\":\\"value is here\\"}]
