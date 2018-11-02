@@ -29,10 +29,6 @@ export async function update(packageName: string, registry: string) {
   iConsole.debug(`updating package: ${packageName}`);
 
   // NOTE: Using npm install in order to retrieve the version which may be updated
-  //
-  // Perform the npm install, somehow piping stdout and inheriting stderr gives
-  // some form of a half-assed progress bar. This progress bar doesn't have any
-  // formatting or colors but at least I can get the output of stdout right. (comment from install handler)
   iConsole.info("updating package...this may take some time.");
 
   const execOutput = await installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
