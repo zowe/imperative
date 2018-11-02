@@ -30,12 +30,12 @@ import { PMFConstants } from "./PMFConstants";
  */
 export function runValidatePlugin(pluginName: string): string {
     const extLen = 3;
-    let cmdToRun = "node";
+    let cmdToRun = `"${process.execPath}"`;
     const cliPgmToRun = process.mainModule.filename;
     if (cliPgmToRun.substring(cliPgmToRun.length - extLen) === ".ts") {
         cmdToRun += " --require ts-node/register";
     }
-    cmdToRun += " " + cliPgmToRun;
+    cmdToRun += ` "${cliPgmToRun}"`;
 
     const impLogger = Logger.getImperativeLogger();
     impLogger.debug(`Running plugin validation command = ${cmdToRun} plugins validate "${pluginName}" --response-format-json`);
