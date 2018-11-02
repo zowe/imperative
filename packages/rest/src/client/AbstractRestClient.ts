@@ -11,7 +11,7 @@
 
 import { inspect } from "util";
 import { Logger } from "../../../logger";
-import { IImperativeError, ImperativeError } from "../../../error";
+import { IImperativeError } from "../../../error";
 import { AbstractSession } from "../session/AbstractSession";
 import * as https from "https";
 import * as http from "http";
@@ -23,6 +23,8 @@ import { HTTP_VERB } from "./types/HTTPVerb";
 import { ImperativeExpect } from "../../../expect";
 import { Session } from "../session/Session";
 import * as path from "path";
+import { IRestClientError } from "./doc/IRestClientError";
+import { RestClientError } from "./RestClientError";
 
 export type RestClientResolve = (data: string) => void;
 
@@ -186,17 +188,11 @@ export abstract class AbstractRestClient {
              * Invoke any onError method whenever an error occurs on writing
              */
             clientRequest.on("error", (errorResponse: any) => {
-                let impError: IImperativeError = {
+                reject(this.populateError({
                     msg: "http(s) request error event called",
                     causeErrors: errorResponse,
-                    additionalDetails: errorResponse.message,
-                };
-                const processedError = this.processError(impError);
-                if (processedError != null) {
-                    this.log.debug("Error was processed by overridden processError method in RestClient %s", this.constructor.name);
-                    impError = processedError;
-                }
-                reject(new ImperativeError(impError));
+                    source: "client"
+                }));
             });
 
             // always end the request
@@ -376,40 +372,97 @@ export abstract class AbstractRestClient {
     private onEnd(): void {
         this.log.debug("onEnd() called for rest client %s", this.constructor.name);
         if (this.requestFailure) {
+            // Reject the promise with an error
             const errorCode = this.response == null ? undefined : this.response.statusCode;
-            // start off by coercing the request details to string in case an error is encountered trying
-            // to stringify / inspect them
-            let headerDetails: string = this.mReqHeaders + "";
-            let payloadDetails: string = this.mWriteData + "";
-            try {
-                headerDetails = JSON.stringify(this.mReqHeaders);
-                payloadDetails = inspect(this.mWriteData, {depth: null});
-            } catch (stringifyError) {
-                this.log.error("Error encountered trying to parse details for REST request error:\n %s", inspect(stringifyError, {depth: null}));
-            }
-
-            let impError: IImperativeError = {
+            this.mReject(this.populateError({
                 msg: "Rest API failure with HTTP(S) status " + errorCode,
                 causeErrors: this.dataString,
-                additionalDetails:
-                    "Host: " + this.mSession.ISession.hostname +
-                    "\nPort: " + this.mSession.ISession.port +
-                    "\nBase Path: " + this.mSession.ISession.basePath +
-                    "\nResource: " + this.mResource +
-                    "\nRequest: " + this.mRequest +
-                    "\nHeaders: " + headerDetails +
-                    "\nPayload: " + payloadDetails,
-                errorCode,
-            };
-            const processedError = this.processError(impError);
-            if (processedError != null) {
-                this.log.debug("Error was processed by overridden processError method in RestClient %s", this.constructor.name);
-                impError = processedError;
-            }
-            this.mReject(new ImperativeError(impError));
+                source: "http"
+            }));
         } else {
             this.mResolve(this.dataString);
         }
+    }
+
+    /**
+     * Construct a throwable rest client error with all "relevant" diagnostic information.
+     * The caller should have the session, so not all input fields are present on the error
+     * response. Only the set required to understand "what may have gone wrong".
+     *
+     * The "exit" point for the implementation error override will also be called here. The
+     * implementation can choose to transform the IImperativeError details however they see
+     * fit.
+     *
+     * @param {IRestClientError} error - The base request error. It is expected to already have msg,
+     *                                   causeErrors, and the error source pre-populated.
+     * @param {*} [nodeClientError] - If the source is a node http client error (meaning the request
+     *                                did not make it to the remote system) this parameter should be
+     *                                populated.
+     * @returns {RestClientError} - The error that can be thrown or rejected.
+     */
+    private populateError(error: IRestClientError, nodeClientError?: any): RestClientError {
+
+        // Final error object parameters
+        let finalError: IRestClientError = error;
+
+        // @deprecated - extract the status code - now moved to HTTP status.
+        const errorCode = this.response == null ? undefined : this.response.statusCode;
+
+        // start off by coercing the request details to string in case an error is encountered trying
+        // to stringify / inspect them
+        let headerDetails: string = this.mReqHeaders + "";
+        let payloadDetails: string = this.mWriteData + "";
+        try {
+            headerDetails = JSON.stringify(this.mReqHeaders);
+            payloadDetails = inspect(this.mWriteData, { depth: null });
+        } catch (stringifyError) {
+            this.log.error("Error encountered trying to parse details for REST request error:\n %s", inspect(stringifyError, { depth: null }));
+        }
+
+        // Populate the "relevant" fields - caller will have the session, so
+        // no need to duplicate "everything" here, just host/port for easy diagnosis
+        finalError.errorCode = errorCode;
+        finalError.port = this.mSession.ISession.port;
+        finalError.host = this.mSession.ISession.hostname;
+        finalError.basePath = this.mSession.ISession.basePath;
+        finalError.httpStatus = errorCode;
+        finalError.errno = (nodeClientError != null) ? nodeClientError.errno : undefined;
+        finalError.syscall = (nodeClientError != null) ? nodeClientError.syscall : undefined;
+        finalError.payload = this.mWriteData;
+        finalError.headers = this.mReqHeaders;
+        finalError.resource = this.mResource;
+        finalError.request = this.mRequest;
+
+        // Construct a formatted details message
+        const detailMessage: string =
+        ((finalError.source === "client") ?
+        `HTTP(S) client encountered an error. Request could not be initiated to host.\n` +
+        `Review connection details (host, port) and ensure correctness.`
+        :
+        `HTTP(S) error status "${finalError.httpStatus}" received.\n` +
+        `Review request details (resource, base path, credentials, payload) and ensure correctness.`) +
+        "\n" +
+        "\nSource:    " + finalError.source +
+        "\nHost:      " + finalError.host +
+        "\nPort:      " + finalError.port +
+        "\nBase Path: " + finalError.basePath +
+        "\nResource:  " + finalError.resource +
+        "\nRequest:   " + finalError.request +
+        "\nHeaders:   " + headerDetails +
+        "\nPayload:   " + payloadDetails;
+        finalError.additionalDetails = detailMessage;
+
+        // Allow implementation to modify the error as necessary
+        // TODO - this is probably no longer necessary after adding the custom
+        // TODO - error object, but it is left for compatibility.
+        const processedError = this.processError(error);
+        if (processedError != null) {
+            this.log.debug("Error was processed by overridden processError method in RestClient %s", this.constructor.name);
+            finalError = { ...finalError, ...processedError };
+        }
+
+        // Return the error object
+        return new RestClientError(finalError);
     }
 
     /**
