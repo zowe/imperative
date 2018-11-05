@@ -446,7 +446,7 @@ export class CommandProcessor {
         // Construct the imperative arguments - replacement/wrapper for Yargs to insulate handlers against any
         // changes made to Yargs
         let args: ICommandArguments = CliUtils.buildBaseArgs(commandArguments);
-        this.log.debug(`Base set of arguments from Yargs parse:\n${inspect(args)}`);
+        this.log.trace(`Base set of arguments from Yargs parse:\n${inspect(args)}`);
         let allOpts = (this.definition.options != null) ? this.definition.options : [];
         allOpts = (this.definition.positionals != null) ? allOpts.concat(this.definition.positionals) : allOpts;
         this.log.trace(`Set of options and positionals defined on the command:\n${inspect(allOpts)}`);
@@ -455,9 +455,9 @@ export class CommandProcessor {
         // allow the user to specify the profile to load via environment variable. Then merge with already
         // supplied args from Yargs
         const envArgs = CliUtils.extractEnvForOptions(this.envVariablePrefix, allOpts);
-        this.log.debug(`Arguments extracted from :\n${inspect(args)}`);
+        this.log.trace(`Arguments extracted from :\n${inspect(args)}`);
         args = CliUtils.mergeArguments(envArgs, args);
-        this.log.debug(`Arguments merged :\n${inspect(args)}`);
+        this.log.trace(`Arguments merged :\n${inspect(args)}`);
 
         // Extract arguments from stdin
         this.log.trace(`Reading stdin for "${this.definition.name}" command...`);
@@ -476,7 +476,7 @@ export class CommandProcessor {
         // we can extract values from them for options arguments
         if (this.definition.profile != null) {
             const profArgs = CliUtils.getOptValueFromProfiles(profiles, this.definition.profile, allOpts);
-            this.log.debug(`Arguments extract from the profile:\n${inspect(profArgs)}`);
+            this.log.trace(`Arguments extract from the profile:\n${inspect(profArgs)}`);
             args = CliUtils.mergeArguments(profArgs, args);
         }
 
@@ -497,7 +497,7 @@ export class CommandProcessor {
         args._ = commandArguments._;
 
         // Log for debugging
-        this.log.debug(`Full argument object constructed:\n${inspect(args)}`);
+        this.log.trace(`Full argument object constructed:\n${inspect(args)}`);
         return { profiles, args };
     }
 
