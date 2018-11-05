@@ -9,8 +9,8 @@
 *
 */
 
-import {Imperative} from "../../../imperative/src/Imperative";
-import {ImperativeConfig} from "../../../imperative/src/ImperativeConfig";
+import { Imperative } from "../../../imperative/src/Imperative";
+import { ImperativeConfig } from "../../../imperative/src/ImperativeConfig";
 import { ICommandHandler, IHandlerParameters } from "../../../cmd";
 /**
  * The default command handler for the top level/root command

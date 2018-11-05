@@ -9,18 +9,18 @@
 *
 */
 
-import {ICommandHandler, ICommandResponse, IHandlerParameters} from "../../../../../cmd";
-import {Logger} from "../../../../../logger/";
-import {PMFConstants} from "../../utilities/PMFConstants";
-import {resolve} from "path";
-import {install} from "../../utilities/npm-interface";
-import {IPluginJson} from "../../doc/IPluginJson";
-import {IPluginJsonObject} from "../../doc/IPluginJsonObject";
-import {readFileSync} from "jsonfile";
-import {execSync} from "child_process";
-import {TextUtils} from "../../../../../utilities";
-import {ImperativeError} from "../../../../../error";
-import {runValidatePlugin} from "../../utilities/runValidatePlugin";
+import { ICommandHandler, ICommandResponse, IHandlerParameters } from "../../../../../cmd";
+import { Logger } from "../../../../../logger/";
+import { PMFConstants } from "../../utilities/PMFConstants";
+import { resolve, join } from "path";
+import { install } from "../../utilities/npm-interface";
+import { IPluginJson } from "../../doc/IPluginJson";
+import { IPluginJsonObject } from "../../doc/IPluginJsonObject";
+import { readFileSync } from "jsonfile";
+import { TextUtils } from "../../../../../utilities";
+import { ImperativeError } from "../../../../../error";
+import { runValidatePlugin } from "../../utilities/runValidatePlugin";
+import { getRegistry } from "../../utilities/NpmApiFunctions";
 
 /**
  * The install command handler for cli plugin install.
@@ -80,13 +80,12 @@ export default class InstallHandler implements ICommandHandler {
       });
     } else {
       try {
-        let installRegistry: string;
+        let installRegistry: any;
 
         // Get the registry to install to
         if (typeof params.arguments.registry === "undefined") {
-          installRegistry = execSync("npm config get registry")
-            .toString()
-            .replace("\n", "");
+            installRegistry = await getRegistry();
+            installRegistry.replace("\n", "");
         } else {
           installRegistry = params.arguments.registry;
         }
@@ -97,8 +96,10 @@ export default class InstallHandler implements ICommandHandler {
           "at your own risk. CA Technologies makes no warranties regarding the use of\n" +
           "3rd party plug-ins.\n\n" +
           "Imperative's plugin installation program handles peer dependencies for modules\n" +
-          "in the @brightside namespace, so you can safely ignore NPM warnings about\n" +
-          "missing peer dependencies related to @brightside modules.\n"
+          "in the @brightside namespace and missing package.json file,\n" +
+          "so you can safely ignore NPM warnings about\n" +
+          "missing peer dependencies related to @brightside modules and absent " +
+          join(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, "package.json") + " file."
         );
 
         params.response.console.log("Registry = " + installRegistry);
@@ -145,7 +146,7 @@ export default class InstallHandler implements ICommandHandler {
               this.console.debug(`Package: ${packageArgument}`);
 
               params.response.console.log("\n_______________________________________________________________");
-              const pluginName = install(packageArgument, packageInfo.registry, true);
+              const pluginName = await install(packageArgument, packageInfo.registry, true);
               params.response.console.log("Installed plugin name = '" + pluginName + "'");
               params.response.console.log(runValidatePlugin(pluginName));
             }
@@ -155,7 +156,7 @@ export default class InstallHandler implements ICommandHandler {
         } else {
           for (const packageString of params.arguments.plugin) {
             params.response.console.log("\n_______________________________________________________________");
-            const pluginName = install(`${packageString}`, installRegistry);
+            const pluginName = await install(`${packageString}`, installRegistry);
             params.response.console.log("Installed plugin name = '" + pluginName + "'");
             params.response.console.log(runValidatePlugin(pluginName));
           }

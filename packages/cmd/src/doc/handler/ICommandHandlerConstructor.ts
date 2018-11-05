@@ -9,7 +9,7 @@
 *
 */
 
-import {ICommandHandler} from "./ICommandHandler";
+import { ICommandHandler } from "./ICommandHandler";
 
 /**
  * This interface is here so that we can indicate an object from a

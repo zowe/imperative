@@ -1,4 +1,5 @@
 {
+    "name": "test-cli-for-profiles",
     "dependencies": {
         "keytar": "rock-out-with-a-keytar"
     }

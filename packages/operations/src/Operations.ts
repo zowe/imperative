@@ -9,11 +9,11 @@
 *
 */
 
-import {IOperationResultReady, Operation} from "./Operation";
-import {IOperationResult} from "./doc/IOperationResult";
-import {isNullOrUndefined} from "util";
-import {TextUtils} from "../../utilities";
-import {TaskProgress} from "./TaskProgress";
+import { IOperationResultReady, Operation } from "./Operation";
+import { IOperationResult } from "./doc/IOperationResult";
+import { isNullOrUndefined } from "util";
+import { TextUtils } from "../../utilities";
+import { TaskProgress } from "./TaskProgress";
 
 /**
  * The Operations class extends Operation and is used to create a 'string' of operations that must

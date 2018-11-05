@@ -11,5 +11,5 @@
 
 import { ICommandHandler, IHandlerParameters } from "imperative";
 export default class HealthCheckHandler implements ICommandHandler {
-    process(params: IHandlerParameters): Promise<void>;
+    public process(params: IHandlerParameters): Promise<void>;
 }

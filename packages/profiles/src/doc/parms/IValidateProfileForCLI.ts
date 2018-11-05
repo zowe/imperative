@@ -9,8 +9,8 @@
 *
 */
 
-import {IValidateProfile} from "./IValidateProfile";
-import {IValidateProfileWithSchema} from "./IValidateProfileWithSchema";
+import { IValidateProfile } from "./IValidateProfile";
+import { IValidateProfileWithSchema } from "./IValidateProfileWithSchema";
 
 /**
  * Input to the "validateProfile" internal API. Indicates the schema document to be used for the validation.

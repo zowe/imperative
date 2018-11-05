@@ -9,9 +9,9 @@
 *
 */
 
-import {IProfileValidationPlan, IProfileValidationTask} from "../../../../../packages/profiles";
-import {IProfileValidationTaskResult} from "../../../../../packages/profiles/src/validation/doc/IProfileValidationTaskResult";
-import {isNullOrUndefined} from "util";
+import { IProfileValidationPlan, IProfileValidationTask } from "../../../../../packages/profiles";
+import { IProfileValidationTaskResult } from "../../../../../packages/profiles/src/validation/doc/IProfileValidationTaskResult";
+import { isNullOrUndefined } from "util";
 
 export = class ManyFieldValidationPlan implements IProfileValidationPlan {
 

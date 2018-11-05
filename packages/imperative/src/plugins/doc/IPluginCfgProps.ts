@@ -9,9 +9,9 @@
 *
 */
 
-import {IPluginPeerDepends} from "./IPluginPeerDepends";
-import {PMFConstants} from "../utilities/PMFConstants";
-import {IImperativeConfig} from "../../doc/IImperativeConfig";
+import { IPluginPeerDepends } from "./IPluginPeerDepends";
+import { PMFConstants } from "../utilities/PMFConstants";
+import { IImperativeConfig } from "../../doc/IImperativeConfig";
 
 /**
  * A plugin's configuration properties.

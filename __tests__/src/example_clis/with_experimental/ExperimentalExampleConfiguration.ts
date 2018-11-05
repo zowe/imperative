@@ -9,8 +9,8 @@
 *
 */
 
-import {IImperativeConfig} from "../../../../packages/imperative";
-import {ExperimentalExampleConstants} from "./ExperimentalExampleConstants";
+import { IImperativeConfig } from "../../../../packages/imperative";
+import { ExperimentalExampleConstants } from "./ExperimentalExampleConstants";
 
 const config: IImperativeConfig = {
     definitions: [

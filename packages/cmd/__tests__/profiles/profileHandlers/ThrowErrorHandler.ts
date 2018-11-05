@@ -9,7 +9,7 @@
 *
 */
 
-import {ICommandHandler, IHandlerParameters} from "../../../";
+import { ICommandHandler, IHandlerParameters } from "../../../";
 
 export default class ThrowErrorHandler implements ICommandHandler {
     public async process(params: IHandlerParameters): Promise<void> {

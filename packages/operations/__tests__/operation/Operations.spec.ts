@@ -9,14 +9,14 @@
 *
 */
 
-import {TestOperations1} from "./mockops/TestOperations1";
-import {TestOperations4} from "./mockops/TestOperations4";
+import { TestOperations1 } from "./mockops/TestOperations1";
+import { TestOperations4 } from "./mockops/TestOperations4";
 
-import {isNullOrUndefined} from "util";
-import {TestOperations3} from "./mockops/TestOperations3";
+import { isNullOrUndefined } from "util";
+import { TestOperations3 } from "./mockops/TestOperations3";
 
-import {IOperationResult, Operation, Operations} from "../../index";
-import {TestLogger} from "../../../../__tests__/TestLogger";
+import { IOperationResult, Operation, Operations } from "../../index";
+import { TestLogger } from "../../../../__tests__/TestLogger";
 
 const logger = TestLogger.getTestLogger();
 

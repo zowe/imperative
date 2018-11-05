@@ -19,20 +19,21 @@ jest.mock("../../../../src/plugins/utilities/PMFConstants");
 jest.mock("../../../../../logger");
 jest.mock("../../../../../cmd/src/response/CommandResponse");
 jest.mock("../../../../../cmd/src/response/HandlerResponse");
+jest.mock("../../../../src/plugins/utilities/NpmApiFunctions");
 
-import {Console} from "../../../../../console";
-import {execSync} from "child_process";
-import {existsSync} from "fs";
-import {IPluginJson} from "../../../../src/plugins/doc/IPluginJson";
-import {Logger} from "../../../../../logger";
-import {PMFConstants} from "../../../../src/plugins/utilities/PMFConstants";
-import {readFileSync} from "jsonfile";
-import {update} from "../../../../src/plugins/utilities/npm-interface";
+import { Console } from "../../../../../console";
+import { existsSync } from "fs";
+import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
+import { Logger } from "../../../../../logger";
+import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
+import { readFileSync } from "jsonfile";
+import { update } from "../../../../src/plugins/utilities/npm-interface";
+import { installPackages } from "../../../../src/plugins/utilities/NpmApiFunctions";
 
 describe("PMF: update Interface", () => {
   // Objects created so types are correct.
   const mocks = {
-    execSync: execSync as Mock<typeof execSync>,
+    installPackages: installPackages as Mock<typeof installPackages>,
     existsSync: existsSync as Mock<typeof existsSync>,
     readFileSync: readFileSync as Mock<typeof readFileSync>,
   };
@@ -62,22 +63,17 @@ describe("PMF: update Interface", () => {
    * @param {boolean} [updateFromFile=false] was the update from a file. This affects
    *                                          the pipe sent to execSync stdio option.
    */
-  const wasExecSyncCallValid = (expectedPackage: string, expectedRegistry: string) => {
-    expect(mocks.execSync).toHaveBeenCalledWith(
-      `npm install "${expectedPackage}" --prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g --registry ${expectedRegistry}`,
-      {
-        cwd  : PMFConstants.instance.PMF_ROOT,
-        stdio: ["pipe", "pipe", process.stderr]
-      }
-    );
+  const wasNpmInstallCallValid = (expectedPackage: string, expectedRegistry: string) => {
+    expect(mocks.installPackages).toHaveBeenCalledWith(PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
+        expectedRegistry, true, expectedPackage);
   };
 
   describe("Basic update", () => {
     beforeEach(() => {
-      mocks.execSync.mockReturnValue(`+ ${packageName}@${packageVersion}`);
+      mocks.installPackages.mockReturnValue(`+ ${packageName}@${packageVersion}`);
     });
 
-    it("should update from the npm registry", () => {
+    it("should update from the npm registry", async () => {
 
     // value for our plugins.json
     const oneOldPlugin: IPluginJson = {
@@ -88,16 +84,17 @@ describe("PMF: update Interface", () => {
       }
     };
 
-    mocks.execSync.mockReturnValue(`+ ${packageName}@${packageVersion}`);
+    mocks.installPackages.mockReturnValue(`+ ${packageName}@${packageVersion}`);
     mocks.readFileSync.mockReturnValue(oneOldPlugin);
 
-    expect(update(packageName, packageRegistry)).toEqual(packageVersion);
+    const data = await update(packageName, packageRegistry);
+    expect(data).toEqual(packageVersion);
 
     // Validate the update
-    wasExecSyncCallValid(packageName, packageRegistry);
+    wasNpmInstallCallValid(packageName, packageRegistry);
   });
 });
-  it("should update from the npm registry", () => {
+  it("should update from the npm registry", async () => {
 
     // value for our plugins.json
     const oneOldPlugin: IPluginJson = {
@@ -108,12 +105,13 @@ describe("PMF: update Interface", () => {
       }
     };
 
-    mocks.execSync.mockReturnValue(`+ ${packageName}@${packageVersion}`);
+    mocks.installPackages.mockReturnValue(`+ ${packageName}@${packageVersion}`);
     mocks.readFileSync.mockReturnValue(oneOldPlugin);
 
-    expect(update(packageName, packageRegistry)).toEqual(packageVersion);
+    const data = await update(packageName, packageRegistry);
+    expect(data).toEqual(packageVersion);
 
     // Validate the update
-    wasExecSyncCallValid(packageName, packageRegistry);
+    wasNpmInstallCallValid(packageName, packageRegistry);
   });
 });

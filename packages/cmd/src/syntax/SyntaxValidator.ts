@@ -127,7 +127,7 @@ export class SyntaxValidator {
         if (!isNullOrUndefined(this.mCommandDefinition.options)) {
             for (const option of this.mCommandDefinition.options) {
                 if (!isNullOrUndefined(commandArguments[option.name]) &&
-                    commandArguments[option.name] === "" ||
+                    (option.type !== "stringOrEmpty" && commandArguments[option.name] === "") ||
                     (option.type !== "boolean" && commandArguments[option.name] === true)) {
                     valid = false;
                     this.emptyValueError(responseObject, option.name);
@@ -947,9 +947,8 @@ export class SyntaxValidator {
         for (const missing of missingPositionals) {
             responseObject.console.errorHeader(syntaxErrorHeader.message);
             const message: string
-                = responseObject.console.error("Missing Positional Option:\n{{missing}}\n\n" +
-                "Option Description:\n" +
-                "{{optDesc}}",
+                = responseObject.console.error("Missing Positional Argument: {{missing}}\n" +
+                "Argument Description: {{optDesc}}",
                 {missing: missing.name, optDesc: TextUtils.wordWrap(missing.description)});
             this.appendValidatorError(responseObject,
                 {

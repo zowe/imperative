@@ -15,8 +15,8 @@
  * @export
  * @interface IProfileManager
  */
-import {Logger} from "../../../../logger";
-import {IProfileTypeConfiguration} from "../config/IProfileTypeConfiguration";
+import { Logger } from "../../../../logger";
+import { IProfileTypeConfiguration } from "../config/IProfileTypeConfiguration";
 
 export interface IProfileManager<T extends IProfileTypeConfiguration> {
     /**

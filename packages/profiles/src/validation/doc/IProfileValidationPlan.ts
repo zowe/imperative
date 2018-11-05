@@ -9,7 +9,7 @@
 *
 */
 
-import {IProfileValidationTask} from "./IProfileValidationTask";
+import { IProfileValidationTask } from "./IProfileValidationTask";
 
 /**
  * An overall plan for validating a profile, composed of multiple tasks

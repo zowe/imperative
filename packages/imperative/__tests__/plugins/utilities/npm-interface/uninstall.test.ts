@@ -20,14 +20,14 @@ jest.mock("../../../../../logger");
 jest.mock("../../../../../cmd/src/response/CommandResponse");
 jest.mock("../../../../../cmd/src/response/HandlerResponse");
 
-import {Console} from "../../../../../console";
-import {execSync} from "child_process";
-import {ImperativeError} from "../../../../../error";
-import {IPluginJson} from "../../../../src/plugins/doc/IPluginJson";
-import {Logger} from "../../../../../logger";
-import {PMFConstants} from "../../../../src/plugins/utilities/PMFConstants";
-import {readFileSync, writeFileSync} from "jsonfile";
-import {uninstall} from "../../../../src/plugins/utilities/npm-interface";
+import { Console } from "../../../../../console";
+import { execSync } from "child_process";
+import { ImperativeError } from "../../../../../error";
+import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
+import { Logger } from "../../../../../logger";
+import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
+import { readFileSync, writeFileSync } from "jsonfile";
+import { uninstall } from "../../../../src/plugins/utilities/npm-interface";
 
 
 describe("PMF: Uninstall Interface", () => {

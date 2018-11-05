@@ -9,8 +9,8 @@
 *
 */
 
-import {CommandPreparer, ICommandDefinition} from "../../../cmd";
-import {IImperativeConfig} from "../doc/IImperativeConfig";
+import { CommandPreparer, ICommandDefinition } from "../../../cmd";
+import { IImperativeConfig } from "../doc/IImperativeConfig";
 
 export class ImperativeConfig {
     private static mInstance: ImperativeConfig = null;
@@ -22,6 +22,12 @@ export class ImperativeConfig {
         },
         experimentalCommandDescription: "The quick brown fox jumped over the lazy dog!"
     };
+
+    // Private so that tests can access and change the result of the get
+    private mHostPackageName = "host-package";
+
+    // Private so that tests can access and change the result of the get
+    private mImperativePackageName = "@brightside/imperative";
 
     public static get instance(): ImperativeConfig {
         if (this.mInstance == null) {
@@ -83,4 +89,11 @@ export class ImperativeConfig {
       };
     }
 
+    public get hostPackageName(): string {
+        return this.mHostPackageName;
+    }
+
+    public get imperativePackageName(): string {
+        return this.mImperativePackageName;
+    }
 }

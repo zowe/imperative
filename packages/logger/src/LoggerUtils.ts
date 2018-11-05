@@ -9,7 +9,7 @@
 *
 */
 
-import {Arguments} from "yargs";
+import { Arguments } from "yargs";
 import { CliUtils } from "../../utilities/src/CliUtils";
 
 export class LoggerUtils {

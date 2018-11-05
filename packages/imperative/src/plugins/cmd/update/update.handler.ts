@@ -9,14 +9,14 @@
 *
 */
 
-import {ICommandHandler, ICommandResponse, IHandlerParameters} from "../../../../../cmd";
-import {Logger} from "../../../../../logger";
-import {PMFConstants} from "../../utilities/PMFConstants";
-import {update} from "../../utilities/npm-interface";
-import {ImperativeError} from "../../../../../error";
-import {TextUtils} from "../../../../../utilities";
-import {IPluginJson} from "../../doc/IPluginJson";
-import {readFileSync, writeFileSync} from "jsonfile";
+import { ICommandHandler, ICommandResponse, IHandlerParameters } from "../../../../../cmd";
+import { Logger } from "../../../../../logger";
+import { PMFConstants } from "../../utilities/PMFConstants";
+import { update } from "../../utilities/npm-interface";
+import { ImperativeError } from "../../../../../error";
+import { TextUtils } from "../../../../../utilities";
+import { IPluginJson } from "../../doc/IPluginJson";
+import { readFileSync, writeFileSync } from "jsonfile";
 
 /**
  * The update command handler for cli plugin install.
@@ -75,7 +75,7 @@ export default class UpdateHandler implements ICommandHandler {
             registry = installedPlugins[pluginName].registry;
           }
           // Call update which returns the plugin's version so plugins.json can be updated
-          installedPlugins[pluginName].version = update(packageName, registry);
+          installedPlugins[pluginName].version = await update(packageName, registry);
           installedPlugins[pluginName].registry = registry; // update in case it changed
 
           writeFileSync(PMFConstants.instance.PLUGIN_JSON, installedPlugins, {

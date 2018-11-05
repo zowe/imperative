@@ -9,7 +9,7 @@
 *
 */
 
-import {TaskStage} from "../TaskStage";
+import { TaskStage } from "../TaskStage";
 
 /**
  * Implement this interface to be able to be tracked by the CLI progress bar or

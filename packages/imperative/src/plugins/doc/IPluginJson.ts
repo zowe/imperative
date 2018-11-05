@@ -9,7 +9,7 @@
 *
 */
 
-import {IPluginJsonObject} from "./IPluginJsonObject";
+import { IPluginJsonObject } from "./IPluginJsonObject";
 
 /**
  * Format of plugins.json file. Represents the list of installed plugins.

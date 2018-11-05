@@ -9,8 +9,8 @@
 *
 */
 
-import {ICommandDefinition} from "../../../../../cmd";
-import {join} from "path";
+import { ICommandDefinition } from "../../../../../cmd";
+import { join } from "path";
 
 const pluginDescription =
   "The name of the plug-in to uninstall.\n\n" +

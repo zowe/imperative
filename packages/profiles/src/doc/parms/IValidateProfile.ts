@@ -9,7 +9,7 @@
 *
 */
 
-import {IProfile} from "../definition/IProfile";
+import { IProfile } from "../definition/IProfile";
 
 /**
  * Parameters to the "validate()" profile manager APIs. Validates a profile structure (basic and schema)

@@ -9,11 +9,11 @@
 *
 */
 
-import {IImperativeConfig} from "./doc/IImperativeConfig";
-import {isNullOrUndefined} from "util";
-import {TextUtils} from "../../utilities";
-import {ImperativeError} from "../../error";
-import {ICommandProfileProperty} from "../../cmd/src/doc/profiles/definition/ICommandProfileProperty";
+import { IImperativeConfig } from "./doc/IImperativeConfig";
+import { isNullOrUndefined } from "util";
+import { TextUtils } from "../../utilities";
+import { ImperativeError } from "../../error";
+import { ICommandProfileProperty } from "../../cmd/src/doc/profiles/definition/ICommandProfileProperty";
 
 /**
  * Imperative-internal class to validate configuration

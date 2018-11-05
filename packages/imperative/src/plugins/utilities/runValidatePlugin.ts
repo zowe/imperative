@@ -9,11 +9,11 @@
 *
 */
 
-import {execSync} from "child_process";
-import {Imperative} from "../../../../";
-import {IssueSeverity} from "./PluginIssues";
-import {Logger} from "../../../../logger";
-import {PMFConstants} from "./PMFConstants";
+import { execSync } from "child_process";
+import { Imperative } from "../../../../";
+import { IssueSeverity } from "./PluginIssues";
+import { Logger } from "../../../../logger";
+import { PMFConstants } from "./PMFConstants";
 
 /**
  * Run another instance of the host CLI command to validate a plugin that has
@@ -41,8 +41,12 @@ export function runValidatePlugin(pluginName: string): string {
     impLogger.debug(`Running plugin validation command = ${cmdToRun} plugins validate "${pluginName}" --response-format-json`);
     const valOutputJsonTxt = execSync(`${cmdToRun} plugins validate "${pluginName}" --response-format-json`, {
         cwd: PMFConstants.instance.PMF_ROOT
-    });
-    const valResultJsonObj = JSON.parse(valOutputJsonTxt.toString());
+    }).toString();
+
+    // Debug trace information
+    impLogger.trace(`Command Output: ${valOutputJsonTxt}`);
+
+    const valResultJsonObj = JSON.parse(valOutputJsonTxt);
     return formValidateMsg(valResultJsonObj);
 }
 

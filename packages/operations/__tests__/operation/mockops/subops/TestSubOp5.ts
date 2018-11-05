@@ -9,8 +9,8 @@
 *
 */
 
-import {IOperationCompleted, IOperationUndoCompleted, Operation} from "../../../../index";
-import {TestLogger} from "../../../../../../__tests__/TestLogger";
+import { IOperationCompleted, IOperationUndoCompleted, Operation } from "../../../../index";
+import { TestLogger } from "../../../../../../__tests__/TestLogger";
 
 const logger = TestLogger.getTestLogger();
 

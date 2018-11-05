@@ -9,7 +9,7 @@
 *
 */
 
-import {COMMAND_RESPONSE_FORMAT} from "../api/processor/ICommandResponseApi";
+import { COMMAND_RESPONSE_FORMAT } from "../api/processor/ICommandResponseApi";
 import { ICommandDefinition } from "../../../..";
 import { Arguments } from "yargs";
 /**

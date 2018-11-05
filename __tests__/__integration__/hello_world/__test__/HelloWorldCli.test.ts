@@ -10,7 +10,7 @@
 */
 
 import { ITestEnvironment } from "./../../../__src__/environment/doc/response/ITestEnvironment";
-import {spawnSync, SpawnSyncReturns} from "child_process";
+import { spawnSync, SpawnSyncReturns } from "child_process";
 import { inspect } from "util";
 import { SetupTestEnvironment } from "./../../../__src__/environment/SetupTestEnvironment";
 import * as TestUtils from "../../../src/TestUtil";

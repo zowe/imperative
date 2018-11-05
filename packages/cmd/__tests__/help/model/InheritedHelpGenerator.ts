@@ -9,8 +9,8 @@
 *
 */
 
-import {AbstractHelpGenerator} from "../../../src/help/abstract/AbstractHelpGenerator";
-import {CommandOptionType} from "../../../src/doc/option/ICommandOptionDefinition";
+import { AbstractHelpGenerator } from "../../../src/help/abstract/AbstractHelpGenerator";
+import { CommandOptionType } from "../../../src/doc/option/ICommandOptionDefinition";
 
 export class InheritedHelpGenerator extends AbstractHelpGenerator {
 

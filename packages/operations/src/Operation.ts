@@ -9,14 +9,14 @@
 *
 */
 
-import {IOperationResult} from "./doc/IOperationResult";
-import {TaskStage} from "./TaskStage";
-import {isNullOrUndefined} from "util";
+import { IOperationResult } from "./doc/IOperationResult";
+import { TaskStage } from "./TaskStage";
+import { isNullOrUndefined } from "util";
 import * as fs from "fs";
-import {TextUtils} from "../../utilities";
-import {ITaskWithStatus} from "./doc/ITaskWithStatus";
-import {TaskProgress} from "./TaskProgress";
-import {Logger} from "../../logger";
+import { TextUtils } from "../../utilities";
+import { ITaskWithStatus } from "./doc/ITaskWithStatus";
+import { TaskProgress } from "./TaskProgress";
+import { Logger } from "../../logger";
 
 
 export type IOperationCompleted<T> =
