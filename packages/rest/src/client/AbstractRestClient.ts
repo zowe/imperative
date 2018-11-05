@@ -442,7 +442,6 @@ export abstract class AbstractRestClient {
         `HTTP(S) error status "${finalError.httpStatus}" received.\n` +
         `Review request details (resource, base path, credentials, payload) and ensure correctness.`) +
         "\n" +
-        "\nSource:    " + finalError.source +
         "\nHost:      " + finalError.host +
         "\nPort:      " + finalError.port +
         "\nBase Path: " + finalError.basePath +
