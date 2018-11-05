@@ -14,47 +14,21 @@ import { IRestClientError } from "./doc/IRestClientError";
 import { IImperativeErrorParms } from "../../../error/src/doc/IImperativeErrorParms";
 
 export class RestClientError extends ImperativeError {
+    /**
+     * Creates an instance of RestClientError.
+     * @param {IRestClientError} mDetails - The IRestClientError details provided by the rest client. Contains
+     *                                      "relevant" diagnostic information such as host/port/request details, etc.
+     * @param {IImperativeErrorParms} [parms] - Imperative error parameters.
+     */
     constructor(public mDetails: IRestClientError, parms?: IImperativeErrorParms) {
         super(mDetails, parms);
     }
 
-    public get host(): string {
-        return this.mDetails.host;
-    }
-
-    public get errno(): string {
-        return this.mDetails.errno;
-    }
-
-    public get syscall(): string {
-        return this.mDetails.syscall;
-    }
-
-    public get port(): number {
-        return this.mDetails.port;
-    }
-
-    public get httpStatus(): number {
-        return this.mDetails.httpStatus;
-    }
-
-    public get basePath(): string {
-        return this.mDetails.basePath;
-    }
-
-    public get headers(): any[] {
-        return this.mDetails.headers;
-    }
-
-    public get resource(): string {
-        return this.mDetails.resource;
-    }
-
-    public get payload(): string {
-        return this.mDetails.payload;
-    }
-
-    public get request(): string {
-        return this.mDetails.request;
+    /**
+     * Accessor for IRestClientError error details.
+     * @type {IRestClientError}
+     */
+    public get details(): IRestClientError {
+        return this.mDetails;
     }
 }
