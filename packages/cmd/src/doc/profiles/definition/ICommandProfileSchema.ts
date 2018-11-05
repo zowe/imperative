@@ -9,7 +9,7 @@
 *
 */
 
-import {ICommandProfileProperty} from "./ICommandProfileProperty";
+import { ICommandProfileProperty } from "./ICommandProfileProperty";
 import { IProfileSchema } from "../../../../../profiles";
 /**
  * Externally exposed version of the profile schema with command options for auto-generated commands

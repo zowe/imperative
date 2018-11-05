@@ -23,8 +23,8 @@ import { IssueSeverity, PluginIssues } from "./utilities/PluginIssues";
 import { ConfigurationValidator } from "../ConfigurationValidator";
 import { ConfigurationLoader } from "../ConfigurationLoader";
 import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
-import {IImperativeOverrides} from "../doc/IImperativeOverrides";
-import {AppSettings} from "../../../settings";
+import { IImperativeOverrides } from "../doc/IImperativeOverrides";
+import { AppSettings } from "../../../settings";
 
 /**
  * This class is the main engine for the Plugin Management Facility. The
@@ -160,6 +160,15 @@ export class PluginManagementFacility {
      */
     public init(): void {
         this.impLogger.debug("PluginManagementFacility.init() - Start");
+
+        // Load lib after the fact to save on speed when plugins not enabled
+        const { PluginRequireProvider } = require("./PluginRequireProvider");
+
+        // Create the hook for imperative and the application cli
+        PluginRequireProvider.createPluginHooks([
+            PMFConstants.instance.IMPERATIVE_PKG_NAME,
+            PMFConstants.instance.CLI_CORE_PKG_NAME
+        ]);
 
         // Add the plugin group and related commands.
         ImperativeConfig.instance.addCmdGrpToLoadedConfig({

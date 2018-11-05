@@ -9,7 +9,7 @@
 *
 */
 
-import {Console} from "../../console";
+import { Console } from "../../console";
 describe("Console tests", () => {
 
     it("Should allow for checking if a level is valid", () => {

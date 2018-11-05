@@ -9,10 +9,10 @@
 *
 */
 
-import {ImperativeExpect} from "../../../expect";
-import {inspect, isNullOrUndefined, isString} from "util";
-import {Logger} from "../../../logger";
-import {ImperativeError} from "../../../error";
+import { ImperativeExpect } from "../../../expect";
+import { inspect, isNullOrUndefined, isString } from "util";
+import { Logger } from "../../../logger";
+import { ImperativeError } from "../../../error";
 import * as nodePath from "path";
 import {
     IDeleteProfile,
@@ -34,7 +34,7 @@ import {
     IValidateProfile,
     IValidateProfileWithSchema
 } from "../doc/";
-import {ProfileIO, ProfileUtils} from "../utils";
+import { ProfileIO, ProfileUtils } from "../utils";
 
 const SchemaValidator = require("jsonschema").Validator;
 

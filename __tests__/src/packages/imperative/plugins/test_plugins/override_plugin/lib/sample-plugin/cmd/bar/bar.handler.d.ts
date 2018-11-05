@@ -15,5 +15,5 @@ import { ICommandHandler, IHandlerParameters } from "@brightside/imperative";
  * Defining handler to be use for the 'bar' command.
  */
 export default class BarHandler implements ICommandHandler {
-    process(params: IHandlerParameters): Promise<void>;
+    public process(params: IHandlerParameters): Promise<void>;
 }

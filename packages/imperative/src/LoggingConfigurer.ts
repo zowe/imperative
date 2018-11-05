@@ -9,13 +9,13 @@
 *
 */
 
-import {IConfigLogging, Logger, LoggerConfigBuilder} from "../../logger";
-import {IImperativeConfig} from "./doc/IImperativeConfig";
-import {Console} from "../../console";
-import {isNullOrUndefined} from "util";
-import {IO} from "../../io";
-import {IImperativeLoggingConfig} from "./doc/IImperativeLoggingConfig";
-import {ImperativeError} from "../../error";
+import { IConfigLogging, Logger, LoggerConfigBuilder } from "../../logger";
+import { IImperativeConfig } from "./doc/IImperativeConfig";
+import { Console } from "../../console";
+import { isNullOrUndefined } from "util";
+import { IO } from "../../io";
+import { IImperativeLoggingConfig } from "./doc/IImperativeLoggingConfig";
+import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
 
 /**

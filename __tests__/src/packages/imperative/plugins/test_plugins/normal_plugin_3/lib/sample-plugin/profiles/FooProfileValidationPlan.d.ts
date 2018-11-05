@@ -11,7 +11,7 @@
 
 import { IProfileValidationPlan, IProfileValidationTask } from "imperative";
 declare class FooProfileValidationPlan implements IProfileValidationPlan {
-    readonly tasks: IProfileValidationTask[];
-    readonly failureSuggestions: string;
+    public readonly tasks: IProfileValidationTask[];
+    public readonly failureSuggestions: string;
 }
 export = FooProfileValidationPlan;

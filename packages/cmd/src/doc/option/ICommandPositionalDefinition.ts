@@ -9,7 +9,7 @@
 *
 */
 
-import {CommandOptionType} from "./ICommandOptionDefinition";
+import { CommandOptionType } from "./ICommandOptionDefinition";
 
 /**
  * Positional option definition - used on a command definition to define positional operands.

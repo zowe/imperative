@@ -49,14 +49,14 @@ const lint: ITaskFunction = (done) => {
     loadDependencies();
     let lintProcess: SpawnSyncReturns<string>;
     try {
-        lintProcess = childProcess.spawnSync("node", [tslintExecutable,
-            "--format", "verbose", "packages/**/*.ts"], {stdio: "inherit"});
+        lintProcess = childProcess.spawnSync("npm", ["run", "lint"], {stdio: "inherit", shell: true});
 
     } catch (e) {
         gutil.log(gutil.colors.red("Error encountered trying to run tslint"));
         done(e);
         return;
     }
+
     try {
         if (lintProcess.status !== 0) {
             const lintWarning: IGulpError =

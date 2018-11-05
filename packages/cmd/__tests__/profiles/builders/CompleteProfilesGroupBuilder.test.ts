@@ -11,7 +11,7 @@
 
 import { deleteHandlerPaths, testBuilderProfiles } from "./ProfileBuilderTestConstants";
 import { TestLogger } from "../../../../../__tests__/TestLogger";
-import {CompleteProfilesGroupBuilder} from "../../../../imperative/src/profiles/builders/CompleteProfilesGroupBuilder";
+import { CompleteProfilesGroupBuilder } from "../../../../imperative/src/profiles/builders/CompleteProfilesGroupBuilder";
 
 describe("Complete Profiles Group Builder", () => {
     const logger = TestLogger.getTestLogger();

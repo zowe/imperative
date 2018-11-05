@@ -9,13 +9,13 @@
 *
 */
 
-import {ImperativeError} from "../../../error";
+import { ImperativeError } from "../../../error";
 import * as fs from "fs";
-import {IProfile} from "../doc/definition/IProfile";
-import {IMetaProfile} from "../doc/definition/IMetaProfile";
+import { IProfile } from "../doc/definition/IProfile";
+import { IMetaProfile } from "../doc/definition/IMetaProfile";
 import * as pathPackage from "path";
-import {IO} from "../../../io";
-import {IProfileTypeConfiguration} from "../doc/config/IProfileTypeConfiguration";
+import { IO } from "../../../io";
+import { IProfileTypeConfiguration } from "../doc/config/IProfileTypeConfiguration";
 
 const readYaml = require("js-yaml");
 const writeYaml = require("yamljs");

@@ -9,12 +9,12 @@
 *
 */
 
-import {ICommandHandler, ICommandResponse, IHandlerParameters} from "../../../../../cmd";
-import {Logger} from "../../../../../logger/";
-import {PMFConstants} from "../../utilities/PMFConstants";
-import {uninstall} from "../../utilities/npm-interface";
-import {ImperativeError} from "../../../../../error";
-import {TextUtils} from "../../../../../utilities";
+import { ICommandHandler, ICommandResponse, IHandlerParameters } from "../../../../../cmd";
+import { Logger } from "../../../../../logger/";
+import { PMFConstants } from "../../utilities/PMFConstants";
+import { uninstall } from "../../utilities/npm-interface";
+import { ImperativeError } from "../../../../../error";
+import { TextUtils } from "../../../../../utilities";
 
 /**
  * The uninstall command handler for cli plugin install.

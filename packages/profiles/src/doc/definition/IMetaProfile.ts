@@ -9,7 +9,7 @@
 *
 */
 
-import {IProfileTypeConfiguration} from "../config/IProfileTypeConfiguration";
+import { IProfileTypeConfiguration } from "../config/IProfileTypeConfiguration";
 
 /**
  * The meta profile is saved in each of the profile "type" directories under the profile manager root directory.

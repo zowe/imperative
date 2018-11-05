@@ -9,12 +9,12 @@
 *
 */
 
-import {ProfilesCommandBuilder} from "./ProfilesCommandBuilder";
-import {Constants} from "../../../../constants";
-import {ICommandDefinition} from "../../../../cmd";
-import {deleteProfileActionDesc, deleteProfileCommandDesc, deleteProfileForceOptionDesc, deleteProfileNameDesc} from "../../../../messages/index";
-import {TextUtils} from "../../../../utilities";
-import {ProfilesConstants, ProfileUtils} from "../../../../profiles";
+import { ProfilesCommandBuilder } from "./ProfilesCommandBuilder";
+import { Constants } from "../../../../constants";
+import { ICommandDefinition } from "../../../../cmd";
+import { deleteProfileActionDesc, deleteProfileCommandDesc, deleteProfileForceOptionDesc, deleteProfileNameDesc } from "../../../../messages/index";
+import { TextUtils } from "../../../../utilities";
+import { ProfilesConstants, ProfileUtils } from "../../../../profiles";
 
 /**
  * Used to build delete profile command definitions.

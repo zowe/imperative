@@ -9,7 +9,7 @@
 *
 */
 
-import {IssueSeverity} from "../utilities/PluginIssues";
+import { IssueSeverity } from "../utilities/PluginIssues";
 
 /**
  * Structure for the list of plugin issues.

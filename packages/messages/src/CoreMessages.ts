@@ -9,8 +9,8 @@
 *
 */
 
-import {IMessageDefinition} from "./doc/IMessageDefinition";
-import {Constants} from "../../constants";
+import { IMessageDefinition } from "./doc/IMessageDefinition";
+import { Constants } from "../../constants";
 
 export const apiErrorHeader: IMessageDefinition = {
     message: `${Constants.FRAMEWORK_DISPLAY_NAME} API Error`

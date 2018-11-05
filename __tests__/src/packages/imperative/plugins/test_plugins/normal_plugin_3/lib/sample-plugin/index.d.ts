@@ -9,6 +9,6 @@
 *
 */
 
-export * from './healthCheck.handler';
-export * from './cmd/foo/foo.handler';
-export * from './cmd/bar/bar.handler';
+export * from "./healthCheck.handler";
+export * from "./cmd/foo/foo.handler";
+export * from "./cmd/bar/bar.handler";

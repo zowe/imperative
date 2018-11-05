@@ -9,17 +9,16 @@
 *
 */
 
-import {execSync} from "child_process";
-import {PMFConstants} from "../PMFConstants";
-import {homedir} from "os";
+import { PMFConstants } from "../PMFConstants";
 import * as path from "path";
 import * as fs from "fs";
-import {readFileSync, writeFileSync} from "jsonfile";
-import {IPluginJson} from "../../doc/IPluginJson";
-import {Logger} from "../../../../../logger";
-import {ImperativeError} from "../../../../../error";
-import {IPluginJsonObject} from "../../doc/IPluginJsonObject";
-import {IO} from "../../../../../io";
+import { readFileSync, writeFileSync } from "jsonfile";
+import { IPluginJson } from "../../doc/IPluginJson";
+import { Logger } from "../../../../../logger";
+import { ImperativeError } from "../../../../../error";
+import { IPluginJsonObject } from "../../doc/IPluginJsonObject";
+import { IO } from "../../../../../io";
+import { installPackages } from "../NpmApiFunctions";
 
 
 /**
@@ -50,7 +49,7 @@ import {IO} from "../../../../../io";
  *                                          it.
  * @returns {string} The name of the plugin.
  */
-export function install(packageLocation: string, registry: string, installFromFile = false): string {
+export async function install(packageLocation: string, registry: string, installFromFile = false) {
     const iConsole = Logger.getImperativeLogger();
     let npmPackage = packageLocation;
 
@@ -82,28 +81,17 @@ export function install(packageLocation: string, registry: string, installFromFi
     try {
         iConsole.debug(`Installing from registry ${registry}`);
 
-        // We need to capture stdout but apparently stderr also gives us a progress
-        // bar from the npm install.
-        const pipe = ["pipe", "pipe", process.stderr];
-
-        // Perform the npm install, somehow piping stdout and inheriting stderr gives
-        // some form of a half-assed progress bar. This progress bar doesn't have any
-        // formatting or colors but at least I can get the output of stdout right.
+        // Perform the npm install.
         iConsole.info("Installing packages...this may take some time.");
-        const execOutput = execSync(`npm install "${npmPackage}" --prefix "${PMFConstants.instance.PLUGIN_INSTALL_LOCATION}" ` +
-            `-g --registry "${registry}"`, {
-            cwd: PMFConstants.instance.PMF_ROOT,
-            stdio: pipe
-        });
 
-        iConsole.info("Install complete");
+        const installOutput = await installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, registry, true, npmPackage);
 
         /* We get the package name (aka plugin name)
          * from the output of the npm command.
          * The regex is meant to match: + plugin-name@version.
          */
-        const stringOutput = execOutput.toString();
-        const regex = /^\+\s(.*)@(.*)$/gm;
+        const stringOutput = installOutput.toString();
+        const regex = /\+\s(.*)@(.*)$/gm;
         const match = regex.exec(stringOutput);
         const packageName = match[1];
         let packageVersion = match[2];
@@ -142,9 +130,6 @@ export function install(packageLocation: string, registry: string, installFromFi
             spaces: 2
         });
 
-        // Create a symlink from home/.../imperative to brightside/.../imperative.
-        linkPluginToCli(packageName);
-
         iConsole.info("Plugin '" + packageName + "' successfully installed.");
         return packageName;
     } catch (e) {
@@ -153,67 +138,4 @@ export function install(packageLocation: string, registry: string, installFromFi
             causeErrors: e
         });
     }
-}
-
-// _______________________________________________________________________
-/**
- * Create links from the plugin's node_modules/@brightside directory into
- * subdirectories of the host CLI's project directory.
- *
- * @param {string} pluginName - The name of the plugin that we are installing.
- */
-function linkPluginToCli(pluginName: string): void {
-    const impLogger = Logger.getImperativeLogger();
-    const cliProjPath = getCliProjPath();
-    const pluginBsPath = createPluginBrightsideDir(pluginName);
-    const linksToMake = [
-        {
-            pluginPath: path.join(pluginBsPath, "imperative"),
-            cliPath: path.join(cliProjPath, "node_modules", "@brightside", "imperative")
-        },
-        {
-            pluginPath: path.join(pluginBsPath, "core"),
-            cliPath: cliProjPath
-        }
-    ];
-
-    for (const nextLink of linksToMake) {
-        impLogger.info("Creating symlink from '" + nextLink.pluginPath +
-            "' to '" + nextLink.cliPath + "', as needed."
-        );
-        IO.createSymlinkToDir(nextLink.pluginPath, nextLink.cliPath);
-    }
-}
-
-// _______________________________________________________________________
-/**
- * Get the path to the top-level project directory of our hosting CLI.
- *
- * @returns {String} The path to CLI-dir/node_modules/@brightside/imperative
- */
-function getCliProjPath() {
-    const cliProjPath = path.resolve(
-        path.dirname(
-            require("find-up").sync(
-                "package.json", {cwd: process.mainModule.filename}
-            )
-        )
-    );
-    return cliProjPath;
-}
-
-// _______________________________________________________________________
-/**
- * Create the #brightside directory under the newly installed
- * plugin's node_modules directory.
- *
- * @param {string} pluginName - The name of the plugin that we are installing.
- *
- * @returns {String} The path to the new @brightside directory.
- */
-function createPluginBrightsideDir(pluginName: string) {
-    const pluginBsPath = path.join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION,
-        pluginName, "node_modules", "@brightside");
-    IO.mkdirp(pluginBsPath);
-    return pluginBsPath;
 }

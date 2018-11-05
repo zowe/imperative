@@ -139,7 +139,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             await this.validate(validationParms);
         }
         parms.profile = await this.processSecureProperties(parms.profile);
-        return await super.saveProfile(parms);
+        return super.saveProfile(parms);
     }
 
     /**
@@ -292,7 +292,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             await this.findOptions(this.profileTypeConfiguration.schema.properties[prop], prop, null, deleteSecureProperty);
         }
 
-        return await super.deleteProfile(parms);
+        return super.deleteProfile(parms);
     }
 
     /**
@@ -352,7 +352,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             this.log.debug("Setting profile field %s from command line option %s", propNamePath, optionName);
             if (secureOp && prop.secure) {
                 this.log.debug("Performing secure operation on property %s", propNamePath);
-                return await secureOp(propNamePath, propValue);
+                return secureOp(propNamePath, propValue);
             }
             return propValue;
         }

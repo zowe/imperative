@@ -9,10 +9,10 @@
 *
 */
 
-import {IHandlerParameters} from "../../../../cmd";
-import {Imperative} from "../../Imperative";
-import {Constants} from "../../../../constants";
-import {IProfileDeleted, ProfilesConstants} from "../../../../profiles";
+import { IHandlerParameters } from "../../../../cmd";
+import { Imperative } from "../../Imperative";
+import { Constants } from "../../../../constants";
+import { IProfileDeleted, ProfilesConstants } from "../../../../profiles";
 
 export default class NewDeleteProfilesHandler {
     public async process(commandParameters: IHandlerParameters) {

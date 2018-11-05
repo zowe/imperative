@@ -14,7 +14,7 @@ jest.mock("fs");
 jest.mock("path");
 import * as fs from "fs";
 import * as path from "path";
-import {IO} from "../../io";
+import { IO } from "../../io";
 
 describe("IO tests", () => {
 
@@ -52,14 +52,9 @@ describe("IO tests", () => {
         expect(IO.isDir("pretend/file")).toBe(false);
     });
 
-    it("should get an error for no input on normalizeExtension", () => {
-        let error;
-        try {
-            IO.normalizeExtension("   ");
-        } catch (thrownError) {
-            error = thrownError;
-        }
-        expect(error.message).toMatchSnapshot();
+    it("should return no extension for no input on normalizeExtension", () => {
+        expect(IO.normalizeExtension("")).toBe("");
+        expect(IO.normalizeExtension(" ")).toBe("");
     });
 
     it("should return normalized extension", () => {

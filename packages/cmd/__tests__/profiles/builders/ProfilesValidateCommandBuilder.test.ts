@@ -9,9 +9,9 @@
 *
 */
 
-import {deleteHandlerPaths, testBuilderProfiles} from "./ProfileBuilderTestConstants";
-import {TestLogger} from "../../../../../__tests__/TestLogger";
-import {ProfilesValidateCommandBuilder} from "../../../../imperative/src/profiles/builders/ProfilesValidateCommandBuilder";
+import { deleteHandlerPaths, testBuilderProfiles } from "./ProfileBuilderTestConstants";
+import { TestLogger } from "../../../../../__tests__/TestLogger";
+import { ProfilesValidateCommandBuilder } from "../../../../imperative/src/profiles/builders/ProfilesValidateCommandBuilder";
 
 describe("Profile Validate Command Builder", () => {
     const logger = TestLogger.getTestLogger();

@@ -10,13 +10,13 @@
 */
 
 // jest.mock("process");
-import {Arguments} from "yargs";
-import {SharedOptions} from "../../src/utils/SharedOptions";
-import {Constants} from "../../../constants/src/Constants";
+import { Arguments } from "yargs";
+import { SharedOptions } from "../../src/utils/SharedOptions";
+import { Constants } from "../../../constants/src/Constants";
 
-import {Socket} from "net";
-import {ImperativeError} from "../../../error";
-import {CommandResponse} from "../../src/response/CommandResponse";
+import { Socket } from "net";
+import { ImperativeError } from "../../../error";
+import { CommandResponse } from "../../src/response/CommandResponse";
 
 jest.mock("../../src/response/CommandResponse");
 

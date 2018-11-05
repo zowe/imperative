@@ -9,12 +9,12 @@
 *
 */
 
-import {ProfilesCommandBuilder} from "./ProfilesCommandBuilder";
-import {ICommandDefinition} from "../../../../cmd";
-import {TextUtils} from "../../../../utilities";
-import {Constants} from "../../../../constants";
-import {setGroupWithOnlyProfilesCommandDesc, setGroupWithOnlyProfilesSummary, setProfileOptionDesc} from "../../../../messages/index";
-import {ProfilesConstants} from "../../../../profiles";
+import { ProfilesCommandBuilder } from "./ProfilesCommandBuilder";
+import { ICommandDefinition } from "../../../../cmd";
+import { TextUtils } from "../../../../utilities";
+import { Constants } from "../../../../constants";
+import { setGroupWithOnlyProfilesCommandDesc, setGroupWithOnlyProfilesSummary, setProfileOptionDesc } from "../../../../messages/index";
+import { ProfilesConstants } from "../../../../profiles";
 
 /**
  * Used to build "set default profile" command definitions.

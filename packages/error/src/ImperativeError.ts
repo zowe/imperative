@@ -9,10 +9,9 @@
 *
 */
 
-import {IImperativeError} from "./doc/IImperativeError";
-import {ErrorReport} from "./ErrorReport";
-import {IImperativeErrorParms} from "./doc/IImperativeErrorParms";
-// import { Logger } from "../../logger/src/Logger";
+import { IImperativeError } from "./doc/IImperativeError";
+import { IImperativeErrorParms } from "./doc/IImperativeErrorParms";
+import * as chalk from "chalk";
 
 /**
  *
@@ -21,14 +20,6 @@ import {IImperativeErrorParms} from "./doc/IImperativeErrorParms";
  * @extends {Error}
  */
 export class ImperativeError extends Error {
-    /**
-     * Node report captured at the time the error is created - unless suppressed
-     * @private
-     * @type {string}
-     * @memberof ImperativeError
-     */
-    private mReport: string;
-
     /**
      * The message generated/specified for the error - used for display/message/diagnostic purposes
      * @private
@@ -51,23 +42,22 @@ export class ImperativeError extends Error {
          * If parms are present, handle them, otherwise perform the default diagnostic collection
          */
         if (parms) {
-            /**
-             * Suppress the node report
-             */
-            if (!parms.suppressReport) {
-                this.mReport = ErrorReport.obtain();
-                if (parms.logger) {
-                    parms.logger.error(ErrorReport.obtain({verbose: "yes"}));
-                }
+            // @DEPRECATED - Log a nice message instead of breaking plugins that might be doing stuff
+            // @TODO - REMOVE THIS BEFORE THE NEXT RELEASE
+            if (parms.hasOwnProperty("suppressReport")) {
+                // tslint:disable-next-line
+                console.warn(chalk.yellow.bold( // I can't import console because of circular dependencies
+                    "[DEPRECATED] suppressReport property of ImperativeError has been deprecated. " +
+                    "It will be removed in a future release."
+                ));
             }
+
             /**
              * Append a tag if present
              */
             if (parms.tag) {
                 this.mMessage = parms.tag + ": " + this.mMessage;
             }
-        } else {
-            this.mReport = ErrorReport.obtain();
         }
     }
 
@@ -119,16 +109,6 @@ export class ImperativeError extends Error {
      */
     public get stack(): string {
         return this.mDetails.stack;
-    }
-
-    /**
-     * Accessor for the node report.
-     * @readonly
-     * @return {string}: The full node report if present
-     * @memberof ImperativeError
-     */
-    public get report(): string {
-        return this.mReport;
     }
 
     /**

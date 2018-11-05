@@ -9,8 +9,8 @@
 *
 */
 
-import {Imperative} from "../../../imperative/src/Imperative";
-import {CommandResponse} from "../../";
+import { Imperative } from "../../../imperative/src/Imperative";
+import { CommandResponse } from "../../";
 
 export const WRITE_MESSAGE_ONE: string = "Hello from Command Response Process Message 1 (stdout)";
 export const WRITE_MESSAGE_TWO: string = "Hello from Command Response Process Message 2 (stdout)";

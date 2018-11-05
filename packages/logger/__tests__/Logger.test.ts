@@ -12,16 +12,16 @@
 jest.mock("log4js");
 jest.mock("fs");
 import * as log4js from "log4js";
-import {LoggingConfigurer} from "../../imperative/src/LoggingConfigurer";
-import {IConfigLogging, ILog4jsConfig, Logger} from "../../logger";
-import {LoggerManager} from "../../logger/src/LoggerManager";
+import { LoggingConfigurer } from "../../imperative/src/LoggingConfigurer";
+import { IConfigLogging, ILog4jsConfig, Logger } from "../../logger";
+import { LoggerManager } from "../../logger/src/LoggerManager";
 
-import {ImperativeError} from "../../error";
+import { ImperativeError } from "../../error";
 
 import * as os from "os";
 import * as path from "path";
 import * as fs from "fs";
-import {IO} from "../../io";
+import { IO } from "../../io";
 
 describe("Logger tests", () => {
     const fakeHome = "/home";

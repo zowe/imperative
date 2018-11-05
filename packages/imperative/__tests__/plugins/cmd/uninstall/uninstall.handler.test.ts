@@ -20,16 +20,16 @@ jest.mock("../../../../../cmd/src/response/CommandResponse");
 jest.mock("../../../../../cmd/src/doc/handler/IHandlerParameters");
 jest.mock("../../../../../logger");
 
-import {CommandResponse, IHandlerParameters} from "../../../../../cmd";
-import {Console} from "../../../../../console";
-import {execSync} from "child_process";
-import {IPluginJson} from "../../../../src/plugins/doc/IPluginJson";
-import {ImperativeError} from "../../../../../error";
-import {Logger} from "../../../../../logger";
-import {readFileSync, writeFileSync} from "jsonfile";
-import {resolve} from "path";
-import {TextUtils} from "../../../../../utilities";
-import {uninstall} from "../../../../src/plugins/utilities/npm-interface";
+import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
+import { Console } from "../../../../../console";
+import { execSync } from "child_process";
+import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
+import { ImperativeError } from "../../../../../error";
+import { Logger } from "../../../../../logger";
+import { readFileSync, writeFileSync } from "jsonfile";
+import { resolve } from "path";
+import { TextUtils } from "../../../../../utilities";
+import { uninstall } from "../../../../src/plugins/utilities/npm-interface";
 import UninstallHandler from "../../../../src/plugins/cmd/uninstall/uninstall.handler";
 
 describe("Plugin Management Facility uninstall handler", () => {

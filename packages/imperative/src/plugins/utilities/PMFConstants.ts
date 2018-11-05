@@ -9,9 +9,9 @@
 *
 */
 
-import {ImperativeConfig} from "../../ImperativeConfig";
-import {join} from "path";
-import {Logger} from "../../../../logger";
+import { ImperativeConfig } from "../../ImperativeConfig";
+import { join } from "path";
+import { Logger } from "../../../../logger";
 
 /**
  * Constants used by the PMF.
@@ -87,8 +87,8 @@ export class PMFConstants {
 
     constructor() {
         this.NPM_NAMESPACE = "@brightside";
-        this.CLI_CORE_PKG_NAME = `${this.NPM_NAMESPACE}/core`;
-        this.IMPERATIVE_PKG_NAME = `${this.NPM_NAMESPACE}/imperative`;
+        this.CLI_CORE_PKG_NAME = ImperativeConfig.instance.hostPackageName;
+        this.IMPERATIVE_PKG_NAME = ImperativeConfig.instance.imperativePackageName;
         this.PMF_ROOT = join(ImperativeConfig.instance.cliHome, "plugins");
         this.PLUGIN_JSON = join(this.PMF_ROOT, "plugins.json");
         this.PLUGIN_INSTALL_LOCATION = join(

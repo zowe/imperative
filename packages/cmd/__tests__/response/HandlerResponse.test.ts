@@ -9,7 +9,7 @@
 *
 */
 
-import {HandlerResponse} from "../../src/response/HandlerResponse";
+import { HandlerResponse } from "../../src/response/HandlerResponse";
 import { CommandResponse } from "../../src/response/CommandResponse";
 import { IHandlerResponseApi } from "../../src/response/doc/api/handler/IHandlerResponseApi";
 

@@ -9,11 +9,11 @@
 *
 */
 
-import {ICommandHandler, IHandlerParameters} from "../../../../../packages/cmd";
+import { ICommandHandler, IHandlerParameters } from "../../../../../packages/cmd";
 
 export default class OptionalProfileCHandler implements ICommandHandler {
     public async process(params: IHandlerParameters) {
         const profile = params.profiles.get("profile-c", false);
-        params.response.console.log(`Profile Cs loaded: ${profile}`)
+        params.response.console.log(`Profile Cs loaded: ${profile}`);
     }
 }

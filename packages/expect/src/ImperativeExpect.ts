@@ -9,8 +9,8 @@
 *
 */
 
-import {ImperativeError} from "../../error";
-import {inspect, isNullOrUndefined} from "util";
+import { ImperativeError } from "../../error";
+import { inspect, isNullOrUndefined } from "util";
 
 const DataObjectParser = require("dataobject-parser");
 
@@ -74,7 +74,7 @@ export class ImperativeExpect {
     public static toBeEqual(value1: any, value2: any, msg?: string) {
         if (value1 !== value2) {
             throw new ImperativeError({msg: msg || "Input objects/values are NOT equal"},
-                {suppressReport: false, tag: ImperativeExpect.ERROR_TAG});
+                {tag: ImperativeExpect.ERROR_TAG});
         }
     }
 
@@ -88,7 +88,7 @@ export class ImperativeExpect {
     public static toNotBeNullOrUndefined(obj: any, msg?: string) {
         if (isNullOrUndefined(obj)) {
             throw new ImperativeError({msg: msg || "Required object must be defined"},
-                {suppressReport: false, tag: ImperativeExpect.ERROR_TAG});
+                {tag: ImperativeExpect.ERROR_TAG});
         }
     }
 
@@ -117,7 +117,7 @@ export class ImperativeExpect {
                     msg: msg || "The required entry was NOT found within the input array: " +
                     arr.map((entry) => inspect(entry))
                 },
-                {suppressReport: false, tag: ImperativeExpect.ERROR_TAG});
+                {tag: ImperativeExpect.ERROR_TAG});
         }
 
         return foundEntry;
@@ -150,7 +150,7 @@ export class ImperativeExpect {
         ImperativeExpect.toNotBeNullOrUndefined(arr, msg);
         if (!Array.isArray(arr)) {
             throw new ImperativeError({msg: msg || "Required parameter '" + arr + "' must be an array."},
-                {suppressReport: false, tag: ImperativeExpect.ERROR_TAG});
+                {tag: ImperativeExpect.ERROR_TAG});
         }
     }
 
@@ -169,14 +169,14 @@ export class ImperativeExpect {
         keys.forEach((key) => {
             if (isNullOrUndefined(objParser.get(key))) {
                 throw new ImperativeError({msg: msg || "Required parameter '" + key + "' must be defined"},
-                    {suppressReport: false, tag: ImperativeExpect.ERROR_TAG});
+                    {tag: ImperativeExpect.ERROR_TAG});
             }
             ImperativeExpect.toBeAnArray(objParser.get(key), msg);
             const arr: any[] = objParser.get(key);
             if (nonZeroLength) {
                 if (arr.length === 0) {
                     throw new ImperativeError({msg: msg || "Required parameter '" + key + "' must be an array with at least 1 entry."},
-                        {suppressReport: false, tag: ImperativeExpect.ERROR_TAG});
+                        {tag: ImperativeExpect.ERROR_TAG});
                 }
             }
         });
@@ -196,7 +196,7 @@ export class ImperativeExpect {
         keys.forEach((key) => {
             if (isNullOrUndefined(objParser.get(key))) {
                 throw new ImperativeError({msg: msg || "Required parameter '" + key + "' must be defined"},
-                    {suppressReport: false, tag: ImperativeExpect.ERROR_TAG});
+                    {tag: ImperativeExpect.ERROR_TAG});
             }
         });
     }
@@ -212,7 +212,7 @@ export class ImperativeExpect {
     public static toNotBeEqual(value1: any, value2: any, msg?: string) {
         if (value1 === value2) {
             throw new ImperativeError({msg: msg || 'Values specified are equal ("' + value1 + '")'},
-                {suppressReport: false, tag: ImperativeExpect.ERROR_TAG});
+                {tag: ImperativeExpect.ERROR_TAG});
         }
     }
 
@@ -231,7 +231,7 @@ export class ImperativeExpect {
         keys.forEach((key) => {
             if (objParser.get(key).trim().length === 0) {
                 throw new ImperativeError({msg: msg || "Required parameter '" + key + "' must not be blank"},
-                    {suppressReport: false, tag: ImperativeExpect.ERROR_TAG});
+                    {tag: ImperativeExpect.ERROR_TAG});
             }
         });
     }
@@ -240,7 +240,7 @@ export class ImperativeExpect {
         ImperativeExpect.toNotBeNullOrUndefined(item, msg);
         if (item.trim().length === 0) {
             throw new ImperativeError({msg: "Required parameter '" + label + "' must not be blank"},
-                {suppressReport: false, tag: ImperativeExpect.ERROR_TAG});
+                {tag: ImperativeExpect.ERROR_TAG});
         }
     }
 
@@ -259,7 +259,7 @@ export class ImperativeExpect {
         keys.forEach((key) => {
             if (typeof objParser.get(key) !== type) {
                 throw new ImperativeError({msg: "Object key '" + key + "' must be of type '" + type + "'"},
-                    {suppressReport: false, tag: ImperativeExpect.ERROR_TAG});
+                    {tag: ImperativeExpect.ERROR_TAG});
             }
         });
     }
@@ -278,7 +278,7 @@ export class ImperativeExpect {
         keys.forEach((key) => {
             if (!isNullOrUndefined(obj[key])) {
                 throw new ImperativeError({msg: "Required parameter '" + key + "' must be undefined"},
-                    {suppressReport: false, tag: ImperativeExpect.ERROR_TAG});
+                    {tag: ImperativeExpect.ERROR_TAG});
             }
         });
     }

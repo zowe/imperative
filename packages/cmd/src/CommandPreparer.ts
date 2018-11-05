@@ -9,14 +9,14 @@
 *
 */
 
-import {isNullOrUndefined} from "util";
-import {Constants} from "../../constants";
-import {ICommandDefinitionPassOn, ICommandDefinitionPassOnIgnore} from "./doc/ICommandDefinitionPassOn";
-import {ImperativeError} from "../../error";
-import {ICommandDefinition} from "./doc/ICommandDefinition";
-import {ICommandOptionDefinition, ICommandPositionalDefinition} from "../../index";
-import {ProfileUtils} from "../../profiles";
-import {TextUtils} from "../../utilities";
+import { isNullOrUndefined } from "util";
+import { Constants } from "../../constants";
+import { ICommandDefinitionPassOn, ICommandDefinitionPassOnIgnore } from "./doc/ICommandDefinitionPassOn";
+import { ImperativeError } from "../../error";
+import { ICommandDefinition } from "./doc/ICommandDefinition";
+import { ICommandOptionDefinition, ICommandPositionalDefinition } from "../../index";
+import { ProfileUtils } from "../../profiles";
+import { TextUtils } from "../../utilities";
 import { OptionConstants } from "./constants/OptionConstants";
 
 const mergeObj = require("merge-objects");

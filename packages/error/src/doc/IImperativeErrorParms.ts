@@ -27,6 +27,8 @@ export interface IImperativeErrorParms {
      * Node report is automatically captured for diagnostic purposes, you can suppress by specifying true.
      * @type {boolean}
      * @memberof IImperativeErrorParms
+     *
+     * @deprecated Removed as of 10/17/2018 due to install issues.
      */
     suppressReport?: boolean;
     /**

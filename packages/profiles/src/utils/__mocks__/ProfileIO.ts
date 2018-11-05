@@ -9,8 +9,8 @@
 *
 */
 
-import {IProfile} from "../../doc/definition/IProfile";
-import {IMetaProfile} from "../../doc/definition/IMetaProfile";
+import { IProfile } from "../../doc/definition/IProfile";
+import { IMetaProfile } from "../../doc/definition/IMetaProfile";
 import {
     APPLE_PROFILE_TYPE,
     APPLE_TYPE_SCHEMA,
@@ -29,7 +29,7 @@ import {
     STRAWBERRY_PROFILE_TYPE,
     STRAWBERRY_TYPE_SCHEMA
 } from "../../../__tests__/TestConstants";
-import {IProfileTypeConfiguration} from "../../doc/config/IProfileTypeConfiguration";
+import { IProfileTypeConfiguration } from "../../doc/config/IProfileTypeConfiguration";
 
 /**
  * Mocked profile IO class - for the most part, just reacts differently based on the profile name/path specified
