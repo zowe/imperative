@@ -17,6 +17,7 @@ import { MockHttpRequestResponse } from "./__model__/MockHttpRequestResponse";
 import { CustomRestClient } from "./__model__/CustomRestClient";
 import { CustomRestClientWithProcessError, EXPECTED_REST_ERROR } from "./__model__/CustomRestClientWithProcessError";
 import { getRandomBytes } from "../../../../__tests__/src/TestUtil";
+import { RestClientError } from "../../src/client/RestClientError";
 
 /**
  * RestClient is already tested vie the AbstractRestClient test, so we will extend RestClient
@@ -127,6 +128,7 @@ describe("RestClient tests", () => {
             error = thrownError;
         }
         expect(error).toBeDefined();
+        expect(error).toBeInstanceOf(RestClientError);
         expect(error.message).toContain(EXPECTED_REST_ERROR.msg);
     });
 
