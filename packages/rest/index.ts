@@ -15,6 +15,7 @@ export * from "./src/client/AbstractRestClient";
 export * from "./src/client/RestClient";
 export * from "./src/client/RestConstants";
 export * from "./src/client/RestStandAloneUtils";
+export * from "./src/client/RestClientError";
 
 export * from "./src/session/doc/ISession";
 export * from "./src/session/AbstractSession";

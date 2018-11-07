@@ -104,6 +104,15 @@ export abstract class AbstractSession {
     public static readonly DEFAULT_PORT = AbstractSession.DEFAULT_HTTPS_PORT;
 
     /**
+     * Default base path.
+     * Our empty string means that we do **not** use an API mediation layer
+     * base path at the beginning of every resource URL.
+     * @static
+     * @memberof AbstractSession
+     */
+    public static readonly DEFAULT_BASE_PATH = "";
+
+    /**
      * Default reject unauthorized
      * @static
      * @memberof AbstractSession
@@ -260,6 +269,11 @@ export abstract class AbstractSession {
         // set protocol if not set
         if (isNullOrUndefined(populatedSession.secureProtocol)) {
             populatedSession.secureProtocol = AbstractSession.DEFAULT_SECURE_PROTOCOL;
+        }
+
+        // set basePath if not set
+        if (isNullOrUndefined(populatedSession.basePath)) {
+            populatedSession.basePath = AbstractSession.DEFAULT_BASE_PATH;
         }
 
         // set type if not set

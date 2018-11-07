@@ -54,6 +54,19 @@ export interface ISession {
     protocol?: "http" | "https";
 
     /**
+     * The base path (or first part) of the resources that we will access.
+     * It is used to specify the first part of the resource in a URL that
+     * points to any API mediation layer, gateway, or router used at a site
+     * to dispatch web requests to services that are managed by that gateway.
+     * It is pre-pended to the resource path of the underlying service.
+     * When not supplied, or is an empty string we use the the resource path of
+     * the underlying service directly.
+     * @type {string}
+     * @memberof ISession
+     */
+    basePath?: string;
+
+    /**
      * Type of authentication, none is default
      * "none"  - no authorization header is used
      * "basic" - use basic auth for every request

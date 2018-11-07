@@ -19,10 +19,16 @@ exports[`AbstractRestClient tests should error with request rejection when statu
 exports[`AbstractRestClient tests should error with request rejection when status code is not in 200 range 3`] = `"{\\"newData\\":\\"response data\\"}"`;
 
 exports[`AbstractRestClient tests should error with request rejection when status code is not in 200 range 4`] = `
-"Resource: /resource
-Request: PUT
-Headers: [{\\"My-Header\\":\\"value is here\\"}]
-Payload: { 'my payload object': 'hello' }"
+"HTTP(S) error status \\"400\\" received.
+Review request details (resource, base path, credentials, payload) and ensure correctness.
+
+Host:      test
+Port:      443
+Base Path: 
+Resource:  /resource
+Request:   PUT
+Headers:   [{\\"My-Header\\":\\"value is here\\"}]
+Payload:   { 'my payload object': 'hello' }"
 `;
 
 exports[`AbstractRestClient tests should give an error message when error event is called 1`] = `"http(s) request error event called"`;

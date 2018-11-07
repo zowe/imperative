@@ -7,6 +7,7 @@ exports[`Session tests should get user and password from an auth string 1`] = `"
 exports[`Session tests should initialize with basic type and required input data 1`] = `
 Object {
   "base64EncodedAuth": "aWJtdXNlcjpteXBhc3M=",
+  "basePath": "",
   "hostname": "localhost",
   "password": "mypass",
   "port": 443,
@@ -21,6 +22,7 @@ Object {
 
 exports[`Session tests should match non-default port, protocol, secure protocol, and host 1`] = `
 Object {
+  "basePath": "",
   "hostname": "localhost",
   "port": "123",
   "protocol": "http",
@@ -33,6 +35,7 @@ Object {
 
 exports[`Session tests should match other non-default values 1`] = `
 Object {
+  "basePath": "",
   "checkServerIdentity": [Function],
   "hostname": "localhost",
   "port": 443,
@@ -50,6 +53,7 @@ exports[`Session tests should not allow tokenValue for 'basic' type 1`] = `"Expe
 
 exports[`Session tests should not fail to initialize with minimum data 1`] = `
 Object {
+  "basePath": "",
   "hostname": "localhost",
   "port": 443,
   "protocol": "https",
@@ -62,6 +66,7 @@ Object {
 
 exports[`Session tests should not require user and password for 'token' type 1`] = `
 Object {
+  "basePath": "",
   "hostname": "localhost",
   "port": 443,
   "protocol": "https",
@@ -87,6 +92,7 @@ exports[`Session tests should require user for 'basic' type 1`] = `"Must have us
 exports[`Session tests should store cookie token requested 1`] = `
 Object {
   "base64EncodedAuth": "dXNlcjpwYXNzd29yZA==",
+  "basePath": "",
   "hostname": "localhost",
   "password": "password",
   "port": 443,
