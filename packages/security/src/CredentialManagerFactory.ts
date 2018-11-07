@@ -67,7 +67,7 @@ export class CredentialManagerFactory {
      * which implements the {@link AbstractCredentialManager} methods. All these methods have been designed to throw
      * the error we caught in the **CredentialManagerFactory.initialize** function.
      *
-     * @param {ICredentialManagerInit} - Initialization parameters, see interface for details.
+     * @param {ICredentialManagerInit} params - Initialization parameters, see interface for details.
      *
      * @throws {@link ImperativeError} When it has been detected that this method has been called before.
      *         It is important that this method only executes once.
