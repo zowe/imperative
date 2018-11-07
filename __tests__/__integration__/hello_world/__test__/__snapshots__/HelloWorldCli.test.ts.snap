@@ -10,7 +10,9 @@ exports[`Hello World should print help if the option is specified 1`] = `
  USAGE
  -----
 
-   hello-world-cli [command]
+   hello-world-cli <command>
+
+   Where <command> is one of the following:
 
  COMMANDS
  --------
