@@ -75,7 +75,7 @@ export default class UpdateHandler implements ICommandHandler {
             registry = installedPlugins[pluginName].registry;
           }
           // Call update which returns the plugin's version so plugins.json can be updated
-          installedPlugins[pluginName].version = await update(packageName, registry);
+          installedPlugins[pluginName].version = update(packageName, registry);
           installedPlugins[pluginName].registry = registry; // update in case it changed
 
           writeFileSync(PMFConstants.instance.PLUGIN_JSON, installedPlugins, {

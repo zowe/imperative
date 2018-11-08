@@ -12,6 +12,10 @@
 import { PMFConstants } from "../PMFConstants";
 import { Logger } from "../../../../../logger";
 import { installPackages } from "../NpmApiFunctions";
+import * as path from "path";
+const npm = path.join(__dirname, "../../../../../../node_modules/npm");
+const node = require("child_process");
+const nodeExecPath = process.execPath;
 
 /**
  * @TODO - allow multiple packages to be updated?
@@ -22,7 +26,7 @@ import { installPackages } from "../NpmApiFunctions";
  * @param {string} registry The npm registry.
  *
  */
-export async function update(packageName: string, registry: string) {
+export function update(packageName: string, registry: string) {
   const iConsole = Logger.getImperativeLogger();
   const npmPackage = packageName;
 
@@ -31,8 +35,8 @@ export async function update(packageName: string, registry: string) {
   // NOTE: Using npm install in order to retrieve the version which may be updated
   iConsole.info("updating package...this may take some time.");
 
-  const execOutput = await installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
-      registry, true, npmPackage);
+  const execOutput = installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
+      registry, npmPackage);
 
   /* We get the package name (aka plugin name)
    * from the output of the npm command.
