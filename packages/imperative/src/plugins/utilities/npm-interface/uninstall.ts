@@ -24,7 +24,7 @@ const nodeExecPath = process.execPath;
  * @TODO - allow multiple packages to be uninstalled?
  * Common function that abstracts the uninstall process.
  *
- * @param {string} package A package name. This value is a valid npm package name.
+ * @param {string} packageName A package name. This value is a valid npm package name.
  *
  */
 export function uninstall(packageName: string): void {
