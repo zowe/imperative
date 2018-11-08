@@ -9,13 +9,16 @@
 *
 */
 
-import { execSync } from "child_process";
 import { PMFConstants } from "../PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { IPluginJson } from "../../doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { ImperativeError } from "../../../../../error";
 import { TextUtils } from "../../../../../utilities";
+import * as path from "path";
+const npm = path.join(__dirname, "./../../../../../node_modules/npm");
+const node = require("child_process");
+const nodeExecPath = process.execPath;
 
 /**
  * @TODO - allow multiple packages to be uninstalled?
@@ -60,7 +63,8 @@ export function uninstall(packageName: string): void {
     // formatting or colors but at least I can get the output of stdout right. (comment from install handler)
     iConsole.info("Uninstalling package...this may take some time.");
 
-    const execOutput = execSync(`npm uninstall "${npmPackage}" --prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g`, {
+    const execOutput = node.execSync(`"${nodeExecPath}" "${npm}" uninstall "${npmPackage}" ` +
+      `--prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g`, {
       cwd  : PMFConstants.instance.PMF_ROOT,
       stdio: pipe
     });
