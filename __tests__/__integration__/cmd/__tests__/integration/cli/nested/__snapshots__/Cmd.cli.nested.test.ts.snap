@@ -10,7 +10,9 @@ exports[`cmd-cli nested should display both groups and commands in the help 1`] 
  USAGE
  -----
 
-   cmd-cli nested [group|command]
+   cmd-cli nested <group|command>
+
+   Where <group|command> is one of the following:
 
  GROUPS
  ------
