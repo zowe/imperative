@@ -84,7 +84,7 @@ export default class InstallHandler implements ICommandHandler {
 
         // Get the registry to install to
         if (typeof params.arguments.registry === "undefined") {
-            installRegistry = getRegistry();
+            installRegistry = getRegistry().replace("\n",  "");
         } else {
           installRegistry = params.arguments.registry;
         }

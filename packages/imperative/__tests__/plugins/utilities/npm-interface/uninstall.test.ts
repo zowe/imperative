@@ -42,7 +42,7 @@ describe("PMF: Uninstall Interface", () => {
   const samplePackageName = "imperative-sample-plugin";
   const packageName = "a";
   const packageRegistry = "https://registry.npmjs.org/";
-  const npm = path.join(__dirname, "./../../../../../node_modules/npm");
+  const npm = require.resolve("npm");
   const nodeExecPath = process.execPath;
 
   beforeEach(() => {

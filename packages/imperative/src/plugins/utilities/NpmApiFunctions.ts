@@ -10,8 +10,7 @@
 */
 
 import { PMFConstants } from "./PMFConstants";
-import * as path from "path";
-const npm = path.join(__dirname, "./../../../../../node_modules/npm");
+const npm = require.resolve("npm");
 const node = require("child_process");
 const nodeExecPath = process.execPath;
 
