@@ -459,9 +459,11 @@ pipeline {
          * TODO: This step does not yet support branch or PR submissions properly. 
          ***********************************************************************/
         stage('sonar') {
-            def scannerHome = tool 'sonar-scanner-maven-install'
-            withSonarQubeEnv('sonar-default-server') {
-                sh "${scannerHome}/bin/sonar-scanner"
+            steps {
+                def scannerHome = tool 'sonar-scanner-maven-install'
+                withSonarQubeEnv('sonar-default-server') {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                }
             }
         }
      
