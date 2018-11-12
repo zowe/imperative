@@ -15,7 +15,7 @@ export const profileMappingCommandNameType: ICommandDefinition = {
     name: "mapping-name-type",
     description: "Tests that --type and --name are not filled in from profiles.",
     type: "command",
-    handler: __dirname + "/ProfileMapping.handler",
+    handler: __dirname + "/ProfileMappingNameType.handler",
     options:
         [
             {
