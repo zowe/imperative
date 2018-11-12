@@ -22,8 +22,7 @@ export const profileMappingCommandNameType: ICommandDefinition = {
                 name: "type",
                 aliases: ["t"],
                 description: "The type of the banana.",
-                type: "string",
-                required: true,
+                type: "string"
             },
         ],
     positionals: [
