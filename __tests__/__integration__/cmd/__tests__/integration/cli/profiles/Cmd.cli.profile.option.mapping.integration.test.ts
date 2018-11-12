@@ -273,4 +273,19 @@ describe("cmd-cli profile mapping", () => {
             expect(response.stdout.toString()).toContain(name.replace("\\'", "'"));
         }
     });
+
+    it("should not map profile fields to --name or --type", () => {
+        // values used as env variables
+        const color = "yellow";
+        const description = "A pretty good banana";
+        const moldType = "none";
+        const response = runCliScript(__dirname + "/__scripts__/profiles/specify_env_sweetness.sh",
+            TEST_ENVIRONMENT.workingDir, [color, description, moldType]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        // name and type should be undefined since we did not specify them via command line
+        expect(response.stdout.toString()).toContain("Name: undefined");
+        expect(response.stdout.toString()).toContain("Type: undefined");
+    });
 });

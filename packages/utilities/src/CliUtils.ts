@@ -141,6 +141,12 @@ export class CliUtils {
                 // For each option - extract the value if that exact property exists
                 options.forEach((opt) => {
 
+                    if (opt.name.toLowerCase() === "name" || opt.name.toLowerCase() === "type") {
+                        // name and type are reserved fields in the profile
+                        // that are not entered by the user
+                        // do not populate arguments from them
+                        return;
+                    }
                     // Get the camel an kebab case
                     const cases = CliUtils.getOptionFormat(opt.name);
 
