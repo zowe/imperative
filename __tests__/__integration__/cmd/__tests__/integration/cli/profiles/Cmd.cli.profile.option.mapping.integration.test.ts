@@ -279,7 +279,7 @@ describe("cmd-cli profile mapping", () => {
         const color = "yellow";
         const description = "A pretty good banana";
         const moldType = "none";
-        const response = runCliScript(__dirname + "/__scripts__/profiles/specify_env_sweetness.sh",
+        const response = runCliScript(__dirname + "/__scripts__/profiles/name_type_undefined.sh",
             TEST_ENVIRONMENT.workingDir, [color, description, moldType]);
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
