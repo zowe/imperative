@@ -83,6 +83,14 @@ export abstract class AbstractCommandYargs {
     private mRootCommandName: string;
 
     /**
+     * The command line.
+     * @private
+     * @type {string}
+     * @memberof AbstractCommandYargs
+     */
+    private mCommandLine: string;
+
+    /**
      * Environmental variable name prefix used to construct configuration environmental variables.
      * @private
      * @type {string}
@@ -102,6 +110,7 @@ export abstract class AbstractCommandYargs {
         this.mProfileManagerFactory = yargsParms.profileManagerFactory;
         this.mHelpGeneratorFactory = yargsParms.helpGeneratorFactory;
         this.mRootCommandName = yargsParms.rootCommandName;
+        this.mCommandLine = yargsParms.commandLine;
         this.mEnvVariablePrefix = yargsParms.envVariablePrefix;
     }
 
@@ -114,6 +123,16 @@ export abstract class AbstractCommandYargs {
      */
     protected get rootCommandName(): string {
         return this.mRootCommandName;
+    }
+
+    /**
+     * Accessor for the command line
+     * @readonly
+     * @type {string}
+     * @memberof AbstractCommandYargs
+     */
+    protected get commandLine(): string {
+        return this.mCommandLine;
     }
 
     /**
@@ -244,6 +263,7 @@ export abstract class AbstractCommandYargs {
                 helpGenerator: newHelpGenerator,
                 profileManagerFactory: this.profileManagerFactory,
                 rootCommandName: this.rootCommandName,
+                commandLine: this.commandLine,
                 envVariablePrefix: this.envVariablePrefix
             }).help(new CommandResponse({
                 silent: false,

@@ -221,6 +221,7 @@ export class CommandYargs extends AbstractCommandYargs {
                             }),
                             profileManagerFactory: this.profileManagerFactory,
                             rootCommandName: this.rootCommandName,
+                            commandLine: this.commandLine,
                             envVariablePrefix: this.envVariablePrefix
                         }).invoke({
                             arguments: argsForHandler,

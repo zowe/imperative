@@ -62,6 +62,13 @@ export class CommandProcessor {
      */
     private mCommandRootName: string;
     /**
+     * The command line.
+     * @private
+     * @type {string}
+     * @memberof CommandProcessor
+     */
+    private mCommandLine: string;
+    /**
      * Environmental variable name prefix used to construct configuration environmental variables.
      * @private
      * @type {string}
@@ -124,6 +131,7 @@ export class CommandProcessor {
                 `but no handler was specified.`);
         }
         this.mCommandRootName = params.rootCommandName;
+        this.mCommandLine = params.commandLine;
         this.mEnvVariablePrefix = params.envVariablePrefix;
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["rootCommandName"], `${CommandProcessor.ERROR_TAG} No root command supplied.`);
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["envVariablePrefix"], `${CommandProcessor.ERROR_TAG} No ENV variable prefix supplied.`);
@@ -139,6 +147,19 @@ export class CommandProcessor {
     get rootCommand(): string {
         return this.mCommandRootName;
     }
+
+    /**
+     * Accessor for the command line
+     * @readonly
+     * @type {string}
+     * @memberof CommandProcessor
+     */
+    get commandLine(): string {
+        return this.mCommandLine;
+    }
+    // set commandLine(command: string) {
+    //     this.mCommandLine = command;
+    // }
 
     /**
      * Accessor for the environment variable prefix
@@ -245,9 +266,9 @@ export class CommandProcessor {
 
         // Log the invoke
         this.log.info(`Invoking command "${this.definition.name}"...`);
-        this.log.trace(`Arguments supplied for for the command:\n${TextUtils.prettyJson(params.arguments)}`);
-        this.log.trace(`Command definition:\n${inspect(this.definition, { depth: null })}`);
+        this.log.info(`Command issued:\n\n${TextUtils.prettyJson(this.mCommandLine)}`);
         this.log.trace(`Invoke parameters:\n${inspect(params, { depth: null })}`);
+        this.log.trace(`Command definition:\n${inspect(this.definition, { depth: null })}`);
 
         // Build the response object, base args object, and the entire array of options for this command
         // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions

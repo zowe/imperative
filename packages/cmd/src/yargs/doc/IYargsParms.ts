@@ -68,6 +68,12 @@ export interface IYargsParms {
      */
     rootCommandName: string;
     /**
+     * The command line.
+     * @type {string}
+     * @memberof IYargsParms
+     */
+    commandLine: string;
+    /**
      * Environmental variable name prefix used to construct configuration environmental variables.
      * @type {string}
      * @memberof IYargsParms

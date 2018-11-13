@@ -65,6 +65,16 @@ export class Imperative {
     }
 
     /**
+     *  Retrieve the command line.
+     *  @example
+     *  For example, banana a b --c", is the command line.
+     *  @returns {string} - command line
+     */
+    public static get commandLine(): string {
+        return this.mCommandLine;
+    }
+
+    /**
      * Get the complete full command tree
      * @returns {ICommandDefinition}
      */
@@ -323,6 +333,7 @@ export class Imperative {
     private static mConsoleLog: Logger;
     private static mFullCommandTree: ICommandDefinition;
     private static mRootCommandName: string;
+    private static mCommandLine: string;
     private static mHelpGeneratorFactory: IHelpGeneratorFactory;
 
     /**
@@ -467,6 +478,7 @@ export class Imperative {
             Imperative.yargs,
             ImperativeConfig.instance.loadedConfig.primaryTextColor,
             Imperative.rootCommandName,
+            Imperative.commandLine,
             Imperative.envVariablePrefix,
             new ImperativeProfileManagerFactory(this.api),
             this.mHelpGeneratorFactory,

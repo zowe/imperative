@@ -47,7 +47,17 @@ export class YargsConfigurer {
         const jsonResponseFormat =
             (process.argv.indexOf(CliUtils.getDashFormOfOption(Constants.JSON_OPTION)) >= 0 ||
                 process.argv.indexOf(CliUtils.getDashFormOfOption(Constants.JSON_OPTION_ALIAS)) >= 0);
+
         const logger = Logger.getImperativeLogger();
+
+        // retrieve the arguments to re-build the command entered
+        let commandText: string  = "";
+        let i: number;
+        for (i = 0; i < this.yargs.argv._.length; i++) {
+            commandText = commandText + this.yargs.argv._[i] + " ";
+        }
+        logger.debug("Command line text: " + commandText);
+
         const jsonArg: any = {};
         if (jsonResponseFormat) {
             const jsonOptionName: string = Constants.JSON_OPTION;
@@ -64,8 +74,8 @@ export class YargsConfigurer {
         this.yargs.showHelpOnFail(false);
         // finally, catch any undefined commands
         this.yargs.command("*", "Unknown command", (argv: Argv) => {
-            return argv; // no builder
-        },
+                return argv; // no builder
+            },
             (argv: any) => {
                 const attemptedCommand = argv._.join(" ");
                 if (attemptedCommand.trim().length === 0) {
@@ -86,6 +96,7 @@ export class YargsConfigurer {
                         helpGenerator: rootHelpGenerator,
                         profileManagerFactory: this.profileManagerFactory,
                         rootCommandName: this.rootCommandName,
+                        commandLine: commandText,
                         envVariablePrefix: this.envVariablePrefix
                     }).invoke({ arguments: argv, silent: false, responseFormat: (jsonResponseFormat) ? "json" : "default" })
                         .then((response) => {
@@ -137,6 +148,7 @@ export class YargsConfigurer {
                         helpGenerator: rootHelpGenerator,
                         profileManagerFactory: this.profileManagerFactory,
                         rootCommandName: this.rootCommandName,
+                        commandLine: commandText,
                         envVariablePrefix: this.envVariablePrefix
                     });
 
@@ -145,8 +157,8 @@ export class YargsConfigurer {
                         .then((failedCommandResponse) => {
                             logger.debug("Finished invoking the 'FailedCommand' handler");
                         }).catch((err) => {
-                            logger.error("%s", err.msg);
-                        });
+                        logger.error("%s", err.msg);
+                    });
                 }
             });
 
@@ -170,6 +182,7 @@ export class YargsConfigurer {
                 helpGenerator: failHelpGenerator,
                 profileManagerFactory: this.profileManagerFactory,
                 rootCommandName: this.rootCommandName,
+                commandLine: commandText,
                 envVariablePrefix: this.envVariablePrefix
             });
 
@@ -186,8 +199,8 @@ export class YargsConfigurer {
                 .then((failedCommandResponse) => {
                     logger.debug("Finished invoking the 'FailedCommand' handler");
                 }).catch((err) => {
-                    logger.error("%s", err.msg);
-                });
+                logger.error("%s", err.msg);
+            });
         });
         process.on("uncaughtException", (error: Error) => {
             process.exitCode = Constants.ERROR_EXIT_CODE;
@@ -207,6 +220,7 @@ export class YargsConfigurer {
                 helpGenerator: failHelpGenerator,
                 profileManagerFactory: this.profileManagerFactory,
                 rootCommandName: this.rootCommandName,
+                commandLine: commandText,
                 envVariablePrefix: this.envVariablePrefix
             });
 
@@ -223,8 +237,8 @@ export class YargsConfigurer {
                 .then((failedCommandResponse) => {
                     logger.debug("Finished invoking the 'FailedCommand' handler");
                 }).catch((err) => {
-                    logger.error("%s", err.msg);
-                });
+                logger.error("%s", err.msg);
+            });
         });
     }
 
