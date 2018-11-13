@@ -33,7 +33,7 @@ import { Logger } from "../../../../../logger";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { sync } from "find-up";
-import { installPackages } from "../../../../src/plugins/utilities/NpmApiFunctions";
+import { installPackages } from "../../../../src/plugins/utilities/NpmFunctions";
 
 describe("PMF: Install Interface", () => {
   // Objects created so types are correct.

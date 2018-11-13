@@ -11,7 +11,7 @@
 
 import { PMFConstants } from "../PMFConstants";
 import { Logger } from "../../../../../logger";
-import { installPackages } from "../NpmApiFunctions";
+import { installPackages } from "../NpmFunctions";
 
 /**
  * @TODO - allow multiple packages to be updated?

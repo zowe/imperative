@@ -17,8 +17,7 @@ import { IPluginJson } from "../../doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { ImperativeError } from "../../../../../error";
 import { IPluginJsonObject } from "../../doc/IPluginJsonObject";
-import { IO } from "../../../../../io";
-import { installPackages } from "../NpmApiFunctions";
+import { installPackages } from "../NpmFunctions";
 
 
 /**

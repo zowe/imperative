@@ -36,7 +36,7 @@ import { readFileSync, writeFileSync } from "jsonfile";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { resolve } from "path";
 import { TextUtils } from "../../../../../utilities";
-import { getRegistry } from "../../../../src/plugins/utilities/NpmApiFunctions";
+import { getRegistry } from "../../../../src/plugins/utilities/NpmFunctions";
 
 describe("Plugin Management Facility install handler", () => {
 

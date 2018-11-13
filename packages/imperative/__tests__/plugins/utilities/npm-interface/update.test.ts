@@ -28,7 +28,7 @@ import { Logger } from "../../../../../logger";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { readFileSync } from "jsonfile";
 import { update } from "../../../../src/plugins/utilities/npm-interface";
-import { installPackages } from "../../../../src/plugins/utilities/NpmApiFunctions";
+import { installPackages } from "../../../../src/plugins/utilities/NpmFunctions";
 
 describe("PMF: update Interface", () => {
   // Objects created so types are correct.

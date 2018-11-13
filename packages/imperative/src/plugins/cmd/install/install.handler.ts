@@ -20,7 +20,7 @@ import { readFileSync } from "jsonfile";
 import { TextUtils } from "../../../../../utilities";
 import { ImperativeError } from "../../../../../error";
 import { runValidatePlugin } from "../../utilities/runValidatePlugin";
-import { getRegistry } from "../../utilities/NpmApiFunctions";
+import { getRegistry, npmLogin } from "../../utilities/NpmFunctions";
 
 /**
  * The install command handler for cli plugin install.
@@ -87,6 +87,9 @@ export default class InstallHandler implements ICommandHandler {
             installRegistry = getRegistry().replace("\n",  "");
         } else {
           installRegistry = params.arguments.registry;
+          if (params.arguments.login) {
+              npmLogin(installRegistry);
+          }
         }
 
         params.response.console.log(

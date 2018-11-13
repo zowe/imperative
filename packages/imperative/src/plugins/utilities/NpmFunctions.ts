@@ -10,8 +10,9 @@
 */
 
 import { PMFConstants } from "./PMFConstants";
-const npm = require.resolve("npm");
-const node = require("child_process");
+import * as path from "path";
+import { execSync } from "child_process";
+const npm = path.join(require.resolve("npm"), "../..");
 const nodeExecPath = process.execPath;
 
 /**
@@ -36,7 +37,7 @@ const nodeExecPath = process.execPath;
 export function installPackages(prefix: string, registry: string, npmPackage: string): string {
     const pipe = ["pipe", "pipe", process.stderr];
 
-    const execOutput = node.execSync(`"${nodeExecPath}" "${npm}" install "${npmPackage}" --prefix "${prefix}" ` +
+    const execOutput = execSync(`"${nodeExecPath}" "${npm}" install "${npmPackage}" --prefix "${prefix}" ` +
         `-g --registry "${registry}"`, {
         cwd: PMFConstants.instance.PMF_ROOT,
         stdio: pipe
@@ -50,6 +51,15 @@ export function installPackages(prefix: string, registry: string, npmPackage: st
  * @return {string}
  */
 export function getRegistry(): string {
-    const execOutput = node.execSync(`"${nodeExecPath}" "${npm}" config get registry`);
+    const execOutput = execSync(`"${nodeExecPath}" "${npm}" config get registry`);
     return execOutput.toString();
+}
+
+/**
+ * NPM login to be able to install from secure registry
+ * @param {string} registry The npm registry to install from.
+ */
+export function npmLogin(registry: string) {
+    execSync(`"${nodeExecPath}" "${npm}" adduser --registry ${registry} ` +
+        `--always-auth --auth-type=legacy`, {stdio: [0,1,2]});
 }
