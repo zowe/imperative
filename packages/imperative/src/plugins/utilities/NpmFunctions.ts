@@ -36,13 +36,16 @@ const nodeExecPath = process.execPath;
  */
 export function installPackages(prefix: string, registry: string, npmPackage: string): string {
     const pipe = ["pipe", "pipe", process.stderr];
-
-    const execOutput = execSync(`"${nodeExecPath}" "${npm}" install "${npmPackage}" --prefix "${prefix}" ` +
-        `-g --registry "${registry}"`, {
-        cwd: PMFConstants.instance.PMF_ROOT,
-        stdio: pipe
-    });
-    return execOutput.toString();
+    try {
+        const execOutput = execSync(`"${nodeExecPath}" "${npm}" install "${npmPackage}" --prefix "${prefix}" ` +
+            `-g --registry "${registry}"`, {
+            cwd: PMFConstants.instance.PMF_ROOT,
+            stdio: pipe
+        });
+        return execOutput.toString();
+    } catch (err) {
+        throw (err.message);
+    }
 }
 
 /**
@@ -51,8 +54,12 @@ export function installPackages(prefix: string, registry: string, npmPackage: st
  * @return {string}
  */
 export function getRegistry(): string {
-    const execOutput = execSync(`"${nodeExecPath}" "${npm}" config get registry`);
-    return execOutput.toString();
+    try {
+        const execOutput = execSync(`"${nodeExecPath}" "${npm}" config get registry`);
+        return execOutput.toString();
+    } catch (err) {
+        throw(err.message);
+    }
 }
 
 /**
@@ -60,6 +67,10 @@ export function getRegistry(): string {
  * @param {string} registry The npm registry to install from.
  */
 export function npmLogin(registry: string) {
-    execSync(`"${nodeExecPath}" "${npm}" adduser --registry ${registry} ` +
-        `--always-auth --auth-type=legacy`, {stdio: [0,1,2]});
+    try {
+        execSync(`"${nodeExecPath}" "${npm}" adduser --registry ${registry} ` +
+            `--always-auth --auth-type=legacy`, {stdio: [0,1,2]});
+    } catch (err) {
+        throw(err.message);
+    }
 }

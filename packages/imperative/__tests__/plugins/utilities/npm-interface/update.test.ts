@@ -19,7 +19,7 @@ jest.mock("../../../../src/plugins/utilities/PMFConstants");
 jest.mock("../../../../../logger");
 jest.mock("../../../../../cmd/src/response/CommandResponse");
 jest.mock("../../../../../cmd/src/response/HandlerResponse");
-jest.mock("../../../../src/plugins/utilities/NpmApiFunctions");
+jest.mock("../../../../src/plugins/utilities/NpmFunctions");
 
 import { Console } from "../../../../../console";
 import { existsSync } from "fs";
@@ -65,7 +65,7 @@ describe("PMF: update Interface", () => {
    */
   const wasNpmInstallCallValid = (expectedPackage: string, expectedRegistry: string) => {
     expect(mocks.installPackages).toHaveBeenCalledWith(PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
-        expectedRegistry, true, expectedPackage);
+        expectedRegistry, expectedPackage);
   };
 
   describe("Basic update", () => {

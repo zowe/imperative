@@ -23,6 +23,14 @@ const registryDescription =
   "For more information about npm registries, see: " +
   "https://docs.npmjs.com/misc/registry";
 
+const loginDescription =
+    "The flag to add a registry user account to install from secure registry. It saves credentials " +
+    "to the .npmrc file using `npm adduser`. When this value is omitted, credentials from .npmrc file is used. " +
+    "If you used this flag once for specific registry, you don't have to use it again, it uses credentials from .npmrc file.\n" +
+    "\n" +
+    "For more information about npm registries, see: " +
+    "https://docs.npmjs.com/cli/adduser";
+
 /**
  * Definition of the update command.
  * @type {ICommandDefinition}
@@ -47,6 +55,13 @@ export const updateDefinition: ICommandDefinition = {
       type: "string",
       description: registryDescription,
       required: false
+    },
+    {
+      name: "login",
+      type: "boolean",
+      description: loginDescription,
+      required: false,
+      implies: ["registry"]
     }
   ],
   examples: [
