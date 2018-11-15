@@ -927,7 +927,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
      */
     protected validateProfileAgainstSchema(profile: IProfile, strict = false) {
         // Store a reference (incase we need to make a copy to manipulate below)
-        let profileCopy = profile;
+        const profileCopy = profile;
 
         // Instance of the validator
         const validator = new SchemaValidator();
