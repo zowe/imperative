@@ -123,6 +123,11 @@ export const installDefinition: ICommandDefinition = {
         {
             description: "Install a local folder, local TAR file, and a git URL",
             options: "./local-file /root/tar/some-tar.tgz git://github.com/project/repository.git#v1.0.0"
+        },
+        {
+            description: "Install a remote plug-in from the registry which requires authorization" +
+            "(don't need to use this flag if you have already logged in before)",
+            options: "my-plugin --registry https://registry.npmjs.org/ --login"
         }
     ]
 };

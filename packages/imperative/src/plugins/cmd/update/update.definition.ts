@@ -69,5 +69,10 @@ export const updateDefinition: ICommandDefinition = {
       description: "Update a plug-in",
       options    : "my-plugin"
     },
+    {
+      description: "Update a remote plug-in from the registry which requires authorization" +
+      "(don't need to use this flag if you have already logged in before)",
+      options: "my-plugin --registry https://registry.npmjs.org/ --login"
+    }
   ]
 };
