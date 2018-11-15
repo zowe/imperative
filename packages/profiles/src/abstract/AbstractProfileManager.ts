@@ -426,15 +426,15 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
             const meta = this.readMeta(this.constructFullProfilePath(this.constructMetaName()));
             if (isNullOrUndefined(meta.defaultProfile)) {
                 this.log.debug(`Setting "${parms.name}" of type "${parms.type}" as the default profile.`);
-                this.setDefault(parms.profile.name);
+                this.setDefault(parms.name);
             }
         } else if (parms.updateDefault || isNullOrUndefined(this.locateExistingProfile(this.constructMetaName()))) {
-            this.log.debug(`Setting "${parms.profile.name}" of type "${parms.profile.type}" as the default profile.`);
-            this.setDefault(parms.profile.name);
+            this.log.debug(`Setting "${parms.name}" of type "${parms.type}" as the default profile.`);
+            this.setDefault(parms.name);
         }
 
         // Return the save/create response to the caller
-        this.log.info(`Save API complete for profile "${parms.profile.name}" of type "${this.profileType}".`);
+        this.log.info(`Save API complete for profile "${parms.name}" of type "${this.profileType}".`);
         return response;
     }
 
@@ -541,7 +541,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         this.validateProfileObject(parms.name, this.profileType, parms.profile);
 
         // Invoke the implementation
-        this.log.trace(`Invoking the profile validation implementation for profile "${parms.profile.name}" of type "${this.profileType}".`);
+        this.log.trace(`Invoking the profile validation implementation for profile "${parms.name}" of type "${this.profileType}".`);
 
         const response = await this.validateProfile(validateParms);
         if (isNullOrUndefined(response)) {
@@ -695,7 +695,6 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         // Validate the input parameters are correct
         ImperativeExpect.toNotBeNullOrUndefined(parms,
             `An update for a profile of type "${this.profileType}" was requested, but no parameters were specified.`);
-        parms.name = (isNullOrUndefined(parms.profile)) ? parms.name : parms.profile.name;
         ImperativeExpect.keysToBeDefinedAndNonBlank(parms, ["name"],
             `An update for a profile of type "${this.profileType}" was requested, but no name was specified.`);
 
@@ -887,7 +886,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     protected validateProfileObject(name: string, type: string, profile: IProfile) {
         // Throw an error on type mismatch - if the profile manager type does not match the input profile
         ImperativeExpect.toBeEqual(type, this.profileType,
-            `The profile passed on the create indicates a type ("${profile.type}") that differs from ` +
+            `The profile passed on the create indicates a type ("${type}") that differs from ` +
             `the type specified on this instance of the profile manager ("${this.profileType}").`);
 
         // Ensure that the profile name passed does NOT match the meta profile name
@@ -899,19 +898,19 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         // Validate the dependencies specification
         if (!isNullOrUndefined(profile.dependencies)) {
             ImperativeExpect.keysToBeAnArray(profile, false, ["dependencies"], `The profile passed ` +
-                `(name "${name}" of type "${this.profileType}") has dependencies as a property, ` +
+                `(name "${name}" of type "${type}") has dependencies as a property, ` +
                 `but it is NOT an array (ill-formed)`);
 
             for (const dep of profile.dependencies) {
 
                 // check for name on the dependency
                 ImperativeExpect.keysToBeDefinedAndNonBlank(dep, ["name"], `The profile passed ` +
-                    `(name "${name}" of type "${profile.type}") has dependencies as a property, ` +
+                    `(name "${name}" of type "${type}") has dependencies as a property, ` +
                     `but an entry does not contain "name".`);
 
                 // check for name on the dependency
                 ImperativeExpect.keysToBeDefinedAndNonBlank(dep, ["type"], `The profile passed ` +
-                    `(name "${name}" of type "${profile.type}") has dependencies as a property, ` +
+                    `(name "${name}" of type "${type}") has dependencies as a property, ` +
                     `but an entry does not contain "type".`);
             }
         }

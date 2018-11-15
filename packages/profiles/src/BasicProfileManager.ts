@@ -216,7 +216,7 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
                     this.log.error(`Failure to load dependencies for profile of type "${this.profileType}". ` +
                         `Details: ${loadsFailed.message}`);
                     const err: string = `An error occurred while loading the dependencies of profile ` +
-                        `profile of type "${profile.type}". Dependency load list: ${list}\n\nError Details: ${loadsFailed.message}`;
+                        `profile of type "${this.profileType}". Dependency load list: ${list}\n\nError Details: ${loadsFailed.message}`;
                     loadFailed(new ImperativeError({msg: err, additionalDetails: loadsFailed}));
                 });
             } else {
@@ -254,7 +254,7 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
         return {
             path,
             overwritten: parms.overwrite || false,
-            message: `Profile ("${parms.name}" of type "${parms.profile.type}") ` +
+            message: `Profile ("${parms.name}" of type "${this.profileType}") ` +
                 `successfully written: ${path}`,
             profile: parms.profile
         };

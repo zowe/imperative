@@ -139,7 +139,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             this.log.trace("No arguments specified, performing the basic validation (schema, etc.).");
             await this.validate(validationParms);
         }
-        parms.profile = await this.processSecureProperties(parms.profile);
+        parms.profile = await this.processSecureProperties(parms.name, parms.profile);
         return super.saveProfile(parms);
     }
 
@@ -179,7 +179,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             validationParms.readyForValidation = true;
             validationParms.profile = updated.profile;
             await this.validateProfile(validationParms);
-            updated.profile = await this.processSecureProperties(updated.profile);
+            updated.profile = await this.processSecureProperties(parms.name, updated.profile);
         }
 
         return updated;
@@ -209,16 +209,16 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                 try {
                     this.log.debug(
                         `Loading secured field with key ${propertyNamePath} for profile` +
-                        ` ("${profile.name}" of type "${this.profileType}").`
+                        ` ("${parms.name}" of type "${this.profileType}").`
                     );
                     // Use the Credential Manager to store the credentials
                     ret = await CredentialManagerFactory.manager.load(
-                        ProfileUtils.getProfilePropertyKey(this.profileType, profile.name, propertyNamePath)
+                        ProfileUtils.getProfilePropertyKey(this.profileType, parms.name, propertyNamePath)
                     );
                 } catch (err) {
                     this.log.error(
                         `Unable to load secure field "${propertyNamePath}" ` +
-                        `associated with profile "${profile.name}" of type "${this.profileType}".`
+                        `associated with profile "${parms.name}" of type "${this.profileType}".`
                     );
 
                     let additionalDetails: string = err.message + (err.additionalDetails ? `\n${err.additionalDetails}` : "");
@@ -227,7 +227,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     this.log.error(`Error: ${additionalDetails}`);
                     throw new ImperativeError({
                         msg: `Unable to load the secure field "${propertyNamePath}" associated with ` +
-                            `the profile "${profile.name}" of type "${this.profileType}".`,
+                            `the profile "${parms.name}" of type "${this.profileType}".`,
                         additionalDetails,
                         causeErrors: err
                     });
@@ -306,10 +306,10 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
      */
     protected async validateProfile(parms: IValidateProfileForCLI): Promise<IProfileValidated> {
         if (parms.readyForValidation) {
-            this.log.debug(`Invoking the basic profile manager validate for profile: "${parms.profile.name}"`);
+            this.log.debug(`Invoking the basic profile manager validate for profile: "${parms.name}"`);
             return super.validateProfile(parms);
         } else {
-            this.log.trace(`Skipping the validate for profile (as it's being built): "${parms.profile.name}"`);
+            this.log.trace(`Skipping the validate for profile (as it's being built): "${parms.name}"`);
             return {message: "Skipping validation until profile is built"};
         }
     }
@@ -385,10 +385,11 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
 
     /**
      * Process and store all secure properties and replace them with a constant for display purposes
+     * @param name - the name of the profile with which the secure properties are associated
      * @param {IProfile} profile - Profile contents to be processed
      * @return {Promise<IProfile>}
      */
-    private async processSecureProperties(profile: IProfile): Promise<IProfile> {
+    private async processSecureProperties(name: string, profile: IProfile): Promise<IProfile> {
         // If the credential manager is null, skip secure props and the profile will default to plain text
         let securelyStoreValue: SecureOperationFunction;
         if (CredentialManagerFactory.initialized) {
@@ -405,15 +406,15 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
 
                 try {
                     this.log.debug(`Associating secured field with key ${propertyNamePath}` +
-                        ` for profile ("${profile.name}" of type "${this.profileType}").`);
+                        ` for profile (of type "${this.profileType}").`);
                     // Use the Credential Manager to store the credentials
                     await CredentialManagerFactory.manager.save(
-                        ProfileUtils.getProfilePropertyKey(this.profileType, profile.name, propertyNamePath),
+                        ProfileUtils.getProfilePropertyKey(this.profileType, name, propertyNamePath),
                         JSON.stringify(propertyValue) // Stringify it before saving it. We will parse after loading it
                     );
                 } catch (err) {
                     this.log.error(`Unable to store secure field "${propertyNamePath}" ` +
-                        `associated with profile "${profile.name}" of type "${this.profileType}".`);
+                        `associated with profile "${name}" of type "${this.profileType}".`);
 
                     let additionalDetails: string = err.message + (err.additionalDetails ? `\n${err.additionalDetails}` : "");
                     additionalDetails = this.addProfileInstruction(additionalDetails);
