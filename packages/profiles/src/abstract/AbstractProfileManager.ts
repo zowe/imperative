@@ -538,7 +538,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         this.log.info(`Validating profile of type "${this.profileType}"...`);
 
         // Validate the profile object is correct for our usage here - does not include schema validation
-        this.validateProfileObject(parms.profile);
+        this.validateProfileObject(parms.name, this.profileType, parms.profile);
 
         // Invoke the implementation
         this.log.trace(`Invoking the profile validation implementation for profile "${parms.profile.name}" of type "${this.profileType}".`);
@@ -879,38 +879,39 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     /**
      * Performs basic validation of a profile object - ensures that all fields are present (if required).
      * @protected
+     * @param name - the name of the profile to validate
+     * @param type - the type of profile to validate
      * @param {IProfile} profile - The profile to validate.
      * @memberof AbstractProfileManager
      */
-    protected validateProfileObject(profile: IProfile) {
+    protected validateProfileObject(name: string, type: string, profile: IProfile) {
         // Throw an error on type mismatch - if the profile manager type does not match the input profile
-        profile.type = profile.type || this.profileType;
-        ImperativeExpect.toBeEqual(profile.type, this.profileType,
+        ImperativeExpect.toBeEqual(type, this.profileType,
             `The profile passed on the create indicates a type ("${profile.type}") that differs from ` +
             `the type specified on this instance of the profile manager ("${this.profileType}").`);
 
         // Ensure that the profile name passed does NOT match the meta profile name
-        ImperativeExpect.toNotBeEqual(profile.name, this.profileTypeMetaFileName,
-            `You cannot specify "${profile.name}" as a profile name. ` +
+        ImperativeExpect.toNotBeEqual(name, this.profileTypeMetaFileName,
+            `You cannot specify "${name}" as a profile name. ` +
             `This profile name is reserved for internal Imperative usage.`);
 
 
         // Validate the dependencies specification
         if (!isNullOrUndefined(profile.dependencies)) {
             ImperativeExpect.keysToBeAnArray(profile, false, ["dependencies"], `The profile passed ` +
-                `(name "${profile.name}" of type "${profile.type}") has dependencies as a property, ` +
+                `(name "${name}" of type "${this.profileType}") has dependencies as a property, ` +
                 `but it is NOT an array (ill-formed)`);
 
             for (const dep of profile.dependencies) {
 
                 // check for name on the dependency
                 ImperativeExpect.keysToBeDefinedAndNonBlank(dep, ["name"], `The profile passed ` +
-                    `(name "${profile.name}" of type "${profile.type}") has dependencies as a property, ` +
+                    `(name "${name}" of type "${profile.type}") has dependencies as a property, ` +
                     `but an entry does not contain "name".`);
 
                 // check for name on the dependency
                 ImperativeExpect.keysToBeDefinedAndNonBlank(dep, ["type"], `The profile passed ` +
-                    `(name "${profile.name}" of type "${profile.type}") has dependencies as a property, ` +
+                    `(name "${name}" of type "${profile.type}") has dependencies as a property, ` +
                     `but an entry does not contain "type".`);
             }
         }
@@ -953,22 +954,10 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
             }
         };
 
-        // If strict mode is requested, then we will remove name and type (because they are inserted by the manager) and
-        // set the additional properties flag false, which, according to the JSON schema specification, indicates that
-        // no unknown properties should be present on the document.
-        if (strict || (!isNullOrUndefined(schemaWithDependencies.additionalProperties) && schemaWithDependencies.additionalProperties === false)) {
-            profileCopy = JSON.parse(JSON.stringify(profile));
-            delete profileCopy.name;
-            delete profileCopy.type;
-            schemaWithDependencies.additionalProperties = false;
-        }
-
-        // TODO - @ChrisB, is this supposed to be commented out?
-        // schemaWithDependencies.dependencies = dependencyProperty;
         const results = validator.validate(profileCopy, schemaWithDependencies, {verbose: true});
         if (results.errors.length > 0) {
             let validationErrorMsg: string
-                = `Errors located in profile "${profile.name}" of type "${this.profileType}":\n`;
+                = `Errors located in profile of type "${this.profileType}":\n`;
             for (const validationError of results.errors) {
                 // make the error messages more human readable
                 const property = validationError.property.replace("instance.", "")
