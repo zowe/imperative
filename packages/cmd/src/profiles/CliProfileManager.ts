@@ -106,7 +106,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             this.log.trace(`All loads complete.`);
         } catch (e) {
             this.log.error(e.message);
-            throw new ImperativeError({ msg: e.message, additionalDetails: e.additionalDetails, causeErrors: e });
+            throw new ImperativeError({msg: e.message, additionalDetails: e.additionalDetails, causeErrors: e});
         }
 
         return allProfiles;
@@ -127,11 +127,12 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
         validationParms.readyForValidation = true;
 
         if (!isNullOrUndefined(parms.args)) {
-            this.log.trace(`Arguments supplied, constructing profile from arguments:\n${inspect(parms.args, { depth: null })}`);
+            this.log.trace(`Arguments supplied, constructing profile from arguments:\n${inspect(parms.args, {depth: null})}`);
             parms.profile = await this.createProfileFromCommandArguments(parms.args, parms.profile);
+
             validationParms.profile = parms.profile;
             delete parms.args;
-            this.log.debug(`Validating profile build (name: ${validationParms.profile.name}).`);
+            this.log.debug(`Validating profile build (name: ${parms.name}).`);
             await this.validate(validationParms); // validate now that the profile has been built
         } else {
             // profile should already be ready
@@ -161,7 +162,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             const newManagerParams: IProfileManager<ICommandProfileTypeConfiguration> = JSON.parse(JSON.stringify(this.managerParameters));
             newManagerParams.loadCounter = this.loadCounter;
             newManagerParams.logger = this.log;
-            const loadedProfile = await new CliProfileManager(newManagerParams).loadProfile({ name: parms.name });
+            const loadedProfile = await new CliProfileManager(newManagerParams).loadProfile({name: parms.name});
             updated = await this.updateProfileFromCliArgs(parms, loadedProfile.profile,
                 isNullOrUndefined(parms.profile) ? {
                     type: this.profileType,
@@ -169,7 +170,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                 } : parms.profile);
             delete parms.args;
             this.log.debug("Profile \"%s\" of type \"%s\" has been updated from CLI arguments. " +
-                "Validating the structure of the profile.", updated.profile.name, updated.profile.type);
+                "Validating the structure of the profile.", parms.name, this.profileType);
         } else {
             updated = await super.updateProfile(parms);
             this.log.debug("No CLI args were provided. Used the BasicProfileManager update API");
@@ -309,7 +310,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             return super.validateProfile(parms);
         } else {
             this.log.trace(`Skipping the validate for profile (as it's being built): "${parms.profile.name}"`);
-            return { message: "Skipping validation until profile is built" };
+            return {message: "Skipping validation until profile is built"};
         }
     }
 
@@ -455,6 +456,8 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             this.log.info("Saving updated profile \"%s\" of type \"%s\"",
                 updatedProfile.name, updatedProfile.type);
             createResponse = await this.saveProfile({
+                name: parms.name,
+                type: this.profileType,
                 profile: updatedProfile,
                 updateDefault: false,
                 overwrite: true,
@@ -491,7 +494,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             // if there is a custom update profile handler, they can call mergeProfile
             // from their handler, so we will not do it for them to avoid issues
             this.log.debug("Loading custom update profile handler: " + profileConfig.updateProfileFromArgumentsHandler);
-            const response = new CommandResponse({ silent: true });
+            const response = new CommandResponse({silent: true});
             let handler: ICommandHandler;
             try {
                 const commandHandler: ICommandHandlerRequire = require(profileConfig.updateProfileFromArgumentsHandler);
@@ -530,8 +533,6 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             // zeroth response object is specified to be
             // the finalized profile
             const finishedProfile = response.buildJsonResponse().data;
-            finishedProfile.name = oldProfile.name;
-            finishedProfile.type = oldProfile.type;
             this.insertDependenciesIntoProfileFromCLIArguments(newArguments, finishedProfile);
             return finishedProfile;
         } else {
@@ -555,7 +556,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
     private async createProfileFromCommandArguments(profileArguments: Arguments, starterProfile: IProfile): Promise<IProfile> {
         const profileConfig = this.profileTypeConfiguration;
         if (!isNullOrUndefined(profileConfig.createProfileFromArgumentsHandler)) {
-            const response = new CommandResponse({ silent: true, args: profileArguments });
+            const response = new CommandResponse({silent: true, args: profileArguments});
             let handler: ICommandHandler;
             try {
                 const commandHandler: ICommandHandlerRequire = require(profileConfig.createProfileFromArgumentsHandler);
@@ -592,15 +593,10 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             // the finalized profile
             const finishedProfile = response.buildJsonResponse().data;
             this.insertDependenciesIntoProfileFromCLIArguments(profileArguments, finishedProfile);
-            finishedProfile.name = starterProfile.name;
-            finishedProfile.type = starterProfile.type;
+
             return finishedProfile;
         } else {
-            const profile: IProfile =
-            {
-                type: this.profileType,
-                name: starterProfile.name
-            };
+            const profile: IProfile = {};
             // default case - no custom handler
             // build profile object directly from command arguments
             await this.insertCliArgumentsIntoProfile(profileArguments, profile);

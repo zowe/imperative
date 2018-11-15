@@ -242,7 +242,7 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
         } catch (e) {
             throw new ImperativeError({
                 msg: `Could not save the profile, because one or more dependencies is invalid or does not exist.\n` +
-                `Load Error Details: ${e.message}`
+                    `Load Error Details: ${e.message}`
             });
         }
 
@@ -255,7 +255,7 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
             path,
             overwritten: parms.overwrite || false,
             message: `Profile ("${parms.profile.name}" of type "${parms.profile.type}") ` +
-            `successfully written: ${path}`,
+                `successfully written: ${path}`,
             profile: parms.profile
         };
     }
@@ -303,7 +303,7 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
         if (this.isProfileEmpty(parms.profile)) {
             throw new ImperativeError({
                 msg: `The profile passed (name "${parms.profile.name}" of type ` +
-                `"${parms.profile.type}") does not contain any content.`
+                    `"${parms.profile.type}") does not contain any content.`
             });
         }
 
@@ -338,6 +338,8 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
             this.log.debug(`Merged profile "${parms.name}" of type "${this.profileType}" with old version`);
         }
         const response = await this.save({
+            name: parms.name,
+            type: this.profileType,
             profile: parms.profile,
             overwrite: true
         });

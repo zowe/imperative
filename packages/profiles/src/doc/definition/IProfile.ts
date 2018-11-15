@@ -35,23 +35,6 @@
  */
 export interface IProfile {
     /**
-     * The name of the profile. Cannot be blank/null. The name is used to refer to the profile (in context of the
-     * type) and is used as the file name when written/read from disk.
-     * @type {string}
-     * @memberof IProfile
-     */
-    name?: string;
-    /**
-     * The profile "type" is used to segregate/isolate configuration profiles. The profile name, plus the type,
-     * uniquely qualify a profile (the profile manager uses the type to organize the profiles on disk, so names
-     * do NOT need to be unique across types). The type is arbitrary, but must be defined on your Imperative config.
-     * A common usage for profile types, is to support complex CLI configurations, where potentially each group
-     * or set of commands in your CLI can have it's own configuration.
-     * @type {string}
-     * @memberof IProfile
-     */
-    type?: string;
-    /**
      * The list of profile that this profile is dependent on. Can be explicitly named (for tight  coupling of
      * interdependent profiles). Profile dependencies are useful to help complex CLIs segregate/isolate profile (and
      * for example, command groups) configurations, while allowing for reuse of configuration where needed. A profile

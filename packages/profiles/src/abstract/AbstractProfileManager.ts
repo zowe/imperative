@@ -210,15 +210,15 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
                 if (this.mProfileTypeConfigurations.length === 0) {
                     throw new ImperativeError({
                         msg: `No profile configurations found. ` +
-                        `Please initialize the profile manager OR supply the configurations to the profile manager.`
+                            `Please initialize the profile manager OR supply the configurations to the profile manager.`
                     });
                 }
             } catch (e) {
                 throw new ImperativeError({
                     msg: `An error occurred collecting all configurations ` +
-                    `from the profile root directory "${this.profileRootDirectory}". ` +
-                    `Please supply the configurations on the profile manager constructor parameters ` +
-                    `OR initialize the profile manager environment. Details: ${e.message}`,
+                        `from the profile root directory "${this.profileRootDirectory}". ` +
+                        `Please supply the configurations on the profile manager constructor parameters ` +
+                        `OR initialize the profile manager environment. Details: ${e.message}`,
                     additionalDetails: e
                 });
             }
@@ -397,20 +397,20 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
             `A request was made to save a profile of type "${this.profileType}", but no profile was supplied.`);
 
         // Ensure that the type is filled in - a mismatch will be thrown if the type indicates a type other than the manager's current type
-        parms.profile.type = parms.profile.type || this.profileType;
+        parms.type = parms.type || this.profileType;
 
         // Log the invocation
-        this.log.info(`Saving profile "${parms.profile.name}" of type "${parms.profile.type}"...`);
+        this.log.info(`Saving profile "${parms.name}" of type "${parms.type}"...`);
 
         // Perform basic profile object validation (not specific to create - just that the object is correct for our usage here)
-        this.log.debug(`Validating the profile ("${parms.profile.name}" of type "${this.profileType}") before save.`);
+        this.log.debug(`Validating the profile ("${parms.name}" of type "${this.profileType}") before save.`);
         await this.validate({
-            profile: parms.profile,
-            schema: this.profileTypeSchema
+            name: parms.name,
+            profile: parms.profile
         });
 
         // Protect against overwriting the profile - unless explicitly requested
-        this.protectAgainstOverwrite(parms.profile.name, parms.overwrite || false);
+        this.protectAgainstOverwrite(parms.name, parms.overwrite || false);
 
         // Invoke the implementation
         this.log.trace(`Invoking save profile of implementation...`);
@@ -425,7 +425,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         if (this.locateExistingProfile(this.constructMetaName())) {
             const meta = this.readMeta(this.constructFullProfilePath(this.constructMetaName()));
             if (isNullOrUndefined(meta.defaultProfile)) {
-                this.log.debug(`Setting "${parms.profile.name}" of type "${parms.profile.type}" as the default profile.`);
+                this.log.debug(`Setting "${parms.name}" of type "${parms.type}" as the default profile.`);
                 this.setDefault(parms.profile.name);
             }
         } else if (parms.updateDefault || isNullOrUndefined(this.locateExistingProfile(this.constructMetaName()))) {
@@ -491,7 +491,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
             this.log.error(`Circular dependencies detected in profile "${parms.name}" of type "${this.profileType}".`);
             throw new ImperativeError({
                 msg: `A circular profile dependency was detected. Profile "${parms.name}" of type "${this.profileType}" ` +
-                `either points directly to itself OR a dependency of this profile points to this profile.`
+                    `either points directly to itself OR a dependency of this profile points to this profile.`
             });
         }
 
@@ -535,7 +535,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         validateParms.schema = this.profileTypeSchema;
 
         // Log the API call
-        this.log.info(`Validating profile "${parms.profile.name}" of type "${this.profileType}"...`);
+        this.log.info(`Validating profile of type "${this.profileType}"...`);
 
         // Validate the profile object is correct for our usage here - does not include schema validation
         this.validateProfileObject(parms.profile);
@@ -1071,15 +1071,14 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         const profileContents = ProfileIO.readProfileFile(profileFilePath, this.profileType);
 
         // Insert the name and type - not persisted on disk
-        profileContents.name = name;
-        profileContents.type = this.profileType;
+
         let validateResponse;
         try {
-            validateResponse = await this.validate({profile: profileContents});
+            validateResponse = await this.validate({name, profile: profileContents});
         } catch (e) {
             throw new ImperativeError({
-                msg: `Profile validation error during load of profile "${profileContents.name}" ` +
-                `of type "${profileContents.type}". Error Details: ${e.message}`,
+                msg: `Profile validation error during load of profile "${name}" ` +
+                    `of type "${this.profileType}". Error Details: ${e.message}`,
                 additionalDetails: e
             });
         }
@@ -1130,8 +1129,8 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
                     if (!requiredDependencyFound) {
                         throw new ImperativeError({
                             msg: `Profile type "${this.profileType}" specifies a required dependency of type "${dependencyConfig.type}" ` +
-                            `on the "${this.profileType}" profile type configuration document. A dependency of type "${dependencyConfig.type}" ` +
-                            `was NOT listed on the input profile.`
+                                `on the "${this.profileType}" profile type configuration document. A dependency of type "${dependencyConfig.type}" ` +
+                                `was NOT listed on the input profile.`
                         });
                     }
                 }
@@ -1230,7 +1229,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         this.log.debug(`Profile "${name}" of type "${this.profileType}" was not found, but failNotFound=True`);
         return {
             message: `Profile "${name}" of type "${this.profileType}" was not found, but the request indicated to ignore "not found" errors. ` +
-            `The profile returned is undefined.`,
+                `The profile returned is undefined.`,
             type: this.profileType,
             name,
             failNotFound: false,
@@ -1266,12 +1265,6 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     private validateSchema(schema: IProfileSchema, type = this.profileType) {
         ImperativeExpect.keysToBeDefined(schema, ["properties"], `The schema document supplied for the profile type ` +
             `("${type}") does NOT contain properties.`);
-        ImperativeExpect.keysToBeUndefined(schema, ["properties.type"], `The schema "properties" property ` +
-            `(on configuration document for type "${type}") contains "type". ` +
-            `"type" is reserved for Imperative usage and cannot be supplied on the profile schema.`);
-        ImperativeExpect.keysToBeUndefined(schema, ["properties.name"], `The schema "properties" property ` +
-            `(on configuration document for type "${type}") contains "name". ` +
-            `"name" is reserved for Imperative usage and cannot be supplied on the profile schema.`);
         ImperativeExpect.keysToBeUndefined(schema, ["properties.dependencies"], `The schema "properties" property ` +
             `(on configuration document for type "${type}") contains "dependencies". ` +
             `"dependencies" is must be supplied as part of the "type" configuration document (no need to formulate the dependencies ` +
