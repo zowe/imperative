@@ -894,15 +894,6 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
             `You cannot specify "${profile.name}" as a profile name. ` +
             `This profile name is reserved for internal Imperative usage.`);
 
-        // Ensure that the profile name is specified and non-blank
-        ImperativeExpect.keysToBeDefinedAndNonBlank(profile, ["name"],
-            `The profile passed does not contain a name (type: "${profile.type}") OR the name property specified is ` +
-            `not of type "string".`);
-
-        // Ensure that the profile type is specified and non-blank
-        ImperativeExpect.keysToBeDefinedAndNonBlank(profile, ["type"],
-            `The profile passed (name "${profile.name}") does not contain a type OR the type property specified is ` +
-            `not of type "string".`);
 
         // Validate the dependencies specification
         if (!isNullOrUndefined(profile.dependencies)) {
