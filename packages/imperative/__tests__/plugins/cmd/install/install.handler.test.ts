@@ -22,7 +22,7 @@ jest.mock("../../../../../cmd/src/response/HandlerResponse");
 jest.mock("../../../../../cmd/src/doc/handler/IHandlerParameters");
 jest.mock("../../../../../logger");
 jest.mock("../../../../src/Imperative");
-jest.mock("../../../../src/plugins/utilities/NpmApiFunctions");
+jest.mock("../../../../src/plugins/utilities/NpmFunctions");
 
 import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
 import { Console } from "../../../../../console";
@@ -36,12 +36,13 @@ import { readFileSync, writeFileSync } from "jsonfile";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { resolve } from "path";
 import { TextUtils } from "../../../../../utilities";
-import { getRegistry } from "../../../../src/plugins/utilities/NpmApiFunctions";
+import { getRegistry, npmLogin } from "../../../../src/plugins/utilities/NpmFunctions";
 
 describe("Plugin Management Facility install handler", () => {
 
   // Objects created so types are correct.
   const mocks = {
+    npmLogin: npmLogin as Mock<typeof npmLogin>,
     getRegistry: getRegistry as Mock<typeof getRegistry>,
     readFileSync: readFileSync as Mock<typeof readFileSync>,
     writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
@@ -88,6 +89,7 @@ describe("Plugin Management Facility install handler", () => {
   beforeEach(() => {
     mocks.getRegistry.mockReturnValue(packageRegistry);
     mocks.readFileSync.mockReturnValue({});
+    npmLogin(packageRegistry);
 
     mocks.runValidatePlugin.mockReturnValue(finalValidationMsg);
   });
@@ -98,6 +100,15 @@ describe("Plugin Management Facility install handler", () => {
    */
   const wasGetRegistryCalled = () => {
     expect(mocks.getRegistry).toHaveBeenCalled();
+  };
+
+  /**
+   * Validates that an npmLogin was called
+   * when login needed based on the parameters passed.
+   */
+  const wasNpmLoginCallValid = (registry: string) => {
+    wasGetRegistryCalled();
+    expect(mocks.npmLogin).toHaveBeenCalledWith(registry);
   };
 
   /**
@@ -183,6 +194,9 @@ describe("Plugin Management Facility install handler", () => {
     // Validate the call to get the registry value
     wasGetRegistryCalled();
 
+    // Validate the call to login
+    wasNpmLoginCallValid(packageRegistry);
+
     expect(mocks.install).toHaveBeenCalledTimes(2);
     wasInstallCallValid(`${fileJson.a.package}@${fileJson.a.version}`, packageRegistry, true);
     wasInstallCallValid(fileJson.plugin2.package, packageRegistry2, true);
@@ -231,6 +245,9 @@ describe("Plugin Management Facility install handler", () => {
     // Validate the call to get the registry value
     wasGetRegistryCalled();
 
+    // Validate the call to login
+    wasNpmLoginCallValid(packageRegistry);
+
     // Check that install worked as expected
     wasInstallCallValid(params.arguments.plugin[0], packageRegistry);
 
@@ -264,6 +281,9 @@ describe("Plugin Management Facility install handler", () => {
     // Validate the install
     wasGetRegistryCalled();
 
+    // Validate the call to login
+    wasNpmLoginCallValid(packageRegistry);
+
     // Validate that install was called with each of these values
     expect(mocks.install).toHaveBeenCalledTimes(params.arguments.plugin.length);
     wasInstallCallValid(params.arguments.plugin[0], packageRegistry);
@@ -283,6 +303,9 @@ describe("Plugin Management Facility install handler", () => {
 
     // Validate the call to get the registry value
     wasGetRegistryCalled();
+
+    // Validate the call to login
+    wasNpmLoginCallValid(packageRegistry);
     wasReadFileSyncCallValid(PMFConstants.instance.PLUGIN_JSON);
 
     expect(params.response.console.log).toHaveBeenCalledWith("No packages were found in " +

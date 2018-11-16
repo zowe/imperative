@@ -17,8 +17,7 @@ import { IPluginJson } from "../../doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { ImperativeError } from "../../../../../error";
 import { IPluginJsonObject } from "../../doc/IPluginJsonObject";
-import { IO } from "../../../../../io";
-import { installPackages } from "../NpmApiFunctions";
+import { installPackages } from "../NpmFunctions";
 
 
 /**
@@ -49,7 +48,7 @@ import { installPackages } from "../NpmApiFunctions";
  *                                          it.
  * @returns {string} The name of the plugin.
  */
-export async function install(packageLocation: string, registry: string, installFromFile = false) {
+export function install(packageLocation: string, registry: string, installFromFile = false) {
     const iConsole = Logger.getImperativeLogger();
     let npmPackage = packageLocation;
 
@@ -84,15 +83,14 @@ export async function install(packageLocation: string, registry: string, install
         // Perform the npm install.
         iConsole.info("Installing packages...this may take some time.");
 
-        const installOutput = await installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, registry, true, npmPackage);
+        const installOutput = installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, registry, npmPackage);
 
         /* We get the package name (aka plugin name)
          * from the output of the npm command.
          * The regex is meant to match: + plugin-name@version.
          */
-        const stringOutput = installOutput.toString();
         const regex = /\+\s(.*)@(.*)$/gm;
-        const match = regex.exec(stringOutput);
+        const match = regex.exec(installOutput);
         const packageName = match[1];
         let packageVersion = match[2];
 
