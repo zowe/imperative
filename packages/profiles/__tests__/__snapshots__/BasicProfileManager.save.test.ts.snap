@@ -10,7 +10,6 @@ Object {
     },
   ],
   "description": "Strawberries covered in chocolate.",
-  "name": "chocolate_covered",
   "type": "strawberry",
 }
 `;
@@ -19,9 +18,7 @@ exports[`Basic Profile Manager Save should allow us to save a well-formed profil
 Object {
   "age": 1,
   "description": "A tasty apple",
-  "name": "good_apple",
   "rotten": false,
-  "type": "apple",
 }
 `;
 

@@ -855,12 +855,13 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
      * Load a profiles dependencies - dictacted by the implementation.
      * @protected
      * @abstract
+     * @param {string} name - the name of the profile to load dependencies for
      * @param {IProfile} profile - The profile to load dependencies for.
      * @param {boolean} failNotFound - True to fail "not found" errors
      * @returns {Promise<IProfileLoaded[]>} - The promise fulfilled with response or rejected with an ImperativeError.
      * @memberof AbstractProfileManager
      */
-    protected abstract loadDependencies(profile: IProfile, failNotFound: boolean): Promise<IProfileLoaded[]>;
+    protected abstract loadDependencies(name: string, profile: IProfile, failNotFound: boolean): Promise<IProfileLoaded[]>;
 
     /**
      * Invokes the profile IO method to delete the profile from disk.
@@ -888,6 +889,11 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         ImperativeExpect.toBeEqual(type, this.profileType,
             `The profile passed on the create indicates a type ("${type}") that differs from ` +
             `the type specified on this instance of the profile manager ("${this.profileType}").`);
+
+        // Ensure that the profile name is specified and non-blank
+        ImperativeExpect.toBeDefinedAndNonBlank(name,
+            `The profile passed does not contain a name (type: "${profile.type}") OR the name property specified is ` +
+            `not of type "string".`);
 
         // Ensure that the profile name passed does NOT match the meta profile name
         ImperativeExpect.toNotBeEqual(name, this.profileTypeMetaFileName,
@@ -919,12 +925,13 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     /**
      * Validates the profile against the schema for its type and reports and errors located.
      * @protected
+     * @param name - the name of the profile to validate
      * @param {IProfile} profile - The profile to validate.
      * @param {boolean} [strict=false] - Set to true to enable the "ban unknown properties" specification of the JSON schema spec. In other words,
      * prevents profiles with "unknown" or "not defined" proeprties according to the schema document.
      * @memberof AbstractProfileManager
      */
-    protected validateProfileAgainstSchema(profile: IProfile, strict = false) {
+    protected validateProfileAgainstSchema(name: string, profile: IProfile, strict = false) {
         // Store a reference (incase we need to make a copy to manipulate below)
         const profileCopy = profile;
 
@@ -956,7 +963,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         const results = validator.validate(profileCopy, schemaWithDependencies, {verbose: true});
         if (results.errors.length > 0) {
             let validationErrorMsg: string
-                = `Errors located in profile of type "${this.profileType}":\n`;
+                = `Errors located in profile "${name}" of type "${this.profileType}":\n`;
             for (const validationError of results.errors) {
                 // make the error messages more human readable
                 const property = validationError.property.replace("instance.", "")

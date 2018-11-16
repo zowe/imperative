@@ -178,12 +178,13 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
      * Loads all dependencies for the profile specified - returns the list in the response structure. Sub-dependencies
      * are also loaded.
      * @protected
+     * @param {string} name - the name of hte profile to load dependencies for
      * @param {IProfile} profile - The profile to load dependencies.
      * @param {boolean} [failNotFound=true] - Indicates that you want to avoid failing the request for "not found" errors.
      * @returns {Promise<IProfileLoaded[]>} - The list of profiles loaded with all dependencies.
      * @memberof BasicProfileManager
      */
-    protected loadDependencies(profile: IProfile, failNotFound = true): Promise<IProfileLoaded[]> {
+    protected loadDependencies(name: string, profile: IProfile, failNotFound = true): Promise<IProfileLoaded[]> {
         return new Promise<IProfileLoaded[]>((dependenciesLoaded, loadFailed) => {
 
             // Construct a list of promises to load all profiles
@@ -216,7 +217,7 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
                     this.log.error(`Failure to load dependencies for profile of type "${this.profileType}". ` +
                         `Details: ${loadsFailed.message}`);
                     const err: string = `An error occurred while loading the dependencies of profile ` +
-                        `profile of type "${this.profileType}". Dependency load list: ${list}\n\nError Details: ${loadsFailed.message}`;
+                        `"${name}" of type "${this.profileType}". Dependency load list: ${list}\n\nError Details: ${loadsFailed.message}`;
                     loadFailed(new ImperativeError({msg: err, additionalDetails: loadsFailed}));
                 });
             } else {
@@ -238,7 +239,7 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
         try {
             this.log.debug(`Loading dependencies for profile "${parms.name}" of type "${this.profileType}", ` +
                 `checking if if they are valid (before save.)`);
-            const loadResponse = await this.loadDependencies(parms.profile);
+            const loadResponse = await this.loadDependencies(parms.name, parms.profile);
         } catch (e) {
             throw new ImperativeError({
                 msg: `Could not save the profile, because one or more dependencies is invalid or does not exist.\n` +
@@ -312,7 +313,7 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
         this.validateRequiredDependenciesAreSpecified(parms.profile);
 
         // Validate the profile agaisnt the schema
-        this.validateProfileAgainstSchema(parms.profile, parms.strict);
+        this.validateProfileAgainstSchema(parms.name, parms.profile, parms.strict);
 
         // Return the response
         this.log.debug(`Profile "${parms.name}" of type "${this.profileType}" is valid.`);
