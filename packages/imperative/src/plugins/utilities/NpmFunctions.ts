@@ -16,7 +16,7 @@ const npm = path.join(require.resolve("npm"), "../..");
 const nodeExecPath = process.execPath;
 
 /**
- * Common function that installs a npm package using.
+ * Common function that installs a npm package using the local npm cli.
  * @param {string} prefix Path where to install npm the npm package.
  *
  * @param {string} registry The npm registry to install from.
