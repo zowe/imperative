@@ -1082,7 +1082,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
 
         // If requested, load the profile's dependencies
         if (loadDependencies) {
-            const loadDependenciesResponse = await this.loadDependencies(profileContents, failNotFound);
+            const loadDependenciesResponse = await this.loadDependencies(name, profileContents, failNotFound);
             if (!isNullOrUndefined(loadDependenciesResponse) && loadDependenciesResponse.length > 0) {
                 loadResponse.dependenciesLoaded = true;
                 loadResponse.dependencyLoadResponses = loadDependenciesResponse;

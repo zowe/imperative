@@ -482,6 +482,7 @@ describe("Basic Profile Manager Save", () => {
         try {
             response = await prof.save({
                 name: "apple_with_two_req_dep_circular",
+                type: APPLE_PROFILE_TYPE,
                 profile: {
                     age: 1000,
                     description: "An old apple",
