@@ -400,7 +400,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         parms.type = parms.type || this.profileType;
 
         // Log the invocation
-        this.log.info(`Saving profile "${parms.name}" of type "${parms.type}"...`);
+        this.log.info(`Saving profile "${parms.name}" of type "${this.profileType}"...`);
 
         // Perform basic profile object validation (not specific to create - just that the object is correct for our usage here)
         this.log.debug(`Validating the profile ("${parms.name}" of type "${this.profileType}") before save.`);
@@ -891,8 +891,8 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
             `the type specified on this instance of the profile manager ("${this.profileType}").`);
 
         // Ensure that the profile name is specified and non-blank
-        ImperativeExpect.toBeDefinedAndNonBlank(name,
-            `The profile passed does not contain a name (type: "${profile.type}") OR the name property specified is ` +
+        ImperativeExpect.toBeDefinedAndNonBlank(name, "name",
+            `The profile passed does not contain a name (type: "${this.profileType}") OR the name property specified is ` +
             `not of type "string".`);
 
         // Ensure that the profile name passed does NOT match the meta profile name
