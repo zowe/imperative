@@ -6,9 +6,7 @@ exports[`Basic Profile Manager Load should allow the load of a well formed profi
 Object {
   "age": 1,
   "description": "A tasty apple",
-  "name": "good_apple",
   "rotten": false,
-  "type": "apple",
 }
 `;
 
@@ -37,8 +35,6 @@ Object {
       },
     ],
     "description": "Tasty",
-    "name": "strawberry_not_found_apple",
-    "type": "strawberry",
   },
   "type": "strawberry",
 }
@@ -54,8 +50,6 @@ Object {
   "profile": Object {
     "amount": 1000,
     "description": "Tasty",
-    "name": "strawberry_no_apple",
-    "type": "strawberry",
   },
   "type": "strawberry",
 }
@@ -72,9 +66,7 @@ Array [
     "profile": Object {
       "age": 1,
       "description": "A tasty apple",
-      "name": "good_apple",
       "rotten": false,
-      "type": "apple",
     },
     "type": "apple",
   },
@@ -87,9 +79,7 @@ Array [
     "profile": Object {
       "age": 1,
       "description": "tasty",
-      "name": "tasty_apples",
       "rotten": false,
-      "type": "apple",
     },
     "type": "apple",
   },
@@ -108,8 +98,6 @@ Array [
         },
       ],
       "description": "Tasty",
-      "name": "strawberry_and_apple",
-      "type": "strawberry",
     },
     "type": "strawberry",
   },
@@ -187,9 +175,7 @@ Object {
       "profile": Object {
         "age": 1,
         "description": "A tasty apple",
-        "name": "good_apple",
         "rotten": false,
-        "type": "apple",
       },
       "type": "apple",
     },
@@ -206,8 +192,6 @@ Object {
       },
     ],
     "description": "Super sweet strawberries",
-    "name": "sweet_strawberry",
-    "type": "strawberry",
   },
   "type": "strawberry",
 }
@@ -226,8 +210,6 @@ Object {
       "profile": Object {
         "amount": 1000,
         "description": "chocolate covered",
-        "name": "chocolate_strawberries",
-        "type": "strawberry",
       },
       "type": "strawberry",
     },
@@ -239,8 +221,6 @@ Object {
       "name": "bundle_of_bananas",
       "profile": Object {
         "bundle": true,
-        "name": "bundle_of_bananas",
-        "type": "banana",
       },
       "type": "banana",
     },
@@ -261,9 +241,7 @@ Object {
       },
     ],
     "description": "A tasty apple",
-    "name": "apples_and_strawberries_and_bananas",
     "rotten": false,
-    "type": "apple",
   },
   "type": "apple",
 }
@@ -282,8 +260,6 @@ Object {
       "profile": Object {
         "amount": 1000,
         "description": "chocolate covered",
-        "name": "chocolate_strawberries",
-        "type": "strawberry",
       },
       "type": "strawberry",
     },
@@ -299,8 +275,6 @@ Object {
           "profile": Object {
             "color": "green",
             "description": "Super tasty grapes",
-            "name": "green_grapes",
-            "type": "grape",
           },
           "type": "grape",
         },
@@ -316,8 +290,6 @@ Object {
             "type": "grape",
           },
         ],
-        "name": "bananas_and_grapes",
-        "type": "banana",
       },
       "type": "banana",
     },
@@ -338,9 +310,7 @@ Object {
       },
     ],
     "description": "A tasty apple",
-    "name": "apples_and_grapes_and_strawberries_and_bananas",
     "rotten": false,
-    "type": "apple",
   },
   "type": "apple",
 }
@@ -350,9 +320,7 @@ exports[`Basic Profile Manager Load should load the default if requested 1`] = `
 
 exports[`Basic Profile Manager Load should load the default if requested 2`] = `
 Object {
-  "name": "sweet_blueberry",
   "tart": false,
-  "type": "blueberry",
 }
 `;
 
