@@ -164,10 +164,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             newManagerParams.logger = this.log;
             const loadedProfile = await new CliProfileManager(newManagerParams).loadProfile({name: parms.name});
             updated = await this.updateProfileFromCliArgs(parms, loadedProfile.profile,
-                isNullOrUndefined(parms.profile) ? {
-                    type: this.profileType,
-                    name: parms.name
-                } : parms.profile);
+                isNullOrUndefined(parms.profile) ? {} : parms.profile);
             delete parms.args;
             this.log.debug("Profile \"%s\" of type \"%s\" has been updated from CLI arguments. " +
                 "Validating the structure of the profile.", parms.name, this.profileType);

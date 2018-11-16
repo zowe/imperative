@@ -55,7 +55,8 @@ describe("Cli Profile Manager", () => {
         const b = 2;
         const profileName = "myprofile";
         const saveResult = await manager.save({
-            profile: {name: profileName, type: profileTypeOne},
+            name: profileName, type: profileTypeOne,
+            profile: {},
             args: {_: [], $0: "test", a, b}
         });
         testLogger.info("Save profile result: " + inspect(saveResult));
@@ -76,7 +77,8 @@ describe("Cli Profile Manager", () => {
         });
         try {
             await manager.save({
-                profile: {name: "badprofile", type: profileTypeOne, sum: 2},
+                name: "badprofile", type: profileTypeOne,
+                profile: {sum: 2},
                 args: {_: [], $0: "test", doesNotMatter: "hi"}
             });
         } catch (e) {
@@ -102,15 +104,17 @@ describe("Cli Profile Manager", () => {
             const originalSum = 55;
             const profileName = "myprofile";
             const saveResult = await manager.save({
-                profile: {name: profileName, type: profileTypeOne, sum: originalSum}
+                name: profileName, type: profileTypeOne,
+                profile: {sum: originalSum}
             });
             expect(saveResult.overwritten).toEqual(false);
 
             testLogger.info("Save profile result: " + inspect(saveResult));
 
             const updateResult = await manager.update({
+                name: profileName, type: profileTypeOne,
                 profile: {
-                    name: profileName, type: profileTypeOne, sum: 1 // todo remove sum once empty check is gone
+                    sum: 1
                 },
                 args: {_: [], $0: "fake", a, b}
             });
@@ -134,11 +138,13 @@ describe("Cli Profile Manager", () => {
         });
         const profileName = "badprofile";
         await manager.save({
-            profile: {name: profileName, type: profileTypeOne, sum: 30}
+            name: profileName, type: profileTypeOne,
+            profile: {sum: 30}
         });
         try {
             await manager.update({
-                profile: {name: profileName, type: profileTypeOne, sum: 2},
+                name: profileName, type: profileTypeOne,
+                profile: {sum: 2},
                 args: {_: [], $0: "test", doesNotMatter: "hi"}
             });
         } catch (e) {
@@ -188,7 +194,8 @@ describe("Cli Profile Manager", () => {
         const propertyTwoValue = "cell phone";
         const profileName = "myprofile";
         const saveResult = await manager.save({
-            profile: {name: profileName, type: profileTypeOne},
+            name: profileName, type: profileTypeOne,
+            profile: {},
             args: {_: [], $0: "test", differentProperty1: propertyOneValue, differentProperty2: propertyTwoValue}
         });
         testLogger.info("Save profile result: " + inspect(saveResult));
