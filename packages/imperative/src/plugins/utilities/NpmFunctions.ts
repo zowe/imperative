@@ -16,22 +16,14 @@ const npm = path.join(require.resolve("npm"), "../..");
 const nodeExecPath = process.execPath;
 
 /**
- * Common function that installs a npm package using npm APIs.
- * npm.load doesn't install with passed configuration values such as global and prefix
- * that's why need to use npm.config functions to install packages globally and to a specific prefix
- * The link for all configuration values and descriptions:
- * https://docs.npmjs.com/misc/config
- * The link for use case:
- * https://stackoverflow.com/questions/15957529/can-i-install-a-npm-package-from-javascript-running-in-node-js/15957574#15957574
- * The link how to use NPM programmatically from npm-cli.js documentation:
- * https://github.com/npm/cli/blob/latest/bin/npm-cli.js#L75
+ * Common function that installs a npm package using.
  * @param {string} prefix Path where to install npm the npm package.
  *
  * @param {string} registry The npm registry to install from.
  *
  * @param {string} npmPackage The name of package to install.
  *
- * @return {string} Log response from NPM api
+ * @return {string} command response
  *
  */
 export function installPackages(prefix: string, registry: string, npmPackage: string): string {
