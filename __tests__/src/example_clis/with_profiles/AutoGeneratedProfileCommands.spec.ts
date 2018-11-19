@@ -108,7 +108,7 @@ describe("We should provide auto-generated profile commands for convenience, " +
 
         // issue a command that uses the new profile with dependency
         T.findExpectedOutputInCommand(cliBin,
-            ["use-dependent-profile"], [goodDependency, mainProfileName], "stdout",
+            ["use-dependent-profile"], [], "stdout",
             true, this);
     });
 

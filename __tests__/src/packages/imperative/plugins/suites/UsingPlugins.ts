@@ -274,7 +274,6 @@ describe("Using a Plugin", () => {
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
         expect(result.stderr).toBe("");
         expect(result.stdout).toContain("CredentialManager in sample-plugin is saving these creds:");
-        expect(result.stdout).toContain("name:     TestProfileName");
         expect(result.stdout).toContain("password: managed by override-plugin");
 
         // set the CredMgr back to default
