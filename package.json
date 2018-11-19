@@ -14,8 +14,8 @@
       "lib/auth/*.js"
     ],
     "assets": [
-      "node_modules/npm/node_modules/node-gyp/**/*",
-      "node_modules/npm/lib/"
+      "../../npm/node_modules/node-gyp/**/*",
+      "../../npm/lib/"
     ]
   },
   "files": [
