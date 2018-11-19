@@ -298,7 +298,6 @@ describe("Basic Profile Manager Validate", () => {
                 seedless: false
             };
             response = await prof.validate({name: "good_apple", profile, strict: true});
-            console.log(response)
         } catch (e) {
             error = e;
             TestLogger.info(error);
