@@ -528,7 +528,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
             `(of type "${this.profileType}"), but no parameters were specified.`);
 
         // Ensure defaults are set
-        parms.strict = (isNullOrUndefined(parms.strict)) ? false : parms.strict;
+        parms.strict = (parms.strict == null) ? false : parms.strict;
 
         // Pass the schema to the implementations validate
         const validateParms = JSON.parse(JSON.stringify(parms));
@@ -932,8 +932,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
      * @memberof AbstractProfileManager
      */
     protected validateProfileAgainstSchema(name: string, profile: IProfile, strict = false) {
-        // Store a reference (incase we need to make a copy to manipulate below)
-        const profileCopy = profile;
+
 
         // Instance of the validator
         const validator = new SchemaValidator();
@@ -960,7 +959,16 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
             }
         };
 
-        const results = validator.validate(profileCopy, schemaWithDependencies, {verbose: true});
+        // If strict mode is requested, then we will remove name and type (because they are inserted by the manager) and
+        // set the additional properties flag false, which, according to the JSON schema specification, indicates that
+        // no unknown properties should be present on the document.
+        if (strict || (!isNullOrUndefined(schemaWithDependencies.additionalProperties) && schemaWithDependencies.additionalProperties === false)) {
+            schemaWithDependencies.additionalProperties = false;
+        }
+
+        // TODO - @ChrisB, is this supposed to be commented out?
+        // schemaWithDependencies.dependencies = dependencyProperty;
+        const results = validator.validate(profile, schemaWithDependencies, {verbose: true});
         if (results.errors.length > 0) {
             let validationErrorMsg: string
                 = `Errors located in profile "${name}" of type "${this.profileType}":\n`;
