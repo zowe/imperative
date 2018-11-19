@@ -29,7 +29,7 @@ def RELEASE_BRANCH = false
 /**
  * List of people who will get all emails for master builds
  */
-def MASTER_RECIPIENTS_LIST = "cc:Christopher.Wright@ca.com, cc:Fernando.RijoCedeno@ca.com, cc:Michael.Bauer2@ca.com, cc:Mark.Ackert@ca.com, cc:Daniel.Kelosky@ca.com"
+def MASTER_RECIPIENTS_LIST = "cc:christopher.wright@broadcom.com, cc:fernando.rijocedeno@broadcom.com, cc:michael.bauer2@broadcom.com, cc:mark.ackert@broadcom.com, cc:daniel.kelosky@broadcom.com"
 
 /**
  * The result string for a successful build
@@ -286,64 +286,64 @@ pipeline {
          * HTML: Unit Test Report
          * HTML: Unit Test Code Coverage Report
          ************************************************************************/
-        stage('Test: Unit') {
-            when {
-                expression {
-                    return SHOULD_BUILD == 'true'
-                }
-            }
-            environment {
-                JEST_JUNIT_OUTPUT = "${UNIT_RESULTS}/junit.xml"
-                JEST_SUITE_NAME = "Unit Tests"
-                JEST_JUNIT_ANCESTOR_SEPARATOR = " > "
-                JEST_JUNIT_CLASSNAME="Unit.{classname}"
-                JEST_JUNIT_TITLE="{title}"
-                JEST_HTML_REPORTER_OUTPUT_PATH = "${UNIT_RESULTS}/index.html"
-                JEST_HTML_REPORTER_PAGE_TITLE = "${BRANCH_NAME} - Unit Test"
-            }
-            steps {
-                timeout(time: 10, unit: 'MINUTES') {
-                    echo 'Unit Test'
-                    sh "npm run test:unit"
+        // stage('Test: Unit') {
+        //     when {
+        //         expression {
+        //             return SHOULD_BUILD == 'true'
+        //         }
+        //     }
+        //     environment {
+        //         JEST_JUNIT_OUTPUT = "${UNIT_RESULTS}/junit.xml"
+        //         JEST_SUITE_NAME = "Unit Tests"
+        //         JEST_JUNIT_ANCESTOR_SEPARATOR = " > "
+        //         JEST_JUNIT_CLASSNAME="Unit.{classname}"
+        //         JEST_JUNIT_TITLE="{title}"
+        //         JEST_HTML_REPORTER_OUTPUT_PATH = "${UNIT_RESULTS}/index.html"
+        //         JEST_HTML_REPORTER_PAGE_TITLE = "${BRANCH_NAME} - Unit Test"
+        //     }
+        //     steps {
+        //         timeout(time: 10, unit: 'MINUTES') {
+        //             echo 'Unit Test'
+        //             sh "npm run test:unit"
 
-                    // Capture test report
-                    junit JEST_JUNIT_OUTPUT
+        //             // Capture test report
+        //             junit JEST_JUNIT_OUTPUT
 
-                    cobertura autoUpdateHealth: false,
-                            autoUpdateStability: false,
-                            coberturaReportFile: '__tests__/__results__/unit/coverage/cobertura-coverage.xml',
-                            conditionalCoverageTargets: '70, 0, 0',
-                            failUnhealthy: false,
-                            failUnstable: false,
-                            lineCoverageTargets: '80, 0, 0',
-                            maxNumberOfBuilds: 20,
-                            methodCoverageTargets: '80, 0, 0',
-                            onlyStable: false,
-                            sourceEncoding: 'ASCII',
-                            zoomCoverageChart: false
+        //             cobertura autoUpdateHealth: false,
+        //                     autoUpdateStability: false,
+        //                     coberturaReportFile: '__tests__/__results__/unit/coverage/cobertura-coverage.xml',
+        //                     conditionalCoverageTargets: '70, 0, 0',
+        //                     failUnhealthy: false,
+        //                     failUnstable: false,
+        //                     lineCoverageTargets: '80, 0, 0',
+        //                     maxNumberOfBuilds: 20,
+        //                     methodCoverageTargets: '80, 0, 0',
+        //                     onlyStable: false,
+        //                     sourceEncoding: 'ASCII',
+        //                     zoomCoverageChart: false
 
 
-                    // Publish HTML report
-                    publishHTML(target: [
-                            allowMissing         : false,
-                            alwaysLinkToLastBuild: true,
-                            keepAll              : true,
-                            reportDir            : UNIT_RESULTS,
-                            reportFiles          : 'index.html',
-                            reportName           : 'Imperative - Unit Test Report'
-                    ])
+        //             // Publish HTML report
+        //             publishHTML(target: [
+        //                     allowMissing         : false,
+        //                     alwaysLinkToLastBuild: true,
+        //                     keepAll              : true,
+        //                     reportDir            : UNIT_RESULTS,
+        //                     reportFiles          : 'index.html',
+        //                     reportName           : 'Imperative - Unit Test Report'
+        //             ])
 
-                    publishHTML(target: [
-                            allowMissing         : false,
-                            alwaysLinkToLastBuild: true,
-                            keepAll              : true,
-                            reportDir            : "__tests__/__results__/unit/coverage/lcov-report",
-                            reportFiles          : 'index.html',
-                            reportName           : 'Imperative - Unit Test Coverage Report'
-                    ])
-                }
-            }
-        }
+        //             publishHTML(target: [
+        //                     allowMissing         : false,
+        //                     alwaysLinkToLastBuild: true,
+        //                     keepAll              : true,
+        //                     reportDir            : "__tests__/__results__/unit/coverage/lcov-report",
+        //                     reportFiles          : 'index.html',
+        //                     reportName           : 'Imperative - Unit Test Coverage Report'
+        //             ])
+        //         }
+        //     }
+        // }
 
         /************************************************************************
          * STAGE
@@ -396,51 +396,51 @@ pipeline {
          * Jenkins: Integration Test Report (through junit plugin)
          * HTML: Integration Test Report
          ************************************************************************/
-        stage('Test: Integration') {
-            when {
-                expression {
-                    return SHOULD_BUILD == 'true'
-                }
-            }
-            environment {
-                JEST_JUNIT_OUTPUT = "${INTEGRATION_RESULTS}/junit.xml"
-                JEST_SUITE_NAME = "Integration Tests"
-                JEST_JUNIT_ANCESTOR_SEPARATOR = " > "
-                JEST_JUNIT_CLASSNAME="Integration.{classname}"
-                JEST_JUNIT_TITLE="{title}"
-                JEST_HTML_REPORTER_OUTPUT_PATH = "${INTEGRATION_RESULTS}/index.html"
-                JEST_HTML_REPORTER_PAGE_TITLE = "${BRANCH_NAME} - Integration Test"
-            }
-            steps {
-                timeout(time: 30, unit: 'MINUTES') {
-                    echo 'Integration Test'
+        // stage('Test: Integration') {
+        //     when {
+        //         expression {
+        //             return SHOULD_BUILD == 'true'
+        //         }
+        //     }
+        //     environment {
+        //         JEST_JUNIT_OUTPUT = "${INTEGRATION_RESULTS}/junit.xml"
+        //         JEST_SUITE_NAME = "Integration Tests"
+        //         JEST_JUNIT_ANCESTOR_SEPARATOR = " > "
+        //         JEST_JUNIT_CLASSNAME="Integration.{classname}"
+        //         JEST_JUNIT_TITLE="{title}"
+        //         JEST_HTML_REPORTER_OUTPUT_PATH = "${INTEGRATION_RESULTS}/index.html"
+        //         JEST_HTML_REPORTER_PAGE_TITLE = "${BRANCH_NAME} - Integration Test"
+        //     }
+        //     steps {
+        //         timeout(time: 30, unit: 'MINUTES') {
+        //             echo 'Integration Test'
 
-                    /**************************************************************************
-                     * This used to be much more complicated to explain but now all we have to
-                     * do is unlock the daemon and run integration tests. I think we have to
-                     * unlock the keyring because of some PAM security misconfiguration in the
-                     * base image. For now, I call this progress :)
-                     *
-                     * If you would like to read how it was before, just take a look at the
-                     * README file in the jenkins folder.
-                     *************************************************************************/
-                    sh "echo 'jenkins' | gnome-keyring-daemon --unlock"
-                    sh "npm run test:integration"
+        //             /**************************************************************************
+        //              * This used to be much more complicated to explain but now all we have to
+        //              * do is unlock the daemon and run integration tests. I think we have to
+        //              * unlock the keyring because of some PAM security misconfiguration in the
+        //              * base image. For now, I call this progress :)
+        //              *
+        //              * If you would like to read how it was before, just take a look at the
+        //              * README file in the jenkins folder.
+        //              *************************************************************************/
+        //             sh "echo 'jenkins' | gnome-keyring-daemon --unlock"
+        //             sh "npm run test:integration"
 
-                    junit JEST_JUNIT_OUTPUT
+        //             junit JEST_JUNIT_OUTPUT
 
-                    // Publish HTML report
-                    publishHTML(target: [
-                            allowMissing         : false,
-                            alwaysLinkToLastBuild: true,
-                            keepAll              : true,
-                            reportDir            : INTEGRATION_RESULTS,
-                            reportFiles          : 'index.html',
-                            reportName           : 'Imperative - Integration Test Report'
-                    ])
-                }
-            }
-        }
+        //             // Publish HTML report
+        //             publishHTML(target: [
+        //                     allowMissing         : false,
+        //                     alwaysLinkToLastBuild: true,
+        //                     keepAll              : true,
+        //                     reportDir            : INTEGRATION_RESULTS,
+        //                     reportFiles          : 'index.html',
+        //                     reportName           : 'Imperative - Integration Test Report'
+        //             ])
+        //         }
+        //     }
+        // }
 
         /************************************************************************
          * STAGE
