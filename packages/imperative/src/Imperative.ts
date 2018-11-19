@@ -460,6 +460,22 @@ export class Imperative {
             progressBarSpinner: ImperativeConfig.instance.loadedConfig.progressBarSpinner
         };
 
+        // retrieve the arguments to re-build the command entered
+        const argV: any = this.yargs.argv;
+
+        let commandText: string  = "";
+        let i: number;
+        for (i = 0; i < argV._.length; i++) {
+            commandText = commandText + argV._[i] + " ";
+        }
+
+        for (const key in argV) {
+            if (argV.hasOwnProperty(key) && (key !== "_" && key !== "$0")) {
+                commandText = commandText + "--" + key + " " + argV[key] + " ";
+            }
+        }
+        this.mCommandLine = commandText;
+
         // Configure Yargs to meet the CLI's needs
         new YargsConfigurer(
             preparedHostCliCmdTree,
@@ -469,6 +485,7 @@ export class Imperative {
             this.mHelpGeneratorFactory,
             ImperativeConfig.instance.loadedConfig.experimentalCommandDescription,
             Imperative.rootCommandName,
+            Imperative.commandLine,
             Imperative.envVariablePrefix
         ).configure();
 

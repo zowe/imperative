@@ -35,6 +35,7 @@ export class YargsConfigurer {
                 private helpGeneratorFactory: IHelpGeneratorFactory,
                 private experimentalCommandDescription: string,
                 private rootCommandName: string,
+                private commandLine: string,
                 private envVariablePrefix: string
     ) {
     }
@@ -49,14 +50,6 @@ export class YargsConfigurer {
                 process.argv.indexOf(CliUtils.getDashFormOfOption(Constants.JSON_OPTION_ALIAS)) >= 0);
 
         const logger = Logger.getImperativeLogger();
-
-        // retrieve the arguments to re-build the command entered
-        let commandText: string  = "";
-        let i: number;
-        for (i = 0; i < this.yargs.argv._.length; i++) {
-            commandText = commandText + this.yargs.argv._[i] + " ";
-        }
-        logger.debug("Command line text: " + commandText);
 
         const jsonArg: any = {};
         if (jsonResponseFormat) {
@@ -73,8 +66,8 @@ export class YargsConfigurer {
         };
         this.yargs.showHelpOnFail(false);
         // finally, catch any undefined commands
-        this.yargs.command("*", "Unknown command", (argv: Argv) => {
-                return argv; // no builder
+        this.yargs.command("*", "Unknown group", (argv: Argv) => {
+                    return argv; // no builder
             },
             (argv: any) => {
                 const attemptedCommand = argv._.join(" ");
@@ -96,7 +89,7 @@ export class YargsConfigurer {
                         helpGenerator: rootHelpGenerator,
                         profileManagerFactory: this.profileManagerFactory,
                         rootCommandName: this.rootCommandName,
-                        commandLine: commandText,
+                        commandLine: this.commandLine,
                         envVariablePrefix: this.envVariablePrefix
                     }).invoke({ arguments: argv, silent: false, responseFormat: (jsonResponseFormat) ? "json" : "default" })
                         .then((response) => {
@@ -127,7 +120,7 @@ export class YargsConfigurer {
                         }
                     }
 
-                    let failureMessage = format("Unknown Command: %s\n", argv._.join(" "));
+                    let failureMessage = format("Unknown group: %s\n", argv._.join(" "));
                     if (!isNullOrUndefined(closestCommand)) {
                         failureMessage += format("Did you mean: %s?", closestCommand);
                     }
@@ -148,7 +141,7 @@ export class YargsConfigurer {
                         helpGenerator: rootHelpGenerator,
                         profileManagerFactory: this.profileManagerFactory,
                         rootCommandName: this.rootCommandName,
-                        commandLine: commandText,
+                        commandLine: this.commandLine,
                         envVariablePrefix: this.envVariablePrefix
                     });
 
@@ -165,7 +158,7 @@ export class YargsConfigurer {
         this.yargs.fail((msg: string, error: Error, failedYargs: any) => {
             process.exitCode = Constants.ERROR_EXIT_CODE;
             AbstractCommandYargs.STOP_YARGS = true; // todo: figure out a better way
-            const failureMessage = "Command failed due to improper syntax";
+            let failureMessage = "Command failed due to improper syntax";
             error = error || new Error(msg);
 
             // Allocate a help generator from the factory
@@ -182,9 +175,12 @@ export class YargsConfigurer {
                 helpGenerator: failHelpGenerator,
                 profileManagerFactory: this.profileManagerFactory,
                 rootCommandName: this.rootCommandName,
-                commandLine: commandText,
+                commandLine: this.commandLine,
                 envVariablePrefix: this.envVariablePrefix
             });
+
+            failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
+            failureMessage += `\nUse "${this.rootCommandName} --help" to view groups, commands, and options.`;
 
             // Construct the fail command arguments
             const argv: Arguments = {
@@ -213,16 +209,19 @@ export class YargsConfigurer {
             });
 
             // Create the command processor for failure
-            const failureMessage = "Imperative encountered an unexpected exception";
+            let failureMessage = "Imperative encountered an unexpected exception";
             const failCommand = new CommandProcessor({
                 definition: failedCommandDefinition,
                 fullDefinition: failedCommandDefinition,
                 helpGenerator: failHelpGenerator,
                 profileManagerFactory: this.profileManagerFactory,
                 rootCommandName: this.rootCommandName,
-                commandLine: commandText,
+                commandLine: this.commandLine,
                 envVariablePrefix: this.envVariablePrefix
             });
+
+            failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
+            failureMessage += `\nUse "${this.rootCommandName} --help" to view groups, commands, and options.`;
 
             // Construct the arguments
             const argv: Arguments = {
