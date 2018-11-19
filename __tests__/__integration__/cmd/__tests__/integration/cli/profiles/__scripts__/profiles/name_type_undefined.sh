@@ -11,7 +11,7 @@ then
     echo "Creating a test_banana profile of type banana failed!" 1>&2
     exit $CMDRC
 fi
- # should print name: undefined type: undefined
+ # should print name: undefined type: undefined, not the profile name or type
 cmd-cli profile mapping-name-type
 CMDRC=$?
 if [ $CMDRC -gt 0 ]

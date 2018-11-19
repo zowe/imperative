@@ -13,7 +13,7 @@ then
 fi
  cliName=$4
 cliType=$5
-# should print name: undefined type: undefined
+# should print the name and type that are specified, not the profile name or type
 cmd-cli profile mapping-name-type "$cliName" --type "$cliType"
 CMDRC=$?
 if [ $CMDRC -gt 0 ]
