@@ -1,0 +1,93 @@
+{
+  "name": "@zowe/perf-timing",
+  "version": "1.0.0-pre.alpha.0",
+  "description": "Wrapper around the Node JS Performance Timing APIs",
+  "license": "EPL-2.0",
+  "repository": "https://github.com/zowe/perf-timing",
+  "author": "Broadcom",
+  "keywords": [
+    "performance testing",
+    "performance",
+    "performance timing api"
+  ],
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "registry": "https://gizaartifactory.jfrog.io/gizaartifactory/api/npm/npm-local-release/"
+  },
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "npm run lint:src && npm run lint:tests",
+    "lint:src": "tslint --format stylish -c ./tslint-src.json \"src/**/*.ts\"",
+    "lint:tests": "tslint --format stylish -c ./tslint-tests.json \"**/__tests__/**/*.ts\"",
+    "watch": "gulp watch"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/jest": "23.3.9",
+    "@types/node": "8.10.37",
+    "jest": "23.6.0",
+    "jest-environment-node": "23.4.0",
+    "jest-environment-node-debug": "2.0.0",
+    "jest-html-reporter": "2.4.2",
+    "jest-junit": "5.2.0",
+    "jsdoc": "3.5.5",
+    "ts-jest": "23.10.4",
+    "tslint": "5.11.0",
+    "typedoc": "0.13.0",
+    "typescript": "3.1.6"
+  },
+  "engines": {
+    "node": ">=8.5.0"
+  },
+  "jest-html-reporter": {
+    "pageTitle": "Perf Timing Tests",
+    "outputPath": "__tests__/__results__/unit/results.html",
+    "includeFailureMsg": true,
+    "executionMode": "reporter"
+  },
+  "jest-junit": {
+    "output": "./__tests__/__results__/junit/junit.xml"
+  },
+  "jest": {
+    "modulePathIgnorePatterns": [
+      "__tests__/__snapshots__/"
+    ],
+    "transform": {
+      ".(ts)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testResultsProcessor": "jest-junit",
+    "reporters": [
+      "default",
+      "jest-html-reporter"
+    ],
+    "testRegex": "(test|spec)\\.ts$",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/__tests__/__results__"
+    ],
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "packages/**/*.ts",
+      "!**/__tests__/**",
+      "!packages/**/doc/**/I*.ts",
+      "!**/index.ts",
+      "!__tests__/"
+    ],
+    "mapCoverage": true,
+    "collectCoverage": false,
+    "coverageReporters": [
+      "json",
+      "lcov",
+      "text",
+      "cobertura"
+    ],
+    "coverageDirectory": "<rootDir>/__tests__/__results__/unit/coverage"
+  }
+}
