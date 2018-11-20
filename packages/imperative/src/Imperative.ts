@@ -11,7 +11,7 @@
 
 /**
  * Main class of the Imperative framework, returned when you
- * require("imperative") e.g. const imperative =  require("imperative");
+ * require("@brightside/imperative") e.g. const imperative =  require("@brightside/imperative");
  */
 import { Logger, LoggerConfigBuilder } from "../../logger";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
@@ -204,7 +204,16 @@ export class Imperative {
                  */
                 initializationComplete();
             } catch (error) {
-                Logger.getImperativeLogger().fatal(error);
+                const imperativeLogger = Logger.getImperativeLogger();
+                imperativeLogger.fatal(require("util").inspect(error));
+                const os = require("os");
+                imperativeLogger.fatal("Diagnostic information:\n" +
+                    "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
+                    "Node versions: '%s'" +
+                    "Environmental variables: '%s'",
+                    os.platform(), os.arch(), process.argv.join(" "),
+                    JSON.stringify(process.versions, null, 2),
+                    JSON.stringify(process.env, null, 2));
                 Logger.writeInMemoryMessages(Imperative.DEFAULT_DEBUG_FILE);
                 if (error.report) {
                     const {writeFileSync} = require("fs");
