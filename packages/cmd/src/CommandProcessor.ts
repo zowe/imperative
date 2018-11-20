@@ -246,8 +246,8 @@ export class CommandProcessor {
         // Log the invoke
         this.log.info(`Invoking command "${this.definition.name}"...`);
         this.log.trace(`Arguments supplied for for the command:\n${TextUtils.prettyJson(params.arguments)}`);
-        this.log.trace(`Command definition:\n${inspect(this.definition, { depth: null })}`);
-        this.log.trace(`Invoke parameters:\n${inspect(params, { depth: null })}`);
+        this.log.trace(`Command definition:\n${inspect(this.definition, {depth: null})}`);
+        this.log.trace(`Invoke parameters:\n${inspect(params, {depth: null})}`);
 
         // Build the response object, base args object, and the entire array of options for this command
         // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
@@ -490,12 +490,12 @@ export class CommandProcessor {
 
         // Load all profiles for the command
         this.log.trace(`Loading profiles for "${this.definition.name}" command. ` +
-            `Profile definitions: ${inspect(this.definition.profile, { depth: null })}`);
+            `Profile definitions: ${inspect(this.definition.profile, {depth: null})}`);
         const profiles = await CommandProfileLoader.loader({
             commandDefinition: this.definition,
             profileManagerFactory: this.profileFactory
         }).loadProfiles(commandArguments);
-        this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, { depth: null })}`);
+        this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, {depth: null})}`);
 
         // If we have profiles listed on the command definition (the would be loaded already)
         // we can extract values from them for options arguments
@@ -523,7 +523,7 @@ export class CommandProcessor {
 
         // Log for debugging
         this.log.trace(`Full argument object constructed:\n${inspect(args)}`);
-        return { profiles, args };
+        return {profiles, args};
     }
 
     /**
@@ -571,6 +571,12 @@ export class CommandProcessor {
         } catch (handlerErr) {
             this.log.error(`Failed to load/require handler "${handlerPath}" for command "${this.definition.name}".`);
             this.log.error(`Error details: ${handlerErr.message}`);
+            const os = require("os");
+            this.log.error("Diagnostic information:\n" +
+                "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
+                "Environmental variables: '%s'",
+                os.platform(), os.arch(), process.argv.join(" "),
+                JSON.stringify(process.env, null, 2));
             const errorMessage: string = TextUtils.formatMessage(couldNotInstatiateCommandHandler.message, {
                 commandHandler: nodePath.normalize(handlerPath) || "\"undefined or not specified\"",
                 definitionName: this.definition.name
@@ -615,7 +621,7 @@ export class CommandProcessor {
             }
         }
         this.log.info(`Command "${this.definition.name}" completed with success flag: "${json.success}"`);
-        this.log.trace(`Command "${this.definition.name}" finished. Response object:\n${inspect(json, { depth: null })}`);
+        this.log.trace(`Command "${this.definition.name}" finished. Response object:\n${inspect(json, {depth: null})}`);
         return json;
     }
 
@@ -628,8 +634,18 @@ export class CommandProcessor {
     private handleHandlerError(handlerErr: Error | string, response: CommandResponse, handlerPath: string): void {
         // Mark the command as failed
         this.log.error(`Handler for command "${this.definition.name}" failed.`);
+
         response.failed();
         response.endProgressBar();
+
+        const os = require("os");
+        this.log.error("Diagnostic information:\n" +
+            "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
+            "Node versions: '%s'" +
+            "Environmental variables: '%s'",
+            os.platform(), os.arch(), process.argv.join(" "),
+            JSON.stringify(process.versions, null, 2),
+            JSON.stringify(process.env, null, 2));
 
         // If this is an instance of an imperative error, then we are good to go and can formulate the response.
         // If it is an Error object, then something truly unexpected occurred in the handler.
@@ -647,7 +663,7 @@ export class CommandProcessor {
             response.data.setMessage(handlerErr.message);
         } else if (handlerErr instanceof Error) {
             this.log.error(`Handler for ${this.mDefinition.name} rejected by unhandled exception.`);
-            response.setError({ msg: handlerErr.message, stack: handlerErr.stack });
+            response.setError({msg: handlerErr.message, stack: handlerErr.stack});
             response.data.setMessage(unexpectedCommandError.message + ": " + handlerErr.message);
             this.log.error(`An error was thrown during command execution of "${this.definition.name}". Error Details: ${handlerErr.message}`);
             response.console.errorHeader(unexpectedCommandError.message);
@@ -667,6 +683,7 @@ export class CommandProcessor {
             response.console.errorHeader("Stack");
             if (handlerErr.stack) {
                 response.console.error(handlerErr.stack);
+                this.log.error("Error stack: " + handlerErr.stack);
             } else {
                 response.console.error("No error stack present in the error.");
             }
@@ -675,11 +692,11 @@ export class CommandProcessor {
             response.console.errorHeader("Command Error");
             response.console.error(handlerErr);
             response.data.setMessage(handlerErr);
-            response.setError({ msg: handlerErr });
+            response.setError({msg: handlerErr});
         } else if (handlerErr == null) {
             this.log.error("The handler rejected the promise with no message or error.");
             response.data.setMessage("Command failed");
-            response.setError({ msg: "Command Failed" });
+            response.setError({msg: "Command Failed"});
         } else {
             this.log.error("The handler rejected the promise via some means other than " +
                 "throwing an Error/ImperativeError or rejecting the promise with a string/nothing.");
