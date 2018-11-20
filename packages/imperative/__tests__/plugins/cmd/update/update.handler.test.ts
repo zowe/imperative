@@ -19,6 +19,7 @@ jest.mock("../../../../src/plugins/utilities/PMFConstants");
 jest.mock("../../../../../cmd/src/doc/handler/IHandlerParameters");
 jest.mock("../../../../../cmd/src/response/CommandResponse");
 jest.mock("../../../../../logger");
+jest.mock("../../../../src/plugins/utilities/NpmFunctions");
 
 import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
 import { Console } from "../../../../../console";
@@ -30,6 +31,7 @@ import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { resolve } from "path";
 import { update } from "../../../../src/plugins/utilities/npm-interface";
 import UpdateHandler from "../../../../src/plugins/cmd/update/update.handler";
+import { npmLogin } from "../../../../src/plugins/utilities/NpmFunctions";
 
 describe("Plugin Management Facility update handler", () => {
 
@@ -37,6 +39,7 @@ describe("Plugin Management Facility update handler", () => {
 
   // Objects created so types are correct.
   const mocks = {
+    npmLogin: npmLogin as Mock<typeof  npmLogin>,
     execSync: execSync as Mock<typeof execSync>,
     readFileSync: readFileSync as Mock<typeof readFileSync>,
     writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
@@ -81,6 +84,7 @@ describe("Plugin Management Facility update handler", () => {
   beforeEach(() => {
     mocks.execSync.mockReturnValue(packageRegistry);
     mocks.readFileSync.mockReturnValue({});
+    npmLogin(packageRegistry);
   });
 
   /**
@@ -106,6 +110,14 @@ describe("Plugin Management Facility update handler", () => {
    */
   const wasUpdateSuccessful = (params: IHandlerParameters) => {
     expect(params.response.console.log).toHaveBeenCalledWith(`Update of the npm package(${params.arguments.plugin}) was successful.\n`);
+  };
+
+  /**
+   * Validates that an npmLogin was called
+   * when login needed based on the parameters passed.
+   */
+  const wasNpmLoginCallValid = (registry: string) => {
+      expect(mocks.npmLogin).toHaveBeenCalledWith(registry);
   };
 
   /**
@@ -150,6 +162,8 @@ describe("Plugin Management Facility update handler", () => {
 
     await handler.process(params as IHandlerParameters);
 
+    // Validate the call to login
+    wasNpmLoginCallValid(packageRegistry);
     wasWriteFileSyncValid(PMFConstants.instance.PLUGIN_JSON, fileJson);
     wasUpdateCallValid(packageName, packageRegistry);
 
@@ -178,6 +192,8 @@ describe("Plugin Management Facility update handler", () => {
 
     await handler.process(params as IHandlerParameters);
 
+    // Validate the call to login
+    wasNpmLoginCallValid(packageRegistry);
     wasWriteFileSyncValid(PMFConstants.instance.PLUGIN_JSON, fileJson);
     wasUpdateCallValid(resolveVal, packageRegistry);
     expect(params.response.console.log).toHaveBeenCalledWith(
