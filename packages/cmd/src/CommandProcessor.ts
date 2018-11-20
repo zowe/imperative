@@ -266,7 +266,7 @@ export class CommandProcessor {
 
         // Log the invoke
         this.log.info(`Invoking command "${this.definition.name}"...`);
-        this.log.info(`Command issued:\n\n${TextUtils.prettyJson(this.mCommandLine)}`);
+        this.log.info(`Command issued:\n\n${TextUtils.prettyJson(this.rootCommand + " " + this.commandLine)}`);
         this.log.trace(`Invoke parameters:\n${inspect(params, { depth: null })}`);
         this.log.trace(`Command definition:\n${inspect(this.definition, { depth: null })}`);
 

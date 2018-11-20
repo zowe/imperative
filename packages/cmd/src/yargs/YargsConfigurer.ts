@@ -59,7 +59,7 @@ export class YargsConfigurer {
         const preferredTerminalWidth = 100;
         const failedCommandHandler = __dirname + "/../handlers/FailedCommandHandler";
         const failedCommandDefinition: ICommandDefinition = {
-            name: "",
+            name: this.rootCommandName + " " + this.commandLine,
             handler: failedCommandHandler,
             type: "command",
             description: "The command you tried to invoke failed"
@@ -180,7 +180,8 @@ export class YargsConfigurer {
             });
 
             failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
-            failureMessage += `\nUse "${this.rootCommandName} --help" to view groups, commands, and options.`;
+            const groupValues = this.commandLine.split(" ", 2);
+            failureMessage += `\nUse "${this.rootCommandName} ${groupValues[0]} ${groupValues[1]} --help" to view groups, commands, and options.`;
 
             // Construct the fail command arguments
             const argv: Arguments = {
@@ -221,7 +222,8 @@ export class YargsConfigurer {
             });
 
             failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
-            failureMessage += `\nUse "${this.rootCommandName} --help" to view groups, commands, and options.`;
+            const groupValues = this.commandLine.split(" ", 2);
+            failureMessage += `\nUse "${this.rootCommandName} ${groupValues[0]} ${groupValues[1]} --help" to view groups, commands, and options.`;
 
             // Construct the arguments
             const argv: Arguments = {

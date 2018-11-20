@@ -465,16 +465,17 @@ export class Imperative {
 
         let commandText: string  = "";
         let i: number;
+        // retrieve the groups, command and positional arguments
         for (i = 0; i < argV._.length; i++) {
             commandText = commandText + argV._[i] + " ";
         }
-
+        // retrieve the options and arguments specified
         for (const key in argV) {
             if (argV.hasOwnProperty(key) && (key !== "_" && key !== "$0")) {
                 commandText = commandText + "--" + key + " " + argV[key] + " ";
             }
         }
-        this.mCommandLine = commandText;
+        this.mCommandLine = commandText.trim();
 
         // Configure Yargs to meet the CLI's needs
         new YargsConfigurer(
