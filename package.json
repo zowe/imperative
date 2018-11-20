@@ -1,6 +1,6 @@
 {
   "name": "@brightside/imperative",
-  "version": "2.0.0-next.201811092116",
+  "version": "2.0.0-next.201811162112",
   "description": "framework for building configurable CLIs",
   "license": "EPL 2.0",
   "repository": "https://github.com/gizafoundation/imperative",
@@ -8,6 +8,16 @@
   "keywords": [
     "CLI"
   ],
+  "pkg": {
+    "scripts": [
+      "lib/**/*.js",
+      "lib/auth/*.js"
+    ],
+    "assets": [
+      "node_modules/npm/node_modules/node-gyp/**/*",
+      "node_modules/npm/lib/"
+    ]
+  },
   "files": [
     "lib"
   ],
