@@ -22,6 +22,7 @@ import { IProfileManagerFactory } from "../../../profiles";
 import { ICommandProfileTypeConfiguration } from "../doc/profiles/definition/ICommandProfileTypeConfiguration";
 import { IHelpGeneratorFactory } from "../help/doc/IHelpGeneratorFactory";
 import { CliUtils } from "../../../utilities/src/CliUtils";
+import { Imperative } from "../../../Imperative";
 
 /**
  * Before invoking commands, this class configures some settings and callbacks in Yargs,
@@ -182,6 +183,21 @@ export class YargsConfigurer {
             failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
             const groupValues = this.commandLine.split(" ", 2);
             failureMessage += `\nUse "${this.rootCommandName} ${groupValues[0]} ${groupValues[1]} --help" to view groups, commands, and options.`;
+
+            const commandTree = CommandUtils.flattenCommandTree(this.rootCommand);
+            const commandTree2: ICommandDefinition = Imperative.fullCommandTree;
+
+            for (const command of commandTree) {
+                logger.error("command.fullName = %s", command.fullName.trim());
+                logger.error("groupValue[0] = %s", (groupValues[0] + " " + groupValues[1]));
+                logger.error("T/F %s", (command.fullName.trim() === (groupValues[0] + " " + groupValues[1])));
+                if (command.fullName.trim().length === 0) {
+                    continue;
+                }
+                if (command.fullName.trim() === (groupValues[0] + " " + groupValues[1])) {
+                    break;
+                }
+            }
 
             // Construct the fail command arguments
             const argv: Arguments = {
