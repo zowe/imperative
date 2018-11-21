@@ -121,9 +121,30 @@ export class YargsConfigurer {
                         }
                     }
 
-                    let failureMessage = format("Unknown group: %s\n", argv._.join(" "));
-                    if (!isNullOrUndefined(closestCommand)) {
-                        failureMessage += format("Did you mean: %s?", closestCommand);
+                    let failureMessage = `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
+                    const groupValues = this.commandLine.split(" ", 2);
+
+                    let found: boolean = false;
+                    for (const group of this.rootCommand.children) {
+                        if ((group.name.trim() === groupValues[0]) || (group.aliases[0] === groupValues[0])) {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (found) {
+                        failureMessage += format("\nUnknown group: %s\n", groupValues[1]);
+                        if (!isNullOrUndefined(closestCommand)) {
+                            failureMessage += format("Did you mean: %s?", closestCommand);
+                        }
+                        failureMessage += `\nUse "${this.rootCommandName} ${groupValues[0]} --help" to view groups, commands, and options.`;
+                    }
+                    else {
+                        failureMessage += format("\nUnknown group: %s\n", groupValues[0]);
+                        if (!isNullOrUndefined(closestCommand)) {
+                            failureMessage += format("Did you mean: %s?", closestCommand);
+                        }
+                        failureMessage += `\nUse "${this.rootCommandName} --help" to view groups and options.`;
                     }
 
                     argv.failureMessage = failureMessage;
@@ -182,10 +203,24 @@ export class YargsConfigurer {
 
             failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
             const groupValues = this.commandLine.split(" ", 2);
-            failureMessage += `\nUse "${this.rootCommandName} ${groupValues[0]} ${groupValues[1]} --help" to view groups, commands, and options.`;
+
+            let found: boolean = false;
+            for (const group of this.rootCommand.children) {
+                if ((group.name.trim() === groupValues[0]) || (group.aliases[0] === groupValues[0])) {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (found) {
+                failureMessage += `\nUse "${this.rootCommandName} ${groupValues[0]} --help" to view groups, commands, and options.`;
+            }
+            else {
+                failureMessage += `\nUse "${this.rootCommandName} --help" to view groups and options.`;
+            }
 
             const commandTree = CommandUtils.flattenCommandTree(this.rootCommand);
-            const commandTree2: ICommandDefinition = Imperative.fullCommandTree;
+            // const commandTree2: ICommandDefinition = Imperative.fullCommandTree;
 
             for (const command of commandTree) {
                 logger.error("command.fullName = %s", command.fullName.trim());
