@@ -17,6 +17,7 @@ import { ImperativeError } from "../../../../../error";
 import { TextUtils } from "../../../../../utilities";
 import { IPluginJson } from "../../doc/IPluginJson";
 import { readFileSync, writeFileSync } from "jsonfile";
+import { npmLogin } from "../../utilities/NpmFunctions";
 
 /**
  * The update command handler for cli plugin install.
@@ -62,6 +63,10 @@ export default class UpdateHandler implements ICommandHandler {
     iConsole.debug("Reading in the current configuration.");
     const installedPlugins: IPluginJson = readFileSync(PMFConstants.instance.PLUGIN_JSON);
 
+    if (params.arguments.login) {
+        npmLogin(registry);
+    }
+
     if (installedPlugins.hasOwnProperty(plugin)) {
       // Loop through the plugins and remove the uninstalled package
       for (const pluginName in installedPlugins) {
@@ -75,7 +80,7 @@ export default class UpdateHandler implements ICommandHandler {
             registry = installedPlugins[pluginName].registry;
           }
           // Call update which returns the plugin's version so plugins.json can be updated
-          installedPlugins[pluginName].version = await update(packageName, registry);
+          installedPlugins[pluginName].version = update(packageName, registry);
           installedPlugins[pluginName].registry = registry; // update in case it changed
 
           writeFileSync(PMFConstants.instance.PLUGIN_JSON, installedPlugins, {

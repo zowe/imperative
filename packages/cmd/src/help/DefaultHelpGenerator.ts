@@ -267,14 +267,19 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
             // Determine what command section we are currently at and append the correct usages.
             usage = usage.trim();
             if (!isNullOrUndefined(this.mCommandDefinition.children) && this.mCommandDefinition.children.length > 0) {
-                usage += " [";
+                // Get all the possible command types. (E.G <group>, <command>, <command|group>, ETC)
+                let nextType = "<";
+
+                // usage += " <";
                 const types: string[] = [];
                 for (const definition of this.mCommandDefinition.children) {
                     if (!types.includes(definition.type)) {
                         types.push(definition.type);
                     }
                 }
-                usage += types.join("|") + "]";
+                nextType += types.join("|") + ">";
+
+                usage += ` ${nextType}\n\n${DefaultHelpGenerator.HELP_INDENT}Where ${nextType} is one of the following:`;
             }
             else {
                 usage += " " + Constants.OPTIONS_SEGMENT;

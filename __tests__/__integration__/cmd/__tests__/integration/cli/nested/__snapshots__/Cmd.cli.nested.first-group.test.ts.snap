@@ -10,7 +10,9 @@ exports[`cmd-cli nested first-group should display both groups and commands in t
  USAGE
  -----
 
-   cmd-cli nested first-group [command|group]
+   cmd-cli nested first-group <command|group>
+
+   Where <command|group> is one of the following:
 
  COMMANDS
  --------
