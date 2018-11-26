@@ -22,7 +22,6 @@ import { IProfileManagerFactory } from "../../../profiles";
 import { ICommandProfileTypeConfiguration } from "../doc/profiles/definition/ICommandProfileTypeConfiguration";
 import { IHelpGeneratorFactory } from "../help/doc/IHelpGeneratorFactory";
 import { CliUtils } from "../../../utilities/src/CliUtils";
-import { Imperative } from "../../../Imperative";
 
 /**
  * Before invoking commands, this class configures some settings and callbacks in Yargs,
@@ -120,34 +119,33 @@ export class YargsConfigurer {
                             closestCommand = command.fullName;
                         }
                     }
+                    // let failureMessage = "Command failed due to improper syntax";
+                    // failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
+                    // const groupValues = this.commandLine.split(" ", 2);
+                    //
+                    // let groupHelp: string = " ";
+                    // let found: boolean = false;
+                    // for (const group of this.rootCommand.children) {
+                    //     if ((group.name.trim() === groupValues[0]) || (group.aliases[0] === groupValues[0])) {
+                    //         found = true;
+                    //         groupHelp = groupValues[0] + " ";
+                    //         for (const group2 of group.children) {
+                    //             if ((group2.name.trim() === groupValues[1]) || (group2.aliases[0] === groupValues[1])) {
+                    //                 groupHelp = groupHelp += " " + groupValues[1];
+                    //                 break;
+                    //             }
+                    //         }
+                    //         break;
+                    //     }
+                    // }
+                    //
+                    // failureMessage += format("\nUnknown group: %s\n", groupValues[0]);
+                    // if (!isNullOrUndefined(closestCommand)) {
+                    //     failureMessage += format("Did you mean: %s?", closestCommand);
+                    // }
+                    // failureMessage += `\nUse "${this.rootCommandName}${groupHelp}--help" to view groups, commands, and options.`;
 
-                    let failureMessage = `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
-                    const groupValues = this.commandLine.split(" ", 2);
-
-                    let found: boolean = false;
-                    for (const group of this.rootCommand.children) {
-                        if ((group.name.trim() === groupValues[0]) || (group.aliases[0] === groupValues[0])) {
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    if (found) {
-                        failureMessage += format("\nUnknown group: %s\n", groupValues[1]);
-                        if (!isNullOrUndefined(closestCommand)) {
-                            failureMessage += format("Did you mean: %s?", closestCommand);
-                        }
-                        failureMessage += `\nUse "${this.rootCommandName} ${groupValues[0]} --help" to view groups, commands, and options.`;
-                    }
-                    else {
-                        failureMessage += format("\nUnknown group: %s\n", groupValues[0]);
-                        if (!isNullOrUndefined(closestCommand)) {
-                            failureMessage += format("Did you mean: %s?", closestCommand);
-                        }
-                        failureMessage += `\nUse "${this.rootCommandName} --help" to view groups and options.`;
-                    }
-
-                    argv.failureMessage = failureMessage;
+                    argv.failureMessage = this.buildFailureMessage(closestCommand);
 
                     // Allocate a help generator from the factory
                     const rootHelpGenerator = this.helpGeneratorFactory.getHelpGenerator({
@@ -180,7 +178,6 @@ export class YargsConfigurer {
         this.yargs.fail((msg: string, error: Error, failedYargs: any) => {
             process.exitCode = Constants.ERROR_EXIT_CODE;
             AbstractCommandYargs.STOP_YARGS = true; // todo: figure out a better way
-            let failureMessage = "Command failed due to improper syntax";
             error = error || new Error(msg);
 
             // Allocate a help generator from the factory
@@ -201,38 +198,43 @@ export class YargsConfigurer {
                 envVariablePrefix: this.envVariablePrefix
             });
 
-            failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
-            const groupValues = this.commandLine.split(" ", 2);
+            // let failureMessage = "Command failed due to improper syntax";
+            // failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
+            // const groupValues = this.commandLine.split(" ", 2);
+            //
+            // let groupHelp: string = "";
+            // let found: boolean = false;
+            // for (const group of this.rootCommand.children) {
+            //     if ((group.name.trim() === groupValues[0]) || (group.aliases[0] === groupValues[0])) {
+            //         found = true;
+            //         groupHelp = groupValues[0];
+            //         for (const group2 of group.children) {
+            //             if ((group2.name.trim() === groupValues[1]) || (group2.aliases[0] === groupValues[1])) {
+            //                 groupHelp = groupHelp += " " + groupValues[1];
+            //                 break;
+            //             }
+            //         }
+            //         break;
+            //     }
+            // }
+            //
+            // failureMessage += `\nUse "${this.rootCommandName} ${groupHelp} --help" to view groups, commands, and options.`;
 
-            let found: boolean = false;
-            for (const group of this.rootCommand.children) {
-                if ((group.name.trim() === groupValues[0]) || (group.aliases[0] === groupValues[0])) {
-                    found = true;
-                    break;
-                }
-            }
+            const failureMessage = this.buildFailureMessage();
 
-            if (found) {
-                failureMessage += `\nUse "${this.rootCommandName} ${groupValues[0]} --help" to view groups, commands, and options.`;
-            }
-            else {
-                failureMessage += `\nUse "${this.rootCommandName} --help" to view groups and options.`;
-            }
-
-            const commandTree = CommandUtils.flattenCommandTree(this.rootCommand);
-            // const commandTree2: ICommandDefinition = Imperative.fullCommandTree;
-
-            for (const command of commandTree) {
-                logger.error("command.fullName = %s", command.fullName.trim());
-                logger.error("groupValue[0] = %s", (groupValues[0] + " " + groupValues[1]));
-                logger.error("T/F %s", (command.fullName.trim() === (groupValues[0] + " " + groupValues[1])));
-                if (command.fullName.trim().length === 0) {
-                    continue;
-                }
-                if (command.fullName.trim() === (groupValues[0] + " " + groupValues[1])) {
-                    break;
-                }
-            }
+            // const commandTree = CommandUtils.flattenCommandTree(this.rootCommand);
+            //
+            // for (const command of commandTree) {
+            //     logger.error("command.fullName = %s", command.fullName.trim());
+            //     logger.error("groupValue[0] = %s", (groupValues[0] + " " + groupValues[1]));
+            //     logger.error("T/F %s", (command.fullName.trim() === (groupValues[0] + " " + groupValues[1])));
+            //     if (command.fullName.trim().length === 0) {
+            //         continue;
+            //     }
+            //     if (command.fullName.trim() === (groupValues[0] + " " + groupValues[1])) {
+            //         break;
+            //     }
+            // }
 
             // Construct the fail command arguments
             const argv: Arguments = {
@@ -292,6 +294,41 @@ export class YargsConfigurer {
                 logger.error("%s", err.msg);
             });
         });
+    }
+
+    /**
+     * Builds the failure message that is passed to the failedCommand handler
+     * @return {string} - Returns the failure message
+     */
+    private buildFailureMessage(closestCommand?: string) {
+
+        let failureMessage = "Command failed due to improper syntax";
+        failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
+        const groupValues = this.commandLine.split(" ", 2);
+
+        let groupHelp: string = " ";
+        let found: boolean = false;
+        for (const group of this.rootCommand.children) {
+            if ((group.name.trim() === groupValues[0]) || (group.aliases[0] === groupValues[0])) {
+                found = true;
+                groupHelp = groupValues[0] + " ";
+                for (const group2 of group.children) {
+                    if ((group2.name.trim() === groupValues[1]) || (group2.aliases[0] === groupValues[1])) {
+                        groupHelp = groupHelp += " " + groupValues[1];
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        if (!isNullOrUndefined(closestCommand)) {
+            failureMessage += format("\nUnknown group: %s\n", groupValues[0]);
+            failureMessage += format("Did you mean: %s?", closestCommand);
+        }
+
+        failureMessage += `\nUse "${this.rootCommandName} ${groupHelp} --help" to view groups, commands, and options.`;
+        return failureMessage;
     }
 
     // /**
