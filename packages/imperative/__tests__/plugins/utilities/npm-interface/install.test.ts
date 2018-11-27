@@ -20,7 +20,7 @@ jest.mock("../../../../src/plugins/utilities/PMFConstants");
 jest.mock("../../../../../logger");
 jest.mock("../../../../../cmd/src/response/CommandResponse");
 jest.mock("../../../../../cmd/src/response/HandlerResponse");
-jest.mock("../../../../src/plugins/utilities/NpmApiFunctions");
+jest.mock("../../../../src/plugins/utilities/NpmFunctions");
 
 import { Console } from "../../../../../console";
 import { existsSync, lstatSync } from "fs";
@@ -33,7 +33,7 @@ import { Logger } from "../../../../../logger";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { sync } from "find-up";
-import { installPackages } from "../../../../src/plugins/utilities/NpmApiFunctions";
+import { installPackages } from "../../../../src/plugins/utilities/NpmFunctions";
 
 describe("PMF: Install Interface", () => {
   // Objects created so types are correct.
@@ -80,7 +80,7 @@ describe("PMF: Install Interface", () => {
    */
   const wasNpmInstallCallValid = (expectedPackage: string, expectedRegistry: string) => {
       expect(mocks.installPackages).toHaveBeenCalledWith(PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
-          expectedRegistry, true, expectedPackage);
+          expectedRegistry, expectedPackage);
   };
 
   /**
