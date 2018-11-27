@@ -119,31 +119,6 @@ export class YargsConfigurer {
                             closestCommand = command.fullName;
                         }
                     }
-                    // let failureMessage = "Command failed due to improper syntax";
-                    // failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
-                    // const groupValues = this.commandLine.split(" ", 2);
-                    //
-                    // let groupHelp: string = " ";
-                    // let found: boolean = false;
-                    // for (const group of this.rootCommand.children) {
-                    //     if ((group.name.trim() === groupValues[0]) || (group.aliases[0] === groupValues[0])) {
-                    //         found = true;
-                    //         groupHelp = groupValues[0] + " ";
-                    //         for (const group2 of group.children) {
-                    //             if ((group2.name.trim() === groupValues[1]) || (group2.aliases[0] === groupValues[1])) {
-                    //                 groupHelp = groupHelp += " " + groupValues[1];
-                    //                 break;
-                    //             }
-                    //         }
-                    //         break;
-                    //     }
-                    // }
-                    //
-                    // failureMessage += format("\nUnknown group: %s\n", groupValues[0]);
-                    // if (!isNullOrUndefined(closestCommand)) {
-                    //     failureMessage += format("Did you mean: %s?", closestCommand);
-                    // }
-                    // failureMessage += `\nUse "${this.rootCommandName}${groupHelp}--help" to view groups, commands, and options.`;
 
                     argv.failureMessage = this.buildFailureMessage(closestCommand);
 
@@ -198,43 +173,7 @@ export class YargsConfigurer {
                 envVariablePrefix: this.envVariablePrefix
             });
 
-            // let failureMessage = "Command failed due to improper syntax";
-            // failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
-            // const groupValues = this.commandLine.split(" ", 2);
-            //
-            // let groupHelp: string = "";
-            // let found: boolean = false;
-            // for (const group of this.rootCommand.children) {
-            //     if ((group.name.trim() === groupValues[0]) || (group.aliases[0] === groupValues[0])) {
-            //         found = true;
-            //         groupHelp = groupValues[0];
-            //         for (const group2 of group.children) {
-            //             if ((group2.name.trim() === groupValues[1]) || (group2.aliases[0] === groupValues[1])) {
-            //                 groupHelp = groupHelp += " " + groupValues[1];
-            //                 break;
-            //             }
-            //         }
-            //         break;
-            //     }
-            // }
-            //
-            // failureMessage += `\nUse "${this.rootCommandName} ${groupHelp} --help" to view groups, commands, and options.`;
-
             const failureMessage = this.buildFailureMessage();
-
-            // const commandTree = CommandUtils.flattenCommandTree(this.rootCommand);
-            //
-            // for (const command of commandTree) {
-            //     logger.error("command.fullName = %s", command.fullName.trim());
-            //     logger.error("groupValue[0] = %s", (groupValues[0] + " " + groupValues[1]));
-            //     logger.error("T/F %s", (command.fullName.trim() === (groupValues[0] + " " + groupValues[1])));
-            //     if (command.fullName.trim().length === 0) {
-            //         continue;
-            //     }
-            //     if (command.fullName.trim() === (groupValues[0] + " " + groupValues[1])) {
-            //         break;
-            //     }
-            // }
 
             // Construct the fail command arguments
             const argv: Arguments = {
@@ -302,19 +241,31 @@ export class YargsConfigurer {
      */
     private buildFailureMessage(closestCommand?: string) {
 
+        const three: number = 3;
+        let commands: string = "";
+        let groups: string = " "; // default to " " for proper spacing in message
+        let delimiter: string = ""; // used to delimit between possible 'command' values
+
         let failureMessage = "Command failed due to improper syntax";
         failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
-        const groupValues = this.commandLine.split(" ", 2);
+        // limit to three to include two levels of group and command value, if present
+        const groupValues = this.commandLine.split(" ", three);
 
-        let groupHelp: string = " ";
-        let found: boolean = false;
+        // loop through the top level groups
         for (const group of this.rootCommand.children) {
             if ((group.name.trim() === groupValues[0]) || (group.aliases[0] === groupValues[0])) {
-                found = true;
-                groupHelp = groupValues[0] + " ";
+                groups += groupValues[0] + " ";
+                // found the top level group so loop to see if second level group valid
                 for (const group2 of group.children) {
                     if ((group2.name.trim() === groupValues[1]) || (group2.aliases[0] === groupValues[1])) {
-                        groupHelp = groupHelp += " " + groupValues[1];
+                        groups += groupValues[1] + " ";
+                        // second level group valid so command provided is invalid, retrieve the valid command(s)
+                        for (let i = 0; i < group2.children.length; i++) {
+                            if (i > 0) {
+                                delimiter = ", ";
+                            }
+                            commands += delimiter + group2.children[i].name;
+                        }
                         break;
                     }
                 }
@@ -327,7 +278,10 @@ export class YargsConfigurer {
             failureMessage += format("Did you mean: %s?", closestCommand);
         }
 
-        failureMessage += `\nUse "${this.rootCommandName} ${groupHelp} --help" to view groups, commands, and options.`;
+        if (commands.length > 0) {
+            failureMessage += `\nAvailable commands are "${commands}".`;
+        }
+        failureMessage += `\nUse "${this.rootCommandName}${groups}--help" to view groups, commands, and options.`;
         return failureMessage;
     }
 
