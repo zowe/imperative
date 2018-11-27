@@ -24,6 +24,8 @@ Object {
 
 exports[`Basic Profile Manager Save should detect a blank name when creating a profile 1`] = `"Expect Error: Required parameter 'name' must not be blank"`;
 
+exports[`Basic Profile Manager Save should detect a missing name when creating a profile 1`] = `"Expect Error: A request was made to save a profile of type \\"apple\\", but no name was supplied."`;
+
 exports[`Basic Profile Manager Save should detect a type mismatch from the schema for booleans 1`] = `
 "Errors located in profile \\"bad_apple\\" of type \\"apple\\":
 rotten is not of a type(s) boolean

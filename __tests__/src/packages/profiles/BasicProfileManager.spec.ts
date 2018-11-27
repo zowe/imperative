@@ -16,109 +16,109 @@ import { ProfileUtils } from "../../../../packages/profiles/";
 import { BANANA_AGE, getConfig, PROFILE_TYPE } from "./src/constants/BasicProfileManagerTestContants";
 
 describe("Imperative should allow CLI implementations to configure their own profiles and types", function () {
-    const loadChangingDependencies = () => {
-        return {
-            Imperative: require("../../../../packages/imperative/src/Imperative").Imperative,
-            ImperativeConfig: require("../../../../packages/imperative/src/ImperativeConfig").ImperativeConfig,
-            ImperativeError: require("../../../../packages/error/src/ImperativeError").ImperativeError
-        };
+  const loadChangingDependencies = () => {
+    return {
+      Imperative: require("../../../../packages/imperative/src/Imperative").Imperative,
+      ImperativeConfig: require("../../../../packages/imperative/src/ImperativeConfig").ImperativeConfig,
+      ImperativeError: require("../../../../packages/error/src/ImperativeError").ImperativeError
     };
+  };
 
-    let {Imperative, ImperativeError, ImperativeConfig} = loadChangingDependencies();
+  let {Imperative, ImperativeError, ImperativeConfig} = loadChangingDependencies();
 
-    // Initialize imperative before each test
-    beforeEach(() => {
-        jest.resetModuleRegistry();
-        ({Imperative, ImperativeError, ImperativeConfig} = loadChangingDependencies());
-    });
+  // Initialize imperative before each test
+  beforeEach(() => {
+    jest.resetModuleRegistry();
+    ({Imperative, ImperativeError, ImperativeConfig} = loadChangingDependencies());
+  });
 
-    it("should be able to create a profile type and retrieve all defined types after init", async function () {
-        const config = getConfig(TestUtil.createUniqueTestDataDir("profile-manager-initialize"));
-        await Imperative.init(config);
-        expect(ProfileUtils.getAllTypeNames(ImperativeConfig.instance.loadedConfig.profiles).length).toEqual(Object.keys(PROFILE_TYPE).length);
-        expect(ProfileUtils.getAllTypeNames(ImperativeConfig.instance.loadedConfig.profiles)).toContain("banana");
-    });
+  it("should be able to create a profile type and retrieve all defined types after init", async function () {
+    const config = getConfig(TestUtil.createUniqueTestDataDir("profile-manager-initialize"));
+    await Imperative.init(config);
+    expect(ProfileUtils.getAllTypeNames(ImperativeConfig.instance.loadedConfig.profiles).length).toEqual(Object.keys(PROFILE_TYPE).length);
+    expect(ProfileUtils.getAllTypeNames(ImperativeConfig.instance.loadedConfig.profiles)).toContain("banana");
+  });
 
-    it("should be receive a failure message when attempting to load a profile that doesn't exist", async function () {
-        const config = getConfig(TestUtil.createUniqueTestDataDir("profile-manager-initialize"));
-        await Imperative.init(config);
-        let error;
-        try {
-            const response = await Imperative.api.profileManager("banana").load({name: "notreal"});
-            TestLogger.info(response.message);
-        } catch (e) {
-            error = e;
-            TestLogger.info(error.message);
+  it("should be receive a failure message when attempting to load a profile that doesn't exist", async function () {
+    const config = getConfig(TestUtil.createUniqueTestDataDir("profile-manager-initialize"));
+    await Imperative.init(config);
+    let error;
+    try {
+      const response = await Imperative.api.profileManager("banana").load({name: "notreal"});
+      TestLogger.info(response.message);
+    } catch (e) {
+      error = e;
+      TestLogger.info(error.message);
+    }
+    expect(error).toBeInstanceOf(ImperativeError);
+  });
+
+  it("should receive a failure message when attempting to create an ill-formed profile", async function () {
+    const config = getConfig(TestUtil.createUniqueTestDataDir("profile-manager-initialize"));
+    await Imperative.init(config);
+    let error;
+    try {
+      const response = await Imperative.api.profileManager("banana").save({
+        name: "illformed",
+        profile: {
+          fail: "this"
         }
-        expect(error).toBeInstanceOf(ImperativeError);
+      });
+      TestLogger.info(response.message);
+    } catch (e) {
+      error = e;
+      TestLogger.info(error.message);
+    }
+    expect(error).toBeInstanceOf(ImperativeError);
+  });
+
+  it("should be able to create a basic profile", async function () {
+    const config = getConfig(TestUtil.createUniqueTestDataDir("profile-manager-initialize"));
+    await Imperative.init(config);
+    const response = await Imperative.api.profileManager("banana").save({
+      name: "legit",
+      profile: {
+        age: BANANA_AGE
+      }
+    });
+    TestLogger.info(`Profile create success response: ${inspect(response, {depth: null})}`);
+    expect(response.message).toContain(`Profile ("legit" of type "banana") successfully written:`);
+    expect(response.overwritten).toEqual(false);
+    expect(response.path).toContain("legit.yaml");
+  });
+
+  it("should be able to create a basic profile and load that profile", async function () {
+    const config = getConfig(TestUtil.createUniqueTestDataDir("profile-manager-initialize"));
+    await Imperative.init(config);
+    const saveResponse = await Imperative.api.profileManager("banana").save({
+      name: "legit",
+      profile: {age: BANANA_AGE},
+      overwrite: true,
+      updateDefault: true
     });
 
-    it("should receive a failure message when attempting to create an ill-formed profile", async function () {
-        const config = getConfig(TestUtil.createUniqueTestDataDir("profile-manager-initialize"));
-        await Imperative.init(config);
-        let error;
-        try {
-            const response = await Imperative.api.profileManager("banana").save({
-                profile: {
-                    name: "illformed",
-                    fail: "this"
-                }
-            });
-            TestLogger.info(response.message);
-        } catch (e) {
-            error = e;
-            TestLogger.info(error.message);
-        }
-        expect(error).toBeInstanceOf(ImperativeError);
-    });
+    TestLogger.info("Save response: " + saveResponse.message);
+    const loadResponse = await Imperative.api.profileManager("banana").load({name: "legit"});
+    TestLogger.info(`Profile loaded success response: ${inspect(loadResponse, {depth: null})}`);
+    expect(loadResponse.name).toEqual("legit");
+    expect(loadResponse.type).toEqual("banana");
+    expect(loadResponse.profile).toBeDefined();
+    expect(loadResponse.profile).toMatchSnapshot();
+  });
 
-    it("should be able to create a basic profile", async function () {
-        const config = getConfig(TestUtil.createUniqueTestDataDir("profile-manager-initialize"));
-        await Imperative.init(config);
-        const response = await Imperative.api.profileManager("banana").save({
-            name: "legit",
-            profile: {
-                age: BANANA_AGE
-            }
-        });
-        TestLogger.info(`Profile create success response: ${inspect(response, {depth: null})}`);
-        expect(response.message).toContain(`Profile ("legit" of type "banana") successfully written:`);
-        expect(response.overwritten).toEqual(false);
-        expect(response.path).toContain("legit.yaml");
+  it("should be able to create a basic profile and load as the default", async function () {
+    const config = getConfig(TestUtil.createUniqueTestDataDir("profile-manager-initialize"));
+    await Imperative.init(config);
+    const response = await Imperative.api.profileManager("banana").save({
+      name: "legit",
+      profile: {age: BANANA_AGE},
+      overwrite: true,
+      updateDefault: true
     });
-
-    it("should be able to create a basic profile and load that profile", async function () {
-        const config = getConfig(TestUtil.createUniqueTestDataDir("profile-manager-initialize"));
-        await Imperative.init(config);
-        const saveResponse = await Imperative.api.profileManager("banana").save({
-            name: "legit",
-            profile: {age: BANANA_AGE},
-            overwrite: true,
-            updateDefault: true
-        });
-
-        TestLogger.info("Save response: " + saveResponse.message);
-        const loadResponse = await Imperative.api.profileManager("banana").load({name: "legit"});
-        TestLogger.info(`Profile loaded success response: ${inspect(loadResponse, {depth: null})}`);
-        expect(loadResponse.name).toEqual("legit");
-        expect(loadResponse.type).toEqual("banana");
-        expect(loadResponse.profile).toBeDefined();
-        expect(loadResponse.profile).toMatchSnapshot();
-    });
-
-    it("should be able to create a basic profile and load as the default", async function () {
-        const config = getConfig(TestUtil.createUniqueTestDataDir("profile-manager-initialize"));
-        await Imperative.init(config);
-        const response = await Imperative.api.profileManager("banana").save({
-            name: "legit",
-            profile: {age: BANANA_AGE},
-            overwrite: true,
-            updateDefault: true
-        });
-        TestLogger.info(`Profile create success response: ${inspect(response, {depth: null})}`);
-        const load = await Imperative.api.profileManager("banana").load({loadDefault: true});
-        expect(load.type).toEqual("banana");
-        expect(load.profile).toBeDefined();
-        expect(load.profile).toMatchSnapshot();
-    });
+    TestLogger.info(`Profile create success response: ${inspect(response, {depth: null})}`);
+    const load = await Imperative.api.profileManager("banana").load({loadDefault: true});
+    expect(load.type).toEqual("banana");
+    expect(load.profile).toBeDefined();
+    expect(load.profile).toMatchSnapshot();
+  });
 });
