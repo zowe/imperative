@@ -10,7 +10,7 @@
 */
 
 import * as TestUtil from "../../TestUtil";
-import { inspect, isNullOrUndefined } from "util";
+import { inspect } from "util";
 import { TestLogger } from "../../../TestLogger";
 import { ProfileUtils } from "../../../../packages/profiles/";
 import { BANANA_AGE, getConfig, PROFILE_TYPE } from "./src/constants/BasicProfileManagerTestContants";
@@ -24,12 +24,12 @@ describe("Imperative should allow CLI implementations to configure their own pro
     };
   };
 
-  let { Imperative, ImperativeError, ImperativeConfig } = loadChangingDependencies();
+  let {Imperative, ImperativeError, ImperativeConfig} = loadChangingDependencies();
 
   // Initialize imperative before each test
   beforeEach(() => {
     jest.resetModuleRegistry();
-    ({ Imperative, ImperativeError, ImperativeConfig } = loadChangingDependencies());
+    ({Imperative, ImperativeError, ImperativeConfig} = loadChangingDependencies());
   });
 
   it("should be able to create a profile type and retrieve all defined types after init", async function () {
@@ -58,7 +58,12 @@ describe("Imperative should allow CLI implementations to configure their own pro
     await Imperative.init(config);
     let error;
     try {
-      const response = await Imperative.api.profileManager("banana").save({profile: {name: "illformed", fail: "this"}});
+      const response = await Imperative.api.profileManager("banana").save({
+        name: "illformed",
+        profile: {
+          fail: "this"
+        }
+      });
       TestLogger.info(response.message);
     } catch (e) {
       error = e;
@@ -70,7 +75,12 @@ describe("Imperative should allow CLI implementations to configure their own pro
   it("should be able to create a basic profile", async function () {
     const config = getConfig(TestUtil.createUniqueTestDataDir("profile-manager-initialize"));
     await Imperative.init(config);
-    const response = await Imperative.api.profileManager("banana").save({profile: {name: "legit", age: BANANA_AGE}});
+    const response = await Imperative.api.profileManager("banana").save({
+      name: "legit",
+      profile: {
+        age: BANANA_AGE
+      }
+    });
     TestLogger.info(`Profile create success response: ${inspect(response, {depth: null})}`);
     expect(response.message).toContain(`Profile ("legit" of type "banana") successfully written:`);
     expect(response.overwritten).toEqual(false);
@@ -81,7 +91,8 @@ describe("Imperative should allow CLI implementations to configure their own pro
     const config = getConfig(TestUtil.createUniqueTestDataDir("profile-manager-initialize"));
     await Imperative.init(config);
     const saveResponse = await Imperative.api.profileManager("banana").save({
-      profile: {name: "legit", age: BANANA_AGE},
+      name: "legit",
+      profile: {age: BANANA_AGE},
       overwrite: true,
       updateDefault: true
     });
@@ -99,13 +110,13 @@ describe("Imperative should allow CLI implementations to configure their own pro
     const config = getConfig(TestUtil.createUniqueTestDataDir("profile-manager-initialize"));
     await Imperative.init(config);
     const response = await Imperative.api.profileManager("banana").save({
-      profile: {name: "legit", age: BANANA_AGE},
+      name: "legit",
+      profile: {age: BANANA_AGE},
       overwrite: true,
       updateDefault: true
     });
     TestLogger.info(`Profile create success response: ${inspect(response, {depth: null})}`);
     const load = await Imperative.api.profileManager("banana").load({loadDefault: true});
-    expect(load.profile.name).toEqual("legit");
     expect(load.type).toEqual("banana");
     expect(load.profile).toBeDefined();
     expect(load.profile).toMatchSnapshot();

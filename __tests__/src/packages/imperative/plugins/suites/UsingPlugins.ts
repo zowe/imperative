@@ -130,8 +130,6 @@ describe("Using a Plugin", () => {
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
         expect(result.stderr).toBe("");
         expect(result.stdout).toContain("Profile created successfully!");
-        expect(result.stdout.replace(/\s+/g, " ")).toContain("type: foo");
-        expect(result.stdout.replace(/\s+/g, " ")).toContain("name: myFooProfile");
         expect(result.stdout.replace(/\s+/g, " ")).toContain("size: small");
         expect(result.stdout.replace(/\s+/g, " ")).toContain("duration: 5");
 
@@ -274,7 +272,6 @@ describe("Using a Plugin", () => {
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
         expect(result.stderr).toBe("");
         expect(result.stdout).toContain("CredentialManager in sample-plugin is saving these creds:");
-        expect(result.stdout).toContain("name:     TestProfileName");
         expect(result.stdout).toContain("password: managed by override-plugin");
 
         // set the CredMgr back to default

@@ -14,10 +14,8 @@ import { ICommandHandler, IHandlerParameters } from "../../../../../packages/cmd
 export default class UseDependentProfile implements ICommandHandler {
     public async process(params: IHandlerParameters) {
         const dependencyProfile = params.profiles.get("profile-a");
-        params.response.console.log("Loaded profile dependency {{name}} of type {{type}}",
-            {name: dependencyProfile.name, type: dependencyProfile.type});
+        params.response.console.log("Loaded profile dependency of type profile-a");
         const mainProfile = params.profiles.get("profile-with-dependency");
-        params.response.console.log("Loaded main profile {{name}} of type {{type}}",
-            {name: mainProfile.name, type: mainProfile.type});
+        params.response.console.log("Loaded main profile of type profile-with-dependency");
     }
 }

@@ -12,7 +12,6 @@
 import { Imperative } from "../../../";
 import { ProfilesConstants } from "../../../../profiles/src/constants/ProfilesConstants";
 import { CliProfileManager, ICommandHandler, IHandlerParameters } from "../../../../cmd";
-import { TextUtils } from "../../../../utilities";
 import { IProfileLoaded } from "../../../..";
 
 /**
@@ -32,7 +31,7 @@ export default class ListProfilesHandler implements ICommandHandler {
         const defaultName = profileManager.getDefaultProfileName();
 
         // Load all profiles for the type contained in the manager
-        const loadResults: IProfileLoaded[] = await profileManager.loadAll({ noSecure: true, typeOnly: true });
+        const loadResults: IProfileLoaded[] = await profileManager.loadAll({noSecure: true, typeOnly: true});
 
         // Set the data object
         params.response.data.setMessage(`"${loadResults.length}" profiles loaded for type "${profileType}"`);
@@ -41,20 +40,15 @@ export default class ListProfilesHandler implements ICommandHandler {
         // Construct the format print list
         const print = [];
         for (const result of loadResults) {
-            if (result.profile.name === defaultName) {
-                result.profile.name += " (default) ";
+            if (result.name === defaultName) {
+                result.name += " (default) ";
             }
 
             print.push({
-                name: result.profile.name,
+                name: result.name,
                 contents: result.profile
             });
 
-            // Remove properties that are "known" - type is implicit in the command
-            // TODO - in the future we might remove these from the object
-            // TODO - for now we'll delete them here
-            delete result.profile.name;
-            delete result.profile.type;
         }
 
         // Format the results accord to the contents

@@ -15,7 +15,6 @@ import { TestLogger } from "../../../__tests__/TestLogger";
 import { ISaveProfile } from "../src/doc/parms/ISaveProfile";
 import { inspect } from "util";
 import { IProfileSaved } from "../src/doc/response/IProfileSaved";
-import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
 import {
   APPLE_BAN_UNKNOWN,
   APPLE_PROFILE_TYPE,
@@ -24,8 +23,6 @@ import {
   MANGO_PROFILE_TYPE,
   ONLY_APPLE,
   ONLY_MANGO,
-  ONLY_ORANGE_WITH_CREDENTIALS,
-  SECURE_ORANGE_PROFILE_TYPE,
   STRAWBERRY_PROFILE_TYPE,
   STRAWBERRY_WITH_REQUIRED_APPLE_DEPENDENCY,
   TEST_PROFILE_ROOT_DIR
@@ -33,17 +30,15 @@ import {
 import { BasicProfileManager } from "../src/BasicProfileManager";
 
 const BAD_SAMPLE_SAVE_PARMS: ISaveProfile = {
-  profile: {
-    name: "bad_apple",
-    type: "bad_apple"
-  }
+  name: "bad_apple",
+  type: "bad_apple",
+  profile: {}
 };
 
 const GOOD_SAMPLE_SAVE_PARMS: ISaveProfile = {
-  profile: {
-    name: "apple",
-    type: STRAWBERRY_PROFILE_TYPE
-  }
+  name: "apple",
+  type: STRAWBERRY_PROFILE_TYPE,
+  profile: {}
 };
 
 describe("Basic Profile Manager Save", () => {
@@ -75,7 +70,7 @@ describe("Basic Profile Manager Save", () => {
         type: APPLE_PROFILE_TYPE,
         logger: TestLogger.getTestLogger()
       });
-      const parms = {profile: {name: "bad_apple"}};
+      const parms = {name: "bad_apple", profile: {}};
       delete parms.profile;
       const response = await prof.save(parms);
     } catch (e) {
@@ -118,9 +113,30 @@ describe("Basic Profile Manager Save", () => {
         logger: TestLogger.getTestLogger()
       });
       const copy = JSON.parse(JSON.stringify({
-        profile: {
-          name: " "
-        }
+        name: " ",
+        profile: {}
+      }));
+      const response = await prof.save(copy);
+    } catch (e) {
+      error = e;
+      TestLogger.info(e);
+    }
+    expect(error).toBeDefined();
+    expect(error instanceof ImperativeError).toBe(true);
+    expect(error.message).toMatchSnapshot();
+  });
+
+  it("should detect a missing name when creating a profile", async () => {
+    let error;
+    try {
+      const prof = new BasicProfileManager({
+        profileRootDirectory: TEST_PROFILE_ROOT_DIR,
+        typeConfigurations: ONLY_APPLE,
+        type: APPLE_PROFILE_TYPE,
+        logger: TestLogger.getTestLogger()
+      });
+      const copy = JSON.parse(JSON.stringify({
+        profile: {}
       }));
       const response = await prof.save(copy);
     } catch (e) {
@@ -142,9 +158,8 @@ describe("Basic Profile Manager Save", () => {
         logger: TestLogger.getTestLogger()
       });
       const copy = JSON.parse(JSON.stringify({
-        profile: {
-          name: APPLE_PROFILE_TYPE + "_meta"
-        }
+        name: APPLE_PROFILE_TYPE + "_meta",
+        profile: {}
       }));
       const response = await prof.save(copy);
     } catch (e) {
@@ -167,9 +182,9 @@ describe("Basic Profile Manager Save", () => {
     let error;
     let response: IProfileSaved;
     try {
-      const profile: any = {name: "bad_apple"};
+      const profile: any = {};
       profile.dependencies = {};
-      response = await prof.save({profile});
+      response = await prof.save({name: "bad_apple", profile});
     } catch (e) {
       error = e;
       TestLogger.info(error);
@@ -190,9 +205,9 @@ describe("Basic Profile Manager Save", () => {
     let error;
     let response: IProfileSaved;
     try {
-      const profile: any = {name: "bad_apple"};
+      const profile: any = {};
       profile.dependencies = [{type: STRAWBERRY_PROFILE_TYPE}];
-      response = await prof.save({profile});
+      response = await prof.save({name: "bad_apple", profile});
     } catch (e) {
       error = e;
       TestLogger.info(error);
@@ -213,9 +228,9 @@ describe("Basic Profile Manager Save", () => {
     let error;
     let response: IProfileSaved;
     try {
-      const profile: any = {name: "bad_apple"};
+      const profile: any = {};
       profile.dependencies = [{name: "bad_strawberry"}];
-      response = await prof.save({profile});
+      response = await prof.save({name: "bad_apple", profile});
     } catch (e) {
       error = e;
       TestLogger.info(error);
@@ -236,8 +251,8 @@ describe("Basic Profile Manager Save", () => {
     let error;
     let response: IProfileSaved;
     try {
-      const profile: any = {name: "bad_strawberry", description: "A bunch of rotten strawberries", amount: 30};
-      response = await prof.save({profile});
+      const profile: any = {description: "A bunch of rotten strawberries", amount: 30};
+      response = await prof.save({name: "bad_strawberry", profile});
     } catch (e) {
       error = e;
       TestLogger.info(error);
@@ -258,8 +273,10 @@ describe("Basic Profile Manager Save", () => {
     let error;
     let response: IProfileSaved;
     try {
-      const profile: any = {name: "bad_strawberry", dependencies: [{type: APPLE_PROFILE_TYPE, name: "bad_apple"}]};
-      response = await prof.save({profile});
+      const profile: any = {
+        dependencies: [{type: APPLE_PROFILE_TYPE, name: "bad_apple"}]
+      };
+      response = await prof.save({name: "bad_strawberry", profile});
     } catch (e) {
       error = e;
       TestLogger.info(error);
@@ -280,8 +297,8 @@ describe("Basic Profile Manager Save", () => {
     let error;
     let response: IProfileSaved;
     try {
-      const profile: any = {name: "bad_apple", description: true, rotten: true, age: 100};
-      response = await prof.save({profile});
+      const profile: any = {description: true, rotten: true, age: 100};
+      response = await prof.save({name: "bad_apple", profile});
     } catch (e) {
       error = e;
       TestLogger.info(error);
@@ -302,8 +319,8 @@ describe("Basic Profile Manager Save", () => {
     let error;
     let response: IProfileSaved;
     try {
-      const profile: any = {name: "bad_apple", description: "A nasty apple", rotten: "yes", age: 100};
-      response = await prof.save({profile});
+      const profile: any = {description: "A nasty apple", rotten: "yes", age: 100};
+      response = await prof.save({name: "bad_apple", profile});
     } catch (e) {
       error = e;
       TestLogger.info(error);
@@ -323,8 +340,9 @@ describe("Basic Profile Manager Save", () => {
 
     let error;
     try {
-      const profile: any = {name: "old_apple", description: "A nasty apple", rotten: true, age: 100};
+      const profile: any = {description: "A nasty apple", rotten: true, age: 100};
       const saveResponse = await prof.save({
+        name: "old_apple",
         profile,
         overwrite: false
       });
@@ -347,8 +365,9 @@ describe("Basic Profile Manager Save", () => {
 
     let error;
     try {
-      const profile: any = {name: "throw_the_apple", description: "A nasty apple", rotten: true, age: 100};
+      const profile: any = {description: "A nasty apple", rotten: true, age: 100};
       const saveResponse = await prof.save({
+        name: "throw_the_apple",
         profile,
         overwrite: true
       });
@@ -370,8 +389,9 @@ describe("Basic Profile Manager Save", () => {
 
     let error;
     try {
-      const profile: any = {name: "bad_mango", description: "A nasty mango", peeled: true};
+      const profile: any = {description: "A nasty mango", peeled: true};
       const saveResponse = await prof.save({
+        name: "bad_mango",
         profile,
         overwrite: true,
         updateDefault: true
@@ -395,8 +415,9 @@ describe("Basic Profile Manager Save", () => {
     let error;
     let saveResponse: IProfileSaved;
     try {
-      const profile: any = {name: "good_apple", description: "A tasty apple", rotten: false, age: 1};
+      const profile: any = {description: "A tasty apple", rotten: false, age: 1};
       saveResponse = await prof.save({
+        name: "good_apple",
         profile,
         overwrite: true
       });
@@ -422,7 +443,6 @@ describe("Basic Profile Manager Save", () => {
     let saveResponse: IProfileSaved;
     try {
       const strawberry: any = {
-        name: "chocolate_covered",
         type: STRAWBERRY_PROFILE_TYPE,
         amount: 10000,
         description: "Strawberries covered in chocolate.",
@@ -434,6 +454,7 @@ describe("Basic Profile Manager Save", () => {
         ]
       };
       saveResponse = await prof.save({
+        name: "chocolate_covered",
         profile: strawberry,
         overwrite: true
       });
@@ -456,8 +477,9 @@ describe("Basic Profile Manager Save", () => {
     let error;
     let saveResponse: IProfileSaved;
     try {
-      const profile: any = {name: "good_apple", description: "A tasty apple", rotten: false, age: 1};
+      const profile: any = {description: "A tasty apple", rotten: false, age: 1};
       saveResponse = await prof.save({
+        name: "good_apple",
         profile,
       });
     } catch (e) {
@@ -481,8 +503,9 @@ describe("Basic Profile Manager Save", () => {
     let response: IProfileSaved;
     try {
       response = await prof.save({
+        name: "apple_with_two_req_dep_circular",
+        type: APPLE_PROFILE_TYPE,
         profile: {
-          name: "apple_with_two_req_dep_circular",
           age: 1000,
           description: "An old apple",
           rotten: true,
@@ -523,9 +546,8 @@ describe("Basic Profile Manager Save", () => {
     let response: IProfileSaved;
     try {
       response = await prof.save({
-        profile: {
-          name: "no_apple_core",
-        },
+        name: "no_apple_core",
+        profile: {},
         overwrite: true
       });
     } catch (e) {
@@ -549,13 +571,13 @@ describe("Basic Profile Manager Save", () => {
     let saveResponse: IProfileSaved;
     try {
       const profile: any = {
-        name: "good_apple",
         description: "A tasty apple",
         rotten: false,
         age: 1,
         dependencies: [{name: "bad_pear", type: "pear"}]
       };
       saveResponse = await prof.save({
+        name: "good_apple",
         profile,
         overwrite: true
       });
@@ -568,7 +590,7 @@ describe("Basic Profile Manager Save", () => {
     expect(error.message).toContain(
       "Load Error Details: Expect Error: Could not locate the profile type " +
       "configuration for \"pear\" within the input configuration list passed."
-     );
+    );
   });
 
   it("should fail a save request if a profile has more properties than defined on the schema", async () => {
@@ -583,13 +605,13 @@ describe("Basic Profile Manager Save", () => {
     let saveResponse: IProfileSaved;
     try {
       const profile: any = {
-        name: "tasty_apple",
         description: "A tasty apple",
         rotten: false,
         age: 1,
         seedless: false
       };
       saveResponse = await prof.save({
+        name: "tasty_apple",
         profile,
         overwrite: true
       });

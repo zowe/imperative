@@ -108,7 +108,7 @@ describe("We should provide auto-generated profile commands for convenience, " +
 
         // issue a command that uses the new profile with dependency
         T.findExpectedOutputInCommand(cliBin,
-            ["use-dependent-profile"], [goodDependency, mainProfileName], "stdout",
+            ["use-dependent-profile"], [], "stdout",
             true, this);
     });
 
@@ -137,7 +137,7 @@ describe("We should provide auto-generated profile commands for convenience, " +
 
         // issue a command that uses the new profile with dependency
         const useProfileOutput = T.findExpectedOutputInCommand(cliBin,
-            ["use-dependent-profile"], [goodDependency, mainProfileName], "stdout",
+            ["use-dependent-profile"], [], "stdout",
             true, this);
         // default profile shouldn't show up in output
         expect(useProfileOutput.stdout.toString().indexOf(defaultProfileA)).toEqual(-1);
@@ -189,34 +189,34 @@ describe("We should provide auto-generated profile commands for convenience, " +
 
         // use both A profiles
         T.findExpectedOutputInCommand(cliBin, ["use-profile-a"],
-            ["profile-a", firstProfile], // default A profile
+            [], // default A profile
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
         T.findExpectedOutputInCommand(cliBin, ["use-profile-a", "--profile-a-profile", secondProfile],
-            ["profile-a", secondProfile],
+            [],
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
 
         // use both B profiles
         T.findExpectedOutputInCommand(cliBin, ["use-profile-b"], // default B profile
-            ["profile-b", firstProfile],
+            [],
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
         T.findExpectedOutputInCommand(cliBin, ["use-profile-b", "--profile-b-profile", secondProfile],
-            ["profile-b", secondProfile],
+            [],
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
 
         // set the default A profile to the second and make sure it is used
         T.findExpectedOutputInCommand(cliBin, ["profiles", "set", profileTypeA, secondProfile], // default B profile
-            ["profile-a", secondProfile],
+            [],
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
         T.findExpectedOutputInCommand(cliBin, ["use-profile-a"], // second profile should be used
-            ["profile-a", secondProfile],
+            [],
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
 
         // set the default B profile to the second and make sure it is used
         T.findExpectedOutputInCommand(cliBin, ["profiles", "set", profileTypeB, secondProfile], // default B profile
-            ["profile-b", secondProfile],
+            [],
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
         T.findExpectedOutputInCommand(cliBin, ["use-profile-b"], // second profile should be used
-            ["profile-b", secondProfile],
+            [],
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
 
         // delete the profiles
