@@ -88,7 +88,8 @@ describe("Imperative should provide advanced syntax validation rules", function 
                     fullDefinition: fakeParent,
                     helpGenerator,
                     profileManagerFactory: new BasicProfileManagerFactory(TEST_HOME, DUMMY_PROFILE_TYPE_CONFIG),
-                    rootCommandName: "fakeroot"
+                    rootCommandName: "fakeroot",
+                    commandLine: "fakecommand"
                 })
                 .invoke({ arguments: options, responseFormat: "json", silent: true }).then(
                     (completedResponse: ICommandResponse) => {
