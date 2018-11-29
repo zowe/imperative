@@ -102,6 +102,76 @@ export class RestClient extends AbstractRestClient {
      * @param {AbstractSession} session - representing connection to this api
      * @param {string} resource - URI for which this request should go against
      * @param {any} reqHeaders - headers to include in the REST request
+     * @returns {Promise<Buffer>} - response body content from http(s) call
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static async getExpectBuffer(session: AbstractSession, resource: string, reqHeaders: any[] = []): Promise<Buffer> {
+        const client = new this(session);
+        await client.performRest(resource, HTTP_VERB.GET, reqHeaders);
+        return client.data;
+    }
+
+    /**
+     * REST HTTP PUT operation
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {string} resource - URI for which this request should go against
+     * @param {object[]} reqHeaders - headers to include in the REST request
+     * @param {any} data - payload data
+     * @returns {Promise<Buffer>} - response body content from http(s) call
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static async putExpectBuffer(session: AbstractSession, resource: string, reqHeaders: any[] = [], data: any): Promise<Buffer> {
+        const client = new this(session);
+        await client.performRest(resource, HTTP_VERB.PUT, reqHeaders, data);
+        return client.data;
+    }
+
+    /**
+     * REST HTTP POST operation
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {string} resource - URI for which this request should go against
+     * @param {object[]} reqHeaders - headers to include in the REST request
+     * @param {any} data - payload data
+     * @returns {Promise<Buffer>} - response body content from http(s) call
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static async postExpectBuffer(session: AbstractSession, resource: string, reqHeaders: any[] = [], data?: any): Promise<Buffer> {
+        const client = new this(session);
+        await client.performRest(resource, HTTP_VERB.POST, reqHeaders, data);
+        return client.data;
+    }
+
+    /**
+     * REST HTTP DELETE operation
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {string} resource - URI for which this request should go against
+     * @param {any} reqHeaders - headers to include in the REST request
+     * @returns {Promise<Buffer>} - response body content from http(s) call
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static async deleteExpectBuffer(session: AbstractSession, resource: string, reqHeaders: any[] = []): Promise<Buffer> {
+        const client = new this(session);
+        await client.performRest(resource, HTTP_VERB.DELETE, reqHeaders);
+        return client.data;
+    }
+
+    /**
+     * REST HTTP GET operation
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {string} resource - URI for which this request should go against
+     * @param {any} reqHeaders - headers to include in the REST request
      * @returns {Promise<string>} - response body content from http(s) call
      * @throws  if the request gets a status code outside of the 200 range
      *          or other connection problems occur (e.g. connection refused)
