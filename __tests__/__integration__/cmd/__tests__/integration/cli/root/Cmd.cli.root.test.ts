@@ -35,11 +35,17 @@ describe("cmd-cli", () => {
         expect(response.stdout.toString()).toMatchSnapshot();
     });
 
-    it("should flag an invalid command and give a close suggestion", async () => {
+    it("should flag an invalid group and give a close suggestion", async () => {
         const response = runCliScript(__dirname + "/__scripts__/invalid_command.sh", TEST_ENVIRONMENT.workingDir);
         expect(response.status).toBe(1);
         expect(response.stdout.toString()).toMatchSnapshot();
         expect(response.stderr.toString()).toMatchSnapshot();
+    });
+
+    it("should flag an invalid command and list valid commands", async () => {
+        const response = runCliScript(__dirname + "/__scripts__/invalid_command2.sh", TEST_ENVIRONMENT.workingDir);
+        expect(response.status).toBe(1);
+        expect(response.stderr.toString()).toContain("Available commands are \"banana-profile, strawberry-profile, insecure-profile\"");
     });
 
     it("should display the version", async () => {
