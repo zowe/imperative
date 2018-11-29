@@ -23,9 +23,9 @@ import {ICommandResponse} from "../../packages/cmd";
 import {ICompareParms} from "./doc/ICompareParms";
 import {TestLogger} from "../TestLogger";
 import * as nodePath from "path";
-import {basename, join, resolve} from "path";
-import {mkdirpSync} from "fs-extra";
+import { mkdirpSync } from "fs-extra";
 import * as fs from "fs";
+import { randomBytes } from "crypto";
 
 /**
  * Requires for non-typed.
@@ -61,7 +61,7 @@ export * from "fs";
 
 export const TEST_HOME: string = process.cwd() + "/__tests__/__results__/data/.testHomeDir";
 
-export const TEST_RESULT_DIR = resolve(__dirname + "/../__results__");
+export const TEST_RESULT_DIR = nodePath.resolve(__dirname + "/../__results__");
 
 /**
  * This function strips any new lines out of the string passed.
@@ -138,6 +138,23 @@ export function generateRandomAlphaNumericString(length: number, upToLength: boo
     }
     return result;
 }
+
+/**
+ * Get a buffer full of random data
+ * @param dataSize - the number of bytes to generate
+ */
+export function getRandomBytes(dataSize: number): Promise<Buffer> {
+    return new Promise<Buffer>((resolveBytes, reject) => {
+        randomBytes(dataSize, (randomErr: Error, randomData: Buffer) => {
+            if (randomErr != null) {
+                reject(randomErr);
+                return;
+            }
+            resolveBytes(randomData);
+        });
+    });
+}
+
 
 export enum CMD_TYPE {
     JSON, // only  with the json flag
