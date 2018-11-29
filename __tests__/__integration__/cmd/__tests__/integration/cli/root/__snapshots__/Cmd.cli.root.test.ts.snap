@@ -117,12 +117,11 @@ exports[`cmd-cli should flag an invalid command and give a close suggestion 1`] 
 `;
 
 exports[`cmd-cli should flag an invalid command and give a close suggestion 2`] = `
-"
-Syntax Error:
-You specified the following unknown values: \\"NOT_REAL\\".
-
- Could not interpret them as a group, command name, or positional option.
-
-Use \\"zowe cmd-cli NOT_REAL --help\\" to view command description, usage, and options.
+"Command Error:
+Command failed due to improper syntax
+Command entered: \\"cmd-cli NOT_REAL\\"
+Unknown group: NOT_REAL
+Did you mean:  chained?
+Use \\"cmd-cli --help\\" to view groups, commands, and options.
 "
 `;
