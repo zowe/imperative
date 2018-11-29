@@ -107,6 +107,8 @@
     "jest-environment-node-debug": "2.0.0",
     "jest-html-reporter": "2.0.0",
     "jest-junit": "3.6.0",
+    "jest-stare": "1.6.0",
+    "jest-sonar-reporter": "2.0.0",
     "jsdoc": "3.5.5",
     "madge": "3.0.0",
     "prompt": "1.0.0",
@@ -123,15 +125,6 @@
   "engines": {
     "node": ">=6.0.0"
   },
-  "jest-html-reporter": {
-    "pageTitle": "Imperative CLI Tests",
-    "outputPath": "__tests__/__results__/unit/results.html",
-    "includeFailureMsg": true,
-    "executionMode": "reporter"
-  },
-  "jest-junit": {
-    "output": "./__tests__/__results__/junit/junit.xml"
-  },
   "jest": {
     "modulePathIgnorePatterns": [
       "__tests__/__snapshots__/"
@@ -139,11 +132,7 @@
     "transform": {
       ".(ts)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
-    "testResultsProcessor": "jest-junit",
-    "reporters": [
-      "default",
-      "jest-html-reporter"
-    ],
+    "testResultsProcessor": "jest-stare",
     "testRegex": "(test|spec)\\.ts$",
     "moduleFileExtensions": [
       "ts",
@@ -169,5 +158,24 @@
       "cobertura"
     ],
     "coverageDirectory": "<rootDir>/__tests__/__results__/unit/coverage"
+  },
+  "jest-html-reporter": {
+    "pageTitle": "Imperative CLI Tests",
+    "outputPath": "__tests__/__results__/unit/results.html"
+  },
+  "jest-junit": {
+    "output": "./__tests__/__results__/junit/junit.xml"
+  },
+  "jestSonar": {
+    "reportPath": "__tests__/__results__/jest-sonar"
+  },
+  "jest-stare": {
+    "resultDir": "__tests__/__results__/jest-stare",
+    "additionalResultsProcessors": [
+      "jest-junit",
+      "jest-html-reporter",
+      "jest-sonar-reporter"
+    ],
+    "coverageLink": "../unit/coverage/lcov-report/index.html"
   }
 }
