@@ -45,14 +45,6 @@ export class CommandProfiles {
         map.forEach((value, key) => {
             ImperativeExpect.toBeAnArray(value, `${err} The "profiles" supplied for type "${key}" is NOT an array.`);
             ImperativeExpect.toBeEqual((value.length > 0), true, `${err} No profiles supplied for type "${key}".`);
-            for (const prof of value) {
-                ImperativeExpect.keysToBeDefinedAndNonBlank(prof, ["name"],
-                    `${err} A profile supplied in the map (type "${key}") does NOT have a name.`);
-                ImperativeExpect.keysToBeDefinedAndNonBlank(prof, ["type"],
-                    `${err} A profile supplied in the map (type "${key}") does NOT have a type.`);
-                ImperativeExpect.toBeEqual(prof.type, key,
-                    `${err} A profile supplied for type "${key}" indicates a type of "${prof.type}"`);
-            }
         });
         this.mMap = map;
     }

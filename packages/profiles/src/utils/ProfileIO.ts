@@ -269,7 +269,6 @@ export class ProfileIO {
         let profile: IProfile;
         try {
             profile = readYaml.safeLoad(fs.readFileSync(filePath, "utf8"));
-            profile.type = type;
         } catch (err) {
             throw new ImperativeError({
                 msg: `Error reading profile file ("${filePath}"). Error Details: ${err.message}`,

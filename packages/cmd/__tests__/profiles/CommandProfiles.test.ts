@@ -70,42 +70,6 @@ describe("Command Profiles", () => {
     expect(profiles.get(BANANA_PROFILE_TYPE)).toMatchSnapshot();
   });
 
-  it("should detect a profile type mismatch", () => {
-    const map = new Map<string, IProfile[]>();
-    map.set(BANANA_PROFILE_TYPE, [{
-      name: "tasty",
-      type: STRAWBERRY_PROFILE_TYPE,
-      age: 1
-    }]);
-    let error;
-    try {
-      const profiles = new CommandProfiles(map);
-    } catch (e) {
-      error = e;
-    }
-    expect(error).toBeDefined();
-    expect(error instanceof ImperativeError).toBe(true);
-    expect(error.message).toMatchSnapshot();
-  });
-
-  it("should detect a profile type mismatch", () => {
-    const map = new Map<string, IProfile[]>();
-    map.set(BANANA_PROFILE_TYPE, [{
-      name: "tasty",
-      type: STRAWBERRY_PROFILE_TYPE,
-      age: 1
-    }]);
-    let error;
-    try {
-      const profiles = new CommandProfiles(map);
-    } catch (e) {
-      error = e;
-    }
-    expect(error).toBeDefined();
-    expect(error instanceof ImperativeError).toBe(true);
-    expect(error.message).toMatchSnapshot();
-  });
-
   it("should throw an error if get does not have the profile type in the map", () => {
     const map = new Map<string, IProfile[]>();
     map.set(BANANA_PROFILE_TYPE, [{

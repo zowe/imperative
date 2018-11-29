@@ -10,6 +10,7 @@
 */
 
 import { IProfile } from "../definition/IProfile";
+
 /**
  * Parameters to the "save()" profile API.
  *
@@ -30,6 +31,22 @@ export interface ISaveProfile {
      * @memberof ISaveProfile
      */
     profile: IProfile;
+
+    /**
+     * The name of the profile to save
+     *
+     * @type {string}
+     * @memberof ISaveProfile
+     */
+    name: string;
+
+    /**
+     * The type of profile to save
+     * @type {string}
+     * @memberof ISaveProfile
+     */
+    type: string;
+
     /**
      * Set to true to update the default profile for the profile type.
      * @type {boolean}

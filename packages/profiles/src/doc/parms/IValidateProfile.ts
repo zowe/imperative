@@ -18,6 +18,12 @@ import { IProfile } from "../definition/IProfile";
  */
 export interface IValidateProfile {
     /**
+     * The name of the profile to validate.
+     * @type {string}
+     * @memberof IValidateProfile
+     */
+    name: string;
+    /**
      * The profile contents to validate.
      * @type {IProfile}
      * @memberof IValidateProfile

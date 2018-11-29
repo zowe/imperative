@@ -11,7 +11,7 @@
 
 import { overroteProfileMessage, profileCreatedSuccessfullyAndPath, profileReviewMessage } from "../../../../messages";
 import { Imperative } from "../../Imperative";
-import { IProfileSaved, ProfilesConstants } from "../../../../profiles";
+import { IProfileSaved, ISaveProfileFromCliArgs, ProfilesConstants } from "../../../../profiles";
 import { ICommandHandler, IHandlerParameters } from "../../../../cmd";
 
 import { Constants } from "../../../../constants";
@@ -36,14 +36,17 @@ export default class CreateProfilesHandler implements ICommandHandler {
         const profileManager = Imperative.api.profileManager(profileType);
         const profileName = commandParameters.arguments[Constants.PROFILE_NAME_OPTION];
 
+        const createParms: ISaveProfileFromCliArgs = {
+            name: profileName,
+            type: profileType,
+            args: commandParameters.arguments,
+            overwrite: commandParameters.arguments.overwrite,
+            profile: {}
+        };
         /**
          * Create the profile based on the command line arguments passed
          */
-        const createResponse: IProfileSaved = await profileManager.save({
-            args: commandParameters.arguments,
-            overwrite: commandParameters.arguments.overwrite,
-            profile: {name: profileName}
-        });
+        const createResponse: IProfileSaved = await profileManager.save(createParms);
 
         /**
          * Indicate to the user (if specified) that the profile was overwritten

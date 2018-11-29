@@ -10,7 +10,6 @@ Object {
     },
   ],
   "description": "Strawberries covered in chocolate.",
-  "name": "chocolate_covered",
   "type": "strawberry",
 }
 `;
@@ -19,13 +18,13 @@ exports[`Basic Profile Manager Save should allow us to save a well-formed profil
 Object {
   "age": 1,
   "description": "A tasty apple",
-  "name": "good_apple",
   "rotten": false,
-  "type": "apple",
 }
 `;
 
-exports[`Basic Profile Manager Save should detect a blank name when creating a profile 1`] = `"Expect Error: The profile passed does not contain a name (type: \\"apple\\") OR the name property specified is not of type \\"string\\"."`;
+exports[`Basic Profile Manager Save should detect a blank name when creating a profile 1`] = `"Expect Error: Required parameter 'name' must not be blank"`;
+
+exports[`Basic Profile Manager Save should detect a missing name when creating a profile 1`] = `"Expect Error: A request was made to save a profile of type \\"apple\\", but no name was supplied."`;
 
 exports[`Basic Profile Manager Save should detect a type mismatch from the schema for booleans 1`] = `
 "Errors located in profile \\"bad_apple\\" of type \\"apple\\":

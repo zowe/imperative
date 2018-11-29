@@ -178,19 +178,20 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
      * Loads all dependencies for the profile specified - returns the list in the response structure. Sub-dependencies
      * are also loaded.
      * @protected
+     * @param {string} name - the name of hte profile to load dependencies for
      * @param {IProfile} profile - The profile to load dependencies.
      * @param {boolean} [failNotFound=true] - Indicates that you want to avoid failing the request for "not found" errors.
      * @returns {Promise<IProfileLoaded[]>} - The list of profiles loaded with all dependencies.
      * @memberof BasicProfileManager
      */
-    protected loadDependencies(profile: IProfile, failNotFound = true): Promise<IProfileLoaded[]> {
+    protected loadDependencies(name: string, profile: IProfile, failNotFound = true): Promise<IProfileLoaded[]> {
         return new Promise<IProfileLoaded[]>((dependenciesLoaded, loadFailed) => {
 
             // Construct a list of promises to load all profiles
             const promises: Array<Promise<IProfileLoaded>> = [];
             const responses: IProfileLoaded[] = [];
             if (!isNullOrUndefined(profile.dependencies)) {
-                this.log.debug(`Loading dependencies for profile "${profile.name}" of "${this.profileType}".`);
+                this.log.debug(`Loading dependencies for profile of "${this.profileType}".`);
                 let list: string = "";
                 for (const dependency of profile.dependencies) {
                     this.log.debug(`Loading dependency "${dependency.name}" of type "${dependency.type}".`);
@@ -206,21 +207,21 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
 
                 // Wait for all the promises to complete
                 Promise.all(promises).then((loadResponses) => {
-                    this.log.debug(`All dependencies loaded for "${profile.name}" of type "${this.profileType}".`);
+                    this.log.debug(`All dependencies loaded for profile of type "${this.profileType}".`);
                     // Append the responses for return to caller
                     for (const response of loadResponses) {
                         responses.push(response);
                     }
                     dependenciesLoaded(responses);
                 }).catch((loadsFailed) => {
-                    this.log.error(`Failure to load dependencies for "${profile.name}" of type "${this.profileType}". ` +
+                    this.log.error(`Failure to load dependencies for profile of type "${this.profileType}". ` +
                         `Details: ${loadsFailed.message}`);
                     const err: string = `An error occurred while loading the dependencies of profile ` +
-                        `"${profile.name}" of type "${profile.type}". Dependency load list: ${list}\n\nError Details: ${loadsFailed.message}`;
+                        `"${name}" of type "${this.profileType}". Dependency load list: ${list}\n\nError Details: ${loadsFailed.message}`;
                     loadFailed(new ImperativeError({msg: err, additionalDetails: loadsFailed}));
                 });
             } else {
-                this.log.trace(`Profile "${profile.name}" of type "${this.profileType}" has no dependencies.`);
+                this.log.trace(`Profile of type "${this.profileType}" has no dependencies.`);
                 dependenciesLoaded([]);
             }
         });
@@ -236,26 +237,26 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
     protected async saveProfile(parms: ISaveProfile): Promise<IProfileSaved> {
         // Validate that the dependencies listed exist before saving
         try {
-            this.log.debug(`Loading dependencies for profile "${parms.profile.name}" of type "${this.profileType}", ` +
+            this.log.debug(`Loading dependencies for profile "${parms.name}" of type "${this.profileType}", ` +
                 `checking if if they are valid (before save.)`);
-            const loadResponse = await this.loadDependencies(parms.profile);
+            const loadResponse = await this.loadDependencies(parms.name, parms.profile);
         } catch (e) {
             throw new ImperativeError({
                 msg: `Could not save the profile, because one or more dependencies is invalid or does not exist.\n` +
-                `Load Error Details: ${e.message}`
+                    `Load Error Details: ${e.message}`
             });
         }
 
         // Construct the full file path, write to disk, and return the response
-        this.log.info(`Saving profile "${parms.profile.name}" of type "${this.profileType}"...`);
-        const path = this.constructFullProfilePath(parms.profile.name);
+        this.log.info(`Saving profile "${parms.name}" of type "${this.profileType}"...`);
+        const path = this.constructFullProfilePath(parms.name);
         ProfileIO.writeProfile(path, parms.profile);
-        this.log.info(`Profile "${parms.profile.name}" of type "${this.profileType}" saved.`);
+        this.log.info(`Profile "${parms.name}" of type "${this.profileType}" saved.`);
         return {
             path,
             overwritten: parms.overwrite || false,
-            message: `Profile ("${parms.profile.name}" of type "${parms.profile.type}") ` +
-            `successfully written: ${path}`,
+            message: `Profile ("${parms.name}" of type "${this.profileType}") ` +
+                `successfully written: ${path}`,
             profile: parms.profile
         };
     }
@@ -298,12 +299,12 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
      * @memberof BasicProfileManager
      */
     protected async validateProfile(parms: IValidateProfileWithSchema): Promise<IProfileValidated> {
-        this.log.trace(`Validating profile "${parms.profile.name}" of type "${this.profileType}"`);
+        this.log.trace(`Validating profile "${parms.name}" of type "${this.profileType}"`);
         // Ensure that the profile is not empty
         if (this.isProfileEmpty(parms.profile)) {
             throw new ImperativeError({
-                msg: `The profile passed (name "${parms.profile.name}" of type ` +
-                `"${parms.profile.type}") does not contain any content.`
+                msg: `The profile passed (name "${parms.name}" of type ` +
+                    `"${this.profileType}") does not contain any content.`
             });
         }
 
@@ -312,12 +313,12 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
         this.validateRequiredDependenciesAreSpecified(parms.profile);
 
         // Validate the profile agaisnt the schema
-        this.validateProfileAgainstSchema(parms.profile, parms.strict);
+        this.validateProfileAgainstSchema(parms.name, parms.profile, parms.strict);
 
         // Return the response
-        this.log.debug(`Profile "${parms.profile.name}" of type "${this.profileType}" is valid.`);
+        this.log.debug(`Profile "${parms.name}" of type "${this.profileType}" is valid.`);
         return {
-            message: `Profile "${parms.profile.name}" of type "${this.profileType}" is valid.`
+            message: `Profile "${parms.name}" of type "${this.profileType}" is valid.`
         };
     }
 
@@ -338,13 +339,15 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
             this.log.debug(`Merged profile "${parms.name}" of type "${this.profileType}" with old version`);
         }
         const response = await this.save({
+            name: parms.name,
+            type: this.profileType,
             profile: parms.profile,
             overwrite: true
         });
         this.log.trace(`Save of profile "${parms.name}" of type "${this.profileType}" complete.`);
         return {
             path: response.path,
-            message: `Profile "${parms.profile.name}" of type "${this.profileType}" updated successfully.`,
+            message: `Profile "${parms.name}" of type "${this.profileType}" updated successfully.`,
             profile: response.profile
         };
     }
