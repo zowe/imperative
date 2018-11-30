@@ -167,9 +167,7 @@ Array [
     "profile": Object {
       "age": 1,
       "description": "A tasty apple",
-      "name": "good_apple",
       "rotten": false,
-      "type": "apple",
     },
     "type": "apple",
   },
@@ -182,9 +180,7 @@ Array [
     "profile": Object {
       "age": 1,
       "description": "tasty",
-      "name": "tasty_apples",
       "rotten": false,
-      "type": "apple",
     },
     "type": "apple",
   },
@@ -203,8 +199,6 @@ Array [
         },
       ],
       "description": "Tasty",
-      "name": "strawberry_and_apple",
-      "type": "strawberry",
     },
     "type": "strawberry",
   },

@@ -47,9 +47,11 @@ Object {
       "contents": Object {
         "data": "some data",
         "info": "some info",
+        "name": "fake1",
         "nested": Object {
           "data": "nested data",
         },
+        "type": "fake",
       },
       "name": "fake1 (default) ",
     },
@@ -57,11 +59,13 @@ Object {
       "contents": Object {
         "data": "some data",
         "info": "some info",
+        "name": "fake2",
         "nested": Object {
           "data": "nested data",
         },
+        "type": "fake",
       },
-      "name": "fake2",
+      "name": "fake",
     },
   ],
 }
@@ -115,9 +119,11 @@ Object {
       "contents": Object {
         "data": "some data",
         "info": "some info",
+        "name": "fake1",
         "nested": Object {
           "data": "nested data",
         },
+        "type": "fake",
       },
       "name": "fake1 (default) ",
     },
@@ -125,11 +131,13 @@ Object {
       "contents": Object {
         "data": "some data",
         "info": "some info",
+        "name": "fake2",
         "nested": Object {
           "data": "nested data",
         },
+        "type": "fake",
       },
-      "name": "fake2",
+      "name": "fake",
     },
   ],
 }

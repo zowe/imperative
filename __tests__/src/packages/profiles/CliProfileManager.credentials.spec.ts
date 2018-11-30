@@ -91,7 +91,7 @@ describe("Cli Profile Manager", () => {
             insecuredProperty: {myInSecuredChild: "insecured"},
             securedProperty: {mySecuredChild: "secured"}
           },
-          account, name: profileName, type: testProfileName, username, password});
+          account, username, password});
       });
 
       it("should overwrite and load a profile with saved credentials", () => {
@@ -132,7 +132,7 @@ describe("Cli Profile Manager", () => {
             insecuredProperty: {myInSecuredChild: "insecured"},
             securedProperty: {mySecuredChild: "secured"}
           },
-          account, name: profileName, type: testProfileName, username: newName, password: newPass});
+          account, username: newName, password: newPass});
       });
 
       it("should delete a profile with saved credentials", () => {
@@ -329,7 +329,7 @@ describe("Cli Profile Manager", () => {
 
       cmd = `display-profile`;
       result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-      expect(JSON.parse(result.stdout)).toEqual({name: profileName, type: testProfileName, username: "custom", password: "custom"});
+      expect(JSON.parse(result.stdout)).toEqual({username: "custom", password: "custom"});
     });
   });
 
@@ -356,7 +356,7 @@ describe("Cli Profile Manager", () => {
 
       cmd = `display-profile`;
       result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-      expect(JSON.parse(result.stdout)).toEqual({name: profileName, type: testProfileName, username: "custom", password: "custom"});
+      expect(JSON.parse(result.stdout)).toEqual({ username: "custom", password: "custom"});
     });
   });
 });
