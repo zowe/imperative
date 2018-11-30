@@ -1,6 +1,6 @@
 {
   "name": "@brightside/imperative",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "framework for building configurable CLIs",
   "license": "EPL 2.0",
   "repository": "https://github.com/gizafoundation/imperative",
@@ -85,7 +85,7 @@
     "gulp-debug": "3.1.0",
     "gulp-plumber": "1.1.0",
     "gulp-replace": "0.6.1",
-    "gulp-typedoc": "2.2.0",
+    "gulp-typedoc": "2.2.1",
     "gulp-util": "3.0.8",
     "is-url": "1.2.3",
     "jest": "21.2.1",
