@@ -47,6 +47,12 @@ export interface ICommandProcessorParms {
      */
     rootCommandName: string;
     /**
+     * The command line.
+     * @type {string}
+     * @memberof ICommandProcessorParms
+     */
+    commandLine: string;
+    /**
      * Environmental variable name prefix used to construct configuration environmental variables.
      * @type {string}
      * @memberof ICommandProcessorParms

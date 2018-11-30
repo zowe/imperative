@@ -62,6 +62,13 @@ export class CommandProcessor {
      */
     private mCommandRootName: string;
     /**
+     * The command line.
+     * @private
+     * @type {string}
+     * @memberof CommandProcessor
+     */
+    private mCommandLine: string;
+    /**
      * Environmental variable name prefix used to construct configuration environmental variables.
      * @private
      * @type {string}
@@ -124,6 +131,7 @@ export class CommandProcessor {
                 `but no handler was specified.`);
         }
         this.mCommandRootName = params.rootCommandName;
+        this.mCommandLine = params.commandLine;
         this.mEnvVariablePrefix = params.envVariablePrefix;
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["rootCommandName"], `${CommandProcessor.ERROR_TAG} No root command supplied.`);
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["envVariablePrefix"], `${CommandProcessor.ERROR_TAG} No ENV variable prefix supplied.`);
@@ -139,6 +147,19 @@ export class CommandProcessor {
     get rootCommand(): string {
         return this.mCommandRootName;
     }
+
+    /**
+     * Accessor for the command line
+     * @readonly
+     * @type {string}
+     * @memberof CommandProcessor
+     */
+    get commandLine(): string {
+        return this.mCommandLine;
+    }
+    // set commandLine(command: string) {
+    //     this.mCommandLine = command;
+    // }
 
     /**
      * Accessor for the environment variable prefix
@@ -245,9 +266,9 @@ export class CommandProcessor {
 
         // Log the invoke
         this.log.info(`Invoking command "${this.definition.name}"...`);
-        this.log.trace(`Arguments supplied for for the command:\n${TextUtils.prettyJson(params.arguments)}`);
-        this.log.trace(`Command definition:\n${inspect(this.definition, {depth: null})}`);
-        this.log.trace(`Invoke parameters:\n${inspect(params, {depth: null})}`);
+        this.log.info(`Command issued:\n\n${TextUtils.prettyJson(this.rootCommand + " " + this.commandLine)}`);
+        this.log.trace(`Invoke parameters:\n${inspect(params, { depth: null })}`);
+        this.log.trace(`Command definition:\n${inspect(this.definition, { depth: null })}`);
 
         // Build the response object, base args object, and the entire array of options for this command
         // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
@@ -490,12 +511,12 @@ export class CommandProcessor {
 
         // Load all profiles for the command
         this.log.trace(`Loading profiles for "${this.definition.name}" command. ` +
-            `Profile definitions: ${inspect(this.definition.profile, {depth: null})}`);
+            `Profile definitions: ${inspect(this.definition.profile, { depth: null })}`);
         const profiles = await CommandProfileLoader.loader({
             commandDefinition: this.definition,
             profileManagerFactory: this.profileFactory
         }).loadProfiles(commandArguments);
-        this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, {depth: null})}`);
+        this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, { depth: null })}`);
 
         // If we have profiles listed on the command definition (the would be loaded already)
         // we can extract values from them for options arguments

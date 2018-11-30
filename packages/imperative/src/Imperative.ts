@@ -65,6 +65,16 @@ export class Imperative {
     }
 
     /**
+     *  Retrieve the command line.
+     *  @example
+     *  For example, banana a b --c", is the command line.
+     *  @returns {string} - command line
+     */
+    public static get commandLine(): string {
+        return this.mCommandLine;
+    }
+
+    /**
      * Get the complete full command tree
      * @returns {ICommandDefinition}
      */
@@ -332,6 +342,7 @@ export class Imperative {
     private static mConsoleLog: Logger;
     private static mFullCommandTree: ICommandDefinition;
     private static mRootCommandName: string;
+    private static mCommandLine: string;
     private static mHelpGeneratorFactory: IHelpGeneratorFactory;
 
     /**
@@ -458,6 +469,29 @@ export class Imperative {
             progressBarSpinner: ImperativeConfig.instance.loadedConfig.progressBarSpinner
         };
 
+        // do not retrieve command line if invoked from test as argv is undefined
+        if (this.yargs.argv !== undefined) {
+            // retrieve the arguments to re-build the command entered
+            const argV: any = this.yargs.argv;
+
+            let commandText: string  = "";
+            let i: number;
+            // retrieve the groups, command and positional arguments
+            for (i = 0; i < argV._.length; i++) {
+                commandText = commandText + argV._[i] + " ";
+            }
+            // retrieve the options and arguments specified
+            for (const key in argV) {
+                if (argV.hasOwnProperty(key) && (key !== "_" && key !== "$0")) {
+                    commandText = commandText + "--" + key + " " + argV[key] + " ";
+                }
+            }
+            this.mCommandLine = commandText.trim();
+        }
+        else {
+            this.mCommandLine = "";
+        }
+
         // Configure Yargs to meet the CLI's needs
         new YargsConfigurer(
             preparedHostCliCmdTree,
@@ -467,6 +501,7 @@ export class Imperative {
             this.mHelpGeneratorFactory,
             ImperativeConfig.instance.loadedConfig.experimentalCommandDescription,
             Imperative.rootCommandName,
+            Imperative.commandLine,
             Imperative.envVariablePrefix
         ).configure();
 
@@ -476,6 +511,7 @@ export class Imperative {
             Imperative.yargs,
             ImperativeConfig.instance.loadedConfig.primaryTextColor,
             Imperative.rootCommandName,
+            Imperative.commandLine,
             Imperative.envVariablePrefix,
             new ImperativeProfileManagerFactory(this.api),
             this.mHelpGeneratorFactory,

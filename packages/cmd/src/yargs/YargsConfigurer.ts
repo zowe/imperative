@@ -35,6 +35,7 @@ export class YargsConfigurer {
                 private helpGeneratorFactory: IHelpGeneratorFactory,
                 private experimentalCommandDescription: string,
                 private rootCommandName: string,
+                private commandLine: string,
                 private envVariablePrefix: string
     ) {
     }
@@ -47,7 +48,9 @@ export class YargsConfigurer {
         const jsonResponseFormat =
             (process.argv.indexOf(CliUtils.getDashFormOfOption(Constants.JSON_OPTION)) >= 0 ||
                 process.argv.indexOf(CliUtils.getDashFormOfOption(Constants.JSON_OPTION_ALIAS)) >= 0);
+
         const logger = Logger.getImperativeLogger();
+
         const jsonArg: any = {};
         if (jsonResponseFormat) {
             const jsonOptionName: string = Constants.JSON_OPTION;
@@ -56,16 +59,16 @@ export class YargsConfigurer {
         const preferredTerminalWidth = 100;
         const failedCommandHandler = __dirname + "/../handlers/FailedCommandHandler";
         const failedCommandDefinition: ICommandDefinition = {
-            name: "",
+            name: this.rootCommandName + " " + this.commandLine,
             handler: failedCommandHandler,
             type: "command",
             description: "The command you tried to invoke failed"
         };
         this.yargs.showHelpOnFail(false);
         // finally, catch any undefined commands
-        this.yargs.command("*", "Unknown command", (argv: Argv) => {
-            return argv; // no builder
-        },
+        this.yargs.command("*", "Unknown group", (argv: Argv) => {
+                    return argv; // no builder
+            },
             (argv: any) => {
                 const attemptedCommand = argv._.join(" ");
                 if (attemptedCommand.trim().length === 0) {
@@ -86,6 +89,7 @@ export class YargsConfigurer {
                         helpGenerator: rootHelpGenerator,
                         profileManagerFactory: this.profileManagerFactory,
                         rootCommandName: this.rootCommandName,
+                        commandLine: this.commandLine,
                         envVariablePrefix: this.envVariablePrefix
                     }).invoke({ arguments: argv, silent: false, responseFormat: (jsonResponseFormat) ? "json" : "default" })
                         .then((response) => {
@@ -116,12 +120,7 @@ export class YargsConfigurer {
                         }
                     }
 
-                    let failureMessage = format("Unknown Command: %s\n", argv._.join(" "));
-                    if (!isNullOrUndefined(closestCommand)) {
-                        failureMessage += format("Did you mean: %s?", closestCommand);
-                    }
-
-                    argv.failureMessage = failureMessage;
+                    argv.failureMessage = this.buildFailureMessage(closestCommand);
 
                     // Allocate a help generator from the factory
                     const rootHelpGenerator = this.helpGeneratorFactory.getHelpGenerator({
@@ -137,6 +136,7 @@ export class YargsConfigurer {
                         helpGenerator: rootHelpGenerator,
                         profileManagerFactory: this.profileManagerFactory,
                         rootCommandName: this.rootCommandName,
+                        commandLine: this.commandLine,
                         envVariablePrefix: this.envVariablePrefix
                     });
 
@@ -145,15 +145,14 @@ export class YargsConfigurer {
                         .then((failedCommandResponse) => {
                             logger.debug("Finished invoking the 'FailedCommand' handler");
                         }).catch((err) => {
-                            logger.error("%s", err.msg);
-                        });
+                        logger.error("%s", err.msg);
+                    });
                 }
             });
 
         this.yargs.fail((msg: string, error: Error, failedYargs: any) => {
             process.exitCode = Constants.ERROR_EXIT_CODE;
             AbstractCommandYargs.STOP_YARGS = true; // todo: figure out a better way
-            const failureMessage = "Command failed due to improper syntax";
             error = error || new Error(msg);
 
             // Allocate a help generator from the factory
@@ -170,8 +169,11 @@ export class YargsConfigurer {
                 helpGenerator: failHelpGenerator,
                 profileManagerFactory: this.profileManagerFactory,
                 rootCommandName: this.rootCommandName,
+                commandLine: this.commandLine,
                 envVariablePrefix: this.envVariablePrefix
             });
+
+            const failureMessage = this.buildFailureMessage();
 
             // Construct the fail command arguments
             const argv: Arguments = {
@@ -186,8 +188,8 @@ export class YargsConfigurer {
                 .then((failedCommandResponse) => {
                     logger.debug("Finished invoking the 'FailedCommand' handler");
                 }).catch((err) => {
-                    logger.error("%s", err.msg);
-                });
+                logger.error("%s", err.msg);
+            });
         });
         process.on("uncaughtException", (error: Error) => {
             process.exitCode = Constants.ERROR_EXIT_CODE;
@@ -200,15 +202,20 @@ export class YargsConfigurer {
             });
 
             // Create the command processor for failure
-            const failureMessage = "Imperative encountered an unexpected exception";
+            let failureMessage = "Imperative encountered an unexpected exception";
             const failCommand = new CommandProcessor({
                 definition: failedCommandDefinition,
                 fullDefinition: failedCommandDefinition,
                 helpGenerator: failHelpGenerator,
                 profileManagerFactory: this.profileManagerFactory,
                 rootCommandName: this.rootCommandName,
+                commandLine: this.commandLine,
                 envVariablePrefix: this.envVariablePrefix
             });
+
+            failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
+            const groupValues = this.commandLine.split(" ", 2);
+            failureMessage += `\nUse "${this.rootCommandName} ${groupValues[0]} ${groupValues[1]} --help" to view groups, commands, and options.`;
 
             // Construct the arguments
             const argv: Arguments = {
@@ -223,9 +230,59 @@ export class YargsConfigurer {
                 .then((failedCommandResponse) => {
                     logger.debug("Finished invoking the 'FailedCommand' handler");
                 }).catch((err) => {
-                    logger.error("%s", err.msg);
-                });
+                logger.error("%s", err.msg);
+            });
         });
+    }
+
+    /**
+     * Builds the failure message that is passed to the failedCommand handler
+     * @return {string} - Returns the failure message
+     */
+    private buildFailureMessage(closestCommand?: string) {
+
+        const three: number = 3;
+        let commands: string = "";
+        let groups: string = " "; // default to " " for proper spacing in message
+        let delimiter: string = ""; // used to delimit between possible 'command' values
+
+        let failureMessage = "Command failed due to improper syntax";
+        failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
+        // limit to three to include two levels of group and command value, if present
+        const groupValues = this.commandLine.split(" ", three);
+
+        // loop through the top level groups
+        for (const group of this.rootCommand.children) {
+            if ((group.name.trim() === groupValues[0]) || (group.aliases[0] === groupValues[0])) {
+                groups += groupValues[0] + " ";
+                // found the top level group so loop to see if second level group valid
+                for (const group2 of group.children) {
+                    if ((group2.name.trim() === groupValues[1]) || (group2.aliases[0] === groupValues[1])) {
+                        groups += groupValues[1] + " ";
+                        // second level group valid so command provided is invalid, retrieve the valid command(s)
+                        for (let i = 0; i < group2.children.length; i++) {
+                            if (i > 0) {
+                                delimiter = ", ";
+                            }
+                            commands += delimiter + group2.children[i].name;
+                        }
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        if (!isNullOrUndefined(closestCommand)) {
+            failureMessage += format("\nUnknown group: %s\n", groupValues[0]);
+            failureMessage += format("Did you mean: %s?", closestCommand);
+        }
+
+        if (commands.length > 0) {
+            failureMessage += `\nAvailable commands are "${commands}".`;
+        }
+        failureMessage += `\nUse "${this.rootCommandName}${groups}--help" to view groups, commands, and options.`;
+        return failureMessage;
     }
 
     // /**

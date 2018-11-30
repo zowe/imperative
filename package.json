@@ -99,7 +99,7 @@
     "gulp-debug": "3.1.0",
     "gulp-plumber": "1.1.0",
     "gulp-replace": "0.6.1",
-    "gulp-typedoc": "2.2.0",
+    "gulp-typedoc": "2.2.1",
     "gulp-util": "3.0.8",
     "is-url": "1.2.3",
     "jest": "21.2.1",

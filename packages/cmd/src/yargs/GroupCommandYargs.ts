@@ -63,6 +63,7 @@ export class GroupCommandYargs extends AbstractCommandYargs {
                                 profileManagerFactory: this.profileManagerFactory,
                                 experimentalCommandDescription: this.yargsParms.experimentalCommandDescription,
                                 rootCommandName: this.rootCommandName,
+                                commandLine: this.commandLine,
                                 envVariablePrefix: this.envVariablePrefix
                             }).defineCommandToYargs(commandExecuted);
                             break;
@@ -76,6 +77,7 @@ export class GroupCommandYargs extends AbstractCommandYargs {
                                 profileManagerFactory: this.profileManagerFactory,
                                 experimentalCommandDescription: this.yargsParms.experimentalCommandDescription,
                                 rootCommandName: this.rootCommandName,
+                                commandLine: this.commandLine,
                                 envVariablePrefix: this.envVariablePrefix
                             }).defineCommandToYargs(commandExecuted);
                             break;
