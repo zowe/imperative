@@ -29,8 +29,8 @@ import { Arguments } from "yargs";
 import { ICommandDefinition } from "../../src/doc/ICommandDefinition";
 import { OptionConstants } from "../constants/OptionConstants";
 import { inspect } from "util";
+import * as DeepMerge from "deepmerge";
 const DataObjectParser = require("dataobject-parser");
-const DeepMerge = require("deepmerge");
 
 /**
  * Command response object allocated by the command processor and used to construct the handler response object

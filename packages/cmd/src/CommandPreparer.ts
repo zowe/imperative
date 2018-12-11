@@ -18,7 +18,7 @@ import { ICommandOptionDefinition, ICommandPositionalDefinition } from "../../in
 import { ProfileUtils } from "../../profiles";
 import { TextUtils } from "../../utilities";
 import { OptionConstants } from "./constants/OptionConstants";
-const DeepMerge = require("deepmerge");
+import * as DeepMerge from "deepmerge";
 
 /**
  * Command preparer provides static utilities to ensure that command definitions are suitable for Imperative definition.
