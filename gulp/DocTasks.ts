@@ -14,7 +14,7 @@ let gulp: any;
 
 function loadDependencies() {
     typedoc = require("gulp-typedoc");
-    gulp = require('gulp');
+    gulp = require("gulp");
 }
 
 const generateTsdoc: ITaskFunction = () => {
@@ -27,7 +27,7 @@ const generateTsdoc: ITaskFunction = () => {
             out: "doc/tsdoc/",
             ignoreCompilerErrors: true
         }));
-}
+};
 
 generateTsdoc.description = "Generate TSDoc (JSDoc for TypeScript)";
 exports.generateTsdoc = generateTsdoc;
