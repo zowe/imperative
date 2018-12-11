@@ -30,7 +30,7 @@ import { ICommandDefinition } from "../../src/doc/ICommandDefinition";
 import { OptionConstants } from "../constants/OptionConstants";
 import { inspect } from "util";
 const DataObjectParser = require("dataobject-parser");
-const MergeObj = require("merge-objects");
+const DeepMerge = require("deepmerge");
 
 /**
  * Command response object allocated by the command processor and used to construct the handler response object
@@ -602,7 +602,7 @@ export class CommandResponse implements ICommandResponseApi {
                  * completely overwritten.
                  */
                 public setObj(data: any, merge = false) {
-                    outer.mData = (merge) ? MergeObj(outer.mData, data) : data;
+                    outer.mData = (merge) ? DeepMerge(outer.mData, data) : data;
                 }
 
                 /**

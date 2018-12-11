@@ -19,8 +19,7 @@ import { existsSync } from "fs";
 import { SettingsAlreadyInitialized, SettingsNotInitialized } from "../src/errors";
 import { readFileSync, writeFile } from "jsonfile";
 import { ISettingsFile } from "../src/doc/ISettingsFile";
-
-const mergeObjects = require("merge-objects");
+import * as DeepMerge from "deepmerge";
 
 /**
  * Type of all the keys in the app settings class
@@ -268,7 +267,7 @@ describe("AppSettings", () => {
             expect(mocks.writeFile).toHaveBeenCalledTimes(1);
             expect(mocks.writeFile).toHaveBeenCalledWith(
                 fileName,
-                mergeObjects(JSON.parse(JSON.stringify(defaultSettings)), testLoadSettings),
+                DeepMerge(JSON.parse(JSON.stringify(defaultSettings)), testLoadSettings),
                 {spaces: 2},
                 expect.any(Function)
             );
