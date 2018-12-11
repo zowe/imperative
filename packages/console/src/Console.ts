@@ -99,7 +99,7 @@ export class Console implements IConsole {
         return true;
     }
 
-    public info(message: string, ...args: any[]) {
+    public info(message: any, ...args: any[]) {
         if (!this.isInfoEnabled()) {
             return;
         }
@@ -113,7 +113,7 @@ export class Console implements IConsole {
         return this.writeStdout(adjustedMessage, args);
     }
 
-    public trace(message: string, ...args: any[]) {
+    public trace(message: any, ...args: any[]) {
         if (!this.isTraceEnabled()) {
             return;
         }
@@ -127,7 +127,7 @@ export class Console implements IConsole {
         return this.writeStdout(adjustedMessage, args);
     }
 
-    public debug(message: string, ...args: any[]) {
+    public debug(message: any, ...args: any[]) {
         if (!this.isDebugEnabled()) {
             return;
         }
@@ -141,7 +141,7 @@ export class Console implements IConsole {
         return this.writeStdout(adjustedMessage, args);
     }
 
-    public warn(message: string, ...args: any[]) {
+    public warn(message: any, ...args: any[]) {
         if (!this.isWarnEnabled()) {
             return;
         }
@@ -155,7 +155,7 @@ export class Console implements IConsole {
         return this.writeStderr(adjustedMessage, args);
     }
 
-    public error(message: string, ...args: any[]) {
+    public error(message: any, ...args: any[]) {
         if (!this.isErrorEnabled()) {
             return;
         }
@@ -169,7 +169,7 @@ export class Console implements IConsole {
         return this.writeStderr(adjustedMessage, args);
     }
 
-    public fatal(message: string, ...args: any[]) {
+    public fatal(message: any, ...args: any[]) {
         if (!this.isFatalEnabled()) {
             return;
         }
