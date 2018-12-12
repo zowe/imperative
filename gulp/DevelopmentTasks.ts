@@ -203,8 +203,8 @@ const build: ITaskFunction = (done) => {
                             " There may be security vulnerabilities in the dependencies.");
                         auditError.showStack = false;
                         gutil.log(gutil.colors.red("NPM audit failed"));
-                        // done(auditError);
-                        // return;
+                        done(auditError);
+                        return;
                     } else {
                         gutil.log(gutil.colors.blue("NPM audit passed"));
                     }

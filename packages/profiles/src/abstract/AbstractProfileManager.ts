@@ -531,9 +531,9 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
    * @returns {IProfile} - the merged profile
    */
   public mergeProfiles(oldProfile: IProfile, newProfile: IProfile): IProfile {
-    const mergeApi = require("merge-objects");
+    const DeepMerge = require("deepmerge");
     // clone both profiles while merging so that the originals are not modified
-    const mergedProfile = mergeApi(JSON.parse(JSON.stringify(oldProfile)), JSON.parse(JSON.stringify(newProfile)));
+    const mergedProfile = DeepMerge(JSON.parse(JSON.stringify(oldProfile)), JSON.parse(JSON.stringify(newProfile)));
 
     // there can only be one dependency per type,
     // but it's possible that the user only wants to

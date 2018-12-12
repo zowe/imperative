@@ -1,0 +1,23 @@
+=== npm audit security report ===                        
+                                                                                
+                                                                                
+                                 Manual Review                                  
+             Some vulnerabilities require your attention to resolve             
+                                                                                
+          Visit https://go.npm.me/audit-guide for additional guidance           
+                                                                                
+                                                                                
+  Low             Prototype Pollution                                           
+                                                                                
+  Package         lodash                                                        
+                                                                                
+  Patched in      >=4.17.5                                                      
+                                                                                
+  Dependency of   cli-table2                                                    
+                                                                                
+  Path            cli-table2 > lodash                                           
+                                                                                
+  More info       https://nodesecurity.io/advisories/577                        
+                                                                                
+found 1 low severity vulnerability in 24665 scanned packages
+  1 vulnerability requires manual review. See the full report for details.
