@@ -249,6 +249,7 @@ const runTestsWithPattern: ITaskFunction = (done: any) => {
 const removeTestResultsDir: ITaskFunction = (done: any) => {
     const rimraf = require("rimraf").sync;
     rimraf(testResultsDir);
+    done();
 };
 
 const installSampleClis: ITaskFunction = (done: any) => {
@@ -271,6 +272,7 @@ const installSampleClis: ITaskFunction = (done: any) => {
         }
         gutil.log(`Global install for "${dir}" cli completed successfully.`);
     });
+    done();
 };
 
 const uninstallSampleClis: ITaskFunction = (done: any) => {
@@ -294,6 +296,7 @@ const uninstallSampleClis: ITaskFunction = (done: any) => {
         }
         gutil.log(`Global uninstall for "${dir}" cli completed successfully.`);
     });
+    done();
 };
 
 function getDirectories(path: string) {
