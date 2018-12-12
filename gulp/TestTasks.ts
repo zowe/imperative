@@ -272,6 +272,7 @@ const installSampleClis: ITaskFunction = (done: any) => {
         }
         gutil.log(`Global install for "${dir}" cli completed successfully.`);
     });
+    gutil.log(`All sample CLIs installed`);
     done();
 };
 
