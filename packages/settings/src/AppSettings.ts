@@ -118,8 +118,8 @@ export class AppSettings {
         }
 
         // Merge objects loaded recursively
-        const mergeObjects = require("merge-objects");
-        this.settings = mergeObjects(defaultSettings, settings);
+        const DeepMerge = require("deepmerge");
+        this.settings = DeepMerge(defaultSettings, settings);
 
         Logger.getImperativeLogger().trace("Loaded Settings:");
         Logger.getImperativeLogger().trace(this.settings as any); // This works because someone does the object translation

@@ -565,11 +565,15 @@ describe("Command Response", () => {
         });
         const data: any = { theData: "test data" };
         const mergeData: any = { moreData: "more test data" };
+        const merged: any = {
+            theData: "test data",
+            moreData: "more test data"
+        };
         response.data.setObj(data);
         response.data.setObj(mergeData, true);
         expect(process.stdout.write).toHaveBeenCalledTimes(0);
         process.stdout.write = ORIGINAL_STDOUT_WRITE;
-        expect(response.buildJsonResponse().data).toEqual(data);
+        expect(response.buildJsonResponse().data).toEqual(merged);
         expect(response.buildJsonResponse()).toMatchSnapshot();
     });
 
