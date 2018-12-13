@@ -8,6 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 *
 */
+
 import { ICommandDefinition } from "../../../../../../../packages/index";
 
 export const profileMappingCommandNameType: ICommandDefinition = {

@@ -18,8 +18,7 @@ import { ICommandOptionDefinition, ICommandPositionalDefinition } from "../../in
 import { ProfileUtils } from "../../profiles";
 import { TextUtils } from "../../utilities";
 import { OptionConstants } from "./constants/OptionConstants";
-
-const mergeObj = require("merge-objects");
+import * as DeepMerge from "deepmerge";
 
 /**
  * Command preparer provides static utilities to ensure that command definitions are suitable for Imperative definition.
@@ -540,7 +539,7 @@ export class CommandPreparer {
                     if (trait.merge && Array.isArray(definition[trait.property])) {
                         definition[trait.property] = definition[trait.property].concat(cloned);
                     } else if (trait.merge && !isNullOrUndefined(definition[trait.property])) {
-                        definition[trait.property] = mergeObj(definition[trait.property], cloned);
+                        definition[trait.property] = DeepMerge(definition[trait.property], cloned);
                     } else {
                         definition[trait.property] = cloned;
                     }
