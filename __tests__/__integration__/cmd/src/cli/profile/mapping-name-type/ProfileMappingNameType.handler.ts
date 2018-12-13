@@ -8,6 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 *
 */
+
 import { ICommandHandler, IHandlerParameters } from "../../../../../../../packages/index";
 /**
  * Test of mapping of profile fields to options

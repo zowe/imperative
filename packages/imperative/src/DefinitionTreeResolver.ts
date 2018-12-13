@@ -56,7 +56,14 @@ export class DefinitionTreeResolver {
                     {
                         name: "version", aliases: ["V"],
                         description: "Display the current version of " + displayName,
-                        type: "boolean"
+                        type: "boolean",
+                        conflictsWith: ["available-commands"]
+                    },
+                    {
+                        name: "available-commands", aliases: ["ac"],
+                        description: "Displays a list of available commands",
+                        type: "boolean",
+                        conflictsWith: ["version"]
                     }
                 ],
                 handler: __dirname + "/handlers/DefaultRootCommandHandler",
