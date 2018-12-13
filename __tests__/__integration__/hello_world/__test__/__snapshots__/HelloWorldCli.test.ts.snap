@@ -26,6 +26,10 @@ exports[`Hello World should print help if the option is specified 1`] = `
 
       Display the current version of Hello World CLI!
 
+   --available-commands  | --ac (boolean)
+
+      Displays a list of available commands
+
  GLOBAL OPTIONS
  --------------
 
