@@ -11,7 +11,8 @@
 
 import { Imperative } from "../../../imperative/src/Imperative";
 import { ImperativeConfig } from "../../../imperative/src/ImperativeConfig";
-import { ICommandHandler, IHandlerParameters } from "../../../cmd";
+import { ICommandHandler, IHandlerParameters, ICommandTreeEntry, CommandUtils } from "../../../cmd";
+import { TextUtils } from "../../../utilities";
 /**
  * The default command handler for the top level/root command
  * Allows the user to check the version of the package.
@@ -27,6 +28,20 @@ export default class DefaultRootCommandHandler implements ICommandHandler {
                 params.response.console.log(packageJson.version);
             params.response.data.setObj({ version: versionString });
             params.response.data.setMessage("Version displayed");
+        } else if(params.arguments.availableCommands) {
+
+            // Gather and display the full set of commands available to the CLI with descriptions
+            const cmdList: ICommandTreeEntry[] = CommandUtils.flattenCommandTree(Imperative.fullCommandTree);
+            cmdList.forEach((cmd: ICommandTreeEntry) => {
+                if (cmd.command.type === "command") {
+                    params.response.console.log(Imperative.highlightWithPrimaryColor(`${Imperative.rootCommandName.trim()} ${cmd.fullName.trim()}`));
+                    params.response.console.log("");
+                    params.response.console.log(TextUtils.wordWrap(cmd.command.description,
+                        TextUtils.DEFAULT_WRAP_WIDTH,
+                        "\t"));
+                    params.response.console.log("");
+                }
+            });
         } else {
             params.response.console.log(Buffer.from(Imperative.getHelpGenerator({
                 commandDefinition: params.definition,

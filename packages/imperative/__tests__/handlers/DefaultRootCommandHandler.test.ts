@@ -13,10 +13,10 @@ jest.mock("../../../imperative/src/ImperativeConfig");
 jest.mock("../../../imperative/src/Imperative");
 
 import { TestLogger } from "../../../../__tests__/TestLogger";
-import { UnitTestUtils } from "../../../../__tests__/src/UnitTestUtils";
 import { ICommandDefinition, CommandResponse, CommandPreparer, ICommandHandler } from "../../../cmd";
 import { ICommandHandlerRequire } from "../../../cmd/src/doc/handler/ICommandHandlerRequire";
 import { ImperativeConfig } from "../../src/ImperativeConfig";
+import { Imperative } from "../../src/__mocks__/Imperative";
 (CommandResponse as any).spinnerChars = "-oO0)|(0Oo-";
 process.env.FORCE_COLOR = "0";
 
@@ -28,6 +28,31 @@ export const COMPLEX_COMMAND: ICommandDefinition = {
         {
             name: "test-command",
             description: "my command",
+            type: "command",
+            options: [
+                {
+                    name: "test-option",
+                    description: "the option",
+                    type: "string"
+                },
+                {
+                    name: "test-boolean",
+                    description: "the boolean option",
+                    type: "boolean"
+                }
+            ],
+            positionals: [
+                {
+                    name: "positional1",
+                    description: "the positional option",
+                    type: "string",
+                    required: false
+                }
+            ]
+        },
+        {
+            name: "test-command-2",
+            description: "my command 2",
             type: "command",
             options: [
                 {
@@ -88,6 +113,24 @@ describe("Default Root Command Handler", () => {
         });
         TestLogger.info("Help Text: \n" + cmdResp.buildJsonResponse().stdout);
         expect(cmdResp.buildJsonResponse().stdout.toString()).toMatchSnapshot();
+    });
+
+    it ("should display a list of available commands with --available-commands", async() => {
+        const cmdResp: CommandResponse = new CommandResponse({
+            primaryTextColor: "yellow",
+            silent: true
+        });
+        const commandHandler: ICommandHandlerRequire = require("../../src/handlers/DefaultRootCommandHandler");
+        const handler: ICommandHandler = new commandHandler.default();
+        await handler.process({
+            response: cmdResp,
+            arguments: {_: [], $0: "", availableCommands: true},
+            definition: MULTIPLE_GROUPS,
+            fullDefinition: MULTIPLE_GROUPS,
+            profiles: undefined
+        });
+        expect(cmdResp.buildJsonResponse().stdout.toString()).toMatchSnapshot();
+        expect(cmdResp.buildJsonResponse()).toMatchSnapshot();
     });
 
     it("should display the version if --version is specified", async () => {

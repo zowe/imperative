@@ -35,6 +35,13 @@ describe("cmd-cli", () => {
         expect(response.stdout.toString()).toMatchSnapshot();
     });
 
+    it("should show a list of available commands", async () => {
+        const response = runCliScript(__dirname + "/__scripts__/available_commands.sh", TEST_ENVIRONMENT.workingDir);
+        expect(response.status).toBe(0);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.stdout.toString()).toMatchSnapshot();
+    });
+
     it("should flag an invalid group and give a close suggestion", async () => {
         const response = runCliScript(__dirname + "/__scripts__/invalid_command.sh", TEST_ENVIRONMENT.workingDir);
         expect(response.status).toBe(1);
