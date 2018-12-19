@@ -27,6 +27,7 @@ import { ImperativeReject } from "../../interfaces";
 import { LoggingConfigurer } from "./LoggingConfigurer";
 import { ImperativeError } from "../../error";
 import { PluginManagementFacility } from "./plugins/PluginManagementFacility";
+import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
 import {
     CliProfileManager,
     CommandYargs,
@@ -135,6 +136,9 @@ export class Imperative {
                         " or your package.json could not be found. " +
                         "Defaulting command name to filepath instead.");
                 }
+
+                //
+                ConfigManagementFacility.instance.init();
 
                 // If plugins are allowed, enable core plugins commands
                 if (config.allowPlugins) {
