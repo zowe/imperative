@@ -276,7 +276,7 @@ describe("We should provide auto-generated profile commands for convenience, " +
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
 
         T.findExpectedOutputInCommand(cliBin, ["profiles", "validate", manyFieldProfile, profileName],
-            ["perfect"],
+            ["perfect", profileName, "many-fields-profile"],
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
 
     });

@@ -14,6 +14,7 @@ import { ICommandHandler, IHandlerParameters } from "../../../../cmd";
 import { IImperativeError, ImperativeError } from "../../../../error";
 import { Imperative } from "../../../index";
 import {
+    BasicProfileManager,
     IProfileValidationPlan,
     IProfileValidationReport,
     IProfileValidationTask,
@@ -39,6 +40,18 @@ export default class ValidateProfileHandler implements ICommandHandler {
 
         const profileType = params.definition.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY];
         const profileToValidate = params.profiles.get(profileType);
+
+        let profileName = new BasicProfileManager({
+            loadCounter: new Map<string, number>(), logger: Logger.getImperativeLogger(),
+            type: profileType, profileRootDirectory: ImperativeConfig.instance.cliHome,
+            productDisplayName: ImperativeConfig.instance.loadedConfig.productDisplayName,
+            typeConfigurations: ImperativeConfig.instance.loadedConfig.profiles
+        }).getDefaultProfileName();
+
+        // if the user specified a specifc profile, we can determine the name of the profile from that
+        if (params.arguments[profileType + "-profile"] != null) {
+            profileName = params.arguments[profileType + "-profile"];
+        }
         let plan: IProfileValidationPlan;
         try {
             // load the definition of the plan from the specified file path
@@ -58,8 +71,8 @@ export default class ValidateProfileHandler implements ICommandHandler {
 
         // if the user just requested that we print the plan rather than actually validate the profile
         if (params.arguments[ProfileValidator.PRINT_PLAN_OPTION.name]) {
-            // TODO - Get a logger and log this
-            // params.response.log.debug("Printed plan for profile validation requested");
+
+            Logger.getImperativeLogger().debug("Printed plan for profile validation requested");
             params.response.console.log(Buffer.from(ProfileValidator.getTextDisplayForPlan(plan, profileToValidate,
                 ImperativeConfig.instance.loadedConfig.primaryTextColor)));
 
@@ -86,8 +99,12 @@ export default class ValidateProfileHandler implements ICommandHandler {
             params.response.progress.startBar({task: promise.progress});
             report = await promise;
             params.response.data.setObj(report);
-            params.response.console.log(Buffer.from(ProfileValidator.getTextDisplayForReport(report, plan,
-                ImperativeConfig.instance.loadedConfig.productDisplayName, ImperativeConfig.instance.loadedConfig.primaryTextColor)));
+            const reportText = Buffer.from(ProfileValidator.getTextDisplayForReport(report, plan,
+                ImperativeConfig.instance.loadedConfig.productDisplayName,
+                ImperativeConfig.instance.loadedConfig.primaryTextColor,
+                profileName,
+                profileType));
+            params.response.console.log(reportText);
         } catch (validateError) {
             const unexpectedError: IImperativeError = {
                 msg: "Encountered an unexpected exception " +
@@ -99,7 +116,7 @@ export default class ValidateProfileHandler implements ICommandHandler {
             throw new ImperativeError(unexpectedError);
         }
         if (report.overallResult !== "OK") {
-            throw new ImperativeError({ msg: "The profile validation was not successful" });
+            throw new ImperativeError({msg: "The profile validation was not successful"});
         }
     }
 
