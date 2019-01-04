@@ -408,7 +408,8 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
                 failureSuggestions: failureSuggestion
             };
             ProfileValidator.validate(dummyProfile, plan, displayName).then((report: IProfileValidationReport) => {
-                    const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow");
+                    const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow",
+                        "dummy", "dummy");
                     const tenChars = 10;
                     // each word of the failure suggestions should appear (tabular format
                     // so the characters don't appear together)
