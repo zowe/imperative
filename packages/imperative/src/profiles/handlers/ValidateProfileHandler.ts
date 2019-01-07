@@ -14,7 +14,6 @@ import { ICommandHandler, IHandlerParameters } from "../../../../cmd";
 import { IImperativeError, ImperativeError } from "../../../../error";
 import { Imperative } from "../../../index";
 import {
-    BasicProfileManager,
     IProfileValidationPlan,
     IProfileValidationReport,
     IProfileValidationTask,
@@ -23,7 +22,6 @@ import {
 } from "../../../../profiles";
 import { Logger } from "../../../../logger";
 import { ImperativeConfig } from "../../ImperativeConfig";
-import { join } from "path";
 
 /**
  * Generic handler for validating a profile and printing a report in response
@@ -41,12 +39,7 @@ export default class ValidateProfileHandler implements ICommandHandler {
 
         const profileType = params.definition.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY];
 
-        const manager = new BasicProfileManager({
-            loadCounter: new Map<string, number>(), logger: Logger.getImperativeLogger(),
-            type: profileType, profileRootDirectory: join(ImperativeConfig.instance.cliHome, "profiles"),
-            productDisplayName: ImperativeConfig.instance.loadedConfig.productDisplayName,
-            typeConfigurations: ImperativeConfig.instance.loadedConfig.profiles
-        });
+        const manager = Imperative.api.profileManager(profileType);
         let profileName = manager.getDefaultProfileName();
 
         // if the user specified a specific profile, we can determine the name of the profile from that
