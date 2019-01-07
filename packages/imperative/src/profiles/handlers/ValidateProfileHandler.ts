@@ -53,7 +53,7 @@ export default class ValidateProfileHandler implements ICommandHandler {
             profileName = params.arguments.profileName;
         }
 
-        const profileToValidate = manager.load({failNotFound: true, name: profileName});
+        const profileToValidate = (await manager.load({failNotFound: true, name: profileName})).profile;
         let plan: IProfileValidationPlan;
         try {
             // load the definition of the plan from the specified file path
