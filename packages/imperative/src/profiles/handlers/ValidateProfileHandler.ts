@@ -23,6 +23,7 @@ import {
 } from "../../../../profiles";
 import { Logger } from "../../../../logger";
 import { ImperativeConfig } from "../../ImperativeConfig";
+import { join } from "path";
 
 /**
  * Generic handler for validating a profile and printing a report in response
@@ -42,7 +43,7 @@ export default class ValidateProfileHandler implements ICommandHandler {
 
         const manager = new BasicProfileManager({
             loadCounter: new Map<string, number>(), logger: Logger.getImperativeLogger(),
-            type: profileType, profileRootDirectory: ImperativeConfig.instance.cliHome,
+            type: profileType, profileRootDirectory: join(ImperativeConfig.instance.cliHome, "profiles"),
             productDisplayName: ImperativeConfig.instance.loadedConfig.productDisplayName,
             typeConfigurations: ImperativeConfig.instance.loadedConfig.profiles
         });
