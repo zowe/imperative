@@ -310,7 +310,7 @@ export class ProfileValidator {
         }
 
         text += TextUtils.wordWrap(TextUtils.formatMessage("The %s profile named \"%s\" %s\n",
-            profileType, profileName, outcomeMessage));
+            profileType + "", profileName + "", outcomeMessage));
         return text;
     }
 
