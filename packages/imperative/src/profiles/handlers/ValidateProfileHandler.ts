@@ -39,19 +39,21 @@ export default class ValidateProfileHandler implements ICommandHandler {
     public async process(params: IHandlerParameters): Promise<void> {
 
         const profileType = params.definition.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY];
-        const profileToValidate = params.profiles.get(profileType);
 
-        let profileName = new BasicProfileManager({
+        const manager = new BasicProfileManager({
             loadCounter: new Map<string, number>(), logger: Logger.getImperativeLogger(),
             type: profileType, profileRootDirectory: ImperativeConfig.instance.cliHome,
             productDisplayName: ImperativeConfig.instance.loadedConfig.productDisplayName,
             typeConfigurations: ImperativeConfig.instance.loadedConfig.profiles
-        }).getDefaultProfileName();
+        });
+        let profileName = manager.getDefaultProfileName();
 
-        // if the user specified a specifc profile, we can determine the name of the profile from that
-        if (params.arguments[profileType + "-profile"] != null) {
-            profileName = params.arguments[profileType + "-profile"];
+        // if the user specified a specific profile, we can determine the name of the profile from that
+        if (params.arguments.profileName != null) {
+            profileName = params.arguments.profileName;
         }
+
+        const profileToValidate = manager.load({failNotFound: true, name: profileName});
         let plan: IProfileValidationPlan;
         try {
             // load the definition of the plan from the specified file path

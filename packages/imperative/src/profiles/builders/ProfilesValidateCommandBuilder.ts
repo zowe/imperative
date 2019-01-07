@@ -69,9 +69,6 @@ export class ProfilesValidateCommandBuilder extends ProfilesCommandBuilder {
             handler: __dirname + "/../handlers/ValidateProfileHandler",
             customize: {},
             options: [ProfileValidator.PRINT_PLAN_OPTION],
-            profile: {
-                required: [this.mProfileType]
-            },
             positionals: [{
                 name: Constants.PROFILE_NAME_OPTION,
                 description: TextUtils.formatMessage(deleteProfileNameDesc.message,
