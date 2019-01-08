@@ -19,7 +19,7 @@ import { join } from "path";
 export const setDefinition: ICommandDefinition = {
   name: "set",
   type: "command",
-  handler: join(__dirname, "set.common.handler"),
+  handler: join(__dirname, "set.handler"),
   summary: "Set configuration items",
   description: "Set configuration items for Imperative CLI",
   positionals: [
