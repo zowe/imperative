@@ -12,11 +12,6 @@
 jest.mock("../../../../../settings/src/AppSettings");
 
 import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
-import { Console } from "../../../../../console";
-import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
-import SetHandler from "../../../../src/config/cmd/set/set.handler";
-import { Logger } from "../../../../../logger/";
-import { readFileSync } from "jsonfile";
 import { AppSettings } from "../../../../../settings";
 
 describe("Config management set handler", () => {

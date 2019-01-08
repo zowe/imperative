@@ -13,7 +13,6 @@ import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { Logger } from "../../../../../logger/";
 import { ImperativeError } from "../../../../../error";
 import { AppSettings } from "../../../../../settings/src/AppSettings";
-import { Imperative } from "../../../Imperative";
 
 
 /**
