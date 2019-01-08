@@ -42,7 +42,7 @@ export default class ResetHandler implements ICommandHandler {
 
     switch(params.arguments.configName){
       case ResetHandler.RESET_CREGENTIAL_MANAGER:
-        this.resetCredentialManager();
+        await this.resetCredentialManager();
         break;
       default :
         throw new ImperativeError({
