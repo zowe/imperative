@@ -19,7 +19,7 @@ import { join } from "path";
 export const resetDefinition: ICommandDefinition = {
   name: "reset",
   type: "command",
-  handler: join(__dirname, "reset.common.handler"),
+  handler: join(__dirname, "reset.handler"),
   summary: "Reset configuration items",
   description: "Reset configuration items for Imperative CLI",
   positionals: [
