@@ -137,7 +137,7 @@ export class Imperative {
                         "Defaulting command name to filepath instead.");
                 }
 
-                //
+                // Enable configuration management commands
                 ConfigManagementFacility.instance.init();
 
                 // If plugins are allowed, enable core plugins commands
