@@ -49,10 +49,6 @@ Object {
 }
 `;
 
-exports[`Command Profiles should detect a profile type mismatch 1`] = `"Expect Error: Command Profiles Internal Error: A profile supplied for type \\"banana\\" indicates a type of \\"strawberry\\""`;
-
-exports[`Command Profiles should detect a profile type mismatch 2`] = `"Expect Error: Command Profiles Internal Error: A profile supplied for type \\"banana\\" indicates a type of \\"strawberry\\""`;
-
 exports[`Command Profiles should detect missing parameters 1`] = `"Expect Error: Command Profiles Internal Error: No map was supplied."`;
 
 exports[`Command Profiles should detect that the parameters are not a map 1`] = `"Expect Error: Command Profiles Internal Error: The \\"map\\" supplied is not an instance of a map."`;
