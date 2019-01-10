@@ -183,7 +183,6 @@ describe("Imperative", () => {
             await Imperative.init();
 
             expect(ConfigManagementFacility.instance.init).toHaveBeenCalledTimes(1);
-            expect(mocks.ImperativeConfig.instance.addCmdGrpToLoadedConfig).toHaveBeenCalledTimes(1);
           });
         });
 
