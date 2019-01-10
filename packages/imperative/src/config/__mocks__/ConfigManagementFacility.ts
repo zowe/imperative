@@ -12,6 +12,6 @@
 const ConfigManagementFacility: any =
     (jest.genMockFromModule("../ConfigManagementFacility") as any).ConfigManagementFacility;
 
-    ConfigManagementFacility.instance = new ConfigManagementFacility();
+ConfigManagementFacility.instance = new ConfigManagementFacility();
 
 exports.ConfigManagementFacility = ConfigManagementFacility;
