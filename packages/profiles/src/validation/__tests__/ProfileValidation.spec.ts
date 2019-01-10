@@ -86,7 +86,8 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
         };
 
         return ProfileValidator.validate(dummyProfile, plan, displayName).then((report: IProfileValidationReport) => {
-            const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow");
+            const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow",
+                "dummy", "dummy");
             TestLogger.info(textReport);
             expect(report.overallResult).toEqual("Failed");
             expect(anyTaskRun).toBeFalsy();
@@ -147,7 +148,8 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
 
         return ProfileValidator.validate(dummyProfile, plan, displayName)
             .then((report: IProfileValidationReport) => {
-                const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow");
+                const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow",
+                    "dummy", "dummy");
                 expect(report.overallResult).toEqual("Warning");
                 expect(anyTaskRun).toBeFalsy();
                 expect(textReport).toContain("ambiguous results");
@@ -204,7 +206,8 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
         };
 
         return ProfileValidator.validate(dummyProfile, plan, displayName).then((report: IProfileValidationReport) => {
-            const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow");
+            const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow",
+                "dummy", "dummy");
             expect(report.overallResult).toEqual("Failed");
             expect(textReport).toContain("will not function");
         });
@@ -258,7 +261,8 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
 
 
         return ProfileValidator.validate(dummyProfile, goodPlan, displayName).then((report: IProfileValidationReport) => {
-            const textReport = ProfileValidator.getTextDisplayForReport(report, goodPlan, displayName, "yellow");
+            const textReport = ProfileValidator.getTextDisplayForReport(report, goodPlan, displayName, "yellow",
+                "dummy", "dummy");
             TestLogger.info(textReport);
             expect(report.overallResult).toEqual("OK");
             expect(textReport).toContain("valid and ready");
@@ -316,7 +320,8 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
         };
 
         return ProfileValidator.validate(dummyProfile, plan, displayName).then((report: IProfileValidationReport) => {
-            const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow");
+            const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow",
+                "dummy", "dummy");
             TestLogger.info(textReport);
             expect(report.taskResults[0].resultDescription).toContain(errorMessage);
             expect(report.overallResult).toEqual("Failed");
@@ -372,7 +377,8 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
                 }]
             };
             ProfileValidator.validate(dummyProfile, plan, displayName).then((report: IProfileValidationReport) => {
-                const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow");
+                const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow",
+                    "dummy", "dummy");
                 const tenChars = 10;
                 expect(textReport).toContain(longDescription.substring(0, tenChars)); // expect the report to have
                 // at least ten characters in a row of the description (Could test more but it's in a tabular format
@@ -402,7 +408,8 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
                 failureSuggestions: failureSuggestion
             };
             ProfileValidator.validate(dummyProfile, plan, displayName).then((report: IProfileValidationReport) => {
-                    const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow");
+                    const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow",
+                        "dummy", "dummy");
                     const tenChars = 10;
                     // each word of the failure suggestions should appear (tabular format
                     // so the characters don't appear together)
