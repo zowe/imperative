@@ -10,12 +10,75 @@
 */
 
 import { TextUtils } from "../../../utilities/";
-import { AbstractHelpGenerator, DefaultHelpGenerator, IHelpGeneratorParms } from "../../../cmd";
+import { AbstractHelpGenerator, DefaultHelpGenerator, IHelpGeneratorParms, ICommandDefinition } from "../../../cmd";
 import { IImperativeConfig } from "../doc/IImperativeConfig";
 
 const PRIMARY_COLOR: string = "yellow";
 
+export const MOCKED_COMMAND_TREE: ICommandDefinition = {
+    name: "test-group",
+    description: "a test group",
+    type: "group",
+    children: [
+        {
+            name: "test-command-one",
+            description: "test command one",
+            type: "command",
+            options: [
+                {
+                    name: "test-option",
+                    description: "the option",
+                    type: "string"
+                },
+                {
+                    name: "test-boolean",
+                    description: "the boolean option",
+                    type: "boolean"
+                }
+            ],
+            positionals: [
+                {
+                    name: "positional1",
+                    description: "the positional option",
+                    type: "string",
+                    required: false
+                }
+            ]
+        },
+        {
+            name: "test-command-two",
+            description: "test command two",
+            type: "command",
+            options: [
+                {
+                    name: "test-option",
+                    description: "the option",
+                    type: "string"
+                },
+                {
+                    name: "test-boolean",
+                    description: "the boolean option",
+                    type: "boolean"
+                }
+            ],
+            positionals: [
+                {
+                    name: "positional1",
+                    description: "the positional option",
+                    type: "string",
+                    required: false
+                }
+            ]
+        }
+    ]
+};
+
 export class Imperative {
+
+    public static get fullCommandTree(): ICommandDefinition {
+        return MOCKED_COMMAND_TREE;
+    }
+
     public static get loadedConfig(): IImperativeConfig {
         return this.mLoadedConfig;
     }
