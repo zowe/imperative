@@ -137,8 +137,10 @@ export class Imperative {
                         "Defaulting command name to filepath instead.");
                 }
 
-                //
-                ConfigManagementFacility.instance.init();
+                // If config group is enabled add config commands
+                if (config.allowConfigGroup) {
+                    ConfigManagementFacility.instance.init();
+                }
 
                 // If plugins are allowed, enable core plugins commands
                 if (config.allowPlugins) {

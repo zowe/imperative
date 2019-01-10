@@ -29,6 +29,7 @@ describe("Imperative", () => {
             jest.doMock("../src/ConfigurationValidator");
             jest.doMock("../src/help/ImperativeHelpGeneratorFactory");
             jest.doMock("../src/ImperativeConfig");
+            jest.doMock("../src/config/ConfigManagementFacility");
             jest.doMock("../src/plugins/PluginManagementFacility");
             jest.doMock("../../settings/src/AppSettings");
             jest.doMock("../../logger/src/Logger");
@@ -40,6 +41,7 @@ describe("Imperative", () => {
             const ConfigurationValidator = require("../src/ConfigurationValidator").ConfigurationValidator.validate;
             const {AppSettings} = require("../../settings");
             const {ImperativeConfig} = require("../src/ImperativeConfig");
+            const {ConfigManagementFacility} = require("../src/config/ConfigManagementFacility");
             const {PluginManagementFacility} = require("../src/plugins/PluginManagementFacility");
             const {Logger} = require("../../logger");
             const {EnvironmentalVariableSettings} = require("../src/env/EnvironmentalVariableSettings");
@@ -58,6 +60,7 @@ describe("Imperative", () => {
                     initialize: AppSettings.initialize as Mock<typeof AppSettings.initialize>
                 },
                 ImperativeConfig,
+                ConfigManagementFacility,
                 PluginManagementFacility,
                 LoggingConfigurer,
                 Logger,
@@ -91,6 +94,7 @@ describe("Imperative", () => {
         let defaultConfig = {
             name: "test-cli",
             allowPlugins: false,
+            allowConfigGroup: false,
             overrides: {
                 CredentialManager: "some-string.ts"
             }
@@ -100,6 +104,7 @@ describe("Imperative", () => {
             defaultConfig = {
                 name: "test-cli",
                 allowPlugins: false,
+                allowConfigGroup: false,
                 overrides: {
                     CredentialManager: "some-string.ts"
                 }
@@ -165,6 +170,22 @@ describe("Imperative", () => {
                 jest.dontMock("jsonfile");
             });
         }); // End AppSettings
+
+        describe("Config", () => {
+          let ConfigManagementFacility = mocks.ConfigManagementFacility;
+
+          beforeEach(() => {
+              defaultConfig.allowConfigGroup = true;
+              ConfigManagementFacility = mocks.ConfigManagementFacility;
+          });
+
+          it("should call config functions when config group is allowed", async () => {
+            await Imperative.init();
+
+            expect(ConfigManagementFacility.instance.init).toHaveBeenCalledTimes(1);
+            expect(mocks.ImperativeConfig.instance.addCmdGrpToLoadedConfig).toHaveBeenCalledTimes(1);
+          });
+        });
 
         describe("Plugins", () => {
             let PluginManagementFacility = mocks.PluginManagementFacility;

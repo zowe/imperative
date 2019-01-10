@@ -26,6 +26,14 @@ export interface IImperativeConfig {
     allowPlugins?: boolean;
 
     /**
+     * Boolean flag control whether config command group is enabled or disabled.
+     * This option is assumed to be true by default.
+     * @type {boolean}
+     * @memberof IImperativeConfig
+     */
+    allowConfigGroup?: boolean;
+
+    /**
      * A path to a module (javascript file) that will return a complete IImperativeConfig
      * object. If you use this option, anything else you specify in package.json
      * or your manually provided config object (i.e. Imperative.init({...}) will
