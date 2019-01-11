@@ -13,7 +13,13 @@ import { ImperativeConfig } from "../ImperativeConfig";
 import { Logger } from "../../../logger";
 
 export class ConfigManagementFacility {
-    //
+    /**
+     * This is the variable that stores the specific instance of the CMF. Defined
+     * as static so that it can be accessed from anywhere.
+     *
+     * @private
+     * @type {ConfigManagementFacility}
+     */
     private static mInstance: ConfigManagementFacility;
 
     /**
