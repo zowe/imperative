@@ -12,6 +12,11 @@
 import { ImperativeConfig } from "../ImperativeConfig";
 import { Logger } from "../../../logger";
 
+/**
+ * This class is the main engine for the Config Management Facility. The
+ * underlying class should be treated as a singleton and should be accessed
+ * via ConfigManagementFacility.instance.
+ */
 export class ConfigManagementFacility {
     /**
      * This is the variable that stores the specific instance of the CMF. Defined
@@ -30,6 +35,13 @@ export class ConfigManagementFacility {
      */
     private impLogger: Logger = Logger.getImperativeLogger();
 
+    /**
+     * Gets a single instance of the CMF. On the first call of
+     * ConfigManagementFacility.instance, a new CMF is initialized and returned.
+     * Every subsequent call will use the one that was first created.
+     *
+     * @returns {ConfigManagementFacility} - The newly initialized CMF object.
+     */
     public static get instance(): ConfigManagementFacility {
         if (this.mInstance == null) {
             this.mInstance = new ConfigManagementFacility();
@@ -38,6 +50,10 @@ export class ConfigManagementFacility {
         return this.mInstance;
     }
 
+    /**
+     * Initialize the CMF. Must be called to enable the various commands provided
+     * by the facility.
+     */
     public init(): void {
         this.impLogger.debug("ConfigManagementFacility.init() - Start");
 

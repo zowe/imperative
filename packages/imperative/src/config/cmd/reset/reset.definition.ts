@@ -17,17 +17,17 @@ import { join } from "path";
  * @type {ICommandDefinition}
  */
 export const resetDefinition: ICommandDefinition = {
-  name: "reset",
-  type: "command",
-  handler: join(__dirname, "reset.handler"),
-  summary: "Reset configuration items",
-  description: "Reset configuration items for Imperative CLI",
-  positionals: [
-    {
-      name: "configName",
-      type: "string",
-      description: "Setting name to reset",
-      required: true
-    },
-  ]
+    name: "reset",
+    type: "command",
+    handler: join(__dirname, "reset.handler"),
+    summary: "Reset configuration items",
+    description: "Reset configuration items for Imperative CLI",
+    positionals: [
+        {
+        name: "configName",
+        type: "string",
+        description: "Setting name to reset",
+        required: true
+        },
+    ]
 };

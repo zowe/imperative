@@ -20,38 +20,47 @@ import { AppSettings } from "../../../../../settings/src/AppSettings";
  *
  */
 export default class SetHandler implements ICommandHandler {
-  private static CONFIG_CREGENTIAL_MANAGER: string = "credential-manager";
 
-  /**
-   * A logger for this class
-   *
-   * @private
-   * @type {Logger}
-   */
-  private log: Logger = Logger.getImperativeLogger();
+    // Variable with which to compare the input of the set command for the switch
+    private static CONFIG_CREGENTIAL_MANAGER: string = "credential-manager";
 
-  /**
-   * Process the command and input.
-   *
-   * @param {IHandlerParameters} params Parameters supplied by yargs
-   *
-   * @throws {ImperativeError}
-   */
-  public async process(params: IHandlerParameters): Promise<void> {
+    /**
+     * A logger for this class
+     *
+     * @private
+     * @type {Logger}
+     */
+    private log: Logger = Logger.getImperativeLogger();
 
-    switch(params.arguments.configName){
-      case SetHandler.CONFIG_CREGENTIAL_MANAGER:
-        this.overrideCredentialManager(params.arguments.configValue);
-        break;
-      default :
-        throw new ImperativeError({
-          msg: "The setting you tried to change does not exist.",
-          additionalDetails: JSON.stringify(params)
-        });
+    /**
+     * Process the command and input.
+     *
+     * @param {IHandlerParameters} params Parameters supplied by yargs
+     *
+     * @throws {ImperativeError}
+     */
+    public async process(params: IHandlerParameters): Promise<void> {
+
+        switch(params.arguments.configName){
+        case SetHandler.CONFIG_CREGENTIAL_MANAGER:
+            this.overrideCredentialManager(params.arguments.configValue);
+            break;
+        default :
+            throw new ImperativeError({
+            msg: "The setting you tried to change does not exist.",
+            additionalDetails: JSON.stringify(params)
+            });
+        }
     }
-  }
 
-  private async overrideCredentialManager(value: string) {
-    await AppSettings.instance.setNewOverride("CredentialManager", value);
-  }
+    /**
+     * Override the credential manager with the string provided.
+     *
+     * @param {string} value - new credential manager value to be set
+     *
+     * @throws {ImperativeError}
+     */
+    private async overrideCredentialManager(value: string) {
+        await AppSettings.instance.setNewOverride("CredentialManager", value);
+    }
 }

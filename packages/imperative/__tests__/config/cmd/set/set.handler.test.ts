@@ -16,41 +16,41 @@ import { AppSettings } from "../../../../../settings";
 
 describe("Config management set handler", () => {
 
-  afterEach(() => {
-    // Mocks need cleared after every test for clean test runs
-    jest.resetAllMocks();
-  });
+    afterEach(() => {
+        // Mocks need cleared after every test for clean test runs
+        jest.resetAllMocks();
+    });
 
-  /**
-   *  Create object to be passed to process function
-   *
-   * @returns {IHandlerParameters}
-   */
-  const getIHandlerParametersObject = (): IHandlerParameters => {
-    const x: any = {
-      response: new (CommandResponse as any)(),
-      arguments: {
-        configName: "credential-manager",
-        configValue: "test123"
-      },
+    /**
+     *  Create object to be passed to process function
+     *
+     * @returns {IHandlerParameters}
+     */
+    const getIHandlerParametersObject = (): IHandlerParameters => {
+        const x: any = {
+        response: new (CommandResponse as any)(),
+        arguments: {
+            configName: "credential-manager",
+            configValue: "test123"
+        },
+        };
+        return x as IHandlerParameters;
     };
-    return x as IHandlerParameters;
-  };
 
-  it("should set credential manager", async () => {
+    it("should set credential manager", async () => {
 
-    const handlerReq = require("../../../../src/config/cmd/set/set.handler");
-    const handler = new handlerReq.default();
+        const handlerReq = require("../../../../src/config/cmd/set/set.handler");
+        const handler = new handlerReq.default();
 
-    const params = getIHandlerParametersObject();
+        const params = getIHandlerParametersObject();
 
-    const appSettings = AppSettings.initialize("foo");
+        const appSettings = AppSettings.initialize("foo");
 
-    await handler.process(params as IHandlerParameters);
+        await handler.process(params as IHandlerParameters);
 
-    expect(appSettings.setNewOverride).toHaveBeenCalledWith("CredentialManager", "test123");
-    expect(appSettings.settings.overrides).toBeDefined();
-    expect(appSettings.settings.overrides.CredentialManager).toEqual("test123");
-  });
+        expect(appSettings.setNewOverride).toHaveBeenCalledWith("CredentialManager", "test123");
+        expect(appSettings.settings.overrides).toBeDefined();
+        expect(appSettings.settings.overrides.CredentialManager).toEqual("test123");
+    });
 });
 

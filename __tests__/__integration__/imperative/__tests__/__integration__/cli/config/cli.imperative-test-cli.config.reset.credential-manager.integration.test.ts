@@ -32,8 +32,8 @@ describe("imperative-test-cli config reset credential-manager", () => {
 
     it("should reset credential manager to the default value", () => {
         const response = runCliScript(__dirname + "/__scripts__/reset_credential_manager.sh", TEST_ENVIRONMENT.workingDir);
-        expect(response.status).toBe(0);
         expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
 
         const settings = fs.readFileSync(TEST_ENVIRONMENT.workingDir + IMP_SETTINGS).toString();
         expect(settings).toContain(`"CredentialManager": false`);

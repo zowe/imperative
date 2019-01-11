@@ -17,23 +17,23 @@ import { join } from "path";
  * @type {ICommandDefinition}
  */
 export const setDefinition: ICommandDefinition = {
-  name: "set",
-  type: "command",
-  handler: join(__dirname, "set.handler"),
-  summary: "Set configuration items",
-  description: "Set configuration items for Imperative CLI",
-  positionals: [
-    {
-      name: "configName",
-      type: "string",
-      description: "Setting name",
-      required: true
-    },
-    {
-      name: "configValue",
-      type: "string",
-      description: "Value to set",
-      required: true
-    },
-  ]
+    name: "set",
+    type: "command",
+    handler: join(__dirname, "set.handler"),
+    summary: "Set configuration items",
+    description: "Set configuration items for Imperative CLI",
+    positionals: [
+        {
+        name: "configName",
+        type: "string",
+        description: "Setting name",
+        required: true
+        },
+        {
+        name: "configValue",
+        type: "string",
+        description: "Value to set",
+        required: true
+        },
+    ]
 };
