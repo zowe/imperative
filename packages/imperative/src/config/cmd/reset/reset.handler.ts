@@ -21,7 +21,9 @@ import { AppSettings } from "../../../../../settings/src/AppSettings";
  */
 export default class ResetHandler implements ICommandHandler {
 
-    // Variable with which to compare the input of the reset command for the switch
+    /*
+     * A variable with which to compare the input of the reset command for the switch
+     */
     private static RESET_CREGENTIAL_MANAGER: string = "credential-manager";
 
     /**

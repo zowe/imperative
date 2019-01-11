@@ -21,7 +21,9 @@ import { AppSettings } from "../../../../../settings/src/AppSettings";
  */
 export default class SetHandler implements ICommandHandler {
 
-    // Variable with which to compare the input of the set command for the switch
+    /*
+     * A variable with which to compare the input of the set command for the switch
+     */
     private static CONFIG_CREGENTIAL_MANAGER: string = "credential-manager";
 
     /**
