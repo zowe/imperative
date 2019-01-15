@@ -18,10 +18,11 @@ import { join } from "path";
  */
 export const setDefinition: ICommandDefinition = {
     name: "set",
+    aliases: ["se"],
     type: "command",
     handler: join(__dirname, "set.handler"),
-    summary: "Set configuration items",
-    description: "Set configuration items for Imperative CLI",
+    summary: "Set a configuration setting.",
+    description: "Set a configuration setting",
     positionals: [
         {
         name: "configName",
@@ -35,5 +36,11 @@ export const setDefinition: ICommandDefinition = {
         description: "Value to set",
         required: true
         },
-    ]
+    ],
+    examples: [
+        {
+            options: "credential-manager @brightside/keytar",
+            description: "Set the default credential manager to @brightside/keytar"
+        }
+    ],
 };

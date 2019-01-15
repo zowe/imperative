@@ -18,10 +18,11 @@ import { join } from "path";
  */
 export const resetDefinition: ICommandDefinition = {
     name: "reset",
+    aliases: ["re"],
     type: "command",
     handler: join(__dirname, "reset.handler"),
-    summary: "Reset configuration items",
-    description: "Reset configuration items for Imperative CLI",
+    summary: "Reset a configuration setting to default or blank.",
+    description: "Reset a configuration setting to default or blank.",
     positionals: [
         {
         name: "configName",
@@ -29,5 +30,11 @@ export const resetDefinition: ICommandDefinition = {
         description: "Setting name to reset",
         required: true
         },
-    ]
+    ],
+    examples: [
+        {
+            options: "credential-manager",
+            description: "Reset the credential manager to default value"
+        }
+    ],
 };
