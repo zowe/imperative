@@ -57,6 +57,10 @@ export class ConfigurationValidator {
             // if the user specified a color, test to make sure it works
             ConfigurationValidator.verifyChalkColor(config, "secondaryTextColor", "secondary text highlighting");
         }
+        if (isNullOrUndefined(config.allowConfigGroup)) {
+            // default allowConfigGroup to true
+            config.allowConfigGroup = true;
+        }
         if (isNullOrUndefined(config.allowPlugins)) {
             // default allowPlugins to true
             config.allowPlugins = true;

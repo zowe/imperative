@@ -16,6 +16,7 @@ export class ImperativeConfig {
     private static mInstance: ImperativeConfig = null;
     private mLoadedConfig: IImperativeConfig = {
         name: "test-cli",
+        allowConfigGroup: false,
         allowPlugins: false,
         overrides: {
             CredentialManager: "some-string.ts"

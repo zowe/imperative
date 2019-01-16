@@ -29,6 +29,7 @@ const config: IImperativeConfig = {
     name: "hello-world-cli",
     secondaryTextColor: "yellow",
     progressBarSpinner: ".oO0Oo.",
+    allowConfigGroup: false,
     allowPlugins: false
 };
 

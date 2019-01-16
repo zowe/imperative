@@ -19,6 +19,7 @@ export const config: IImperativeConfig = {
     productDisplayName: "Cmd Package CLI",
     envVariablePrefix: "CMD_CLI",
     name: "cmd-cli",
+    allowConfigGroup: false,
     allowPlugins: false,
     profiles: [
         {

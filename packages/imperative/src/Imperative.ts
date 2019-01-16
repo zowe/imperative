@@ -27,6 +27,7 @@ import { ImperativeReject } from "../../interfaces";
 import { LoggingConfigurer } from "./LoggingConfigurer";
 import { ImperativeError } from "../../error";
 import { PluginManagementFacility } from "./plugins/PluginManagementFacility";
+import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
 import {
     CliProfileManager,
     CommandYargs,
@@ -134,6 +135,11 @@ export class Imperative {
                     this.log.debug("WARNING: No \"bin\" configuration was found in your package.json," +
                         " or your package.json could not be found. " +
                         "Defaulting command name to filepath instead.");
+                }
+
+                // If config group is enabled add config commands
+                if (config.allowConfigGroup) {
+                    ConfigManagementFacility.instance.init();
                 }
 
                 // If plugins are allowed, enable core plugins commands
