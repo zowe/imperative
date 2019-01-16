@@ -11,7 +11,11 @@
 
 import { IProfileValidationReport } from "../doc/IProfileValidationReport";
 import { IProfileValidationPlan } from "../doc/IProfileValidationPlan";
-import { IProfileValidationTask, IProfileValidationTaskFunction, VALIDATION_OUTCOME } from "../doc/IProfileValidationTask";
+import {
+    IProfileValidationTask,
+    IProfileValidationTaskFunction,
+    VALIDATION_OUTCOME
+} from "../doc/IProfileValidationTask";
 import { IProfileValidationTaskResult } from "../doc/IProfileValidationTaskResult";
 import { isNullOrUndefined } from "util";
 import { Logger, LoggerUtils } from "../../../../logger";
@@ -42,8 +46,8 @@ export class ProfileValidator {
         return {
             name: "print-plan-only", aliases: ["plan", "p"],
             description: "Instead of validating your profile, print out " +
-            "a table of the tasks used for validation. This will explain the different services and " +
-            "functionality that will be tested during profile validation.",
+                "a table of the tasks used for validation. This will explain the different services and " +
+                "functionality that will be tested during profile validation.",
             type: "boolean"
         };
     }
@@ -70,10 +74,10 @@ export class ProfileValidator {
                 overallResult: "OK", // start with success and change it if there are any failures
                 taskResults: [],
                 overallMessage: "Your profile is valid and ready for use with " +
-                productDisplayName,
+                    productDisplayName,
                 profile
             };
-            log.debug("Validating profile %s with %d tasks", profile.name, plan.tasks.length);
+            log.debug("Validating profile with %d tasks", plan.tasks.length);
 
             let tasksCompleted = 0;
             let numTasksToComplete = 0;
@@ -169,8 +173,7 @@ export class ProfileValidator {
                 }
                     /**
                      * Catch unexpected exceptions within the task function
-                     */
-                catch (e) {
+                     */ catch (e) {
                     tasksCompleted++;
                     report.overallResult = "Failed";
                     log.error("Error during profile validation: %s\n%s", e.message, e.stack);
@@ -210,10 +213,13 @@ export class ProfileValidator {
      * @param plan - the validation plan to use
      * @param productDisplayName - the display name for your CLI used in the final result text
      * @param primaryHighlightColor - color used to highlight headings and tables (used with chalk package)
+     * @param profileName - the name of the profile that was validated
+     * @param profileType - the type of the profile that was validated
      * @returns {string} - the formatted report
      */
     public static getTextDisplayForReport(report: IProfileValidationReport, plan: IProfileValidationPlan,
-                                          productDisplayName: string, primaryHighlightColor: string): string {
+                                          productDisplayName: string, primaryHighlightColor: string,
+                                          profileName: string, profileType: string): string {
         const log = Logger.getImperativeLogger();
         let text = "";
 
@@ -302,8 +308,9 @@ export class ProfileValidator {
             default:
                 log.warn("Unknown validation outcome in report for %s profile %s", report.profile.type, report.profile.name);
         }
+
         text += TextUtils.wordWrap(TextUtils.formatMessage("The %s profile named \"%s\" %s\n",
-            report.profile.type, report.profile.name, outcomeMessage));
+            profileType + "", profileName + "", outcomeMessage));
         return text;
     }
 

@@ -30,11 +30,6 @@ Object {
       "type": "string",
     },
   ],
-  "profile": Object {
-    "required": Array [
-      "type-a",
-    ],
-  },
   "summary": "Test the validity of a type-a profile.",
   "type": "command",
 }

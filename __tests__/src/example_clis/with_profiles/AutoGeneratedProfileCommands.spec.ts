@@ -264,7 +264,7 @@ describe("We should provide auto-generated profile commands for convenience, " +
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
     });
 
-    it("should be able to validate a many-fields-profile with an auto generated validate command ", () => {
+    it("should be able to validate a many-field-profile with an auto generated validate command ", () => {
         const profileName = "validate_me";
         const tea = "earl_grey";
         const soda = "diet_coke";
@@ -276,7 +276,7 @@ describe("We should provide auto-generated profile commands for convenience, " +
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
 
         T.findExpectedOutputInCommand(cliBin, ["profiles", "validate", manyFieldProfile, profileName],
-            ["perfect"],
+            ["perfect", profileName, "many-field-profile"],
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
 
     });
