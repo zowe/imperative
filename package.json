@@ -149,7 +149,6 @@
       "!**/index.ts",
       "!__tests__/"
     ],
-    "mapCoverage": true,
     "collectCoverage": false,
     "coverageReporters": [
       "json",
