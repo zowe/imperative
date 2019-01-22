@@ -77,10 +77,10 @@
     "jest": "^21.2.1",
     "jest-environment-node-debug": "^2.0.0",
     "jest-html-reporter": "^0.5.7",
-    "ts-jest": "21.2.1",
-    "ts-node": "^5.0.0",
+    "ts-jest": "23.10.5",
+    "ts-node": "5.10.0",
     "tslint": "^5.0.0",
-    "typescript": "3.0.3",
+    "typescript": "3.2.2",
     "upath": "^1.0.2"
   },
   "engines": {

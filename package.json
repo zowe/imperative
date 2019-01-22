@@ -114,7 +114,7 @@
     "prompt": "1.0.0",
     "shebang-regex": "2.0.0",
     "through2": "2.0.3",
-    "ts-jest": "21.2.1",
+    "ts-jest": "23.10.5",
     "ts-node": "^5.0.0",
     "tslint": "5.10.0",
     "typedoc": "0.12.0",
