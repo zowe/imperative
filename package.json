@@ -101,15 +101,15 @@
     "gulp-typedoc": "2.2.1",
     "gulp-util": "3.0.8",
     "is-url": "1.2.3",
-    "jest": "21.2.1",
-    "jest-environment-node": "21.2.1",
+    "jest": "22.4.4",
+    "jest-environment-node": "22.4.3",
     "jest-environment-node-debug": "2.0.0",
     "jest-html-reporter": "2.0.0",
     "jest-junit": "3.6.0",
     "jest-sonar-reporter": "2.0.0",
     "jest-stare": "1.6.0",
     "jsdoc": "3.5.5",
-    "keytar": "4.1.0",
+    "keytar": "4.3.0",
     "madge": "3.0.0",
     "prompt": "1.0.0",
     "shebang-regex": "2.0.0",
@@ -183,4 +183,3 @@
     "coverageLink": "../unit/coverage/lcov-report/index.html"
   }
 }
-
