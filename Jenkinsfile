@@ -95,7 +95,7 @@ if (BRANCH_NAME == MASTER_BRANCH) {
     // twice in quick succession
     opts.push(disableConcurrentBuilds())
 } else {
-    if (BRANCH_NAME.equals("1.0.0")){
+    if (BRANCH_NAME.equals("1.0.0") || BRANCH_NAME.equals("typescript3")){
         RELEASE_BRANCH = true   
     }
     // Only keep 5 builds on other branches
@@ -637,7 +637,7 @@ pipeline {
                         if (RELEASE_BRANCH){
                             withCredentials([usernamePassword(credentialsId: ARTIFACTORY_CREDENTIALS_ID, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                                 sh "expect -f ./jenkins/npm_login.expect $USERNAME $PASSWORD \"$ARTIFACTORY_EMAIL\""
-                                sh 'npm publish --tag latest'
+                                sh 'npm publish --tag typescript3'
                                 sh 'npm logout || exit 0'
                             }
                         }
