@@ -161,25 +161,26 @@
       "ts-jest": {
         "diagnostics": false
       }
-    },
-    "jest-html-reporter": {
-      "pageTitle": "Imperative CLI Tests",
-      "outputPath": "__tests__/__results__/unit/results.html"
-    },
-    "jest-junit": {
-      "output": "./__tests__/__results__/junit/junit.xml"
-    },
-    "jestSonar": {
-      "reportPath": "__tests__/__results__/jest-sonar"
-    },
-    "jest-stare": {
-      "resultDir": "__tests__/__results__/jest-stare",
-      "additionalResultsProcessors": [
-        "jest-junit",
-        "jest-html-reporter",
-        "jest-sonar-reporter"
-      ],
-      "coverageLink": "../unit/coverage/lcov-report/index.html"
     }
+  },
+  "jest-html-reporter": {
+    "pageTitle": "Imperative CLI Tests",
+    "outputPath": "__tests__/__results__/unit/results.html"
+  },
+  "jest-junit": {
+    "output": "./__tests__/__results__/junit/junit.xml"
+  },
+  "jestSonar": {
+    "reportPath": "__tests__/__results__/jest-sonar"
+  },
+  "jest-stare": {
+    "resultDir": "__tests__/__results__/jest-stare",
+    "additionalResultsProcessors": [
+      "jest-junit",
+      "jest-html-reporter",
+      "jest-sonar-reporter"
+    ],
+    "coverageLink": "../unit/coverage/lcov-report/index.html"
   }
 }
+
