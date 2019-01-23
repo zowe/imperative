@@ -156,7 +156,11 @@
       "text",
       "cobertura"
     ],
-    "coverageDirectory": "<rootDir>/__tests__/__results__/unit/coverage"
+    "coverageDirectory": "<rootDir>/__tests__/__results__/unit/coverage",
+    "globals": {
+      "ts-jest": {
+        "diagnostics": false
+      }
   },
   "jest-html-reporter": {
     "pageTitle": "Imperative CLI Tests",
