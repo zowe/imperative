@@ -130,7 +130,7 @@
       "__tests__/__snapshots__/"
     ],
     "transform": {
-      ".(ts)": "ts-jest"
+      ".(ts)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
     "testResultsProcessor": "jest-stare",
     "testRegex": "(test|spec)\\.ts$",
@@ -149,6 +149,7 @@
       "!**/index.ts",
       "!__tests__/"
     ],
+    "mapCoverage": true,
     "collectCoverage": false,
     "coverageReporters": [
       "json",
@@ -156,12 +157,7 @@
       "text",
       "cobertura"
     ],
-    "coverageDirectory": "<rootDir>/__tests__/__results__/unit/coverage",
-    "globals": {
-      "ts-jest": {
-        "diagnostics": false
-      }
-    }
+    "coverageDirectory": "<rootDir>/__tests__/__results__/unit/coverage"
   },
   "jest-html-reporter": {
     "pageTitle": "Imperative CLI Tests",
