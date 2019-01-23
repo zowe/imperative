@@ -72,10 +72,10 @@
     "@types/node": "8.0.28",
     "coveralls": "^2.0.0",
     "gulp": "^3.9.1",
+    "keytar": "^4.3.0",
     "tslint": "^5.0.0",
     "typescript": "3.2.2",
-    "upath": "^1.0.2",
-    "keytar": "4.3.0"
+    "upath": "^1.0.2"
   },
   "engines": {
     "node": ">=6.0.0"
