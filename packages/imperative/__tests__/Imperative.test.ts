@@ -24,7 +24,7 @@ describe("Imperative", () => {
     if (process.mainModule == null) {
         process.mainModule = {filename: __filename} as any;
     }
-    
+
     const loadImperative = () => {
         return require("../src/Imperative").Imperative;
     };
