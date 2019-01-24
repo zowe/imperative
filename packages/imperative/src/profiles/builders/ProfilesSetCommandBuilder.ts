@@ -72,7 +72,8 @@ export class ProfilesSetCommandBuilder extends ProfilesCommandBuilder {
             examples: [{
                 options: "profilename",
                 description: TextUtils.formatMessage(setProfileExample.message, {
-                    type: this.mProfileType
+                    type: this.mProfileType,
+                    name: "profilename"
                 }),
             }
             ]

@@ -97,6 +97,11 @@ export const deleteProfileNameDesc: IMessageDefinition = {
 };
 
 
+export const deleteProfileExample: IMessageDefinition = {
+    message: `Delete a {{type}} profile named {{name}}`
+};
+
+
 export const validateProfileNameDesc: IMessageDefinition = {
     message: `Specifies the name of the {{type}} ` +
         ` profile to be validated. ` +
@@ -243,7 +248,7 @@ export const setProfileOptionDesc: IMessageDefinition = {
 };
 
 export const setProfileExample: IMessageDefinition = {
-    message: `Set the default profile for type {{type}} to the profile named 'profilename'`
+    message: `Set the default profile for type {{type}} to the profile named '{{name}}'`
 };
 
 export const setGroupWithOnlyProfilesListDesc: IMessageDefinition = {
