@@ -519,8 +519,9 @@ describe("Cli Profile Manager", () => {
         const a = 1;
         const b = 2;
         const profileName = "myprofile";
-        const saveResult = await manager.update({
-            profile: {name: profileName, type: profileTypeOne},
+        const saveResult = await manager.update({name: profileName,
+            type: profileTypeOne,
+            profile: {},
             args: {_: [], $0: "test", a, b}
         });
         testLogger.info("Save profile result: " + inspect(saveResult));
