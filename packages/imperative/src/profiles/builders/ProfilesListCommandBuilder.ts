@@ -12,7 +12,12 @@
 import { ProfilesCommandBuilder } from "./ProfilesCommandBuilder";
 import { Constants } from "../../../../constants";
 import { ICommandDefinition, ICommandProfileTypeConfiguration } from "../../../../cmd";
-import { listProfileCommandDesc, listProfileVerboseOptionDesc } from "../../../../messages";
+import {
+    listProfileCommandDesc,
+    listProfileExample,
+    listProfileExampleShowContents,
+    listProfileVerboseOptionDesc
+} from "../../../../messages";
 import { TextUtils } from "../../../../utilities";
 import { Logger } from "../../../../logger/";
 import { ProfilesConstants } from "../../../../profiles";
@@ -75,6 +80,22 @@ export class ProfilesListCommandBuilder extends ProfilesCommandBuilder {
                 }
 
             ],
+            examples: [
+                {
+                    options: "",
+                    description: TextUtils.formatMessage(listProfileExample.message,
+                        {
+                            type: this.mProfileType
+                        }),
+                },
+                {
+                    options: "--sc",
+                    description: TextUtils.formatMessage(listProfileExampleShowContents.message,
+                        {
+                            type: this.mProfileType
+                        }),
+                }
+            ]
         };
         profileCommand.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY] = this.mProfileType;
         return profileCommand;
