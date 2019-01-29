@@ -252,7 +252,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
     });
 
@@ -276,7 +277,8 @@ describe("Command Processor", () => {
                 definition: undefined,
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-                rootCommandName: SAMPLE_ROOT_COMMAND
+                rootCommandName: SAMPLE_ROOT_COMMAND,
+                commandLine: ""
             });
         } catch (e) {
             error = e;
@@ -294,7 +296,8 @@ describe("Command Processor", () => {
                 definition: SAMPLE_COMMAND_DEFINITION,
                 helpGenerator: undefined,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-                rootCommandName: SAMPLE_ROOT_COMMAND
+                rootCommandName: SAMPLE_ROOT_COMMAND,
+                commandLine: ""
             });
         } catch (e) {
             error = e;
@@ -312,7 +315,8 @@ describe("Command Processor", () => {
                 definition: SAMPLE_COMMAND_DEFINITION,
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: undefined,
-                rootCommandName: SAMPLE_ROOT_COMMAND
+                rootCommandName: SAMPLE_ROOT_COMMAND,
+                commandLine: ""
             });
         } catch (e) {
             error = e;
@@ -330,7 +334,8 @@ describe("Command Processor", () => {
                 definition: SAMPLE_COMMAND_DEFINITION,
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-                rootCommandName: undefined
+                rootCommandName: undefined,
+                commandLine: ""
             });
         } catch (e) {
             error = e;
@@ -348,7 +353,8 @@ describe("Command Processor", () => {
                 definition: SAMPLE_COMMAND_DEFINITION,
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-                rootCommandName: ""
+                rootCommandName: "",
+                commandLine: ""
             });
         } catch (e) {
             error = e;
@@ -366,7 +372,8 @@ describe("Command Processor", () => {
                 definition: SAMPLE_COMMAND_DEFINITION,
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-                rootCommandName: SAMPLE_ROOT_COMMAND
+                rootCommandName: SAMPLE_ROOT_COMMAND,
+                commandLine: ""
             });
         } catch (e) {
             error = e;
@@ -382,7 +389,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
         expect(processor.definition).toEqual(SAMPLE_COMMAND_DEFINITION);
     });
@@ -393,7 +401,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
         expect(processor.envVariablePrefix).toEqual(ENV_VAR_PREFIX);
     });
@@ -404,7 +413,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
         expect(processor.rootCommand).toEqual(SAMPLE_ROOT_COMMAND);
     });
@@ -415,7 +425,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
         expect(processor.fullDefinition).toEqual(SAMPLE_COMMAND_DEFINITION);
     });
@@ -426,7 +437,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
         expect(processor.helpGenerator).toEqual(FAKE_HELP_GENERATOR);
     });
@@ -437,7 +449,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
         expect(processor.profileFactory).toEqual(FAKE_PROFILE_MANAGER_FACTORY);
     });
@@ -452,7 +465,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock the process write
@@ -475,7 +489,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         let error;
@@ -496,7 +511,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         const validateResponse: ICommandValidatorResponse = await processor.validate({
@@ -514,7 +530,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         let error;
@@ -535,7 +552,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         let error;
@@ -560,7 +578,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         let error;
@@ -581,7 +600,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         let error;
@@ -602,7 +622,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         let error;
@@ -624,7 +645,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         let error;
@@ -646,7 +668,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         const parms: any = {arguments: {_: ["banana"], $0: "", valid: false}, responseFormat: "json", silent: true};
@@ -668,7 +691,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         const parms: any = {
@@ -693,7 +717,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         const parms: any = {
@@ -714,7 +739,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         const parms: any = {arguments: {_: [], $0: "", syntaxThrow: true}, responseFormat: "json", silent: true};
@@ -732,7 +758,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -763,7 +790,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_DEFINITION,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -774,7 +802,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     // Nothing to do
                 }
             };
@@ -807,7 +835,8 @@ describe("Command Processor", () => {
             definition: commandDef,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -818,7 +847,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     // Nothing to do
                 }
             };
@@ -857,7 +886,8 @@ describe("Command Processor", () => {
             definition: commandDef,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -868,7 +898,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     // Nothing to do
                 }
             };
@@ -916,7 +946,8 @@ describe("Command Processor", () => {
             definition: commandDef,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -927,7 +958,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     // Nothing to do
                 }
             };
@@ -957,7 +988,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -968,7 +1000,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     // Nothing to do
                 }
             };
@@ -998,7 +1030,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -1009,7 +1042,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     // Nothing to do
                 }
             };
@@ -1038,7 +1071,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -1049,7 +1083,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     // Nothing to do
                 }
             };
@@ -1087,7 +1121,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -1098,7 +1133,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     // Nothing to do
                 }
             };
@@ -1127,7 +1162,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -1138,7 +1174,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     // Nothing to do
                 }
             };
@@ -1167,7 +1203,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -1178,7 +1215,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     // Nothing to do
                 }
             };
@@ -1204,7 +1241,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_REAL_HANDLER_WITH_OPT,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -1215,7 +1253,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     return;
                 }
             };
@@ -1251,7 +1289,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_REAL_HANDLER_WITH_DEFAULT_OPT,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -1262,7 +1301,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     return;
                 }
             };
@@ -1295,7 +1334,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_REAL_HANDLER_WITH_POS_OPT,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -1306,7 +1346,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     return;
                 }
             };
@@ -1342,7 +1382,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_REAL_HANDLER_WITH_POS_OPT,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -1353,7 +1394,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     return;
                 }
             };
@@ -1390,7 +1431,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_REAL_HANDLER_WITH_OPT,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -1401,7 +1443,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     return;
                 }
             };
@@ -1439,7 +1481,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -1450,7 +1493,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     // Nothing to do
                 }
             };
@@ -1477,7 +1520,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMPLEX_COMMAND,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
         const commandResponse: ICommandResponse = await processor.help(new CommandResponse({silent: true}));
         expect(commandResponse).toBeDefined();
@@ -1493,7 +1537,8 @@ describe("Command Processor", () => {
                 definition: SAMPLE_COMMAND_WIH_NO_HANDLER,
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-                rootCommandName: SAMPLE_ROOT_COMMAND
+                rootCommandName: SAMPLE_ROOT_COMMAND,
+                commandLine: ""
             });
         } catch (e) {
             error = e;
@@ -1512,7 +1557,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -1523,7 +1569,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     // Nothing to do
                 }
             };
@@ -1555,7 +1601,8 @@ describe("Command Processor", () => {
             definition: SAMPLE_COMMAND_REAL_HANDLER,
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: ""
         });
 
         // Mock read stdin
@@ -1566,7 +1613,7 @@ describe("Command Processor", () => {
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
             return {
-                loadProfiles: (profArgs) => {
+                loadProfiles: (profArgs: any) => {
                     // Nothing to do
                 }
             };
@@ -1635,7 +1682,8 @@ describe("Command Processor", () => {
                 definition: SAMPLE_COMMAND_DEFINITION,
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-                rootCommandName: SAMPLE_ROOT_COMMAND
+                rootCommandName: SAMPLE_ROOT_COMMAND,
+                commandLine: ""
             });
 
             const dummyResponseObject = getDummyResponseObject();
@@ -1660,7 +1708,8 @@ describe("Command Processor", () => {
                 definition: SAMPLE_COMMAND_DEFINITION,
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-                rootCommandName: SAMPLE_ROOT_COMMAND
+                rootCommandName: SAMPLE_ROOT_COMMAND,
+                commandLine: ""
             });
 
             const dummyResponseObject = getDummyResponseObject();
@@ -1685,7 +1734,8 @@ describe("Command Processor", () => {
                 definition: SAMPLE_COMMAND_DEFINITION_WITH_EXAMPLES,
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-                rootCommandName: SAMPLE_ROOT_COMMAND
+                rootCommandName: SAMPLE_ROOT_COMMAND,
+                commandLine: ""
             });
 
             const dummyResponseObject = getDummyResponseObject();
