@@ -264,26 +264,35 @@ export class CommandProcessor {
                 `${CommandProcessor.ERROR_TAG} invoke(): Cannot invoke the handler for command "${this.definition.name}". The handler is blank.`);
         }
 
-        // Log the invoke
-        this.log.info(`Invoking command "${this.definition.name}"...`);
-        this.log.info(`rootCommand issued:\n\n${TextUtils.prettyJson(this.rootCommand)}`);
-        this.log.info(`commandLine issued:\n\n${TextUtils.prettyJson(this.commandLine)}`);
-        this.log.info(`Command issued:\n\n${TextUtils.prettyJson(this.rootCommand + " " + this.commandLine)}`);
+        let commandLine = this.commandLine;
 
-        const edit = this.commandLine;
-        let edit2 = "";
+        // determine if the command has the password option and mask out the password value
         const regEx = /--(password|pass|pw) ([^\s]+)/gi;
-        this.log.info(`edit issued:\n\n${TextUtils.prettyJson(edit)}`);
-        if ((edit.search(regEx)) >= 0) {
-            edit2 = edit.replace(regEx, "--pw ****");
-            // const editArray = edit.split("--");  // ).substr(0, edit.indexOf("--pw"), edit.indexOf(""));
-            // this.log.info(editArray.toString());
-            // const passwordArray =
-            this.log.info(edit2);
+
+        if ((commandLine.search(regEx)) >= 0) {
+            // determine which version of password option used to ensure it's used in the log.
+            let passwordString = "";
+            let regEx2 = /--password /gi;
+            if (commandLine.search(regEx2) >= 0) {
+                passwordString = "password";
+            }
+            regEx2 = /--pass /gi;
+            if (commandLine.search(regEx2) >= 0) {
+                passwordString = "pass";
+            }
+            regEx2 = /--pw /gi;
+            if (commandLine.search(regEx2) >= 0) {
+                passwordString = "pw";
+            }
+
+            commandLine = commandLine.replace(regEx, "--" + passwordString + " ****");
+
         }
 
-        this.log.info(`post edit issued:\n\n${TextUtils.prettyJson(edit2)}`);
-
+        // this.log.info(`post commandLine issued:\n\n${TextUtils.prettyJson(commandLine)}`);
+        // Log the invoke
+        this.log.info(`Invoking command "${this.definition.name}"...`);
+        this.log.info(`Command issued:\n\n${TextUtils.prettyJson(this.rootCommand + " " + commandLine)}`);
         this.log.trace(`Invoke parameters:\n${inspect(params, { depth: null })}`);
         this.log.trace(`Command definition:\n${inspect(this.definition, { depth: null })}`);
 
