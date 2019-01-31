@@ -542,7 +542,7 @@ pipeline {
                     // this should be the same as our current commit since concurrency builds are turned
                     // off for that branch
                     sh "git reset --hard HEAD"
-                    sh "git checkout ${DEV_BRANCH.master}"
+                    sh "git checkout ${BRANCH_NAME}"
 
                     // Make sure that the revision of the build and the current revision of the DEV_BRANCH.master match
                     script {
