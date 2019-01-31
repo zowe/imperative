@@ -18,7 +18,7 @@ export const apiErrorHeader: IMessageDefinition = {
 
 export const couldNotInstatiateCommandHandler: IMessageDefinition = {
     message: `Could not instantiate the handler {{commandHandler}} for ` +
-    `command {{definitionName}}`
+        `command {{definitionName}}`
 };
 
 export const errorDetailsHeader: IMessageDefinition = {
@@ -43,7 +43,7 @@ export const unexpectedProfileLoadError: IMessageDefinition = {
 
 export const profileLoadError: IMessageDefinition = {
     message: `Error loading {{type}} profile: {{profileName}}.\n\n` +
-    `Additional Details:\n\n`
+        `Additional Details:\n\n`
 };
 
 export const unexpectedProfilesLoadError: IMessageDefinition = {
@@ -65,44 +65,57 @@ export const createProfileCommandDesc: IMessageDefinition = {
 
 export const createProfileOptionDesc: IMessageDefinition = {
     message: `Specifies the name of the new {{type}} profile. ` +
-    `You can load this profile by using the name on commands that support the ` +
-    `"--{{type}}-profile" option.`
+        `You can load this profile by using the name on commands that support the ` +
+        `"--{{type}}-profile" option.`
 };
 
 export const listProfileLoadedModulesOptionDesc: IMessageDefinition = {
     message: `List {{type}} ` +
-    ` profiles that are loaded as part of normal command execution. ` +
-    `This will show you the default profiles being loaded.`
+        ` profiles that are loaded as part of normal command execution. ` +
+        `This will show you the default profiles being loaded.`
 };
 
 export const listProfileVerboseOptionDesc: IMessageDefinition = {
     message: `List {{type}} ` +
-    ` profiles  and their contents. ` +
-    `All profile details will be printed as part of command output.`
+        ` profiles  and their contents. ` +
+        `All profile details will be printed as part of command output.`
+};
+
+export const listProfileExample: IMessageDefinition = {
+    message: `List profiles of type {{type}}`
+};
+
+export const listProfileExampleShowContents: IMessageDefinition = {
+    message: `List profiles of type {{type}} and display their contents`
 };
 
 export const deleteProfileNameDesc: IMessageDefinition = {
     message: `Specifies the name of the {{type}} ` +
-    ` profile to be deleted. ` +
-    `You can also load this profile by using the name on commands that support the ` +
-    `"--{{typeOption}}" option.`
+        ` profile to be deleted. ` +
+        `You can also load this profile by using the name on commands that support the ` +
+        `"--{{typeOption}}" option.`
+};
+
+
+export const deleteProfileExample: IMessageDefinition = {
+    message: `Delete a {{type}} profile named {{name}}`
 };
 
 
 export const validateProfileNameDesc: IMessageDefinition = {
     message: `Specifies the name of the {{type}} ` +
-    ` profile to be validated. ` +
-    `If the --print-plan-only option is specified, then only a plan to validate the specified profile will be displayed.`
+        ` profile to be validated. ` +
+        `If the --print-plan-only option is specified, then only a plan to validate the specified profile will be displayed.`
 };
 
 
 export const selectProfileNameDesc: IMessageDefinition = {
     message: `Specifies the name of the {{type}} ` +
-    `
+        `
  profile to be used with this command. ` +
-    `To see profiles which can be validated, issue the list action for this module. ` +
-    `You can also load this profile by using the name on commands that support the ` +
-    `"--{{typeOption}}" option.`
+        `To see profiles which can be validated, issue the list action for this module. ` +
+        `You can also load this profile by using the name on commands that support the ` +
+        `"--{{typeOption}}" option.`
 };
 
 
@@ -116,7 +129,7 @@ export const deleteProfilesCommandDesc: IMessageDefinition = {
 
 export const deleteProfileForceOptionDesc: IMessageDefinition = {
     message: `Force deletion of profile, and dependent profiles if specified. No prompt will be displayed before `
-    + ` deletion occurs.`
+        + ` deletion occurs.`
 };
 
 export const deleteProfileActionDesc: IMessageDefinition = {
@@ -125,14 +138,14 @@ export const deleteProfileActionDesc: IMessageDefinition = {
 
 export const deleteProfileCommandDesc: IMessageDefinition = {
     message: `Delete a {{type}} profile.` +
-    ` You must specify a profile name to be deleted. To find a list of available profiles for deletion, ` +
-    ` issue the profiles list command. By default, you will be prompted to confirm the profile removal.`,
+        ` You must specify a profile name to be deleted. To find a list of available profiles for deletion, ` +
+        ` issue the profiles list command. By default, you will be prompted to confirm the profile removal.`,
 };
 
 export const deleteProfileDepsDesc: IMessageDefinition = {
     message: `Set to true to delete all dependent profiles along with the {{type}} profile.` +
-    `If set to true, a list of dependent profiles will be shown along with a confirmation prompt before the ` +
-    `deletions occur. If set to false, only the {{type}} profile specified will be deleted.`
+        `If set to true, a list of dependent profiles will be shown along with a confirmation prompt before the ` +
+        `deletions occur. If set to false, only the {{type}} profile specified will be deleted.`
 };
 
 export const showDependenciesCommandDesc: IMessageDefinition = {
@@ -183,8 +196,8 @@ export const updateProfileCommandSummary: IMessageDefinition = {
 
 export const updateProfileCommandDesc: IMessageDefinition = {
     message: `Update a {{type}} profile.` +
-    `You can update any property present within the profile configuration. The updated profile ` +
-    ` will be printed so that you can review the result of the updates.`,
+        `You can update any property present within the profile configuration. The updated profile ` +
+        ` will be printed so that you can review the result of the updates.`,
 };
 
 export const listGroupWithOnlyProfilesSummary: IMessageDefinition = {
@@ -197,9 +210,9 @@ export const listGroupWithOnlyProfilesDefinition: IMessageDefinition = {
 
 export const listGroupWithOnlyProfileDefaultDesc: IMessageDefinition = {
     message: `Lists all known profiles for this command group. ` +
-    `When you issue a command that requires a profile or set of ` +
-    `profiles, said profiles are loaded by default (or according to override options on the command). You can use this ` +
-    `command to review your configured profiles, and verify your default profile set.`
+        `When you issue a command that requires a profile or set of ` +
+        `profiles, said profiles are loaded by default (or according to override options on the command). You can use this ` +
+        `command to review your configured profiles, and verify your default profile set.`
 };
 
 export const listGroupWithOnlyProfileCommandSummary: IMessageDefinition = {
@@ -208,7 +221,7 @@ export const listGroupWithOnlyProfileCommandSummary: IMessageDefinition = {
 
 export const listGroupWithOnlyProfileSetDesc: IMessageDefinition = {
     message: `To set the default profiles, use the \" ` +
-    `{{type}} ${Constants.DEFAULT_SET_GROUP} ${Constants.DEFAULT_SET_PROFILE_OBJECT}\" command.`
+        `{{type}} ${Constants.DEFAULT_SET_GROUP} ${Constants.DEFAULT_SET_PROFILE_OBJECT}\" command.`
 };
 
 export const setProfileActionSummary: IMessageDefinition = {
@@ -222,21 +235,25 @@ export const setGroupWithOnlyProfilesSummary: IMessageDefinition = {
 
 export const setGroupWithOnlyProfilesCommandDesc: IMessageDefinition = {
     message: `The {{type}} set ${Constants.DEFAULT_SET_PROFILE_OBJECT} command allows you to set the default profiles for ` +
-    `this command group. When a {{type}} command is issued and no profile override options are ` +
-    `specified, the default profiles for the command group are automatically loaded for the command based on the ` +
-    `commands profile requirements.`
+        `this command group. When a {{type}} command is issued and no profile override options are ` +
+        `specified, the default profiles for the command group are automatically loaded for the command based on the ` +
+        `commands profile requirements.`
 };
 
 export const setProfileOptionDesc: IMessageDefinition = {
     message: `Specify a
  profile for default usage within the {{type}} group. ` +
-    `When you issue commands within the {{type}} group without a profile specified as part of the command, the default ` +
-    `will be loaded instead.`
+        `When you issue commands within the {{type}} group without a profile specified as part of the command, the default ` +
+        `will be loaded instead.`
+};
+
+export const setProfileExample: IMessageDefinition = {
+    message: `Set the default profile for type {{type}} to the profile named '{{name}}'`
 };
 
 export const setGroupWithOnlyProfilesListDesc: IMessageDefinition = {
     message: `To view the default profiles, use the \" ` +
-    `{{type}} ${Constants.DEFAULT_LIST_GROUP} ${Constants.DEFAULT_LIST_PROFILE_OBJECT}\" command.`
+        `{{type}} ${Constants.DEFAULT_LIST_GROUP} ${Constants.DEFAULT_LIST_PROFILE_OBJECT}\" command.`
 };
 
 
@@ -289,12 +306,12 @@ export const overroteProfileMessage: IMessageDefinition = {
 
 export const profileDesc: IMessageDefinition = {
     message: `Configuration profiles are loaded based on the requirements ` +
-    `of the command:`
+        `of the command:`
 };
 
 export const locateProfilesDesc: IMessageDefinition = {
     message: `Configuration profiles are located and used by searching in the following order,` +
-    ` ending the search when a profile is found:`
+        ` ending the search when a profile is found:`
 };
 
 
