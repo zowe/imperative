@@ -9,7 +9,6 @@ CCS141/
 .idea
 imperative.iml
 src/brightside.iml
-
 ## Sonar ignores
 .scannerwork/
 

@@ -64,6 +64,14 @@ export interface ICommandProfileTypeConfiguration extends IProfileTypeConfigurat
     createProfileExamples?: ICommandExampleDefinition[];
 
     /**
+     * Examples to be displayed in the help text for the auto generated update profile command.
+     *
+     * @type {ICommandExampleDefinition[]}
+     * @memberof IProfileTypeConfiguration
+     */
+    updateProfileExamples?: ICommandExampleDefinition[];
+
+    /**
      * The JSON schema document. The schema document provides a way to enforce the contents of a profile. The schema
      * conforms exactly to the JSON schema specification. You must supply all properties you would like validated
      * for correctness on the schema, except for "dependencies". Dependency schema checking is generated automatically
