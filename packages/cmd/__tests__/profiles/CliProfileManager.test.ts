@@ -519,9 +519,7 @@ describe("Cli Profile Manager", () => {
         const a = 1;
         const b = 2;
         const profileName = "myprofile";
-        const saveResult = await manager.update({
-            profile: {name: profileName, type: profileTypeOne},
-            args: {_: [], $0: "test", a, b}
+        const saveResult = await manager.update({name: profileName, type: profileTypeOne, profile: {}, args: {_: [], $0: "test", a, b}
         });
         testLogger.info("Save profile result: " + inspect(saveResult));
         expect(saveResult.profile.sum).toEqual(a + b);

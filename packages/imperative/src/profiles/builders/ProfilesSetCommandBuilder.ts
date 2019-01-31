@@ -13,7 +13,12 @@ import { ProfilesCommandBuilder } from "./ProfilesCommandBuilder";
 import { ICommandDefinition } from "../../../../cmd";
 import { TextUtils } from "../../../../utilities";
 import { Constants } from "../../../../constants";
-import { setGroupWithOnlyProfilesCommandDesc, setGroupWithOnlyProfilesSummary, setProfileOptionDesc } from "../../../../messages/index";
+import {
+    setGroupWithOnlyProfilesCommandDesc,
+    setGroupWithOnlyProfilesSummary,
+    setProfileExample,
+    setProfileOptionDesc
+} from "../../../../messages/index";
 import { ProfilesConstants } from "../../../../profiles";
 
 /**
@@ -64,6 +69,14 @@ export class ProfilesSetCommandBuilder extends ProfilesCommandBuilder {
                 required: true,
             }],
             customize: {},
+            examples: [{
+                options: "profilename",
+                description: TextUtils.formatMessage(setProfileExample.message, {
+                    type: this.mProfileType,
+                    name: "profilename"
+                }),
+            }
+            ]
         };
         profileCommand.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY] = this.mProfileType;
 

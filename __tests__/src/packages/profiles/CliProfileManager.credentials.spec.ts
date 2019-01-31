@@ -263,6 +263,7 @@ describe("Cli Profile Manager", () => {
           `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
         const result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
         expect(result.stdout).toEqual("");
+        expect(result.stderr).toContain(profileName);
         expect(result.stderr).toContain("Keytar not Installed");
       });
 

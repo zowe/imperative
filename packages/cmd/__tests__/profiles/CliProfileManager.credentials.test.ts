@@ -89,7 +89,7 @@ describe("Cli Profile Manager", () => {
 
         describe("Save operation", () => {
             it("should save credentials and store a profile with a constant string value for secure properties", async () => {
-                const dummyManager = new DefaultCredentialManager("dummy", "dummy manager");
+                const dummyManager = new DefaultCredentialManager("dummy");
                 dummyManager.save = jest.fn();
                 Object.defineProperty(CredentialManagerFactory, "manager", {get: jest.fn().mockReturnValue(dummyManager)});
                 Object.defineProperty(CredentialManagerFactory, "initialized", {get: jest.fn().mockReturnValue(true)});
@@ -140,7 +140,7 @@ describe("Cli Profile Manager", () => {
             it("should not invoke the credential manager if it has not been initialized", async () => {
                 // We'll use a dummy credential manager in the test - but set initialized to "false" - this way we can use
                 // Jest expect.toHaveBeenCalledTimes(0)
-                const dummyManager = new DefaultCredentialManager("dummy", "dummy manager");
+                const dummyManager = new DefaultCredentialManager("dummy");
                 dummyManager.save = jest.fn();
                 Object.defineProperty(CredentialManagerFactory, "manager", {get: jest.fn().mockReturnValue(dummyManager)});
                 Object.defineProperty(CredentialManagerFactory, "initialized", {get: jest.fn().mockReturnValue(false)});
@@ -181,7 +181,7 @@ describe("Cli Profile Manager", () => {
             });
 
             it("should fail if the Credential Manager throws an error", async () => {
-                const dummyManager = new DefaultCredentialManager("dummy", "dummy manager");
+                const dummyManager = new DefaultCredentialManager("dummy");
                 dummyManager.save = jest.fn(() => {
                     throw new Error("dummy error");
                 });
@@ -217,7 +217,7 @@ describe("Cli Profile Manager", () => {
             };
 
             it("should update credentials and store a profile with a constant string value for secure properties", async () => {
-                const dummyManager = new DefaultCredentialManager("dummy", "dummy manager");
+                const dummyManager = new DefaultCredentialManager("dummy");
                 dummyManager.save = jest.fn();
                 Object.defineProperty(CredentialManagerFactory, "manager", {get: jest.fn().mockReturnValue(dummyManager)});
 
@@ -257,7 +257,7 @@ describe("Cli Profile Manager", () => {
             });
 
             it("should fail if the Credential Manager throws an error", async () => {
-                const dummyManager = new DefaultCredentialManager("dummy", "dummy manager");
+                const dummyManager = new DefaultCredentialManager("dummy");
                 dummyManager.save = jest.fn(() => {
                     throw new Error("dummy error");
                 });
@@ -298,7 +298,7 @@ describe("Cli Profile Manager", () => {
             };
 
             it("should load credentials from a profile with constant string values for secure properties", async () => {
-                const dummyManager = new DefaultCredentialManager("dummy", "dummy manager");
+                const dummyManager = new DefaultCredentialManager("dummy");
                 dummyManager.load = jest.fn((propKey: string) => {
                     let ret = null;
                     if (propKey.indexOf("myCode") >= 0) {
@@ -351,7 +351,7 @@ describe("Cli Profile Manager", () => {
             });
 
             it("should not load credentials from a profile if noSecure is specified", async () => {
-                const dummyManager = new DefaultCredentialManager("dummy", "dummy manager");
+                const dummyManager = new DefaultCredentialManager("dummy");
                 dummyManager.load = jest.fn((propKey: string) => {
                     let ret = null;
                     if (propKey.indexOf("myCode") >= 0) {
@@ -402,7 +402,7 @@ describe("Cli Profile Manager", () => {
             });
 
             it("should not attempt to load secure fields if no credential manager is present", async () => {
-                const dummyManager = new DefaultCredentialManager("dummy", "dummy manager");
+                const dummyManager = new DefaultCredentialManager("dummy");
                 dummyManager.load = jest.fn((propKey: string) => {
                     let ret = null;
                     if (propKey.indexOf("myCode") >= 0) {
@@ -459,7 +459,7 @@ describe("Cli Profile Manager", () => {
             });
 
             it("should fail if the Credential Manager throws an error", async () => {
-                const dummyManager = new DefaultCredentialManager("dummy", "dummy manager");
+                const dummyManager = new DefaultCredentialManager("dummy");
                 dummyManager.load = jest.fn(() => {
                     throw new Error("dummy error");
                 });
@@ -485,7 +485,7 @@ describe("Cli Profile Manager", () => {
 
         describe("Delete operation", () => {
             it("should delete credentials and profile with with secure properties", async () => {
-                const dummyManager = new DefaultCredentialManager("dummy", "dummy manager");
+                const dummyManager = new DefaultCredentialManager("dummy");
                 dummyManager.delete = jest.fn();
                 Object.defineProperty(CredentialManagerFactory, "manager", {get: jest.fn().mockReturnValue(dummyManager)});
                 Object.defineProperty(CredentialManagerFactory, "initialized", {get: jest.fn().mockReturnValue(true)});
@@ -507,7 +507,7 @@ describe("Cli Profile Manager", () => {
             });
 
             it("should not invoke the credential manager if it has not been initialized", async () => {
-                const dummyManager = new DefaultCredentialManager("dummy", "dummy manager");
+                const dummyManager = new DefaultCredentialManager("dummy");
                 dummyManager.delete = jest.fn();
                 Object.defineProperty(CredentialManagerFactory, "manager", {get: jest.fn().mockReturnValue(dummyManager)});
                 Object.defineProperty(CredentialManagerFactory, "initialized", {get: jest.fn().mockReturnValue(false)});
@@ -532,7 +532,7 @@ describe("Cli Profile Manager", () => {
             });
 
             it("should fail if the Credential Manager throws an error", async () => {
-                const dummyManager = new DefaultCredentialManager("dummy", "dummy manager");
+                const dummyManager = new DefaultCredentialManager("dummy");
                 dummyManager.delete = jest.fn(() => {
                     throw new Error("dummy error");
                 });
