@@ -419,7 +419,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
 
                     throw new ImperativeError({
                         msg: `Unable to store the secure field "${propertyNamePath}" associated with ` +
-                            `the profile "${profile.name}" of type "${this.profileType}".`,
+                            `the profile "${name}" of type "${this.profileType}".`,
                         additionalDetails,
                         causeErrors: err
                     });

@@ -306,7 +306,7 @@ export class ProfileValidator {
                     "tests got ambiguous results. " + (plan.failureSuggestions ? "\n" + plan.failureSuggestions : "");
                 break;
             default:
-                log.warn("Unknown validation outcome in report for %s profile %s", report.profile.type, report.profile.name);
+                log.warn("Unknown validation outcome in report for %s profile %s", profileType, profileName);
         }
 
         text += TextUtils.wordWrap(TextUtils.formatMessage("The %s profile named \"%s\" %s\n",
