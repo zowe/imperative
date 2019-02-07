@@ -257,10 +257,11 @@ export abstract class AbstractRestClient {
              * Path join is ok for just the resource part of the URL.
              * We also eliminate any whitespace typos at the beginning
              * or end of basePath or resource.
+             * Posix.normalize to avoid "///"
              */
-            path: path.posix.join(path.posix.sep,
+            path: path.posix.normalize(path.posix.join(path.posix.sep,
                 this.session.ISession.basePath.trim(),
-                resource.trim()
+                resource.trim())
             ),
             port: this.session.ISession.port,
             rejectUnauthorized: this.session.ISession.rejectUnauthorized
