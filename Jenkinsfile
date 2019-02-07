@@ -493,7 +493,7 @@ pipeline {
          * EXECUTION CONDITIONS
          * --------------------
          * - SHOULD_BUILD is true
-         * - The current branch is the DEV_BRANCH.master
+         * - The current branch is the DEV_BRANCH.master or DEV_BRANCH.beta
          * - The build is still successful and not unstable
          *
          * DESCRIPTION
@@ -508,7 +508,7 @@ pipeline {
          * the BUILD_REVISION that was retrieved earlier. If they do not match,
          * the commit will not be pushed and the build will fail. This handles
          * the condition where the current build made it to this step but another
-         * change had been pushed to the master branch. This means that we would
+         * change had been pushed to the branch. This means that we would
          * have to bump the version of a future commit to the one we just built
          * and tested, which is a big no no. A corresponding email will be sent
          * out in this situation to explain how this condition could have occurred.
@@ -538,13 +538,13 @@ pipeline {
                 timeout(time: 5, unit: 'MINUTES') {
                     echo "Bumping Version"
 
-                    // Blow away any pending changes and pull down the master branch...
+                    // Blow away any pending changes and pull down the BRANCH_NAME branch...
                     // this should be the same as our current commit since concurrency builds are turned
                     // off for that branch
                     sh "git reset --hard HEAD"
-                    sh "git checkout ${DEV_BRANCH.master}"
+                    sh "git checkout ${BRANCH_NAME}"
 
-                    // Make sure that the revision of the build and the current revision of the DEV_BRANCH.master match
+                    // Make sure that the revision of the build and the current revision of the BRANCH_NAME match
                     script {
                         revision = sh returnStdout: true, script: GIT_REVISION_LOOKUP
 
@@ -574,12 +574,12 @@ pipeline {
                     }
 
                     // For debugging purposes
-                    echo "Current Status of ${DEV_BRANCH.master}"
+                    echo "Current Status of ${BRANCH_NAME}"
                     sh "git status"
 
                     // Do the push with credentials from the jenkins server
                     withCredentials([usernameColonPassword(credentialsId: GIT_CREDENTIALS_ID, variable: 'TOKEN')]) {
-                        sh "git push https://${TOKEN}@${GIT_REPO_URL} ${DEV_BRANCH.master} --follow-tags"
+                        sh "git push https://${TOKEN}@${GIT_REPO_URL} ${BRANCH_NAME} --follow-tags"
                     }
 
                     script {
