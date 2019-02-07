@@ -43,6 +43,7 @@
     "lint": "npm run lint:packages && npm run lint:tests",
     "lint:packages": "tslint --format stylish -c ./tslint-packages.json \"packages/**/*.ts\"",
     "lint:tests": "tslint --format stylish -c ./tslint-tests.json \"**/__tests__/**/*.ts\"",
+    "audit:public": "npm audit --registry https://registry.npmjs.org/",
     "watch": "gulp watch"
   },
   "dependencies": {
