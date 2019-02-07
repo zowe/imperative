@@ -362,7 +362,8 @@ describe("Imperative should provide advanced syntax validation rules", function 
                         helpGenerator,
                         profileManagerFactory: new BasicProfileManagerFactory(TEST_HOME,
                             DUMMY_PROFILE_TYPE_CONFIG),
-                        rootCommandName: "fake"
+                        rootCommandName: "fake",
+                        commandLine: "fake"
                     }).invoke({ arguments: { "_": ["banana"], "$0": "", "my-number": "banana" }, silent: true, responseFormat: "json" }).then(
                         (completedResponse: ICommandResponse) => {
                             // Command should have failed
@@ -390,7 +391,8 @@ describe("Imperative should provide advanced syntax validation rules", function 
                         helpGenerator,
                         profileManagerFactory: new BasicProfileManagerFactory(TEST_HOME,
                             DUMMY_PROFILE_TYPE_CONFIG),
-                        rootCommandName: "fake"
+                        rootCommandName: "fake",
+                        commandLine: "fake"
                     }).invoke({ arguments: { "_": ["banana"], "$0": "", "my-number": "123546" }, silent: true, responseFormat: "json" }).then(
                         (completedResponse: ICommandResponse) => {
                             expect(completedResponse.success).toEqual(true);
