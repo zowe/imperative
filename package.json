@@ -1,15 +1,17 @@
 {
   "name": "@brightside/imperative",
-  "version": "2.0.0-next.201901162101",
+  "version": "2.1.0-alpha.201902072106",
   "description": "framework for building configurable CLIs",
+  "author": "Broadcom",
   "license": "EPL 2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/zowe/imperative.git"
   },
-  "author": "CA",
   "keywords": [
-    "CLI"
+    "CLI",
+    "framework",
+    "zowe"
   ],
   "pkg": {
     "scripts": [
