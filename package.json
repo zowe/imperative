@@ -3,7 +3,7 @@
   "version": "2.0.0-typescript3",
   "description": "framework for building configurable CLIs",
   "license": "EPL 2.0",
-  "repository": "https://github.com/gizafoundation/imperative",
+  "repository": "https://github.com/zowe/imperative",
   "author": "CA",
   "keywords": [
     "CLI"
@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@types/yargs": "8.0.2",
+    "@zowe/perf-timing": "1.0.0-next.201811191947",
     "chalk": "2.1.0",
     "cli-table3": "0.5.1",
     "dataobject-parser": "1.2.1",
@@ -60,6 +61,7 @@
     "prettyjson": "1.2.1",
     "progress": "2.0.0",
     "rimraf": "2.6.1",
+    "save": "^2.3.2",
     "semver": "5.5.0",
     "stack-trace": "0.0.10",
     "wrap-ansi": "3.0.1",
@@ -79,7 +81,7 @@
     "@types/keytar": "4.0.1",
     "@types/lodash": "4.14.106",
     "@types/mustache": "0.8.29",
-    "@types/node": "8.0.28",
+    "@types/node": "8.10.37",
     "@types/progress": "2.0.0",
     "@types/stack-trace": "0.0.28",
     "@types/tmp": "0.0.33",

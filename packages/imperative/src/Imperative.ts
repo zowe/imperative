@@ -13,6 +13,24 @@
  * Main class of the Imperative framework, returned when you
  * require("@brightside/imperative") e.g. const imperative =  require("@brightside/imperative");
  */
+import { PerfTiming } from "@zowe/perf-timing";
+
+// Bootstrap the performance tools
+if (PerfTiming.isEnabled) {
+    // These are expensive operations so imperative should
+    // only do it when performance is enabled.
+    const Module = require("module");
+
+    // Store the reference to the original require.
+    const originalRequire = Module.prototype.require;
+
+    // Timerify a wrapper named function so we can be sure that not just
+    // any anonymous function gets checked.
+    Module.prototype.require = PerfTiming.api.watch(function NodeModuleLoader() {
+        return originalRequire.apply(this, arguments);
+    });
+}
+
 import { Logger, LoggerConfigBuilder } from "../../logger";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import { Arguments } from "yargs";

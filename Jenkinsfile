@@ -196,7 +196,12 @@ pipeline {
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
                     echo 'Installing Dependencies'
-                    sh 'npm install'
+
+                    withCredentials([usernamePassword(credentialsId: ARTIFACTORY_CREDENTIALS_ID, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                        sh "expect -f ./jenkins/npm_login_zowe.expect $USERNAME $PASSWORD \"$ARTIFACTORY_EMAIL\""
+                    }
+
+                    sh 'npm logout --scope=@zowe'
                 }
             }
         }
