@@ -266,8 +266,27 @@ export class CommandProcessor {
 
         let commandLine = this.commandLine;
 
+        // determine if the command has the user option and mask out the user value
+        let regEx = /--(user|u) ([^\s]+)/gi;
+
+        if ((commandLine.search(regEx)) >= 0) {
+            // determine which version of password option used to ensure it's used in the log.
+            let userString = "";
+            let regEx2 = /--user /gi;
+            if (commandLine.search(regEx2) >= 0) {
+                userString = "user";
+            }
+            regEx2 = /--u /gi;
+            if (commandLine.search(regEx2) >= 0) {
+                userString = "u";
+            }
+
+            commandLine = commandLine.replace(regEx, "--" + userString + " ****");
+
+        }
+
         // determine if the command has the password option and mask out the password value
-        const regEx = /--(password|pass|pw) ([^\s]+)/gi;
+        regEx = /--(password|pass|pw) ([^\s]+)/gi;
 
         if ((commandLine.search(regEx)) >= 0) {
             // determine which version of password option used to ensure it's used in the log.
