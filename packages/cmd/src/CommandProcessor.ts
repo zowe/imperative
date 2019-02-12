@@ -266,7 +266,7 @@ export class CommandProcessor {
 
         let commandLine = this.commandLine;
 
-        // determine if the command has the user option and mask out the user value
+        // determine if the command has the user option and mask the user value
         let regEx = /--(user|u) ([^\s]+)/gi;
 
         if ((commandLine.search(regEx)) >= 0) {
@@ -285,7 +285,7 @@ export class CommandProcessor {
 
         }
 
-        // determine if the command has the password option and mask out the password value
+        // determine if the command has the password option and mask the password value
         regEx = /--(password|pass|pw) ([^\s]+)/gi;
 
         if ((commandLine.search(regEx)) >= 0) {
