@@ -78,9 +78,9 @@ describe("Imperative should provide advanced syntax validation rules", function 
                 produceMarkdown: false,
                 rootCommandName: "dummy"
             }, {
-                    fullCommandTree: fakeParent,
-                    commandDefinition: ValidationTestCommand
-                });
+                fullCommandTree: fakeParent,
+                commandDefinition: ValidationTestCommand
+            });
             return new CommandProcessor(
                 {
                     envVariablePrefix: ENV_PREFIX,
@@ -91,7 +91,7 @@ describe("Imperative should provide advanced syntax validation rules", function 
                     rootCommandName: "fakeroot",
                     commandLine: "fakecommand"
                 })
-                .invoke({ arguments: options, responseFormat: "json", silent: true }).then(
+                .invoke({arguments: options, responseFormat: "json", silent: true}).then(
                     (completedResponse: ICommandResponse) => {
                         logger.debug(JSON.stringify(completedResponse));
                         if (shouldSucceed) {
@@ -325,6 +325,90 @@ describe("Imperative should provide advanced syntax validation rules", function 
                     minValidOptions + "--always-required-string hello",
                     false, ["multiple", "--always-required-string"])();
             });
+        describe("We should be able to validate array positional arguments", function () {
+            const numberCommand: ICommandDefinition = {
+                name: "gimme-array", aliases: [],
+                description: "specify an array",
+                positionals: [
+                    {
+                        name: "my-array...",
+                        required: true,
+                        type: "string",
+                        description: "gimme those strings"
+                    }
+                ],
+                type: "command",
+                handler: __dirname + "/ValidationTestCommandHandler"
+            };
+            const fakeParent: ICommandDefinition = {
+                name: undefined,
+                description: "", type: "group",
+                children: [ValidationTestCommand]
+            };
+            it("If we have a command with a required string array type argument, we should" +
+                " successfully validate when we specify a value for the array", function () {
+                const helpGenerator: AbstractHelpGenerator = new DefaultHelpGenerator({
+                    primaryHighlightColor: "yellow",
+                    produceMarkdown: false,
+                    rootCommandName: "dummy"
+                }, {
+                    fullCommandTree: fakeParent,
+                    commandDefinition: numberCommand
+                });
+                return new CommandProcessor({
+                    envVariablePrefix: ENV_PREFIX,
+                    definition: numberCommand,
+                    fullDefinition: fakeParent,
+                    helpGenerator,
+                    profileManagerFactory: new BasicProfileManagerFactory(TEST_HOME,
+                        DUMMY_PROFILE_TYPE_CONFIG),
+                    rootCommandName: "fake",
+                    commandLine: "fake"
+                }).invoke({
+                    arguments: {"_": ["banana"], "$0": "", "my-array": ["banana"]},
+                    silent: true,
+                    responseFormat: "json"
+                }).then(
+                    (completedResponse: ICommandResponse) => {
+                        // Command should have failed
+                        expect(completedResponse.success).toEqual(true);
+                        logger.debug(JSON.stringify(completedResponse));
+                    });
+            });
+
+            it("If we have a command with a required string array type argument, we should" +
+                " fail to validate when we specify no value for the array", function () {
+                const helpGenerator: AbstractHelpGenerator = new DefaultHelpGenerator({
+                    primaryHighlightColor: "yellow",
+                    produceMarkdown: false,
+                    rootCommandName: "dummy"
+                }, {
+                    fullCommandTree: fakeParent,
+                    commandDefinition: numberCommand
+                });
+                return new CommandProcessor({
+                    envVariablePrefix: ENV_PREFIX,
+                    definition: numberCommand,
+                    fullDefinition: fakeParent,
+                    helpGenerator,
+                    profileManagerFactory: new BasicProfileManagerFactory(TEST_HOME,
+                        DUMMY_PROFILE_TYPE_CONFIG),
+                    rootCommandName: "fake",
+                    commandLine: "fake"
+                }).invoke({
+                    arguments: {_: [], $0: ""},
+                    silent: true,
+                    responseFormat: "json"
+                }).then(
+                    (completedResponse: ICommandResponse) => {
+                        // Command should have failed
+                        expect(completedResponse.success).toEqual(false);
+                        logger.debug(JSON.stringify(completedResponse));
+                        expect(completedResponse.stderr.toString()).toContain("my-array");
+                    });
+            });
+        });
+
         describe("We should be able to validate positional arguments of type 'number'", function () {
             const numberCommand: ICommandDefinition = {
                 name: "gimme-number", aliases: [],
@@ -347,58 +431,66 @@ describe("Imperative should provide advanced syntax validation rules", function 
             };
             it("If we have a command with a number-type positional, and we try " +
                 "to specify a non-numeric argument, the command should fail", function () {
-                    const helpGenerator: AbstractHelpGenerator = new DefaultHelpGenerator({
-                        primaryHighlightColor: "yellow",
-                        produceMarkdown: false,
-                        rootCommandName: "dummy"
-                    }, {
-                            fullCommandTree: fakeParent,
-                            commandDefinition: numberCommand
-                        });
-                    return new CommandProcessor({
-                        envVariablePrefix: ENV_PREFIX,
-                        definition: numberCommand,
-                        fullDefinition: fakeParent,
-                        helpGenerator,
-                        profileManagerFactory: new BasicProfileManagerFactory(TEST_HOME,
-                            DUMMY_PROFILE_TYPE_CONFIG),
-                        rootCommandName: "fake",
-                        commandLine: "fake"
-                    }).invoke({ arguments: { "_": ["banana"], "$0": "", "my-number": "banana" }, silent: true, responseFormat: "json" }).then(
-                        (completedResponse: ICommandResponse) => {
-                            // Command should have failed
-                            expect(completedResponse.success).toEqual(false);
-                            logger.debug(JSON.stringify(completedResponse));
-                            expect(JSON.stringify(completedResponse)).toContain("The value must be a number");
-                            expect(JSON.stringify(completedResponse)).toContain("banana");
-                        });
+                const helpGenerator: AbstractHelpGenerator = new DefaultHelpGenerator({
+                    primaryHighlightColor: "yellow",
+                    produceMarkdown: false,
+                    rootCommandName: "dummy"
+                }, {
+                    fullCommandTree: fakeParent,
+                    commandDefinition: numberCommand
                 });
+                return new CommandProcessor({
+                    envVariablePrefix: ENV_PREFIX,
+                    definition: numberCommand,
+                    fullDefinition: fakeParent,
+                    helpGenerator,
+                    profileManagerFactory: new BasicProfileManagerFactory(TEST_HOME,
+                        DUMMY_PROFILE_TYPE_CONFIG),
+                    rootCommandName: "fake",
+                    commandLine: "fake"
+                }).invoke({
+                    arguments: {"_": ["banana"], "$0": "", "my-number": "banana"},
+                    silent: true,
+                    responseFormat: "json"
+                }).then(
+                    (completedResponse: ICommandResponse) => {
+                        // Command should have failed
+                        expect(completedResponse.success).toEqual(false);
+                        logger.debug(JSON.stringify(completedResponse));
+                        expect(JSON.stringify(completedResponse)).toContain("The value must be a number");
+                        expect(JSON.stringify(completedResponse)).toContain("banana");
+                    });
+            });
             it("If we have a command with a number-type positional, and we try " +
                 "to specify a numeric argument, the command should succeed", function () {
 
-                    const helpGenerator: AbstractHelpGenerator = new DefaultHelpGenerator({
-                        primaryHighlightColor: "yellow",
-                        produceMarkdown: false,
-                        rootCommandName: "dummy"
-                    }, {
-                            fullCommandTree: fakeParent,
-                            commandDefinition: numberCommand
-                        });
-                    return new CommandProcessor({
-                        envVariablePrefix: ENV_PREFIX,
-                        definition: numberCommand,
-                        fullDefinition: fakeParent,
-                        helpGenerator,
-                        profileManagerFactory: new BasicProfileManagerFactory(TEST_HOME,
-                            DUMMY_PROFILE_TYPE_CONFIG),
-                        rootCommandName: "fake",
-                        commandLine: "fake"
-                    }).invoke({ arguments: { "_": ["banana"], "$0": "", "my-number": "123546" }, silent: true, responseFormat: "json" }).then(
-                        (completedResponse: ICommandResponse) => {
-                            expect(completedResponse.success).toEqual(true);
-                            logger.debug(JSON.stringify(completedResponse));
-                        });
+                const helpGenerator: AbstractHelpGenerator = new DefaultHelpGenerator({
+                    primaryHighlightColor: "yellow",
+                    produceMarkdown: false,
+                    rootCommandName: "dummy"
+                }, {
+                    fullCommandTree: fakeParent,
+                    commandDefinition: numberCommand
                 });
+                return new CommandProcessor({
+                    envVariablePrefix: ENV_PREFIX,
+                    definition: numberCommand,
+                    fullDefinition: fakeParent,
+                    helpGenerator,
+                    profileManagerFactory: new BasicProfileManagerFactory(TEST_HOME,
+                        DUMMY_PROFILE_TYPE_CONFIG),
+                    rootCommandName: "fake",
+                    commandLine: "fake"
+                }).invoke({
+                    arguments: {"_": ["banana"], "$0": "", "my-number": "123546"},
+                    silent: true,
+                    responseFormat: "json"
+                }).then(
+                    (completedResponse: ICommandResponse) => {
+                        expect(completedResponse.success).toEqual(true);
+                        logger.debug(JSON.stringify(completedResponse));
+                    });
+            });
         });
     });
 });
