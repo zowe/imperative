@@ -250,8 +250,8 @@ export class CommandProcessor {
         const api = PerfTiming.api;
 
         if (PerfTiming.isEnabled) {
-            // Marks point A
-            api.mark("A");
+            // Marks point START
+            api.mark("START");
         }
 
         // Ensure parameters are correct
@@ -381,6 +381,12 @@ export class CommandProcessor {
             response.succeeded();
             response.endProgressBar();
 
+            if (PerfTiming.isEnabled) {
+                // Marks point END
+                api.mark("END");
+                api.measure("Command executed: " + this.commandLine, "START", "END");
+            }
+
             // Return the response to the caller
             return this.finishResponse(response);
 
@@ -450,9 +456,9 @@ export class CommandProcessor {
             response.endProgressBar();
 
             if (PerfTiming.isEnabled) {
-                // Marks point A
-                api.mark("B");
-                api.measure("Command executed: " + this.commandLine, "A", "B");
+                // Marks point END
+                api.mark("END");
+                api.measure("Command executed: " + this.commandLine, "START", "END");
             }
 
             // Return the response to the caller

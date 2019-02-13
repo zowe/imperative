@@ -391,8 +391,8 @@ export class PluginManagementFacility {
         const api = PerfTiming.api;
 
         if (PerfTiming.isEnabled) {
-            // Marks point A
-            api.mark("A");
+            // Marks point START
+            api.mark("START");
         }
 
         /* Form a top-level command group for this plugin.
@@ -474,9 +474,9 @@ export class PluginManagementFacility {
         }
 
         if (PerfTiming.isEnabled) {
-            // Marks point A
-            api.mark("B");
-            api.measure("Plugin add completed: " + pluginCfgProps.impConfig.name, "A", "B");
+            // Marks point END
+            api.mark("END");
+            api.measure("Plugin add completed: " + pluginCfgProps.impConfig.name, "START", "END");
         }
 
     }
