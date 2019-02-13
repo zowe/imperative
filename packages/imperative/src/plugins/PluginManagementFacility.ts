@@ -477,7 +477,7 @@ export class PluginManagementFacility {
         if (PerfTiming.isEnabled) {
             // Marks point END
             api.mark("END_ADD_PLUGIN");
-            api.measure("Plugin add completed: " + pluginCfgProps.impConfig.name, "START_ADD_PLUGIN", "END_ADD_PLUGIN");
+            api.measure("Add plugin completed: " + pluginCfgProps.impConfig.name, "START_ADD_PLUGIN", "END_ADD_PLUGIN");
         }
 
     }
@@ -895,7 +895,7 @@ export class PluginManagementFacility {
         if (PerfTiming.isEnabled) {
             // Marks point END
             api.mark("END_LOAD_PLUGIN");
-            api.measure("requirePluginModuleCallback()", "START_LOAD_PLUGIN", "END_LOAD_PLUGIN");
+            api.measure("Load plugin completed", "START_LOAD_PLUGIN", "END_LOAD_PLUGIN");
         }
 
         this.pluginNmForUseInCallback = "NoPluginNameAssigned";

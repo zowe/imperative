@@ -83,7 +83,7 @@ export class ConfigManagementFacility {
         if (PerfTiming.isEnabled) {
             // Marks point END
             api.mark("END_CONFIG_INIT");
-            api.measure("CConfigManagementFacility.init()", "START_CONFIG_INIT", "END_CONFIG_INIT");
+            api.measure("ConfigManagementFacility.init()", "START_CONFIG_INIT", "END_CONFIG_INIT");
         }
     }
 }
