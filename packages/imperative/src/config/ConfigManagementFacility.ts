@@ -61,7 +61,7 @@ export class ConfigManagementFacility {
 
         if (PerfTiming.isEnabled) {
             // Marks point START
-            api.mark("START");
+            api.mark("START_CONFIG_INIT");
         }
 
         this.impLogger.debug("ConfigManagementFacility.init() - Start");
@@ -82,8 +82,8 @@ export class ConfigManagementFacility {
 
         if (PerfTiming.isEnabled) {
             // Marks point END
-            api.mark("END");
-            api.measure("CConfigManagementFacility.init()", "START", "END");
+            api.mark("END_CONFIG_INIT");
+            api.measure("CConfigManagementFacility.init()", "START_CONFIG_INIT", "END_CONFIG_INIT");
         }
     }
 }

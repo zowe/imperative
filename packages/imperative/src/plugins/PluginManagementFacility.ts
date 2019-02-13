@@ -367,6 +367,7 @@ export class PluginManagementFacility {
      * @returns {any} - The content exported from the specified module.
      */
     public requirePluginModuleCallback(relativePath: string): any {
+
         const pluginModuleRuntimePath = this.formPluginRuntimePath(this.pluginNmForUseInCallback, relativePath);
         try {
             return require(pluginModuleRuntimePath);
@@ -392,7 +393,7 @@ export class PluginManagementFacility {
 
         if (PerfTiming.isEnabled) {
             // Marks point START
-            api.mark("START");
+            api.mark("START_ADD_PLUGIN");
         }
 
         /* Form a top-level command group for this plugin.
@@ -475,8 +476,8 @@ export class PluginManagementFacility {
 
         if (PerfTiming.isEnabled) {
             // Marks point END
-            api.mark("END");
-            api.measure("Plugin add completed: " + pluginCfgProps.impConfig.name, "START", "END");
+            api.mark("END_ADD_PLUGIN");
+            api.measure("Plugin add completed: " + pluginCfgProps.impConfig.name, "START_ADD_PLUGIN", "END_ADD_PLUGIN");
         }
 
     }
@@ -867,6 +868,14 @@ export class PluginManagementFacility {
         }
 
         // use the core imperative loader because it will load config modules
+
+        const api = PerfTiming.api;
+
+        if (PerfTiming.isEnabled) {
+            // Marks point START
+            api.mark("START_LOAD_PLUGIN");
+        }
+
         let pluginConfig: IImperativeConfig;
         this.pluginNmForUseInCallback = pluginName;
         try {
@@ -882,6 +891,13 @@ export class PluginManagementFacility {
             );
             return null;
         }
+
+        if (PerfTiming.isEnabled) {
+            // Marks point END
+            api.mark("END_LOAD_PLUGIN");
+            api.measure("requirePluginModuleCallback()", "START_LOAD_PLUGIN", "END_LOAD_PLUGIN");
+        }
+
         this.pluginNmForUseInCallback = "NoPluginNameAssigned";
 
         pluginCfgProps.impConfig = pluginConfig;

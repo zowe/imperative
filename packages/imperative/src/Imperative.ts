@@ -123,7 +123,7 @@ export class Imperative {
 
                 if (PerfTiming.isEnabled) {
                     // Marks point START
-                    api.mark("START");
+                    api.mark("START_IMP_INIT");
                 }
 
                 /**
@@ -248,8 +248,8 @@ export class Imperative {
 
                 if (PerfTiming.isEnabled) {
                     // Marks point END
-                    api.mark("END");
-                    api.measure("Imperative.init()", "START", "END");
+                    api.mark("END_IMP_INIT");
+                    api.measure("Imperative.init()", "START_IMP_INIT", "END_IMP_INIT");
                 }
 
             } catch (error) {
