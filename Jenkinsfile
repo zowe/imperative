@@ -201,6 +201,8 @@ pipeline {
                         sh "expect -f ./jenkins/npm_login_zowe.expect $USERNAME $PASSWORD \"$ARTIFACTORY_EMAIL\""
                     }
 
+                    sh 'npm install'
+
                     sh 'npm logout --scope=@zowe'
                 }
             }
