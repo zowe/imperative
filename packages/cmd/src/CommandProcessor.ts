@@ -9,6 +9,7 @@
 *
 */
 
+import { PerfTiming } from "@zowe/perf-timing";
 import { ICommandDefinition } from "./doc/ICommandDefinition";
 import { CommandUtils } from "./utils/CommandUtils";
 import { Arguments } from "yargs";
@@ -245,6 +246,14 @@ export class CommandProcessor {
      * truly exceptional condition (should not occur).
      */
     public async invoke(params: IInvokeCommandParms): Promise<ICommandResponse> {
+
+        const api = PerfTiming.api;
+
+        if (PerfTiming.isEnabled) {
+            // Marks point A
+            api.mark("A");
+        }
+
         // Ensure parameters are correct
         ImperativeExpect.toNotBeNullOrUndefined(params,
             `${CommandProcessor.ERROR_TAG} invoke(): No parameters supplied.`);
@@ -440,9 +449,16 @@ export class CommandProcessor {
             response.succeeded();
             response.endProgressBar();
 
+            if (PerfTiming.isEnabled) {
+                // Marks point A
+                api.mark("B");
+                api.measure("Command executed: " + this.commandLine, "A", "B");
+            }
+
             // Return the response to the caller
             return this.finishResponse(chainedResponse);
         }
+
     }
 
     /**

@@ -9,6 +9,7 @@
 *
 */
 
+import { PerfTiming } from "@zowe/perf-timing";
 import { IImperativeConfig } from "../../src/doc/IImperativeConfig";
 import { ImperativeConfig } from "../../src/ImperativeConfig";
 import { isAbsolute, join } from "path";
@@ -386,6 +387,14 @@ export class PluginManagementFacility {
      * @param {IPluginCfgProps} pluginCfgProps - The configuration properties for this plugin
      */
     private addPluginToHostCli(pluginCfgProps: IPluginCfgProps): void {
+
+        const api = PerfTiming.api;
+
+        if (PerfTiming.isEnabled) {
+            // Marks point A
+            api.mark("A");
+        }
+
         /* Form a top-level command group for this plugin.
          * Resolve all means of command definition into the pluginCmdGroup.children
          */
@@ -463,6 +472,13 @@ export class PluginManagementFacility {
                 this.removeCmdGrpFromResolvedCliCmdTree(pluginCmdGroup);
             }
         }
+
+        if (PerfTiming.isEnabled) {
+            // Marks point A
+            api.mark("B");
+            api.measure("Plugin add completed: " + pluginCfgProps.impConfig.name, "A", "B");
+        }
+
     }
 
     // __________________________________________________________________________

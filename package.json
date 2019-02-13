@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "@types/yargs": "8.0.2",
-    "@zowe/perf-timing": "1.0.0-next.201811191947",
+    "@zowe/perf-timing": "^1.0.0-alpha.201901111613",
     "chalk": "2.1.0",
     "cli-table3": "0.5.1",
     "dataobject-parser": "1.2.1",
