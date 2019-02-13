@@ -108,8 +108,8 @@
     "jest-environment-node-debug": "2.0.0",
     "jest-html-reporter": "2.0.0",
     "jest-junit": "3.6.0",
-    "jest-stare": "1.6.0",
     "jest-sonar-reporter": "2.0.0",
+    "jest-stare": "1.6.0",
     "jsdoc": "3.5.5",
     "keytar": "4.3.0",
     "madge": "3.0.0",
@@ -119,7 +119,7 @@
     "ts-jest": "21.2.1",
     "ts-node": "^5.0.0",
     "tslint": "5.10.0",
-    "typedoc": "0.12.0",
+    "typedoc": "^0.14.2",
     "typescript": "3.2.2",
     "uuid": "3.2.1",
     "yargs-parser": "9.0.2"

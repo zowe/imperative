@@ -118,6 +118,14 @@ export class Imperative {
     public static init(config?: IImperativeConfig): Promise<void> {
         return new Promise<void>(async (initializationComplete: () => void, initializationFailed: ImperativeReject) => {
             try {
+
+                const api = PerfTiming.api;
+
+                if (PerfTiming.isEnabled) {
+                    // Marks point START
+                    api.mark("START");
+                }
+
                 /**
                  * Config Logger Manager to enable log messages in memory prior to logger init.
                  */
@@ -237,6 +245,13 @@ export class Imperative {
                  * Notify caller initialization is complete
                  */
                 initializationComplete();
+
+                if (PerfTiming.isEnabled) {
+                    // Marks point END
+                    api.mark("END");
+                    api.measure("Imperative.init()", "START", "END");
+                }
+
             } catch (error) {
                 const imperativeLogger = Logger.getImperativeLogger();
                 imperativeLogger.fatal(require("util").inspect(error));
