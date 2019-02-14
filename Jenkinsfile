@@ -70,7 +70,7 @@ node('ca-jenkins-agent') {
             JEST_JUNIT_TITLE="{title}",
             JEST_HTML_REPORTER_OUTPUT_PATH: "${UNIT_RESULTS}/index.html",
             JEST_HTML_REPORTER_PAGE_TITLE: "${BRANCH_NAME} - Unit Test"
-        ]
+        ],
         testResults: [dir: "${UNIT_TEST_ROOT}", files: "index.html", name: 'Imperative - Unit Test Report'],
         coverageResults: [dir: "__tests__/__results__/unit/coverage/lcov-report", files: "index.html", name: 'Imperative - Unit Test Coverage Report'],
         junitOutput: UNIT_JUNIT_OUTPUT,
@@ -109,7 +109,7 @@ node('ca-jenkins-agent') {
             JEST_JUNIT_TITLE="{title}",
             JEST_HTML_REPORTER_OUTPUT_PATH: "${INTEGRATION_TEST_ROOT}/index.html",
             JEST_HTML_REPORTER_PAGE_TITLE: "${BRANCH_NAME} - Integration Test"
-        ]
+        ],
         testResults: [dir: INTEGRATION_TEST_ROOT, files: "index.html", name: 'Imperative - Integration Test Report'],
         junitOutput: INTEGRATION_JUNIT_OUTPUT
     )
