@@ -78,10 +78,10 @@ node('ca-jenkins-agent') {
             JEST_JUNIT_ANCESTOR_SEPARATOR: " > ",
             JEST_JUNIT_CLASSNAME: "Unit.{classname}",
             JEST_JUNIT_TITLE: "{title}",
-            JEST_HTML_REPORTER_OUTPUT_PATH: "${UNIT_TEST_ROOT}/index.html",
-            JEST_HTML_REPORTER_PAGE_TITLE: "${BRANCH_NAME} - Unit Test"
+            JEST_STARE_RESULT_DIR: "${UNIT_TEST_ROOT}/jest-stare",
+            JEST_STARE_RESULT_HTML: "index.html"
         ],
-        testResults: [dir: "${UNIT_TEST_ROOT}", files: "index.html", name: 'Imperative - Unit Test Report'],
+        testResults: [dir: "${UNIT_TEST_ROOT}/jest-stare", files: "index.html", name: 'Imperative - Unit Test Report'],
         coverageResults: [dir: "__tests__/__results__/unit/coverage/lcov-report", files: "index.html", name: 'Imperative - Unit Test Coverage Report'],
         junitOutput: UNIT_JUNIT_OUTPUT,
         cobertura: [
@@ -117,10 +117,10 @@ node('ca-jenkins-agent') {
             JEST_JUNIT_ANCESTOR_SEPARATOR: " > ",
             JEST_JUNIT_CLASSNAME: "Integration.{classname}",
             JEST_JUNIT_TITLE: "{title}",
-            JEST_HTML_REPORTER_OUTPUT_PATH: "${INTEGRATION_TEST_ROOT}/index.html",
-            JEST_HTML_REPORTER_PAGE_TITLE: "${BRANCH_NAME} - Integration Test"
+            JEST_STARE_RESULT_DIR: "${INTEGRATION_TEST_ROOT}/jest-stare",
+            JEST_STARE_RESULT_HTML: "index.html"
         ],
-        testResults: [dir: INTEGRATION_TEST_ROOT, files: "index.html", name: 'Imperative - Integration Test Report'],
+        testResults: [dir: "$INTEGRATION_TEST_ROOT/jest-stare", files: "index.html", name: 'Imperative - Integration Test Report'],
         junitOutput: INTEGRATION_JUNIT_OUTPUT
     )
 

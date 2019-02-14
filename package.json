@@ -110,9 +110,8 @@
     "jest": "21.2.1",
     "jest-environment-node": "21.2.1",
     "jest-environment-node-debug": "2.0.0",
-    "jest-html-reporter": "2.0.0",
     "jest-junit": "3.6.0",
-    "jest-stare": "1.6.0",
+    "jest-stare": "1.11.1",
     "jest-sonar-reporter": "2.0.0",
     "jsdoc": "3.5.5",
     "madge": "3.0.0",
@@ -164,10 +163,6 @@
     ],
     "coverageDirectory": "<rootDir>/__tests__/__results__/unit/coverage"
   },
-  "jest-html-reporter": {
-    "pageTitle": "Imperative CLI Tests",
-    "outputPath": "__tests__/__results__/unit/results.html"
-  },
   "jest-junit": {
     "output": "./__tests__/__results__/junit/junit.xml"
   },
@@ -178,7 +173,6 @@
     "resultDir": "__tests__/__results__/jest-stare",
     "additionalResultsProcessors": [
       "jest-junit",
-      "jest-html-reporter",
       "jest-sonar-reporter"
     ],
     "coverageLink": "../unit/coverage/lcov-report/index.html"
