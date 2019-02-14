@@ -100,7 +100,7 @@ node('ca-jenkins-agent') {
             sh "npm run test:integration"
         },
         timeout: [time: 30, unit: 'MINUTES'],
-        shouldUnlocKeyring: true,
+        shouldUnlockKeyring: true,
         environment: [
             JEST_JUNIT_OUTPUT: INTEGRATION_JUNIT_OUTPUT,
             JEST_SUIT_NAME: "Integration Tests",
