@@ -68,7 +68,7 @@ node('ca-jenkins-agent') {
             JEST_JUNIT_ANCESTOR_SEPARATOR: " > ",
             JEST_JUNIT_CLASSNAME: "Unit.{classname}",
             JEST_JUNIT_TITLE: "{title}",
-            JEST_HTML_REPORTER_OUTPUT_PATH: "${UNIT_RESULTS}/index.html",
+            JEST_HTML_REPORTER_OUTPUT_PATH: "${UNIT_TEST_ROOT}/index.html",
             JEST_HTML_REPORTER_PAGE_TITLE: "${BRANCH_NAME} - Unit Test"
         ],
         testResults: [dir: "${UNIT_TEST_ROOT}", files: "index.html", name: 'Imperative - Unit Test Report'],
