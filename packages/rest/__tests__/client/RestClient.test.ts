@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 *
 */
-jest.mock("path")
+jest.mock("path");
 import * as path from "path";
 import * as https from "https";
 import { Session } from "../../src/session/Session";
@@ -27,8 +27,8 @@ import { RestClientError } from "../../src/client/RestClientError";
 
 describe("RestClient tests", () => {
     beforeEach(() => {
-        jest.clearAllMocks()
-    })
+        jest.clearAllMocks();
+    });
 
     it("should add our custom header", async () => {
 
@@ -70,7 +70,7 @@ describe("RestClient tests", () => {
             data: string;
         }
 
-        (path.posix.join as jest.Mock<any>).mockReturnValueOnce("/mocked")
+        (path.posix.join as jest.Mock<any>).mockReturnValueOnce("/mocked");
 
         const emitter = new MockHttpRequestResponse();
         const httpsRequestFnc = jest.fn((options, callback) => {
