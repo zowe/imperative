@@ -116,7 +116,7 @@ node('ca-jenkins-agent') {
 
     // Perform sonar qube operations
     pipeline.createStage(
-        name: "SonarQube"
+        name: "SonarQube",
         stage: {
             def scannerHome = tool 'sonar-scanner-maven-install'
             withSonarQubeEnv('sonar-default-server') {
