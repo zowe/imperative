@@ -141,7 +141,7 @@ node('ca-jenkins-agent') {
         versionArguments: [timeout: [time: 30, unit: 'MINUTES']]
     )
 
-    def logLocation = "__test__/__results__"
+    def logLocation = "__tests__/__results__"
     // Once called, no stages can be added and all added stages will be executed. On completion
     // appropriate emails will be sent out by the shared library.
     pipeline.end(archiveFolders: [
