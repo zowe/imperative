@@ -145,11 +145,6 @@ node('ca-jenkins-agent') {
     // Once called, no stages can be added and all added stages will be executed. On completion
     // appropriate emails will be sent out by the shared library.
     pipeline.end(archiveFolders: [
-        "$logLocation/.examplewithexperimental",
-        "$logLocation/.examplewithprofiles",
-        "$logLocation/.packages-profiles",
-        "$logLocation/.pluginstest",
-        "$logLocation/.log",
-        "$logLocation/.integration"
+        "$logLocation/log"
     ])
 }
