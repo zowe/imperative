@@ -336,6 +336,21 @@ export class Logger {
      * @returns {any}
      */
     public writeToLog(method: string, message: string, args: any[]): string {
+
+        // If not 'debug' or 'trace' level then exit to avoid formatting and queuing message
+        if (((!Console.getConsole(this.category).isDebugEnabled()) && (method === "debug")) ||
+           ((!Console.getConsole(this.category).isTraceEnabled()) && (method === "trace"))) {
+            // const testMessage = "skipping write to log - " + method;
+            // LoggerManager.instance.queueMessage(this.category, "info", testMessage);
+            return ;
+        }
+        // if (((!this.logService.isDebugEnabled()) && (method === "debug")) ||
+        //     ((!this.logService.isTraceEnabled()) && (method === "trace"))) {
+        //     const testMessage = "skipping write to log - " + method;
+        //     LoggerManager.instance.queueMessage(this.category, method, testMessage);
+        //     return ;
+        // }
+
         const finalMessage = TextUtils.formatMessage.apply(this, [message].concat(args));
         if (LoggerManager.instance.isLoggerInit || this.category === Logger.DEFAULT_CONSOLE_NAME) {
             this.logService.info(this.getCallerFileAndLineTag() + finalMessage);

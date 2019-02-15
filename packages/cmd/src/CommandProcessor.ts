@@ -384,7 +384,7 @@ export class CommandProcessor {
             if (PerfTiming.isEnabled) {
                 // Marks point END
                 api.mark("END_CMD_INVOKE");
-                api.measure("Command executed: " + this.commandLine, "END_CMD_INVOKE", "END_CMD_INVOKE");
+                api.measure("Command executed: " + this.commandLine, "START_CMD_INVOKE", "END_CMD_INVOKE");
             }
 
             // Return the response to the caller
@@ -458,7 +458,7 @@ export class CommandProcessor {
             if (PerfTiming.isEnabled) {
                 // Marks point END
                 api.mark("END_CMD_INVOKE");
-                api.measure("Command executed: " + this.commandLine, "END_CMD_INVOKE", "END_CMD_INVOKE");
+                api.measure("Command executed: " + this.commandLine, "START_CMD_INVOKE", "END_CMD_INVOKE");
             }
 
             // Return the response to the caller
