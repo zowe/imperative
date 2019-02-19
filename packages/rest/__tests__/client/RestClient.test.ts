@@ -8,6 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 *
 */
+
 jest.mock("path");
 import * as path from "path";
 import * as https from "https";
