@@ -15,6 +15,18 @@ import { EnvironmentalVariableSettings,
     Imperative } from "../../../../../../../packages";
 
 describe("environmental variable integration", () => {
+    const mainModule = process.mainModule;
+
+    beforeEach(() => {
+        (process.mainModule as any) = {
+            filename: __filename
+        };
+    });
+
+    afterEach(() => {
+        process.mainModule = mainModule;
+    });
+
     it ("should be able to extract the values for the environment variables", () => {
         process.env.IMP_INTEGRATION_TESTING_IMPERATIVE_LOG_LEVEL = "THIS IS A TEST";
         process.env.IMP_INTEGRATION_TESTING_APP_LOG_LEVEL = "THIS IS ANOTHER TEST";
