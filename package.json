@@ -38,7 +38,7 @@
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "env-cmd ./__tests__/config/unit/.env.js --no-override jest -c ./__tests__/config/unit/jest.config.json",
     "pretest:integration": "gulp test:installSampleClis",
-    "test:integration": "env-cmd ./__tests__/config/integration/.env.js --no-override jest -c ./__tests__/config/integration/jest.config.json",
+    "test:integration": "env-cmd ./__tests__/config/integration/.env.js --no-override jest -c ./__tests__/config/integration/jest.config.json --runInBand",
     "posttest:integration": "gulp test:uninstallSampleClis",
     "lint": "npm run lint:packages && npm run lint:tests",
     "lint:packages": "tslint --format stylish -c ./tslint-packages.json \"packages/**/*.ts\"",
