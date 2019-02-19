@@ -27,6 +27,18 @@ const cmdOutputJson = {
 };
 
 describe("runValidatePlugin", () => {
+    const mainModule = process.mainModule;
+
+    beforeEach(() => {
+        (process.mainModule as any) = {
+            filename: __filename
+        };
+    });
+
+    afterEach(() => {
+        process.mainModule = mainModule;
+    });
+
     const mocks = {
         execSync: execSync as Mock<typeof execSync>
     };
