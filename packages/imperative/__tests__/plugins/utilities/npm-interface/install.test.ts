@@ -38,17 +38,17 @@ import { installPackages } from "../../../../src/plugins/utilities/NpmFunctions"
 describe("PMF: Install Interface", () => {
   // Objects created so types are correct.
   const mocks = {
-    dirname: dirname as Mock<typeof dirname>,
-    installPackages: installPackages as Mock<typeof installPackages>,
-    existsSync: existsSync as Mock<typeof existsSync>,
-    isAbsolute: isAbsolute as Mock<typeof isAbsolute>,
-    join: join as Mock<typeof join>,
-    readFileSync: readFileSync as Mock<typeof readFileSync>,
-    resolve: resolve as Mock<typeof resolve>,
-    writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
-    normalize: normalize as Mock<typeof normalize>,
-    lstatSync: lstatSync as Mock<typeof lstatSync>,
-    sync: sync as Mock<typeof sync>
+    dirname: dirname as any,
+    installPackages: installPackages as any,
+    existsSync: existsSync as any,
+    isAbsolute: isAbsolute as any,
+    join: join as any,
+    readFileSync: readFileSync as any,
+    resolve: resolve as any,
+    writeFileSync: writeFileSync as any,
+    normalize: normalize as any,
+    lstatSync: lstatSync as any,
+    sync: sync as any
   };
 
   const packageName = "a";
@@ -60,7 +60,7 @@ describe("PMF: Install Interface", () => {
     jest.resetAllMocks();
 
     // This needs to be mocked before running install
-    (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
+    (Logger.getImperativeLogger as any).mockReturnValue(new Logger(new Console()));
 
     /* Since install() adds new plugins into the value returned from
      * readFileSyc(plugins.json), we must reset readFileSync to return an empty set before each test.

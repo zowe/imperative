@@ -34,9 +34,9 @@ import * as path from "path";
 describe("PMF: Uninstall Interface", () => {
   // Objects created so types are correct.
   const mocks = {
-    execSync: execSync as Mock<typeof execSync>,
-    readFileSync: readFileSync as Mock<typeof readFileSync>,
-    writeFileSync: writeFileSync as Mock<typeof writeFileSync>
+    execSync: execSync as any,
+    readFileSync: readFileSync as any,
+    writeFileSync: writeFileSync as any
   };
 
   const samplePackageName = "imperative-sample-plugin";
@@ -50,7 +50,7 @@ describe("PMF: Uninstall Interface", () => {
     jest.resetAllMocks();
 
     // This needs to be mocked before running uninstall
-    (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
+    (Logger.getImperativeLogger as any).mockReturnValue(new Logger(new Console()));
 
   });
 

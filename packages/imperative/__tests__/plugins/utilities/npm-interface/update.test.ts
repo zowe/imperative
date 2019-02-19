@@ -33,9 +33,9 @@ import { installPackages } from "../../../../src/plugins/utilities/NpmFunctions"
 describe("PMF: update Interface", () => {
   // Objects created so types are correct.
   const mocks = {
-    installPackages: installPackages as Mock<typeof installPackages>,
-    existsSync: existsSync as Mock<typeof existsSync>,
-    readFileSync: readFileSync as Mock<typeof readFileSync>,
+    installPackages: installPackages as any,
+    existsSync: existsSync as any,
+    readFileSync: readFileSync as any,
   };
 
   const packageName = "pretty-format";
@@ -47,7 +47,7 @@ describe("PMF: update Interface", () => {
     jest.resetAllMocks();
 
     // This needs to be mocked before running update
-    (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
+    (Logger.getImperativeLogger as any).mockReturnValue(new Logger(new Console()));
 
     /* Since update() adds new plugins into the value returned from
      * readFileSyc(plugins.json), we must reset readFileSync to return an empty set before each test.

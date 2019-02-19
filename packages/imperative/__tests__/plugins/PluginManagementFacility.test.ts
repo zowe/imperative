@@ -36,10 +36,10 @@ import { Logger } from "../../../logger";
 
 describe("Plugin Management Facility", () => {
     const mocks = {
-        existsSync: existsSync as Mock<typeof existsSync>,
-        mkdirSync: mkdirSync as Mock<typeof mkdirSync>,
-        writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
-        readFileSync: readFileSync as Mock<typeof readFileSync>
+        existsSync: existsSync as any,
+        mkdirSync: mkdirSync as any,
+        writeFileSync: writeFileSync as any,
+        readFileSync: readFileSync as any
     };
 
     /* Put a base CLI config into ImperativeConfig. It is required by infrastructure
@@ -645,7 +645,7 @@ describe("Plugin Management Facility", () => {
                 badPluginCfgProps.impConfig = badPluginConfig;
 
                 // Ensure we get to the function that we want to validate
-                mockConflictNmOrAlias.mockReturnValueOnce(false);
+                mockConflictNmOrAlias.mockReturnValueOnce(false as any);
                 mockAreVersionsCompatible.mockReturnValueOnce(true);
 
                 isValid = PMF.validatePlugin(badPluginCfgProps, basePluginCmdDef);
@@ -667,7 +667,7 @@ describe("Plugin Management Facility", () => {
                 badPluginCfgProps.impConfig = badPluginConfig;
 
                 // Ensure we get to the function that we want to validate
-                mockConflictNmOrAlias.mockReturnValueOnce(false);
+                mockConflictNmOrAlias.mockReturnValueOnce(false as any);
                 mockAreVersionsCompatible.mockReturnValueOnce(true);
 
                 isValid = PMF.validatePlugin(badPluginCfgProps, basePluginCmdDef);
