@@ -1,9 +1,9 @@
 {
     "collectCoverage": true,
     "collectCoverageFrom": [
-        "src/**/*.ts",
+        "packages/**/*.ts",
         "!**/__tests__/**",
-        "!src/**/doc/**/I*.ts",
+        "!packages/**/doc/**/I*.ts",
         "!__tests__/"
     ],
     "coverageDirectory": "<rootDir>/__tests__/__results__/unit/coverage",
