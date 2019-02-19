@@ -1,4 +1,9 @@
 {
+    "globals": {
+        "ts-jest": {
+            "diagnostics": false
+        }
+    },
     "moduleFileExtensions": ["ts","js"],
     "testResultsProcessor": "jest-stare",
     "testEnvironment": "node",

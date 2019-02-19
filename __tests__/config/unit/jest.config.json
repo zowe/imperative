@@ -25,5 +25,10 @@
         "<rootDir>/__tests__/__src__",
         "__integration__"
     ],
-    "testRegex": "test\\.(ts|js)"
+    "testRegex": "test\\.(ts|js)",
+    "globals": {
+        "ts-jest": {
+            "diagnostics": false
+        }
+    }
 }
