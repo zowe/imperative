@@ -74,10 +74,6 @@ node('ca-jenkins-agent') {
         },
         environment: [
             JEST_JUNIT_OUTPUT: UNIT_JUNIT_OUTPUT,
-            JEST_SUIT_NAME: "Unit Tests",
-            JEST_JUNIT_ANCESTOR_SEPARATOR: " > ",
-            JEST_JUNIT_CLASSNAME: "Unit.{classname}",
-            JEST_JUNIT_TITLE: "{title}",
             JEST_STARE_RESULT_DIR: "${UNIT_TEST_ROOT}/jest-stare",
             JEST_STARE_RESULT_HTML: "index.html"
         ],
@@ -113,10 +109,6 @@ node('ca-jenkins-agent') {
         shouldUnlockKeyring: true,
         environment: [
             JEST_JUNIT_OUTPUT: INTEGRATION_JUNIT_OUTPUT,
-            JEST_SUIT_NAME: "Integration Tests",
-            JEST_JUNIT_ANCESTOR_SEPARATOR: " > ",
-            JEST_JUNIT_CLASSNAME: "Integration.{classname}",
-            JEST_JUNIT_TITLE: "{title}",
             JEST_STARE_RESULT_DIR: "${INTEGRATION_TEST_ROOT}/jest-stare",
             JEST_STARE_RESULT_HTML: "index.html"
         ],
