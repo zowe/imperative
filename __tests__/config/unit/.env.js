@@ -3,6 +3,7 @@ const basePath = "./__tests__/__results__/unit"
 const testType = "Unit";
 
 module.exports = {
+    "FORCE_COLOR": "1",
     "JEST_STARE_RESULT_DIR": path.join(basePath, "html"),
     "JEST_JUNIT_OUTPUT": path.join(basePath, "junit/junit.xml"),
     "JEST_JUNIT_ANCESTOR_SEPARATOR": " > ",
