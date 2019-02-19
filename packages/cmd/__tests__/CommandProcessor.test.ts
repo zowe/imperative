@@ -891,12 +891,12 @@ describe("Command Processor", () => {
         });
 
         // Mock read stdin
-        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
             // Nothing to do
         });
 
         // Mock the profile loader
-        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+        CommandProfileLoader.loader = jest.fn((args) => {
             return {
                 loadProfiles: (profArgs: any) => {
                     // Nothing to do
@@ -951,12 +951,12 @@ describe("Command Processor", () => {
         });
 
         // Mock read stdin
-        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
             // Nothing to do
         });
 
         // Mock the profile loader
-        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+        CommandProfileLoader.loader = jest.fn((args) => {
             return {
                 loadProfiles: (profArgs: any) => {
                     // Nothing to do
@@ -993,12 +993,12 @@ describe("Command Processor", () => {
         });
 
         // Mock read stdin
-        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
             // Nothing to do
         });
 
         // Mock the profile loader
-        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+        CommandProfileLoader.loader = jest.fn((args) => {
             return {
                 loadProfiles: (profArgs: any) => {
                     // Nothing to do
@@ -1035,12 +1035,12 @@ describe("Command Processor", () => {
         });
 
         // Mock read stdin
-        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
             // Nothing to do
         });
 
         // Mock the profile loader
-        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+        CommandProfileLoader.loader = jest.fn((args) => {
             return {
                 loadProfiles: (profArgs: any) => {
                     // Nothing to do
@@ -1076,12 +1076,12 @@ describe("Command Processor", () => {
         });
 
         // Mock read stdin
-        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
             // Nothing to do
         });
 
         // Mock the profile loader
-        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+        CommandProfileLoader.loader = jest.fn((args) => {
             return {
                 loadProfiles: (profArgs: any) => {
                     // Nothing to do
@@ -1126,12 +1126,12 @@ describe("Command Processor", () => {
         });
 
         // Mock read stdin
-        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
             // Nothing to do
         });
 
         // Mock the profile loader
-        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+        CommandProfileLoader.loader = jest.fn((args) => {
             return {
                 loadProfiles: (profArgs: any) => {
                     // Nothing to do
@@ -1167,12 +1167,12 @@ describe("Command Processor", () => {
         });
 
         // Mock read stdin
-        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
             // Nothing to do
         });
 
         // Mock the profile loader
-        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+        CommandProfileLoader.loader = jest.fn((args) => {
             return {
                 loadProfiles: (profArgs: any) => {
                     // Nothing to do
@@ -1208,12 +1208,12 @@ describe("Command Processor", () => {
         });
 
         // Mock read stdin
-        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
             // Nothing to do
         });
 
         // Mock the profile loader
-        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+        CommandProfileLoader.loader = jest.fn((args) => {
             return {
                 loadProfiles: (profArgs: any) => {
                     // Nothing to do
@@ -1246,12 +1246,12 @@ describe("Command Processor", () => {
         });
 
         // Mock read stdin
-        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
             // Nothing to do
         });
 
         // Mock the profile loader
-        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+        CommandProfileLoader.loader = jest.fn((args) => {
             return {
                 loadProfiles: (profArgs: any) => {
                     return;
@@ -1294,12 +1294,12 @@ describe("Command Processor", () => {
         });
 
         // Mock read stdin
-        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
             // Nothing to do
         });
 
         // Mock the profile loader
-        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+        CommandProfileLoader.loader = jest.fn((args) => {
             return {
                 loadProfiles: (profArgs: any) => {
                     return;
@@ -1339,12 +1339,12 @@ describe("Command Processor", () => {
         });
 
         // Mock read stdin
-        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
             // Nothing to do
         });
 
         // Mock the profile loader
-        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+        CommandProfileLoader.loader = jest.fn((args) => {
             return {
                 loadProfiles: (profArgs: any) => {
                     return;
@@ -1387,12 +1387,12 @@ describe("Command Processor", () => {
         });
 
         // Mock read stdin
-        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
             // Nothing to do
         });
 
         // Mock the profile loader
-        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+        CommandProfileLoader.loader = jest.fn((args) => {
             return {
                 loadProfiles: (profArgs: any) => {
                     return;
@@ -1436,12 +1436,12 @@ describe("Command Processor", () => {
         });
 
         // Mock read stdin
-        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
             // Nothing to do
         });
 
         // Mock the profile loader
-        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+        CommandProfileLoader.loader = jest.fn((args) => {
             return {
                 loadProfiles: (profArgs: any) => {
                     return;
@@ -1486,12 +1486,12 @@ describe("Command Processor", () => {
         });
 
         // Mock read stdin
-        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+        SharedOptions.readStdinIfRequested = jest.fn((args, response, type) => {
             // Nothing to do
         });
 
         // Mock the profile loader
-        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+        CommandProfileLoader.loader = jest.fn((args) => {
             return {
                 loadProfiles: (profArgs: any) => {
                     // Nothing to do
