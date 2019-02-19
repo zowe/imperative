@@ -18,7 +18,7 @@ import { ICommandResponse } from "../../../src/doc/response/response/ICommandRes
 import { IImperativeError } from "../../../../error";
 
 export class CommandResponse implements ICommandResponseApi {
-    public responseFormat: "json" | "default";
+    public format: "json" | "default";
     public silent: boolean;
     public console: IHandlerResponseConsoleApi = {
         log: jest.fn((message: string | Buffer, ...values: any[]) => {

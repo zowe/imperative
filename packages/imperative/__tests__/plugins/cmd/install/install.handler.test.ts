@@ -43,12 +43,12 @@ describe("Plugin Management Facility install handler", () => {
   // Objects created so types are correct.
   const mocks = {
     npmLogin: npmLogin as Mock<typeof npmLogin>,
-    getRegistry: getRegistry as Mock<any>,
+    getRegistry: getRegistry as Mock<typeof getRegistry>,
     readFileSync: readFileSync as Mock<typeof readFileSync>,
     writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
-    install: install as Mock<any>,
-    runValidatePlugin: runValidatePlugin as Mock<any>,
-    resolve: resolve as Mock<any>
+    install: install as Mock<typeof install>,
+    runValidatePlugin: runValidatePlugin as Mock<typeof runValidatePlugin>,
+    resolve: resolve as Mock<typeof resolve>
   };
 
   // two plugin set of values
@@ -67,7 +67,7 @@ describe("Plugin Management Facility install handler", () => {
     jest.resetAllMocks();
 
     // This needs to be mocked before running process function of uninstall handler
-    (Logger.getImperativeLogger as any).mockReturnValue(new Logger(new Console()));
+    (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
   });
 
   /**
@@ -88,7 +88,7 @@ describe("Plugin Management Facility install handler", () => {
 
   beforeEach(() => {
     mocks.getRegistry.mockReturnValue(packageRegistry);
-    mocks.readFileSync.mockReturnValue({} as any);
+    mocks.readFileSync.mockReturnValue({});
     npmLogin(packageRegistry);
 
     mocks.runValidatePlugin.mockReturnValue(finalValidationMsg);
@@ -175,7 +175,7 @@ describe("Plugin Management Facility install handler", () => {
     };
 
     // Override the return value for this test only
-    mocks.readFileSync.mockReturnValueOnce(fileJson as any);
+    mocks.readFileSync.mockReturnValueOnce(fileJson);
     mocks.install
       .mockReturnValueOnce("a")
       .mockReturnValueOnce("plugin2");

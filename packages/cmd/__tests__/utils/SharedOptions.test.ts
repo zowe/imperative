@@ -51,7 +51,7 @@ describe("Shared Options", () => {
         const response = new CommandResponse({silent: true});
         const message: string[] = [];
         const stream = new Socket();
-        const args = {_: undefined as any, $0: undefined as any, stdin: true};
+        const args = {_: undefined, $0: undefined, stdin: true};
         const stdinWasRead = await SharedOptions.readStdinIfRequested(args, response, "group", stream);
         stream.removeAllListeners("on");
         stream.removeAllListeners("once");

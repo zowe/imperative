@@ -52,9 +52,9 @@ const exposeAppSettingsInternal = (settings: AppSettings): IAppSettingsAllMethod
 
 describe("AppSettings", () => {
     const mocks = {
-        existsSync: existsSync as any,
-        writeFile: writeFile as any,
-        readFileSync: readFileSync as any
+        existsSync: existsSync as Mock<typeof existsSync>,
+        writeFile: writeFile as Mock<typeof writeFile>,
+        readFileSync: readFileSync as Mock<typeof readFileSync>
     };
 
     const defaultSettings: ISettingsFile = {
@@ -210,7 +210,7 @@ describe("AppSettings", () => {
             ];
 
             for (const scenario of scenarios) {
-                mocks.readFileSync.mockReturnValueOnce(scenario.provided as any);
+                mocks.readFileSync.mockReturnValueOnce(scenario.provided);
 
                 const appSettings = new AppSettings("some-file");
                 expect(appSettings.settings).toEqual(scenario.expected);
@@ -235,15 +235,15 @@ describe("AppSettings", () => {
         };
 
         beforeAll(() => {
-            mocks.readFileSync.mockReturnValue(defaultSettings as any);
+            mocks.readFileSync.mockReturnValue(defaultSettings);
         });
 
         const fileName = "test.json";
 
         it("should write to a settings file", async () => {
-            mocks.writeFile.mockImplementation(((file, object, options, callback) => {
+            mocks.writeFile.mockImplementation((file, object, options, callback) => {
                 callback();
-            }) as any);
+            });
 
             AppSettings.initialize(fileName);
             await exposeAppSettingsInternal(AppSettings.instance).writeSettingsFile();
@@ -324,7 +324,7 @@ describe("AppSettings", () => {
                     expect(appSettings.writeSettingsFile).toHaveBeenCalledTimes(2);
 
                     // Prepare for the next loop.
-                    (appSettings.writeSettingsFile as any).mockClear();
+                    (appSettings.writeSettingsFile as Mock<typeof Function>).mockClear();
                 }
             });
         });

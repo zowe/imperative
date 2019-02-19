@@ -40,11 +40,11 @@ describe("Plugin Management Facility update handler", () => {
   // Objects created so types are correct.
   const mocks = {
     npmLogin: npmLogin as Mock<typeof  npmLogin>,
-    execSync: execSync as Mock<any>,
+    execSync: execSync as Mock<typeof execSync>,
     readFileSync: readFileSync as Mock<typeof readFileSync>,
     writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
-    update: update as Mock<any>,
-    resolve: resolve as Mock<any>
+    update: update as Mock<typeof update>,
+    resolve: resolve as Mock<typeof resolve>
   };
 
   // two plugin set of values
@@ -63,7 +63,7 @@ describe("Plugin Management Facility update handler", () => {
     jest.resetAllMocks();
 
     // This needs to be mocked before running process function of update handler
-    (Logger.getImperativeLogger as any).mockReturnValue(new Logger(new Console()));
+    (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
   });
 
   /**
@@ -82,8 +82,8 @@ describe("Plugin Management Facility update handler", () => {
   };
 
   beforeEach(() => {
-    mocks.execSync.mockReturnValue(packageRegistry as any);
-    mocks.readFileSync.mockReturnValue({} as any);
+    mocks.execSync.mockReturnValue(packageRegistry);
+    mocks.readFileSync.mockReturnValue({});
     npmLogin(packageRegistry);
   });
 
@@ -150,11 +150,11 @@ describe("Plugin Management Facility update handler", () => {
     };
 
     // Override the return value for this test only
-    mocks.readFileSync.mockReturnValueOnce(fileJson as any);
+    mocks.readFileSync.mockReturnValueOnce(fileJson);
 
     const handler = new UpdateHandler();
 
-    mocks.resolve.mockReturnValue(resolveVal as any);
+    mocks.resolve.mockReturnValue(resolveVal);
 
     const params = getIHandlerParametersObject();
     params.arguments.plugin = pluginName;
@@ -183,7 +183,7 @@ describe("Plugin Management Facility update handler", () => {
     };
 
     // Override the return value for this test only
-    mocks.readFileSync.mockReturnValueOnce(fileJson as any);
+    mocks.readFileSync.mockReturnValueOnce(fileJson);
 
     const handler = new UpdateHandler();
 
