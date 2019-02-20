@@ -72,7 +72,7 @@ node('ca-jenkins-agent') {
             login()
             sh "npm run build"
             sh "npm logout"
-        }
+        },
         timeout: [
             time: 5,
             unit: 'MINUTES'
