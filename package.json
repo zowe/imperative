@@ -32,6 +32,7 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
+    "audit:public": "npm audit --registry https://registry.npmjs.org/",
     "build:packages": "gulp build",
     "build": "gulp build",
     "postbuild": "gulp build:install-all-cli-dependencies && gulp build:all-clis",
