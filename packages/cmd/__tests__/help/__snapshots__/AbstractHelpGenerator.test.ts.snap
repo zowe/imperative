@@ -177,6 +177,34 @@ exports[`Abstract Help Generator Unit Tests getCaseSensitiveFlagByOptionName tes
 
 exports[`Abstract Help Generator Unit Tests getCaseSensitiveFlagByOptionName test 4`] = `undefined`;
 
+exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Alias array empty strings [ "",""] 1`] = `"--my_option  (string)"`;
+
+exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Alias array is a null element 1`] = `"--my_option  (string)"`;
+
+exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Alias array with a blank as well as good elements 1`] = `"--my_option  | --ba | -m (string)"`;
+
+exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Alias array with a null inbetween good elements 1`] = `"--my_option  | --ma | -m (string)"`;
+
+exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Empty alias "" 1`] = `"--my_option  (string)"`;
+
+exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Empty name 1`] = `"--  (string)"`;
+
+exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Empty type 1`] = `"--good_name  ()"`;
+
+exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Good Option, multiple alias 1`] = `"--my_option  | --my_opt | --m_o | -m (string)"`;
+
+exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Good option, multiple alias, required 1`] = `"--my_option  | --my_opt | --m_o | -m (string)"`;
+
+exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Good option, no alias present 1`] = `"--my_option  (string)"`;
+
+exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Good option, single alias 1`] = `"--my_option  | --my_opt (string)"`;
+
+exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Non-existent type 1`] = `"--good_name  (notexist)"`;
+
+exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Null name 1`] = `"--null  (string)"`;
+
+exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Null type 1`] = `"--good_name  (null)"`;
+
 exports[`Abstract Help Generator Unit Tests renderHelp test 1`] = `"basic help"`;
 
 exports[`Abstract Help Generator Unit Tests renderHelp test 2`] = `" indented help"`;
@@ -201,31 +229,3 @@ exports[`Abstract Help Generator Unit Tests renderHelp test 9`] = `""`;
 exports[`Abstract Help Generator Unit Tests renderHelp test 10`] = `""`;
 
 exports[`Abstract Help Generator Unit Tests renderHelp test 11`] = `"Help unable to be rendered - the supplied help text was null or undefined."`;
-
-exports[`Alias array empty strings [ "",""] 1`] = `"--my_option  (string)"`;
-
-exports[`Alias array is a null element 1`] = `"--my_option  (string)"`;
-
-exports[`Alias array with a blank as well as good elements 1`] = `"--my_option  | --ba | -m (string)"`;
-
-exports[`Alias array with a null inbetween good elements 1`] = `"--my_option  | --ma | -m (string)"`;
-
-exports[`Empty alias "" 1`] = `"--my_option  (string)"`;
-
-exports[`Empty name 1`] = `"--  (string)"`;
-
-exports[`Empty type 1`] = `"--good_name  ()"`;
-
-exports[`Good Option, multiple alias 1`] = `"--my_option  | --my_opt | --m_o | -m (string)"`;
-
-exports[`Good option, multiple alias, required 1`] = `"--my_option  | --my_opt | --m_o | -m (string)"`;
-
-exports[`Good option, no alias present 1`] = `"--my_option  (string)"`;
-
-exports[`Good option, single alias 1`] = `"--my_option  | --my_opt (string)"`;
-
-exports[`Non-existent type 1`] = `"--good_name  (notexist)"`;
-
-exports[`Null name 1`] = `"--null  (string)"`;
-
-exports[`Null type 1`] = `"--good_name  (null)"`;

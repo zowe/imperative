@@ -16,14 +16,19 @@ import { IImperativeOverrides } from "../src/doc/IImperativeOverrides";
 import { IConfigLogging } from "../../logger";
 import { IImperativeEnvironmentalVariableSettings } from "..";
 
-
 describe("Imperative", () => {
+    const mainModule = process.mainModule;
 
-    // mock process.mainModule if it is undefined
-    // Imperative depends on this setting being filled in to determine the caller location
-    if (process.mainModule == null) {
-        process.mainModule = {filename: __filename} as any;
-    }
+    beforeEach(() => {
+        (process.mainModule as any) = {
+            filename: __filename
+        };
+    });
+
+    afterEach(() => {
+        process.mainModule = mainModule;
+    });
+
 
     const loadImperative = () => {
         return require("../src/Imperative").Imperative;
@@ -78,7 +83,7 @@ describe("Imperative", () => {
             // If we error here, jest silently fails and says the test is empty. So let's make sure
             // that doesn't happen!
 
-            const {Logger} = (jest as any).requireActual("../../logger/src/Logger");
+            const { Logger } = (jest as any).requireActual("../../logger/src/Logger");
 
             Logger.getConsoleLogger().fatal("Imperative.test.ts test execution error!");
             Logger.getConsoleLogger().fatal(error);
@@ -180,18 +185,18 @@ describe("Imperative", () => {
         }); // End AppSettings
 
         describe("Config", () => {
-            let ConfigManagementFacility = mocks.ConfigManagementFacility;
+          let ConfigManagementFacility = mocks.ConfigManagementFacility;
 
-            beforeEach(() => {
-                defaultConfig.allowConfigGroup = true;
-                ConfigManagementFacility = mocks.ConfigManagementFacility;
-            });
+          beforeEach(() => {
+              defaultConfig.allowConfigGroup = true;
+              ConfigManagementFacility = mocks.ConfigManagementFacility;
+          });
 
-            it("should call config functions when config group is allowed", async () => {
-                await Imperative.init();
+          it("should call config functions when config group is allowed", async () => {
+            await Imperative.init();
 
-                expect(ConfigManagementFacility.instance.init).toHaveBeenCalledTimes(1);
-            });
+            expect(ConfigManagementFacility.instance.init).toHaveBeenCalledTimes(1);
+          });
         });
 
         describe("Plugins", () => {
