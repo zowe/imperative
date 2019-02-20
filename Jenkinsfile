@@ -45,6 +45,12 @@ node('ca-jenkins-agent') {
         pipeline.publishConfig
     ]
 
+    def login = {
+        withCredentials([usernamePassword(credentialsId: pipeline.publishConfig.credentialsId, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+            sh "expect -f ./jenkins/npm_login.expect $USERNAME $PASSWORD \"$ARTIFACTORY_EMAIL\""
+        }
+    }
+
     // Initialize the pipeline library, should create 5 steps
     pipeline.setup()
 
@@ -61,10 +67,17 @@ node('ca-jenkins-agent') {
     )
 
     // Build the application
-    pipeline.build(timeout: [
-        time: 5,
-        unit: 'MINUTES'
-    ])
+    pipeline.build(
+        operation: {
+            login()
+            sh "npm run build"
+            sh "npm logout"
+        }
+        timeout: [
+            time: 5,
+            unit: 'MINUTES'
+        ]
+    )
 
     // Check for vulnerabilities
     pipeline.createStage(
@@ -115,7 +128,9 @@ node('ca-jenkins-agent') {
     pipeline.test(
         name: "Integration",
         operation: {
+            login()
             sh "npm run test:integration"
+            sh "npm logout"
         },
         timeout: [time: 30, unit: 'MINUTES'],
         shouldUnlockKeyring: true,
