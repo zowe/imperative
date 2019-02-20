@@ -5,7 +5,6 @@ local.json
 output/
 logs/
 CCS141/
-.vscode
 .idea
 imperative.iml
 src/brightside.iml

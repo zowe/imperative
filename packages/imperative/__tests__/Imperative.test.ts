@@ -17,6 +17,19 @@ import { IConfigLogging } from "../../logger";
 import { IImperativeEnvironmentalVariableSettings } from "..";
 
 describe("Imperative", () => {
+    const mainModule = process.mainModule;
+
+    beforeEach(() => {
+        (process.mainModule as any) = {
+            filename: __filename
+        };
+    });
+
+    afterEach(() => {
+        process.mainModule = mainModule;
+    });
+
+
     const loadImperative = () => {
         return require("../src/Imperative").Imperative;
     };

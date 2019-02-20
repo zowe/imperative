@@ -9,6 +9,8 @@
 *
 */
 
+jest.mock("path");
+import * as path from "path";
 import * as https from "https";
 import { Session } from "../../src/session/Session";
 import { EventEmitter } from "events";
@@ -25,12 +27,18 @@ import { RestClientError } from "../../src/client/RestClientError";
  */
 
 describe("RestClient tests", () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
     it("should add our custom header", async () => {
 
         const emitter = new MockHttpRequestResponse();
+
+        (path.posix.join as jest.Mock<any>).mockReturnValueOnce("/mocked");
+
         const httpsRequestFnc = jest.fn((options, callback) => {
             expect(options).toMatchSnapshot();
-
             ProcessUtils.nextTick(() => {
                 callback(new EventEmitter());
                 ProcessUtils.nextTick(() => {
@@ -47,6 +55,9 @@ describe("RestClient tests", () => {
 
         try {
             await CustomRestClient.getExpectString(new Session({hostname: "test"}), "/resource");
+
+            expect(path.posix.join).toHaveBeenCalledTimes(1);
+            expect(path.posix.join).toHaveBeenCalledWith(path.posix.sep, "", "/resource");
         } catch (thrownError) {
             error = thrownError;
         }
@@ -59,6 +70,8 @@ describe("RestClient tests", () => {
         interface IDoesNotMatter {
             data: string;
         }
+
+        (path.posix.join as jest.Mock<any>).mockReturnValueOnce("/mocked");
 
         const emitter = new MockHttpRequestResponse();
         const httpsRequestFnc = jest.fn((options, callback) => {
@@ -80,6 +93,9 @@ describe("RestClient tests", () => {
 
         try {
             await CustomRestClient.getExpectJSON<IDoesNotMatter>(new Session({hostname: "test"}), "/resource");
+
+            expect(path.posix.join).toHaveBeenCalledTimes(1);
+            expect(path.posix.join).toHaveBeenCalledWith(path.posix.sep, "", "/resource");
         } catch (thrownError) {
             error = thrownError;
         }
