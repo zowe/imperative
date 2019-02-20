@@ -47,7 +47,7 @@ node('ca-jenkins-agent') {
 
     def login = {
         withCredentials([usernamePassword(credentialsId: pipeline.publishConfig.credentialsId, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            sh "expect -f ./jenkins/npm_login.expect $USERNAME $PASSWORD \"$ARTIFACTORY_EMAIL\""
+            sh "expect -f ./jenkins/npm_login.expect $USERNAME $PASSWORD \"$pipeline.publishConfig.email\""
         }
     }
 
