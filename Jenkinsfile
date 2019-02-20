@@ -66,6 +66,14 @@ node('ca-jenkins-agent') {
         unit: 'MINUTES'
     ])
 
+    // Check for vulnerabilities
+    pipeline.createStage(
+        name: "Check for Vulnerabilities",
+        stage: {
+            sh 'npm run audit:public'
+        }
+    )
+
     def TEST_ROOT = "__tests__/__results__/ci"
     def UNIT_TEST_ROOT = "$TEST_ROOT/unit"
     def UNIT_JUNIT_OUTPUT = "$UNIT_TEST_ROOT/junit.xml"

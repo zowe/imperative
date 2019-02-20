@@ -193,18 +193,18 @@ const build: ITaskFunction = (done) => {
                         done(lintWarning);
                         return;
                     }
-                    const audit = childProcess.spawnSync(npmExecutable, ["audit"]);
-                    gutil.log(audit.output.join(""));
-                    if (audit.status !== 0) {
-                        const auditError: IGulpError = new Error("npm audit failed!" +
-                            " There may be security vulnerabilities in the dependencies.");
-                        auditError.showStack = false;
-                        gutil.log(gutil.colors.red("NPM audit failed"));
-                        done(auditError);
-                        return;
-                    } else {
-                        gutil.log(gutil.colors.blue("NPM audit passed"));
-                    }
+                    // const audit = childProcess.spawnSync(npmExecutable, ["audit"]);
+                    // gutil.log(audit.output.join(""));
+                    // if (audit.status !== 0) {
+                    //     const auditError: IGulpError = new Error("npm audit failed!" +
+                    //         " There may be security vulnerabilities in the dependencies.");
+                    //     auditError.showStack = false;
+                    //     gutil.log(gutil.colors.red("NPM audit failed"));
+                    //     done(auditError);
+                    //     return;
+                    // } else {
+                    //     gutil.log(gutil.colors.blue("NPM audit passed"));
+                    // }
                     checkCircularDependencies((madgeError?: Error) => {
                         if (madgeError) {
                             done(madgeError);
