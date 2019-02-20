@@ -247,11 +247,11 @@ export class CommandProcessor {
      */
     public async invoke(params: IInvokeCommandParms): Promise<ICommandResponse> {
 
-        const api = PerfTiming.api;
+        const timingApi = PerfTiming.api;
 
         if (PerfTiming.isEnabled) {
             // Marks point START
-            api.mark("START_CMD_INVOKE");
+            timingApi.mark("START_CMD_INVOKE");
         }
 
         // Ensure parameters are correct
@@ -383,8 +383,8 @@ export class CommandProcessor {
 
             if (PerfTiming.isEnabled) {
                 // Marks point END
-                api.mark("END_CMD_INVOKE");
-                api.measure("Command executed: " + this.commandLine, "START_CMD_INVOKE", "END_CMD_INVOKE");
+                timingApi.mark("END_CMD_INVOKE");
+                timingApi.measure("Command executed: " + this.commandLine, "START_CMD_INVOKE", "END_CMD_INVOKE");
             }
 
             // Return the response to the caller
@@ -457,8 +457,8 @@ export class CommandProcessor {
 
             if (PerfTiming.isEnabled) {
                 // Marks point END
-                api.mark("END_CMD_INVOKE");
-                api.measure("Command executed: " + this.commandLine, "START_CMD_INVOKE", "END_CMD_INVOKE");
+                timingApi.mark("END_CMD_INVOKE");
+                timingApi.measure("Command executed: " + this.commandLine, "START_CMD_INVOKE", "END_CMD_INVOKE");
             }
 
             // Return the response to the caller

@@ -119,11 +119,11 @@ export class Imperative {
         return new Promise<void>(async (initializationComplete: () => void, initializationFailed: ImperativeReject) => {
             try {
 
-                const api = PerfTiming.api;
+                const timingApi = PerfTiming.api;
 
                 if (PerfTiming.isEnabled) {
                     // Marks point START
-                    api.mark("START_IMP_INIT");
+                    timingApi.mark("START_IMP_INIT");
                 }
 
                 /**
@@ -248,8 +248,8 @@ export class Imperative {
 
                 if (PerfTiming.isEnabled) {
                     // Marks point END
-                    api.mark("END_IMP_INIT");
-                    api.measure("Imperative.init()", "START_IMP_INIT", "END_IMP_INIT");
+                    timingApi.mark("END_IMP_INIT");
+                    timingApi.measure("Imperative.init()", "START_IMP_INIT", "END_IMP_INIT");
                 }
 
             } catch (error) {

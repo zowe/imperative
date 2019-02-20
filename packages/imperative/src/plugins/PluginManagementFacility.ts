@@ -389,11 +389,11 @@ export class PluginManagementFacility {
      */
     private addPluginToHostCli(pluginCfgProps: IPluginCfgProps): void {
 
-        const api = PerfTiming.api;
+        const timingApi = PerfTiming.api;
 
         if (PerfTiming.isEnabled) {
             // Marks point START
-            api.mark("START_ADD_PLUGIN");
+            timingApi.mark("START_ADD_PLUGIN");
         }
 
         /* Form a top-level command group for this plugin.
@@ -476,8 +476,8 @@ export class PluginManagementFacility {
 
         if (PerfTiming.isEnabled) {
             // Marks point END
-            api.mark("END_ADD_PLUGIN");
-            api.measure("Add plugin completed: " + pluginCfgProps.impConfig.name, "START_ADD_PLUGIN", "END_ADD_PLUGIN");
+            timingApi.mark("END_ADD_PLUGIN");
+            timingApi.measure("Add plugin completed: " + pluginCfgProps.impConfig.name, "START_ADD_PLUGIN", "END_ADD_PLUGIN");
         }
 
     }
@@ -869,11 +869,11 @@ export class PluginManagementFacility {
 
         // use the core imperative loader because it will load config modules
 
-        const api = PerfTiming.api;
+        const timingApi = PerfTiming.api;
 
         if (PerfTiming.isEnabled) {
             // Marks point START
-            api.mark("START_LOAD_PLUGIN");
+            timingApi.mark("START_LOAD_PLUGIN");
         }
 
         let pluginConfig: IImperativeConfig;
@@ -894,8 +894,8 @@ export class PluginManagementFacility {
 
         if (PerfTiming.isEnabled) {
             // Marks point END
-            api.mark("END_LOAD_PLUGIN");
-            api.measure("Load plugin completed", "START_LOAD_PLUGIN", "END_LOAD_PLUGIN");
+            timingApi.mark("END_LOAD_PLUGIN");
+            timingApi.measure("Load plugin completed", "START_LOAD_PLUGIN", "END_LOAD_PLUGIN");
         }
 
         this.pluginNmForUseInCallback = "NoPluginNameAssigned";

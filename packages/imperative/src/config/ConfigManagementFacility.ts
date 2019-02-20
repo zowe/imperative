@@ -57,11 +57,11 @@ export class ConfigManagementFacility {
      */
     public init(): void {
 
-        const api = PerfTiming.api;
+        const timingApi = PerfTiming.api;
 
         if (PerfTiming.isEnabled) {
             // Marks point START
-            api.mark("START_CONFIG_INIT");
+            timingApi.mark("START_CONFIG_INIT");
         }
 
         this.impLogger.debug("ConfigManagementFacility.init() - Start");
@@ -82,8 +82,8 @@ export class ConfigManagementFacility {
 
         if (PerfTiming.isEnabled) {
             // Marks point END
-            api.mark("END_CONFIG_INIT");
-            api.measure("ConfigManagementFacility.init()", "START_CONFIG_INIT", "END_CONFIG_INIT");
+            timingApi.mark("END_CONFIG_INIT");
+            timingApi.measure("ConfigManagementFacility.init()", "START_CONFIG_INIT", "END_CONFIG_INIT");
         }
     }
 }

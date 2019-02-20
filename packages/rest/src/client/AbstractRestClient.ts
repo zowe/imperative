@@ -141,11 +141,11 @@ export abstract class AbstractRestClient {
     public performRest(resource: string, request: HTTP_VERB, reqHeaders?: any[], writeData?: any): Promise<string> {
         return new Promise<string>((resolve: RestClientResolve, reject: ImperativeReject) => {
 
-            const api = PerfTiming.api;
+            const timingApi = PerfTiming.api;
 
             if (PerfTiming.isEnabled) {
                 // Marks point START
-                api.mark("START_PERFORM_REST");
+                timingApi.mark("START_PERFORM_REST");
             }
 
             // save for logging
@@ -208,8 +208,8 @@ export abstract class AbstractRestClient {
 
             if (PerfTiming.isEnabled) {
                 // Marks point END
-                api.mark("END_PERFORM_REST");
-                api.measure("performRest", "START_PERFORM_REST", "END_PERFORM_REST");
+                timingApi.mark("END_PERFORM_REST");
+                timingApi.measure("performRest: $resource", "START_PERFORM_REST", "END_PERFORM_REST");
             }
 
         });
