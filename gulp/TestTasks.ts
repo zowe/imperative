@@ -28,7 +28,7 @@ let childProcess: any;
 const jestExecutable = __dirname + "/../node_modules/jest/bin/jest";
 const testResultsDir = __dirname + "/../__tests__/__results__";
 
-const unitTestReport = require("../package.json")["jest-html-reporter"].outputPath;
+const unitTestReport = require("../package.json")["jest-stare"].resultDir;
 const integrationTestReport = require("path").resolve(testResultsDir + "/integration/results.html");
 
 function loadDependencies() {
