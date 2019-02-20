@@ -22,11 +22,11 @@ node('ca-jenkins-agent') {
 
     // Protected branch property definitions
     pipeline.protectedBranches.addMap([
-        [name: "master", tag: "daily", prerelease: "alpha"],
-        [name: "beta", tag: "beta", prerelease: "beta"],
-        [name: "latest", tag: "latest"],
-        [name: "lts-incremental", tag: "lts-incremental", level: SemverLevel.MINOR],
-        [name: "lts-stable", tag: "lts-stable", level: SemverLevel.PATCH]
+        [name: "master", tag: "daily", prerelease: "alpha", dependencies: ["@zowe/perf-timing": "daily"]],
+        [name: "beta", tag: "beta", prerelease: "beta", dependencies: ["@zowe/perf-timing": "beta"]],
+        [name: "latest", tag: "latest", dependencies: ["@zowe/perf-timing": "latest"]],
+        [name: "lts-incremental", tag: "lts-incremental", level: SemverLevel.MINOR, dependencies: ["@zowe/perf-timing": "lts-incremental"]],
+        [name: "lts-stable", tag: "lts-stable", level: SemverLevel.PATCH, dependencies: ["@zowe/perf-timing": "lts-stable"]]
     ])
 
     // Git configuration information
@@ -39,6 +39,10 @@ node('ca-jenkins-agent') {
     pipeline.publishConfig = [
         email: pipeline.gitConfig.email,
         credentialsId: 'GizaArtifactory'
+    ]
+
+    pipeline.registryConfig = [
+        pipeline.publishConfig
     ]
 
     // Initialize the pipeline library, should create 5 steps
