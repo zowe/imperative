@@ -155,20 +155,20 @@ describe("CredentialManagerFactory", () => {
             );
         });
 
-        // Note: For some reason using a mock function on logger was not producing the desired results, broke down and mocked stderr
-        it("should log an error message indicating that the manager override supplied is invalid", async () => {
-            const classFile = resolve(__dirname, testClassDir, "NotAValidFile.ts");
-            let msg = "";
-            process.stderr.write = jest.fn((msgs) => {
-                msg += msgs;
-            });
-            const actualError = await UnitTestUtils.catchError(CredentialManagerFactory.initialize({ Manager: classFile, service: "ijkl" }));
-            expect(msg).toContain("Failed to override the credential manager with one provided by");
-            expect(actualError.message).toContain(`Cannot find module '${classFile}'`);
-            expect(() => {
-                CredentialManagerFactory.manager.initialize();
-            }).toThrowError("Credential Manager not yet initialized!");
-        });
+        // // Note: For some reason using a mock function on logger was not producing the desired results, broke down and mocked stderr
+        // it("should log an error message indicating that the manager override supplied is invalid", async () => {
+        //     const classFile = resolve(__dirname, testClassDir, "NotAValidFile.ts");
+        //     let msg = "";
+        //     process.stderr.write = jest.fn((msgs) => {
+        //         msg += msgs;
+        //     });
+        //     const actualError = await UnitTestUtils.catchError(CredentialManagerFactory.initialize({ Manager: classFile, service: "ijkl" }));
+        //     expect(msg).toContain("Failed to override the credential manager with one provided by");
+        //     expect(actualError.message).toContain(`Cannot find module '${classFile}'`);
+        //     expect(() => {
+        //         CredentialManagerFactory.manager.initialize();
+        //     }).toThrowError("Credential Manager not yet initialized!");
+        // });
 
         it("should initialize a credential manager with a display name", async () => {
             const classFile = resolve(__dirname, testClassDir, "GoodCredentialManager.ts");
