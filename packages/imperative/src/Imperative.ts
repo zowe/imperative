@@ -295,7 +295,21 @@ export class Imperative {
      * @returns {Imperative} this, for chaining syntax
      */
     public static parse(): Imperative {
+
+        const timingApi = PerfTiming.api;
+
+        if (PerfTiming.isEnabled) {
+            // Marks point START
+            timingApi.mark("START_IMP_PARSE");
+        }
+
         Imperative.yargs.argv; // tslint:disable-line
+
+        if (PerfTiming.isEnabled) {
+            // Marks point END
+            timingApi.mark("END_IMP_PARSE");
+            timingApi.measure("Imperative.init()", "START_IMP_PARSE", "END_IMP_PARSE");
+        }
         return this;
     }
 
