@@ -287,7 +287,7 @@ export class IO {
      */
     public static writeFileAsync(file: string, content: string) {
         ImperativeExpect.toBeDefinedAndNonBlank(file, "file");
-        ImperativeExpect.toBeDefinedAndNonBlank(content, "content");
+        ImperativeExpect.toNotBeNullOrUndefined(content, "Content to write to the file must not be null or undefined");
         return new Promise<void>((resolve, reject: ImperativeReject) => {
             try {
                 fs.writeFile(file, content, IO.UTF8, (err) => {
@@ -312,7 +312,7 @@ export class IO {
      */
     public static writeFile(file: string, content: Buffer) {
         ImperativeExpect.toBeDefinedAndNonBlank(file, "file");
-        ImperativeExpect.toNotBeNullOrUndefined(content, "content");
+        ImperativeExpect.toNotBeNullOrUndefined(content, "Content to write to the file must not be null or undefined");
         IO.createFileSync(file);
         fs.writeFileSync(file, content);
     }
@@ -412,16 +412,16 @@ export class IO {
             }
         } catch (ioExcept) {
             throw new ImperativeError({
-                msg: "Failed to delete the symbolic link '" + symLinkPath +
-                    "'\nReason: " + ioExcept.message + "\n" +
-                    "Full exception: " + ioExcept
+                    msg: "Failed to delete the symbolic link '" + symLinkPath +
+                        "'\nReason: " + ioExcept.message + "\n" +
+                        "Full exception: " + ioExcept
                 }
             );
         }
 
         throw new ImperativeError({
-            msg: "The specified symlink '" + symLinkPath +
-                "' already exists and is not a symbolic link. So, we did not delete it."
+                msg: "The specified symlink '" + symLinkPath +
+                    "' already exists and is not a symbolic link. So, we did not delete it."
             }
         );
     }
