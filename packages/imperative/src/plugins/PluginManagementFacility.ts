@@ -9,6 +9,7 @@
 *
 */
 
+import { PerfTiming } from "@zowe/perf-timing";
 import { IImperativeConfig } from "../../src/doc/IImperativeConfig";
 import { ImperativeConfig } from "../../src/ImperativeConfig";
 import { isAbsolute, join } from "path";
@@ -366,6 +367,7 @@ export class PluginManagementFacility {
      * @returns {any} - The content exported from the specified module.
      */
     public requirePluginModuleCallback(relativePath: string): any {
+
         const pluginModuleRuntimePath = this.formPluginRuntimePath(this.pluginNmForUseInCallback, relativePath);
         try {
             return require(pluginModuleRuntimePath);
@@ -386,6 +388,14 @@ export class PluginManagementFacility {
      * @param {IPluginCfgProps} pluginCfgProps - The configuration properties for this plugin
      */
     private addPluginToHostCli(pluginCfgProps: IPluginCfgProps): void {
+
+        const timingApi = PerfTiming.api;
+
+        if (PerfTiming.isEnabled) {
+            // Marks point START
+            timingApi.mark("START_ADD_PLUGIN");
+        }
+
         /* Form a top-level command group for this plugin.
          * Resolve all means of command definition into the pluginCmdGroup.children
          */
@@ -463,6 +473,13 @@ export class PluginManagementFacility {
                 this.removeCmdGrpFromResolvedCliCmdTree(pluginCmdGroup);
             }
         }
+
+        if (PerfTiming.isEnabled) {
+            // Marks point END
+            timingApi.mark("END_ADD_PLUGIN");
+            timingApi.measure("Add plugin completed: " + pluginCfgProps.impConfig.name, "START_ADD_PLUGIN", "END_ADD_PLUGIN");
+        }
+
     }
 
     // __________________________________________________________________________
@@ -851,6 +868,14 @@ export class PluginManagementFacility {
         }
 
         // use the core imperative loader because it will load config modules
+
+        const timingApi = PerfTiming.api;
+
+        if (PerfTiming.isEnabled) {
+            // Marks point START
+            timingApi.mark("START_LOAD_PLUGIN");
+        }
+
         let pluginConfig: IImperativeConfig;
         this.pluginNmForUseInCallback = pluginName;
         try {
@@ -866,6 +891,13 @@ export class PluginManagementFacility {
             );
             return null;
         }
+
+        if (PerfTiming.isEnabled) {
+            // Marks point END
+            timingApi.mark("END_LOAD_PLUGIN");
+            timingApi.measure("Load plugin completed", "START_LOAD_PLUGIN", "END_LOAD_PLUGIN");
+        }
+
         this.pluginNmForUseInCallback = "NoPluginNameAssigned";
 
         pluginCfgProps.impConfig = pluginConfig;

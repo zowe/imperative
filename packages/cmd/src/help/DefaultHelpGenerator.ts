@@ -465,7 +465,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         let examplesText = "";
         if (!isNullOrUndefined(this.mCommandDefinition.examples)) {
             examplesText = this.mCommandDefinition.examples.map((example) => {
-                const prefix = example.prefix != null ? example.prefix + "{{space}}" : "";
+                const prefix = example.prefix != null ? example.prefix + "{{space}} " : "";
                 let exampleText = TextUtils.wordWrap("{{bullet}}\- {{space}}" + example.description + ":\n\n",
                     undefined,
                     DefaultHelpGenerator.HELP_INDENT);

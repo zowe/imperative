@@ -32,6 +32,7 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
+    "audit:public": "npm audit --registry https://registry.npmjs.org/",
     "build:packages": "gulp build",
     "build": "gulp build",
     "postbuild": "gulp build:install-all-cli-dependencies && gulp build:all-clis",
@@ -47,6 +48,7 @@
   },
   "dependencies": {
     "@types/yargs": "8.0.2",
+    "@zowe/perf-timing": "^1.0.3-alpha.201902201448",
     "chalk": "2.1.0",
     "cli-table3": "0.5.1",
     "dataobject-parser": "1.2.1",
@@ -119,7 +121,7 @@
     "ts-node": "7.0.1",
     "tslint": "5.10.0",
     "typedoc": "0.12.0",
-    "typescript": "3.0.3",
+    "typescript": "3.2.2",
     "uuid": "3.2.1",
     "yargs-parser": "9.0.2"
   },

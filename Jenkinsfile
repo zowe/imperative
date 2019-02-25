@@ -22,11 +22,11 @@ node('ca-jenkins-agent') {
 
     // Protected branch property definitions
     pipeline.protectedBranches.addMap([
-        [name: "master", tag: "daily", prerelease: "alpha"],
-        [name: "beta", tag: "beta", prerelease: "beta"],
-        [name: "latest", tag: "latest"],
-        [name: "lts-incremental", tag: "lts-incremental", level: SemverLevel.MINOR],
-        [name: "lts-stable", tag: "lts-stable", level: SemverLevel.PATCH]
+        [name: "master", tag: "daily", prerelease: "alpha", dependencies: ["@zowe/perf-timing": "daily"]],
+        [name: "beta", tag: "beta", prerelease: "beta", dependencies: ["@zowe/perf-timing": "beta"]],
+        [name: "latest", tag: "latest", dependencies: ["@zowe/perf-timing": "latest"]],
+        [name: "lts-incremental", tag: "lts-incremental", level: SemverLevel.MINOR, dependencies: ["@zowe/perf-timing": "lts-incremental"]],
+        [name: "lts-stable", tag: "lts-stable", level: SemverLevel.PATCH, dependencies: ["@zowe/perf-timing": "lts-stable"]]
     ])
 
     // Git configuration information
@@ -40,6 +40,16 @@ node('ca-jenkins-agent') {
         email: pipeline.gitConfig.email,
         credentialsId: 'GizaArtifactory'
     ]
+
+    pipeline.registryConfig = [
+        pipeline.publishConfig
+    ]
+
+    def login = {
+        withCredentials([usernamePassword(credentialsId: pipeline.publishConfig.credentialsId, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+            sh "expect -f ./jenkins/npm_login.expect $USERNAME $PASSWORD \"$pipeline.publishConfig.email\""
+        }
+    }
 
     // Initialize the pipeline library, should create 5 steps
     pipeline.setup()
@@ -57,10 +67,25 @@ node('ca-jenkins-agent') {
     )
 
     // Build the application
-    pipeline.build(timeout: [
-        time: 5,
-        unit: 'MINUTES'
-    ])
+    pipeline.build(
+        operation: {
+            login()
+            sh "npm run build"
+            sh "npm logout"
+        },
+        timeout: [
+            time: 5,
+            unit: 'MINUTES'
+        ]
+    )
+
+    // Check for vulnerabilities
+    pipeline.createStage(
+        name: "Check for Vulnerabilities",
+        stage: {
+            sh 'npm run audit:public'
+        }
+    )
 
     def TEST_ROOT = "__tests__/__results__/ci"
     def UNIT_TEST_ROOT = "$TEST_ROOT/unit"
@@ -103,7 +128,9 @@ node('ca-jenkins-agent') {
     pipeline.test(
         name: "Integration",
         operation: {
+            login()
             sh "npm run test:integration"
+            sh "npm logout"
         },
         timeout: [time: 30, unit: 'MINUTES'],
         shouldUnlockKeyring: true,
