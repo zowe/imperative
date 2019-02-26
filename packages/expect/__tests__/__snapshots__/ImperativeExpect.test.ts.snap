@@ -14,7 +14,7 @@ exports[`ImperativeExpect tests Should throw an error for defined key that we wa
 
 exports[`ImperativeExpect tests should allow a custom error message 1`] = `"Expect Error: This is custom"`;
 
-exports[`ImperativeExpect tests should allow an expect failure to be transformed 1`] = `"ImperativeExpecexpectAndTransform is not defined"`;
+exports[`ImperativeExpect tests should allow an expect failure to be transformed 1`] = `"The values weren't equal!!!"`;
 
 exports[`ImperativeExpect tests should throw an error if the entry is NOT found 1`] = `"Expect Error: The required entry was NOT found within the input array: 'hello'"`;
 

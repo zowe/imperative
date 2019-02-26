@@ -142,5 +142,17 @@
       "jest-sonar-reporter"
     ],
     "coverageLink": "../unit/coverage/lcov-report/index.html"
+  },
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "diagnostics": false
+      }
+    },
+    "moduleFileExtensions": ["ts","js"],
+    "testEnvironment": "node",
+    "transform": {
+      ".(ts)": "ts-jest"
+    }
   }
 }
