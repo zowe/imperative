@@ -2,7 +2,7 @@
   "name": "cmd-sample-cli",
   "version": "0.0.0",
   "description": "Command Sample CLI",
-  "license": "EPL 2.0",
+  "license": "EPL-2.0",
   "repository": "",
   "bin": {
     "cmd-cli": "./lib/__tests__/__integration__/cmd/src/index.js"
@@ -69,17 +69,11 @@
     "yargs": "8.0.2"
   },
   "devDependencies": {
-    "@types/jest": "^20.0.5",
     "@types/node": "8.0.28",
     "coveralls": "^2.0.0",
     "gulp": "^3.9.1",
-    "jest": "^21.2.1",
-    "jest-environment-node-debug": "^2.0.0",
-    "jest-html-reporter": "^0.5.7",
-    "ts-jest": "21.2.1",
-    "ts-node": "^5.0.0",
-    "tslint": "^5.0.0",
-    "typescript": "3.0.3",
+    "tslint": "5.0.0",
+    "typescript": "3.2.2",
     "upath": "^1.0.2"
   },
   "engines": {

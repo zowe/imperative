@@ -4,30 +4,35 @@
   "description": "framework for building configurable CLIs",
   "author": "Broadcom",
   "license": "EPL 2.0",
-  "repository":   {
+  "repository": {
     "type": "git",
     "url": "https://github.com/zowe/imperative.git"
   },
-  "keywords":   [
+  "keywords": [
     "CLI",
     "framework",
     "zowe"
   ],
-  "pkg":   {
-    "scripts":     [
+  "pkg": {
+    "scripts": [
       "lib/**/*.js",
       "lib/auth/*.js"
     ],
-    "assets":     [
+    "assets": [
       "../../npm/node_modules/node-gyp/**/*",
       "../../npm/lib/"
     ]
   },
-  "files": ["lib"],
-  "publishConfig": {"registry": "https://gizaartifactory.jfrog.io/gizaartifactory/api/npm/npm-local-release/"},
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "registry": "https://gizaartifactory.jfrog.io/gizaartifactory/api/npm/npm-local-release/"
+  },
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
-  "scripts":   {
+  "scripts": {
+    "audit:public": "npm audit --registry https://registry.npmjs.org/",
     "build:packages": "gulp build",
     "build": "gulp build",
     "postbuild": "gulp build:install-all-cli-dependencies && gulp build:all-clis",
@@ -41,8 +46,9 @@
     "lint:tests": "tslint --format stylish -c ./tslint-tests.json \"**/__tests__/**/*.ts\"",
     "watch": "gulp watch"
   },
-  "dependencies":   {
+  "dependencies": {
     "@types/yargs": "8.0.2",
+    "@zowe/perf-timing": "^1.0.3-alpha.201902201448",
     "chalk": "2.1.0",
     "cli-table3": "0.5.1",
     "dataobject-parser": "1.2.1",
@@ -67,7 +73,7 @@
     "yamljs": "0.3.0",
     "yargs": "8.0.2"
   },
-  "devDependencies":   {
+  "devDependencies": {
     "@types/body-parser": "1.16.4",
     "@types/chai": "4.0.1",
     "@types/chai-string": "1.1.30",
@@ -115,16 +121,22 @@
     "ts-node": "7.0.1",
     "tslint": "5.10.0",
     "typedoc": "0.12.0",
-    "typescript": "3.0.3",
+    "typescript": "3.2.2",
     "uuid": "3.2.1",
     "yargs-parser": "9.0.2"
   },
-  "engines": {"node": ">=6.0.0"},
-  "jest-junit": {"output": "./__tests__/__results__/junit/junit.xml"},
-  "jestSonar": {"reportPath": "__tests__/__results__/jest-sonar"},
-  "jest-stare":   {
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "jest-junit": {
+    "output": "./__tests__/__results__/junit/junit.xml"
+  },
+  "jestSonar": {
+    "reportPath": "__tests__/__results__/jest-sonar"
+  },
+  "jest-stare": {
     "resultDir": "__tests__/__results__/jest-stare",
-    "additionalResultsProcessors":     [
+    "additionalResultsProcessors": [
       "jest-junit",
       "jest-sonar-reporter"
     ],

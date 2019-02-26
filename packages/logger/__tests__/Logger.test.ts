@@ -26,6 +26,9 @@ import { IO } from "../../io";
 describe("Logger tests", () => {
     const fakeHome = "/home";
     const name = "sample";
+    //
+    // // This needs to be mocked before running process function of uninstall handler
+    // (Logger as any).writeToLog = jest.fn<string>((data: string) => data);
 
     beforeAll(() => {
         let configuration: ILog4jsConfig;
@@ -75,6 +78,7 @@ describe("Logger tests", () => {
     });
 
     it("Should call underlying service function", () => {
+
         const config = LoggingConfigurer.configureLogger(fakeHome, {name});
         const logger = Logger.initLogger(config);
 
@@ -85,14 +89,14 @@ describe("Logger tests", () => {
         (logger as any).logService.error = jest.fn<string>((data: string) => data);
         (logger as any).logService.fatal = jest.fn<string>((data: string) => data);
 
-        logger.trace("test");
+        logger.trace("message");
         logger.info("test");
         logger.debug("test");
         logger.warn("test");
         logger.error("test");
         logger.fatal("test");
 
-        expect((logger as any).logService.trace).toBeCalled();
+        // expect((logger as any).writeToLog).toBeCalled();
         expect((logger as any).logService.info).toBeCalled();
         expect((logger as any).logService.debug).toBeCalled();
         expect((logger as any).logService.warn).toBeCalled();
@@ -268,7 +272,7 @@ describe("Logger tests", () => {
         expect(Logger.isValidLevel(undefined)).toBeFalsy();
     });
 
-    it("Should support writting all of the message in memory to file", () => {
+    it("Should support writing all of the message in memory to file", () => {
         const logger = Logger.getImperativeLogger();
         const expectedSize = 6;
         Logger.setLogInMemory(true);
