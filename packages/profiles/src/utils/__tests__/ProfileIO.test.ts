@@ -37,8 +37,8 @@ const mocks = {
     writeFileSync: fs.writeFileSync as Mock<typeof fs.writeFileSync>,
     yamlStringify: writeYaml.stringify as Mock<typeof writeYaml.stringify>,
     unlinkSync: fs.unlinkSync as Mock<typeof fs.unlinkSync>,
-    existsSync: fs.existsSync as Mock<typeof fs.existsSync>,
-    readdirSync: fs.readdirSync as Mock<typeof fs.readdirSync>
+    existsSync: fs.existsSync as unknown as Mock<typeof fs.existsSync>,
+    readdirSync: fs.readdirSync as unknown as Mock<typeof fs.readdirSync>
 };
 
 const TEST_DIR_PATH: string = "/__tests__/__results__/data/.testHomeDir";

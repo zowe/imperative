@@ -273,7 +273,7 @@ describe("ImperativeExpect tests", () => {
     it("should allow an expect failure to be transformed", () => {
         let error: ImperativeError;
         try {
-            ImperativeExpecexpectAndTransform(() => {
+            ImperativeExpect.expectAndTransform(() => {
                 ImperativeExpect.toBeEqual(0, 1);
             }, (impErr) => {
                 return new ImperativeError({ msg: "The values weren't equal!!!" });
