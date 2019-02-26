@@ -72,15 +72,7 @@ node('ca-jenkins-agent') {
 
     // Build the application
     pipeline.build(
-        operation: {
-            login()
-            sh "npm run build"
-            sh "npm logout"
-        },
-        timeout: [
-            time: 5,
-            unit: 'MINUTES'
-        ]
+        timeout: [time: 5, unit: 'MINUTES']
     )
 
     // Check for vulnerabilities
@@ -132,9 +124,7 @@ node('ca-jenkins-agent') {
     pipeline.test(
         name: "Integration",
         operation: {
-            login()
             sh "npm run test:integration"
-            sh "npm logout"
         },
         timeout: [time: 30, unit: 'MINUTES'],
         shouldUnlockKeyring: true,
