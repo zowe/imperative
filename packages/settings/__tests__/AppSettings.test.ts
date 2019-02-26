@@ -52,7 +52,7 @@ const exposeAppSettingsInternal = (settings: AppSettings): IAppSettingsAllMethod
 
 describe("AppSettings", () => {
     const mocks = {
-        existsSync: existsSync as Mock<typeof existsSync>,
+        existsSync: existsSync as unknown as Mock<typeof existsSync>,
         writeFile: writeFile as Mock<typeof writeFile>,
         readFileSync: readFileSync as Mock<typeof readFileSync>
     };
@@ -324,7 +324,7 @@ describe("AppSettings", () => {
                     expect(appSettings.writeSettingsFile).toHaveBeenCalledTimes(2);
 
                     // Prepare for the next loop.
-                    (appSettings.writeSettingsFile as Mock<typeof Function>).mockClear();
+                    (appSettings.writeSettingsFile as unknown as Mock<typeof Function>).mockClear();
                 }
             });
         });
