@@ -222,7 +222,7 @@ describe("Chained Handler Service", () => {
             }
         ];
         const expected = "myvalueishere";
-        const overallArgs = {$0: "dummy", _: [], myOverallArg: expected};
+        const overallArgs = {$0: "dummy", _: [] as any, myOverallArg: expected};
         const responses: any[] = [];
         const args = ChainedHandlerService.getArguments(binName,
             config,
@@ -249,7 +249,7 @@ describe("Chained Handler Service", () => {
             }
         ];
         const expected = "myvalueishere";
-        const overallArgs = {$0: "dummy", _: [], myOverallArg: ["hello", "hi", expected]};
+        const overallArgs = {$0: "dummy", _: [] as any, myOverallArg: ["hello", "hi", expected]};
         const responses: any[] = [];
         const args = ChainedHandlerService.getArguments(binName,
             config,
