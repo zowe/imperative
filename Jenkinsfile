@@ -75,6 +75,7 @@ node('ca-jenkins-agent') {
         operation: {
             login()
             sh "npm run build"
+            sh "npm run checkTestsCompile"
             sh "npm logout"
         },
         timeout: [

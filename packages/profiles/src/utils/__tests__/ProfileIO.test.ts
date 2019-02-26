@@ -50,7 +50,7 @@ describe("Profile IO", () => {
     });
 
     it("should be able to create all profile directories", () => {
-        mocks.createDirsSync.mockImplementation((args) => {
+        mocks.createDirsSync.mockImplementation((args: any) => {
             return;
         });
         ProfileIO.createProfileDirs(TEST_DIR_PATH);
