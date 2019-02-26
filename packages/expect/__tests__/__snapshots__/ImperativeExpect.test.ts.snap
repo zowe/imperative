@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ImperativeExpect tests Should throw an error for a blank field 1`] = `"Expect Error: Required parameter 'undefined' must not be blank"`;
+exports[`ImperativeExpect tests Should throw an error for a blank field 1`] = `"Expect Error: Required parameter 'blank' must not be blank"`;
 
 exports[`ImperativeExpect tests Should throw an error for a defined key that is blank 1`] = `"Expect Error: Required parameter 'blank' must not be blank"`;
 
