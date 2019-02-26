@@ -76,7 +76,7 @@ describe("AppSettings", () => {
         });
 
         it("should error when initialized more than once", () => {
-            mocks.readFileSync.mockReturnValueOnce(defaultSettings);
+            mocks.readFileSync.mockReturnValueOnce(defaultSettings as any);
 
             AppSettings.initialize("test.json");
 
@@ -88,7 +88,7 @@ describe("AppSettings", () => {
 
     describe("constructing class scenarios", () => {
         it("should return the correct instance", () => {
-            mocks.readFileSync.mockReturnValueOnce(defaultSettings);
+            mocks.readFileSync.mockReturnValueOnce(defaultSettings as any);
 
             const appSettingsInstance = AppSettings.initialize("test.json");
 
@@ -111,7 +111,7 @@ describe("AppSettings", () => {
             mocks.readFileSync.mockImplementationOnce(() => {
                 throw error;
             });
-            mocks.existsSync.mockReturnValueOnce(true);
+            mocks.existsSync.mockReturnValueOnce(true as any);
 
             expect(() => {
                 AppSettings.initialize("test.json", () => {
@@ -126,7 +126,7 @@ describe("AppSettings", () => {
             mocks.readFileSync.mockImplementationOnce(() => {
                 throw new Error("This should not be thrown");
             });
-            mocks.existsSync.mockReturnValueOnce(false);
+            mocks.existsSync.mockReturnValueOnce(false as any);
 
             const overwriteSettings: ISettingsFile = {
                 overrides: {
@@ -154,7 +154,7 @@ describe("AppSettings", () => {
 
         it("should merge settings provided from the file", () => {
             // An array of test scenario objects.
-            const scenarios: Array<{provided: object, expected: object}> = [
+            const scenarios: Array<{ provided: object, expected: object }> = [
                 {
                     provided: {overrides: {CredentialManager: "test-1"}},
                     expected: {
@@ -210,7 +210,7 @@ describe("AppSettings", () => {
             ];
 
             for (const scenario of scenarios) {
-                mocks.readFileSync.mockReturnValueOnce(scenario.provided);
+                mocks.readFileSync.mockReturnValueOnce(scenario.provided as any);
 
                 const appSettings = new AppSettings("some-file");
                 expect(appSettings.settings).toEqual(scenario.expected);
@@ -235,15 +235,15 @@ describe("AppSettings", () => {
         };
 
         beforeAll(() => {
-            mocks.readFileSync.mockReturnValue(defaultSettings);
+            mocks.readFileSync.mockReturnValue(defaultSettings as any);
         });
 
         const fileName = "test.json";
 
         it("should write to a settings file", async () => {
-            mocks.writeFile.mockImplementation((file, object, options, callback) => {
+            mocks.writeFile.mockImplementation(((file: any, object: any, options: any, callback: any) => {
                 callback();
-            });
+            }) as any);
 
             AppSettings.initialize(fileName);
             await exposeAppSettingsInternal(AppSettings.instance).writeSettingsFile();
@@ -259,7 +259,7 @@ describe("AppSettings", () => {
                 abcd: "test"
             };
 
-            mocks.readFileSync.mockReturnValueOnce(testLoadSettings);
+            mocks.readFileSync.mockReturnValueOnce(testLoadSettings as any);
 
             AppSettings.initialize(fileName);
             await exposeAppSettingsInternal(AppSettings.instance).writeSettingsFile();
@@ -277,9 +277,9 @@ describe("AppSettings", () => {
         it("should reject when there is an error in jsonfile.writeFile", async () => {
             const error = new Error("Should reject with this");
 
-            mocks.writeFile.mockImplementationOnce((file, object, options, callback) => {
+            mocks.writeFile.mockImplementationOnce(((file: any, object: any, options: any, callback: any) => {
                 callback(error);
-            });
+            }) as any);
 
             AppSettings.initialize(fileName);
 
