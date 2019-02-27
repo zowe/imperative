@@ -84,39 +84,39 @@ node('ca-jenkins-agent') {
     //     }
     // )
 
-    def TEST_ROOT = "__tests__/__results__/ci"
-    def UNIT_TEST_ROOT = "$TEST_ROOT/unit"
-    def UNIT_JUNIT_OUTPUT = "$UNIT_TEST_ROOT/junit.xml"
+    // def TEST_ROOT = "__tests__/__results__/ci"
+    // def UNIT_TEST_ROOT = "$TEST_ROOT/unit"
+    // def UNIT_JUNIT_OUTPUT = "$UNIT_TEST_ROOT/junit.xml"
     
-    // Perform a unit test and capture the results
-    pipeline.test(
-        name: "Unit",
-        operation: {
-            sh "npm run test:unit"
-        },
-        environment: [
-            JEST_JUNIT_OUTPUT: UNIT_JUNIT_OUTPUT,
-            JEST_STARE_RESULT_DIR: "${UNIT_TEST_ROOT}/jest-stare",
-            JEST_STARE_RESULT_HTML: "index.html"
-        ],
-        testResults: [dir: "${UNIT_TEST_ROOT}/jest-stare", files: "index.html", name: 'Imperative - Unit Test Report'],
-        coverageResults: [dir: "__tests__/__results__/unit/coverage/lcov-report", files: "index.html", name: 'Imperative - Unit Test Coverage Report'],
-        junitOutput: UNIT_JUNIT_OUTPUT,
-        cobertura: [
-            autoUpdateHealth: false,
-            autoUpdateStability: false,
-            coberturaReportFile: '__tests__/__results__/unit/coverage/cobertura-coverage.xml',
-            conditionalCoverageTargets: '70, 0, 0',
-            failUnhealthy: false,
-            failUnstable: false,
-            lineCoverageTargets: '80, 0, 0',
-            maxNumberOfBuilds: 20,
-            methodCoverageTargets: '80, 0, 0',
-            onlyStable: false,
-            sourceEncoding: 'ASCII',
-            zoomCoverageChart: false
-        ]
-    )
+    // // Perform a unit test and capture the results
+    // pipeline.test(
+    //     name: "Unit",
+    //     operation: {
+    //         sh "npm run test:unit"
+    //     },
+    //     environment: [
+    //         JEST_JUNIT_OUTPUT: UNIT_JUNIT_OUTPUT,
+    //         JEST_STARE_RESULT_DIR: "${UNIT_TEST_ROOT}/jest-stare",
+    //         JEST_STARE_RESULT_HTML: "index.html"
+    //     ],
+    //     testResults: [dir: "${UNIT_TEST_ROOT}/jest-stare", files: "index.html", name: 'Imperative - Unit Test Report'],
+    //     coverageResults: [dir: "__tests__/__results__/unit/coverage/lcov-report", files: "index.html", name: 'Imperative - Unit Test Coverage Report'],
+    //     junitOutput: UNIT_JUNIT_OUTPUT,
+    //     cobertura: [
+    //         autoUpdateHealth: false,
+    //         autoUpdateStability: false,
+    //         coberturaReportFile: '__tests__/__results__/unit/coverage/cobertura-coverage.xml',
+    //         conditionalCoverageTargets: '70, 0, 0',
+    //         failUnhealthy: false,
+    //         failUnstable: false,
+    //         lineCoverageTargets: '80, 0, 0',
+    //         maxNumberOfBuilds: 20,
+    //         methodCoverageTargets: '80, 0, 0',
+    //         onlyStable: false,
+    //         sourceEncoding: 'ASCII',
+    //         zoomCoverageChart: false
+    //     ]
+    // )
 
     // // Perform an integration test and capture the results
     // def INTEGRATION_TEST_ROOT = "$TEST_ROOT/integration"
