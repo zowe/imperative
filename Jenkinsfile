@@ -72,10 +72,6 @@ node('ca-jenkins-agent') {
 
     // Build the application
     pipeline.build(
-        operation: {
-            sh "npm run build"
-            sh "npm run checkTestsCompile"
-        },
         timeout: [
             time: 5,
             unit: 'MINUTES'
