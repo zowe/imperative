@@ -59,22 +59,22 @@ node('ca-jenkins-agent') {
     // Initialize the pipeline library, should create 5 steps
     pipeline.setup()
 
-    // Create a custom lint stage that runs immediately after the setup.
-    pipeline.createStage(
-        name: "Lint",
-        stage: {
-            sh "npm run lint"
-        },
-        timeout: [
-            time: 2,
-            unit: 'MINUTES'
-        ]
-    )
+    // // Create a custom lint stage that runs immediately after the setup.
+    // pipeline.createStage(
+    //     name: "Lint",
+    //     stage: {
+    //         sh "npm run lint"
+    //     },
+    //     timeout: [
+    //         time: 2,
+    //         unit: 'MINUTES'
+    //     ]
+    // )
 
-    // Build the application
-    pipeline.build(
-        timeout: [time: 5, unit: 'MINUTES']
-    )
+    // // Build the application
+    // pipeline.build(
+    //     timeout: [time: 5, unit: 'MINUTES']
+    // )
 
     // // Check for vulnerabilities
     // pipeline.createStage(
