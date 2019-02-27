@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.                                     *
 *                                                                                 *
 */
-@Library('shared-pipelines@feature/19') import org.zowe.pipelines.nodejs.NodeJSPipeline
+@Library('shared-pipelines@v1.2.0') import org.zowe.pipelines.nodejs.NodeJSPipeline
 
 import org.zowe.pipelines.nodejs.models.SemverLevel
 
@@ -22,7 +22,6 @@ node('ca-jenkins-agent') {
 
     // Protected branch property definitions
     pipeline.protectedBranches.addMap([
-        [name: "fix-deploy", tag: "dummy", prerelease: "dummy", dependencies: ["@zowe/perf-timing": "daily"]],
         [name: "master", tag: "daily", prerelease: "alpha", dependencies: ["@zowe/perf-timing": "daily"]],
         [name: "beta", tag: "beta", prerelease: "beta", dependencies: ["@zowe/perf-timing": "beta"]],
         [name: "latest", tag: "latest", dependencies: ["@zowe/perf-timing": "latest"]],
@@ -55,95 +54,95 @@ node('ca-jenkins-agent') {
     // Initialize the pipeline library, should create 5 steps
     pipeline.setup()
 
-    // // Create a custom lint stage that runs immediately after the setup.
-    // pipeline.createStage(
-    //     name: "Lint",
-    //     stage: {
-    //         sh "npm run lint"
-    //     },
-    //     timeout: [
-    //         time: 2,
-    //         unit: 'MINUTES'
-    //     ]
-    // )
+    // Create a custom lint stage that runs immediately after the setup.
+    pipeline.createStage(
+        name: "Lint",
+        stage: {
+            sh "npm run lint"
+        },
+        timeout: [
+            time: 2,
+            unit: 'MINUTES'
+        ]
+    )
 
-    // // Build the application
-    // pipeline.build(
-    //     timeout: [time: 5, unit: 'MINUTES']
-    // )
+    // Build the application
+    pipeline.build(
+        timeout: [time: 5, unit: 'MINUTES']
+    )
 
-    // // Check for vulnerabilities
-    // pipeline.createStage(
-    //     name: "Check for Vulnerabilities",
-    //     stage: {
-    //         sh 'npm run audit:public'
-    //     }
-    // )
+    // Check for vulnerabilities
+    pipeline.createStage(
+        name: "Check for Vulnerabilities",
+        stage: {
+            sh 'npm run audit:public'
+        }
+    )
 
-    // def TEST_ROOT = "__tests__/__results__/ci"
-    // def UNIT_TEST_ROOT = "$TEST_ROOT/unit"
-    // def UNIT_JUNIT_OUTPUT = "$UNIT_TEST_ROOT/junit.xml"
+    def TEST_ROOT = "__tests__/__results__/ci"
+    def UNIT_TEST_ROOT = "$TEST_ROOT/unit"
+    def UNIT_JUNIT_OUTPUT = "$UNIT_TEST_ROOT/junit.xml"
     
-    // // Perform a unit test and capture the results
-    // pipeline.test(
-    //     name: "Unit",
-    //     operation: {
-    //         sh "npm run test:unit"
-    //     },
-    //     environment: [
-    //         JEST_JUNIT_OUTPUT: UNIT_JUNIT_OUTPUT,
-    //         JEST_STARE_RESULT_DIR: "${UNIT_TEST_ROOT}/jest-stare",
-    //         JEST_STARE_RESULT_HTML: "index.html"
-    //     ],
-    //     testResults: [dir: "${UNIT_TEST_ROOT}/jest-stare", files: "index.html", name: 'Imperative - Unit Test Report'],
-    //     coverageResults: [dir: "__tests__/__results__/unit/coverage/lcov-report", files: "index.html", name: 'Imperative - Unit Test Coverage Report'],
-    //     junitOutput: UNIT_JUNIT_OUTPUT,
-    //     cobertura: [
-    //         autoUpdateHealth: false,
-    //         autoUpdateStability: false,
-    //         coberturaReportFile: '__tests__/__results__/unit/coverage/cobertura-coverage.xml',
-    //         conditionalCoverageTargets: '70, 0, 0',
-    //         failUnhealthy: false,
-    //         failUnstable: false,
-    //         lineCoverageTargets: '80, 0, 0',
-    //         maxNumberOfBuilds: 20,
-    //         methodCoverageTargets: '80, 0, 0',
-    //         onlyStable: false,
-    //         sourceEncoding: 'ASCII',
-    //         zoomCoverageChart: false
-    //     ]
-    // )
+    // Perform a unit test and capture the results
+    pipeline.test(
+        name: "Unit",
+        operation: {
+            sh "npm run test:unit"
+        },
+        environment: [
+            JEST_JUNIT_OUTPUT: UNIT_JUNIT_OUTPUT,
+            JEST_STARE_RESULT_DIR: "${UNIT_TEST_ROOT}/jest-stare",
+            JEST_STARE_RESULT_HTML: "index.html"
+        ],
+        testResults: [dir: "${UNIT_TEST_ROOT}/jest-stare", files: "index.html", name: 'Imperative - Unit Test Report'],
+        coverageResults: [dir: "__tests__/__results__/unit/coverage/lcov-report", files: "index.html", name: 'Imperative - Unit Test Coverage Report'],
+        junitOutput: UNIT_JUNIT_OUTPUT,
+        cobertura: [
+            autoUpdateHealth: false,
+            autoUpdateStability: false,
+            coberturaReportFile: '__tests__/__results__/unit/coverage/cobertura-coverage.xml',
+            conditionalCoverageTargets: '70, 0, 0',
+            failUnhealthy: false,
+            failUnstable: false,
+            lineCoverageTargets: '80, 0, 0',
+            maxNumberOfBuilds: 20,
+            methodCoverageTargets: '80, 0, 0',
+            onlyStable: false,
+            sourceEncoding: 'ASCII',
+            zoomCoverageChart: false
+        ]
+    )
 
-    // // Perform an integration test and capture the results
-    // def INTEGRATION_TEST_ROOT = "$TEST_ROOT/integration"
-    // def INTEGRATION_JUNIT_OUTPUT = "$INTEGRATION_TEST_ROOT/junit.xml"
+    // Perform an integration test and capture the results
+    def INTEGRATION_TEST_ROOT = "$TEST_ROOT/integration"
+    def INTEGRATION_JUNIT_OUTPUT = "$INTEGRATION_TEST_ROOT/junit.xml"
     
-    // pipeline.test(
-    //     name: "Integration",
-    //     operation: {
-    //         sh "npm run test:integration"
-    //     },
-    //     timeout: [time: 30, unit: 'MINUTES'],
-    //     shouldUnlockKeyring: true,
-    //     environment: [
-    //         JEST_JUNIT_OUTPUT: INTEGRATION_JUNIT_OUTPUT,
-    //         JEST_STARE_RESULT_DIR: "${INTEGRATION_TEST_ROOT}/jest-stare",
-    //         JEST_STARE_RESULT_HTML: "index.html"
-    //     ],
-    //     testResults: [dir: "$INTEGRATION_TEST_ROOT/jest-stare", files: "index.html", name: 'Imperative - Integration Test Report'],
-    //     junitOutput: INTEGRATION_JUNIT_OUTPUT
-    // )
+    pipeline.test(
+        name: "Integration",
+        operation: {
+            sh "npm run test:integration"
+        },
+        timeout: [time: 30, unit: 'MINUTES'],
+        shouldUnlockKeyring: true,
+        environment: [
+            JEST_JUNIT_OUTPUT: INTEGRATION_JUNIT_OUTPUT,
+            JEST_STARE_RESULT_DIR: "${INTEGRATION_TEST_ROOT}/jest-stare",
+            JEST_STARE_RESULT_HTML: "index.html"
+        ],
+        testResults: [dir: "$INTEGRATION_TEST_ROOT/jest-stare", files: "index.html", name: 'Imperative - Integration Test Report'],
+        junitOutput: INTEGRATION_JUNIT_OUTPUT
+    )
 
-    // // Perform sonar qube operations
-    // pipeline.createStage(
-    //     name: "SonarQube",
-    //     stage: {
-    //         def scannerHome = tool 'sonar-scanner-maven-install'
-    //         withSonarQubeEnv('sonar-default-server') {
-    //             sh "${scannerHome}/bin/sonar-scanner"
-    //         }
-    //     }
-    // )
+    // Perform sonar qube operations
+    pipeline.createStage(
+        name: "SonarQube",
+        stage: {
+            def scannerHome = tool 'sonar-scanner-maven-install'
+            withSonarQubeEnv('sonar-default-server') {
+                sh "${scannerHome}/bin/sonar-scanner"
+            }
+        }
+    )
 
     // Deploys the application if on a protected branch. Give the version input
     // 30 minutes before an auto timeout approve.
