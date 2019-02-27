@@ -46,7 +46,8 @@ node('ca-jenkins-agent') {
         [
             email: pipeline.publishConfig.email,
             credentialsId: pipeline.publishConfig.credentialsId,
-            url: 'https://gizaartifactory.jfrog.io/gizaartifactory/api/npm/npm-release/'
+            url: 'https://gizaartifactory.jfrog.io/gizaartifactory/api/npm/npm-release/',
+            scope: '@brightside'
         ]
     ]
 
