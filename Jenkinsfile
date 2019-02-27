@@ -39,7 +39,8 @@ node('ca-jenkins-agent') {
     // npm publish configuration
     pipeline.publishConfig = [
         email: pipeline.gitConfig.email,
-        credentialsId: 'GizaArtifactory'
+        credentialsId: 'GizaArtifactory',
+        scope: '@brightside'
     ]
 
     pipeline.registryConfig = [
@@ -47,7 +48,7 @@ node('ca-jenkins-agent') {
             email: pipeline.publishConfig.email,
             credentialsId: pipeline.publishConfig.credentialsId,
             url: 'https://gizaartifactory.jfrog.io/gizaartifactory/api/npm/npm-release/',
-            scope: '@brightside'
+            scope: pipeline.publishConfig.scope
         ]
     ]
 
