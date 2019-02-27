@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.                                     *
 *                                                                                 *
 */
-@Library('shared-pipelines@v1.0.2') import org.zowe.pipelines.nodejs.NodeJSPipeline
+@Library('shared-pipelines@v1.1.1') import org.zowe.pipelines.nodejs.NodeJSPipeline
 
 import org.zowe.pipelines.nodejs.models.SemverLevel
 
@@ -18,10 +18,11 @@ node('ca-jenkins-agent') {
 
     // Build admins, users that can approve the build and receieve emails for 
     // all protected branch builds.
-    pipeline.admins.add("wrich04", "zfernand0", "mikebauerca", "markackert", "dkelosky")
+    pipeline.admins.add("zfernand0", "mikebauerca", "markackert", "dkelosky")
 
     // Protected branch property definitions
     pipeline.protectedBranches.addMap([
+        [name: "fix-deploy", tag: "dummy", prerelease: "dummy", dependencies: ["@zowe/perf-timing": "daily"]],
         [name: "master", tag: "daily", prerelease: "alpha", dependencies: ["@zowe/perf-timing": "daily"]],
         [name: "beta", tag: "beta", prerelease: "beta", dependencies: ["@zowe/perf-timing": "beta"]],
         [name: "latest", tag: "latest", dependencies: ["@zowe/perf-timing": "latest"]],
