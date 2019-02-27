@@ -67,5 +67,9 @@ exports[`cmd-cli gen-help example-test should display the help with allowable op
 
       $ cmd-cli gen-help example-test 
 
+   - has a prefix:
+
+      $ echo \\"hello world\\" | cmd-cli gen-help example-test --options
+
 "
 `;
