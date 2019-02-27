@@ -68,7 +68,10 @@ node('ca-jenkins-agent') {
 
     // Build the application
     pipeline.build(
-        timeout: [time: 5, unit: 'MINUTES']
+        timeout: [
+            time: 5,
+            unit: 'MINUTES'
+        ]
     )
 
     // Check for vulnerabilities

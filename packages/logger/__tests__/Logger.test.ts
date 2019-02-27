@@ -82,12 +82,12 @@ describe("Logger tests", () => {
         const config = LoggingConfigurer.configureLogger(fakeHome, {name});
         const logger = Logger.initLogger(config);
 
-        (logger as any).logService.trace = jest.fn<string>((data: string) => data);
-        (logger as any).logService.info = jest.fn<string>((data: string) => data);
-        (logger as any).logService.debug = jest.fn<string>((data: string) => data);
-        (logger as any).logService.warn = jest.fn<string>((data: string) => data);
-        (logger as any).logService.error = jest.fn<string>((data: string) => data);
-        (logger as any).logService.fatal = jest.fn<string>((data: string) => data);
+        (logger as any).logService.trace = jest.fn<string, any>((data: string) => data);
+        (logger as any).logService.info = jest.fn<string, any>((data: string) => data);
+        (logger as any).logService.debug = jest.fn<string, any>((data: string) => data);
+        (logger as any).logService.warn = jest.fn<string, any>((data: string) => data);
+        (logger as any).logService.error = jest.fn<string, any>((data: string) => data);
+        (logger as any).logService.fatal = jest.fn<string, any>((data: string) => data);
 
         logger.trace("message");
         logger.info("test");
@@ -167,12 +167,12 @@ describe("Logger tests", () => {
         const config = LoggingConfigurer.configureLogger(fakeHome, {name});
         const logger = Logger.initLogger(config);
 
-        (logger as any).logService.trace = jest.fn<string>((data: string) => data);
-        (logger as any).logService.info = jest.fn<string>((data: string) => data);
-        (logger as any).logService.debug = jest.fn<string>((data: string) => data);
-        (logger as any).logService.warn = jest.fn<string>((data: string) => data);
-        (logger as any).logService.error = jest.fn<string>((data: string) => data);
-        (logger as any).logService.fatal = jest.fn<string>((data: string) => data);
+        (logger as any).logService.trace = jest.fn<string, any>((data: string) => data);
+        (logger as any).logService.info = jest.fn<string, any>((data: string) => data);
+        (logger as any).logService.debug = jest.fn<string, any>((data: string) => data);
+        (logger as any).logService.warn = jest.fn<string, any>((data: string) => data);
+        (logger as any).logService.error = jest.fn<string, any>((data: string) => data);
+        (logger as any).logService.fatal = jest.fn<string, any>((data: string) => data);
 
         const error = new ImperativeError({msg: "sample error"});
 

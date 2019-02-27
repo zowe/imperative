@@ -10,6 +10,7 @@
 */
 
 import Mock = jest.Mock;
+
 jest.mock("fs");
 jest.mock("path");
 import * as fs from "fs";
@@ -33,22 +34,22 @@ describe("IO tests", () => {
     });
 
     it("should return true for fs.stats says input is directory", () => {
-        const fn = fs.statSync as Mock<typeof fs.statSync>;
-        fn.mockImplementation( (somePath: fs.PathLike) => {
+        const fn = fs.statSync as unknown as Mock<typeof fs.statSync>;
+        fn.mockImplementation(((somePath: fs.PathLike) => {
             return {
                 isDirectory: () => true,
             };
-        });
+        }) as any);
         expect(IO.isDir("pretend/dir")).toBe(true);
     });
 
     it("should return false for fs.stats says input is not directory", () => {
-        const fn = fs.statSync as Mock<typeof fs.statSync>;
-        fn.mockImplementation((somePath: fs.PathLike) => {
+        const fn = fs.statSync as unknown as Mock<typeof fs.statSync>;
+        fn.mockImplementation(((somePath: fs.PathLike) => {
             return {
                 isDirectory: () => false,
             };
-        });
+        }) as any);
         expect(IO.isDir("pretend/file")).toBe(false);
     });
 
@@ -80,18 +81,18 @@ describe("IO tests", () => {
     });
 
     it("should get true if file exists", () => {
-        const fn = fs.existsSync as Mock<typeof fs.existsSync>;
-        fn.mockImplementation((file: fs.PathLike) => {
+        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        fn.mockImplementation(((file: fs.PathLike) => {
             return true;
-        });
+        }) as any);
         expect(IO.existsSync("pretend/exists")).toBe(true);
     });
 
     it("should get false if file doesn't exist", () => {
-        const fn = fs.existsSync as Mock<typeof fs.existsSync>;
-        fn.mockImplementation((file: fs.PathLike) => {
+        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        fn.mockImplementation(((file: fs.PathLike) => {
             return false;
-        });
+        }) as any);
         expect(IO.existsSync("pretend/no/exists")).toBe(false);
     });
 
@@ -106,27 +107,27 @@ describe("IO tests", () => {
     });
 
     it("should create a dir if file doesn't exist", () => {
-        const fn = fs.existsSync as Mock<typeof fs.existsSync>;
-        fn.mockImplementation((file: fs.PathLike) => {
+        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        fn.mockImplementation(((file: fs.PathLike) => {
             return false;
-        });
+        }) as any);
         const fnFm = fs.mkdirSync as Mock<typeof fs.mkdirSync>;
-        fnFm.mockImplementation((file: fs.PathLike) => {
+        fnFm.mockImplementation(((file: fs.PathLike) => {
             return; // do nothing but pretend to write
-        });
+        }) as any);
         IO.createDirSync("pretend/to/create");
         expect(fnFm).toBeCalled();
     });
 
     it("should not create a dir if file exists", () => {
-        const fn = fs.existsSync as Mock<typeof fs.existsSync>;
-        fn.mockImplementation((file: fs.PathLike) => {
+        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        fn.mockImplementation(((file: fs.PathLike) => {
             return true;
-        });
+        }) as any);
         const fnFm = fs.mkdirSync as Mock<typeof fs.mkdirSync>;
-        fnFm.mockImplementation((file: fs.PathLike) => {
+        fnFm.mockImplementation(((file: fs.PathLike) => {
             return; // do nothing but pretend to write
-        });
+        }) as any);
         IO.createDirSync("pretend/already/exists");
         expect(fn).toBeCalled();
         expect(fnFm).not.toBeCalled();
@@ -143,15 +144,15 @@ describe("IO tests", () => {
     });
 
     it("should create several dirs if dirs do not exist", () => {
-        const fn = fs.existsSync as Mock<typeof fs.existsSync>;
-        fn.mockImplementation((file: fs.PathLike) => {
+        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        fn.mockImplementation(((file: fs.PathLike) => {
             return false;
-        });
+        }) as any);
         const fnFm = fs.mkdirSync as Mock<typeof fs.mkdirSync>;
-        fnFm.mockImplementation((file: fs.PathLike) => {
+        fnFm.mockImplementation(((file: fs.PathLike) => {
             return; // do nothing but pretend to write
-        });
-        const fnPr = path.resolve as Mock<typeof path.resolve>;
+        }) as any);
+        const fnPr = path.resolve as unknown as Mock<typeof path.resolve>;
         fnPr.mockImplementation((...pathSegments: any[]) => {
             return pathSegments[0];
         });
@@ -162,15 +163,15 @@ describe("IO tests", () => {
     });
 
     it("should not create several dirs if dirs already exist", () => {
-        const fn = fs.existsSync as Mock<typeof fs.existsSync>;
-        fn.mockImplementation((file: fs.PathLike) => {
+        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        fn.mockImplementation(((file: fs.PathLike) => {
             return true;
-        });
+        }) as any);
         const fnFm = fs.mkdirSync as Mock<typeof fs.mkdirSync>;
-        fnFm.mockImplementation((file: fs.PathLike) => {
+        fnFm.mockImplementation(((file: fs.PathLike) => {
             return; // do nothing but pretend to write
-        });
-        const fnPr = path.resolve as Mock<typeof path.resolve>;
+        }) as any);
+        const fnPr = path.resolve as unknown as Mock<typeof path.resolve>;
         fnPr.mockImplementation((...pathSegments: any[]) => {
             return pathSegments[0];
         });
@@ -181,16 +182,16 @@ describe("IO tests", () => {
     });
 
     it("should only create dirs that do not exist", () => {
-        const fn = fs.existsSync as Mock<typeof fs.existsSync>;
+        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
         let data = 0;
-        fn.mockImplementation((file: fs.PathLike) => {
+        fn.mockImplementation(((file: fs.PathLike) => {
             return (data++ % 2); // pretend every other dir exists
-        });
+        }) as any);
         const fnFm = fs.mkdirSync as Mock<typeof fs.mkdirSync>;
-        fnFm.mockImplementation((file: fs.PathLike) => {
+        fnFm.mockImplementation(((file: fs.PathLike) => {
             return; // do nothing but pretend to write
-        });
-        const fnPr = path.resolve as Mock<typeof path.resolve>;
+        }) as any);
+        const fnPr = path.resolve as unknown as Mock<typeof path.resolve>;
         fnPr.mockImplementation((...pathSegments: any[]) => {
             return pathSegments[0];
         });
@@ -201,24 +202,24 @@ describe("IO tests", () => {
     });
 
     it("should create several dirs if dirs do not exist from input file", () => {
-        const fn = fs.existsSync as Mock<typeof fs.existsSync>;
-        fn.mockImplementation((file: fs.PathLike) => {
+        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        fn.mockImplementation(((file: fs.PathLike) => {
             return false;
-        });
+        }) as any);
         const fnFm = fs.mkdirSync as Mock<typeof fs.mkdirSync>;
-        fnFm.mockImplementation((file: fs.PathLike) => {
+        fnFm.mockImplementation(((file: fs.PathLike) => {
             return; // do nothing but pretend to write
-        });
-        const fnPr = path.resolve as Mock<typeof path.resolve>;
+        }) as any);
+        const fnPr = path.resolve as unknown as Mock<typeof path.resolve>;
         fnPr.mockImplementation((...pathSegments: any[]) => {
             return pathSegments[0];
         });
-        const fnPd = path.dirname as Mock<typeof path.dirname>;
-        fnPd.mockImplementation((...pathSegments: any[]) => {
+        const fnPd = path.dirname as unknown as Mock<typeof path.dirname>;
+        fnPd.mockImplementation(((...pathSegments: any[]) => {
             const toDir: string[] = pathSegments[0].split(IO.FILE_DELIM);
             toDir.pop();
             return toDir.join(IO.FILE_DELIM);
-        });
+        }) as any);
         const willBeADir = ["pretend", "to", "create", "test.txt"];
         const dir = willBeADir.join(IO.FILE_DELIM);
         IO.createDirsSyncFromFilePath(dir);
@@ -226,24 +227,24 @@ describe("IO tests", () => {
     });
 
     it("should not create several dirs if dirs already exist from input file", () => {
-        const fn = fs.existsSync as Mock<typeof fs.existsSync>;
-        fn.mockImplementation((file: fs.PathLike) => {
+        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
+        fn.mockImplementation(((file: fs.PathLike) => {
             return true;
-        });
+        }) as any);
         const fnFm = fs.mkdirSync as Mock<typeof fs.mkdirSync>;
-        fnFm.mockImplementation((file: fs.PathLike) => {
+        fnFm.mockImplementation(((file: fs.PathLike) => {
             return; // do nothing but pretend to write
-        });
-        const fnPr = path.resolve as Mock<typeof path.resolve>;
+        }) as any);
+        const fnPr = path.resolve as unknown as Mock<typeof path.resolve>;
         fnPr.mockImplementation((...pathSegments: any[]) => {
             return pathSegments[0];
         });
-        const fnPd = path.dirname as Mock<typeof path.dirname>;
-        fnPd.mockImplementation((...pathSegments: any[]) => {
+        const fnPd = path.dirname as unknown as Mock<typeof path.dirname>;
+        fnPd.mockImplementation(((...pathSegments: any[]) => {
             const toDir: string[] = pathSegments[0].split(IO.FILE_DELIM);
             toDir.pop();
             return toDir.join(IO.FILE_DELIM);
-        });
+        }) as any);
         const willBeADir = ["pretend", "to", "create", "test.txt"];
         const dir = willBeADir.join(IO.FILE_DELIM);
         IO.createDirsSyncFromFilePath(dir);
@@ -251,25 +252,25 @@ describe("IO tests", () => {
     });
 
     it("should only create dirs that do not exist from input file", () => {
-        const fn = fs.existsSync as Mock<typeof fs.existsSync>;
+        const fn = fs.existsSync as unknown as Mock<typeof fs.existsSync>;
         let data = 0;
-        fn.mockImplementation((file: fs.PathLike) => {
+        fn.mockImplementation(((file: fs.PathLike) => {
             return (data++ % 2); // pretend every other dir exists
-        });
+        }) as any);
         const fnFm = fs.mkdirSync as Mock<typeof fs.mkdirSync>;
-        fnFm.mockImplementation((file: fs.PathLike) => {
+        fnFm.mockImplementation(((file: fs.PathLike) => {
             return; // do nothing but pretend to write
-        });
-        const fnPr = path.resolve as Mock<typeof path.resolve>;
+        }) as any);
+        const fnPr = path.resolve as unknown as Mock<typeof path.resolve>;
         fnPr.mockImplementation((...pathSegments: any[]) => {
             return pathSegments[0];
         });
-        const fnPd = path.dirname as Mock<typeof path.dirname>;
-        fnPd.mockImplementation((...pathSegments: any[]) => {
+        const fnPd = path.dirname as unknown as Mock<typeof path.dirname>;
+        fnPd.mockImplementation(((...pathSegments: any[]) => {
             const toDir: string[] = pathSegments[0].split(IO.FILE_DELIM);
             toDir.pop();
             return toDir.join(IO.FILE_DELIM);
-        });
+        }) as any);
         const willBeADir = ["pretend", "to", "create", "test.txt"];
         const dir = willBeADir.join(IO.FILE_DELIM);
         IO.createDirsSyncFromFilePath(dir);

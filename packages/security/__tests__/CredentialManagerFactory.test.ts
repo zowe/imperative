@@ -159,7 +159,7 @@ describe("CredentialManagerFactory", () => {
         it("should log an error message indicating that the manager override supplied is invalid", async () => {
             const classFile = resolve(__dirname, testClassDir, "NotAValidFile.ts");
             let msg = "";
-            process.stderr.write = jest.fn((msgs) => {
+            (process.stderr.write as any) = jest.fn((msgs) => {
                 msg += msgs;
             });
             const actualError = await UnitTestUtils.catchError(CredentialManagerFactory.initialize({ Manager: classFile, service: "ijkl" }));
