@@ -51,12 +51,6 @@ node('ca-jenkins-agent') {
         ]
     ]
 
-    def login = {
-        withCredentials([usernamePassword(credentialsId: pipeline.publishConfig.credentialsId, usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            sh "expect -f ./jenkins/npm_login.expect $USERNAME $PASSWORD \"$pipeline.publishConfig.email\""
-        }
-    }
-
     // Initialize the pipeline library, should create 5 steps
     pipeline.setup()
 
