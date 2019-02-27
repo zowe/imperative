@@ -55,6 +55,11 @@ export const ExampleTestDefinition: ICommandDefinition = {
             {
                 options: "",
                 description: ""
+            },
+            {
+                description: "has a prefix",
+                prefix: "echo \"hello world\" |",
+                options: "--options"
             }
         ]
 };
