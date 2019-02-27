@@ -21,4 +21,10 @@ export interface ICommandExampleDefinition {
      * The example description - what does it do?
      */
     description: string;
+    /**
+     * Text to prepend to the command and options in the example.
+     * Useful for commands that read stdin
+     * e.g. "echo hello |"
+     */
+    prefix?: string;
 }
