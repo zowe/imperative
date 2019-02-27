@@ -84,9 +84,9 @@ node('ca-jenkins-agent') {
     //     }
     // )
 
-    // def TEST_ROOT = "__tests__/__results__/ci"
-    // def UNIT_TEST_ROOT = "$TEST_ROOT/unit"
-    // def UNIT_JUNIT_OUTPUT = "$UNIT_TEST_ROOT/junit.xml"
+    def TEST_ROOT = "__tests__/__results__/ci"
+    def UNIT_TEST_ROOT = "$TEST_ROOT/unit"
+    def UNIT_JUNIT_OUTPUT = "$UNIT_TEST_ROOT/junit.xml"
     
     // Perform a unit test and capture the results
     pipeline.test(
