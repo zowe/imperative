@@ -10,7 +10,6 @@
 */
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { Logger } from "../../../../../logger/";
 import { ImperativeError } from "../../../../../error";
 import { AppSettings } from "../../../../../settings/src/AppSettings";
 
@@ -21,18 +20,6 @@ import { AppSettings } from "../../../../../settings/src/AppSettings";
  */
 export default class ResetHandler implements ICommandHandler {
 
-    /*
-     * A variable with which to compare the input of the reset command for the switch
-     */
-    private static RESET_CREGENTIAL_MANAGER: string = "credential-manager";
-
-    /**
-     * A logger for this class
-     *
-     * @private
-     * @type {Logger}
-     */
-    private log: Logger = Logger.getImperativeLogger();
 
     /**
      * Process the command and input.
@@ -42,25 +29,7 @@ export default class ResetHandler implements ICommandHandler {
      * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
-
-      switch(params.arguments.configName){
-        case ResetHandler.RESET_CREGENTIAL_MANAGER:
-          await this.resetCredentialManager();
-          break;
-        default :
-          throw new ImperativeError({
-            msg: "The setting you tried to change does not exist.",
-            additionalDetails: JSON.stringify(params)
-          });
-      }
-    }
-
-    /**
-     * Reset the credential manager to default - false.
-     *
-     * @throws {ImperativeError}
-     */
-    private async resetCredentialManager() {
-      await AppSettings.instance.setNewOverride("CredentialManager", false);
+        const {configName} = params.arguments;
+        AppSettings.instance.set("overrides", configName, false);
     }
 }

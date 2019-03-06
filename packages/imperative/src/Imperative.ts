@@ -68,6 +68,7 @@ import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettin
 import { AppSettings } from "../../settings";
 import { join } from "path";
 import { Console } from "../../console";
+import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
 
 export class Imperative {
 
@@ -413,22 +414,15 @@ export class Imperative {
         const cliSettingsRoot = join(ImperativeConfig.instance.cliHome, "settings");
         const cliSettingsFile = join(cliSettingsRoot, "imperative.json");
 
+        const defaultSettings: ISettingsFile = {
+            overrides: {
+                CredentialManager: false
+            }
+        };
+
         AppSettings.initialize(
             cliSettingsFile,
-            (settingsFile, defaultSettings) => {
-                // Load required modules on the fly so as to not slow down the
-                // happy path of not needing to create the file.
-                const jsonfile = require("jsonfile");
-                const {IO} = require("../../io");
-
-                IO.createDirsSyncFromFilePath(settingsFile);
-
-                jsonfile.writeFileSync(settingsFile, defaultSettings, {
-                    spaces: 2
-                });
-
-                return defaultSettings;
-            }
+            defaultSettings,
         );
     }
 
