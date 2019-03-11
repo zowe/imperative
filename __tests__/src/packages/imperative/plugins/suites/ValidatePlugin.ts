@@ -182,7 +182,7 @@ describe("Validate plugin", () => {
                 result.stderr = removeNewline(result.stderr);
                 expect(result.stdout).toContain(testPlugin);
                 expect(result.stdout).toContain("Warning");
-                expect(result.stdout).toContain("Your '@brightside' dependencies must be contained within a 'peerDependencies' property." +
+                expect(result.stdout).toContain("Your '@zowe' dependencies must be contained within a 'peerDependencies' property." +
                     " That property does not exist in the file");
                 expect(result.stdout).toContain("package.json");
             });
