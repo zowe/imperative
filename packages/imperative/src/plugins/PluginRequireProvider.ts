@@ -158,8 +158,8 @@ export class PluginRequireProvider {
          * It was designed this way to support submodule imports.
          *
          * Example:
-         * If modules = ["@brightside/imperative"]
-         *    request = "@brightside/imperative/lib/errors"
+         * If modules = ["@zowe/imperative"]
+         *    request = "@zowe/imperative/lib/errors"
          */
          // This regular expression will match /(@brightside\/imperative)/.*/
         /*

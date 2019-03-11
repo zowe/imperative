@@ -9,7 +9,7 @@
 *
 */
 
-import { Logger } from "@brightside/imperative";
+import { Logger } from "@zowe/imperative";
 declare const _default: {
     new (service: string): {
         consoleLog: Logger;

@@ -11,7 +11,7 @@
 
 /**
  * Main class of the Imperative framework, returned when you
- * require("@brightside/imperative") e.g. const imperative =  require("@brightside/imperative");
+ * require("@zowe/imperative") e.g. const imperative =  require("@zowe/imperative");
  */
 import { PerfTiming } from "@zowe/perf-timing";
 

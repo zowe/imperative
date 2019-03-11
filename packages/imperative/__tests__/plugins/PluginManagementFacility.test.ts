@@ -130,7 +130,7 @@ describe("Plugin Management Facility", () => {
             peerDepVer: "-1"
         },
         impDependency: {
-            peerDepName: "@brightside/imperative",
+            peerDepName: "@zowe/imperative",
             peerDepVer: "-1"
         }
     };
@@ -1222,7 +1222,7 @@ describe("Plugin Management Facility", () => {
                 imperative: expectedCfgProps.impConfig,
                 peerDependencies: {
                     "@brightside/coreIsNotInPkgJson": "1.x",
-                    "@brightside/imperative": "1.x"
+                    "@zowe/imperative": "1.x"
                 }
             });
 
@@ -1261,7 +1261,7 @@ describe("Plugin Management Facility", () => {
                 imperative: expectedCfgProps.impConfig,
                 peerDependencies: {
                     "@brightside/core": "1.x",
-                    "@brightside/imperative": "1.x"
+                    "@zowe/imperative": "1.x"
                 }
             });
 
