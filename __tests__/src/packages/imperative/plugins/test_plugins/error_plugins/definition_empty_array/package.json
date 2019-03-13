@@ -14,7 +14,7 @@
     "definitions": []
   },
   "peerDependencies": {
-    "@brightside/imperative": "1.0.0"
+    "@zowe/imperative": "1.0.0"
   },
   "typings": "lib/index.d.ts",
   "scripts": {

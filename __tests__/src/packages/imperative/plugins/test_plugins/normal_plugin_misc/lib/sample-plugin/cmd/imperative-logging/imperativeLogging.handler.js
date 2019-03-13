@@ -1,5 +1,5 @@
 "use strict";
-var T = require("@brightside/imperative");
+var T = require("@zowe/imperative");
 var path = require("path");
 
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
