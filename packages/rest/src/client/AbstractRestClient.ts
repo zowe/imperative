@@ -25,6 +25,7 @@ import { Session } from "../session/Session";
 import * as path from "path";
 import { IRestClientError } from "./doc/IRestClientError";
 import { RestClientError } from "./RestClientError";
+import { PerfTiming } from "@zowe/perf-timing";
 
 export type RestClientResolve = (data: string) => void;
 
@@ -140,6 +141,13 @@ export abstract class AbstractRestClient {
     public performRest(resource: string, request: HTTP_VERB, reqHeaders?: any[], writeData?: any): Promise<string> {
         return new Promise<string>((resolve: RestClientResolve, reject: ImperativeReject) => {
 
+            const timingApi = PerfTiming.api;
+
+            if (PerfTiming.isEnabled) {
+                // Marks point START
+                timingApi.mark("START_PERFORM_REST");
+            }
+
             // save for logging
             this.mResource = resource;
             this.mRequest = request;
@@ -197,6 +205,13 @@ export abstract class AbstractRestClient {
 
             // always end the request
             clientRequest.end();
+
+            if (PerfTiming.isEnabled) {
+                // Marks point END
+                timingApi.mark("END_PERFORM_REST");
+                timingApi.measure("performRest: $resource", "START_PERFORM_REST", "END_PERFORM_REST");
+            }
+
         });
     }
 
@@ -257,11 +272,10 @@ export abstract class AbstractRestClient {
              * Path join is ok for just the resource part of the URL.
              * We also eliminate any whitespace typos at the beginning
              * or end of basePath or resource.
-             * Posix.normalize to avoid "///"
              */
-            path: path.posix.normalize(path.posix.join(path.posix.sep,
+            path: path.posix.join(path.posix.sep,
                 this.session.ISession.basePath.trim(),
-                resource.trim())
+                resource.trim()
             ),
             port: this.session.ISession.port,
             rejectUnauthorized: this.session.ISession.rejectUnauthorized

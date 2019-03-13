@@ -24,11 +24,11 @@ exports[`IO tests should get an error for no input on readFileSync 1`] = `"Expec
 
 exports[`IO tests should get an error for no input on writeFile 1`] = `"Expect Error: Required parameter 'file' must not be blank"`;
 
-exports[`IO tests should get an error for no input on writeFile second parm 1`] = `"Expect Error: content"`;
+exports[`IO tests should get an error for no input on writeFile second parm 1`] = `"Expect Error: Content to write to the file must not be null or undefined"`;
 
 exports[`IO tests should get an error for no input on writeFileAsync 1`] = `"Expect Error: Required parameter 'file' must not be blank"`;
 
-exports[`IO tests should get an error for no input on writeFileAsync second parm 1`] = `"Expect Error: Required object must be defined"`;
+exports[`IO tests should get an error for no input on writeFileAsync second parm 1`] = `"Expect Error: Content to write to the file must not be null or undefined"`;
 
 exports[`IO tests should get an error for no input on writeObject 1`] = `"Expect Error: Required parameter 'configFile' must not be blank"`;
 

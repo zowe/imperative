@@ -45,7 +45,7 @@ describe("Using a Plugin", () => {
         let cmd = `plugins install ${installedPlugin}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
         expect(result.stderr).toMatch(/npm.*WARN/);
-        expect(result.stderr).toContain("requires a peer of @brightside/imperative");
+        expect(result.stderr).toContain("requires a peer of @zowe/imperative");
         expect(result.stderr).toContain("You must install peer dependencies yourself");
 
         cmd = ``;
@@ -93,7 +93,7 @@ describe("Using a Plugin", () => {
         let cmd = `plugins install ${installedPlugin}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
         expect(result.stderr).toMatch(/npm.*WARN/);
-        expect(result.stderr).toContain("requires a peer of @brightside/imperative");
+        expect(result.stderr).toContain("requires a peer of @zowe/imperative");
         expect(result.stderr).toContain("You must install peer dependencies yourself");
 
         cmd = ``;
@@ -152,7 +152,7 @@ describe("Using a Plugin", () => {
         let cmd = `plugins install ${installedPlugin}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
         expect(result.stderr).toMatch(/npm.*WARN/);
-        expect(result.stderr).toContain("requires a peer of @brightside/imperative");
+        expect(result.stderr).toContain("requires a peer of @zowe/imperative");
         expect(result.stderr).toContain("You must install peer dependencies yourself");
         let stdout = "";
 
@@ -246,7 +246,7 @@ describe("Using a Plugin", () => {
         let cmd = `plugins install ${installedPlugin}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
         expect(result.stderr).toMatch(/npm.*WARN/);
-        expect(result.stderr).toContain("requires a peer of @brightside/imperative");
+        expect(result.stderr).toContain("requires a peer of @zowe/imperative");
         expect(result.stderr).toContain("You must install peer dependencies yourself");
 
         // confirm the plugin summary is displayed from zowe help

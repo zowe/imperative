@@ -11,6 +11,7 @@
 
 import Module = require("module");
 
+import { PerfTiming } from "@zowe/perf-timing";
 import { ImperativeConfig } from "../ImperativeConfig";
 import * as path from "path";
 import * as findUp from "find-up";
@@ -125,6 +126,18 @@ export class PluginRequireProvider {
      * @param modules The modules that should be injected from the runtime instance
      */
     private constructor(private readonly modules: string[]) {
+        if (PerfTiming.isEnabled) {
+            // Stop tracking time of module imports before the module loader was created.
+            // Effectively we are renaming the timer so we will have 2 metrics:
+            //      All imports that happened before the module loader initialized
+            //      All imports after the module loader initialized.
+            Module.prototype.require = PerfTiming.api.unwatch(Module.prototype.require);
+            Module.prototype.require = PerfTiming.api.watch(
+                Module.prototype.require,
+                `${Module.prototype.require.name} injected from module loader`
+            );
+        }
+
         const hostPackageRoot = path.join(
             findUp.sync("package.json", {cwd: ImperativeConfig.instance.callerLocation}),
             ".."
@@ -145,10 +158,10 @@ export class PluginRequireProvider {
          * It was designed this way to support submodule imports.
          *
          * Example:
-         * If modules = ["@brightside/imperative"]
-         *    request = "@brightside/imperative/lib/errors"
+         * If modules = ["@zowe/imperative"]
+         *    request = "@zowe/imperative/lib/errors"
          */
-         // This regular expression will match /(@brightside\/imperative)/.*/
+         // This regular expression will match /(@zowe\/imperative)/.*/
         /*
          * The ?: check after the group in the regular expression is to explicitly
          * require that a submodule import has to match. This is to account for the
@@ -159,7 +172,9 @@ export class PluginRequireProvider {
         const regex = this.regex = new RegExp(`^(${internalModules.join("|")})(?:\\/.*)?$`, "gm");
         const origRequire = this.origRequire = Module.prototype.require;
 
-        Module.prototype.require = function(request: string) {
+        // Timerify the function if needed
+        // Gave it a name so that we can more easily track it
+        Module.prototype.require = PerfTiming.api.watch(function PluginModuleLoader(request: string) {
             // Check to see if the module should be injected
             const doesUseOverrides = request.match(regex);
 
@@ -180,6 +195,6 @@ export class PluginRequireProvider {
                 // Otherwise use the package dependencies
                 return origRequire.apply(this, arguments);
             }
-        };
+        });
     }
 }

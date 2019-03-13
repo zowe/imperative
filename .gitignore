@@ -5,11 +5,11 @@ local.json
 output/
 logs/
 CCS141/
-.vscode
 .idea
 imperative.iml
 src/brightside.iml
 package-lock.json
+__tests__/__integration__/hello_world/package-lock.json
 
 ## Sonar ignores
 .scannerwork/
@@ -100,7 +100,7 @@ __tests__/src/plugins/suites/sample-plugin.json
 ## Including imperative symbolic link for testing purposes
 !/__tests__/src/packages/imperative/plugins/test_cli/node_modules/
 /__tests__/src/packages/imperative/plugins/test_cli/node_modules/**
-!/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@brightside/
-/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@brightside/**
-!/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@brightside/imperative
+!/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@zowe/
+/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@zowe/**
+!/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@zowe/imperative
 

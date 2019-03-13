@@ -280,15 +280,13 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
                 nextType += types.join("|") + ">";
 
                 usage += ` ${nextType}\n\n${DefaultHelpGenerator.HELP_INDENT}Where ${nextType} is one of the following:`;
-            }
-            else {
+            } else {
                 usage += " " + Constants.OPTIONS_SEGMENT;
             }
-        }
-        else {
+        } else {
             throw new ImperativeError({
                 msg: `${DefaultHelpGenerator.ERROR_TAG} Unknown or unsupported command type ` +
-                `"${this.mCommandDefinition.type}" used in command definition.`
+                    `"${this.mCommandDefinition.type}" used in command definition.`
             });
         }
 
@@ -379,8 +377,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
                 positionalsHelpText += this.buildOptionText(positionalString, fullDescription);
             }
             return this.renderHelp(positionalsHelpText);
-        }
-        else {
+        } else {
             throw new ImperativeError({
                 msg: `${DefaultHelpGenerator.ERROR_TAG} Unable to print positional arguments: None were supplied.`
             });
@@ -468,11 +465,13 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         let examplesText = "";
         if (!isNullOrUndefined(this.mCommandDefinition.examples)) {
             examplesText = this.mCommandDefinition.examples.map((example) => {
+                const prefix = example.prefix != null ? example.prefix + "{{space}} " : "";
                 let exampleText = TextUtils.wordWrap("{{bullet}}\- {{space}}" + example.description + ":\n\n",
                     undefined,
                     DefaultHelpGenerator.HELP_INDENT);
                 exampleText += "{{bullet}} {{codeBegin}} {{space}} {{space}} {{space}} {{space}} {{space}}\$ {{space}}" +
-                this.mRootCommandName + " " +
+                    prefix +
+                    this.mRootCommandName + " " +
                     CommandUtils.getFullCommandName(this.mCommandDefinition,
                         this.mDefinitionTree) + " " + example.options + "{{codeEnd}}\n";
                 return exampleText;
