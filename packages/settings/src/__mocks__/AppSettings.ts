@@ -26,7 +26,8 @@ function MockAppSettings() {
     } as ISettingsFile;
 
     // Enforces that the type matches that of the calling class
-    const setNewOverrideFn: typeof AppSettingsModule.AppSettings.prototype.setNewOverride = (
+    const setFn: typeof AppSettingsModule.AppSettings.prototype.set = (
+        namespace: keyof ISettingsFile,
         override: keyof ISettingsFile["overrides"],
         value: string | false
     ) => {
@@ -35,8 +36,28 @@ function MockAppSettings() {
             resolve();
         });
     };
+    this.set = jest.fn(setFn);
 
-    this.setNewOverride = jest.fn(setNewOverrideFn);
+    const getFn: typeof AppSettingsModule.AppSettings.prototype.get = (
+        namespace: keyof ISettingsFile,
+        override: keyof ISettingsFile["overrides"]
+    ) => {
+        return this.settings.overrides[override];
+    };
+    this.get = jest.fn(getFn);
+
+    const getNamespaceFn: typeof AppSettingsModule.AppSettings.prototype.getNamespace = (
+        namespace: keyof ISettingsFile,
+    ) => {
+        return this.settings[namespace];
+    };
+    this.getNamespace = jest.fn(getNamespaceFn);
+
+    const getSettingsFn: typeof AppSettingsModule.AppSettings.prototype.getSettings = (
+    ) => {
+        return this.settings;
+    };
+    this.getSettings = jest.fn(getSettingsFn);
 }
 
 // Mock the constructor and have Settings be the instance
@@ -58,6 +79,7 @@ AppSettings.initialize = jest.fn(() => {
 
 // Define the instance getter property and implementation
 Object.defineProperty(AppSettings, "instance", {
+    configurable: true,
     get: () => {
         if (AppSettings.mInstance == null) {
             throw new Error("AppSettings should be initialized first. If this has changed please alter the mock logic");

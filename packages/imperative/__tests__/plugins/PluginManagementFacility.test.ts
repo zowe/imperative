@@ -33,6 +33,7 @@ import { ICommandProfileTypeConfiguration } from "../../../cmd";
 import { DefinitionTreeResolver } from "../../src/DefinitionTreeResolver";
 import { IPluginCfgProps } from "../../src/plugins/doc/IPluginCfgProps";
 import { Logger } from "../../../logger";
+import { ISettingsFile } from "../../../settings/src/doc/ISettingsFile";
 
 describe("Plugin Management Facility", () => {
     const mocks = {
@@ -143,6 +144,11 @@ describe("Plugin Management Facility", () => {
         type: "group",
         children: basePluginConfig.definitions
     };
+    const defaultSettings: ISettingsFile = {
+        overrides: {
+            CredentialManager: false
+        }
+    };
 
     beforeEach(() => {
         jest.resetAllMocks();
@@ -153,23 +159,8 @@ describe("Plugin Management Facility", () => {
         ConfigurationValidator.validate = mockCfgValidator;
         pluginIssues.removeIssuesForPlugin(pluginName);
 
-        AppSettings.initialize = jest.fn();
 
         ({ PluginRequireProvider } = require("../../src/plugins/PluginRequireProvider"));
-
-        // instance is a getter of a property, so mock the property
-        Object.defineProperty(AppSettings, "instance", {
-            configurable: true,
-            get: jest.fn(() => {
-                return {
-                    settings: {
-                        overrides: {
-                            CredentialManager: false
-                        }
-                    }
-                };
-            })
-        });
 
         Logger.setLogInMemory(true, 0);
     });
@@ -177,6 +168,7 @@ describe("Plugin Management Facility", () => {
     afterEach(() => {
         PMF.addCmdGrpToResolvedCliCmdTree = realAddCmdGrpToResolvedCliCmdTree;
         ConfigurationValidator.validate = realCfgValidator;
+        (AppSettings as any).mInstance = undefined;
     });
 
     it("should initialize properly", () => {
@@ -251,7 +243,7 @@ describe("Plugin Management Facility", () => {
             mocks.existsSync
                 .mockReturnValueOnce(false)   // directory does not exist
                 .mockReturnValueOnce(false);  // plugins.json does not exist
-
+            AppSettings.initialize("test.json",defaultSettings);
             PluginManagementFacility.instance.loadAllPluginCfgProps();
 
             // confirm it created the plugins directory
@@ -268,7 +260,7 @@ describe("Plugin Management Facility", () => {
             mocks.existsSync
                 .mockReturnValueOnce(false) // directory does not exist
                 .mockReturnValueOnce(true); // file does exist
-
+            AppSettings.initialize("test.json",defaultSettings);
             PluginManagementFacility.instance.loadAllPluginCfgProps();
 
             // confirm that we created the directory and wrote the file
@@ -278,6 +270,7 @@ describe("Plugin Management Facility", () => {
 
         it("should not create the file", () => {
             mocks.existsSync.mockReturnValue(true);  // both directory and file exists
+            AppSettings.initialize("test.json",defaultSettings);
             PluginManagementFacility.instance.loadAllPluginCfgProps();
 
             // confirm that we did not write plugins.json
@@ -287,14 +280,14 @@ describe("Plugin Management Facility", () => {
         it("should not crash when loadPluginCfgProps returns null", () => {
             mocks.existsSync.mockReturnValue(true);  // both directory and file exists
             loadPluginCfgPropsMock.mockReturnValue(null);
-
+            AppSettings.initialize("test.json",defaultSettings);
             PluginManagementFacility.instance.loadAllPluginCfgProps();
         });
 
         it("should not crash when loadPluginCfgProps has no overrides", () => {
             mocks.existsSync.mockReturnValue(true);  // both directory and file exists
             loadPluginCfgPropsMock.mockReturnValue(basePluginCfgProps);
-
+            AppSettings.initialize("test.json",defaultSettings);
             PluginManagementFacility.instance.loadAllPluginCfgProps();
         });
 
@@ -319,22 +312,8 @@ describe("Plugin Management Facility", () => {
             pluginCfgPropsWithOverride.impConfig.overrides = credMgrOverride;
             loadPluginCfgPropsMock.mockReturnValue(pluginCfgPropsWithOverride);
 
-            /* AppSettings.instance is a getter of a property, so mock the property
-             * to return the plugin name used to override CredMgr.
-             */
-            Object.defineProperty(AppSettings, "instance", {
-                configurable: true,
-                get: jest.fn(() => {
-                    return {
-                        settings: {
-                            overrides: {
-                                CredentialManager: pluginNmWithOverride
-                            }
-                        }
-                    };
-                })
-            });
-
+            AppSettings.initialize("test.json",defaultSettings);
+            AppSettings.instance.set("overrides","CredentialManager",pluginNmWithOverride);
 
             // Place the plugin with override into a set of installed plugins
             const installedPluginsWithOverride = JSON.parse(JSON.stringify(mockInstalledPlugins));
@@ -385,22 +364,8 @@ describe("Plugin Management Facility", () => {
             pluginCfgPropsWithOverride.impConfig.overrides = credMgrOverride;
             loadPluginCfgPropsMock.mockReturnValue(pluginCfgPropsWithOverride);
 
-            /* AppSettings.instance is a getter of a property, so mock the property
-             * to return the plugin name used to override CredMgr.
-             */
-            Object.defineProperty(AppSettings, "instance", {
-                configurable: true,
-                get: jest.fn(() => {
-                    return {
-                        settings: {
-                            overrides: {
-                                CredentialManager: "PluginNameThatWasNotInstalled"
-                            }
-                        }
-                    };
-                })
-            });
-
+            AppSettings.initialize("test.json",defaultSettings);
+            AppSettings.instance.set("overrides","CredentialManager", "PluginNameThatWasNotInstalled");
 
             // Place the plugin with override into a set of installed plugins
             const installedPluginsWithOverride = JSON.parse(JSON.stringify(mockInstalledPlugins));
@@ -440,22 +405,8 @@ describe("Plugin Management Facility", () => {
             pluginCfgPropsWithOverride.impConfig.overrides = credMgrOverride;
             loadPluginCfgPropsMock.mockReturnValue(pluginCfgPropsWithOverride);
 
-            /* AppSettings.instance is a getter of a property, so mock the property
-             * to return the plugin name used to override CredMgr.
-             */
-            Object.defineProperty(AppSettings, "instance", {
-                configurable: true,
-                get: jest.fn(() => {
-                    return {
-                        settings: {
-                            overrides: {
-                                CredentialManager: pluginNmWithOverride
-                            }
-                        }
-                    };
-                })
-            });
-
+            AppSettings.initialize("test.json",defaultSettings);
+            AppSettings.instance.set("overrides","CredentialManager", pluginNmWithOverride);
 
             // Place the plugin with override into a set of installed plugins
             const installedPluginsWithOverride = JSON.parse(JSON.stringify(mockInstalledPlugins));
@@ -570,7 +521,7 @@ describe("Plugin Management Facility", () => {
             it("should record error when there is a name conflict", () => {
                 PMF.conflictingNameOrAlias.mockReturnValue({
                     hasConflict: true, message: "The plug-in attempted to add a command group named 'sample-plugin'. " +
-                    "Your base application already contains a command group named 'sample-plugin'."
+                        "Your base application already contains a command group named 'sample-plugin'."
                 });
 
                 isValid = PMF.validatePlugin(basePluginCfgProps, basePluginCmdDef);
@@ -1154,8 +1105,8 @@ describe("Plugin Management Facility", () => {
 
             expect(pluginCfgProps).toBe(null);
             expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
-                    IssueSeverity.CFG_ERROR,
-                ])).toBe(true);
+                IssueSeverity.CFG_ERROR,
+            ])).toBe(true);
             const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
             expect(issue.issueSev).toBe(IssueSeverity.CFG_ERROR);
             expect(issue.issueText).toContain(
