@@ -10,16 +10,24 @@
 */
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
+import { Logger } from "../../../../../logger/";
 import { ImperativeError } from "../../../../../error";
 import { AppSettings } from "../../../../../settings/src/AppSettings";
 
 
 /**
- * The command group handler for cli configuration settings reset.
+ * The get command group handler for cli configuration settings.
  *
  */
-export default class ResetHandler implements ICommandHandler {
+export default class GetHandler implements ICommandHandler {
 
+    /**
+     * A logger for this class
+     *
+     * @private
+     * @type {Logger}
+     */
+    private log: Logger = Logger.getImperativeLogger();
 
     /**
      * Process the command and input.
@@ -30,6 +38,11 @@ export default class ResetHandler implements ICommandHandler {
      */
     public async process(params: IHandlerParameters): Promise<void> {
         const {configName} = params.arguments;
-        AppSettings.instance.set("overrides", configName, false);
+        const value = AppSettings.instance.get("overrides", configName);
+        if (typeof value === "undefined") {
+            params.response.console.error(`Config ${configName} does not exist.`);
+        }else{
+            params.response.console.log(value.toString());
+        }
     }
 }

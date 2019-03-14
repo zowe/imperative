@@ -27,7 +27,9 @@ export const setDefinition: ICommandDefinition = {
         {
         name: "configName",
         type: "string",
-        description: "Setting name",
+        description: "Setting name. Possible values:\n" +
+            "CredentialManager - The package name of a plugin that will override the default " +
+            "credential manager to allow for different credential storage methods.",
         required: true
         },
         {
@@ -39,7 +41,7 @@ export const setDefinition: ICommandDefinition = {
     ],
     examples: [
         {
-            options: "credential-manager my-credential-manager",
+            options: "CredentialManager my-credential-manager",
             description: "Set the default credential manager to my-credential-manager"
         }
     ],

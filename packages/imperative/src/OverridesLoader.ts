@@ -28,8 +28,8 @@ export class OverridesLoader {
    * @param {any} packageJson - the current package.json
    */
   public static async load(
-    config: IImperativeConfig,
-    packageJson: any
+      config: IImperativeConfig,
+      packageJson: any
   ): Promise<void> {
     // Initialize the Credential Manager
     await this.loadCredentialManager(config, packageJson);
@@ -42,24 +42,24 @@ export class OverridesLoader {
    * @param {any} packageJson - the current package.json
    */
   private static async loadCredentialManager(
-    config: IImperativeConfig,
-    packageJson: any
+      config: IImperativeConfig,
+      packageJson: any
   ): Promise<void> {
     const overrides: IImperativeOverrides = config.overrides;
 
     // The manager display name used to populate the "managed by" fields in profiles
     const displayName: string = (
-      overrides.CredentialManager != null
-      && AppSettings.initialized
-      && AppSettings.instance.settings.overrides != null
-      && AppSettings.instance.settings.overrides.CredentialManager != null
-      && AppSettings.instance.settings.overrides.CredentialManager !== false
+        overrides.CredentialManager != null
+        && AppSettings.initialized
+        && AppSettings.instance.getNamespace("overrides") != null
+        && AppSettings.instance.get("overrides", "CredentialManager") != null
+        && AppSettings.instance.get("overrides", "CredentialManager") !== false
     ) ?
-      // App settings is configured - use the plugin name for the manager name
-      AppSettings.instance.settings.overrides.CredentialManager as string
-      :
-      // App settings is not configured - use the CLI display name OR the package name as the manager name
-      config.productDisplayName || config.name;
+        // App settings is configured - use the plugin name for the manager name
+        AppSettings.instance.get("overrides", "CredentialManager") as string
+        :
+        // App settings is not configured - use the CLI display name OR the package name as the manager name
+        config.productDisplayName || config.name;
 
     // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
     if (overrides.CredentialManager != null || (packageJson.dependencies != null && packageJson.dependencies.keytar != null)) {

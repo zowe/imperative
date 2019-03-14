@@ -9,6 +9,8 @@
 *
 */
 
+import { ISettingsFile } from "../../../../../settings/src/doc/ISettingsFile";
+
 jest.mock("../../../../../settings/src/AppSettings");
 
 import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
@@ -20,7 +22,11 @@ describe("Config management reset handler", () => {
         // Mocks need cleared after every test for clean test runs
         jest.resetAllMocks();
     });
-
+    const defaultSettings: ISettingsFile = {
+        overrides: {
+            CredentialManager: false
+        }
+    };
     /**
      *  Create object to be passed to process function
      *
@@ -30,7 +36,7 @@ describe("Config management reset handler", () => {
         const x: any = {
         response: new (CommandResponse as any)(),
         arguments: {
-            configName: "credential-manager"
+            configName: "CredentialManager"
         },
         };
         return x as IHandlerParameters;
@@ -43,13 +49,13 @@ describe("Config management reset handler", () => {
 
         const params = getIHandlerParametersObject();
 
-        const appSettings = AppSettings.initialize("foo");
+        const appSettings = AppSettings.initialize("foo",defaultSettings);
 
         await handler.process(params as IHandlerParameters);
 
-        expect(appSettings.setNewOverride).toHaveBeenCalledWith("CredentialManager", false);
-        expect(appSettings.settings.overrides).toBeDefined();
-        expect(appSettings.settings.overrides.CredentialManager).toEqual(false);
+        expect(appSettings.set).toHaveBeenCalledWith("overrides", "CredentialManager", false);
+        expect(appSettings.getNamespace("overrides")).toBeDefined();
+        expect(appSettings.get("overrides", "CredentialManager")).toEqual(false);
     });
 });
 

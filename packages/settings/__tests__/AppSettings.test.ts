@@ -17,9 +17,10 @@ jest.mock("jsonfile");
 import { AppSettings } from "../";
 import { existsSync } from "fs";
 import { SettingsAlreadyInitialized, SettingsNotInitialized } from "../src/errors";
-import { readFileSync, writeFile } from "jsonfile";
+import { readFileSync, writeFile, writeFileSync } from "jsonfile";
 import { ISettingsFile } from "../src/doc/ISettingsFile";
 import * as DeepMerge from "deepmerge";
+import { JSONSettingsFilePersistence } from "../src/persistance/JSONSettingsFilePersistence";
 
 /**
  * Type of all the keys in the app settings class
@@ -34,7 +35,7 @@ type AppSettingsPublicKeys = {
  * class object, so use it wisely.
  */
 interface IAppSettingsAllMethods extends AppSettingsPublicKeys {
-    writeSettingsFile: () => Promise<void>;
+    flush: () => void;
 }
 
 /**
@@ -54,6 +55,7 @@ describe("AppSettings", () => {
     const mocks = {
         existsSync: existsSync as unknown as Mock<typeof existsSync>,
         writeFile: writeFile as Mock<typeof writeFile>,
+        writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
         readFileSync: readFileSync as Mock<typeof readFileSync>
     };
 
@@ -71,17 +73,17 @@ describe("AppSettings", () => {
     describe("initialization static errors", () => {
         it("should error when app settings hasn't been initialized", () => {
             expect(() => {
-                AppSettings.instance.setNewOverride("CredentialManager", false);
+                AppSettings.instance.set("overrides", "CredentialManager", false);
             }).toThrow(SettingsNotInitialized);
         });
 
         it("should error when initialized more than once", () => {
             mocks.readFileSync.mockReturnValueOnce(defaultSettings as any);
 
-            AppSettings.initialize("test.json");
+            AppSettings.initialize("test.json",defaultSettings);
 
             expect(() => {
-                AppSettings.initialize("another-test.json");
+                AppSettings.initialize("another-test.json",defaultSettings);
             }).toThrow(SettingsAlreadyInitialized);
         });
     });
@@ -90,66 +92,9 @@ describe("AppSettings", () => {
         it("should return the correct instance", () => {
             mocks.readFileSync.mockReturnValueOnce(defaultSettings as any);
 
-            const appSettingsInstance = AppSettings.initialize("test.json");
+            const appSettingsInstance = AppSettings.initialize("test.json",defaultSettings);
 
             expect(AppSettings.instance).toBe(appSettingsInstance);
-        });
-
-        it("should error if the settings file doesn't exist and no recovery function was provided", () => {
-            const error = new Error("No recovery function was provided");
-            mocks.readFileSync.mockImplementationOnce(() => {
-                throw error;
-            });
-
-            expect(() => {
-                AppSettings.initialize("test.json");
-            }).toThrow(error.message);
-        });
-
-        it("should error if the settings file exists and a recovery function was provided", () => {
-            const error = new Error("Settings file already exists");
-            mocks.readFileSync.mockImplementationOnce(() => {
-                throw error;
-            });
-            mocks.existsSync.mockReturnValueOnce(true as any);
-
-            expect(() => {
-                AppSettings.initialize("test.json", () => {
-                    fail("File recovery function should not have been called");
-
-                    return defaultSettings;
-                });
-            }).toThrow(error.message);
-        });
-
-        it("should call the recovery function if the settings file doesn't exist", () => {
-            mocks.readFileSync.mockImplementationOnce(() => {
-                throw new Error("This should not be thrown");
-            });
-            mocks.existsSync.mockReturnValueOnce(false as any);
-
-            const overwriteSettings: ISettingsFile = {
-                overrides: {
-                    CredentialManager: "some-plugin"
-                }
-            };
-
-            const fileName = "test.json";
-
-            const recoveryFcn = jest.fn((arg1, arg2) => {
-                expect(arg1).toEqual(fileName);
-                expect(arg2).toEqual(defaultSettings);
-
-                return overwriteSettings;
-            });
-
-            AppSettings.initialize(fileName, recoveryFcn);
-
-            expect(AppSettings.instance.settings).toEqual(overwriteSettings);
-            expect(recoveryFcn).toHaveBeenCalledTimes(1);
-
-            // The below check doesn't work because jest doesn't clone arugments.
-            // expect(recoveryFcn).toHaveBeenCalledWith(fileName, defaultSettings);
         });
 
         it("should merge settings provided from the file", () => {
@@ -212,8 +157,10 @@ describe("AppSettings", () => {
             for (const scenario of scenarios) {
                 mocks.readFileSync.mockReturnValueOnce(scenario.provided as any);
 
-                const appSettings = new AppSettings("some-file");
-                expect(appSettings.settings).toEqual(scenario.expected);
+                AppSettings.initialize("file", defaultSettings);
+                exposeAppSettingsInternal(AppSettings.instance).flush();
+                expect(AppSettings.instance.getSettings()).toEqual(scenario.expected);
+                (AppSettings as any).mInstance = undefined;
             }
 
 
@@ -228,9 +175,7 @@ describe("AppSettings", () => {
         const mockAppSettingsInternal = (settings: AppSettings): IAppSettingsAllMethods => {
             const returnSettings = exposeAppSettingsInternal(settings);
 
-            returnSettings.writeSettingsFile = jest.fn(() => {
-                return new Promise((resolve) => resolve());
-            });
+            returnSettings.flush = jest.fn();
             return returnSettings;
         };
 
@@ -241,15 +186,14 @@ describe("AppSettings", () => {
         const fileName = "test.json";
 
         it("should write to a settings file", async () => {
-            mocks.writeFile.mockImplementation(((file: any, object: any, options: any, callback: any) => {
-                callback();
-            }) as any);
+            mocks.writeFileSync.mockReset();
+            mocks.readFileSync.mockClear();
+            mocks.readFileSync.mockReturnValueOnce(defaultSettings as any);
+            AppSettings.initialize(fileName, defaultSettings);
+            exposeAppSettingsInternal(AppSettings.instance).flush();
 
-            AppSettings.initialize(fileName);
-            await exposeAppSettingsInternal(AppSettings.instance).writeSettingsFile();
-
-            expect(mocks.writeFile).toHaveBeenCalledTimes(1);
-            expect(mocks.writeFile).toHaveBeenCalledWith(fileName, defaultSettings, {spaces: 2}, expect.any(Function));
+            expect(mocks.writeFileSync).toHaveBeenCalledTimes(1);
+            expect(mocks.writeFileSync).toHaveBeenCalledWith(fileName, defaultSettings, {spaces: 2});
 
             // Clean up from previous test
             (AppSettings as any).mInstance = undefined;
@@ -261,40 +205,39 @@ describe("AppSettings", () => {
 
             mocks.readFileSync.mockReturnValueOnce(testLoadSettings as any);
 
-            AppSettings.initialize(fileName);
-            await exposeAppSettingsInternal(AppSettings.instance).writeSettingsFile();
+            AppSettings.initialize(fileName, defaultSettings);
+            exposeAppSettingsInternal(AppSettings.instance).flush();
 
-            expect(mocks.writeFile).toHaveBeenCalledTimes(1);
-            expect(mocks.writeFile).toHaveBeenCalledWith(
+            expect(mocks.writeFileSync).toHaveBeenCalledTimes(2);
+            expect(mocks.writeFileSync).toHaveBeenCalledWith(
                 fileName,
                 DeepMerge(JSON.parse(JSON.stringify(defaultSettings)), testLoadSettings),
-                {spaces: 2},
-                expect.any(Function)
+                {spaces: 2}
             );
 
-            mocks.writeFile.mockReset();
         });
-        it("should reject when there is an error in jsonfile.writeFile", async () => {
-            const error = new Error("Should reject with this");
+        it("should write to a settings file if one does not exist", async () => {
+            mocks.writeFileSync.mockReset();
+            mocks.readFileSync.mockClear();
+            mocks.readFileSync.mockImplementation(() => {
+                throw new Error();
+            });
+            AppSettings.initialize(fileName, defaultSettings);
 
-            mocks.writeFile.mockImplementationOnce(((file: any, object: any, options: any, callback: any) => {
-                callback(error);
-            }) as any);
+            expect(mocks.writeFileSync).toHaveBeenCalledTimes(1);
+            expect(mocks.writeFileSync).toHaveBeenCalledWith(fileName, defaultSettings, {spaces: 2});
 
-            AppSettings.initialize(fileName);
-
-            await expect(exposeAppSettingsInternal(AppSettings.instance).writeSettingsFile()).rejects.toBe(error);
         });
 
         describe("setting overrides", () => {
             let appSettings: IAppSettingsAllMethods;
 
             beforeEach(() => {
-                appSettings = mockAppSettingsInternal(new AppSettings(fileName));
+                appSettings = mockAppSettingsInternal(new AppSettings(new JSONSettingsFilePersistence("some-file"), defaultSettings));
             });
 
             it("should have the defaults unchanged", () => {
-                expect(appSettings.settings.overrides).toEqual(defaultSettings.overrides);
+                expect(appSettings.getNamespace("overrides")).toEqual(defaultSettings.overrides);
             });
 
             it("should override every possible overrides", async () => {
@@ -304,27 +247,24 @@ describe("AppSettings", () => {
                     const newValue = Math.random().toString();
 
                     // Override the current key with the new value randomly generated string
-                    await appSettings.setNewOverride(override as keyof ISettingsFile["overrides"], newValue);
+                    await appSettings.set("overrides", override, newValue);
 
                     // Test that it was changed
-                    expect(appSettings.settings.overrides).toEqual({
+                    expect(appSettings.getNamespace("overrides")).toEqual({
                         ...defaultSettings.overrides,
                         [override]: newValue
                     });
-                    expect(appSettings.writeSettingsFile).toHaveBeenCalledTimes(1);
-
                     // Now set it back to normal
-                    await appSettings.setNewOverride(override as keyof ISettingsFile["overrides"], false);
+                    await appSettings.set("overrides", override, false);
 
                     // Test it went back to norm
-                    expect(appSettings.settings.overrides).toEqual({
+                    expect(appSettings.getNamespace("overrides")).toEqual({
                         ...defaultSettings.overrides,
                         [override]: false
                     });
-                    expect(appSettings.writeSettingsFile).toHaveBeenCalledTimes(2);
 
                     // Prepare for the next loop.
-                    (appSettings.writeSettingsFile as unknown as Mock<typeof Function>).mockClear();
+                    (appSettings.flush as Mock<typeof Function>).mockClear();
                 }
             });
         });
