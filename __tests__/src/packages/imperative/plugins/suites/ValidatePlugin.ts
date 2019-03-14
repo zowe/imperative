@@ -122,7 +122,7 @@ describe("Validate plugin", () => {
                 let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
 
                 expect(result.stderr).toMatch(/npm.*WARN/);
-                expect(result.stderr).toContain("requires a peer of @brightside/imperative");
+                expect(result.stderr).toContain("requires a peer of @zowe/imperative");
                 expect(result.stderr).toContain("You must install peer dependencies yourself");
 
                 expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
@@ -182,7 +182,7 @@ describe("Validate plugin", () => {
                 result.stderr = removeNewline(result.stderr);
                 expect(result.stdout).toContain(testPlugin);
                 expect(result.stdout).toContain("Warning");
-                expect(result.stdout).toContain("Your '@brightside' dependencies must be contained within a 'peerDependencies' property." +
+                expect(result.stdout).toContain("Your '@zowe' dependencies must be contained within a 'peerDependencies' property." +
                     " That property does not exist in the file");
                 expect(result.stdout).toContain("package.json");
             });
