@@ -157,6 +157,7 @@ export class CommandProcessor {
     get commandLine(): string {
         return this.mCommandLine;
     }
+
     // set commandLine(command: string) {
     //     this.mCommandLine = command;
     // }
@@ -245,6 +246,7 @@ export class CommandProcessor {
      * truly exceptional condition (should not occur).
      */
     public async invoke(params: IInvokeCommandParms): Promise<ICommandResponse> {
+
         // Ensure parameters are correct
         ImperativeExpect.toNotBeNullOrUndefined(params,
             `${CommandProcessor.ERROR_TAG} invoke(): No parameters supplied.`);
@@ -264,11 +266,56 @@ export class CommandProcessor {
                 `${CommandProcessor.ERROR_TAG} invoke(): Cannot invoke the handler for command "${this.definition.name}". The handler is blank.`);
         }
 
+        let commandLine = this.commandLine;
+
+        // determine if the command has the user option and mask the user value
+        let regEx = /--(user|u) ([^\s]+)/gi;
+
+        if ((commandLine.search(regEx)) >= 0) {
+            // determine which version of password option used to ensure it's used in the log.
+            let userString = "";
+            let regEx2 = /--user /gi;
+            if (commandLine.search(regEx2) >= 0) {
+                userString = "user";
+            }
+            regEx2 = /--u /gi;
+            if (commandLine.search(regEx2) >= 0) {
+                userString = "u";
+            }
+
+            commandLine = commandLine.replace(regEx, "--" + userString + " ****");
+
+        }
+
+        // determine if the command has the password option and mask the password value
+        regEx = /--(password|pass|pw) ([^\s]+)/gi;
+
+        if ((commandLine.search(regEx)) >= 0) {
+            // determine which version of password option used to ensure it's used in the log.
+            let passwordString = "";
+            let regEx2 = /--password /gi;
+            if (commandLine.search(regEx2) >= 0) {
+                passwordString = "password";
+            }
+            regEx2 = /--pass /gi;
+            if (commandLine.search(regEx2) >= 0) {
+                passwordString = "pass";
+            }
+            regEx2 = /--pw /gi;
+            if (commandLine.search(regEx2) >= 0) {
+                passwordString = "pw";
+            }
+
+            commandLine = commandLine.replace(regEx, "--" + passwordString + " ****");
+
+        }
+
+        // this.log.info(`post commandLine issued:\n\n${TextUtils.prettyJson(commandLine)}`);
         // Log the invoke
         this.log.info(`Invoking command "${this.definition.name}"...`);
-        this.log.info(`Command issued:\n\n${TextUtils.prettyJson(this.rootCommand + " " + this.commandLine)}`);
-        this.log.trace(`Invoke parameters:\n${inspect(params, { depth: null })}`);
-        this.log.trace(`Command definition:\n${inspect(this.definition, { depth: null })}`);
+        this.log.info(`Command issued:\n\n${TextUtils.prettyJson(this.rootCommand + " " + commandLine)}`);
+        this.log.trace(`Invoke parameters:\n${inspect(params, {depth: null})}`);
+        this.log.trace(`Command definition:\n${inspect(this.definition, {depth: null})}`);
 
         // Build the response object, base args object, and the entire array of options for this command
         // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
@@ -360,8 +407,7 @@ export class CommandProcessor {
                     definition: this.definition,
                     fullDefinition: this.fullDefinition
                 });
-            }
-            catch (processErr) {
+            } catch (processErr) {
                 this.handleHandlerError(processErr, response, this.definition.handler);
 
                 // Return the failed response to the caller
@@ -443,6 +489,7 @@ export class CommandProcessor {
             // Return the response to the caller
             return this.finishResponse(chainedResponse);
         }
+
     }
 
     /**
@@ -511,12 +558,12 @@ export class CommandProcessor {
 
         // Load all profiles for the command
         this.log.trace(`Loading profiles for "${this.definition.name}" command. ` +
-            `Profile definitions: ${inspect(this.definition.profile, { depth: null })}`);
+            `Profile definitions: ${inspect(this.definition.profile, {depth: null})}`);
         const profiles = await CommandProfileLoader.loader({
             commandDefinition: this.definition,
             profileManagerFactory: this.profileFactory
         }).loadProfiles(commandArguments);
-        this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, { depth: null })}`);
+        this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, {depth: null})}`);
 
         // If we have profiles listed on the command definition (the would be loaded already)
         // we can extract values from them for options arguments

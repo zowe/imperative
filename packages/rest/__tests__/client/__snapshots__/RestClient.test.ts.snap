@@ -7,7 +7,7 @@ Object {
   },
   "hostname": "test",
   "method": "GET",
-  "path": "/resource",
+  "path": "/mocked",
   "port": 443,
   "rejectUnauthorized": true,
 }
@@ -20,7 +20,7 @@ Object {
   },
   "hostname": "test",
   "method": "GET",
-  "path": "/resource",
+  "path": "/mocked",
   "port": 443,
   "rejectUnauthorized": true,
 }

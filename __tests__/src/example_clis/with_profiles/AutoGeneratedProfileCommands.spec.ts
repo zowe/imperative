@@ -56,6 +56,13 @@ describe("We should provide auto-generated profile commands for convenience, " +
             "stdout", true, this);
     });
 
+    it("If we specify updateProfileExamples on our profile configuration, " +
+        "our examples should appear in the help text", () => {
+        T.findExpectedOutputInCommand(cliBin, ["profiles", "update", "profile-a", "--help"], ["froggy"],
+            "stdout", true, this);
+
+    });
+
     it("If we turn off  auto-generating profile commands, " +
         "commands should NOT be generated for each profile type", () => {
         const cliBinNoCommands = __dirname + "/ProfileExampleCLINoAutoGen.ts";

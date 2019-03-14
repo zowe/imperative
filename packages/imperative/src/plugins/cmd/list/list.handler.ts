@@ -45,7 +45,6 @@ export default class ListHandler implements ICommandHandler {
 
         const installedPlugins: IPluginJson = readFileSync(PMFConstants.instance.PLUGIN_JSON);
 
-        params.response.data.setObj(installedPlugins);
         let listOutput: string = "";
         let firstTime = true;
 

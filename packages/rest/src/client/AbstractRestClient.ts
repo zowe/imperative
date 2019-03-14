@@ -197,6 +197,7 @@ export abstract class AbstractRestClient {
 
             // always end the request
             clientRequest.end();
+
         });
     }
 

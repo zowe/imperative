@@ -62,7 +62,7 @@ const secureOrangeProfile: ICommandProfileTypeConfiguration = {
       username: {
         optionDefinition: {
           description: "The username of the secure_orange",
-          type: "username",
+          type: "string",
           name: "username",
         },
         type: "string",
@@ -70,7 +70,7 @@ const secureOrangeProfile: ICommandProfileTypeConfiguration = {
       password: {
         optionDefinition: {
           description: "The password of the secure_orange",
-          type: "password",
+          type: "string",
           name: "password",
         },
         type: "string",

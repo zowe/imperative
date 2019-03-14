@@ -243,7 +243,7 @@ describe("Basic Profile Manager", () => {
     let error;
     try {
       const parms = {
-        configuration: undefined,
+        configuration: undefined as any,
         profileRootDirectory: TEST_PROFILE_ROOT_DIR
       };
       const responses = await BasicProfileManager.initialize(parms);
@@ -259,7 +259,7 @@ describe("Basic Profile Manager", () => {
     try {
       const parms = {
         configuration: APPLE_TWO_REQ_DEP_BANANA_ONE_REQ_DEP_GRAPE,
-        profileRootDirectory: undefined
+        profileRootDirectory: undefined as any
       };
       const responses = await BasicProfileManager.initialize(parms);
     } catch (e) {

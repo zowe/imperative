@@ -20,7 +20,7 @@ export = class NoInitializeCredentialManager extends AbstractCredentialManager {
 
   public readonly credentials = "username:password";
 
-  constructor(service, displayname) {
+  constructor(service: string, displayname: string) {
     super(NoInitializeCredentialManager.hardcodeService, displayname);
   }
 
