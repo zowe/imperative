@@ -31,15 +31,17 @@
   },
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
-  "scripts": {
+  "scripts":   {
+    "audit:public": "npm audit --registry https://registry.npmjs.org/",
     "build:packages": "gulp build",
     "build": "gulp build",
-    "postbuild": "gulp build:install-all-cli-dependencies && gulp build:all-clis",
-    "pretest": "gulp test:installSampleClis",
-    "test": "gulp test:all",
-    "posttest": "gulp test:uninstallSampleClis",
-    "test:unit": "gulp test:unit",
-    "test:integration": "npm run pretest && gulp test:integration && npm run posttest",
+    "postbuild": "gulp build:install-all-cli-dependencies && gulp build:all-clis && npm run checkTestsCompile",
+    "checkTestsCompile": "echo \"Checking that test source compiles\" && tsc --noEmit -p tsconfig-tests.json",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "env-cmd ./__tests__/config/unit/.env.js --no-override jest -c ./__tests__/config/unit/jest.config.json",
+    "pretest:integration": "gulp test:installSampleClis",
+    "test:integration": "env-cmd ./__tests__/config/integration/.env.js --no-override jest -c ./__tests__/config/integration/jest.config.json --runInBand",
+    "posttest:integration": "gulp test:uninstallSampleClis",
     "lint": "npm run lint:packages && npm run lint:tests",
     "lint:packages": "tslint --format stylish -c ./tslint-packages.json \"packages/**/*.ts\"",
     "lint:tests": "tslint --format stylish -c ./tslint-tests.json \"**/__tests__/**/*.ts\"",
@@ -126,40 +128,6 @@
   "engines": {
     "node": ">=6.0.0"
   },
-  "jest": {
-    "modulePathIgnorePatterns": [
-      "__tests__/__snapshots__/"
-    ],
-    "transform": {
-      ".(ts)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
-    },
-    "testResultsProcessor": "jest-stare",
-    "testRegex": "(test|spec)\\.ts$",
-    "moduleFileExtensions": [
-      "ts",
-      "js"
-    ],
-    "testPathIgnorePatterns": [
-      "<rootDir>/__tests__/__results__"
-    ],
-    "testEnvironment": "node",
-    "collectCoverageFrom": [
-      "packages/**/*.ts",
-      "!**/__tests__/**",
-      "!packages/**/doc/**/I*.ts",
-      "!**/index.ts",
-      "!__tests__/"
-    ],
-    "mapCoverage": true,
-    "collectCoverage": false,
-    "coverageReporters": [
-      "json",
-      "lcov",
-      "text",
-      "cobertura"
-    ],
-    "coverageDirectory": "<rootDir>/__tests__/__results__/unit/coverage"
-  },
   "jest-html-reporter": {
     "pageTitle": "Imperative CLI Tests",
     "outputPath": "__tests__/__results__/unit/results.html"
@@ -178,5 +146,14 @@
       "jest-sonar-reporter"
     ],
     "coverageLink": "../unit/coverage/lcov-report/index.html"
+  },
+  "jest":   {
+    "globals": {"ts-jest": {"diagnostics": false}},
+    "moduleFileExtensions":     [
+      "ts",
+      "js"
+    ],
+    "testEnvironment": "node",
+    "transform": {".(ts)": "ts-jest"}
   }
 }
