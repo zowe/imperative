@@ -41,8 +41,8 @@ export const setDefinition: ICommandDefinition = {
     ],
     examples: [
         {
-            options: "CredentialManager @brightside/secure-credential-store",
-            description: "Set the default credential manager to @brightside/secure-credential-store"
+            options: "CredentialManager my-credential-manager",
+            description: "Set the default credential manager to my-credential-manager"
         }
     ],
 };

@@ -11,8 +11,8 @@ Within the imperative repository, we provide you with all the tools that you nee
 
 Issue the following commands to install Imperative CLI Framework as a dependency:
 ``` bash
-npm config set @brightside:registry https://api.bintray.com/npm/ca/brightside
-npm install --save @brightside/imperative
+npm config set @zowe:registry https://api.bintray.com/npm/ca/brightside
+npm install --save @zowe/imperative
 ```
 
 ## Get Started

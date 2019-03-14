@@ -100,7 +100,7 @@ __tests__/src/plugins/suites/sample-plugin.json
 ## Including imperative symbolic link for testing purposes
 !/__tests__/src/packages/imperative/plugins/test_cli/node_modules/
 /__tests__/src/packages/imperative/plugins/test_cli/node_modules/**
-!/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@brightside/
-/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@brightside/**
-!/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@brightside/imperative
+!/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@zowe/
+/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@zowe/**
+!/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@zowe/imperative
 

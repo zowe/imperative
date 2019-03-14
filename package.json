@@ -1,6 +1,6 @@
 {
-  "name": "@brightside/imperative",
-  "version": "3.1.0-alpha.201902272042",
+  "name": "@zowe/imperative",
+  "version": "3.1.0-alpha.201903131349",
   "description": "framework for building configurable CLIs",
   "author": "Broadcom",
   "license": "EPL 2.0",

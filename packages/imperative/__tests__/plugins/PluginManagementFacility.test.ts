@@ -15,7 +15,6 @@ jest.mock("fs");
 jest.mock("jsonfile");
 jest.mock("../../src/plugins/utilities/PMFConstants");
 jest.mock("../../src/plugins/PluginRequireProvider");
-// jest.mock("../../../settings/src/AppSettings");
 
 import { existsSync, mkdirSync } from "fs";
 import { AppSettings } from "../../../settings";
@@ -128,11 +127,11 @@ describe("Plugin Management Facility", () => {
         npmPackageName: "PluginHasNoNpmPkgName",
         impConfig: basePluginConfig,
         cliDependency: {
-            peerDepName: "@brightside/core",
+            peerDepName: "@zowe/core",
             peerDepVer: "-1"
         },
         impDependency: {
-            peerDepName: "@brightside/imperative",
+            peerDepName: "@zowe/imperative",
             peerDepVer: "-1"
         }
     };
@@ -160,7 +159,6 @@ describe("Plugin Management Facility", () => {
         ConfigurationValidator.validate = mockCfgValidator;
         pluginIssues.removeIssuesForPlugin(pluginName);
 
-        // AppSettings.initialize("test.json",defaultSettings);
 
         ({ PluginRequireProvider } = require("../../src/plugins/PluginRequireProvider"));
 
@@ -1174,13 +1172,13 @@ describe("Plugin Management Facility", () => {
                 description: "Some description",
                 imperative: expectedCfgProps.impConfig,
                 peerDependencies: {
-                    "@brightside/coreIsNotInPkgJson": "1.x",
-                    "@brightside/imperative": "1.x"
+                    "@zowe/coreIsNotInPkgJson": "1.x",
+                    "@zowe/imperative": "1.x"
                 }
             });
 
             // utility functions mocked to return good values
-            mockGetCliPkgName.mockReturnValue("@brightside/core");
+            mockGetCliPkgName.mockReturnValue("@zowe/core");
             mockGetCliCmdName.mockReturnValue("testCliName");
             mockCfgLoad.mockReturnValue(expectedCfgProps.impConfig);
 
@@ -1195,7 +1193,7 @@ describe("Plugin Management Facility", () => {
             expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(1);
             const recordedIssue = pluginIssues.getIssueListForPlugin(pluginName)[0];
             expect(recordedIssue.issueSev).toBe(IssueSeverity.WARNING);
-            expect(recordedIssue.issueText).toContain("The property '@brightside/core' does not exist within the 'peerDependencies' property");
+            expect(recordedIssue.issueText).toContain("The property '@zowe/core' does not exist within the 'peerDependencies' property");
         });
 
         it("should return a plugin config when there are no errors", () => {
@@ -1213,13 +1211,13 @@ describe("Plugin Management Facility", () => {
                 description: "Some description",
                 imperative: expectedCfgProps.impConfig,
                 peerDependencies: {
-                    "@brightside/core": "1.x",
-                    "@brightside/imperative": "1.x"
+                    "@zowe/core": "1.x",
+                    "@zowe/imperative": "1.x"
                 }
             });
 
             // utility functions mocked to return good values
-            mockGetCliPkgName.mockReturnValue("@brightside/core");
+            mockGetCliPkgName.mockReturnValue("@zowe/core");
             mockGetCliCmdName.mockReturnValue("testCliName");
             mockCfgLoad.mockReturnValue(expectedCfgProps.impConfig);
 
