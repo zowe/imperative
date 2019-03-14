@@ -34,6 +34,10 @@ export const listDefinition: ICommandDefinition = {
         {
             options: "",
             description: "List a configuration setting options"
+        },
+        {
+            options: "--values",
+            description: "List a configuration setting options with values"
         }
     ],
 };
