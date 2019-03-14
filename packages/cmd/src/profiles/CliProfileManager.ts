@@ -419,7 +419,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
 
                     throw new ImperativeError({
                         msg: `Unable to store the secure field "${propertyNamePath}" associated with ` +
-                            `the profile "${profile.name}" of type "${this.profileType}".`,
+                            `the profile "${name}" of type "${this.profileType}".`,
                         additionalDetails,
                         causeErrors: err
                     });
@@ -452,7 +452,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
         let createResponse: IProfileSaved;
         try {
             this.log.info("Saving updated profile \"%s\" of type \"%s\"",
-                updatedProfile.name, updatedProfile.type);
+                parms.name, this.profileType);
             createResponse = await this.saveProfile({
                 name: parms.name,
                 type: this.profileType,

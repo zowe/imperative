@@ -10,6 +10,7 @@
 */
 
 import Mock = jest.Mock;
+
 jest.mock("fs");
 jest.mock("../../../../io/src/IO");
 jest.mock("js-yaml");
@@ -19,14 +20,14 @@ import { IO } from "../../../../io/src/IO";
 import { ProfileIO } from "../ProfileIO";
 import { ImperativeError } from "../../../../error/index";
 import {
+    BANANA_PROFILE_TYPE,
     BLUEBERRY_PROFILE_TYPE,
     BLUEBERRY_TYPE_SCHEMA,
-    STRAWBERRY_PROFILE_TYPE,
-    BANANA_PROFILE_TYPE
+    STRAWBERRY_PROFILE_TYPE
 } from "../../../__tests__/TestConstants";
-import { writeFileSync } from "jsonfile";
-import { IProfile, IMetaProfile } from "../../../../index";
+import { IMetaProfile, IProfile } from "../../../../index";
 import { IProfileTypeConfiguration } from "../../doc/config/IProfileTypeConfiguration";
+
 const readYaml = require("js-yaml");
 const writeYaml = require("yamljs");
 
@@ -36,8 +37,8 @@ const mocks = {
     writeFileSync: fs.writeFileSync as Mock<typeof fs.writeFileSync>,
     yamlStringify: writeYaml.stringify as Mock<typeof writeYaml.stringify>,
     unlinkSync: fs.unlinkSync as Mock<typeof fs.unlinkSync>,
-    existsSync: fs.existsSync as Mock<typeof fs.existsSync>,
-    readdirSync: fs.readdirSync as Mock<typeof fs.readdirSync>
+    existsSync: fs.existsSync as unknown as Mock<typeof fs.existsSync>,
+    readdirSync: fs.readdirSync as unknown as Mock<typeof fs.readdirSync>
 };
 
 const TEST_DIR_PATH: string = "/__tests__/__results__/data/.testHomeDir";
@@ -50,9 +51,9 @@ describe("Profile IO", () => {
     });
 
     it("should be able to create all profile directories", () => {
-        mocks.createDirsSync.mockImplementation((args) => {
+        mocks.createDirsSync.mockImplementation(((args: any) => {
             return;
-        });
+        }) as any);
         ProfileIO.createProfileDirs(TEST_DIR_PATH);
         expect(mocks.createDirsSync).toHaveBeenCalledWith(TEST_DIR_PATH);
     });
@@ -134,10 +135,10 @@ describe("Profile IO", () => {
             return prof;
         });
         let written;
-        mocks.writeFileSync.mockImplementation((fullFilePath: string, profile: IProfile) => {
+        mocks.writeFileSync.mockImplementation(((fullFilePath: string, profile: IProfile) => {
             written = profile;
             return;
-        });
+        }) as any);
         ProfileIO.writeProfile(TEST_DIR_PATH, prof);
         expect(written).toBeDefined();
         expect(written).toEqual(prof);
@@ -168,9 +169,9 @@ describe("Profile IO", () => {
     });
 
     it("should allow a delete of a profile", () => {
-        mocks.unlinkSync.mockImplementation((args) => {
+        mocks.unlinkSync.mockImplementation(((args: any) => {
             return;
-        });
+        }) as any);
         mocks.existsSync.mockImplementation((args) => {
             return undefined;
         });
@@ -184,12 +185,12 @@ describe("Profile IO", () => {
     it("should throw an imperative error if the file is not deleted", () => {
         const profname: string = "bad_apple";
         const fullPath: string = TEST_DIR_PATH + "/" + profname + ".yaml";
-        mocks.unlinkSync.mockImplementation((args) => {
+        mocks.unlinkSync.mockImplementation(((args: any) => {
             return;
-        });
-        mocks.existsSync.mockImplementation((args) => {
+        }) as any);
+        mocks.existsSync.mockImplementation(((args: any) => {
             return fullPath;
-        });
+        }) as any);
         let error;
         try {
             ProfileIO.deleteProfile("bad_apple", fullPath);
@@ -210,9 +211,9 @@ describe("Profile IO", () => {
         mocks.unlinkSync.mockImplementation((args) => {
             throw new Error(err);
         });
-        mocks.existsSync.mockImplementation((args) => {
+        mocks.existsSync.mockImplementation(((args: any) => {
             return fullPath;
-        });
+        }) as any);
         let error;
         try {
             ProfileIO.deleteProfile("bad_apple", fullPath);
@@ -268,13 +269,13 @@ describe("Profile IO", () => {
             return meta;
         });
         let written;
-        mocks.writeFileSync.mockImplementation((fullFilePath: string, contents: string, args: any) => {
+        mocks.writeFileSync.mockImplementation(((fullFilePath: string, contents: string, args: any) => {
             written = contents;
             return;
-        });
+        }) as any);
         const metaPath = TEST_DIR_PATH + "/" + BLUEBERRY_PROFILE_TYPE + "_meta.yaml";
         const writeMeta = ProfileIO.writeMetaFile(meta, metaPath);
-        expect(mocks.writeFileSync).toBeCalledWith(metaPath, meta, { encoding: "utf8" });
+        expect(mocks.writeFileSync).toBeCalledWith(metaPath, meta, {encoding: "utf8"});
         expect(written).toBeDefined();
         expect(written).toEqual(meta);
     });
@@ -302,7 +303,7 @@ describe("Profile IO", () => {
         }
         expect(error).toBeDefined();
         expect(error instanceof ImperativeError).toBe(true);
-        expect(mocks.writeFileSync).toBeCalledWith(metaPath, meta, { encoding: "utf8" });
+        expect(mocks.writeFileSync).toBeCalledWith(metaPath, meta, {encoding: "utf8"});
         expect(error.message).toContain("Profile IO Error: An error occurred converting and writing the meta profile to");
         expect(error.message).toContain("Error Details: IO ERROR!");
     });
@@ -315,9 +316,9 @@ describe("Profile IO", () => {
 
     it("should return a list of profile types", () => {
         const types: string[] = [BLUEBERRY_PROFILE_TYPE, STRAWBERRY_PROFILE_TYPE, BANANA_PROFILE_TYPE];
-        mocks.readdirSync.mockImplementation((path) => {
+        mocks.readdirSync.mockImplementation(((path: any) => {
             return types;
-        });
+        }) as any);
         const returnedTypes: string[] = ProfileIO.getAllProfileDirectories(TEST_DIR_PATH);
         expect(mocks.readdirSync).toBeCalledWith(TEST_DIR_PATH);
         expect(returnedTypes).toEqual(types);
@@ -344,9 +345,9 @@ describe("Profile IO", () => {
     it("should return a list of profile names", () => {
         const fileNames: string[] = ["rotten.yaml", "fresh.yaml", "apple_meta.yaml"];
         const names: string[] = ["rotten", "fresh"];
-        mocks.readdirSync.mockImplementation((path) => {
+        mocks.readdirSync.mockImplementation(((path: any) => {
             return fileNames;
-        });
+        }) as any);
         const returnedTypes: string[] = ProfileIO.getAllProfileNames(TEST_DIR_PATH, ".yaml", "apple_meta");
         expect(mocks.readdirSync).toBeCalledWith(TEST_DIR_PATH);
         expect(returnedTypes).toEqual(names);

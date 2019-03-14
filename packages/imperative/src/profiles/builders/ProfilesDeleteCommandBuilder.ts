@@ -12,7 +12,13 @@
 import { ProfilesCommandBuilder } from "./ProfilesCommandBuilder";
 import { Constants } from "../../../../constants";
 import { ICommandDefinition } from "../../../../cmd";
-import { deleteProfileActionDesc, deleteProfileCommandDesc, deleteProfileForceOptionDesc, deleteProfileNameDesc } from "../../../../messages/index";
+import {
+    deleteProfileActionDesc,
+    deleteProfileCommandDesc,
+    deleteProfileExample,
+    deleteProfileForceOptionDesc,
+    deleteProfileNameDesc
+} from "../../../../messages/index";
 import { TextUtils } from "../../../../utilities";
 import { ProfilesConstants, ProfileUtils } from "../../../../profiles";
 
@@ -63,7 +69,17 @@ export class ProfilesDeleteCommandBuilder extends ProfilesCommandBuilder {
                     }),
                 type: "string",
                 required: true,
-            }]
+            }],
+            examples: [
+                {
+                    options: "profilename",
+                    description: TextUtils.formatMessage(deleteProfileExample.message,
+                        {
+                            type: this.mProfileType,
+                            name: "profilename"
+                        })
+                }
+            ]
         };
         profileCommand.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY] = this.mProfileType;
 

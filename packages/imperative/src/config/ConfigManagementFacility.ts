@@ -55,6 +55,7 @@ export class ConfigManagementFacility {
      * by the facility.
      */
     public init(): void {
+
         this.impLogger.debug("ConfigManagementFacility.init() - Start");
 
         // Add the config group and related commands.
@@ -70,5 +71,6 @@ export class ConfigManagementFacility {
         });
 
         this.impLogger.debug("ConfigManagementFacility.init() - Success");
+
     }
 }

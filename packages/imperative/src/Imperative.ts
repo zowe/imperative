@@ -11,8 +11,9 @@
 
 /**
  * Main class of the Imperative framework, returned when you
- * require("@brightside/imperative") e.g. const imperative =  require("@brightside/imperative");
+ * require("@zowe/imperative") e.g. const imperative =  require("@zowe/imperative");
  */
+
 import { Logger, LoggerConfigBuilder } from "../../logger";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import { Arguments } from "yargs";
@@ -100,6 +101,7 @@ export class Imperative {
     public static init(config?: IImperativeConfig): Promise<void> {
         return new Promise<void>(async (initializationComplete: () => void, initializationFailed: ImperativeReject) => {
             try {
+
                 /**
                  * Config Logger Manager to enable log messages in memory prior to logger init.
                  */
@@ -219,6 +221,7 @@ export class Imperative {
                  * Notify caller initialization is complete
                  */
                 initializationComplete();
+
             } catch (error) {
                 const imperativeLogger = Logger.getImperativeLogger();
                 imperativeLogger.fatal(require("util").inspect(error));
