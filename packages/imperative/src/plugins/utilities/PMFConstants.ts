@@ -86,7 +86,7 @@ export class PMFConstants {
     public readonly PLUGIN_NODE_MODULE_LOCATION: string;
 
     constructor() {
-        this.NPM_NAMESPACE = "@zowe";
+        this.NPM_NAMESPACE = "@brightside";
         this.CLI_CORE_PKG_NAME = ImperativeConfig.instance.hostPackageName;
         this.IMPERATIVE_PKG_NAME = ImperativeConfig.instance.imperativePackageName;
         this.PMF_ROOT = join(ImperativeConfig.instance.cliHome, "plugins");

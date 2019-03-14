@@ -28,7 +28,7 @@ export class ImperativeConfig {
     private mHostPackageName = "host-package";
 
     // Private so that tests can access and change the result of the get
-    private mImperativePackageName = "@zowe/imperative";
+    private mImperativePackageName = "@brightside/imperative";
 
     public static get instance(): ImperativeConfig {
         if (this.mInstance == null) {

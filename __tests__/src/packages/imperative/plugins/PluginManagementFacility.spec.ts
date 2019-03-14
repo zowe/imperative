@@ -51,7 +51,7 @@ describe("Plugin Management Facility", () => {
          * tree's lib directory. All of the modules then find things where they
          * expect to see them.
          */
-        const namespaceDirPath = join(testCliNodeModulePath, "@zowe");
+        const namespaceDirPath = join(testCliNodeModulePath, "@brightside");
         IO.mkdirp(namespaceDirPath);
         const testCliImpSymLink = join(namespaceDirPath, "imperative");
         IO.createSymlinkToDir(testCliImpSymLink, impLibDir);

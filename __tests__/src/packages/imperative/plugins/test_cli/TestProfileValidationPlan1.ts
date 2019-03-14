@@ -14,7 +14,7 @@ import {
   IProfileValidationTask,
   IProfileValidationTaskResult,
   VALIDATION_OUTCOME
-} from "@zowe/imperative";
+} from "@brightside/imperative";
 
 // you can implement the validation plan as a Typescript class
 // or any other way that allows us to  do: new (require("your profile validation plan module file name"))

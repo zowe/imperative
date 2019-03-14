@@ -142,7 +142,7 @@ describe("Installing Plugins", () => {
     // Now go ahead and install the sample
     result = executeCommandString(this, `${pluginGroup} install ${plugins.normal.location}`);
     expect(result.stderr).toMatch(/npm.*WARN/);
-    expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+    expect(result.stderr).toContain("requires a peer of @brightside/imperative");
     expect(result.stderr).toContain("You must install peer dependencies yourself");
 
     const strippedOutput = T.stripNewLines(result.stdout);
@@ -168,7 +168,7 @@ describe("Installing Plugins", () => {
     // Now check that they install
     result = executeCommandString(this, `${pluginGroup} install ${plugins.normal.location} ${plugins.normal2.location} --registry ${TEST_REGISTRY}`);
     expect(result.stderr).toMatch(/npm.*WARN/);
-    expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+    expect(result.stderr).toContain("requires a peer of @brightside/imperative");
     expect(result.stderr).toContain("You must install peer dependencies yourself");
 
     const strippedOutput = T.stripNewLines(result.stdout);
@@ -190,7 +190,7 @@ describe("Installing Plugins", () => {
     const beforeInstall = executeCommandString(this, "--help");
     let result = executeCommandString(this, `${pluginGroup} install ${plugins.normal.location}`);
     expect(result.stderr).toMatch(/npm.*WARN/);
-    expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+    expect(result.stderr).toContain("requires a peer of @brightside/imperative");
     expect(result.stderr).toContain("You must install peer dependencies yourself");
 
     let strippedOutput = T.stripNewLines(result.stdout);
@@ -209,7 +209,7 @@ describe("Installing Plugins", () => {
     // Try to install it back by using the plugins.json file that should still exist
     result = executeCommandString(this, `${pluginGroup} install`);
     expect(result.stderr).toMatch(/npm.*WARN/);
-    expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+    expect(result.stderr).toContain("requires a peer of @brightside/imperative");
     expect(result.stderr).toContain("You must install peer dependencies yourself");
 
     strippedOutput = T.stripNewLines(result.stdout);
@@ -231,7 +231,7 @@ describe("Installing Plugins", () => {
     // Now go ahead and install the sample
     result = T.executeTestCLICommand(cliBin, this, [pluginGroup, "install", plugins.space_in_path.location]);
     expect(result.stderr).toMatch(/npm.*WARN/);
-    expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+    expect(result.stderr).toContain("requires a peer of @brightside/imperative");
     expect(result.stderr).toContain("You must install peer dependencies yourself");
 
     const strippedOutput = T.stripNewLines(result.stdout);
@@ -359,7 +359,7 @@ describe("Installing Plugins", () => {
       const strippedOutput = T.stripNewLines(result.stdout);
 
       expect(result.stderr).toMatch(/npm.*WARN/);
-      expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+      expect(result.stderr).toContain("requires a peer of @brightside/imperative");
       expect(result.stderr).toContain("You must install peer dependencies yourself");
 
       expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal.name}'`);
@@ -398,7 +398,7 @@ describe("Installing Plugins", () => {
       );
 
       expect(result.stderr).toMatch(/npm.*WARN/);
-      expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+      expect(result.stderr).toContain("requires a peer of @brightside/imperative");
       expect(result.stderr).toContain("You must install peer dependencies yourself");
 
       expect(result.stdout).toContain(plugins.normal.name);
@@ -416,7 +416,7 @@ describe("Installing Plugins", () => {
       result = executeCommandString(this, `${pluginGroup} install --file ${testFile}`);
 
       expect(result.stderr).toMatch(/npm.*WARN/);
-      expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+      expect(result.stderr).toContain("requires a peer of @brightside/imperative");
       expect(result.stderr).toContain("You must install peer dependencies yourself");
 
       expect(result.stdout).toContain(plugins.normal.name);

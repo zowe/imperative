@@ -11,7 +11,7 @@
 
 /**
  * Main class of the Imperative framework, returned when you
- * require("@zowe/imperative") e.g. const imperative =  require("@zowe/imperative");
+ * require("@brightside/imperative") e.g. const imperative =  require("@brightside/imperative");
  */
 
 import { Logger, LoggerConfigBuilder } from "../../logger";

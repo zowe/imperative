@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandProfileTypeConfiguration } from "@zowe/imperative";
+import { ICommandProfileTypeConfiguration } from "@brightside/imperative";
 
 export const TestProfileConfig2: ICommandProfileTypeConfiguration = {
   type: "TestProfile2",

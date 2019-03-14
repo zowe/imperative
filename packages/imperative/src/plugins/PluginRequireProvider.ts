@@ -145,10 +145,10 @@ export class PluginRequireProvider {
          * It was designed this way to support submodule imports.
          *
          * Example:
-         * If modules = ["@zowe/imperative"]
-         *    request = "@zowe/imperative/lib/errors"
+         * If modules = ["@brightside/imperative"]
+         *    request = "@brightside/imperative/lib/errors"
          */
-         // This regular expression will match /(@zowe\/imperative)/.*/
+         // This regular expression will match /(@brightside\/imperative)/.*/
         /*
          * The ?: check after the group in the regular expression is to explicitly
          * require that a submodule import has to match. This is to account for the

@@ -330,7 +330,7 @@ describe("PluginRequireProvider", () => {
                         "./anything",
                         "this-is-a-test-module",
                         "this-is",
-                        "@zowe/imperative",
+                        "@brightside/imperative",
                         "this-is-a-tests"
                     ]
                 },
