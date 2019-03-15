@@ -31,7 +31,7 @@
   },
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
-  "scripts":   {
+  "scripts": {
     "audit:public": "npm audit --registry https://registry.npmjs.org/",
     "build:packages": "gulp build",
     "build": "gulp build",
@@ -147,13 +147,19 @@
     ],
     "coverageLink": "../unit/coverage/lcov-report/index.html"
   },
-  "jest":   {
-    "globals": {"ts-jest": {"diagnostics": false}},
-    "moduleFileExtensions":     [
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "diagnostics": false
+      }
+    },
+    "moduleFileExtensions": [
       "ts",
       "js"
     ],
     "testEnvironment": "node",
-    "transform": {".(ts)": "ts-jest"}
+    "transform": {
+      ".(ts)": "ts-jest"
+    }
   }
 }
