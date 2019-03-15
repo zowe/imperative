@@ -13,28 +13,28 @@ import { ICommandDefinition } from "../../../../../cmd";
 import { join } from "path";
 
 /**
- * Definition of the list command.
+ * Definition of the get command.
  * @type {ICommandDefinition}
  */
-export const resetDefinition: ICommandDefinition = {
-    name: "reset",
-    aliases: ["re"],
+export const getDefinition: ICommandDefinition = {
+    name: "get",
+    aliases: ["ge"],
     type: "command",
-    handler: join(__dirname, "reset.handler"),
-    summary: "Reset a configuration setting to default value.",
-    description: "Reset a configuration setting to default value.",
+    handler: join(__dirname, "get.handler"),
+    summary: "Get a value of single setting option",
+    description: "Get a value of single setting option",
     positionals: [
         {
-        name: "configName",
-        type: "string",
-        description: "Setting name to reset",
-        required: true
-        },
+            name: "configName",
+            type: "string",
+            description: "Setting name",
+            required: true
+        }
     ],
     examples: [
         {
             options: "CredentialManager",
-            description: "Reset the credential manager to default value"
+            description: "Get a value of CredentialManager setting"
         }
     ],
 };

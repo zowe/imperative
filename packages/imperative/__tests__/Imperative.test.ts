@@ -141,62 +141,31 @@ describe("Imperative", () => {
         });
 
         describe("AppSettings", () => {
+            const defaultSettings =  {overrides: {CredentialManager: false}};
             it("should initialize an app settings instance", async () => {
                 await Imperative.init();
 
                 expect(mocks.AppSettings.initialize).toHaveBeenCalledTimes(1);
                 expect(mocks.AppSettings.initialize).toHaveBeenCalledWith(
                     join(mocks.ImperativeConfig.instance.cliHome, "settings", "imperative.json"),
-                    expect.any(Function)
+                    defaultSettings
                 );
-            });
-
-            it("should create settings.json if it is missing", async () => {
-                await Imperative.init();
-
-                expect(mocks.AppSettings.initialize).toHaveBeenCalledTimes(1);
-
-                // Mimic us executing the callback
-                jest.doMock("../../io");
-                jest.doMock("jsonfile");
-
-                const {IO} = require("../../io");
-                const {writeFileSync} = require("jsonfile");
-
-                const settingsFile = generateRandomAlphaNumericString(16, true); // tslint:disable-line
-                const defaultSetttings = {
-                    test: generateRandomAlphaNumericString(16, true) // tslint:disable-line
-                };
-
-                const returnVal = mocks.AppSettings.initialize.mock.calls[0][1](settingsFile, defaultSetttings);
-
-                expect(IO.createDirsSyncFromFilePath).toHaveBeenCalledTimes(1);
-                expect(IO.createDirsSyncFromFilePath).toHaveBeenCalledWith(settingsFile);
-
-                expect(writeFileSync).toHaveBeenCalledTimes(1);
-                expect(writeFileSync).toHaveBeenCalledWith(settingsFile, defaultSetttings, expect.any(Object));
-
-                expect(returnVal).toBe(defaultSetttings);
-
-
-                jest.dontMock("../../io");
-                jest.dontMock("jsonfile");
             });
         }); // End AppSettings
 
         describe("Config", () => {
-          let ConfigManagementFacility = mocks.ConfigManagementFacility;
+            let ConfigManagementFacility = mocks.ConfigManagementFacility;
 
-          beforeEach(() => {
-              defaultConfig.allowConfigGroup = true;
-              ConfigManagementFacility = mocks.ConfigManagementFacility;
-          });
+            beforeEach(() => {
+                defaultConfig.allowConfigGroup = true;
+                ConfigManagementFacility = mocks.ConfigManagementFacility;
+            });
 
-          it("should call config functions when config group is allowed", async () => {
-            await Imperative.init();
+            it("should call config functions when config group is allowed", async () => {
+                await Imperative.init();
 
-            expect(ConfigManagementFacility.instance.init).toHaveBeenCalledTimes(1);
-          });
+                expect(ConfigManagementFacility.instance.init).toHaveBeenCalledTimes(1);
+            });
         });
 
         describe("Plugins", () => {

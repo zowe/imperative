@@ -267,12 +267,11 @@ export class PluginManagementFacility {
         // Loop through each overrides setting here. Setting is an override that we are modifying while
         // plugin is the pluginName from which to get the setting. This is probably the ugliest piece
         // of code that I have ever written :/
-        for (const [setting, pluginName] of Object.entries(AppSettings.instance.settings.overrides)) {
+        for (const [setting, pluginName] of Object.entries(AppSettings.instance.getNamespace("overrides"))) {
             if (pluginName !== false) {
                 Logger.getImperativeLogger().debug(
                     `PluginOverride: Attempting to overwrite "${setting}" with value provided by plugin "${pluginName}"`
                 );
-
                 if (!loadedOverrides.hasOwnProperty(pluginName)) {
                     // the plugin name specified in our settings is not available
                     const overrideErrMsg = `You attempted to override the "${setting}" setting ` +

@@ -16,7 +16,7 @@ jest.mock("../../../../../settings/src/AppSettings");
 import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
 import { AppSettings } from "../../../../../settings";
 
-describe("Config management set handler", () => {
+describe("Config management list handler", () => {
 
     afterEach(() => {
         // Mocks need cleared after every test for clean test runs
@@ -32,31 +32,29 @@ describe("Config management set handler", () => {
      *
      * @returns {IHandlerParameters}
      */
-    const getIHandlerParametersObject = (): IHandlerParameters => {
+    const getIHandlerParametersObject = (values: boolean): IHandlerParameters => {
         const x: any = {
         response: new (CommandResponse as any)(),
         arguments: {
-            configName: "CredentialManager",
-            configValue: "test123"
+            values
         },
         };
         return x as IHandlerParameters;
     };
 
-    it("should set credential manager", async () => {
+    it("should list all settings", async () => {
 
-        const handlerReq = require("../../../../src/config/cmd/set/set.handler");
+        const handlerReq = require("../../../../src/config/cmd/list/list.handler");
         const handler = new handlerReq.default();
 
-        const params = getIHandlerParametersObject();
+        const params = getIHandlerParametersObject(false);
 
         const appSettings = AppSettings.initialize("foo",defaultSettings);
 
         await handler.process(params as IHandlerParameters);
 
-        expect(appSettings.set).toHaveBeenCalledWith("overrides","CredentialManager", "test123");
+        expect(appSettings.getNamespace).toHaveBeenCalledWith("overrides");
         expect(appSettings.getNamespace("overrides")).toBeDefined();
-        expect(appSettings.get("overrides", "CredentialManager")).toEqual("test123");
     });
 });
 

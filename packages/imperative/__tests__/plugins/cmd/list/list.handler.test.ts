@@ -72,6 +72,7 @@ describe("Plugin Management Facility list handler", () => {
         package: undefined
       },
     };
+    x.response.data = {setObj: jest.fn()};
     return x as IHandlerParameters;
   };
 

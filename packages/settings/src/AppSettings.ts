@@ -9,20 +9,16 @@
 *
 */
 
-import { readFileSync, writeFile } from "jsonfile";
+import * as DeepMerge from "deepmerge";
 import { existsSync } from "fs";
 import { ISettingsFile } from "./doc/ISettingsFile";
 import { Logger } from "../../logger";
+import { ISettingsFilePersistence } from "./persistance/ISettingsFilePersistence";
+import { JSONSettingsFilePersistence } from "./persistance/JSONSettingsFilePersistence";
+import { IO } from "../../io";
+import { ImperativeError } from "../../error";
 
-/**
- * A recovery function to handle when a settings file is missing on an initialization function.
- *
- * @param settingsFile The file that could not be found
- * @param defaultSettings The default settings provided by {@link AppSettings}
- *
- * @returns The settings content to be merged into the defaults.
- */
-export type FileRecovery = (settingsFile: string, defaultSettings: ISettingsFile) => ISettingsFile;
+type SettingValue = false | string;
 
 /**
  * This class represents settings for an Imperative CLI application that can be configured
@@ -30,32 +26,75 @@ export type FileRecovery = (settingsFile: string, defaultSettings: ISettingsFile
  * in a format specified by {@link ISettingsFile}.
  */
 export class AppSettings {
+
     /**
-     *
-     * @param settingsFile The settings file to load from.
-     * @param missingFileRecovery A recovery function when the settings file isn't found
-     *
-     * @returns A reference to the created instance. This is the same instance returned by {@link AppSettings.instance}
-     *
-     * @throws {@link SettingsAlreadyInitialized} When the settings singleton has previously been initialized.
+     * Initialize
+     * @param settingsFile The settings file to load from
+     * @param defaults {@link ISettingsFile} Settings with default values
      */
-    public static initialize(settingsFile: string, missingFileRecovery?: FileRecovery): AppSettings {
+    public static initialize(settingsFile: string, defaults: ISettingsFile): AppSettings {
         if (AppSettings.mInstance) {
-            // Throw an error imported at runtime so that we minimize file that get included
-            // on startup.
             const {SettingsAlreadyInitialized} = require("./errors/index");
+
             throw new SettingsAlreadyInitialized();
         }
 
-        AppSettings.mInstance = new AppSettings(settingsFile, missingFileRecovery);
+        const persistence = new JSONSettingsFilePersistence(settingsFile);
+
+        let settings = {};
+        try {
+            Logger.getImperativeLogger().trace(`Attempting to load settings file: ${settingsFile}`);
+
+            settings = persistence.read();
+        } catch (up) {
+            if (!existsSync(settingsFile)) {
+                Logger.getImperativeLogger().trace("Executing missing file recovery.");
+                IO.createDirsSyncFromFilePath(settingsFile);
+                persistence.write(defaults);
+            } else {
+                Logger.getImperativeLogger().error("Unable to recover from load failure");
+                Logger.getImperativeLogger().error(up.toString());
+
+                throw up;
+            }
+        }
+
+        const initialSettings = DeepMerge(defaults, settings);
+
+        AppSettings.mInstance = new AppSettings(
+            persistence,
+            initialSettings,
+        );
+
+        Logger.getImperativeLogger().trace("Settings were loaded");
+
+        Logger.getImperativeLogger().trace("Loaded Settings:");
+        Logger.getImperativeLogger().trace(initialSettings as any);
+
         return AppSettings.mInstance;
     }
-
 
     /**
      * This is an internal reference to the static settings instance.
      */
     private static mInstance: AppSettings;
+    /**
+     * The settings loaded from the file specified in the constructor.
+     */
+    private readonly settings: ISettingsFile;
+    private readonly persistence: ISettingsFilePersistence;
+
+    /**
+     *  Constructs a new settings object
+     *
+     * @param persistence
+     * @param initial Initial settings object
+     */
+    constructor(persistence: ISettingsFilePersistence, initial: ISettingsFile) {
+        this.persistence = persistence;
+
+        this.settings = initial;
+    }
 
     /**
      * Get the singleton instance of the app settings object that was initialized
@@ -77,68 +116,6 @@ export class AppSettings {
     }
 
     /**
-     * The settings loaded from the file specified in the constructor.
-     */
-    public readonly settings: ISettingsFile;
-
-    /**
-     * Constructs a new settings object
-     *
-     * @param settingsFile  The full path to a settings file to load.
-     * @param missingFileRecovery A recovery function for when the settings file didn't exist
-     */
-    constructor(private readonly settingsFile: string, missingFileRecovery?: FileRecovery) {
-        let settings: ISettingsFile;
-
-        // NOTE: All overrides key values should be false in the default object.
-        const defaultSettings: ISettingsFile = {
-            overrides: {
-                CredentialManager: false
-            }
-        };
-
-        try {
-            // Try to load the file immediately, if it fails we will then
-            // try to recover
-            Logger.getImperativeLogger().trace(`Attempting to load settings file: ${settingsFile}`);
-            settings = readFileSync(settingsFile);
-            Logger.getImperativeLogger().trace("Settings were loaded");
-        } catch (up) {
-            if (missingFileRecovery && !existsSync(settingsFile)) {
-                Logger.getImperativeLogger().trace("Executing missing file recovery.");
-                settings = missingFileRecovery(settingsFile, defaultSettings);
-            } else {
-                Logger.getImperativeLogger().error("Unable to recover from load failure");
-                Logger.getImperativeLogger().error(up.toString());
-                // Throw up if there is no recovery function or there was a recovery
-                // function but the file already existed. (Indicates there was a bigger
-                // issue at play)
-                throw up;
-            }
-        }
-
-        // Merge objects loaded recursively
-        const DeepMerge = require("deepmerge");
-        this.settings = DeepMerge(defaultSettings, settings);
-
-        Logger.getImperativeLogger().trace("Loaded Settings:");
-        Logger.getImperativeLogger().trace(this.settings as any); // This works because someone does the object translation
-    }
-
-    /**
-     * Set a new override and save it to the settings file.
-     *
-     * @param override The override being set
-     * @param value The new value
-     *
-     * @returns A promise of completion
-     */
-    public setNewOverride(override: keyof ISettingsFile["overrides"], value: string | false): Promise<void> {
-        this.settings.overrides[override] = value;
-        return this.writeSettingsFile();
-    }
-
-    /**
      * @returns true if the app settings have been initialized
      */
     public static get initialized(): boolean {
@@ -146,23 +123,55 @@ export class AppSettings {
     }
 
     /**
-     * Writes settings to the file.
-     *
-     * @returns A promise of completion
+     * Set a settings option and save it to the settings file.
+     * @param namespace {@link ISettingsFile}
+     * @param key Name of a setting option to set
+     * @param value
      */
-    private writeSettingsFile(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            writeFile(this.settingsFile, this.settings, {
-                spaces: 2
-            }, (err) => {
-                if (err) {
-                    Logger.getImperativeLogger().error("Unable to save settings");
-                    Logger.getImperativeLogger().error(err.toString());
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
-        });
+    public set(namespace: keyof ISettingsFile, key: string, value: SettingValue): void {
+        this.settings[namespace][key] = value;
+
+        this.flush();
+    }
+
+    /**
+     * Get a value of settings option
+     * @param namespace {@link ISettingsFile}
+     * @param key Name of a setting option to set
+     */
+    public get(namespace: keyof ISettingsFile, key: string): SettingValue {
+        if (this.settings[namespace]) {
+            return this.settings[namespace][key];
+        }
+        throw new ImperativeError({msg: `Namespace ${namespace} does not exist`});
+    }
+
+    /**
+     * Get a member of ISettingsFile of specified namespace
+     * @param namespace
+     */
+    public getNamespace(namespace: keyof ISettingsFile) {
+        return this.settings[namespace];
+    }
+
+    /**
+     * Get settings
+     */
+    public getSettings(): ISettingsFile {
+        return this.settings;
+    }
+
+    /**
+     * Writes settings to the file
+     */
+    private flush() {
+        try {
+            this.persistence.write(this.settings);
+        } catch (err) {
+            Logger.getImperativeLogger().error("Unable to save settings");
+            Logger.getImperativeLogger().error(err.toString());
+
+            throw err;
+        }
     }
 }
