@@ -21,9 +21,18 @@ import * as path from "path";
 const TEST_MANAGER_NAME = "test manager";
 
 describe("OverridesLoader", () => {
+  const mainModule = process.mainModule;
+
   beforeEach(() => {
     jest.restoreAllMocks();
     jest.resetAllMocks();
+    (process.mainModule as any) = {
+      filename: __filename
+    };
+  });
+
+  afterEach(() => {
+    process.mainModule = mainModule;
   });
 
   describe("loadCredentialManager", () => {

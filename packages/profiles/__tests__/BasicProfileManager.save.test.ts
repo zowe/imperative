@@ -72,7 +72,7 @@ describe("Basic Profile Manager Save", () => {
       });
       const parms = {name: "bad_apple", profile: {}};
       delete parms.profile;
-      const response = await prof.save(parms);
+      const response = await prof.save(parms as any);
     } catch (e) {
       error = e;
       TestLogger.info(e);
@@ -184,7 +184,7 @@ describe("Basic Profile Manager Save", () => {
     try {
       const profile: any = {};
       profile.dependencies = {};
-      response = await prof.save({name: "bad_apple", profile});
+      response = await prof.save({name: "bad_apple", profile} as any);
     } catch (e) {
       error = e;
       TestLogger.info(error);
@@ -207,7 +207,7 @@ describe("Basic Profile Manager Save", () => {
     try {
       const profile: any = {};
       profile.dependencies = [{type: STRAWBERRY_PROFILE_TYPE}];
-      response = await prof.save({name: "bad_apple", profile});
+      response = await prof.save({name: "bad_apple", profile} as any);
     } catch (e) {
       error = e;
       TestLogger.info(error);
@@ -230,7 +230,7 @@ describe("Basic Profile Manager Save", () => {
     try {
       const profile: any = {};
       profile.dependencies = [{name: "bad_strawberry"}];
-      response = await prof.save({name: "bad_apple", profile});
+      response = await prof.save({name: "bad_apple", profile} as any);
     } catch (e) {
       error = e;
       TestLogger.info(error);
@@ -252,7 +252,7 @@ describe("Basic Profile Manager Save", () => {
     let response: IProfileSaved;
     try {
       const profile: any = {description: "A bunch of rotten strawberries", amount: 30};
-      response = await prof.save({name: "bad_strawberry", profile});
+      response = await prof.save({name: "bad_strawberry", profile} as any);
     } catch (e) {
       error = e;
       TestLogger.info(error);
@@ -276,7 +276,7 @@ describe("Basic Profile Manager Save", () => {
       const profile: any = {
         dependencies: [{type: APPLE_PROFILE_TYPE, name: "bad_apple"}]
       };
-      response = await prof.save({name: "bad_strawberry", profile});
+      response = await prof.save({name: "bad_strawberry", profile} as any);
     } catch (e) {
       error = e;
       TestLogger.info(error);
@@ -298,7 +298,7 @@ describe("Basic Profile Manager Save", () => {
     let response: IProfileSaved;
     try {
       const profile: any = {description: true, rotten: true, age: 100};
-      response = await prof.save({name: "bad_apple", profile});
+      response = await prof.save({name: "bad_apple", profile} as any);
     } catch (e) {
       error = e;
       TestLogger.info(error);
@@ -320,7 +320,7 @@ describe("Basic Profile Manager Save", () => {
     let response: IProfileSaved;
     try {
       const profile: any = {description: "A nasty apple", rotten: "yes", age: 100};
-      response = await prof.save({name: "bad_apple", profile});
+      response = await prof.save({name: "bad_apple", profile} as any);
     } catch (e) {
       error = e;
       TestLogger.info(error);
@@ -345,7 +345,7 @@ describe("Basic Profile Manager Save", () => {
         name: "old_apple",
         profile,
         overwrite: false
-      });
+      } as any);
     } catch (e) {
       error = e;
       TestLogger.info(e.message);
@@ -370,7 +370,7 @@ describe("Basic Profile Manager Save", () => {
         name: "throw_the_apple",
         profile,
         overwrite: true
-      });
+      } as any);
     } catch (e) {
       error = e;
       TestLogger.info(e.message);
@@ -395,7 +395,7 @@ describe("Basic Profile Manager Save", () => {
         profile,
         overwrite: true,
         updateDefault: true
-      });
+      } as any);
     } catch (e) {
       error = e;
       TestLogger.info(e.message);
@@ -420,7 +420,7 @@ describe("Basic Profile Manager Save", () => {
         name: "good_apple",
         profile,
         overwrite: true
-      });
+      } as any);
     } catch (e) {
       error = e;
       TestLogger.info(e.message);
@@ -457,7 +457,7 @@ describe("Basic Profile Manager Save", () => {
         name: "chocolate_covered",
         profile: strawberry,
         overwrite: true
-      });
+      } as any);
     } catch (e) {
       error = e;
     }
@@ -481,7 +481,7 @@ describe("Basic Profile Manager Save", () => {
       saveResponse = await prof.save({
         name: "good_apple",
         profile,
-      });
+      } as any);
     } catch (e) {
       error = e;
     }
@@ -549,7 +549,7 @@ describe("Basic Profile Manager Save", () => {
         name: "no_apple_core",
         profile: {},
         overwrite: true
-      });
+      } as any);
     } catch (e) {
       error = e;
       TestLogger.info(error);
@@ -580,7 +580,7 @@ describe("Basic Profile Manager Save", () => {
         name: "good_apple",
         profile,
         overwrite: true
-      });
+      } as any);
     } catch (e) {
       error = e;
       TestLogger.info(e.message);
@@ -614,7 +614,7 @@ describe("Basic Profile Manager Save", () => {
         name: "tasty_apple",
         profile,
         overwrite: true
-      });
+      } as any);
     } catch (e) {
       error = e;
       TestLogger.info(e.message);

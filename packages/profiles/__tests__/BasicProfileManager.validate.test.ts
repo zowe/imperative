@@ -52,7 +52,7 @@ describe("Basic Profile Manager Validate", () => {
                 type: STRAWBERRY_PROFILE_TYPE,
                 logger: TestLogger.getTestLogger()
             });
-            const response = await prof.validate({profile: {}});
+            const response = await prof.validate({profile: {}} as any);
         } catch (e) {
             error = e;
             TestLogger.info(e);
@@ -96,7 +96,7 @@ describe("Basic Profile Manager Validate", () => {
                 type: APPLE_PROFILE_TYPE,
                 logger: TestLogger.getTestLogger()
             });
-            const response = await prof.validate({profile: {}});
+            const response = await prof.validate({profile: {}} as any);
         } catch (e) {
             error = e;
             TestLogger.info(e);

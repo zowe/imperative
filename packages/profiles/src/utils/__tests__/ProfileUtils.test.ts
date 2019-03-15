@@ -17,7 +17,7 @@ import { IProfileLoaded } from "../../../../index";
 import { APPLE_TWO_REQ_DEP_BANANA_ONE_REQ_DEP_GRAPE_ONE_REQ_DEP, BLUEBERRY_PROFILE_TYPE } from "../../../__tests__/TestConstants";
 
 const mocks = {
-    normalize: path.normalize as Mock<typeof path.normalize>
+    normalize: path.normalize as unknown as Mock<typeof path.normalize>
 };
 
 const TEST_DIR_PATH: string = "/__tests__/__results__/data/.testHomeDir";

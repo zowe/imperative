@@ -366,6 +366,7 @@ export class PluginManagementFacility {
      * @returns {any} - The content exported from the specified module.
      */
     public requirePluginModuleCallback(relativePath: string): any {
+
         const pluginModuleRuntimePath = this.formPluginRuntimePath(this.pluginNmForUseInCallback, relativePath);
         try {
             return require(pluginModuleRuntimePath);
@@ -386,6 +387,7 @@ export class PluginManagementFacility {
      * @param {IPluginCfgProps} pluginCfgProps - The configuration properties for this plugin
      */
     private addPluginToHostCli(pluginCfgProps: IPluginCfgProps): void {
+
         /* Form a top-level command group for this plugin.
          * Resolve all means of command definition into the pluginCmdGroup.children
          */
@@ -463,6 +465,7 @@ export class PluginManagementFacility {
                 this.removeCmdGrpFromResolvedCliCmdTree(pluginCmdGroup);
             }
         }
+
     }
 
     // __________________________________________________________________________
@@ -866,6 +869,7 @@ export class PluginManagementFacility {
             );
             return null;
         }
+
         this.pluginNmForUseInCallback = "NoPluginNameAssigned";
 
         pluginCfgProps.impConfig = pluginConfig;

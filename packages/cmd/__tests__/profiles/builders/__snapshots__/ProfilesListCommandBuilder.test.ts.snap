@@ -10,6 +10,16 @@ Object {
     "profileTypeIdentifier": "type-a",
   },
   "description": "Type A profile for builder tests",
+  "examples": Array [
+    Object {
+      "description": "List profiles of type type-a",
+      "options": "",
+    },
+    Object {
+      "description": "List profiles of type type-a and display their contents",
+      "options": "--sc",
+    },
+  ],
   "name": "type-a-profiles",
   "options": Array [
     Object {

@@ -100,6 +100,11 @@ export class ProfilesUpdateCommandBuilder extends ProfilesCommandBuilder {
         };
         profileCommand.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY] = this.mProfileType;
 
+        if (this.mProfileConfig.updateProfileExamples != null) {
+            profileCommand.examples = this.mProfileConfig.updateProfileExamples;
+        }
+
+        // We don't want to override existing settings with defaultValue for an option
         for (const option of profileCommand.options) {
             delete option.defaultValue;
         }

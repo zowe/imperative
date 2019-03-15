@@ -203,7 +203,8 @@ export class SyntaxValidator {
             const missingPositionals: ICommandPositionalDefinition[] = [];
             for (const positional of this.mCommandDefinition.positionals) {
                 if (positional.required) {
-                    if (!commandArguments[positional.name]) {
+                    // Use replace to trim possible ... which is used for arrays
+                    if (!commandArguments[positional.name.replace("...","")]) {
                         missingPositionals.push(positional);
                     }
                 }

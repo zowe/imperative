@@ -173,6 +173,12 @@ Object {
             "profileTypeIdentifier": "type-a",
           },
           "description": "Delete a type-a profile. You must specify a profile name to be deleted. To find a list of available profiles for deletion,  issue the profiles list command. By default, you will be prompted to confirm the profile removal.",
+          "examples": Array [
+            Object {
+              "description": "Delete a type-a profile named profilename",
+              "options": "profilename",
+            },
+          ],
           "name": "type-a-profile",
           "options": Array [
             Object {
@@ -203,6 +209,12 @@ Object {
             "profileTypeIdentifier": "type-b",
           },
           "description": "Delete a type-b profile. You must specify a profile name to be deleted. To find a list of available profiles for deletion,  issue the profiles list command. By default, you will be prompted to confirm the profile removal.",
+          "examples": Array [
+            Object {
+              "description": "Delete a type-b profile named profilename",
+              "options": "profilename",
+            },
+          ],
           "name": "type-b-profile",
           "options": Array [
             Object {
@@ -244,6 +256,16 @@ Object {
             "profileTypeIdentifier": "type-a",
           },
           "description": "Type A profile for builder tests",
+          "examples": Array [
+            Object {
+              "description": "List profiles of type type-a",
+              "options": "",
+            },
+            Object {
+              "description": "List profiles of type type-a and display their contents",
+              "options": "--sc",
+            },
+          ],
           "name": "type-a-profiles",
           "options": Array [
             Object {
@@ -268,6 +290,16 @@ Object {
             "profileTypeIdentifier": "type-b",
           },
           "description": "Type B profile for builder tests",
+          "examples": Array [
+            Object {
+              "description": "List profiles of type type-b",
+              "options": "",
+            },
+            Object {
+              "description": "List profiles of type type-b and display their contents",
+              "options": "--sc",
+            },
+          ],
           "name": "type-b-profiles",
           "options": Array [
             Object {
@@ -303,6 +335,12 @@ Object {
             "profileTypeIdentifier": "type-a",
           },
           "description": "The type-a set default-profiles command allows you to set the default profiles for this command group. When a type-a command is issued and no profile override options are specified, the default profiles for the command group are automatically loaded for the command based on the commands profile requirements.",
+          "examples": Array [
+            Object {
+              "description": "Set the default profile for type type-a to the profile named 'profilename'",
+              "options": "profilename",
+            },
+          ],
           "name": "type-a-profile",
           "options": Array [],
           "positionals": Array [
@@ -327,6 +365,12 @@ Object {
             "profileTypeIdentifier": "type-b",
           },
           "description": "The type-b set default-profiles command allows you to set the default profiles for this command group. When a type-b command is issued and no profile override options are specified, the default profiles for the command group are automatically loaded for the command based on the commands profile requirements.",
+          "examples": Array [
+            Object {
+              "description": "Set the default profile for type type-b to the profile named 'profilename'",
+              "options": "profilename",
+            },
+          ],
           "name": "type-b-profile",
           "options": Array [],
           "positionals": Array [

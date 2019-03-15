@@ -29,7 +29,7 @@ const nestedObj = {
     nest: {
         prop1: "hello",
         prop2: false,
-        theZeroLengthArray: [],
+        theZeroLengthArray: [] as any,
         containsArray: ["hello"]
     }
 };
@@ -71,7 +71,7 @@ describe("ImperativeExpect tests", () => {
     it("Should not throw an error for a non-blank field", () => {
         let error: ImperativeError;
         try {
-            ImperativeExpect.toBeDefinedAndNonBlank("hey");
+            ImperativeExpect.toBeDefinedAndNonBlank("hey", "not_blank");
         } catch (thrownError) {
             error = thrownError;
         }
@@ -81,7 +81,7 @@ describe("ImperativeExpect tests", () => {
     it("Should throw an error for a blank field", () => {
         let error: ImperativeError;
         try {
-            ImperativeExpect.toBeDefinedAndNonBlank(" ");
+            ImperativeExpect.toBeDefinedAndNonBlank(" ", "blank");
         } catch (thrownError) {
             error = thrownError;
         }
@@ -273,7 +273,7 @@ describe("ImperativeExpect tests", () => {
     it("should allow an expect failure to be transformed", () => {
         let error: ImperativeError;
         try {
-            ImperativeExpecexpectAndTransform(() => {
+            ImperativeExpect.expectAndTransform(() => {
                 ImperativeExpect.toBeEqual(0, 1);
             }, (impErr) => {
                 return new ImperativeError({ msg: "The values weren't equal!!!" });
