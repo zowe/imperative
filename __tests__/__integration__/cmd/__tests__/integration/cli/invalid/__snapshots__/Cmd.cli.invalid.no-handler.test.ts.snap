@@ -9,6 +9,7 @@ Expect Error: Command Processor Error: The definition supplied is of type \\"com
 exports[`cmd-cli invalid no-handler should fail the command with a message if the command definition of type command omits a handler 2`] = `
 "{
   \\"success\\": false,
+  \\"exitCode\\": 1,
   \\"message\\": \\"\\",
   \\"stdout\\": \\"\\",
   \\"stderr\\": \\"Internal Command Error:\\\\nExpect Error: Command Processor Error: The definition supplied is of type \\\\\\"command\\\\\\", but no handler was specified.\\\\n\\",
