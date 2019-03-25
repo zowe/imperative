@@ -29,8 +29,9 @@ describe("cmd-cli invalid no-handler", () => {
 
     it("should fail the command with a message if the command definition of type command omits a handler", () => {
         const response = runCliScript(__dirname + "/__scripts__/no-handler.sh", TEST_ENVIRONMENT.workingDir);
-        expect(response.status).toBe(1);
+
         expect(response.stderr.toString()).toMatchSnapshot();
+        expect(response.status).toBe(1);
         expect(response.stdout.toString()).toMatchSnapshot();
     });
 });

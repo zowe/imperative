@@ -231,7 +231,7 @@ export abstract class AbstractCommandYargs {
                                      action: ImperativeYargsCommandAction,
                                      responses?: ICommandResponse[]): IYargsResponse {
         let exitCode: number;
-        if (responses) {
+        if (responses != null && responses.length > 0) {
             for (const response of responses) {
                 // use the maximum exit code from all command responses
                 if (exitCode == null || (response.exitCode != null && response.exitCode > exitCode)) {

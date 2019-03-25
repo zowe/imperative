@@ -18,12 +18,12 @@ import { Imperative } from "../../../../../../../packages/imperative";
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
 
-describe("cmd-cli invoke", () => {
+describe("cmd-cli invoke exit 143", () => {
     // Create the unique test environment
     beforeAll(async () => {
         TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
             cliHomeEnvVar: "CMD_CLI_CLI_HOME",
-            testName: "cmd_cli_invoke"
+            testName: "cmd_cli_invoke_exit_143"
         });
     });
 
