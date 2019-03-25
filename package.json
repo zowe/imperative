@@ -3,7 +3,7 @@
   "version": "2.2.0",
   "description": "framework for building configurable CLIs",
   "author": "Broadcom",
-  "license": "EPL 2.0",
+  "license": "EPL-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/zowe/imperative.git"
@@ -55,7 +55,7 @@
     "deepmerge": "3.0.0",
     "find-up": "2.1.0",
     "glob": "7.1.1",
-    "js-yaml": "3.9.0",
+    "js-yaml": "^3.13.0",
     "jsonfile": "4.0.0",
     "jsonschema": "1.1.1",
     "levenshtein": "1.0.5",
@@ -105,7 +105,6 @@
     "gulp-debug": "3.1.0",
     "gulp-plumber": "1.1.0",
     "gulp-replace": "0.6.1",
-    "gulp-typedoc": "2.2.1",
     "gulp-util": "3.0.8",
     "is-url": "1.2.3",
     "jest": "^24.1.0",
@@ -140,7 +139,7 @@
   },
   "jest-stare": {
     "resultDir": "__tests__/__results__/jest-stare",
-    "additionalResultsProcessors":     [
+    "additionalResultsProcessors": [
       "jest-junit",
       "jest-html-reporter",
       "jest-sonar-reporter"
