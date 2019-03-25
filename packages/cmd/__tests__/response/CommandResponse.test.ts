@@ -499,6 +499,19 @@ describe("Command Response", () => {
         expect(response.buildJsonResponse()).toMatchSnapshot();
     });
 
+    it("should allow us to set an exit code", () => {
+        let messages: string = "";
+        const response = new CommandResponse();
+        process.stdout.write = jest.fn((data) => {
+            messages += data;
+        });
+        const exitCode = 143;
+        response.data.setExitCode(exitCode);
+        expect(process.stdout.write).toHaveBeenCalledTimes(0);
+        process.stdout.write = ORIGINAL_STDOUT_WRITE;
+        expect(response.buildJsonResponse().exitCode).toEqual(exitCode);
+    });
+
     it("should overwrite the message if set multiple times", () => {
         let messages: string = "";
         const response = new CommandResponse();

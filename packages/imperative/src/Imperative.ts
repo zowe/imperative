@@ -131,8 +131,7 @@ export class Imperative {
                  */
                 if (!isNullOrUndefined(ImperativeConfig.instance.findPackageBinName())) {
                     this.mRootCommandName = ImperativeConfig.instance.findPackageBinName();
-                }
-                else {
+                } else {
                     this.mRootCommandName = ImperativeConfig.instance.callerLocation;
                     this.log.debug("WARNING: No \"bin\" configuration was found in your package.json," +
                         " or your package.json could not be found. " +
@@ -483,7 +482,7 @@ export class Imperative {
             // retrieve the arguments to re-build the command entered
             const argV: any = this.yargs.argv;
 
-            let commandText: string  = "";
+            let commandText: string = "";
             let i: number;
             // retrieve the groups, command and positional arguments
             for (i = 0; i < argV._.length; i++) {
@@ -496,8 +495,7 @@ export class Imperative {
                 }
             }
             this.mCommandLine = commandText.trim();
-        }
-        else {
+        } else {
             this.mCommandLine = "";
         }
 
@@ -531,7 +529,10 @@ export class Imperative {
             definer.define(child,
                 (args: Arguments, response: IYargsResponse) => {
                     if (!response.success) {
-                        process.exitCode = Constants.ERROR_EXIT_CODE;
+                        if (response.exitCode == null) {
+                            response.exitCode = Constants.ERROR_EXIT_CODE;
+                        }
+                        process.exitCode = response.exitCode;
                     }
                 }, commandResponseParms
             );
