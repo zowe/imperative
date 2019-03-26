@@ -39,6 +39,7 @@ import { ChainedHandlerService } from "./ChainedHandlerUtils";
 import { Constants } from "../../constants";
 import { ICommandArguments } from "./doc/args/ICommandArguments";
 import { CliUtils } from "../../utilities/src/CliUtils";
+import { EnvironmentalVariableSettings } from "../../imperative";
 
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
@@ -373,7 +374,8 @@ export class CommandProcessor {
 
         // prompt the user for any requested fields
         const prompt = require("readline-sync");
-        const promptKey = "prompt*"; // TODO allow environmental variable to override this value
+        const promptKey = EnvironmentalVariableSettings.read(this.envVariablePrefix).promptPhrase.value ||
+            Constants.DEFAULT_PROMPT_PHRASE; // allow environmental variable to override the default prompt phrase
         prompt.setDefaultOptions({mask: "", hideEchoBack: true});
         try {
             // prompt for any requested positionals
