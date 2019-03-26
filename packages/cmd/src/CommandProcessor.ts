@@ -31,7 +31,7 @@ import { Logger } from "../../logger";
 import { IInvokeCommandParms } from "./doc/parms/IInvokeCommandParms";
 import { ICommandProcessorParms } from "./doc/processor/ICommandProcessorParms";
 import { ImperativeExpect } from "../../expect";
-import { inspect } from "util";
+import { inspect, isNumber } from "util";
 import { TextUtils } from "../../utilities";
 import * as nodePath from "path";
 import { ICommandHandlerRequire } from "./doc/handler/ICommandHandlerRequire";
@@ -158,6 +158,7 @@ export class CommandProcessor {
     get commandLine(): string {
         return this.mCommandLine;
     }
+
     // set commandLine(command: string) {
     //     this.mCommandLine = command;
     // }
@@ -321,8 +322,8 @@ export class CommandProcessor {
         // Log the invoke
         this.log.info(`Invoking command "${this.definition.name}"...`);
         this.log.info(`Command issued:\n\n${TextUtils.prettyJson(this.rootCommand + " " + commandLine)}`);
-        this.log.trace(`Invoke parameters:\n${inspect(params, { depth: null })}`);
-        this.log.trace(`Command definition:\n${inspect(this.definition, { depth: null })}`);
+        this.log.trace(`Invoke parameters:\n${inspect(params, {depth: null})}`);
+        this.log.trace(`Command definition:\n${inspect(this.definition, {depth: null})}`);
 
         // Build the response object, base args object, and the entire array of options for this command
         // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
@@ -370,6 +371,53 @@ export class CommandProcessor {
         const response = this.constructResponseObject(params);
         response.succeeded();
 
+        // prompt the user for any requested fields
+        const prompt = require("readline-sync");
+        const promptKey = "prompt*"; // TODO allow environmental variable to override this value
+        prompt.setDefaultOptions({mask: "", hideEchoBack: true});
+        try {
+            // prompt for any requested positionals
+            for (const positional of this.definition.positionals) {
+                if (prepared.args[positional.name] != null &&
+                    prepared.args[positional.name].toUpperCase() === promptKey.toUpperCase()) {
+                    // prompt has been requested for a positional
+                    prepared.args[positional.name] =
+                        prompt.question(`Description: ${positional.description}\nPlease enter "${positional.name}":`);
+                }
+            }
+            // prompt for any requested --options
+            for (const option of this.definition.options) {
+                if (prepared.args[option.name] != null &&
+                    option.type !== "boolean" &&
+                    !isNumber(prepared.args[option.name]) && // if it's a number, it's not the prompt key
+                    prepared.args[option.name].toUpperCase() === promptKey.toUpperCase()) {
+
+                    // prompt has been requested for an --option
+                    prepared.args[option.name] = prompt.question(`Description: ${option.description}\nPlease enter "${option.name}":`);
+                    const camelCase = CliUtils.getOptionFormat(option.name).camelCase;
+                    prepared.args[camelCase] = prepared.args[option.name];
+                    for (const alias of option.aliases) {
+                        // set each alias of the args object as well
+                        prepared.args[alias] = prepared.args[option.name];
+                    }
+                }
+            }
+        } catch (e) {
+            const errMsg: string = `Unexpected prompting error`;
+            const errReason: string = errMsg + ": " + e.message;
+            this.log.error(`Prompting for command "${this.definition.name}" has failed unexpectedly: ${errReason}`);
+            response.data.setMessage(errReason);
+            response.console.errorHeader(errMsg);
+            response.console.error(e.message);
+            response.setError({
+                msg: errMsg,
+                additionalDetails: e.message
+            });
+            response.failed();
+            return this.finishResponse(response);
+        }
+
+
         // Validate that the syntax is correct for the command
         let validator: ICommandValidatorResponse;
         try {
@@ -414,8 +462,7 @@ export class CommandProcessor {
                     definition: this.definition,
                     fullDefinition: this.fullDefinition
                 });
-            }
-            catch (processErr) {
+            } catch (processErr) {
                 this.handleHandlerError(processErr, response, this.definition.handler);
 
                 // Return the failed response to the caller
@@ -578,12 +625,12 @@ export class CommandProcessor {
 
         // Load all profiles for the command
         this.log.trace(`Loading profiles for "${this.definition.name}" command. ` +
-            `Profile definitions: ${inspect(this.definition.profile, { depth: null })}`);
+            `Profile definitions: ${inspect(this.definition.profile, {depth: null})}`);
         const profiles = await CommandProfileLoader.loader({
             commandDefinition: this.definition,
             profileManagerFactory: this.profileFactory
         }).loadProfiles(commandArguments);
-        this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, { depth: null })}`);
+        this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, {depth: null})}`);
 
         // If we have profiles listed on the command definition (the would be loaded already)
         // we can extract values from them for options arguments
