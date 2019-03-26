@@ -77,6 +77,14 @@ export class CommandProcessor {
      * @memberof CommandProcessor
      */
     private mEnvVariablePrefix: string;
+
+    /**
+     * The phrase used to indicate the user wants to enter the value of an argument in a hidden text prompt
+     * @private
+     * @type {string}
+     * @memberof CommandProcessor
+     */
+    private mPromptPhrase: string;
     /**
      * The command definition node for the command being executed.
      * @private
@@ -173,6 +181,17 @@ export class CommandProcessor {
     get envVariablePrefix(): string {
         return this.mEnvVariablePrefix;
     }
+
+    /**
+     * Accessor for the prompt phrase
+     * @readonly
+     * @type {string}
+     * @memberof CommandProcessor
+     */
+    get promptPhrase(): string {
+        return this.mPromptPhrase;
+    }
+
 
     /**
      * Accessor for the help generator passed to this instance of the command processor
@@ -374,14 +393,13 @@ export class CommandProcessor {
 
         // prompt the user for any requested fields
         const prompt = require("readline-sync");
-        const promptKey = EnvironmentalVariableSettings.read(this.envVariablePrefix).promptPhrase.value ||
-            Constants.DEFAULT_PROMPT_PHRASE; // allow environmental variable to override the default prompt phrase
+
         prompt.setDefaultOptions({mask: "", hideEchoBack: true});
         try {
             // prompt for any requested positionals
             for (const positional of this.definition.positionals) {
                 if (prepared.args[positional.name] != null &&
-                    prepared.args[positional.name].toUpperCase() === promptKey.toUpperCase()) {
+                    prepared.args[positional.name].toUpperCase() === this.promptPhrase.toUpperCase()) {
                     // prompt has been requested for a positional
                     prepared.args[positional.name] =
                         prompt.question(`Description: ${positional.description}\nPlease enter "${positional.name}":`);
@@ -392,7 +410,7 @@ export class CommandProcessor {
                 if (prepared.args[option.name] != null &&
                     option.type !== "boolean" &&
                     !isNumber(prepared.args[option.name]) && // if it's a number, it's not the prompt key
-                    prepared.args[option.name].toUpperCase() === promptKey.toUpperCase()) {
+                    prepared.args[option.name].toUpperCase() === this.promptPhrase.toUpperCase()) {
 
                     // prompt has been requested for an --option
                     prepared.args[option.name] = prompt.question(`Description: ${option.description}\nPlease enter "${option.name}":`);

@@ -36,6 +36,7 @@ export class YargsDefiner {
     private mHelpFactory: IHelpGeneratorFactory;
     private mProfileManagerFactory: IProfileManagerFactory<ICommandProfileTypeConfiguration>;
     private mExperimentalCommandDescription: string;
+    private mPromptPhrase: string;
 
     /**
      * Logger instance
@@ -60,7 +61,8 @@ export class YargsDefiner {
                 envVariablePrefix: string,
                 profileManagerFactory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
                 helpGeneratorFactory: IHelpGeneratorFactory,
-                experimentalCommandDescription: string) {
+                experimentalCommandDescription: string,
+                promptPhrase: string) {
         this.mYargsInstance = yargsInstance;
         this.mPrimaryHighlightColor = primaryHighlightColor;
         this.mRootCommandName = rootCommandName;
@@ -69,6 +71,7 @@ export class YargsDefiner {
         this.mHelpFactory = helpGeneratorFactory;
         this.mProfileManagerFactory = profileManagerFactory;
         this.mExperimentalCommandDescription = experimentalCommandDescription;
+        this.mPromptPhrase= promptPhrase;
     }
 
     /**
@@ -97,7 +100,8 @@ export class YargsDefiner {
                     experimentalCommandDescription: this.mExperimentalCommandDescription,
                     rootCommandName: this.mRootCommandName,
                     commandLine: this.mCommandLine,
-                    envVariablePrefix: this.mEnvVariablePrefix
+                    envVariablePrefix: this.mEnvVariablePrefix,
+                    promptPhrase: this.mPromptPhrase
                 }).defineCommandToYargs(commandExecuted);
                 break;
             case "command":
@@ -110,7 +114,8 @@ export class YargsDefiner {
                     experimentalCommandDescription: this.mExperimentalCommandDescription,
                     rootCommandName: this.mRootCommandName,
                     commandLine: this.mCommandLine,
-                    envVariablePrefix: this.mEnvVariablePrefix
+                    envVariablePrefix: this.mEnvVariablePrefix,
+                    promptPhrase: this.mPromptPhrase
                 }).defineCommandToYargs(commandExecuted);
                 break;
             default:

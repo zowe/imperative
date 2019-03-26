@@ -14,23 +14,6 @@
  * require("@zowe/imperative") e.g. const imperative =  require("@zowe/imperative");
  */
 import { PerfTiming } from "@zowe/perf-timing";
-
-// Bootstrap the performance tools
-if (PerfTiming.isEnabled) {
-    // These are expensive operations so imperative should
-    // only do it when performance is enabled.
-    const Module = require("module");
-
-    // Store the reference to the original require.
-    const originalRequire = Module.prototype.require;
-
-    // Timerify a wrapper named function so we can be sure that not just
-    // any anonymous function gets checked.
-    Module.prototype.require = PerfTiming.api.watch(function NodeModuleLoader() {
-        return originalRequire.apply(this, arguments);
-    });
-}
-
 import { Logger, LoggerConfigBuilder } from "../../logger";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import { Arguments } from "yargs";
@@ -69,6 +52,22 @@ import { AppSettings } from "../../settings";
 import { join } from "path";
 import { Console } from "../../console";
 import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
+
+// Bootstrap the performance tools
+if (PerfTiming.isEnabled) {
+    // These are expensive operations so imperative should
+    // only do it when performance is enabled.
+    const Module = require("module");
+
+    // Store the reference to the original require.
+    const originalRequire = Module.prototype.require;
+
+    // Timerify a wrapper named function so we can be sure that not just
+    // any anonymous function gets checked.
+    Module.prototype.require = PerfTiming.api.watch(function NodeModuleLoader() {
+        return originalRequire.apply(this, arguments);
+    });
+}
 
 export class Imperative {
 
@@ -156,8 +155,7 @@ export class Imperative {
                  */
                 if (!isNullOrUndefined(ImperativeConfig.instance.findPackageBinName())) {
                     this.mRootCommandName = ImperativeConfig.instance.findPackageBinName();
-                }
-                else {
+                } else {
                     this.mRootCommandName = ImperativeConfig.instance.callerLocation;
                     this.log.debug("WARNING: No \"bin\" configuration was found in your package.json," +
                         " or your package.json could not be found. " +
@@ -521,7 +519,7 @@ export class Imperative {
             // retrieve the arguments to re-build the command entered
             const argV: any = this.yargs.argv;
 
-            let commandText: string  = "";
+            let commandText: string = "";
             let i: number;
             // retrieve the groups, command and positional arguments
             for (i = 0; i < argV._.length; i++) {
@@ -534,8 +532,7 @@ export class Imperative {
                 }
             }
             this.mCommandLine = commandText.trim();
-        }
-        else {
+        } else {
             this.mCommandLine = "";
         }
 
@@ -549,7 +546,9 @@ export class Imperative {
             ImperativeConfig.instance.loadedConfig.experimentalCommandDescription,
             Imperative.rootCommandName,
             Imperative.commandLine,
-            Imperative.envVariablePrefix
+            Imperative.envVariablePrefix,
+            EnvironmentalVariableSettings.read(this.envVariablePrefix).promptPhrase.value ||
+            Constants.DEFAULT_PROMPT_PHRASE // allow environmental variable to override the default prompt phrase
         ).configure();
 
         // Define the commands to yargs
@@ -562,7 +561,9 @@ export class Imperative {
             Imperative.envVariablePrefix,
             new ImperativeProfileManagerFactory(this.api),
             this.mHelpGeneratorFactory,
-            ImperativeConfig.instance.loadedConfig.experimentalCommandDescription
+            ImperativeConfig.instance.loadedConfig.experimentalCommandDescription,
+            EnvironmentalVariableSettings.read(this.envVariablePrefix).promptPhrase.value ||
+            Constants.DEFAULT_PROMPT_PHRASE // allow environmental variable to override the default prompt phrase
         );
 
         for (const child of preparedHostCliCmdTree.children) {

@@ -64,7 +64,8 @@ export class GroupCommandYargs extends AbstractCommandYargs {
                                 experimentalCommandDescription: this.yargsParms.experimentalCommandDescription,
                                 rootCommandName: this.rootCommandName,
                                 commandLine: this.commandLine,
-                                envVariablePrefix: this.envVariablePrefix
+                                envVariablePrefix: this.envVariablePrefix,
+                                promptPhrase: this.promptPhrase
                             }).defineCommandToYargs(commandExecuted);
                             break;
                         case "command":
@@ -78,7 +79,8 @@ export class GroupCommandYargs extends AbstractCommandYargs {
                                 experimentalCommandDescription: this.yargsParms.experimentalCommandDescription,
                                 rootCommandName: this.rootCommandName,
                                 commandLine: this.commandLine,
-                                envVariablePrefix: this.envVariablePrefix
+                                envVariablePrefix: this.envVariablePrefix,
+                                promptPhrase: this.promptPhrase
                             }).defineCommandToYargs(commandExecuted);
                             break;
                         default:
