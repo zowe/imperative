@@ -39,7 +39,6 @@ import { ChainedHandlerService } from "./ChainedHandlerUtils";
 import { Constants } from "../../constants";
 import { ICommandArguments } from "./doc/args/ICommandArguments";
 import { CliUtils } from "../../utilities/src/CliUtils";
-import { EnvironmentalVariableSettings } from "../../imperative";
 
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
@@ -398,28 +397,32 @@ export class CommandProcessor {
         prompt.setDefaultOptions({mask: "", hideEchoBack: true});
         try {
             // prompt for any requested positionals
-            for (const positional of this.definition.positionals) {
-                if (prepared.args[positional.name] != null &&
-                    prepared.args[positional.name].toUpperCase() === this.promptPhrase.toUpperCase()) {
-                    // prompt has been requested for a positional
-                    prepared.args[positional.name] =
-                        prompt.question(`Description: ${positional.description}\nPlease enter "${positional.name}":`);
+            if (this.definition.positionals != null && this.definition.positionals.length > 0) {
+                for (const positional of this.definition.positionals) {
+                    if (prepared.args[positional.name] != null &&
+                        prepared.args[positional.name].toUpperCase() === this.promptPhrase.toUpperCase()) {
+                        // prompt has been requested for a positional
+                        prepared.args[positional.name] =
+                            prompt.question(`Description: ${positional.description}\nPlease enter "${positional.name}":`);
+                    }
                 }
             }
             // prompt for any requested --options
-            for (const option of this.definition.options) {
-                if (prepared.args[option.name] != null &&
-                    option.type !== "boolean" &&
-                    !isNumber(prepared.args[option.name]) && // if it's a number, it's not the prompt key
-                    prepared.args[option.name].toUpperCase() === this.promptPhrase.toUpperCase()) {
+            if (this.definition.options != null && this.definition.options.length > 0) {
+                for (const option of this.definition.options) {
+                    if (prepared.args[option.name] != null &&
+                        option.type !== "boolean" &&
+                        !isNumber(prepared.args[option.name]) && // if it's a number, it's not the prompt key
+                        prepared.args[option.name].toUpperCase() === this.promptPhrase.toUpperCase()) {
 
-                    // prompt has been requested for an --option
-                    prepared.args[option.name] = prompt.question(`Description: ${option.description}\nPlease enter "${option.name}":`);
-                    const camelCase = CliUtils.getOptionFormat(option.name).camelCase;
-                    prepared.args[camelCase] = prepared.args[option.name];
-                    for (const alias of option.aliases) {
-                        // set each alias of the args object as well
-                        prepared.args[alias] = prepared.args[option.name];
+                        // prompt has been requested for an --option
+                        prepared.args[option.name] = prompt.question(`Description: ${option.description}\nPlease enter "${option.name}":`);
+                        const camelCase = CliUtils.getOptionFormat(option.name).camelCase;
+                        prepared.args[camelCase] = prepared.args[option.name];
+                        for (const alias of option.aliases) {
+                            // set each alias of the args object as well
+                            prepared.args[alias] = prepared.args[option.name];
+                        }
                     }
                 }
             }
