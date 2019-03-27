@@ -31,7 +31,7 @@ import { Logger } from "../../logger";
 import { IInvokeCommandParms } from "./doc/parms/IInvokeCommandParms";
 import { ICommandProcessorParms } from "./doc/processor/ICommandProcessorParms";
 import { ImperativeExpect } from "../../expect";
-import { inspect, isNumber } from "util";
+import { inspect, isString } from "util";
 import { TextUtils } from "../../utilities";
 import * as nodePath from "path";
 import { ICommandHandlerRequire } from "./doc/handler/ICommandHandlerRequire";
@@ -400,6 +400,7 @@ export class CommandProcessor {
             if (this.definition.positionals != null && this.definition.positionals.length > 0) {
                 for (const positional of this.definition.positionals) {
                     if (prepared.args[positional.name] != null &&
+                        isString(prepared.args[positional.name]) &&
                         prepared.args[positional.name].toUpperCase() === this.promptPhrase.toUpperCase()) {
                         // prompt has been requested for a positional
                         prepared.args[positional.name] =
@@ -411,17 +412,18 @@ export class CommandProcessor {
             if (this.definition.options != null && this.definition.options.length > 0) {
                 for (const option of this.definition.options) {
                     if (prepared.args[option.name] != null &&
-                        option.type !== "boolean" &&
-                        !isNumber(prepared.args[option.name]) && // if it's a number, it's not the prompt key
+                        isString(prepared.args[option.name]) &&
                         prepared.args[option.name].toUpperCase() === this.promptPhrase.toUpperCase()) {
 
                         // prompt has been requested for an --option
                         prepared.args[option.name] = prompt.question(`Description: ${option.description}\nPlease enter "${option.name}":`);
                         const camelCase = CliUtils.getOptionFormat(option.name).camelCase;
                         prepared.args[camelCase] = prepared.args[option.name];
-                        for (const alias of option.aliases) {
-                            // set each alias of the args object as well
-                            prepared.args[alias] = prepared.args[option.name];
+                        if (option.aliases != null) {
+                            for (const alias of option.aliases) {
+                                // set each alias of the args object as well
+                                prepared.args[alias] = prepared.args[option.name];
+                            }
                         }
                     }
                 }
