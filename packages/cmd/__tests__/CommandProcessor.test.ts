@@ -252,7 +252,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
     });
 
@@ -277,7 +278,8 @@ describe("Command Processor", () => {
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
                 rootCommandName: SAMPLE_ROOT_COMMAND,
-                commandLine: ""
+                commandLine: "",
+                promptPhrase: "dummydummy"
             });
         } catch (e) {
             error = e;
@@ -296,7 +298,8 @@ describe("Command Processor", () => {
                 helpGenerator: undefined,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
                 rootCommandName: SAMPLE_ROOT_COMMAND,
-                commandLine: ""
+                commandLine: "",
+                promptPhrase: "dummydummy"
             });
         } catch (e) {
             error = e;
@@ -315,7 +318,8 @@ describe("Command Processor", () => {
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: undefined,
                 rootCommandName: SAMPLE_ROOT_COMMAND,
-                commandLine: ""
+                commandLine: "",
+                promptPhrase: "dummydummy"
             });
         } catch (e) {
             error = e;
@@ -334,7 +338,8 @@ describe("Command Processor", () => {
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
                 rootCommandName: undefined,
-                commandLine: ""
+                commandLine: "",
+                promptPhrase: "dummydummy"
             });
         } catch (e) {
             error = e;
@@ -353,7 +358,8 @@ describe("Command Processor", () => {
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
                 rootCommandName: "",
-                commandLine: ""
+                commandLine: "",
+                promptPhrase: "dummydummy"
             });
         } catch (e) {
             error = e;
@@ -372,7 +378,8 @@ describe("Command Processor", () => {
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
                 rootCommandName: SAMPLE_ROOT_COMMAND,
-                commandLine: ""
+                commandLine: "",
+                promptPhrase: "dummydummy"
             });
         } catch (e) {
             error = e;
@@ -389,7 +396,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
         expect(processor.definition).toEqual(SAMPLE_COMMAND_DEFINITION);
     });
@@ -401,7 +409,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
         expect(processor.envVariablePrefix).toEqual(ENV_VAR_PREFIX);
     });
@@ -413,7 +422,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
         expect(processor.rootCommand).toEqual(SAMPLE_ROOT_COMMAND);
     });
@@ -425,7 +435,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
         expect(processor.fullDefinition).toEqual(SAMPLE_COMMAND_DEFINITION);
     });
@@ -437,7 +448,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
         expect(processor.helpGenerator).toEqual(FAKE_HELP_GENERATOR);
     });
@@ -449,7 +461,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
         expect(processor.profileFactory).toEqual(FAKE_PROFILE_MANAGER_FACTORY);
     });
@@ -465,7 +478,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock the process write
@@ -489,7 +503,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         let error;
@@ -511,7 +526,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         const validateResponse: ICommandValidatorResponse = await processor.validate({
@@ -530,7 +546,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         let error;
@@ -552,7 +569,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         let error;
@@ -578,7 +596,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         let error;
@@ -600,7 +619,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         let error;
@@ -622,7 +642,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         let error;
@@ -645,7 +666,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         let error;
@@ -668,7 +690,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         const parms: any = {arguments: {_: ["banana"], $0: "", valid: false}, responseFormat: "json", silent: true};
@@ -691,7 +714,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         const parms: any = {
@@ -717,7 +741,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         const parms: any = {
@@ -739,7 +764,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         const parms: any = {arguments: {_: [], $0: "", syntaxThrow: true}, responseFormat: "json", silent: true};
@@ -758,7 +784,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -790,7 +817,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -835,7 +863,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -886,7 +915,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -946,7 +976,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -988,7 +1019,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -1030,7 +1062,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -1071,7 +1104,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -1121,7 +1155,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -1162,7 +1197,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -1203,7 +1239,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -1241,7 +1278,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -1289,7 +1327,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -1334,7 +1373,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -1382,7 +1422,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -1431,7 +1472,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY_WITH_PROPS,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -1481,7 +1523,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -1520,7 +1563,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
         const commandResponse: ICommandResponse = await processor.help(new CommandResponse({silent: true}));
         expect(commandResponse).toBeDefined();
@@ -1537,7 +1581,8 @@ describe("Command Processor", () => {
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
                 rootCommandName: SAMPLE_ROOT_COMMAND,
-                commandLine: ""
+                commandLine: "",
+                promptPhrase: "dummydummy"
             });
         } catch (e) {
             error = e;
@@ -1557,7 +1602,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -1601,7 +1647,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: ""
+            commandLine: "",
+            promptPhrase: "dummydummy"
         });
 
         // Mock read stdin
@@ -1682,7 +1729,8 @@ describe("Command Processor", () => {
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
                 rootCommandName: SAMPLE_ROOT_COMMAND,
-                commandLine: ""
+                commandLine: "",
+                promptPhrase: "dummydummy"
             });
 
             const dummyResponseObject = getDummyResponseObject();
@@ -1708,7 +1756,8 @@ describe("Command Processor", () => {
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
                 rootCommandName: SAMPLE_ROOT_COMMAND,
-                commandLine: ""
+                commandLine: "",
+                promptPhrase: "dummydummy"
             });
 
             const dummyResponseObject = getDummyResponseObject();
@@ -1734,7 +1783,8 @@ describe("Command Processor", () => {
                 helpGenerator: FAKE_HELP_GENERATOR,
                 profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
                 rootCommandName: SAMPLE_ROOT_COMMAND,
-                commandLine: ""
+                commandLine: "",
+                promptPhrase: "dummydummy"
             });
 
             const dummyResponseObject = getDummyResponseObject();
