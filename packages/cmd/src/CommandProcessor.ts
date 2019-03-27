@@ -392,9 +392,6 @@ export class CommandProcessor {
         response.succeeded();
 
         // prompt the user for any requested fields
-        const prompt = require("readline-sync");
-
-        prompt.setDefaultOptions({mask: "", hideEchoBack: true});
         try {
             // prompt for any requested positionals
             if (this.definition.positionals != null && this.definition.positionals.length > 0) {
@@ -404,7 +401,7 @@ export class CommandProcessor {
                         prepared.args[positional.name].toUpperCase() === this.promptPhrase.toUpperCase()) {
                         // prompt has been requested for a positional
                         prepared.args[positional.name] =
-                            prompt.question(`Description: ${positional.description}\nPlease enter "${positional.name}":`);
+                            CliUtils.promptForInput(`Description: ${positional.description}\nPlease enter "${positional.name}":`);
                     }
                 }
             }
@@ -416,7 +413,7 @@ export class CommandProcessor {
                         prepared.args[option.name].toUpperCase() === this.promptPhrase.toUpperCase()) {
 
                         // prompt has been requested for an --option
-                        prepared.args[option.name] = prompt.question(`Description: ${option.description}\nPlease enter "${option.name}":`);
+                        prepared.args[option.name] = CliUtils.promptForInput(`Description: ${option.description}\nPlease enter "${option.name}":`);
                         const camelCase = CliUtils.getOptionFormat(option.name).camelCase;
                         prepared.args[camelCase] = prepared.args[option.name];
                         if (option.aliases != null) {
