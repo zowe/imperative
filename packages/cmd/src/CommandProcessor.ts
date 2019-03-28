@@ -400,8 +400,11 @@ export class CommandProcessor {
                         isString(prepared.args[positional.name]) &&
                         prepared.args[positional.name].toUpperCase() === this.promptPhrase.toUpperCase()) {
                         // prompt has been requested for a positional
+                        this.log.debug("Prompting for positional %s which was requested by passing the value %s",
+                            positional.name, this.promptPhrase);
                         prepared.args[positional.name] =
-                            CliUtils.promptForInput(`Description: ${positional.description}\nPlease enter "${positional.name}":`);
+                            CliUtils.promptForInput(`"${positional.name}" Description: ` +
+                                `${positional.description}\nPlease enter "${positional.name}":`);
                     }
                 }
             }
@@ -413,7 +416,10 @@ export class CommandProcessor {
                         prepared.args[option.name].toUpperCase() === this.promptPhrase.toUpperCase()) {
 
                         // prompt has been requested for an --option
-                        prepared.args[option.name] = CliUtils.promptForInput(`Description: ${option.description}\nPlease enter "${option.name}":`);
+                        this.log.debug("Prompting for option %s which was requested by passing the value %s",
+                            option.name, this.promptPhrase);
+                        prepared.args[option.name] =
+                            CliUtils.promptForInput(`"${option.name}" Description: ${option.description}\nPlease enter "${option.name}":`);
                         const camelCase = CliUtils.getOptionFormat(option.name).camelCase;
                         prepared.args[camelCase] = prepared.args[option.name];
                         if (option.aliases != null) {
