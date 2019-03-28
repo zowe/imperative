@@ -27,6 +27,7 @@ export interface IHandlerResponseDataApi {
      * @memberof IHandlerResponseDataApi
      */
     setObj(data: any, merge?: boolean): any;
+
     /**
      * Sets the JSON response API "message" property. Can optionally be logged. The intent is to provide a short
      * summary on the response JSON object (for display and other purposes).
@@ -36,4 +37,13 @@ export interface IHandlerResponseDataApi {
      * @memberof IHandlerResponseDataApi
      */
     setMessage(message: string, ...values: any[]): string;
+
+    /**
+     * Sets the JSON response API "exitCode" property.
+     * Desired exit code for the command process
+     * @param {number} code - the desired exit code
+     * @returns {number} the code you've set
+     * @memberof IHandlerResponseDataApi
+     */
+    setExitCode(code: number): number;
 }

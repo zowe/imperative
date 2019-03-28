@@ -13,6 +13,7 @@ import { ICommandDefinition } from "../../../../../../packages/index";
 import { TestAsyncHandlerDefinition } from "./test-async-handler/TestAsyncHandler.definition";
 import { testHandlerDefinition } from "./test-handler/TestHandler.definition";
 import { UnexpectedExceptionHandlerDefinition } from "./unexpected-exception-handler/UnexpectedExceptionHandler.definition";
+import { exit143Definition } from "./exit-143/Exit143.definition";
 
 export const definition: ICommandDefinition = {
     name: "invoke",
@@ -21,7 +22,9 @@ export const definition: ICommandDefinition = {
     type: "group",
     children: [TestAsyncHandlerDefinition,
         testHandlerDefinition,
-        UnexpectedExceptionHandlerDefinition]
+        UnexpectedExceptionHandlerDefinition,
+        exit143Definition
+    ]
 };
 
 module.exports = definition;

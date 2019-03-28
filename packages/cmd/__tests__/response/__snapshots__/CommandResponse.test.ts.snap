@@ -409,6 +409,7 @@ Object {
     "msg": "error occurred",
     "stack": "The stack",
   },
+  "exitCode": 1,
   "message": "The JSON message",
   "stderr": Object {
     "data": Array [
@@ -494,6 +495,7 @@ Object {
 exports[`Command Response should allow us to create a full/complex response and write the response 1`] = `
 "{
   \\"success\\": false,
+  \\"exitCode\\": 1,
   \\"message\\": \\"The JSON message\\",
   \\"stdout\\": \\"hello from the tests - stdout\\\\n\\",
   \\"stderr\\": \\"ERROR:\\\\nhello from the tests - stderr\\\\n\\",
@@ -528,6 +530,7 @@ Object {
     "msg": "error occurred",
     "stack": "The stack",
   },
+  "exitCode": 1,
   "message": "The JSON message",
   "stderr": Object {
     "data": Array [
@@ -628,6 +631,7 @@ Object {
     "msg": "error occurred",
     "stack": "The stack",
   },
+  "exitCode": 1,
   "message": "The JSON message",
   "stderr": Object {
     "data": Array [
@@ -714,6 +718,7 @@ exports[`Command Response should allow us to indicate that the command failed 1`
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 1,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -731,6 +736,7 @@ exports[`Command Response should allow us to indicate that the command succeeded
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -751,6 +757,7 @@ Object {
     "theData": "test data",
   },
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -768,6 +775,7 @@ exports[`Command Response should allow us to set a JSON message 1`] = `
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "JSON object message",
   "stderr": Object {
     "data": Array [],
@@ -793,6 +801,7 @@ Object {
     "msg": "error occurred",
     "stack": "The stack",
   },
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -810,6 +819,7 @@ exports[`Command Response should allow us to set the data object in the response
 Object {
   "data": "test data",
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -831,6 +841,7 @@ Object {
     },
   ],
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -850,6 +861,7 @@ Object {
     "theData": "test data",
   },
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -869,6 +881,7 @@ Object {
     "theData": "test data",
   },
   "error": undefined,
+  "exitCode": 0,
   "message": "The JSON message",
   "stderr": Object {
     "data": Array [],
@@ -895,6 +908,7 @@ exports[`Command Response should format messages when using a format string to s
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [
@@ -939,6 +953,7 @@ exports[`Command Response should format messages when using a format string to s
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -978,6 +993,7 @@ exports[`Command Response should indicate the command succeeded by default 1`] =
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -995,6 +1011,7 @@ exports[`Command Response should not write an error header to stderr (but still 
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [
@@ -1028,6 +1045,7 @@ exports[`Command Response should not write to both stdout and stderr (but still 
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [
@@ -1107,6 +1125,7 @@ exports[`Command Response should not write to stderr (but still buffer) if silen
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [
@@ -1146,6 +1165,7 @@ exports[`Command Response should not write to stdout (but still buffer) if silen
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -1187,6 +1207,7 @@ Object {
     "theData": "test data 2",
   },
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -1204,6 +1225,7 @@ exports[`Command Response should overwrite the message if set multiple times 1`]
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "JSON object message",
   "stderr": Object {
     "data": Array [],
@@ -1223,6 +1245,7 @@ exports[`Command Response should write data to stderr (no newline) and buffer to
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [
@@ -1263,6 +1286,7 @@ exports[`Command Response should write data to stdout (no newline) and buffer to
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -1306,6 +1330,7 @@ exports[`Command Response should write error header messages to stderr and invok
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [
@@ -1349,6 +1374,7 @@ exports[`Command Response should write to both stdout and stderr and buffer to b
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [
@@ -1433,6 +1459,7 @@ exports[`Command Response should write to stderr (with newline) and buffer to th
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [
@@ -1477,6 +1504,7 @@ exports[`Command Response should write to stdout (with newline) and buffer to th
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
