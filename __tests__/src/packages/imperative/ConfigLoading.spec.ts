@@ -14,17 +14,13 @@ import { IImperativeConfig, Imperative, ImperativeConfig } from "../../../../pac
 
 describe("Imperative should validate config provided by the consumer", function () {
     const packageJsonPath = __dirname + "/package.json";
-    const currentFileName = process.mainModule.filename;
 
     beforeAll(() => {
-        // Temporarly change the main module filename so that the test can work.
-        process.mainModule.filename = __filename;
-    });
-
-    afterAll(() => {
-        // We have to put shit back to normal right?
-        process.mainModule.filename = currentFileName;
-        T.rimraf(packageJsonPath);
+        // Temporarily change the main module filename so that the test can work.
+        (process.mainModule as any) = {
+            filename: __filename
+        };
+        // process.mainModule.filename = __filename;
     });
 
     it("We should be able to load our configuration from our package.json ", function () {
