@@ -231,7 +231,7 @@ describe("Using a Plugin", () => {
         // Check App/Plugin  logger
         const appLogLocation = join(config.defaultHome, config.name, "logs", config.name + ".log");
         const appLogContent = readFileSync(appLogLocation).toString();
-        expect(result.stdout).toContain(appLogLocation);
+        expect(result.stdout).toContain(resolve(appLogLocation));
         expect(appLogContent).toContain(`Log message from test plugin: DEBUG: ${randomTest}`);
         expect(appLogContent).toContain(`Log message from test plugin: INFO: ${randomTest}`);
         expect(appLogContent).toContain(`Log message from test plugin: WARN: ${randomTest}`);
