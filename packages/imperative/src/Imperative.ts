@@ -271,7 +271,7 @@ export class Imperative {
                     error instanceof ImperativeError ?
                         error :
                         new ImperativeError({
-                            msg: "UNEXPECTED ERROR ENCOUNTERED" + JSON.stringify(error),
+                            msg: "UNEXPECTED ERROR ENCOUNTERED",
                             causeErrors: error
                         })
                 );
