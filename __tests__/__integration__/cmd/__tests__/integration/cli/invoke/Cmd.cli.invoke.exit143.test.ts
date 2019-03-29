@@ -18,20 +18,20 @@ import { Imperative } from "../../../../../../../packages/imperative";
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
 
-describe("cmd-cli invalid no-handler", () => {
+describe("cmd-cli invoke exit 143", () => {
     // Create the unique test environment
     beforeAll(async () => {
         TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
             cliHomeEnvVar: "CMD_CLI_CLI_HOME",
-            testName: "cmd_cli_invoke"
+            testName: "cmd_cli_invoke_exit_143"
         });
     });
 
-    it("should fail the command with a message if the command definition of type command omits a handler", () => {
-        const response = runCliScript(__dirname + "/__scripts__/no-handler.sh", TEST_ENVIRONMENT.workingDir);
-
+    it("should allow a handler to set an exit code and throw an error", async () => {
+        const ONE_FOUR_THREE = 143;
+        const response = runCliScript(__dirname + "/__scripts__/exit/exit_143.sh",
+            TEST_ENVIRONMENT.workingDir);
+        expect(response.status).toBe(ONE_FOUR_THREE);
         expect(response.stderr.toString()).toMatchSnapshot();
-        expect(response.status).toBe(1);
-        expect(response.stdout.toString()).toMatchSnapshot();
     });
 });

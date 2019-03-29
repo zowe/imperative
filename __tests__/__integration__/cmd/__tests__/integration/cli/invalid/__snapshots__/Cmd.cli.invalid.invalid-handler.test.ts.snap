@@ -11,6 +11,7 @@ Cannot find module 'invalid-handler'
 exports[`cmd-cli invalid no-handler should fail the command with a message if the command definition of type command omits a handler 2`] = `
 "{
   \\"success\\": false,
+  \\"exitCode\\": 1,
   \\"message\\": \\"Could not instantiate the handler invalid-handler for command invalid-handler\\",
   \\"stdout\\": \\"\\",
   \\"stderr\\": \\"Handler Instantiation Failed:\\\\nCould not instantiate the handler invalid-handler for command invalid-handler\\\\nError Details:\\\\nCannot find module 'invalid-handler'\\\\n\\",

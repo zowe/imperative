@@ -3,31 +3,35 @@
   "version": "2.2.0",
   "description": "framework for building configurable CLIs",
   "author": "Broadcom",
-  "license": "EPL 2.0",
-  "repository":   {
+  "license": "EPL-2.0",
+  "repository": {
     "type": "git",
     "url": "https://github.com/zowe/imperative.git"
   },
-  "keywords":   [
+  "keywords": [
     "CLI",
     "framework",
     "zowe"
   ],
-  "pkg":   {
-    "scripts":     [
+  "pkg": {
+    "scripts": [
       "lib/**/*.js",
       "lib/auth/*.js"
     ],
-    "assets":     [
+    "assets": [
       "../../npm/node_modules/node-gyp/**/*",
       "../../npm/lib/"
     ]
   },
-  "files": ["lib"],
-  "publishConfig": {"registry": "https://gizaartifactory.jfrog.io/gizaartifactory/api/npm/npm-local-release/"},
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "registry": "https://gizaartifactory.jfrog.io/gizaartifactory/api/npm/npm-local-release/"
+  },
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
-  "scripts":   {
+  "scripts": {
     "audit:public": "npm audit --registry https://registry.npmjs.org/",
     "build:packages": "gulp build",
     "build": "gulp build",
@@ -43,7 +47,7 @@
     "lint:tests": "tslint --format stylish -c ./tslint-tests.json \"**/__tests__/**/*.ts\"",
     "watch": "gulp watch"
   },
-  "dependencies":   {
+  "dependencies": {
     "@types/yargs": "8.0.2",
     "chalk": "2.1.0",
     "cli-table3": "0.5.1",
@@ -51,7 +55,7 @@
     "deepmerge": "3.0.0",
     "find-up": "2.1.0",
     "glob": "7.1.1",
-    "js-yaml": "3.9.0",
+    "js-yaml": "3.13.0",
     "jsonfile": "4.0.0",
     "jsonschema": "1.1.1",
     "levenshtein": "1.0.5",
@@ -59,7 +63,7 @@
     "mkdirp": "0.5.1",
     "moment": "2.20.1",
     "mustache": "2.3.0",
-    "npm": "^6.4.1",
+    "npm": "6.4.1",
     "prettyjson": "1.2.1",
     "progress": "2.0.0",
     "rimraf": "2.6.1",
@@ -69,7 +73,7 @@
     "yamljs": "0.3.0",
     "yargs": "8.0.2"
   },
-  "devDependencies":   {
+  "devDependencies": {
     "@types/body-parser": "1.16.4",
     "@types/chai": "4.0.1",
     "@types/chai-string": "1.1.30",
@@ -101,7 +105,6 @@
     "gulp-debug": "3.1.0",
     "gulp-plumber": "1.1.0",
     "gulp-replace": "0.6.1",
-    "gulp-typedoc": "2.2.1",
     "gulp-util": "3.0.8",
     "is-url": "1.2.3",
     "jest": "^24.1.0",
@@ -117,33 +120,45 @@
     "ts-jest": "^24.0.0",
     "ts-node": "7.0.1",
     "tslint": "5.10.0",
-    "typescript": "3.0.3",
+    "typescript": "3.2.2",
     "uuid": "3.2.1",
     "yargs-parser": "9.0.2"
   },
-  "engines": {"node": ">=6.0.0"},
+  "engines": {
+    "node": ">=6.0.0"
+  },
   "jest-html-reporter":   {
     "pageTitle": "Imperative CLI Tests",
     "outputPath": "__tests__/__results__/unit/results.html"
   },
-  "jest-junit": {"output": "./__tests__/__results__/junit/junit.xml"},
-  "jestSonar": {"reportPath": "__tests__/__results__/jest-sonar"},
-  "jest-stare":   {
+  "jest-junit": {
+    "output": "./__tests__/__results__/junit/junit.xml"
+  },
+  "jestSonar": {
+    "reportPath": "__tests__/__results__/jest-sonar"
+  },
+  "jest-stare": {
     "resultDir": "__tests__/__results__/jest-stare",
-    "additionalResultsProcessors":     [
+    "additionalResultsProcessors": [
       "jest-junit",
       "jest-html-reporter",
       "jest-sonar-reporter"
     ],
     "coverageLink": "../unit/coverage/lcov-report/index.html"
   },
-  "jest":   {
-    "globals": {"ts-jest": {"diagnostics": false}},
-    "moduleFileExtensions":     [
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "diagnostics": false
+      }
+    },
+    "moduleFileExtensions": [
       "ts",
       "js"
     ],
     "testEnvironment": "node",
-    "transform": {".(ts)": "ts-jest"}
+    "transform": {
+      ".(ts)": "ts-jest"
+    }
   }
 }

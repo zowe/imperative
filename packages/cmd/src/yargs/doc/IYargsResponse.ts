@@ -21,6 +21,10 @@ export type ImperativeYargsCommandAction = "syntax validation" | "command handle
  */
 export interface IYargsResponse {
     success: boolean;
+    /**
+     * Requested exit code for the process
+     */
+    exitCode: number;
     message: string;
     actionPerformed: ImperativeYargsCommandAction;
     commandResponses?: ICommandResponse[];

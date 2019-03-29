@@ -4,6 +4,7 @@ exports[`Failed Command Handler We should be able to get proper error messages o
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "We failed syntax and we're sorry.: What a failure!",
   "stderr": Object {
     "data": Array [],

@@ -16,6 +16,7 @@ exports[`Default Root Command Handler should display a list of available command
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -218,6 +219,7 @@ Object {
 ",
   },
   "error": undefined,
+  "exitCode": 0,
   "message": "Version displayed",
   "stderr": Object {
     "data": Array [],
