@@ -116,7 +116,6 @@
     "jsdoc": "3.5.5",
     "keytar": "^4.1.0",
     "madge": "3.0.0",
-    "node-pty": "^0.8.1",
     "shebang-regex": "2.0.0",
     "through2": "2.0.3",
     "ts-jest": "^24.0.0",
