@@ -33,14 +33,15 @@ describe("cmd-cli profile mapping", () => {
         const myColor = "army green";
         // for some reason, node-pty won't find "sh" on Windows unless you add .exe
         const shProgram = require("os").platform() === "win32" ? "sh.exe" : "sh";
-        const ptyProcess = require("node-pty").spawn(shProgram, [join(__dirname, "__scripts__", "prompt_for_color.sh")],
-            {
-                name: "xterm-color",
-                cols: 80,
-                rows: 30,
-                cwd: TEST_ENVIRONMENT.workingDir,
-                env: process.env
-            });
+        const ptyProcess = require("node-pty") // tslint:disable-line
+            .spawn(shProgram, [join(__dirname, "__scripts__", "prompt_for_color.sh")],
+                {
+                    name: "xterm-color",
+                    cols: 80,
+                    rows: 30,
+                    cwd: TEST_ENVIRONMENT.workingDir,
+                    env: process.env
+                });
 
         let output: Buffer = Buffer.alloc(0);
 
