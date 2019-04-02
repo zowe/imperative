@@ -14,6 +14,7 @@ import { RestConstants } from "./RestConstants";
 import { HTTP_VERB } from "./types/HTTPVerb";
 import { AbstractRestClient } from "./AbstractRestClient";
 import { JSONUtils } from "../../../utilities";
+import { Readable, Writable } from "stream";
 
 /**
  * Class to handle http(s) requests, build headers, collect data, report status codes, and header responses
@@ -226,6 +227,75 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static deleteExpectString(session: AbstractSession, resource: string, reqHeaders: any[] = []): Promise<string> {
+        return new this(session).performRest(resource, HTTP_VERB.DELETE, reqHeaders);
+    }
+
+    /**
+     * REST HTTP GET operation
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {string} resource - URI for which this request should go against
+     * @param {any} reqHeaders - headers to include in the REST request
+     * @param responseStream - the stream to which the response data will be written
+     * @returns {Promise<string>} - empty string - data is not buffered for streamed requests
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static getStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [],
+                              responseStream: Writable): Promise<string> {
+        return new this(session).performRest(resource, HTTP_VERB.GET, reqHeaders, undefined, responseStream);
+    }
+
+    /**
+     * REST HTTP PUT operation
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {string} resource - URI for which this request should go against
+     * @param {object[]} reqHeaders - headers to include in the REST request
+     * @param {any} responseStream - stream to which the response data will be written
+     * @param {any} requestStream - stream from which payload data will be read
+     * @returns {Promise<string>} - empty string - data is not buffered for streamed requests
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static putStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [],
+                              responseStream: Writable, requestStream: Readable): Promise<string> {
+        return new this(session).performRest(resource, HTTP_VERB.PUT, reqHeaders, undefined, responseStream, requestStream);
+    }
+
+    /**
+     * REST HTTP POST operation
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {string} resource - URI for which this request should go against
+     * @param {object[]} reqHeaders - headers to include in the REST request
+     * @param {any} responseStream - stream to which the response data will be written
+     * @param {any} requestStream - stream from which payload data will be read
+     * @returns {Promise<string>} - empty string - data is not buffered for streamed requests
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static postStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [],
+                               responseStream: Writable, requestStream: Readable): Promise<string> {
+        return new this(session).performRest(resource, HTTP_VERB.POST, reqHeaders, undefined, responseStream, requestStream);
+    }
+
+    /**
+     * REST HTTP DELETE operation
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {string} resource - URI for which this request should go against
+     * @param {any} reqHeaders - headers to include in the REST request
+     * @param {any} responseStream - stream to which the response data will be written
+     * @returns {Promise<string>} - empty string - data is not buffered for streamed requests
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static deleteStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [], responseStream: Writable): Promise<string> {
         return new this(session).performRest(resource, HTTP_VERB.DELETE, reqHeaders);
     }
 
