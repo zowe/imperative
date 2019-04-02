@@ -317,6 +317,24 @@ describe("IO tests", () => {
         expect(error.message).toMatchSnapshot();
     });
 
+    it("should get an error for no input on createReadStream", () => {
+        let error;
+        try {
+            IO.createReadStream("   ");
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+    it("should get an error for no input on createWriteStream", () => {
+        let error;
+        try {
+            IO.createWriteStream("   ");
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
     it("should get an error for no input on createFileSync", () => {
         let error;
         try {

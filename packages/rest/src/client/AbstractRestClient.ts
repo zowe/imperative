@@ -25,6 +25,7 @@ import { Session } from "../session/Session";
 import * as path from "path";
 import { IRestClientError } from "./doc/IRestClientError";
 import { RestClientError } from "./RestClientError";
+import { Readable, Writable } from "stream";
 
 export type RestClientResolve = (data: string) => void;
 
@@ -118,6 +119,24 @@ export abstract class AbstractRestClient {
     protected mWriteData: any;
 
     /**
+     * Stream for incoming response data from the server.
+     * If specified, response data will not be buffered
+     * @private
+     * @type {Writable}
+     * @memberof AbstractRestClient
+     */
+    protected mResponseStream: Writable;
+
+    /**
+     * stream for outgoing request data to the server
+     * @private
+     * @type {Writable}
+     * @memberof AbstractRestClient
+     */
+    protected mRequestStream: Readable;
+
+
+    /**
      * Creates an instance of AbstractRestClient.
      * @param {AbstractSession} mSession - representing connection to this api
      * @memberof AbstractRestClient
@@ -134,10 +153,13 @@ export abstract class AbstractRestClient {
      * @param {string} request - REST request type GET|PUT|POST|DELETE
      * @param {any[]} reqHeaders - option headers to include with request
      * @param {any} writeData - data to write on this REST request
+     * @param responseStream - stream for incoming response data from the server. If specified, response data will not be buffered
+     * @param requestStream - stream for outgoing request data to the server
      * @throws  if the request gets a status code outside of the 200 range
      *          or other connection problems occur (e.g. connection refused)
      */
-    public performRest(resource: string, request: HTTP_VERB, reqHeaders?: any[], writeData?: any): Promise<string> {
+    public performRest(resource: string, request: HTTP_VERB, reqHeaders?: any[], writeData?: any,
+                       responseStream?: Writable, requestStream?: Readable): Promise<string> {
         return new Promise<string>((resolve: RestClientResolve, reject: ImperativeReject) => {
 
             // save for logging
@@ -145,6 +167,8 @@ export abstract class AbstractRestClient {
             this.mRequest = request;
             this.mReqHeaders = reqHeaders;
             this.mWriteData = writeData;
+            this.mRequestStream = requestStream;
+            this.mResponseStream = responseStream;
 
             // got a new promise
             this.mResolve = resolve;
@@ -152,16 +176,17 @@ export abstract class AbstractRestClient {
 
             ImperativeExpect.toBeDefinedAndNonBlank(resource, "resource");
             ImperativeExpect.toBeDefinedAndNonBlank(request, "request");
+            ImperativeExpect.toBeEqual(requestStream != null && writeData != null, false,
+                "You cannot specify both writeData and writeStream");
             const options = this.buildOptions(resource, request, reqHeaders);
 
             /**
              * Perform the actual http request
              */
-            let clientRequest;
+            let clientRequest: https.ClientRequest | http.ClientRequest;
             if (this.session.ISession.protocol === AbstractSession.HTTPS_PROTOCOL) {
                 clientRequest = https.request(options, this.requestHandler.bind(this));
-            }
-            else if (this.session.ISession.protocol === AbstractSession.HTTP_PROTOCOL) {
+            } else if (this.session.ISession.protocol === AbstractSession.HTTP_PROTOCOL) {
                 clientRequest = http.request(options, this.requestHandler.bind(this));
             }
 
@@ -195,8 +220,27 @@ export abstract class AbstractRestClient {
                 }));
             });
 
-            // always end the request
-            clientRequest.end();
+            if (requestStream != null) {
+                // if the user requested streaming write of data to the request,
+                // write the data chunk by chunk to the server
+                requestStream.on("data", (data: Buffer) => {
+                    clientRequest.write(data);
+                });
+                requestStream.on("error", (streamError: any) => {
+                    reject(this.populateError({
+                        msg: "Error reading requestStream",
+                        causeErrors: streamError,
+                        source: "client"
+                    }));
+                });
+                requestStream.on("end", () => {
+                    // finish the request
+                    clientRequest.end();
+                });
+            } else {
+                // otherwise we're done with the request
+                clientRequest.end();
+            }
 
         });
     }
@@ -211,8 +255,7 @@ export abstract class AbstractRestClient {
     protected appendHeaders(headers: any[] | undefined): any[] {
         if (headers == null) {
             return [];
-        }
-        else {
+        } else {
             return headers;
         }
     }
@@ -336,6 +379,16 @@ export abstract class AbstractRestClient {
             }
         }
 
+        if (this.mResponseStream != null) {
+            this.mResponseStream.on("error", (streamError: any) => {
+                this.mReject(this.populateError({
+                    msg: "Error writing to responseStream",
+                    causeErrors: streamError,
+                    source: "client"
+                }));
+            });
+        }
+
         /**
          * Invoke any onData method whenever data becomes available
          */
@@ -361,7 +414,16 @@ export abstract class AbstractRestClient {
      */
     private onData(respData: Buffer): void {
         this.log.trace("Data chunk received...");
-        this.mData = Buffer.concat([this.mData, respData]);
+        if (this.requestFailure || this.mResponseStream == null) {
+            // buffer the data if we are not streaming
+            // or if we encountered an error, since the rest client
+            // relies on any JSON error to be in the this.dataString field
+            this.mData = Buffer.concat([this.mData, respData]);
+        } else {
+            this.log.debug("Streaming data chunk of length " + respData.length + " to response stream");
+            // write the chunk to the response stream if requested
+            this.mResponseStream.write(respData);
+        }
     }
 
     /**
@@ -372,6 +434,10 @@ export abstract class AbstractRestClient {
      */
     private onEnd(): void {
         this.log.debug("onEnd() called for rest client %s", this.constructor.name);
+        if (this.mResponseStream) {
+            this.log.debug("Ending response stream");
+            this.mResponseStream.end();
+        }
         if (this.requestFailure) {
             // Reject the promise with an error
             const errorCode = this.response == null ? undefined : this.response.statusCode;
@@ -415,9 +481,9 @@ export abstract class AbstractRestClient {
         let payloadDetails: string = this.mWriteData + "";
         try {
             headerDetails = JSON.stringify(this.mReqHeaders);
-            payloadDetails = inspect(this.mWriteData, { depth: null });
+            payloadDetails = inspect(this.mWriteData, {depth: null});
         } catch (stringifyError) {
-            this.log.error("Error encountered trying to parse details for REST request error:\n %s", inspect(stringifyError, { depth: null }));
+            this.log.error("Error encountered trying to parse details for REST request error:\n %s", inspect(stringifyError, {depth: null}));
         }
 
         // Populate the "relevant" fields - caller will have the session, so
@@ -436,20 +502,20 @@ export abstract class AbstractRestClient {
 
         // Construct a formatted details message
         const detailMessage: string =
-        ((finalError.source === "client") ?
-        `HTTP(S) client encountered an error. Request could not be initiated to host.\n` +
-        `Review connection details (host, port) and ensure correctness.`
-        :
-        `HTTP(S) error status "${finalError.httpStatus}" received.\n` +
-        `Review request details (resource, base path, credentials, payload) and ensure correctness.`) +
-        "\n" +
-        "\nHost:      " + finalError.host +
-        "\nPort:      " + finalError.port +
-        "\nBase Path: " + finalError.basePath +
-        "\nResource:  " + finalError.resource +
-        "\nRequest:   " + finalError.request +
-        "\nHeaders:   " + headerDetails +
-        "\nPayload:   " + payloadDetails;
+            ((finalError.source === "client") ?
+                `HTTP(S) client encountered an error. Request could not be initiated to host.\n` +
+                `Review connection details (host, port) and ensure correctness.`
+                :
+                `HTTP(S) error status "${finalError.httpStatus}" received.\n` +
+                `Review request details (resource, base path, credentials, payload) and ensure correctness.`) +
+            "\n" +
+            "\nHost:      " + finalError.host +
+            "\nPort:      " + finalError.port +
+            "\nBase Path: " + finalError.basePath +
+            "\nResource:  " + finalError.resource +
+            "\nRequest:   " + finalError.request +
+            "\nHeaders:   " + headerDetails +
+            "\nPayload:   " + payloadDetails;
         finalError.additionalDetails = detailMessage;
 
         // Allow implementation to modify the error as necessary
@@ -458,7 +524,7 @@ export abstract class AbstractRestClient {
         const processedError = this.processError(error);
         if (processedError != null) {
             this.log.debug("Error was processed by overridden processError method in RestClient %s", this.constructor.name);
-            finalError = { ...finalError, ...processedError };
+            finalError = {...finalError, ...processedError};
         }
 
         // Return the error object
