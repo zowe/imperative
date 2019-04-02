@@ -15,6 +15,7 @@ exports[`Command Processor should allow us to formulate the help for a group 1`]
 Object {
   "data": "Build help invoked!",
   "error": undefined,
+  "exitCode": 0,
   "message": "The help was constructed for command: check.",
   "stderr": Object {
     "data": Array [],
@@ -54,6 +55,7 @@ exports[`Command Processor should build the help if requested 2`] = `
 Object {
   "data": "Build help invoked!",
   "error": undefined,
+  "exitCode": 0,
   "message": "The help was constructed for command: banana.",
   "stderr": Object {
     "data": Array [],
@@ -124,6 +126,7 @@ exports[`Command Processor should extract arguments not specified on invoke from
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -154,6 +157,7 @@ exports[`Command Processor should extract arguments not specified on invoke from
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -187,6 +191,7 @@ exports[`Command Processor should fail the command if syntax validation fails 3`
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 1,
   "message": "Command syntax invalid",
   "success": false,
 }
@@ -206,6 +211,7 @@ exports[`Command Processor should formulate the full help command for a more com
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 1,
   "message": "Command syntax invalid",
   "success": false,
 }
@@ -229,6 +235,7 @@ Object {
   "error": Object {
     "msg": "Profile loading failed!",
   },
+  "exitCode": 1,
   "message": "Profile loading failed!",
   "stderr": Object {
     "data": Array [
@@ -322,6 +329,7 @@ Object {
     "additionalDetails": "More details!",
     "msg": "Handler threw an imperative error!",
   },
+  "exitCode": 1,
   "message": "Handler threw an imperative error!",
   "stderr": Object {
     "data": Array [
@@ -462,6 +470,7 @@ Object {
     "additionalDetails": "Syntax validation error!",
     "msg": "Unexpected syntax validation error",
   },
+  "exitCode": 1,
   "message": "Unexpected syntax validation error: Syntax validation error!",
   "stderr": Object {
     "data": Array [
@@ -564,6 +573,7 @@ Object {
     "additionalDetails": "Cannot find module 'not_a_real_handler' from 'CommandProcessor.ts'",
     "msg": "Could not instantiate the handler not_a_real_handler for command banana",
   },
+  "exitCode": 1,
   "message": "Could not instantiate the handler not_a_real_handler for command banana",
   "stderr": Object {
     "data": Array [
@@ -808,6 +818,7 @@ Object {
   "error": Object {
     "msg": "Rejected with a message",
   },
+  "exitCode": 1,
   "message": "Rejected with a message",
   "stderr": Object {
     "data": Array [
@@ -887,6 +898,7 @@ Object {
   "error": Object {
     "msg": "Command Failed",
   },
+  "exitCode": 1,
   "message": "Command failed",
   "stderr": Object {
     "data": Array [],
@@ -904,6 +916,7 @@ exports[`Command Processor should invoke the handler and return success=true if 
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -921,6 +934,7 @@ exports[`Command Processor should invoke the handler and return success=true if 
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -946,6 +960,7 @@ exports[`Command Processor should just include the command name if no args are p
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 1,
   "message": "Command syntax invalid",
   "success": false,
 }
@@ -958,6 +973,7 @@ Object {
     "additionalDetails": "Syntax validation error!",
     "msg": "Unexpected syntax validation error",
   },
+  "exitCode": 1,
   "message": "Unexpected syntax validation error: Syntax validation error!",
   "stderr": Object {
     "data": Array [
@@ -1070,6 +1086,7 @@ Object {
     "msg": "	Tab!	Tab again!
 Line should not be indented",
   },
+  "exitCode": 1,
   "message": "	Tab!	Tab again!
 Line should not be indented",
   "stderr": Object {
@@ -1223,6 +1240,7 @@ exports[`Command Processor should use the value specified on the CLI option, if 
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],
@@ -1252,6 +1270,7 @@ exports[`Command Processor should use the value specified on the CLI positional 
 Object {
   "data": Object {},
   "error": undefined,
+  "exitCode": 0,
   "message": "",
   "stderr": Object {
     "data": Array [],

@@ -10,6 +10,7 @@
 */
 
 import { IImperativeError } from "../../../../../error";
+
 /**
  * Command response object built by the command processor (and command handler). The response object is always
  * built internally, but displayed to the command issuer if response-format-json is specified.
@@ -21,11 +22,19 @@ import { IImperativeError } from "../../../../../error";
  */
 export interface ICommandResponse {
     /**
-     * Overal command success flag. True indicates that the command handler/processor/help was successful.
+     * Overall command success flag. True indicates that the command handler/processor/help was successful.
      * @type {boolean}
      * @memberof ICommandResponse
      */
     success: boolean;
+    /**
+     * Requested exit code for the process when your command is complete.
+     * If this is not specified, the default is 0 for successful commands and 1 for failed commands
+     * according to the value of the above "success" field.
+     * @type {number}
+     * @memberof ICommandResponse
+     */
+    exitCode: number;
     /**
      * Message appended by the handlers. The message is not displayed on the console, only displayed if response format
      * JSON is indicated.
