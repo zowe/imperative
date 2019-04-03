@@ -80,12 +80,30 @@ export abstract class AbstractRestClient {
     protected mResponse: any;
 
     /**
-     * Indicate if payload data is JSON to be stringified before writing
+     * Indicates if payload data is JSON to be stringified before writing
      * @private
      * @type {boolean}
      * @memberof AbstractRestClient
      */
     protected mIsJson: boolean;
+
+    /**
+     * Indicates if request data should have its newlines normalized to /n before sending
+     * each chunk to the server
+     * @private
+     * @type {boolean}
+     * @memberof AbstractRestClient
+     */
+    protected mNormalizeRequestNewlines: boolean;
+
+    /**
+     * Indicates if response data should have its newlines normalized for the current platform
+     * (\r\n for windows, otherwise \n)
+     * @private
+     * @type {boolean}
+     * @memberof AbstractRestClient
+     */
+    protected mNormalizeResponseNewlines: boolean;
 
     /**
      * Save resource
@@ -156,11 +174,16 @@ export abstract class AbstractRestClient {
      * @param {any} writeData - data to write on this REST request
      * @param responseStream - stream for incoming response data from the server. If specified, response data will not be buffered
      * @param requestStream - stream for outgoing request data to the server
+     * @param normalizeResponseNewLines - streaming only - true if you want newlines to be \r\n on windows
+     *                                    when receiving data from the server to responseStream. Don't set this for binary responses
+     * @param normalizeRequestNewLines -  streaming only - true if you want \r\n to be replaced with \n when sending
+     *                                    data to the server from requestStream. Don't set this for binary requests
      * @throws  if the request gets a status code outside of the 200 range
      *          or other connection problems occur (e.g. connection refused)
      */
     public performRest(resource: string, request: HTTP_VERB, reqHeaders?: any[], writeData?: any,
-                       responseStream?: Writable, requestStream?: Readable): Promise<string> {
+                       responseStream?: Writable, requestStream?: Readable,
+                       normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean): Promise<string> {
         return new Promise<string>((resolve: RestClientResolve, reject: ImperativeReject) => {
 
             const timingApi = PerfTiming.api;
@@ -177,6 +200,8 @@ export abstract class AbstractRestClient {
             this.mWriteData = writeData;
             this.mRequestStream = requestStream;
             this.mResponseStream = responseStream;
+            this.mNormalizeRequestNewlines = normalizeRequestNewLines;
+            this.mNormalizeResponseNewlines = normalizeResponseNewLines;
 
             // got a new promise
             this.mResolve = resolve;
@@ -232,9 +257,15 @@ export abstract class AbstractRestClient {
                 // if the user requested streaming write of data to the request,
                 // write the data chunk by chunk to the server
                 requestStream.on("data", (data: Buffer) => {
+                    this.log.debug("Writing data chunk of length %d from requestStream to clientRequest", data.byteLength);
+                    if (this.mNormalizeRequestNewlines) {
+                        this.log.debug("Normalizing new lines in request chunk to \\n");
+                        data = Buffer.from(data.toString().replace(/\r?\n/g, "\n"));
+                    }
                     clientRequest.write(data);
                 });
                 requestStream.on("error", (streamError: any) => {
+                    this.log.error("Error encountered reading requestStream: " + streamError);
                     reject(this.populateError({
                         msg: "Error reading requestStream",
                         causeErrors: streamError,
@@ -242,6 +273,7 @@ export abstract class AbstractRestClient {
                     }));
                 });
                 requestStream.on("end", () => {
+                    this.log.debug("Finished reading requestStream");
                     // finish the request
                     clientRequest.end();
                 });

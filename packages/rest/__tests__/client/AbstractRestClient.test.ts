@@ -466,6 +466,14 @@ describe("AbstractRestClient tests", () => {
             hostname: "test",
         }), "/resource", [Headers.APPLICATION_JSON], fakeResponseStream, fakeRequestStream);
 
+        await RestClient.putStreamedRequestOnly(new Session({
+            hostname: "test",
+        }), "/resource", [Headers.APPLICATION_JSON], fakeRequestStream);
+
+        await RestClient.postStreamedRequestOnly(new Session({
+            hostname: "test",
+        }), "/resource", [Headers.APPLICATION_JSON], fakeRequestStream);
+
         await RestClient.getStreamed(new Session({
             hostname: "test",
         }), "/resource", [Headers.APPLICATION_JSON], fakeResponseStream);
