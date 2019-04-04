@@ -58,6 +58,7 @@ describe("cmd-cli profile mapping", () => {
         ptyProcess.on("error", (error: any) => {
             process.stdout.write("prompting process encountered an error");
             expect(output.toString()).toContain("Color: " + myColor);
+            done();
         });
         ptyProcess.on("end", () => {
             process.stdout.write("prompting process ended");
