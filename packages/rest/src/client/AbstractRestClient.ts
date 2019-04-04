@@ -26,6 +26,9 @@ import * as path from "path";
 import { IRestClientError } from "./doc/IRestClientError";
 import { RestClientError } from "./RestClientError";
 import { Readable, Writable } from "stream";
+import { IO } from "../../../io";
+import { ITaskWithStatus, TaskProgress, TaskStage } from "../../../operations";
+import { TextUtils } from "../../../utilities";
 
 export type RestClientResolve = (data: string) => void;
 
@@ -77,6 +80,15 @@ export abstract class AbstractRestClient {
      * @memberof AbstractRestClient
      */
     protected mResponse: any;
+
+    /**
+     * If we get a response containing a Content-Length header,
+     * it is saved here
+     * @private
+     * @type {number}
+     * @memberof AbstractRestClient
+     */
+    protected mContentLength: number;
 
     /**
      * Indicates if payload data is JSON to be stringified before writing
@@ -153,6 +165,22 @@ export abstract class AbstractRestClient {
      */
     protected mRequestStream: Readable;
 
+    /**
+     * Task used to display progress bars or other user feedback mechanisms
+     * Automatically updated if task is specified and streams are provided for upload/download
+     * @private
+     * @type {ITaskWithStatus}
+     * @memberof AbstractRestClient
+     */
+    protected mTask: ITaskWithStatus;
+
+    /**
+     * Bytes received from the server response so far
+     * @private
+     * @type {ITaskWithStatus}
+     * @memberof AbstractRestClient
+     */
+    protected mBytesReceived: number = 0;
 
     /**
      * Creates an instance of AbstractRestClient.
@@ -177,12 +205,14 @@ export abstract class AbstractRestClient {
      *                                    when receiving data from the server to responseStream. Don't set this for binary responses
      * @param normalizeRequestNewLines -  streaming only - true if you want \r\n to be replaced with \n when sending
      *                                    data to the server from requestStream. Don't set this for binary requests
+     * @param task - task that will automatically be updated to report progress of upload or download to user
      * @throws  if the request gets a status code outside of the 200 range
      *          or other connection problems occur (e.g. connection refused)
      */
     public performRest(resource: string, request: HTTP_VERB, reqHeaders?: any[], writeData?: any,
                        responseStream?: Writable, requestStream?: Readable,
-                       normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean): Promise<string> {
+                       normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
+                       task?: ITaskWithStatus): Promise<string> {
         return new Promise<string>((resolve: RestClientResolve, reject: ImperativeReject) => {
 
             // save for logging
@@ -194,6 +224,7 @@ export abstract class AbstractRestClient {
             this.mResponseStream = responseStream;
             this.mNormalizeRequestNewlines = normalizeRequestNewLines;
             this.mNormalizeResponseNewlines = normalizeResponseNewLines;
+            this.mTask = task;
 
             // got a new promise
             this.mResolve = resolve;
@@ -248,11 +279,16 @@ export abstract class AbstractRestClient {
             if (requestStream != null) {
                 // if the user requested streaming write of data to the request,
                 // write the data chunk by chunk to the server
+                let bytesUploaded = 0;
                 requestStream.on("data", (data: Buffer) => {
                     this.log.debug("Writing data chunk of length %d from requestStream to clientRequest", data.byteLength);
                     if (this.mNormalizeRequestNewlines) {
                         this.log.debug("Normalizing new lines in request chunk to \\n");
                         data = Buffer.from(data.toString().replace(/\r?\n/g, "\n"));
+                    }
+                    if (this.mTask != null) {
+                        bytesUploaded += data.byteLength;
+                        this.mTask.statusMessage = TextUtils.formatMessage("Uploading %d B", bytesUploaded, this.mContentLength);
                     }
                     clientRequest.write(data);
                 });
@@ -409,6 +445,14 @@ export abstract class AbstractRestClient {
                     this.session.storeCookie(this.response.headers[RestConstants.PROP_COOKIE]);
                 }
             }
+            if (Headers.CONTENT_LENGTH in this.response.headers) {
+                this.mContentLength = this.response.headers[Headers.CONTENT_LENGTH];
+                this.log.debug("Content length of response is: " + this.mContentLength);
+            }
+            if (Headers.CONTENT_LENGTH.toLowerCase() in this.response.headers) {
+                this.mContentLength = this.response.headers[Headers.CONTENT_LENGTH.toLowerCase()];
+                this.log.debug("Content length of response is: " + this.mContentLength);
+            }
         }
 
         if (this.mResponseStream != null) {
@@ -446,6 +490,7 @@ export abstract class AbstractRestClient {
      */
     private onData(respData: Buffer): void {
         this.log.trace("Data chunk received...");
+        this.mBytesReceived += respData.byteLength;
         if (this.requestFailure || this.mResponseStream == null) {
             // buffer the data if we are not streaming
             // or if we encountered an error, since the rest client
@@ -453,6 +498,22 @@ export abstract class AbstractRestClient {
             this.mData = Buffer.concat([this.mData, respData]);
         } else {
             this.log.debug("Streaming data chunk of length " + respData.length + " to response stream");
+            if (this.mNormalizeResponseNewlines) {
+                this.log.debug("Normalizing new lines in data chunk to operating system appropriate line endings");
+                respData = Buffer.from(IO.processNewlines(respData.toString()));
+            }
+            if (this.mTask != null) {
+                // update the progress task if provided by the requester
+                if (this.mContentLength != null) {
+                    this.mTask.percentComplete = Math.floor(TaskProgress.ONE_HUNDRED_PERCENT *
+                        (this.mBytesReceived / this.mContentLength));
+                    this.mTask.statusMessage = TextUtils.formatMessage("Downloading %d of %d B",
+                        this.mBytesReceived, this.mContentLength);
+                } else {
+                    this.mTask.statusMessage = TextUtils.formatMessage("Downloaded %d B",
+                        this.mBytesReceived);
+                }
+            }
             // write the chunk to the response stream if requested
             this.mResponseStream.write(respData);
         }
@@ -466,7 +527,11 @@ export abstract class AbstractRestClient {
      */
     private onEnd(): void {
         this.log.debug("onEnd() called for rest client %s", this.constructor.name);
-        if (this.mResponseStream) {
+        if (this.mTask != null) {
+            this.mTask.percentComplete = TaskProgress.ONE_HUNDRED_PERCENT;
+            this.mTask.stageName = TaskStage.COMPLETE;
+        }
+        if (this.mResponseStream != null) {
             this.log.debug("Ending response stream");
             this.mResponseStream.end();
         }

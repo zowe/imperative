@@ -15,6 +15,7 @@ import { HTTP_VERB } from "./types/HTTPVerb";
 import { AbstractRestClient } from "./AbstractRestClient";
 import { JSONUtils } from "../../../utilities";
 import { Readable, Writable } from "stream";
+import { ITaskWithStatus } from "../../../operations";
 
 /**
  * Class to handle http(s) requests, build headers, collect data, report status codes, and header responses
@@ -239,6 +240,7 @@ export class RestClient extends AbstractRestClient {
      * @param responseStream - the stream to which the response data will be written
      * @param normalizeResponseNewLines - streaming only - true if you want newlines to be \r\n on windows
      *                                    when receiving data from the server to responseStream. Don't set this for binary responses
+     * @param {ITaskWithStatus} task - task used to update the user on the progress of their request
      * @returns {Promise<string>} - empty string - data is not buffered for this request
      * @throws  if the request gets a status code outside of the 200 range
      *          or other connection problems occur (e.g. connection refused)
@@ -246,9 +248,10 @@ export class RestClient extends AbstractRestClient {
      */
     public static getStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [],
                               responseStream: Writable,
-                              normalizeResponseNewLines?: boolean): Promise<string> {
+                              normalizeResponseNewLines?: boolean,
+                              task?: ITaskWithStatus): Promise<string> {
         return new this(session).performRest(resource, HTTP_VERB.GET, reqHeaders, undefined, responseStream,
-            undefined, normalizeResponseNewLines);
+            undefined, normalizeResponseNewLines, undefined, task);
     }
 
     /**
@@ -263,6 +266,7 @@ export class RestClient extends AbstractRestClient {
      *                                    when receiving data from the server to responseStream. Don't set this for binary responses
      * @param normalizeRequestNewLines -  streaming only - true if you want \r\n to be replaced with \n when sending
      *                                    data to the server from requestStream. Don't set this for binary requests
+     * @param {ITaskWithStatus} task - task used to update the user on the progress of their request
      * @returns {Promise<string>} - empty string - data is not buffered for streamed requests
      * @throws  if the request gets a status code outside of the 200 range
      *          or other connection problems occur (e.g. connection refused)
@@ -270,9 +274,10 @@ export class RestClient extends AbstractRestClient {
      */
     public static putStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [],
                               responseStream: Writable, requestStream: Readable,
-                              normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean): Promise<string> {
+                              normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
+                              task?: ITaskWithStatus): Promise<string> {
         return new this(session).performRest(resource, HTTP_VERB.PUT, reqHeaders, undefined, responseStream, requestStream,
-            normalizeResponseNewLines, normalizeRequestNewLines);
+            normalizeResponseNewLines, normalizeRequestNewLines, task);
     }
 
     /**
@@ -285,6 +290,7 @@ export class RestClient extends AbstractRestClient {
 
      * @param normalizeRequestNewLines -  streaming only - true if you want \r\n to be replaced with \n when sending
      *                                    data to the server from requestStream. Don't set this for binary requests
+     * @param {ITaskWithStatus} task - task used to update the user on the progress of their request
      * @returns {Promise<string>} - string of the response
      * @throws  if the request gets a status code outside of the 200 range
      *          or other connection problems occur (e.g. connection refused)
@@ -292,9 +298,10 @@ export class RestClient extends AbstractRestClient {
      */
     public static putStreamedRequestOnly(session: AbstractSession, resource: string, reqHeaders: any[] = [],
                                          requestStream: Readable,
-                                         normalizeRequestNewLines?: boolean): Promise<string> {
+                                         normalizeRequestNewLines?: boolean,
+                                         task?: ITaskWithStatus): Promise<string> {
         return new this(session).performRest(resource, HTTP_VERB.PUT, reqHeaders, undefined, undefined, requestStream,
-            undefined, normalizeRequestNewLines);
+            undefined, normalizeRequestNewLines, task);
     }
 
     /**
@@ -309,6 +316,7 @@ export class RestClient extends AbstractRestClient {
      *                                    when receiving data from the server to responseStream. Don't set this for binary responses
      * @param normalizeRequestNewLines -  streaming only - true if you want \r\n to be replaced with \n when sending
      *                                    data to the server from requestStream. Don't set this for binary requests
+     * @param {ITaskWithStatus} task - task used to update the user on the progress of their request
      * @returns {Promise<string>} - empty string - data is not buffered for  this request
      * @throws  if the request gets a status code outside of the 200 range
      *          or other connection problems occur (e.g. connection refused)
@@ -316,9 +324,10 @@ export class RestClient extends AbstractRestClient {
      */
     public static postStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [],
                                responseStream: Writable, requestStream: Readable,
-                               normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean): Promise<string> {
+                               normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
+                               task?: ITaskWithStatus): Promise<string> {
         return new this(session).performRest(resource, HTTP_VERB.POST, reqHeaders, undefined, responseStream, requestStream,
-            normalizeResponseNewLines, normalizeRequestNewLines);
+            normalizeResponseNewLines, normalizeRequestNewLines, task);
     }
 
     /**
@@ -330,15 +339,17 @@ export class RestClient extends AbstractRestClient {
      * @param {any} requestStream - stream from which payload data will be read
      * @param normalizeRequestNewLines -  streaming only - true if you want \r\n to be replaced with \n when sending
      *                                    data to the server from requestStream. Don't set this for binary requests
+     * @param {ITaskWithStatus} task - task used to update the user on the progress of their request
      * @returns {Promise<string>} - string of the response
      * @throws  if the request gets a status code outside of the 200 range
      *          or other connection problems occur (e.g. connection refused)
      * @memberof RestClient
      */
     public static postStreamedRequestOnly(session: AbstractSession, resource: string, reqHeaders: any[] = [],
-                                          requestStream: Readable, normalizeRequestNewLines?: boolean): Promise<string> {
+                                          requestStream: Readable, normalizeRequestNewLines?: boolean,
+                                          task?: ITaskWithStatus): Promise<string> {
         return new this(session).performRest(resource, HTTP_VERB.POST, reqHeaders, undefined, undefined, requestStream,
-            undefined, normalizeRequestNewLines);
+            undefined, normalizeRequestNewLines, task);
     }
 
     /**
@@ -348,6 +359,7 @@ export class RestClient extends AbstractRestClient {
      * @param {string} resource - URI for which this request should go against
      * @param {any} reqHeaders - headers to include in the REST request
      * @param {any} responseStream - stream to which the response data will be written
+     * @param {ITaskWithStatus} task - task used to update the user on the progress of their request
      * @param normalizeResponseNewLines - streaming only - true if you want newlines to be \r\n on windows
      *                                    when receiving data from the server to responseStream. Don't set this for binary responses
      * @returns {Promise<string>} - empty string - data is not buffered for streamed requests
@@ -356,9 +368,10 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static deleteStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [], responseStream: Writable,
-                                 normalizeResponseNewLines?: boolean): Promise<string> {
+                                 normalizeResponseNewLines?: boolean,
+                                 task?: ITaskWithStatus): Promise<string> {
         return new this(session).performRest(resource, HTTP_VERB.DELETE, reqHeaders,
-            undefined, responseStream, undefined, normalizeResponseNewLines
+            undefined, responseStream, undefined, normalizeResponseNewLines, undefined, task
         );
     }
 
