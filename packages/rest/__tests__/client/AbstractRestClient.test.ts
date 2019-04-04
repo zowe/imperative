@@ -430,7 +430,7 @@ describe("AbstractRestClient tests", () => {
         };
         const fakeRequestStream: any = {
             on: jest.fn((eventName: string, callback: any) => {
-
+                // do nothing
             }),
         };
         const emitter = new MockHttpRequestResponse();
