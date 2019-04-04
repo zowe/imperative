@@ -287,7 +287,6 @@ export class RestClient extends AbstractRestClient {
      * @param {string} resource - URI for which this request should go against
      * @param {object[]} reqHeaders - headers to include in the REST request
      * @param {any} requestStream - stream from which payload data will be read
-
      * @param normalizeRequestNewLines -  streaming only - true if you want \r\n to be replaced with \n when sending
      *                                    data to the server from requestStream. Don't set this for binary requests
      * @param {ITaskWithStatus} task - task used to update the user on the progress of their request
