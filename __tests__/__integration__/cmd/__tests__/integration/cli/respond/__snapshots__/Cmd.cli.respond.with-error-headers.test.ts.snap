@@ -46,6 +46,7 @@ exports[`cmd-cli respond with-error-headers should display the help 1`] = `
 
 {
   \\"success\\": true,
+  \\"exitCode\\": 0,
   \\"message\\": \\"The help was constructed for command: with-error-headers.\\",
   \\"stdout\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-error-headers\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Responds with a few error headers (colorized in red).\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-error-headers [options]\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\",
   \\"stderr\\": \\"\\",

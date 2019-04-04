@@ -1690,7 +1690,8 @@ describe("Command Processor", () => {
         const getDummyResponseObject = (): CommandResponse => {
             return {
                 data: {
-                    setMessage: jest.fn()
+                    setMessage: jest.fn(),
+                    setExitCode: jest.fn()
                 },
                 console: {
                     error: jest.fn(),

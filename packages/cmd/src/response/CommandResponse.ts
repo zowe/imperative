@@ -21,8 +21,6 @@ import { IHandlerProgressApi } from "../doc/response/api/handler/IHandlerProgres
 import { IProgressBarParms } from "../doc/response/parms/IProgressBarParms";
 import { Constants } from "../../../constants";
 import { ImperativeExpect } from "../../../expect";
-import ProgressBar = require("progress");
-import WriteStream = NodeJS.WriteStream;
 import { IHandlerFormatOutputApi } from "../doc/response/api/handler/IHandlerFormatOutputApi";
 import { ICommandOutputFormat, OUTPUT_FORMAT } from "../doc/response/response/ICommandOutputFormat";
 import { Arguments } from "yargs";
@@ -30,6 +28,9 @@ import { ICommandDefinition } from "../../src/doc/ICommandDefinition";
 import { OptionConstants } from "../constants/OptionConstants";
 import { inspect } from "util";
 import * as DeepMerge from "deepmerge";
+import ProgressBar = require("progress");
+import WriteStream = NodeJS.WriteStream;
+
 const DataObjectParser = require("dataobject-parser");
 
 /**
@@ -81,6 +82,13 @@ export class CommandResponse implements ICommandResponseApi {
      * @memberof CommandResponse
      */
     private mSucceeded: boolean = true;
+    /**
+     * Command handler exit code. Will be used when exiting the process at the end of command execution
+     * @private
+     * @type {number}
+     * @memberof CommandResponse
+     */
+    private mExitCode: number = null;
     /**
      * The default highlight color for chalk
      * @private
@@ -240,7 +248,7 @@ export class CommandResponse implements ICommandResponseApi {
                         formatCopy = JSON.parse(JSON.stringify(format));
                     } catch (copyErr) {
                         outer.console.errorHeader(`Non-formatted output data`);
-                        outer.console.error(`${inspect(format.output, { depth: null })}`);
+                        outer.console.error(`${inspect(format.output, {depth: null})}`);
                         throw new ImperativeError({
                             msg: `Error copying input parameters. Details: ${copyErr.message}`,
                             additionalDetails: copyErr
@@ -617,6 +625,18 @@ export class CommandResponse implements ICommandResponseApi {
                     outer.mMessage = formatted;
                     return outer.mMessage;
                 }
+
+                /**
+                 * Sets the response object "data" field to be the object passed. The data field indicates any structured
+                 * JSON/object data that the command wants to return for programmatic consumption.
+                 * @param {*} obj - The object to set
+                 * @param {boolean} merge - If true will merge with the existing object. If false, the object is
+                 * completely overwritten.
+                 */
+                public setExitCode(code: number) {
+                    outer.mExitCode = code;
+                    return outer.mExitCode;
+                }
             }();
         }
 
@@ -799,8 +819,15 @@ export class CommandResponse implements ICommandResponseApi {
      * @memberof CommandResponse
      */
     public buildJsonResponse(): ICommandResponse {
+
+        let exitCode = this.mExitCode;
+        if (exitCode == null) {
+            exitCode = this.mSucceeded ? 0 : Constants.ERROR_EXIT_CODE;
+        }
+
         return {
             success: this.mSucceeded,
+            exitCode,
             message: this.mMessage,
             stdout: this.mStdout,
             stderr: this.mStderr,

@@ -1,6 +1,6 @@
 {
   "name": "@zowe/imperative",
-  "version": "3.0.2-alpha.201903251633",
+  "version": "3.1.0-alpha.201903281852",
   "description": "framework for building configurable CLIs",
   "author": "Broadcom",
   "license": "EPL-2.0",
