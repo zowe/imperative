@@ -146,16 +146,41 @@
   "jest": {
     "globals": {
       "ts-jest": {
-        "diagnostics": false
+        "disableSourceMapSupport": true
       }
     },
+    "watchPathIgnorePatterns": [
+      ".*jest-stare.*\\.js"
+    ],
+    "modulePathIgnorePatterns": [
+      "__tests__/__snapshots__/"
+    ],
+    "setupFilesAfterEnv": [
+      "./__tests__/beforeTests.js"
+    ],
+    "testResultsProcessor": "jest-stare",
+    "transform": {
+      ".(ts)": "ts-jest"
+    },
+    "testRegex": "__tests__.*\\.(spec|test)\\.ts$",
     "moduleFileExtensions": [
       "ts",
       "js"
     ],
     "testEnvironment": "node",
-    "transform": {
-      ".(ts)": "ts-jest"
-    }
+    "collectCoverageFrom": [
+      "packages/**/*.ts",
+      "!**/__tests__/**",
+      "!packages/**/doc/I*.ts",
+      "!**/main.ts"
+    ],
+    "collectCoverage": false,
+    "coverageReporters": [
+      "json",
+      "lcov",
+      "text",
+      "cobertura"
+    ],
+    "coverageDirectory": "<rootDir>/__tests__/__results__/unit/coverage"
   }
 }
