@@ -393,88 +393,63 @@ export class CommandProcessor {
         response.succeeded();
 
         // prompt the user for any requested fields
-        try {
-            // prompt for any requested positionals
-            if (this.definition.positionals != null && this.definition.positionals.length > 0) {
-                for (const positional of this.definition.positionals) {
-                    // convert if positional is an array designated by "..."
-                    const positionalName = positional.name.replace("...", "");
-                    // check if value provided
-                    if (prepared.args[positionalName] != null) {
-                        // string processing
-                        if ((isString(prepared.args[positionalName]) &&
-                        prepared.args[positionalName].toUpperCase() === this.promptPhrase.toUpperCase())) {
-                            // prompt has been requested for a positional
-                            this.log.debug("Prompting for positional %s which was requested by passing the value %s",
-                              positionalName, this.promptPhrase);
-                            prepared.args[positionalName] =
-                              CliUtils.promptForInput(`"${positionalName}" Description: ` +
-                                `${positional.description}\nPlease enter "${positionalName}":`);
-                        }
-                        // array processing
-                        else {
-                            if (((Array.isArray(prepared.args[positionalName])) &&
-                                  (prepared.args[positionalName][0].toUpperCase() === this.promptPhrase.toUpperCase()))) {
-                                    // prompt has been requested for a positional
-                                    this.log.debug("Prompting for positional %s which was requested by passing the value %s",
-                                      prepared.args[positionalName][0], this.promptPhrase);
-                                    prepared.args[positionalName][0] =
-                                      CliUtils.promptForInput(`"${positionalName}" Description: ` +
-                                        `${positional.description}\nPlease enter "${positionalName}":`);
-                                    // prompting enters as string but need to place it in array
-                                    // this.log.debug("prompt: " + prepared.args[positionalName][0]);
-                                    const array = prepared.args[positionalName][0].split(" ");
-                                    prepared.args[positionalName] = array;
-                                    // this.log.debug("array " + prepared.args[positionalName]);
-                                    // for (let i = 0; i < array.length; ++i) {
-                                    //     this.log.debug("loop: " + prepared.args[positionalName][i]);
-                                    // }
-                                }
+        if (this.promptPhrase != null)
+        {
+            try {
+                // prompt for any requested positionals
+                if (this.definition.positionals != null && this.definition.positionals.length > 0) {
+                    for (const positional of this.definition.positionals) {
+                        // convert if positional is an array designated by "..."
+                        const positionalName = positional.name.replace("...", "");
+                        // check if value provided
+                        if (prepared.args[positionalName] != null) {
+                            // string processing
+                            if ((isString(prepared.args[positionalName]) &&
+                            prepared.args[positionalName].toUpperCase() === this.promptPhrase.toUpperCase())) {
+                                // prompt has been requested for a positional
+                                this.log.debug("Prompting for positional %s which was requested by passing the value %s",
+                                  positionalName, this.promptPhrase);
+                                prepared.args[positionalName] =
+                                  CliUtils.promptForInput(`"${positionalName}" Description: ` +
+                                    `${positional.description}\nPlease enter "${positionalName}":`);
+                            }
+                            // array processing
+                            else {
+                                if (((Array.isArray(prepared.args[positionalName])) &&
+                                      (prepared.args[positionalName][0].toUpperCase() === this.promptPhrase.toUpperCase()))) {
+                                        // prompt has been requested for a positional
+                                        this.log.debug("Prompting for positional %s which was requested by passing the value %s",
+                                          prepared.args[positionalName][0], this.promptPhrase);
+                                        prepared.args[positionalName][0] =
+                                          CliUtils.promptForInput(`"${positionalName}" Description: ` +
+                                            `${positional.description}\nPlease enter "${positionalName}":`);
+                                        // prompting enters as string but need to place it in array
+                                        // this.log.debug("prompt: " + prepared.args[positionalName][0]);
+                                        const array = prepared.args[positionalName][0].split(" ");
+                                        prepared.args[positionalName] = array;
+                                        // this.log.debug("array " + prepared.args[positionalName]);
+                                        // for (let i = 0; i < array.length; ++i) {
+                                        //     this.log.debug("loop: " + prepared.args[positionalName][i]);
+                                        // }
+                                    }
+                            }
                         }
                     }
                 }
-            }
-            // prompt for any requested --options
-            if (this.definition.options != null && this.definition.options.length > 0) {
-                for (const option of this.definition.options) {
-                    // check if value provided
-                    if (prepared.args[option.name] != null) {
-                        // string processing
-                        if ((isString(prepared.args[option.name]) &&
-                          prepared.args[option.name].toUpperCase() === this.promptPhrase.toUpperCase())) {
-
-                            // prompt has been requested for an --option
-                            this.log.debug("Prompting for option %s which was requested by passing the value %s",
-                              option.name, this.promptPhrase);
-                            prepared.args[option.name] =
-                              CliUtils.promptForInput(`"${option.name}" Description: ${option.description}\nPlease enter "${option.name}":`);
-                            // this.log.debug("prompt: " + prepared.args[option.name]);
-                            const camelCase = CliUtils.getOptionFormat(option.name).camelCase;
-                            prepared.args[camelCase] = prepared.args[option.name];
-                            if (option.aliases != null) {
-                                for (const alias of option.aliases) {
-                                    // set each alias of the args object as well
-                                    prepared.args[alias] = prepared.args[option.name];
-                                }
-                            }
-                        }
-                        // array processing
-                        else {
-                            if (((Array.isArray(prepared.args[option.name])) &&
-                              (prepared.args[option.name][0].toUpperCase() === this.promptPhrase.toUpperCase()))) {
-
+                // prompt for any requested --options
+                if (this.definition.options != null && this.definition.options.length > 0) {
+                    for (const option of this.definition.options) {
+                        // check if value provided
+                        if (prepared.args[option.name] != null) {
+                            // string processing
+                            if ((isString(prepared.args[option.name]) &&
+                              prepared.args[option.name].toUpperCase() === this.promptPhrase.toUpperCase())) {
                                 // prompt has been requested for an --option
                                 this.log.debug("Prompting for option %s which was requested by passing the value %s",
                                   option.name, this.promptPhrase);
-                                prepared.args[option.name][0] =
+                                prepared.args[option.name] =
                                   CliUtils.promptForInput(`"${option.name}" Description: ${option.description}\nPlease enter "${option.name}":`);
-                                // this.log.debug("prompt: " + prepared.args[option.name][0]);
-                                const array = prepared.args[option.name][0].split(" ");
-                                prepared.args[option.name] = array;
-                                // this.log.debug("array " + prepared.args[option.name]);
-                                // for (let i = 0; i < array.length; ++i) {
-                                //     this.log.debug("loop: " + prepared.args[option.name][i]);
-                                // }
+                                // this.log.debug("prompt: " + prepared.args[option.name]);
                                 const camelCase = CliUtils.getOptionFormat(option.name).camelCase;
                                 prepared.args[camelCase] = prepared.args[option.name];
                                 if (option.aliases != null) {
@@ -484,43 +459,50 @@ export class CommandProcessor {
                                     }
                                 }
                             }
+                            // array processing
+                            else {
+                                if (((Array.isArray(prepared.args[option.name])) &&
+                                  (prepared.args[option.name][0].toUpperCase() === this.promptPhrase.toUpperCase()))) {
+                                    // prompt has been requested for an --option
+                                    this.log.debug("Prompting for option %s which was requested by passing the value %s",
+                                      option.name, this.promptPhrase);
+                                    prepared.args[option.name][0] =
+                                      CliUtils.promptForInput(`"${option.name}" Description: ${option.description}\nPlease enter "${option.name}":`);
+                                    // this.log.debug("prompt: " + prepared.args[option.name][0]);
+                                    const array = prepared.args[option.name][0].split(" ");
+                                    prepared.args[option.name] = array;
+                                    // this.log.debug("array " + prepared.args[option.name]);
+                                    // for (let i = 0; i < array.length; ++i) {
+                                    //     this.log.debug("loop: " + prepared.args[option.name][i]);
+                                    // }
+                                    const camelCase = CliUtils.getOptionFormat(option.name).camelCase;
+                                    prepared.args[camelCase] = prepared.args[option.name];
+                                    if (option.aliases != null) {
+                                        for (const alias of option.aliases) {
+                                            // set each alias of the args object as well
+                                            prepared.args[alias] = prepared.args[option.name];
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
-                    // if (prepared.args[option.name] != null &&
-                    //     isString(prepared.args[option.name]) &&
-                    //     prepared.args[option.name].toUpperCase() === this.promptPhrase.toUpperCase()) {
-                    //
-                    //     // prompt has been requested for an --option
-                    //     this.log.debug("Prompting for option %s which was requested by passing the value %s",
-                    //         option.name, this.promptPhrase);
-                    //     prepared.args[option.name] =
-                    //         CliUtils.promptForInput(`"${option.name}" Description: ${option.description}\nPlease enter "${option.name}":`);
-                    //     const camelCase = CliUtils.getOptionFormat(option.name).camelCase;
-                    //     prepared.args[camelCase] = prepared.args[option.name];
-                    //     if (option.aliases != null) {
-                    //         for (const alias of option.aliases) {
-                    //             // set each alias of the args object as well
-                    //             prepared.args[alias] = prepared.args[option.name];
-                    //         }
-                    //     }
-                    // }
                 }
+            } catch (e) {
+                const errMsg: string = `Unexpected prompting error`;
+                const errReason: string = errMsg + ": " + e.message;
+                this.log.error(`Prompting for command "${this.definition.name}" has failed unexpectedly: ${errReason}`);
+                response.data.setMessage(errReason);
+                response.console.errorHeader(errMsg);
+                response.console.error(e.message);
+                response.setError({
+                    msg: errMsg,
+                    additionalDetails: e.message
+                });
+                response.failed();
+                return this.finishResponse(response);
             }
-        } catch (e) {
-            const errMsg: string = `Unexpected prompting error`;
-            const errReason: string = errMsg + ": " + e.message;
-            this.log.error(`Prompting for command "${this.definition.name}" has failed unexpectedly: ${errReason}`);
-            response.data.setMessage(errReason);
-            response.console.errorHeader(errMsg);
-            response.console.error(e.message);
-            response.setError({
-                msg: errMsg,
-                additionalDetails: e.message
-            });
-            response.failed();
-            return this.finishResponse(response);
         }
-
 
         // Validate that the syntax is correct for the command
         let validator: ICommandValidatorResponse;
