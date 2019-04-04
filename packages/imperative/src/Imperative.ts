@@ -569,9 +569,16 @@ export class Imperative {
         for (const child of preparedHostCliCmdTree.children) {
             definer.define(child,
                 (args: Arguments, response: IYargsResponse) => {
-                    if (!response.success) {
-                        process.exitCode = Constants.ERROR_EXIT_CODE;
+                    if (response.success) {
+                        if (response.exitCode == null) {
+                            response.exitCode = 0;
+                        }
+                    } else {
+                        if (response.exitCode == null) {
+                            response.exitCode = Constants.ERROR_EXIT_CODE;
+                        }
                     }
+                    process.exitCode = response.exitCode;
                 }, commandResponseParms
             );
         }

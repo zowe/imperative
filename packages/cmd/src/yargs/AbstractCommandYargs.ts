@@ -244,9 +244,19 @@ export abstract class AbstractCommandYargs {
     protected getBrightYargsResponse(successful: boolean, responseMessage: string,
                                      action: ImperativeYargsCommandAction,
                                      responses?: ICommandResponse[]): IYargsResponse {
+        let exitCode: number;
+        if (responses != null && responses.length > 0) {
+            for (const response of responses) {
+                // use the maximum exit code from all command responses
+                if (exitCode == null || (response.exitCode != null && response.exitCode > exitCode)) {
+                    exitCode = response.exitCode;
+                }
+            }
+        }
         return {
             success: successful,
             message: responseMessage,
+            exitCode,
             actionPerformed: action,
             commandResponses: responses || []
         };
