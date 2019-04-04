@@ -458,13 +458,15 @@ export abstract class AbstractRestClient {
                     this.session.storeCookie(this.response.headers[RestConstants.PROP_COOKIE]);
                 }
             }
-            if (Headers.CONTENT_LENGTH in this.response.headers) {
-                this.mContentLength = this.response.headers[Headers.CONTENT_LENGTH];
-                this.log.debug("Content length of response is: " + this.mContentLength);
-            }
-            if (Headers.CONTENT_LENGTH.toLowerCase() in this.response.headers) {
-                this.mContentLength = this.response.headers[Headers.CONTENT_LENGTH.toLowerCase()];
-                this.log.debug("Content length of response is: " + this.mContentLength);
+            if (this.response.headers != null) {
+                if (Headers.CONTENT_LENGTH in this.response.headers) {
+                    this.mContentLength = this.response.headers[Headers.CONTENT_LENGTH];
+                    this.log.debug("Content length of response is: " + this.mContentLength);
+                }
+                if (Headers.CONTENT_LENGTH.toLowerCase() in this.response.headers) {
+                    this.mContentLength = this.response.headers[Headers.CONTENT_LENGTH.toLowerCase()];
+                    this.log.debug("Content length of response is: " + this.mContentLength);
+                }
             }
         }
 
