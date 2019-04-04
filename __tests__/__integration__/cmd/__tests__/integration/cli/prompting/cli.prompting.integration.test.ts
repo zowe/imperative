@@ -45,18 +45,22 @@ describe("cmd-cli profile mapping", () => {
 
         let output: Buffer = Buffer.alloc(0);
 
+        let colorWritten = false;
 
         ptyProcess.on("data", (data: string) => {
             output = Buffer.concat([output, Buffer.from(data)]);
             process.stdout.write(data);
-            ptyProcess.write(myColor + "\n\r");
+            if (!colorWritten) {
+                ptyProcess.write(myColor + "\n\r");
+                colorWritten = true;
+            }
         });
 
         // node-pty crashes on the Jenkins server but works locally on windows and linux
         // we allow an error to be encountered as long as we still saw the expected output
         // since this is the only package that gets us close to an automated test of prompting
         ptyProcess.on("error", (error: any) => {
-            process.stdout.write("prompting process encountered an error");
+            process.stdout.write("prompting process encountered an error: " + error);
             expect(output.toString()).toContain("Color: " + myColor);
             done();
         });

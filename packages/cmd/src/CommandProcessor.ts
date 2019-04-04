@@ -486,7 +486,7 @@ export class CommandProcessor {
                 }
             } catch (e) {
                 const errMsg: string = `Unexpected prompting error`;
-                const errReason: string = errMsg + ": " + e.message;
+                const errReason: string = errMsg + ": " + e.message + e.stack;
                 this.log.error(`Prompting for command "${this.definition.name}" has failed unexpectedly: ${errReason}`);
                 response.data.setMessage(errReason);
                 response.console.errorHeader(errMsg);
