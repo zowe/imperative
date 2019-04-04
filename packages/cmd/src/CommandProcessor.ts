@@ -393,8 +393,7 @@ export class CommandProcessor {
         response.succeeded();
 
         // prompt the user for any requested fields
-        if (this.promptPhrase != null)
-        {
+        if (this.promptPhrase != null) {
             try {
                 // prompt for any requested positionals
                 if (this.definition.positionals != null && this.definition.positionals.length > 0) {
@@ -405,33 +404,33 @@ export class CommandProcessor {
                         if (prepared.args[positionalName] != null) {
                             // string processing
                             if ((isString(prepared.args[positionalName]) &&
-                            prepared.args[positionalName].toUpperCase() === this.promptPhrase.toUpperCase())) {
+                                prepared.args[positionalName].toUpperCase() === this.promptPhrase.toUpperCase())) {
                                 // prompt has been requested for a positional
                                 this.log.debug("Prompting for positional %s which was requested by passing the value %s",
-                                  positionalName, this.promptPhrase);
+                                    positionalName, this.promptPhrase);
                                 prepared.args[positionalName] =
-                                  CliUtils.promptForInput(`"${positionalName}" Description: ` +
-                                    `${positional.description}\nPlease enter "${positionalName}":`);
+                                    CliUtils.promptForInput(`"${positionalName}" Description: ` +
+                                        `${positional.description}\nPlease enter "${positionalName}":`);
                             }
                             // array processing
                             else {
                                 if (((Array.isArray(prepared.args[positionalName])) &&
-                                      (prepared.args[positionalName][0].toUpperCase() === this.promptPhrase.toUpperCase()))) {
-                                        // prompt has been requested for a positional
-                                        this.log.debug("Prompting for positional %s which was requested by passing the value %s",
-                                          prepared.args[positionalName][0], this.promptPhrase);
-                                        prepared.args[positionalName][0] =
-                                          CliUtils.promptForInput(`"${positionalName}" Description: ` +
+                                    (prepared.args[positionalName][0].toUpperCase() === this.promptPhrase.toUpperCase()))) {
+                                    // prompt has been requested for a positional
+                                    this.log.debug("Prompting for positional %s which was requested by passing the value %s",
+                                        prepared.args[positionalName][0], this.promptPhrase);
+                                    prepared.args[positionalName][0] =
+                                        CliUtils.promptForInput(`"${positionalName}" Description: ` +
                                             `${positional.description}\nPlease enter "${positionalName}":`);
-                                        // prompting enters as string but need to place it in array
-                                        // this.log.debug("prompt: " + prepared.args[positionalName][0]);
-                                        const array = prepared.args[positionalName][0].split(" ");
-                                        prepared.args[positionalName] = array;
-                                        // this.log.debug("array " + prepared.args[positionalName]);
-                                        // for (let i = 0; i < array.length; ++i) {
-                                        //     this.log.debug("loop: " + prepared.args[positionalName][i]);
-                                        // }
-                                    }
+                                    // prompting enters as string but need to place it in array
+                                    // this.log.debug("prompt: " + prepared.args[positionalName][0]);
+                                    const array = prepared.args[positionalName][0].split(" ");
+                                    prepared.args[positionalName] = array;
+                                    // this.log.debug("array " + prepared.args[positionalName]);
+                                    // for (let i = 0; i < array.length; ++i) {
+                                    //     this.log.debug("loop: " + prepared.args[positionalName][i]);
+                                    // }
+                                }
                             }
                         }
                     }
@@ -443,13 +442,12 @@ export class CommandProcessor {
                         if (prepared.args[option.name] != null) {
                             // string processing
                             if ((isString(prepared.args[option.name]) &&
-                              prepared.args[option.name].toUpperCase() === this.promptPhrase.toUpperCase())) {
+                                prepared.args[option.name].toUpperCase() === this.promptPhrase.toUpperCase())) {
                                 // prompt has been requested for an --option
                                 this.log.debug("Prompting for option %s which was requested by passing the value %s",
-                                  option.name, this.promptPhrase);
+                                    option.name, this.promptPhrase);
                                 prepared.args[option.name] =
-                                  CliUtils.promptForInput(`"${option.name}" Description: ${option.description}\nPlease enter "${option.name}":`);
-                                // this.log.debug("prompt: " + prepared.args[option.name]);
+                                    CliUtils.promptForInput(`"${option.name}" Description: ${option.description}\nPlease enter "${option.name}":`);
                                 const camelCase = CliUtils.getOptionFormat(option.name).camelCase;
                                 prepared.args[camelCase] = prepared.args[option.name];
                                 if (option.aliases != null) {
@@ -462,19 +460,17 @@ export class CommandProcessor {
                             // array processing
                             else {
                                 if (((Array.isArray(prepared.args[option.name])) &&
-                                  (prepared.args[option.name][0].toUpperCase() === this.promptPhrase.toUpperCase()))) {
+                                    prepared.args[option.name][0] != null &&
+                                    (prepared.args[option.name][0].toUpperCase() === this.promptPhrase.toUpperCase()))) {
                                     // prompt has been requested for an --option
                                     this.log.debug("Prompting for option %s which was requested by passing the value %s",
-                                      option.name, this.promptPhrase);
+                                        option.name, this.promptPhrase);
                                     prepared.args[option.name][0] =
-                                      CliUtils.promptForInput(`"${option.name}" Description: ${option.description}\nPlease enter "${option.name}":`);
-                                    // this.log.debug("prompt: " + prepared.args[option.name][0]);
+                                        CliUtils.promptForInput(
+                                            `"${option.name}" Description: ${option.description}\nPlease enter "${option.name}":`);
+
                                     const array = prepared.args[option.name][0].split(" ");
                                     prepared.args[option.name] = array;
-                                    // this.log.debug("array " + prepared.args[option.name]);
-                                    // for (let i = 0; i < array.length; ++i) {
-                                    //     this.log.debug("loop: " + prepared.args[option.name][i]);
-                                    // }
                                     const camelCase = CliUtils.getOptionFormat(option.name).camelCase;
                                     prepared.args[camelCase] = prepared.args[option.name];
                                     if (option.aliases != null) {
