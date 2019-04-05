@@ -423,13 +423,9 @@ export class CommandProcessor {
                                         CliUtils.promptForInput(`"${positionalName}" Description: ` +
                                             `${positional.description}\nPlease enter "${positionalName}":`);
                                     // prompting enters as string but need to place it in array
-                                    // this.log.debug("prompt: " + prepared.args[positionalName][0]);
+
                                     const array = prepared.args[positionalName][0].split(" ");
                                     prepared.args[positionalName] = array;
-                                    // this.log.debug("array " + prepared.args[positionalName]);
-                                    // for (let i = 0; i < array.length; ++i) {
-                                    //     this.log.debug("loop: " + prepared.args[positionalName][i]);
-                                    // }
                                 }
                             }
                         }
@@ -491,6 +487,7 @@ export class CommandProcessor {
                 response.data.setMessage(errReason);
                 response.console.errorHeader(errMsg);
                 response.console.error(e.message);
+                response.console.error(e.stack);
                 response.setError({
                     msg: errMsg,
                     additionalDetails: e.message
