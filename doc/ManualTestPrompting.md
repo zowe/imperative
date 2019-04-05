@@ -1,6 +1,9 @@
 # Imperative CLI - Manual testing of prompting
 
-This document provides commands to provide manual testing of command prompting.  At this point in time no NPM package has been found that will allow automated responses to prompts.  'suppose' was tested but received an error when the prompt occurred.
+This document provides commands to provide manual testing of command prompting. 
+At this point in time it's difficult to perform automated tests on prompting. 
+One exists using the package `node-pty` in `__tests__/__integration__/cmd/__tests__/integration/cli/prompting/cli.prompting.integration.test.ts` but it encounters an error after successful prompting which we are able to ignore. 
+ The `suppose` npm package was tested but received an error when the prompt occurred.
 
 NOTE: The default string to indicate prompt for the value is 'prompt*'.  This is case-insensitive.
 

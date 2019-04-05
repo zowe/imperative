@@ -489,7 +489,6 @@ export class CommandProcessor {
                 response.data.setMessage(errReason);
                 response.console.errorHeader(errMsg);
                 response.console.error(e.message);
-                response.console.error(e.stack);
                 response.setError({
                     msg: errMsg,
                     additionalDetails: e.message
