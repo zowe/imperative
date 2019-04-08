@@ -518,7 +518,8 @@ describe("Imperative should provide advanced syntax validation rules", function 
                     profileManagerFactory: new BasicProfileManagerFactory(TEST_HOME,
                         DUMMY_PROFILE_TYPE_CONFIG),
                     rootCommandName: "fake",
-                    commandLine: "fake"
+                    commandLine: "fake",
+                    promptPhrase: "dummydummy"
                 }).invoke({
                     arguments: {"_": ["banana"], "$0": "", "my-number": "0"},
                     silent: true,
