@@ -16,7 +16,7 @@
 
 import * as T from "../../../../../src/TestUtil";
 import { cliBin, config } from "../PluginManagementFacility.spec";
-import { join } from "path";
+import { join, resolve } from "path";
 import { readFileSync, writeFileSync } from "fs";
 
 describe("Using a Plugin", () => {
@@ -222,7 +222,7 @@ describe("Using a Plugin", () => {
         // Check imperative logger
         const impLogLocation = join(config.defaultHome, "imperative", "logs", "imperative.log");
         const impLogContent = readFileSync(impLogLocation).toString();
-        expect(result.stdout).toContain(impLogLocation);
+        expect(result.stdout).toContain(resolve(impLogLocation));
         expect(impLogContent).toContain(`Log message from test plugin: DEBUG: ${randomTest}`);
         expect(impLogContent).toContain(`Log message from test plugin: INFO: ${randomTest}`);
         expect(impLogContent).toContain(`Log message from test plugin: WARN: ${randomTest}`);
@@ -231,7 +231,7 @@ describe("Using a Plugin", () => {
         // Check App/Plugin  logger
         const appLogLocation = join(config.defaultHome, config.name, "logs", config.name + ".log");
         const appLogContent = readFileSync(appLogLocation).toString();
-        expect(result.stdout).toContain(appLogLocation);
+        expect(result.stdout).toContain(resolve(appLogLocation));
         expect(appLogContent).toContain(`Log message from test plugin: DEBUG: ${randomTest}`);
         expect(appLogContent).toContain(`Log message from test plugin: INFO: ${randomTest}`);
         expect(appLogContent).toContain(`Log message from test plugin: WARN: ${randomTest}`);

@@ -14,5 +14,9 @@ Object {
     "key": "IMP_INTEGRATION_TESTING_IMPERATIVE_LOG_LEVEL",
     "value": "THIS IS A TEST",
   },
+  "promptPhrase": Object {
+    "key": "IMP_INTEGRATION_TESTING_PROMPT_PHRASE",
+    "value": undefined,
+  },
 }
 `;

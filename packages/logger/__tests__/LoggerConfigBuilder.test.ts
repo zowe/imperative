@@ -14,10 +14,10 @@ import { LoggerConfigBuilder } from "../../logger";
 import * as os from "os";
 import * as path from "path";
 
-(os.homedir as any) = jest.fn(() => "/someHome");
+(os.homedir as any) = jest.fn(() => "./someHome");
 (path.normalize as any) = jest.fn( (p: string) => p);
 
-const fakeHome = "/someHome";
+const fakeHome = "./someHome";
 
 describe("LoggerConfigBuilder tests", () => {
 

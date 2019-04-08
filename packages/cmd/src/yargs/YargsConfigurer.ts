@@ -36,7 +36,8 @@ export class YargsConfigurer {
                 private experimentalCommandDescription: string,
                 private rootCommandName: string,
                 private commandLine: string,
-                private envVariablePrefix: string
+                private envVariablePrefix: string,
+                private promptPhrase: string
     ) {
     }
 
@@ -90,7 +91,8 @@ export class YargsConfigurer {
                         profileManagerFactory: this.profileManagerFactory,
                         rootCommandName: this.rootCommandName,
                         commandLine: this.commandLine,
-                        envVariablePrefix: this.envVariablePrefix
+                        envVariablePrefix: this.envVariablePrefix,
+                        promptPhrase: this.promptPhrase
                     }).invoke({ arguments: argv, silent: false, responseFormat: (jsonResponseFormat) ? "json" : "default" })
                         .then((response) => {
                             Logger.getImperativeLogger().debug("Root help complete.");
@@ -137,7 +139,8 @@ export class YargsConfigurer {
                         profileManagerFactory: this.profileManagerFactory,
                         rootCommandName: this.rootCommandName,
                         commandLine: this.commandLine,
-                        envVariablePrefix: this.envVariablePrefix
+                        envVariablePrefix: this.envVariablePrefix,
+                        promptPhrase: this.promptPhrase
                     });
 
                     // Invoke the fail command
@@ -170,7 +173,8 @@ export class YargsConfigurer {
                 profileManagerFactory: this.profileManagerFactory,
                 rootCommandName: this.rootCommandName,
                 commandLine: this.commandLine,
-                envVariablePrefix: this.envVariablePrefix
+                envVariablePrefix: this.envVariablePrefix,
+                promptPhrase: this.promptPhrase
             });
 
             const failureMessage = this.buildFailureMessage();
@@ -210,7 +214,8 @@ export class YargsConfigurer {
                 profileManagerFactory: this.profileManagerFactory,
                 rootCommandName: this.rootCommandName,
                 commandLine: this.commandLine,
-                envVariablePrefix: this.envVariablePrefix
+                envVariablePrefix: this.envVariablePrefix,
+                promptPhrase: this.promptPhrase
             });
 
             failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
