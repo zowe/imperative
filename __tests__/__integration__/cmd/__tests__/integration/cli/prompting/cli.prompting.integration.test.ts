@@ -50,9 +50,10 @@ describe("cmd-cli profile mapping", () => {
         ptyProcess.on("data", (data: string) => {
             output = Buffer.concat([output, Buffer.from(data)]);
             process.stdout.write(data);
-            if (!colorWritten) {
-                ptyProcess.write(myColor + "\n\r");
+            if (!colorWritten && output.toString().indexOf(":") >= 0) {
+                ptyProcess.write(myColor + "\r\n");
                 colorWritten = true;
+                process.stdout.write("wrote color to prompt\n");
             }
         });
 
@@ -62,6 +63,7 @@ describe("cmd-cli profile mapping", () => {
         ptyProcess.on("error", (error: any) => {
             process.stdout.write("prompting process encountered an error: " + error);
             expect(output.toString()).toContain("Color: " + myColor);
+            ptyProcess.destroy();
             done();
         });
         ptyProcess.on("end", () => {
