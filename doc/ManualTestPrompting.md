@@ -19,7 +19,7 @@ zowe files list ds PrOMpT*
 Please enter "dataSetName":
 
 ### Response:
-
+```
 XXXXXXX\
 XXXXXXX.A1543723.A035409\
 XXXXXXX.A1543723.A035409.DATA\
@@ -33,7 +33,7 @@ XXXXXXX.TEST.CNTL\
 XXXXXXX.ZOSFILE.VSAM.A1548874.A540657\
 XXXXXXX.ZOSFILE.VSAM.A1548874.A540657.DATA\
 XXXXXXX.ZOSFILE.VSAM.A1548874.A540657.INDEX\
-
+```
 ### -----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### Command:  
@@ -48,13 +48,13 @@ Please enter "dataSetName":\
 Please enter "max-length":
 
 ### Response (max-length = 5):
-
+```
 XXXXXXX\
 XXXXXXX.A1543723.A035409\
 XXXXXXX.A1543723.A035409.DATA\
 XXXXXXX.A1543723.A035409.INDEX\
 XXXXXXX.CLIST\
-
+```
 ### -----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### Command:  
@@ -71,7 +71,7 @@ Please enter "user":\
 Please enter "password":
 
 ### Response:
-
+```
 XXXXXXX\
 XXXXXXX.A1543723.A035409\
 XXXXXXX.A1543723.A035409.DATA\
@@ -85,7 +85,7 @@ XXXXXXX.TEST.CNTL\
 XXXXXXX.ZOSFILE.VSAM.A1548874.A540657\
 XXXXXXX.ZOSFILE.VSAM.A1548874.A540657.DATA\
 XXXXXXX.ZOSFILE.VSAM.A1548874.A540657.INDEX\
-
+```
 ### -----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### Command:  
@@ -98,10 +98,54 @@ zowe jobs list jobs --owner prompt*
 endpoint documentation, which is usually in the form "USER*".\
 Please enter "owner":
 
-
 ### Response:
-
+```
 TSU29166   XXXXX03 ACTIVE
 JOB30155   XXXXX0G INPUT
 JOB29783   XXXXX0G INPUT
 JOB29478   XXXXX0G INPUT
+```
+### -----------------------------------------------------------------------------------------------------------------------------------------------
+
+### Command:  
+
+zowe ims query program prompt*
+
+### Prompt:
+
+"names" Description: Specifies the names of the programs to query.\
+Please enter "names":
+
+### Response:
+```
+dopt cc bmpt dfnt    gpsb fp tmim                 rgnt pgm      schd   tls lrsdnt mbr  tmcr\
+N    0  Y    MODBLKS N    N  2019.080 05:48:43.58 BMP  DFSSAM01 SERIAL N   N      IMJJ 2019.032 05:12:03.54\
+N    0  N    MODBLKS N    N  2019.080 05:48:43.58 MPP  DFSSAM05 SERIAL N   N      IMJJ 2019.032 05:12:03.54\
+```
+
+### -----------------------------------------------------------------------------------------------------------------------------------------------
+
+Over-riding the default prompt string.
+
+Define the environmental variable, ZOWE_PROMPT_PHRASE, and set it's value to 'pmpt#'.
+
+### Command:  
+
+zowe files list ds pmpt# --max pmpt#
+
+### Prompt:
+
+"dataSetName" Description: The name or pattern of the data set that you want to list
+Please enter "dataSetName":
+"max-length" Description: The option --max-length specifies the maximum number of items to return. Skip this parameter to return all items. If you specify an incorrect value, the parameter returns up to 1000 items.
+Please enter "max-length":
+
+### Response:
+```
+XXXXXXX
+XXXXXXX.A1543723.A035409
+XXXXXXX.A1543723.A035409.DATA
+XXXXXXX.A1543723.A035409.INDEX
+XXXXXXX.CLIST
+
+```

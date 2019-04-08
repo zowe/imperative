@@ -414,8 +414,8 @@ export class CommandProcessor {
                             }
                             // array processing
                             else {
-                                if ((prepared.args[positional.name] != null &&
-                                    prepared.args[positional.name][0] != null &&
+                                if ((prepared.args[positionalName] != null &&
+                                    prepared.args[positionalName][0] != null &&
                                     (Array.isArray(prepared.args[positionalName])) &&
                                     (prepared.args[positionalName][0].toUpperCase() === this.promptPhrase.toUpperCase()))) {
                                     // prompt has been requested for a positional
