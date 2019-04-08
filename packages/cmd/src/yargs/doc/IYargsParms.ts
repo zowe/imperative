@@ -85,4 +85,10 @@ export interface IYargsParms {
      * @memberof IYargsParms
      */
     yargsParent?: GroupCommandYargs;
+    /**
+     * The phrase used to indicate the user wants to enter the value of an argument in a hidden text prompt
+     * @type {string}
+     * @memberof ICommandProcessorParms
+     */
+    promptPhrase: string;
 }

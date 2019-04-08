@@ -66,7 +66,7 @@ describe("Logger tests", () => {
             }
         );
 
-        (os.homedir as any) = jest.fn(() => "/someHome");
+        (os.homedir as any) = jest.fn(() => "./someHome");
         (path.normalize as any) = jest.fn((p: string) => p);
         (IO.createDirsSync as any) = jest.fn((myPath: string) => {
             // do nothing

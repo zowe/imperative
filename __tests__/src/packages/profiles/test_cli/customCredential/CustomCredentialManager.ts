@@ -13,7 +13,7 @@ import { AbstractCredentialManager, SecureCredential } from "../../../../../../p
 
 export = class CustomCredentialManager extends AbstractCredentialManager {
   constructor() {
-    super("DummyService");
+    super("DummyService", "DummyName");
   }
 
   public async loadCredentials(account: string): Promise<SecureCredential> {
