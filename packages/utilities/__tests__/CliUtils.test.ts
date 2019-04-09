@@ -121,6 +121,18 @@ describe("CliUtils", () => {
         });
     });
 
+    describe("promptForInput", () => {
+        it("should return the mocked value ", () => {
+            const mockedPromptValue = "My value is here ";
+            jest.mock("readline-sync");
+            require("readline-sync").question= jest.fn(()=>{
+                return mockedPromptValue;
+            });
+            const value = CliUtils.promptForInput("my message goes here:");
+            expect(value).toEqual(mockedPromptValue);
+        });
+    });
+
     describe("buildBaseArgs", () => {
         it("should preserve the _ and $0 properties", () => {
             const args = CliUtils.buildBaseArgs({ _: ["cmd1", "cmd2"], $0: "test exe" });

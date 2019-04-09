@@ -32,4 +32,12 @@ export interface IImperativeEnvironmentalVariableSettings {
      * @type {IImperativeEnvironmentalVariableSetting}
      */
     cliHome?: IImperativeEnvironmentalVariableSetting;
+
+    /**
+     * The phrase which, when entered as the value of a command line argument, indicates
+     * Imperative should prompt the user and hide their text entry
+     * default is PROMPT*
+     * @type {IImperativeEnvironmentalVariableSetting}
+     */
+    promptPhrase?: IImperativeEnvironmentalVariableSetting;
 }

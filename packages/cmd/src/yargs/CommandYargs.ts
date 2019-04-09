@@ -19,6 +19,7 @@ import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { CommandProcessor } from "../CommandProcessor";
 import { ICommandResponse } from "../../src/doc/response/response/ICommandResponse";
 import { CommandResponse } from "../../src/response/CommandResponse";
+import { EnvironmentalVariableSettings } from "../../../imperative";
 
 /**
  * Define an Imperative Command to Yargs. A command implies that an implementation is present (differs from a "group")
@@ -222,7 +223,8 @@ export class CommandYargs extends AbstractCommandYargs {
                             profileManagerFactory: this.profileManagerFactory,
                             rootCommandName: this.rootCommandName,
                             commandLine: this.commandLine,
-                            envVariablePrefix: this.envVariablePrefix
+                            envVariablePrefix: this.envVariablePrefix,
+                            promptPhrase: this.promptPhrase
                         }).invoke({
                             arguments: argsForHandler,
                             silent: false,

@@ -45,6 +45,9 @@ describe("Imperative should provide advanced syntax validation rules", function 
 
     const home = __dirname + "/validationtests";
     beforeAll(function () {
+        (process.mainModule as any) = {
+            filename: __filename
+        };
         return Imperative.init({
             productDisplayName: "Validation tests",
             definitions: [{
@@ -89,7 +92,8 @@ describe("Imperative should provide advanced syntax validation rules", function 
                     helpGenerator,
                     profileManagerFactory: new BasicProfileManagerFactory(TEST_HOME, DUMMY_PROFILE_TYPE_CONFIG),
                     rootCommandName: "fakeroot",
-                    commandLine: "fakecommand"
+                    commandLine: "fakecommand",
+                    promptPhrase: "fakefakefake"
                 })
                 .invoke({arguments: options, responseFormat: "json", silent: true}).then(
                     (completedResponse: ICommandResponse) => {
@@ -363,7 +367,8 @@ describe("Imperative should provide advanced syntax validation rules", function 
                     profileManagerFactory: new BasicProfileManagerFactory(TEST_HOME,
                         DUMMY_PROFILE_TYPE_CONFIG),
                     rootCommandName: "fake",
-                    commandLine: "fake"
+                    commandLine: "fake",
+                    promptPhrase: "fakefakefake"
                 }).invoke({
                     arguments: {"_": ["banana"], "$0": "", "my-array": ["banana"]},
                     silent: true,
@@ -394,7 +399,8 @@ describe("Imperative should provide advanced syntax validation rules", function 
                     profileManagerFactory: new BasicProfileManagerFactory(TEST_HOME,
                         DUMMY_PROFILE_TYPE_CONFIG),
                     rootCommandName: "fake",
-                    commandLine: "fake"
+                    commandLine: "fake",
+                    promptPhrase: "fakefakefake"
                 }).invoke({
                     arguments: {_: [], $0: ""},
                     silent: true,
@@ -447,7 +453,8 @@ describe("Imperative should provide advanced syntax validation rules", function 
                     profileManagerFactory: new BasicProfileManagerFactory(TEST_HOME,
                         DUMMY_PROFILE_TYPE_CONFIG),
                     rootCommandName: "fake",
-                    commandLine: "fake"
+                    commandLine: "fake",
+                    promptPhrase: "dummydummy"
                 }).invoke({
                     arguments: {"_": ["banana"], "$0": "", "my-number": "banana"},
                     silent: true,
@@ -480,7 +487,8 @@ describe("Imperative should provide advanced syntax validation rules", function 
                     profileManagerFactory: new BasicProfileManagerFactory(TEST_HOME,
                         DUMMY_PROFILE_TYPE_CONFIG),
                     rootCommandName: "fake",
-                    commandLine: "fake"
+                    commandLine: "fake",
+                    promptPhrase: "fakefakefake"
                 }).invoke({
                     arguments: {"_": ["banana"], "$0": "", "my-number": "123546"},
                     silent: true,

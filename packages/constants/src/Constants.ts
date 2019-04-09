@@ -96,5 +96,5 @@ export class Constants {
     public static readonly PROFILE_DELETE_PROFILE_DEPS_ALIAS = "ddp";
 
     public static readonly DEFAULT_HIGHLIGHT_COLOR = "yellow";
-
+    public static readonly DEFAULT_PROMPT_PHRASE = "PROMPT*";
 }

@@ -18,7 +18,6 @@ import { spawnSync } from "child_process";
  */
 let gutil: any;
 let fs: any;
-let prompt: any;
 let chalk: any;
 let gulp: any;
 let plumber: any;
@@ -35,7 +34,6 @@ function loadDependencies() {
     childProcess = require("child_process");
     gutil = require("gulp-util");
     fs = require("fs");
-    prompt = require("prompt");
     chalk = require("chalk");
     gulp = require("gulp");
     plumber = require("gulp-plumber");

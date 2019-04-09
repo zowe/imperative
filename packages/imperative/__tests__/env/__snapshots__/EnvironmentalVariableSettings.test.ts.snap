@@ -16,6 +16,10 @@ Object {
     "key": "MOCK_PROCESS_APP_TEST_PREFIX_IMPERATIVE_LOG_LEVEL",
     "value": undefined,
   },
+  "promptPhrase": Object {
+    "key": "MOCK_PROCESS_APP_TEST_PREFIX_PROMPT_PHRASE",
+    "value": undefined,
+  },
 }
 `;
 
@@ -32,6 +36,10 @@ Object {
   "imperativeLogLevel": Object {
     "key": "MOCK_PROCESS_IMP_AND_APP_TEST_PREFIX_IMPERATIVE_LOG_LEVEL",
     "value": "SOME_EXTREME",
+  },
+  "promptPhrase": Object {
+    "key": "MOCK_PROCESS_IMP_AND_APP_TEST_PREFIX_PROMPT_PHRASE",
+    "value": undefined,
   },
 }
 `;
@@ -51,6 +59,10 @@ Object {
   "imperativeLogLevel": Object {
     "key": "MOCK_PROCESS_IMP_TEST_PREFIX_IMPERATIVE_LOG_LEVEL",
     "value": "EXTREME",
+  },
+  "promptPhrase": Object {
+    "key": "MOCK_PROCESS_IMP_TEST_PREFIX_PROMPT_PHRASE",
+    "value": undefined,
   },
 }
 `;
@@ -75,6 +87,10 @@ Object {
     "key": "MY_PREFIX_IMPERATIVE_LOG_LEVEL",
     "value": undefined,
   },
+  "promptPhrase": Object {
+    "key": "MY_PREFIX_PROMPT_PHRASE",
+    "value": undefined,
+  },
 }
 `;
 
@@ -94,6 +110,10 @@ Object {
   },
   "imperativeLogLevel": Object {
     "key": "_(){}[]$*+-/\\"#',;.@!?a1234567890_IMPERATIVE_LOG_LEVEL",
+    "value": undefined,
+  },
+  "promptPhrase": Object {
+    "key": "_(){}[]$*+-/\\"#',;.@!?a1234567890_PROMPT_PHRASE",
     "value": undefined,
   },
 }

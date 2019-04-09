@@ -99,6 +99,15 @@ export abstract class AbstractCommandYargs {
     private mEnvVariablePrefix: string;
 
     /**
+     * Prompt phrase which indicates the user would like to be prompted for an argument's value with a hidden text prompt
+     * @private
+     * @type {string}
+     * @memberof AbstractCommandYargs
+     */
+    private mPromptPhrase: string;
+
+
+    /**
      * Construct the yargs command instance for imperative. Provides the ability to define Imperative commands to Yargs.
      * @param {IYargsParms} yargsParms - Parameter object contains parms for Imperative/Yargs and command response objects
      */
@@ -112,6 +121,7 @@ export abstract class AbstractCommandYargs {
         this.mRootCommandName = yargsParms.rootCommandName;
         this.mCommandLine = yargsParms.commandLine;
         this.mEnvVariablePrefix = yargsParms.envVariablePrefix;
+        this.mPromptPhrase = yargsParms.promptPhrase;
     }
 
     /**
@@ -144,6 +154,10 @@ export abstract class AbstractCommandYargs {
      */
     protected get envVariablePrefix(): string {
         return this.mEnvVariablePrefix;
+    }
+
+    protected get promptPhrase(): string {
+        return this.mPromptPhrase;
     }
 
     /**
@@ -274,7 +288,8 @@ export abstract class AbstractCommandYargs {
                 profileManagerFactory: this.profileManagerFactory,
                 rootCommandName: this.rootCommandName,
                 commandLine: this.commandLine,
-                envVariablePrefix: this.envVariablePrefix
+                envVariablePrefix: this.envVariablePrefix,
+                promptPhrase: this.promptPhrase
             }).help(new CommandResponse({
                 silent: false,
                 responseFormat: (args[Constants.JSON_OPTION] || false) ? "json" : "default",
