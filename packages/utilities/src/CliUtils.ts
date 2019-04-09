@@ -50,8 +50,7 @@ export class CliUtils {
         if (!isNullOrUndefined(optionName) && optionName.length >= 1) {
             const dashes = optionName.length > 1 ? Constants.OPT_LONG_DASH : Constants.OPT_SHORT_DASH;
             return dashes + optionName;
-        }
-        else {
+        } else {
             throw new ImperativeError({
                 msg: "A null or blank option was supplied. Please correct the option definition."
             });
@@ -390,6 +389,19 @@ export class CliUtils {
         return args;
     }
 
+    /**
+     * Display a prompt that hides user input and reads from stdin
+     * DOES NOT WORK WITH COMMANDS THAT ALSO READ STDIN
+     * Useful for prompting the user for sensitive info such as passwords
+     * Synchronous
+     * @param message - The message to display to the user e.g. "Please enter password:"
+     * @returns value - the value entered by the user
+     */
+    public static promptForInput(message: string): string {
+        const prompt = require("readline-sync");
+        prompt.setDefaultOptions({mask: "", hideEchoBack: true});
+        return prompt.question(message);
+    }
 
     /**
      * Accepts the yargs argument object and constructs the base imperative

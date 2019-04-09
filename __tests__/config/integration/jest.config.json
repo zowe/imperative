@@ -20,9 +20,8 @@
     "rootDir": "../../../",
     "testPathIgnorePatterns": [
         "/node_modules/",
-        "/packages/",
         "<rootDir>/__tests__/__results__",
         "unit"
     ],
-    "testRegex": "(test|spec)\\.(ts|js)"
+    "testRegex": "(test|spec)\\.(ts)"
 }

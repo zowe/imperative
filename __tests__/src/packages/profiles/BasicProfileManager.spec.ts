@@ -32,6 +32,12 @@ describe("Imperative should allow CLI implementations to configure their own pro
     ({Imperative, ImperativeError, ImperativeConfig} = loadChangingDependencies());
   });
 
+  beforeAll(function () {
+    (process.mainModule as any) = {
+      filename: __filename
+    };
+  });
+
   it("should be able to create a profile type and retrieve all defined types after init", async function () {
     const config = getConfig(TestUtil.createUniqueTestDataDir("profile-manager-initialize"));
     await Imperative.init(config);

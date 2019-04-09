@@ -16,10 +16,10 @@ import * as path from "path";
 jest.mock("os");
 jest.mock("path");
 
-const fakeHome = "/someHome";
+const fakeHome = "./someHome";
 const name = "sample";
 
-(os.homedir as any) = jest.fn(() => "/someHome");
+(os.homedir as any) = jest.fn(() => "./someHome");
 (path.normalize as any) = jest.fn((p: string) => p);
 
 describe("LoggingConfigurer tests", () => {

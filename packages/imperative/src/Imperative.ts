@@ -546,7 +546,9 @@ export class Imperative {
             ImperativeConfig.instance.loadedConfig.experimentalCommandDescription,
             Imperative.rootCommandName,
             Imperative.commandLine,
-            Imperative.envVariablePrefix
+            Imperative.envVariablePrefix,
+            EnvironmentalVariableSettings.read(this.envVariablePrefix).promptPhrase.value ||
+            Constants.DEFAULT_PROMPT_PHRASE // allow environmental variable to override the default prompt phrase
         ).configure();
 
         // Define the commands to yargs
@@ -559,7 +561,9 @@ export class Imperative {
             Imperative.envVariablePrefix,
             new ImperativeProfileManagerFactory(this.api),
             this.mHelpGeneratorFactory,
-            ImperativeConfig.instance.loadedConfig.experimentalCommandDescription
+            ImperativeConfig.instance.loadedConfig.experimentalCommandDescription,
+            EnvironmentalVariableSettings.read(this.envVariablePrefix).promptPhrase.value ||
+            Constants.DEFAULT_PROMPT_PHRASE // allow environmental variable to override the default prompt phrase
         );
 
         for (const child of preparedHostCliCmdTree.children) {
