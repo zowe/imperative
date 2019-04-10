@@ -296,7 +296,12 @@ export abstract class AbstractRestClient {
                     }
                     if (this.mTask != null) {
                         bytesUploaded += data.byteLength;
-                        this.mTask.statusMessage = TextUtils.formatMessage("Uploading %d B", bytesUploaded, this.mContentLength);
+                        this.mTask.statusMessage = TextUtils.formatMessage("Uploading %d B", bytesUploaded);
+                        if (this.mTask.percentComplete < TaskProgress.NINETY_PERCENT) {
+                            // we don't know how far along we are but increment the percentage to
+                            // show we are making progress
+                            this.mTask.percentComplete++;
+                        }
                     }
                     clientRequest.write(data);
                 });
@@ -525,8 +530,13 @@ export abstract class AbstractRestClient {
                     this.mTask.statusMessage = TextUtils.formatMessage("Downloading %d of %d B",
                         this.mBytesReceived, this.mContentLength);
                 } else {
-                    this.mTask.statusMessage = TextUtils.formatMessage("Downloaded %d B",
+                    this.mTask.statusMessage = TextUtils.formatMessage("Downloaded %d of ? B",
                         this.mBytesReceived);
+                    if (this.mTask.percentComplete < TaskProgress.NINETY_PERCENT) {
+                        // we don't know how far along we are but increment the percentage to
+                        // show that we are making progress
+                        this.mTask.percentComplete++;
+                    }
                 }
             }
             // write the chunk to the response stream if requested
