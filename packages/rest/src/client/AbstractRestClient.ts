@@ -26,6 +26,10 @@ import * as path from "path";
 import { IRestClientError } from "./doc/IRestClientError";
 import { RestClientError } from "./RestClientError";
 import { PerfTiming } from "@zowe/perf-timing";
+import { Readable, Writable } from "stream";
+import { IO } from "../../../io";
+import { ITaskWithStatus, TaskProgress, TaskStage } from "../../../operations";
+import { TextUtils } from "../../../utilities";
 
 export type RestClientResolve = (data: string) => void;
 
@@ -79,12 +83,39 @@ export abstract class AbstractRestClient {
     protected mResponse: any;
 
     /**
-     * Indicate if payload data is JSON to be stringified before writing
+     * If we get a response containing a Content-Length header,
+     * it is saved here
+     * @private
+     * @type {number}
+     * @memberof AbstractRestClient
+     */
+    protected mContentLength: number;
+
+    /**
+     * Indicates if payload data is JSON to be stringified before writing
      * @private
      * @type {boolean}
      * @memberof AbstractRestClient
      */
     protected mIsJson: boolean;
+
+    /**
+     * Indicates if request data should have its newlines normalized to /n before sending
+     * each chunk to the server
+     * @private
+     * @type {boolean}
+     * @memberof AbstractRestClient
+     */
+    protected mNormalizeRequestNewlines: boolean;
+
+    /**
+     * Indicates if response data should have its newlines normalized for the current platform
+     * (\r\n for windows, otherwise \n)
+     * @private
+     * @type {boolean}
+     * @memberof AbstractRestClient
+     */
+    protected mNormalizeResponseNewlines: boolean;
 
     /**
      * Save resource
@@ -119,6 +150,40 @@ export abstract class AbstractRestClient {
     protected mWriteData: any;
 
     /**
+     * Stream for incoming response data from the server.
+     * If specified, response data will not be buffered
+     * @private
+     * @type {Writable}
+     * @memberof AbstractRestClient
+     */
+    protected mResponseStream: Writable;
+
+    /**
+     * stream for outgoing request data to the server
+     * @private
+     * @type {Writable}
+     * @memberof AbstractRestClient
+     */
+    protected mRequestStream: Readable;
+
+    /**
+     * Task used to display progress bars or other user feedback mechanisms
+     * Automatically updated if task is specified and streams are provided for upload/download
+     * @private
+     * @type {ITaskWithStatus}
+     * @memberof AbstractRestClient
+     */
+    protected mTask: ITaskWithStatus;
+
+    /**
+     * Bytes received from the server response so far
+     * @private
+     * @type {ITaskWithStatus}
+     * @memberof AbstractRestClient
+     */
+    protected mBytesReceived: number = 0;
+
+    /**
      * Creates an instance of AbstractRestClient.
      * @param {AbstractSession} mSession - representing connection to this api
      * @memberof AbstractRestClient
@@ -135,10 +200,20 @@ export abstract class AbstractRestClient {
      * @param {string} request - REST request type GET|PUT|POST|DELETE
      * @param {any[]} reqHeaders - option headers to include with request
      * @param {any} writeData - data to write on this REST request
+     * @param responseStream - stream for incoming response data from the server. If specified, response data will not be buffered
+     * @param requestStream - stream for outgoing request data to the server
+     * @param normalizeResponseNewLines - streaming only - true if you want newlines to be \r\n on windows
+     *                                    when receiving data from the server to responseStream. Don't set this for binary responses
+     * @param normalizeRequestNewLines -  streaming only - true if you want \r\n to be replaced with \n when sending
+     *                                    data to the server from requestStream. Don't set this for binary requests
+     * @param task - task that will automatically be updated to report progress of upload or download to user
      * @throws  if the request gets a status code outside of the 200 range
      *          or other connection problems occur (e.g. connection refused)
      */
-    public performRest(resource: string, request: HTTP_VERB, reqHeaders?: any[], writeData?: any): Promise<string> {
+    public performRest(resource: string, request: HTTP_VERB, reqHeaders?: any[], writeData?: any,
+                       responseStream?: Writable, requestStream?: Readable,
+                       normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
+                       task?: ITaskWithStatus): Promise<string> {
         return new Promise<string>((resolve: RestClientResolve, reject: ImperativeReject) => {
 
             const timingApi = PerfTiming.api;
@@ -153,6 +228,11 @@ export abstract class AbstractRestClient {
             this.mRequest = request;
             this.mReqHeaders = reqHeaders;
             this.mWriteData = writeData;
+            this.mRequestStream = requestStream;
+            this.mResponseStream = responseStream;
+            this.mNormalizeRequestNewlines = normalizeRequestNewLines;
+            this.mNormalizeResponseNewlines = normalizeResponseNewLines;
+            this.mTask = task;
 
             // got a new promise
             this.mResolve = resolve;
@@ -160,16 +240,17 @@ export abstract class AbstractRestClient {
 
             ImperativeExpect.toBeDefinedAndNonBlank(resource, "resource");
             ImperativeExpect.toBeDefinedAndNonBlank(request, "request");
+            ImperativeExpect.toBeEqual(requestStream != null && writeData != null, false,
+                "You cannot specify both writeData and writeStream");
             const options = this.buildOptions(resource, request, reqHeaders);
 
             /**
              * Perform the actual http request
              */
-            let clientRequest;
+            let clientRequest: https.ClientRequest | http.ClientRequest;
             if (this.session.ISession.protocol === AbstractSession.HTTPS_PROTOCOL) {
                 clientRequest = https.request(options, this.requestHandler.bind(this));
-            }
-            else if (this.session.ISession.protocol === AbstractSession.HTTP_PROTOCOL) {
+            } else if (this.session.ISession.protocol === AbstractSession.HTTP_PROTOCOL) {
                 clientRequest = http.request(options, this.requestHandler.bind(this));
             }
 
@@ -203,9 +284,44 @@ export abstract class AbstractRestClient {
                 }));
             });
 
-            // always end the request
-            clientRequest.end();
-
+            if (requestStream != null) {
+                // if the user requested streaming write of data to the request,
+                // write the data chunk by chunk to the server
+                let bytesUploaded = 0;
+                requestStream.on("data", (data: Buffer) => {
+                    this.log.debug("Writing data chunk of length %d from requestStream to clientRequest", data.byteLength);
+                    if (this.mNormalizeRequestNewlines) {
+                        this.log.debug("Normalizing new lines in request chunk to \\n");
+                        data = Buffer.from(data.toString().replace(/\r?\n/g, "\n"));
+                    }
+                    if (this.mTask != null) {
+                        bytesUploaded += data.byteLength;
+                        this.mTask.statusMessage = TextUtils.formatMessage("Uploading %d B", bytesUploaded);
+                        if (this.mTask.percentComplete < TaskProgress.NINETY_PERCENT) {
+                            // we don't know how far along we are but increment the percentage to
+                            // show we are making progress
+                            this.mTask.percentComplete++;
+                        }
+                    }
+                    clientRequest.write(data);
+                });
+                requestStream.on("error", (streamError: any) => {
+                    this.log.error("Error encountered reading requestStream: " + streamError);
+                    reject(this.populateError({
+                        msg: "Error reading requestStream",
+                        causeErrors: streamError,
+                        source: "client"
+                    }));
+                });
+                requestStream.on("end", () => {
+                    this.log.debug("Finished reading requestStream");
+                    // finish the request
+                    clientRequest.end();
+                });
+            } else {
+                // otherwise we're done with the request
+                clientRequest.end();
+            }
             if (PerfTiming.isEnabled) {
                 // Marks point END
                 timingApi.mark("END_PERFORM_REST");
@@ -225,8 +341,7 @@ export abstract class AbstractRestClient {
     protected appendHeaders(headers: any[] | undefined): any[] {
         if (headers == null) {
             return [];
-        }
-        else {
+        } else {
             return headers;
         }
     }
@@ -348,6 +463,26 @@ export abstract class AbstractRestClient {
                     this.session.storeCookie(this.response.headers[RestConstants.PROP_COOKIE]);
                 }
             }
+            if (this.response.headers != null) {
+                if (Headers.CONTENT_LENGTH in this.response.headers) {
+                    this.mContentLength = this.response.headers[Headers.CONTENT_LENGTH];
+                    this.log.debug("Content length of response is: " + this.mContentLength);
+                }
+                if (Headers.CONTENT_LENGTH.toLowerCase() in this.response.headers) {
+                    this.mContentLength = this.response.headers[Headers.CONTENT_LENGTH.toLowerCase()];
+                    this.log.debug("Content length of response is: " + this.mContentLength);
+                }
+            }
+        }
+
+        if (this.mResponseStream != null) {
+            this.mResponseStream.on("error", (streamError: any) => {
+                this.mReject(this.populateError({
+                    msg: "Error writing to responseStream",
+                    causeErrors: streamError,
+                    source: "client"
+                }));
+            });
         }
 
         /**
@@ -375,7 +510,38 @@ export abstract class AbstractRestClient {
      */
     private onData(respData: Buffer): void {
         this.log.trace("Data chunk received...");
-        this.mData = Buffer.concat([this.mData, respData]);
+        this.mBytesReceived += respData.byteLength;
+        if (this.requestFailure || this.mResponseStream == null) {
+            // buffer the data if we are not streaming
+            // or if we encountered an error, since the rest client
+            // relies on any JSON error to be in the this.dataString field
+            this.mData = Buffer.concat([this.mData, respData]);
+        } else {
+            this.log.debug("Streaming data chunk of length " + respData.length + " to response stream");
+            if (this.mNormalizeResponseNewlines) {
+                this.log.debug("Normalizing new lines in data chunk to operating system appropriate line endings");
+                respData = Buffer.from(IO.processNewlines(respData.toString()));
+            }
+            if (this.mTask != null) {
+                // update the progress task if provided by the requester
+                if (this.mContentLength != null) {
+                    this.mTask.percentComplete = Math.floor(TaskProgress.ONE_HUNDRED_PERCENT *
+                        (this.mBytesReceived / this.mContentLength));
+                    this.mTask.statusMessage = TextUtils.formatMessage("Downloading %d of %d B",
+                        this.mBytesReceived, this.mContentLength);
+                } else {
+                    this.mTask.statusMessage = TextUtils.formatMessage("Downloaded %d of ? B",
+                        this.mBytesReceived);
+                    if (this.mTask.percentComplete < TaskProgress.NINETY_PERCENT) {
+                        // we don't know how far along we are but increment the percentage to
+                        // show that we are making progress
+                        this.mTask.percentComplete++;
+                    }
+                }
+            }
+            // write the chunk to the response stream if requested
+            this.mResponseStream.write(respData);
+        }
     }
 
     /**
@@ -386,6 +552,14 @@ export abstract class AbstractRestClient {
      */
     private onEnd(): void {
         this.log.debug("onEnd() called for rest client %s", this.constructor.name);
+        if (this.mTask != null) {
+            this.mTask.percentComplete = TaskProgress.ONE_HUNDRED_PERCENT;
+            this.mTask.stageName = TaskStage.COMPLETE;
+        }
+        if (this.mResponseStream != null) {
+            this.log.debug("Ending response stream");
+            this.mResponseStream.end();
+        }
         if (this.requestFailure) {
             // Reject the promise with an error
             const errorCode = this.response == null ? undefined : this.response.statusCode;
@@ -429,9 +603,9 @@ export abstract class AbstractRestClient {
         let payloadDetails: string = this.mWriteData + "";
         try {
             headerDetails = JSON.stringify(this.mReqHeaders);
-            payloadDetails = inspect(this.mWriteData, { depth: null });
+            payloadDetails = inspect(this.mWriteData, {depth: null});
         } catch (stringifyError) {
-            this.log.error("Error encountered trying to parse details for REST request error:\n %s", inspect(stringifyError, { depth: null }));
+            this.log.error("Error encountered trying to parse details for REST request error:\n %s", inspect(stringifyError, {depth: null}));
         }
 
         // Populate the "relevant" fields - caller will have the session, so
@@ -450,20 +624,20 @@ export abstract class AbstractRestClient {
 
         // Construct a formatted details message
         const detailMessage: string =
-        ((finalError.source === "client") ?
-        `HTTP(S) client encountered an error. Request could not be initiated to host.\n` +
-        `Review connection details (host, port) and ensure correctness.`
-        :
-        `HTTP(S) error status "${finalError.httpStatus}" received.\n` +
-        `Review request details (resource, base path, credentials, payload) and ensure correctness.`) +
-        "\n" +
-        "\nHost:      " + finalError.host +
-        "\nPort:      " + finalError.port +
-        "\nBase Path: " + finalError.basePath +
-        "\nResource:  " + finalError.resource +
-        "\nRequest:   " + finalError.request +
-        "\nHeaders:   " + headerDetails +
-        "\nPayload:   " + payloadDetails;
+            ((finalError.source === "client") ?
+                `HTTP(S) client encountered an error. Request could not be initiated to host.\n` +
+                `Review connection details (host, port) and ensure correctness.`
+                :
+                `HTTP(S) error status "${finalError.httpStatus}" received.\n` +
+                `Review request details (resource, base path, credentials, payload) and ensure correctness.`) +
+            "\n" +
+            "\nHost:      " + finalError.host +
+            "\nPort:      " + finalError.port +
+            "\nBase Path: " + finalError.basePath +
+            "\nResource:  " + finalError.resource +
+            "\nRequest:   " + finalError.request +
+            "\nHeaders:   " + headerDetails +
+            "\nPayload:   " + payloadDetails;
         finalError.additionalDetails = detailMessage;
 
         // Allow implementation to modify the error as necessary
@@ -472,7 +646,7 @@ export abstract class AbstractRestClient {
         const processedError = this.processError(error);
         if (processedError != null) {
             this.log.debug("Error was processed by overridden processError method in RestClient %s", this.constructor.name);
-            finalError = { ...finalError, ...processedError };
+            finalError = {...finalError, ...processedError};
         }
 
         // Return the error object

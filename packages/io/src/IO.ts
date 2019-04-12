@@ -16,6 +16,7 @@ import { isNullOrUndefined } from "util";
 import { ImperativeReject } from "../../interfaces";
 import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
+import { Readable, Writable } from "stream";
 
 const mkdirp = require("mkdirp");
 
@@ -229,6 +230,28 @@ export class IO {
             }
             return Buffer.from(content, IO.UTF8);
         }
+    }
+
+    /**
+     * Create a Node.js Readable stream from a file
+     * @param file - the file from which to create a read stream
+     * @return Buffer - the content of the file
+     * @memberof IO
+     */
+    public static createReadStream(file: string): Readable {
+        ImperativeExpect.toBeDefinedAndNonBlank(file, "file");
+        return fs.createReadStream(file, {autoClose: true});
+    }
+
+    /**
+     * Create a Node.js Readable stream from a file
+     * @param file - the file from which to create a read stream
+     * @return Buffer - the content of the file
+     * @memberof IO
+     */
+    public static createWriteStream(file: string): Writable {
+        ImperativeExpect.toBeDefinedAndNonBlank(file, "file");
+        return fs.createWriteStream(file, {autoClose: true});
     }
 
     /**

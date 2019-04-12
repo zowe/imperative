@@ -14,6 +14,8 @@ import { RestConstants } from "./RestConstants";
 import { HTTP_VERB } from "./types/HTTPVerb";
 import { AbstractRestClient } from "./AbstractRestClient";
 import { JSONUtils } from "../../../utilities";
+import { Readable, Writable } from "stream";
+import { ITaskWithStatus } from "../../../operations";
 
 /**
  * Class to handle http(s) requests, build headers, collect data, report status codes, and header responses
@@ -227,6 +229,149 @@ export class RestClient extends AbstractRestClient {
      */
     public static deleteExpectString(session: AbstractSession, resource: string, reqHeaders: any[] = []): Promise<string> {
         return new this(session).performRest(resource, HTTP_VERB.DELETE, reqHeaders);
+    }
+
+    /**
+     * REST HTTP GET operation - streaming the response to a writable stream
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {string} resource - URI for which this request should go against
+     * @param {any} reqHeaders - headers to include in the REST request
+     * @param responseStream - the stream to which the response data will be written
+     * @param normalizeResponseNewLines - streaming only - true if you want newlines to be \r\n on windows
+     *                                    when receiving data from the server to responseStream. Don't set this for binary responses
+     * @param {ITaskWithStatus} task - task used to update the user on the progress of their request
+     * @returns {Promise<string>} - empty string - data is not buffered for this request
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static getStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [],
+                              responseStream: Writable,
+                              normalizeResponseNewLines?: boolean,
+                              task?: ITaskWithStatus): Promise<string> {
+        return new this(session).performRest(resource, HTTP_VERB.GET, reqHeaders, undefined, responseStream,
+            undefined, normalizeResponseNewLines, undefined, task);
+    }
+
+    /**
+     * REST HTTP PUT operation with streamed response and request
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {string} resource - URI for which this request should go against
+     * @param {object[]} reqHeaders - headers to include in the REST request
+     * @param {any} responseStream - stream to which the response data will be written
+     * @param {any} requestStream - stream from which payload data will be read
+     * @param normalizeResponseNewLines - streaming only - true if you want newlines to be \r\n on windows
+     *                                    when receiving data from the server to responseStream. Don't set this for binary responses
+     * @param normalizeRequestNewLines -  streaming only - true if you want \r\n to be replaced with \n when sending
+     *                                    data to the server from requestStream. Don't set this for binary requests
+     * @param {ITaskWithStatus} task - task used to update the user on the progress of their request
+     * @returns {Promise<string>} - empty string - data is not buffered for streamed requests
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static putStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [],
+                              responseStream: Writable, requestStream: Readable,
+                              normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
+                              task?: ITaskWithStatus): Promise<string> {
+        return new this(session).performRest(resource, HTTP_VERB.PUT, reqHeaders, undefined, responseStream, requestStream,
+            normalizeResponseNewLines, normalizeRequestNewLines, task);
+    }
+
+    /**
+     * REST HTTP PUT operation with only streamed request, buffers response data and returns it
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {string} resource - URI for which this request should go against
+     * @param {object[]} reqHeaders - headers to include in the REST request
+     * @param {any} requestStream - stream from which payload data will be read
+     * @param normalizeRequestNewLines -  streaming only - true if you want \r\n to be replaced with \n when sending
+     *                                    data to the server from requestStream. Don't set this for binary requests
+     * @param {ITaskWithStatus} task - task used to update the user on the progress of their request
+     * @returns {Promise<string>} - string of the response
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static putStreamedRequestOnly(session: AbstractSession, resource: string, reqHeaders: any[] = [],
+                                         requestStream: Readable,
+                                         normalizeRequestNewLines?: boolean,
+                                         task?: ITaskWithStatus): Promise<string> {
+        return new this(session).performRest(resource, HTTP_VERB.PUT, reqHeaders, undefined, undefined, requestStream,
+            undefined, normalizeRequestNewLines, task);
+    }
+
+    /**
+     * REST HTTP POST operation streaming both the request and the response
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {string} resource - URI for which this request should go against
+     * @param {object[]} reqHeaders - headers to include in the REST request
+     * @param {any} responseStream - stream to which the response data will be written
+     * @param {any} requestStream - stream from which payload data will be read
+     * @param normalizeResponseNewLines - streaming only - true if you want newlines to be \r\n on windows
+     *                                    when receiving data from the server to responseStream. Don't set this for binary responses
+     * @param normalizeRequestNewLines -  streaming only - true if you want \r\n to be replaced with \n when sending
+     *                                    data to the server from requestStream. Don't set this for binary requests
+     * @param {ITaskWithStatus} task - task used to update the user on the progress of their request
+     * @returns {Promise<string>} - empty string - data is not buffered for  this request
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static postStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [],
+                               responseStream: Writable, requestStream: Readable,
+                               normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
+                               task?: ITaskWithStatus): Promise<string> {
+        return new this(session).performRest(resource, HTTP_VERB.POST, reqHeaders, undefined, responseStream, requestStream,
+            normalizeResponseNewLines, normalizeRequestNewLines, task);
+    }
+
+    /**
+     * REST HTTP POST operation, streaming only the request and not the response
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {string} resource - URI for which this request should go against
+     * @param {object[]} reqHeaders - headers to include in the REST request
+     * @param {any} requestStream - stream from which payload data will be read
+     * @param normalizeRequestNewLines -  streaming only - true if you want \r\n to be replaced with \n when sending
+     *                                    data to the server from requestStream. Don't set this for binary requests
+     * @param {ITaskWithStatus} task - task used to update the user on the progress of their request
+     * @returns {Promise<string>} - string of the response
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static postStreamedRequestOnly(session: AbstractSession, resource: string, reqHeaders: any[] = [],
+                                          requestStream: Readable, normalizeRequestNewLines?: boolean,
+                                          task?: ITaskWithStatus): Promise<string> {
+        return new this(session).performRest(resource, HTTP_VERB.POST, reqHeaders, undefined, undefined, requestStream,
+            undefined, normalizeRequestNewLines, task);
+    }
+
+    /**
+     * REST HTTP DELETE operation
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {string} resource - URI for which this request should go against
+     * @param {any} reqHeaders - headers to include in the REST request
+     * @param {any} responseStream - stream to which the response data will be written
+     * @param {ITaskWithStatus} task - task used to update the user on the progress of their request
+     * @param normalizeResponseNewLines - streaming only - true if you want newlines to be \r\n on windows
+     *                                    when receiving data from the server to responseStream. Don't set this for binary responses
+     * @returns {Promise<string>} - empty string - data is not buffered for streamed requests
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static deleteStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [], responseStream: Writable,
+                                 normalizeResponseNewLines?: boolean,
+                                 task?: ITaskWithStatus): Promise<string> {
+        return new this(session).performRest(resource, HTTP_VERB.DELETE, reqHeaders,
+            undefined, responseStream, undefined, normalizeResponseNewLines, undefined, task
+        );
     }
 
     /**
