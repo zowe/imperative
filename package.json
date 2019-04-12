@@ -127,7 +127,7 @@
   "engines": {
     "node": ">=6.0.0"
   },
-  "jest-html-reporter":   {
+  "jest-html-reporter": {
     "pageTitle": "Imperative CLI Tests",
     "outputPath": "__tests__/__results__/unit/results.html"
   },
