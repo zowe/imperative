@@ -133,7 +133,7 @@ describe("AbstractRestClient tests", () => {
         });
 
         (https.request as any) = requestFnc;
-        const headers = [{"My-Header": "value is here"}];
+        const headers: any = [{"My-Header": "value is here"}];
         const payload: any = {"my payload object": "hello"};
         let error;
         try {
@@ -415,5 +415,71 @@ describe("AbstractRestClient tests", () => {
         }
         expect(httpsRequestFnc).toBeCalled();
         expect(httpRequestFnc).not.toBeCalled();
+    });
+
+    it("should not error when streaming data", async () => {
+
+        interface IPayload {
+            data: string;
+        }
+
+        const fakeResponseStream: any = {
+            write: jest.fn(),
+            on: jest.fn(),
+            end: jest.fn()
+        };
+        const fakeRequestStream: any = {
+            on: jest.fn((eventName: string, callback: any) => {
+                // do nothing
+            }),
+        };
+        const emitter = new MockHttpRequestResponse();
+        const requestFnc = jest.fn((options, callback) => {
+            ProcessUtils.nextTick(async () => {
+
+                const newEmit = new MockHttpRequestResponse();
+                callback(newEmit);
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("data", Buffer.from("{\"newData\":", "utf8"));
+                });
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("data", Buffer.from("\"response data\"}", "utf8"));
+                });
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("end");
+                });
+            });
+
+            return emitter;
+        });
+
+        (https.request as any) = requestFnc;
+
+        await RestClient.putStreamed(new Session({
+            hostname: "test",
+        }), "/resource", [Headers.APPLICATION_JSON], fakeResponseStream, fakeRequestStream);
+
+        await RestClient.postStreamed(new Session({
+            hostname: "test",
+        }), "/resource", [Headers.APPLICATION_JSON], fakeResponseStream, fakeRequestStream);
+
+        await RestClient.putStreamedRequestOnly(new Session({
+            hostname: "test",
+        }), "/resource", [Headers.APPLICATION_JSON], fakeRequestStream);
+
+        await RestClient.postStreamedRequestOnly(new Session({
+            hostname: "test",
+        }), "/resource", [Headers.APPLICATION_JSON], fakeRequestStream);
+
+        await RestClient.getStreamed(new Session({
+            hostname: "test",
+        }), "/resource", [Headers.APPLICATION_JSON], fakeResponseStream);
+
+        await RestClient.deleteStreamed(new Session({
+            hostname: "test",
+        }), "/resource", [Headers.APPLICATION_JSON], fakeResponseStream);
     });
 });

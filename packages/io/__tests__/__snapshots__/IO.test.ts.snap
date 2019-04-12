@@ -8,6 +8,10 @@ exports[`IO tests should get an error for no input on createDirsSyncFromFilePath
 
 exports[`IO tests should get an error for no input on createFileSync 1`] = `"Expect Error: Required parameter 'file' must not be blank"`;
 
+exports[`IO tests should get an error for no input on createReadStream 1`] = `"Expect Error: Required parameter 'file' must not be blank"`;
+
+exports[`IO tests should get an error for no input on createWriteStream 1`] = `"Expect Error: Required parameter 'file' must not be blank"`;
+
 exports[`IO tests should get an error for no input on deleteDir 1`] = `"Expect Error: Required parameter 'dir' must not be blank"`;
 
 exports[`IO tests should get an error for no input on deleteFile 1`] = `"Expect Error: Required parameter 'file' must not be blank"`;
