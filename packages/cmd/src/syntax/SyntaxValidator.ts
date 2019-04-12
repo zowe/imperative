@@ -204,7 +204,9 @@ export class SyntaxValidator {
             for (const positional of this.mCommandDefinition.positionals) {
                 if (positional.required) {
                     // Use replace to trim possible ... which is used for arrays
-                    if (!commandArguments[positional.name.replace("...","")]) {
+                    const positionalName = positional.name.replace("...", "");
+                    if (commandArguments[positionalName] == null ||
+                        (positional.type !== "stringOrEmpty" && commandArguments[positionalName] === "")) {
                         missingPositionals.push(positional);
                     }
                 }
@@ -347,12 +349,10 @@ export class SyntaxValidator {
                         this.mLogger.debug("the local file %s existed as required",
                             commandArguments[optionDef.name]);
                     }
-                }
-                else if (optionDef.type === "boolean") {
+                } else if (optionDef.type === "boolean") {
                     valid = this.validateBoolean(commandArguments[optionDef.name], optionDef,
                         responseObject) && valid;
-                }
-                else if (optionDef.type === "number") {
+                } else if (optionDef.type === "number") {
                     valid = this.validateNumeric(commandArguments[optionDef.name], optionDef,
                         responseObject) && valid;
                 }
