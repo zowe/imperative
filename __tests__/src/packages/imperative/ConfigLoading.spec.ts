@@ -23,6 +23,10 @@ describe("Imperative should validate config provided by the consumer", function 
         // process.mainModule.filename = __filename;
     });
 
+    afterAll(() => {
+        T.unlinkSync(packageJsonPath);
+    });
+
     it("We should be able to load our configuration from our package.json ", function () {
         const config: IImperativeConfig = {
             definitions: [
@@ -41,7 +45,7 @@ describe("Imperative should validate config provided by the consumer", function 
         return Imperative.init().then(() => {
             // "Display name should have matched our config"
             expect(ImperativeConfig.instance.loadedConfig.productDisplayName)
-                .toEqual(config.productDisplayName);
+              .toEqual(config.productDisplayName);
         });
     });
 });
