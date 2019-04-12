@@ -499,6 +499,37 @@ describe("Imperative should provide advanced syntax validation rules", function 
                         logger.debug(JSON.stringify(completedResponse));
                     });
             });
+            it("If we have a command with a number-type positional, and we try " +
+                "to specify 0, the command should succeed", function () {
+
+                const helpGenerator: AbstractHelpGenerator = new DefaultHelpGenerator({
+                    primaryHighlightColor: "yellow",
+                    produceMarkdown: false,
+                    rootCommandName: "dummy"
+                }, {
+                    fullCommandTree: fakeParent,
+                    commandDefinition: numberCommand
+                });
+                return new CommandProcessor({
+                    envVariablePrefix: ENV_PREFIX,
+                    definition: numberCommand,
+                    fullDefinition: fakeParent,
+                    helpGenerator,
+                    profileManagerFactory: new BasicProfileManagerFactory(TEST_HOME,
+                        DUMMY_PROFILE_TYPE_CONFIG),
+                    rootCommandName: "fake",
+                    commandLine: "fake",
+                    promptPhrase: "dummydummy"
+                }).invoke({
+                    arguments: {"_": ["banana"], "$0": "", "my-number": "0"},
+                    silent: true,
+                    responseFormat: "json"
+                }).then(
+                    (completedResponse: ICommandResponse) => {
+                        expect(completedResponse.success).toEqual(true);
+                        logger.debug(JSON.stringify(completedResponse));
+                    });
+            });
         });
     });
 });
