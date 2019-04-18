@@ -74,14 +74,6 @@ node('ca-jenkins-agent') {
         ]
     )
 
-    // Check for vulnerabilities
-    pipeline.createStage(
-        name: "Check for Vulnerabilities",
-        stage: {
-            sh 'npm run audit:public'
-        }
-    )
-
     def TEST_ROOT = "__tests__/__results__/ci"
     def UNIT_TEST_ROOT = "$TEST_ROOT/unit"
     def UNIT_JUNIT_OUTPUT = "$UNIT_TEST_ROOT/junit.xml"
@@ -134,6 +126,14 @@ node('ca-jenkins-agent') {
         ],
         testResults: [dir: "$INTEGRATION_TEST_ROOT/jest-stare", files: "index.html", name: 'Imperative - Integration Test Report'],
         junitOutput: INTEGRATION_JUNIT_OUTPUT
+    )
+
+    // Check for vulnerabilities
+    pipeline.createStage(
+        name: "Check for Vulnerabilities",
+        stage: {
+            sh 'npm run audit:public'
+        }
     )
 
     // Perform sonar qube operations
