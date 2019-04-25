@@ -432,8 +432,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         }
         description = TextUtils.wordWrap(description.trim(),
             undefined,
-            this.mProduceMarkdown ? DefaultHelpGenerator.HELP_INDENT + DefaultHelpGenerator.HELP_INDENT :
-                DefaultHelpGenerator.HELP_INDENT + DefaultHelpGenerator.HELP_INDENT
+            DefaultHelpGenerator.HELP_INDENT + DefaultHelpGenerator.HELP_INDENT
         );
         if (this.mProduceMarkdown) {
             // for markdown, remove leading spaces from the description so that the first line
