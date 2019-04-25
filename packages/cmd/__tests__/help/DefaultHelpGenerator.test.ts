@@ -40,6 +40,12 @@ describe("Default Help Generator", () => {
         produceMarkdown: false
     };
 
+    const PARMS_GENERATE_MARKDOWN: IHelpGeneratorFactoryParms = {
+        primaryHighlightColor: chalkColor,
+        rootCommandName: "test-help",
+        produceMarkdown: true
+    };
+
     const EXAMPLE_APPLE_OPTION: ICommandOptionDefinition = {
         name: "is-apple-tasty",
         aliases: ["iat"],
@@ -85,6 +91,16 @@ describe("Default Help Generator", () => {
             EXAMPLE_STRAWBERRY_OPTION,
             EXAMPLE_PICK_OPTION],
         experimental: true
+    };
+
+    const COMMAND_WITH_MARKDOWN_SPECIAL_CHRACTERS: ICommandDefinition = {
+        name: "an-example-command",
+        aliases: ["aec"],
+        type: "command",
+        description: "This is a command with Markdown special characters in the description # * -. " + LOREM,
+        options: [EXAMPLE_APPLE_OPTION,
+            EXAMPLE_STRAWBERRY_OPTION,
+            EXAMPLE_PICK_OPTION]
     };
 
     const EXAMPLE_TREE: ICommandDefinition = {
@@ -466,6 +482,12 @@ describe("Default Help Generator", () => {
                 fullCommandTree: expParent
             });
             expect(experimental.getExperimentalCommandSection()).toMatchSnapshot();
+        });
+
+        it("should escape Markdown special characters in the description when markdown is rendered",  () => {
+            const helpGen: DefaultHelpGenerator = new DefaultHelpGenerator(PARMS_GENERATE_MARKDOWN,
+                { commandDefinition: COMMAND_WITH_MARKDOWN_SPECIAL_CHRACTERS, fullCommandTree: fakeParent });
+            expect(helpGen.buildDescriptionSection()).toMatchSnapshot();
         });
     });
 });
