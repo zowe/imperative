@@ -428,7 +428,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
      */
     public buildOptionText(optionString: string, description: string): string {
         if (this.mProduceMarkdown) {
-            description = description.replace(/\*/g, "&ast;");
+            description = description.replace(/([\*\#\-\`\_\[\]\+\.\!])/g, "\\$1");  // escape Markdown special characters
         }
         description = TextUtils.wordWrap(description.trim(),
             undefined,
