@@ -346,7 +346,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         let description = this.mCommandDefinition.description
             || this.mCommandDefinition.summary;
         if (this.mProduceMarkdown) {
-            description = description.replace(/\*/g, "&ast;");  // escape literal asterisks
+            description = description.replace(/([\*\#\-\`\_\[\]\+\.\!])/g, "\\$1");  // escape Markdown special characters
         }
         descriptionForHelp += TextUtils.wordWrap(description,
             undefined,
