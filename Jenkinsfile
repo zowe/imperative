@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.                                     *
 *                                                                                 *
 */
-@Library('shared-pipelines@v1.2.0') import org.zowe.pipelines.nodejs.NodeJSPipeline
+@Library('shared-pipelines@v1.2.2') import org.zowe.pipelines.nodejs.NodeJSPipeline
 
 import org.zowe.pipelines.nodejs.models.SemverLevel
 
@@ -24,7 +24,7 @@ node('ca-jenkins-agent') {
     pipeline.protectedBranches.addMap([
         [name: "master", tag: "daily", prerelease: "alpha", dependencies: ["@zowe/perf-timing": "daily"]],
         [name: "beta", tag: "beta", prerelease: "beta", dependencies: ["@zowe/perf-timing": "beta"]],
-        [name: "latest", tag: "latest", dependencies: ["@zowe/perf-timing": "latest"]],
+        [name: "latest", tag: "latest", dependencies: ["@zowe/perf-timing": "latest"], autoDeploy: true],
         [name: "lts-incremental", tag: "lts-incremental", level: SemverLevel.MINOR, dependencies: ["@zowe/perf-timing": "lts-incremental"]],
         [name: "lts-stable", tag: "lts-stable", level: SemverLevel.PATCH, dependencies: ["@zowe/perf-timing": "lts-stable"]]
     ])
