@@ -428,14 +428,21 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
      */
     public buildOptionText(optionString: string, description: string): string {
         if (this.mProduceMarkdown) {
-            description = description.replace(/\*/g, "&ast;");
+            description = description.replace(/([\*\#\-\`\_\[\]\+\.\!])/g, "\\$1");  // escape Markdown special characters
+        }
+        description = TextUtils.wordWrap(description.trim(),
+            undefined,
+            DefaultHelpGenerator.HELP_INDENT + DefaultHelpGenerator.HELP_INDENT
+        );
+        if (this.mProduceMarkdown) {
+            // for markdown, remove leading spaces from the description so that the first line
+            // is not indented
+            description = description.replace(/^\s*/, "");
         }
         return this.renderHelp(format("{{bullet}}%s\n\n{{indent}}{{bullet}}{{space}}%s\n\n",
             DefaultHelpGenerator.HELP_INDENT + optionString,
-            TextUtils.wordWrap(description.trim(), // escape literal asterisks
-                undefined,
-                this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT + DefaultHelpGenerator.HELP_INDENT
-            )));
+            description
+        ));
     }
 
     /**
@@ -466,10 +473,11 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         if (!isNullOrUndefined(this.mCommandDefinition.examples)) {
             examplesText = this.mCommandDefinition.examples.map((example) => {
                 const prefix = example.prefix != null ? example.prefix + "{{space}} " : "";
-                let exampleText = TextUtils.wordWrap("{{bullet}}\- {{space}}" + example.description + ":\n\n",
+                const exampleHyphen = this.mProduceMarkdown ? "" : "-";
+                let exampleText = TextUtils.wordWrap("{{bullet}}" + exampleHyphen + " {{space}}" + example.description + ":\n\n",
                     undefined,
-                    DefaultHelpGenerator.HELP_INDENT);
-                exampleText += "{{bullet}} {{codeBegin}} {{space}} {{space}} {{space}} {{space}} {{space}}\$ {{space}}" +
+                    this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT);
+                exampleText += "      {{bullet}}{{space}}{{codeBegin}}\$ {{space}}" +
                     prefix +
                     this.mRootCommandName + " " +
                     CommandUtils.getFullCommandName(this.mCommandDefinition,
