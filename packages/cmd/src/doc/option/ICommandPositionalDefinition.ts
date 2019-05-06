@@ -13,12 +13,15 @@ import { CommandOptionType } from "./ICommandOptionDefinition";
 
 /**
  * Positional option definition - used on a command definition to define positional operands.
- * Positional operands do now use --dashes. They are values specified after the full command string
+ * Positional operands do not use --dashes. They are values specified after the full command string
  *  e.g.  group group group group command  mypositional --dash-option
  */
 export interface ICommandPositionalDefinition {
     /**
      * The name of the positional operand.
+     *
+     * This name cannot contain a dash (-) or else the positional argument will not function properly.
+     * This is a limitation of yargs.
      *
      * Appending "..." to the end of a name will allow for a space delimited
      * array of arguments. So if you specify `name = "abcd..."` and then
