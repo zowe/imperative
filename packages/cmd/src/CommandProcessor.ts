@@ -461,7 +461,7 @@ export class CommandProcessor {
                                 if (((Array.isArray(prepared.args[option.name])) &&
                                     prepared.args[option.name][0] != null &&
                                     isString(prepared.args[option.name][0]) &&
-                                    (prepared.args[option.name][0].toString().toUpperCase() === this.promptPhrase.toUpperCase()))) {
+                                    (prepared.args[option.name][0].toUpperCase() === this.promptPhrase.toUpperCase()))) {
                                     // prompt has been requested for an --option
                                     this.log.debug("Prompting for option %s which was requested by passing the value %s",
                                         option.name, this.promptPhrase);
