@@ -38,7 +38,8 @@ const mocks = {
     yamlStringify: writeYaml.stringify as Mock<typeof writeYaml.stringify>,
     unlinkSync: fs.unlinkSync as Mock<typeof fs.unlinkSync>,
     existsSync: fs.existsSync as unknown as Mock<typeof fs.existsSync>,
-    readdirSync: fs.readdirSync as unknown as Mock<typeof fs.readdirSync>
+    readdirSync: fs.readdirSync as unknown as Mock<typeof fs.readdirSync>,
+    statSync: fs.statSync as unknown as Mock<typeof fs.statSync>
 };
 
 const TEST_DIR_PATH: string = "/__tests__/__results__/data/.testHomeDir";
@@ -316,12 +317,40 @@ describe("Profile IO", () => {
 
     it("should return a list of profile types", () => {
         const types: string[] = [BLUEBERRY_PROFILE_TYPE, STRAWBERRY_PROFILE_TYPE, BANANA_PROFILE_TYPE];
-        mocks.readdirSync.mockImplementation(((path: any) => {
+        mocks.readdirSync.mockImplementationOnce(((path: any) => {
             return types;
+        }) as any);
+        mocks.statSync.mockImplementation(((filePath: string) => {
+            return {
+                isDirectory: jest.fn(() => {
+                    return true;
+                }),
+            };
         }) as any);
         const returnedTypes: string[] = ProfileIO.getAllProfileDirectories(TEST_DIR_PATH);
         expect(mocks.readdirSync).toBeCalledWith(TEST_DIR_PATH);
         expect(returnedTypes).toEqual(types);
+    });
+
+    it("should return a list of profile types but filter out non directory entries", () => {
+        const types: string[] = [BLUEBERRY_PROFILE_TYPE, STRAWBERRY_PROFILE_TYPE, BANANA_PROFILE_TYPE];
+        mocks.readdirSync.mockImplementationOnce(((path: any) => {
+            return types;
+        }) as any);
+        mocks.statSync.mockImplementation(((filePath: string) => {
+            return {
+                isDirectory: jest.fn(() => {
+                    // pretend "banana" is not a directory
+                    return !filePath.includes(BANANA_PROFILE_TYPE);
+                }),
+            };
+        }) as any);
+        const returnedTypes: string[] = ProfileIO.getAllProfileDirectories(TEST_DIR_PATH);
+        expect(mocks.readdirSync).toBeCalledWith(TEST_DIR_PATH);
+        expect(returnedTypes).toEqual(types.filter((type) => {
+            // results shouldn't contain banana
+            return type !== BANANA_PROFILE_TYPE;
+        }));
     });
 
     it("should throw an imperative error if the read directory IO error occurs", () => {
