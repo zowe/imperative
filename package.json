@@ -77,7 +77,6 @@
     "@types/body-parser": "1.16.4",
     "@types/chai": "4.0.1",
     "@types/chai-string": "1.1.30",
-    "@types/chalk": "0.4.31",
     "@types/find-up": "2.1.1",
     "@types/fs-extra": "^5.1.0",
     "@types/glob": "5.0.35",
