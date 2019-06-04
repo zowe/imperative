@@ -133,7 +133,13 @@ node('ca-jenkins-agent') {
     pipeline.createStage(
         name: "Check for Vulnerabilities",
         stage: {
+            // Temporary fix for Vuln check. This will go away when shared-libraries implement the vuln check as a function
+            sh "mkdir temp || exit 0"
+            sh "mv npm-shrinkwrap.json temp/"
+            sh "npm i --package-lock-only"
             sh 'npm run audit:public'
+            sh "mv temp/npm-shrinkwrap.json ./"
+            sh "rm package-lock.json"
         }
     )
 
