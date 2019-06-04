@@ -129,20 +129,6 @@ node('ca-jenkins-agent') {
         junitOutput: INTEGRATION_JUNIT_OUTPUT
     )
 
-    // Check for vulnerabilities
-    pipeline.createStage(
-        name: "Check for Vulnerabilities",
-        stage: {
-            // Temporary fix for Vuln check. This will go away when shared-libraries implement the vuln check as a function
-            sh "mkdir temp || exit 0"
-            sh "mv npm-shrinkwrap.json temp/"
-            sh "npm i --package-lock-only"
-            sh 'npm run audit:public'
-            sh "mv temp/npm-shrinkwrap.json ./"
-            sh "rm package-lock.json"
-        }
-    )
-
     // Perform sonar qube operations
     pipeline.createStage(
         name: "SonarQube",
@@ -151,6 +137,26 @@ node('ca-jenkins-agent') {
             withSonarQubeEnv('sonar-default-server') {
                 sh "${scannerHome}/bin/sonar-scanner"
             }
+        }
+    )
+
+    // Check for vulnerabilities
+    pipeline.createStage(
+        name: "Check for Vulnerabilities",
+        stage: {
+            sh 'npm run audit:public'
+        }
+    )
+
+    // This stage will be removed once the vuln-check is implemented in shared-libraries as a function
+    pipeline.createStage(
+        name: "Temporary Pre-deploy",
+        stage: {
+            sh "rm -rf node_modules"
+            sh "rm npm-shrinkwrap.json || exit 0"
+            sh "rm package-lock.json || exit 0"
+            sh "npm install --only=prod --no-package-lock"
+            sh "npm shrinkwrap --only=prod"
         }
     )
 
