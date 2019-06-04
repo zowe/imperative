@@ -222,6 +222,9 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     additionalDetails = this.addProfileInstruction(additionalDetails);
 
                     this.log.error(`Error: ${additionalDetails}`);
+                    if (err.causeErrors != null) {
+                        this.log.error("Cause errors: " + inspect(err.causeErrors));
+                    }
                     throw new ImperativeError({
                         msg: `Unable to load the secure field "${propertyNamePath}" associated with ` +
                             `the profile "${parms.name}" of type "${this.profileType}".`,
