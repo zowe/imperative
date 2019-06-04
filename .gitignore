@@ -7,7 +7,6 @@ logs/
 CCS141/
 .idea
 imperative.iml
-package-lock.json
 __tests__/__integration__/hello_world/package-lock.json
 __tests__/__integration__/imperative/jest-stare
 
