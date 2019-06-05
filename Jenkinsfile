@@ -23,6 +23,7 @@ node('ca-jenkins-agent') {
 
     // Protected branch property definitions
     pipeline.protectedBranches.addMap([
+        [name: "prune-prod", tag: "prune-prod", prerelease: "test", dependencies: ["@zowe/perf-timing": "daily"]],
         [name: "master", tag: "daily", prerelease: "alpha", dependencies: ["@zowe/perf-timing": "daily"]],
         [name: "beta", tag: "beta", prerelease: "beta", dependencies: ["@zowe/perf-timing": "beta"]],
         [name: "latest", tag: "latest", dependencies: ["@zowe/perf-timing": "latest"], autoDeploy: true],
