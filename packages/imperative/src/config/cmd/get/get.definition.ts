@@ -22,7 +22,7 @@ export const getDefinition: ICommandDefinition = {
     type: "command",
     handler: join(__dirname, "get.handler"),
     summary: "Get a value of single setting option",
-    description: "Get a value of single setting option",
+    description: "Get a value of single setting option.",
     positionals: [
         {
             name: "configName",

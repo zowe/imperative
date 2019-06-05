@@ -19,7 +19,7 @@ import { join } from "path";
 export const listDefinition: ICommandDefinition = {
   name: "list",
   type: "command",
-  summary: "list installed plug-ins",
+  summary: "List installed plug-ins",
   description: "List all plug-ins installed.",
   handler: join(__dirname, "list.handler")
 };

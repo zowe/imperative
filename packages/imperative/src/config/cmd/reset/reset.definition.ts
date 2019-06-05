@@ -21,7 +21,7 @@ export const resetDefinition: ICommandDefinition = {
     aliases: ["re"],
     type: "command",
     handler: join(__dirname, "reset.handler"),
-    summary: "Reset a configuration setting to default value.",
+    summary: "Reset a configuration setting to default value",
     description: "Reset a configuration setting to default value.",
     positionals: [
         {
