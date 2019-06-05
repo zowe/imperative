@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.                                     *
 *                                                                                 *
 */
-@Library('shared-pipelines') import org.zowe.pipelines.nodejs.NodeJSPipeline
+@Library('shared-pipelines@prune-prod') import org.zowe.pipelines.nodejs.NodeJSPipeline
 
 import org.zowe.pipelines.nodejs.models.SemverLevel
 
@@ -18,7 +18,8 @@ node('ca-jenkins-agent') {
 
     // Build admins, users that can approve the build and receieve emails for 
     // all protected branch builds.
-    pipeline.admins.add("zfernand0", "mikebauerca", "markackert", "dkelosky")
+    // pipeline.admins.add("zfernand0", "mikebauerca", "markackert", "dkelosky")
+    pipeline.admins.add("zfernand0")
 
     // Protected branch property definitions
     pipeline.protectedBranches.addMap([
@@ -54,17 +55,17 @@ node('ca-jenkins-agent') {
     // Initialize the pipeline library, should create 5 steps
     pipeline.setup()
 
-    // Create a custom lint stage that runs immediately after the setup.
-    pipeline.createStage(
-        name: "Lint",
-        stage: {
-            sh "npm run lint"
-        },
-        timeout: [
-            time: 2,
-            unit: 'MINUTES'
-        ]
-    )
+    // // Create a custom lint stage that runs immediately after the setup.
+    // pipeline.createStage(
+    //     name: "Lint",
+    //     stage: {
+    //         sh "npm run lint"
+    //     },
+    //     timeout: [
+    //         time: 2,
+    //         unit: 'MINUTES'
+    //     ]
+    // )
 
     // Build the application
     pipeline.build(
@@ -109,56 +110,38 @@ node('ca-jenkins-agent') {
         ]
     )
 
-    // Perform an integration test and capture the results
-    def INTEGRATION_TEST_ROOT = "$TEST_ROOT/integration"
-    def INTEGRATION_JUNIT_OUTPUT = "$INTEGRATION_TEST_ROOT/junit.xml"
+    // // Perform an integration test and capture the results
+    // def INTEGRATION_TEST_ROOT = "$TEST_ROOT/integration"
+    // def INTEGRATION_JUNIT_OUTPUT = "$INTEGRATION_TEST_ROOT/junit.xml"
     
-    pipeline.test(
-        name: "Integration",
-        operation: {
-            sh "npm run test:integration"
-        },
-        timeout: [time: 30, unit: 'MINUTES'],
-        shouldUnlockKeyring: true,
-        environment: [
-            JEST_JUNIT_OUTPUT: INTEGRATION_JUNIT_OUTPUT,
-            JEST_STARE_RESULT_DIR: "${INTEGRATION_TEST_ROOT}/jest-stare",
-            JEST_STARE_RESULT_HTML: "index.html"
-        ],
-        testResults: [dir: "$INTEGRATION_TEST_ROOT/jest-stare", files: "index.html", name: 'Imperative - Integration Test Report'],
-        junitOutput: INTEGRATION_JUNIT_OUTPUT
-    )
+    // pipeline.test(
+    //     name: "Integration",
+    //     operation: {
+    //         sh "npm run test:integration"
+    //     },
+    //     timeout: [time: 30, unit: 'MINUTES'],
+    //     shouldUnlockKeyring: true,
+    //     environment: [
+    //         JEST_JUNIT_OUTPUT: INTEGRATION_JUNIT_OUTPUT,
+    //         JEST_STARE_RESULT_DIR: "${INTEGRATION_TEST_ROOT}/jest-stare",
+    //         JEST_STARE_RESULT_HTML: "index.html"
+    //     ],
+    //     testResults: [dir: "$INTEGRATION_TEST_ROOT/jest-stare", files: "index.html", name: 'Imperative - Integration Test Report'],
+    //     junitOutput: INTEGRATION_JUNIT_OUTPUT
+    // )
 
-    // Perform sonar qube operations
-    pipeline.createStage(
-        name: "SonarQube",
-        stage: {
-            def scannerHome = tool 'sonar-scanner-maven-install'
-            withSonarQubeEnv('sonar-default-server') {
-                sh "${scannerHome}/bin/sonar-scanner"
-            }
-        }
-    )
+    // // Perform sonar qube operations
+    // pipeline.createStage(
+    //     name: "SonarQube",
+    //     stage: {
+    //         def scannerHome = tool 'sonar-scanner-maven-install'
+    //         withSonarQubeEnv('sonar-default-server') {
+    //             sh "${scannerHome}/bin/sonar-scanner"
+    //         }
+    //     }
+    // )
 
-    // Check for vulnerabilities
-    pipeline.createStage(
-        name: "Check for Vulnerabilities",
-        stage: {
-            sh 'npm run audit:public'
-        }
-    )
-
-    // This stage will be removed once the vuln-check is implemented in shared-libraries as a function
-    pipeline.createStage(
-        name: "Temporary Pre-deploy",
-        stage: {
-            sh "rm -rf node_modules"
-            sh "rm npm-shrinkwrap.json || exit 0"
-            sh "rm package-lock.json || exit 0"
-            sh "npm install --only=prod --no-package-lock"
-            sh "npm shrinkwrap --only=prod"
-        }
-    )
+    pipeline.checkVulnerabilities()
 
     // Deploys the application if on a protected branch. Give the version input
     // 30 minutes before an auto timeout approve.
