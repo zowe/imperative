@@ -50,7 +50,7 @@ export class ProfileIO {
         } catch (err) {
             throw new ImperativeError({
                 msg: `An error occurred creating profile directory: "${path}". ` +
-                `Error Details: ${err.message}`,
+                    `Error Details: ${err.message}`,
                 additionalDetails: err
             }, {tag: ProfileIO.ERROR_ID});
         }
@@ -141,7 +141,7 @@ export class ProfileIO {
             } else {
                 throw new ImperativeError({
                     msg: `An unexpected profile delete error occurred for profile "${name}". ` +
-                    `Error Details: ${deleteErr.message}.`,
+                        `Error Details: ${deleteErr.message}.`,
                     additionalDetails: deleteErr
                 }, {tag: ProfileIO.ERROR_ID});
             }
@@ -182,7 +182,7 @@ export class ProfileIO {
         } catch (e) {
             throw new ImperativeError({
                 msg: `An error occurred converting and writing the meta profile to "${path}". ` +
-                `Error Details: ${e.message}`,
+                    `Error Details: ${e.message}`,
                 additionalDetails: e
             }, {tag: ProfileIO.ERROR_ID});
         }
@@ -214,10 +214,15 @@ export class ProfileIO {
         let names: string[] = [];
         try {
             names = fs.readdirSync(profileRootDirectory);
+            names = names.filter((name) => {
+                // only return directories, not files
+                const stats = fs.statSync(pathPackage.join(profileRootDirectory, name));
+                return stats.isDirectory();
+            });
         } catch (e) {
             throw new ImperativeError({
                 msg: `An error occurred attempting to read all profile directories from "${profileRootDirectory}". ` +
-                `Error Details: ${e.message}`,
+                    `Error Details: ${e.message}`,
                 additionalDetails: e
             }, {tag: ProfileIO.ERROR_ID});
         }
@@ -250,7 +255,7 @@ export class ProfileIO {
         } catch (e) {
             throw new ImperativeError({
                 msg: `An error occurred attempting to read all profile names from "${profileTypeDir}". ` +
-                `Error Details: ${e.message}`,
+                    `Error Details: ${e.message}`,
                 additionalDetails: e
             }, {tag: ProfileIO.ERROR_ID});
         }
