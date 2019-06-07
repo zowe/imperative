@@ -40,7 +40,7 @@ describe("Cli Profile Manager", () => {
         return path.indexOf("meta") === -1 ? path : undefined;
     });
 
-    ProfileIO.readMetaFile = jest.fn((fullFilePath: string) => {
+    (ProfileIO.readMetaFile as any) = jest.fn((fullFilePath: string) => {
         return {
             defaultProfile: "mybana",
             configuration: {
@@ -170,7 +170,7 @@ describe("Cli Profile Manager", () => {
         "the handler should be called and the resulting profile should have the created fields in it.", async () => {
         const configs = getTypeConfigurations();
 
-        ProfileIO.exists = jest.fn(() => {
+        (ProfileIO.exists as any) = jest.fn(() => {
             return true; // pretend the profile already exists
         });
 
@@ -199,7 +199,7 @@ describe("Cli Profile Manager", () => {
         "the handler should be called and the resulting profile should have the created fields in it.", async () => {
         const configs = getTypeConfigurations();
         const oldSum = 55;
-        ProfileIO.exists = jest.fn(() => {
+        (ProfileIO.exists as any) = jest.fn(() => {
             return true; // pretend the profile already exists
         });
         ProfileIO.readProfileFile = jest.fn((fullFilePath: string, type: "string") => {
@@ -228,7 +228,7 @@ describe("Cli Profile Manager", () => {
         "the profile handler does not add a field required by the schema, " +
         "we should get a validation error", async () => {
         const configs = getTypeConfigurations();
-        ProfileIO.exists = jest.fn(() => {
+        (ProfileIO.exists as any) = jest.fn(() => {
             return true; // pretend the profile already exists
         });
         ProfileIO.writeProfile = jest.fn((fullFilePath: string, profile: IProfile) => {
@@ -259,7 +259,7 @@ describe("Cli Profile Manager", () => {
     it("should still create a profile properly without providing args", async () => {
         const configs = getTypeConfigurations();
 
-        ProfileIO.exists = jest.fn(() => {
+        (ProfileIO.exists as any) = jest.fn(() => {
             return true; // pretend the profile already exists
         });
         ProfileIO.writeProfile = jest.fn((fullFilePath: string, profile: IProfile) => {
@@ -285,7 +285,7 @@ describe("Cli Profile Manager", () => {
     it("should still fail profile validation on creation if no args are provided ", async () => {
         const configs = getTypeConfigurations();
 
-        ProfileIO.exists = jest.fn(() => {
+        (ProfileIO.exists as any) = jest.fn(() => {
             return true; // pretend the profile already exists
         });
         ProfileIO.writeProfile = jest.fn((fullFilePath: string, profile: IProfile) => {
@@ -314,7 +314,7 @@ describe("Cli Profile Manager", () => {
     it("should still fail profile validation on update if no args are provided ", async () => {
         const configs = getTypeConfigurations();
 
-        ProfileIO.exists = jest.fn(() => {
+        (ProfileIO.exists as any) = jest.fn(() => {
             return true; // pretend the profile already exists
         });
         ProfileIO.writeProfile = jest.fn((fullFilePath: string, profile: IProfile) => {
@@ -342,7 +342,7 @@ describe("Cli Profile Manager", () => {
     it("If we provide a non existent handler to create a profile from command line arguments, " +
         "we should get a helpful error.", async () => {
         const configs = getTypeConfigurations();
-        ProfileIO.exists = jest.fn(() => {
+        (ProfileIO.exists as any) = jest.fn(() => {
             return true; // pretend the profile already exists
         });
         configs[0].createProfileFromArgumentsHandler = __dirname + "/profileHandlers/fakearooni";
@@ -369,7 +369,7 @@ describe("Cli Profile Manager", () => {
     it("If we provide a non existent handler to update a profile from command line arguments, " +
         "we should get a helpful error.", async () => {
         const configs = getTypeConfigurations();
-        ProfileIO.exists = jest.fn(() => {
+        (ProfileIO.exists as any) = jest.fn(() => {
             return true; // pretend the profile already exists
         });
         configs[0].updateProfileFromArgumentsHandler = __dirname + "/profileHandlers/fakearooni";
@@ -465,7 +465,7 @@ describe("Cli Profile Manager", () => {
     });
     it("should create a profile with dependencies if the proper command line arguments are provided",
         async () => {
-            ProfileIO.exists = jest.fn(() => {
+            (ProfileIO.exists as any) = jest.fn(() => {
                 return true; // pretend the dependent profile already exists
             });
             const configs = getTypeConfigurations();
@@ -503,7 +503,7 @@ describe("Cli Profile Manager", () => {
         "the handler should be called and the resulting profile should have the created fields in it.", async () => {
         const configs = getTypeConfigurations();
         const oldSum = 55;
-        ProfileIO.exists = jest.fn(() => {
+        (ProfileIO.exists as any) = jest.fn(() => {
             return true; // pretend the profile already exists
         });
         ProfileIO.readProfileFile = jest.fn((fullFilePath: string, type: "string") => {
@@ -519,7 +519,8 @@ describe("Cli Profile Manager", () => {
         const a = 1;
         const b = 2;
         const profileName = "myprofile";
-        const saveResult = await manager.update({name: profileName, type: profileTypeOne, profile: {}, args: {_: [], $0: "test", a, b}
+        const saveResult = await manager.update({
+            name: profileName, type: profileTypeOne, profile: {}, args: {_: [], $0: "test", a, b}
         });
         testLogger.info("Save profile result: " + inspect(saveResult));
         expect(saveResult.profile.sum).toEqual(a + b);
@@ -529,7 +530,7 @@ describe("Cli Profile Manager", () => {
         "profile fields on update", async () => {
         const configs = getTypeConfigurations();
         const oldSum = 55;
-        ProfileIO.exists = jest.fn(() => {
+        (ProfileIO.exists as any) = jest.fn(() => {
             return true; // pretend the profile already exists
         });
         ProfileIO.readProfileFile = jest.fn((fullFilePath: string,
@@ -570,7 +571,7 @@ describe("Cli Profile Manager", () => {
         "profile fields on creation", async () => {
         const configs = getTypeConfigurations();
         const oldSum = 55;
-        ProfileIO.exists = jest.fn(() => {
+        (ProfileIO.exists as any) = jest.fn(() => {
             return true; // pretend the profile already exists
         });
         ProfileIO.readProfileFile = jest.fn((fullFilePath: string,
@@ -613,7 +614,7 @@ describe("Cli Profile Manager", () => {
         "while updating", async () => {
         const configs = getTypeConfigurations();
         const oldSum = 55;
-        ProfileIO.exists = jest.fn(() => {
+        (ProfileIO.exists as any)= jest.fn(() => {
             return true; // pretend the profile already exists
         });
         ProfileIO.readProfileFile = jest.fn((fullFilePath: string,
@@ -649,8 +650,7 @@ describe("Cli Profile Manager", () => {
                     myGrandChild: "johnny"
                 }
             });
-        }
-        catch (e) {
+        } catch (e) {
             expect(e.message).toContain(errMessage);
             expect(e.message).toContain("profile");
             return;
@@ -695,8 +695,7 @@ describe("Cli Profile Manager", () => {
         ProfileIO.readProfileFile = jest.fn((filePath: string, type: string) => {
             if (type === PROFILE_TYPE.STRAWBERRY) {
                 return profileA;
-            }
-            else {
+            } else {
                 return {
                     type: "apple",
                     name: "thing"
@@ -780,8 +779,7 @@ describe("Cli Profile Manager", () => {
         ProfileIO.readProfileFile = jest.fn((filePath: string, type: string) => {
             if (type === PROFILE_TYPE.STRAWBERRY) {
                 return profileA;
-            }
-            else {
+            } else {
                 return {
                     type: "apple",
                     name: "thing"
