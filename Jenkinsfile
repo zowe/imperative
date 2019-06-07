@@ -140,25 +140,8 @@ node('ca-jenkins-agent') {
         }
     )
 
-    // Check for vulnerabilities
-    pipeline.createStage(
-        name: "Check for Vulnerabilities",
-        stage: {
-            sh 'npm run audit:public'
-        }
-    )
-
-    // This stage will be removed once the vuln-check is implemented in shared-libraries as a function
-    pipeline.createStage(
-        name: "Temporary Pre-deploy",
-        stage: {
-            sh "rm -rf node_modules"
-            sh "rm npm-shrinkwrap.json || exit 0"
-            sh "rm package-lock.json || exit 0"
-            sh "npm install --only=prod --no-package-lock"
-            sh "npm shrinkwrap --only=prod"
-        }
-    )
+    // Check vulnerabilities
+    pipeline.checkVulnerabilities()
 
     // Deploys the application if on a protected branch. Give the version input
     // 30 minutes before an auto timeout approve.
