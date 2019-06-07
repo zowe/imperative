@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.                                     *
 *                                                                                 *
 */
-@Library('shared-pipelines@v1.2.0') import org.zowe.pipelines.nodejs.NodeJSPipeline
+@Library('shared-pipelines') import org.zowe.pipelines.nodejs.NodeJSPipeline
 
 import org.zowe.pipelines.nodejs.models.SemverLevel
 
@@ -128,14 +128,6 @@ node('ca-jenkins-agent') {
         junitOutput: INTEGRATION_JUNIT_OUTPUT
     )
 
-    // Check for vulnerabilities
-    pipeline.createStage(
-        name: "Check for Vulnerabilities",
-        stage: {
-            sh 'npm run audit:public'
-        }
-    )
-
     // Perform sonar qube operations
     pipeline.createStage(
         name: "SonarQube",
@@ -146,6 +138,9 @@ node('ca-jenkins-agent') {
             }
         }
     )
+
+    // Check vulnerabilities
+    pipeline.checkVulnerabilities()
 
     // Deploys the application if on a protected branch. Give the version input
     // 30 minutes before an auto timeout approve.
