@@ -21,8 +21,8 @@ export const setDefinition: ICommandDefinition = {
     aliases: ["se"],
     type: "command",
     handler: join(__dirname, "set.handler"),
-    summary: "Set a configuration setting.",
-    description: "Set a configuration setting",
+    summary: "Set a configuration setting",
+    description: "Set a configuration setting.",
     positionals: [
         {
         name: "configName",

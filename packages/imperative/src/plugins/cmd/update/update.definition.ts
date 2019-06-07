@@ -38,7 +38,7 @@ const loginDescription =
 export const updateDefinition: ICommandDefinition = {
   name: "update",
   type: "command",
-  summary: "update a plug-in",
+  summary: "Update a plug-in",
   description: "Update plug-ins.",
   handler: join(__dirname, "update.handler"),
   positionals: [
