@@ -8,7 +8,7 @@
 * Copyright Contributors to the Zowe Project.                                     *
 *                                                                                 *
 */
-@Library('shared-pipelines@prune-prod') import org.zowe.pipelines.nodejs.NodeJSPipeline
+@Library('shared-pipelines') import org.zowe.pipelines.nodejs.NodeJSPipeline
 
 import org.zowe.pipelines.nodejs.models.SemverLevel
 
@@ -18,12 +18,10 @@ node('ca-jenkins-agent') {
 
     // Build admins, users that can approve the build and receieve emails for 
     // all protected branch builds.
-    // pipeline.admins.add("zfernand0", "mikebauerca", "markackert", "dkelosky")
-    pipeline.admins.add("zfernand0")
+    pipeline.admins.add("zfernand0", "mikebauerca", "markackert", "dkelosky")
 
     // Protected branch property definitions
     pipeline.protectedBranches.addMap([
-        [name: "prune-prod", tag: "prune-prod", prerelease: "test", dependencies: ["@zowe/perf-timing": "daily"]],
         [name: "master", tag: "daily", prerelease: "alpha", dependencies: ["@zowe/perf-timing": "daily"]],
         [name: "beta", tag: "beta", prerelease: "beta", dependencies: ["@zowe/perf-timing": "beta"]],
         [name: "latest", tag: "latest", dependencies: ["@zowe/perf-timing": "latest"], autoDeploy: true],
@@ -142,7 +140,7 @@ node('ca-jenkins-agent') {
         }
     )
 
-    // Use the new check vulnerabilities from the library
+    // Check vulnerabilities
     pipeline.checkVulnerabilities()
 
     // Deploys the application if on a protected branch. Give the version input
