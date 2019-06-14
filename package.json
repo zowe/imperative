@@ -4,6 +4,10 @@
   "description": "framework for building configurable CLIs",
   "author": "Broadcom",
   "license": "EPL-2.0",
+  "homepage": "https://github.com/zowe/imperative#readme",
+  "bugs": {
+    "url": "https://github.com/zowe/imperative/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/zowe/imperative.git"
