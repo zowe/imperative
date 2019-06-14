@@ -15,18 +15,18 @@ In addition to Node.js, you must have a means to execute ".sh" (bash) scripts to
 Issue the following commands to install Imperative CLI Framework as a dependency. Note that the registry URL differs between versions of Imperative CLI Framework 
 
 **Install `@latest` version:**
+
+Be aware that if you update via `@latest`, you accept breaking changes into your project.
 ``` bash
 npm install --@zowe:registry=https://registry.npmjs.org --no-package-lock --force
 npm install --save @zowe/imperative@lts-incremental 
 ```
 
-**Install the `@lts-incremental` version:**
+**Install `@lts-incremental` version:**
 ``` bash
 npm install --@zowe:registry=https://registry.npmjs.org --no-package-lock --force
 npm install --save @zowe/imperative@lts-incremental 
 ```
-
-**Note:** Be aware that if you update via `@latest`, you accept breaking changes into your project.
 
 
 ### Build and Install Imperative CLI Framework from Source
