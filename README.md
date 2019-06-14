@@ -1,8 +1,14 @@
 # Imperative CLI Framework
 
-Imperative CLI Framework is a command processing system that enables developers to quickly build customized command-line interfaces. Focus on adding functionality for your users rather than creating CLI infrastructure.
+Imperative CLI Framework is a command processing system that lets you quickly build customized command-line interfaces. Focus on adding functionality for your users rather than creating CLI infrastructure. We provide you with all the tools to get started building your own CLI plug-ins.
 
-We provide you with all the tools to get started building your own CLIs and plug-ins.
+### Software Requirements
+
+[**Install Node.js package manager**](https://nodejs.org/en/download/package-manager) and follow the instructions for installing Node.js on your computer. Node.js® is a JavaScript runtime environment on which we architected Imperative CLI Framework.
+
+In addition to Node.js, you must have a means to execute ".sh" (bash) scripts to run integration tests. On Windows, you can install "Git Bash", which is bundled with the standard [Git](https://git-scm.com/downloads) installation - (choose the "Use Git and Unix Tools from Windows Command Prompt" installation option). When you run the integration tests on Windows, you must have Administrative authority to enable the integration tests to create symbolic links.
+
+**Note:** Broadcom Inc. does not maintain the prerequisite software that Imperative CLI Framework requires. You are responsible for updating Node.js and other prerequisites on your computer. We recommend that you update Node.js regularly to the latest Long Term Support (LTS) version.
 
 ## Install Imperative as a Dependency
 
@@ -22,19 +28,6 @@ npm install --save @zowe/imperative@lts-incremental
 
 **Note:** Be aware that if you update via `@latest`, you accept breaking changes into your project.
 
-### Prerequisite Software
-Node.js® is a JavaScript runtime environment on which we architected Imperative CLI Framework. Use the Node.js package manager (npm) to install the framework.
-
-To install Node.js, go to the [*Installing Node.js via package manager*](https://nodejs.org/en/download/package-manager) and follow the instructions for installing Node.js on your computer.
-
-In addition to Node.js, you must have a means to execute ".sh" (bash) scripts (required for running integration tests). On Windows, you can install "Git Bash" (bundled with the standard [Git](https://git-scm.com/downloads) installation - check "Use Git and Unix Tools from Windows Command Prompt" installation option). When running the integration tests on Windows, you must have Administrative authority to enable the integration tests to create symbolic links.
-
-After downloading/installing the prerequisites ensure you can perform the following (and receive success responses):
-1. `node --version`
-2. `npm --version`
-3. On Windows: `where sh`
-
-**Note:** Broadcom Inc. does not maintain the prerequisite software that Imperative CLI Framework requires. You are responsible for updating Node.js and other prerequisites on your computer. We recommend that you update Node.js regularly to the latest Long Term Support (LTS) version.
 
 ### Build and Install Imperative CLI Framework from Source
 To build and install the Imperative CLI Framework, follow these steps:
