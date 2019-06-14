@@ -4,9 +4,9 @@ Imperative CLI Framework is a command processing system that lets you quickly bu
 
 ## Software Requirements
 
-[**Install Node.js package manager**](https://nodejs.org/en/download/package-manager) on your computer. Node.js® is a JavaScript runtime environment on which we architected Imperative CLI Framework.
+- [**Install Node.js package manager**](https://nodejs.org/en/download/package-manager) on your computer. Node.js® is a JavaScript runtime environment on which we architected Imperative CLI Framework.
 
-In addition to Node.js, you must have a means to execute ".sh" (bash) scripts to run integration tests. On Windows, you can install "Git Bash", which is bundled with the standard [Git](https://git-scm.com/downloads) installation - (choose the "Use Git and Unix Tools from Windows Command Prompt" installation option). When you run the integration tests on Windows, you must have Administrative authority to enable the integration tests to create symbolic links.
+- You must have a means to execute ".sh" (bash) scripts to run integration tests. On Windows, you can install "Git Bash", which is bundled with the standard [Git](https://git-scm.com/downloads) installation - (choose the "Use Git and Unix Tools from Windows Command Prompt" installation option). When you run the integration tests on Windows, you must have Administrative authority to enable the integration tests to create symbolic links.
 
 **Note:** Broadcom Inc. does not maintain the prerequisite software that Imperative CLI Framework requires. You are responsible for updating Node.js and other prerequisites on your computer. We recommend that you update Node.js regularly to the latest Long Term Support (LTS) version.
 
@@ -14,19 +14,21 @@ In addition to Node.js, you must have a means to execute ".sh" (bash) scripts to
 
 Issue the following commands to install Imperative CLI Framework as a dependency. Note that the registry URL differs between versions of Imperative CLI Framework 
 
-**Install `@latest` version:**
+- **Install `@latest` version:**
 
-Be aware that if you update via `@latest`, you accept breaking changes into your project.
-``` bash
-npm install --@zowe:registry=https://registry.npmjs.org --no-package-lock --force
-npm install --save @zowe/imperative@lts-incremental 
-```
+    Be aware that if you update via `@latest`, you accept breaking changes into your project.
+    
+    ``` bash
+    npm install --@zowe:registry=https://registry.npmjs.org --no-package-lock --force
+    npm install --save @zowe/imperative@lts-incremental 
+    ```
 
-**Install `@lts-incremental` version:**
-``` bash
-npm install --@zowe:registry=https://registry.npmjs.org --no-package-lock --force
-npm install --save @zowe/imperative@lts-incremental 
-```
+- **Install `@lts-incremental` version:**
+
+    ``` bash
+    npm install --@zowe:registry=https://registry.npmjs.org --no-package-lock --force
+    npm install --save @zowe/imperative@lts-incremental 
+    ```
 
 
 ### Build and Install Imperative CLI Framework from Source
