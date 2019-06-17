@@ -30,7 +30,7 @@ Object {
         "rff",
       ],
       "description": "Filter (include) fields in the response. Accepts an array of field/property names to include in the output response. You can filter JSON objects properties OR table columns/fields. In addition, you can use this option in conjunction with '--response-format-type' to reduce the output of a command to a single field/property or a list of a single field/property.",
-      "group": "response format options",
+      "group": "Response Format Options",
       "name": "response-format-filter",
       "type": "array",
     },
@@ -47,7 +47,7 @@ Object {
           "string",
         ],
       },
-      "description": "The command response output format type. Must be one of the following: 
+      "description": "The command response output format type. Must be one of the following:
 
 table: Formats output data as a table. Use this option when the output data is an array of homogeneous JSON objects. Each property of the object will become a column in the table.
 
@@ -56,7 +56,7 @@ list: Formats output data as a list of strings. Can be used on any data type (JS
 object: Formats output data as a list of prettified objects (or single object). Can be used in place of \\"table\\" to change from tabular output to a list of prettified objects.
 
 string: Formats output data as a string. JSON objects/arrays are stringified.",
-      "group": "response format options",
+      "group": "Response Format Options",
       "name": "response-format-type",
       "type": "string",
     },
@@ -66,7 +66,7 @@ string: Formats output data as a string. JSON objects/arrays are stringified.",
       ],
       "defaultValue": null,
       "description": "If \\"--response-format-type table\\" is specified, include the column headers in the output.",
-      "group": "response format options",
+      "group": "Response Format Options",
       "name": "response-format-header",
       "type": "boolean",
     },
