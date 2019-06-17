@@ -69,7 +69,7 @@ export class OptionConstants {
     public static readonly RESPONSE_FORMAT_OPTION: ICommandOptionDefinition = {
         name: "response-format-type",
         aliases: ["rft"],
-        description: `The command response output format type. Must be one of the following: ` +
+        description: `The command response output format type. Must be one of the following:` +
             "\n\ntable: " +
             "Formats output data as a table. Use this option when the output data is an array of homogeneous JSON objects. " +
             "Each property of the object will become a column in the table." +
