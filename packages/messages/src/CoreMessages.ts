@@ -195,9 +195,9 @@ export const updateProfileCommandSummary: IMessageDefinition = {
 };
 
 export const updateProfileCommandDesc: IMessageDefinition = {
-    message: `Update a {{type}} profile.` +
+    message: `Update a {{type}} profile. ` +
         `You can update any property present within the profile configuration. The updated profile ` +
-        ` will be printed so that you can review the result of the updates.`,
+        `will be printed so that you can review the result of the updates.`,
 };
 
 export const listGroupWithOnlyProfilesSummary: IMessageDefinition = {

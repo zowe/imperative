@@ -32,7 +32,7 @@ export class OptionConstants {
             "In addition, you can use this option in conjunction with '--response-format-type' " +
             "to reduce the output of a command to a single field/property or a list of a single field/property.",
         type: "array",
-        group: "response format options"
+        group: "Response Format Options"
     };
 
     /**
@@ -47,7 +47,7 @@ export class OptionConstants {
         aliases: ["rfh"],
         description: "If \"--response-format-type table\" is specified, include the column headers in the output.",
         type: "boolean",
-        group: "response format options",
+        group: "Response Format Options",
         defaultValue: null
     };
 
@@ -83,7 +83,7 @@ export class OptionConstants {
             values: OptionConstants.RESPONSE_FORMAT_TYPES,
             caseSensitive: false
         },
-        group: "response format options"
+        group: "Response Format Options"
     };
 
 }
