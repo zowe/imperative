@@ -485,9 +485,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
                 return exampleText;
             }).join("\n");
             if (this.mCommandDefinition.examples.length > 0) {
-                examplesText = (this.mProduceMarkdown ? "{{header}}{{header}}{{header}} Examples" :
-                    "\n" + DefaultHelpGenerator.formatHelpHeader("Examples", undefined, this.mPrimaryHighlightColor))
-                    + "\n\n" + examplesText + "\n";
+                examplesText = this.buildHeader("Examples") + examplesText + "\n";
             }
         }
         return this.renderHelp(examplesText);
