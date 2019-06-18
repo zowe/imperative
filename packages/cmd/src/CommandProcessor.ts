@@ -415,8 +415,9 @@ export class CommandProcessor {
                             // array processing
                             else {
                                 if ((prepared.args[positionalName] != null &&
-                                    prepared.args[positionalName][0] != null &&
                                     (Array.isArray(prepared.args[positionalName])) &&
+                                    prepared.args[positionalName][0] != null &&
+                                    isString(prepared.args[positionalName][0]) &&
                                     (prepared.args[positionalName][0].toUpperCase() === this.promptPhrase.toUpperCase()))) {
                                     // prompt has been requested for a positional
                                     this.log.debug("Prompting for positional %s which was requested by passing the value %s",
@@ -459,6 +460,7 @@ export class CommandProcessor {
                             else {
                                 if (((Array.isArray(prepared.args[option.name])) &&
                                     prepared.args[option.name][0] != null &&
+                                    isString(prepared.args[option.name][0]) &&
                                     (prepared.args[option.name][0].toUpperCase() === this.promptPhrase.toUpperCase()))) {
                                     // prompt has been requested for an --option
                                     this.log.debug("Prompting for option %s which was requested by passing the value %s",

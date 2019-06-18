@@ -21,8 +21,8 @@ export const listDefinition: ICommandDefinition = {
     aliases: ["li"],
     type: "command",
     handler: join(__dirname, "list.handler"),
-    summary: "List a configuration setting options.",
-    description: "List a configuration setting options",
+    summary: "List all configuration setting options",
+    description: "List all configuration setting options.",
     options: [
         {
         name: "values",
@@ -33,11 +33,11 @@ export const listDefinition: ICommandDefinition = {
     examples: [
         {
             options: "",
-            description: "List a configuration setting options"
+            description: "List all configuration setting options"
         },
         {
             options: "--values",
-            description: "List a configuration setting options with values"
+            description: "List all configuration setting options with values"
         }
     ],
 };
