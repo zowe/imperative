@@ -83,7 +83,7 @@ Object {
       ],
       "description": "Create new configuration profiles.",
       "name": "create",
-      "summary": "Create new configuration profiles.",
+      "summary": "Create new configuration profiles",
       "type": "group",
     },
     Object {
@@ -119,7 +119,7 @@ Object {
               "type": "string",
             },
           ],
-          "summary": "Update a type-a profile.You can update any property present within the profile configuration. The updated profile  will be printed so that you can review the result of the updates.",
+          "summary": "Update a type-a profile. You can update any property present within the profile configuration. The updated profile will be printed so that you can review the result of the updates.",
           "type": "command",
         },
         Object {
@@ -150,11 +150,11 @@ Object {
               "type": "string",
             },
           ],
-          "summary": "Update a type-b profile.You can update any property present within the profile configuration. The updated profile  will be printed so that you can review the result of the updates.",
+          "summary": "Update a type-b profile. You can update any property present within the profile configuration. The updated profile will be printed so that you can review the result of the updates.",
           "type": "command",
         },
       ],
-      "description": "Update a {{type}} profile.You can update any property present within the profile configuration. The updated profile  will be printed so that you can review the result of the updates.",
+      "description": "Update a {{type}} profile. You can update any property present within the profile configuration. The updated profile will be printed so that you can review the result of the updates.",
       "name": "update",
       "summary": "Update existing profiles",
       "type": "group",
@@ -239,7 +239,7 @@ Object {
       ],
       "description": "Delete existing profiles.",
       "name": "delete",
-      "summary": "Delete existing profiles.",
+      "summary": "Delete existing profiles",
       "type": "group",
     },
     Object {
@@ -318,7 +318,7 @@ Object {
       ],
       "description": "List profiles of the type {{type}}",
       "name": "list",
-      "summary": "List existing profiles.",
+      "summary": "List existing profiles",
       "type": "group",
     },
     Object {
@@ -389,7 +389,7 @@ Object {
       ],
       "description": "Set which profiles are loaded by default.",
       "name": "set-default",
-      "summary": "Set which profiles are loaded by default.",
+      "summary": "Set which profiles are loaded by default",
       "type": "group",
     },
     Object {
