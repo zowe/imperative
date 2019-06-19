@@ -150,7 +150,7 @@ const license: ITaskFunction = (done: (err: Error) => void) => {
 
 const watch: ITaskFunction = (done) => {
     loadDependencies();
-    gulp.watch("packages/**", ["lint"]);
+    gulp.watch("packages/**", gulp.series("lint"));
     const watchProcess = childProcess.spawn("node", [tscExecutable, "--watch"], {stdio: "inherit"});
     watchProcess.on("error", (error: Error) => {
         gutil.log(error);
