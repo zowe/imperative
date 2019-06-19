@@ -62,7 +62,8 @@ export class ConfigManagementFacility {
         ImperativeConfig.instance.addCmdGrpToLoadedConfig({
             name: "config",
             type: "group",
-            description: "Manage configuration and overrides",
+            summary: "Manage configuration and overrides",
+            description: "Manage configuration and overrides.",
             children: [
                 // require("./cmd/get/get.definition").getDefinition,
                 require("./cmd/set/set.definition").setDefinition,

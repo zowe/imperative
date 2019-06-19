@@ -32,7 +32,7 @@ export class OptionConstants {
             "In addition, you can use this option in conjunction with '--response-format-type' " +
             "to reduce the output of a command to a single field/property or a list of a single field/property.",
         type: "array",
-        group: "response format options"
+        group: "Response Format Options"
     };
 
     /**
@@ -47,7 +47,7 @@ export class OptionConstants {
         aliases: ["rfh"],
         description: "If \"--response-format-type table\" is specified, include the column headers in the output.",
         type: "boolean",
-        group: "response format options",
+        group: "Response Format Options",
         defaultValue: null
     };
 
@@ -69,7 +69,7 @@ export class OptionConstants {
     public static readonly RESPONSE_FORMAT_OPTION: ICommandOptionDefinition = {
         name: "response-format-type",
         aliases: ["rft"],
-        description: `The command response output format type. Must be one of the following: ` +
+        description: `The command response output format type. Must be one of the following:` +
             "\n\ntable: " +
             "Formats output data as a table. Use this option when the output data is an array of homogeneous JSON objects. " +
             "Each property of the object will become a column in the table." +
@@ -83,7 +83,7 @@ export class OptionConstants {
             values: OptionConstants.RESPONSE_FORMAT_TYPES,
             caseSensitive: false
         },
-        group: "response format options"
+        group: "Response Format Options"
     };
 
 }

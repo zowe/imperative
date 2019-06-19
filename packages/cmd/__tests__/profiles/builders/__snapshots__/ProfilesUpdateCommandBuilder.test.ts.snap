@@ -29,7 +29,7 @@ Object {
       "type": "string",
     },
   ],
-  "summary": "Update a type-a profile.You can update any property present within the profile configuration. The updated profile  will be printed so that you can review the result of the updates.",
+  "summary": "Update a type-a profile. You can update any property present within the profile configuration. The updated profile will be printed so that you can review the result of the updates.",
   "type": "command",
 }
 `;

@@ -474,6 +474,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
             examplesText = this.mCommandDefinition.examples.map((example) => {
                 const prefix = example.prefix != null ? example.prefix + "{{space}} " : "";
                 const exampleHyphen = this.mProduceMarkdown ? "" : "-";
+                const options = (example.options.length > 0) ? ` ${example.options}` : "";
                 let exampleText = TextUtils.wordWrap("{{bullet}}" + exampleHyphen + " {{space}}" + example.description + ":\n\n",
                     undefined,
                     this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT);
@@ -481,13 +482,11 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
                     prefix +
                     this.mRootCommandName + " " +
                     CommandUtils.getFullCommandName(this.mCommandDefinition,
-                        this.mDefinitionTree) + " " + example.options + "{{codeEnd}}\n";
+                        this.mDefinitionTree) + options + "{{codeEnd}}\n";
                 return exampleText;
             }).join("\n");
             if (this.mCommandDefinition.examples.length > 0) {
-                examplesText = (this.mProduceMarkdown ? "{{header}}{{header}}{{header}} Examples" :
-                    "\n" + DefaultHelpGenerator.formatHelpHeader("Examples", undefined, this.mPrimaryHighlightColor))
-                    + "\n\n" + examplesText + "\n";
+                examplesText = this.buildHeader("Examples") + examplesText + "\n";
             }
         }
         return this.renderHelp(examplesText);
