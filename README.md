@@ -12,7 +12,7 @@ Imperative CLI Framework is a command processing system that lets you quickly bu
 
 ## Install Imperative as a Dependency
 
-Issue the following commands to install Imperative CLI Framework as a dependency. Note that the registry URL differs between versions of Imperative CLI Framework 
+Issue the following commands to install Imperative CLI Framework as a dependency. Note that the registry URL differs between versions of Imperative CLI Framework.
 
 - **Install `@latest` version:**
 
@@ -27,7 +27,7 @@ Issue the following commands to install Imperative CLI Framework as a dependency
 
     ``` bash
     npm install --@zowe:registry=https://registry.npmjs.org --no-package-lock --force
-    npm install --save @zowe/imperative@lts-incremental 
+    npm install --save @zowe/imperative@lts-incremental
     ```
 
 
@@ -55,7 +55,7 @@ Command | Description
 `npm test:integration` | Run integration tests
 `npm test:unit` | Run unit tests
 
-**Note:** To run the integration tests via gulp, install all dependencies for test clis, build all test clis, & install all sample clis globally using the following sequence:
+**Note:** To run the integration tests via gulp, install all dependencies for test CLIs, build all test CLIs, & install all sample CLIs globally using the following sequence:
 1. `gulp build:install-all-cli-dependencies`
 2. `gulp build:all-clis`
 3. `gulp test:installSampleClis`
@@ -68,10 +68,10 @@ Command | Description
 We provide a sample plug-in that you can use to get started developing your own plug-ins. See the [Zowe CLI Sample Plug-in](https://github.com/zowe/zowe-cli-sample-plugin).
 
 ## Documentation
-We provide documentation that describes how to define commands, work with user profiles,  and more! For more information, see the [Imperative CLI Framework wiki](https://github.com/zowe/imperative/wiki).
+We provide documentation that describes how to define commands, work with user profiles, and more! For more information, see the [Imperative CLI Framework wiki](https://github.com/zowe/imperative/wiki).
 
 ## Contribute
-For information about how you can contribute code to Imperative CLI Framework, see [CONTRIBUTING](CONTRIBUTING.md) 
+For information about how you can contribute code to Imperative CLI Framework, see [CONTRIBUTING](CONTRIBUTING.md)
 
 ## Versioning
 Imperative CLI Framework uses Semantic Versioning (SemVer) for versioning. For more information, see the [Semantic Versioning](https://semver.org/) website.
