@@ -36,11 +36,11 @@ To build and install the Imperative CLI Framework, follow these steps:
 
 1. Install node-gyp. node-gyp is a tool that you use to build Node.js native addons. For more information, see the node-gyp installation instructions at https://github.com/nodejs/node-gyp.
 **Note:** You can skip to the next step if you installed node-gyp previously.
-2. Clone the [Imperative CLI Framework project](**REMOVED**) to your PC.
-3. From the command line, issue `cd [relative path]/imperative`
-4. Issue `npm install`
-5. Issue `npm run build`
-6. Issue `npm run test`
+1. Clone the `zowe/imperative` project to your PC.
+2. From the command line, issue `cd [relative path]/imperative`
+3. Issue `npm install`
+4. Issue `npm run build`
+5. Issue `npm run test`
 
 To build the entire project (including test stand-alone CLIs):
 `npm run build`
