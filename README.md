@@ -17,10 +17,10 @@ Issue the following commands to install Imperative CLI Framework as a dependency
 - **Install `@latest` version:**
 
     Be aware that if you update via `@latest`, you accept breaking changes into your project.
-    
+
     ``` bash
     npm install --@zowe:registry=https://registry.npmjs.org --no-package-lock --force
-    npm install --save @zowe/imperative@lts-incremental 
+    npm install --save @zowe/imperative
     ```
 
 - **Install `@lts-incremental` version:**
