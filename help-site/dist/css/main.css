@@ -41,9 +41,9 @@ html, body {
 #header-text {
     color: black;
     display: inline-block;
-    margin-top: 20px;
+    padding-top: 20px;
     text-decoration: none;
-    min-height: 44px;
+    min-height: 64px;
 }
 
 #panel-container {

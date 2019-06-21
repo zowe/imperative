@@ -1,9 +1,10 @@
 import * as fs from "fs";
-import * as marked from "marked";
 import * as path from "path";
 import { DefaultHelpGenerator } from "./DefaultHelpGenerator";
 import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { ImperativeConfig, Imperative } from "../../../imperative";
+
+const marked = require("marked");
 
 interface ITreeNode {
     id: string;
@@ -12,6 +13,9 @@ interface ITreeNode {
 }
 
 export class WebHelpGenerator {
+    public sanitizeHomeDir: boolean = false;
+    public singleDirOutput: boolean = false;
+
     private mConfig: ImperativeConfig;
     private mDocsDir: string;
 
@@ -29,32 +33,41 @@ export class WebHelpGenerator {
         // TODO Write output to Imperative log
         process.stdout.write("Generating web help");
 
+        // Create web-help folder
+        // After upgrading to Node v10, this step should no longer be necessary
+        // if the option recursive=True is used when the docs dir is created
+        // below
         const webHelpDir = path.join(this.mDocsDir, "..");
         if (!fs.existsSync(webHelpDir)) {
             fs.mkdirSync(webHelpDir);
         }
 
+        // Create web-help/docs folder
         if (fs.existsSync(this.mDocsDir)) {
             require("rimraf").sync(path.join(this.mDocsDir, "*"));
         } else {
             fs.mkdirSync(this.mDocsDir);
         }
 
+        // Create index.html with references to needed files in Imperative dir
         const indexTemplateHtmlPath = path.join(this.imperativeDir, "help-site", "dist", "index.template.html");
-        const indexHtmlContent: string = this.detemplatizeImperativeDir(fs.readFileSync(indexTemplateHtmlPath).toString());
+        const indexHtmlContent: string = this.expandTemplatizedDirs(fs.readFileSync(indexTemplateHtmlPath).toString(), true);
         const indexHtmlPath = path.join(webHelpDir, "index.html");
         fs.writeFileSync(indexHtmlPath, indexHtmlContent);
 
+        // Copy header image if it exists
         if (this.mConfig.loadedConfig.webHelpLogoImgPath) {
             fs.createReadStream(this.mConfig.loadedConfig.webHelpLogoImgPath).pipe(
                 fs.createWriteStream(path.join(webHelpDir, "header-image.png")));
         }
 
+        // Sort all items in the command tree and remove duplicates
         const uniqueDefinitions = Imperative.fullCommandTree;
         uniqueDefinitions.children = uniqueDefinitions.children
             .sort((a, b) => a.name.localeCompare(b.name))
-            .filter((item, pos, self) => self.indexOf(item) === pos);  // Remove duplicate items
+            .filter((a, pos, self) => self.findIndex((b) => a.name === b.name) === pos);
 
+        // Generate HTML help file for the root CLI command
         const rootCommandName: string = Imperative.rootCommandName;
         const rootHelpHtmlPath = path.join(this.mDocsDir, `${rootCommandName}.html`);
         this.treeNodes.push({ id: `${rootCommandName}.html`, text: rootCommandName });
@@ -69,6 +82,7 @@ export class WebHelpGenerator {
         fs.writeFileSync(rootHelpHtmlPath, rootHelpContent);
         process.stdout.write(".");
 
+        // Generate HTML help files for every CLI command
         uniqueDefinitions.children.forEach((def) => {
             process.stdout.write(".");
             this.genCommandHelpPage(def, def.name, this.mDocsDir, this.treeNodes[0]);
@@ -79,32 +93,36 @@ export class WebHelpGenerator {
     }
 
     private get imperativeDir(): string {
-        // TODO Better way to determine Imperative dir?
-        return path.join(__dirname, "..", "..", "..", "..");
+        return require("find-up").sync("imperative", {cwd: process.mainModule.filename, type: "directory"});
     }
 
-    private detemplatizeImperativeDir(html: string): string {
-        return html.replace(/{{IMPERATIVE_DIR}}/g, this.imperativeDir);
+    private expandTemplatizedDirs(html: string, topLevel: boolean): string {
+        if (!this.singleDirOutput) {
+            return html.replace(/{{IMPERATIVE_DIR}}/g, this.imperativeDir)
+                .replace(/{{IMPERATIVE_HELP_DIR}}/g, this.imperativeDir + "/help-site/dist");
+        } else {
+            return html.replace(/{{IMPERATIVE_(HELP_)?DIR}}/g, topLevel ? "." : "..");
+        }
     }
 
     private genDocsHeader(title: string): string {
-        return this.detemplatizeImperativeDir(`<!DOCTYPE html>
+        return this.expandTemplatizedDirs(`<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
 <title>${title}</title>
 <link rel="stylesheet" href="{{IMPERATIVE_DIR}}/node_modules/balloon-css/balloon.min.css">
 <link rel="stylesheet" href="{{IMPERATIVE_DIR}}/node_modules/github-markdown-css/github-markdown.css">
-<link rel="stylesheet" href="{{IMPERATIVE_DIR}}/help-site/dist/css/docs.css">
+<link rel="stylesheet" href="{{IMPERATIVE_HELP_DIR}}/css/docs.css">
 <article class="markdown-body">
-`);
+`, false);
     }
 
     private genDocsFooter(): string {
-        return this.detemplatizeImperativeDir(`</article>
+        return this.expandTemplatizedDirs(`</article>
 <script src="{{IMPERATIVE_DIR}}/node_modules/clipboard/dist/clipboard.min.js"></script>
-<script src="{{IMPERATIVE_DIR}}/help-site/dist/js/docs.js"></script>
-`);
+<script src="{{IMPERATIVE_HELP_DIR}}/js/docs.js"></script>
+`, false);
     }
 
     /**
@@ -176,10 +194,18 @@ export class WebHelpGenerator {
         htmlContent = htmlContent.replace(/<code>\$\s*(.*?)<\/code>/g,
             "<code>$1</code> <button class=\"btn-copy\" data-balloon-pos=\"right\" data-clipboard-text=\"$1\">Copy</button>");
 
+        // Sanitize references to user's home directory
+        if (this.sanitizeHomeDir) {
+            const homeDir = path.dirname(this.mConfig.loadedConfig.defaultHome);
+            htmlContent = htmlContent.replace(new RegExp(homeDir.replace(/[\\/]/g, "."), "g"),
+                homeDir.slice(0, homeDir.lastIndexOf(path.sep) + 1) + "&lt;user&gt;");
+        }
+
         const helpHtmlFile = `${rootCommandName}_${fullCommandName.trim()}.html`;
         const helpHtmlPath = path.join(docsDir, helpHtmlFile);
         fs.writeFileSync(helpHtmlPath, htmlContent);
 
+        // Add command node and list of aliases to tree data
         const childNode: ITreeNode = {
             id: helpHtmlFile,
             text: [definition.name, ...definition.aliases].join(" | ")
@@ -196,6 +222,7 @@ export class WebHelpGenerator {
             }
         });
 
+        // Recursively generate HTML help pages if this group/command has children
         if (definition.children) {
             definition.children.forEach((child: any) => {
                 this.genCommandHelpPage(child, `${fullCommandName}_${child.name}`, docsDir, childNode);

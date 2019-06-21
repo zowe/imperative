@@ -100,5 +100,5 @@ export class Constants {
     public static readonly DEFAULT_HIGHLIGHT_COLOR = "yellow";
     public static readonly DEFAULT_PROMPT_PHRASE = "PROMPT*";
 
-    public static readonly WEB_HELP_DIR = "web_help";
+    public static readonly WEB_HELP_DIR = "web-help";
 }
