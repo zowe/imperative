@@ -58,6 +58,12 @@ export class WebHelpManager implements IWebHelpManager {
         return path.join(ImperativeConfig.instance.cliHome, Constants.WEB_HELP_DIR);
     }
 
+    /**
+     * Computes current package metadata based on version of core and installed plug-ins
+     * @param packageJson - CLI package JSON
+     * @param pluginsJson - Imperative plug-ins JSON
+     * @returns {IPackageMetadata[]} Names and versions of all components
+     */
     private calcPackageMetadata(packageJson: any, pluginsJson: any): IPackageMetadata[] {
         return [
             { name: packageJson.name, version: packageJson.version },
@@ -67,11 +73,21 @@ export class WebHelpManager implements IWebHelpManager {
         ];
     }
 
+    /**
+     * Compares two package metadata objects to see if they are equal
+     * @param {IPackageMetadata[]} cached - Old cached package metadata
+     * @param {IPackageMetadata[]} current - Freshly computed package metadata
+     * @returns {boolean} True if the package metadata objects are equal
+     */
     private eqPackageMetadata(cached: IPackageMetadata[], current: IPackageMetadata[]): boolean {
         return JSON.stringify(cached.sort((a, b) => a.name.localeCompare(b.name))) ===
             JSON.stringify(current.sort((a, b) => a.name.localeCompare(b.name)));
     }
 
+    /**
+     * Checks if cached package metadata is non-existent or out of date
+     * @returns {MaybePackageMetadata} - `null` if cached metadata is up to date, otherwise updated metadata
+     */
     private checkIfMetadataChanged(): MaybePackageMetadata {
         const metadataFile = path.join(this.docsDir, "metadata.json");
         let cachedMetadata: IPackageMetadata[] = [];
@@ -88,6 +104,10 @@ export class WebHelpManager implements IWebHelpManager {
         return metadataChanged ? currentMetadata : null;
     }
 
+    /**
+     * Updates cached package metadata
+     * @param {IPackageMetadata[]} metadata - New metadata to save to disk
+     */
     private writePackageMetadata(metadata: IPackageMetadata[]) {
         const metadataFile = path.join(this.docsDir, "metadata.json");
         fs.writeFileSync(metadataFile, JSON.stringify(metadata, null, 2));

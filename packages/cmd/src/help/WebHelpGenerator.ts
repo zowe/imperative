@@ -4,7 +4,6 @@ import * as path from "path";
 import * as rimraf from "rimraf";
 import { DefaultHelpGenerator } from "./DefaultHelpGenerator";
 import { ICommandDefinition } from "../doc/ICommandDefinition";
-import { IWebHelpGenerator } from "./doc/IWebHelpGenerator";
 import { ImperativeConfig, Imperative } from "../../../imperative";
 
 interface ITreeNode {
@@ -13,7 +12,7 @@ interface ITreeNode {
     children?: ITreeNode[];
 }
 
-export class WebHelpGenerator implements IWebHelpGenerator {
+export class WebHelpGenerator {
     private mConfig: ImperativeConfig;
     private mDocsDir: string;
 
@@ -51,13 +50,13 @@ export class WebHelpGenerator implements IWebHelpGenerator {
         rootHelpContent += marked(this.mConfig.loadedConfig.rootCommandDescription) + "\n";
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
             { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions });
-        rootHelpContent += marked(`<h4>Groups</h4>\n` + this.processChildrenSummaryTables(helpGen, rootCommandName));
+        rootHelpContent += marked(`<h4>Groups</h4>\n` + this.buildChildrenSummaryTables(helpGen, rootCommandName));
         rootHelpContent += this.genDocsFooter();
         fs.writeFileSync(rootHelpHtmlPath, rootHelpContent);
         process.stdout.write(".");
 
         uniqueDefinitions.children.forEach((def) => {
-            this.genCommandHelpPage(def, def.name, this.mDocsDir, path.dirname(this.mConfig.loadedConfig.defaultHome), this.treeNodes[0]);
+            this.genCommandHelpPage(def, def.name, this.mDocsDir, this.treeNodes[0]);
         });
 
         process.stdout.write("\nFinished generating web help, launching in browser now\n");
@@ -88,17 +87,29 @@ export class WebHelpGenerator implements IWebHelpGenerator {
 `);
     }
 
-    private genBreadcrumb(baseName: string, fullCommandName: string): string {
+    /**
+     * Builds breadcrumb of HTML links to show command ancestry
+     * @param {string} rootCommandName
+     * @param {string} fullCommandName
+     * @returns {string}
+     */
+    private genBreadcrumb(rootCommandName: string, fullCommandName: string): string {
         const crumbs: string[] = [];
         let hrefPrefix: string = "";
-        [baseName, ...fullCommandName.split("_")].forEach((linkText: string) => {
+        [rootCommandName, ...fullCommandName.split("_")].forEach((linkText: string) => {
             crumbs.push(`<a href="${hrefPrefix}${linkText}.html">${linkText}</a>`);
             hrefPrefix += `${linkText}_`;
         });
         return crumbs.join(" → ");
     }
 
-    private processChildrenSummaryTables(helpGen: DefaultHelpGenerator, fullCommandName: string): string {
+    /**
+     * Builds list of groups/commands with HTML links added
+     * @param {DefaultHelpGenerator} helpGen
+     * @param {string} fullCommandName
+     * @returns {string}
+     */
+    private buildChildrenSummaryTables(helpGen: DefaultHelpGenerator, fullCommandName: string): string {
         const hrefPrefix = fullCommandName + "_";
         return helpGen.buildChildrenSummaryTables().split(/\r?\n/g)
             .slice(1)  // Delete header line
@@ -113,7 +124,14 @@ export class WebHelpGenerator implements IWebHelpGenerator {
             }).join("");
     }
 
-    private genCommandHelpPage(definition: ICommandDefinition, fullCommandName: string, docsDir: string, homeDir: string, parentNode: ITreeNode) {
+    /**
+     * Generates HTML help page for Imperative command
+     * @param {ICommandDefinition} definition
+     * @param {string} fullCommandName
+     * @param {string} docsDir
+     * @param {ITreeNode} parentNode
+     */
+    private genCommandHelpPage(definition: ICommandDefinition, fullCommandName: string, docsDir: string, parentNode: ITreeNode) {
         const rootCommandName: string = this.treeNodes[0].text;
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
             { commandDefinition: definition, fullCommandTree: Imperative.fullCommandTree });
@@ -124,7 +142,7 @@ export class WebHelpGenerator implements IWebHelpGenerator {
             // this is disabled for the CLIReadme.md but we want to show children here
             // so we'll call the help generator's children summary function even though
             // it's usually skipped when producing markdown
-            markdownContent += `<h4>Commands</h4>\n` + this.processChildrenSummaryTables(helpGen, rootCommandName + "_" + fullCommandName);
+            markdownContent += `<h4>Commands</h4>\n` + this.buildChildrenSummaryTables(helpGen, rootCommandName + "_" + fullCommandName);
         }
 
         let htmlContent = this.genDocsHeader(fullCommandName.replace(/_/g, " "));
@@ -133,10 +151,6 @@ export class WebHelpGenerator implements IWebHelpGenerator {
 
         // Remove backslash escapes from URLs
         htmlContent = htmlContent.replace(/(%5C(?=.+?>.+?<\/a>)|\\(?=\..+?<\/a>))/g, "");
-
-        // Sanitize references to user's home directory
-        htmlContent = htmlContent.replace(new RegExp(homeDir.replace(/[\\/]/g, "."), "g"),
-            homeDir.slice(0, homeDir.lastIndexOf(path.sep) + 1) + "&lt;user&gt;");
 
         // Add Copy buttons after command line examples
         htmlContent = htmlContent.replace(/<code>\$\s*(.*?)<\/code>/g,
@@ -165,7 +179,7 @@ export class WebHelpGenerator implements IWebHelpGenerator {
 
         if (definition.children) {
             definition.children.forEach((child: any) => {
-                this.genCommandHelpPage(child, `${fullCommandName}_${child.name}`, docsDir, homeDir, childNode);
+                this.genCommandHelpPage(child, `${fullCommandName}_${child.name}`, docsDir, childNode);
             });
         }
     }
