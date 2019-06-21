@@ -12,6 +12,8 @@
 import { Arguments, Argv } from "yargs";
 import { AbstractCommandYargs, YargsCommandCompleted } from "./AbstractCommandYargs";
 import { CommandYargs } from "./CommandYargs";
+import { Constants } from "../../../constants";
+import { WebHelpManager } from "../help/WebHelpManager";
 
 /**
  * Bright define group command to Yargs - defines the group and it's children to Yargs.
@@ -95,10 +97,18 @@ export class GroupCommandYargs extends AbstractCommandYargs {
              * Define the handler. Always invokes the help for a group.
              * @param {Arguments} argsForHandler
              */
-            (argsForHandler: Arguments) => {
+            async (argsForHandler: Arguments) => {
                 // TODO: figure out a better way to handle the fact that yargs keeps going after fail()
                 if (!AbstractCommandYargs.STOP_YARGS) {
-                    this.executeHelp(argsForHandler, commandExecuted);
+                    if (!argsForHandler[Constants.HELP_WEB_OPTION]) {
+                        this.executeHelp(argsForHandler, commandExecuted);
+                    } else {
+                        let fullCommandName: string = this.rootCommandName;
+                        for (const parent of this.parents) {
+                            fullCommandName += "_" + parent.definition.name;
+                        }
+                        WebHelpManager.instance.openHelp(fullCommandName + "_" + this.definition.name);
+                    }
                 }
             });
 

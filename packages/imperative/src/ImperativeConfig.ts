@@ -20,12 +20,12 @@ import { ImperativeError } from "../../error";
 import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
 
 /**
- * This class is used to contains all configuration being set by Imperative.
- * It is a singleton ans should be accessed via ImperativeConfig.instance.
+ * This class is used to contain all configuration being set by Imperative.
+ * It is a singleton and should be accessed via ImperativeConfig.instance.
  */
 export class ImperativeConfig {
     /**
-     * This is the variable that store the specific instance of Imperative Config.
+     * This is the variable that stores the specific instance of Imperative Config.
      * Defined as static so that it can be accessed from anywhere.
      *
      * @private
@@ -35,7 +35,7 @@ export class ImperativeConfig {
 
 
     /**
-     * This variable is used to contains an instance of the Logger object.
+     * This variable is used to contain an instance of the Logger object.
      *
      * @private
      * @type {Logger}
@@ -43,7 +43,7 @@ export class ImperativeConfig {
     private console: Logger = Logger.getImperativeLogger();
 
     /**
-     * This paramereter is used as the container of all loaded configuration for
+     * This parameter is used as the container of all loaded configuration for
      * Imperative.
      *
      * @private
@@ -52,8 +52,7 @@ export class ImperativeConfig {
     private mLoadedConfig: IImperativeConfig = null;
 
     /**
-     * This paramereter is used to contain the caller location of imperative configuration file.
-     * Imperative.
+     * This parameter is used to contain the caller location of imperative configuration file.
      *
      * @private
      * @type {string}
