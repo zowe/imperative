@@ -60,7 +60,7 @@ function updateSearch() {
     if (searchTimeout) {
         clearTimeout(searchTimeout);
     }
-    searchTimeout = setTimeout(() => {
+    searchTimeout = window.setTimeout(() => {
         const searchStr = ($("#tree-search").val() || "").toString().trim();
         searchStrList = permuteSearchStr(searchStr);
         $("#cmd-tree").jstree(true).search(searchStr);
@@ -109,7 +109,7 @@ function loadTree() {
         }
     }).on("loaded.jstree", () => {
         // Select and expand root node when page loads
-        const nodeId = urlParams.get("p");
+        const nodeId = cmdToLoad || urlParams.get("p");
         currentNodeId = (nodeId === null) ? treeNodes[0].id : `${nodeId}.html`;
         selectCurrentNode(true);
     });

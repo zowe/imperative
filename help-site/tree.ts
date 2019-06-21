@@ -19,6 +19,7 @@ declare const headerStr: string;
 declare const footerStr: string;
 declare const treeNodes: ITreeNode[];
 declare const aliasList: { [key: string]: string[] };
+declare const cmdToLoad: string;
 
 let currentNodeId: string;
 let isFlattened: boolean = false;
@@ -83,7 +84,7 @@ function updateSearch() {
         clearTimeout(searchTimeout);
     }
 
-    searchTimeout = setTimeout(() => {
+    searchTimeout = window.setTimeout(() => {
         const searchStr = ($("#tree-search").val() || "").toString().trim();
         searchStrList = permuteSearchStr(searchStr);
         $("#cmd-tree").jstree(true).search(searchStr);
@@ -136,7 +137,7 @@ function loadTree() {
         }
     }).on("loaded.jstree", () => {
         // Select and expand root node when page loads
-        const nodeId = urlParams.get("p");
+        const nodeId = cmdToLoad || urlParams.get("p");
         currentNodeId = (nodeId === null) ? treeNodes[0].id : `${nodeId}.html`;
         selectCurrentNode(true);
     });

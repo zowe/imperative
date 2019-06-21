@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import * as open from "open";
+import * as opener from "opener";
 import { CommandResponse } from "../response/CommandResponse";
 import { Constants } from "../../../constants/src/Constants";
 import { ImperativeConfig } from "../../../imperative/src/ImperativeConfig";
@@ -25,35 +25,44 @@ export class WebHelpManager implements IWebHelpManager {
         return this.mInstance;
     }
 
-    public async openRootHelp() {
+    public openRootHelp() {
         const newMetadata: MaybePackageMetadata = this.checkIfMetadataChanged();
         if (newMetadata !== null) {
-            (new WebHelpGenerator(ImperativeConfig.instance, this.docsDir)).buildHelp();
+            (new WebHelpGenerator(ImperativeConfig.instance, this.webHelpDir)).buildHelp();
             this.writePackageMetadata(newMetadata);
         }
 
+        const treeDataPath = path.join(this.webHelpDir, "tree-data.js");
+        const treeDataContent = fs.readFileSync(treeDataPath).toString();
+        fs.writeFileSync(treeDataPath, treeDataContent.replace(/(const cmdToLoad)[^;]*;/, "$1;"));
+
         try {
-            await open("file://" + this.docsDir + "/index.html");
+            opener("file://" + this.webHelpDir + "/index.html");
         } catch {
             // TODO Handle error
         }
     }
 
-    public async openHelp(inContext: string) {
+    public openHelp(inContext: string) {
         const newMetadata: MaybePackageMetadata = this.checkIfMetadataChanged();
         if (newMetadata !== null) {
-            (new WebHelpGenerator(ImperativeConfig.instance, this.docsDir)).buildHelp();
+            (new WebHelpGenerator(ImperativeConfig.instance, this.webHelpDir)).buildHelp();
             this.writePackageMetadata(newMetadata);
         }
 
+        const treeDataPath = path.join(this.webHelpDir, "tree-data.js");
+        const treeDataContent = fs.readFileSync(treeDataPath).toString();
+        fs.writeFileSync(treeDataPath,
+            treeDataContent.replace(/(const cmdToLoad)[^;]*;/, `$1 = "${inContext}";`));
+
         try {
-            await open("file://" + this.docsDir + "/index.html?p=" + inContext);
+            opener("file://" + this.webHelpDir + "/index.html");
         } catch {
             // TODO Handle error
         }
     }
 
-    private get docsDir(): string {
+    private get webHelpDir(): string {
         return path.join(ImperativeConfig.instance.cliHome, Constants.WEB_HELP_DIR);
     }
 
@@ -88,7 +97,7 @@ export class WebHelpManager implements IWebHelpManager {
      * @returns {MaybePackageMetadata} Updated metadata, or `null` if cached metadata is already up to date
      */
     private checkIfMetadataChanged(): MaybePackageMetadata {
-        const metadataFile = path.join(this.docsDir, "metadata.json");
+        const metadataFile = path.join(this.webHelpDir, "metadata.json");
         let cachedMetadata: IPackageMetadata[] = [];
         if (fs.existsSync(metadataFile)) {
             cachedMetadata = JSON.parse(fs.readFileSync(metadataFile).toString());
@@ -108,7 +117,7 @@ export class WebHelpManager implements IWebHelpManager {
      * @param {IPackageMetadata[]} metadata - New metadata to save to disk
      */
     private writePackageMetadata(metadata: IPackageMetadata[]) {
-        const metadataFile = path.join(this.docsDir, "metadata.json");
+        const metadataFile = path.join(this.webHelpDir, "metadata.json");
         fs.writeFileSync(metadataFile, JSON.stringify(metadata, null, 2));
     }
 }
