@@ -59,8 +59,8 @@ export class WebHelpGenerator {
             this.genCommandHelpPage(def, def.name, this.mDocsDir, this.treeNodes[0]);
         });
 
-        process.stdout.write("\nFinished generating web help, launching in browser now\n");
         this.writeTreeData();
+        process.stdout.write("\nFinished generating web help, launching in browser now\n");
     }
 
     private templatizeImperativeDir(html: string): string {

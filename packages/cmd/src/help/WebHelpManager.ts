@@ -6,7 +6,6 @@ import { Constants } from "../../../constants/src/Constants";
 import { ImperativeConfig } from "../../../imperative/src/ImperativeConfig";
 import { IWebHelpManager } from "./doc/IWebHelpManager";
 import { WebHelpGenerator } from "./WebHelpGenerator";
-import { Imperative } from "../../../imperative/src/Imperative";
 
 interface IPackageMetadata {
     name: string;
@@ -36,7 +35,7 @@ export class WebHelpManager implements IWebHelpManager {
         try {
             await open("file://" + this.docsDir + "/index.html");
         } catch {
-            // TODO Handle error here
+            // TODO Handle error
         }
     }
 
@@ -50,7 +49,7 @@ export class WebHelpManager implements IWebHelpManager {
         try {
             await open("file://" + this.docsDir + "/index.html?p=" + inContext);
         } catch {
-            // TODO Handle error here
+            // TODO Handle error
         }
     }
 
@@ -86,7 +85,7 @@ export class WebHelpManager implements IWebHelpManager {
 
     /**
      * Checks if cached package metadata is non-existent or out of date
-     * @returns {MaybePackageMetadata} - `null` if cached metadata is up to date, otherwise updated metadata
+     * @returns {MaybePackageMetadata} Updated metadata, or `null` if cached metadata is already up to date
      */
     private checkIfMetadataChanged(): MaybePackageMetadata {
         const metadataFile = path.join(this.docsDir, "metadata.json");
