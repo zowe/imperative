@@ -34,7 +34,8 @@ export class WebHelpManager implements IWebHelpManager {
 
         const treeDataPath = path.join(this.webHelpDir, "tree-data.js");
         const treeDataContent = fs.readFileSync(treeDataPath).toString();
-        fs.writeFileSync(treeDataPath, treeDataContent.replace(/(const cmdToLoad)[^;]*;/, "$1;"));
+        fs.writeFileSync(treeDataPath,
+            treeDataContent.replace(/(const cmdToLoad)[^;]*;/, "$1 = null;"));
 
         try {
             opener("file://" + this.webHelpDir + "/index.html");
@@ -100,13 +101,12 @@ export class WebHelpManager implements IWebHelpManager {
         const metadataFile = path.join(this.webHelpDir, "metadata.json");
         let cachedMetadata: IPackageMetadata[] = [];
         if (fs.existsSync(metadataFile)) {
-            cachedMetadata = JSON.parse(fs.readFileSync(metadataFile).toString());
+            cachedMetadata = require(metadataFile);
         }
 
         const myConfig: ImperativeConfig = ImperativeConfig.instance;
         const currentMetadata: IPackageMetadata[] = this.calcPackageMetadata(myConfig.callerPackageJson,
-            JSON.parse(fs.readFileSync(path.join(myConfig.cliHome, "plugins", "plugins.json")).toString())
-        );
+            require(path.join(myConfig.cliHome, "plugins", "plugins.json")));
 
         const metadataChanged: boolean = !this.eqPackageMetadata(cachedMetadata, currentMetadata);
         return metadataChanged ? currentMetadata : null;

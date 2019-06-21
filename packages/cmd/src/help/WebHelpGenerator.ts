@@ -1,7 +1,6 @@
 import * as fs from "fs";
 import * as marked from "marked";
 import * as path from "path";
-import * as rimraf from "rimraf";
 import { DefaultHelpGenerator } from "./DefaultHelpGenerator";
 import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { ImperativeConfig, Imperative } from "../../../imperative";
@@ -36,15 +35,20 @@ export class WebHelpGenerator {
         }
 
         if (fs.existsSync(this.mDocsDir)) {
-            rimraf.sync(path.join(this.mDocsDir, "*"));
+            require("rimraf").sync(path.join(this.mDocsDir, "*"));
         } else {
             fs.mkdirSync(this.mDocsDir);
         }
 
         const indexTemplateHtmlPath = path.join(this.imperativeDir, "help-site", "dist", "index.template.html");
-        const indexHtmlContent: string = this.templatizeImperativeDir(fs.readFileSync(indexTemplateHtmlPath).toString());
+        const indexHtmlContent: string = this.detemplatizeImperativeDir(fs.readFileSync(indexTemplateHtmlPath).toString());
         const indexHtmlPath = path.join(webHelpDir, "index.html");
         fs.writeFileSync(indexHtmlPath, indexHtmlContent);
+
+        if (this.mConfig.loadedConfig.webHelpLogoImgPath) {
+            fs.createReadStream(this.mConfig.loadedConfig.webHelpLogoImgPath).pipe(
+                fs.createWriteStream(path.join(webHelpDir, "header-image.png")));
+        }
 
         const uniqueDefinitions = Imperative.fullCommandTree;
         uniqueDefinitions.children = uniqueDefinitions.children
@@ -66,6 +70,7 @@ export class WebHelpGenerator {
         process.stdout.write(".");
 
         uniqueDefinitions.children.forEach((def) => {
+            process.stdout.write(".");
             this.genCommandHelpPage(def, def.name, this.mDocsDir, this.treeNodes[0]);
         });
 
@@ -78,12 +83,12 @@ export class WebHelpGenerator {
         return path.join(__dirname, "..", "..", "..", "..");
     }
 
-    private templatizeImperativeDir(html: string): string {
-        return html.replace(/{{IMPERATIVE_DIR}}/g, path.normalize(this.imperativeDir));
+    private detemplatizeImperativeDir(html: string): string {
+        return html.replace(/{{IMPERATIVE_DIR}}/g, this.imperativeDir);
     }
 
     private genDocsHeader(title: string): string {
-        return this.templatizeImperativeDir(`<!DOCTYPE html>
+        return this.detemplatizeImperativeDir(`<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
@@ -96,7 +101,7 @@ export class WebHelpGenerator {
     }
 
     private genDocsFooter(): string {
-        return this.templatizeImperativeDir(`</article>
+        return this.detemplatizeImperativeDir(`</article>
 <script src="{{IMPERATIVE_DIR}}/node_modules/clipboard/dist/clipboard.min.js"></script>
 <script src="{{IMPERATIVE_DIR}}/help-site/dist/js/docs.js"></script>
 `);
@@ -174,7 +179,6 @@ export class WebHelpGenerator {
         const helpHtmlFile = `${rootCommandName}_${fullCommandName.trim()}.html`;
         const helpHtmlPath = path.join(docsDir, helpHtmlFile);
         fs.writeFileSync(helpHtmlPath, htmlContent);
-        process.stdout.write(".");
 
         const childNode: ITreeNode = {
             id: helpHtmlFile,
@@ -207,6 +211,6 @@ export class WebHelpGenerator {
             `const footerStr = "${this.mConfig.callerPackageJson.name} ${this.mConfig.callerPackageJson.version}";\n` +
             "const treeNodes = " + JSON.stringify(this.treeNodes, null, 2) + ";\n" +
             "const aliasList = " + JSON.stringify(this.aliasList, null, 2) + ";\n" +
-            "const cmdToLoad;");
+            "const cmdToLoad = null;");
     }
 }
