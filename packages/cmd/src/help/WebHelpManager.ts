@@ -4,6 +4,7 @@ import { Constants } from "../../../constants/src/Constants";
 import { ImperativeConfig } from "../../../imperative/src/ImperativeConfig";
 import { IWebHelpManager } from "./doc/IWebHelpManager";
 import { WebHelpGenerator } from "./WebHelpGenerator";
+import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerResponseApi";
 
 const opener = require("opener");
 
@@ -25,16 +26,18 @@ export class WebHelpManager implements IWebHelpManager {
         return this.mInstance;
     }
 
-    public openRootHelp() {
-        this.openHelp(null);
+    public openRootHelp(cmdResponse: IHandlerResponseApi) {
+        this.openHelp(null, cmdResponse);
     }
 
-    public openHelp(inContext: string) {
+    public openHelp(inContext: string, cmdResponse: IHandlerResponseApi) {
         const newMetadata: MaybePackageMetadata = this.checkIfMetadataChanged();
         if (newMetadata !== null) {
-            (new WebHelpGenerator(ImperativeConfig.instance, this.webHelpDir)).buildHelp();
+            (new WebHelpGenerator(ImperativeConfig.instance, this.webHelpDir)).buildHelp(cmdResponse);
             this.writePackageMetadata(newMetadata);
         }
+
+        cmdResponse.console.log("Launching web help in browser...");
 
         // Update cmdToLoad value in tree-data.js to jump to desired command.
         // This is kind of a hack, necessitated by the fact that unfortunately
@@ -50,7 +53,7 @@ export class WebHelpManager implements IWebHelpManager {
         try {
             opener("file://" + this.webHelpDir + "/index.html");
         } catch {
-            // TODO Handle error
+            cmdResponse.console.error("Failed to launch web help, try running -h for console help instead");
         }
     }
 

@@ -19,7 +19,6 @@ import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { CommandProcessor } from "../CommandProcessor";
 import { ICommandResponse } from "../../src/doc/response/response/ICommandResponse";
 import { CommandResponse } from "../../src/response/CommandResponse";
-import { WebHelpManager } from "../help/WebHelpManager";
 
 /**
  * Define an Imperative Command to Yargs. A command implies that an implementation is present (differs from a "group")
@@ -105,13 +104,9 @@ export class CommandYargs extends AbstractCommandYargs {
                 if (argsForHandler[Constants.HELP_OPTION]) {
                     this.log.debug("Executing help: " + this.definition.name);
                     this.executeHelp(argsForHandler, commandExecuted);
-                } else if (argsForHandler[Constants.HELP_WEB_OPTION]) {  // FIXME
+                } else if (argsForHandler[Constants.HELP_WEB_OPTION]) {
                     this.log.debug("Executing web help: " + this.definition.name);
-                    let fullCommandName: string = this.rootCommandName;
-                    for (const parent of this.parents) {
-                        fullCommandName += "_" + parent.definition.name;
-                    }
-                    WebHelpManager.instance.openHelp(fullCommandName + "_" + this.definition.name);
+                    this.executeWebHelp();
                 } else {
                     this.log.debug("Executing Handlers: " + this.definition.name);
 

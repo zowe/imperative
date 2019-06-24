@@ -3,6 +3,7 @@ import * as path from "path";
 import { DefaultHelpGenerator } from "./DefaultHelpGenerator";
 import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { ImperativeConfig, Imperative } from "../../../imperative";
+import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerResponseApi";
 
 const marked = require("marked");
 
@@ -29,9 +30,10 @@ export class WebHelpGenerator {
         this.aliasList = {};
     }
 
-    public buildHelp() {
-        // TODO Write output to Imperative log
-        process.stdout.write("Generating web help");
+    public buildHelp(cmdResponse: IHandlerResponseApi) {
+        // Log using buffer to prevent trailing newline from getting added
+        // This allows printing dot characters on the same line to show progress
+        cmdResponse.console.log(Buffer.from("Generating web help"));
 
         // Create web-help folder
         // After upgrading to Node v10, this step should no longer be necessary
@@ -84,12 +86,12 @@ export class WebHelpGenerator {
 
         // Generate HTML help files for every CLI command
         uniqueDefinitions.children.forEach((def) => {
-            process.stdout.write(".");
+            cmdResponse.console.log(Buffer.from("."));
             this.genCommandHelpPage(def, def.name, this.mDocsDir, this.treeNodes[0]);
         });
 
         this.writeTreeData();
-        process.stdout.write("\nFinished generating web help, launching in browser now\n");
+        cmdResponse.console.log("done!");
     }
 
     private get imperativeDir(): string {

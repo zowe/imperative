@@ -14,6 +14,7 @@ import { AbstractCommandYargs, YargsCommandCompleted } from "./AbstractCommandYa
 import { CommandYargs } from "./CommandYargs";
 import { Constants } from "../../../constants";
 import { WebHelpManager } from "../help/WebHelpManager";
+import { CommandResponse } from "../response/CommandResponse";
 
 /**
  * Bright define group command to Yargs - defines the group and it's children to Yargs.
@@ -103,11 +104,7 @@ export class GroupCommandYargs extends AbstractCommandYargs {
                     if (!argsForHandler[Constants.HELP_WEB_OPTION]) {
                         this.executeHelp(argsForHandler, commandExecuted);
                     } else {
-                        let fullCommandName: string = this.rootCommandName;
-                        for (const parent of this.parents) {
-                            fullCommandName += "_" + parent.definition.name;
-                        }
-                        WebHelpManager.instance.openHelp(fullCommandName + "_" + this.definition.name);
+                        this.executeWebHelp();
                     }
                 }
             });

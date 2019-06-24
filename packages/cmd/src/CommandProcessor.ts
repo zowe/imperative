@@ -232,7 +232,7 @@ export class CommandProcessor {
 
     /**
      * Generates the help for the command definition passed.
-     * @param {CommandResponse} response - The command resposne object
+     * @param {CommandResponse} response - The command response object
      * @memberof CommandProcessor
      */
     public help(response: CommandResponse): ICommandResponse {
