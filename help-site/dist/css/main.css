@@ -14,19 +14,20 @@ html, body {
 }
 
 #cmd-tree {
+    flex: 1;
+    height: 100%;
     margin: 0 5px;
-    height: calc(100% - 170px);
     overflow: auto;
 }
 
 #docs-page {
-    position: absolute;
-    top: 0px;
-    width: 100%;
-    height: 100vh;
     border: none;
+    height: 100vh;
     margin: 0;
     padding: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
 }
 
 #docs-wrapper {
@@ -34,22 +35,27 @@ html, body {
 }
 
 #footer {
+    flex: none;
     font-size: small;
     margin: 10px 0;
     text-align: center;
 }
 
+#header {
+    flex: none;
+}
+
 #header-image {
-    margin: 0 0 10px 5px;
     height: 64px;
+    margin: 0 0 10px 5px;
 }
 
 #header-text {
     color: black;
     display: inline-block;
+    min-height: 64px;
     padding-top: 20px;
     text-decoration: none;
-    min-height: 64px;
 }
 
 #panel-container {
@@ -60,11 +66,13 @@ html, body {
 }
 
 #panel-left {
+    background-color: lavender;
+    display: flex;
+    flex-direction: column;
     flex: 0 0 auto;
     max-width: calc(100% - 220px);
     min-width: 220px;
     width: 300px;
-    background-color: lavender;
 }
 
 #panel-right {
@@ -79,8 +87,8 @@ html, body {
 
 .gutter {
     background-color: #eee;
-    background-repeat: no-repeat;
     background-position: 50%;
+    background-repeat: no-repeat;
 }
 
 .gutter.gutter-horizontal {

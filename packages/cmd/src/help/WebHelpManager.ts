@@ -42,8 +42,8 @@ export class WebHelpManager implements IWebHelpManager {
         // Update cmdToLoad value in tree-data.js to jump to desired command.
         // This is kind of a hack, necessitated by the fact that unfortunately
         // Windows does not natively support passing URL search params to
-        // file:// links. Therefore the `p` parameter supported by the docs site
-        // to load a page in-context cannot be used here.
+        // file:/// links. Therefore the `p` parameter supported by the docs
+        // site to load a page in-context cannot be used here.
         const treeDataPath = path.join(this.webHelpDir, "tree-data.js");
         const treeDataContent = fs.readFileSync(treeDataPath).toString();
         const cmdToLoad = (inContext !== null) ? `"${inContext}"` : "null";
@@ -51,7 +51,7 @@ export class WebHelpManager implements IWebHelpManager {
             treeDataContent.replace(/(const cmdToLoad)[^;]*;/, `$1 = ${cmdToLoad};`));
 
         try {
-            opener("file://" + this.webHelpDir + "/index.html");
+            opener("file:///" + this.webHelpDir + "/index.html");
         } catch {
             cmdResponse.console.error("Failed to launch web help, try running -h for console help instead");
         }

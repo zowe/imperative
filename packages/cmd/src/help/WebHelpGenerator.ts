@@ -100,8 +100,8 @@ export class WebHelpGenerator {
 
     private expandTemplatizedDirs(html: string, topLevel: boolean): string {
         if (!this.singleDirOutput) {
-            return html.replace(/{{IMPERATIVE_DIR}}/g, "file://" + this.imperativeDir)
-                .replace(/{{IMPERATIVE_HELP_DIR}}/g, "file://" + this.imperativeDir + "/help-site/dist");
+            return html.replace(/{{IMPERATIVE_DIR}}/g, "file:///" + this.imperativeDir)
+                .replace(/{{IMPERATIVE_HELP_DIR}}/g, "file:///" + this.imperativeDir + "/help-site/dist");
         } else {
             return html.replace(/{{IMPERATIVE_(HELP_)?DIR}}/g, topLevel ? "." : "..");
         }
