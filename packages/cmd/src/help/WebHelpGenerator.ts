@@ -83,7 +83,7 @@ export class WebHelpGenerator {
             .filter((a, pos, self) => self.findIndex((b) => a.name === b.name) === pos);
 
         // Generate HTML help file for the root CLI command
-        const rootCommandName: string = ImperativeConfig.instance.rootCommandName;
+        const rootCommandName: string = this.mConfig.rootCommandName;
         const rootHelpHtmlPath = path.join(this.mDocsDir, `${rootCommandName}.html`);
         this.treeNodes.push({ id: `${rootCommandName}.html`, text: rootCommandName });
 
