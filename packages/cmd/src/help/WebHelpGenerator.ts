@@ -1,8 +1,19 @@
+/*
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*
+*/
+
 import * as fs from "fs";
 import * as path from "path";
 import { DefaultHelpGenerator } from "./DefaultHelpGenerator";
 import { ICommandDefinition } from "../doc/ICommandDefinition";
-import { ImperativeConfig, Imperative } from "../../../imperative";
+import { ImperativeConfig } from "../../../utilities";
 import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerResponseApi";
 
 const marked = require("marked");
@@ -17,13 +28,15 @@ export class WebHelpGenerator {
     public sanitizeHomeDir: boolean = false;
     public singleDirOutput: boolean = false;
 
+    private mFullCommandTree: ICommandDefinition;
     private mConfig: ImperativeConfig;
     private mDocsDir: string;
 
     private treeNodes: ITreeNode[];
     private aliasList: { [key: string]: string[] };
 
-    constructor(config: ImperativeConfig, webHelpDir: string) {
+    constructor(fullCommandTree: ICommandDefinition, config: ImperativeConfig, webHelpDir: string) {
+        this.mFullCommandTree = fullCommandTree;
         this.mConfig = config;
         this.mDocsDir = path.join(webHelpDir, "docs");
         this.treeNodes = [];
@@ -64,13 +77,13 @@ export class WebHelpGenerator {
         }
 
         // Sort all items in the command tree and remove duplicates
-        const uniqueDefinitions = Imperative.fullCommandTree;
+        const uniqueDefinitions = this.mFullCommandTree;
         uniqueDefinitions.children = uniqueDefinitions.children
             .sort((a, b) => a.name.localeCompare(b.name))
             .filter((a, pos, self) => self.findIndex((b) => a.name === b.name) === pos);
 
         // Generate HTML help file for the root CLI command
-        const rootCommandName: string = Imperative.rootCommandName;
+        const rootCommandName: string = ImperativeConfig.instance.rootCommandName;
         const rootHelpHtmlPath = path.join(this.mDocsDir, `${rootCommandName}.html`);
         this.treeNodes.push({ id: `${rootCommandName}.html`, text: rootCommandName });
 
@@ -174,7 +187,7 @@ export class WebHelpGenerator {
     private genCommandHelpPage(definition: ICommandDefinition, fullCommandName: string, docsDir: string, parentNode: ITreeNode) {
         const rootCommandName: string = this.treeNodes[0].text;
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
-            { commandDefinition: definition, fullCommandTree: Imperative.fullCommandTree });
+            { commandDefinition: definition, fullCommandTree: this.mFullCommandTree });
 
         let markdownContent = helpGen.buildHelp() + "\n";
         markdownContent = markdownContent.replace(/</g, "&lt;").replace(/>/g, "&gt;");

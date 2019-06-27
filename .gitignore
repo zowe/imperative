@@ -6,6 +6,7 @@ output/
 logs/
 CCS141/
 .idea
+.vscode/launch.json
 imperative.iml
 npm-shrinkwrap.json
 __tests__/__integration__/hello_world/package-lock.json
@@ -103,4 +104,3 @@ __tests__/src/plugins/suites/sample-plugin.json
 !/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@zowe/
 /__tests__/src/packages/imperative/plugins/test_cli/node_modules/@zowe/**
 !/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@zowe/imperative
-

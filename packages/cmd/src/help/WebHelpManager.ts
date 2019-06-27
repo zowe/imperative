@@ -1,10 +1,22 @@
+/*
+* This program and the accompanying materials are made available under the terms of the
+* Eclipse Public License v2.0 which accompanies this distribution, and is available at
+* https://www.eclipse.org/legal/epl-v20.html
+*
+* SPDX-License-Identifier: EPL-2.0
+*
+* Copyright Contributors to the Zowe Project.
+*
+*/
+
 import * as fs from "fs";
 import * as path from "path";
 import { Constants } from "../../../constants/src/Constants";
-import { ImperativeConfig } from "../../../imperative/src/ImperativeConfig";
+import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
 import { IWebHelpManager } from "./doc/IWebHelpManager";
 import { WebHelpGenerator } from "./WebHelpGenerator";
 import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerResponseApi";
+import { ICommandDefinition } from "../doc/ICommandDefinition";
 
 const opener = require("opener");
 
@@ -17,6 +29,7 @@ type MaybePackageMetadata = null | IPackageMetadata[];
 
 export class WebHelpManager implements IWebHelpManager {
     private static mInstance: WebHelpManager = null;
+    private mFullCommandTree: ICommandDefinition;
 
     public static get instance(): WebHelpManager {
         if (this.mInstance == null) {
@@ -33,7 +46,8 @@ export class WebHelpManager implements IWebHelpManager {
     public openHelp(inContext: string, cmdResponse: IHandlerResponseApi) {
         const newMetadata: MaybePackageMetadata = this.checkIfMetadataChanged();
         if (newMetadata !== null) {
-            (new WebHelpGenerator(ImperativeConfig.instance, this.webHelpDir)).buildHelp(cmdResponse);
+            (new WebHelpGenerator(this.mFullCommandTree, ImperativeConfig.instance, this.webHelpDir)).
+                 buildHelp(cmdResponse);
             this.writePackageMetadata(newMetadata);
         }
 
@@ -55,6 +69,22 @@ export class WebHelpManager implements IWebHelpManager {
         } catch {
             cmdResponse.console.error("Failed to launch web help, try running -h for console help instead");
         }
+    }
+
+    /**
+     * Record a reference to our CLI's full command tree.
+     * @param fullCommandTree - The command tree.
+     */
+    public set fullCommandTree(fullCommandTree: ICommandDefinition) {
+        this.mFullCommandTree = fullCommandTree;
+    }
+
+    /**
+     * Get a reference to our CLI's full command tree.
+     * @returns The command tree.
+     */
+    public get fullCommandTree(): ICommandDefinition {
+        return this.mFullCommandTree;
     }
 
     private get webHelpDir(): string {

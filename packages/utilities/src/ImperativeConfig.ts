@@ -10,14 +10,10 @@
 */
 
 import { Constants } from "../../constants";
-import { CommandPreparer, ICommandDefinition, ICommandProfileTypeConfiguration } from "../../cmd";
-import { CompleteProfilesGroupBuilder } from "./profiles/builders/CompleteProfilesGroupBuilder";
-import { DefinitionTreeResolver } from "./DefinitionTreeResolver";
-import { Logger } from "../../logger";
-import { dirname, join } from "path";
-import { IImperativeConfig } from "./doc/IImperativeConfig";
+import { join } from "path";
+import { IImperativeConfig } from "../../imperative/src/doc/IImperativeConfig";
 import { ImperativeError } from "../../error";
-import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
+import { EnvironmentalVariableSettings } from "../../imperative/src/env/EnvironmentalVariableSettings";
 
 /**
  * This class is used to contain all configuration being set by Imperative.
@@ -27,35 +23,17 @@ export class ImperativeConfig {
     /**
      * This is the variable that stores the specific instance of Imperative Config.
      * Defined as static so that it can be accessed from anywhere.
-     *
-     * @private
-     * @type {ImperativeConfig}
      */
     private static mInstance: ImperativeConfig = null;
-
-
-    /**
-     * This variable is used to contain an instance of the Logger object.
-     *
-     * @private
-     * @type {Logger}
-     */
-    private console: Logger = Logger.getImperativeLogger();
 
     /**
      * This parameter is used as the container of all loaded configuration for
      * Imperative.
-     *
-     * @private
-     * @type {IImperativeConfig}
      */
     private mLoadedConfig: IImperativeConfig = null;
 
     /**
      * This parameter is used to contain the caller location of imperative configuration file.
-     *
-     * @private
-     * @type {string}
      */
     private mCallerLocation: string = null;
 
@@ -73,6 +51,11 @@ export class ImperativeConfig {
      * modules dependent on it.
      */
     private mImperativePackageName: string;
+
+    /**
+     * This is our calling CLI's command name (taken from package.json: bin).
+     */
+    private mRootCommandName: string;
 
     /**
      * Gets a single instance of the PluginIssues. On the first call of
@@ -99,7 +82,7 @@ export class ImperativeConfig {
 
     /**
      * Return file location of imperative configuration file.
-     * @returns {string} - location of configuration file
+     * @returns {streturnsring} - location of configuration file
      */
     public get callerLocation(): string {
         return this.mCallerLocation;
@@ -122,6 +105,22 @@ export class ImperativeConfig {
     }
 
     /**
+     * Set our root command name.
+     * @param rootCommandName - The name of our calling CLI's command.
+     */
+    public set rootCommandName(rootCommandName: string) {
+        this.mRootCommandName = rootCommandName;
+    }
+
+    /**
+     * Get our root command name.
+     * @returns The name of our calling CLI's command.
+     */
+    public get rootCommandName(): string {
+        return this.mRootCommandName;
+    }
+
+    /**
      * Retrieve the host package name from which imperative was called.
      */
     public get hostPackageName(): string {
@@ -141,53 +140,6 @@ export class ImperativeConfig {
         }
 
         return this.mImperativePackageName;
-    }
-
-    /**
-     * Add a new command group by inserting it to the definitions list of the loaded config.
-     * @param {ICommandDefinition} cmdDefToAdd - command definition group to to be added.
-     */
-    public addCmdGrpToLoadedConfig(cmdDefToAdd: ICommandDefinition): void {
-        if (this.loadedConfig != null) {
-            if (this.loadedConfig.definitions == null) {
-                this.loadedConfig.definitions = [];
-            }
-            const defIndex = this.loadedConfig.definitions.indexOf(cmdDefToAdd);
-            if (defIndex > -1) {
-                this.loadedConfig.definitions.splice(defIndex, 1);
-            }
-            this.console.debug("Adding definition = '" + cmdDefToAdd.name + "'");
-            this.loadedConfig.definitions.push(cmdDefToAdd);
-        }
-    }
-
-    /**
-     * Add a new set of profiles by inserting them into the profiles of the loaded config.
-     * @param {ICommandProfileTypeConfiguration[]} profiles
-     *    Array of profiles to be added.
-     */
-    public addProfiles(profiles: ICommandProfileTypeConfiguration[]): void {
-        if (this.loadedConfig) {
-            if (!this.loadedConfig.profiles) {
-                this.loadedConfig.profiles = [];
-            }
-            for (const profileToAdd of profiles) {
-                /* We expect to not find (ie, undefined result) an exiting profile
-                 * with the same type value as the profile that we want to add.
-                 */
-                const existingProfile: ICommandProfileTypeConfiguration =
-                    this.loadedConfig.profiles.find((profileToTest) => {
-                        return profileToTest.type === profileToAdd.type;
-                    });
-                if (existingProfile) {
-                    this.console.error("addProfiles: The profile of type '" + profileToAdd.type +
-                        "' already exists. It will not be added.");
-                    continue;
-                }
-                this.console.debug("addProfiles: Adding " + profileToAdd.type + " profile");
-                this.loadedConfig.profiles.push(profileToAdd);
-            } // end for
-        } // end if loadedConfig not null
     }
 
     /**
@@ -225,33 +177,6 @@ export class ImperativeConfig {
     }
 
     /**
-     * Get imperative's host CLI command tree with all module globs resolved.
-     *
-     * @return {ICommandDefinition} The resolved command tree
-     */
-    public get resolvedCmdTree(): ICommandDefinition {
-        const config = this.loadedConfig;
-        return DefinitionTreeResolver.resolve(config.rootCommandDescription || "",
-            config.productDisplayName,
-            dirname(this.callerLocation),
-            this.console,
-            config.definitions, config.commandModuleGlobs
-        );
-    }
-
-    /**
-     * Get imperative's host CLI command tree after final preparation.
-     *
-     * @param {IImperativeConfig} resolvedCmdTree - The imperative command tree
-     *        returned by ImperativeConfig.resolvedCmdTree()
-     */
-    public getPreparedCmdTree(resolvedCmdTree: ICommandDefinition): ICommandDefinition {
-        let preparedCmdTree = this.addAutoGeneratedCommands(resolvedCmdTree);
-        preparedCmdTree = CommandPreparer.prepare(preparedCmdTree);
-        return preparedCmdTree;
-    }
-
-    /**
      * Return package.json of the imperative user
      * @returns {any} - package.json file of caller
      */
@@ -284,21 +209,6 @@ export class ImperativeConfig {
                 " \n 'find-up' (directory search) error message:" + findupErr.message;
             throw new ImperativeError({msg: e.message});
         }
-    }
-
-    /**
-     * Append any auto generated commands to the root command document depending on configuration.
-     * @param {ICommandDefinition} rootCommand - the root command as built so far
-     * @returns {ICommandDefinition} - the root command with any auto generated commands appended
-     */
-    private addAutoGeneratedCommands(rootCommand: ICommandDefinition): ICommandDefinition {
-        const loadedConfig: IImperativeConfig = this.loadedConfig;
-        if ((loadedConfig.autoGenerateProfileCommands == null || loadedConfig.autoGenerateProfileCommands) &&
-            loadedConfig.profiles != null &&
-            loadedConfig.profiles.length > 0) {
-            rootCommand.children.push(CompleteProfilesGroupBuilder.getProfileGroup(loadedConfig.profiles, this.console));
-        }
-        return rootCommand;
     }
 
 }

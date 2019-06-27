@@ -10,7 +10,7 @@
 */
 
 import { CommandPreparer, ICommandDefinition } from "../../../cmd";
-import { IImperativeConfig } from "../doc/IImperativeConfig";
+import { IImperativeConfig } from "../../../imperative/src/doc/IImperativeConfig";
 
 export class ImperativeConfig {
     private static mInstance: ImperativeConfig = null;
