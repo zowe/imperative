@@ -116,7 +116,7 @@ describe("Imperative", () => {
                         handler: "./lib/cmd/someCmd/someCmd.handler"
                     }
                 ]
-            }
+            };
         });
         jest.spyOn(Imperative as any, "getPreparedCmdTree").mockImplementation(() => {
             return {
@@ -131,7 +131,7 @@ describe("Imperative", () => {
                         handler: "./lib/cmd/someCmd/someCmd.handler"
                     }
                 ]
-            }
+            };
         });
     });
 
