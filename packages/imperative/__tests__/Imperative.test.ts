@@ -101,6 +101,38 @@ describe("Imperative", () => {
         // Refresh the imperative load every time
         mocks = reloadExternalMocks();
         Imperative = loadImperative();
+
+        // we use spyOn, because we cannot mock private functions otherwise
+        jest.spyOn(Imperative as any, "getResolvedCmdTree").mockImplementation(() => {
+            return {
+                name: "mockCmdTreeName",
+                description: "Mock resolved command tree description",
+                type: "group",
+                children: [
+                    {
+                        name: "cmdFromCli",
+                        description: "dummy command",
+                        type: "command",
+                        handler: "./lib/cmd/someCmd/someCmd.handler"
+                    }
+                ]
+            }
+        });
+        jest.spyOn(Imperative as any, "getPreparedCmdTree").mockImplementation(() => {
+            return {
+                name: "mockCmdTreeName",
+                description: "Mock prepared command tree description",
+                type: "group",
+                children: [
+                    {
+                        name: "cmdFromCli",
+                        description: "dummy command",
+                        type: "command",
+                        handler: "./lib/cmd/someCmd/someCmd.handler"
+                    }
+                ]
+            }
+        });
     });
 
     describe("init", () => {
@@ -185,7 +217,7 @@ describe("Imperative", () => {
                 expect(PluginManagementFacility.instance.addAllPluginsToHostCli).toHaveBeenCalledTimes(1);
                 expect(
                     PluginManagementFacility.instance.addAllPluginsToHostCli
-                ).toHaveBeenCalledWith(mocks.ImperativeConfig.instance.resolvedCmdTree);
+                ).toHaveBeenCalledWith(Imperative.getResolvedCmdTree());
             });
 
             // @FUTURE When there are more overrides we should think about making this function dynamic
