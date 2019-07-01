@@ -58,38 +58,6 @@ export class ImperativeConfig {
       this.mLoadedConfig = config;
     }
 
-    public get resolvedCmdTree(): ICommandDefinition {
-      return {
-        name: "mockCmdTreeName",
-        description: "Mock resolved command tree description",
-        type: "group",
-        children: [
-          {
-            name: "cmdFromCli",
-            description: "dummy command",
-            type: "command",
-            handler: "./lib/cmd/someCmd/someCmd.handler"
-          }
-        ]
-      };
-    }
-
-    public getPreparedCmdTree(resolvedCmdTree: ICommandDefinition): ICommandDefinition {
-      return {
-        name: "mockCmdTreeName",
-        description: "Mock resolved command tree description",
-        type: "group",
-        children: [
-          {
-            name: "cmdFromCli",
-            description: "dummy command",
-            type: "command",
-            handler: "./lib/cmd/someCmd/someCmd.handler"
-          }
-        ]
-      };
-    }
-
     public get hostPackageName(): string {
         return this.mHostPackageName;
     }
