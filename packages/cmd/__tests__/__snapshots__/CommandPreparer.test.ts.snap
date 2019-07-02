@@ -2821,6 +2821,15 @@ Object {
     },
     Object {
       "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
         "banana-p",
       ],
       "description": "The name of a (banana) profile to load for this command execution.",
@@ -2883,6 +2892,15 @@ Object {
         },
         Object {
           "aliases": Array [
+            "hw",
+          ],
+          "description": "Display HTML help in browser",
+          "group": "Global options",
+          "name": "help-web",
+          "type": "boolean",
+        },
+        Object {
+          "aliases": Array [
             "banana-p",
           ],
           "description": "The name of a (banana) profile to load for this command execution.",
@@ -2921,6 +2939,15 @@ Object {
       "description": "Display help text",
       "group": "Global options",
       "name": "help",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
       "type": "boolean",
     },
   ],
