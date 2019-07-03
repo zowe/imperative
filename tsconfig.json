@@ -7,7 +7,6 @@
     "lib": [
       "esnext"
     ],
-    "allowJs": true,
     "experimentalDecorators": true,
     "target": "es2015",
     "module": "commonjs",
