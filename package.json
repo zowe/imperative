@@ -55,12 +55,12 @@
   "dependencies": {
     "@types/yargs": "8.0.2",
     "@zowe/perf-timing": "^1.0.3-alpha.201902201448",
-    "chalk": "2.1.0",
+    "chalk": "^2.4.2",
     "cli-table3": "0.5.1",
     "dataobject-parser": "1.2.1",
     "deepmerge": "3.0.0",
     "find-up": "2.1.0",
-    "glob": "7.1.1",
+    "glob": "^7.1.4",
     "js-yaml": "^3.13.1",
     "jsonfile": "4.0.0",
     "jsonschema": "1.1.1",
@@ -73,8 +73,8 @@
     "prettyjson": "1.2.1",
     "progress": "2.0.0",
     "readline-sync": "1.4.9",
-    "rimraf": "2.6.1",
-    "semver": "5.5.0",
+    "rimraf": "^2.6.3",
+    "semver": "^5.7.0",
     "stack-trace": "0.0.10",
     "wrap-ansi": "3.0.1",
     "yamljs": "0.3.0",
@@ -119,12 +119,13 @@
     "jest-sonar-reporter": "2.0.0",
     "jest-stare": "1.11.1",
     "jsdoc": "^3.6.2",
-    "keytar": "^4.7.0",
+    "keytar": "^4.9.0",
     "madge": "3.0.0",
     "node-pty": "^0.8.1",
+    "prompt": "1.0.0",
     "shebang-regex": "2.0.0",
-    "through2": "2.0.3",
-    "ts-jest": "^24.0.0",
+    "through2": "^2.0.5",
+    "ts-jest": "^24.0.2",
     "ts-node": "7.0.1",
     "tslint": "5.10.0",
     "typescript": "3.2.2",
@@ -133,6 +134,10 @@
   },
   "engines": {
     "node": ">=6.0.0"
+  },
+  "jest-html-reporter": {
+    "pageTitle": "Imperative CLI Tests",
+    "outputPath": "__tests__/__results__/unit/results.html"
   },
   "jest-junit": {
     "output": "./__tests__/__results__/junit/junit.xml"
@@ -144,6 +149,7 @@
     "resultDir": "__tests__/__results__/jest-stare",
     "additionalResultsProcessors": [
       "jest-junit",
+      "jest-html-reporter",
       "jest-sonar-reporter"
     ],
     "coverageLink": "../unit/coverage/lcov-report/index.html"
@@ -151,6 +157,7 @@
   "jest": {
     "globals": {
       "ts-jest": {
+        "diagnostics": false,
         "disableSourceMapSupport": true
       }
     },
@@ -164,15 +171,15 @@
       "./__tests__/__integration__/imperative/__tests__/beforeTests.js"
     ],
     "testResultsProcessor": "jest-stare",
-    "transform": {
-      ".(ts)": "ts-jest"
-    },
     "testRegex": "__tests__.*\\.(spec|test)\\.ts$",
     "moduleFileExtensions": [
       "ts",
       "js"
     ],
     "testEnvironment": "node",
+    "transform": {
+      ".(ts)": "ts-jest"
+    },
     "collectCoverageFrom": [
       "packages/**/*.ts",
       "!**/__tests__/**",
