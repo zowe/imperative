@@ -121,6 +121,7 @@
     "jsdoc": "^3.6.2",
     "keytar": "^4.9.0",
     "madge": "3.0.0",
+    "node-pty": "^0.8.1",
     "prompt": "1.0.0",
     "shebang-regex": "2.0.0",
     "through2": "^2.0.5",
