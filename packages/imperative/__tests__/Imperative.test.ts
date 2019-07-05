@@ -12,23 +12,14 @@
 import Mock = jest.Mock;
 import { join } from "path";
 import { generateRandomAlphaNumericString } from "../../../__tests__/src/TestUtil";
+import { IImperativeConfig } from "../src/doc/IImperativeConfig";
 import { IImperativeOverrides } from "../src/doc/IImperativeOverrides";
 import { IConfigLogging } from "../../logger";
 import { IImperativeEnvironmentalVariableSettings } from "..";
+import { ICommandDefinition } from "../../cmd/src/doc/ICommandDefinition";
 
 describe("Imperative", () => {
     const mainModule = process.mainModule;
-
-    beforeEach(() => {
-        (process.mainModule as any) = {
-            filename: __filename
-        };
-    });
-
-    afterEach(() => {
-        process.mainModule = mainModule;
-    });
-
 
     const loadImperative = () => {
         return require("../src/Imperative").Imperative;
@@ -47,6 +38,7 @@ describe("Imperative", () => {
             jest.doMock("../../settings/src/AppSettings");
             jest.doMock("../../logger/src/Logger");
             jest.doMock("../src/env/EnvironmentalVariableSettings");
+            jest.doMock("../src/DefinitionTreeResolver");
 
             const {OverridesLoader} = require("../src/OverridesLoader");
             const {LoggingConfigurer} = require("../src/LoggingConfigurer");
@@ -58,6 +50,7 @@ describe("Imperative", () => {
             const {PluginManagementFacility} = require("../src/plugins/PluginManagementFacility");
             const {Logger} = require("../../logger");
             const {EnvironmentalVariableSettings} = require("../src/env/EnvironmentalVariableSettings");
+            const {DefinitionTreeResolver} = require("../src/DefinitionTreeResolver");
 
             return {
                 OverridesLoader: {
@@ -77,7 +70,10 @@ describe("Imperative", () => {
                 PluginManagementFacility,
                 LoggingConfigurer,
                 Logger,
-                EnvironmentalVariableSettings
+                EnvironmentalVariableSettings,
+                DefinitionTreeResolver: {
+                    resolve: DefinitionTreeResolver.resolve as Mock<typeof DefinitionTreeResolver.resolve>
+                }
             };
         } catch (error) {
             // If we error here, jest silently fails and says the test is empty. So let's make sure
@@ -94,45 +90,38 @@ describe("Imperative", () => {
 
     let mocks = reloadExternalMocks();
     let Imperative = loadImperative();
+    let realGetResolvedCmdTree: any;
+    const mockCmdTree = {
+        name: "mockCmdTreeName",
+        description: "Mock resolved (or prepared) command tree description",
+        type: "group",
+        children: [
+            {
+                name: "cmdFromCli",
+                description: "dummy command",
+                type: "command",
+                handler: "./lib/cmd/someCmd/someCmd.handler"
+            }
+        ]
+    };
 
     beforeEach(() => {
+        (process.mainModule as any) = {
+            filename: __filename
+        };
+
         jest.resetModuleRegistry();
 
         // Refresh the imperative load every time
         mocks = reloadExternalMocks();
         Imperative = loadImperative();
+        realGetResolvedCmdTree = Imperative.getResolvedCmdTree;
+        Imperative.getResolvedCmdTree = jest.fn(() => mockCmdTree );
+        Imperative.getPreparedCmdTree = jest.fn(() => mockCmdTree );
+    });
 
-        // we use spyOn, because we cannot mock private functions otherwise
-        jest.spyOn(Imperative as any, "getResolvedCmdTree").mockImplementation(() => {
-            return {
-                name: "mockCmdTreeName",
-                description: "Mock resolved command tree description",
-                type: "group",
-                children: [
-                    {
-                        name: "cmdFromCli",
-                        description: "dummy command",
-                        type: "command",
-                        handler: "./lib/cmd/someCmd/someCmd.handler"
-                    }
-                ]
-            };
-        });
-        jest.spyOn(Imperative as any, "getPreparedCmdTree").mockImplementation(() => {
-            return {
-                name: "mockCmdTreeName",
-                description: "Mock prepared command tree description",
-                type: "group",
-                children: [
-                    {
-                        name: "cmdFromCli",
-                        description: "dummy command",
-                        type: "command",
-                        handler: "./lib/cmd/someCmd/someCmd.handler"
-                    }
-                ]
-            };
-        });
+    afterEach(() => {
+        process.mainModule = mainModule;
     });
 
     describe("init", () => {
@@ -395,4 +384,33 @@ describe("Imperative", () => {
             expect(caughtError).toBe(error);
         });
     });
+
+    describe("test getResolvedCmdTree", () => {
+        it("should get results from DefinitionTreeResolver", async () => {
+            const mockConfigObj: IImperativeConfig = {};
+            const resolverCmdDef: ICommandDefinition = {
+                name: "mockCmdName",
+                description: "Mock description from DefinitionTreeResolver.resolve",
+                type: "command"
+            };
+
+            // we want to test the real getResolvedCmdTree, not a mocked one
+            Imperative.getResolvedCmdTree = realGetResolvedCmdTree;
+
+            /* getResolvedCmdTree calls getCallerLocation, and we need it to return some string.
+             * getCallerLocation is a getter of a property, so mock we the property.
+             */
+            Object.defineProperty(mocks.ImperativeConfig.instance, "callerLocation", {
+                configurable: true,
+                get: jest.fn(() => {
+                    return "../..";
+                })
+            });
+
+            mocks.DefinitionTreeResolver.resolve.mockReturnValue(resolverCmdDef);
+            const impCmdTree = Imperative.getResolvedCmdTree(mockConfigObj);
+            expect(impCmdTree).toBe(resolverCmdDef);
+        });
+    });
+
 });
