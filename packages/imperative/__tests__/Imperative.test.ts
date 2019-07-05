@@ -38,7 +38,6 @@ describe("Imperative", () => {
             jest.doMock("../../settings/src/AppSettings");
             jest.doMock("../../logger/src/Logger");
             jest.doMock("../src/env/EnvironmentalVariableSettings");
-            jest.doMock("../src/DefinitionTreeResolver");
 
             const {OverridesLoader} = require("../src/OverridesLoader");
             const {LoggingConfigurer} = require("../src/LoggingConfigurer");
@@ -50,8 +49,6 @@ describe("Imperative", () => {
             const {PluginManagementFacility} = require("../src/plugins/PluginManagementFacility");
             const {Logger} = require("../../logger");
             const {EnvironmentalVariableSettings} = require("../src/env/EnvironmentalVariableSettings");
-            const {DefinitionTreeResolver} = require("../src/DefinitionTreeResolver");
-
             return {
                 OverridesLoader: {
                     load: OverridesLoader.load as Mock<typeof OverridesLoader.load>
@@ -70,10 +67,7 @@ describe("Imperative", () => {
                 PluginManagementFacility,
                 LoggingConfigurer,
                 Logger,
-                EnvironmentalVariableSettings,
-                DefinitionTreeResolver: {
-                    resolve: DefinitionTreeResolver.resolve as Mock<typeof DefinitionTreeResolver.resolve>
-                }
+                EnvironmentalVariableSettings
             };
         } catch (error) {
             // If we error here, jest silently fails and says the test is empty. So let's make sure
@@ -91,6 +85,7 @@ describe("Imperative", () => {
     let mocks = reloadExternalMocks();
     let Imperative = loadImperative();
     let realGetResolvedCmdTree: any;
+    let realGetPreparedCmdTree: any;
     const mockCmdTree = {
         name: "mockCmdTreeName",
         description: "Mock resolved (or prepared) command tree description",
@@ -115,8 +110,11 @@ describe("Imperative", () => {
         // Refresh the imperative load every time
         mocks = reloadExternalMocks();
         Imperative = loadImperative();
+
         realGetResolvedCmdTree = Imperative.getResolvedCmdTree;
         Imperative.getResolvedCmdTree = jest.fn(() => mockCmdTree );
+
+        realGetPreparedCmdTree = Imperative.getPreparedCmdTree;;
         Imperative.getPreparedCmdTree = jest.fn(() => mockCmdTree );
     });
 
@@ -385,17 +383,15 @@ describe("Imperative", () => {
         });
     });
 
-    describe("test getResolvedCmdTree", () => {
-        it("should get results from DefinitionTreeResolver", async () => {
+    describe("getResolvedCmdTree", () => {
+        it("should deliver cmd tree from DefinitionTreeResolver", async () => {
+            /// mock imput and output of getResolvedCmdTree for testing
             const mockConfigObj: IImperativeConfig = {};
-            const resolverCmdDef: ICommandDefinition = {
-                name: "mockCmdName",
-                description: "Mock description from DefinitionTreeResolver.resolve",
+            const expectedCmdDef: ICommandDefinition = {
+                name: "expectedCmdName",
+                description: "Expected description from DefinitionTreeResolver.resolve",
                 type: "command"
             };
-
-            // we want to test the real getResolvedCmdTree, not a mocked one
-            Imperative.getResolvedCmdTree = realGetResolvedCmdTree;
 
             /* getResolvedCmdTree calls getCallerLocation, and we need it to return some string.
              * getCallerLocation is a getter of a property, so mock we the property.
@@ -407,9 +403,38 @@ describe("Imperative", () => {
                 })
             });
 
-            mocks.DefinitionTreeResolver.resolve.mockReturnValue(resolverCmdDef);
-            const impCmdTree = Imperative.getResolvedCmdTree(mockConfigObj);
-            expect(impCmdTree).toBe(resolverCmdDef);
+            /* getResolvedCmdTree calls DefinitionTreeResolver.resolve.
+             * We need it to return an expected command tree.
+             */
+            const {DefinitionTreeResolver} = require("../src/DefinitionTreeResolver");
+            DefinitionTreeResolver.resolve = jest.fn(() => expectedCmdDef);
+
+            // we want to test the real getResolvedCmdTree, not a mocked one
+            Imperative.getResolvedCmdTree = realGetResolvedCmdTree;
+            const resolvedCmdTree = Imperative.getResolvedCmdTree(mockConfigObj);
+            expect(resolvedCmdTree).toBe(expectedCmdDef);
+        });
+    });
+
+    describe("getPreparedCmdTree", () => {
+        it("should deliver cmd tree from CommandPreparer.prepare", async () => {
+            /// mock imput and output of getPreparedCmdTree for testing
+            const expectedCmdTree: ICommandDefinition = {
+                name: "resolvedCmdName",
+                description: "Resolved description",
+                type: "command"
+            };
+
+            /* getPreparedCmdTree calls CommandPreparer.prepare.
+             * We need it to return an expected command tree.
+             */
+            const {CommandPreparer} = require("../../cmd/src/CommandPreparer");
+            CommandPreparer.prepare = jest.fn(() => expectedCmdTree);
+
+            // we want to test the real getPreparedCmdTree, not a mocked one
+            Imperative.getPreparedCmdTree = realGetPreparedCmdTree;
+            const preparedCmdTree = Imperative.getPreparedCmdTree(expectedCmdTree);
+            expect(preparedCmdTree).toBe(expectedCmdTree);
         });
     });
 
