@@ -61,7 +61,7 @@ html, body {
 }
 
 #panel-left {
-    background-color: lavender;
+    background-color: #edf2fa;
     display: flex;
     flex-direction: column;
     flex: 0 0 auto;
@@ -81,7 +81,7 @@ html, body {
 }
 
 .gutter {
-    background-color: #eee;
+    background-color: #dddee0;
     background-position: 50%;
     background-repeat: no-repeat;
 }
