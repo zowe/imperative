@@ -114,7 +114,7 @@ describe("Imperative", () => {
         realGetResolvedCmdTree = Imperative.getResolvedCmdTree;
         Imperative.getResolvedCmdTree = jest.fn(() => mockCmdTree );
 
-        realGetPreparedCmdTree = Imperative.getPreparedCmdTree;;
+        realGetPreparedCmdTree = Imperative.getPreparedCmdTree;
         Imperative.getPreparedCmdTree = jest.fn(() => mockCmdTree );
     });
 
