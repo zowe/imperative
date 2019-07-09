@@ -65,6 +65,7 @@
     "jsonfile": "4.0.0",
     "jsonschema": "1.1.1",
     "levenshtein": "1.0.5",
+    "lodash-deep": "^2.0.0",
     "log4js": "3.0.5",
     "mkdirp": "0.5.1",
     "moment": "2.20.1",

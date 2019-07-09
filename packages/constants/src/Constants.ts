@@ -59,6 +59,8 @@ export class Constants {
     public static readonly JSON_OPTION_ALIAS = "rfj";
     public static readonly HELP_OPTION = "help";
     public static readonly HELP_OPTION_ALIAS = "h";
+    public static readonly HELP_EXAMPLES = "help-examples";
+    public static readonly HELP_EXAMPLES_ALIAS = "hex";
 
     public static readonly STDIN_OPTION = "stdin";
     public static readonly STDIN_OPTION_ALIAS = "pipe";

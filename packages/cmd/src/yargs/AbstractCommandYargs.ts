@@ -24,6 +24,8 @@ import { ICommandProfileTypeConfiguration } from "../doc/profiles/definition/ICo
 import { IHelpGeneratorFactory } from "../help/doc/IHelpGeneratorFactory";
 import { CommandResponse } from "../response/CommandResponse";
 import { ICommandResponse } from "../../src/doc/response/response/ICommandResponse";
+import { ICommandExampleDefinition } from "../..";
+const lodashDeep = require("lodash-deep");
 
 /**
  * Callback that is invoked when a command defined to yargs completes execution.
@@ -272,6 +274,11 @@ export abstract class AbstractCommandYargs {
          * Allocate the command processor and command response object to execute the help. The command response
          * object is recreated/changed based on the currently specified CLI options
          */
+        let tempDefinition: ICommandDefinition;
+        if (args[Constants.HELP_EXAMPLES]) {
+            tempDefinition = this.getDepthExamples();
+        }
+
         const newHelpGenerator = this.helpGeneratorFactory.getHelpGenerator({
             commandDefinition: this.definition,
             fullCommandTree: this.constructDefinitionTree(),
@@ -282,7 +289,7 @@ export abstract class AbstractCommandYargs {
         let response;
         try {
             response = new CommandProcessor({
-                definition: this.definition,
+                definition: tempDefinition ? tempDefinition : this.definition,
                 fullDefinition: this.constructDefinitionTree(),
                 helpGenerator: newHelpGenerator,
                 profileManagerFactory: this.profileManagerFactory,
@@ -308,5 +315,57 @@ export abstract class AbstractCommandYargs {
                 `The help for ${this.definition.name} was invoked.`,
                 "help invoked", [response]));
         }
+    }
+
+    /**
+     * Get examples for all commands of a group
+     * @returns {ICommandDefinition}
+     */
+    protected getDepthExamples() {
+
+
+        let pathToArr: string;
+        let tempDesc: string;
+        let tempOp: string;
+        let tempPre: string;
+        let tempDescPath: string;
+        let tempOpPath: string;
+        let tempPrePath: string;
+
+        if (!this.definition.examples) {
+            this.definition[`examples`] = [];
+        }
+
+        lodashDeep.deepMapValues(this.definition.children, ((value: any, path: any) => {
+            if(path.includes("examples.0.")) {
+                const tmp = path.split("examples.0.");
+                pathToArr = `${tmp[0]}examples`;
+
+            }
+            if(path.includes(pathToArr)) {
+                if (path.endsWith("description")) {
+                    tempDescPath = path.substring(0, path.length - "description".length);
+                    tempDesc= value;
+                } else if (path.endsWith("options")) {
+                    tempOpPath = path.substring(0, path.length - "options".length);
+                    tempOp = value;
+                } else if (path.endsWith("prefix")) {
+                    tempPrePath = path.substring(0, path.length - "prefix".length);
+                    tempPre = value;
+                } else {
+                    tempPre = undefined;
+                }
+
+                if(tempDescPath === tempOpPath ) {
+                    let commandExamples: ICommandExampleDefinition;
+                    (tempPre && (tempDescPath === tempPrePath)) ?
+                        this.definition.examples[this.definition.examples.length - 1].prefix = tempPre
+                        :commandExamples = {description: tempDesc, options: tempOp};
+                    this.definition.examples.push(commandExamples);
+
+                }
+            }
+        }));
+        return this.definition;
     }
 }
