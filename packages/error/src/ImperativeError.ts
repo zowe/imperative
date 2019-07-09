@@ -11,7 +11,7 @@
 
 import { IImperativeError } from "./doc/IImperativeError";
 import { IImperativeErrorParms } from "./doc/IImperativeErrorParms";
-import * as chalk from "chalk";
+import chalk from "chalk";
 
 /**
  *
