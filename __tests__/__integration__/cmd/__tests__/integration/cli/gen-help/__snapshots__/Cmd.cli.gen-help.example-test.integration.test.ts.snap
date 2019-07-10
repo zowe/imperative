@@ -43,13 +43,12 @@ exports[`cmd-cli gen-help example-test should display the help with allowable op
 
       Display help text
 
-
  EXAMPLES
  --------
 
    - Tests no options:
 
-      $ cmd-cli gen-help example-test 
+      $ cmd-cli gen-help example-test
 
    - Tests one option:
 
@@ -65,7 +64,7 @@ exports[`cmd-cli gen-help example-test should display the help with allowable op
 
    - :
 
-      $ cmd-cli gen-help example-test 
+      $ cmd-cli gen-help example-test
 
    - has a prefix:
 
