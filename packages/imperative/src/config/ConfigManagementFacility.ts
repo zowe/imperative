@@ -70,7 +70,7 @@ export class ConfigManagementFacility {
         ImperativeConfig.instance.addCmdGrpToLoadedConfig({
             name: "config",
             type: "group",
-            summary: "Manage configuration and overrides.",
+            summary: "Manage configuration and overrides",
             description: "Manage configuration and overrides. To see all set-able options use \"list\" command.",
             children: [
                 // require("./cmd/get/get.definition").getDefinition,

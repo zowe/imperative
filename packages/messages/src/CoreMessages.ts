@@ -54,9 +54,12 @@ export const syntaxErrorHeader: IMessageDefinition = {
     message: `\nSyntax Error`
 };
 
+export const createProfilesCommandSummary: IMessageDefinition = {
+    message: `Create new configuration profiles`,
+};
 
 export const createProfilesCommandDesc: IMessageDefinition = {
-    message: `Create new configuration profiles.`,
+    message: `${createProfilesCommandSummary.message}.`,
 };
 
 export const createProfileCommandDesc: IMessageDefinition = {
@@ -123,8 +126,12 @@ export const createProfileOptionOverwriteDesc: IMessageDefinition = {
     message: `Overwrite the {{type}} profile when a profile of the same name exists.`
 };
 
+export const deleteProfilesCommandSummary: IMessageDefinition = {
+    message: `Delete existing profiles`
+};
+
 export const deleteProfilesCommandDesc: IMessageDefinition = {
-    message: `Delete existing profiles.`
+    message: `${deleteProfilesCommandSummary.message}.`
 };
 
 export const deleteProfileForceOptionDesc: IMessageDefinition = {
@@ -153,7 +160,7 @@ export const showDependenciesCommandDesc: IMessageDefinition = {
 };
 
 export const listProfileCommandSummary: IMessageDefinition = {
-    message: `List existing profiles.`,
+    message: `List existing profiles`,
 };
 
 export const listProfileCommandDesc: IMessageDefinition = {
@@ -195,9 +202,9 @@ export const updateProfileCommandSummary: IMessageDefinition = {
 };
 
 export const updateProfileCommandDesc: IMessageDefinition = {
-    message: `Update a {{type}} profile.` +
+    message: `Update a {{type}} profile. ` +
         `You can update any property present within the profile configuration. The updated profile ` +
-        ` will be printed so that you can review the result of the updates.`,
+        `will be printed so that you can review the result of the updates.`,
 };
 
 export const listGroupWithOnlyProfilesSummary: IMessageDefinition = {
@@ -225,7 +232,11 @@ export const listGroupWithOnlyProfileSetDesc: IMessageDefinition = {
 };
 
 export const setProfileActionSummary: IMessageDefinition = {
-    message: `Set which profiles are loaded by default.`
+    message: `Set which profiles are loaded by default`
+};
+
+export const setProfileActionDesc: IMessageDefinition = {
+    message: `${setProfileActionSummary.message}.`
 };
 
 export const setGroupWithOnlyProfilesSummary: IMessageDefinition = {

@@ -11,15 +11,12 @@
 
 import { ICommandDefinition, ICommandProfileTypeConfiguration } from "../../../../cmd";
 import {
-    createProfilesCommandDesc,
-    deleteProfilesCommandDesc,
-    listProfileCommandDesc,
-    listProfileCommandSummary,
-    setProfileActionSummary,
-    updateProfileCommandDesc,
-    updateProfileCommandSummary,
-    validateProfileCommandSummary,
-    validateProfileGroupDesc
+    createProfilesCommandDesc, createProfilesCommandSummary,
+    deleteProfilesCommandDesc, deleteProfilesCommandSummary,
+    listProfileCommandDesc, listProfileCommandSummary,
+    setProfileActionDesc, setProfileActionSummary,
+    updateProfileCommandDesc, updateProfileCommandSummary,
+    validateProfileGroupDesc, validateProfileCommandSummary
 } from "../../../../messages";
 import { Constants } from "../../../../constants";
 import { ProfilesCreateCommandBuilder } from "./ProfilesCreateCommandBuilder";
@@ -57,7 +54,7 @@ export class CompleteProfilesGroupBuilder {
         const createGroup: ICommandDefinition = {
             name: Constants.CREATE_ACTION,
             description: createProfilesCommandDesc.message,
-            summary: createProfilesCommandDesc.message,
+            summary: createProfilesCommandSummary.message,
             aliases: ["cre"],
             type: "group",
             children: [],
@@ -66,7 +63,7 @@ export class CompleteProfilesGroupBuilder {
         const deleteGroup: ICommandDefinition = {
             name: Constants.DELETE_ACTION,
             description: deleteProfilesCommandDesc.message,
-            summary: deleteProfilesCommandDesc.message,
+            summary: deleteProfilesCommandSummary.message,
             aliases: ["rm"],
             type: "group",
             children: [],
@@ -75,7 +72,7 @@ export class CompleteProfilesGroupBuilder {
         const setGroup: ICommandDefinition = {
             name: Constants.SET_ACTION,
             summary: setProfileActionSummary.message,
-            description: setProfileActionSummary.message,
+            description: setProfileActionDesc.message,
             type: "group",
             aliases: ["set"],
             children: [],
