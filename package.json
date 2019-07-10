@@ -28,8 +28,7 @@
     ]
   },
   "files": [
-    "lib",
-    "npm-shrinkwrap.json"
+    "lib"
   ],
   "publishConfig": {
     "registry": "https://gizaartifactory.jfrog.io/gizaartifactory/api/npm/npm-local-release/"
@@ -54,14 +53,14 @@
   },
   "dependencies": {
     "@types/yargs": "8.0.2",
-    "@zowe/perf-timing": "^1.0.3-alpha.201902201448",
-    "chalk": "^2.4.2",
+    "@zowe/perf-timing": "1.0.3-alpha.201902201448",
+    "chalk": "2.4.2",
     "cli-table3": "0.5.1",
     "dataobject-parser": "1.2.1",
     "deepmerge": "3.0.0",
     "find-up": "2.1.0",
-    "glob": "^7.1.4",
-    "js-yaml": "^3.13.1",
+    "glob": "7.1.4",
+    "js-yaml": "3.13.1",
     "jsonfile": "4.0.0",
     "jsonschema": "1.1.1",
     "levenshtein": "1.0.5",
@@ -69,12 +68,12 @@
     "mkdirp": "0.5.1",
     "moment": "2.20.1",
     "mustache": "2.3.0",
-    "npm": "^6.9.0",
+    "npm": "6.10.0",
     "prettyjson": "1.2.1",
     "progress": "2.0.0",
     "readline-sync": "1.4.9",
-    "rimraf": "^2.6.3",
-    "semver": "^5.7.0",
+    "rimraf": "2.6.3",
+    "semver": "5.7.0",
     "stack-trace": "0.0.10",
     "wrap-ansi": "3.0.1",
     "yamljs": "0.3.0",
@@ -88,7 +87,7 @@
     "@types/find-up": "2.1.1",
     "@types/fs-extra": "^5.1.0",
     "@types/glob": "5.0.35",
-    "@types/jest": "^24.0.13",
+    "@types/jest": "^24.0.15",
     "@types/js-base64": "2.3.1",
     "@types/jsonfile": "4.0.1",
     "@types/keytar": "4.0.1",
@@ -119,7 +118,7 @@
     "jest-sonar-reporter": "2.0.0",
     "jest-stare": "1.11.1",
     "jsdoc": "^3.6.2",
-    "keytar": "^4.9.0",
+    "keytar": "^4.11.0",
     "madge": "3.0.0",
     "node-pty": "^0.8.1",
     "prompt": "1.0.0",
