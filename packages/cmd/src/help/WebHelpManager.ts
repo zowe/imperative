@@ -11,6 +11,8 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import * as os from "os";
+
 import { Constants } from "../../../constants/src/Constants";
 import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
 import { IWebHelpManager } from "./doc/IWebHelpManager";
@@ -65,7 +67,17 @@ export class WebHelpManager implements IWebHelpManager {
             treeDataContent.replace(/(const cmdToLoad)[^;]*;/, `$1 = ${cmdToLoad};`));
 
         try {
-            opener("file:///" + this.webHelpDir + "/index.html");
+           const openerProc = opener("file:///" + this.webHelpDir + "/index.html");
+           if ( os.platform() !== "win32") {
+               /* On linux, without the following statements, the zowe
+                * command does not return until the browser is closed.
+                * Mac is untested, but for now we treat it like linux.
+                */
+                openerProc.unref();
+                openerProc.stdin.unref();
+                openerProc.stdout.unref();
+                openerProc.stderr.unref();
+           }
         } catch {
             cmdResponse.console.error("Failed to launch web help, try running -h for console help instead");
         }
