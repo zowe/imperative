@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../cmd/src/doc/ICommandDefinition";
+import { Constants } from "../../constants";
 
 describe("ImperativeConfig", () => {
     const {ImperativeConfig} = require("../../utilities/src/ImperativeConfig");
@@ -68,6 +68,16 @@ describe("ImperativeConfig", () => {
 
         it("should get cliHome", async () => {
             expect(ImperativeConfig.instance.cliHome).toBe(mockConfig.defaultHome);
+        });
+
+        it("should get profileDir", async () => {
+            expect(ImperativeConfig.instance.profileDir).toBe(mockConfig.defaultHome + Constants.PROFILES_DIR + "/");
+        });
+
+        it("should get callerPackageJson", async () => {
+            const pkgJson = ImperativeConfig.instance.callerPackageJson;
+            expect(pkgJson.name).toBe("@zowe/imperative");
+            expect(pkgJson.repository.url).toBe("https://github.com/zowe/imperative.git");
         });
     });
 
