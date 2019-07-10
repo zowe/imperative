@@ -10,6 +10,7 @@
 */
 
 import { Arguments, Argv } from "yargs";
+import * as lodashDeep from "lodash-deep";
 import { Logger } from "../../../logger";
 import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { CommandProcessor } from "../CommandProcessor";
@@ -25,7 +26,7 @@ import { IHelpGeneratorFactory } from "../help/doc/IHelpGeneratorFactory";
 import { CommandResponse } from "../response/CommandResponse";
 import { ICommandResponse } from "../../src/doc/response/response/ICommandResponse";
 import { ICommandExampleDefinition } from "../..";
-const lodashDeep = require("lodash-deep");
+// const lodashDeep = require("lodash-deep");
 
 /**
  * Callback that is invoked when a command defined to yargs completes execution.
@@ -280,7 +281,7 @@ export abstract class AbstractCommandYargs {
         }
 
         const newHelpGenerator = this.helpGeneratorFactory.getHelpGenerator({
-            commandDefinition: this.definition,
+            commandDefinition: tempDefinition ? tempDefinition : this.definition,
             fullCommandTree: this.constructDefinitionTree(),
             experimentalCommandsDescription: this.yargsParms.experimentalCommandDescription
         });
@@ -323,7 +324,6 @@ export abstract class AbstractCommandYargs {
      */
     protected getDepthExamples() {
 
-
         let pathToArr: string;
         let tempDesc: string;
         let tempOp: string;
@@ -331,9 +331,10 @@ export abstract class AbstractCommandYargs {
         let tempDescPath: string;
         let tempOpPath: string;
         let tempPrePath: string;
+        const commandDeffinition: ICommandDefinition = this.definition;
 
         if (!this.definition.examples) {
-            this.definition[`examples`] = [];
+            commandDeffinition.examples = [];
         }
 
         lodashDeep.deepMapValues(this.definition.children, ((value: any, path: any) => {
@@ -361,11 +362,11 @@ export abstract class AbstractCommandYargs {
                     (tempPre && (tempDescPath === tempPrePath)) ?
                         this.definition.examples[this.definition.examples.length - 1].prefix = tempPre
                         :commandExamples = {description: tempDesc, options: tempOp};
-                    this.definition.examples.push(commandExamples);
+                    commandDeffinition.examples.push(commandExamples);
 
                 }
             }
         }));
-        return this.definition;
+        return commandDeffinition;
     }
 }

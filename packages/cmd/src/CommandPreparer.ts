@@ -418,12 +418,12 @@ export class CommandPreparer {
             type: "boolean"
         });
 
-        // all groups have --something-else
+        // all groups have --help-examples
         if(definition.type === "group") {
             definition.options.push({
                 name: Constants.HELP_EXAMPLES,
                 aliases: [Constants.HELP_EXAMPLES_ALIAS],
-                group: Constants.HELP_EXAMPLES,
+                group: Constants.GLOBAL_GROUP,
                 description: "Display examples for all the commands in a the group",
                 type: "boolean"
             });
