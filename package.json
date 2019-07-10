@@ -53,7 +53,7 @@
   },
   "dependencies": {
     "@types/yargs": "8.0.2",
-    "@zowe/perf-timing": "1.0.3-alpha.201902201448",
+    "@zowe/perf-timing": "^1.0.3-alpha.201902201448",
     "chalk": "2.4.2",
     "cli-table3": "0.5.1",
     "dataobject-parser": "1.2.1",
