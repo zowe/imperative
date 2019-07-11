@@ -251,6 +251,33 @@ const buildAllClis: ITaskFunction = async () => {
     });
 };
 
+const browserify: ITaskFunction = async() => {
+    // Need to load fs module
+    loadDependencies();
+
+    // Browserify main bundle
+    let b = require("browserify")();
+    b.add(__dirname + "/../node_modules/bootstrap/dist/css/bootstrap.min.css");
+    b.add(__dirname + "/../node_modules/jstree/dist/themes/default/style.min.css");
+    b.require(["bootstrap", "jquery", "jstree", "split.js"]);
+    b.transform(require("browserify-css"), {
+        inlineImages: true,
+        output: __dirname + "/../help-site/dist/css/bundle.css"
+    });
+    b.bundle().pipe(fs.createWriteStream(__dirname + "/../help-site/dist/js/bundle.js"));
+
+    // Browserify docs bundle
+    b = require("browserify")();
+    b.add(__dirname + "/../node_modules/balloon-css/balloon.min.css");
+    b.add(__dirname + "/../node_modules/github-markdown-css/github-markdown.css");
+    b.require("clipboard");
+    b.transform(require("browserify-css"), {
+        inlineImages: true,
+        output: __dirname + "/../help-site/dist/css/bundle-docs.css"
+    });
+    b.bundle().pipe(fs.createWriteStream(__dirname + "/../help-site/dist/js/bundle-docs.js"));
+};
+
 function getDirectories(path: string) {
     return fs.readdirSync(path).filter((file: string) => {
         return fs.statSync(path + "/" + file).isDirectory();
@@ -277,3 +304,4 @@ exports.checkCircularDependencies = checkCircularDependencies;
 exports.buildSampleCli = buildSampleCli;
 exports.buildAllClis = buildAllClis;
 exports.installAllCliDependencies = installAllCliDependencies;
+exports.browserify = browserify;

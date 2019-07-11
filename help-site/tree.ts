@@ -9,6 +9,9 @@
 *
 */
 
+import $ from "jquery";
+const jstree = require("jstree");
+
 interface ITreeNode {
     id: string;
     text: string;

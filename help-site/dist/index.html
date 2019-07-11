@@ -18,14 +18,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Docs</title>
-    <link rel="stylesheet" href="{{IMPERATIVE_DIR}}/node_modules/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{IMPERATIVE_DIR}}/node_modules/jstree/dist/themes/default/style.min.css">
-    <link rel="stylesheet" href="{{IMPERATIVE_HELP_DIR}}/css/main.css">
-    <script src="{{IMPERATIVE_DIR}}/node_modules/jquery/dist/jquery.slim.min.js"></script>
-    <script src="{{IMPERATIVE_DIR}}/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{IMPERATIVE_DIR}}/node_modules/jstree/dist/jstree.min.js"></script>
-    <script src="{{IMPERATIVE_DIR}}/node_modules/split.js/dist/split.min.js"></script>
-    <script src="{{IMPERATIVE_HELP_DIR}}/js/tree.js"></script>
+    <link rel="stylesheet" href="./css/bundle.css">
+    <link rel="stylesheet" href="./css/main.css">
+    <script src="./js/bundle.js"></script>
+    <script>var exports = {};</script>
+    <script src="./js/tree.js"></script>
     <script src="./tree-data.js"></script>
 </head>
 <body>
@@ -59,12 +56,12 @@
     </div>
     <script>
     document.title = headerStr + " " + document.title;
-    const splitter = Split(["#panel-left", "#panel-right"], {
+    const splitter = require("split.js")(["#panel-left", "#panel-right"], {
         sizes: [20, 80],
         minSize: 0
     });
     loadTree();
-    $(".gutter").on("dblclick", () => toggleTree(splitter));
+    require("jquery")(".gutter").on("dblclick", () => toggleTree(splitter));
     </script>
 </body>
 </html>

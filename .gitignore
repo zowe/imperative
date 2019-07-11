@@ -104,3 +104,7 @@ __tests__/src/plugins/suites/sample-plugin.json
 !/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@zowe/
 /__tests__/src/packages/imperative/plugins/test_cli/node_modules/@zowe/**
 !/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@zowe/imperative
+
+# Browserified bundles and compiled JS for web help
+/help-site/dist/css/bundle*
+/help-site/dist/js/
