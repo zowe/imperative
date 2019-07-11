@@ -39,8 +39,8 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "audit:public": "npm audit --registry https://registry.npmjs.org/",
-    "build:packages": "npm run build",
-    "build": "gulp build && npm run build:webHelp && npm run browserify",
+    "build:packages": "gulp build && npm run build:webHelp && npm run browserify",
+    "build": "npm run build:packages",
     "postbuild": "gulp build:install-all-cli-dependencies && gulp build:all-clis && npm run checkTestsCompile",
     "checkTestsCompile": "echo \"Checking that test source compiles\" && tsc --noEmit -p tsconfig-tests.json",
     "test": "npm run test:unit && npm run test:integration",
