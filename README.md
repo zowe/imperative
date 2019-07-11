@@ -6,7 +6,7 @@ Imperative CLI Framework is a command processing system that lets you quickly bu
 
 - [**Install Node.js package manager**](https://nodejs.org/en/download/package-manager) on your computer. Node.js® is a JavaScript runtime environment on which we architected Imperative CLI Framework.
 
-- To build this project from source, you must have Python 2.7 and a C++ Compiler installed (both are required by a dependency named `node-gyp`). To obtain the required software, follow the [instructions in the node-gyp readme](https://github.com/nodejs/node-gyp#installation specific to your OS. 
+- To build this project from source, you must have Python 2.7 and a C++ Compiler installed (both are required by a dependency named `node-gyp`). To obtain the required software, follow the [instructions in the node-gyp readme](https://github.com/nodejs/node-gyp#installation) specific to your OS. 
 
 - You must have a means to execute ".sh" (bash) scripts to run integration tests. On Windows, you can install "Git Bash", which is bundled with the standard [Git](https://git-scm.com/downloads) installation - (choose the "Use Git and Unix Tools from Windows Command Prompt" installation option). When you run the integration tests on Windows, you must have Administrative authority to enable the integration tests to create symbolic links.
 
