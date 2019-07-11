@@ -262,9 +262,9 @@ const browserify: ITaskFunction = async() => {
     b.require(["bootstrap", "jquery", "jstree", "split.js"]);
     b.transform(require("browserify-css"), {
         inlineImages: true,
-        output: __dirname + "/../help-site/dist/css/bundle.css"
+        output: __dirname + "/../web-help/dist/css/bundle.css"
     });
-    b.bundle().pipe(fs.createWriteStream(__dirname + "/../help-site/dist/js/bundle.js"));
+    b.bundle().pipe(fs.createWriteStream(__dirname + "/../web-help/dist/js/bundle.js"));
 
     // Browserify docs bundle
     b = require("browserify")();
@@ -273,9 +273,9 @@ const browserify: ITaskFunction = async() => {
     b.require("clipboard");
     b.transform(require("browserify-css"), {
         inlineImages: true,
-        output: __dirname + "/../help-site/dist/css/bundle-docs.css"
+        output: __dirname + "/../web-help/dist/css/bundle-docs.css"
     });
-    b.bundle().pipe(fs.createWriteStream(__dirname + "/../help-site/dist/js/bundle-docs.js"));
+    b.bundle().pipe(fs.createWriteStream(__dirname + "/../web-help/dist/js/bundle-docs.js"));
 };
 
 function getDirectories(path: string) {

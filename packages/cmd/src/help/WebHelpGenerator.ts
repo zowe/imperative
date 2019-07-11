@@ -64,7 +64,7 @@ export class WebHelpGenerator {
         }
 
         // Copy files from dist folder to Imperative dir
-        const distDir: string = path.join(this.imperativeDir, "help-site", "dist");
+        const distDir: string = path.join(this.imperativeDir, "web-help", "dist");
         const dirsToCopy: string[] = [distDir, path.join(distDir, "css"), path.join(distDir, "js")];
         dirsToCopy.forEach((dir: string) => {
             const destDir = path.join(webHelpDir, path.relative(distDir, dir));

@@ -29,7 +29,7 @@
   },
   "files": [
     "lib",
-    "help-site/dist",
+    "web-help/dist",
     "npm-shrinkwrap.json"
   ],
   "publishConfig": {
@@ -52,8 +52,8 @@
     "lint:packages": "tslint --format stylish -c ./tslint-packages.json \"packages/**/*.ts\"",
     "lint:tests": "tslint --format stylish -c ./tslint-tests.json \"**/__tests__/**/*.ts\"",
     "watch": "gulp watch",
-    "build:webHelp": "cd help-site && tsc",
-    "watch:webHelp": "cd help-site && tsc -w",
+    "build:webHelp": "cd web-help && tsc",
+    "watch:webHelp": "cd web-help && tsc -w",
     "browserify": "gulp browserify"
   },
   "dependencies": {
