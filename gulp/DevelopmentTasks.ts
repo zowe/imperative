@@ -257,8 +257,8 @@ const browserify: ITaskFunction = async() => {
 
     // Browserify main bundle
     let b = require("browserify")();
-    b.add(__dirname + "/../node_modules/bootstrap/dist/css/bootstrap.min.css");
     b.add(__dirname + "/../node_modules/jstree/dist/themes/default/style.min.css");
+    b.add(__dirname + "/../node_modules/bootstrap/dist/css/bootstrap.min.css");
     b.require(["bootstrap", "jquery", "jstree", "split.js"]);
     b.transform(require("browserify-css"), {
         inlineImages: true,

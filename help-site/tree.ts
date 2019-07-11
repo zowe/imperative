@@ -10,6 +10,7 @@
 */
 
 import $ from "jquery";
+const bootstrap = require("bootstrap");
 const jstree = require("jstree");
 
 interface ITreeNode {
