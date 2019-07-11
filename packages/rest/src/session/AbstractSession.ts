@@ -210,7 +210,7 @@ export abstract class AbstractSession {
                 // if we match requested token type, save it off for its length
                 if (element.indexOf(this.mISession.tokenType) === 0) {
                     // parse off token value, minus LtpaToken2= (as an example)
-                    this.ISession.tokenValue = element.substr(0, element.length - 1);
+                    this.ISession.tokenValue = element.substr(0, element.length);
                 }
             });
         });
