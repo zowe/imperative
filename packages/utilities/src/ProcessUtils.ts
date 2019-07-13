@@ -13,23 +13,14 @@ import { ImperativeError } from "../../error";
 import { isNullOrUndefined } from "util";
 
 /**
- * Process utility to wrap callback process routines into promises
+ * A collection of utilities related to the running process.
  * @export
  * @class ProcessUtils
  */
 export class ProcessUtils {
-
+    // __________________________________________________________________________
     /**
-     * Throw imperative error or return parsed data
-     * @static
-     * @template T - type to parse
-     * @param {string} data - string input data to parse as JSON
-     * @param {string} [failMessage="Parse of " + data + " failed"] - failure message
-     * @returns {T} - parsed object
-     * @memberof JSONUtils
-     */
-
-    /**
+     * Process utility to wrap callback process routines into promises
      * Turn nextTick into a promise to prevent nesting
      * @static
      * @param {() => void} callback - called before promise is resolved
@@ -44,5 +35,39 @@ export class ProcessUtils {
                 resolve();
             });
         });
+    }
+
+    // __________________________________________________________________________
+    /**
+     * Is a Graphical User Interface avaiable in the environment in which
+     * the current command is running?
+     *
+     * @returns {boolean} - True if GUI. False when no GUI.
+     */
+    public static isGuiAvailable(): boolean {
+        /* If any of the SSH environment variables are defined,
+         * then we are in an ssh session --> no GUI.
+         */
+        if (typeof process.env.SSH_CONNECTION !== "undefined" ||
+            typeof process.env.SSH_CLIENT !== "undefined" ||
+            typeof process.env.SSH_TTY !== "undefined")
+        {
+            return false;
+        }
+
+        /* On linux (and MAC?) the DISPLAY environment variable
+         * indicates that we are in an X-Windows environment.
+         */
+        if ( process.platform !== "win32") {
+            if (typeof process.env.DISPLAY === "undefined" ||
+                process.env.DISPLAY === "" ) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        // otherwise we assume we have a GUI
+        return true;
     }
 }

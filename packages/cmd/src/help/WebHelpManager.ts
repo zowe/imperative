@@ -11,10 +11,9 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import * as os from "os";
 
 import { Constants } from "../../../constants/src/Constants";
-import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
+import { ImperativeConfig, ProcessUtils } from "../../../utilities";
 import { IWebHelpManager } from "./doc/IWebHelpManager";
 import { WebHelpGenerator } from "./WebHelpGenerator";
 import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerResponseApi";
@@ -46,6 +45,15 @@ export class WebHelpManager implements IWebHelpManager {
     }
 
     public openHelp(inContext: string, cmdResponse: IHandlerResponseApi) {
+        if (!ProcessUtils.isGuiAvailable()) {
+            cmdResponse.console.log(
+                "You are running in an environment with no graphical interface.\n" +
+                "Try running '" + ImperativeConfig.instance.findPackageBinName() +
+                " --help' for text help."
+            );
+            return;
+        }
+
         const newMetadata: MaybePackageMetadata = this.checkIfMetadataChanged();
         if (newMetadata !== null) {
             (new WebHelpGenerator(this.mFullCommandTree, ImperativeConfig.instance, this.webHelpDir)).
@@ -68,7 +76,8 @@ export class WebHelpManager implements IWebHelpManager {
 
         try {
            const openerProc = opener("file:///" + this.webHelpDir + "/index.html");
-           if ( os.platform() !== "win32") {
+
+           if ( process.platform !== "win32") {
                /* On linux, without the following statements, the zowe
                 * command does not return until the browser is closed.
                 * Mac is untested, but for now we treat it like linux.
