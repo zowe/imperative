@@ -140,6 +140,16 @@ node('ca-jenkins-agent') {
         }
     )
 
+    //Upload Reports to Code Coverage
+    pipeline.createStage(
+        name: "Codecov",
+        stage: {
+            withCredentials([usernamePassword(credentialsId: 'CODECOV_ZOWE_IMP', usernameVariable: 'CODECOV_USERNAME', passwordVariable: 'CODECOV_TOKEN')]) {
+                sh "curl -s https://codecov.io/bash | bash -s"
+            }
+        }
+    )
+
     // Check vulnerabilities
     pipeline.checkVulnerabilities()
 
