@@ -9,7 +9,7 @@
 *
 */
 
-import * as fs from "fs";
+import * as fs from "fs-extra";
 import * as path from "path";
 import { DefaultHelpGenerator } from "./DefaultHelpGenerator";
 import { ICommandDefinition } from "../doc/ICommandDefinition";
@@ -58,7 +58,7 @@ export class WebHelpGenerator {
 
         // Create web-help/docs folder
         if (fs.existsSync(this.mDocsDir)) {
-            require("rimraf").sync(path.join(this.mDocsDir, "*"));
+            fs.removeSync(path.join(this.mDocsDir, "*"));
         } else {
             fs.mkdirSync(this.mDocsDir);
         }
@@ -75,17 +75,12 @@ export class WebHelpGenerator {
 
             fs.readdirSync(dir)
                 .filter((pathname: string) => fs.statSync(path.join(dir, pathname)).isFile())
-                .forEach((filename: string) => {
-                    const sourceFile = path.join(dir, filename);
-                    const destFile = path.join(destDir, filename);
-                    fs.createReadStream(sourceFile).pipe(fs.createWriteStream(destFile));
-            });
+                .forEach((filename: string) => fs.copySync(path.join(dir, filename), path.join(destDir, filename)));
         });
 
         // Copy header image if it exists
         if (this.mConfig.loadedConfig.webHelpLogoImgPath) {
-            fs.createReadStream(this.mConfig.loadedConfig.webHelpLogoImgPath).pipe(
-                fs.createWriteStream(path.join(webHelpDir, "header-image.png")));
+            fs.copySync(this.mConfig.loadedConfig.webHelpLogoImgPath, path.join(webHelpDir, "header-image.png"));
         }
 
         // Sort all items in the command tree and remove duplicates

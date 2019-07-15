@@ -75,10 +75,10 @@ export class WebHelpManager implements IWebHelpManager {
             treeDataContent.replace(/(const cmdToLoad)[^;]*;/, `$1 = ${cmdToLoad};`));
 
         try {
-           const openerProc = opener("file:///" + this.webHelpDir + "/index.html");
+            const openerProc = opener("file:///" + this.webHelpDir + "/index.html");
 
-           if ( process.platform !== "win32") {
-               /* On linux, without the following statements, the zowe
+            if (process.platform !== "win32") {
+                /* On linux, without the following statements, the zowe
                 * command does not return until the browser is closed.
                 * Mac is untested, but for now we treat it like linux.
                 */
@@ -86,7 +86,7 @@ export class WebHelpManager implements IWebHelpManager {
                 openerProc.stdin.unref();
                 openerProc.stdout.unref();
                 openerProc.stderr.unref();
-           }
+            }
         } catch {
             cmdResponse.console.error("Failed to launch web help, try running -h for console help instead");
         }
