@@ -26,7 +26,6 @@ import { IHelpGeneratorFactory } from "../help/doc/IHelpGeneratorFactory";
 import { CommandResponse } from "../response/CommandResponse";
 import { ICommandResponse } from "../../src/doc/response/response/ICommandResponse";
 import { ICommandExampleDefinition } from "../..";
-// const lodashDeep = require("lodash-deep");
 
 /**
  * Callback that is invoked when a command defined to yargs completes execution.

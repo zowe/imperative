@@ -102,7 +102,7 @@ export class CommandYargs extends AbstractCommandYargs {
                 /**
                  * If help is present, invoke the help for this command definition.
                  */
-                if (argsForHandler[Constants.HELP_OPTION]) {
+                if (argsForHandler[Constants.HELP_OPTION] || argsForHandler[Constants.HELP_EXAMPLES]) {
                     this.log.debug("Executing help: " + this.definition.name);
                     this.executeHelp(argsForHandler, commandExecuted);
                 } else {
