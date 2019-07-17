@@ -276,13 +276,13 @@ export abstract class AbstractCommandYargs {
          * object is recreated/changed based on the currently specified CLI options
          */
         let tempDefinition: ICommandDefinition;
-        if (args[Constants.HELP_EXAMPLES]) {
+        if (args[Constants.HELP_EXAMPLES] && this.definition.children) {
             tempDefinition = this.getDepthExamples();
         }
 
         const newHelpGenerator = this.helpGeneratorFactory.getHelpGenerator({
             commandDefinition: tempDefinition ? tempDefinition : this.definition,
-            fullCommandTree: this.constructDefinitionTree(),
+            fullCommandTree: tempDefinition ? tempDefinition : this.constructDefinitionTree(),
             experimentalCommandsDescription: this.yargsParms.experimentalCommandDescription
         });
 
@@ -291,7 +291,7 @@ export abstract class AbstractCommandYargs {
         try {
             response = new CommandProcessor({
                 definition: tempDefinition ? tempDefinition : this.definition,
-                fullDefinition: this.constructDefinitionTree(),
+                fullDefinition: tempDefinition ? tempDefinition : this.constructDefinitionTree(),
                 helpGenerator: newHelpGenerator,
                 profileManagerFactory: this.profileManagerFactory,
                 rootCommandName: this.rootCommandName,
@@ -354,15 +354,15 @@ export abstract class AbstractCommandYargs {
                     tempPrePath = path.substring(0, path.length - "prefix".length);
                     tempPre = value;
                 } else {
-                    tempPre = undefined;
+                    tempPrePath = undefined;
                 }
 
                 if(tempDescPath === tempOpPath ) {
                     let commandExamples: ICommandExampleDefinition;
                     (tempPre && (tempDescPath === tempPrePath)) ?
-                        this.definition.examples[this.definition.examples.length - 1].prefix = tempPre
+                        commandDeffinition.examples[commandDeffinition.examples.length - 1].prefix = tempPre
                         :commandExamples = {description: tempDesc, options: tempOp};
-                    commandDeffinition.examples.push(commandExamples);
+                    if(commandExamples) {commandDeffinition.examples.push(commandExamples);}
 
                 }
             }
