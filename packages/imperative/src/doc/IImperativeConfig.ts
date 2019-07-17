@@ -297,4 +297,10 @@ export interface IImperativeConfig {
      * It will be displayed at the top of web help pages.
      */
     webHelpLogoImgPath?: string;
+
+    /**
+     * Optionally specify path to a custom CSS file for web help.
+     * It will replace the main.css file that controls the style of the page.
+     */
+    webHelpCustomCssPath?: string;
 }

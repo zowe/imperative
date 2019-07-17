@@ -83,6 +83,11 @@ export class WebHelpGenerator {
             fs.copySync(this.mConfig.loadedConfig.webHelpLogoImgPath, path.join(webHelpDir, "header-image.png"));
         }
 
+        // Replace main.css with custom CSS file if it exists
+        if (this.mConfig.loadedConfig.webHelpCustomCssPath) {
+            fs.copySync(this.mConfig.loadedConfig.webHelpCustomCssPath, path.join(webHelpDir, "css/main.css"));
+        }
+
         // Sort all items in the command tree and remove duplicates
         const uniqueDefinitions: ICommandDefinition = this.mFullCommandTree;
         uniqueDefinitions.children = uniqueDefinitions.children
