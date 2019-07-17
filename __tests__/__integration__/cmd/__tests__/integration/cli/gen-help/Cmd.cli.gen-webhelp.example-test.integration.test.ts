@@ -16,6 +16,7 @@ import * as fsExtra from "fs-extra";
 import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../src/TestUtil";
+import { ProcessUtils} from "../../../../../../../packages/utilities";
 
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
@@ -51,12 +52,18 @@ describe("cmd-cli gen-webhelp example-test", () => {
         );
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
-        expect(response.stdout.toString()).toContain("Generating web help");
-        expect(response.stdout.toString()).toContain("Launching web help in browser");
 
-        const indexFileNm = path.join(TEST_ENVIRONMENT.workingDir, "web-help", "index.html");
-        const minSizeOfIndex = 1000;
-        const stat = fs.statSync(indexFileNm);
-        expect(stat.size).toBeGreaterThan(minSizeOfIndex);
+        if (ProcessUtils.isGuiAvailable()) {
+
+            expect(response.stdout.toString()).toContain("Generating web help");
+            expect(response.stdout.toString()).toContain("Launching web help in browser");
+
+            const indexFileNm = path.join(TEST_ENVIRONMENT.workingDir, "web-help", "index.html");
+            const minSizeOfIndex = 1000;
+            const stat = fs.statSync(indexFileNm);
+            expect(stat.size).toBeGreaterThan(minSizeOfIndex);
+        } else {
+            expect(response.stdout.toString()).toContain("You are running in an environment with no graphical interface");
+        }
     });
 });
