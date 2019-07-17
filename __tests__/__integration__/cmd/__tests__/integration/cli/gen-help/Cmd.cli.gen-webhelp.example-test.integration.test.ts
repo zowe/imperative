@@ -16,7 +16,7 @@ import * as fsExtra from "fs-extra";
 import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../src/TestUtil";
-import { ProcessUtils} from "../../../../../../../packages/utilities";
+import { ProcessUtils } from "../../../../../../../packages/utilities";
 
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
