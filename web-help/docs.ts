@@ -12,8 +12,10 @@
 const isInIframe: boolean = window.location !== window.parent.location;
 const links: any = document.getElementsByTagName("a");
 
+// Open absolute links in new tab and add handler for relative links
 for (const link of links) {
-    if (link.host !== window.location.host) {
+    const url = link.getAttribute("href");
+    if (url.indexOf("://") > 0 || url.indexOf("//") === 0) {
         link.setAttribute("target", "_blank");
     } else if (isInIframe) {
         link.setAttribute("onclick", "window.parent.postMessage(this.href, '*'); return true;");
@@ -29,6 +31,7 @@ function setTooltip(btn: any, message: string) {
     }, 1000);
 }
 
+// Enable clipboard access for copy buttons
 const clipboard = new (require("clipboard"))(".btn-copy");
 clipboard.on("success", (e: any) => setTooltip(e.trigger, "Copied!"));
 clipboard.on("error", (e: any) => setTooltip(e.trigger, "Failed!"));
