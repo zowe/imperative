@@ -134,6 +134,7 @@
     "gulp-util": "3.0.8",
     "is-url": "1.2.3",
     "jest": "^24.8.0",
+    "jest-html-reporter": "2.5.0",
     "jest-junit": "6.3.0",
     "jest-sonar-reporter": "2.0.0",
     "jest-stare": "1.11.1",
