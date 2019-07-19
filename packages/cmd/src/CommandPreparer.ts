@@ -419,15 +419,15 @@ export class CommandPreparer {
         });
 
         // all commands have --help-examples
-        if (!(definition.name === "")) {
-            definition.options.push({
+        // if (!(definition.name === "")) {
+        definition.options.push({
                 name: Constants.HELP_EXAMPLES,
                 aliases: [Constants.HELP_EXAMPLES_ALIAS],
                 group: Constants.GLOBAL_GROUP,
                 description: "Display examples for all the commands in a the group",
                 type: "boolean"
             });
-        }
+        // }
 
         /**
          * Append any profile related options

@@ -275,13 +275,13 @@ export abstract class AbstractCommandYargs {
          * object is recreated/changed based on the currently specified CLI options
          */
         let tempDefinition: ICommandDefinition;
-        if (args[Constants.HELP_EXAMPLES] && this.definition.children) {
+        if (args[Constants.HELP_EXAMPLES] && (this.definition.children.length > 0)) {
             tempDefinition = this.getDepthExamples();
         }
 
         const newHelpGenerator = this.helpGeneratorFactory.getHelpGenerator({
             commandDefinition: tempDefinition ? tempDefinition : this.definition,
-            fullCommandTree: tempDefinition ? tempDefinition : this.constructDefinitionTree(),
+            fullCommandTree: this.constructDefinitionTree(),
             experimentalCommandsDescription: this.yargsParms.experimentalCommandDescription
         });
 
@@ -324,6 +324,8 @@ export abstract class AbstractCommandYargs {
     protected getDepthExamples() {
 
         let pathToArr: string;
+        let completeName: string;
+        let topLevelName: string;
         let tempDesc: string;
         let tempOp: string;
         let tempPre: string;
@@ -337,18 +339,32 @@ export abstract class AbstractCommandYargs {
         }
 
         lodashDeep.deepMapValues(this.definition.children, ((value: any, path: any) => {
+            if(path.endsWith("name") && (path.includes("options") || path.includes("positionals"))) {
+                const doNothing = "doNothing";
+            } else if(path.endsWith("name") && path.includes("children")) {
+                completeName = `${topLevelName} ${value}`;
+            } else if(path.endsWith("name")) {
+                topLevelName = value;
+            }
+
             if(path.includes("examples.0.")) {
                 const tmp = path.split("examples.0.");
                 pathToArr = `${tmp[0]}examples`;
-
             }
+
             if(path.includes(pathToArr)) {
                 if (path.endsWith("description")) {
                     tempDescPath = path.substring(0, path.length - "description".length);
                     tempDesc= value;
                 } else if (path.endsWith("options")) {
                     tempOpPath = path.substring(0, path.length - "options".length);
-                    tempOp = value;
+                    if (completeName) {
+                        tempOp = `${completeName} ${value}`;
+                    } else if(topLevelName && !completeName) {
+                        tempOp = `${topLevelName} ${value}`;
+                    } else {
+                        tempOp = value;
+                    }
                 } else if (path.endsWith("prefix")) {
                     tempPrePath = path.substring(0, path.length - "prefix".length);
                     tempPre = value;
@@ -362,7 +378,6 @@ export abstract class AbstractCommandYargs {
                         commandDeffinition.examples[commandDeffinition.examples.length - 1].prefix = tempPre
                         :commandExamples = {description: tempDesc, options: tempOp};
                     if(commandExamples) {commandDeffinition.examples.push(commandExamples);}
-
                 }
             }
         }));
