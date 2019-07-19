@@ -27,6 +27,7 @@ import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
+import { requireNpm } from "../../../../src/plugins/utilities/NpmFunctions";
 import { uninstall } from "../../../../src/plugins/utilities/npm-interface";
 import * as path from "path";
 
@@ -42,7 +43,7 @@ describe("PMF: Uninstall Interface", () => {
   const samplePackageName = "imperative-sample-plugin";
   const packageName = "a";
   const packageRegistry = "https://registry.npmjs.org/";
-  const npm = require.resolve("npm");
+  const npm = requireNpm();
   const nodeExecPath = process.execPath;
 
   beforeEach(() => {

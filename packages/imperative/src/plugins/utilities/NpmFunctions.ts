@@ -10,10 +10,25 @@
 */
 
 import { PMFConstants } from "./PMFConstants";
-import * as path from "path";
 import { execSync } from "child_process";
-const npm = path.join(require.resolve("npm"), "../..");
+const npm = requireNpm();
 const nodeExecPath = process.execPath;
+
+/**
+ * Common function that requires npm if not found just returns npm command as a string.
+ *
+ * @return {string} path to local npm package or 'npm'
+ *
+ */
+export function requireNpm() {
+    let npmPackage;
+    try {
+        npmPackage = require.resolve("npm");
+    } catch (err) {
+        npmPackage = "npm";
+    }
+    return npmPackage;
+}
 
 /**
  * Common function that installs a npm package using the local npm cli.

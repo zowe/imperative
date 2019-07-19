@@ -15,7 +15,8 @@ import { IPluginJson } from "../../doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { ImperativeError } from "../../../../../error";
 import { TextUtils } from "../../../../../utilities";
-const npm = require.resolve("npm");
+import { requireNpm } from "../NpmFunctions";
+const npm = requireNpm();
 const node = require("child_process");
 const nodeExecPath = process.execPath;
 
