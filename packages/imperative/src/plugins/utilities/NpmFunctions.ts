@@ -10,6 +10,7 @@
 */
 
 import { PMFConstants } from "./PMFConstants";
+import * as path from "path";
 import { execSync } from "child_process";
 const npm = requireNpm();
 const nodeExecPath = process.execPath;
@@ -23,7 +24,7 @@ const nodeExecPath = process.execPath;
 export function requireNpm() {
     let npmPackage;
     try {
-        npmPackage = require.resolve("npm");
+        npmPackage = path.join(require.resolve("npm"), "../..");
     } catch (err) {
         npmPackage = "npm";
     }
