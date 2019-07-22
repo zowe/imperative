@@ -27,7 +27,7 @@ import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
-import { requireNpm } from "../../../../src/plugins/utilities/NpmFunctions";
+import { cmdToRun } from "../../../../src/plugins/utilities/NpmFunctions";
 import { uninstall } from "../../../../src/plugins/utilities/npm-interface";
 import * as path from "path";
 
@@ -43,8 +43,7 @@ describe("PMF: Uninstall Interface", () => {
   const samplePackageName = "imperative-sample-plugin";
   const packageName = "a";
   const packageRegistry = "https://registry.npmjs.org/";
-  const npm = requireNpm();
-  const nodeExecPath = process.execPath;
+  const npmCmd = cmdToRun();
 
   beforeEach(() => {
     // Mocks need cleared after every test for clean test runs
@@ -62,7 +61,7 @@ describe("PMF: Uninstall Interface", () => {
    */
   const wasExecSyncCallValid = (expectedPackage: string) => {
     expect(mocks.execSync).toHaveBeenCalledWith(
-      `"${nodeExecPath}" "${npm}" uninstall "${expectedPackage}" --prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g`,
+      `${npmCmd} uninstall "${expectedPackage}" --prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g`,
       {
         cwd  : PMFConstants.instance.PMF_ROOT,
         stdio: ["pipe", "pipe", process.stderr]

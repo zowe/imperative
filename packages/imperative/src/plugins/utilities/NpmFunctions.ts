@@ -12,23 +12,24 @@
 import { PMFConstants } from "./PMFConstants";
 import * as path from "path";
 import { execSync } from "child_process";
-const npm = requireNpm();
-const nodeExecPath = process.execPath;
+const npmCmd = cmdToRun();
 
 /**
- * Common function that requires npm if not found just returns npm command as a string.
+ * Common function that requires npm and node.exe if not found just returns npm command as a string.
  *
- * @return {string} path to local npm package or 'npm'
+ * @return {string} command with node.exe and npm paths or 'npm'
  *
  */
-export function requireNpm() {
-    let npmPackage;
+export function cmdToRun() {
+    let command;
     try {
-        npmPackage = path.join(require.resolve("npm"), "../..");
+        const npmExecPath = path.join(require.resolve("npm"), "../..");
+        const nodeExecPath = process.execPath;
+        command = `"${nodeExecPath}" "${npmExecPath}"` ;
     } catch (err) {
-        npmPackage = "npm";
+        command = "npm";
     }
-    return npmPackage;
+    return command;
 }
 
 /**
@@ -45,7 +46,7 @@ export function requireNpm() {
 export function installPackages(prefix: string, registry: string, npmPackage: string): string {
     const pipe = ["pipe", "pipe", process.stderr];
     try {
-        const execOutput = execSync(`"${nodeExecPath}" "${npm}" install "${npmPackage}" --prefix "${prefix}" ` +
+        const execOutput = execSync(`${npmCmd} install "${npmPackage}" --prefix "${prefix}" ` +
             `-g --registry "${registry}"`, {
             cwd: PMFConstants.instance.PMF_ROOT,
             stdio: pipe
@@ -63,7 +64,7 @@ export function installPackages(prefix: string, registry: string, npmPackage: st
  */
 export function getRegistry(): string {
     try {
-        const execOutput = execSync(`"${nodeExecPath}" "${npm}" config get registry`);
+        const execOutput = execSync(`${npmCmd} config get registry`);
         return execOutput.toString();
     } catch (err) {
         throw(err.message);
@@ -76,7 +77,7 @@ export function getRegistry(): string {
  */
 export function npmLogin(registry: string) {
     try {
-        execSync(`"${nodeExecPath}" "${npm}" adduser --registry ${registry} ` +
+        execSync(`${npmCmd} adduser --registry ${registry} ` +
             `--always-auth --auth-type=legacy`, {stdio: [0,1,2]});
     } catch (err) {
         throw(err.message);
