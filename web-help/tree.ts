@@ -175,7 +175,10 @@ function toggleTreeView() {
     const newNodes = isFlattened ? genFlattenedNodes(treeNodes) : treeNodes;
     ($("#cmd-tree").jstree(true) as any).settings.core.data = newNodes;
     $("#cmd-tree").jstree(true).refresh(false, true);
-    setTimeout(() => selectCurrentNode(true), 250);
+    setTimeout(() => {
+        selectCurrentNode(true);
+        updateSearch();
+    }, 100);
     const otherViewName = isFlattened ? "Tree View" : "List View";
     $("#tree-view-toggle").text(`Switch to ${otherViewName}`);
     $("#tree-expand-all").toggle();
