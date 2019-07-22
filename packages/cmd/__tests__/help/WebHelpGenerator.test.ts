@@ -17,6 +17,7 @@ import { WebHelpGenerator } from "../../src/help/WebHelpGenerator";
 import { WebHelpManager } from "../../src/help/WebHelpManager";
 import { CommandResponse } from "../../src/response/CommandResponse";
 import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
+import { IO } from "../../../io";
 
 describe("WebHelpGenerator", () => {
     describe("buildHelp", () => {
@@ -64,6 +65,14 @@ describe("WebHelpGenerator", () => {
         });
 
         it("should create Help files", async () => {
+            /* jenkins machine needs the path to docs to exist,
+             * even though Windows & other Linux systems do not care.
+             */
+            const webHelpDocsDirNm = webHelpDirNm + "/docs";
+            if (!fs.existsSync(webHelpDocsDirNm)) {
+                IO.mkdirp(webHelpDocsDirNm);
+            }
+
             const webHelpGen = new WebHelpGenerator(
                 WebHelpManager.instance.fullCommandTree,
                 ImperativeConfig.instance,
@@ -83,10 +92,10 @@ describe("WebHelpGenerator", () => {
             expect(fileText).toContain('"id": "FakeCli.html"');
 
             // do a reasonable set of generated files exist?
-            expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli.html")).toBe(true);
-            expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_config.html")).toBe(true);
-            expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_hello.html")).toBe(true);
-            expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_plugins_install.html")).toBe(true);
-            expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_plugins_uninstall.html")).toBe(true);
+            expect(fs.existsSync(webHelpDocsDirNm + "/FakeCli.html")).toBe(true);
+            expect(fs.existsSync(webHelpDocsDirNm + "/FakeCli_config.html")).toBe(true);
+            expect(fs.existsSync(webHelpDocsDirNm + "/FakeCli_hello.html")).toBe(true);
+            expect(fs.existsSync(webHelpDocsDirNm + "/FakeCli_plugins_install.html")).toBe(true);
+            expect(fs.existsSync(webHelpDocsDirNm + "/FakeCli_plugins_uninstall.html")).toBe(true);
     });
 });
