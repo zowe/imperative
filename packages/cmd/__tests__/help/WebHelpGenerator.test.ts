@@ -73,7 +73,6 @@ describe("WebHelpGenerator", () => {
                 IO.mkdirp(webHelpDocsDirNm);
             }
 
-            console.log("TempTest: webHelpDirNm = " + webHelpDirNm);
             const webHelpGen = new WebHelpGenerator(
                 WebHelpManager.instance.fullCommandTree,
                 ImperativeConfig.instance,
