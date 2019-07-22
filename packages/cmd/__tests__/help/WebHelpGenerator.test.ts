@@ -73,10 +73,11 @@ describe("WebHelpGenerator", () => {
                 IO.mkdirp(webHelpDocsDirNm);
             }
 
+            console.log("TempTest: webHelpDirNm = " + webHelpDirNm);
             const webHelpGen = new WebHelpGenerator(
                 WebHelpManager.instance.fullCommandTree,
                 ImperativeConfig.instance,
-                webHelpDirNm
+                /* webHelpDirNm */ "packages/__tests__/web-help-output" // temporarily test with actual value
             );
             webHelpGen.buildHelp(new CommandResponse({ silent: false }));
 
