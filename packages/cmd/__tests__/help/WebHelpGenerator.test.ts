@@ -35,7 +35,9 @@ describe("WebHelpGenerator", () => {
         };
         const webHelpDirNm = "packages/__tests__/web-help-output";
 
-        beforeEach( async () => {
+        beforeAll( async () => {
+            rimraf.sync(webHelpDirNm);
+
             /* getResolvedCmdTree calls getCallerLocation, and we need it to return some string.
              * getCallerLocation is a getter of a property, so mock we the property.
              */
@@ -47,12 +49,18 @@ describe("WebHelpGenerator", () => {
                     };
                 })
             });
-            rimraf.sync(webHelpDirNm);
+
+            // imperative.init does all the setup for WebHelp to be run
             await Imperative.init(configForHelp);
         });
 
-        afterEach( async () => {
-            rimraf.sync(webHelpDirNm);
+        afterAll( async () => {
+            // Give the browser time to launch before we remove the HTML files
+            const msDelay = 3000;
+            setTimeout(() =>
+                { rimraf.sync(webHelpDirNm); },
+                msDelay
+            );
         });
 
         it("should create Help files", async () => {
