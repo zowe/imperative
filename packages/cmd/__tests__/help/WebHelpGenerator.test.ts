@@ -9,8 +9,9 @@
 *
 */
 
-import * as rimraf from "rimraf";
 import * as fs from "fs";
+import * as path from "path";
+import * as rimraf from "rimraf";
 
 import { Imperative } from "../../../imperative/src/Imperative";
 import { WebHelpGenerator } from "../../src/help/WebHelpGenerator";
@@ -22,11 +23,13 @@ import { IO } from "../../../io";
 
 describe("WebHelpGenerator", () => {
     describe("buildHelp", () => {
+        let cliHome: string;
         let configForHelp: IImperativeConfig;
         let webHelpDirNm: string;
 
         beforeAll( async () => {
-            webHelpDirNm = "packages/__tests__/web-help-output";
+            cliHome = "packages/__tests__/fakeCliHome";
+            webHelpDirNm = path.join(cliHome, "web-help");
 
             configForHelp = {
                 definitions: [
@@ -38,11 +41,11 @@ describe("WebHelpGenerator", () => {
                     }
                 ],
                 productDisplayName: "WinHelp Test",
-                defaultHome: "~/.myproduct",
+                defaultHome: cliHome,
                 rootCommandDescription: "Some Product CLI"
             };
 
-            rimraf.sync(webHelpDirNm);
+            rimraf.sync(cliHome);
 
             /* getResolvedCmdTree calls getCallerLocation, and we need it to return some string.
              * getCallerLocation is a getter of a property, so mock we the property.
@@ -61,10 +64,14 @@ describe("WebHelpGenerator", () => {
         });
 
         afterAll( async () => {
-            // Give the browser time to launch before we remove the HTML files
+            /* Give the browser time to launch before we remove the HTML files.
+             * This results in a Jest warning of :
+             *      Jest did not exit one second after the test run has completed.
+             * However, that is better than the browser popping up "file not found".
+             */
             const msDelay = 3000;
             setTimeout(() =>
-                { rimraf.sync(webHelpDirNm); },
+                { rimraf.sync(cliHome); },
                 msDelay
             );
         });
