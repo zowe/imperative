@@ -16,27 +16,32 @@ import { Imperative } from "../../../imperative/src/Imperative";
 import { WebHelpGenerator } from "../../src/help/WebHelpGenerator";
 import { WebHelpManager } from "../../src/help/WebHelpManager";
 import { CommandResponse } from "../../src/response/CommandResponse";
+import { IImperativeConfig } from "../../../imperative/src/doc/IImperativeConfig";
 import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
 import { IO } from "../../../io";
 
 describe("WebHelpGenerator", () => {
     describe("buildHelp", () => {
-        const configForHelp: IImperativeConfig = {
-            definitions: [
-                {
-                    name: "hello",
-                    type: "command",
-                    options: [],
-                    description: "my command"
-                }
-            ],
-            productDisplayName: "WinHelp Test",
-            defaultHome: "~/.myproduct",
-            rootCommandDescription: "Some Product CLI"
-        };
-        const webHelpDirNm = "packages/__tests__/web-help-output";
+        let configForHelp: IImperativeConfig;
+        let webHelpDirNm: string;
 
         beforeAll( async () => {
+            webHelpDirNm = "packages/__tests__/web-help-output";
+
+            configForHelp = {
+                definitions: [
+                    {
+                        name: "hello",
+                        type: "command",
+                        options: [],
+                        description: "my command"
+                    }
+                ],
+                productDisplayName: "WinHelp Test",
+                defaultHome: "~/.myproduct",
+                rootCommandDescription: "Some Product CLI"
+            };
+
             rimraf.sync(webHelpDirNm);
 
             /* getResolvedCmdTree calls getCallerLocation, and we need it to return some string.
@@ -67,16 +72,17 @@ describe("WebHelpGenerator", () => {
         it("should create Help files", async () => {
             /* jenkins machine needs the path to docs to exist,
              * even though Windows & other Linux systems do not care.
-             */
-            const webHelpDocsDirNm = webHelpDirNm + "/docs";
             if (!fs.existsSync(webHelpDocsDirNm)) {
                 IO.mkdirp(webHelpDocsDirNm);
             }
+            * todo: - remove this block?
+            */
 
+            const webHelpDocsDirNm = webHelpDirNm + "/docs";
             const webHelpGen = new WebHelpGenerator(
                 WebHelpManager.instance.fullCommandTree,
                 ImperativeConfig.instance,
-                /* webHelpDirNm */ "packages/__tests__/web-help-output" // temporarily test with actual value
+                webHelpDirNm
             );
             webHelpGen.buildHelp(new CommandResponse({ silent: false }));
 
