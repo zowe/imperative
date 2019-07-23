@@ -17,16 +17,6 @@
     "framework",
     "zowe"
   ],
-  "pkg": {
-    "scripts": [
-      "lib/**/*.js",
-      "lib/auth/*.js"
-    ],
-    "assets": [
-      "../../npm/node_modules/node-gyp/**/*",
-      "../../npm/lib/"
-    ]
-  },
   "files": [
     "lib"
   ],
@@ -68,7 +58,6 @@
     "mkdirp": "0.5.1",
     "moment": "2.20.1",
     "mustache": "2.3.0",
-    "npm": "6.10.0",
     "prettyjson": "1.2.1",
     "progress": "2.0.0",
     "readline-sync": "1.4.9",
