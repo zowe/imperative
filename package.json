@@ -1,6 +1,6 @@
 {
   "name": "@zowe/imperative",
-  "version": "4.1.11",
+  "version": "4.1.12-alpha.201907231252",
   "description": "framework for building configurable CLIs",
   "author": "Broadcom",
   "license": "EPL-2.0",
@@ -17,16 +17,6 @@
     "framework",
     "zowe"
   ],
-  "pkg": {
-    "scripts": [
-      "lib/**/*.js",
-      "lib/auth/*.js"
-    ],
-    "assets": [
-      "../../npm/node_modules/node-gyp/**/*",
-      "../../npm/lib/"
-    ]
-  },
   "files": [
     "lib"
   ],
@@ -53,7 +43,7 @@
   },
   "dependencies": {
     "@types/yargs": "8.0.2",
-    "@zowe/perf-timing": "^1.0.3",
+    "@zowe/perf-timing": "^1.0.3-alpha.201902201448",
     "chalk": "2.4.2",
     "cli-table3": "0.5.1",
     "dataobject-parser": "1.2.1",
@@ -68,7 +58,6 @@
     "mkdirp": "0.5.1",
     "moment": "2.20.1",
     "mustache": "2.3.0",
-    "npm": "6.10.0",
     "prettyjson": "1.2.1",
     "progress": "2.0.0",
     "readline-sync": "1.4.9",
