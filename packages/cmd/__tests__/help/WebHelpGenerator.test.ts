@@ -23,11 +23,14 @@ import { IO } from "../../../io";
 
 describe("WebHelpGenerator", () => {
     describe("buildHelp", () => {
+        let moduleFileNm: string;
         let cliHome: string;
         let configForHelp: IImperativeConfig;
         let webHelpDirNm: string;
 
         beforeAll( async () => {
+            // any file that lives under the imperative directory will work for our test
+            moduleFileNm = "Jenkinsfile";
             cliHome = "packages/__tests__/fakeCliHome";
             webHelpDirNm = path.join(cliHome, "web-help");
 
@@ -40,6 +43,7 @@ describe("WebHelpGenerator", () => {
                         description: "my command"
                     }
                 ],
+                name: moduleFileNm,
                 productDisplayName: "WinHelp Test",
                 defaultHome: cliHome,
                 rootCommandDescription: "Some Product CLI"
@@ -54,7 +58,7 @@ describe("WebHelpGenerator", () => {
                 configurable: true,
                 get: jest.fn(() => {
                     return {
-                        filename: "FakeCli"
+                        filename: moduleFileNm;
                     };
                 })
             });
@@ -101,13 +105,13 @@ describe("WebHelpGenerator", () => {
 
             fileNmToTest = webHelpDirNm + "/tree-data.js";
             fileText = fs.readFileSync(fileNmToTest, "utf8");
-            expect(fileText).toContain('"id": "FakeCli.html"');
+            expect(fileText).toContain('"id": "' + moduleFileNm + '.html"');
 
             // do a reasonable set of generated files exist?
-            expect(fs.existsSync(webHelpDocsDirNm + "/FakeCli.html")).toBe(true);
-            expect(fs.existsSync(webHelpDocsDirNm + "/FakeCli_config.html")).toBe(true);
-            expect(fs.existsSync(webHelpDocsDirNm + "/FakeCli_hello.html")).toBe(true);
-            expect(fs.existsSync(webHelpDocsDirNm + "/FakeCli_plugins_install.html")).toBe(true);
-            expect(fs.existsSync(webHelpDocsDirNm + "/FakeCli_plugins_uninstall.html")).toBe(true);
+            expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + ".html")).toBe(true);
+            expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_config.html")).toBe(true);
+            expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello.html")).toBe(true);
+            expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_install.html")).toBe(true);
+            expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_uninstall.html")).toBe(true);
     });
 });
