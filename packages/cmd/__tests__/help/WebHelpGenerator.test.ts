@@ -72,13 +72,12 @@ describe("WebHelpGenerator", () => {
         it("should create Help files", async () => {
             /* jenkins machine needs the path to docs to exist,
              * even though Windows & other Linux systems do not care.
+            */
+            const webHelpDocsDirNm = webHelpDirNm + "/docs";
             if (!fs.existsSync(webHelpDocsDirNm)) {
                 IO.mkdirp(webHelpDocsDirNm);
             }
-            * todo: - remove this block?
-            */
 
-            const webHelpDocsDirNm = webHelpDirNm + "/docs";
             const webHelpGen = new WebHelpGenerator(
                 WebHelpManager.instance.fullCommandTree,
                 ImperativeConfig.instance,
