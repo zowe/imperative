@@ -53,8 +53,8 @@ describe("WebHelpGenerator", () => {
 
             rimraf.sync(cliHome);
 
-            /* getResolvedCmdTree calls getCallerLocation, and we need it to return some string.
-             * getCallerLocation is a getter of a property, so mock we the property.
+            /* process.mainModule.filename was null, so we must give it a value.
+             * mainModule is a getter of a property, so we mock the property.
              */
             Object.defineProperty(process, "mainModule", {
                 configurable: true,
@@ -84,14 +84,20 @@ describe("WebHelpGenerator", () => {
 
         it("should create Help files", async () => {
             const cmdResp = new CommandResponse({ silent: false });
+            const webHelpDocsDirNm = webHelpDirNm + "/docs";
 
             /* jenkins machine needs the path to docs to exist,
              * even though Windows & other Linux systems do not care.
-            */
-            const webHelpDocsDirNm = webHelpDirNm + "/docs";
             if (!fs.existsSync(webHelpDocsDirNm)) {
                 IO.mkdirp(webHelpDocsDirNm);
             }
+            zzz
+            */
+
+            // we need find-up to return our imperative directory, even with a fake process.mainModule.filename
+            const findUp = require("find-up");
+            const realFUpSync = findUp.sync;
+            findUp.sync = jest.fn(() => path.resolve("./");
 
             cmdResp.console.log("test:zzz: require.main = " + require.main);
             cmdResp.console.log("test:zzz: process.mainModule.filename = " + process.mainModule.filename);
@@ -109,7 +115,7 @@ describe("WebHelpGenerator", () => {
                 ImperativeConfig.instance,
                 webHelpDirNm
             );
-            webHelpGen.buildHelp(new CommandResponse({ silent: false }));
+            webHelpGen.buildHelp(cmdResp);
 
             // do our generated files contain some of the right stuff?
             let fileNmToTest = webHelpDirNm + "/index.html";
@@ -128,6 +134,8 @@ describe("WebHelpGenerator", () => {
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello.html")).toBe(true);
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_install.html")).toBe(true);
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_uninstall.html")).toBe(true);
+
+            findUp.sync = realFUpSync;
         });
     });
 });
