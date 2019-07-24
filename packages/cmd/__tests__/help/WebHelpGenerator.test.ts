@@ -93,21 +93,10 @@ describe("WebHelpGenerator", () => {
                 IO.mkdirp(webHelpDocsDirNm);
             }
 
-            // we need find-up to return our imperative directory, even with a fake process.mainModule.filename
+            // we need find-up to return our imperative directory, for use with a fake process.mainModule.filename
             const findUp = require("find-up");
             const realFUpSync = findUp.sync;
-            findUp.sync = jest.fn(() => path.resolve("./");
-
-            cmdResp.console.log("test:zzz: require.main = " + require.main);
-            cmdResp.console.log("test:zzz: process.mainModule.filename = " + process.mainModule.filename);
-            const impDir = require("find-up").sync("imperative", {cwd: process.mainModule.filename, type: "directory"});
-            cmdResp.console.log("test:zzz: impDir = " + impDir);
-            cmdResp.console.log("test:zzz: ImperativeConfig.instance.callerLocation = " + ImperativeConfig.instance.callerLocation);
-            cmdResp.console.log("test:zzz: ImperativeConfig.instance.rootCommandName = " + ImperativeConfig.instance.rootCommandName);
-            cmdResp.console.log("test:zzz: ImperativeConfig.instance.hostPackageName = " + ImperativeConfig.instance.hostPackageName);
-            cmdResp.console.log("test:zzz: ImperativeConfig.instance.imperativePackageName = " + ImperativeConfig.instance.imperativePackageName);
-            cmdResp.console.log("test:zzz: WebHelpManager.instance.fullCommandTree.name = " + WebHelpManager.instance.fullCommandTree.name);
-            cmdResp.console.log("test:zzz: WebHelpManager.instance.fullCommandTree.handler = " + WebHelpManager.instance.fullCommandTree.handler);
+            findUp.sync = jest.fn(() => path.resolve("./"));
 
             const webHelpGen = new WebHelpGenerator(
                 WebHelpManager.instance.fullCommandTree,
