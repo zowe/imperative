@@ -46,6 +46,14 @@ export class WebHelpGenerator {
         // Log using buffer to prevent trailing newline from getting added
         // This allows printing dot characters on the same line to show progress
         cmdResponse.console.log(Buffer.from("Generating web help"));
+        cmdResponse.console.log("\nbuildHelp:zzz: this.mDocsDir = " + this.mDocsDir);
+        cmdResponse.console.log("buildHelp:zzz: this.imperativeDir = " + this.imperativeDir);
+        cmdResponse.console.log("buildHelp:zzz: this.mConfig.mCallerLocation = " + this.mConfig.mCallerLocation);
+        cmdResponse.console.log("buildHelp:zzz: this.mConfig.mRootCommandName = " + this.mConfig.mRootCommandName);
+        cmdResponse.console.log("buildHelp:zzz: this.mConfig.mHostPackageName = " + this.mConfig.mHostPackageName);
+        cmdResponse.console.log("buildHelp:zzz: this.mConfig.mImperativePackageName = " + this.mConfig.mImperativePackageName);
+        cmdResponse.console.log("buildHelp:zzz: this.mFullCommandTree.name = " + this.mFullCommandTree.name);
+        cmdResponse.console.log("buildHelp:zzz: this.mFullCommandTree.handler = " + this.mFullCommandTree.handler);
 
         // Create web-help folder
         // After upgrading to Node v10, this step should no longer be necessary
@@ -55,6 +63,7 @@ export class WebHelpGenerator {
         if (!fs.existsSync(webHelpDir)) {
             fs.mkdirSync(webHelpDir);
         }
+        cmdResponse.console.log("buildHelp:zzz: webHelpDir = " + webHelpDir);
 
         // Create web-help/docs folder
         if (fs.existsSync(this.mDocsDir)) {
@@ -66,8 +75,11 @@ export class WebHelpGenerator {
         // Copy files from dist folder to Imperative dir
         const distDir: string = path.join(this.imperativeDir, "web-help", "dist");
         const dirsToCopy: string[] = [distDir, path.join(distDir, "css"), path.join(distDir, "js")];
+        cmdResponse.console.log("buildHelp:zzz: distDir = " + distDir);
+        cmdResponse.console.log("buildHelp:zzz: dirsToCopy = " + dirsToCopy);
         dirsToCopy.forEach((dir: string) => {
             const destDir = path.join(webHelpDir, path.relative(distDir, dir));
+            cmdResponse.console.log("buildHelp:zzz: destDir = " + destDir);
 
             if (!fs.existsSync(destDir)) {
                 fs.mkdirSync(destDir);
