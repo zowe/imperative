@@ -48,10 +48,10 @@ export class WebHelpGenerator {
         cmdResponse.console.log(Buffer.from("Generating web help"));
         cmdResponse.console.log("\nbuildHelp:zzz: this.mDocsDir = " + this.mDocsDir);
         cmdResponse.console.log("buildHelp:zzz: this.imperativeDir = " + this.imperativeDir);
-        cmdResponse.console.log("buildHelp:zzz: this.mConfig.mCallerLocation = " + this.mConfig.mCallerLocation);
-        cmdResponse.console.log("buildHelp:zzz: this.mConfig.mRootCommandName = " + this.mConfig.mRootCommandName);
-        cmdResponse.console.log("buildHelp:zzz: this.mConfig.mHostPackageName = " + this.mConfig.mHostPackageName);
-        cmdResponse.console.log("buildHelp:zzz: this.mConfig.mImperativePackageName = " + this.mConfig.mImperativePackageName);
+        cmdResponse.console.log("buildHelp:zzz: this.mConfig.callerLocation = " + this.mConfig.callerLocation);
+        cmdResponse.console.log("buildHelp:zzz: this.mConfig.rootCommandName = " + this.mConfig.rootCommandName);
+        cmdResponse.console.log("buildHelp:zzz: this.mConfig.hostPackageName = " + this.mConfig.hostPackageName);
+        cmdResponse.console.log("buildHelp:zzz: this.mConfig.imperativePackageName = " + this.mConfig.imperativePackageName);
         cmdResponse.console.log("buildHelp:zzz: this.mFullCommandTree.name = " + this.mFullCommandTree.name);
         cmdResponse.console.log("buildHelp:zzz: this.mFullCommandTree.handler = " + this.mFullCommandTree.handler);
 
