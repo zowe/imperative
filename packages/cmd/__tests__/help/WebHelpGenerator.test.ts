@@ -84,15 +84,14 @@ describe("WebHelpGenerator", () => {
 
         it("should create Help files", async () => {
             const cmdResp = new CommandResponse({ silent: false });
-            const webHelpDocsDirNm = webHelpDirNm + "/docs";
 
-            /* jenkins machine needs the path to docs to exist,
-             * even though Windows & other Linux systems do not care.
+            /* When jenkins machine runs this test as an integration test,
+             * it needs the path to docs to exist, even though Windows does not care.
+             */
+            const webHelpDocsDirNm = webHelpDirNm + "/docs";
             if (!fs.existsSync(webHelpDocsDirNm)) {
                 IO.mkdirp(webHelpDocsDirNm);
             }
-            zzz
-            */
 
             // we need find-up to return our imperative directory, even with a fake process.mainModule.filename
             const findUp = require("find-up");
