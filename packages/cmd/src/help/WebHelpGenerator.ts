@@ -46,7 +46,9 @@ export class WebHelpGenerator {
         // Log using buffer to prevent trailing newline from getting added
         // This allows printing dot characters on the same line to show progress
         cmdResponse.console.log(Buffer.from("Generating web help"));
-        cmdResponse.console.log("\nbuildHelp:zzz: this.mDocsDir = " + this.mDocsDir);
+        cmdResponse.console.log("\nbuildHelp:zzz: require.main = " + require.main);
+        cmdResponse.console.log("buildHelp:zzz: process.mainModule.filename = " + process.mainModule.filename);
+        cmdResponse.console.log("buildHelp:zzz: this.mDocsDir = " + this.mDocsDir);
         cmdResponse.console.log("buildHelp:zzz: this.imperativeDir = " + this.imperativeDir);
         cmdResponse.console.log("buildHelp:zzz: this.mConfig.callerLocation = " + this.mConfig.callerLocation);
         cmdResponse.console.log("buildHelp:zzz: this.mConfig.rootCommandName = " + this.mConfig.rootCommandName);

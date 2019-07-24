@@ -11,7 +11,6 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import * as rimraf from "rimraf";
 
 import { Imperative } from "../../../imperative/src/Imperative";
 import { WebHelpGenerator } from "../../src/help/WebHelpGenerator";
@@ -27,10 +26,13 @@ describe("WebHelpGenerator", () => {
         let cliHome: string;
         let configForHelp: IImperativeConfig;
         let webHelpDirNm: string;
+        let rimraf: any;
 
         beforeAll( async () => {
+            rimraf = require("rimraf");
+
             // any file that lives under the imperative directory will work for our test
-            moduleFileNm = "Jenkinsfile";
+            moduleFileNm = "fakeCliCmd";
             cliHome = "packages/__tests__/fakeCliHome";
             webHelpDirNm = path.join(cliHome, "web-help");
 
@@ -58,7 +60,7 @@ describe("WebHelpGenerator", () => {
                 configurable: true,
                 get: jest.fn(() => {
                     return {
-                        filename: moduleFileNm;
+                        filename: moduleFileNm
                     };
                 })
             });
@@ -81,6 +83,8 @@ describe("WebHelpGenerator", () => {
         });
 
         it("should create Help files", async () => {
+            const cmdResp = new CommandResponse({ silent: false });
+
             /* jenkins machine needs the path to docs to exist,
              * even though Windows & other Linux systems do not care.
             */
@@ -88,6 +92,17 @@ describe("WebHelpGenerator", () => {
             if (!fs.existsSync(webHelpDocsDirNm)) {
                 IO.mkdirp(webHelpDocsDirNm);
             }
+
+            cmdResp.console.log("test:zzz: require.main = " + require.main);
+            cmdResp.console.log("test:zzz: process.mainModule.filename = " + process.mainModule.filename);
+            const impDir = require("find-up").sync("imperative", {cwd: process.mainModule.filename, type: "directory"});
+            cmdResp.console.log("test:zzz: impDir = " + impDir);
+            cmdResp.console.log("test:zzz: ImperativeConfig.instance.callerLocation = " + ImperativeConfig.instance.callerLocation);
+            cmdResp.console.log("test:zzz: ImperativeConfig.instance.rootCommandName = " + ImperativeConfig.instance.rootCommandName);
+            cmdResp.console.log("test:zzz: ImperativeConfig.instance.hostPackageName = " + ImperativeConfig.instance.hostPackageName);
+            cmdResp.console.log("test:zzz: ImperativeConfig.instance.imperativePackageName = " + ImperativeConfig.instance.imperativePackageName);
+            cmdResp.console.log("test:zzz: WebHelpManager.instance.fullCommandTree.name = " + WebHelpManager.instance.fullCommandTree.name);
+            cmdResp.console.log("test:zzz: WebHelpManager.instance.fullCommandTree.handler = " + WebHelpManager.instance.fullCommandTree.handler);
 
             const webHelpGen = new WebHelpGenerator(
                 WebHelpManager.instance.fullCommandTree,
@@ -113,5 +128,6 @@ describe("WebHelpGenerator", () => {
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello.html")).toBe(true);
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_install.html")).toBe(true);
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_uninstall.html")).toBe(true);
+        });
     });
 });
