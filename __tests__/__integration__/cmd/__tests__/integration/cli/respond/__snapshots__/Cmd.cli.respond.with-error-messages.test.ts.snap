@@ -75,12 +75,16 @@ exports[`cmd-cli respond with-error-messages should display the help 1`] = `
 
       Display help text
 
+   --help-examples  | --hex (boolean)
+
+      Display examples for all the commands in a the group
+
 {
   \\"success\\": true,
   \\"exitCode\\": 0,
   \\"message\\": \\"The help was constructed for command: with-error-messages.\\",
-  \\"stdout\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-error-messages\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Reponds with a few error messages.\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-error-messages [options]\\\\n\\\\n REQUIRED OPTIONS\\\\n ----------------\\\\n\\\\n   --format-string  (string)\\\\n\\\\n      A format string that will be used to create a message\\\\n\\\\n   --format-values  (array)\\\\n\\\\n      The set of values to use in the format string.\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\",
+  \\"stdout\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-error-messages\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Reponds with a few error messages.\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-error-messages [options]\\\\n\\\\n REQUIRED OPTIONS\\\\n ----------------\\\\n\\\\n   --format-string  (string)\\\\n\\\\n      A format string that will be used to create a message\\\\n\\\\n   --format-values  (array)\\\\n\\\\n      The set of values to use in the format string.\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n   --help-examples  | --hex (boolean)\\\\n\\\\n      Display examples for all the commands in a the group\\\\n\\\\n\\",
   \\"stderr\\": \\"\\",
-  \\"data\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-error-messages\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Reponds with a few error messages.\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-error-messages [options]\\\\n\\\\n REQUIRED OPTIONS\\\\n ----------------\\\\n\\\\n   --format-string  (string)\\\\n\\\\n      A format string that will be used to create a message\\\\n\\\\n   --format-values  (array)\\\\n\\\\n      The set of values to use in the format string.\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n\\"
+  \\"data\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-error-messages\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Reponds with a few error messages.\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-error-messages [options]\\\\n\\\\n REQUIRED OPTIONS\\\\n ----------------\\\\n\\\\n   --format-string  (string)\\\\n\\\\n      A format string that will be used to create a message\\\\n\\\\n   --format-values  (array)\\\\n\\\\n      The set of values to use in the format string.\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n   --help-examples  | --hex (boolean)\\\\n\\\\n      Display examples for all the commands in a the group\\\\n\\\\n\\"
 }"
 `;
