@@ -50,7 +50,7 @@ export class WebHelpManager implements IWebHelpManager {
             let errMsg = "You are running in an environment with no graphical interface." +
                          "\nAlternatively, you can run '" + ImperativeConfig.instance.findPackageBinName() +
                          " --help' for text-based help.";
-            if (doWeHaveGui !== GuiResult.NO_GUI_NO_DISPLAY ) {
+            if (doWeHaveGui === GuiResult.NO_GUI_NO_DISPLAY) {
                 errMsg += "\n\nIf you are running in an X Window environment," +
                           "\nensure that your DISPLAY environment variable is set." +
                           "\nFor example, type the following:" +
