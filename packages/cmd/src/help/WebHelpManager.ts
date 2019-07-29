@@ -13,7 +13,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 import { Constants } from "../../../constants/src/Constants";
-import { ImperativeConfig, ProcessUtils } from "../../../utilities";
+import { ImperativeConfig, GuiResult, ProcessUtils } from "../../../utilities";
 import { IWebHelpManager } from "./doc/IWebHelpManager";
 import { WebHelpGenerator } from "./WebHelpGenerator";
 import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerResponseApi";
@@ -45,12 +45,21 @@ export class WebHelpManager implements IWebHelpManager {
     }
 
     public openHelp(inContext: string, cmdResponse: IHandlerResponseApi) {
-        if (!ProcessUtils.isGuiAvailable()) {
-            cmdResponse.console.log(
-                "You are running in an environment with no graphical interface.\n" +
-                "Try running '" + ImperativeConfig.instance.findPackageBinName() +
-                " --help' for text help."
-            );
+        const doWeHaveGui = ProcessUtils.isGuiAvailable();
+        if (doWeHaveGui !== GuiResult.GUI_AVAILABLE) {
+            let errMsg = "You are running in an environment with no graphical interface." +
+                         "\nAlternatively, you can run '" + ImperativeConfig.instance.findPackageBinName() +
+                         " --help' for text-based help.";
+            if (doWeHaveGui !== GuiResult.NO_GUI_NO_DISPLAY ) {
+                errMsg += "\n\nIf you are running in an X Window environment," +
+                          "\nensure that your DISPLAY environment variable is set." +
+                          "\nFor example, type the following:" +
+                          "\n    echo $DISPLAY" +
+                          "\nIf it is not set, assign a valid value. For example:" +
+                          "\n    export DISPLAY=:0.0" +
+                          "\nThen try the --help-web option again.";
+            }
+            cmdResponse.console.log(errMsg);
             return;
         }
 

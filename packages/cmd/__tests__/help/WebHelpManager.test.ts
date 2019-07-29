@@ -17,7 +17,7 @@ import { IO } from "../../../io/src/IO";
 import { Imperative } from "../../../imperative/src/Imperative";
 import { WebHelpManager } from "../../src/help/WebHelpManager";
 import { CommandResponse } from "../../src/response/CommandResponse";
-import { ImperativeConfig, ProcessUtils } from "../../../utilities";
+import { ImperativeConfig, GuiResult, ProcessUtils } from "../../../utilities";
 import { WebHelpGenerator } from "../..";
 
 describe("WebHelpManager", () => {
@@ -92,7 +92,7 @@ describe("WebHelpManager", () => {
         it("should generate and display help", async () => {
             WebHelpManager.instance.openRootHelp(cmdReponse);
 
-            if (ProcessUtils.isGuiAvailable()) {
+            if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
                 // do our generated files contain some of the right stuff?
                 let fileNmToTest = webHelpDirNm + "/index.html";
                 let fileText = fs.readFileSync(fileNmToTest, "utf8");
@@ -126,7 +126,7 @@ describe("WebHelpManager", () => {
 
             WebHelpManager.instance.openRootHelp(cmdReponse);
 
-            if (ProcessUtils.isGuiAvailable()) {
+            if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
                 expect(mockBuildHelp).not.toHaveBeenCalled();
             } else {
                 const jsonResult = cmdReponse.buildJsonResponse();

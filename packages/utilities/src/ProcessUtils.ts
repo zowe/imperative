@@ -13,6 +13,20 @@ import { ImperativeError } from "../../error";
 import { isNullOrUndefined } from "util";
 
 /**
+ * This enum represents the possible results from isGuiAvailable.
+ */
+export enum GuiResult {
+    /** A GUI is available */
+    GUI_AVAILABLE = 0,
+
+    /** No GUI because this is an SSH connection. */
+    NO_GUI_SSH = 1,
+
+    /** No GUI because The $DISPLAY environment variable is not set. */
+    NO_GUI_NO_DISPLAY = 2
+}
+
+/**
  * A collection of utilities related to the running process.
  * @export
  * @class ProcessUtils
@@ -44,7 +58,7 @@ export class ProcessUtils {
      *
      * @returns {boolean} - True if GUI. False when no GUI.
      */
-    public static isGuiAvailable(): boolean {
+    public static isGuiAvailable(): GuiResult {
         /* If any of the SSH environment variables are defined,
          * then we are in an ssh session --> no GUI.
          */
@@ -52,22 +66,21 @@ export class ProcessUtils {
             typeof process.env.SSH_CLIENT !== "undefined" ||
             typeof process.env.SSH_TTY !== "undefined")
         {
-            return false;
+            return GuiResult.NO_GUI_SSH;
         }
 
-        /* On linux (and MAC?) the DISPLAY environment variable
-         * indicates that we are in an X-Windows environment.
+        /* On linux (and MAC) the DISPLAY environment variable
+         * indicates that we are in an X-Window environment.
          */
         if ( process.platform !== "win32") {
             if (typeof process.env.DISPLAY === "undefined" ||
-                process.env.DISPLAY === "" ) {
-                return false;
-            } else {
-                return true;
+                process.env.DISPLAY === "" )
+            {
+                return GuiResult.NO_GUI_NO_DISPLAY;
             }
         }
 
         // otherwise we assume we have a GUI
-        return true;
+        return GuiResult.GUI_AVAILABLE;
     }
 }

@@ -16,7 +16,7 @@ import * as fsExtra from "fs-extra";
 import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../src/TestUtil";
-import { ProcessUtils } from "../../../../../../../packages/utilities";
+import { GuiResult, ProcessUtils } from "../../../../../../../packages/utilities";
 
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
@@ -53,8 +53,7 @@ describe("cmd-cli gen-webhelp example-test", () => {
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
 
-        if (ProcessUtils.isGuiAvailable()) {
-
+        if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
             expect(response.stdout.toString()).toContain("Generating web help");
             expect(response.stdout.toString()).toContain("Launching web help in browser");
 
