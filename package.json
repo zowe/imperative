@@ -1,6 +1,6 @@
 {
   "name": "@zowe/imperative",
-  "version": "4.1.12-alpha.201907111518",
+  "version": "4.1.12-alpha.201907231252",
   "description": "framework for building configurable CLIs",
   "author": "Broadcom",
   "license": "EPL-2.0",
@@ -17,16 +17,6 @@
     "framework",
     "zowe"
   ],
-  "pkg": {
-    "scripts": [
-      "lib/**/*.js",
-      "lib/auth/*.js"
-    ],
-    "assets": [
-      "../../npm/node_modules/node-gyp/**/*",
-      "../../npm/lib/"
-    ]
-  },
   "files": [
     "lib",
     "web-help/dist"
@@ -80,7 +70,6 @@
     "mkdirp": "0.5.1",
     "moment": "2.20.1",
     "mustache": "2.3.0",
-    "npm": "6.10.0",
     "opener": "1.5.1",
     "popper.js": "1.15.0",
     "prettyjson": "1.2.1",
