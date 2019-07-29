@@ -9,7 +9,7 @@
 *
 */
 
-import { ProcessUtils } from "../../utilities";
+import { GuiResult, ProcessUtils } from "../../utilities";
 
 describe("ProcessUtils tests", () => {
     describe("nextTick", () => {
@@ -45,13 +45,13 @@ describe("ProcessUtils tests", () => {
     describe("isGuiAvailable", () => {
         it("should report a GUI on Windows", async () => {
             if ( process.platform === "win32") {
-                expect(ProcessUtils.isGuiAvailable()).toBe(true);
+                expect(ProcessUtils.isGuiAvailable()).toBe(GuiResult.GUI_AVAILABLE);
             }
         });
 
         it("should report no GUI on an ssh connection", async () => {
             process.env.SSH_CONNECTION = "AnyValue";
-            expect(ProcessUtils.isGuiAvailable()).toBe(false);
+            expect(ProcessUtils.isGuiAvailable()).toBe(GuiResult.NO_GUI_SSH);
         });
 
         it("should report a GUI if DISPLAY is set on Linux", async () => {
@@ -67,7 +67,7 @@ describe("ProcessUtils tests", () => {
                 }
             });
 
-            expect(ProcessUtils.isGuiAvailable()).toBe(true);
+            expect(ProcessUtils.isGuiAvailable()).toBe(GuiResult.GUI_AVAILABLE);
 
             // restore values
             Object.defineProperty(process, "platform", {
@@ -92,7 +92,7 @@ describe("ProcessUtils tests", () => {
             });
 
             process.env.DISPLAY = "";
-            expect(ProcessUtils.isGuiAvailable()).toBe(false);
+            expect(ProcessUtils.isGuiAvailable()).toBe(GuiResult.NO_GUI_NO_DISPLAY);
 
             // restore values
             Object.defineProperty(process, "platform", {
