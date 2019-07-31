@@ -9,6 +9,7 @@
 *
 */
 
+export * from "./src/ImperativeConfig";
 export * from "./src/JSONUtils";
 export * from "./src/JsUtils";
 export * from "./src/ProcessUtils";

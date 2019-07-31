@@ -281,7 +281,6 @@ export interface IImperativeConfig {
      */
     pluginSummary?: string;
 
-
     /**
      * Optionally override the block of text that appears in the help text
      * for commands that are set to experimental:true in their definition.
@@ -292,4 +291,16 @@ export interface IImperativeConfig {
      * @memberof IImperativeConfig
      */
     experimentalCommandDescription?: string;
+
+    /**
+     * Optionally specify path to an image of logo for your CLI.
+     * It will be displayed at the top of web help pages.
+     */
+    webHelpLogoImgPath?: string;
+
+    /**
+     * Optionally specify path to a custom CSS file for web help.
+     * It will replace the main.css file that controls the style of the page.
+     */
+    webHelpCustomCssPath?: string;
 }

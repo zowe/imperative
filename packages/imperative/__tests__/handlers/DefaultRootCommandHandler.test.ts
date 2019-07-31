@@ -9,13 +9,13 @@
 *
 */
 
-jest.mock("../../../imperative/src/ImperativeConfig");
+jest.mock("../../../utilities/src/ImperativeConfig");
 jest.mock("../../../imperative/src/Imperative");
 
 import { TestLogger } from "../../../../__tests__/TestLogger";
 import { ICommandDefinition, CommandResponse, CommandPreparer, ICommandHandler } from "../../../cmd";
 import { ICommandHandlerRequire } from "../../../cmd/src/doc/handler/ICommandHandlerRequire";
-import { ImperativeConfig } from "../../src/ImperativeConfig";
+import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
 import { Imperative } from "../../src/__mocks__/Imperative";
 (CommandResponse as any).spinnerChars = "-oO0)|(0Oo-";
 process.env.FORCE_COLOR = "0";
@@ -95,7 +95,7 @@ describe("Default Root Command Handler", () => {
     });
 
     it("should display the help if no options are specified", async () => {
-        // We also rely on ../src/__mocks__/ImperativeConfig.ts
+        // We also rely on ../../../utilities/src/__mocks__/ImperativeConfig.ts
         const prepared: ICommandDefinition = CommandPreparer.prepare(MULTIPLE_GROUPS);
         const cmdResp: CommandResponse = new CommandResponse({
             primaryTextColor: "yellow",

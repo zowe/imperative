@@ -11,9 +11,9 @@
 
 import { PerfTiming } from "@zowe/perf-timing";
 import { IImperativeConfig } from "../../src/doc/IImperativeConfig";
-import { ImperativeConfig } from "../../src/ImperativeConfig";
+import { UpdateImpConfig } from "../../src/UpdateImpConfig";
 import { isAbsolute, join } from "path";
-import { JsUtils } from "../../../utilities";
+import { ImperativeConfig, JsUtils } from "../../../utilities";
 import { Logger } from "../../../logger";
 import { existsSync, mkdirSync } from "fs";
 import { PMFConstants } from "./utilities/PMFConstants";
@@ -172,7 +172,7 @@ export class PluginManagementFacility {
         ]);
 
         // Add the plugin group and related commands.
-        ImperativeConfig.instance.addCmdGrpToLoadedConfig({
+        UpdateImpConfig.addCmdGrp({
             name: "plugins",
             type: "group",
             description: "Install and manage plug-ins",
@@ -461,7 +461,7 @@ export class PluginManagementFacility {
                 JSON.stringify(pluginCfgProps.impConfig.profiles, null, 2)
             );
             try {
-                ImperativeConfig.instance.addProfiles(pluginCfgProps.impConfig.profiles);
+                UpdateImpConfig.addProfiles(pluginCfgProps.impConfig.profiles);
             }
             catch (impErr) {
                 const errMsg = "Failed to add profiles for the plug-in = '" + pluginCfgProps.pluginName +
@@ -554,7 +554,7 @@ export class PluginManagementFacility {
         cliVerPropNm: string,
         cliVerVal: string
     ): void {
-        const cliCmdName = this.getCliCmdName();
+        const cliCmdName = ImperativeConfig.instance.rootCommandName;
         try {
             if (!this.semver.intersects(cliVerVal, pluginVerVal, false)) {
                 this.pluginIssues.recordIssue(pluginName, IssueSeverity.WARNING,
@@ -574,24 +574,6 @@ export class PluginManagementFacility {
                 "Reported reason = " + semverExcept.message
             );
         }
-    }
-
-    // __________________________________________________________________________
-    /**
-     * Get the command name of our base CLI.
-     *
-     * Note: We cannot use Imperative.rootCommandName because it creates a
-     * circular dependency.
-     *
-     * @returns The CLI command name contained in the package.json 'bin' property.
-     */
-    private getCliCmdName(): string {
-        // get the name of the base CLI for error messages
-        let cliCmdName = ImperativeConfig.instance.findPackageBinName();
-        if (cliCmdName === null) {
-            cliCmdName = "YourBaseCliName";
-        }
-        return cliCmdName;
     }
 
     // __________________________________________________________________________
@@ -747,7 +729,7 @@ export class PluginManagementFacility {
     // __________________________________________________________________________
     /**
      * Read a plugin's configuration properties. The properties are obtained
-     * from the plugins package.json file, including'its imperative property.
+     * from the plugins package.json file, including it's imperative property.
      *
      * @param {string} pluginName - the name of the plugin
      *
@@ -811,7 +793,7 @@ export class PluginManagementFacility {
 
         // use the CLI's package name as a peer dependency in the plugin
         const cliPkgName = this.getCliPkgName();
-        const cliCmdName = this.getCliCmdName();
+        const cliCmdName = ImperativeConfig.instance.rootCommandName;
         if (cliPkgName === "NoNameInCliPkgJson"){
             this.pluginIssues.recordIssue(pluginName, IssueSeverity.WARNING,
                 "The property '" + this.npmPkgNmProp +
@@ -920,7 +902,7 @@ export class PluginManagementFacility {
      */
     private validatePeerDepVersions(pluginCfgProps: IPluginCfgProps): void {
         // get the name of the base CLI for error messages
-        const cliCmdName = this.getCliCmdName();
+        const cliCmdName = ImperativeConfig.instance.rootCommandName;
         const cliPackageJson: any = ImperativeConfig.instance.callerPackageJson;
         let cliVerPropName = "version";
 

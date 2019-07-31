@@ -27,6 +27,7 @@ gulp.task('build:sample-cli', developmentTasks.buildSampleCli);
 gulp.task('build:all-clis', developmentTasks.buildAllClis);
 gulp.task('build:install-all-cli-dependencies', developmentTasks.installAllCliDependencies);
 gulp.task("checkCircularDependencies", developmentTasks.checkCircularDependencies);
+gulp.task("browserify", developmentTasks.browserify);
 /**
  * Doc related tasks
  */

@@ -17,7 +17,7 @@ import { install } from "../../utilities/npm-interface";
 import { IPluginJson } from "../../doc/IPluginJson";
 import { IPluginJsonObject } from "../../doc/IPluginJsonObject";
 import { readFileSync } from "jsonfile";
-import { TextUtils } from "../../../../../utilities";
+import { ImperativeConfig, TextUtils } from "../../../../../utilities";
 import { ImperativeError } from "../../../../../error";
 import { runValidatePlugin } from "../../utilities/runValidatePlugin";
 import { getRegistry, npmLogin } from "../../utilities/NpmFunctions";
@@ -93,15 +93,12 @@ export default class InstallHandler implements ICommandHandler {
         }
 
         params.response.console.log(
-          "Imperative CLI Framework plug-ins can gain control of your CLI application\n" +
-          "legitimately during the execution of every command. Install 3rd party plug-ins\n" +
-          "at your own risk. CA Technologies makes no warranties regarding the use of\n" +
-          "3rd party plug-ins.\n\n" +
-          "Imperative's plugin installation program handles peer dependencies for modules\n" +
-          "in the @zowe namespace and missing package.json file,\n" +
-          "so you can safely ignore NPM warnings about\n" +
-          "missing peer dependencies related to @zowe modules and absent " +
-          join(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, "package.json") + " file."
+          "Plug-ins within the Imperative CLI Framework can legitimately gain\n" +
+          `control of the ${ImperativeConfig.instance.rootCommandName} CLI application ` +
+          "during the execution of every command.\n" +
+          "Install 3rd party plug-ins at your own risk.\n\n" +
+          "Imperative's plugin installation program handles @zowe peer dependencies.\n" +
+          "You can safely ignore NPM warnings about missing @zowe peer dependencies.\n"
         );
 
         params.response.console.log("Registry = " + installRegistry);

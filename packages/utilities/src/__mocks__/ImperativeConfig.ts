@@ -10,7 +10,7 @@
 */
 
 import { CommandPreparer, ICommandDefinition } from "../../../cmd";
-import { IImperativeConfig } from "../doc/IImperativeConfig";
+import { IImperativeConfig } from "../../../imperative/src/doc/IImperativeConfig";
 
 export class ImperativeConfig {
     private static mInstance: ImperativeConfig = null;
@@ -56,38 +56,6 @@ export class ImperativeConfig {
 
     public set loadedConfig(config: IImperativeConfig) {
       this.mLoadedConfig = config;
-    }
-
-    public get resolvedCmdTree(): ICommandDefinition {
-      return {
-        name: "mockCmdTreeName",
-        description: "Mock resolved command tree description",
-        type: "group",
-        children: [
-          {
-            name: "cmdFromCli",
-            description: "dummy command",
-            type: "command",
-            handler: "./lib/cmd/someCmd/someCmd.handler"
-          }
-        ]
-      };
-    }
-
-    public getPreparedCmdTree(resolvedCmdTree: ICommandDefinition): ICommandDefinition {
-      return {
-        name: "mockCmdTreeName",
-        description: "Mock resolved command tree description",
-        type: "group",
-        children: [
-          {
-            name: "cmdFromCli",
-            description: "dummy command",
-            type: "command",
-            handler: "./lib/cmd/someCmd/someCmd.handler"
-          }
-        ]
-      };
     }
 
     public get hostPackageName(): string {
