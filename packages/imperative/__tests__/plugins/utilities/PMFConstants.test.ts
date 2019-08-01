@@ -11,13 +11,13 @@
 
 jest.mock("path");
 jest.mock("../../../../logger/src/Logger");
-jest.mock("../../../src/ImperativeConfig");
+jest.mock("../../../../utilities/src/ImperativeConfig");
 
 import Mock = jest.Mock;
 
 describe("PMFConstants", () => {
     let {PMFConstants} = require("../../../src/plugins/utilities/PMFConstants");
-    let {ImperativeConfig} = require("../../../src/ImperativeConfig");
+    let {ImperativeConfig} = require("../../../../utilities/src/ImperativeConfig");
     let {join} = require("path");
 
     const mocks = {
@@ -27,7 +27,7 @@ describe("PMFConstants", () => {
     beforeEach(async () => {
         jest.resetModules();
         ({PMFConstants} = await import("../../../src/plugins/utilities/PMFConstants"));
-        ({ImperativeConfig} = await import("../../../src/ImperativeConfig"));
+        ({ImperativeConfig} = await import("../../../../utilities/src/ImperativeConfig"));
         ({join} = await import("path"));
 
         mocks.join = join;

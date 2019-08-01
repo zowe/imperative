@@ -10,7 +10,7 @@
 */
 
 import { PerfTiming } from "@zowe/perf-timing";
-import { ImperativeConfig } from "../ImperativeConfig";
+import { UpdateImpConfig } from "../UpdateImpConfig";
 import { Logger } from "../../../logger";
 
 /**
@@ -67,7 +67,7 @@ export class ConfigManagementFacility {
         this.impLogger.debug("ConfigManagementFacility.init() - Start");
 
         // Add the config group and related commands.
-        ImperativeConfig.instance.addCmdGrpToLoadedConfig({
+        UpdateImpConfig.addCmdGrp({
             name: "config",
             type: "group",
             summary: "Manage configuration and overrides",

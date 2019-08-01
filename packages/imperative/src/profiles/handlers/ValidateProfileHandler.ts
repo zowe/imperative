@@ -21,7 +21,7 @@ import {
     ProfileValidator
 } from "../../../../profiles";
 import { Logger } from "../../../../logger";
-import { ImperativeConfig } from "../../ImperativeConfig";
+import { ImperativeConfig } from "../../../../utilities";
 
 /**
  * Generic handler for validating a profile and printing a report in response

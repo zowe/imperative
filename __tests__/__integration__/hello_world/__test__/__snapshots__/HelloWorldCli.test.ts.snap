@@ -41,6 +41,10 @@ exports[`Hello World should print help if the option is specified 1`] = `
 
       Display help text
 
+   --help-web  | --hw (boolean)
+
+      Display HTML help in browser
+
 "
 `;
 
