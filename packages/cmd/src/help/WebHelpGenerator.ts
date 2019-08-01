@@ -63,8 +63,8 @@ export class WebHelpGenerator {
             fs.mkdirSync(this.mDocsDir);
         }
 
-        // Copy files from dist folder to Imperative dir
-        const distDir: string = path.join(this.imperativeDir, "web-help", "dist");
+        // Copy files from dist folder to .zowe home dir
+        const distDir: string = this.webHelpDistDir;
         const dirsToCopy: string[] = [distDir, path.join(distDir, "css"), path.join(distDir, "js")];
         dirsToCopy.forEach((dir: string) => {
             const destDir = path.join(webHelpDir, path.relative(distDir, dir));
@@ -119,8 +119,9 @@ export class WebHelpGenerator {
         cmdResponse.console.log("done!");
     }
 
-    private get imperativeDir(): string {
-        return require("find-up").sync("imperative", {cwd: process.mainModule.filename, type: "directory"});
+    private get webHelpDistDir(): string {
+        return path.join(path.dirname(process.mainModule.filename),
+            "..", "node_modules", "@zowe", "imperative", "web-help", "dist");
     }
 
     private genDocsHeader(title: string): string {
