@@ -36,6 +36,15 @@ Object {
     },
     Object {
       "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
         "rff",
       ],
       "description": "Filter (include) fields in the response. Accepts an array of field/property names to include in the output response. You can filter JSON objects properties OR table columns/fields. In addition, you can use this option in conjunction with '--response-format-type' to reduce the output of a command to a single field/property or a list of a single field/property.",
@@ -153,6 +162,15 @@ Object {
               "name": "help-examples",
               "type": "boolean",
             },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
           ],
           "passOn": Array [],
           "positionals": Array [
@@ -209,6 +227,15 @@ Object {
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
               "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
               "type": "boolean",
             },
           ],
@@ -268,6 +295,15 @@ Object {
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
               "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
               "type": "boolean",
             },
             Object {
@@ -332,6 +368,15 @@ Object {
           "name": "help-examples",
           "type": "boolean",
         },
+        Object {
+          "aliases": Array [
+            "hw",
+          ],
+          "description": "Display HTML help in browser",
+          "group": "Global options",
+          "name": "help-web",
+          "type": "boolean",
+        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -366,6 +411,15 @@ Object {
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
       "name": "help-examples",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
       "type": "boolean",
     },
   ],
@@ -429,6 +483,15 @@ Object {
               "name": "help-examples",
               "type": "boolean",
             },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
           ],
           "passOn": Array [],
           "positionals": Array [
@@ -485,6 +548,15 @@ Object {
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
               "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
               "type": "boolean",
             },
           ],
@@ -548,6 +620,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
                 "apple-p",
               ],
               "description": "The name of a (apple) profile to load for this command execution.",
@@ -602,6 +683,15 @@ Object {
           "name": "help-examples",
           "type": "boolean",
         },
+        Object {
+          "aliases": Array [
+            "hw",
+          ],
+          "description": "Display HTML help in browser",
+          "group": "Global options",
+          "name": "help-web",
+          "type": "boolean",
+        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -643,6 +733,15 @@ Object {
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
       "name": "help-examples",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
       "type": "boolean",
     },
   ],
@@ -726,6 +825,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
                 "pipe",
               ],
               "description": "Pipe data into this command via stdin",
@@ -790,6 +898,15 @@ Object {
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
               "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
               "type": "boolean",
             },
             Object {
@@ -862,6 +979,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
                 "apple-p",
               ],
               "description": "The name of a (apple) profile to load for this command execution.",
@@ -928,6 +1054,15 @@ Object {
         },
         Object {
           "aliases": Array [
+            "hw",
+          ],
+          "description": "Display HTML help in browser",
+          "group": "Global options",
+          "name": "help-web",
+          "type": "boolean",
+        },
+        Object {
+          "aliases": Array [
             "pipe",
           ],
           "description": "Pipe data into this command via stdin",
@@ -976,6 +1111,15 @@ Object {
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
       "name": "help-examples",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
       "type": "boolean",
     },
   ],
@@ -1042,6 +1186,15 @@ Object {
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
               "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
               "type": "boolean",
             },
             Object {
@@ -1114,6 +1267,15 @@ Object {
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
               "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
               "type": "boolean",
             },
             Object {
@@ -1191,6 +1353,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
                 "banana-p",
               ],
               "description": "The name of a (banana) profile to load for this command execution.",
@@ -1243,6 +1414,15 @@ Object {
           "description": "Display examples for all the commands in a the group",
           "group": "Global options",
           "name": "help-examples",
+          "type": "boolean",
+        },
+        Object {
+          "aliases": Array [
+            "hw",
+          ],
+          "description": "Display HTML help in browser",
+          "group": "Global options",
+          "name": "help-web",
           "type": "boolean",
         },
         Object {
@@ -1300,6 +1480,15 @@ Object {
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
       "name": "help-examples",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
       "type": "boolean",
     },
   ],
@@ -1374,6 +1563,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
                 "banana-p",
               ],
               "description": "The name of a (banana) profile to load for this command execution.",
@@ -1442,6 +1640,15 @@ Object {
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
               "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
               "type": "boolean",
             },
             Object {
@@ -1519,6 +1726,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
                 "banana-p",
               ],
               "description": "The name of a (banana) profile to load for this command execution.",
@@ -1573,6 +1789,15 @@ Object {
           "name": "help-examples",
           "type": "boolean",
         },
+        Object {
+          "aliases": Array [
+            "hw",
+          ],
+          "description": "Display HTML help in browser",
+          "group": "Global options",
+          "name": "help-web",
+          "type": "boolean",
+        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -1614,6 +1839,15 @@ Object {
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
       "name": "help-examples",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
       "type": "boolean",
     },
   ],
@@ -1693,6 +1927,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
                 "banana-p",
               ],
               "description": "The name of a (banana) profile to load for this command execution.",
@@ -1761,6 +2004,15 @@ Object {
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
               "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
               "type": "boolean",
             },
             Object {
@@ -1838,6 +2090,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
                 "banana-p",
               ],
               "description": "The name of a (banana) profile to load for this command execution.",
@@ -1890,6 +2151,15 @@ Object {
           "description": "Display examples for all the commands in a the group",
           "group": "Global options",
           "name": "help-examples",
+          "type": "boolean",
+        },
+        Object {
+          "aliases": Array [
+            "hw",
+          ],
+          "description": "Display HTML help in browser",
+          "group": "Global options",
+          "name": "help-web",
           "type": "boolean",
         },
         Object {
@@ -1947,6 +2217,15 @@ Object {
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
       "name": "help-examples",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
       "type": "boolean",
     },
   ],
@@ -2032,6 +2311,15 @@ Object {
               "name": "help-examples",
               "type": "boolean",
             },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
           ],
           "passOn": Array [],
           "positionals": Array [
@@ -2095,6 +2383,15 @@ Object {
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
               "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
               "type": "boolean",
             },
           ],
@@ -2165,6 +2462,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
                 "apple-p",
               ],
               "description": "The name of a (apple) profile to load for this command execution.",
@@ -2226,6 +2532,15 @@ Object {
           "name": "help-examples",
           "type": "boolean",
         },
+        Object {
+          "aliases": Array [
+            "hw",
+          ],
+          "description": "Display HTML help in browser",
+          "group": "Global options",
+          "name": "help-web",
+          "type": "boolean",
+        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -2267,6 +2582,15 @@ Object {
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
       "name": "help-examples",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
       "type": "boolean",
     },
   ],
@@ -2349,6 +2673,15 @@ Object {
               "name": "help-examples",
               "type": "boolean",
             },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
           ],
           "passOn": Array [],
           "positionals": Array [
@@ -2412,6 +2745,15 @@ Object {
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
               "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
               "type": "boolean",
             },
           ],
@@ -2482,6 +2824,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
                 "apple-p",
               ],
               "description": "The name of a (apple) profile to load for this command execution.",
@@ -2536,6 +2887,15 @@ Object {
           "name": "help-examples",
           "type": "boolean",
         },
+        Object {
+          "aliases": Array [
+            "hw",
+          ],
+          "description": "Display HTML help in browser",
+          "group": "Global options",
+          "name": "help-web",
+          "type": "boolean",
+        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -2577,6 +2937,15 @@ Object {
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
       "name": "help-examples",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
       "type": "boolean",
     },
   ],
@@ -2664,6 +3033,15 @@ Object {
               "name": "help-examples",
               "type": "boolean",
             },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
           ],
           "passOn": Array [],
           "positionals": Array [
@@ -2727,6 +3105,15 @@ Object {
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
               "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
               "type": "boolean",
             },
           ],
@@ -2797,6 +3184,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
                 "apple-p",
               ],
               "description": "The name of a (apple) profile to load for this command execution.",
@@ -2858,6 +3254,15 @@ Object {
           "name": "help-examples",
           "type": "boolean",
         },
+        Object {
+          "aliases": Array [
+            "hw",
+          ],
+          "description": "Display HTML help in browser",
+          "group": "Global options",
+          "name": "help-web",
+          "type": "boolean",
+        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -2899,6 +3304,15 @@ Object {
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
       "name": "help-examples",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
       "type": "boolean",
     },
   ],
@@ -2976,6 +3390,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
                 "banana-p",
               ],
               "description": "The name of a (banana) profile to load for this command execution.",
@@ -3044,6 +3467,15 @@ Object {
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
               "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
               "type": "boolean",
             },
             Object {
@@ -3121,6 +3553,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "hw",
+              ],
+              "description": "Display HTML help in browser",
+              "group": "Global options",
+              "name": "help-web",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
                 "apple-p",
               ],
               "description": "The name of a (apple) profile to load for this command execution.",
@@ -3173,6 +3614,15 @@ Object {
           "description": "Display examples for all the commands in a the group",
           "group": "Global options",
           "name": "help-examples",
+          "type": "boolean",
+        },
+        Object {
+          "aliases": Array [
+            "hw",
+          ],
+          "description": "Display HTML help in browser",
+          "group": "Global options",
+          "name": "help-web",
           "type": "boolean",
         },
         Object {
@@ -3232,6 +3682,15 @@ Object {
       "name": "help-examples",
       "type": "boolean",
     },
+    Object {
+      "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
+      "type": "boolean",
+    },
   ],
   "passOn": Array [
     Object {
@@ -3285,6 +3744,15 @@ Object {
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
       "name": "help-examples",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
       "type": "boolean",
     },
     Object {
@@ -3360,6 +3828,15 @@ Object {
         },
         Object {
           "aliases": Array [
+            "hw",
+          ],
+          "description": "Display HTML help in browser",
+          "group": "Global options",
+          "name": "help-web",
+          "type": "boolean",
+        },
+        Object {
+          "aliases": Array [
             "banana-p",
           ],
           "description": "The name of a (banana) profile to load for this command execution.",
@@ -3407,6 +3884,15 @@ Object {
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
       "name": "help-examples",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
       "type": "boolean",
     },
   ],

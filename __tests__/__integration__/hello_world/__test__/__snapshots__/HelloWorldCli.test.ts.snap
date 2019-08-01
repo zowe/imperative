@@ -45,6 +45,10 @@ exports[`Hello World should print help if the option is specified 1`] = `
 
       Not available for top tier Zowe group
 
+   --help-web  | --hw (boolean)
+
+      Display HTML help in browser
+
 "
 `;
 

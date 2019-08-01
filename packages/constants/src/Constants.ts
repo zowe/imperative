@@ -61,6 +61,8 @@ export class Constants {
     public static readonly HELP_OPTION_ALIAS = "h";
     public static readonly HELP_EXAMPLES = "help-examples";
     public static readonly HELP_EXAMPLES_ALIAS = "hex";
+    public static readonly HELP_WEB_OPTION = "help-web";
+    public static readonly HELP_WEB_OPTION_ALIAS = "hw";
 
     public static readonly STDIN_OPTION = "stdin";
     public static readonly STDIN_OPTION_ALIAS = "pipe";
@@ -99,4 +101,6 @@ export class Constants {
 
     public static readonly DEFAULT_HIGHLIGHT_COLOR = "yellow";
     public static readonly DEFAULT_PROMPT_PHRASE = "PROMPT*";
+
+    public static readonly WEB_HELP_DIR = "web-help";
 }

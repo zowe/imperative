@@ -12,7 +12,7 @@
 import Module = require("module");
 
 import { PerfTiming } from "@zowe/perf-timing";
-import { ImperativeConfig } from "../ImperativeConfig";
+import { ImperativeConfig } from "../../../utilities";
 import * as path from "path";
 import * as findUp from "find-up";
 

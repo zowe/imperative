@@ -44,6 +44,7 @@
     "express": "4.16.2",
     "filewatcher": "3.0.1",
     "find-up": "2.1.0",
+    "fs-extra": "8.1.0",
     "glob": "7.1.1",
     "js-yaml": "^3.13.1",
     "jsonfile": "4.0.0",
@@ -69,6 +70,7 @@
     "yargs": "8.0.2"
   },
   "devDependencies": {
+    "@types/fs-extra": "5.1.0",
     "@types/node": "8.0.28",
     "coveralls": "^2.0.0",
     "gulp": "^3.9.1",

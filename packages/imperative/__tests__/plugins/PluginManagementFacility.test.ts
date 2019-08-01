@@ -20,7 +20,8 @@ import { existsSync, mkdirSync } from "fs";
 import { AppSettings } from "../../../settings";
 import { ICommandDefinition } from "../../../../packages/cmd";
 import { IImperativeConfig } from "../../src/doc/IImperativeConfig";
-import { ImperativeConfig } from "../../src/ImperativeConfig";
+import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
+import { UpdateImpConfig } from "../../src/UpdateImpConfig";
 import { IPluginJson } from "../../src/plugins/doc/IPluginJson";
 import { IssueSeverity, PluginIssues } from "../../src/plugins/utilities/PluginIssues";
 import { join, resolve } from "path";
@@ -177,9 +178,9 @@ describe("Plugin Management Facility", () => {
     });
 
     it("should add our plugin command definitions", () => {
-        const mockAddCmdGrpToLoadedConfig = jest.fn();
-        const realAddCmdGrpToLoadedConfig = impCfg.addCmdGrpToLoadedConfig;
-        impCfg.addCmdGrpToLoadedConfig = mockAddCmdGrpToLoadedConfig;
+        const mockAddCmdGrp = jest.fn();
+        const realAddCmdGrp = UpdateImpConfig.addCmdGrp;
+        UpdateImpConfig.addCmdGrp = mockAddCmdGrp;
         const mockFindPackageBinName = jest.fn(() => "MockCliCmdName");
         const realFindPackageBinName = impCfg.findPackageBinName;
         impCfg.findPackageBinName = mockFindPackageBinName;
@@ -201,7 +202,7 @@ describe("Plugin Management Facility", () => {
         );
 
 
-        expect(impCfg.addCmdGrpToLoadedConfig).toHaveBeenCalledWith({
+        expect(UpdateImpConfig.addCmdGrp).toHaveBeenCalledWith({
             name: "plugins",
             type: "group",
             description: "Install and manage plug-ins",
@@ -213,7 +214,7 @@ describe("Plugin Management Facility", () => {
                 validateDef
             ]
         });
-        impCfg.addCmdGrpToLoadedConfig = realAddCmdGrpToLoadedConfig;
+        UpdateImpConfig.addCmdGrp = realAddCmdGrp;
         impCfg.findPackageBinName = realFindPackageBinName;
     });
 
@@ -1023,26 +1024,28 @@ describe("Plugin Management Facility", () => {
 
     describe("Load plugin config properties", () => {
         let realCfgLoad: any;
-        let realGetCliCmdName: any;
         let realGetCliPkgName: any;
         const mockCfgLoad = jest.fn();
-        const mockGetCliCmdName = jest.fn();
         const mockGetCliPkgName = jest.fn();
 
         beforeEach(() => {
             realCfgLoad = ConfigurationLoader.load;
             ConfigurationLoader.load = mockCfgLoad;
 
-            realGetCliCmdName = PMF.getCliCmdName;
-            PMF.getCliCmdName = mockGetCliCmdName;
-
             realGetCliPkgName = PMF.getCliPkgName;
             PMF.getCliPkgName = mockGetCliPkgName;
+
+            // impCfg.getCliCmdName is a getter of a property, so mock the property
+            Object.defineProperty(impCfg, "cliCmdName", {
+                configurable: true,
+                get: jest.fn(() => {
+                    return "testCliName";
+                })
+            });
         });
 
         afterEach(() => {
             ConfigurationLoader.load = realCfgLoad;
-            PMF.getCliCmdName = realGetCliCmdName;
             PMF.getCliPkgName = realGetCliPkgName;
         });
 
@@ -1179,7 +1182,6 @@ describe("Plugin Management Facility", () => {
 
             // utility functions mocked to return good values
             mockGetCliPkgName.mockReturnValue("@zowe/core");
-            mockGetCliCmdName.mockReturnValue("testCliName");
             mockCfgLoad.mockReturnValue(expectedCfgProps.impConfig);
 
             // this is what we are really testing
@@ -1218,7 +1220,6 @@ describe("Plugin Management Facility", () => {
 
             // utility functions mocked to return good values
             mockGetCliPkgName.mockReturnValue("@zowe/core");
-            mockGetCliCmdName.mockReturnValue("testCliName");
             mockCfgLoad.mockReturnValue(expectedCfgProps.impConfig);
 
             // this is what we are really testing
@@ -1338,19 +1339,19 @@ describe("Plugin Management Facility", () => {
         const realValidatePlugin = PMF.validatePlugin;
         const mockValidatePlugin = jest.fn();
 
-        const realAddProfiles = impCfg.addProfiles;
+        const realAddProfiles = UpdateImpConfig.addProfiles;
         const mockAddProfiles = jest.fn();
 
         beforeEach(() => {
             DefinitionTreeResolver.combineAllCmdDefs = mockCombineAllCmdDefs;
             PMF.validatePlugin = mockValidatePlugin;
-            impCfg.addProfiles = mockAddProfiles;
+            UpdateImpConfig.addProfiles = mockAddProfiles;
         });
 
         afterEach(() => {
             DefinitionTreeResolver.combineAllCmdDefs = realCombineAllCmdDefs;
             PMF.validatePlugin = realValidatePlugin;
-            impCfg.addProfiles = realAddProfiles;
+            UpdateImpConfig.addProfiles = realAddProfiles;
         });
 
         it("should record an error if combineAllCmdDefs throws an error", () => {
@@ -1388,7 +1389,7 @@ describe("Plugin Management Facility", () => {
 
             // this is what we really want to test
             PMF.addPluginToHostCli(testPluginCofig);
-            expect(impCfg.addProfiles).toHaveBeenCalledTimes(0);
+            expect(UpdateImpConfig.addProfiles).toHaveBeenCalledTimes(0);
         });
 
         it("should record an error when addProfiles throws an exception", () => {
@@ -1404,7 +1405,7 @@ describe("Plugin Management Facility", () => {
 
             // this is what we really want to test
             PMF.addPluginToHostCli(testPluginCofig);
-            expect(impCfg.addProfiles).toHaveBeenCalledTimes(1);
+            expect(UpdateImpConfig.addProfiles).toHaveBeenCalledTimes(1);
             const issue = pluginIssues.getIssueListForPlugin(pluginName)[0];
             expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
             expect(issue.issueText).toContain("Failed to add profiles for the plug-in");
@@ -1421,7 +1422,7 @@ describe("Plugin Management Facility", () => {
 
             // this is what we really want to test
             PMF.addPluginToHostCli(testPluginCofig);
-            expect(impCfg.addProfiles).toHaveBeenCalledWith(testPluginCofig.impConfig.profiles);
+            expect(UpdateImpConfig.addProfiles).toHaveBeenCalledWith(testPluginCofig.impConfig.profiles);
         });
     }); // end addPlugin
 
@@ -1699,33 +1700,6 @@ describe("Plugin Management Facility", () => {
         });
     }); // end formPluginRuntimePath
 
-    describe("getCliCmdName function", () => {
-        it("should return proper CLI CMD name defined in package.json file", () => {
-            // getCallerPackageJson is a getter of a property, so mock the property
-            Object.defineProperty(impCfg, "callerPackageJson", {
-                configurable: true,
-                get: jest.fn(() => {
-                    return goodHostCliPkgJson;
-                })
-            });
-
-            const cliCmdName = PMF.getCliCmdName();
-            expect(cliCmdName).toBe("sample-cli");
-        });
-        it("should return 'YourBaseCliName' when CLI CMD name is not defined in package.json file", () => {
-            // getCallerPackageJson is a getter of a property, so mock the property
-            Object.defineProperty(impCfg, "callerPackageJson", {
-                configurable: true,
-                get: jest.fn(() => {
-                    return {};
-                })
-            });
-
-            const cliCmdName = PMF.getCliCmdName();
-            expect(cliCmdName).toBe("YourBaseCliName");
-        });
-    });
-
     describe("getCliPkgName function", () => {
         it("should return proper CLI package name defined in package.json file", () => {
             // getCallerPackageJson is a getter of a property, so mock the property
@@ -1736,8 +1710,8 @@ describe("Plugin Management Facility", () => {
                 })
             });
 
-            const cliCmdName = PMF.getCliPkgName();
-            expect(cliCmdName).toBe("imperative-sample");
+            const cliPkgName = PMF.getCliPkgName();
+            expect(cliPkgName).toBe("imperative-sample");
         });
         it("should return 'NoNameInCliPkgJson' when CLI Package name is not defined in package.json file", () => {
             // getCallerPackageJson is a getter of a property, so mock the property
@@ -1748,23 +1722,25 @@ describe("Plugin Management Facility", () => {
                 })
             });
 
-            const cliCmdName = PMF.getCliPkgName();
-            expect(cliCmdName).toBe("NoNameInCliPkgJson");
+            const cliPkgName = PMF.getCliPkgName();
+            expect(cliPkgName).toBe("NoNameInCliPkgJson");
         });
     });
 
     describe("comparePluginVersionToCli function", () => {
-        const realGetCliCmdName = PMF.getCliCmdName;
-        const mockGetCliCmdName = jest.fn();
-
         beforeEach(() => {
             PMF.currPluginName = pluginName;
             PMF.semver.intersects = jest.fn();
-            PMF.getCliCmdName = mockGetCliCmdName;
+
+            // impCfg.getCliCmdName is a getter of a property, so mock the property
+            Object.defineProperty(impCfg, "cliCmdName", {
+                configurable: true,
+                get: jest.fn(() => {
+                    return "testCliName";
+                })
+            });
         });
-        afterEach(() => {
-            PMF.getCliCmdName = realGetCliCmdName;
-        });
+
         it("should record no issue when version is compatible", () => {
             PMF.semver.intersects.mockReturnValueOnce(true);
 

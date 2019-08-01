@@ -10,9 +10,9 @@
 */
 
 import { Imperative } from "../../../imperative/src/Imperative";
-import { ImperativeConfig } from "../../../imperative/src/ImperativeConfig";
 import { ICommandHandler, IHandlerParameters, ICommandTreeEntry, CommandUtils } from "../../../cmd";
-import { TextUtils } from "../../../utilities";
+import { ImperativeConfig, TextUtils } from "../../../utilities";
+import { WebHelpManager } from "../../../cmd/src/help/WebHelpManager";
 /**
  * The default command handler for the top level/root command
  * Allows the user to check the version of the package.
@@ -42,6 +42,8 @@ export default class DefaultRootCommandHandler implements ICommandHandler {
                     params.response.console.log("");
                 }
             });
+        } else if (params.arguments.helpWeb) {
+            WebHelpManager.instance.openRootHelp(params.response);
         } else {
             params.response.console.log(Buffer.from(Imperative.getHelpGenerator({
                 commandDefinition: params.definition,

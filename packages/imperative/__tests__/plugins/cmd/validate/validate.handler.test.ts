@@ -15,7 +15,7 @@ jest.mock("../../../../../cmd/src/response/CommandResponse");
 jest.mock("../../../../../cmd/src/response/HandlerResponse");
 
 import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
-import { ImperativeConfig } from "../../../../src/ImperativeConfig";
+import { ImperativeConfig } from "../../../../../utilities/src/ImperativeConfig";
 import { IssueSeverity, PluginIssues } from "../../../../src/plugins/utilities/PluginIssues";
 import { resolve } from "path";
 import { TextUtils } from "../../../../../utilities";

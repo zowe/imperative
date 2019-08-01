@@ -11,14 +11,14 @@
 
 import { getMockWrapper } from "../../../../__tests__/__src__/types/MockWrapper";
 
-jest.mock("../../src/ImperativeConfig");
+jest.mock("../../../utilities/src/ImperativeConfig");
 jest.mock("find-up");
 jest.mock("path");
 
 import Module = require("module");
 
 import * as findUp from "find-up";
-import { ImperativeConfig } from "../../src/ImperativeConfig";
+import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
 import { PluginRequireProvider } from "../../src/plugins/PluginRequireProvider";
 import { PluginRequireAlreadyCreatedError } from "../../src/plugins/errors/PluginRequireAlreadyCreatedError";
 import { PluginRequireNotCreatedError } from "../../src/plugins/errors/PluginRequireNotCreatedError";

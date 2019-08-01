@@ -79,18 +79,6 @@ export class Imperative {
         return MOCKED_COMMAND_TREE;
     }
 
-    public static get loadedConfig(): IImperativeConfig {
-        return this.mLoadedConfig;
-    }
-
-    // public static get callerPackageJson(): any {
-    //     return {version: 10000, name: "sample"};
-    // }
-
-    // public static get cliHome(): string {
-    //     return "/home";
-    // }
-
     public static highlightWithPrimaryColor(text: string): string {
         return TextUtils.chalk[PRIMARY_COLOR](text);
     }
@@ -113,4 +101,5 @@ export class Imperative {
         name: "sample-cli",
         productDisplayName: "Sample CLI"
     };
+
 }
