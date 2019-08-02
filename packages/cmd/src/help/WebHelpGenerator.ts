@@ -15,6 +15,7 @@ import { DefaultHelpGenerator } from "./DefaultHelpGenerator";
 import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { ImperativeConfig } from "../../../utilities";
 import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerResponseApi";
+import { ImperativeError } from "../../../error";
 
 const marked = require("marked");
 
@@ -120,8 +121,15 @@ export class WebHelpGenerator {
     }
 
     private get webHelpDistDir(): string {
-        return path.join(path.dirname(process.mainModule.filename),
+        const distDir =  path.join(path.dirname(process.mainModule.filename),
             "..", "node_modules", "@zowe", "imperative", "web-help", "dist");
+        if (!fs.existsSync(distDir)) {
+            throw new ImperativeError({
+                msg: `The web-help distribution directory does not exist:\n    "${distDir}"`
+            });
+
+        }
+        return distDir;
     }
 
     private genDocsHeader(title: string): string {
