@@ -16,6 +16,7 @@ import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { ImperativeConfig } from "../../../utilities";
 import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerResponseApi";
 import { ImperativeError } from "../../../error";
+import { Logger } from "../../../logger";
 
 const marked = require("marked");
 
@@ -121,12 +122,35 @@ export class WebHelpGenerator {
     }
 
     private get webHelpDistDir(): string {
-        const distDir =  path.join(path.dirname(process.mainModule.filename),
+        const runtimeDistDir =  path.join(path.dirname(process.mainModule.filename),
             "..", "node_modules", "@zowe", "imperative", "web-help", "dist");
-        if (!fs.existsSync(distDir)) {
-            throw new ImperativeError({
-                msg: `The web-help distribution directory does not exist:\n    "${distDir}"`
-            });
+        let distDir = runtimeDistDir;
+
+        if (!fs.existsSync(runtimeDistDir)) {
+            const impLogger: Logger = Logger.getImperativeLogger();
+            impLogger.error(
+                "webHelpDistDir: The web-help runtime distribution directory does not exist:\n    " +
+                runtimeDistDir + "\n    " +
+                "To work in a development environment, we will also try a source directory."
+            );
+
+            /* During development we do not have a runtime distribution path,
+             * so fallback to a source directory path.
+             */
+            distDir = path.join(__dirname, "../../../..", "web-help", "dist");
+            if (!fs.existsSync(distDir)) {
+                impLogger.error(
+                    "webHelpDistDir: The web-help source distribution directory does not exist:\n    " +
+                    distDir
+                );
+
+                /* The dev directory was just an in-house fallback.
+                 * If neither exist, just report the runtime directory to our user.
+                 */
+                throw new ImperativeError({
+                    msg: `The web-help distribution directory does not exist:\n    "${runtimeDistDir}"`
+                });
+            }
 
         }
         return distDir;
