@@ -35,7 +35,7 @@ exports[`cmd-cli nested should display both groups and commands in the help 1`] 
 
       Display help text
 
-   --help-examples  | --hex (boolean)
+   --help-examples  | --he (boolean)
 
       Display examples for all the commands in a the group
 

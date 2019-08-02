@@ -41,7 +41,7 @@ exports[`Hello World should print help if the option is specified 1`] = `
 
       Display help text
 
-   --help-examples  | --hex (boolean)
+   --help-examples  | --he (boolean)
 
       Not available for top tier Zowe group
 

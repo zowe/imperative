@@ -27,7 +27,7 @@ Object {
     },
     Object {
       "aliases": Array [
-        "hex",
+        "he",
       ],
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
@@ -155,7 +155,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -222,7 +222,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -290,7 +290,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -361,7 +361,7 @@ Object {
         },
         Object {
           "aliases": Array [
-            "hex",
+            "he",
           ],
           "description": "Display examples for all the commands in a the group",
           "group": "Global options",
@@ -406,7 +406,7 @@ Object {
     },
     Object {
       "aliases": Array [
-        "hex",
+        "he",
       ],
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
@@ -476,7 +476,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -543,7 +543,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -611,7 +611,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -676,7 +676,7 @@ Object {
         },
         Object {
           "aliases": Array [
-            "hex",
+            "he",
           ],
           "description": "Display examples for all the commands in a the group",
           "group": "Global options",
@@ -728,7 +728,7 @@ Object {
     },
     Object {
       "aliases": Array [
-        "hex",
+        "he",
       ],
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
@@ -816,7 +816,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -893,7 +893,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -970,7 +970,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -1045,7 +1045,7 @@ Object {
         },
         Object {
           "aliases": Array [
-            "hex",
+            "he",
           ],
           "description": "Display examples for all the commands in a the group",
           "group": "Global options",
@@ -1106,7 +1106,7 @@ Object {
     },
     Object {
       "aliases": Array [
-        "hex",
+        "he",
       ],
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
@@ -1181,7 +1181,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -1262,7 +1262,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -1344,7 +1344,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -1409,7 +1409,7 @@ Object {
         },
         Object {
           "aliases": Array [
-            "hex",
+            "he",
           ],
           "description": "Display examples for all the commands in a the group",
           "group": "Global options",
@@ -1475,7 +1475,7 @@ Object {
     },
     Object {
       "aliases": Array [
-        "hex",
+        "he",
       ],
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
@@ -1554,7 +1554,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -1635,7 +1635,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -1717,7 +1717,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -1782,7 +1782,7 @@ Object {
         },
         Object {
           "aliases": Array [
-            "hex",
+            "he",
           ],
           "description": "Display examples for all the commands in a the group",
           "group": "Global options",
@@ -1834,7 +1834,7 @@ Object {
     },
     Object {
       "aliases": Array [
-        "hex",
+        "he",
       ],
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
@@ -1918,7 +1918,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -1999,7 +1999,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -2081,7 +2081,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -2146,7 +2146,7 @@ Object {
         },
         Object {
           "aliases": Array [
-            "hex",
+            "he",
           ],
           "description": "Display examples for all the commands in a the group",
           "group": "Global options",
@@ -2212,7 +2212,7 @@ Object {
     },
     Object {
       "aliases": Array [
-        "hex",
+        "he",
       ],
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
@@ -2304,7 +2304,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -2378,7 +2378,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -2453,7 +2453,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -2525,7 +2525,7 @@ Object {
         },
         Object {
           "aliases": Array [
-            "hex",
+            "he",
           ],
           "description": "Display examples for all the commands in a the group",
           "group": "Global options",
@@ -2577,7 +2577,7 @@ Object {
     },
     Object {
       "aliases": Array [
-        "hex",
+        "he",
       ],
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
@@ -2666,7 +2666,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -2740,7 +2740,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -2815,7 +2815,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -2880,7 +2880,7 @@ Object {
         },
         Object {
           "aliases": Array [
-            "hex",
+            "he",
           ],
           "description": "Display examples for all the commands in a the group",
           "group": "Global options",
@@ -2932,7 +2932,7 @@ Object {
     },
     Object {
       "aliases": Array [
-        "hex",
+        "he",
       ],
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
@@ -3026,7 +3026,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -3100,7 +3100,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -3175,7 +3175,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -3247,7 +3247,7 @@ Object {
         },
         Object {
           "aliases": Array [
-            "hex",
+            "he",
           ],
           "description": "Display examples for all the commands in a the group",
           "group": "Global options",
@@ -3299,7 +3299,7 @@ Object {
     },
     Object {
       "aliases": Array [
-        "hex",
+        "he",
       ],
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
@@ -3381,7 +3381,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -3462,7 +3462,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -3544,7 +3544,7 @@ Object {
             },
             Object {
               "aliases": Array [
-                "hex",
+                "he",
               ],
               "description": "Display examples for all the commands in a the group",
               "group": "Global options",
@@ -3609,7 +3609,7 @@ Object {
         },
         Object {
           "aliases": Array [
-            "hex",
+            "he",
           ],
           "description": "Display examples for all the commands in a the group",
           "group": "Global options",
@@ -3675,7 +3675,7 @@ Object {
     },
     Object {
       "aliases": Array [
-        "hex",
+        "he",
       ],
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
@@ -3739,7 +3739,7 @@ Object {
     },
     Object {
       "aliases": Array [
-        "hex",
+        "he",
       ],
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",
@@ -3819,7 +3819,7 @@ Object {
         },
         Object {
           "aliases": Array [
-            "hex",
+            "he",
           ],
           "description": "Display examples for all the commands in a the group",
           "group": "Global options",
@@ -3879,7 +3879,7 @@ Object {
     },
     Object {
       "aliases": Array [
-        "hex",
+        "he",
       ],
       "description": "Display examples for all the commands in a the group",
       "group": "Global options",

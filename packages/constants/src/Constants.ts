@@ -60,7 +60,7 @@ export class Constants {
     public static readonly HELP_OPTION = "help";
     public static readonly HELP_OPTION_ALIAS = "h";
     public static readonly HELP_EXAMPLES = "help-examples";
-    public static readonly HELP_EXAMPLES_ALIAS = "hex";
+    public static readonly HELP_EXAMPLES_ALIAS = "he";
     public static readonly HELP_WEB_OPTION = "help-web";
     public static readonly HELP_WEB_OPTION_ALIAS = "hw";
 
