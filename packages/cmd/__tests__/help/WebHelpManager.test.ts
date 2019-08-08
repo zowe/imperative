@@ -17,7 +17,8 @@ import { IO } from "../../../io/src/IO";
 import { Imperative } from "../../../imperative/src/Imperative";
 import { WebHelpManager } from "../../src/help/WebHelpManager";
 import { CommandResponse } from "../../src/response/CommandResponse";
-import { ImperativeConfig, GuiResult, ProcessUtils } from "../../../utilities";
+import { ImperativeConfig } from "../../../imperative/src/ImperativeConfig";
+import { GuiResult, ProcessUtils } from "../../../utilities";
 import { WebHelpGenerator } from "../..";
 
 describe("WebHelpManager", () => {
@@ -63,9 +64,6 @@ describe("WebHelpManager", () => {
                     return mockCliHome;
                 })
             });
-
-            // imperative.init does all the setup for WebHelp to be run
-            await Imperative.init(configForHelp);
         });
 
         afterAll( async () => {
@@ -89,7 +87,31 @@ describe("WebHelpManager", () => {
             fs.writeFileSync(instPluginsFileNm, "{}");
         });
 
+        it("should report error when calling openRootHelp before recordParms", async () => {
+            WebHelpManager.instance.openRootHelp(cmdReponse);
+            const jsonResult = cmdReponse.buildJsonResponse();
+            expect(jsonResult.stderr.toString()).toContain(
+                "Unable to launch help due to an implementation error"
+            );
+        });
+
+        it("should report error when calling openHelp before recordParms", async () => {
+            WebHelpManager.instance.openHelp("Does not matter - will never be used", cmdReponse);
+            const jsonResult = cmdReponse.buildJsonResponse();
+            expect(jsonResult.stderr.toString()).toContain(
+                "Unable to launch help due to an implementation error"
+            );
+        });
+
         it("should generate and display help", async () => {
+            /* imperative.init does all the setup for WebHelp to be run.
+             * We can only call init() once per app. However, our first two tests
+             * must be run without init() being called. So, we place our call
+             * to init() here. All of our following tests (it clauses)
+             * should expect init() to have already been called.
+             */
+            await Imperative.init(configForHelp);
+
             WebHelpManager.instance.openRootHelp(cmdReponse);
 
             if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
