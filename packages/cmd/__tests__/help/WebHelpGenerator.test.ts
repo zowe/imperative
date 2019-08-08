@@ -18,7 +18,7 @@ import { CommandResponse } from "../../src/response/CommandResponse";
 import { IImperativeConfig } from "../../../imperative/src/doc/IImperativeConfig";
 import { ImperativeConfig } from "../../../imperative/src/ImperativeConfig";
 import { IO } from "../../../io";
-import {IWebHelpParms} from "../../src/help/doc/IWebHelpParms";
+import { IWebHelpParms } from "../../src/help/doc/IWebHelpParms";
 import { readFileSync as jsonReadFileSync } from "jsonfile";
 
 describe("WebHelpGenerator", () => {
