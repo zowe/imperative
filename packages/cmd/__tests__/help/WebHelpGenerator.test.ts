@@ -14,11 +14,12 @@ import * as path from "path";
 
 import { Imperative } from "../../../imperative/src/Imperative";
 import { WebHelpGenerator } from "../../src/help/WebHelpGenerator";
-import { WebHelpManager } from "../../src/help/WebHelpManager";
 import { CommandResponse } from "../../src/response/CommandResponse";
 import { IImperativeConfig } from "../../../imperative/src/doc/IImperativeConfig";
-import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
+import { ImperativeConfig } from "../../../imperative/src/ImperativeConfig";
 import { IO } from "../../../io";
+import {IWebHelpParms} from "../../src/help/doc/IWebHelpParms";
+import { readFileSync } from "jsonfile";
 
 describe("WebHelpGenerator", () => {
     describe("buildHelp", () => {
@@ -98,11 +99,19 @@ describe("WebHelpGenerator", () => {
             const realFUpSync = findUp.sync;
             findUp.sync = jest.fn(() => path.resolve("./"));
 
-            const webHelpGen = new WebHelpGenerator(
-                WebHelpManager.instance.fullCommandTree,
-                ImperativeConfig.instance,
-                webHelpDirNm
-            );
+            const webHelpParms: IWebHelpParms = {
+                callerPackageJson: ImperativeConfig.instance.callerPackageJson,
+                cliHome: ImperativeConfig.instance.cliHome,
+                defaultHome: ImperativeConfig.instance.loadedConfig.defaultHome,
+                fullCommandTree: readFileSync(__dirname + "/mockCmdTree.json"),
+                productDisplayName: ImperativeConfig.instance.loadedConfig.productDisplayName,
+                rootCommandDescription: ImperativeConfig.instance.loadedConfig.rootCommandDescription,
+                rootCommandName: moduleFileNm,
+                webHelpCustomCssPath: ImperativeConfig.instance.loadedConfig.webHelpCustomCssPath,
+                webHelpLogoImgPath: ImperativeConfig.instance.loadedConfig.webHelpLogoImgPath
+            };
+
+            const webHelpGen = new WebHelpGenerator(webHelpParms, webHelpDirNm);
             webHelpGen.buildHelp(cmdResp);
 
             // do our generated files contain some of the right stuff?
