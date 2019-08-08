@@ -12,6 +12,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import * as fsExtra from "fs-extra";
+import * as rimraf from "rimraf";
 
 import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
@@ -41,10 +42,10 @@ describe("cmd-cli gen-webhelp example-test", () => {
         instPluginsFileNm = path.join(instPluginsFileNm, "plugins.json");
         fs.writeFileSync(instPluginsFileNm, "{}");
 
-        // copy our webhelp distribution files to our test's src directory
-        fsExtra.copySync("./web-help/dist",
-            "./__tests__/__integration__/cmd/lib/__tests__/__integration__/cmd/src/imperative/web-help/dist"
-        );
+        // copy our webhelp distribution files to our test's fake runtime distribution directory
+        const fakeRuntimeRootDir = "./__tests__/__integration__/cmd/lib/__tests__/__integration__/cmd/node_modules";
+        const fakeRuntimeDistDir = path.join(fakeRuntimeRootDir, "@zowe/imperative/web-help/dist");
+        fsExtra.copySync("./web-help/dist", fakeRuntimeDistDir);
 
         const response = runCliScript(
             __dirname + "/__scripts__/webhelp_with_example_test.sh",
@@ -64,5 +65,7 @@ describe("cmd-cli gen-webhelp example-test", () => {
         } else {
             expect(response.stdout.toString()).toContain("You are running in an environment with no graphical interface");
         }
+
+        rimraf.sync(fakeRuntimeRootDir);
     });
 });
