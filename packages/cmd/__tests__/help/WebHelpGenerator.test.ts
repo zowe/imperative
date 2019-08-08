@@ -19,7 +19,7 @@ import { IImperativeConfig } from "../../../imperative/src/doc/IImperativeConfig
 import { ImperativeConfig } from "../../../imperative/src/ImperativeConfig";
 import { IO } from "../../../io";
 import {IWebHelpParms} from "../../src/help/doc/IWebHelpParms";
-import { readFileSync } from "jsonfile";
+import { readFileSync as jsonReadFileSync } from "jsonfile";
 
 describe("WebHelpGenerator", () => {
     describe("buildHelp", () => {
@@ -103,7 +103,7 @@ describe("WebHelpGenerator", () => {
                 callerPackageJson: ImperativeConfig.instance.callerPackageJson,
                 cliHome: ImperativeConfig.instance.cliHome,
                 defaultHome: ImperativeConfig.instance.loadedConfig.defaultHome,
-                fullCommandTree: readFileSync(__dirname + "/mockCmdTree.json"),
+                fullCommandTree: jsonReadFileSync(__dirname + "/mockCmdTree.json"),
                 productDisplayName: ImperativeConfig.instance.loadedConfig.productDisplayName,
                 rootCommandDescription: ImperativeConfig.instance.loadedConfig.rootCommandDescription,
                 rootCommandName: moduleFileNm,
