@@ -13,7 +13,6 @@ import { LoggingConfigurer } from "../src/LoggingConfigurer";
 import * as os from "os";
 import * as path from "path";
 
-jest.mock("os");
 jest.mock("path");
 
 const fakeHome = "/someHome";
