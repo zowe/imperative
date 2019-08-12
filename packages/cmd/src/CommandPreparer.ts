@@ -421,7 +421,6 @@ export class CommandPreparer {
         // all commands have --help-examples
         definition.options.push({
             name: Constants.HELP_EXAMPLES,
-            aliases: [Constants.HELP_EXAMPLES_ALIAS],
             group: Constants.GLOBAL_GROUP,
             description: !(definition.name === "") ?
                 "Display examples for all the commands in a the group" : "Not available for top tier Zowe group",
