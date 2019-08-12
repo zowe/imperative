@@ -12,23 +12,14 @@
 import Mock = jest.Mock;
 import { join } from "path";
 import { generateRandomAlphaNumericString } from "../../../__tests__/src/TestUtil";
+import { IImperativeConfig } from "../src/doc/IImperativeConfig";
 import { IImperativeOverrides } from "../src/doc/IImperativeOverrides";
 import { IConfigLogging } from "../../logger";
 import { IImperativeEnvironmentalVariableSettings } from "..";
+import { ICommandDefinition } from "../../cmd/src/doc/ICommandDefinition";
 
 describe("Imperative", () => {
     const mainModule = process.mainModule;
-
-    beforeEach(() => {
-        (process.mainModule as any) = {
-            filename: __filename
-        };
-    });
-
-    afterEach(() => {
-        process.mainModule = mainModule;
-    });
-
 
     const loadImperative = () => {
         return require("../src/Imperative").Imperative;
@@ -41,7 +32,7 @@ describe("Imperative", () => {
             jest.doMock("../src/ConfigurationLoader");
             jest.doMock("../src/ConfigurationValidator");
             jest.doMock("../src/help/ImperativeHelpGeneratorFactory");
-            jest.doMock("../src/ImperativeConfig");
+            jest.doMock("../../utilities/src/ImperativeConfig");
             jest.doMock("../src/config/ConfigManagementFacility");
             jest.doMock("../src/plugins/PluginManagementFacility");
             jest.doMock("../../settings/src/AppSettings");
@@ -53,12 +44,11 @@ describe("Imperative", () => {
             const {ConfigurationLoader} = require("../src/ConfigurationLoader");
             const ConfigurationValidator = require("../src/ConfigurationValidator").ConfigurationValidator.validate;
             const {AppSettings} = require("../../settings");
-            const {ImperativeConfig} = require("../src/ImperativeConfig");
+            const {ImperativeConfig} = require("../../utilities/src/ImperativeConfig");
             const {ConfigManagementFacility} = require("../src/config/ConfigManagementFacility");
             const {PluginManagementFacility} = require("../src/plugins/PluginManagementFacility");
             const {Logger} = require("../../logger");
             const {EnvironmentalVariableSettings} = require("../src/env/EnvironmentalVariableSettings");
-
             return {
                 OverridesLoader: {
                     load: OverridesLoader.load as Mock<typeof OverridesLoader.load>
@@ -94,13 +84,42 @@ describe("Imperative", () => {
 
     let mocks = reloadExternalMocks();
     let Imperative = loadImperative();
+    let realGetResolvedCmdTree: any;
+    let realGetPreparedCmdTree: any;
+    const mockCmdTree = {
+        name: "mockCmdTreeName",
+        description: "Mock resolved (or prepared) command tree description",
+        type: "group",
+        children: [
+            {
+                name: "cmdFromCli",
+                description: "dummy command",
+                type: "command",
+                handler: "./lib/cmd/someCmd/someCmd.handler"
+            }
+        ]
+    };
 
     beforeEach(() => {
+        (process.mainModule as any) = {
+            filename: __filename
+        };
+
         jest.resetModuleRegistry();
 
         // Refresh the imperative load every time
         mocks = reloadExternalMocks();
         Imperative = loadImperative();
+
+        realGetResolvedCmdTree = Imperative.getResolvedCmdTree;
+        Imperative.getResolvedCmdTree = jest.fn(() => mockCmdTree );
+
+        realGetPreparedCmdTree = Imperative.getPreparedCmdTree;
+        Imperative.getPreparedCmdTree = jest.fn(() => mockCmdTree );
+    });
+
+    afterEach(() => {
+        process.mainModule = mainModule;
     });
 
     describe("init", () => {
@@ -185,7 +204,7 @@ describe("Imperative", () => {
                 expect(PluginManagementFacility.instance.addAllPluginsToHostCli).toHaveBeenCalledTimes(1);
                 expect(
                     PluginManagementFacility.instance.addAllPluginsToHostCli
-                ).toHaveBeenCalledWith(mocks.ImperativeConfig.instance.resolvedCmdTree);
+                ).toHaveBeenCalledWith(Imperative.getResolvedCmdTree());
             });
 
             // @FUTURE When there are more overrides we should think about making this function dynamic
@@ -363,4 +382,116 @@ describe("Imperative", () => {
             expect(caughtError).toBe(error);
         });
     });
+
+    describe("getResolvedCmdTree", () => {
+        it("should deliver cmd tree from DefinitionTreeResolver", async () => {
+            /// mock imput and output of getResolvedCmdTree for testing
+            const mockConfigObj: IImperativeConfig = {};
+            const expectedCmdDef: ICommandDefinition = {
+                name: "expectedCmdName",
+                description: "Expected description from DefinitionTreeResolver.resolve",
+                type: "command"
+            };
+
+            /* getResolvedCmdTree calls getCallerLocation, and we need it to return some string.
+             * getCallerLocation is a getter of a property, so mock we the property.
+             */
+            Object.defineProperty(mocks.ImperativeConfig.instance, "callerLocation", {
+                configurable: true,
+                get: jest.fn(() => {
+                    return "../..";
+                })
+            });
+
+            /* getResolvedCmdTree calls DefinitionTreeResolver.resolve.
+             * We need it to return an expected command tree.
+             */
+            const {DefinitionTreeResolver} = require("../src/DefinitionTreeResolver");
+            DefinitionTreeResolver.resolve = jest.fn(() => expectedCmdDef);
+
+            // we want to test the real getResolvedCmdTree, not a mocked one
+            Imperative.getResolvedCmdTree = realGetResolvedCmdTree;
+            const resolvedCmdTree = Imperative.getResolvedCmdTree(mockConfigObj);
+            expect(resolvedCmdTree).toBe(expectedCmdDef);
+        });
+    });
+
+    describe("getPreparedCmdTree", () => {
+        it("should deliver cmd tree from CommandPreparer.prepare", async () => {
+            /// mock imput and output of getPreparedCmdTree for testing
+            const expectedCmdTree: ICommandDefinition = {
+                name: "resolvedCmdName",
+                description: "Resolved description",
+                type: "command"
+            };
+
+            /* getPreparedCmdTree calls CommandPreparer.prepare.
+             * We need it to return an expected command tree.
+             */
+            const {CommandPreparer} = require("../../cmd/src/CommandPreparer");
+            CommandPreparer.prepare = jest.fn(() => expectedCmdTree);
+
+            // we want to test the real getPreparedCmdTree, not a mocked one
+            Imperative.getPreparedCmdTree = realGetPreparedCmdTree;
+            const preparedCmdTree = Imperative.getPreparedCmdTree(expectedCmdTree);
+            expect(preparedCmdTree).toBe(expectedCmdTree);
+        });
+    });
+
+    describe("addAutoGeneratedCommands", () => {
+        it("should call getProfileGroup when we need to auto-generate commands", async () => {
+            const mockRootCmdTree: ICommandDefinition = {
+                name: "mockRootCmdName",
+                description: "Description of a mock root commande",
+                type: "group",
+                children: []
+            };
+
+            /* addAutoGeneratedCommands calls ImperativeConfig.instance.loadedConfig.
+             * getLoadedConfig is a getter of a property, so mock we the property.
+             * We need loadedConfig.autoGenerateProfileCommands to be null and
+             * loadedConfig.profiles to have something in it.
+             */
+            Object.defineProperty(mocks.ImperativeConfig.instance, "loadedConfig", {
+                configurable: true,
+                get: jest.fn(() => {
+                    return {
+                        autoGenerateProfileCommands: null,
+                        profiles: [
+                            {
+                                type: "mockProfType",
+                                schema: {
+                                    type: "object",
+                                    title: "mock Profile title",
+                                    description: "mock Profile description",
+                                    properties: {
+                                        mockProp: {
+                                            type: "string",
+                                            optionDefinition:  {
+                                                name: "mockProp",
+                                                aliases: ["m"],
+                                                description: "The mockProp description.",
+                                                type: "string",
+                                                required: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    };
+                })
+            });
+
+            /* getResolvedCmdTree calls CompleteProfilesGroupBuilder.getProfileGroup,
+             * which we need to mock to do nothing.
+             */
+            const { CompleteProfilesGroupBuilder } = require("../src/profiles/builders/CompleteProfilesGroupBuilder");
+            CompleteProfilesGroupBuilder.getProfileGroup = jest.fn();
+
+            const autoGenCmdTree = Imperative.addAutoGeneratedCommands(mockRootCmdTree);
+            expect(CompleteProfilesGroupBuilder.getProfileGroup).toHaveBeenCalled();
+        });
+    });
+
 });

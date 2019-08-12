@@ -9,7 +9,7 @@
 *
 */
 
-import { ImperativeConfig } from "../../../__mocks__/ImperativeConfig";
+import { ImperativeConfig } from "../../../../../utilities/src/__mocks__/ImperativeConfig";
 
 /**
  * Mock PMFConstants class

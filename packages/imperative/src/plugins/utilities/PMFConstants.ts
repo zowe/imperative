@@ -9,7 +9,7 @@
 *
 */
 
-import { ImperativeConfig } from "../../ImperativeConfig";
+import { ImperativeConfig } from "../../../../utilities";
 import { join } from "path";
 import { Logger } from "../../../../logger";
 

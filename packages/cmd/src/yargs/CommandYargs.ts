@@ -19,7 +19,6 @@ import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { CommandProcessor } from "../CommandProcessor";
 import { ICommandResponse } from "../../src/doc/response/response/ICommandResponse";
 import { CommandResponse } from "../../src/response/CommandResponse";
-import { EnvironmentalVariableSettings } from "../../../imperative";
 
 /**
  * Define an Imperative Command to Yargs. A command implies that an implementation is present (differs from a "group")
@@ -97,7 +96,7 @@ export class CommandYargs extends AbstractCommandYargs {
              * If help is present, then we will invoke the help handler for the command definition.
              * @param {yargs.Argv} argsForHandler: The yargs instance with the specified command line options.
              */
-            (argsForHandler: Arguments) => {
+            async (argsForHandler: Arguments) => {
                 this.log.debug("Handler invoked for: " + this.definition.name);
                 /**
                  * If help is present, invoke the help for this command definition.
@@ -105,6 +104,9 @@ export class CommandYargs extends AbstractCommandYargs {
                 if (argsForHandler[Constants.HELP_OPTION]) {
                     this.log.debug("Executing help: " + this.definition.name);
                     this.executeHelp(argsForHandler, commandExecuted);
+                } else if (argsForHandler[Constants.HELP_WEB_OPTION]) {
+                    this.log.debug("Executing web help: " + this.definition.name);
+                    this.executeWebHelp();
                 } else {
                     this.log.debug("Executing Handlers: " + this.definition.name);
 
