@@ -29,7 +29,7 @@ exports[`cmd-cli invoke unexpected-exception-handler should display the help 1`]
 
       Display help text
 
-   --help-examples  | --he (boolean)
+   --help-examples  (boolean)
 
       Display examples for all the commands in a the group
 
