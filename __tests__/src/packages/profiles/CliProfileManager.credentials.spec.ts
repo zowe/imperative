@@ -106,7 +106,7 @@ describe("Cli Profile Manager", () => {
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
         expect(result.stderr).toEqual("");
         expect(result.stdout).toContain("Overwrote existing profile");
-        expect(result.stdout).toContain("Profile updated successfully!");
+        expect(result.stdout).toContain("Profile created successfully!");
       });
 
       it("should update and load a profile with saved credentials", () => {
@@ -122,7 +122,7 @@ describe("Cli Profile Manager", () => {
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
         expect(result.stderr).toEqual("");
         expect(result.stdout).toContain("Overwrote existing profile");
-        expect(result.stdout).toContain("Profile created successfully!");
+        expect(result.stdout).toContain("Profile updated successfully!");
 
         cmd = `display-profile`;
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
