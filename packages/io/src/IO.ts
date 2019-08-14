@@ -264,7 +264,7 @@ export class IO {
      * @memberof IO
      */
     public static processNewlines(original: string): string {
-        ImperativeExpect.toBeDefinedAndNonBlank(original, "original");
+        ImperativeExpect.toNotBeNullOrUndefined(original, "original");
         if (os.platform() !== IO.OS_WIN32) {
             return original;
         }
