@@ -15,6 +15,8 @@ import { DefaultHelpGenerator } from "./DefaultHelpGenerator";
 import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { ImperativeConfig } from "../../../utilities";
 import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerResponseApi";
+import { ImperativeError } from "../../../error";
+import { Logger } from "../../../logger";
 
 const marked = require("marked");
 
@@ -63,8 +65,8 @@ export class WebHelpGenerator {
             fs.mkdirSync(this.mDocsDir);
         }
 
-        // Copy files from dist folder to Imperative dir
-        const distDir: string = path.join(this.imperativeDir, "web-help", "dist");
+        // Copy files from dist folder to .zowe home dir
+        const distDir: string = this.webHelpDistDir;
         const dirsToCopy: string[] = [distDir, path.join(distDir, "css"), path.join(distDir, "js")];
         dirsToCopy.forEach((dir: string) => {
             const destDir = path.join(webHelpDir, path.relative(distDir, dir));
@@ -119,8 +121,39 @@ export class WebHelpGenerator {
         cmdResponse.console.log("done!");
     }
 
-    private get imperativeDir(): string {
-        return require("find-up").sync("imperative", {cwd: process.mainModule.filename, type: "directory"});
+    private get webHelpDistDir(): string {
+        const runtimeDistDir =  path.join(path.dirname(process.mainModule.filename),
+            "..", "node_modules", "@zowe", "imperative", "web-help", "dist");
+        let distDir = runtimeDistDir;
+
+        if (!fs.existsSync(runtimeDistDir)) {
+            const impLogger: Logger = Logger.getImperativeLogger();
+            impLogger.error(
+                "webHelpDistDir: The web-help runtime distribution directory does not exist:\n    " +
+                runtimeDistDir + "\n    " +
+                "To work in a development environment, we will also try a source directory."
+            );
+
+            /* During development we do not have a runtime distribution path,
+             * so fallback to a source directory path.
+             */
+            distDir = path.join(__dirname, "../../../..", "web-help", "dist");
+            if (!fs.existsSync(distDir)) {
+                impLogger.error(
+                    "webHelpDistDir: The web-help source distribution directory does not exist:\n    " +
+                    distDir
+                );
+
+                /* The dev directory was just an in-house fallback.
+                 * If neither exist, just report the runtime directory to our user.
+                 */
+                throw new ImperativeError({
+                    msg: `The web-help distribution directory does not exist:\n    "${runtimeDistDir}"`
+                });
+            }
+
+        }
+        return distDir;
     }
 
     private genDocsHeader(title: string): string {
