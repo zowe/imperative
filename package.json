@@ -1,6 +1,6 @@
 {
   "name": "@zowe/imperative",
-  "version": "4.2.0",
+  "version": "4.2.1-alpha.201908122134",
   "description": "framework for building configurable CLIs",
   "author": "Broadcom",
   "license": "EPL-2.0",
@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "@types/yargs": "8.0.2",
-    "@zowe/perf-timing": "^1.0.3",
+    "@zowe/perf-timing": "^1.0.3-alpha.201902201448",
     "balloon-css": "1.0.0",
     "bootstrap": "4.3.1",
     "chalk": "2.4.2",
