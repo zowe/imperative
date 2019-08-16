@@ -310,7 +310,7 @@ describe("IO tests", () => {
     it("should get an error for no input on processNewlines", () => {
         let error;
         try {
-            IO.processNewlines("   ");
+            IO.processNewlines(undefined);
         } catch (thrownError) {
             error = thrownError;
         }
