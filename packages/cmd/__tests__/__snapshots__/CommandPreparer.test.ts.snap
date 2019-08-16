@@ -26,6 +26,13 @@ Object {
       "type": "boolean",
     },
     Object {
+      "aliases": Array [],
+      "description": "Display examples for all the commands in a the group",
+      "group": "Global options",
+      "name": "help-examples",
+      "type": "boolean",
+    },
+    Object {
       "aliases": Array [
         "hw",
       ],
@@ -145,6 +152,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -200,6 +214,13 @@ Object {
               "description": "Display help text",
               "group": "Global options",
               "name": "help",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
               "type": "boolean",
             },
             Object {
@@ -259,6 +280,13 @@ Object {
               "description": "Display help text",
               "group": "Global options",
               "name": "help",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
               "type": "boolean",
             },
             Object {
@@ -324,6 +352,13 @@ Object {
           "type": "boolean",
         },
         Object {
+          "aliases": Array [],
+          "description": "Display examples for all the commands in a the group",
+          "group": "Global options",
+          "name": "help-examples",
+          "type": "boolean",
+        },
+        Object {
           "aliases": Array [
             "hw",
           ],
@@ -357,6 +392,13 @@ Object {
       "description": "Display help text",
       "group": "Global options",
       "name": "help",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [],
+      "description": "Display examples for all the commands in a the group",
+      "group": "Global options",
+      "name": "help-examples",
       "type": "boolean",
     },
     Object {
@@ -421,6 +463,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -476,6 +525,13 @@ Object {
               "description": "Display help text",
               "group": "Global options",
               "name": "help",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
               "type": "boolean",
             },
             Object {
@@ -538,6 +594,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -594,6 +657,13 @@ Object {
           "type": "boolean",
         },
         Object {
+          "aliases": Array [],
+          "description": "Display examples for all the commands in a the group",
+          "group": "Global options",
+          "name": "help-examples",
+          "type": "boolean",
+        },
+        Object {
           "aliases": Array [
             "hw",
           ],
@@ -634,6 +704,13 @@ Object {
       "description": "Display help text",
       "group": "Global options",
       "name": "help",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [],
+      "description": "Display examples for all the commands in a the group",
+      "group": "Global options",
+      "name": "help-examples",
       "type": "boolean",
     },
     Object {
@@ -716,6 +793,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -781,6 +865,13 @@ Object {
               "description": "Display help text",
               "group": "Global options",
               "name": "help",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
               "type": "boolean",
             },
             Object {
@@ -852,6 +943,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -918,6 +1016,13 @@ Object {
           "type": "boolean",
         },
         Object {
+          "aliases": Array [],
+          "description": "Display examples for all the commands in a the group",
+          "group": "Global options",
+          "name": "help-examples",
+          "type": "boolean",
+        },
+        Object {
           "aliases": Array [
             "hw",
           ],
@@ -967,6 +1072,13 @@ Object {
       "description": "Display help text",
       "group": "Global options",
       "name": "help",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [],
+      "description": "Display examples for all the commands in a the group",
+      "group": "Global options",
+      "name": "help-examples",
       "type": "boolean",
     },
     Object {
@@ -1033,6 +1145,13 @@ Object {
               "description": "Display help text",
               "group": "Global options",
               "name": "help",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
               "type": "boolean",
             },
             Object {
@@ -1105,6 +1224,13 @@ Object {
               "description": "Display help text",
               "group": "Global options",
               "name": "help",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
               "type": "boolean",
             },
             Object {
@@ -1181,6 +1307,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -1234,6 +1367,13 @@ Object {
           "description": "Display help text",
           "group": "Global options",
           "name": "help",
+          "type": "boolean",
+        },
+        Object {
+          "aliases": Array [],
+          "description": "Display examples for all the commands in a the group",
+          "group": "Global options",
+          "name": "help-examples",
           "type": "boolean",
         },
         Object {
@@ -1291,6 +1431,13 @@ Object {
       "description": "Display help text",
       "group": "Global options",
       "name": "help",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [],
+      "description": "Display examples for all the commands in a the group",
+      "group": "Global options",
+      "name": "help-examples",
       "type": "boolean",
     },
     Object {
@@ -1364,6 +1511,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -1433,6 +1587,13 @@ Object {
               "description": "Display help text",
               "group": "Global options",
               "name": "help",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
               "type": "boolean",
             },
             Object {
@@ -1509,6 +1670,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -1565,6 +1733,13 @@ Object {
           "type": "boolean",
         },
         Object {
+          "aliases": Array [],
+          "description": "Display examples for all the commands in a the group",
+          "group": "Global options",
+          "name": "help-examples",
+          "type": "boolean",
+        },
+        Object {
           "aliases": Array [
             "hw",
           ],
@@ -1605,6 +1780,13 @@ Object {
       "description": "Display help text",
       "group": "Global options",
       "name": "help",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [],
+      "description": "Display examples for all the commands in a the group",
+      "group": "Global options",
+      "name": "help-examples",
       "type": "boolean",
     },
     Object {
@@ -1683,6 +1865,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -1752,6 +1941,13 @@ Object {
               "description": "Display help text",
               "group": "Global options",
               "name": "help",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
               "type": "boolean",
             },
             Object {
@@ -1828,6 +2024,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -1881,6 +2084,13 @@ Object {
           "description": "Display help text",
           "group": "Global options",
           "name": "help",
+          "type": "boolean",
+        },
+        Object {
+          "aliases": Array [],
+          "description": "Display examples for all the commands in a the group",
+          "group": "Global options",
+          "name": "help-examples",
           "type": "boolean",
         },
         Object {
@@ -1938,6 +2148,13 @@ Object {
       "description": "Display help text",
       "group": "Global options",
       "name": "help",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [],
+      "description": "Display examples for all the commands in a the group",
+      "group": "Global options",
+      "name": "help-examples",
       "type": "boolean",
     },
     Object {
@@ -2024,6 +2241,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -2086,6 +2310,13 @@ Object {
               "description": "Display help text",
               "group": "Global options",
               "name": "help",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
               "type": "boolean",
             },
             Object {
@@ -2155,6 +2386,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -2218,6 +2456,13 @@ Object {
           "type": "boolean",
         },
         Object {
+          "aliases": Array [],
+          "description": "Display examples for all the commands in a the group",
+          "group": "Global options",
+          "name": "help-examples",
+          "type": "boolean",
+        },
+        Object {
           "aliases": Array [
             "hw",
           ],
@@ -2258,6 +2503,13 @@ Object {
       "description": "Display help text",
       "group": "Global options",
       "name": "help",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [],
+      "description": "Display examples for all the commands in a the group",
+      "group": "Global options",
+      "name": "help-examples",
       "type": "boolean",
     },
     Object {
@@ -2341,6 +2593,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -2403,6 +2662,13 @@ Object {
               "description": "Display help text",
               "group": "Global options",
               "name": "help",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
               "type": "boolean",
             },
             Object {
@@ -2472,6 +2738,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -2528,6 +2801,13 @@ Object {
           "type": "boolean",
         },
         Object {
+          "aliases": Array [],
+          "description": "Display examples for all the commands in a the group",
+          "group": "Global options",
+          "name": "help-examples",
+          "type": "boolean",
+        },
+        Object {
           "aliases": Array [
             "hw",
           ],
@@ -2568,6 +2848,13 @@ Object {
       "description": "Display help text",
       "group": "Global options",
       "name": "help",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [],
+      "description": "Display examples for all the commands in a the group",
+      "group": "Global options",
+      "name": "help-examples",
       "type": "boolean",
     },
     Object {
@@ -2656,6 +2943,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -2718,6 +3012,13 @@ Object {
               "description": "Display help text",
               "group": "Global options",
               "name": "help",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
               "type": "boolean",
             },
             Object {
@@ -2787,6 +3088,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -2850,6 +3158,13 @@ Object {
           "type": "boolean",
         },
         Object {
+          "aliases": Array [],
+          "description": "Display examples for all the commands in a the group",
+          "group": "Global options",
+          "name": "help-examples",
+          "type": "boolean",
+        },
+        Object {
           "aliases": Array [
             "hw",
           ],
@@ -2890,6 +3205,13 @@ Object {
       "description": "Display help text",
       "group": "Global options",
       "name": "help",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [],
+      "description": "Display examples for all the commands in a the group",
+      "group": "Global options",
+      "name": "help-examples",
       "type": "boolean",
     },
     Object {
@@ -2966,6 +3288,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -3035,6 +3364,13 @@ Object {
               "description": "Display help text",
               "group": "Global options",
               "name": "help",
+              "type": "boolean",
+            },
+            Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
               "type": "boolean",
             },
             Object {
@@ -3111,6 +3447,13 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [],
+              "description": "Display examples for all the commands in a the group",
+              "group": "Global options",
+              "name": "help-examples",
+              "type": "boolean",
+            },
+            Object {
               "aliases": Array [
                 "hw",
               ],
@@ -3164,6 +3507,13 @@ Object {
           "description": "Display help text",
           "group": "Global options",
           "name": "help",
+          "type": "boolean",
+        },
+        Object {
+          "aliases": Array [],
+          "description": "Display examples for all the commands in a the group",
+          "group": "Global options",
+          "name": "help-examples",
           "type": "boolean",
         },
         Object {
@@ -3224,6 +3574,13 @@ Object {
       "type": "boolean",
     },
     Object {
+      "aliases": Array [],
+      "description": "Display examples for all the commands in a the group",
+      "group": "Global options",
+      "name": "help-examples",
+      "type": "boolean",
+    },
+    Object {
       "aliases": Array [
         "hw",
       ],
@@ -3276,6 +3633,13 @@ Object {
       "description": "Display help text",
       "group": "Global options",
       "name": "help",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [],
+      "description": "Display examples for all the commands in a the group",
+      "group": "Global options",
+      "name": "help-examples",
       "type": "boolean",
     },
     Object {
@@ -3350,6 +3714,13 @@ Object {
           "type": "boolean",
         },
         Object {
+          "aliases": Array [],
+          "description": "Display examples for all the commands in a the group",
+          "group": "Global options",
+          "name": "help-examples",
+          "type": "boolean",
+        },
+        Object {
           "aliases": Array [
             "hw",
           ],
@@ -3398,6 +3769,13 @@ Object {
       "description": "Display help text",
       "group": "Global options",
       "name": "help",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [],
+      "description": "Display examples for all the commands in a the group",
+      "group": "Global options",
+      "name": "help-examples",
       "type": "boolean",
     },
     Object {
