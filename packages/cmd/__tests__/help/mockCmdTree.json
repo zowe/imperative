@@ -1,0 +1,631 @@
+{
+  "name": "",
+  "description": "Some Product CLI",
+  "children": [
+    {
+      "name": "hello",
+      "type": "command",
+      "options": [
+        {
+          "name": "response-format-json",
+          "aliases": [
+            "rfj"
+          ],
+          "group": "Global options",
+          "description": "Produce JSON formatted data from a command",
+          "type": "boolean"
+        },
+        {
+          "name": "help",
+          "aliases": [
+            "h"
+          ],
+          "group": "Global options",
+          "description": "Display help text",
+          "type": "boolean"
+        },
+        {
+          "name": "help-web",
+          "aliases": [
+            "hw"
+          ],
+          "group": "Global options",
+          "description": "Display HTML help in browser",
+          "type": "boolean"
+        }
+      ],
+      "description": "my command",
+      "aliases": [],
+      "positionals": [],
+      "passOn": [],
+      "children": []
+    },
+    {
+      "name": "config",
+      "type": "group",
+      "summary": "Manage configuration and overrides",
+      "description": "Manage configuration and overrides.",
+      "children": [
+        {
+          "name": "set",
+          "aliases": [
+            "se"
+          ],
+          "type": "command",
+          "handler": "C:\\ourstuff\\repos\\imperative\\packages\\imperative\\src\\config\\cmd\\set\\set.handler",
+          "summary": "Set a configuration setting",
+          "description": "Set a configuration setting.",
+          "positionals": [
+            {
+              "name": "configName",
+              "type": "string",
+              "description": "Setting name",
+              "required": true
+            },
+            {
+              "name": "configValue",
+              "type": "string",
+              "description": "Value to set",
+              "required": true
+            }
+          ],
+          "examples": [
+            {
+              "options": "credential-manager my-credential-manager",
+              "description": "Set the default credential manager to my-credential-manager"
+            }
+          ],
+          "options": [
+            {
+              "name": "response-format-json",
+              "aliases": [
+                "rfj"
+              ],
+              "group": "Global options",
+              "description": "Produce JSON formatted data from a command",
+              "type": "boolean"
+            },
+            {
+              "name": "help",
+              "aliases": [
+                "h"
+              ],
+              "group": "Global options",
+              "description": "Display help text",
+              "type": "boolean"
+            },
+            {
+              "name": "help-web",
+              "aliases": [
+                "hw"
+              ],
+              "group": "Global options",
+              "description": "Display HTML help in browser",
+              "type": "boolean"
+            }
+          ],
+          "passOn": [],
+          "children": []
+        },
+        {
+          "name": "reset",
+          "aliases": [
+            "re"
+          ],
+          "type": "command",
+          "handler": "C:\\ourstuff\\repos\\imperative\\packages\\imperative\\src\\config\\cmd\\reset\\reset.handler",
+          "summary": "Reset a configuration setting to default or blank",
+          "description": "Reset a configuration setting to default or blank.",
+          "positionals": [
+            {
+              "name": "configName",
+              "type": "string",
+              "description": "Setting name to reset",
+              "required": true
+            }
+          ],
+          "examples": [
+            {
+              "options": "credential-manager",
+              "description": "Reset the credential manager to default value"
+            }
+          ],
+          "options": [
+            {
+              "name": "response-format-json",
+              "aliases": [
+                "rfj"
+              ],
+              "group": "Global options",
+              "description": "Produce JSON formatted data from a command",
+              "type": "boolean"
+            },
+            {
+              "name": "help",
+              "aliases": [
+                "h"
+              ],
+              "group": "Global options",
+              "description": "Display help text",
+              "type": "boolean"
+            },
+            {
+              "name": "help-web",
+              "aliases": [
+                "hw"
+              ],
+              "group": "Global options",
+              "description": "Display HTML help in browser",
+              "type": "boolean"
+            }
+          ],
+          "passOn": [],
+          "children": []
+        }
+      ],
+      "options": [
+        {
+          "name": "response-format-json",
+          "aliases": [
+            "rfj"
+          ],
+          "group": "Global options",
+          "description": "Produce JSON formatted data from a command",
+          "type": "boolean"
+        },
+        {
+          "name": "help",
+          "aliases": [
+            "h"
+          ],
+          "group": "Global options",
+          "description": "Display help text",
+          "type": "boolean"
+        },
+        {
+          "name": "help-web",
+          "aliases": [
+            "hw"
+          ],
+          "group": "Global options",
+          "description": "Display HTML help in browser",
+          "type": "boolean"
+        }
+      ],
+      "aliases": [],
+      "positionals": [],
+      "passOn": []
+    },
+    {
+      "name": "plugins",
+      "type": "group",
+      "description": "Install and manage plug-ins",
+      "children": [
+        {
+          "name": "install",
+          "type": "command",
+          "summary": "Install a plug-in",
+          "description": "Install plug-ins to an application.",
+          "handler": "C:\\ourstuff\\repos\\imperative\\packages\\imperative\\src\\plugins\\cmd\\install\\install.handler",
+          "positionals": [
+            {
+              "name": "plugin...",
+              "type": "string",
+              "description": "A space-separated list of plug-ins to install. A plug-in can be any format that is accepted by the `npm install` command (local directory, TAR file, git URL, public package, private package, etc...).\n\nTo use a relative local directory, at least one '/' or '\\' must exist in the plug-in path. For example, you have a local plug-in in a folder called 'test-plugin' that you want to install. Specify the relative local directory by issuing the following command:\n\nYour_CLI_Command_Name plugins install ./test-plugin\n\nIf you omit the './', then the install command looks for 'test-plugin' in an npm registry.\n\nIf the plugin argument is omitted, the plugins.json file will determine which plug-ins are installed. For more information on the plugins.json file, see the --file option.",
+              "required": false
+            }
+          ],
+          "options": [
+            {
+              "name": "file",
+              "type": "existingLocalFile",
+              "description": "Specifies the location of a plugins.json file that contains the plug-ins you want to install.\n\nAll plug-ins specified in plugins.json will be installed to the base CLI and the contents will be placed into packages\\__tests__\\fakeCliHome\\plugins\\plugins.json.\n\nIf you do not specify a plugins.json file and do not specify a plug-in, the default plugin.json file (packages\\__tests__\\fakeCliHome\\plugins\\plugins.json) will be used. This provides a way to install plug-ins that were lost or corrupted after reinstalling or updating WinHelp Test.",
+              "required": false,
+              "conflictsWith": [
+                "registry"
+              ],
+              "group": "Options",
+              "aliases": []
+            },
+            {
+              "name": "registry",
+              "type": "string",
+              "description": "The npm registry that is used when installing remote packages. When this value is omitted, the value returned by `npm config get registry` is used.\n\nFor more information about npm registries, see: https://docs.npmjs.com/misc/registry",
+              "required": false,
+              "group": "Options",
+              "aliases": []
+            },
+            {
+              "name": "login",
+              "type": "boolean",
+              "description": "The flag to add a registry user account to install from secure registry. It saves credentials to the .npmrc file using `npm adduser`. When this value is omitted, credentials from .npmrc file is used. If you used this flag once for specific registry, you don't have to use it again, it uses credentials from .npmrc file.\n\nFor more information about npm registries, see: https://docs.npmjs.com/cli/adduser",
+              "required": false,
+              "implies": [
+                "registry"
+              ],
+              "group": "Options",
+              "aliases": []
+            },
+            {
+              "name": "response-format-json",
+              "aliases": [
+                "rfj"
+              ],
+              "group": "Global options",
+              "description": "Produce JSON formatted data from a command",
+              "type": "boolean"
+            },
+            {
+              "name": "help",
+              "aliases": [
+                "h"
+              ],
+              "group": "Global options",
+              "description": "Display help text",
+              "type": "boolean"
+            },
+            {
+              "name": "help-web",
+              "aliases": [
+                "hw"
+              ],
+              "group": "Global options",
+              "description": "Display HTML help in browser",
+              "type": "boolean"
+            }
+          ],
+          "examples": [
+            {
+              "description": "Install plug-ins saved in packages\\__tests__\\fakeCliHome\\plugins\\plugins.json",
+              "options": ""
+            },
+            {
+              "description": "Install plug-ins saved in a properly formatted config file",
+              "options": "--file /some/file/path/file_name.json"
+            },
+            {
+              "description": "Install a remote plug-in",
+              "options": "my-plugin"
+            },
+            {
+              "description": "Install a remote plug-in using semver",
+              "options": "my-plugin@\"^1.2.3\""
+            },
+            {
+              "description": "Install a remote plug-in from the specified registry",
+              "options": "my-plugin --registry https://registry.npmjs.org/"
+            },
+            {
+              "description": "Install a local folder, local TAR file, and a git URL",
+              "options": "./local-file /root/tar/some-tar.tgz git://github.com/project/repository.git#v1.0.0"
+            },
+            {
+              "description": "Install a remote plug-in from the registry which requires authorization(don't need to use this flag if you have already logged in before)",
+              "options": "my-plugin --registry https://registry.npmjs.org/ --login"
+            }
+          ],
+          "aliases": [],
+          "passOn": [],
+          "children": []
+        },
+        {
+          "name": "list",
+          "type": "command",
+          "summary": "List installed plug-ins",
+          "description": "List all plug-ins installed.",
+          "handler": "C:\\ourstuff\\repos\\imperative\\packages\\imperative\\src\\plugins\\cmd\\list\\list.handler",
+          "options": [
+            {
+              "name": "response-format-json",
+              "aliases": [
+                "rfj"
+              ],
+              "group": "Global options",
+              "description": "Produce JSON formatted data from a command",
+              "type": "boolean"
+            },
+            {
+              "name": "help",
+              "aliases": [
+                "h"
+              ],
+              "group": "Global options",
+              "description": "Display help text",
+              "type": "boolean"
+            },
+            {
+              "name": "help-web",
+              "aliases": [
+                "hw"
+              ],
+              "group": "Global options",
+              "description": "Display HTML help in browser",
+              "type": "boolean"
+            }
+          ],
+          "aliases": [],
+          "positionals": [],
+          "passOn": [],
+          "children": []
+        },
+        {
+          "name": "uninstall",
+          "type": "command",
+          "summary": "Uninstall a plug-in",
+          "description": "Uninstall plug-ins.",
+          "handler": "C:\\ourstuff\\repos\\imperative\\packages\\imperative\\src\\plugins\\cmd\\uninstall\\uninstall.handler",
+          "positionals": [
+            {
+              "name": "plugin...",
+              "type": "string",
+              "description": "The name of the plug-in to uninstall.\n\nIf the plug-in argument is omitted, no action is taken.",
+              "required": false
+            }
+          ],
+          "examples": [
+            {
+              "description": "Uninstall a plug-in",
+              "options": "my-plugin"
+            }
+          ],
+          "options": [
+            {
+              "name": "response-format-json",
+              "aliases": [
+                "rfj"
+              ],
+              "group": "Global options",
+              "description": "Produce JSON formatted data from a command",
+              "type": "boolean"
+            },
+            {
+              "name": "help",
+              "aliases": [
+                "h"
+              ],
+              "group": "Global options",
+              "description": "Display help text",
+              "type": "boolean"
+            },
+            {
+              "name": "help-web",
+              "aliases": [
+                "hw"
+              ],
+              "group": "Global options",
+              "description": "Display HTML help in browser",
+              "type": "boolean"
+            }
+          ],
+          "aliases": [],
+          "passOn": [],
+          "children": []
+        },
+        {
+          "name": "update",
+          "type": "command",
+          "summary": "Update a plug-in",
+          "description": "Update plug-ins.",
+          "handler": "C:\\ourstuff\\repos\\imperative\\packages\\imperative\\src\\plugins\\cmd\\update\\update.handler",
+          "positionals": [
+            {
+              "name": "plugin...",
+              "type": "string",
+              "description": "The name of the plug-in to update.\n\nIf the plug-in argument is omitted, no action is taken.",
+              "required": false
+            }
+          ],
+          "options": [
+            {
+              "name": "registry",
+              "type": "string",
+              "description": "The npm registry that is used when installing remote packages. When this value is omitted, the value returned by `npm config get registry` is used.\n\nFor more information about npm registries, see: https://docs.npmjs.com/misc/registry",
+              "required": false,
+              "group": "Options",
+              "aliases": []
+            },
+            {
+              "name": "login",
+              "type": "boolean",
+              "description": "The flag to add a registry user account to install from secure registry. It saves credentials to the .npmrc file using `npm adduser`. When this value is omitted, credentials from .npmrc file is used. If you used this flag once for specific registry, you don't have to use it again, it uses credentials from .npmrc file.\n\nFor more information about npm registries, see: https://docs.npmjs.com/cli/adduser",
+              "required": false,
+              "implies": [
+                "registry"
+              ],
+              "group": "Options",
+              "aliases": []
+            },
+            {
+              "name": "response-format-json",
+              "aliases": [
+                "rfj"
+              ],
+              "group": "Global options",
+              "description": "Produce JSON formatted data from a command",
+              "type": "boolean"
+            },
+            {
+              "name": "help",
+              "aliases": [
+                "h"
+              ],
+              "group": "Global options",
+              "description": "Display help text",
+              "type": "boolean"
+            },
+            {
+              "name": "help-web",
+              "aliases": [
+                "hw"
+              ],
+              "group": "Global options",
+              "description": "Display HTML help in browser",
+              "type": "boolean"
+            }
+          ],
+          "examples": [
+            {
+              "description": "Update a plug-in",
+              "options": "my-plugin"
+            },
+            {
+              "description": "Update a remote plug-in from the registry which requires authorization(don't need to use this flag if you have already logged in before)",
+              "options": "my-plugin --registry https://registry.npmjs.org/ --login"
+            }
+          ],
+          "aliases": [],
+          "passOn": [],
+          "children": []
+        },
+        {
+          "name": "validate",
+          "type": "command",
+          "summary": "Validate a plug-in",
+          "description": "Validate a plug-in that has been installed.",
+          "handler": "C:\\ourstuff\\repos\\imperative\\packages\\imperative\\src\\plugins\\cmd\\validate\\validate.handler",
+          "positionals": [
+            {
+              "name": "plugin",
+              "type": "string",
+              "description": "The name of the plug-in to validate.\nValidation issues identified for this plug-in are displayed.\n\nIf the plug-in argument is omitted, all installed plug-ins are validated.",
+              "required": false
+            }
+          ],
+          "examples": [
+            {
+              "description": "Validate a plug-in named my-plugin",
+              "options": "my-plugin"
+            },
+            {
+              "description": "Validate all installed plug-ins",
+              "options": ""
+            }
+          ],
+          "options": [
+            {
+              "name": "response-format-json",
+              "aliases": [
+                "rfj"
+              ],
+              "group": "Global options",
+              "description": "Produce JSON formatted data from a command",
+              "type": "boolean"
+            },
+            {
+              "name": "help",
+              "aliases": [
+                "h"
+              ],
+              "group": "Global options",
+              "description": "Display help text",
+              "type": "boolean"
+            },
+            {
+              "name": "help-web",
+              "aliases": [
+                "hw"
+              ],
+              "group": "Global options",
+              "description": "Display HTML help in browser",
+              "type": "boolean"
+            }
+          ],
+          "aliases": [],
+          "passOn": [],
+          "children": []
+        }
+      ],
+      "options": [
+        {
+          "name": "response-format-json",
+          "aliases": [
+            "rfj"
+          ],
+          "group": "Global options",
+          "description": "Produce JSON formatted data from a command",
+          "type": "boolean"
+        },
+        {
+          "name": "help",
+          "aliases": [
+            "h"
+          ],
+          "group": "Global options",
+          "description": "Display help text",
+          "type": "boolean"
+        },
+        {
+          "name": "help-web",
+          "aliases": [
+            "hw"
+          ],
+          "group": "Global options",
+          "description": "Display HTML help in browser",
+          "type": "boolean"
+        }
+      ],
+      "aliases": [],
+      "positionals": [],
+      "passOn": []
+    }
+  ],
+  "type": "group",
+  "options": [
+    {
+      "name": "version",
+      "aliases": [
+        "V"
+      ],
+      "description": "Display the current version of WinHelp Test",
+      "type": "boolean",
+      "conflictsWith": [
+        "available-commands"
+      ],
+      "group": "Options"
+    },
+    {
+      "name": "available-commands",
+      "aliases": [
+        "ac"
+      ],
+      "description": "Displays a list of available commands",
+      "type": "boolean",
+      "conflictsWith": [
+        "version"
+      ],
+      "group": "Options"
+    },
+    {
+      "name": "response-format-json",
+      "aliases": [
+        "rfj"
+      ],
+      "group": "Global options",
+      "description": "Produce JSON formatted data from a command",
+      "type": "boolean"
+    },
+    {
+      "name": "help",
+      "aliases": [
+        "h"
+      ],
+      "group": "Global options",
+      "description": "Display help text",
+      "type": "boolean"
+    },
+    {
+      "name": "help-web",
+      "aliases": [
+        "hw"
+      ],
+      "group": "Global options",
+      "description": "Display HTML help in browser",
+      "type": "boolean"
+    }
+  ],
+  "handler": "C:\\ourstuff\\repos\\imperative\\packages\\imperative\\src/handlers/DefaultRootCommandHandler",
+  "isRoot": true,
+  "aliases": [],
+  "positionals": [],
+  "passOn": []
+}

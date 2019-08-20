@@ -75,5 +75,9 @@ exports[`cmd-cli gen-help allowable-options should display the help with allowab
 
       Display help text
 
+   --help-web  | --hw (boolean)
+
+      Display HTML help in browser
+
 "
 `;

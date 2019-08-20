@@ -24,6 +24,7 @@ import { ICommandProfileTypeConfiguration } from "../doc/profiles/definition/ICo
 import { IHelpGeneratorFactory } from "../help/doc/IHelpGeneratorFactory";
 import { CommandResponse } from "../response/CommandResponse";
 import { ICommandResponse } from "../../src/doc/response/response/ICommandResponse";
+import { WebHelpManager } from "../help/WebHelpManager";
 
 /**
  * Callback that is invoked when a command defined to yargs completes execution.
@@ -293,5 +294,14 @@ export abstract class AbstractCommandYargs {
                 `The help for ${this.definition.name} was invoked.`,
                 "help invoked", [response]));
         }
+    }
+
+    protected executeWebHelp() {
+        let fullCommandName: string = this.rootCommandName;
+        for (const parent of this.parents) {
+            fullCommandName += "_" + parent.definition.name;
+        }
+        WebHelpManager.instance.openHelp(fullCommandName + "_" + this.definition.name,
+            new CommandResponse({ silent: false }));
     }
 }
