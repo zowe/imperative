@@ -25,6 +25,8 @@ import { IHelpGeneratorFactory } from "../help/doc/IHelpGeneratorFactory";
 import { CommandResponse } from "../response/CommandResponse";
 import { ICommandResponse } from "../../src/doc/response/response/ICommandResponse";
 import { WebHelpManager } from "../help/WebHelpManager";
+import { ICommandExampleDefinition } from "../..";
+import * as lodashDeep from "lodash-deep";
 
 /**
  * Callback that is invoked when a command defined to yargs completes execution.
@@ -259,8 +261,13 @@ export abstract class AbstractCommandYargs {
          * Allocate the command processor and command response object to execute the help. The command response
          * object is recreated/changed based on the currently specified CLI options
          */
+        let tempDefinition: ICommandDefinition;
+        if (args[Constants.HELP_EXAMPLES] && (this.definition.children.length > 0)) {
+            tempDefinition = this.getDepthExamples();
+        }
+
         const newHelpGenerator = this.helpGeneratorFactory.getHelpGenerator({
-            commandDefinition: this.definition,
+            commandDefinition: tempDefinition ? tempDefinition : this.definition,
             fullCommandTree: this.constructDefinitionTree(),
             experimentalCommandsDescription: this.yargsParms.experimentalCommandDescription
         });
@@ -269,8 +276,8 @@ export abstract class AbstractCommandYargs {
         let response;
         try {
             response = new CommandProcessor({
-                definition: this.definition,
-                fullDefinition: this.constructDefinitionTree(),
+                definition: tempDefinition ? tempDefinition : this.definition,
+                fullDefinition: tempDefinition ? tempDefinition : this.constructDefinitionTree(),
                 helpGenerator: newHelpGenerator,
                 profileManagerFactory: this.profileManagerFactory,
                 rootCommandName: this.rootCommandName,
@@ -294,6 +301,73 @@ export abstract class AbstractCommandYargs {
                 `The help for ${this.definition.name} was invoked.`,
                 "help invoked", [response]));
         }
+    }
+
+    /**
+     * Get examples for all commands of a group
+     * @returns {ICommandDefinition}
+     */
+    protected getDepthExamples() {
+
+        let pathToArr: string;
+        let completeName: string;
+        let topLevelName: string;
+        let tempDesc: string;
+        let tempOp: string;
+        let tempPre: string;
+        let tempDescPath: string;
+        let tempOpPath: string;
+        let tempPrePath: string;
+        const commandDeffinition: ICommandDefinition = this.definition;
+
+        if (!this.definition.examples) {
+            commandDeffinition.examples = [];
+        }
+
+        lodashDeep.deepMapValues(this.definition.children, ((value: any, path: any) => {
+            if(path.endsWith("name") && (path.includes("options") || path.includes("positionals"))) {
+                const doNothing = "doNothing";
+            } else if(path.endsWith("name") && path.includes("children")) {
+                completeName = `${topLevelName} ${value}`;
+            } else if(path.endsWith("name")) {
+                topLevelName = value;
+            }
+
+            if(path.includes("examples.0.")) {
+                const tmp = path.split("examples.0.");
+                pathToArr = `${tmp[0]}examples`;
+            }
+
+            if(path.includes(pathToArr)) {
+                if (path.endsWith("description")) {
+                    tempDescPath = path.substring(0, path.length - "description".length);
+                    tempDesc= value;
+                } else if (path.endsWith("options")) {
+                    tempOpPath = path.substring(0, path.length - "options".length);
+                    if (completeName) {
+                        tempOp = `${completeName} ${value}`;
+                    } else if(topLevelName && !completeName) {
+                        tempOp = `${topLevelName} ${value}`;
+                    } else {
+                        tempOp = value;
+                    }
+                } else if (path.endsWith("prefix")) {
+                    tempPrePath = path.substring(0, path.length - "prefix".length);
+                    tempPre = value;
+                } else {
+                    tempPrePath = undefined;
+                }
+
+                if(tempDescPath === tempOpPath ) {
+                    let commandExamples: ICommandExampleDefinition;
+                    (tempPre && (tempDescPath === tempPrePath)) ?
+                        commandDeffinition.examples[commandDeffinition.examples.length - 1].prefix = tempPre
+                        :commandExamples = {description: tempDesc, options: tempOp};
+                    if(commandExamples) {commandDeffinition.examples.push(commandExamples);}
+                }
+            }
+        }));
+        return commandDeffinition;
     }
 
     protected executeWebHelp() {
