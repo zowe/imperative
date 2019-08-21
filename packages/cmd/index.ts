@@ -47,6 +47,8 @@ export * from "./src/help/DefaultHelpGenerator";
 export * from "./src/help/HelpConstants";
 export * from "./src/help/HelpGeneratorFactory";
 export * from "./src/help/doc/IHelpGenerator";
+export * from "./src/help/WebHelpGenerator";
+export * from "./src/help/WebHelpManager";
 
 export * from "./src/doc/profiles/definition/ICommandProfile";
 export * from "./src/doc/profiles/definition/ICommandProfileTypeConfiguration";
