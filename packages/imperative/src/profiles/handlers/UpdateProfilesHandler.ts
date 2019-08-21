@@ -9,7 +9,7 @@
 *
 */
 
-import { overroteProfileMessage, profileCreatedSuccessfullyAndPath, profileReviewMessage } from "../../../../messages";
+import { overroteProfileMessage, profileUpdatedSuccessfullyAndPath, profileReviewMessage } from "../../../../messages";
 import { Imperative } from "../../Imperative";
 import { ProfilesConstants } from "../../../../profiles";
 import { ICommandHandler, IHandlerParameters } from "../../../../cmd";
@@ -41,11 +41,11 @@ export default class UpdateProfilesHandler implements ICommandHandler {
             profileOption: commandParameters
                 .arguments[Constants.PROFILE_NAME_OPTION]
         });
-        commandParameters.response.console.log(profileCreatedSuccessfullyAndPath.message);
+        commandParameters.response.console.log(profileUpdatedSuccessfullyAndPath.message);
         commandParameters.response.console.log(profileUpdated.path);
-        commandParameters.response.console.log("\n");
-        commandParameters.response.console.log(TextUtils.prettyJson(profileUpdated.profile));
-        commandParameters.response.console.log("\n");
+        commandParameters.response.console.log("");
+        commandParameters.response.console.log(TextUtils.prettyJson(profileUpdated.profile,
+            undefined, undefined, "\n"));
         commandParameters.response.console.log(profileReviewMessage.message);
 
     }
