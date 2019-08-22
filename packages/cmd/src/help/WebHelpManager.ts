@@ -21,8 +21,6 @@ import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { IWebHelpParms } from "./doc/IWebHelpParms";
 import { Logger } from "../../../logger";
 
-const opener = require("opener");
-
 interface IPackageMetadata {
     name: string;
     version: string;
@@ -104,7 +102,7 @@ export class WebHelpManager implements IWebHelpManager {
             treeDataContent.replace(/(const cmdToLoad)[^;]*;/, `$1 = ${cmdToLoad};`));
 
         try {
-            const openerProc = opener("file:///" + this.webHelpDir + "/index.html");
+            const openerProc = require("opener")("file:///" + this.webHelpDir + "/index.html");
 
             if (process.platform !== "win32") {
                 /* On linux, without the following statements, the zowe
