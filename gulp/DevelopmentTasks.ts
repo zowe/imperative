@@ -293,6 +293,7 @@ const browserify: ITaskFunction = async() => {
     });
     b.bundle().pipe(fs.createWriteStream(__dirname + "/../web-help/dist/js/bundle-docs.js"));
 };
+browserify.description = "Browserify dependencies for web help";
 
 function getDirectories(path: string) {
     return fs.readdirSync(path).filter((file: string) => {
