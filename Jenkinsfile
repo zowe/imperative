@@ -18,13 +18,14 @@ node('ca-jenkins-agent') {
 
     // Build admins, users that can approve the build and receieve emails for 
     // all protected branch builds.
-    pipeline.admins.add("zfernand0", "mikebauerca", "markackert", "dkelosky")
+    pipeline.admins.add("tucker01", "gejohnston", "zfernand0", "mikebauerca", "markackert", "dkelosky")
+
+    // Comma-separated list of emails that should receive notifications about these builds
+    pipeline.emailList = "fernando.rijocedeno@broadcom.com"
 
     // Protected branch property definitions
     pipeline.protectedBranches.addMap([
-        [name: "master", tag: "daily", prerelease: "alpha", dependencies: ["@zowe/perf-timing": "daily"]],
-        [name: "beta", tag: "beta", prerelease: "beta", dependencies: ["@zowe/perf-timing": "beta"]],
-        [name: "latest", tag: "latest", dependencies: ["@zowe/perf-timing": "latest"], autoDeploy: true],
+        [name: "master", tag: "latest", dependencies: ["@zowe/perf-timing": "latest"]],
         [name: "lts-incremental", tag: "lts-incremental", level: SemverLevel.MINOR, dependencies: ["@zowe/perf-timing": "lts-incremental"]],
         [name: "lts-stable", tag: "lts-stable", level: SemverLevel.PATCH, dependencies: ["@zowe/perf-timing": "lts-stable"]]
     ])
