@@ -272,6 +272,10 @@ export const profileCreatedSuccessfullyAndPath: IMessageDefinition = {
     message: `Profile created successfully! Path:`
 };
 
+export const profileUpdatedSuccessfullyAndPath: IMessageDefinition = {
+    message: `Profile updated successfully! Path:`
+};
+
 export const profileReviewMessage: IMessageDefinition = {
     message: "Review the created profile and edit if necessary using the profile update command."
 };
