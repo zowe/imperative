@@ -31,6 +31,7 @@ export class WebHelpGenerator {
     private mConfig: ImperativeConfig;
     private mDocsDir: string;
 
+    private marked: any;
     private treeNodes: ITreeNode[];
     private aliasList: { [key: string]: string[] };
 
@@ -46,6 +47,10 @@ export class WebHelpGenerator {
         // Log using buffer to prevent trailing newline from getting added
         // This allows printing dot characters on the same line to show progress
         cmdResponse.console.log(Buffer.from("Generating web help"));
+
+        // Load additional dependencies
+        this.marked = require("marked");
+        const copySync: any = require("fs-extra").copySync;
 
         // Create web-help folder
         // After upgrading to Node v10, this step should no longer be necessary
@@ -66,7 +71,6 @@ export class WebHelpGenerator {
         // Copy files from dist folder to .zowe home dir
         const distDir: string = this.webHelpDistDir;
         const dirsToCopy: string[] = [distDir, path.join(distDir, "css"), path.join(distDir, "js")];
-        const copySync: any = require("fs-extra").copySync;
         dirsToCopy.forEach((dir: string) => {
             const destDir = path.join(webHelpDir, path.relative(distDir, dir));
 
@@ -100,13 +104,12 @@ export class WebHelpGenerator {
         const rootHelpHtmlPath: string = path.join(this.mDocsDir, `${rootCommandName}.html`);
         this.treeNodes.push({ id: `${rootCommandName}.html`, text: rootCommandName });
 
-        const marked = require("marked");
         let rootHelpContent: string = this.genDocsHeader(rootCommandName);
         rootHelpContent += `<h2><a href="${rootCommandName}.html">${rootCommandName}</a></h2>\n`;
-        rootHelpContent += marked(this.mConfig.loadedConfig.rootCommandDescription) + "\n";
+        rootHelpContent += this.marked(this.mConfig.loadedConfig.rootCommandDescription) + "\n";
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
             { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions });
-        rootHelpContent += marked(`<h4>Groups</h4>\n` + this.buildChildrenSummaryTables(helpGen, rootCommandName));
+        rootHelpContent += this.marked(`<h4>Groups</h4>\n` + this.buildChildrenSummaryTables(helpGen, rootCommandName));
         rootHelpContent += this.genDocsFooter();
         fs.writeFileSync(rootHelpHtmlPath, rootHelpContent);
         cmdResponse.console.log(Buffer.from("."));
@@ -235,7 +238,7 @@ export class WebHelpGenerator {
 
         let htmlContent = this.genDocsHeader(fullCommandName.replace(/_/g, " "));
         htmlContent += `<h2>` + this.genBreadcrumb(rootCommandName, fullCommandName) + `</h2>\n`;
-        htmlContent += require("marked")(markdownContent) + this.genDocsFooter();
+        htmlContent += this.marked(markdownContent) + this.genDocsFooter();
 
         // Remove backslash escapes from URLs
         htmlContent = htmlContent.replace(/(%5C(?=.+?>.+?<\/a>)|\\(?=\..+?<\/a>))/g, "");
