@@ -9,7 +9,7 @@
 *
 */
 
-import * as fs from "fs-extra";
+import * as fs from "fs";
 import * as path from "path";
 import { DefaultHelpGenerator } from "./DefaultHelpGenerator";
 import { ICommandDefinition } from "../doc/ICommandDefinition";
@@ -17,8 +17,6 @@ import { ImperativeConfig } from "../../../utilities";
 import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerResponseApi";
 import { ImperativeError } from "../../../error";
 import { Logger } from "../../../logger";
-
-const marked = require("marked");
 
 interface ITreeNode {
     id: string;
@@ -33,6 +31,7 @@ export class WebHelpGenerator {
     private mConfig: ImperativeConfig;
     private mDocsDir: string;
 
+    private marked: any;
     private treeNodes: ITreeNode[];
     private aliasList: { [key: string]: string[] };
 
@@ -49,6 +48,10 @@ export class WebHelpGenerator {
         // This allows printing dot characters on the same line to show progress
         cmdResponse.console.log(Buffer.from("Generating web help"));
 
+        // Load additional dependencies
+        this.marked = require("marked");
+        const copySync: any = require("fs-extra").copySync;
+
         // Create web-help folder
         // After upgrading to Node v10, this step should no longer be necessary
         // if the option recursive=True is used when the docs dir is created
@@ -60,7 +63,7 @@ export class WebHelpGenerator {
 
         // Create web-help/docs folder
         if (fs.existsSync(this.mDocsDir)) {
-            fs.removeSync(path.join(this.mDocsDir, "*"));
+            require("rimraf").sync(path.join(this.mDocsDir, "*"));
         } else {
             fs.mkdirSync(this.mDocsDir);
         }
@@ -77,17 +80,17 @@ export class WebHelpGenerator {
 
             fs.readdirSync(dir)
                 .filter((pathname: string) => fs.statSync(path.join(dir, pathname)).isFile())
-                .forEach((filename: string) => fs.copySync(path.join(dir, filename), path.join(destDir, filename)));
+                .forEach((filename: string) => copySync(path.join(dir, filename), path.join(destDir, filename)));
         });
 
         // Copy header image if it exists
         if (this.mConfig.loadedConfig.webHelpLogoImgPath) {
-            fs.copySync(this.mConfig.loadedConfig.webHelpLogoImgPath, path.join(webHelpDir, "header-image.png"));
+            copySync(this.mConfig.loadedConfig.webHelpLogoImgPath, path.join(webHelpDir, "header-image.png"));
         }
 
         // Replace main.css with custom CSS file if it exists
         if (this.mConfig.loadedConfig.webHelpCustomCssPath) {
-            fs.copySync(this.mConfig.loadedConfig.webHelpCustomCssPath, path.join(webHelpDir, "css/main.css"));
+            copySync(this.mConfig.loadedConfig.webHelpCustomCssPath, path.join(webHelpDir, "css/main.css"));
         }
 
         // Sort all items in the command tree and remove duplicates
@@ -103,10 +106,10 @@ export class WebHelpGenerator {
 
         let rootHelpContent: string = this.genDocsHeader(rootCommandName);
         rootHelpContent += `<h2><a href="${rootCommandName}.html">${rootCommandName}</a></h2>\n`;
-        rootHelpContent += marked(this.mConfig.loadedConfig.rootCommandDescription) + "\n";
+        rootHelpContent += this.marked(this.mConfig.loadedConfig.rootCommandDescription) + "\n";
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
             { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions });
-        rootHelpContent += marked(`<h4>Groups</h4>\n` + this.buildChildrenSummaryTables(helpGen, rootCommandName));
+        rootHelpContent += this.marked(`<h4>Groups</h4>\n` + this.buildChildrenSummaryTables(helpGen, rootCommandName));
         rootHelpContent += this.genDocsFooter();
         fs.writeFileSync(rootHelpHtmlPath, rootHelpContent);
         cmdResponse.console.log(Buffer.from("."));
@@ -235,7 +238,7 @@ export class WebHelpGenerator {
 
         let htmlContent = this.genDocsHeader(fullCommandName.replace(/_/g, " "));
         htmlContent += `<h2>` + this.genBreadcrumb(rootCommandName, fullCommandName) + `</h2>\n`;
-        htmlContent += marked(markdownContent) + this.genDocsFooter();
+        htmlContent += this.marked(markdownContent) + this.genDocsFooter();
 
         // Remove backslash escapes from URLs
         htmlContent = htmlContent.replace(/(%5C(?=.+?>.+?<\/a>)|\\(?=\..+?<\/a>))/g, "");
