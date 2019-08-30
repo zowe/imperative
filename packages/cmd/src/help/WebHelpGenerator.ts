@@ -11,30 +11,77 @@
 
 import * as fs from "fs";
 import * as path from "path";
+
 import { DefaultHelpGenerator } from "./DefaultHelpGenerator";
 import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { ImperativeConfig } from "../../../utilities";
 import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerResponseApi";
 import { ImperativeError } from "../../../error";
 import { Logger } from "../../../logger";
+import { IWebHelpTreeNode } from "./doc/IWebHelpTreeNode";
 
-interface ITreeNode {
-    id: string;
-    text: string;
-    children?: ITreeNode[];
-}
-
+/**
+ * Imperative web help generator. Accepts the command definitions and constructs
+ * the full help text for the command node.
+ *
+ * @export
+ * @class WebHelpGenerator
+ */
 export class WebHelpGenerator {
+    /**
+     * Specifies whether user's home directory should be redacted from help content
+     * @memberof WebHelpGenerator
+     */
     public sanitizeHomeDir: boolean = false;
 
+    /**
+     * Imperative command tree to build help for
+     * @private
+     * @memberof WebHelpGenerator
+     */
     private mFullCommandTree: ICommandDefinition;
+
+    /**
+     * Imperative config containing data about the CLI
+     * @private
+     * @memberof WebHelpGenerator
+     */
     private mConfig: ImperativeConfig;
+
+    /**
+     * Output directory for HTML doc pages
+     * @private
+     * @memberof WebHelpGenerator
+     */
     private mDocsDir: string;
 
+    /**
+     * Marked module used to convert markdown to HTML
+     * @private
+     * @memberof WebHelpGenerator
+     */
     private marked: any;
-    private treeNodes: ITreeNode[];
+
+    /**
+     * List of nodes in command tree
+     * @private
+     * @memberof WebHelpGenerator
+     */
+    private treeNodes: IWebHelpTreeNode[];
+
+    /**
+     * Key value list of commands and their aliases
+     * @private
+     * @memberof WebHelpGenerator
+     */
     private aliasList: { [key: string]: string[] };
 
+    /**
+     * Create an instance of WebHelpGenerator.
+     * @param {ICommandDefinition} - Imperative command tree to build help for
+     * @param {ImperativeConfig} - Imperative config containing data about the CLI
+     * @param {string} - Output directory for web help files
+     */
     constructor(fullCommandTree: ICommandDefinition, config: ImperativeConfig, webHelpDir: string) {
         this.mFullCommandTree = fullCommandTree;
         this.mConfig = config;
@@ -43,6 +90,10 @@ export class WebHelpGenerator {
         this.aliasList = {};
     }
 
+    /**
+     * Build web help files and copy dependencies to output folder
+     * @param {IHandlerResponseApi} - Command response object to use for output
+     */
     public buildHelp(cmdResponse: IHandlerResponseApi) {
         // Log using buffer to prevent trailing newline from getting added
         // This allows printing dot characters on the same line to show progress
@@ -124,6 +175,12 @@ export class WebHelpGenerator {
         cmdResponse.console.log("done!");
     }
 
+    /**
+     * Finds directory where web help dependencies are stored
+     * @readonly
+     * @private
+     * @returns {string} Absolute path of the directory
+     */
     private get webHelpDistDir(): string {
         const runtimeDistDir =  path.join(path.dirname(process.mainModule.filename),
             "..", "node_modules", "@zowe", "imperative", "web-help", "dist");
@@ -159,6 +216,11 @@ export class WebHelpGenerator {
         return distDir;
     }
 
+    /**
+     * Returns header HTML for help page
+     * @private
+     * @param title - Title string for the page
+     */
     private genDocsHeader(title: string): string {
         return `<!DOCTYPE html>
 <meta charset="UTF-8">
@@ -171,6 +233,10 @@ export class WebHelpGenerator {
 `;
     }
 
+    /**
+     * Returns footer HTML for help page
+     * @private
+     */
     private genDocsFooter(): string {
         return `</article>
 <script src="../js/bundle-docs.js"></script>
@@ -180,9 +246,9 @@ export class WebHelpGenerator {
 
     /**
      * Builds breadcrumb of HTML links to show command ancestry
+     * @private
      * @param {string} rootCommandName
      * @param {string} fullCommandName
-     * @returns {string}
      */
     private genBreadcrumb(rootCommandName: string, fullCommandName: string): string {
         const crumbs: string[] = [];
@@ -196,9 +262,9 @@ export class WebHelpGenerator {
 
     /**
      * Builds list of groups/commands with HTML links added
+     * @private
      * @param {DefaultHelpGenerator} helpGen
      * @param {string} fullCommandName
-     * @returns {string}
      */
     private buildChildrenSummaryTables(helpGen: DefaultHelpGenerator, fullCommandName: string): string {
         const hrefPrefix = fullCommandName + "_";
@@ -217,12 +283,13 @@ export class WebHelpGenerator {
 
     /**
      * Generates HTML help page for Imperative command
+     * @private
      * @param {ICommandDefinition} definition
      * @param {string} fullCommandName
      * @param {string} docsDir
      * @param {ITreeNode} parentNode
      */
-    private genCommandHelpPage(definition: ICommandDefinition, fullCommandName: string, docsDir: string, parentNode: ITreeNode) {
+    private genCommandHelpPage(definition: ICommandDefinition, fullCommandName: string, docsDir: string, parentNode: IWebHelpTreeNode) {
         const rootCommandName: string = this.treeNodes[0].text;
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
             { commandDefinition: definition, fullCommandTree: this.mFullCommandTree });
@@ -259,7 +326,7 @@ export class WebHelpGenerator {
         fs.writeFileSync(helpHtmlPath, htmlContent);
 
         // Add command node and list of aliases to tree data
-        const childNode: ITreeNode = {
+        const childNode: IWebHelpTreeNode = {
             id: helpHtmlFile,
             text: [definition.name, ...definition.aliases].join(" | ")
         };
@@ -283,6 +350,10 @@ export class WebHelpGenerator {
         }
     }
 
+    /**
+     * Writes data for building web help command tree to JS file
+     * @private
+     */
     private writeTreeData() {
         const treeDataPath = path.join(this.mDocsDir, "..", "tree-data.js");
         fs.writeFileSync(treeDataPath,
