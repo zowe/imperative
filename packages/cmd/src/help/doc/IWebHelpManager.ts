@@ -1,5 +1,3 @@
-import { IHandlerResponseApi } from "../../doc/response/api/handler/IHandlerResponseApi";
-
 /*
 * This program and the accompanying materials are made available under the terms of the
 * Eclipse Public License v2.0 which accompanies this distribution, and is available at
@@ -11,6 +9,8 @@ import { IHandlerResponseApi } from "../../doc/response/api/handler/IHandlerResp
 *
 */
 
+import { IHandlerResponseApi } from "../../doc/response/api/handler/IHandlerResponseApi";
+
 /**
  * Web help manager API that handles launching of web help and generating it if necessary.
  * @export
@@ -18,14 +18,16 @@ import { IHandlerResponseApi } from "../../doc/response/api/handler/IHandlerResp
  */
 export interface IWebHelpManager {
     /**
-     * Launches root help page in browser.
+     * Launch root help page in browser.
+     * @param {IHandlerResponseApi} cmdResponse - Command response object to use for output
      * @memberof IWebHelpManager
      */
     openRootHelp(cmdResponse: IHandlerResponseApi): void;
 
     /**
-     * Launches help page for specific group/command in browser.
-     * @param {string} inContext - Name of the page to load, passed as a URL param
+     * Launch help page for specific group/command in browser.
+     * @param {string} inContext - Name of page for group/command to jump to
+     * @param {IHandlerResponseApi} cmdResponse - Command response object to use for output
      * @memberof IWebHelpManager
      */
     openHelp(inContext: string, cmdResponse: IHandlerResponseApi): void;
