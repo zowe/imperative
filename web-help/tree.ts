@@ -9,37 +9,49 @@
 *
 */
 
+// Imports to help Browserify find dependencies
 import $ from "jquery";
 const bootstrap = require("bootstrap");
 const jstree = require("jstree");
 
+// Recursive object used for command tree node
 interface ITreeNode {
     id: string;
     text: string;
     children?: ITreeNode[];
 }
 
+// Declare variables loaded from tree-data.js
 declare const headerStr: string;
 declare const footerStr: string;
 declare const treeNodes: ITreeNode[];
 declare const aliasList: { [key: string]: string[] };
 declare const cmdToLoad: string;
 
+// Define global variables
 let currentNodeId: string;
 let isFlattened: boolean = false;
 let searchStrList: string[];
 let searchTimeout: number = 0;
 
+/**
+ * Called by jsTree for each node to check if it matches search string
+ * @param _ - Search string (unused because `searchStrList` is used instead)
+ * @param node - Tree node being checked
+ * @returns {boolean} True if the node matches
+ */
 function searchTree(_: string, node: any): boolean {
     if ((node.parent === "#") && !isFlattened) {
         return false;  // Don't match root node
     }
 
+    // Strip off ".html" to get full command name
     const fullCmd: string = node.id.slice(0, -5).replace(/_/g, " ");
     for (const searchStr of searchStrList) {
-        const matchIndex: number = fullCmd.indexOf(searchStr);
-        if (matchIndex !== -1) {
+        const matchIndex: number = fullCmd.lastIndexOf(searchStr);
+        if (matchIndex !== -1) {  // A search string was matched
             if (isFlattened || (fullCmd.indexOf(" ", matchIndex + searchStr.length) === -1)) {
+                // Don't match node if text that matches is only in label of parent node
                 return true;
             }
         }
@@ -48,6 +60,11 @@ function searchTree(_: string, node: any): boolean {
     return false;
 }
 
+/**
+ * Find all possible combinations of a search string that exist with different aliases
+ * @param searchStr - Search string input by user
+ * @returns List of search strings with all combinations of aliases
+ */
 function permuteSearchStr(searchStr: string): string[] {
     const searchWords: string[] = searchStr.split(" ");
     const searchWordsList: string[][] = [searchWords];
@@ -69,6 +86,10 @@ function permuteSearchStr(searchStr: string): string[] {
     return searchWordsList.map((words: string[]) => words.join(" "));
 }
 
+/**
+ * Select `currentNodeId` in the command tree and scroll it into view
+ * @param alsoExpand - Also expand the current node
+ */
 function selectCurrentNode(alsoExpand: boolean) {
     $("#cmd-tree").jstree(true).deselect_all();
     $("#cmd-tree").jstree(true).select_node(currentNodeId);
@@ -83,6 +104,9 @@ function selectCurrentNode(alsoExpand: boolean) {
     }
 }
 
+/**
+ * Called when text in search box changes and runs search after 250 ms
+ */
 function updateSearch() {
     if (searchTimeout) {
         clearTimeout(searchTimeout);
@@ -95,6 +119,11 @@ function updateSearch() {
     }, 250);
 }
 
+/**
+ * Generate flattened list of tree nodes for list view
+ * @param nestedNodes - Node list for command tree
+ * @returns Flattened node list
+ */
 function genFlattenedNodes(nestedNodes: ITreeNode[]): ITreeNode[] {
     const flattenedNodes: ITreeNode[] = [];
 
@@ -113,11 +142,17 @@ function genFlattenedNodes(nestedNodes: ITreeNode[]): ITreeNode[] {
     return flattenedNodes;
 }
 
+/**
+ * Load command tree sidebar
+ */
 function loadTree() {
     const urlParams = new URLSearchParams(window.location.search);
+
+    // Set header and footer strings
     $("#header-text").text(headerStr);
     $("#footer").text(footerStr);
 
+    // Load jsTree
     $("#cmd-tree").jstree({
         core: {
             animation: 0,
@@ -146,18 +181,25 @@ function loadTree() {
         selectCurrentNode(true);
     });
 
+    // Flatten tree view if t=0 param specified
     if (urlParams.get("t") === "0") {
         toggleTreeView();
     }
 
+    // Update search status when text in search box changes
     $("#tree-search").on("change keyup mouseup paste", updateSearch);
 
+    // Receive signals from iframe when link is clicked to update selected node
     window.addEventListener("message", (e: any) => {
         currentNodeId = e.data.slice(e.data.lastIndexOf("/") + 1);
         selectCurrentNode(false);
     }, false);
 }
 
+/**
+ * Toggle visibility of sidebar
+ * @param splitter - SplitJS object
+ */
 function toggleTree(splitter: any) {
     if ($("#panel-left").is(":visible")) {
         $("#panel-left").children().hide();
@@ -170,6 +212,9 @@ function toggleTree(splitter: any) {
     }
 }
 
+/**
+ * Toggle whether tree nodes are nested or flattened
+ */
 function toggleTreeView() {
     isFlattened = !isFlattened;
     const newNodes = isFlattened ? genFlattenedNodes(treeNodes) : treeNodes;
@@ -185,6 +230,10 @@ function toggleTreeView() {
     $("#tree-collapse-all").toggle();
 }
 
+/**
+ * Expand or collapse all nodes in command tree
+ * @param expanded - True to expand all, False to collapse all
+ */
 function expandAll(expanded: boolean) {
     if (expanded) {
         $("#cmd-tree").jstree("open_all");
