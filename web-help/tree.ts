@@ -91,6 +91,18 @@ function permuteSearchStr(searchStr: string): string[] {
 }
 
 /**
+ * Update URL in address bar to contain name of current node
+ */
+function updateUrl() {
+    const baseUrl: string = window.location.href.replace(window.location.search, "");
+    let queryString: string = "";
+    if (currentNodeId !== treeNodes[0].id) {
+        queryString = "?p=" + currentNodeId.slice(0, -5);
+    }
+    window.history.replaceState(null, "", baseUrl + queryString);
+}
+
+/**
  * Select `currentNodeId` in the command tree and scroll it into view
  * @param alsoExpand - Also expand the current node
  */
@@ -106,6 +118,8 @@ function selectCurrentNode(alsoExpand: boolean) {
     if (node !== null) {
         node.scrollIntoView();
     }
+
+    updateUrl();
 }
 
 /**
@@ -177,6 +191,7 @@ function loadTree() {
         if (data.selected.length > 0) {
             currentNodeId = data.selected[0];
             $("#docs-page").attr("src", `./docs/${currentNodeId}`);
+            updateUrl();
         }
     }).on("loaded.jstree", () => {
         // Select and expand root node when page loads
