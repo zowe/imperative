@@ -35,12 +35,15 @@ function searchTree(_: string, node: any): boolean {
         return false;  // Don't match root node
     }
 
+    // Do fuzzy search that allows space or no char to be substituted for hyphen
     const fullCmd: string = node.id.slice(0, -5).replace(/_/g, " ");
-    for (const searchStr of searchStrList) {
-        const matchIndex: number = fullCmd.indexOf(searchStr);
-        if (matchIndex !== -1) {
-            if (isFlattened || (fullCmd.indexOf(" ", matchIndex + searchStr.length) === -1)) {
-                return true;
+    for (const haystack of [fullCmd, fullCmd.replace(/-/g, " "), fullCmd.replace(/-/g, "")]) {
+        for (const needle of searchStrList) {
+            const matchIndex: number = haystack.indexOf(needle);
+            if (matchIndex !== -1) {
+                if (isFlattened || (haystack.indexOf(" ", matchIndex + needle.length) === -1)) {
+                    return true;
+                }
             }
         }
     }
