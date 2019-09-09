@@ -31,6 +31,7 @@ declare const cmdToLoad: string;
 // Define global variables
 let currentNodeId: string;
 let isFlattened: boolean = false;
+let isSinglePage: boolean = false;
 let searchStrList: string[];
 let searchTimeout: number = 0;
 
@@ -86,6 +87,17 @@ function permuteSearchStr(searchStr: string): string[] {
     }
 
     return searchWordsList.map((words: string[]) => words.join(" "));
+}
+
+/**
+ * Go to docs page for current node ID
+ */
+function gotoDocsPage() {
+    if (isSinglePage) {
+        $("#docs-page").attr("src", `./docs/all.html#${currentNodeId.slice(0, -5)}`);
+    } else {
+        $("#docs-page").attr("src", `./docs/${currentNodeId}`);
+    }
 }
 
 /**
@@ -163,6 +175,8 @@ function genFlattenedNodes(nestedNodes: ITreeNode[]): ITreeNode[] {
  */
 function loadTree() {
     const urlParams = new URLSearchParams(window.location.search);
+    isFlattened = urlParams.get("t") === "0";
+    isSinglePage = urlParams.get("s") === "1";
 
     // Set header and footer strings
     $("#header-text").text(headerStr);
@@ -176,7 +190,7 @@ function loadTree() {
             themes: {
                 icons: false
             },
-            data: treeNodes
+            data: isFlattened ? genFlattenedNodes(treeNodes) : treeNodes
         },
         plugins: ["search", "wholerow"],
         search: {
@@ -188,19 +202,25 @@ function loadTree() {
         // Change src attribute of iframe when item selected
         if (data.selected.length > 0) {
             currentNodeId = data.selected[0];
-            $("#docs-page").attr("src", `./docs/${currentNodeId}`);
+            gotoDocsPage();
             updateUrl();
         }
     }).on("loaded.jstree", () => {
         // Select and expand root node when page loads
         const nodeId = cmdToLoad || urlParams.get("p");
-        currentNodeId = (nodeId === null) ? treeNodes[0].id : `${nodeId}.html`;
-        selectCurrentNode(true);
+        currentNodeId = nodeId ? `${nodeId}.html` : treeNodes[0].id;
+        if (isFlattened && !nodeId) {
+            gotoDocsPage();
+        } else {
+            selectCurrentNode(true);
+        }
     });
 
-    // Flatten tree view if t=0 param specified
-    if (urlParams.get("t") === "0") {
-        toggleTreeView();
+    // Update labels if initializing in list view
+    if (isFlattened) {
+        $("#tree-view-toggle").text("Switch to Tree View");
+        $("#tree-expand-all").toggle();
+        $("#tree-collapse-all").toggle();
     }
 
     // Update search status when text in search box changes
@@ -227,6 +247,16 @@ function toggleTree(splitter: any) {
         $("#panel-left").show();
         $("#panel-left").children().show();
     }
+}
+
+/**
+ * Toggle whether all commands are shown on one page
+ */
+function togglePageMode() {
+    isSinglePage = !isSinglePage;
+    gotoDocsPage();
+    const otherModeName = isSinglePage ? "Multi Page Mode" : "Single Page Mode";
+    $("#tree-page-toggle").text(`Switch to ${otherModeName}`);
 }
 
 /**
