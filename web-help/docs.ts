@@ -10,14 +10,20 @@
 */
 
 const isInIframe: boolean = window.location !== window.parent.location;
+const isSinglePage: boolean = window.location.href.indexOf("/all.html") !== -1;
 const links: any = document.getElementsByTagName("a");
 
 // Process all <a> tags on page
 for (const link of links) {
     const url = link.getAttribute("href");
-    if (url.indexOf("://") > 0 || url.indexOf("//") === 0) {
+    if (!url) {
+        continue;  // Ignore links with no href
+    } else if (url.indexOf("://") > 0 || url.indexOf("//") === 0) {
         // If link is absolute, assume it points to external site and open it in new tab
         link.setAttribute("target", "_blank");
+    } else if (isSinglePage) {
+        // If link is relative and in single page mode, then change href to an anchor
+        link.setAttribute("href", "#" + url.slice(0, -5));
     } else if (isInIframe) {
         // If link is relative and page is inside an iframe, then send signal to command tree when link is clicked to make it update selected node
         link.setAttribute("onclick", "window.parent.postMessage(this.href, '*'); return true;");
