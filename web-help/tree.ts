@@ -13,6 +13,7 @@
 import $ from "jquery";
 const bootstrap = require("bootstrap");
 const jstree = require("jstree");
+const scrollIntoView = require("scroll-into-view-if-needed");
 
 // Recursive object used for command tree node
 interface ITreeNode {
@@ -30,8 +31,8 @@ declare const cmdToLoad: string;
 
 // Define global variables
 let currentNodeId: string;
+let ignoreSelectChange: boolean = false;
 let isFlattened: boolean = false;
-let isSinglePage: boolean = false;
 let searchStrList: string[];
 let searchTimeout: number = 0;
 
@@ -93,7 +94,7 @@ function permuteSearchStr(searchStr: string): string[] {
  * Go to docs page for current node ID
  */
 function gotoDocsPage() {
-    if (isSinglePage) {
+    if (isFlattened) {
         $("#docs-page").attr("src", `./docs/all.html#${currentNodeId.slice(0, -5)}`);
     } else {
         $("#docs-page").attr("src", `./docs/${currentNodeId}`);
@@ -108,6 +109,9 @@ function updateUrl() {
     let queryString: string = "";
     if (currentNodeId !== treeNodes[0].id) {
         queryString = "?p=" + currentNodeId.slice(0, -5);
+    }
+    if (isFlattened) {
+        queryString = (queryString.length > 0) ? (queryString + "&t=0") : "?t=0";
     }
     window.history.replaceState(null, "", baseUrl + queryString);
 }
@@ -126,7 +130,7 @@ function selectCurrentNode(alsoExpand: boolean) {
 
     const node = document.getElementById(currentNodeId);
     if (node !== null) {
-        node.scrollIntoView();
+        scrollIntoView(node, {scrollMode: "if-needed", block: "nearest", inline: "nearest"});
     }
 
     updateUrl();
@@ -162,7 +166,7 @@ function genFlattenedNodes(nestedNodes: ITreeNode[]): ITreeNode[] {
             flattenedNodes.push({
                 id: node.id,
                 text: node.id.slice(0, -5).replace(/_/g, " "),
-                children: undefined
+                children: node.children ? genFlattenedNodes(node.children) : []
             });
         }
     });
@@ -176,7 +180,6 @@ function genFlattenedNodes(nestedNodes: ITreeNode[]): ITreeNode[] {
 function loadTree() {
     const urlParams = new URLSearchParams(window.location.search);
     isFlattened = urlParams.get("t") === "0";
-    isSinglePage = urlParams.get("s") === "1";
 
     // Set header and footer strings
     $("#header-text").text(headerStr);
@@ -200,7 +203,7 @@ function loadTree() {
         },
     }).on("changed.jstree", (_: any, data: any) => {
         // Change src attribute of iframe when item selected
-        if (data.selected.length > 0) {
+        if ((data.selected.length > 0) && !ignoreSelectChange) {
             currentNodeId = data.selected[0];
             gotoDocsPage();
             updateUrl();
@@ -229,7 +232,9 @@ function loadTree() {
     // Receive signals from iframe when link is clicked to update selected node
     window.addEventListener("message", (e: any) => {
         currentNodeId = e.data.slice(e.data.lastIndexOf("/") + 1);
+        ignoreSelectChange = true;
         selectCurrentNode(false);
+        ignoreSelectChange = false;
     }, false);
 }
 
@@ -250,16 +255,6 @@ function toggleTree(splitter: any) {
 }
 
 /**
- * Toggle whether all commands are shown on one page
- */
-function togglePageMode() {
-    isSinglePage = !isSinglePage;
-    gotoDocsPage();
-    const otherModeName = isSinglePage ? "Multi Page Mode" : "Single Page Mode";
-    $("#tree-page-toggle").text(`Switch to ${otherModeName}`);
-}
-
-/**
  * Toggle whether tree nodes are nested or flattened
  */
 function toggleTreeView() {
@@ -268,7 +263,11 @@ function toggleTreeView() {
     ($("#cmd-tree").jstree(true) as any).settings.core.data = newNodes;
     $("#cmd-tree").jstree(true).refresh(false, true);
     setTimeout(() => {
-        selectCurrentNode(true);
+        if (isFlattened && (currentNodeId === treeNodes[0].id)) {
+            gotoDocsPage();
+        } else {
+            selectCurrentNode(true);
+        }
         updateSearch();
     }, 100);
     const otherViewName = isFlattened ? "Tree View" : "List View";

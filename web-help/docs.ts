@@ -22,7 +22,7 @@ for (const link of links) {
         // If link is absolute, assume it points to external site and open it in new tab
         link.setAttribute("target", "_blank");
     } else if (isSinglePage) {
-        // If link is relative and in single page mode, then change href to an anchor
+        // If link is relative and we are in list view, then change href to an anchor
         link.setAttribute("href", "#" + url.slice(0, -5));
     } else if (isInIframe) {
         // If link is relative and page is inside an iframe, then send signal to command tree when link is clicked to make it update selected node
@@ -48,3 +48,24 @@ function setTooltip(btn: any, message: string) {
 const clipboard = new (require("clipboard"))(".btn-copy");
 clipboard.on("success", (e: any) => setTooltip(e.trigger, "Copied!"));
 clipboard.on("error", (e: any) => setTooltip(e.trigger, "Failed!"));
+
+import $ from "jquery";
+
+if (isSinglePage) {
+    let currentHash: string;
+    $(document).scroll((e: any) => {
+        const anchors = $('.cmd-anchor');
+        const pageBottom = window.pageYOffset + window.innerHeight;
+        for (let i = anchors.length - 1; i > 0; i--) {
+            const anchorTop = $(anchors[i]).offset().top;
+            if (anchorTop < pageBottom) {
+                const hash = $(anchors[i]).attr("name");
+                if (currentHash !== hash) {
+                    window.parent.postMessage(hash + ".html", "*");
+                }
+                currentHash = hash;
+                break;
+            }
+        }
+    });
+}
