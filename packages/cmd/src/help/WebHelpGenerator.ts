@@ -167,8 +167,8 @@ export class WebHelpGenerator {
         rootHelpContent += this.marked(this.mConfig.loadedConfig.rootCommandDescription) + "\n";
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
             { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions });
-        rootHelpContent += this.marked(`<h4>Groups</h4>\n` + this.buildChildrenSummaryTables(helpGen, rootCommandName));
         this.singlePageHtml = rootHelpContent.repeat(1);
+        rootHelpContent += this.marked(`<h4>Groups</h4>\n` + this.buildChildrenSummaryTables(helpGen, rootCommandName));
         rootHelpContent += this.genDocsFooter();
         fs.writeFileSync(rootHelpHtmlPath, rootHelpContent);
         cmdResponse.console.log(Buffer.from("."));
@@ -250,6 +250,7 @@ export class WebHelpGenerator {
     private genDocsFooter(): string {
         return `</article>
 <script src="../js/bundle-docs.js"></script>
+<script>var exports = {};</script>
 <script src="../js/docs.js"></script>
 `;
     }
@@ -267,7 +268,7 @@ export class WebHelpGenerator {
             crumbs.push(`<a href="${hrefPrefix}${linkText}.html">${linkText}</a>`);
             hrefPrefix += `${linkText}_`;
         });
-        return `<a name="${rootCommandName}_${fullCommandName}"></a>` + crumbs.join(" → ");
+        return crumbs.join(" → ");
     }
 
     /**
@@ -313,9 +314,21 @@ export class WebHelpGenerator {
             markdownContent += `<h4>Commands</h4>\n` + this.buildChildrenSummaryTables(helpGen, rootCommandName + "_" + fullCommandName);
         }
 
-        let htmlContent = `<h2>` + this.genBreadcrumb(rootCommandName, fullCommandName) + `</h2>\n`;
+        let anchorTag = "<a ";
+        if (definition.type !== "group") {
+            anchorTag += "class=\"cmd-anchor\" ";
+        }
+        anchorTag += `name="${rootCommandName}_${fullCommandName}"></a>`;
+        let htmlContent = `<h2>` + anchorTag + this.genBreadcrumb(rootCommandName, fullCommandName) + `</h2>\n`;
         htmlContent += this.marked(markdownContent);
-        this.singlePageHtml += "<hr>\n" + htmlContent;
+        if (fullCommandName.indexOf("_") === -1) {
+            this.singlePageHtml += "<hr>\n";
+        }
+        if (definition.type === "group") {
+            this.singlePageHtml += htmlContent.slice(0, htmlContent.indexOf("<h4"));
+        } else {
+            this.singlePageHtml += htmlContent.replace(/<h2/, "<h3").replace(/h2>/, "h3>");
+        }
         htmlContent = this.genDocsHeader(fullCommandName.replace(/_/g, " ")) + htmlContent + this.genDocsFooter();
 
         // Remove backslash escapes from URLs

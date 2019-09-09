@@ -78,6 +78,7 @@
     "progress": "2.0.0",
     "readline-sync": "1.4.9",
     "rimraf": "2.6.3",
+    "scroll-into-view-if-needed": "^2.2.20",
     "semver": "5.7.0",
     "split.js": "1.5.11",
     "stack-trace": "0.0.10",
