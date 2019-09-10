@@ -80,6 +80,11 @@ html, body {
     width: calc(100% - 10px);
 }
 
+#tree-tabs {
+    margin: 0 5px 2px 5px;
+    width: calc(100% - 10px);
+}
+
 .gutter {
     background-color: #dddee0;
     background-position: 50%;

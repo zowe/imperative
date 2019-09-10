@@ -10,7 +10,6 @@
 */
 
 const isInIframe: boolean = window.location !== window.parent.location;
-const isSinglePage: boolean = window.location.href.indexOf("/all.html") !== -1;
 const links: any = document.getElementsByTagName("a");
 
 // Process all <a> tags on page
@@ -21,9 +20,6 @@ for (const link of links) {
     } else if (url.indexOf("://") > 0 || url.indexOf("//") === 0) {
         // If link is absolute, assume it points to external site and open it in new tab
         link.setAttribute("target", "_blank");
-    } else if (isSinglePage) {
-        // If link is relative and we are in list view, then change href to an anchor
-        link.setAttribute("href", "#" + url.slice(0, -5));
     } else if (isInIframe) {
         // If link is relative and page is inside an iframe, then send signal to command tree when link is clicked to make it update selected node
         link.setAttribute("onclick", "window.parent.postMessage(this.href, '*'); return true;");
@@ -49,23 +45,23 @@ const clipboard = new (require("clipboard"))(".btn-copy");
 clipboard.on("success", (e: any) => setTooltip(e.trigger, "Copied!"));
 clipboard.on("error", (e: any) => setTooltip(e.trigger, "Failed!"));
 
-import $ from "jquery";
-
-if (isSinglePage) {
-    let currentHash: string;
-    $(document).scroll((e: any) => {
-        const anchors = $('.cmd-anchor');
-        const pageBottom = window.pageYOffset + window.innerHeight;
-        for (let i = anchors.length - 1; i > 0; i--) {
-            const anchorTop = $(anchors[i]).offset().top;
-            if (anchorTop < pageBottom) {
-                const hash = $(anchors[i]).attr("name");
-                if (currentHash !== hash) {
-                    window.parent.postMessage(hash + ".html", "*");
+// If in flat view, scroll to visible command in sidebar
+if (window.location.href.indexOf("/all.html") !== -1) {
+    let currentCmdName: string;
+    window.onscroll = (_: any) => {
+        const anchors = document.getElementsByClassName("cmd-anchor");
+        for (const anchor of anchors) {
+            const anchorTop = anchor.getBoundingClientRect().top;
+            if (0 <= anchorTop) {
+                if (anchorTop < window.innerHeight) {
+                    const cmdName = anchor.getAttribute("name");
+                    if (cmdName && (cmdName !== currentCmdName)) {
+                        window.parent.postMessage(cmdName + ".html", "*");
+                        currentCmdName = cmdName;
+                    }
                 }
-                currentHash = hash;
                 break;
             }
         }
-    });
+    };
 }

@@ -32,7 +32,8 @@ declare const cmdToLoad: string;
 // Define global variables
 let currentNodeId: string;
 let ignoreSelectChange: boolean = false;
-let isFlattened: boolean = false;
+let isExpanded: boolean = false;
+let isFlatView: boolean = false;
 let searchStrList: string[];
 let searchTimeout: number = 0;
 
@@ -43,7 +44,7 @@ let searchTimeout: number = 0;
  * @returns {boolean} True if the node matches
  */
 function searchTree(_: string, node: any): boolean {
-    if ((node.parent === "#") && !isFlattened) {
+    if ((node.parent === "#") && !isFlatView) {
         return false;  // Don't match root node
     }
 
@@ -53,7 +54,7 @@ function searchTree(_: string, node: any): boolean {
         for (const needle of searchStrList) {
             const matchIndex: number = haystack.lastIndexOf(needle);
             if (matchIndex !== -1) {  // A search string was matched
-                if (isFlattened || (haystack.indexOf(" ", matchIndex + needle.length) === -1)) {
+                if (isFlatView || (haystack.indexOf(" ", matchIndex + needle.length) === -1)) {
                     // Don't match node if text that matches is only in label of parent node
                     return true;
                 }
@@ -94,7 +95,7 @@ function permuteSearchStr(searchStr: string): string[] {
  * Go to docs page for current node ID
  */
 function gotoDocsPage() {
-    if (isFlattened) {
+    if (isFlatView) {
         $("#docs-page").attr("src", `./docs/all.html#${currentNodeId.slice(0, -5)}`);
     } else {
         $("#docs-page").attr("src", `./docs/${currentNodeId}`);
@@ -110,7 +111,7 @@ function updateUrl() {
     if (currentNodeId !== treeNodes[0].id) {
         queryString = "?p=" + currentNodeId.slice(0, -5);
     }
-    if (isFlattened) {
+    if (isFlatView) {
         queryString = (queryString.length > 0) ? (queryString + "&t=0") : "?t=0";
     }
     window.history.replaceState(null, "", baseUrl + queryString);
@@ -179,7 +180,7 @@ function genFlattenedNodes(nestedNodes: ITreeNode[]): ITreeNode[] {
  */
 function loadTree() {
     const urlParams = new URLSearchParams(window.location.search);
-    isFlattened = urlParams.get("t") === "0";
+    isFlatView = urlParams.get("v") === "1";
 
     // Set header and footer strings
     $("#header-text").text(headerStr);
@@ -193,7 +194,7 @@ function loadTree() {
             themes: {
                 icons: false
             },
-            data: isFlattened ? genFlattenedNodes(treeNodes) : treeNodes
+            data: isFlatView ? genFlattenedNodes(treeNodes) : treeNodes
         },
         plugins: ["search", "wholerow"],
         search: {
@@ -212,15 +213,15 @@ function loadTree() {
         // Select and expand root node when page loads
         const nodeId = cmdToLoad || urlParams.get("p");
         currentNodeId = nodeId ? `${nodeId}.html` : treeNodes[0].id;
-        if (isFlattened && !nodeId) {
+        if (isFlatView && !nodeId) {
             gotoDocsPage();
         } else {
             selectCurrentNode(true);
         }
     });
 
-    // Update labels if initializing in list view
-    if (isFlattened) {
+    // Update labels if initializing in flat view
+    if (isFlatView) {
         $("#tree-view-toggle").text("Switch to Tree View");
         $("#tree-expand-all").toggle();
         $("#tree-collapse-all").toggle();
@@ -257,31 +258,44 @@ function toggleTree(splitter: any) {
 /**
  * Toggle whether tree nodes are nested or flattened
  */
-function toggleTreeView() {
-    isFlattened = !isFlattened;
-    const newNodes = isFlattened ? genFlattenedNodes(treeNodes) : treeNodes;
+function changeView(view: number) {
+    if (view === +isFlatView) {
+        return;
+    }
+    isFlatView = (view === 1);
+    $("#tree-view-link").toggleClass("active");
+    $("#flat-view-link").toggleClass("active");
+    $("#expand-all-button").toggleClass("disabled");
+    const newNodes = isFlatView ? genFlattenedNodes(treeNodes) : treeNodes;
     ($("#cmd-tree").jstree(true) as any).settings.core.data = newNodes;
     $("#cmd-tree").jstree(true).refresh(false, true);
     setTimeout(() => {
-        if (isFlattened && (currentNodeId === treeNodes[0].id)) {
+        if (isFlatView && (currentNodeId === treeNodes[0].id)) {
             gotoDocsPage();
         } else {
             selectCurrentNode(true);
         }
         updateSearch();
     }, 100);
-    const otherViewName = isFlattened ? "Tree View" : "List View";
-    $("#tree-view-toggle").text(`Switch to ${otherViewName}`);
-    $("#tree-expand-all").toggle();
-    $("#tree-collapse-all").toggle();
 }
 
 /**
  * Expand or collapse all nodes in command tree
  * @param expanded - True to expand all, False to collapse all
  */
-function expandAll(expanded: boolean) {
-    if (expanded) {
+function toggleExpandAll() {
+    if (isFlatView) {
+        return;
+    }
+    isExpanded = !isExpanded;
+    if (isExpanded) {
+        $("#expand-all-button").text("－");
+        $("#expand-all-button").attr("title", "Collapse All");
+    } else {
+        $("#expand-all-button").text("＋");
+        $("#expand-all-button").attr("title", "Expand All");
+    }
+    if (isExpanded) {
         $("#cmd-tree").jstree("open_all");
     } else {
         $("#cmd-tree").jstree("close_all");
