@@ -286,7 +286,7 @@ const browserify: ITaskFunction = async() => {
         b = require("browserify")();
         b.add(__dirname + "/../node_modules/balloon-css/balloon.min.css");
         b.add(__dirname + "/../node_modules/github-markdown-css/github-markdown.css");
-        b.require(["clipboard", "jquery"]);
+        b.require("clipboard");
         b.transform(require("browserify-css"), {
             inlineImages: true,
             output: __dirname + "/../web-help/dist/css/bundle-docs.css"

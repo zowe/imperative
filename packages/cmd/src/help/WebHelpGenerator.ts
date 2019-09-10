@@ -180,6 +180,7 @@ export class WebHelpGenerator {
         });
 
         this.singlePageHtml += this.genDocsFooter();
+        this.singlePageHtml = this.singlePageHtml.replace(new RegExp(`<a href="(${rootCommandName}.*?)\.html"`, "g"), "<a href=\"#$1\"");
         fs.writeFileSync(path.join(this.mDocsDir, "all.html"), this.singlePageHtml);
         this.writeTreeData();
         cmdResponse.console.log("done!");
@@ -250,7 +251,6 @@ export class WebHelpGenerator {
     private genDocsFooter(): string {
         return `</article>
 <script src="../js/bundle-docs.js"></script>
-<script>var exports = {};</script>
 <script src="../js/docs.js"></script>
 `;
     }
