@@ -51,9 +51,9 @@ if (isInIframe && (window.location.href.indexOf("/all.html") !== -1)) {
     window.onscroll = (_: any) => {
         const anchors = document.getElementsByClassName("cmd-anchor");
         for (const anchor of anchors) {
-            const anchorTop = anchor.getBoundingClientRect().top;
-            if (0 <= anchorTop) {
-                if (anchorTop < window.innerHeight) {
+            const headerBounds = (anchor.nextElementSibling as any).getBoundingClientRect();
+            if (0 < headerBounds.bottom) {
+                if (headerBounds.top < window.innerHeight) {
                     const cmdName = anchor.getAttribute("name");
                     if (cmdName && (cmdName !== currentCmdName)) {
                         window.parent.postMessage(cmdName + ".html", "*");
