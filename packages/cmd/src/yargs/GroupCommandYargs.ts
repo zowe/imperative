@@ -100,7 +100,7 @@ export class GroupCommandYargs extends AbstractCommandYargs {
                     if (!argsForHandler[Constants.HELP_WEB_OPTION]) {
                         this.executeHelp(argsForHandler, commandExecuted);
                     } else {
-                        this.executeWebHelp();
+                        this.executeWebHelp(argsForHandler, commandExecuted);
                     }
                 }
             });

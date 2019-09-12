@@ -21,7 +21,6 @@ import { IProfileManagerFactory } from "../../profiles";
 import { SyntaxValidator } from "./syntax/SyntaxValidator";
 import { CommandProfileLoader } from "./profiles/CommandProfileLoader";
 import { ICommandProfileTypeConfiguration } from "./doc/profiles/definition/ICommandProfileTypeConfiguration";
-import { IHelpGeneratorFactory } from "./help/doc/IHelpGeneratorFactory";
 import { IHelpGenerator } from "./help/doc/IHelpGenerator";
 import { ICommandPrepared } from "./doc/response/response/ICommandPrepared";
 import { CommandResponse } from "./response/CommandResponse";
@@ -38,6 +37,7 @@ import { ChainedHandlerService } from "./ChainedHandlerUtils";
 import { Constants } from "../../constants";
 import { ICommandArguments } from "./doc/args/ICommandArguments";
 import { CliUtils } from "../../utilities/src/CliUtils";
+import { WebHelpManager } from "./help/WebHelpManager";
 
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
@@ -83,7 +83,7 @@ export class CommandProcessor {
      */
     private mDefinition: ICommandDefinition;
     /**
-     * The full command definition contains all parents/anscestors of the command being executed.
+     * The full command definition contains all parents/ancestors of the command being executed.
      * @private
      * @type {ICommandDefinition}
      * @memberof CommandProcessor
@@ -175,7 +175,7 @@ export class CommandProcessor {
     /**
      * Accessor for the help generator passed to this instance of the command processor
      * @readonly
-     * @type {IHelpGeneratorFactory}
+     * @type {IHelpGenerator}
      * @memberof CommandProcessor
      */
     get helpGenerator(): IHelpGenerator {
@@ -220,6 +220,23 @@ export class CommandProcessor {
         response.data.setObj(help);
         response.console.log(Buffer.from(help));
         response.data.setMessage(`The help was constructed for command: ${this.mDefinition.name}.`);
+        return this.finishResponse(response);
+    }
+
+    /**
+     * Generates the help for the command definition passed.
+     * @param {string} inContext - Name of page for group/command to jump to
+     * @param {CommandResponse} response - The command response object
+     * @memberof CommandProcessor
+     */
+    public webHelp(inContext: string, response: CommandResponse): ICommandResponse {
+        ImperativeExpect.toNotBeNullOrUndefined(response, `${CommandProcessor.ERROR_TAG} help(): No command response object supplied.`);
+        this.log.info(`Generating web help for command "${this.definition.name}"...`);
+        if (WebHelpManager.instance.openHelp(inContext, response)) {
+            response.data.setMessage(`The web help was launched for command: ${this.definition.name}`);
+        } else {
+            response.failed();
+        }
         return this.finishResponse(response);
     }
 

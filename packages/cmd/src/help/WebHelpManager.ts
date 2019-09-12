@@ -85,24 +85,26 @@ export class WebHelpManager implements IWebHelpManager {
     /**
      * Launch root help page in browser.
      * @param {IHandlerResponseApi} cmdResponse - Command response object to use for output
+     * @returns True if launched successfully
      * @memberof WebHelpManager
      */
-    public openRootHelp(cmdResponse: IHandlerResponseApi) {
+    public openRootHelp(cmdResponse: IHandlerResponseApi): boolean {
         if (!this.areParmsSet("openRootHelp", cmdResponse)) {
-            return;
+            return false;
         }
-        this.openHelp(null, cmdResponse);
+        return this.openHelp(null, cmdResponse);
     }
 
     /**
      * Launch help page for specific group/command in browser.
      * @param {string} inContext - Name of page for group/command to jump to
      * @param {IHandlerResponseApi} cmdResponse - Command response object to use for output
+     * @returns True if launched successfully
      * @memberof WebHelpManager
      */
-    public openHelp(inContext: string, cmdResponse: IHandlerResponseApi) {
+    public openHelp(inContext: string, cmdResponse: IHandlerResponseApi): boolean {
         if (!this.areParmsSet("openHelp", cmdResponse)) {
-            return;
+            return false;
         }
 
         const doWeHaveGui = ProcessUtils.isGuiAvailable();
@@ -119,8 +121,8 @@ export class WebHelpManager implements IWebHelpManager {
                           "\n    export DISPLAY=:0.0" +
                           "\nThen try the --help-web option again.";
             }
-            cmdResponse.console.log(errMsg);
-            return;
+            cmdResponse.console.error(errMsg);
+            return false;
         }
 
         const newMetadata: MaybePackageMetadata = this.checkIfMetadataChanged();
@@ -140,7 +142,7 @@ export class WebHelpManager implements IWebHelpManager {
         */
         const treeDataPath = path.join(this.webHelpDir, "tree-data.js");
         const treeDataContent = fs.readFileSync(treeDataPath).toString();
-        const cmdToLoad = (inContext !== null) ? `"${inContext}"` : "null";
+        const cmdToLoad = inContext ? `"${inContext}"` : "null";
         fs.writeFileSync(treeDataPath,
             treeDataContent.replace(/(const cmdToLoad)[^;]*;/, `$1 = ${cmdToLoad};`));
 
@@ -159,7 +161,10 @@ export class WebHelpManager implements IWebHelpManager {
             }
         } catch {
             cmdResponse.console.error("Failed to launch web help, try running -h for console help instead");
+            return false;
         }
+
+        return true;
     }
 
     /**

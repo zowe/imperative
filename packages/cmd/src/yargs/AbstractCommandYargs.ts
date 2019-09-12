@@ -18,13 +18,11 @@ import { IYargsParms } from "./doc/IYargsParms";
 import { ICommandResponseParms } from "../../../cmd/src/doc/response/parms/ICommandResponseParms";
 import { ImperativeYargsCommandAction, IYargsResponse } from "./doc/IYargsResponse";
 import { GroupCommandYargs } from "./GroupCommandYargs";
-import { HelpGeneratorFactory } from "../help/HelpGeneratorFactory";
 import { IProfileManagerFactory } from "../../../profiles";
 import { ICommandProfileTypeConfiguration } from "../doc/profiles/definition/ICommandProfileTypeConfiguration";
 import { IHelpGeneratorFactory } from "../help/doc/IHelpGeneratorFactory";
 import { CommandResponse } from "../response/CommandResponse";
 import { ICommandResponse } from "../../src/doc/response/response/ICommandResponse";
-import { WebHelpManager } from "../help/WebHelpManager";
 import { ICommandExampleDefinition } from "../..";
 import * as lodashDeep from "lodash-deep";
 
@@ -253,8 +251,8 @@ export abstract class AbstractCommandYargs {
 
     /**
      * Execute the help Command for the definition.
-     * @param {YargsCommandCompleted} commandExecuted: The callback when help is complete.
      * @param {Arguments} args: The arguments passed by the user - used for -y.
+     * @param {YargsCommandCompleted} commandExecuted: The callback when help is complete.
      */
     protected executeHelp(args: Arguments, commandExecuted: YargsCommandCompleted) {
         /**
@@ -318,10 +316,10 @@ export abstract class AbstractCommandYargs {
         let tempDescPath: string;
         let tempOpPath: string;
         let tempPrePath: string;
-        const commandDeffinition: ICommandDefinition = this.definition;
+        const commandDefinition: ICommandDefinition = this.definition;
 
         if (!this.definition.examples) {
-            commandDeffinition.examples = [];
+            commandDefinition.examples = [];
         }
 
         lodashDeep.deepMapValues(this.definition.children, ((value: any, path: any) => {
@@ -361,21 +359,56 @@ export abstract class AbstractCommandYargs {
                 if(tempDescPath === tempOpPath ) {
                     let commandExamples: ICommandExampleDefinition;
                     (tempPre && (tempDescPath === tempPrePath)) ?
-                        commandDeffinition.examples[commandDeffinition.examples.length - 1].prefix = tempPre
+                        commandDefinition.examples[commandDefinition.examples.length - 1].prefix = tempPre
                         :commandExamples = {description: tempDesc, options: tempOp};
-                    if(commandExamples) {commandDeffinition.examples.push(commandExamples);}
+                    if(commandExamples) {commandDefinition.examples.push(commandExamples);}
                 }
             }
         }));
-        return commandDeffinition;
+        return commandDefinition;
     }
 
-    protected executeWebHelp() {
+    /**
+     * Execute the web help Command for the definition.
+     * @param {Arguments} args: The arguments passed by the user - used for -y.
+     * @param {YargsCommandCompleted} commandExecuted: The callback when help is complete.
+     */
+    protected executeWebHelp(args: Arguments, commandExecuted: YargsCommandCompleted) {
         let fullCommandName: string = this.rootCommandName;
         for (const parent of this.parents) {
             fullCommandName += "_" + parent.definition.name;
         }
-        WebHelpManager.instance.openHelp(fullCommandName + "_" + this.definition.name,
-            new CommandResponse({ silent: false }));
+
+        let response: ICommandResponse;
+        let invoked: boolean = false;
+        try {
+            response = new CommandProcessor({
+                definition: this.definition,
+                fullDefinition: this.constructDefinitionTree(),
+                helpGenerator: "fake" as any,
+                profileManagerFactory: this.profileManagerFactory,
+                rootCommandName: this.rootCommandName,
+                commandLine: this.commandLine,
+                envVariablePrefix: this.envVariablePrefix
+            }).webHelp(fullCommandName + "_" + this.definition.name,
+                new CommandResponse({
+                    silent: false,
+                    responseFormat: (args[Constants.JSON_OPTION] || false) ? "json" : "default",
+                })
+            );
+        } catch (helpErr) {
+            const errorResponse: IYargsResponse = this.getBrightYargsResponse(false,
+                `The web help for ${this.definition.name} was invoked and failed.`,
+                "help invoked");
+            errorResponse.causeErrors = helpErr;
+            invoked = true;
+            commandExecuted(args, errorResponse);
+        }
+
+        if (!invoked) {
+            commandExecuted(args, this.getBrightYargsResponse(true,
+                `The web help for ${this.definition.name} was invoked.`,
+                "help invoked", [response]));
+        }
     }
 }
