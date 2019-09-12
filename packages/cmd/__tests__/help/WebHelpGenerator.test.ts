@@ -109,7 +109,7 @@ describe("WebHelpGenerator", () => {
 
             fileNmToTest = webHelpDirNm + "/tree-data.js";
             fileText = fs.readFileSync(fileNmToTest, "utf8");
-            expect(fileText).toContain('"id": "' + moduleFileNm + '.html"');
+            expect(fileText).toContain('"id":"' + moduleFileNm + '.html"');
 
             // do a reasonable set of generated files exist?
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + ".html")).toBe(true);
