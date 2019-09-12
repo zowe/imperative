@@ -118,9 +118,7 @@ function updateCurrentNode(newNodeId: string, goto: boolean, expand: boolean, fo
     // Scroll node into view if needed
     setTimeout(() => {
         const nodeElem = document.getElementById(currentNodeId);
-        if (nodeElem) {
-            scrollIntoView(nodeElem, {scrollMode: "if-needed", block: "nearest", inline: "nearest"});
-        }
+        scrollIntoView(nodeElem, {scrollMode: "if-needed", block: "nearest", inline: "nearest"});
     }, 0);
 
     // Update URL in address bar to contain node ID
