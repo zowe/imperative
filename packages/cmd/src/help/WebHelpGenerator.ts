@@ -300,11 +300,11 @@ export class WebHelpGenerator {
             // this is disabled for the CLIReadme.md but we want to show children here
             // so we'll call the help generator's children summary function even though
             // it's usually skipped when producing markdown
-            markdownContent += `<h4>Commands</h4>\n` + this.buildChildrenSummaryTables(helpGen, rootCommandName + "_" + fullCommandName);
+            markdownContent += "<h4>Commands</h4>\n" + this.buildChildrenSummaryTables(helpGen, rootCommandName + "_" + fullCommandName);
         }
 
         let htmlContent = this.genDocsHeader(fullCommandName.replace(/_/g, " "));
-        htmlContent += `<h2>` + this.genBreadcrumb(rootCommandName, fullCommandName) + `</h2>\n`;
+        htmlContent += "<h2>" + this.genBreadcrumb(rootCommandName, fullCommandName) + "</h2>\n";
         htmlContent += this.marked(markdownContent) + this.genDocsFooter();
 
         // Remove backslash escapes from URLs

@@ -22,7 +22,7 @@ export interface IWebHelpManager {
      * @param {IHandlerResponseApi} cmdResponse - Command response object to use for output
      * @memberof IWebHelpManager
      */
-    openRootHelp(cmdResponse: IHandlerResponseApi): void;
+    openRootHelp(cmdResponse: IHandlerResponseApi): boolean;
 
     /**
      * Launch help page for specific group/command in browser.
@@ -30,5 +30,5 @@ export interface IWebHelpManager {
      * @param {IHandlerResponseApi} cmdResponse - Command response object to use for output
      * @memberof IWebHelpManager
      */
-    openHelp(inContext: string, cmdResponse: IHandlerResponseApi): void;
+    openHelp(inContext: string, cmdResponse: IHandlerResponseApi): boolean;
 }
