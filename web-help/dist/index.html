@@ -39,12 +39,7 @@
                     </ul>
                 </div>
 
-                <div id="tree-bar" class="input-group">
-                    <input id="tree-search" class="form-control" type="search" placeholder="Search..." aria-label="Text input with button">
-                    <div class="input-group-append">
-                        <button id="expand-all-button" class="btn btn-secondary" type="button" title="Expand All" onclick="toggleExpandAll(); return false;">＋</button>
-                    </div>
-                </div>
+                <input id="tree-search" class="form-control" type="search" placeholder="Search">
             </div>
 
             <div id="cmd-tree"></div>
@@ -57,7 +52,7 @@
         </div>
     </div>
     <script>
-    document.title = headerStr + " " + document.title;
+    document.title = `${headerStr} ${document.title}`;
     const splitter = require("split.js")(["#panel-left", "#panel-right"], {
         sizes: [20, 80],
         minSize: 0
