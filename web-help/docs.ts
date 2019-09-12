@@ -45,8 +45,8 @@ const clipboard = new (require("clipboard"))(".btn-copy");
 clipboard.on("success", (e: any) => setTooltip(e.trigger, "Copied!"));
 clipboard.on("error", (e: any) => setTooltip(e.trigger, "Failed!"));
 
-// If in flat view, scroll to visible command in sidebar
-if (window.location.href.indexOf("/all.html") !== -1) {
+// If in flat view, select currently scrolled to command in tree
+if (isInIframe && (window.location.href.indexOf("/all.html") !== -1)) {
     let currentCmdName: string;
     window.onscroll = (_: any) => {
         const anchors = document.getElementsByClassName("cmd-anchor");
