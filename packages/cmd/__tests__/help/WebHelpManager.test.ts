@@ -119,7 +119,7 @@ describe("WebHelpManager", () => {
                 let fileNmToTest = webHelpDirNm + "/index.html";
                 let fileText = fs.readFileSync(fileNmToTest, "utf8");
                 expect(fileText).toContain('div id="panel-container"');
-                expect(fileText).toContain('div id="tree-bar"');
+                expect(fileText).toContain('div id="tree-tabs"');
                 expect(fileText).toContain('div id="cmd-tree"');
 
                 fileNmToTest = webHelpDirNm + "/tree-data.js";
