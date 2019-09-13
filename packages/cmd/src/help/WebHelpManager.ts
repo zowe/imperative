@@ -71,7 +71,7 @@ export class WebHelpManager implements IWebHelpManager {
      * @memberof WebHelpManager
      */
     public openRootHelp(cmdResponse: IHandlerResponseApi) {
-        return this.openHelp(null, cmdResponse);
+        this.openHelp(null, cmdResponse);
     }
 
     /**
@@ -96,7 +96,7 @@ export class WebHelpManager implements IWebHelpManager {
                           "\nThen try the --help-web option again.";
             }
             cmdResponse.console.log(errMsg);
-            return false;
+            return;
         }
 
         const newMetadata: MaybePackageMetadata = this.checkIfMetadataChanged();
@@ -139,8 +139,6 @@ export class WebHelpManager implements IWebHelpManager {
                 causeErrors: [e]
             });
         }
-
-        return true;
     }
 
     /**
