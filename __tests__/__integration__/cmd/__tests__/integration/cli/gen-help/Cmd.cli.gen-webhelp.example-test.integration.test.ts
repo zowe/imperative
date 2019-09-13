@@ -79,7 +79,7 @@ describe("cmd-cli gen-webhelp example-test", () => {
             expect(response.stdout.toString().indexOf("Generating web help")).toEqual(-1);
             expect(response.stdout.toString()).toContain("Launching web help in browser");
         } else {
-            expect(response.stderr.toString()).toContain("You are running in an environment with no graphical interface");
+            expect(response.stdout.toString()).toContain("You are running in an environment with no graphical interface");
         }
     });
 });
