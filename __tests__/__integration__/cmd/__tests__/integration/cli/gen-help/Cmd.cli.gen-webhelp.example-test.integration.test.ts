@@ -42,9 +42,7 @@ describe("cmd-cli gen-webhelp example-test", () => {
         fs.writeFileSync(instPluginsFileNm, "{}");
 
         // copy our webhelp distribution files to our test's src directory
-        fsExtra.copySync("./web-help/dist",
-            "./__tests__/__integration__/cmd/lib/__tests__/__integration__/cmd/src/imperative/web-help/dist"
-        );
+        fsExtra.copySync("./web-help/dist", "./__tests__/__integration__/cmd/lib/web-help/dist");
 
         const response = runCliScript(
             __dirname + "/__scripts__/webhelp_with_example_test.sh",
@@ -63,6 +61,24 @@ describe("cmd-cli gen-webhelp example-test", () => {
             expect(stat.size).toBeGreaterThan(minSizeOfIndex);
         } else {
             expect(response.stdout.toString()).toContain("You are running in an environment with no graphical interface");
+        }
+    });
+
+    it("should support the --rfj option", () => {
+        const response = runCliScript(
+            __dirname + "/__scripts__/webhelp_with_example_test.sh",
+            TEST_ENVIRONMENT.workingDir,
+            ["--rfj"]
+        );
+        expect(response.stdout.toString()).toContain("\"success\": true");
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
+            expect(response.stdout.toString().indexOf("Generating web help")).toEqual(-1);
+            expect(response.stdout.toString()).toContain("Launching web help in browser");
+        } else {
+            expect(response.stderr.toString()).toContain("You are running in an environment with no graphical interface");
         }
     });
 });
