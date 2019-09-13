@@ -168,7 +168,7 @@ export class WebHelpGenerator {
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
             { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions });
         this.singlePageHtml = rootHelpContent.repeat(1);  // Deep copy
-        rootHelpContent += this.marked(`<h4>Groups</h4>\n` + this.buildChildrenSummaryTables(helpGen, rootCommandName));
+        rootHelpContent += this.marked("<h4>Groups</h4>\n" + this.buildChildrenSummaryTables(helpGen, rootCommandName));
         rootHelpContent += this.genDocsFooter();
         fs.writeFileSync(rootHelpHtmlPath, rootHelpContent);
         cmdResponse.console.log(Buffer.from("."));
@@ -339,10 +339,10 @@ export class WebHelpGenerator {
             // this is disabled for the CLIReadme.md but we want to show children here
             // so we'll call the help generator's children summary function even though
             // it's usually skipped when producing markdown
-            markdownContent += `<h4>Commands</h4>\n` + this.buildChildrenSummaryTables(helpGen, rootCommandName + "_" + fullCommandName);
+            markdownContent += "<h4>Commands</h4>\n" + this.buildChildrenSummaryTables(helpGen, rootCommandName + "_" + fullCommandName);
         }
 
-        let htmlContent = `<h2>` + this.genBreadcrumb(rootCommandName, fullCommandName) + `</h2>\n`;
+        let htmlContent = "<h2>" + this.genBreadcrumb(rootCommandName, fullCommandName) + "</h2>\n";
         htmlContent += this.marked(markdownContent);
         this.appendToSinglePageHtml(definition, rootCommandName, fullCommandName, htmlContent);
         htmlContent = this.genDocsHeader(fullCommandName.replace(/_/g, " ")) + htmlContent + this.genDocsFooter();
