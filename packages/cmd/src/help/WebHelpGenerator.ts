@@ -16,7 +16,6 @@ import { DefaultHelpGenerator } from "./DefaultHelpGenerator";
 import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerResponseApi";
 import { ImperativeError } from "../../../error";
-import { Logger } from "../../../logger";
 import { IWebHelpParms } from "./doc/IWebHelpParms";
 import { IWebHelpTreeNode } from "./doc/IWebHelpTreeNode";
 

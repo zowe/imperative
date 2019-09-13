@@ -71,16 +71,7 @@ describe("WebHelpGenerator", () => {
         });
 
         afterAll( async () => {
-            /* Give the browser time to launch before we remove the HTML files.
-             * This results in a Jest warning of :
-             *      Jest did not exit one second after the test run has completed.
-             * However, that is better than the browser popping up "file not found".
-             */
-            const msDelay = 3000;
-            setTimeout(() =>
-                { rimraf.sync(cliHome); },
-                msDelay
-            );
+            rimraf.sync(cliHome);
         });
 
         it("should create Help files", async () => {

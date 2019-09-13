@@ -20,6 +20,7 @@ import { CommandResponse } from "../../src/response/CommandResponse";
 import { ImperativeConfig } from "../../../imperative/src/ImperativeConfig";
 import { GuiResult, ProcessUtils } from "../../../utilities";
 import { WebHelpGenerator } from "../..";
+import { IImperativeConfig } from "../../../imperative/src/doc/IImperativeConfig";
 
 describe("WebHelpManager", () => {
     describe("buildHelp", () => {
@@ -37,16 +38,20 @@ describe("WebHelpManager", () => {
             rootCommandDescription: "Some Product CLI"
         };
         const mockCliHome = path.resolve("./packages/__tests__/mockCliHome");
-        const webHelpDirNm = mockCliHome + "/web-help";
+        const webHelpDirNm = path.join(mockCliHome, "web-help");
         const impCfg: ImperativeConfig = ImperativeConfig.instance;
         const cmdReponse = new CommandResponse({ silent: false });
+        let opener: any;
         let instPluginsFileNm: string;
 
         beforeAll( async () => {
+            jest.mock("opener");
+            opener = require("opener");
+
             rimraf.sync(mockCliHome);
 
             /* getResolvedCmdTree calls getCallerLocation, and we need it to return some string.
-             * getCallerLocation is a getter of a property, so mock we the property.
+             * getCallerLocation is a getter of a property, so we mock the property.
              */
             Object.defineProperty(process, "mainModule", {
                 configurable: true,
@@ -67,12 +72,7 @@ describe("WebHelpManager", () => {
         });
 
         afterAll( async () => {
-            // Give the browser time to launch before we remove the HTML files
-            const msDelay = 3000;
-            setTimeout(() =>
-                { rimraf.sync(mockCliHome); },
-                msDelay
-            );
+            rimraf.sync(mockCliHome);
         });
 
         beforeEach( async () => {
@@ -132,12 +132,17 @@ describe("WebHelpManager", () => {
                 expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_hello.html")).toBe(true);
                 expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_plugins_install.html")).toBe(true);
                 expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_plugins_uninstall.html")).toBe(true);
+
+                expect(opener).toHaveBeenCalledTimes(1);
+                expect(opener).toHaveBeenCalledWith(`file:///${webHelpDirNm}/index.html`);
             } else {
                 const jsonResult = cmdReponse.buildJsonResponse();
                 expect(jsonResult.stdout.toString()).toContain(
                     "You are running in an environment with no graphical interface"
                 );
                 expect(fs.existsSync(webHelpDirNm)).toBe(false);
+
+                expect(opener).not.toHaveBeenCalled();
             }
         });
 
@@ -150,12 +155,17 @@ describe("WebHelpManager", () => {
 
             if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
                 expect(mockBuildHelp).not.toHaveBeenCalled();
+
+                expect(opener).toHaveBeenCalledTimes(2);
+                expect(opener).toHaveBeenLastCalledWith(`file:///${webHelpDirNm}/index.html`);
             } else {
                 const jsonResult = cmdReponse.buildJsonResponse();
                 expect(jsonResult.stdout.toString()).toContain(
                     "You are running in an environment with no graphical interface"
                 );
                 expect(fs.existsSync(webHelpDirNm)).toBe(false);
+
+                expect(opener).not.toHaveBeenCalled();
             }
 
             // restore real function
