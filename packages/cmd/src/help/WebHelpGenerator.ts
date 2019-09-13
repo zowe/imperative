@@ -17,7 +17,6 @@ import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { ImperativeConfig } from "../../../utilities";
 import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerResponseApi";
 import { ImperativeError } from "../../../error";
-import { Logger } from "../../../logger";
 import { IWebHelpTreeNode } from "./doc/IWebHelpTreeNode";
 
 /**

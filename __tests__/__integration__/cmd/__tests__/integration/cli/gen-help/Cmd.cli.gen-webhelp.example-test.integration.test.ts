@@ -75,7 +75,7 @@ describe("cmd-cli gen-webhelp example-test", () => {
         expect(response.status).toBe(0);
 
         if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
-            expect(response.stdout.toString().indexOf("Generating web help")).toEqual(-1);
+            expect(response.stdout.toString()).not.toContain("Generating web help");
             expect(response.stdout.toString()).toContain("Launching web help in browser");
         } else {
             expect(response.stdout.toString()).toContain("You are running in an environment with no graphical interface");
