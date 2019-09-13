@@ -20,6 +20,7 @@ import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerRespons
 import { IWebHelpPackageMetadata } from "./doc/IWebHelpPackageMetadata";
 import { IWebHelpParms } from "./doc/IWebHelpParms";
 import { Logger } from "../../../logger";
+import { ImperativeError } from "../../../error";
 
 /**
  * Type used when comparing package metadata. If it contains metadata, it is
@@ -85,26 +86,24 @@ export class WebHelpManager implements IWebHelpManager {
     /**
      * Launch root help page in browser.
      * @param {IHandlerResponseApi} cmdResponse - Command response object to use for output
-     * @returns True if launched successfully
      * @memberof WebHelpManager
      */
-    public openRootHelp(cmdResponse: IHandlerResponseApi): boolean {
+    public openRootHelp(cmdResponse: IHandlerResponseApi) {
         if (!this.areParmsSet("openRootHelp", cmdResponse)) {
-            return false;
+            return;
         }
-        return this.openHelp(null, cmdResponse);
+        this.openHelp(null, cmdResponse);
     }
 
     /**
      * Launch help page for specific group/command in browser.
      * @param {string} inContext - Name of page for group/command to jump to
      * @param {IHandlerResponseApi} cmdResponse - Command response object to use for output
-     * @returns True if launched successfully
      * @memberof WebHelpManager
      */
-    public openHelp(inContext: string, cmdResponse: IHandlerResponseApi): boolean {
+    public openHelp(inContext: string, cmdResponse: IHandlerResponseApi) {
         if (!this.areParmsSet("openHelp", cmdResponse)) {
-            return false;
+            return;
         }
 
         const doWeHaveGui = ProcessUtils.isGuiAvailable();
@@ -121,7 +120,7 @@ export class WebHelpManager implements IWebHelpManager {
                           "\n    export DISPLAY=:0.0" +
                           "\nThen try the --help-web option again.";
             }
-            cmdResponse.console.error(errMsg);
+            cmdResponse.console.log(errMsg);
             return false;
         }
 
@@ -159,9 +158,11 @@ export class WebHelpManager implements IWebHelpManager {
                 openerProc.stdout.unref();
                 openerProc.stderr.unref();
             }
-        } catch {
-            cmdResponse.console.error("Failed to launch web help, try running -h for console help instead");
-            return false;
+        } catch (e) {
+            throw new ImperativeError({
+                msg: "Failed to launch web help, try running -h for console help instead",
+                causeErrors: [e]
+            });
         }
 
         return true;

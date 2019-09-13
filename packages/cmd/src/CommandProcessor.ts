@@ -231,11 +231,15 @@ export class CommandProcessor {
      */
     public webHelp(inContext: string, response: CommandResponse): ICommandResponse {
         ImperativeExpect.toNotBeNullOrUndefined(response, `${CommandProcessor.ERROR_TAG} help(): No command response object supplied.`);
-        this.log.info(`Generating web help for command "${this.definition.name}"...`);
-        if (WebHelpManager.instance.openHelp(inContext, response)) {
+        this.log.info(`Launching web help for command "${this.definition.name}"...`);
+        try {
+            WebHelpManager.instance.openHelp(inContext, response);
             response.data.setMessage(`The web help was launched for command: ${this.definition.name}`);
-        } else {
+        } catch (err) {
+            this.log.error(err);
+            response.console.error(err);
             response.failed();
+            response.setError({msg: err.message, stack: err.stack});
         }
         return this.finishResponse(response);
     }
