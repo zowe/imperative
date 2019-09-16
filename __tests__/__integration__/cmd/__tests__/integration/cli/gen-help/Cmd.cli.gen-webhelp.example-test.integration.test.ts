@@ -29,9 +29,7 @@ describe("cmd-cli gen-webhelp example-test", () => {
             cliHomeEnvVar: "CMD_CLI_CLI_HOME",
             testName: "cmd_cli_gen_webhelp_example_test"
         });
-    });
 
-    beforeEach(async () => {
         // ensure that the plugins directory exists
         let instPluginsFileNm = path.join(TEST_ENVIRONMENT.workingDir, "plugins");
         if (!fs.existsSync(instPluginsFileNm)) {
