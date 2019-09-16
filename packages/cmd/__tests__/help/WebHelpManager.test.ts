@@ -103,7 +103,28 @@ describe("WebHelpManager", () => {
             );
         });
 
-        it("should generate and display help", async () => {
+        it("should not display help when there is no GUI available", async () => {
+            const realBuildHelp = WebHelpGenerator.prototype.buildHelp;
+            const mockBuildHelp = jest.fn();
+            WebHelpGenerator.prototype.buildHelp = mockBuildHelp;
+
+            ProcessUtils.isGuiAvailable = jest.fn(() => GuiResult.NO_GUI_NO_DISPLAY);
+            WebHelpManager.instance.openRootHelp(cmdReponse);
+
+            expect(mockBuildHelp).not.toHaveBeenCalled();
+            const jsonResult = cmdReponse.buildJsonResponse();
+            expect(jsonResult.stdout.toString()).toContain(
+                "You are running in an environment with no graphical interface"
+            );
+            expect(fs.existsSync(webHelpDirNm)).toBe(false);
+
+            expect(opener).not.toHaveBeenCalled();
+
+            // restore real function
+            WebHelpGenerator.prototype.buildHelp = realBuildHelp;
+        });
+
+        it("should generate and display help when there is a GUI available", async () => {
             /* imperative.init does all the setup for WebHelp to be run.
              * We can only call init() once per app. However, our first two tests
              * must be run without init() being called. So, we place our call
@@ -112,61 +133,43 @@ describe("WebHelpManager", () => {
              */
             await Imperative.init(configForHelp);
 
+            ProcessUtils.isGuiAvailable = jest.fn(() => GuiResult.GUI_AVAILABLE);
             WebHelpManager.instance.openRootHelp(cmdReponse);
 
-            if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
-                // do our generated files contain some of the right stuff?
-                let fileNmToTest = webHelpDirNm + "/index.html";
-                let fileText = fs.readFileSync(fileNmToTest, "utf8");
-                expect(fileText).toContain('div id="panel-container"');
-                expect(fileText).toContain('div id="tree-tabs"');
-                expect(fileText).toContain('div id="cmd-tree"');
+            // do our generated files contain some of the right stuff?
+            let fileNmToTest = webHelpDirNm + "/index.html";
+            let fileText = fs.readFileSync(fileNmToTest, "utf8");
+            expect(fileText).toContain('div id="panel-container"');
+            expect(fileText).toContain('div id="tree-bar"');
+            expect(fileText).toContain('div id="cmd-tree"');
 
-                fileNmToTest = webHelpDirNm + "/tree-data.js";
-                fileText = fs.readFileSync(fileNmToTest, "utf8");
-                expect(fileText).toContain('"id":"FakeCli.html"');
+            fileNmToTest = webHelpDirNm + "/tree-data.js";
+            fileText = fs.readFileSync(fileNmToTest, "utf8");
+            expect(fileText).toContain('"id": "FakeCli.html"');
 
-                // do a reasonable set of generated files exist?
-                expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli.html")).toBe(true);
-                expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_config.html")).toBe(true);
-                expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_hello.html")).toBe(true);
-                expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_plugins_install.html")).toBe(true);
-                expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_plugins_uninstall.html")).toBe(true);
+            // do a reasonable set of generated files exist?
+            expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli.html")).toBe(true);
+            expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_config.html")).toBe(true);
+            expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_hello.html")).toBe(true);
+            expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_plugins_install.html")).toBe(true);
+            expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_plugins_uninstall.html")).toBe(true);
 
-                expect(opener).toHaveBeenCalledTimes(1);
-                expect(opener).toHaveBeenCalledWith(`file:///${webHelpDirNm}/index.html`);
-            } else {
-                const jsonResult = cmdReponse.buildJsonResponse();
-                expect(jsonResult.stdout.toString()).toContain(
-                    "You are running in an environment with no graphical interface"
-                );
-                expect(fs.existsSync(webHelpDirNm)).toBe(false);
-
-                expect(opener).not.toHaveBeenCalled();
-            }
+            expect(opener).toHaveBeenCalledTimes(1);
+            expect(opener).toHaveBeenCalledWith(`file:///${webHelpDirNm}/index.html`);
         });
 
-        it("should display existing help", async () => {
+        it("should display existing help when there is a GUI available", async () => {
             const realBuildHelp = WebHelpGenerator.prototype.buildHelp;
             const mockBuildHelp = jest.fn();
             WebHelpGenerator.prototype.buildHelp = mockBuildHelp;
 
+            ProcessUtils.isGuiAvailable = jest.fn(() => GuiResult.GUI_AVAILABLE);
             WebHelpManager.instance.openRootHelp(cmdReponse);
 
-            if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
-                expect(mockBuildHelp).not.toHaveBeenCalled();
+            expect(mockBuildHelp).not.toHaveBeenCalled();
 
-                expect(opener).toHaveBeenCalledTimes(2);
-                expect(opener).toHaveBeenLastCalledWith(`file:///${webHelpDirNm}/index.html`);
-            } else {
-                const jsonResult = cmdReponse.buildJsonResponse();
-                expect(jsonResult.stdout.toString()).toContain(
-                    "You are running in an environment with no graphical interface"
-                );
-                expect(fs.existsSync(webHelpDirNm)).toBe(false);
-
-                expect(opener).not.toHaveBeenCalled();
-            }
+            expect(opener).toHaveBeenCalledTimes(2);
+            expect(opener).toHaveBeenLastCalledWith(`file:///${webHelpDirNm}/index.html`);
 
             // restore real function
             WebHelpGenerator.prototype.buildHelp = realBuildHelp;
