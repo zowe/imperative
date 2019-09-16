@@ -100,7 +100,7 @@ describe("WebHelpManager", () => {
         });
 
         describe("when there is a GUI available", () => {
-            beforeEach( async () => {
+            beforeAll( async () => {
                 // ensure that the plugins directory exists
                 instPluginsFileNm = path.join(mockCliHome, "plugins");
                 if (!fs.existsSync(instPluginsFileNm)) {
@@ -112,7 +112,15 @@ describe("WebHelpManager", () => {
                 fs.writeFileSync(instPluginsFileNm, "{}");
 
                 // copy our webhelp distribution files to our test's src directory
-                fsExtra.copySync("./web-help/dist", path.join(mockCliHome, "web-help/dist"));
+                fsExtra.copySync("./web-help/dist", webHelpDirNm + "/dist");
+
+                /* When jenkins machine runs this test as an integration test,
+                * it needs the path to docs to exist, even though Windows does not care.
+                */
+                const webHelpDocsDirNm = webHelpDirNm + "/docs";
+                if (!fs.existsSync(webHelpDocsDirNm)) {
+                    IO.mkdirp(webHelpDocsDirNm);
+                }
             });
 
             it("should generate and display help", async () => {
