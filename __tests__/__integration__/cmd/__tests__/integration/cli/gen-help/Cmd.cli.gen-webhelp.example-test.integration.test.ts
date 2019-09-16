@@ -31,7 +31,7 @@ describe("cmd-cli gen-webhelp example-test", () => {
         });
     });
 
-    it("should generate the help and display it", () => {
+    beforeEach(async () => {
         // ensure that the plugins directory exists
         let instPluginsFileNm = path.join(TEST_ENVIRONMENT.workingDir, "plugins");
         if (!fs.existsSync(instPluginsFileNm)) {
@@ -44,7 +44,9 @@ describe("cmd-cli gen-webhelp example-test", () => {
 
         // copy our webhelp distribution files to our test's fake src directory
         fsExtra.copySync("./web-help/dist", "./__tests__/__integration__/cmd/lib/web-help/dist");
+    });
 
+    it("should generate the help and display it", () => {
         const response = runCliScript(
             __dirname + "/__scripts__/webhelp_with_example_test.sh",
             TEST_ENVIRONMENT.workingDir

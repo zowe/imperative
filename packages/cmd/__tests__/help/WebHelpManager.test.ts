@@ -10,6 +10,7 @@
 */
 
 import * as fs from "fs";
+import * as fsExtra from "fs-extra";
 import * as path from "path";
 import * as rimraf from "rimraf";
 
@@ -75,18 +76,6 @@ describe("WebHelpManager", () => {
             rimraf.sync(mockCliHome);
         });
 
-        beforeEach( async () => {
-            // ensure that the plugins directory exists
-            instPluginsFileNm = path.join(mockCliHome, "plugins");
-            if (!fs.existsSync(instPluginsFileNm)) {
-                IO.mkdirp(instPluginsFileNm);
-            }
-
-            // add the plugins file name to the directory, and create an empty object
-            instPluginsFileNm = path.join(instPluginsFileNm, "plugins.json");
-            fs.writeFileSync(instPluginsFileNm, "{}");
-        });
-
         it("should report error when calling openRootHelp before recordParms", async () => {
             WebHelpManager.instance.openRootHelp(cmdReponse);
             const jsonResult = cmdReponse.buildJsonResponse();
@@ -103,7 +92,7 @@ describe("WebHelpManager", () => {
             );
         });
 
-        it("should not display help when there is no GUI available", async () => {
+        it("when there is no GUI available should not display help", async () => {
             const realBuildHelp = WebHelpGenerator.prototype.buildHelp;
             const mockBuildHelp = jest.fn();
             WebHelpGenerator.prototype.buildHelp = mockBuildHelp;
@@ -124,55 +113,72 @@ describe("WebHelpManager", () => {
             WebHelpGenerator.prototype.buildHelp = realBuildHelp;
         });
 
-        it("should generate and display help when there is a GUI available", async () => {
-            /* imperative.init does all the setup for WebHelp to be run.
-             * We can only call init() once per app. However, our first two tests
-             * must be run without init() being called. So, we place our call
-             * to init() here. All of our following tests (it clauses)
-             * should expect init() to have already been called.
-             */
-            await Imperative.init(configForHelp);
+        describe("when there is a GUI available", () => {
+            beforeEach( async () => {
+                // ensure that the plugins directory exists
+                instPluginsFileNm = path.join(mockCliHome, "plugins");
+                if (!fs.existsSync(instPluginsFileNm)) {
+                    IO.mkdirp(instPluginsFileNm);
+                }
 
-            ProcessUtils.isGuiAvailable = jest.fn(() => GuiResult.GUI_AVAILABLE);
-            WebHelpManager.instance.openRootHelp(cmdReponse);
+                // add the plugins file name to the directory, and create an empty object
+                instPluginsFileNm = path.join(instPluginsFileNm, "plugins.json");
+                fs.writeFileSync(instPluginsFileNm, "{}");
 
-            // do our generated files contain some of the right stuff?
-            let fileNmToTest = webHelpDirNm + "/index.html";
-            let fileText = fs.readFileSync(fileNmToTest, "utf8");
-            expect(fileText).toContain('div id="panel-container"');
-            expect(fileText).toContain('div id="tree-bar"');
-            expect(fileText).toContain('div id="cmd-tree"');
+                // copy our webhelp distribution files to our test's src directory
+                fsExtra.copySync("./web-help/dist", path.join(mockCliHome, "web-help/dist"));
+            });
 
-            fileNmToTest = webHelpDirNm + "/tree-data.js";
-            fileText = fs.readFileSync(fileNmToTest, "utf8");
-            expect(fileText).toContain('"id": "FakeCli.html"');
+            it("should generate and display help", async () => {
+                /* imperative.init does all the setup for WebHelp to be run.
+                * We can only call init() once per app. However, our first two tests
+                * must be run without init() being called. So, we place our call
+                * to init() here. All of our following tests (it clauses)
+                * should expect init() to have already been called.
+                */
+                await Imperative.init(configForHelp);
 
-            // do a reasonable set of generated files exist?
-            expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli.html")).toBe(true);
-            expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_config.html")).toBe(true);
-            expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_hello.html")).toBe(true);
-            expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_plugins_install.html")).toBe(true);
-            expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_plugins_uninstall.html")).toBe(true);
+                ProcessUtils.isGuiAvailable = jest.fn(() => GuiResult.GUI_AVAILABLE);
+                WebHelpManager.instance.openRootHelp(cmdReponse);
 
-            expect(opener).toHaveBeenCalledTimes(1);
-            expect(opener).toHaveBeenCalledWith(`file:///${webHelpDirNm}/index.html`);
-        });
+                // do our generated files contain some of the right stuff?
+                let fileNmToTest = webHelpDirNm + "/index.html";
+                let fileText = fs.readFileSync(fileNmToTest, "utf8");
+                expect(fileText).toContain('div id="panel-container"');
+                expect(fileText).toContain('div id="tree-bar"');
+                expect(fileText).toContain('div id="cmd-tree"');
 
-        it("should display existing help when there is a GUI available", async () => {
-            const realBuildHelp = WebHelpGenerator.prototype.buildHelp;
-            const mockBuildHelp = jest.fn();
-            WebHelpGenerator.prototype.buildHelp = mockBuildHelp;
+                fileNmToTest = webHelpDirNm + "/tree-data.js";
+                fileText = fs.readFileSync(fileNmToTest, "utf8");
+                expect(fileText).toContain('"id": "FakeCli.html"');
 
-            ProcessUtils.isGuiAvailable = jest.fn(() => GuiResult.GUI_AVAILABLE);
-            WebHelpManager.instance.openRootHelp(cmdReponse);
+                // do a reasonable set of generated files exist?
+                expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli.html")).toBe(true);
+                expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_config.html")).toBe(true);
+                expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_hello.html")).toBe(true);
+                expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_plugins_install.html")).toBe(true);
+                expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_plugins_uninstall.html")).toBe(true);
 
-            expect(mockBuildHelp).not.toHaveBeenCalled();
+                expect(opener).toHaveBeenCalledTimes(1);
+                expect(opener).toHaveBeenCalledWith(`file:///${webHelpDirNm}/index.html`);
+            });
 
-            expect(opener).toHaveBeenCalledTimes(2);
-            expect(opener).toHaveBeenLastCalledWith(`file:///${webHelpDirNm}/index.html`);
+            it("should display existing help", async () => {
+                const realBuildHelp = WebHelpGenerator.prototype.buildHelp;
+                const mockBuildHelp = jest.fn();
+                WebHelpGenerator.prototype.buildHelp = mockBuildHelp;
 
-            // restore real function
-            WebHelpGenerator.prototype.buildHelp = realBuildHelp;
+                ProcessUtils.isGuiAvailable = jest.fn(() => GuiResult.GUI_AVAILABLE);
+                WebHelpManager.instance.openRootHelp(cmdReponse);
+
+                expect(mockBuildHelp).not.toHaveBeenCalled();
+
+                expect(opener).toHaveBeenCalledTimes(2);
+                expect(opener).toHaveBeenLastCalledWith(`file:///${webHelpDirNm}/index.html`);
+
+                // restore real function
+                WebHelpGenerator.prototype.buildHelp = realBuildHelp;
+            });
         });
     });
 });
