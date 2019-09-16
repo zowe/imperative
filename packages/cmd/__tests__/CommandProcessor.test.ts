@@ -21,6 +21,7 @@ import { ICommandValidatorResponse } from "../src/doc/response/response/ICommand
 import { SharedOptions } from "../src/utils/SharedOptions";
 import { CommandProfileLoader } from "../src/profiles/CommandProfileLoader";
 import { CliUtils } from "../../utilities/src/CliUtils";
+import { WebHelpManager } from "../src/help/WebHelpManager";
 
 jest.mock("../src/syntax/SyntaxValidator");
 jest.mock("../src/utils/SharedOptions");
@@ -501,6 +502,57 @@ describe("Command Processor", () => {
         expect(error).toBeDefined();
         expect(error instanceof ImperativeError).toBe(true);
         expect(error.message).toMatchSnapshot();
+    });
+
+    it("should build the web help if requested", () => {
+        let stdoutMessages: string = "";
+        let stderrMessages: string = "";
+
+        // Allocate the command processor
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            definition: SAMPLE_COMMAND_DEFINITION,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: "",
+            promptPhrase: "dummydummy"
+        });
+
+        // Mock the process write
+        (process.stdout.write as any) = jest.fn((data) => {
+            stdoutMessages += data;
+        });
+        (process.stderr.write as any) = jest.fn((data) => {
+            stderrMessages += data;
+        });
+        WebHelpManager.instance.openHelp = jest.fn();
+
+        const helpResponse: ICommandResponse = processor.webHelp(null, new CommandResponse());
+        expect(helpResponse.stdout.toString()).toMatchSnapshot();
+        expect(helpResponse).toMatchSnapshot();
+    });
+
+    it("should log errors thrown by web help", () => {
+        // Allocate the command processor
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            definition: SAMPLE_COMMAND_DEFINITION,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: "",
+            promptPhrase: "dummydummy"
+        });
+
+        WebHelpManager.instance.openHelp = jest.fn(() => {
+            throw new Error("openHelp failed");
+        });
+
+        const helpResponse: ICommandResponse = processor.webHelp(null, new CommandResponse());
+        expect(helpResponse.success).toEqual(false);
+        expect(helpResponse.error).toBeDefined();
+        expect(helpResponse.error.msg).toBe("openHelp failed");
     });
 
     it("should validate the syntax if requested", async () => {

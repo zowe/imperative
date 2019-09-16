@@ -89,6 +89,26 @@ Object {
 }
 `;
 
+exports[`Command Processor should build the web help if requested 1`] = `""`;
+
+exports[`Command Processor should build the web help if requested 2`] = `
+Object {
+  "data": Object {},
+  "error": undefined,
+  "exitCode": 0,
+  "message": "The web help was launched for command: banana",
+  "stderr": Object {
+    "data": Array [],
+    "type": "Buffer",
+  },
+  "stdout": Object {
+    "data": Array [],
+    "type": "Buffer",
+  },
+  "success": true,
+}
+`;
+
 exports[`Command Processor should detect blank root command supplied 1`] = `"Expect Error: Command Processor Error: No root command supplied."`;
 
 exports[`Command Processor should detect cli args passed on the arguments object to invoke 1`] = `"Expect Error: Command Processor Error: invoke(): The command arguments object supplied does not contain an array of args."`;
