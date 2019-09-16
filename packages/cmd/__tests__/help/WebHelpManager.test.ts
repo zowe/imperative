@@ -14,8 +14,6 @@ import * as fsExtra from "fs-extra";
 import * as path from "path";
 import * as rimraf from "rimraf";
 
-jest.mock("opener");
-
 import { IO } from "../../../io/src/IO";
 import { Imperative } from "../../../imperative/src/Imperative";
 import { WebHelpManager } from "../../src/help/WebHelpManager";
@@ -48,7 +46,9 @@ describe("WebHelpManager", () => {
         let instPluginsFileNm: string;
 
         beforeAll( async () => {
+            jest.mock("opener");
             opener = require("opener");
+
             rimraf.sync(mockCliHome);
 
             /* getResolvedCmdTree calls getCallerLocation, and we need it to return some string.
