@@ -13,6 +13,7 @@
 import $ from "jquery";
 const bootstrap = require("bootstrap");
 const jstree = require("jstree");
+const scrollIntoView = require("scroll-into-view-if-needed");
 
 // Recursive object used for command tree node
 interface ITreeNode {
@@ -29,43 +30,37 @@ declare const aliasList: { [key: string]: string[] };
 declare const cmdToLoad: string;
 
 // Define global variables
+const urlParams = new URLSearchParams(window.location.search);
 let currentNodeId: string;
-let isFlattened: boolean = false;
-let searchStrList: string[];
+let currentView: number = +(urlParams.get("v") === "1");
 let searchTimeout: number = 0;
 
 /**
- * Called by jsTree for each node to check if it matches search string
- * @param _ - Search string (unused because `searchStrList` is used instead)
- * @param node - Tree node being checked
- * @returns {boolean} True if the node matches
+ * Generate flattened list of tree nodes
+ * @param nestedNodes - Node list for command tree
+ * @returns Flattened node list
  */
-function searchTree(_: string, node: any): boolean {
-    if ((node.parent === "#") && !isFlattened) {
-        return false;  // Don't match root node
-    }
-
-    // Strip off ".html" to get full command name
-    const fullCmd: string = node.id.slice(0, -5).replace(/_/g, " ");
-    for (const searchStr of searchStrList) {
-        const matchIndex: number = fullCmd.lastIndexOf(searchStr);
-        if (matchIndex !== -1) {  // A search string was matched
-            if (isFlattened || (fullCmd.indexOf(" ", matchIndex + searchStr.length) === -1)) {
-                // Don't match node if text that matches is only in label of parent node
-                return true;
-            }
+function flattenNodes(nestedNodes: ITreeNode[]): ITreeNode[] {
+    const flattenedNodes: ITreeNode[] = [];
+    nestedNodes.forEach((node: ITreeNode) => {
+        if (node.children && (node.children.length > 0)) {
+            flattenedNodes.push(...flattenNodes(node.children));
+        } else {
+            flattenedNodes.push({
+                id: node.id,
+                text: node.id.slice(0, -5).replace(/_/g, " ")
+            });
         }
-    }
-
-    return false;
+    });
+    return flattenedNodes;
 }
 
 /**
  * Find all possible combinations of a search string that exist with different aliases
  * @param searchStr - Search string input by user
- * @returns List of search strings with all combinations of aliases
+ * @returns NUL-delimited list of search strings with all combinations of aliases
  */
-function permuteSearchStr(searchStr: string): string[] {
+function permuteSearchStr(searchStr: string): string {
     const searchWords: string[] = searchStr.split(" ");
     const searchWordsList: string[][] = [searchWords];
 
@@ -83,122 +78,218 @@ function permuteSearchStr(searchStr: string): string[] {
         }
     }
 
-    return searchWordsList.map((words: string[]) => words.join(" "));
+    return searchWordsList.map((words: string[]) => words.join(" ")).join("\0");
 }
 
 /**
- * Select `currentNodeId` in the command tree and scroll it into view
- * @param alsoExpand - Also expand the current node
+ * Update node that docs are displayed for
+ * @param newNodeId - Node ID to select
+ * @param goto - Whether to load docs page for node
+ * @param expand - Whether to expand tree node
+ * @param force - Whether to update node even if already selected
  */
-function selectCurrentNode(alsoExpand: boolean) {
+function updateCurrentNode(newNodeId: string, goto: boolean, expand: boolean, force: boolean = false) {
+    if (!force) {
+        if ((newNodeId === currentNodeId) || !$("#cmd-tree").jstree(true).get_node(newNodeId)) {
+            // Ignore if node already selected or does not exist
+            return;
+        }
+    }
+    currentNodeId = newNodeId;
+
+    if (goto) {
+        // Load docs page for node in iframe
+        if (currentView === 0) {
+            $("#docs-page").attr("src", `./docs/${currentNodeId}`);
+        } else {
+            $("#docs-page").attr("src", `./docs/all.html#${currentNodeId.slice(0, -5)}`);
+        }
+    }
+
+    // Select node in command tree
     $("#cmd-tree").jstree(true).deselect_all();
     $("#cmd-tree").jstree(true).select_node(currentNodeId);
 
-    if (alsoExpand) {
+    if (expand) {
+        // Expand node in command tree
         $("#cmd-tree").jstree(true).open_node(currentNodeId);
     }
 
-    const node = document.getElementById(currentNodeId);
-    if (node !== null) {
-        node.scrollIntoView();
+    // Scroll node into view if needed
+    setTimeout(() => {
+        const nodeElem = document.getElementById(currentNodeId);
+        scrollIntoView(nodeElem, {scrollMode: "if-needed", block: "nearest", inline: "nearest"});
+    }, 0);
+
+    // Update URL in address bar to contain node ID
+    const baseUrl: string = window.location.href.replace(window.location.search, "");
+    let queryString: string = "";
+    if (currentNodeId !== treeNodes[0].id) {
+        queryString = "?p=" + currentNodeId.slice(0, -5);
+    }
+    if (currentView === 1) {
+        queryString = (queryString.length > 0) ? (queryString + "&v=1") : "?v=1";
+    }
+    window.history.replaceState(null, "", baseUrl + queryString);
+}
+
+/**
+ * Generate list of context menu items for a node
+ * @param node - Node that was right clicked
+ * @return List of context menu items containing labels and actions
+ */
+function onTreeContextMenu(node: ITreeNode) {
+    if (node.id !== treeNodes[0].id) {
+        return {};
+    }
+
+    return {
+        expandAll: {
+            label: "Expand All",
+            action: () => {
+                $("#cmd-tree").jstree("open_all");
+            }
+        },
+        collapseAll: {
+            label: "Collapse All",
+            action: () => {
+                $("#cmd-tree").jstree("close_all");
+                $("#cmd-tree").jstree(true).toggle_node(treeNodes[0].id);
+            }
+        }
+    };
+}
+
+/**
+ * Check if node is matched by a search string
+ * @param permutedSearchStr - NUL-delimited list of search strings
+ * @param node
+ * @returns True if the node matches
+ */
+function onTreeSearch(permutedSearchStr: string, node: any): boolean {
+    if ((node.parent === "#") && (currentView === 0)) {
+        return false;  // Don't match root node
+    }
+
+    // Strip off ".html" to get full command name
+    const fullCmd: string = node.id.slice(0, -5).replace(/_/g, " ");
+    const searchStrList = permutedSearchStr.split("\0");
+
+    // Do fuzzy search that allows space or no char to be substituted for hyphen
+    for (const haystack of [fullCmd, fullCmd.replace(/-/g, " "), fullCmd.replace(/-/g, "")]) {
+        for (const needle of searchStrList) {
+            const matchIndex: number = haystack.lastIndexOf(needle);
+            if (matchIndex !== -1) {  // A search string was matched
+                if ((currentView === 1) || (haystack.indexOf(" ", matchIndex + needle.length) === -1)) {
+                    // Don't match node if text that matches is only in label of parent node
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Update current node and search bar after command tree (re)loaded
+ */
+function onTreeLoaded() {
+    let tempNodeId: string = currentNodeId;
+    if (!tempNodeId) {
+        const tempCmdToLoad = cmdToLoad || urlParams.get("p");
+        tempNodeId = tempCmdToLoad ? `${tempCmdToLoad}.html` : treeNodes[0].id;
+    }
+    updateCurrentNode(tempNodeId, true, true, true);
+
+    if ($("#tree-search").val()) {
+        onSearchTextChanged(true);
     }
 }
 
 /**
- * Called when text in search box changes and runs search after 250 ms
+ * Update current node after new node selected in tree
+ * @param _
+ * @param data - jsTree event data
  */
-function updateSearch() {
+function onTreeSelectionChanged(_: any, data: any) {
+    // Change src attribute of iframe when item selected
+    if (data.selected.length > 0) {
+        updateCurrentNode(data.selected[0], true, true);
+    }
+}
+
+/**
+ * Search command tree after text in search box has changed
+ * @param noDelay - If true, searches instantly rather than delaying 250 ms
+ */
+function onSearchTextChanged(noDelay: boolean = false) {
     if (searchTimeout) {
         clearTimeout(searchTimeout);
     }
 
     searchTimeout = window.setTimeout(() => {
         const searchStr = ($("#tree-search").val() || "").toString().trim();
-        searchStrList = permuteSearchStr(searchStr);
-        $("#cmd-tree").jstree(true).search(searchStr);
-    }, 250);
-}
+        $("#cmd-tree").jstree(true).search(permuteSearchStr(searchStr));
 
-/**
- * Generate flattened list of tree nodes for list view
- * @param nestedNodes - Node list for command tree
- * @returns Flattened node list
- */
-function genFlattenedNodes(nestedNodes: ITreeNode[]): ITreeNode[] {
-    const flattenedNodes: ITreeNode[] = [];
-
-    nestedNodes.forEach((node: ITreeNode) => {
-        if (node.children && (node.children.length > 0)) {
-            flattenedNodes.push(...genFlattenedNodes(node.children));
-        } else {
-            flattenedNodes.push({
-                id: node.id,
-                text: node.id.slice(0, -5).replace(/_/g, " "),
-                children: undefined
-            });
+        if (!searchStr) {
+            updateCurrentNode(currentNodeId, false, false, true);
         }
-    });
-
-    return flattenedNodes;
+    }, noDelay ? 0 : 250);
 }
 
 /**
- * Load command tree sidebar
+ * Update selected node in command tree after new page loaded in iframe
+ * @param e - Event object sent by postMessage
+ */
+function onDocsPageChanged(e: any) {
+    const tempNodeId = e.data.slice(e.data.lastIndexOf("/") + 1);
+    updateCurrentNode(tempNodeId, false, false);
+}
+
+/**
+ * Load command tree components
  */
 function loadTree() {
-    const urlParams = new URLSearchParams(window.location.search);
-
     // Set header and footer strings
     $("#header-text").text(headerStr);
     $("#footer").text(footerStr);
+
+    // Change active tab if not loading default view
+    if (currentView === 1) {
+        $("#tree-view-link").toggleClass("active");
+        $("#flat-view-link").toggleClass("active");
+    }
 
     // Load jsTree
     $("#cmd-tree").jstree({
         core: {
             animation: 0,
             multiple: false,
-            themes: {
-                icons: false
-            },
-            data: treeNodes
+            themes: {icons: false},
+            data: (currentView === 0) ? treeNodes : flattenNodes(treeNodes)
         },
-        plugins: ["search", "wholerow"],
+        plugins: ["contextmenu", "search", "wholerow"],
+        contextmenu: {
+            items: onTreeContextMenu
+        },
         search: {
             show_only_matches: true,
             show_only_matches_children: true,
-            search_callback: searchTree
-        },
-    }).on("changed.jstree", (_: any, data: any) => {
-        // Change src attribute of iframe when item selected
-        if (data.selected.length > 0) {
-            currentNodeId = data.selected[0];
-            $("#docs-page").attr("src", `./docs/${currentNodeId}`);
+            search_callback: onTreeSearch
         }
-    }).on("loaded.jstree", () => {
-        // Select and expand root node when page loads
-        const nodeId = cmdToLoad || urlParams.get("p");
-        currentNodeId = (nodeId === null) ? treeNodes[0].id : `${nodeId}.html`;
-        selectCurrentNode(true);
-    });
+    })
+    .on("model.jstree", onTreeLoaded)
+    .on("changed.jstree", onTreeSelectionChanged);
 
-    // Flatten tree view if t=0 param specified
-    if (urlParams.get("t") === "0") {
-        toggleTreeView();
-    }
-
-    // Update search status when text in search box changes
-    $("#tree-search").on("change keyup mouseup paste", updateSearch);
-
-    // Receive signals from iframe when link is clicked to update selected node
-    window.addEventListener("message", (e: any) => {
-        currentNodeId = e.data.slice(e.data.lastIndexOf("/") + 1);
-        selectCurrentNode(false);
-    }, false);
+    // Connect events to search box and iframe
+    $("#tree-search").on("change keyup mouseup paste", () => onSearchTextChanged());
+    window.addEventListener("message", onDocsPageChanged, false);
 }
 
 /**
- * Toggle visibility of sidebar
- * @param splitter - SplitJS object
+ * Toggle visibility of command tree
+ * @param splitter - Split.js object
  */
 function toggleTree(splitter: any) {
     if ($("#panel-left").is(":visible")) {
@@ -213,32 +304,17 @@ function toggleTree(splitter: any) {
 }
 
 /**
- * Toggle whether tree nodes are nested or flattened
+ * Change display mode of page
+ * @param newMode - 0 = Tree View, 1 = Flat View
  */
-function toggleTreeView() {
-    isFlattened = !isFlattened;
-    const newNodes = isFlattened ? genFlattenedNodes(treeNodes) : treeNodes;
+function changeView(newMode: number) {
+    if (newMode === currentView) {
+        return;
+    }
+    currentView = newMode;
+    $("#tree-view-link").toggleClass("active");
+    $("#flat-view-link").toggleClass("active");
+    const newNodes = (currentView === 0) ? treeNodes : flattenNodes(treeNodes);
     ($("#cmd-tree").jstree(true) as any).settings.core.data = newNodes;
     $("#cmd-tree").jstree(true).refresh(false, true);
-    setTimeout(() => {
-        selectCurrentNode(true);
-        updateSearch();
-    }, 100);
-    const otherViewName = isFlattened ? "Tree View" : "List View";
-    $("#tree-view-toggle").text(`Switch to ${otherViewName}`);
-    $("#tree-expand-all").toggle();
-    $("#tree-collapse-all").toggle();
-}
-
-/**
- * Expand or collapse all nodes in command tree
- * @param expanded - True to expand all, False to collapse all
- */
-function expandAll(expanded: boolean) {
-    if (expanded) {
-        $("#cmd-tree").jstree("open_all");
-    } else {
-        $("#cmd-tree").jstree("close_all");
-        $("#cmd-tree").jstree(true).toggle_node(treeNodes[0].id);
-    }
 }
