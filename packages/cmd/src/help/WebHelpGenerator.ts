@@ -76,6 +76,13 @@ export class WebHelpGenerator {
     private aliasList: { [key: string]: string[] };
 
     /**
+     * Used to build single page version of web help
+     * @private
+     * @memberof WebHelpGenerator
+     */
+    private singlePageHtml: string;
+
+    /**
      * Create an instance of WebHelpGenerator.
      * @param {ICommandDefinition} - Imperative command tree to build help for
      * @param {ImperativeConfig} - Imperative config containing data about the CLI
@@ -162,11 +169,12 @@ export class WebHelpGenerator {
         this.treeNodes.push({ id: `${rootCommandName}.html`, text: rootCommandName });
 
         let rootHelpContent: string = this.genDocsHeader(rootCommandName);
-        rootHelpContent += `<h2><a href="${rootCommandName}.html">${rootCommandName}</a></h2>\n`;
+        rootHelpContent += `<h2><a href="${rootCommandName}.html" name="${rootCommandName}">${rootCommandName}</a></h2>\n`;
         rootHelpContent += this.marked(this.mConfig.loadedConfig.rootCommandDescription) + "\n";
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
             { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions });
-        rootHelpContent += this.marked(`<h4>Groups</h4>\n` + this.buildChildrenSummaryTables(helpGen, rootCommandName));
+        this.singlePageHtml = rootHelpContent.repeat(1);  // Deep copy
+        rootHelpContent += this.marked("<h4>Groups</h4>\n" + this.buildChildrenSummaryTables(helpGen, rootCommandName));
         rootHelpContent += this.genDocsFooter();
         fs.writeFileSync(rootHelpHtmlPath, rootHelpContent);
         cmdResponse.console.log(Buffer.from("."));
@@ -176,6 +184,11 @@ export class WebHelpGenerator {
             cmdResponse.console.log(Buffer.from("."));
             this.genCommandHelpPage(def, def.name, this.mDocsDir, this.treeNodes[0]);
         });
+
+        // Generate single HTML file for all CLI commands
+        this.singlePageHtml += this.genDocsFooter();
+        this.singlePageHtml = this.singlePageHtml.replace(new RegExp(`<a href="(${rootCommandName}.*?)\.html"`, "g"), "<a href=\"#$1\"");
+        fs.writeFileSync(path.join(this.mDocsDir, "all.html"), this.singlePageHtml);
 
         this.writeTreeData();
         cmdResponse.console.log("done!");
@@ -247,6 +260,32 @@ export class WebHelpGenerator {
     }
 
     /**
+     * Appends help content for individual command/group to single page HTML
+     * @private
+     * @param {ICommandDefinition} definition
+     * @param {string} rootCommandName
+     * @param {string} fullCommandName
+     * @param {string} htmlContent
+     */
+    private appendToSinglePageHtml(definition: ICommandDefinition, rootCommandName: string, fullCommandName: string, htmlContent: string) {
+        // Separate with horizontal line if start of a new top level group
+        if (fullCommandName.indexOf("_") === -1) {
+            this.singlePageHtml += "<hr>\n";
+        }
+
+        // Generate HTML anchor in front of header
+        const anchorText = `<a${(definition.type !== "group") ? " class=\"cmd-anchor\"" : ""} name="${rootCommandName}_${fullCommandName}"></a>`;
+
+        if (definition.type === "group") {
+            // Remove sections from HTML that would be redundant
+            this.singlePageHtml += anchorText + htmlContent.slice(0, htmlContent.indexOf("<h4"));
+        } else {
+            // Make header smaller for commands
+            this.singlePageHtml += anchorText + htmlContent.replace(/<h2/, "<h3").replace(/h2>/, "h3>");
+        }
+    }
+
+    /**
      * Generates HTML help page for Imperative command
      * @private
      * @param {ICommandDefinition} definition
@@ -265,12 +304,13 @@ export class WebHelpGenerator {
             // this is disabled for the CLIReadme.md but we want to show children here
             // so we'll call the help generator's children summary function even though
             // it's usually skipped when producing markdown
-            markdownContent += `<h4>Commands</h4>\n` + this.buildChildrenSummaryTables(helpGen, rootCommandName + "_" + fullCommandName);
+            markdownContent += "<h4>Commands</h4>\n" + this.buildChildrenSummaryTables(helpGen, rootCommandName + "_" + fullCommandName);
         }
 
-        let htmlContent = this.genDocsHeader(fullCommandName.replace(/_/g, " "));
-        htmlContent += `<h2>` + this.genBreadcrumb(rootCommandName, fullCommandName) + `</h2>\n`;
-        htmlContent += this.marked(markdownContent) + this.genDocsFooter();
+        let htmlContent = "<h2>" + this.genBreadcrumb(rootCommandName, fullCommandName) + "</h2>\n";
+        htmlContent += this.marked(markdownContent);
+        this.appendToSinglePageHtml(definition, rootCommandName, fullCommandName, htmlContent);
+        htmlContent = this.genDocsHeader(fullCommandName.replace(/_/g, " ")) + htmlContent + this.genDocsFooter();
 
         // Remove backslash escapes from URLs
         htmlContent = htmlContent.replace(/(%5C(?=.+?>.+?<\/a>)|\\(?=\..+?<\/a>))/g, "");
@@ -325,8 +365,8 @@ export class WebHelpGenerator {
             "/* This file is automatically generated, do not edit manually! */\n" +
             `const headerStr = "${this.mConfig.loadedConfig.productDisplayName}";\n` +
             `const footerStr = "${this.mConfig.callerPackageJson.name} ${this.mConfig.callerPackageJson.version}";\n` +
-            "const treeNodes = " + JSON.stringify(this.treeNodes, null, 2) + ";\n" +
-            "const aliasList = " + JSON.stringify(this.aliasList, null, 2) + ";\n" +
+            "const treeNodes = " + JSON.stringify(this.treeNodes) + ";\n" +
+            "const aliasList = " + JSON.stringify(this.aliasList) + ";\n" +
             "const cmdToLoad = null;");
     }
 }
