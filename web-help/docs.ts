@@ -12,16 +12,23 @@
 const isInIframe: boolean = window.location !== window.parent.location;
 const links: any = document.getElementsByTagName("a");
 
-// Open absolute links in new tab and add handler for relative links
+// Process all <a> tags on page
 for (const link of links) {
     const url = link.getAttribute("href");
     if (url.indexOf("://") > 0 || url.indexOf("//") === 0) {
+        // If link is absolute, assume it points to external site and open it in new tab
         link.setAttribute("target", "_blank");
     } else if (isInIframe) {
+        // If link is relative and page is inside an iframe, then send signal to command tree when link is clicked to make it update selected node
         link.setAttribute("onclick", "window.parent.postMessage(this.href, '*'); return true;");
     }
 }
 
+/**
+ * Show tooltip next to copy button that times out after 1 sec
+ * @param btn - Button element the tooltip will show next to
+ * @param message - Message to show in the tooltip
+ */
 function setTooltip(btn: any, message: string) {
     btn.setAttribute("aria-label", message);
     btn.setAttribute("data-balloon-visible", "");

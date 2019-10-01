@@ -17,22 +17,53 @@ import { GuiResult, ProcessUtils } from "../../../utilities";
 import { IWebHelpManager } from "./doc/IWebHelpManager";
 import { WebHelpGenerator } from "./WebHelpGenerator";
 import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerResponseApi";
-import { ICommandDefinition } from "../doc/ICommandDefinition";
+import { IWebHelpPackageMetadata } from "./doc/IWebHelpPackageMetadata";
 import { IWebHelpParms } from "./doc/IWebHelpParms";
 import { Logger } from "../../../logger";
 
-interface IPackageMetadata {
-    name: string;
-    version: string;
-}
+/**
+ * Type used when comparing package metadata. If it contains metadata, it is
+ * new metadata that is different from the old. If it is `null`, then nothing
+ * has changed.
+ * @type {MaybePackageMetadata}
+ */
+type MaybePackageMetadata = null | IWebHelpPackageMetadata[];
 
-type MaybePackageMetadata = null | IPackageMetadata[];
-
+/**
+ * Imperative web help manager. Single instance class used to launch web help
+ * in browser which handles (re)building web help files first if necessary.
+ * @export
+ * @class WebHelpManager
+ */
 export class WebHelpManager implements IWebHelpManager {
+    /**
+     * Singleton instance of this class
+     * @private
+     * @static
+     * @type {WebHelpManager}
+     * @memberof WebHelpManager
+     */
     private static mInstance: WebHelpManager = null;
+
+    /**
+     * Web help parms containing Imperative command tree and config
+     * @private
+     * @memberof WebHelpManager
+     */
     private mWebHelpParms: IWebHelpParms = null;
+
+    /**
+     * Logger for Imperative instance
+     * @private
+     * @memberof WebHelpManager
+     */
     private mImpLogger: Logger = Logger.getImperativeLogger();
 
+    /**
+     * Return a singleton instance of this class
+     * @static
+     * @readonly
+     */
     public static get instance(): WebHelpManager {
         if (this.mInstance == null) {
             this.mInstance = new WebHelpManager();
@@ -51,6 +82,11 @@ export class WebHelpManager implements IWebHelpManager {
         this.mWebHelpParms = webHelpParms;
     }
 
+    /**
+     * Launch root help page in browser.
+     * @param {IHandlerResponseApi} cmdResponse - Command response object to use for output
+     * @memberof WebHelpManager
+     */
     public openRootHelp(cmdResponse: IHandlerResponseApi) {
         if (!this.areParmsSet("openRootHelp", cmdResponse)) {
             return;
@@ -58,6 +94,12 @@ export class WebHelpManager implements IWebHelpManager {
         this.openHelp(null, cmdResponse);
     }
 
+    /**
+     * Launch help page for specific group/command in browser.
+     * @param {string} inContext - Name of page for group/command to jump to
+     * @param {IHandlerResponseApi} cmdResponse - Command response object to use for output
+     * @memberof WebHelpManager
+     */
     public openHelp(inContext: string, cmdResponse: IHandlerResponseApi) {
         if (!this.areParmsSet("openHelp", cmdResponse)) {
             return;
@@ -90,11 +132,12 @@ export class WebHelpManager implements IWebHelpManager {
 
         cmdResponse.console.log("Launching web help in browser...");
 
-        // Update cmdToLoad value in tree-data.js to jump to desired command.
-        // This is kind of a hack, necessitated by the fact that unfortunately
-        // Windows does not natively support passing URL search params to
-        // file:/// links. Therefore the `p` parameter supported by the docs
-        // site to load a page in-context cannot be used here.
+        /* Update cmdToLoad value in tree-data.js to jump to desired command.
+        * This is kind of a hack, necessitated by the fact that unfortunately
+        * Windows does not natively support passing URL search params to
+        * file:/// links. Therefore the `p` parameter supported by the docs
+        * site to load a page in-context cannot be used here.
+        */
         const treeDataPath = path.join(this.webHelpDir, "tree-data.js");
         const treeDataContent = fs.readFileSync(treeDataPath).toString();
         const cmdToLoad = (inContext !== null) ? `"${inContext}"` : "null";
@@ -120,26 +163,6 @@ export class WebHelpManager implements IWebHelpManager {
     }
 
     /**
-     * Record a reference to our CLI's full command tree.
-     * @param fullCommandTree - The command tree.
-     */
-    /* todo: remove this function
-    public set fullCommandTree(fullCommandTree: ICommandDefinition) {
-        this.mFullCommandTree = fullCommandTree;
-    }
-    */
-
-    /**
-     * Get a reference to our CLI's full command tree.
-     * @returns The command tree.
-     */
-    /* todo: remove this function
-    public get fullCommandTree(): ICommandDefinition {
-        return this.mFullCommandTree;
-    }
-    */
-
-    /**
      * A utility function called at the beginning of every public function
      * in this class to guarantee that recordParms() is called first.
      *
@@ -147,7 +170,7 @@ export class WebHelpManager implements IWebHelpManager {
      *  The function name to display as the prematurely called function.
      *
      * @param cmdResponse
-     *  The repsons object used to issue an error message to the user..
+     *  The response object used to issue an error message to the user.
      */
     private areParmsSet(funNmToDisplay: string, cmdResponse: IHandlerResponseApi): boolean {
         if ( this.mWebHelpParms === null ) {
@@ -163,17 +186,24 @@ export class WebHelpManager implements IWebHelpManager {
         return true;
     }
 
+    /**
+     * Gets the directory where built copy of web help is stored
+     * @readonly
+     * @private
+     * @returns {string} Absolute path of directory
+     */
     private get webHelpDir(): string {
         return path.join(this.mWebHelpParms.cliHome, Constants.WEB_HELP_DIR);
     }
 
     /**
      * Computes current package metadata based on version of core and installed plug-ins
+     * @private
      * @param packageJson - CLI package JSON
      * @param pluginsJson - Imperative plug-ins JSON
-     * @returns {IPackageMetadata[]} Names and versions of all components
+     * @returns {IWebHelpPackageMetadata[]} Names and versions of all components
      */
-    private calcPackageMetadata(packageJson: any, pluginsJson: any): IPackageMetadata[] {
+    private calcPackageMetadata(packageJson: any, pluginsJson: any): IWebHelpPackageMetadata[] {
         return [
             { name: packageJson.name, version: packageJson.version },
             ...Object.keys(pluginsJson).map((name: any) => {
@@ -184,29 +214,31 @@ export class WebHelpManager implements IWebHelpManager {
 
     /**
      * Compares two package metadata objects to see if they are equal
-     * @param {IPackageMetadata[]} cached - Old cached package metadata
-     * @param {IPackageMetadata[]} current - Freshly computed package metadata
+     * @private
+     * @param {IWebHelpPackageMetadata[]} cached - Old cached package metadata
+     * @param {IWebHelpPackageMetadata[]} current - Freshly computed package metadata
      * @returns {boolean} True if the package metadata objects are equal
      */
-    private eqPackageMetadata(cached: IPackageMetadata[], current: IPackageMetadata[]): boolean {
+    private eqPackageMetadata(cached: IWebHelpPackageMetadata[], current: IWebHelpPackageMetadata[]): boolean {
         return JSON.stringify(cached.sort((a, b) => a.name.localeCompare(b.name))) ===
             JSON.stringify(current.sort((a, b) => a.name.localeCompare(b.name)));
     }
 
     /**
      * Checks if cached package metadata is non-existent or out of date
+     * @private
      * @returns {MaybePackageMetadata} Updated metadata, or `null` if cached metadata is already up to date
      */
     private checkIfMetadataChanged(): MaybePackageMetadata {
         // Load cached metadata from file if it exists
         const metadataFile = path.join(this.webHelpDir, "metadata.json");
-        let cachedMetadata: IPackageMetadata[] = [];
+        let cachedMetadata: IWebHelpPackageMetadata[] = [];
         if (fs.existsSync(metadataFile)) {
             cachedMetadata = require(metadataFile);
         }
 
         // Compute current metadata and compare it to cached
-        const currentMetadata: IPackageMetadata[] = this.calcPackageMetadata(this.mWebHelpParms.callerPackageJson,
+        const currentMetadata: IWebHelpPackageMetadata[] = this.calcPackageMetadata(this.mWebHelpParms.callerPackageJson,
             require(path.join(this.mWebHelpParms.cliHome, "plugins", "plugins.json")));
 
         const metadataChanged: boolean = !this.eqPackageMetadata(cachedMetadata, currentMetadata);
@@ -215,9 +247,10 @@ export class WebHelpManager implements IWebHelpManager {
 
     /**
      * Updates cached package metadata
-     * @param {IPackageMetadata[]} metadata - New metadata to save to disk
+     * @private
+     * @param {IWebHelpPackageMetadata[]} metadata - New metadata to save to disk
      */
-    private writePackageMetadata(metadata: IPackageMetadata[]) {
+    private writePackageMetadata(metadata: IWebHelpPackageMetadata[]) {
         const metadataFile = path.join(this.webHelpDir, "metadata.json");
         fs.writeFileSync(metadataFile, JSON.stringify(metadata, null, 2));
     }
