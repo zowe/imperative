@@ -15,7 +15,9 @@ const links: any = document.getElementsByTagName("a");
 // Process all <a> tags on page
 for (const link of links) {
     const url = link.getAttribute("href");
-    if (url.indexOf("://") > 0 || url.indexOf("//") === 0) {
+    if (!url) {
+        continue;  // Ignore links with no href
+    } else if (url.indexOf("://") > 0 || url.indexOf("//") === 0) {
         // If link is absolute, assume it points to external site and open it in new tab
         link.setAttribute("target", "_blank");
     } else if (isInIframe) {
@@ -42,3 +44,24 @@ function setTooltip(btn: any, message: string) {
 const clipboard = new (require("clipboard"))(".btn-copy");
 clipboard.on("success", (e: any) => setTooltip(e.trigger, "Copied!"));
 clipboard.on("error", (e: any) => setTooltip(e.trigger, "Failed!"));
+
+// If in flat view, select currently scrolled to command in tree
+if (isInIframe && (window.location.href.indexOf("/all.html") !== -1)) {
+    let currentCmdName: string;
+    window.onscroll = (_: any) => {
+        const anchors = document.getElementsByClassName("cmd-anchor");
+        for (const anchor of anchors) {
+            const headerBounds = (anchor.nextElementSibling as any).getBoundingClientRect();
+            if (0 < headerBounds.bottom) {
+                if (headerBounds.top < window.innerHeight) {
+                    const cmdName = anchor.getAttribute("name");
+                    if (cmdName && (cmdName !== currentCmdName)) {
+                        window.parent.postMessage(cmdName + ".html", "*");
+                        currentCmdName = cmdName;
+                    }
+                }
+                break;
+            }
+        }
+    };
+}

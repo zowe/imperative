@@ -263,7 +263,7 @@ const browserify: ITaskFunction = async() => {
     }
     b.add(__dirname + "/../node_modules/jstree/dist/themes/default/style.min.css");
     b.add(__dirname + "/../node_modules/bootstrap/dist/css/bootstrap.min.css");
-    b.require(["bootstrap", "jquery", "jstree", "split.js"]);
+    b.require(["bootstrap", "jquery", "jstree", "scroll-into-view-if-needed", "split.js"]);
     b.transform(require("browserify-css"), {
         inlineImages: true,
         onFlush: (options: any, done: any) => {
@@ -280,18 +280,19 @@ const browserify: ITaskFunction = async() => {
             done(null);
         }
     });
-    b.bundle().pipe(fs.createWriteStream(__dirname + "/../web-help/dist/js/bundle.js"));
-
-    // Browserify docs bundle
-    b = require("browserify")();
-    b.add(__dirname + "/../node_modules/balloon-css/balloon.min.css");
-    b.add(__dirname + "/../node_modules/github-markdown-css/github-markdown.css");
-    b.require("clipboard");
-    b.transform(require("browserify-css"), {
-        inlineImages: true,
-        output: __dirname + "/../web-help/dist/css/bundle-docs.css"
-    });
-    b.bundle().pipe(fs.createWriteStream(__dirname + "/../web-help/dist/js/bundle-docs.js"));
+    b.bundle().pipe(fs.createWriteStream(__dirname + "/../web-help/dist/js/bundle.js")
+    .on("finish", () => {
+        // Browserify docs bundle
+        b = require("browserify")();
+        b.add(__dirname + "/../node_modules/balloon-css/balloon.min.css");
+        b.add(__dirname + "/../node_modules/github-markdown-css/github-markdown.css");
+        b.require("clipboard");
+        b.transform(require("browserify-css"), {
+            inlineImages: true,
+            output: __dirname + "/../web-help/dist/css/bundle-docs.css"
+        });
+        b.bundle().pipe(fs.createWriteStream(__dirname + "/../web-help/dist/js/bundle-docs.js"));
+    }));
 };
 browserify.description = "Browserify dependencies for web help";
 

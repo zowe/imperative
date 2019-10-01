@@ -118,12 +118,12 @@ describe("WebHelpGenerator", () => {
             let fileNmToTest = webHelpDirNm + "/index.html";
             let fileText = fs.readFileSync(fileNmToTest, "utf8");
             expect(fileText).toContain('div id="panel-container"');
-            expect(fileText).toContain('div id="tree-bar"');
+            expect(fileText).toContain('div id="tree-tabs"');
             expect(fileText).toContain('div id="cmd-tree"');
 
             fileNmToTest = webHelpDirNm + "/tree-data.js";
             fileText = fs.readFileSync(fileNmToTest, "utf8");
-            expect(fileText).toContain('"id": "' + moduleFileNm + '.html"');
+            expect(fileText).toContain('"id":"' + moduleFileNm + '.html"');
 
             // do a reasonable set of generated files exist?
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + ".html")).toBe(true);
