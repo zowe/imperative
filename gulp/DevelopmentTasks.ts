@@ -257,12 +257,28 @@ const browserify: ITaskFunction = async() => {
 
     // Browserify main bundle
     let b = require("browserify")();
+    const bundleCss: string = __dirname + "/../web-help/dist/css/bundle.css";
+    if (fs.existsSync(bundleCss)) {
+        fs.unlinkSync(bundleCss);
+    }
     b.add(__dirname + "/../node_modules/jstree/dist/themes/default/style.min.css");
     b.add(__dirname + "/../node_modules/bootstrap/dist/css/bootstrap.min.css");
     b.require(["bootstrap", "jquery", "jstree", "split.js"]);
     b.transform(require("browserify-css"), {
         inlineImages: true,
-        output: __dirname + "/../web-help/dist/css/bundle.css"
+        onFlush: (options: any, done: any) => {
+            // jsTree CSS needs priority over Bootstrap CSS, so prepend rather than append it
+            if (options.filename.indexOf("jstree") === -1) {
+                fs.appendFileSync(bundleCss, options.data);
+            } else {
+                let outData = options.data;
+                if (fs.existsSync(bundleCss)) {
+                    outData += "\n" + fs.readFileSync(bundleCss);
+                }
+                fs.writeFileSync(bundleCss, outData);
+            }
+            done(null);
+        }
     });
     b.bundle().pipe(fs.createWriteStream(__dirname + "/../web-help/dist/js/bundle.js"));
 
@@ -277,6 +293,7 @@ const browserify: ITaskFunction = async() => {
     });
     b.bundle().pipe(fs.createWriteStream(__dirname + "/../web-help/dist/js/bundle-docs.js"));
 };
+browserify.description = "Browserify dependencies for web help";
 
 function getDirectories(path: string) {
     return fs.readdirSync(path).filter((file: string) => {
