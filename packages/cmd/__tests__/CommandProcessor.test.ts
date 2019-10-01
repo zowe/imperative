@@ -515,8 +515,7 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: "",
-            promptPhrase: "dummydummy"
+            commandLine: ""
         });
 
         // Mock the process write
@@ -541,8 +540,7 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: "",
-            promptPhrase: "dummydummy"
+            commandLine: ""
         });
 
         WebHelpManager.instance.openHelp = jest.fn(() => {
