@@ -85,11 +85,6 @@ describe("WebHelpGenerator", () => {
                 IO.mkdirp(webHelpDocsDirNm);
             }
 
-            // we need find-up to return our imperative directory, for use with a fake process.mainModule.filename
-            const findUp = require("find-up");
-            const realFUpSync = findUp.sync;
-            findUp.sync = jest.fn(() => path.resolve("./"));
-
             const webHelpParms: IWebHelpParms = {
                 callerPackageJson: ImperativeConfig.instance.callerPackageJson,
                 cliHome: ImperativeConfig.instance.cliHome,
@@ -122,8 +117,6 @@ describe("WebHelpGenerator", () => {
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello.html")).toBe(true);
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_install.html")).toBe(true);
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_uninstall.html")).toBe(true);
-
-            findUp.sync = realFUpSync;
         });
     });
 });

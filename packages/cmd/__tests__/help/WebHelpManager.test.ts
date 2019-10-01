@@ -93,6 +93,14 @@ describe("WebHelpManager", () => {
         });
 
         it("when there is no GUI available should not display help", async () => {
+            /* imperative.init does all the setup for WebHelp to be run.
+            * We can only call init() once per app. However, our first two tests
+            * must be run without init() being called. So, we place our call
+            * to init() here. All of our following tests (it clauses)
+            * should expect init() to have already been called.
+            */
+            await Imperative.init(configForHelp);
+
             const realBuildHelp = WebHelpGenerator.prototype.buildHelp;
             const mockBuildHelp = jest.fn();
             WebHelpGenerator.prototype.buildHelp = mockBuildHelp;
@@ -138,14 +146,6 @@ describe("WebHelpManager", () => {
             });
 
             it("should generate and display help", async () => {
-                /* imperative.init does all the setup for WebHelp to be run.
-                * We can only call init() once per app. However, our first two tests
-                * must be run without init() being called. So, we place our call
-                * to init() here. All of our following tests (it clauses)
-                * should expect init() to have already been called.
-                */
-                await Imperative.init(configForHelp);
-
                 ProcessUtils.isGuiAvailable = jest.fn(() => GuiResult.GUI_AVAILABLE);
                 WebHelpManager.instance.openRootHelp(cmdReponse);
 
@@ -153,12 +153,12 @@ describe("WebHelpManager", () => {
                 let fileNmToTest = webHelpDirNm + "/index.html";
                 let fileText = fs.readFileSync(fileNmToTest, "utf8");
                 expect(fileText).toContain('div id="panel-container"');
-                expect(fileText).toContain('div id="tree-bar"');
+                expect(fileText).toContain('div id="tree-tabs"');
                 expect(fileText).toContain('div id="cmd-tree"');
 
                 fileNmToTest = webHelpDirNm + "/tree-data.js";
                 fileText = fs.readFileSync(fileNmToTest, "utf8");
-                expect(fileText).toContain('"id": "FakeCli.html"');
+                expect(fileText).toContain('"id":"FakeCli.html"');
 
                 // do a reasonable set of generated files exist?
                 expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli.html")).toBe(true);

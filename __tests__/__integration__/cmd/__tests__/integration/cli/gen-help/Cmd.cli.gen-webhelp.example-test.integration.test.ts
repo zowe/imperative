@@ -40,8 +40,13 @@ describe("cmd-cli gen-webhelp example-test", () => {
         instPluginsFileNm = path.join(instPluginsFileNm, "plugins.json");
         fs.writeFileSync(instPluginsFileNm, "{}");
 
-        // copy our webhelp distribution files to our test's fake src directory
+        // copy our webhelp distribution files to our test's lib directory
         fsExtra.copySync("./web-help/dist", "./__tests__/__integration__/cmd/lib/web-help/dist");
+    });
+
+    afterAll(async () => {
+        // clean up webhelp files
+        rimraf.sync("./__tests__/__integration__/cmd/lib/web-help");
     });
 
     it("should generate the help and display it", () => {
