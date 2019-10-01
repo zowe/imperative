@@ -71,16 +71,7 @@ describe("WebHelpGenerator", () => {
         });
 
         afterAll( async () => {
-            /* Give the browser time to launch before we remove the HTML files.
-             * This results in a Jest warning of :
-             *      Jest did not exit one second after the test run has completed.
-             * However, that is better than the browser popping up "file not found".
-             */
-            const msDelay = 3000;
-            setTimeout(() =>
-                { rimraf.sync(cliHome); },
-                msDelay
-            );
+            rimraf.sync(cliHome);
         });
 
         it("should create Help files", async () => {
@@ -93,11 +84,6 @@ describe("WebHelpGenerator", () => {
             if (!fs.existsSync(webHelpDocsDirNm)) {
                 IO.mkdirp(webHelpDocsDirNm);
             }
-
-            // we need find-up to return our imperative directory, for use with a fake process.mainModule.filename
-            const findUp = require("find-up");
-            const realFUpSync = findUp.sync;
-            findUp.sync = jest.fn(() => path.resolve("./"));
 
             const webHelpParms: IWebHelpParms = {
                 callerPackageJson: ImperativeConfig.instance.callerPackageJson,
@@ -131,8 +117,6 @@ describe("WebHelpGenerator", () => {
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello.html")).toBe(true);
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_install.html")).toBe(true);
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_uninstall.html")).toBe(true);
-
-            findUp.sync = realFUpSync;
         });
     });
 });

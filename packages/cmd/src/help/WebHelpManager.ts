@@ -20,6 +20,7 @@ import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerRespons
 import { IWebHelpPackageMetadata } from "./doc/IWebHelpPackageMetadata";
 import { IWebHelpParms } from "./doc/IWebHelpParms";
 import { Logger } from "../../../logger";
+import { ImperativeError } from "../../../error";
 
 /**
  * Type used when comparing package metadata. If it contains metadata, it is
@@ -140,7 +141,7 @@ export class WebHelpManager implements IWebHelpManager {
         */
         const treeDataPath = path.join(this.webHelpDir, "tree-data.js");
         const treeDataContent = fs.readFileSync(treeDataPath).toString();
-        const cmdToLoad = (inContext !== null) ? `"${inContext}"` : "null";
+        const cmdToLoad = inContext ? `"${inContext}"` : "null";
         fs.writeFileSync(treeDataPath,
             treeDataContent.replace(/(const cmdToLoad)[^;]*;/, `$1 = ${cmdToLoad};`));
 
@@ -157,8 +158,11 @@ export class WebHelpManager implements IWebHelpManager {
                 openerProc.stdout.unref();
                 openerProc.stderr.unref();
             }
-        } catch {
-            cmdResponse.console.error("Failed to launch web help, try running -h for console help instead");
+        } catch (e) {
+            throw new ImperativeError({
+                msg: "Failed to launch web help, try running -h for console help instead",
+                causeErrors: [e]
+            });
         }
     }
 

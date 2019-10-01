@@ -106,7 +106,7 @@ export class CommandYargs extends AbstractCommandYargs {
                     this.executeHelp(argsForHandler, commandExecuted);
                 } else if (argsForHandler[Constants.HELP_WEB_OPTION]) {
                     this.log.debug("Executing web help: " + this.definition.name);
-                    this.executeWebHelp();
+                    this.executeWebHelp(argsForHandler, commandExecuted);
                 } else {
                     this.log.debug("Executing Handlers: " + this.definition.name);
 

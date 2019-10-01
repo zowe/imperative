@@ -10,6 +10,7 @@
 */
 
 import * as fs from "fs";
+import * as fsExtra from "fs-extra";
 import * as path from "path";
 import * as rimraf from "rimraf";
 
@@ -20,6 +21,7 @@ import { CommandResponse } from "../../src/response/CommandResponse";
 import { ImperativeConfig } from "../../../imperative/src/ImperativeConfig";
 import { GuiResult, ProcessUtils } from "../../../utilities";
 import { WebHelpGenerator } from "../..";
+import { IImperativeConfig } from "../../../imperative/src/doc/IImperativeConfig";
 
 describe("WebHelpManager", () => {
     describe("buildHelp", () => {
@@ -37,16 +39,20 @@ describe("WebHelpManager", () => {
             rootCommandDescription: "Some Product CLI"
         };
         const mockCliHome = path.resolve("./packages/__tests__/mockCliHome");
-        const webHelpDirNm = mockCliHome + "/web-help";
+        const webHelpDirNm = path.join(mockCliHome, "web-help");
         const impCfg: ImperativeConfig = ImperativeConfig.instance;
         const cmdReponse = new CommandResponse({ silent: false });
+        let opener: any;
         let instPluginsFileNm: string;
 
         beforeAll( async () => {
+            jest.mock("opener");
+            opener = require("opener");
+
             rimraf.sync(mockCliHome);
 
             /* getResolvedCmdTree calls getCallerLocation, and we need it to return some string.
-             * getCallerLocation is a getter of a property, so mock we the property.
+             * getCallerLocation is a getter of a property, so we mock the property.
              */
             Object.defineProperty(process, "mainModule", {
                 configurable: true,
@@ -67,24 +73,7 @@ describe("WebHelpManager", () => {
         });
 
         afterAll( async () => {
-            // Give the browser time to launch before we remove the HTML files
-            const msDelay = 3000;
-            setTimeout(() =>
-                { rimraf.sync(mockCliHome); },
-                msDelay
-            );
-        });
-
-        beforeEach( async () => {
-            // ensure that the plugins directory exists
-            instPluginsFileNm = path.join(mockCliHome, "plugins");
-            if (!fs.existsSync(instPluginsFileNm)) {
-                IO.mkdirp(instPluginsFileNm);
-            }
-
-            // add the plugins file name to the directory, and create an empty object
-            instPluginsFileNm = path.join(instPluginsFileNm, "plugins.json");
-            fs.writeFileSync(instPluginsFileNm, "{}");
+            rimraf.sync(mockCliHome);
         });
 
         it("should report error when calling openRootHelp before recordParms", async () => {
@@ -103,18 +92,63 @@ describe("WebHelpManager", () => {
             );
         });
 
-        it("should generate and display help", async () => {
+        it("when there is no GUI available should not display help", async () => {
             /* imperative.init does all the setup for WebHelp to be run.
-             * We can only call init() once per app. However, our first two tests
-             * must be run without init() being called. So, we place our call
-             * to init() here. All of our following tests (it clauses)
-             * should expect init() to have already been called.
-             */
+            * We can only call init() once per app. However, our first two tests
+            * must be run without init() being called. So, we place our call
+            * to init() here. All of our following tests (it clauses)
+            * should expect init() to have already been called.
+            */
             await Imperative.init(configForHelp);
 
+            const realBuildHelp = WebHelpGenerator.prototype.buildHelp;
+            const mockBuildHelp = jest.fn();
+            WebHelpGenerator.prototype.buildHelp = mockBuildHelp;
+
+            ProcessUtils.isGuiAvailable = jest.fn(() => GuiResult.NO_GUI_NO_DISPLAY);
             WebHelpManager.instance.openRootHelp(cmdReponse);
 
-            if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
+            expect(mockBuildHelp).not.toHaveBeenCalled();
+            const jsonResult = cmdReponse.buildJsonResponse();
+            expect(jsonResult.stdout.toString()).toContain(
+                "You are running in an environment with no graphical interface"
+            );
+            expect(fs.existsSync(webHelpDirNm)).toBe(false);
+
+            expect(opener).not.toHaveBeenCalled();
+
+            // restore real function
+            WebHelpGenerator.prototype.buildHelp = realBuildHelp;
+        });
+
+        describe("when there is a GUI available", () => {
+            beforeAll( async () => {
+                // ensure that the plugins directory exists
+                instPluginsFileNm = path.join(mockCliHome, "plugins");
+                if (!fs.existsSync(instPluginsFileNm)) {
+                    IO.mkdirp(instPluginsFileNm);
+                }
+
+                // add the plugins file name to the directory, and create an empty object
+                instPluginsFileNm = path.join(instPluginsFileNm, "plugins.json");
+                fs.writeFileSync(instPluginsFileNm, "{}");
+
+                // copy our webhelp distribution files to our test's src directory
+                fsExtra.copySync("./web-help/dist", webHelpDirNm + "/dist");
+
+                /* When jenkins machine runs this test as an integration test,
+                * it needs the path to docs to exist, even though Windows does not care.
+                */
+                const webHelpDocsDirNm = webHelpDirNm + "/docs";
+                if (!fs.existsSync(webHelpDocsDirNm)) {
+                    IO.mkdirp(webHelpDocsDirNm);
+                }
+            });
+
+            it("should generate and display help", async () => {
+                ProcessUtils.isGuiAvailable = jest.fn(() => GuiResult.GUI_AVAILABLE);
+                WebHelpManager.instance.openRootHelp(cmdReponse);
+
                 // do our generated files contain some of the right stuff?
                 let fileNmToTest = webHelpDirNm + "/index.html";
                 let fileText = fs.readFileSync(fileNmToTest, "utf8");
@@ -132,34 +166,27 @@ describe("WebHelpManager", () => {
                 expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_hello.html")).toBe(true);
                 expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_plugins_install.html")).toBe(true);
                 expect(fs.existsSync(webHelpDirNm + "/docs/FakeCli_plugins_uninstall.html")).toBe(true);
-            } else {
-                const jsonResult = cmdReponse.buildJsonResponse();
-                expect(jsonResult.stdout.toString()).toContain(
-                    "You are running in an environment with no graphical interface"
-                );
-                expect(fs.existsSync(webHelpDirNm)).toBe(false);
-            }
-        });
 
-        it("should display existing help", async () => {
-            const realBuildHelp = WebHelpGenerator.prototype.buildHelp;
-            const mockBuildHelp = jest.fn();
-            WebHelpGenerator.prototype.buildHelp = mockBuildHelp;
+                expect(opener).toHaveBeenCalledTimes(1);
+                expect(opener).toHaveBeenCalledWith(`file:///${webHelpDirNm}/index.html`);
+            });
 
-            WebHelpManager.instance.openRootHelp(cmdReponse);
+            it("should display existing help", async () => {
+                const realBuildHelp = WebHelpGenerator.prototype.buildHelp;
+                const mockBuildHelp = jest.fn();
+                WebHelpGenerator.prototype.buildHelp = mockBuildHelp;
 
-            if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
+                ProcessUtils.isGuiAvailable = jest.fn(() => GuiResult.GUI_AVAILABLE);
+                WebHelpManager.instance.openRootHelp(cmdReponse);
+
                 expect(mockBuildHelp).not.toHaveBeenCalled();
-            } else {
-                const jsonResult = cmdReponse.buildJsonResponse();
-                expect(jsonResult.stdout.toString()).toContain(
-                    "You are running in an environment with no graphical interface"
-                );
-                expect(fs.existsSync(webHelpDirNm)).toBe(false);
-            }
 
-            // restore real function
-            WebHelpGenerator.prototype.buildHelp = realBuildHelp;
+                expect(opener).toHaveBeenCalledTimes(2);
+                expect(opener).toHaveBeenLastCalledWith(`file:///${webHelpDirNm}/index.html`);
+
+                // restore real function
+                WebHelpGenerator.prototype.buildHelp = realBuildHelp;
+            });
         });
     });
 });
