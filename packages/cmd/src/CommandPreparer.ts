@@ -418,6 +418,24 @@ export class CommandPreparer {
             type: "boolean"
         });
 
+        // all commands have --help-examples
+        definition.options.push({
+            name: Constants.HELP_EXAMPLES,
+            group: Constants.GLOBAL_GROUP,
+            description: !(definition.name === "") ?
+                "Display examples for all the commands in a the group" : "Not available for top tier Zowe group",
+            type: "boolean"
+        });
+
+        // all commands have --help-web
+        definition.options.push({
+            name: Constants.HELP_WEB_OPTION,
+            aliases: [Constants.HELP_WEB_OPTION_ALIAS],
+            group: Constants.GLOBAL_GROUP,
+            description: "Display HTML help in browser",
+            type: "boolean"
+        });
+
         /**
          * Append any profile related options
          */

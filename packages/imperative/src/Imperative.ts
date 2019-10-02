@@ -39,6 +39,7 @@ import {
     IHelpGeneratorFactory,
     IHelpGeneratorParms,
     IYargsResponse,
+    WebHelpManager,
     YargsConfigurer,
     YargsDefiner
 } from "../../cmd";
@@ -51,6 +52,7 @@ import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettin
 import { AppSettings } from "../../settings";
 import { join } from "path";
 import { Console } from "../../console";
+import { IWebHelpParms } from "../../cmd/src/help/doc/IWebHelpParms";
 
 export class Imperative {
 
@@ -542,6 +544,18 @@ export class Imperative {
             );
         }
         Imperative.mFullCommandTree = preparedHostCliCmdTree;
+        const webHelpParms: IWebHelpParms = {
+            callerPackageJson: ImperativeConfig.instance.callerPackageJson,
+            cliHome: ImperativeConfig.instance.cliHome,
+            defaultHome: ImperativeConfig.instance.loadedConfig.defaultHome,
+            fullCommandTree: Imperative.mFullCommandTree,
+            productDisplayName: ImperativeConfig.instance.loadedConfig.productDisplayName,
+            rootCommandDescription: ImperativeConfig.instance.loadedConfig.rootCommandDescription,
+            rootCommandName: this.rootCommandName,
+            webHelpCustomCssPath: ImperativeConfig.instance.loadedConfig.webHelpCustomCssPath,
+            webHelpLogoImgPath: ImperativeConfig.instance.loadedConfig.webHelpLogoImgPath
+        };
+        WebHelpManager.instance.recordParms(webHelpParms);
     }
 
     /**

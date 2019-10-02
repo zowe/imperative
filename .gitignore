@@ -105,3 +105,6 @@ __tests__/src/plugins/suites/sample-plugin.json
 /__tests__/src/packages/imperative/plugins/test_cli/node_modules/@brightside/**
 !/__tests__/src/packages/imperative/plugins/test_cli/node_modules/@brightside/imperative
 
+# Browserified bundles and compiled JS for web help
+/web-help/dist/css/bundle*
+/web-help/dist/js/
