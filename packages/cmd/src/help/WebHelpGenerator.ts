@@ -107,23 +107,11 @@ export class WebHelpGenerator {
 
         // Load additional dependencies
         this.marked = require("marked");
-        const copySync: any = require("fs-extra").copySync;
+        const fsExtra = require("fs-extra");
 
-        // Create web-help folder
-        // After upgrading to Node v10, this step should no longer be necessary
-        // if the option recursive=True is used when the docs dir is created
-        // below
+        // Ensure web-help/docs folder exists and is empty
+        fsExtra.emptyDirSync(this.mDocsDir);
         const webHelpDir: string = path.join(this.mDocsDir, "..");
-        if (!fs.existsSync(webHelpDir)) {
-            fs.mkdirSync(webHelpDir);
-        }
-
-        // Create web-help/docs folder
-        if (fs.existsSync(this.mDocsDir)) {
-            require("rimraf").sync(path.join(this.mDocsDir, "*"));
-        } else {
-            fs.mkdirSync(this.mDocsDir);
-        }
 
         // Find web help dist folder
         const distDir: string = path.join(__dirname, "../../../../web-help/dist");
@@ -144,17 +132,17 @@ export class WebHelpGenerator {
 
             fs.readdirSync(dir)
                 .filter((pathname: string) => fs.statSync(path.join(dir, pathname)).isFile())
-                .forEach((filename: string) => copySync(path.join(dir, filename), path.join(destDir, filename)));
+                .forEach((filename: string) => fsExtra.copySync(path.join(dir, filename), path.join(destDir, filename)));
         });
 
         // Copy header image if it exists
         if (this.mConfig.loadedConfig.webHelpLogoImgPath) {
-            copySync(this.mConfig.loadedConfig.webHelpLogoImgPath, path.join(webHelpDir, "header-image.png"));
+            fsExtra.copySync(this.mConfig.loadedConfig.webHelpLogoImgPath, path.join(webHelpDir, "header-image.png"));
         }
 
         // Replace main.css with custom CSS file if it exists
         if (this.mConfig.loadedConfig.webHelpCustomCssPath) {
-            copySync(this.mConfig.loadedConfig.webHelpCustomCssPath, path.join(webHelpDir, "css/main.css"));
+            fsExtra.copySync(this.mConfig.loadedConfig.webHelpCustomCssPath, path.join(webHelpDir, "css/main.css"));
         }
 
         // Sort all items in the command tree and remove duplicates
