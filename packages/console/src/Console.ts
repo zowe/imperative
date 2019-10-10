@@ -23,7 +23,7 @@ import { ImperativeError } from "../../error";
 
 export class Console implements IConsole {
 
-    public static readonly LEVELS = ["trace", "debug", "info", "warn", "error", "fatal"];
+    public static readonly LEVELS = ["trace", "debug", "info", "warn", "error", "fatal", "off"];
     public static readonly LEVEL_DEFAULT = "debug";
 
     public static getConsole(category: string) {
