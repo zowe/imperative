@@ -23,8 +23,33 @@
     }
 }
 
+#btn-print {
+    font-size: x-large;
+}
+
+#btn-print-wrapper {
+    bottom: 20px;
+    display: none;
+    position: fixed;
+    right: 20px;
+}
+
 .btn-copy {
     font-size: small;
+}
+
+.print-only {
+    display: none;
+}
+
+@media print {
+    .no-print {
+        display: none;
+    }
+
+    .print-only {
+        display: block;
+    }
 }
 
 [aria-label] {
