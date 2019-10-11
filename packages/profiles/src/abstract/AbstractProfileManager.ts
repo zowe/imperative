@@ -35,6 +35,7 @@ import {
   IValidateProfileWithSchema
 } from "../doc/";
 import { ProfileIO, ProfileUtils } from "../utils";
+import { ImperativeConfig } from "../../../utilities";
 
 const SchemaValidator = require("jsonschema").Validator;
 
@@ -470,11 +471,20 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
       this.log.debug(`The default profile for type "${this.profileType}" is "${parms.name}".`);
 
       // If we don't find the default name and we know fail not found is false, then return here
-      if (isNullOrUndefined(parms.name) && !parms.failNotFound) {
-        return this.failNotFoundDefaultResponse("default was requested");
-      } else if (isNullOrUndefined(parms.name)) {
-        this.log.error(`No default profile exists for type "${this.profileType}".`);
-        throw new ImperativeError({msg: `No default profile set for type "${this.profileType}".`});
+      if (isNullOrUndefined(parms.name)) {
+        if (!parms.failNotFound) {
+          return this.failNotFoundDefaultResponse("default was requested");
+        } else {
+          this.log.error(`No default profile exists for type "${this.profileType}".`);
+          throw new ImperativeError({msg: `No default profile set for type "${this.profileType}".`});
+        }
+      } else if (!this.locateExistingProfile(parms.name)) {
+        this.log.error(`Default profile "${parms.name}" does not exist for type "${this.profileType}".`);
+        throw new ImperativeError({
+          msg: `Default profile "${parms.name}" does not exist for type "${this.profileType}".\n` +
+            `To change your default profile, run "${ImperativeConfig.instance.rootCommandName} profiles set-default ${this.profileType} ` +
+            `<profileName>".`
+        });
       }
     }
 
@@ -1222,7 +1232,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
    * @memberof AbstractProfileManager
    */
   private failNotFoundDefaultResponse(name: string): IProfileLoaded {
-    this.log.debug(`Profile "${name}" of type "${this.profileType}" was not found, but failNotFound=True`);
+    this.log.debug(`Profile "${name}" of type "${this.profileType}" was not found, but failNotFound=False`);
     return {
       message: `Profile "${name}" of type "${this.profileType}" was not found, but the request indicated to ignore "not found" errors. ` +
         `The profile returned is undefined.`,
