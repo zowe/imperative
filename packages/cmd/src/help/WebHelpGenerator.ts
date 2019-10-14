@@ -195,8 +195,8 @@ export class WebHelpGenerator {
             cmdTreeHtml += this.buildCmdTreeHtml(node);
         });
         cmdTreeHtml += "</ul>";
-        cmdTreeHtml = `<div class="print-only"><h4>Table of Contents</h4>\n${cmdTreeHtml}</div>\n`;
-        const insertIndex = this.singlePageHtml.indexOf("<hr>");
+        cmdTreeHtml = `<div class="page-break print-only"><h4>Table of Contents</h4>\n${cmdTreeHtml}</div>\n`;
+        const insertIndex = this.singlePageHtml.indexOf("<hr ");
         this.singlePageHtml = this.singlePageHtml.slice(0, insertIndex) + cmdTreeHtml + this.singlePageHtml.slice(insertIndex);
         fs.writeFileSync(path.join(this.mDocsDir, "all.html"), this.singlePageHtml);
 
@@ -279,9 +279,10 @@ export class WebHelpGenerator {
      * @param {string} htmlContent
      */
     private appendToSinglePageHtml(definition: ICommandDefinition, rootCommandName: string, fullCommandName: string, htmlContent: string) {
-        // Separate with horizontal line if start of a new top level group
+        // Add horizontal line/page break at start of a new top level group
         if (fullCommandName.indexOf("_") === -1) {
-            this.singlePageHtml += "<hr>\n";
+            this.singlePageHtml += "<hr class=\"no-print\">\n";
+            htmlContent = htmlContent.replace(/<h2/, "<h2 class=\"page-break\"");
         }
 
         // Generate HTML anchor in front of header

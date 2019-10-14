@@ -47,6 +47,10 @@
         display: none;
     }
 
+    .page-break {
+        page-break-before: always;
+    }
+
     .print-only {
         display: block;
     }
