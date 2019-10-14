@@ -27,4 +27,10 @@ export interface IProfileDeleted {
      * @memberof IProfileDeleted
      */
     message: string;
+    /**
+     * Specifies whether the default profile was cleared.
+     * @type {boolean}
+     * @memberof IProfileDeleted
+     */
+    defaultCleared?: boolean;
 }

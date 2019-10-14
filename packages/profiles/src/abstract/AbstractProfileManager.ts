@@ -699,6 +699,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
       if (meta.defaultProfile === parms.name) {
         this.log.debug(`Profile deleted was the default. Clearing the default profile for type "${this.profileType}".`);
         this.clearDefault();
+        response.defaultCleared = true;
       }
     }
 
