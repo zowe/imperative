@@ -22,11 +22,12 @@ export default class NewDeleteProfilesHandler {
             name: profileName,
             rejectIfDependency: !commandParameters.arguments.force || false
         });
-        commandParameters.response.console.log(`Profile "${profileName}" of type "${profileType}" successfully deleted.`);
-        if (deleted.defaultCleared) {
-            commandParameters.response.console.log(`"${profileName}" was the default profile for type "${profileType}".\nBecause you deleted it, ` +
-                `the default profile for type "${profileType}" has been cleared.\nTo set a new default profile, run "zowe profiles set-default ` +
-                `${profileType} <profileName>".`);
+        if (!deleted.defaultCleared) {
+            commandParameters.response.console.log(`Your profile named ${profileName} of type ${profileType} was successfully deleted.`);
+        } else {
+            commandParameters.response.console.log(`Your default profile named ${profileName} of type ${profileType} was successfully deleted.\n` +
+                `Because you deleted it, the default profile for type ${profileType} has been cleared.\nTo set a new default profile, run "zowe ` +
+                `profiles set-default ${profileType} <profileName>".`);
         }
     }
 }

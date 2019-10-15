@@ -481,7 +481,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
       } else if (!this.locateExistingProfile(parms.name)) {
         this.log.error(`Default profile "${parms.name}" does not exist for type "${this.profileType}".`);
         throw new ImperativeError({
-          msg: `Default profile "${parms.name}" does not exist for type "${this.profileType}".\n` +
+          msg: `Your default profile named ${parms.name} does not exist for type ${this.profileType}.\n` +
             `To change your default profile, run "${ImperativeConfig.instance.rootCommandName} profiles set-default ${this.profileType} ` +
             `<profileName>".`
         });
