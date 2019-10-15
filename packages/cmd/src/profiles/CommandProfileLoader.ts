@@ -222,7 +222,7 @@ export class CommandProfileLoader {
             const response = await this.factory.getManager(load.type).load({
                 loadDefault: load.loadDefault,
                 name: load.name,
-                failNotFound: false
+                failNotFound: !load.optional
             });
 
             // This is an exceptional case - the manager did not do it's job properly, but we will ensure
