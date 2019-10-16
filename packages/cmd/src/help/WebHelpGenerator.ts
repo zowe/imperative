@@ -246,7 +246,7 @@ export class WebHelpGenerator {
             crumbs.push(`<a href="${hrefPrefix}${linkText}.html">${linkText}</a>`);
             hrefPrefix += `${linkText}_`;
         });
-        return crumbs.join(" → ");
+        return crumbs.join(" › ");
     }
 
     /**
@@ -329,7 +329,7 @@ export class WebHelpGenerator {
 
         // Add Copy buttons after command line examples
         htmlContent = htmlContent.replace(/<code>\$\s*(.*?)<\/code>/g,
-            "<code>$1</code> <button class=\"btn-copy\" data-balloon-pos=\"right\" data-clipboard-text=\"$1\">Copy</button>");
+            "<code>$1</code> <button class=\"btn-copy no-print\" data-balloon-pos=\"right\" data-clipboard-text=\"$1\">Copy</button>");
 
         // Sanitize references to user's home directory
         if (this.sanitizeHomeDir) {
