@@ -12,6 +12,7 @@
 import * as path from "path";
 import * as fs from "fs";
 import * as fsExtra from "fs-extra";
+import * as rimraf from "rimraf";
 
 import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
@@ -41,6 +42,11 @@ describe("cmd-cli gen-webhelp example-test", () => {
 
         // copy our webhelp distribution files to our test's src directory
         fsExtra.copySync("./web-help/dist", "./__tests__/__integration__/cmd/lib/web-help/dist");
+    });
+
+    afterAll(async () => {
+        // clean up webhelp files
+        rimraf.sync("./__tests__/__integration__/cmd/lib/web-help");
     });
 
     it("should generate the help and display it", () => {
