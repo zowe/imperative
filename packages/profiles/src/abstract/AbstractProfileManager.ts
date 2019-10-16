@@ -455,9 +455,9 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     ImperativeExpect.toNotBeNullOrUndefined(parms, `Profile load requested for type "${this.profileType}", but no parameters supplied.`);
 
     // Set defaults if not present
-    parms.loadDefault = (isNullOrUndefined(parms.loadDefault)) ? false : parms.loadDefault;
-    parms.failNotFound = (isNullOrUndefined(parms.failNotFound)) ? true : parms.failNotFound;
-    parms.loadDependencies = (isNullOrUndefined(parms.loadDependencies)) ? true : parms.loadDependencies;
+    parms.loadDefault = (parms.loadDefault == null) ? false : parms.loadDefault;
+    parms.failNotFound = (parms.failNotFound == null) ? true : parms.failNotFound;
+    parms.loadDependencies = (parms.loadDependencies == null) ? true : parms.loadDependencies;
 
     // Log the API call
     this.log.info(`Loading profile "${parms.name || "default"}" of type "${this.profileType}"...`);
@@ -471,7 +471,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
       this.log.debug(`The default profile for type "${this.profileType}" is "${parms.name}".`);
 
       // If we don't find the default name and we know fail not found is false, then return here
-      if (isNullOrUndefined(parms.name)) {
+      if (parms.name == null) {
         if (!parms.failNotFound) {
           return this.failNotFoundDefaultResponse("default was requested");
         } else {
@@ -488,7 +488,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
       }
     }
 
-    // Attempt to protect agaisnt circular dependencies - if the load count increases to 2 for the same type/name
+    // Attempt to protect against circular dependencies - if the load count increases to 2 for the same type/name
     // Then some profile in the chain attempted to re-load this profile.
     const mapKey: string = ProfileUtils.getProfileMapKey(this.profileType, parms.name);
     let count = this.loadCounter.get(mapKey);
