@@ -83,7 +83,7 @@ typings/
 /.testHomeDir/
 /packages/cmd/__tests__/experimental/
 /.experimental/
-/doc/tsdoc/
+/doc/typedoc/
 /lib/
 __tests__/src/packages/plugins/suites/sample-plugin.json
 __tests__/src/plugins/suites/sample-plugin.json
