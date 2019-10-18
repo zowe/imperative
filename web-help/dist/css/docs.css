@@ -11,6 +11,7 @@
 
 .markdown-body {
     box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
     margin: 0 auto;
     max-width: 980px;
     min-width: 200px;
@@ -24,14 +25,17 @@
 }
 
 #btn-print {
-    font-size: x-large;
+    background: none;
+    border: none;
+    font-size: large;
+    padding: 0;
 }
 
 #btn-print-wrapper {
-    bottom: 20px;
     display: none;
-    position: fixed;
-    right: 20px;
+    left: calc(797px + (100% - 767px) / 2);
+    position: absolute;
+    top: 60px;
 }
 
 .btn-copy {

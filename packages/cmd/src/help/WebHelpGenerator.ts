@@ -227,7 +227,7 @@ export class WebHelpGenerator {
      */
     private genDocsFooter(): string {
         return `</article>
-<div id="btn-print-wrapper"><button id="btn-print" class="no-print" onclick="window.print();" title="Print">🖶</button></div>
+<div id="btn-print-wrapper"><button id="btn-print" class="no-print" onclick="window.print();" title="Print">🖨️</button></div>
 <script src="../js/bundle-docs.js"></script>
 <script src="../js/docs.js"></script>
 `;
