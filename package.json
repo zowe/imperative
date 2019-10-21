@@ -13,16 +13,6 @@
     "framework",
     "zowe"
   ],
-  "pkg": {
-    "scripts": [
-      "lib/**/*.js",
-      "lib/auth/*.js"
-    ],
-    "assets": [
-      "../../npm/node_modules/node-gyp/**/*",
-      "../../npm/lib/"
-    ]
-  },
   "files": [
     "lib",
     "web-help/dist"
