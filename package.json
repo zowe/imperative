@@ -49,7 +49,8 @@
     "watch": "gulp watch",
     "build:webHelp": "cd web-help && tsc",
     "watch:webHelp": "cd web-help && tsc -w",
-    "browserify": "gulp browserify"
+    "browserify": "gulp browserify",
+    "typedoc": "typedoc --options ./typedoc.json ./packages/"
   },
   "dependencies": {
     "@types/lodash-deep": "^2.0.0",
@@ -72,7 +73,6 @@
     "moment": "2.20.1",
     "mustache": "2.3.0",
     "opener": "1.5.1",
-    "npm": "6.10.0",
     "prettyjson": "1.2.1",
     "progress": "2.0.0",
     "rimraf": "2.6.3",
@@ -142,6 +142,7 @@
     "ts-jest": "^24.0.2",
     "ts-node": "7.0.1",
     "tslint": "5.10.0",
+    "typedoc": "^0.15.0",
     "typescript": "3.0.3",
     "uuid": "3.2.1",
     "yargs-parser": "9.0.2"
