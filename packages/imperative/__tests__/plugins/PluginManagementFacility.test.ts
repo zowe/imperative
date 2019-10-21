@@ -175,7 +175,6 @@ describe("Plugin Management Facility", () => {
     });
 
     afterEach(() => {
-        console.log(require("path").join(require.resolve("npm"), "../.."));
         PMF.addCmdGrpToResolvedCliCmdTree = realAddCmdGrpToResolvedCliCmdTree;
         ConfigurationValidator.validate = realCfgValidator;
     });
