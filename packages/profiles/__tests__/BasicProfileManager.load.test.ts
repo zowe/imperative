@@ -81,7 +81,7 @@ describe("Basic Profile Manager Load", () => {
 
         let error;
         try {
-            const rponse = await prof.load({name: "missing_apple"});
+            const response = await prof.load({name: "missing_apple"});
         } catch (e) {
             error = e;
             TestLogger.info(error.message);
@@ -199,6 +199,33 @@ describe("Basic Profile Manager Load", () => {
             TestLogger.info(error.message);
         }
         expect(error).toBeDefined();
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should fail the request if no profile name is specified and default profile is set but not found", async () => {
+        const prof = new BasicProfileManager({
+            profileRootDirectory: TEST_PROFILE_ROOT_DIR,
+            typeConfigurations: ONLY_ORANGE,
+            type: ORANGE_PROFILE_TYPE,
+            logger: TestLogger.getTestLogger()
+        });
+
+        // Mock having a default profile set
+        prof.getDefaultProfileName = jest.fn(() => {
+            return "missing_orange";
+        });
+
+        let error;
+        let response: IProfileLoaded;
+        try {
+            response = await prof.load({loadDefault: true, failNotFound: false});
+            TestLogger.info(response.message);
+        } catch (e) {
+            error = e;
+            TestLogger.info(error.message);
+        }
+        expect(error).toBeDefined();
+        expect(error.message).toContain("does not exist");
         expect(error.message).toMatchSnapshot();
     });
 
