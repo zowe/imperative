@@ -35,6 +35,7 @@ import {
   IValidateProfileWithSchema
 } from "../doc/";
 import { ProfileIO, ProfileUtils } from "../utils";
+import { ImperativeConfig } from "../../../utilities";
 
 const SchemaValidator = require("jsonschema").Validator;
 
@@ -454,9 +455,9 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     ImperativeExpect.toNotBeNullOrUndefined(parms, `Profile load requested for type "${this.profileType}", but no parameters supplied.`);
 
     // Set defaults if not present
-    parms.loadDefault = (isNullOrUndefined(parms.loadDefault)) ? false : parms.loadDefault;
-    parms.failNotFound = (isNullOrUndefined(parms.failNotFound)) ? true : parms.failNotFound;
-    parms.loadDependencies = (isNullOrUndefined(parms.loadDependencies)) ? true : parms.loadDependencies;
+    parms.loadDefault = (parms.loadDefault == null) ? false : parms.loadDefault;
+    parms.failNotFound = (parms.failNotFound == null) ? true : parms.failNotFound;
+    parms.loadDependencies = (parms.loadDependencies == null) ? true : parms.loadDependencies;
 
     // Log the API call
     this.log.info(`Loading profile "${parms.name || "default"}" of type "${this.profileType}"...`);
@@ -470,15 +471,24 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
       this.log.debug(`The default profile for type "${this.profileType}" is "${parms.name}".`);
 
       // If we don't find the default name and we know fail not found is false, then return here
-      if (isNullOrUndefined(parms.name) && !parms.failNotFound) {
-        return this.failNotFoundDefaultResponse("default was requested");
-      } else if (isNullOrUndefined(parms.name)) {
-        this.log.error(`No default profile exists for type "${this.profileType}".`);
-        throw new ImperativeError({msg: `No default profile set for type "${this.profileType}".`});
+      if (parms.name == null) {
+        if (!parms.failNotFound) {
+          return this.failNotFoundDefaultResponse("default was requested");
+        } else {
+          this.log.error(`No default profile exists for type "${this.profileType}".`);
+          throw new ImperativeError({msg: `No default profile set for type "${this.profileType}".`});
+        }
+      } else if (!this.locateExistingProfile(parms.name)) {
+        this.log.error(`Default profile "${parms.name}" does not exist for type "${this.profileType}".`);
+        throw new ImperativeError({
+          msg: `Your default profile named ${parms.name} does not exist for type ${this.profileType}.\n` +
+            `To change your default profile, run "${ImperativeConfig.instance.rootCommandName} profiles set-default ${this.profileType} ` +
+            `<profileName>".`
+        });
       }
     }
 
-    // Attempt to protect agaisnt circular dependencies - if the load count increases to 2 for the same type/name
+    // Attempt to protect against circular dependencies - if the load count increases to 2 for the same type/name
     // Then some profile in the chain attempted to re-load this profile.
     const mapKey: string = ProfileUtils.getProfileMapKey(this.profileType, parms.name);
     let count = this.loadCounter.get(mapKey);
@@ -682,6 +692,17 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         {tag: `Internal Profile Management Error`});
     }
 
+    // If the meta file exists - read to check if the name of the default profile is the same as
+    // the profile that was deleted. If so, reset it to null.
+    if (this.locateExistingProfile(this.constructMetaName())) {
+      const meta = this.readMeta(this.constructFullProfilePath(this.constructMetaName()));
+      if (meta.defaultProfile === parms.name) {
+        this.log.debug(`Profile deleted was the default. Clearing the default profile for type "${this.profileType}".`);
+        this.clearDefault();
+        response.defaultCleared = true;
+      }
+    }
+
     return response;
   }
 
@@ -722,7 +743,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
    */
   public setDefault(name: string): string {
     // Log the API call
-    this.log.info(`Set default API invoked.Setting "${name}" as default for type "${this.profileType}".`);
+    this.log.info(`Set default API invoked. Setting "${name}" as default for type "${this.profileType}".`);
 
     // Construct the path to the profile that we are to set as the default for this type
     const profileLocation: string = this.locateExistingProfile(name);
@@ -761,6 +782,42 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     return `Default profile for type "${this.profileType}" set to "${name}".`;
+  }
+
+  /**
+   * Clears the default profile for the profile managers type.
+   * @returns {string} - The response string (or an error is thrown if the request cannot be completed);
+   * @memberof AbstractProfileManager
+   */
+  public clearDefault(): string {
+    // Log the API call
+    this.log.info(`Clear default API invoked for type "${this.profileType}".`);
+
+    // Find the meta profile - it may NOT exists - this is OK - will be created
+    let metaFilePath: string = this.locateExistingProfile(this.constructMetaName());
+
+    // Read the meta profile OR construct a new profile if it does NOT exist
+    let meta: IMetaProfile<T>;
+    if (metaFilePath) {
+      this.log.trace(`The meta file exists for type "${this.profileType}". Reading meta...`);
+      meta = this.readMeta(metaFilePath);
+      this.log.trace(`Clearing default in the meta file for type ${this.profileType}.`);
+      this.setDefaultInMetaObject(meta, null);
+    } else {
+      this.log.info(`The meta file does NOT exist for type "${this.profileType}", ` +
+        `writing the meta file without a default profile`);
+      metaFilePath = this.constructFullProfilePath(this.constructMetaName());
+      meta = {
+        defaultProfile: null,
+        configuration: this.profileTypeConfiguration
+      };
+    }
+
+    // Write the meta file to disk
+    this.log.info(`Writing the updated meta file to disk. Default: ${meta.defaultProfile}`);
+    ProfileIO.writeMetaFile(meta, metaFilePath);
+
+    return `Default profile for type "${this.profileType}" cleared.`;
   }
 
   /**
@@ -1222,7 +1279,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
    * @memberof AbstractProfileManager
    */
   private failNotFoundDefaultResponse(name: string): IProfileLoaded {
-    this.log.debug(`Profile "${name}" of type "${this.profileType}" was not found, but failNotFound=True`);
+    this.log.debug(`Profile "${name}" of type "${this.profileType}" was not found, but failNotFound=False`);
     return {
       message: `Profile "${name}" of type "${this.profileType}" was not found, but the request indicated to ignore "not found" errors. ` +
         `The profile returned is undefined.`,

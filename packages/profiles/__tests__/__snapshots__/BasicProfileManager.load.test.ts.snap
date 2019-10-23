@@ -160,6 +160,11 @@ profile requires property \\"color\\"
 
 exports[`Basic Profile Manager Load should fail if the default doesn't exist 1`] = `"No default profile set for type \\"orange\\"."`;
 
+exports[`Basic Profile Manager Load should fail the request if no profile name is specified and default profile is set but not found 1`] = `
+"Your default profile named missing_orange does not exist for type orange.
+To change your default profile, run \\"undefined profiles set-default orange <profileName>\\"."
+`;
+
 exports[`Basic Profile Manager Load should handle a read error 1`] = `"Read error!"`;
 
 exports[`Basic Profile Manager Load should load a profile with one dependency 1`] = `

@@ -1,6 +1,6 @@
 {
   "name": "@zowe/imperative",
-  "version": "4.4.1",
+  "version": "4.4.3",
   "description": "framework for building configurable CLIs",
   "author": "Broadcom",
   "license": "EPL-2.0",
@@ -43,7 +43,8 @@
     "watch": "gulp watch",
     "build:webHelp": "cd web-help && tsc",
     "watch:webHelp": "cd web-help && tsc -w",
-    "browserify": "gulp browserify"
+    "browserify": "gulp browserify",
+    "typedoc": "typedoc --options ./typedoc.json ./packages/"
   },
   "dependencies": {
     "@types/lodash-deep": "^2.0.0",
@@ -140,6 +141,7 @@
     "ts-jest": "^24.0.2",
     "ts-node": "7.0.1",
     "tslint": "5.10.0",
+    "typedoc": "^0.15.0",
     "typescript": "3.2.2",
     "uuid": "3.2.1",
     "yargs-parser": "9.0.2"
