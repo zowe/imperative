@@ -62,7 +62,7 @@ export function uninstall(packageName: string): void {
     // formatting or colors but at least I can get the output of stdout right. (comment from install handler)
     iConsole.info("Uninstalling package...this may take some time.");
 
-    const execOutput = execSync(`"${npmCmd}" uninstall "${npmPackage}" ` +
+    const execOutput = execSync(`${npmCmd} uninstall "${npmPackage}" ` +
       `--prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g`, {
       cwd  : PMFConstants.instance.PMF_ROOT,
       stdio: pipe

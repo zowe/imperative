@@ -61,7 +61,7 @@ describe("PMF: Uninstall Interface", () => {
    */
   const wasExecSyncCallValid = (expectedPackage: string) => {
     expect(mocks.execSync).toHaveBeenCalledWith(
-      `"${npmCmd}" uninstall "${expectedPackage}" --prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g`,
+      `${npmCmd} uninstall "${expectedPackage}" --prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g`,
       {
         cwd  : PMFConstants.instance.PMF_ROOT,
         stdio: ["pipe", "pipe", process.stderr]
