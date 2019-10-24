@@ -161,8 +161,10 @@ export class WebHelpGenerator {
         rootHelpContent += this.marked(this.mConfig.loadedConfig.rootCommandDescription) + "\n";
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
             { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions });
-        this.singlePageHtml = rootHelpContent.repeat(1);  // Deep copy
-        rootHelpContent += this.marked("<h4>Groups</h4>\n" + this.buildChildrenSummaryTables(helpGen, rootCommandName));
+        rootHelpContent += this.marked("<h4>Groups</h4>\n" +
+            this.buildChildrenSummaryTables(helpGen, rootCommandName) + "\n\n" +
+            helpGen.buildGlobalOptionsSection().replace(/Global options/, "Global Options"));
+        this.singlePageHtml = rootHelpContent.replace(/<h4>Groups.+?<\/ul>/s, "");
         rootHelpContent += this.genDocsFooter();
         fs.writeFileSync(rootHelpHtmlPath, rootHelpContent);
         cmdResponse.console.log(Buffer.from("."));
@@ -176,6 +178,14 @@ export class WebHelpGenerator {
         // Generate single HTML file for all CLI commands
         this.singlePageHtml += this.genDocsFooter();
         this.singlePageHtml = this.singlePageHtml.replace(new RegExp(`<a href="(${rootCommandName}.*?)\.html"`, "g"), "<a href=\"#$1\"");
+        let cmdTreeHtml: string = "<ul>";
+        this.treeNodes[0].children.forEach((node: IWebHelpTreeNode) => {
+            cmdTreeHtml += this.buildCmdTreeHtml(node);
+        });
+        cmdTreeHtml += "</ul>";
+        cmdTreeHtml = `<div class="page-break print-only"><h4>Table of Contents</h4>\n${cmdTreeHtml}</div>\n`;
+        const insertIndex = this.singlePageHtml.indexOf("<hr ");
+        this.singlePageHtml = this.singlePageHtml.slice(0, insertIndex) + cmdTreeHtml + this.singlePageHtml.slice(insertIndex);
         fs.writeFileSync(path.join(this.mDocsDir, "all.html"), this.singlePageHtml);
 
         this.writeTreeData();
@@ -205,6 +215,7 @@ export class WebHelpGenerator {
      */
     private genDocsFooter(): string {
         return `</article>
+<div id="btn-print-wrapper"><button id="btn-print" class="no-print" onclick="window.print();" title="Print">🖨️</button></div>
 <script src="../js/bundle-docs.js"></script>
 <script src="../js/docs.js"></script>
 `;
@@ -223,7 +234,7 @@ export class WebHelpGenerator {
             crumbs.push(`<a href="${hrefPrefix}${linkText}.html">${linkText}</a>`);
             hrefPrefix += `${linkText}_`;
         });
-        return crumbs.join(" → ");
+        return crumbs.join(" › ");
     }
 
     /**
@@ -256,9 +267,10 @@ export class WebHelpGenerator {
      * @param {string} htmlContent
      */
     private appendToSinglePageHtml(definition: ICommandDefinition, rootCommandName: string, fullCommandName: string, htmlContent: string) {
-        // Separate with horizontal line if start of a new top level group
+        // Add horizontal line/page break at start of a new top level group
         if (fullCommandName.indexOf("_") === -1) {
-            this.singlePageHtml += "<hr>\n";
+            this.singlePageHtml += "<hr class=\"no-print\">\n";
+            htmlContent = htmlContent.replace(/<h2/, "<h2 class=\"page-break\"");
         }
 
         // Generate HTML anchor in front of header
@@ -305,7 +317,7 @@ export class WebHelpGenerator {
 
         // Add Copy buttons after command line examples
         htmlContent = htmlContent.replace(/<code>\$\s*(.*?)<\/code>/g,
-            "<code>$1</code> <button class=\"btn-copy\" data-balloon-pos=\"right\" data-clipboard-text=\"$1\">Copy</button>");
+            "<code>$1</code> <button class=\"btn-copy no-print\" data-balloon-pos=\"right\" data-clipboard-text=\"$1\">Copy</button>");
 
         // Sanitize references to user's home directory
         if (this.sanitizeHomeDir) {
@@ -341,6 +353,23 @@ export class WebHelpGenerator {
                 this.genCommandHelpPage(child, `${fullCommandName}_${child.name}`, docsDir, childNode);
             });
         }
+    }
+
+    /**
+     * Builds table of contents for flat view
+     * @private
+     * @param node - Parent node whose children will be listed
+     * @returns - HTML list of child nodes
+     */
+    private buildCmdTreeHtml(node: IWebHelpTreeNode): string {
+        let cmdTreeHtml = `<li><a href="#${node.id.slice(0, node.id.lastIndexOf("."))}">${node.text}</a>`;
+        if (node.children) {
+            node.children.forEach((childNode: IWebHelpTreeNode) => {
+                cmdTreeHtml += `<ul>${this.buildCmdTreeHtml(childNode)}</ul>`;
+            });
+        }
+        cmdTreeHtml += "</li>\n";
+        return cmdTreeHtml;
     }
 
     /**
