@@ -1,6 +1,6 @@
 {
   "name": "@brightside/imperative",
-  "version": "2.7.3",
+  "version": "2.7.4",
   "description": "framework for building configurable CLIs",
   "author": "Broadcom",
   "license": "EPL-2.0",
