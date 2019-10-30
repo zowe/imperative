@@ -49,7 +49,7 @@ export function installPackages(prefix: string, registry: string, npmPackage: st
         const execOutput = execSync(`${npmCmd} install "${npmPackage}" --prefix "${prefix}" ` +
             `-g --registry "${registry}"`, {
             cwd: PMFConstants.instance.PMF_ROOT,
-            stdio: pipe
+            stdio: "pipe"
         });
         return execOutput.toString();
     } catch (err) {

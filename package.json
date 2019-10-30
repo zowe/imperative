@@ -95,7 +95,7 @@
     "@types/jstree": "3.3.37",
     "@types/keytar": "4.0.1",
     "@types/mustache": "0.8.29",
-    "@types/node": "8.0.28",
+    "@types/node": "^12.12.0",
     "@types/progress": "2.0.0",
     "@types/stack-trace": "0.0.28",
     "@types/tmp": "0.0.33",

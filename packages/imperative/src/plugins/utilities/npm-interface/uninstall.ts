@@ -65,7 +65,7 @@ export function uninstall(packageName: string): void {
     const execOutput = execSync(`${npmCmd} uninstall "${npmPackage}" ` +
       `--prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g`, {
       cwd  : PMFConstants.instance.PMF_ROOT,
-      stdio: pipe
+      stdio: "pipe"
     });
 
     iConsole.info("Uninstall complete");
