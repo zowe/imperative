@@ -293,11 +293,6 @@ export abstract class AbstractSession {
 
         if (session.type === AbstractSession.TYPE_TOKEN) {
             ImperativeExpect.keysToBeDefinedAndNonBlank(session, ["tokenType"], "You must provide a token type to use token authentication");
-            // TODO(Kelosky): perhaps just fail if no tokenValue
-            // if you dont have a token, we need credentials to retrieve a token
-            if (isNullOrUndefined(session.tokenValue)) {
-                this.checkBasicAuth(session);
-            }
         }
 
         // if basic auth
