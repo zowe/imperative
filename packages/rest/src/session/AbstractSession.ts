@@ -296,7 +296,7 @@ export abstract class AbstractSession {
         }
 
         // if basic auth
-        if (populatedSession.type === AbstractSession.TYPE_BASIC) {
+        if (populatedSession.type === AbstractSession.TYPE_BASIC || populatedSession.type === AbstractSession.TYPE_TOKEN) {
 
             // get base 64 encoded auth if not provided
             if (isNullOrUndefined(populatedSession.base64EncodedAuth)) {
