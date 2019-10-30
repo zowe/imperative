@@ -281,7 +281,6 @@ export abstract class AbstractSession {
             populatedSession.type = AbstractSession.DEFAULT_TYPE;
         }
         // populatedSession.type = populatedSession.type.toLocaleLowerCase();
-
         ImperativeExpect.keysToBeDefinedAndNonBlank(populatedSession, ["hostname"]);
         ImperativeExpect.toBeOneOf(populatedSession.type, [AbstractSession.TYPE_NONE, AbstractSession.TYPE_BASIC, AbstractSession.TYPE_TOKEN]);
         ImperativeExpect.toBeOneOf(populatedSession.protocol, [AbstractSession.HTTPS_PROTOCOL, AbstractSession.HTTP_PROTOCOL]);
@@ -294,7 +293,7 @@ export abstract class AbstractSession {
 
         if (session.type === AbstractSession.TYPE_TOKEN) {
             ImperativeExpect.keysToBeDefinedAndNonBlank(session, ["tokenType"], "You must provide a token type to use token authentication");
-
+            // TODO(Kelosky): perhaps just fail if no tokenValue
             // if you dont have a token, we need credentials to retrieve a token
             if (isNullOrUndefined(session.tokenValue)) {
                 this.checkBasicAuth(session);
@@ -302,11 +301,11 @@ export abstract class AbstractSession {
         }
 
         // if basic auth
-        if (populatedSession.type === AbstractSession.TYPE_BASIC || populatedSession.type === AbstractSession.TYPE_TOKEN) {
+        if (populatedSession.type === AbstractSession.TYPE_BASIC) {
 
             // get base 64 encoded auth if not provided
             if (isNullOrUndefined(populatedSession.base64EncodedAuth)) {
-                if (!isNullOrUndefined(populatedSession.user) && !isNullOrUndefined(populatedSession.user)) {
+                if (!isNullOrUndefined(populatedSession.user) && !isNullOrUndefined(populatedSession.password)) {
                     populatedSession.base64EncodedAuth = AbstractSession.getBase64Auth(populatedSession.user, populatedSession.password);
                 }
             } else {
