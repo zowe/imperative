@@ -195,7 +195,6 @@ export abstract class AbstractRestClient {
         this.mIsJson = false;
     }
 
-
     /**
      * Overload function to perform the actual http REST call with appropriate user input using an option object (following angular's HTTPClient)
      * @param {IRestOptions} options
