@@ -217,22 +217,6 @@ export abstract class AbstractSession {
     }
 
     /**
-     * Check that required fields are provided for basic auth requests
-     * @private
-     * @param {ISession} session: Session parameter object
-     * @memberof AbstractSession
-     */
-    private checkBasicAuth(session: ISession) {
-        if (!isNullOrUndefined(session.user) && !isNullOrUndefined(session.password)) {
-            // ok
-        } else if (!isNullOrUndefined(session.base64EncodedAuth)) {
-            // ok
-        } else {
-            throw new ImperativeError({ msg: "Must have user & password OR base64 encoded credentials"});
-        }
-    }
-
-    /**
      * Builds an ISession so all required pieces are filled in
      * @private
      * @param {ISession} session - the fully populated session
