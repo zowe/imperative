@@ -202,7 +202,7 @@ export abstract class AbstractSession {
     public storeCookie(cookie: any) {
 
         const headerKeys: string[] = Object.keys(cookie);
-        headerKeys.forEach( (key) => {
+        headerKeys.forEach((key) => {
             const auth = cookie[key] as string;
             const authArr = auth.split(";");
             // see each field in the cookie, e/g. Path=/; Secure; HttpOnly; LtpaToken2=...
@@ -210,7 +210,7 @@ export abstract class AbstractSession {
                 // if we match requested token type, save it off for its length
                 if (element.indexOf(this.mISession.tokenType) === 0) {
                     // parse off token value, minus LtpaToken2= (as an example)
-                    this.ISession.tokenValue = element.substr(this.ISession.tokenType.length +1, element.length);
+                    this.ISession.tokenValue = element.substr(this.ISession.tokenType.length + 1, element.length);
                 }
             });
         });
@@ -287,12 +287,34 @@ export abstract class AbstractSession {
 
         // if basic auth, must have user and password OR base 64 encoded credentials
         if (session.type === AbstractSession.TYPE_BASIC) {
-            this.checkBasicAuth(session);
-            ImperativeExpect.keysToBeUndefined(populatedSession, ["tokenType", "tokenValue"] );
+            if (!isNullOrUndefined(session.user) && !isNullOrUndefined(session.password)) {
+                // ok
+            } else if (!isNullOrUndefined(session.base64EncodedAuth)) {
+                // ok
+            } else {
+                throw new ImperativeError({
+                    msg: "Must have user & password OR base64 encoded credentials",
+                    additionalDetails: "For CLI usage, see `zowe zosmf login --help`",
+                });
+            }
+            ImperativeExpect.keysToBeUndefined(populatedSession, ["tokenType", "tokenValue"]);
         }
 
         if (session.type === AbstractSession.TYPE_TOKEN) {
             ImperativeExpect.keysToBeDefinedAndNonBlank(session, ["tokenType"], "You must provide a token type to use token authentication");
+
+            if (isNullOrUndefined(populatedSession.tokenValue)) {
+                if (!isNullOrUndefined(session.user) && !isNullOrUndefined(session.password)) {
+                    // ok
+                } else if (!isNullOrUndefined(session.base64EncodedAuth)) {
+                    // ok
+                } else {
+                    throw new ImperativeError({
+                        msg: "Must have user & password OR tokenType & tokenValue.",
+                        additionalDetails: "For CLI usage, see `zowe zosmf login --help`",
+                    });
+                }
+            }
         }
 
         // if basic auth
