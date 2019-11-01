@@ -729,11 +729,11 @@ export class CommandProcessor {
         // Load all profiles for the command
         this.log.trace(`Loading profiles for "${this.definition.name}" command. ` +
             `Profile definitions: ${inspect(this.definition.profile, {depth: null})}`);
-        const loader = CommandProfileLoader.loader({
+
+        const profiles = await CommandProfileLoader.loader({
             commandDefinition: this.definition,
             profileManagerFactory: this.profileFactory
-        });
-        const profiles = await loader.loadProfiles(args);
+        }).loadProfiles(args);
         this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, {depth: null})}`);
 
         // If we have profiles listed on the command definition (the would be loaded already)
