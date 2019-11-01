@@ -53,9 +53,6 @@ export function uninstall(packageName: string): void {
   }
 
   try {
-    // We need to capture stdout but apparently stderr also gives us a progress
-    // bar from the npm install.
-    const pipe = ["pipe", "pipe", process.stderr];
 
     // Perform the npm uninstall, somehow piping stdout and inheriting stderr gives
     // some form of a half-assed progress bar. This progress bar doesn't have any
@@ -64,8 +61,10 @@ export function uninstall(packageName: string): void {
 
     const execOutput = execSync(`${npmCmd} uninstall "${npmPackage}" ` +
       `--prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g`, {
-      cwd  : PMFConstants.instance.PMF_ROOT,
-      stdio: "pipe"
+      cwd: PMFConstants.instance.PMF_ROOT,
+      // We need to capture stdout but apparently stderr also gives us a progress
+      // bar from the npm install.
+      stdio: ["pipe", "pipe", process.stderr]
     });
 
     iConsole.info("Uninstall complete");
