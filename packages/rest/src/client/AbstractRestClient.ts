@@ -196,25 +196,6 @@ export abstract class AbstractRestClient {
     }
 
     /**
-     * Overload function to perform the actual http REST call with appropriate user input using an option object (following angular's HTTPClient)
-     * @param {IRestOptions} options
-     * @memberof AbstractRestClient
-     */
-    public request(options: IRestOptions) {
-        return this.performRest(
-            options.resource,
-            options.request,
-            options.reqHeaders,
-            options.writeData,
-            options.responseStream,
-            options.requestStream,
-            options.normalizeResponseNewLines,
-            options.normalizeRequestNewLines,
-            options.task
-            );
-    }
-
-    /**
      * Perform the actual http REST call with appropriate user input
      * @param {string} resource - URI for this request
      * @param {string} request - REST request type GET|PUT|POST|DELETE
@@ -234,6 +215,25 @@ export abstract class AbstractRestClient {
                        responseStream?: Writable, requestStream?: Readable,
                        normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
                        task?: ITaskWithStatus): Promise<string> {
+        return this.request({
+            resource,
+            request,
+            reqHeaders,
+            writeData,
+            responseStream,
+            requestStream,
+            normalizeResponseNewLines,
+            normalizeRequestNewLines,
+            task,
+        });
+    }
+
+    /**
+     * Overload function to perform the actual http REST call with appropriate user input using an option object (following angular's HTTPClient)
+     * @param {IRestOptions} options
+     * @memberof AbstractRestClient
+     */
+    public request(opts: IRestOptions) {
         return new Promise<string>((resolve: RestClientResolve, reject: ImperativeReject) => {
 
             const timingApi = PerfTiming.api;
@@ -244,25 +244,25 @@ export abstract class AbstractRestClient {
             }
 
             // save for logging
-            this.mResource = resource;
-            this.mRequest = request;
-            this.mReqHeaders = reqHeaders;
-            this.mWriteData = writeData;
-            this.mRequestStream = requestStream;
-            this.mResponseStream = responseStream;
-            this.mNormalizeRequestNewlines = normalizeRequestNewLines;
-            this.mNormalizeResponseNewlines = normalizeResponseNewLines;
-            this.mTask = task;
+            this.mResource = opts.resource;
+            this.mRequest = opts.request;
+            this.mReqHeaders = opts.reqHeaders;
+            this.mWriteData = opts.writeData;
+            this.mRequestStream = opts.requestStream;
+            this.mResponseStream = opts.responseStream;
+            this.mNormalizeRequestNewlines = opts.normalizeRequestNewLines;
+            this.mNormalizeResponseNewlines = opts.normalizeResponseNewLines;
+            this.mTask = opts.task;
 
             // got a new promise
             this.mResolve = resolve;
             this.mReject = reject;
 
-            ImperativeExpect.toBeDefinedAndNonBlank(resource, "resource");
-            ImperativeExpect.toBeDefinedAndNonBlank(request, "request");
-            ImperativeExpect.toBeEqual(requestStream != null && writeData != null, false,
+            ImperativeExpect.toBeDefinedAndNonBlank(opts.resource, "resource");
+            ImperativeExpect.toBeDefinedAndNonBlank(opts.request, "request");
+            ImperativeExpect.toBeEqual(opts.requestStream != null && opts.writeData != null, false,
                 "You cannot specify both writeData and writeStream");
-            const options = this.buildOptions(resource, request, reqHeaders);
+            const options = this.buildOptions(opts.resource, opts.request, opts.reqHeaders);
 
             /**
              * Perform the actual http request
@@ -278,7 +278,7 @@ export abstract class AbstractRestClient {
              * For a REST request which includes writing raw data to the http server,
              * write the data via http request.
              */
-            if (writeData != null) {
+            if (opts.writeData != null) {
 
                 this.log.debug("will write data for request");
                 /**
@@ -286,10 +286,10 @@ export abstract class AbstractRestClient {
                  */
                 if (this.mIsJson) {
                     this.log.debug("writing JSON for request");
-                    this.log.trace("JSON body: %s", JSON.stringify(writeData));
-                    clientRequest.write(JSON.stringify(writeData));
+                    this.log.trace("JSON body: %s", JSON.stringify(opts.writeData));
+                    clientRequest.write(JSON.stringify(opts.writeData));
                 } else {
-                    clientRequest.write(writeData);
+                    clientRequest.write(opts.writeData);
                 }
             }
 
@@ -304,11 +304,11 @@ export abstract class AbstractRestClient {
                 }));
             });
 
-            if (requestStream != null) {
+            if (opts.requestStream != null) {
                 // if the user requested streaming write of data to the request,
                 // write the data chunk by chunk to the server
                 let bytesUploaded = 0;
-                requestStream.on("data", (data: Buffer) => {
+                opts.requestStream.on("data", (data: Buffer) => {
                     this.log.debug("Writing data chunk of length %d from requestStream to clientRequest", data.byteLength);
                     if (this.mNormalizeRequestNewlines) {
                         this.log.debug("Normalizing new lines in request chunk to \\n");
@@ -325,7 +325,7 @@ export abstract class AbstractRestClient {
                     }
                     clientRequest.write(data);
                 });
-                requestStream.on("error", (streamError: any) => {
+                opts.requestStream.on("error", (streamError: any) => {
                     this.log.error("Error encountered reading requestStream: " + streamError);
                     reject(this.populateError({
                         msg: "Error reading requestStream",
@@ -333,7 +333,7 @@ export abstract class AbstractRestClient {
                         source: "client"
                     }));
                 });
-                requestStream.on("end", () => {
+                opts.requestStream.on("end", () => {
                     this.log.debug("Finished reading requestStream");
                     // finish the request
                     clientRequest.end();
@@ -623,9 +623,9 @@ export abstract class AbstractRestClient {
         let payloadDetails: string = this.mWriteData + "";
         try {
             headerDetails = JSON.stringify(this.mReqHeaders);
-            payloadDetails = inspect(this.mWriteData, {depth: null});
+            payloadDetails = inspect(this.mWriteData, { depth: null });
         } catch (stringifyError) {
-            this.log.error("Error encountered trying to parse details for REST request error:\n %s", inspect(stringifyError, {depth: null}));
+            this.log.error("Error encountered trying to parse details for REST request error:\n %s", inspect(stringifyError, { depth: null }));
         }
 
         // Populate the "relevant" fields - caller will have the session, so
@@ -666,7 +666,7 @@ export abstract class AbstractRestClient {
         const processedError = this.processError(error);
         if (processedError != null) {
             this.log.debug("Error was processed by overridden processError method in RestClient %s", this.constructor.name);
-            finalError = {...finalError, ...processedError};
+            finalError = { ...finalError, ...processedError };
         }
 
         // Return the error object
