@@ -44,12 +44,11 @@ export function cmdToRun() {
  *
  */
 export function installPackages(prefix: string, registry: string, npmPackage: string): string {
-    const pipe = ["pipe", "pipe", process.stderr];
     try {
         const execOutput = execSync(`${npmCmd} install "${npmPackage}" --prefix "${prefix}" ` +
             `-g --registry "${registry}"`, {
             cwd: PMFConstants.instance.PMF_ROOT,
-            stdio: "pipe"
+            stdio: ["pipe", "pipe", process.stderr]
         });
         return execOutput.toString();
     } catch (err) {
