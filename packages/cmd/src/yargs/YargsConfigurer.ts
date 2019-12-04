@@ -67,7 +67,7 @@ export class YargsConfigurer {
         this.yargs.showHelpOnFail(false);
         // finally, catch any undefined commands
         this.yargs.command("*", "Unknown group", (argv: Argv) => {
-                    return argv; // no builder
+                return argv;  // no builder
             },
             (argv: any) => {
                 const attemptedCommand = argv._.join(" ");
