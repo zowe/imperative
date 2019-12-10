@@ -129,7 +129,7 @@
     "split.js": "1.5.11",
     "ts-jest": "^24.0.2",
     "ts-node": "7.0.1",
-    "tslint": "5.10.0",
+    "tslint": "5.20.1",
     "typedoc": "^0.15.0",
     "typescript": "3.2.2",
     "uuid": "3.2.1",
