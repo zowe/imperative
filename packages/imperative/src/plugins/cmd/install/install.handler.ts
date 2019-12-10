@@ -107,7 +107,7 @@ export default class InstallHandler implements ICommandHandler {
         params.response.console.log("Registry = " + installRegistry);
 
         // This section determines which npm logic needs to take place
-        if (params.arguments.plugin.length === 0) {
+        if (params.arguments.plugin == null || params.arguments.plugin.length === 0) {
           const configFile = typeof params.arguments.file === "undefined" ?
             PMFConstants.instance.PLUGIN_JSON :
             resolve(params.arguments.file);
