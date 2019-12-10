@@ -73,7 +73,7 @@ export default class InstallHandler implements ICommandHandler {
     const chalk = TextUtils.chalk;
     this.console.debug(`Root Directory: ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION}`);
 
-    if (params.arguments.plugin.length > 0 && typeof params.arguments.file !== "undefined") {
+    if (params.arguments.plugin != null && params.arguments.plugin.length > 0 && typeof params.arguments.file !== "undefined") {
       throw new ImperativeError({
         msg: `Option ${chalk.yellow.bold("--file")} can not be specified if positional ${chalk.yellow.bold("package...")} is as well. ` +
         `They are mutually exclusive.`
