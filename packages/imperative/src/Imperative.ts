@@ -480,7 +480,7 @@ export class Imperative {
         };
 
         // do not retrieve command line if invoked from test as argv is undefined
-        if (this.yargs.argv !== undefined) {
+        /*if (this.yargs.argv !== undefined) {
             // retrieve the arguments to re-build the command entered
             const argV: any = this.yargs.argv;
 
@@ -499,7 +499,8 @@ export class Imperative {
             this.mCommandLine = commandText.trim();
         } else {
             this.mCommandLine = "";
-        }
+        }*/
+        this.mCommandLine = process.argv.slice(1).join(" ");
 
         // Configure Yargs to meet the CLI's needs
         new YargsConfigurer(
