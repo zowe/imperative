@@ -10,8 +10,6 @@
 */
 
 /**
- * An interface that defines a class constructor
+ * An type that defines a class constructor
  */
-export interface IConstructor<T> {
-    new(...args: any[]): T;
-}
+export type IConstructor<T> = new(...args: any[]) => T;

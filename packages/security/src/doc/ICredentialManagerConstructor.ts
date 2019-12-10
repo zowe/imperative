@@ -21,7 +21,7 @@ import { AbstractCredentialManager } from "../..";
  *  2. Your constructor has less than or equal to the number of parameters specified in the interface
  *  3. Your constructor has matching parameter types for all parameters accepted
  */
-export interface ICredentialManagerConstructor {
+export type ICredentialManagerConstructor = new(cliName: string, displayName: string) => AbstractCredentialManager;
     /**
      * The constructor function for a Credential Manager. All the parameters specified here
      * will be sent in during the {@link CredentialManagerFactory.initialize} function.
@@ -31,5 +31,3 @@ export interface ICredentialManagerConstructor {
      *
      * @returns {AbstractCredentialManager} - An instantiated class that extends {@link AbstractCredentialManager}
      */
-    new(cliName: string, displayName: string): AbstractCredentialManager;
-}
