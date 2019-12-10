@@ -65,12 +65,14 @@ export class YargsConfigurer {
             type: "command",
             description: "The command you tried to invoke failed"
         };
+        this.yargs.help(false);
+        this.yargs.version(false);
         this.yargs.showHelpOnFail(false);
         // finally, catch any undefined commands
-        this.yargs.command("*", "Unknown group", (argv: Argv) => {
-                return argv;  // no builder
-            },
-            (argv: any) => {
+        this.yargs.command({
+            command: "*",
+            description: "Unknown group",
+            handler: (argv: any) => {
                 const attemptedCommand = argv._.join(" ");
                 if (attemptedCommand.trim().length === 0) {
                     if (argv.V) {
@@ -151,7 +153,8 @@ export class YargsConfigurer {
                         logger.error("%s", err.msg);
                     });
                 }
-            });
+            }
+        });
 
         this.yargs.fail((msg: string, error: Error, failedYargs: any) => {
             process.exitCode = Constants.ERROR_EXIT_CODE;

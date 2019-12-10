@@ -14,11 +14,9 @@ exports[`Command Response format APIs error checking should detect missing param
 
 exports[`Command Response format APIs error checking should give the extraction field name if data extraction changed the type 1`] = `
 "Non-formatted output data:
-{
-  name: 'banana',
+{ name: 'banana',
   details: 'A fruit that grows in a bunch',
-  colors: [ 'yellow', 'green', 'black' ]
-}
+  colors: [ 'yellow', 'green', 'black' ] }
 "
 `;
 
@@ -34,11 +32,7 @@ exports[`Command Response format APIs error checking should handle a circular re
 "
 `;
 
-exports[`Command Response format APIs error checking should handle a circular reference and throw an error 2`] = `
-"Error copying input parameters. Details: Converting circular structure to JSON
-    --> starting at object with constructor 'Object'
-    --- property 'fields' closes the circle"
-`;
+exports[`Command Response format APIs error checking should handle a circular reference and throw an error 2`] = `"Error copying input parameters. Details: Converting circular structure to JSON"`;
 
 exports[`Command Response format APIs error checking should handle an invalid format type and throw an error 1`] = `""`;
 
@@ -112,11 +106,9 @@ The data being formatted is of type \\"string\\"."
 
 exports[`Command Response format APIs error checking should not allow an object to be formatted as a list 1`] = `
 "Non-formatted output data:
-{
-  name: 'banana',
+{ name: 'banana',
   details: 'A fruit that grows in a bunch',
-  colors: [ 'yellow', 'green', 'black' ]
-}
+  colors: [ 'yellow', 'green', 'black' ] }
 "
 `;
 
