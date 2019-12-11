@@ -74,6 +74,7 @@
     "@types/progress": "2.0.0",
     "@types/stack-trace": "0.0.28",
     "@types/tmp": "0.0.33",
+    "keytar": "^5.0.0",
     "chai": "4.1.2",
     "chai-string": "1.4.0",
     "clear-require": "2.0.0",
