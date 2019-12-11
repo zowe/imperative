@@ -45,7 +45,6 @@
     "js-yaml": "^3.13.1",
     "jsonfile": "4.0.0",
     "jsonschema": "1.1.1",
-    "keytar": "4.3.0",
     "levenshtein": "1.0.5",
     "lodash": "^4.17.15",
     "log4js": "3.0.5",
@@ -62,7 +61,8 @@
   },
   "devDependencies": {
     "@types/node": "8.0.28",
-    "gulp": "4.0.0",
+    "gulp": "^4.0.0",
+    "keytar": "^5.0.0",
     "tslint": "^5.10.0",
     "typescript": "3.2.2"
   },
