@@ -500,7 +500,8 @@ export class Imperative {
         } else {
             this.mCommandLine = "";
         }*/
-        this.mCommandLine = process.argv.slice(1).join(" ");
+        //this.mCommandLine = process.argv.slice(1).join(" ");
+        this.mCommandLine = process.argv.slice((!process.argv[0].endsWith("node")) ? 1 : 2).join(" ");
 
         // Configure Yargs to meet the CLI's needs
         new YargsConfigurer(
