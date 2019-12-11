@@ -63,6 +63,7 @@ type ConstructorOrString<T extends IOverridesRestriction> = {
  * IConstructor type. The capability for string and undefined types is added in
  * the declaration of the {@link IImperativeOverrides} type.
  */
+// tslint:disable-next-line
 interface ImperativeOverrides extends IOverridesRestriction {
     /**
      * A class that your Imperative CLI app can provide us in place of our

@@ -39,7 +39,7 @@ const uuidv4 = require("uuid/v4");
 /**
  * Exports for usage in tests
  */
-export {resolve, basename, dirname} from "path";
+export { resolve, basename, dirname } from "path";
 
 
 export const rimraf = (dir: string) => {
@@ -53,10 +53,10 @@ export const rimraf = (dir: string) => {
 export * from "fs";
 
 
-export {inspect} from "util";
+export { inspect } from "util";
 
 export * from "path";
-export {spawnSync, SpawnSyncReturns} from "child_process";
+export { spawnSync, SpawnSyncReturns } from "child_process";
 export const DataObjectParser = require("dataobject-parser");
 export * from "fs";
 
