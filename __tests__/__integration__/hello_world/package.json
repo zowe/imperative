@@ -57,7 +57,7 @@
     "stack-trace": "0.0.10",
     "wrap-ansi": "3.0.1",
     "yamljs": "0.3.0",
-    "yargs": "8.0.2"
+    "yargs": "15.0.2"
   },
   "devDependencies": {
     "@types/body-parser": "1.16.4",
