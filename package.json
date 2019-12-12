@@ -134,7 +134,7 @@
     "tslint": "5.20.1",
     "typedoc": "^0.15.0",
     "typescript": "3.2.2",
-    "uuid": "3.2.1",
+    "uuid": "^3.3.2",
     "yargs-parser": "16.1.0"
   },
   "engines": {
