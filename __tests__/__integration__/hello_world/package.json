@@ -87,7 +87,7 @@
     "jsdoc": "^3.6.2",
     "madge": "3.6.0",
     "shebang-regex": "2.0.0",
-    "tslint": "5.10.0",
+    "tslint": "5.20.1",
     "typedoc": "^0.15.0",
     "typescript": "3.2.2",
     "uuid": "3.2.1",
