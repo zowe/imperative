@@ -80,7 +80,7 @@ export class Imperative {
     /**
      *  Retrieve the root command name.
      *  @example
-     *  For example, in "banana a b --c", banana is the root command name.
+     *  For example, in "banana a b --c", "banana" is the root command name.
      *  @returns {string} - root command name
      */
     public static get rootCommandName(): string {
@@ -90,7 +90,7 @@ export class Imperative {
     /**
      *  Retrieve the command line.
      *  @example
-     *  For example, banana a b --c", is the command line.
+     *  For example, in "banana a b --c", "a b --c" is the command line.
      *  @returns {string} - command line
      */
     public static get commandLine(): string {
@@ -519,29 +519,7 @@ export class Imperative {
             progressBarSpinner: ImperativeConfig.instance.loadedConfig.progressBarSpinner
         };
 
-        // do not retrieve command line if invoked from test as argv is undefined
-        /*if (this.yargs.argv !== undefined) {
-            // retrieve the arguments to re-build the command entered
-            const argV: any = this.yargs.argv;
-
-            let commandText: string = "";
-            let i: number;
-            // retrieve the groups, command and positional arguments
-            for (i = 0; i < argV._.length; i++) {
-                commandText = commandText + argV._[i] + " ";
-            }
-            // retrieve the options and arguments specified
-            for (const key in argV) {
-                if (argV.hasOwnProperty(key) && (key !== "_" && key !== "$0")) {
-                    commandText = commandText + "--" + key + " " + argV[key] + " ";
-                }
-            }
-            this.mCommandLine = commandText.trim();
-        } else {
-            this.mCommandLine = "";
-        }*/
-        // this.mCommandLine = process.argv.slice(1).join(" ");
-        this.mCommandLine = process.argv.slice((!process.argv[0].endsWith("node")) ? 1 : 2).join(" ");
+        this.mCommandLine = process.argv.slice(2).join(" ");
 
         // Configure Yargs to meet the CLI's needs
         new YargsConfigurer(
