@@ -256,7 +256,7 @@ export class WebHelpGenerator {
             .slice(1)  // Delete header line
             .map((line: string) => {
                 // Wrap group/command names inside links
-                const match = line.match(/^\s*([a-z0-9-]+(?:\s\|\s[a-z0-9-]+)*)\s+[A-Z]/);
+                const match = line.match(/^\s{0,4}([a-z0-9-]+(?:\s\|\s[a-z0-9-]+)*)\s+[a-z]/i);
                 if (match) {
                     const href = `${hrefPrefix}${match[1].split(" ")[0]}.html`;
                     return `\n* <a href="${href}">${match[1]}</a> -` + line.slice(match[0].length - 2);
@@ -316,11 +316,9 @@ export class WebHelpGenerator {
 
         let htmlContent = "<h2>" + this.genBreadcrumb(rootCommandName, fullCommandName) + this.genPrintButton() + "</h2>\n";
         htmlContent += this.marked(markdownContent);
-        this.appendToSinglePageHtml(definition, rootCommandName, fullCommandName, htmlContent);
-        htmlContent = this.genDocsHeader(fullCommandName.replace(/_/g, " ")) + htmlContent + this.genDocsFooter();
 
         // Remove backslash escapes from URLs
-        htmlContent = htmlContent.replace(/(%5C(?=.+?>.+?<\/a>)|\\(?=\..+?<\/a>))/g, "");
+        htmlContent = htmlContent.replace(/(%5C|\\)(?=.+?<\/a>)/g, "");
 
         // Add Copy buttons after command line examples
         htmlContent = htmlContent.replace(/<code>\$\s*(.*?)<\/code>/g,
@@ -332,6 +330,9 @@ export class WebHelpGenerator {
             htmlContent = htmlContent.replace(new RegExp(homeDir.replace(/[\\/]/g, "."), "g"),
                 homeDir.slice(0, homeDir.lastIndexOf(path.sep) + 1) + "&lt;user&gt;");
         }
+
+        this.appendToSinglePageHtml(definition, rootCommandName, fullCommandName, htmlContent);
+        htmlContent = this.genDocsHeader(fullCommandName.replace(/_/g, " ")) + htmlContent + this.genDocsFooter();
 
         const helpHtmlFile = `${rootCommandName}_${fullCommandName.trim()}.html`;
         const helpHtmlPath = path.join(docsDir, helpHtmlFile);
