@@ -16,6 +16,10 @@ import { AbstractRestClient } from "./AbstractRestClient";
 import { JSONUtils } from "../../../utilities";
 import { Readable, Writable } from "stream";
 import { ITaskWithStatus } from "../../../operations";
+import { IFullResponseOptions } from "./doc/IFullResponseOptions";
+import { IRestClientResponse } from "./doc/IRestClientResponse";
+import { IOptionsFullRequest } from "./doc/IOptionsFullRequest";
+import { CLIENT_PROPERTY } from "./types/AbstractRestClientProperties";
 
 /**
  * Class to handle http(s) requests, build headers, collect data, report status codes, and header responses
@@ -375,6 +379,75 @@ export class RestClient extends AbstractRestClient {
     }
 
     /**
+     * REST HTTP GET operation returning full HTTP(S) Response
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {IOptionsFullRequest} options - URI for which this request should go against
+     * @returns {Promise<IRestClientResponse>} - full response or filtered based on provided params
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static async getExpectFullResponse(session: AbstractSession,
+                                              options: IOptionsFullRequest): Promise<IRestClientResponse> {
+        const  requestOptions: IFullResponseOptions = {
+            resource : options.resource,
+            request : HTTP_VERB.GET,
+            reqHeaders : options.reqHeaders,
+            writeData : options.writeData,
+            responseStream : options.responseStream,
+            requestStream : options.requestStream,
+            normalizeResponseNewLines : options.normalizeResponseNewLines,
+            normalizeRequestNewLines : options.normalizeRequestNewLines,
+            task : options.task,
+        };
+
+        const client = new this(session);
+        // await client.performRest(resource, HTTP_VERB.GET, reqHeaders, undefined, responseStream,
+        //                          undefined, normalizeResponseNewLines, undefined, task);
+        await client.request(requestOptions);
+        if (options.dataToReturn) {
+            return this.extractExpectedData(client, options.dataToReturn);
+        } else {
+            return client;
+        }
+    }
+
+    /**
+     * REST HTTP PUT operation returning full HTTP(S) Response
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {IOptionsFullRequest} options - list of parameters
+     * @returns {Promise<IRestClientResponse>} - response content from http(s) call
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static async putExpectFullResponse(session: AbstractSession,
+                                              options: IOptionsFullRequest): Promise<IRestClientResponse> {
+        const  requestOptions: IFullResponseOptions = {
+            resource : options.resource,
+            request : HTTP_VERB.PUT,
+            reqHeaders : options.reqHeaders,
+            writeData: options.writeData,
+            responseStream: options.responseStream,
+            requestStream: options.requestStream,
+            normalizeResponseNewLines: options.normalizeResponseNewLines,
+            normalizeRequestNewLines: options.normalizeRequestNewLines,
+            task: options.task,
+        };
+
+        const client = new this(session);
+        // await client.performRest(options.resource, HTTP_VERB.PUT, reqHeaders, data);
+        await client.request(requestOptions);
+        if (options.dataToReturn) {
+            return this.extractExpectedData(client, options.dataToReturn);
+        } else {
+            return client;
+        }
+    }
+
+    /**
      * Helper method to return an indicator for whether or not a URI contains a query string.
      * @static
      * @param {string} query - URI
@@ -383,5 +456,30 @@ export class RestClient extends AbstractRestClient {
      */
     public static hasQueryString(query: string): boolean {
         return (query.slice(-1) !== RestConstants.QUERY_ID);
+    }
+
+    /**
+     * Helper method to extract requested data from response object
+     * @static
+     * @param {any} response - HTTP(S) response object
+     * @param {string[]} expected - list with object properties to return
+     * @returns {any} - trimmed response object based on the list provided
+     * @memberof RestClient
+     */
+    private static extractExpectedData(client: AbstractRestClient, toReturn: CLIENT_PROPERTY[]): IRestClientResponse {
+        const tailoredResult: any = {};
+        // const listOfProperties = Object.keys(Object.getOwnPropertyDescriptors(client));
+        toReturn.forEach((property) => {
+            tailoredResult[property] = client[property];
+        });
+        // toReturn.forEach((property) => {
+        //     if (listOfProperties.includes(property)) {
+        //         // tailoredResult[property] = Object.entries(client).find((prop) => prop[0] === property)[1];
+        //         tailoredResult[property] = client[(property as CLIENT_OPTION)];
+        //     } else {
+        //         tailoredResult[property] = null;
+        //     }
+        // });
+        return tailoredResult;
     }
 }

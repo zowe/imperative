@@ -30,6 +30,7 @@ import { Readable, Writable } from "stream";
 import { IO } from "../../../io";
 import { ITaskWithStatus, TaskProgress, TaskStage } from "../../../operations";
 import { TextUtils } from "../../../utilities";
+import { IRestOptions } from "./doc/IRestOptions";
 
 export type RestClientResolve = (data: string) => void;
 
@@ -192,6 +193,25 @@ export abstract class AbstractRestClient {
         ImperativeExpect.toNotBeNullOrUndefined(mSession);
         this.mLogger = Logger.getImperativeLogger();
         this.mIsJson = false;
+    }
+
+    /**
+     * Overload function to perform the actual http REST call with appropriate user input using an option object (following angular's HTTPClient)
+     * @param {IRestOptions} options
+     * @memberof AbstractRestClient
+     */
+    public request(options: IRestOptions) {
+        return this.performRest(
+            options.resource,
+            options.request,
+            options.reqHeaders,
+            options.writeData,
+            options.responseStream,
+            options.requestStream,
+            options.normalizeResponseNewLines,
+            options.normalizeRequestNewLines,
+            options.task
+            );
     }
 
     /**
