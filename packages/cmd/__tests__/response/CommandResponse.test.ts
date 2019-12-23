@@ -14,7 +14,7 @@ import { ITaskWithStatus, TaskStage } from "../../../operations";
 jest.mock("chalk");
 import { CommandResponse } from "../../src/response/CommandResponse";
 import { ImperativeError } from "../../../error";
-import { inspect, isNullOrUndefined } from "util";
+import { inspect } from "util";
 import { TestLogger } from "../../../../__tests__/TestLogger";
 import { IO } from "../../../io";
 import { OUTPUT_FORMAT } from "../..";
@@ -952,7 +952,10 @@ describe("Command Response", () => {
                 expect(messages).toMatchSnapshot();
                 expect(error).toBeDefined();
                 expect(error instanceof ImperativeError).toBe(true);
-                expect(error.message).toMatchSnapshot();
+                // Check only the first line of the error message
+                // In Node v12, the error message contains multiple lines
+                // In previous versions of Node, the message is only one line
+                expect(error.message.split("\n", 1)[0]).toMatchSnapshot();
             });
 
             it("should handle an invalid format type and throw an error", () => {
