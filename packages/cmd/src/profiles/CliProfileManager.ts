@@ -661,7 +661,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     this.log.debug("Inserting dependency profile named \"%s\" of type \"%s\"", dependentProfileName, dependency.type);
                     dependencies.push({
                         type: dependency.type,
-                        name: dependentProfileName
+                        name: dependentProfileName as string
                     });
                 }
             }

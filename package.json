@@ -1,6 +1,6 @@
 {
   "name": "@zowe/imperative",
-  "version": "4.4.4",
+  "version": "4.4.5",
   "description": "framework for building configurable CLIs",
   "author": "Broadcom",
   "license": "EPL-2.0",
@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@types/lodash-deep": "^2.0.0",
-    "@types/yargs": "8.0.2",
+    "@types/yargs": "13.0.3",
     "@zowe/perf-timing": "1.0.3",
     "chalk": "2.4.2",
     "cli-table3": "0.5.1",
@@ -76,7 +76,7 @@
     "stack-trace": "0.0.10",
     "wrap-ansi": "3.0.1",
     "yamljs": "0.3.0",
-    "yargs": "8.0.2"
+    "yargs": "15.0.2"
   },
   "devDependencies": {
     "@types/bootstrap": "4.3.1",
@@ -134,7 +134,7 @@
     "typedoc": "^0.15.0",
     "typescript": "3.2.2",
     "uuid": "3.2.1",
-    "yargs-parser": "9.0.2"
+    "yargs-parser": "16.1.0"
   },
   "engines": {
     "node": ">=6.0.0"
