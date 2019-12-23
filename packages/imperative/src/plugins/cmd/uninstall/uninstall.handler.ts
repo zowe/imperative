@@ -45,7 +45,7 @@ export default class UninstallHandler implements ICommandHandler {
     const chalk = TextUtils.chalk;
     this.console.debug(`Root Directory: ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION}`);
 
-    if (params.arguments.plugin.length === 0) {
+    if (params.arguments.plugin == null || params.arguments.plugin.length === 0) {
       throw new ImperativeError({
         msg: `${chalk.yellow.bold("Package name")} is required.`
       });
