@@ -30,7 +30,10 @@ describe("cmd-cli invalid no-handler", () => {
     it("should fail the command with a message if the command definition of type command omits a handler", () => {
         const response = runCliScript(__dirname + "/__scripts__/invalid-handler.sh", TEST_ENVIRONMENT.workingDir);
         expect(response.status).toBe(1);
-        expect(response.stderr.toString()).toMatchSnapshot();
-        expect(response.stdout.toString()).toMatchSnapshot();
+        // Check only the first line of the error message
+        // In Node v12, the error message contains multiple lines
+        // In previous versions of Node, the message is only one line
+        expect(response.stderr.toString().replace(/^(Require stack:).+/ms, "")).toMatchSnapshot();
+        expect(response.stdout.toString().replace(/\\n(Require stack:).+?((\\n)?")/g, "$2")).toMatchSnapshot();
     });
 });
