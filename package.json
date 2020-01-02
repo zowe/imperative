@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@types/lodash-deep": "^2.0.0",
-    "@types/yargs": "13.0.3",
+    "@types/yargs": "13.0.4",
     "@zowe/perf-timing": "1.0.3",
     "chalk": "2.4.2",
     "cli-table3": "0.5.1",
@@ -76,7 +76,7 @@
     "stack-trace": "0.0.10",
     "wrap-ansi": "3.0.1",
     "yamljs": "0.3.0",
-    "yargs": "15.0.2"
+    "yargs": "15.1.0"
   },
   "devDependencies": {
     "@types/bootstrap": "4.3.0",
