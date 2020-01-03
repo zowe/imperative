@@ -952,10 +952,7 @@ describe("Command Response", () => {
                 expect(messages).toMatchSnapshot();
                 expect(error).toBeDefined();
                 expect(error instanceof ImperativeError).toBe(true);
-                // Check only the first line of the error message
-                // In Node v12, the error message contains multiple lines
-                // In previous versions of Node, the message is only one line
-                expect(error.message.split("\n", 1)[0]).toMatchSnapshot();
+                expect(error.message).toContain("Error copying input parameters. Details: Converting circular structure to JSON");
             });
 
             it("should handle an invalid format type and throw an error", () => {
