@@ -32,8 +32,6 @@ exports[`Command Response format APIs error checking should handle a circular re
 "
 `;
 
-exports[`Command Response format APIs error checking should handle a circular reference and throw an error 2`] = `"Error copying input parameters. Details: Converting circular structure to JSON"`;
-
 exports[`Command Response format APIs error checking should handle an invalid format type and throw an error 1`] = `""`;
 
 exports[`Command Response format APIs error checking should handle an invalid format type and throw an error 2`] = `"Expect Error: Output format must be one of the following: table,list,object,string"`;

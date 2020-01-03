@@ -138,6 +138,9 @@ export class SyntaxValidator {
         const expectedUnderscoreLength = fullCommandName.split(" ").length;
         /**
          * Reject unknown positional arguments
+         * TODO Investigate removing this because currently it is not being used. After updating
+         * yargs to version >14, it handles unknown positionals automatically in strict mode, before
+         * Imperative gets a chance to detect them.
          */
         if (this.mCommandDefinition.type === "command" &&
             !isNullOrUndefined(this.mCommandDefinition.name) &&

@@ -12,8 +12,6 @@
 import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../src/TestUtil";
-import { ICommandResponse } from "../../../../../../../packages/cmd";
-import { Imperative } from "../../../../../../../packages/imperative";
 
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
@@ -30,10 +28,7 @@ describe("cmd-cli invalid no-handler", () => {
     it("should fail the command with a message if the command definition of type command omits a handler", () => {
         const response = runCliScript(__dirname + "/__scripts__/invalid-handler.sh", TEST_ENVIRONMENT.workingDir);
         expect(response.status).toBe(1);
-        // Check only the first line of the error message
-        // In Node v12, the error message contains multiple lines
-        // In previous versions of Node, the message is only one line
-        expect(response.stderr.toString().replace(/^(Require stack:).+/ms, "")).toMatchSnapshot();
-        expect(response.stdout.toString().replace(/\\n(Require stack:).+?((\\n)?")/g, "$2")).toMatchSnapshot();
+        expect(response.stderr.toString()).toContain("Could not instantiate the handler invalid-handler for command invalid-handler");
+        expect(response.stdout.toString()).toContain("Cannot find module 'invalid-handler'");
     });
 });
