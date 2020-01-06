@@ -254,6 +254,8 @@ export class RestClient extends AbstractRestClient {
                               responseStream: Writable,
                               normalizeResponseNewLines?: boolean,
                               task?: ITaskWithStatus): Promise<string> {
+        // return new this(session).performRest(resource, HTTP_VERB.GET, reqHeaders, undefined, responseStream,
+        //     undefined, normalizeResponseNewLines, undefined, task);
         return new this(session).performRest(resource, HTTP_VERB.GET, reqHeaders, undefined, responseStream,
             undefined, normalizeResponseNewLines, undefined, task);
     }
@@ -403,9 +405,7 @@ export class RestClient extends AbstractRestClient {
         };
 
         const client = new this(session);
-        // await client.performRest(resource, HTTP_VERB.GET, reqHeaders, undefined, responseStream,
-        //                          undefined, normalizeResponseNewLines, undefined, task);
-        await client.request(requestOptions);
+        await client.performRestCall(requestOptions);
         return this.extractExpectedData(client, options.dataToReturn);
     }
 
@@ -434,8 +434,7 @@ export class RestClient extends AbstractRestClient {
         };
 
         const client = new this(session);
-        // await client.performRest(options.resource, HTTP_VERB.PUT, reqHeaders, data);
-        await client.request(requestOptions);
+        await client.performRestCall(requestOptions);
         return this.extractExpectedData(client, options.dataToReturn);
     }
 
@@ -450,7 +449,7 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static async deleteExpectFullResponse(session: AbstractSession,
-                                              options: IOptionsFullRequest): Promise<IRestClientResponse> {
+                                                 options: IOptionsFullRequest): Promise<IRestClientResponse> {
         const  requestOptions: IFullResponseOptions = {
             resource : options.resource,
             request : HTTP_VERB.DELETE,
@@ -464,8 +463,7 @@ export class RestClient extends AbstractRestClient {
         };
 
         const client = new this(session);
-        // await client.performRest(options.resource, HTTP_VERB.PUT, reqHeaders, data);
-        await client.request(requestOptions);
+        await client.performRestCall(requestOptions);
         return this.extractExpectedData(client, options.dataToReturn);
     }
 
@@ -480,7 +478,7 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static async postExpectFullResponse(session: AbstractSession,
-                                              options: IOptionsFullRequest): Promise<IRestClientResponse> {
+                                               options: IOptionsFullRequest): Promise<IRestClientResponse> {
         const  requestOptions: IFullResponseOptions = {
             resource : options.resource,
             request : HTTP_VERB.POST,
@@ -494,8 +492,7 @@ export class RestClient extends AbstractRestClient {
         };
 
         const client = new this(session);
-        // await client.performRest(options.resource, HTTP_VERB.PUT, reqHeaders, data);
-        await client.request(requestOptions);
+        await client.performRestCall(requestOptions);
         return this.extractExpectedData(client, options.dataToReturn);
     }
 
@@ -519,23 +516,14 @@ export class RestClient extends AbstractRestClient {
      * @returns {IRestClientResponse} - trimmed or full response object based on the list provided
      * @memberof RestClient
      */
-    // private static extractExpectedData(client: AbstractRestClient, toReturn: CLIENT_PROPERTY[]): IRestClientResponse {
     private static extractExpectedData(client: AbstractRestClient,
                                        toReturn: CLIENT_PROPERTY[] = Object.values(CLIENT_PROPERTY)
                                        ): IRestClientResponse {
         const tailoredResult: any = {};
-        // const listOfProperties = Object.keys(Object.getOwnPropertyDescriptors(client));
         toReturn.forEach((property) => {
             tailoredResult[property] = client[property];
         });
-        // toReturn.forEach((property) => {
-        //     if (listOfProperties.includes(property)) {
-        //         // tailoredResult[property] = Object.entries(client).find((prop) => prop[0] === property)[1];
-        //         tailoredResult[property] = client[(property as CLIENT_OPTION)];
-        //     } else {
-        //         tailoredResult[property] = null;
-        //     }
-        // });
+
         return tailoredResult as IRestClientResponse;
     }
 }

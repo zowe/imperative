@@ -196,22 +196,129 @@ export abstract class AbstractRestClient {
     }
 
     /**
-     * Overload function to perform the actual http REST call with appropriate user input using an option object (following angular's HTTPClient)
+     * Perform the actual http REST call with appropriate user input
      * @param {IRestOptions} options
+     * @returns {Promise<string>}
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
      * @memberof AbstractRestClient
      */
-    public request(options: IRestOptions) {
-        return this.performRest(
-            options.resource,
-            options.request,
-            options.reqHeaders,
-            options.writeData,
-            options.responseStream,
-            options.requestStream,
-            options.normalizeResponseNewLines,
-            options.normalizeRequestNewLines,
-            options.task
-            );
+    public performRestCall(options: IRestOptions): Promise<string> {
+        return new Promise<string>((resolve: RestClientResolve, reject: ImperativeReject) => {
+
+            const timingApi = PerfTiming.api;
+
+            if (PerfTiming.isEnabled) {
+                // Marks point START
+                timingApi.mark("START_PERFORM_REST");
+            }
+
+            // save for logging
+            this.mResource = options.resource;
+            this.mRequest = options.request;
+            this.mReqHeaders = options.reqHeaders;
+            this.mWriteData = options.writeData;
+            this.mRequestStream = options.requestStream;
+            this.mResponseStream = options.responseStream;
+            this.mNormalizeRequestNewlines = options.normalizeRequestNewLines;
+            this.mNormalizeResponseNewlines = options.normalizeResponseNewLines;
+            this.mTask = options.task;
+
+            // got a new promise
+            this.mResolve = resolve;
+            this.mReject = reject;
+
+            ImperativeExpect.toBeDefinedAndNonBlank(options.resource, "resource");
+            ImperativeExpect.toBeDefinedAndNonBlank(options.request, "request");
+            ImperativeExpect.toBeEqual(options.requestStream != null && options.writeData != null, false,
+                "You cannot specify both writeData and writeStream");
+            const buildOptions = this.buildOptions(options.resource, options.request, options.reqHeaders);
+
+            /**
+             * Perform the actual http request
+             */
+            let clientRequest: https.ClientRequest | http.ClientRequest;
+            if (this.session.ISession.protocol === AbstractSession.HTTPS_PROTOCOL) {
+                clientRequest = https.request(buildOptions, this.requestHandler.bind(this));
+            } else if (this.session.ISession.protocol === AbstractSession.HTTP_PROTOCOL) {
+                clientRequest = http.request(buildOptions, this.requestHandler.bind(this));
+            }
+
+            /**
+             * For a REST request which includes writing raw data to the http server,
+             * write the data via http request.
+             */
+            if (options.writeData != null) {
+
+                this.log.debug("will write data for request");
+                /**
+                 * If the data is JSON, translate to text before writing
+                 */
+                if (this.mIsJson) {
+                    this.log.debug("writing JSON for request");
+                    this.log.trace("JSON body: %s", JSON.stringify(options.writeData));
+                    clientRequest.write(JSON.stringify(options.writeData));
+                } else {
+                    clientRequest.write(options.writeData);
+                }
+            }
+
+            /**
+             * Invoke any onError method whenever an error occurs on writing
+             */
+            clientRequest.on("error", (errorResponse: any) => {
+                reject(this.populateError({
+                    msg: "http(s) request error event called",
+                    causeErrors: errorResponse,
+                    source: "client"
+                }));
+            });
+
+            if (options.requestStream != null) {
+                // if the user requested streaming write of data to the request,
+                // write the data chunk by chunk to the server
+                let bytesUploaded = 0;
+                options.requestStream.on("data", (data: Buffer) => {
+                    this.log.debug("Writing data chunk of length %d from requestStream to clientRequest", data.byteLength);
+                    if (this.mNormalizeRequestNewlines) {
+                        this.log.debug("Normalizing new lines in request chunk to \\n");
+                        data = Buffer.from(data.toString().replace(/\r?\n/g, "\n"));
+                    }
+                    if (this.mTask != null) {
+                        bytesUploaded += data.byteLength;
+                        this.mTask.statusMessage = TextUtils.formatMessage("Uploading %d B", bytesUploaded);
+                        if (this.mTask.percentComplete < TaskProgress.NINETY_PERCENT) {
+                            // we don't know how far along we are but increment the percentage to
+                            // show we are making progress
+                            this.mTask.percentComplete++;
+                        }
+                    }
+                    clientRequest.write(data);
+                });
+                options.requestStream.on("error", (streamError: any) => {
+                    this.log.error("Error encountered reading requestStream: " + streamError);
+                    reject(this.populateError({
+                        msg: "Error reading requestStream",
+                        causeErrors: streamError,
+                        source: "client"
+                    }));
+                });
+                options.requestStream.on("end", () => {
+                    this.log.debug("Finished reading requestStream");
+                    // finish the request
+                    clientRequest.end();
+                });
+            } else {
+                // otherwise we're done with the request
+                clientRequest.end();
+            }
+            if (PerfTiming.isEnabled) {
+                // Marks point END
+                timingApi.mark("END_PERFORM_REST");
+                timingApi.measure("performRest: $resource", "START_PERFORM_REST", "END_PERFORM_REST");
+            }
+
+        });
     }
 
     /**
@@ -229,125 +336,23 @@ export abstract class AbstractRestClient {
      * @param task - task that will automatically be updated to report progress of upload or download to user
      * @throws  if the request gets a status code outside of the 200 range
      *          or other connection problems occur (e.g. connection refused)
+     * @deprecated - since version x.x.x. It was changed to a wrapper for performRestCall().
+     *               It will be removed in version y.y.y
      */
     public performRest(resource: string, request: HTTP_VERB, reqHeaders?: any[], writeData?: any,
                        responseStream?: Writable, requestStream?: Readable,
                        normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
                        task?: ITaskWithStatus): Promise<string> {
-        return new Promise<string>((resolve: RestClientResolve, reject: ImperativeReject) => {
-
-            const timingApi = PerfTiming.api;
-
-            if (PerfTiming.isEnabled) {
-                // Marks point START
-                timingApi.mark("START_PERFORM_REST");
-            }
-
-            // save for logging
-            this.mResource = resource;
-            this.mRequest = request;
-            this.mReqHeaders = reqHeaders;
-            this.mWriteData = writeData;
-            this.mRequestStream = requestStream;
-            this.mResponseStream = responseStream;
-            this.mNormalizeRequestNewlines = normalizeRequestNewLines;
-            this.mNormalizeResponseNewlines = normalizeResponseNewLines;
-            this.mTask = task;
-
-            // got a new promise
-            this.mResolve = resolve;
-            this.mReject = reject;
-
-            ImperativeExpect.toBeDefinedAndNonBlank(resource, "resource");
-            ImperativeExpect.toBeDefinedAndNonBlank(request, "request");
-            ImperativeExpect.toBeEqual(requestStream != null && writeData != null, false,
-                "You cannot specify both writeData and writeStream");
-            const options = this.buildOptions(resource, request, reqHeaders);
-
-            /**
-             * Perform the actual http request
-             */
-            let clientRequest: https.ClientRequest | http.ClientRequest;
-            if (this.session.ISession.protocol === AbstractSession.HTTPS_PROTOCOL) {
-                clientRequest = https.request(options, this.requestHandler.bind(this));
-            } else if (this.session.ISession.protocol === AbstractSession.HTTP_PROTOCOL) {
-                clientRequest = http.request(options, this.requestHandler.bind(this));
-            }
-
-            /**
-             * For a REST request which includes writing raw data to the http server,
-             * write the data via http request.
-             */
-            if (writeData != null) {
-
-                this.log.debug("will write data for request");
-                /**
-                 * If the data is JSON, translate to text before writing
-                 */
-                if (this.mIsJson) {
-                    this.log.debug("writing JSON for request");
-                    this.log.trace("JSON body: %s", JSON.stringify(writeData));
-                    clientRequest.write(JSON.stringify(writeData));
-                } else {
-                    clientRequest.write(writeData);
-                }
-            }
-
-            /**
-             * Invoke any onError method whenever an error occurs on writing
-             */
-            clientRequest.on("error", (errorResponse: any) => {
-                reject(this.populateError({
-                    msg: "http(s) request error event called",
-                    causeErrors: errorResponse,
-                    source: "client"
-                }));
-            });
-
-            if (requestStream != null) {
-                // if the user requested streaming write of data to the request,
-                // write the data chunk by chunk to the server
-                let bytesUploaded = 0;
-                requestStream.on("data", (data: Buffer) => {
-                    this.log.debug("Writing data chunk of length %d from requestStream to clientRequest", data.byteLength);
-                    if (this.mNormalizeRequestNewlines) {
-                        this.log.debug("Normalizing new lines in request chunk to \\n");
-                        data = Buffer.from(data.toString().replace(/\r?\n/g, "\n"));
-                    }
-                    if (this.mTask != null) {
-                        bytesUploaded += data.byteLength;
-                        this.mTask.statusMessage = TextUtils.formatMessage("Uploading %d B", bytesUploaded);
-                        if (this.mTask.percentComplete < TaskProgress.NINETY_PERCENT) {
-                            // we don't know how far along we are but increment the percentage to
-                            // show we are making progress
-                            this.mTask.percentComplete++;
-                        }
-                    }
-                    clientRequest.write(data);
-                });
-                requestStream.on("error", (streamError: any) => {
-                    this.log.error("Error encountered reading requestStream: " + streamError);
-                    reject(this.populateError({
-                        msg: "Error reading requestStream",
-                        causeErrors: streamError,
-                        source: "client"
-                    }));
-                });
-                requestStream.on("end", () => {
-                    this.log.debug("Finished reading requestStream");
-                    // finish the request
-                    clientRequest.end();
-                });
-            } else {
-                // otherwise we're done with the request
-                clientRequest.end();
-            }
-            if (PerfTiming.isEnabled) {
-                // Marks point END
-                timingApi.mark("END_PERFORM_REST");
-                timingApi.measure("performRest: $resource", "START_PERFORM_REST", "END_PERFORM_REST");
-            }
-
+        return this.performRestCall({
+            resource,
+            request,
+            reqHeaders,
+            writeData,
+            responseStream,
+            requestStream,
+            normalizeResponseNewLines,
+            normalizeRequestNewLines,
+            task
         });
     }
 
