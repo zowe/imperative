@@ -406,11 +406,7 @@ export class RestClient extends AbstractRestClient {
         // await client.performRest(resource, HTTP_VERB.GET, reqHeaders, undefined, responseStream,
         //                          undefined, normalizeResponseNewLines, undefined, task);
         await client.request(requestOptions);
-        if (options.dataToReturn) {
-            return this.extractExpectedData(client, options.dataToReturn);
-        } else {
-            return client;
-        }
+        return this.extractExpectedData(client, options.dataToReturn);
     }
 
     /**
@@ -440,11 +436,7 @@ export class RestClient extends AbstractRestClient {
         const client = new this(session);
         // await client.performRest(options.resource, HTTP_VERB.PUT, reqHeaders, data);
         await client.request(requestOptions);
-        if (options.dataToReturn) {
-            return this.extractExpectedData(client, options.dataToReturn);
-        } else {
-            return client;
-        }
+        return this.extractExpectedData(client, options.dataToReturn);
     }
 
     /**
@@ -460,13 +452,17 @@ export class RestClient extends AbstractRestClient {
 
     /**
      * Helper method to extract requested data from response object
+     * If list is not passed, returns entire response
      * @static
-     * @param {any} response - HTTP(S) response object
-     * @param {string[]} expected - list with object properties to return
-     * @returns {any} - trimmed response object based on the list provided
+     * @param {any} client - HTTP(S) response object
+     * @param {string[]} toReturn - list with object properties to return
+     * @returns {IRestClientResponse} - trimmed or full response object based on the list provided
      * @memberof RestClient
      */
-    private static extractExpectedData(client: AbstractRestClient, toReturn: CLIENT_PROPERTY[]): IRestClientResponse {
+    // private static extractExpectedData(client: AbstractRestClient, toReturn: CLIENT_PROPERTY[]): IRestClientResponse {
+    private static extractExpectedData(client: AbstractRestClient,
+                                       toReturn: CLIENT_PROPERTY[] = Object.values(CLIENT_PROPERTY)
+                                       ): IRestClientResponse {
         const tailoredResult: any = {};
         // const listOfProperties = Object.keys(Object.getOwnPropertyDescriptors(client));
         toReturn.forEach((property) => {
@@ -480,6 +476,6 @@ export class RestClient extends AbstractRestClient {
         //         tailoredResult[property] = null;
         //     }
         // });
-        return tailoredResult;
+        return tailoredResult as IRestClientResponse;
     }
 }
