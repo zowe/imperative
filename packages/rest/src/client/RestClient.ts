@@ -440,6 +440,66 @@ export class RestClient extends AbstractRestClient {
     }
 
     /**
+     * REST HTTP delete operation returning full HTTP(S) Response
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {IOptionsFullRequest} options - list of parameters
+     * @returns {Promise<IRestClientResponse>} - response content from http(s) call
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static async deleteExpectFullResponse(session: AbstractSession,
+                                              options: IOptionsFullRequest): Promise<IRestClientResponse> {
+        const  requestOptions: IFullResponseOptions = {
+            resource : options.resource,
+            request : HTTP_VERB.DELETE,
+            reqHeaders : options.reqHeaders,
+            writeData: options.writeData,
+            responseStream: options.responseStream,
+            requestStream: options.requestStream,
+            normalizeResponseNewLines: options.normalizeResponseNewLines,
+            normalizeRequestNewLines: options.normalizeRequestNewLines,
+            task: options.task,
+        };
+
+        const client = new this(session);
+        // await client.performRest(options.resource, HTTP_VERB.PUT, reqHeaders, data);
+        await client.request(requestOptions);
+        return this.extractExpectedData(client, options.dataToReturn);
+    }
+
+    /**
+     * REST HTTP post operation returning full HTTP(S) Response
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {IOptionsFullRequest} options - list of parameters
+     * @returns {Promise<IRestClientResponse>} - response content from http(s) call
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static async postExpectFullResponse(session: AbstractSession,
+                                              options: IOptionsFullRequest): Promise<IRestClientResponse> {
+        const  requestOptions: IFullResponseOptions = {
+            resource : options.resource,
+            request : HTTP_VERB.POST,
+            reqHeaders : options.reqHeaders,
+            writeData: options.writeData,
+            responseStream: options.responseStream,
+            requestStream: options.requestStream,
+            normalizeResponseNewLines: options.normalizeResponseNewLines,
+            normalizeRequestNewLines: options.normalizeRequestNewLines,
+            task: options.task,
+        };
+
+        const client = new this(session);
+        // await client.performRest(options.resource, HTTP_VERB.PUT, reqHeaders, data);
+        await client.request(requestOptions);
+        return this.extractExpectedData(client, options.dataToReturn);
+    }
+
+    /**
      * Helper method to return an indicator for whether or not a URI contains a query string.
      * @static
      * @param {string} query - URI
