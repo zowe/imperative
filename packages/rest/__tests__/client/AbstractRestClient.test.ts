@@ -18,6 +18,8 @@ import { ProcessUtils } from "../../../utilities";
 import { MockHttpRequestResponse } from "./__model__/MockHttpRequestResponse";
 import { EventEmitter } from "events";
 import { ImperativeError } from "../../../error";
+import { IOptionsFullRequest } from "../../src/client/doc/IOptionsFullRequest";
+import { CLIENT_PROPERTY } from "../../src/client/types/AbstractRestClientProperties";
 
 
 /**
@@ -481,5 +483,99 @@ describe("AbstractRestClient tests", () => {
         await RestClient.deleteStreamed(new Session({
             hostname: "test",
         }), "/resource", [Headers.APPLICATION_JSON], fakeResponseStream);
+    });
+
+    it("should return full response when requested", async () => {
+        const emitter = new MockHttpRequestResponse();
+        const requestFnc = jest.fn((options, callback) => {
+            ProcessUtils.nextTick(async () => {
+
+                const newEmit = new MockHttpRequestResponse();
+                callback(newEmit);
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("data", Buffer.from("Sample data", "utf8"));
+                });
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("end");
+                });
+            });
+
+            return emitter;
+        });
+
+        (https.request as any) = requestFnc;
+
+        const options: IOptionsFullRequest = {
+            resource: "/resource",
+        };
+
+        const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), options);
+        expect(data).toMatchSnapshot();
+    });
+
+    it("should return one part of response when requested", async () => {
+        const emitter = new MockHttpRequestResponse();
+        const requestFnc = jest.fn((options, callback) => {
+            ProcessUtils.nextTick(async () => {
+
+                const newEmit = new MockHttpRequestResponse();
+                callback(newEmit);
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("data", Buffer.from("Sample data", "utf8"));
+                });
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("end");
+                });
+            });
+
+            return emitter;
+        });
+
+        (https.request as any) = requestFnc;
+
+        // asking only to return Response property
+        const options: IOptionsFullRequest = {
+            resource: "/resource",
+            dataToReturn: [CLIENT_PROPERTY.response]
+        };
+
+        const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), options);
+        expect(data).toMatchSnapshot();
+    });
+
+    it("should return several parts of response when requested", async () => {
+        const emitter = new MockHttpRequestResponse();
+        const requestFnc = jest.fn((options, callback) => {
+            ProcessUtils.nextTick(async () => {
+
+                const newEmit = new MockHttpRequestResponse();
+                callback(newEmit);
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("data", Buffer.from("Sample data", "utf8"));
+                });
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("end");
+                });
+            });
+
+            return emitter;
+        });
+
+        (https.request as any) = requestFnc;
+
+        // asking to return random properties
+        const options: IOptionsFullRequest = {
+            resource: "/resource",
+            dataToReturn: [CLIENT_PROPERTY.response, CLIENT_PROPERTY.data, CLIENT_PROPERTY.requestSuccess]
+        };
+
+        const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), options);
+        expect(data).toMatchSnapshot();
     });
 });

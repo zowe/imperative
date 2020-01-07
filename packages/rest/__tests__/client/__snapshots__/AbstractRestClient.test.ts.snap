@@ -58,3 +58,109 @@ Object {
   "newData": "response data",
 }
 `;
+
+exports[`AbstractRestClient tests should return full response when requested 1`] = `
+Object {
+  "data": Object {
+    "data": Array [
+      83,
+      97,
+      109,
+      112,
+      108,
+      101,
+      32,
+      100,
+      97,
+      116,
+      97,
+    ],
+    "type": "Buffer",
+  },
+  "dataString": "Sample data",
+  "log": Logger {
+    "category": "imperative",
+    "initStatus": false,
+    "mJsLogger": Logger {
+      "category": "imperative",
+      "context": Object {},
+    },
+  },
+  "requestFailure": false,
+  "requestSuccess": true,
+  "response": MockHttpRequestResponse {
+    "_events": Object {
+      "data": [Function],
+      "end": [Function],
+    },
+    "_eventsCount": 2,
+    "_maxListeners": undefined,
+    "mStatus": "200",
+  },
+  "session": Session {
+    "mISession": Object {
+      "basePath": "",
+      "hostname": "test",
+      "port": 443,
+      "protocol": "https",
+      "rejectUnauthorized": true,
+      "secureProtocol": "SSLv23_method",
+      "strictSSL": true,
+      "type": "none",
+    },
+    "mLog": Logger {
+      "category": "imperative",
+      "initStatus": false,
+      "mJsLogger": Logger {
+        "category": "imperative",
+        "context": Object {},
+      },
+    },
+  },
+}
+`;
+
+exports[`AbstractRestClient tests should return one part of response when requested 1`] = `
+Object {
+  "response": MockHttpRequestResponse {
+    "_events": Object {
+      "data": [Function],
+      "end": [Function],
+    },
+    "_eventsCount": 2,
+    "_maxListeners": undefined,
+    "mStatus": "200",
+  },
+}
+`;
+
+exports[`AbstractRestClient tests should return several parts of response when requested 1`] = `
+Object {
+  "data": Object {
+    "data": Array [
+      83,
+      97,
+      109,
+      112,
+      108,
+      101,
+      32,
+      100,
+      97,
+      116,
+      97,
+    ],
+    "type": "Buffer",
+  },
+  "requestSuccess": true,
+  "response": MockHttpRequestResponse {
+    "_events": Object {
+      "data": [Function],
+      "end": [Function],
+    },
+    "_eventsCount": 2,
+    "_maxListeners": undefined,
+    "mStatus": "200",
+  },
+}
+`;
