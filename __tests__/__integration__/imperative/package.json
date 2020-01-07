@@ -34,40 +34,40 @@
     "watch": "npm run build -- --watch"
   },
   "dependencies": {
-    "@types/yargs": "13.0.3",
+    "@types/yargs": "13.0.4",
     "chalk": "2.4.2",
     "cli-table3": "0.5.1",
     "dataobject-parser": "^1.2.1",
     "deepmerge": "3.0.0",
     "express": "4.17.1",
     "find-up": "2.1.0",
-    "glob": "7.1.1",
-    "js-yaml": "^3.13.1",
+    "glob": "7.1.6",
+    "js-yaml": "3.13.1",
     "jsonfile": "4.0.0",
     "jsonschema": "1.1.1",
     "keytar": "^5.0.0",
     "levenshtein": "1.0.5",
     "lodash": "^4.17.15",
     "log4js": "6.1.0",
-    "mkdirp": "^0.5.1",
+    "mkdirp": "0.5.1",
     "moment": "2.20.1",
     "mustache": "2.3.0",
     "prettyjson": "1.2.1",
-    "progress": "2.0.0",
+    "progress": "2.0.3",
     "rimraf": "2.6.3",
     "stack-trace": "0.0.10",
     "wrap-ansi": "3.0.1",
     "yamljs": "0.3.0",
-    "yargs": "15.0.2"
+    "yargs": "15.1.0"
   },
   "devDependencies": {
-    "@types/node": "8.0.28",
-    "gulp": "^4.0.0",
-    "tslint": "^5.20.1",
-    "typescript": "3.2.2"
+    "@types/node": "^12.12.24",
+    "gulp": "4.0.2",
+    "tslint": "5.20.1",
+    "typescript": "3.7.4"
   },
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=8.0.0"
   },
   "jest": {
     "globals": {
