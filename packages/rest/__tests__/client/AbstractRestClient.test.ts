@@ -511,8 +511,11 @@ describe("AbstractRestClient tests", () => {
             resource: "/resource",
         };
 
+        // create list of all properties
+        const listOfClientProperties = Object.keys(CLIENT_PROPERTY);
+
         const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), restOptions);
-        expect(data).toMatchSnapshot();
+        listOfClientProperties.forEach((property) => expect(data[`${property}`]).toBeDefined());
     });
 
     it("should return one part of response when requested", async () => {
@@ -543,8 +546,14 @@ describe("AbstractRestClient tests", () => {
             dataToReturn: [CLIENT_PROPERTY.response]
         };
 
+        // create list of all properties except the one requested
+        const listOfClientProperties = Object.keys(CLIENT_PROPERTY);
+        listOfClientProperties.splice(listOfClientProperties.indexOf(CLIENT_PROPERTY.response), 1);
+        
         const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), restOptions);
-        expect(data).toMatchSnapshot();
+
+        expect(data.response).toBeDefined();
+        listOfClientProperties.forEach((property) => expect(data[`${property}`]).not.toBeDefined());
     });
 
     it("should return several parts of response when requested", async () => {
@@ -575,7 +584,14 @@ describe("AbstractRestClient tests", () => {
             dataToReturn: [CLIENT_PROPERTY.response, CLIENT_PROPERTY.data, CLIENT_PROPERTY.requestSuccess]
         };
 
+        // create list of all properties except the requested ones
+        const listOfClientProperties = Object.keys(CLIENT_PROPERTY);
+        restOptions.dataToReturn.forEach((element) => {
+            listOfClientProperties.splice(listOfClientProperties.indexOf(element), 1);
+        })
+        
         const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), restOptions);
-        expect(data).toMatchSnapshot();
+        restOptions.dataToReturn.forEach((property) => expect(data[`${property}`]).toBeDefined());
+        listOfClientProperties.forEach((property) => expect(data[`${property}`]).not.toBeDefined());
     });
 });
