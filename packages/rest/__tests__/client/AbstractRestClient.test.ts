@@ -549,7 +549,7 @@ describe("AbstractRestClient tests", () => {
         // create list of all properties except the one requested
         const listOfClientProperties = Object.keys(CLIENT_PROPERTY);
         listOfClientProperties.splice(listOfClientProperties.indexOf(CLIENT_PROPERTY.response), 1);
-        
+
         const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), restOptions);
 
         expect(data.response).toBeDefined();
@@ -588,8 +588,8 @@ describe("AbstractRestClient tests", () => {
         const listOfClientProperties = Object.keys(CLIENT_PROPERTY);
         restOptions.dataToReturn.forEach((element) => {
             listOfClientProperties.splice(listOfClientProperties.indexOf(element), 1);
-        })
-        
+        });
+
         const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), restOptions);
         restOptions.dataToReturn.forEach((property) => expect(data[`${property}`]).toBeDefined());
         listOfClientProperties.forEach((property) => expect(data[`${property}`]).not.toBeDefined());
