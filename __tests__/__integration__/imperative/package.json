@@ -48,7 +48,7 @@
     "js-yaml": "^3.13.0",
     "jsonfile": "4.0.0",
     "jsonschema": "1.1.1",
-    "keytar": "4.3.0",
+    "keytar": "^5.0.0",
     "levenshtein": "1.0.5",
     "lodash": "^4.17.11",
     "log4js": "2.4.1",
@@ -67,7 +67,7 @@
     "tmp": "0.0.33",
     "wrap-ansi": "3.0.1",
     "yamljs": "0.3.0",
-    "yargs": "8.0.2"
+    "yargs": "15.0.2"
   },
   "devDependencies": {
     "@types/node": "8.0.28",
