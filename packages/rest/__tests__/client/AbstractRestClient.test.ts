@@ -507,11 +507,11 @@ describe("AbstractRestClient tests", () => {
 
         (https.request as any) = requestFnc;
 
-        const options: IOptionsFullRequest = {
+        const restOptions: IOptionsFullRequest = {
             resource: "/resource",
         };
 
-        const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), options);
+        const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), restOptions);
         expect(data).toMatchSnapshot();
     });
 
@@ -538,12 +538,12 @@ describe("AbstractRestClient tests", () => {
         (https.request as any) = requestFnc;
 
         // asking only to return Response property
-        const options: IOptionsFullRequest = {
+        const restOptions: IOptionsFullRequest = {
             resource: "/resource",
             dataToReturn: [CLIENT_PROPERTY.response]
         };
 
-        const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), options);
+        const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), restOptions);
         expect(data).toMatchSnapshot();
     });
 
@@ -570,12 +570,12 @@ describe("AbstractRestClient tests", () => {
         (https.request as any) = requestFnc;
 
         // asking to return random properties
-        const options: IOptionsFullRequest = {
+        const restOptions: IOptionsFullRequest = {
             resource: "/resource",
             dataToReturn: [CLIENT_PROPERTY.response, CLIENT_PROPERTY.data, CLIENT_PROPERTY.requestSuccess]
         };
 
-        const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), options);
+        const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), restOptions);
         expect(data).toMatchSnapshot();
     });
 });
