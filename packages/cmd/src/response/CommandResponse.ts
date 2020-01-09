@@ -248,7 +248,7 @@ export class CommandResponse implements ICommandResponseApi {
                         formatCopy = JSON.parse(JSON.stringify(format));
                     } catch (copyErr) {
                         outer.console.errorHeader(`Non-formatted output data`);
-                        outer.console.error(`${inspect(format.output, {depth: null})}`);
+                        outer.console.error(`${inspect(format.output, {depth: null, compact: true} as any)}`);
                         throw new ImperativeError({
                             msg: `Error copying input parameters. Details: ${copyErr.message}`,
                             additionalDetails: copyErr
@@ -271,7 +271,7 @@ export class CommandResponse implements ICommandResponseApi {
                         this.formatOutput(formatCopy, outer);
                     } catch (formatErr) {
                         outer.console.errorHeader(`Non-formatted output data`);
-                        outer.console.error(`${inspect(format.output)}`);
+                        outer.console.error(`${inspect(format.output, {compact: true} as any)}`);
                         throw formatErr;
                     }
                 }
