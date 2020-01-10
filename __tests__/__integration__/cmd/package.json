@@ -59,11 +59,11 @@
     "yargs": "15.1.0"
   },
   "devDependencies": {
-    "@types/fs-extra": "8.0.1",
+    "@types/fs-extra": "^8.0.1",
     "@types/node": "^12.12.24",
-    "gulp": "4.0.2",
-    "tslint": "5.20.1",
-    "typescript": "3.7.4"
+    "gulp": "^4.0.2",
+    "tslint": "^5.20.1",
+    "typescript": "^3.7.4"
   },
   "engines": {
     "node": ">=8.0.0"
