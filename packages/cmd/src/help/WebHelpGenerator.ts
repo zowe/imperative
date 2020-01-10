@@ -157,7 +157,7 @@ export class WebHelpGenerator {
         this.treeNodes.push({ id: `${rootCommandName}.html`, text: rootCommandName });
 
         let rootHelpContent: string = this.genDocsHeader(rootCommandName);
-        rootHelpContent += `<h2><a href="${rootCommandName}.html" name="${rootCommandName}">${rootCommandName}</a></h2>\n`;
+        rootHelpContent += `<h2><a href="${rootCommandName}.html" name="${rootCommandName}">${rootCommandName}</a>${this.genPrintButton()}</h2>\n`;
         rootHelpContent += this.marked(this.mConfig.loadedConfig.rootCommandDescription) + "\n";
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
             { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions });
@@ -215,10 +215,17 @@ export class WebHelpGenerator {
      */
     private genDocsFooter(): string {
         return `</article>
-<div id="btn-print-wrapper"><button id="btn-print" class="no-print" onclick="window.print();" title="Print">🖨️</button></div>
 <script src="../js/bundle-docs.js"></script>
 <script src="../js/docs.js"></script>
 `;
+    }
+
+    /**
+     * Returns print button to show in header of help page
+     * @private
+     */
+    private genPrintButton(): string {
+        return `<button id="btn-print" class="no-print" onclick="window.print();" title="Print">🖨️</button>`;
     }
 
     /**
@@ -310,7 +317,7 @@ export class WebHelpGenerator {
         // Prevent line breaks from being lost during Markdown to HTML conversion
         markdownContent = markdownContent.replace(/^(\s+Default value:.+$)(\s+Allowed values:.+$)/gm, "$1\n$2");
 
-        let htmlContent = "<h2>" + this.genBreadcrumb(rootCommandName, fullCommandName) + "</h2>\n";
+        let htmlContent = "<h2>" + this.genBreadcrumb(rootCommandName, fullCommandName) + this.genPrintButton() + "</h2>\n";
         htmlContent += this.marked(markdownContent);
 
         // Remove backslash escapes from URLs
