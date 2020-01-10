@@ -1,6 +1,6 @@
 {
   "name": "@zowe/imperative",
-  "version": "4.4.5",
+  "version": "4.4.6",
   "description": "framework for building configurable CLIs",
   "author": "Broadcom",
   "license": "EPL-2.0",
@@ -22,7 +22,7 @@
     "web-help/dist"
   ],
   "publishConfig": {
-    "registry": "https://gizaartifactory.jfrog.io/gizaartifactory/api/npm/npm-local-release/"
+    "registry": "https://zowe.jfrog.io/zowe/api/npm/npm-local-release/"
   },
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -63,7 +63,7 @@
     "levenshtein": "1.0.5",
     "lodash-deep": "^2.0.0",
     "log4js": "3.0.5",
-    "marked": "^0.7.0",
+    "marked": "^0.8.0",
     "mkdirp": "0.5.1",
     "moment": "2.20.1",
     "mustache": "2.3.0",

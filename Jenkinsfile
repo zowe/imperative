@@ -39,7 +39,7 @@ node('ca-jenkins-agent') {
     // npm publish configuration
     pipeline.publishConfig = [
         email: pipeline.gitConfig.email,
-        credentialsId: 'GizaArtifactory',
+        credentialsId: 'zowe.jfrog.io',
         scope: '@zowe'
     ]
 
@@ -47,7 +47,7 @@ node('ca-jenkins-agent') {
         [
             email: pipeline.publishConfig.email,
             credentialsId: pipeline.publishConfig.credentialsId,
-            url: 'https://gizaartifactory.jfrog.io/gizaartifactory/api/npm/npm-release/',
+            url: 'https://zowe.jfrog.io/zowe/api/npm/npm-release/',
             scope: pipeline.publishConfig.scope
         ]
     ]
