@@ -16,7 +16,7 @@ export const apiErrorHeader: IMessageDefinition = {
     message: `${Constants.FRAMEWORK_DISPLAY_NAME} API Error`
 };
 
-export const couldNotInstatiateCommandHandler: IMessageDefinition = {
+export const couldNotInstantiateCommandHandler: IMessageDefinition = {
     message: `Could not instantiate the handler {{commandHandler}} for ` +
         `command {{definitionName}}`
 };

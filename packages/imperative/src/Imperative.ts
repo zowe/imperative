@@ -307,7 +307,7 @@ export class Imperative {
             timingApi.mark("START_IMP_PARSE");
         }
 
-        Imperative.yargs.argv; // tslint:disable-line
+        Imperative.yargs.parse();
 
         if (PerfTiming.isEnabled) {
             // Marks point END

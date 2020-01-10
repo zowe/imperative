@@ -12,8 +12,6 @@
 import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../src/TestUtil";
-import { ICommandResponse } from "../../../../../../../packages/cmd";
-import { Imperative } from "../../../../../../../packages/imperative";
 
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
@@ -30,7 +28,7 @@ describe("cmd-cli invalid no-handler", () => {
     it("should fail the command with a message if the command definition of type command omits a handler", () => {
         const response = runCliScript(__dirname + "/__scripts__/invalid-handler.sh", TEST_ENVIRONMENT.workingDir);
         expect(response.status).toBe(1);
-        expect(response.stderr.toString()).toMatchSnapshot();
-        expect(response.stdout.toString()).toMatchSnapshot();
+        expect(response.stderr.toString()).toContain("Could not instantiate the handler invalid-handler for command invalid-handler");
+        expect(response.stdout.toString()).toContain("Cannot find module 'invalid-handler'");
     });
 });

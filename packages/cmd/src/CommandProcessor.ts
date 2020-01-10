@@ -15,7 +15,7 @@ import { CommandUtils } from "./utils/CommandUtils";
 import { Arguments } from "yargs";
 import { ICommandValidatorResponse } from "./doc/response/response/ICommandValidatorResponse";
 import { ICommandHandler } from "./doc/handler/ICommandHandler";
-import { couldNotInstatiateCommandHandler, unexpectedCommandError } from "../../messages";
+import { couldNotInstantiateCommandHandler, unexpectedCommandError } from "../../messages";
 import { SharedOptions } from "./utils/SharedOptions";
 import { IImperativeError, ImperativeError } from "../../error";
 import { IProfileManagerFactory } from "../../profiles";
@@ -815,7 +815,7 @@ export class CommandProcessor {
                 "Environmental variables: '%s'",
                 os.platform(), os.arch(), process.argv.join(" "),
                 JSON.stringify(process.env, null, 2));
-            const errorMessage: string = TextUtils.formatMessage(couldNotInstatiateCommandHandler.message, {
+            const errorMessage: string = TextUtils.formatMessage(couldNotInstantiateCommandHandler.message, {
                 commandHandler: nodePath.normalize(handlerPath) || "\"undefined or not specified\"",
                 definitionName: this.definition.name
             });
