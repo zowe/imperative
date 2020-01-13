@@ -190,7 +190,7 @@ export class CommandProfileLoader {
                 const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(type);
                 if (!isNullOrUndefined(commandArguments[profOpt])) {
                     load.userSpecified = true;
-                    load.name = commandArguments[profOpt];
+                    load.name = commandArguments[profOpt] as string;
                 } else {
                     load.loadDefault = true;
                 }

@@ -210,9 +210,9 @@ export class CommandYargs extends AbstractCommandYargs {
 
                     // Determine if we should print JSON
                     const printJson: boolean = (index === handlers.length - 1) &&
-                        argsForHandler[Constants.JSON_OPTION];
+                        (argsForHandler[Constants.JSON_OPTION] as boolean);
 
-                    // Protect agaisnt issues allocating the command processor
+                    // Protect against issues allocating the command processor
                     try {
                         new CommandProcessor({
                             definition: handlers[index],

@@ -56,7 +56,7 @@
     "stack-trace": "0.0.10",
     "wrap-ansi": "3.0.1",
     "yamljs": "0.3.0",
-    "yargs": "8.0.2"
+    "yargs": "15.0.2"
   },
   "devDependencies": {
     "@types/body-parser": "1.16.4",
@@ -74,6 +74,7 @@
     "@types/progress": "2.0.0",
     "@types/stack-trace": "0.0.28",
     "@types/tmp": "0.0.33",
+    "keytar": "^5.0.0",
     "chai": "4.1.2",
     "chai-string": "1.4.0",
     "clear-require": "2.0.0",
