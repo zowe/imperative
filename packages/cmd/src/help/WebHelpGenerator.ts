@@ -317,7 +317,7 @@ export class WebHelpGenerator {
         // Prevent line breaks from being lost during Markdown to HTML conversion
         markdownContent = markdownContent.replace(/^(\s+Default value:.+$)(\s+Allowed values:.+$)/gm, "$1\n$2");
 
-        let htmlContent = "<h2>" + this.genBreadcrumb(rootCommandName, fullCommandName) + "</h2>\n";
+        let htmlContent = "<h2>" + this.genBreadcrumb(rootCommandName, fullCommandName) + this.genPrintButton() + "</h2>\n";
         htmlContent += this.marked(markdownContent);
 
         // Remove backslash escapes from URLs
