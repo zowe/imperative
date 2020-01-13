@@ -11,7 +11,7 @@
 
 import { PMFConstants } from "./PMFConstants";
 import * as path from "path";
-import { execSync } from "child_process";
+import { execSync, StdioOptions } from "child_process";
 const npmCmd = cmdToRun();
 
 /**
@@ -44,7 +44,7 @@ export function cmdToRun() {
  *
  */
 export function installPackages(prefix: string, registry: string, npmPackage: string): string {
-    const pipe = ["pipe", "pipe", process.stderr];
+    const pipe: StdioOptions = ["pipe", "pipe", process.stderr];
     try {
         const execOutput = execSync(`${npmCmd} install "${npmPackage}" --prefix "${prefix}" ` +
             `-g --registry "${registry}"`, {
