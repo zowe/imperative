@@ -13,11 +13,11 @@ import { Writable, Readable } from "stream";
 import { ITaskWithStatus } from "../../../../operations";
 import { CLIENT_PROPERTY } from "../types/AbstractRestClientProperties";
 /**
- * Interface to performRest function
+ * Interface to define input options for RestClient GET|POST|PUT|DELETE ExpectFullResponse methods
  * @export
- * @interface IOptionsFullRequest
+ * @interface IOptionsFullResponse
  */
-export interface IOptionsFullRequest {
+export interface IOptionsFullResponse {
 
     /**
      * URI for this request

@@ -10,6 +10,12 @@
 *
 */
 
+/**
+ * String type definition for properties of abstractRestClient that has a getter set. 
+ * This can be safely used in a getter call as a variable for the abstractRestClient object.
+ * @export
+ * @typedef CLIENT_PROPERTY
+ */
 export type CLIENT_PROPERTY = "requestSuccess" | "requestFailure" | "data" | "dataString" | "response" | "session" | "log";
 export const CLIENT_PROPERTY = {
     requestSuccess: "requestSuccess" as CLIENT_PROPERTY,

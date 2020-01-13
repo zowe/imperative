@@ -203,7 +203,7 @@ export abstract class AbstractRestClient {
      *          or other connection problems occur (e.g. connection refused)
      * @memberof AbstractRestClient
      */
-    public performRestCall(options: IRestOptions): Promise<string> {
+    public request(options: IRestOptions): Promise<string> {
         return new Promise<string>((resolve: RestClientResolve, reject: ImperativeReject) => {
 
             const timingApi = PerfTiming.api;
@@ -343,7 +343,7 @@ export abstract class AbstractRestClient {
                        responseStream?: Writable, requestStream?: Readable,
                        normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
                        task?: ITaskWithStatus): Promise<string> {
-        return this.performRestCall({
+        return this.request({
             resource,
             request,
             reqHeaders,

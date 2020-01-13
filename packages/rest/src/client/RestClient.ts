@@ -16,10 +16,10 @@ import { AbstractRestClient } from "./AbstractRestClient";
 import { JSONUtils } from "../../../utilities";
 import { Readable, Writable } from "stream";
 import { ITaskWithStatus } from "../../../operations";
-import { IFullResponseOptions } from "./doc/IFullResponseOptions";
 import { IRestClientResponse } from "./doc/IRestClientResponse";
-import { IOptionsFullRequest } from "./doc/IOptionsFullRequest";
+import { IOptionsFullResponse } from "./doc/IOptionsFullResponse";
 import { CLIENT_PROPERTY } from "./types/AbstractRestClientProperties";
+import { IRestOptions } from "./doc/IRestOptions";
 
 /**
  * Class to handle http(s) requests, build headers, collect data, report status codes, and header responses
@@ -391,8 +391,8 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static async getExpectFullResponse(session: AbstractSession,
-                                              options: IOptionsFullRequest): Promise<IRestClientResponse> {
-        const  requestOptions: IFullResponseOptions = {
+                                              options: IOptionsFullResponse): Promise<IRestClientResponse> {
+        const  requestOptions: IRestOptions = {
             resource : options.resource,
             request : HTTP_VERB.GET,
             reqHeaders : options.reqHeaders,
@@ -405,7 +405,7 @@ export class RestClient extends AbstractRestClient {
         };
 
         const client = new this(session);
-        await client.performRestCall(requestOptions);
+        await client.request(requestOptions);
         return this.extractExpectedData(client, options.dataToReturn);
     }
 
@@ -420,8 +420,8 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static async putExpectFullResponse(session: AbstractSession,
-                                              options: IOptionsFullRequest): Promise<IRestClientResponse> {
-        const  requestOptions: IFullResponseOptions = {
+                                              options: IOptionsFullResponse): Promise<IRestClientResponse> {
+        const  requestOptions: IRestOptions = {
             resource : options.resource,
             request : HTTP_VERB.PUT,
             reqHeaders : options.reqHeaders,
@@ -434,7 +434,7 @@ export class RestClient extends AbstractRestClient {
         };
 
         const client = new this(session);
-        await client.performRestCall(requestOptions);
+        await client.request(requestOptions);
         return this.extractExpectedData(client, options.dataToReturn);
     }
 
@@ -449,8 +449,8 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static async deleteExpectFullResponse(session: AbstractSession,
-                                                 options: IOptionsFullRequest): Promise<IRestClientResponse> {
-        const  requestOptions: IFullResponseOptions = {
+                                                 options: IOptionsFullResponse): Promise<IRestClientResponse> {
+        const  requestOptions: IRestOptions = {
             resource : options.resource,
             request : HTTP_VERB.DELETE,
             reqHeaders : options.reqHeaders,
@@ -463,7 +463,7 @@ export class RestClient extends AbstractRestClient {
         };
 
         const client = new this(session);
-        await client.performRestCall(requestOptions);
+        await client.request(requestOptions);
         return this.extractExpectedData(client, options.dataToReturn);
     }
 
@@ -478,8 +478,8 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static async postExpectFullResponse(session: AbstractSession,
-                                               options: IOptionsFullRequest): Promise<IRestClientResponse> {
-        const  requestOptions: IFullResponseOptions = {
+                                               options: IOptionsFullResponse): Promise<IRestClientResponse> {
+        const  requestOptions: IRestOptions = {
             resource : options.resource,
             request : HTTP_VERB.POST,
             reqHeaders : options.reqHeaders,
@@ -492,7 +492,7 @@ export class RestClient extends AbstractRestClient {
         };
 
         const client = new this(session);
-        await client.performRestCall(requestOptions);
+        await client.request(requestOptions);
         return this.extractExpectedData(client, options.dataToReturn);
     }
 

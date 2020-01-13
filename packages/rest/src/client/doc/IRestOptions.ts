@@ -14,7 +14,7 @@ import { Writable, Readable } from "stream";
 import { ITaskWithStatus } from "../../../../operations";
 
 /**
- * Interface to performRest function
+ * Interface to define input for AbstractRestClient.request method
  * @export
  * @interface IRestOptions
  */
