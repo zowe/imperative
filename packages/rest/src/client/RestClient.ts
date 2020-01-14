@@ -116,7 +116,6 @@ export class RestClient extends AbstractRestClient {
      */
     public static async getExpectBuffer(session: AbstractSession, resource: string, reqHeaders: any[] = []): Promise<Buffer> {
         const client = new this(session);
-        // await client.performRest(resource, HTTP_VERB.GET, reqHeaders);
         await client.request({resource, request:HTTP_VERB.GET, reqHeaders});
         return client.data;
     }
@@ -135,7 +134,6 @@ export class RestClient extends AbstractRestClient {
      */
     public static async putExpectBuffer(session: AbstractSession, resource: string, reqHeaders: any[] = [], data: any): Promise<Buffer> {
         const client = new this(session);
-        // await client.performRest(resource, HTTP_VERB.PUT, reqHeaders, data);
         await client.request({resource, request:HTTP_VERB.PUT, reqHeaders, writeData:data});
         return client.data;
     }
@@ -154,7 +152,6 @@ export class RestClient extends AbstractRestClient {
      */
     public static async postExpectBuffer(session: AbstractSession, resource: string, reqHeaders: any[] = [], data?: any): Promise<Buffer> {
         const client = new this(session);
-        // await client.performRest(resource, HTTP_VERB.POST, reqHeaders, data);
         await client.request({resource, request:HTTP_VERB.POST, reqHeaders, writeData:data});
         return client.data;
     }
@@ -172,7 +169,6 @@ export class RestClient extends AbstractRestClient {
      */
     public static async deleteExpectBuffer(session: AbstractSession, resource: string, reqHeaders: any[] = []): Promise<Buffer> {
         const client = new this(session);
-        // await client.performRest(resource, HTTP_VERB.DELETE, reqHeaders);
         await client.request({resource, request:HTTP_VERB.DELETE, reqHeaders});
         return client.data;
     }
@@ -189,7 +185,6 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static getExpectString(session: AbstractSession, resource: string, reqHeaders: any[] = []): Promise<string> {
-        // return new this(session).performRest(resource, HTTP_VERB.GET, reqHeaders);
         return new this(session).request({resource, request:HTTP_VERB.GET, reqHeaders});
     }
 
@@ -206,7 +201,6 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static putExpectString(session: AbstractSession, resource: string, reqHeaders: any[] = [], data: any): Promise<string> {
-        // return new this(session).performRest(resource, HTTP_VERB.PUT, reqHeaders, data);
         return new this(session).request({resource, request:HTTP_VERB.PUT, reqHeaders, writeData:data});
     }
 
@@ -223,7 +217,6 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static postExpectString(session: AbstractSession, resource: string, reqHeaders: any[] = [], data?: any): Promise<string> {
-        // return new this(session).performRest(resource, HTTP_VERB.POST, reqHeaders, data);
         return new this(session).request({resource, request:HTTP_VERB.POST, reqHeaders, writeData:data});
     }
 
@@ -239,7 +232,6 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static deleteExpectString(session: AbstractSession, resource: string, reqHeaders: any[] = []): Promise<string> {
-        // return new this(session).performRest(resource, HTTP_VERB.DELETE, reqHeaders);
         return new this(session).request({resource, request:HTTP_VERB.DELETE, reqHeaders});
     }
 
@@ -262,8 +254,6 @@ export class RestClient extends AbstractRestClient {
                               responseStream: Writable,
                               normalizeResponseNewLines?: boolean,
                               task?: ITaskWithStatus): Promise<string> {
-        // return new this(session).performRest(resource, HTTP_VERB.GET, reqHeaders, undefined, responseStream,
-        //     undefined, normalizeResponseNewLines, undefined, task);
         return new this(session).request({resource, request:HTTP_VERB.GET, reqHeaders, responseStream,
                                           normalizeResponseNewLines, task});
     }
@@ -290,8 +280,6 @@ export class RestClient extends AbstractRestClient {
                               responseStream: Writable, requestStream: Readable,
                               normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
                               task?: ITaskWithStatus): Promise<string> {
-        // return new this(session).performRest(resource, HTTP_VERB.PUT, reqHeaders, undefined, responseStream, requestStream,
-        //     normalizeResponseNewLines, normalizeRequestNewLines, task);
         return new this(session).request({resource, request:HTTP_VERB.PUT, reqHeaders, responseStream, requestStream,
                                           normalizeResponseNewLines, normalizeRequestNewLines, task});
     }
