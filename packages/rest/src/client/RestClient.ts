@@ -315,8 +315,6 @@ export class RestClient extends AbstractRestClient {
                                          requestStream: Readable,
                                          normalizeRequestNewLines?: boolean,
                                          task?: ITaskWithStatus): Promise<string> {
-        // return new this(session).performRest(resource, HTTP_VERB.PUT, reqHeaders, undefined, undefined, requestStream,
-        //     undefined, normalizeRequestNewLines, task);
         return new this(session).request({resource, request:HTTP_VERB.PUT, reqHeaders, requestStream,
                                           normalizeRequestNewLines, task});
     }
@@ -343,8 +341,6 @@ export class RestClient extends AbstractRestClient {
                                responseStream: Writable, requestStream: Readable,
                                normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
                                task?: ITaskWithStatus): Promise<string> {
-        // return new this(session).performRest(resource, HTTP_VERB.POST, reqHeaders, undefined, responseStream, requestStream,
-        //     normalizeResponseNewLines, normalizeRequestNewLines, task);
         return new this(session).request({resource, request:HTTP_VERB.POST, reqHeaders, responseStream, requestStream,
                                           normalizeResponseNewLines, normalizeRequestNewLines, task});
     }
@@ -367,8 +363,6 @@ export class RestClient extends AbstractRestClient {
     public static postStreamedRequestOnly(session: AbstractSession, resource: string, reqHeaders: any[] = [],
                                           requestStream: Readable, normalizeRequestNewLines?: boolean,
                                           task?: ITaskWithStatus): Promise<string> {
-        // return new this(session).performRest(resource, HTTP_VERB.POST, reqHeaders, undefined, undefined, requestStream,
-        //     undefined, normalizeRequestNewLines, task);
         return new this(session).request({resource, request:HTTP_VERB.POST, reqHeaders, requestStream,
                                           normalizeRequestNewLines, task});
     }
@@ -391,8 +385,6 @@ export class RestClient extends AbstractRestClient {
     public static deleteStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [], responseStream: Writable,
                                  normalizeResponseNewLines?: boolean,
                                  task?: ITaskWithStatus): Promise<string> {
-        // return new this(session).performRest(resource, HTTP_VERB.DELETE, reqHeaders,
-        //     undefined, responseStream, undefined, normalizeResponseNewLines, undefined, task);
         return new this(session).request({resource, request:HTTP_VERB.DELETE, reqHeaders,
                                           responseStream, normalizeResponseNewLines, task});
     }
