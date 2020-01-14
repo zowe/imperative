@@ -16,7 +16,7 @@ node('ca-jenkins-agent') {
     // Initialize the pipeline
     def pipeline = new NodeJSPipeline(this)
 
-    // Build admins, users that can approve the build and receieve emails for 
+    // Build admins, users that can approve the build and receieve emails for
     // all protected branch builds.
     pipeline.admins.add("tucker01", "gejohnston", "zfernand0", "mikebauerca", "markackert", "dkelosky")
 
@@ -40,7 +40,7 @@ node('ca-jenkins-agent') {
     // npm publish configuration
     pipeline.publishConfig = [
         email: pipeline.gitConfig.email,
-        credentialsId: 'GizaArtifactory',
+        credentialsId: 'zowe.jfrog.io',
         scope: '@zowe'
     ]
 
@@ -48,7 +48,7 @@ node('ca-jenkins-agent') {
         [
             email: pipeline.publishConfig.email,
             credentialsId: pipeline.publishConfig.credentialsId,
-            url: 'https://gizaartifactory.jfrog.io/gizaartifactory/api/npm/npm-release/',
+            url: 'https://zowe.jfrog.io/zowe/api/npm/npm-release/',
             scope: pipeline.publishConfig.scope
         ]
     ]
@@ -80,7 +80,7 @@ node('ca-jenkins-agent') {
     def TEST_ROOT = "__tests__/__results__/ci"
     def UNIT_TEST_ROOT = "$TEST_ROOT/unit"
     def UNIT_JUNIT_OUTPUT = "$UNIT_TEST_ROOT/junit.xml"
-    
+
     // Perform a unit test and capture the results
     pipeline.test(
         name: "Unit",
@@ -114,7 +114,7 @@ node('ca-jenkins-agent') {
     // Perform an integration test and capture the results
     def INTEGRATION_TEST_ROOT = "$TEST_ROOT/integration"
     def INTEGRATION_JUNIT_OUTPUT = "$INTEGRATION_TEST_ROOT/junit.xml"
-    
+
     pipeline.test(
         name: "Integration",
         operation: {
