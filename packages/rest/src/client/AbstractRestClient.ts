@@ -323,6 +323,8 @@ export abstract class AbstractRestClient {
 
     /**
      * Perform the actual http REST call with appropriate user input
+     * @deprecated - since version 4.4.9. Changed to wrapper for request(). Please use request() directly.
+     *               It will be removed in version 5.0.0
      * @param {string} resource - URI for this request
      * @param {string} request - REST request type GET|PUT|POST|DELETE
      * @param {any[]} reqHeaders - option headers to include with request
@@ -336,8 +338,6 @@ export abstract class AbstractRestClient {
      * @param task - task that will automatically be updated to report progress of upload or download to user
      * @throws  if the request gets a status code outside of the 200 range
      *          or other connection problems occur (e.g. connection refused)
-     * @deprecated - since version 4.4.6. It was changed to a wrapper for performRestCall().
-     *               It will be removed in version 5.0.0
      */
     public performRest(resource: string, request: HTTP_VERB, reqHeaders?: any[], writeData?: any,
                        responseStream?: Writable, requestStream?: Readable,
