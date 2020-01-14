@@ -254,8 +254,6 @@ export class RestClient extends AbstractRestClient {
                               responseStream: Writable,
                               normalizeResponseNewLines?: boolean,
                               task?: ITaskWithStatus): Promise<string> {
-        // return new this(session).performRest(resource, HTTP_VERB.GET, reqHeaders, undefined, responseStream,
-        //     undefined, normalizeResponseNewLines, undefined, task);
         return new this(session).performRest(resource, HTTP_VERB.GET, reqHeaders, undefined, responseStream,
             undefined, normalizeResponseNewLines, undefined, task);
     }

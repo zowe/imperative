@@ -18,7 +18,7 @@ import { ProcessUtils } from "../../../utilities";
 import { MockHttpRequestResponse } from "./__model__/MockHttpRequestResponse";
 import { EventEmitter } from "events";
 import { ImperativeError } from "../../../error";
-import { IOptionsFullRequest } from "../../src/client/doc/IOptionsFullRequest";
+import { IOptionsFullResponse } from "../../src/client/doc/IOptionsFullResponse";
 import { CLIENT_PROPERTY } from "../../src/client/types/AbstractRestClientProperties";
 
 
@@ -507,7 +507,7 @@ describe("AbstractRestClient tests", () => {
 
         (https.request as any) = requestFnc;
 
-        const restOptions: IOptionsFullRequest = {
+        const restOptions: IOptionsFullResponse = {
             resource: "/resource",
         };
 
@@ -541,7 +541,7 @@ describe("AbstractRestClient tests", () => {
         (https.request as any) = requestFnc;
 
         // asking only to return Response property
-        const restOptions: IOptionsFullRequest = {
+        const restOptions: IOptionsFullResponse = {
             resource: "/resource",
             dataToReturn: [CLIENT_PROPERTY.response]
         };
@@ -579,7 +579,7 @@ describe("AbstractRestClient tests", () => {
         (https.request as any) = requestFnc;
 
         // asking to return random properties
-        const restOptions: IOptionsFullRequest = {
+        const restOptions: IOptionsFullResponse = {
             resource: "/resource",
             dataToReturn: [CLIENT_PROPERTY.response, CLIENT_PROPERTY.data, CLIENT_PROPERTY.requestSuccess]
         };
