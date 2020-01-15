@@ -18,6 +18,8 @@ import { ProcessUtils } from "../../../utilities";
 import { MockHttpRequestResponse } from "./__model__/MockHttpRequestResponse";
 import { EventEmitter } from "events";
 import { ImperativeError } from "../../../error";
+import { IOptionsFullResponse } from "../../src/client/doc/IOptionsFullResponse";
+import { CLIENT_PROPERTY } from "../../src/client/types/AbstractRestClientProperties";
 
 
 /**
@@ -481,5 +483,115 @@ describe("AbstractRestClient tests", () => {
         await RestClient.deleteStreamed(new Session({
             hostname: "test",
         }), "/resource", [Headers.APPLICATION_JSON], fakeResponseStream);
+    });
+
+    it("should return full response when requested", async () => {
+        const emitter = new MockHttpRequestResponse();
+        const requestFnc = jest.fn((options, callback) => {
+            ProcessUtils.nextTick(async () => {
+
+                const newEmit = new MockHttpRequestResponse();
+                callback(newEmit);
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("data", Buffer.from("Sample data", "utf8"));
+                });
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("end");
+                });
+            });
+
+            return emitter;
+        });
+
+        (https.request as any) = requestFnc;
+
+        const restOptions: IOptionsFullResponse = {
+            resource: "/resource",
+        };
+
+        // create list of all properties
+        const listOfClientProperties = Object.keys(CLIENT_PROPERTY);
+
+        const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), restOptions);
+        listOfClientProperties.forEach((property) => expect(data[`${property}`]).toBeDefined());
+    });
+
+    it("should return one part of response when requested", async () => {
+        const emitter = new MockHttpRequestResponse();
+        const requestFnc = jest.fn((options, callback) => {
+            ProcessUtils.nextTick(async () => {
+
+                const newEmit = new MockHttpRequestResponse();
+                callback(newEmit);
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("data", Buffer.from("Sample data", "utf8"));
+                });
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("end");
+                });
+            });
+
+            return emitter;
+        });
+
+        (https.request as any) = requestFnc;
+
+        // asking only to return Response property
+        const restOptions: IOptionsFullResponse = {
+            resource: "/resource",
+            dataToReturn: [CLIENT_PROPERTY.response]
+        };
+
+        // create list of all properties except the one requested
+        const listOfClientProperties = Object.keys(CLIENT_PROPERTY);
+        listOfClientProperties.splice(listOfClientProperties.indexOf(CLIENT_PROPERTY.response), 1);
+
+        const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), restOptions);
+
+        expect(data.response).toBeDefined();
+        listOfClientProperties.forEach((property) => expect(data[`${property}`]).not.toBeDefined());
+    });
+
+    it("should return several parts of response when requested", async () => {
+        const emitter = new MockHttpRequestResponse();
+        const requestFnc = jest.fn((options, callback) => {
+            ProcessUtils.nextTick(async () => {
+
+                const newEmit = new MockHttpRequestResponse();
+                callback(newEmit);
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("data", Buffer.from("Sample data", "utf8"));
+                });
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("end");
+                });
+            });
+
+            return emitter;
+        });
+
+        (https.request as any) = requestFnc;
+
+        // asking to return random properties
+        const restOptions: IOptionsFullResponse = {
+            resource: "/resource",
+            dataToReturn: [CLIENT_PROPERTY.response, CLIENT_PROPERTY.data, CLIENT_PROPERTY.requestSuccess]
+        };
+
+        // create list of all properties except the requested ones
+        const listOfClientProperties = Object.keys(CLIENT_PROPERTY);
+        restOptions.dataToReturn.forEach((element) => {
+            listOfClientProperties.splice(listOfClientProperties.indexOf(element), 1);
+        });
+
+        const data = await RestClient.getExpectFullResponse(new Session({hostname: "test"}), restOptions);
+        restOptions.dataToReturn.forEach((property) => expect(data[`${property}`]).toBeDefined());
+        listOfClientProperties.forEach((property) => expect(data[`${property}`]).not.toBeDefined());
     });
 });
