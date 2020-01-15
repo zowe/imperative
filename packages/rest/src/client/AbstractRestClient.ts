@@ -237,7 +237,7 @@ export abstract class AbstractRestClient {
             /**
              * Perform the actual http request
              */
-            let clientRequest: https.ClientRequest | http.ClientRequest;
+            let clientRequest: http.ClientRequest;
             if (this.session.ISession.protocol === AbstractSession.HTTPS_PROTOCOL) {
                 clientRequest = https.request(buildOptions, this.requestHandler.bind(this));
             } else if (this.session.ISession.protocol === AbstractSession.HTTP_PROTOCOL) {
