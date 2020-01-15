@@ -16,6 +16,7 @@ describe("ImperativeError", () => {
     it("should deprecate suppressReport", () => {
         jest.spyOn(console, "warn").mockImplementation(() => { return; });
 
+        /* tslint:disable:no-console */
         // tslint:disable-next-line
         new ImperativeError({msg: "test"}, {suppressReport: false });
 
@@ -47,5 +48,6 @@ describe("ImperativeError", () => {
         expect(console.warn).not.toHaveBeenCalled();
 
         (console.warn as any).mockRestore();
+        /* tslint:enable:no-console */
     });
 });

@@ -78,6 +78,7 @@ InheritedHelpGenerator {
     "mJsLogger": Logger {
       "category": "imperative",
       "context": Object {},
+      "parseCallStack": [Function],
     },
   },
   "mPrimaryHighlightColor": "blue",
@@ -133,6 +134,7 @@ InheritedHelpGenerator {
     "mJsLogger": Logger {
       "category": "imperative",
       "context": Object {},
+      "parseCallStack": [Function],
     },
   },
   "mPrimaryHighlightColor": "blue",

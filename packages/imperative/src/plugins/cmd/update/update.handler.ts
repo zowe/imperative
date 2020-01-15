@@ -54,7 +54,7 @@ export default class UpdateHandler implements ICommandHandler {
     const plugin: string = params.arguments.plugin;
     let registry = params.arguments.registry;
 
-    if (params.arguments.plugin.length === 0) {
+    if (params.arguments.plugin == null || params.arguments.plugin.length === 0) {
       throw new ImperativeError({
         msg: `${chalk.yellow.bold("Plugin name")} is required.`
       });

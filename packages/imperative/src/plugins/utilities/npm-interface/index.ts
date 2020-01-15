@@ -9,6 +9,6 @@
 *
 */
 
-export {install} from "./install";
-export {uninstall} from "./uninstall";
-export {update} from "./update";
+export { install } from "./install";
+export { uninstall } from "./uninstall";
+export { update } from "./update";

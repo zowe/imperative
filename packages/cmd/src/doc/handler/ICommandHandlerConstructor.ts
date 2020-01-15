@@ -12,9 +12,7 @@
 import { ICommandHandler } from "./ICommandHandler";
 
 /**
- * This interface is here so that we can indicate an object from a
+ * This type is here so that we can indicate an object from a
  * require can be instantiated.
  */
-export interface ICommandHandlerConstructor {
-    new (): ICommandHandler;
-}
+export type ICommandHandlerConstructor = new () => ICommandHandler;

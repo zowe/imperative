@@ -13,8 +13,9 @@ import { IGulpError, ITaskFunction } from "./GulpHelpers";
 import { execSync, spawnSync, SpawnSyncReturns } from "child_process";
 import { buildAndPublishToTestRegistry } from "./SampleCliAndPlugin";
 
+let ansiColors: any;
 let childProcess: any;
-let gutil: any;
+let fancylog: any;
 let rimraf: any;
 let fs: any;
 let compileDir: any;
@@ -24,8 +25,9 @@ let gulpDebug: any;
 let gulpReplace: any;
 
 function loadDependencies() {
+    ansiColors = require("ansi-colors");
     childProcess = require("child_process");
-    gutil = require("gulp-util");
+    fancylog = require("fancy-log");
     rimraf = require("rimraf").sync;
     fs = require("fs");
     compileDir = "lib";
@@ -52,7 +54,7 @@ const lint: ITaskFunction = (done) => {
         lintProcess = childProcess.spawnSync("npm", ["run", "lint"], {stdio: "inherit", shell: true});
 
     } catch (e) {
-        gutil.log(gutil.colors.red("Error encountered trying to run tslint"));
+        fancylog(ansiColors.red("Error encountered trying to run tslint"));
         done(e);
         return;
     }
@@ -60,16 +62,16 @@ const lint: ITaskFunction = (done) => {
     try {
         if (lintProcess.status !== 0) {
             const lintWarning: IGulpError =
-                new Error(gutil.colors.yellow("Linting failed. Please correct the issues above."));
+                new Error(ansiColors.yellow("Linting failed. Please correct the issues above."));
             lintWarning.showStack = false;
             done(lintWarning);
         } else {
-            gutil.log(gutil.colors.blue("No style problems"));
+            fancylog(ansiColors.blue("No style problems"));
             done();
         }
     }
     catch (e) {
-        gutil.log(gutil.colors.red("Error encountered trying to check CLI definitions for consistency"));
+        fancylog(ansiColors.red("Error encountered trying to check CLI definitions for consistency"));
         done(e);
         return;
     }
@@ -78,8 +80,8 @@ lint.description = "Runs tslint on the project to check for style";
 
 const prepForDirectInstall: ITaskFunction = (done) => {
     loadDependencies();
-    gutil.log("Prep response: " + execSync("git pull").toString());
-    gutil.log(spawnSync("node", [tscExecutable]).stdout.toString());
+    fancylog("Prep response: " + execSync("git pull").toString());
+    fancylog(spawnSync("node", [tscExecutable]).stdout.toString());
 };
 
 prepForDirectInstall.description = "Pulls from the repo on current branch and compiles source to be installed" +
@@ -87,14 +89,14 @@ prepForDirectInstall.description = "Pulls from the repo on current branch and co
 
 const checkCircularDependencies: ITaskFunction = (done) => {
     loadDependencies();
-    gutil.log(gutil.colors.blue("Checking for circular dependencies in the compiled source..."));
+    fancylog(ansiColors.blue("Checking for circular dependencies in the compiled source..."));
     const madgeResults = spawnSync("node", [madgeExecutable, "-c", "lib"]);
-    gutil.log(madgeResults.stdout.toString());
+    fancylog(madgeResults.stdout.toString());
     if (madgeResults.status === 0) {
-        gutil.log(gutil.colors.blue("No circular dependencies"));
+        fancylog(ansiColors.blue("No circular dependencies"));
         done();
     } else {
-        const circularError: any = new Error(gutil.colors.red("\"Madge\" circular dependency check failed"));
+        const circularError: any = new Error(ansiColors.red("\"Madge\" circular dependency check failed"));
         circularError.showStack = false;
         done(circularError);
     }
@@ -139,7 +141,7 @@ const license: ITaskFunction = (done: (err: Error) => void) => {
                 result = usedShebang + result; // add the shebang back
                 fs.writeFileSync(filePath, result);
             }
-            gutil.log(gutil.colors.blue("Ensured that %d files had copyright information" +
+            fancylog(ansiColors.blue("Ensured that %d files had copyright information" +
                 " (%d already did)."), filePaths.length, alreadyContainedCopyright);
         } catch (e) {
             done(e);
@@ -153,11 +155,11 @@ const watch: ITaskFunction = (done) => {
     gulp.watch("packages/**", gulp.series("lint"));
     const watchProcess = childProcess.spawn("node", [tscExecutable, "--watch"], {stdio: "inherit"});
     watchProcess.on("error", (error: Error) => {
-        gutil.log(error);
+        fancylog(error);
         throw error;
     });
     watchProcess.on("close", () => {
-        gutil.log("watch process closed");
+        fancylog("watch process closed");
         done();
     });
 };
@@ -167,25 +169,25 @@ const build: ITaskFunction = (done) => {
     loadDependencies();
     license((licenseErr?: Error) => {
         if (licenseErr) {
-            gutil.log(gutil.colors.red("Error encountered while adding copyright information"));
+            fancylog(ansiColors.red("Error encountered while adding copyright information"));
             done(licenseErr);
         }
         if (fs.existsSync(compileDir)) {
             rimraf(compileDir);
-            gutil.log("Deleted old compiled source in '%s' folder", compileDir);
+            fancylog("Deleted old compiled source in '%s' folder", compileDir);
         }
         const compileProcess = childProcess.spawnSync("node", [tscExecutable]);
         const typescriptOutput = compileProcess.output.join("");
         if (typescriptOutput.trim().length > 0) {
-            gutil.log("Typescript output:\n%s", typescriptOutput);
+            fancylog("Typescript output:\n%s", typescriptOutput);
         }
         if (compileProcess.status !== 0) {
-            const buildFailedError: IGulpError = new Error(gutil.colors.red("Build failed"));
+            const buildFailedError: IGulpError = new Error(ansiColors.red("Build failed"));
             buildFailedError.showStack = false;
             done(buildFailedError);
         }
         else {
-            gutil.log(gutil.colors.blue("Compiled typescript successfully"));
+            fancylog(ansiColors.blue("Compiled typescript successfully"));
 
             lint(
                 (lintWarning: Error) => {
@@ -198,7 +200,7 @@ const build: ITaskFunction = (done) => {
                             done(madgeError);
                             return;
                         }
-                        gutil.log(gutil.colors.blue("Build succeeded"));
+                        fancylog(ansiColors.blue("Build succeeded"));
                         done();
                     });
                 });
@@ -212,20 +214,20 @@ const installAllCliDependencies: ITaskFunction = async () => {
     const cliDirs: string[] = getDirectories(__dirname + "/../__tests__/__integration__/");
     cliDirs.forEach((dir) => {
         // Perform an NPM install
-        gutil.log(`Executing "npm install" for "${dir}" cli to obtain dependencies...`);
+        fancylog(`Executing "npm install" for "${dir}" cli to obtain dependencies...`);
         const installResponse = spawnSync((process.platform === "win32") ? "npm.cmd" : "npm", ["install"],
             {cwd: __dirname + `/../__tests__/__integration__/${dir}/`});
         if (installResponse.stdout && installResponse.stdout.toString().length > 0) {
-            gutil.log(`***INSTALL "${dir}" stdout:\n${installResponse.stdout.toString()}`);
+            fancylog(`***INSTALL "${dir}" stdout:\n${installResponse.stdout.toString()}`);
         }
         if (installResponse.stderr && installResponse.stderr.toString().length > 0) {
-            gutil.log(`***INSTALL "${dir}" stderr:\n${installResponse.stderr.toString()}`);
+            fancylog(`***INSTALL "${dir}" stderr:\n${installResponse.stderr.toString()}`);
         }
         if (installResponse.status !== 0) {
             throw new Error(`Install dependencies failed for "${dir}" test CLI. Status code: "${installResponse.status}". ` +
                 `Please review the stdout/stderr for more details.`);
         }
-        gutil.log(`Install for "${dir}" cli dependencies complete.`);
+        fancylog(`Install for "${dir}" cli dependencies complete.`);
     });
 };
 
@@ -234,20 +236,20 @@ const buildAllClis: ITaskFunction = async () => {
     const cliDirs: string[] = getDirectories(__dirname + "/../__tests__/__integration__/");
     cliDirs.forEach((dir) => {
         // Build them all
-        gutil.log(`Build "${dir}" cli...`);
+        fancylog(`Build "${dir}" cli...`);
         const buildResponse = spawnSync((process.platform === "win32") ? "npm.cmd" : "npm", ["run", "build"],
             {cwd: __dirname + `/../__tests__/__integration__/${dir}/`});
         if (buildResponse.stdout && buildResponse.stdout.toString().length > 0) {
-            gutil.log(`***BUILD "${dir}" stdout:\n${buildResponse.stdout.toString()}`);
+            fancylog(`***BUILD "${dir}" stdout:\n${buildResponse.stdout.toString()}`);
         }
         if (buildResponse.stderr && buildResponse.stderr.toString().length > 0) {
-            gutil.log(`***BUILD "${dir}" stderr:\n${buildResponse.stderr.toString()}`);
+            fancylog(`***BUILD "${dir}" stderr:\n${buildResponse.stderr.toString()}`);
         }
         if (buildResponse.status !== 0) {
             throw new Error(`Build failed for "${dir}" test CLI. Status code: "${buildResponse.status}". ` +
                 `Please review the stdout/stderr for more details.`);
         }
-        gutil.log(`Build for "${dir}" cli completed successfully.`);
+        fancylog(`Build for "${dir}" cli completed successfully.`);
     });
 };
 
