@@ -15,7 +15,7 @@ import { IPluginJson } from "../../doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { ImperativeError } from "../../../../../error";
 import { TextUtils } from "../../../../../utilities";
-import { execSync } from "child_process";
+import { execSync, StdioOptions } from "child_process";
 import { cmdToRun } from "../NpmFunctions";
 const npmCmd = cmdToRun();
 
@@ -53,6 +53,9 @@ export function uninstall(packageName: string): void {
   }
 
   try {
+    // We need to capture stdout but apparently stderr also gives us a progress
+    // bar from the npm install.
+    const pipe: StdioOptions = ["pipe", "pipe", process.stderr];
 
     // Perform the npm uninstall, somehow piping stdout and inheriting stderr gives
     // some form of a half-assed progress bar. This progress bar doesn't have any
@@ -64,7 +67,7 @@ export function uninstall(packageName: string): void {
       cwd: PMFConstants.instance.PMF_ROOT,
       // We need to capture stdout but apparently stderr also gives us a progress
       // bar from the npm install.
-      stdio: ["pipe", "pipe", process.stderr]
+      stdio: pipe
     });
 
     iConsole.info("Uninstall complete");

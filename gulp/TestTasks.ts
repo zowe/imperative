@@ -16,7 +16,8 @@ import { spawnSync } from "child_process";
 /**
  * Tasks related to running automated tests
  */
-let gutil: any;
+let ansiColors: any;
+let fancylog: any;
 let fs: any;
 let chalk: any;
 let gulp: any;
@@ -31,8 +32,9 @@ const unitTestReport = require("../package.json")["jest-stare"].resultDir;
 const integrationTestReport = require("path").resolve(testResultsDir + "/integration/results.html");
 
 function loadDependencies() {
+    ansiColors = require("ansi-colors");
+    fancylog = require("fancy-log");
     childProcess = require("child_process");
-    gutil = require("gulp-util");
     fs = require("fs");
     chalk = require("chalk");
     gulp = require("gulp");
@@ -74,7 +76,7 @@ const JEST_OPTIONS: any = {
 function jestTest(overrideOptions: any, done: any, filePattern = "packages.*__tests__.*\\.(spec|test)\\.ts$", unit = true) {
     loadDependencies();
     const options = overrideOptions || JEST_OPTIONS;
-    gutil.log("Running tests that match pattern: " + options.testNamePattern + " in files matching: ");
+    fancylog("Running tests that match pattern: " + options.testNamePattern + " in files matching: ");
     let fullArgs = ["--max_old_space_size=4000", // allow more memory to be used if needed
     ];
 
@@ -91,7 +93,7 @@ function jestTest(overrideOptions: any, done: any, filePattern = "packages.*__te
 
     const runInBandOption = "--runInBand";
     if (yargs.runInBand && jestArgs.indexOf(runInBandOption) < 0) {
-        gutil.log("--runInBand specified: " + yargs.runInBand);
+        fancylog("--runInBand specified: " + yargs.runInBand);
         jestArgs.push(runInBandOption);
     }
 
@@ -106,7 +108,7 @@ function jestTest(overrideOptions: any, done: any, filePattern = "packages.*__te
     }
 
     fullArgs = fullArgs.concat(jestArgs);
-    gutil.log("Executing node " + fullArgs.join(" "));
+    fancylog("Executing node " + fullArgs.join(" "));
 
     const childEnv = JSON.parse(JSON.stringify(process.env)); // copy current env
     childEnv.FORCE_COLOR = "1";
@@ -128,14 +130,14 @@ function jestTest(overrideOptions: any, done: any, filePattern = "packages.*__te
                             .split("\n").join("\n<br>");
                         fs.writeFileSync(directory + fl + ".html", contents);
                     } catch (e) {
-                        gutil.log("Error reading test log file: " + e.message);
+                        fancylog("Error reading test log file: " + e.message);
                     }
                 }
             });
         }
     } catch (e) {
         const testError: IGulpError =
-            new Error(gutil.colors.red("Unable to post-process the Jest test logs: " + e.message));
+            new Error(ansiColors.red("Unable to post-process the Jest test logs: " + e.message));
         testError.showStack = false;
         done(testError);
         return;
@@ -161,10 +163,10 @@ const runIntegrationTests = (done: any,
                 require("mkdirp")(integrationTestFolder);
                 fs.writeFileSync(integrationTestReport, integrationTestResultContent);
                 require("rimraf").sync(unitTestReport);
-                gutil.log(gutil.colors.blue("Integration test report moved from unit folder to " + integrationTestReport));
+                fancylog(ansiColors.blue("Integration test report moved from unit folder to " + integrationTestReport));
             }
             catch (e) {
-                gutil.log(gutil.colors.red("Error encountered while copying integration test results"));
+                fancylog(ansiColors.red("Error encountered while copying integration test results"));
                 if (!isNullOrUndefined(err)) {
                     // if we already saw an error , show both messages.
                     e = new Error("Jest error:" + err.message + "\nReport copy error:" + e.message);
@@ -174,7 +176,7 @@ const runIntegrationTests = (done: any,
             }
         }
         if (err) {
-            gutil.log(gutil.colors.red("Integration tests failed"));
+            fancylog(ansiColors.red("Integration tests failed"));
 
             done(err);
             return;
@@ -218,7 +220,7 @@ const runTestsWithFilePattern: ITaskFunction = (done: any) => {
     }
     const filePattern = yargs.filePattern;
     const unit = yargs.unit;
-    gutil.log("Executing tests that match file pattern: " + filePattern);
+    fancylog("Executing tests that match file pattern: " + filePattern);
     if (yargs.integration) {
         runIntegrationTests(done, undefined, filePattern);
     } else {
@@ -237,7 +239,7 @@ const runTestsWithPattern: ITaskFunction = (done: any) => {
         return;
     }
     overrideOptions.testNamePattern = yargs.namePattern;
-    gutil.log("Executing tests that match test name pattern: " + overrideOptions.grep);
+    fancylog("Executing tests that match test name pattern: " + overrideOptions.grep);
     if (yargs.integration) {
         runIntegrationTests(done, overrideOptions);
     } else {
@@ -256,20 +258,20 @@ const installSampleClis: ITaskFunction = (done: any) => {
     const cliDirs: string[] = getDirectories(__dirname + "/../__tests__/__integration__/");
     cliDirs.forEach((dir) => {
         // Globally install them all them all
-        gutil.log(`Globally installing "${dir}" cli...`);
+        fancylog(`Globally installing "${dir}" cli...`);
         const globalInstallResponse = spawnSync((process.platform === "win32") ? "npm.cmd" : "npm", ["install", "-g"],
             {cwd: __dirname + `/../__tests__/__integration__/${dir}/`});
         if (globalInstallResponse.stdout && globalInstallResponse.stdout.toString().length > 0) {
-            gutil.log(`***GLOBAL INSTALL for "${dir}" stdout:\n${globalInstallResponse.stdout.toString()}`);
+            fancylog(`***GLOBAL INSTALL for "${dir}" stdout:\n${globalInstallResponse.stdout.toString()}`);
         }
         if (globalInstallResponse.stderr && globalInstallResponse.stderr.toString().length > 0) {
-            gutil.log(`***GLOBAL INSTALL "${dir}" stderr:\n${globalInstallResponse.stderr.toString()}`);
+            fancylog(`***GLOBAL INSTALL "${dir}" stderr:\n${globalInstallResponse.stderr.toString()}`);
         }
         if (globalInstallResponse.status !== 0) {
             done(new Error(`Global install failed for "${dir}" test CLI. Status code: "${globalInstallResponse.status}". ` +
                 `Please review the stdout/stderr for more details.`));
         }
-        gutil.log(`Global install for "${dir}" cli completed successfully.`);
+        fancylog(`Global install for "${dir}" cli completed successfully.`);
     });
     done();
 };
@@ -280,20 +282,20 @@ const uninstallSampleClis: ITaskFunction = (done: any) => {
     const cliDirs: string[] = getDirectories(__dirname + "/../__tests__/__integration__/");
     cliDirs.forEach((dir) => {
         // Globally uninstall them all them all
-        gutil.log(`Globally uninstalling "${dir}" cli...`);
+        fancylog(`Globally uninstalling "${dir}" cli...`);
         const globalInstallResponse = spawnSync((process.platform === "win32") ? "npm.cmd" : "npm", ["uninstall", "-g"],
             {cwd: __dirname + `/../__tests__/__integration__/${dir}/`});
         if (globalInstallResponse.stdout && globalInstallResponse.stdout.toString().length > 0) {
-            gutil.log(`***GLOBAL UNINSTALL for "${dir}" stdout:\n${globalInstallResponse.stdout.toString()}`);
+            fancylog(`***GLOBAL UNINSTALL for "${dir}" stdout:\n${globalInstallResponse.stdout.toString()}`);
         }
         if (globalInstallResponse.stderr && globalInstallResponse.stderr.toString().length > 0) {
-            gutil.log(`***GLOBAL UNINSTALL "${dir}" stderr:\n${globalInstallResponse.stderr.toString()}`);
+            fancylog(`***GLOBAL UNINSTALL "${dir}" stderr:\n${globalInstallResponse.stderr.toString()}`);
         }
         if (globalInstallResponse.status !== 0) {
             throw new Error(`Global uninstall failed for "${dir}" test CLI. Status code: "${globalInstallResponse.status}". ` +
                 `Please review the stdout/stderr for more details.`);
         }
-        gutil.log(`Global uninstall for "${dir}" cli completed successfully.`);
+        fancylog(`Global uninstall for "${dir}" cli completed successfully.`);
     });
     done();
 };

@@ -14,7 +14,7 @@ import { ITaskWithStatus, TaskStage } from "../../../operations";
 jest.mock("chalk");
 import { CommandResponse } from "../../src/response/CommandResponse";
 import { ImperativeError } from "../../../error";
-import { inspect, isNullOrUndefined } from "util";
+import { inspect } from "util";
 import { TestLogger } from "../../../../__tests__/TestLogger";
 import { IO } from "../../../io";
 import { OUTPUT_FORMAT } from "../..";
@@ -952,7 +952,7 @@ describe("Command Response", () => {
                 expect(messages).toMatchSnapshot();
                 expect(error).toBeDefined();
                 expect(error instanceof ImperativeError).toBe(true);
-                expect(error.message).toMatchSnapshot();
+                expect(error.message).toContain("Error copying input parameters. Details: Converting circular structure to JSON");
             });
 
             it("should handle an invalid format type and throw an error", () => {
