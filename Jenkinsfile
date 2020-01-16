@@ -16,7 +16,7 @@ node('ca-jenkins-agent') {
     // Initialize the pipeline
     def pipeline = new NodeJSPipeline(this)
 
-    // Build admins, users that can approve the build and receieve emails for 
+    // Build admins, users that can approve the build and receieve emails for
     // all protected branch builds.
     pipeline.admins.add("tucker01", "gejohnston", "zfernand0", "mikebauerca", "markackert", "dkelosky")
 
@@ -25,8 +25,8 @@ node('ca-jenkins-agent') {
 
     // Protected branch property definitions
     pipeline.protectedBranches.addMap([
-        [name: "master", tag: "latest", dependencies: ["@zowe/perf-timing": "latest"]],
-        [name: "zowe-v1-lts", tag: "zowe-v1-lts", level: SemverLevel.MINOR, dependencies: ["@zowe/perf-timing": "zowe-v1-lts"]],
+        [name: "master", tag: "latest", dependencies: ["@zowe/perf-timing": "latest"], aliasTags: ["zowe-v1-lts"]],
+        //[name: "zowe-v1-lts", tag: "zowe-v1-lts", level: SemverLevel.MINOR, dependencies: ["@zowe/perf-timing": "zowe-v1-lts"]],
         [name: "lts-incremental", tag: "lts-incremental", level: SemverLevel.PATCH, dependencies: ["@zowe/perf-timing": "lts-incremental"]],
         [name: "lts-stable", tag: "lts-stable", level: SemverLevel.PATCH, dependencies: ["@zowe/perf-timing": "lts-stable"]]
     ])
@@ -80,7 +80,7 @@ node('ca-jenkins-agent') {
     def TEST_ROOT = "__tests__/__results__/ci"
     def UNIT_TEST_ROOT = "$TEST_ROOT/unit"
     def UNIT_JUNIT_OUTPUT = "$UNIT_TEST_ROOT/junit.xml"
-    
+
     // Perform a unit test and capture the results
     pipeline.test(
         name: "Unit",
@@ -114,7 +114,7 @@ node('ca-jenkins-agent') {
     // Perform an integration test and capture the results
     def INTEGRATION_TEST_ROOT = "$TEST_ROOT/integration"
     def INTEGRATION_JUNIT_OUTPUT = "$INTEGRATION_TEST_ROOT/junit.xml"
-    
+
     pipeline.test(
         name: "Integration",
         operation: {
