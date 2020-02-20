@@ -71,7 +71,7 @@
     "yargs": "15.0.2"
   },
   "devDependencies": {
-    "@types/-lodashdeep": "^2.0.0",
+    "@types/lodas-hdeep": "^2.0.0",
     "@types/body-parser": "1.16.4",
     "@types/bootstrap": "4.3.0",
     "@types/chai": "4.0.1",
