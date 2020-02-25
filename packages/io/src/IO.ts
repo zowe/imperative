@@ -167,7 +167,7 @@ export class IO {
     public static createSymlinkToDir(newSymLinkPath: string, existingDirPath: string) {
         try {
             if (!fs.existsSync(newSymLinkPath)) {
-                fs.symlinkSync(existingDirPath, newSymLinkPath, "dir");
+                fs.symlinkSync(existingDirPath, newSymLinkPath, "junction");
                 return;
             }
 
@@ -175,7 +175,7 @@ export class IO {
             const fileStats = fs.lstatSync(newSymLinkPath);
             if (fileStats.isSymbolicLink()) {
                 fs.unlinkSync(newSymLinkPath);
-                fs.symlinkSync(existingDirPath, newSymLinkPath, "dir");
+                fs.symlinkSync(existingDirPath, newSymLinkPath, "junction");
                 return;
             }
         } catch (exception) {
