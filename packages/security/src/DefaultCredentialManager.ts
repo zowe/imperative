@@ -129,16 +129,17 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
      * account passed to the function by Imperative.
      *
      * @param {string} account The account for which to get credentials
+     * @param {boolean} optional Set to true if failure to find credentials should be ignored
      * @returns {Promise<SecureCredential>} A promise containing the credentials stored in keytar.
      *
      * @throws {@link ImperativeError} if keytar is not defined.
      * @throws {@link ImperativeError} when keytar.getPassword returns null or undefined.
      */
-    protected async loadCredentials(account: string): Promise<SecureCredential> {
+    protected async loadCredentials(account: string, optional?: boolean): Promise<SecureCredential> {
         this.checkForKeytar();
         const password: string = await this.keytar.getPassword(this.service, account);
 
-        if (password == null) {
+        if (password == null && !optional) {
             throw new ImperativeError({
                 msg: "Unable to load credentials.",
                 additionalDetails: this.getMissingEntryMessage(account)
