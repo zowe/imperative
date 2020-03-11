@@ -34,7 +34,7 @@ import { ICommandProfileProperty } from "../doc/profiles/definition/ICommandProf
 import { CredentialManagerFactory } from "../../../security";
 import { IDeleteProfile, IProfileDeleted, IProfileLoaded } from "../../../profiles/src/doc";
 import { SecureOperationFunction } from "../types/SecureOperationFunction";
-import { ICliILoadProfile } from "../doc/profiles/parms/ICliLoadProfile";
+import { ICliLoadProfile } from "../doc/profiles/parms/ICliLoadProfile";
 import { ICliLoadAllProfiles } from "../doc/profiles/parms/ICliLoadAllProfiles";
 import { CliUtils } from "../../../utilities/src/CliUtils";
 
@@ -186,10 +186,10 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
      * Overridden loadProfile functionality
      * After the BasicProfileManager loads the profile, we process the secured properties for the CLi to use
      *
-     * @param {ICliILoadProfile} parms - Load control params - see the interface for full details
+     * @param {ICliLoadProfile} parms - Load control params - see the interface for full details
      * @returns {Promise<IProfileLoaded>} - Promise that is fulfilled when complete (or rejected with an Imperative Error)
      */
-    protected async loadProfile(parms: ICliILoadProfile): Promise<IProfileLoaded> {
+    protected async loadProfile(parms: ICliLoadProfile): Promise<IProfileLoaded> {
         const loadedProfile = await super.loadProfile(parms);
         const profile = loadedProfile.profile;
 
