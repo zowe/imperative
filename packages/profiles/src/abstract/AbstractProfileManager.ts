@@ -32,7 +32,8 @@ import {
   ISaveProfile,
   IUpdateProfile,
   IValidateProfile,
-  IValidateProfileWithSchema
+  IValidateProfileWithSchema,
+  ILoadAllProfiles
 } from "../doc/";
 import { ProfileIO, ProfileUtils } from "../utils";
 import { ImperativeConfig } from "../../../utilities";
@@ -670,7 +671,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     if (parms.rejectIfDependency) {
       this.log.trace(`Reject if dependency was specified, loading all profiles to check if "${parms.name}" of type ` +
         `"${this.profileType}" is a dependency.`);
-      const allProfiles = await this.loadAll();
+      const allProfiles = await this.loadAll({ noSecure: true });
       this.log.trace(`All profiles loaded (for dependency check).`);
       const flatten = ProfileUtils.flattenDependencies(allProfiles);
       const dependents: IProfile[] = this.isDependencyOf(flatten, parms.name);
@@ -853,7 +854,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
    * @returns {Promise<IProfileLoaded[]>} - The list of profiles when the promise is fulfilled or rejected with an ImperativeError.
    * @memberof AbstractProfileManager
    */
-  public abstract async loadAll(): Promise<IProfileLoaded[]>;
+  public abstract async loadAll(parms?: ILoadAllProfiles): Promise<IProfileLoaded[]>;
 
   /**
    * Save profile - performs the profile save according to the implementation - invoked when all parameters are valid

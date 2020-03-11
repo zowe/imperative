@@ -45,4 +45,11 @@ export interface ILoadProfile {
      * @memberof ILoadProfile
      */
     loadDependencies?: boolean;
+    /**
+     * If true, fields that indicate "secure" are not loaded. The properties will still be present in the profiles
+     * loaded with a value of "securely_stored".
+     * @type {boolean}
+     * @memberof ILoadProfile
+     */
+    noSecure?: boolean;
 }

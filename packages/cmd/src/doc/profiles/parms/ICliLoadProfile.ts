@@ -11,12 +11,23 @@
 
 import { ILoadProfile } from "../../../../../profiles";
 
-export interface ICliILoadProfile extends ILoadProfile {
-    /**
-     * If true, fields that indicate "secure" are not loaded. The properties will still be present in the profiles
-     * loaded with a value of "securely_stored".
-     * @type {boolean}
-     * @memberof ILoadProfile
-     */
-    noSecure?: boolean;
-}
+/**
+ * Profile Manager "loadProfile" input parameters. Indicates which profile to load (named or default) and if
+ * not finding the profile should be considered and error, etc.
+ * @export
+ * @deprecated - Use ICliLoadProfile instead because it is spelled correctly
+ * @interface ICliILoadProfile
+ * @extends ILoadProfile
+ */
+// tslint:disable-next-line:no-empty-interface
+export interface ICliILoadProfile extends ILoadProfile {}
+
+/**
+ * Profile Manager "loadProfile" input parameters. Indicates which profile to load (named or default) and if
+ * not finding the profile should be considered and error, etc.
+ * @export
+ * @interface ICliLoadProfile
+ * @extends ILoadProfile
+ */
+// tslint:disable-next-line:no-empty-interface
+export interface ICliLoadProfile extends ILoadProfile {}
