@@ -150,7 +150,7 @@ describe("DefaultCredentialManager", () => {
           expect(keytar.getPassword).toHaveBeenLastCalledWith(privateManager.service, values.account);
         });
 
-        it("should throw an error", async () => {
+        it("should throw an error when required credential fails to load", async () => {
           let caughtError: ImperativeError;
 
           (keytar.getPassword as jest.Mock).mockReturnValueOnce(null);
@@ -164,6 +164,22 @@ describe("DefaultCredentialManager", () => {
           expect(caughtError.message).toEqual("Unable to load credentials.");
           expect((caughtError as ImperativeError).additionalDetails).toContain(values.account);
           expect((caughtError as ImperativeError).additionalDetails).toContain(service);
+        });
+
+        it("should not throw an error when optional credential fails to load", async () => {
+          let result;
+          let caughtError: ImperativeError;
+
+          (keytar.getPassword as jest.Mock).mockReturnValueOnce(null);
+
+          try {
+            result = await privateManager.loadCredentials(values.account, true);
+          } catch (error) {
+            caughtError = error;
+          }
+
+          expect(result).toBeNull();
+          expect(caughtError).toBeUndefined();
         });
       });
 
