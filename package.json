@@ -94,6 +94,7 @@
     "@types/progress": "^2.0.3",
     "@types/stack-trace": "^0.0.29",
     "ansi-colors": "^4.1.1",
+    "array.from": "^1.1.0",
     "balloon-css": "^1.0.4",
     "bootstrap": "^4.4.1",
     "browserify": "^16.5.0",
@@ -132,6 +133,7 @@
     "tslint": "^5.20.1",
     "typedoc": "^0.15.0",
     "typescript": "^3.7.4",
+    "url-search-params-polyfill": "^8.0.0",
     "uuid": "^3.3.2",
     "yargs-parser": "^16.1.0"
   },

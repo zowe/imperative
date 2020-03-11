@@ -9,6 +9,11 @@
 *
 */
 
+// Imports to help Browserify find dependencies
+if (!Array.from) {
+    Array.from = require("array.from");
+}
+
 const isInIframe: boolean = window.location !== window.parent.location;
 const links: any = Array.from(document.getElementsByTagName("a"));
 

@@ -11,8 +11,9 @@
 
 // Imports to help Browserify find dependencies
 import $ from "jquery";
-const bootstrap = require("bootstrap");
-const jstree = require("jstree");
+require("bootstrap");
+require("jstree");
+require("url-search-params-polyfill");
 const scrollIntoView = require("scroll-into-view-if-needed");
 
 // Recursive object used for command tree node
@@ -280,6 +281,7 @@ function loadTree() {
         }
     })
     .on("model.jstree", onTreeLoaded)
+    .on("ready.jstree", onTreeLoaded)
     .on("changed.jstree", onTreeSelectionChanged);
 
     // Connect events to search box and iframe
