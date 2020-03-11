@@ -96,11 +96,16 @@ export abstract class AbstractCredentialManager {
    * Load credentials for an account managed by the credential manager.
    *
    * @param {string} account The account (or profile identifier) associated with credentials
+   * @param {boolean} optional Set to true if failure to find credentials should be ignored
    *
    * @returns {Promise<string>} The username and password associated with the account.
    */
-  public async load(account: string): Promise<string> {
-    const encodedString = await this.loadCredentials(account);
+  public async load(account: string, optional?: boolean): Promise<string> {
+    const encodedString = await this.loadCredentials(account, optional);
+
+    if (optional && encodedString == null) {
+      return null;
+    }
 
     return Buffer.from(encodedString, "base64").toString();
   }
@@ -142,12 +147,13 @@ export abstract class AbstractCredentialManager {
    * Called by Imperative to load the credentials of a profile.
    *
    * @param {string} account - A user account (or profile identifier)
+   * @param {boolean} optional - Set to true if failure to find credentials should be ignored
    *
    * @returns {Promise<SecureCredential>} - A base64 encoded username:password string
    *
    * @throws {ImperativeError} - when the get operation failed. The error object should have details about what failed.
    */
-  protected abstract async loadCredentials(account: string): Promise<SecureCredential>;
+  protected abstract async loadCredentials(account: string, optional?: boolean): Promise<SecureCredential>;
 
   /**
    * Called by Imperative to save the credentials for a profile.

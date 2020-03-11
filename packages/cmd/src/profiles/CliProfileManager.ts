@@ -201,7 +201,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
              * @param {string} propertyNamePath - The path to the property
              * @return {Promise<string>}
              */
-            securelyLoadValue = async (propertyNamePath: string): Promise<any> => {
+            securelyLoadValue = async (propertyNamePath: string, _: any, optional?: boolean): Promise<any> => {
                 let ret;
                 try {
                     this.log.debug(
@@ -210,7 +210,8 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     );
                     // Use the Credential Manager to store the credentials
                     ret = await CredentialManagerFactory.manager.load(
-                        ProfileUtils.getProfilePropertyKey(this.profileType, parms.name, propertyNamePath)
+                        ProfileUtils.getProfilePropertyKey(this.profileType, parms.name, propertyNamePath),
+                        optional
                     );
                 } catch (err) {
                     this.log.error(
@@ -353,7 +354,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             this.log.debug("Setting profile field %s from command line option %s", propNamePath, optionName);
             if (secureOp && prop.secure) {
                 this.log.debug("Performing secure operation on property %s", propNamePath);
-                return secureOp(propNamePath, propValue);
+                return secureOp(propNamePath, propValue, !prop.optionDefinition.required);
             }
             return propValue;
         }
