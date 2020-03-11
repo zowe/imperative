@@ -306,7 +306,7 @@ export abstract class AbstractSession {
 
             // get base 64 encoded auth if not provided
             if (isNullOrUndefined(populatedSession.base64EncodedAuth)) {
-                if (!isNullOrUndefined(populatedSession.user) && !isNullOrUndefined(populatedSession.user)) {
+                if (!isNullOrUndefined(populatedSession.user) && !isNullOrUndefined(populatedSession.password)) {
                     populatedSession.base64EncodedAuth = AbstractSession.getBase64Auth(populatedSession.user, populatedSession.password);
                 }
             } else {
