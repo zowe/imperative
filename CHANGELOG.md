@@ -20,7 +20,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## `4.0.0`
 
-- Use Node.js stream APIs when uploading and downloading files.
+- Support `prompt*` as a value for any CLI option to enable interactive prompting.
 
 ## `3.0.0`
 
