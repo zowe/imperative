@@ -94,7 +94,7 @@
     "@types/progress": "^2.0.3",
     "@types/stack-trace": "^0.0.29",
     "ansi-colors": "^4.1.1",
-    "array.from": "^1.1.0",
+    "array-from": "^2.1.1",
     "balloon-css": "^1.0.4",
     "bootstrap": "^4.4.1",
     "browserify": "^16.5.0",
