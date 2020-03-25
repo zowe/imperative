@@ -14,6 +14,7 @@ import * as path from "path";
 import { ImperativeConfig } from "../../utilities";
 import { IImperativeInstallState } from "./doc/IImperativeInstallState";
 import { PMFConstants } from "./plugins/utilities/PMFConstants";
+import { PluginIssues } from "./plugins/utilities/PluginIssues";
 
 export class InstallStateManager {
     /**
@@ -96,10 +97,15 @@ export class InstallStateManager {
             cachedState = JSON.parse(fs.readFileSync(this.installStateFile, "utf8"));
         }
 
+        // Load info about installed plugins if there are any
+        let installedPlugins = {};
+        if (fs.existsSync(PMFConstants.instance.PLUGIN_JSON)) {
+            installedPlugins = PluginIssues.instance.getInstalledPlugins();
+        }
+
         // Compute current install state and compare it to cached
         const myConfig: ImperativeConfig = ImperativeConfig.instance;
-        this.currentState = this.getInstallState(myConfig.callerPackageJson,
-            JSON.parse(fs.readFileSync(PMFConstants.instance.PLUGIN_JSON, "utf8")));
+        this.currentState = this.getInstallState(myConfig.callerPackageJson, installedPlugins);
 
         this.changed = !this.eqInstallState(cachedState, this.currentState);
     }
