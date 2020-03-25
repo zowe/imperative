@@ -173,7 +173,7 @@ export abstract class AbstractHelpGenerator implements IHelpGenerator {
 
             // build the option help text
             let optionText = option.description;
-            const defaultValueText = option.defaultValue ? this.grey("\nDefault value: " + option.defaultValue) : "";
+            const defaultValueText = option.defaultValue !== undefined ? this.grey("\nDefault value: " + option.defaultValue) : "";
             const allowableValuesText = option.allowableValues ? this.grey("\nAllowed values: " + option.allowableValues.values.join(", ")) : "";
             if (defaultValueText.length > 0 || allowableValuesText.length > 0) {
                 optionText += "\n";
