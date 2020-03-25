@@ -26,6 +26,7 @@ import { ConfigurationLoader } from "../ConfigurationLoader";
 import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
 import { IImperativeOverrides } from "../doc/IImperativeOverrides";
 import { AppSettings } from "../../../settings";
+import { IPluginJson } from "./doc/IPluginJson";
 
 /**
  * This class is the main engine for the Plugin Management Facility. The
@@ -230,7 +231,7 @@ export class PluginManagementFacility {
      * and when adding each plugin's commands to the CLI command tree.
      * Errors are recorded in PluginIssues.
      */
-    public loadAllPluginCfgProps(): void {
+    public loadAllPluginCfgProps(useCache?: boolean): void {
         // Initialize the plugin.json file if needed
         if (!existsSync(this.pmfConst.PLUGIN_JSON)) {
             if (!existsSync(this.pmfConst.PMF_ROOT)) {
@@ -242,25 +243,28 @@ export class PluginManagementFacility {
             writeFileSync(this.pmfConst.PLUGIN_JSON, {});
         }
 
+        const installedPlugins: IPluginJson = this.pluginIssues.getInstalledPlugins();
         const loadedOverrides: {[key: string]: IImperativeOverrides} = {};
 
-        // iterate through all of our installed plugins
-        for (const nextPluginNm of Object.keys(this.pluginIssues.getInstalledPlugins())) {
-            const nextPluginCfgProps = this.loadPluginCfgProps(nextPluginNm);
-            if (nextPluginCfgProps) {
-                this.mAllPluginCfgProps.push(nextPluginCfgProps);
+        if (!useCache) {
+            // iterate through all of our installed plugins
+            for (const nextPluginNm of Object.keys(installedPlugins)) {
+                const nextPluginCfgProps = this.loadPluginCfgProps(nextPluginNm);
+                if (nextPluginCfgProps) {
+                    this.mAllPluginCfgProps.push(nextPluginCfgProps);
 
-                // Remember the overrides as a key of our temporary object
-                loadedOverrides[nextPluginNm] = nextPluginCfgProps.impConfig.overrides;
+                    // Remember the overrides as a key of our temporary object
+                    loadedOverrides[nextPluginNm] = nextPluginCfgProps.impConfig.overrides;
 
-                this.impLogger.trace("Next plugin's configuration properties:\n" +
-                    JSON.stringify(nextPluginCfgProps, null, 2)
-                );
-            } else {
-                this.impLogger.error(
-                    "loadAllPluginCfgProps: Unable to load the configuration for the plug-in named '" +
-                    nextPluginNm + "' The plug-in was not added to the host CLI."
-                );
+                    this.impLogger.trace("Next plugin's configuration properties:\n" +
+                        JSON.stringify(nextPluginCfgProps, null, 2)
+                    );
+                } else {
+                    this.impLogger.error(
+                        "loadAllPluginCfgProps: Unable to load the configuration for the plug-in named '" +
+                        nextPluginNm + "' The plug-in was not added to the host CLI."
+                    );
+                }
             }
         }
 
