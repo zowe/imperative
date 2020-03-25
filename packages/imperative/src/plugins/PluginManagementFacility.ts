@@ -27,6 +27,7 @@ import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
 import { IImperativeOverrides } from "../doc/IImperativeOverrides";
 import { AppSettings } from "../../../settings";
 import { IPluginJson } from "./doc/IPluginJson";
+import { CommandTreeCache } from "../CommandTreeCache";
 
 /**
  * This class is the main engine for the Plugin Management Facility. The
@@ -231,7 +232,7 @@ export class PluginManagementFacility {
      * and when adding each plugin's commands to the CLI command tree.
      * Errors are recorded in PluginIssues.
      */
-    public loadAllPluginCfgProps(useCache?: boolean): void {
+    public loadAllPluginCfgProps(): void {
         // Initialize the plugin.json file if needed
         if (!existsSync(this.pmfConst.PLUGIN_JSON)) {
             if (!existsSync(this.pmfConst.PMF_ROOT)) {
@@ -246,7 +247,7 @@ export class PluginManagementFacility {
         const installedPlugins: IPluginJson = this.pluginIssues.getInstalledPlugins();
         const loadedOverrides: {[key: string]: IImperativeOverrides} = {};
 
-        if (!useCache) {
+        if (!CommandTreeCache.enabled || CommandTreeCache.instance.outdated) {
             // iterate through all of our installed plugins
             for (const nextPluginNm of Object.keys(installedPlugins)) {
                 const nextPluginCfgProps = this.loadPluginCfgProps(nextPluginNm);

@@ -303,4 +303,9 @@ export interface IImperativeConfig {
      * It will replace the main.css file that controls the style of the page.
      */
     webHelpCustomCssPath?: string;
+
+    /**
+     * Optionally disable the default behavior to cache command tree.
+     */
+    disableCmdTreeCache?: boolean;
 }

@@ -102,4 +102,5 @@ export class Constants {
     public static readonly DEFAULT_PROMPT_PHRASE = "PROMPT*";
 
     public static readonly WEB_HELP_DIR = "web-help";
+    public static readonly CACHE_DIR = "cache";
 }

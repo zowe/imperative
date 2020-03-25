@@ -17,6 +17,7 @@ import { IImperativeOverrides } from "../src/doc/IImperativeOverrides";
 import { IConfigLogging } from "../../logger";
 import { IImperativeEnvironmentalVariableSettings } from "..";
 import { ICommandDefinition } from "../../cmd/src/doc/ICommandDefinition";
+import { CommandTreeCache } from "../src/CommandTreeCache";
 
 describe("Imperative", () => {
     const mainModule = process.mainModule;
@@ -123,14 +124,7 @@ describe("Imperative", () => {
     });
 
     describe("init", () => {
-        let defaultConfig = {
-            name: "test-cli",
-            allowPlugins: false,
-            allowConfigGroup: false,
-            overrides: {
-                CredentialManager: "some-string.ts"
-            }
-        };
+        let defaultConfig;
 
         beforeEach(() => {
             defaultConfig = {
@@ -139,7 +133,8 @@ describe("Imperative", () => {
                 allowConfigGroup: false,
                 overrides: {
                     CredentialManager: "some-string.ts"
-                }
+                },
+                disableCmdTreeCache: true
             };
 
             (Imperative as any).constructApiObject = jest.fn(() => undefined);

@@ -12,35 +12,35 @@
 /**
  * Object containing metadata about a CLI package or plugin
  * @export
- * @interface IImperativeInstallState
+ * @interface IImperativePackageMetadata
  */
-export interface IImperativeInstallState {
+export interface IImperativePackageMetadata {
 
     /**
      * Name of package
      * @type {string}
-     * @memberof IImperativeInstallState
+     * @memberof IImperativePackageMetadata
      */
     name: string;
 
     /**
      * Version string of package
      * @type {string}
-     * @memberof IImperativeInstallState
+     * @memberof IImperativePackageMetadata
      */
     version: string;
 
     /**
      * Absolute path where package is installed
      * @type {string}
-     * @memberof IImperativeInstallState
+     * @memberof IImperativePackageMetadata
      */
     installPath?: string;
 
     /**
      * Absolute path where plugins for package are installed
      * @type {string}
-     * @memberof IImperativeInstallState
+     * @memberof IImperativePackageMetadata
      */
     pluginsPath?: string;
 }

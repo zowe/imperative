@@ -55,8 +55,7 @@ import { AppSettings } from "../../settings";
 import { dirname, join } from "path";
 import { Console } from "../../console";
 import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
-import { parse, stringify } from "flatted";
-import { InstallStateManager } from "./InstallStateManager";
+import { CommandTreeCache } from "./CommandTreeCache";
 
 // Bootstrap the performance tools
 if (PerfTiming.isEnabled) {
@@ -168,25 +167,6 @@ export class Imperative {
                 }
                 ImperativeConfig.instance.rootCommandName = this.mRootCommandName;
 
-                const cacheDir = join(ImperativeConfig.instance.cliHome, "cache");
-                if (!require("fs").existsSync(cacheDir)) {
-                    require("fs").mkdirSync(cacheDir);
-                }
-
-                const cmdTreeCache = join(cacheDir, "cmdTreeCache.json");
-                const installStateMgr = new InstallStateManager(join(cacheDir, "installState.json"));
-                let preparedHostCliCmdTree: ICommandDefinition;
-
-                if (!installStateMgr.changed) {
-                    try {
-                        preparedHostCliCmdTree = parse(require("fs").readFileSync(cmdTreeCache, "utf8"));
-                        this.log.info(`Loaded command tree from cache file: ${cmdTreeCache}`);
-                    } catch (e) {
-                        installStateMgr.changed = true;
-                        this.log.error(`Failed to load command tree from cache file: ${cmdTreeCache}`);
-                    }
-                }
-
                 // If config group is enabled add config commands
                 if (config.allowConfigGroup) {
                     ConfigManagementFacility.instance.init();
@@ -197,7 +177,7 @@ export class Imperative {
                     PluginManagementFacility.instance.init();
 
                     // load the configuration of every installed plugin for later processing
-                    PluginManagementFacility.instance.loadAllPluginCfgProps(!installStateMgr.changed);
+                    PluginManagementFacility.instance.loadAllPluginCfgProps();
 
                     // Override the config object with things loaded from plugins
                     Object.assign(
@@ -239,7 +219,13 @@ export class Imperative {
                     JSON.stringify(config, null, 2)
                 );
 
-                if (installStateMgr.changed) {
+                let preparedHostCliCmdTree: ICommandDefinition;
+
+                if (CommandTreeCache.enabled && !CommandTreeCache.instance.outdated) {
+                    preparedHostCliCmdTree = CommandTreeCache.instance.tryLoadCmdTree();
+                }
+
+                if (preparedHostCliCmdTree == null) {
                     const resolvedHostCliCmdTree: ICommandDefinition = this.getResolvedCmdTree(config);
 
                     // If plugins are allowed, add plugins' commands and profiles to the CLI command tree
@@ -251,8 +237,9 @@ export class Imperative {
                     // final preparation of the command tree
                     preparedHostCliCmdTree = this.getPreparedCmdTree(resolvedHostCliCmdTree);
 
-                    require("fs").writeFileSync(cmdTreeCache, stringify(preparedHostCliCmdTree));
-                    installStateMgr.writeInstallState();
+                    if (CommandTreeCache.enabled) {
+                        CommandTreeCache.instance.saveCmdTree(preparedHostCliCmdTree);
+                    }
                 }
 
                 /**
