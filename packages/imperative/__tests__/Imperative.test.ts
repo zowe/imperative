@@ -124,7 +124,7 @@ describe("Imperative", () => {
     });
 
     describe("init", () => {
-        let defaultConfig;
+        let defaultConfig: IImperativeConfig;
 
         beforeEach(() => {
             defaultConfig = {
