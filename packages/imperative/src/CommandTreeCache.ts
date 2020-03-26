@@ -82,7 +82,12 @@ export class CommandTreeCache {
      */
     public get outdated(): boolean {
         if (this.mOutdated == null) {
-            this.checkIfOutdated();
+            try {
+                this.checkIfOutdated();
+            } catch (err) {
+                this.mOutdated = true;
+                this.impLogger.error("Failed to check if command tree cache is outdated: " + err);
+            }
         }
 
         return this.mOutdated;
@@ -107,28 +112,35 @@ export class CommandTreeCache {
     }
 
     public tryLoadCmdTree(): ICommandDefinition {
+        if (this.currentMetadata == null) {
+            return null;
+        }
+
         let cmdTree: ICommandDefinition;
 
         try {
             cmdTree = parse(fs.readFileSync(this.cmdTreeCache, "utf8"));
             this.impLogger.info(`Loaded command tree from cache file: ${this.cmdTreeCache}`);
-        } catch (e) {
+        } catch (err) {
             this.mOutdated = true;
-            this.impLogger.error(`Failed to load command tree from cache file: ${this.cmdTreeCache}`);
+            this.impLogger.error("Failed to load command tree from cache file: " + err);
         }
 
         return cmdTree;
     }
 
     public saveCmdTree(cmdTree: ICommandDefinition) {
+        if (this.currentMetadata == null) {
+            return;
+        }
+
         if (!fs.existsSync(this.cacheDir)) {
             fs.mkdirSync(this.cacheDir);
         }
 
         fs.writeFileSync(this.cmdTreeCache, stringify(cmdTree));
-        this.impLogger.info(`Saved command tree to cache file: ${this.cmdTreeCache}`);
-
         fs.writeFileSync(this.metadataFile, JSON.stringify(this.currentMetadata, null, 2));
+        this.impLogger.info(`Saved command tree to cache file: ${this.cmdTreeCache}`);
     }
 
     /**

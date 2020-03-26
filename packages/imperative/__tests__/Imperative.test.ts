@@ -133,8 +133,7 @@ describe("Imperative", () => {
                 allowConfigGroup: false,
                 overrides: {
                     CredentialManager: "some-string.ts"
-                },
-                disableCmdTreeCache: true
+                }
             };
 
             (Imperative as any).constructApiObject = jest.fn(() => undefined);
