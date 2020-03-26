@@ -4,6 +4,10 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
+- Patched vulnerabilities
+
+## `4.5.3`
+
 - Fixed alignment of output from `zowe plugins list` command
 
 ## `4.5.2`
