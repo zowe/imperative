@@ -1,86 +1,36 @@
-# Changelog
+# Change Log
 
-## [2018-02-20] US429254-SecureCredentialManagement 
+All notable changes to the Imperative package will be documented in this file.
 
--  __[MAJOR]__ Added the ability for profiles to securly store credentials using a credential manager.
--  __[MAJOR]__ AbstractProfileManager now calls the Credential Manager to save, load and delete credentials of a profile.
--  __[MINOR]__ ICommandOptionDefinition now contains types for `username` and `password`
+## `4.5.4`
 
-### Credential Management
+- Patched vulnerabilities.
 
-Part of this effort involved creating a way to securly store and load credentials in Imperative. This involved creating a credential manager.
+## `4.5.3`
 
-#### Changes
--  __[MAJOR]__ Created a new `security` package
--  __[MAJOR]__ Created a DefaultCredentialManager which utilizes [keytar] to perform the storing and loading of credentials.
--  __[MAJOR]__ [keytar] is an optional dependency that needs special setup on Linux. If keytar was not installed, a command will only fail if the __DefaultCredentialManager__ tries to save/load/delete credentials. Otherwise everything will just work fine.
--  __[MAJOR]__ Created an OverridesLoader underneath the [imperative package](./packages/imperative) and defined a property 
--  __[MAJOR]__ Provided the ability for a CLI to override the default credential manager. See section below.
--  __[MINOR]__ Exposed a CredentialManagerFactory to abstract how Imperative accesses the underlying manager securly.
+- Fixed alignment of output from `zowe plugins list` command.
 
-#### Overriding a Manager
+## `4.5.2`
 
-It is possible for a CLI to override the DefaultCredentialManager by specifying the overrides.CredentialManager property on the config. The class specified must properly extend [AbstractCredentialManager](./packages/security/abstract/AbstractCredentialManager.ts).
+- Fix failure to load secure profile fields that are optional when no value is found. Thanks @tjohnsonBCM
+- Don't load secure profile fields when deleting profile. Thanks @tjohnsonBCM
+- Deprecate the interface `ICliILoadProfile`. Use `ICliLoadProfile` instead.
 
-##### Example
-```TypeScript
-// Using a string path
-{
-  //...
-  overrides: {
-    CredentialManager: "path/to/CredentialManager.ts" // requires module.exports to be the manager.
-  }
-  //...
-}
+## `4.5.1`
 
-// Or using the actual class
-{
-  //...
-  overrides: {
-    CredentialManager: require("path/to/CredentialManager.ts")
-  }
-  //...
-}
+- Check that password is defined when `AbstractSession` uses auth. Thanks @apsychogirl
+- Expose `IRestOptions` type in the API. Thanks @apsychogirl
 
-// In path/to/CredentialManager.ts
-export = class CredentialManager extends AbstractCredentialManager {
-  /**
-   * Create a constructor that satisfies ICredentialManagerConstructor
-   *
-   * @param service Passed by Imperative
-   */
-  constructor(service: string) {
-    super(service);
-  }
+## `4.5.0`
 
-  /**
-   * In the example, we always will return a hardcoded string.
-   *
-   * @param {string} account Passed to this function by Imperative
-   */
-  protected async loadCredentials(account: string): Promise<SecureCredential> {
-    return Buffer.from("username-goes-here:password-goes-here").toString("base64");
-  }
+- Add `request` function to `AbstractRestClient` that returns REST client object in response. Thanks @Alexandru-Dimitru
+- Deprecate the method `AbstractRestClient.performRest`. Use `AbstractRestClient.request` instead.
 
-  /**
-   * In the example, we do nothing.
-   *
-   * @param {string} account Passed to this function by Imperative
-   * @param {SecureCredential} credentials Passed to this function by Imperative
-   */
-  protected async saveCredentials(account: string, credentials: SecureCredential): Promise<void> {
-    return;
-  }
+## `4.0.0`
 
-  /**
-   * In the example, we do nothing.
-   *
-   * @param account Passed to this function by Imperative
-   */
-  protected async deleteCredentials(account: string): Promise<void> {
-    return;
-  }
-};
-```
+- Support `prompt*` as a value for any CLI option to enable interactive prompting.
 
-[keytar]: https://www.npmjs.com/package/keytar
+## `3.0.0`
+
+- Rename package from "@brightside/imperative" to "@zowe/imperative".
+- Change name of config option "credential-manager" to "CredentialManager".

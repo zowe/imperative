@@ -66,10 +66,46 @@ describe("AbstractCredentialManager", () => {
       const actualValue = await manager.load(account);
 
       expect(privateManager.loadCredentials).toHaveBeenCalledTimes(1);
-      expect(privateManager.loadCredentials).toHaveBeenCalledWith(account);
+      expect(privateManager.loadCredentials).toHaveBeenCalledWith(account, undefined);
 
       // Check that the decode happened
       expect(actualValue).toEqual(credentials.username + ":" + credentials.password);
+    });
+
+    it("should throw an error when required credential fails to load", async () => {
+      // Override credential loader to fail
+      privateManager.loadCredentials.mockReturnValueOnce(null);
+      let result;
+      let error;
+
+      try {
+        result = await manager.load(account, false);
+      } catch (e) {
+        error = e;
+      }
+
+      expect(result).toBeUndefined();
+      expect(error).toBeDefined();
+      expect(privateManager.loadCredentials).toHaveBeenCalledTimes(1);
+      expect(privateManager.loadCredentials).toHaveBeenCalledWith(account, false);
+    });
+
+    it("should not throw an error when optional credential fails to load", async () => {
+      // Override credential loader to fail
+      privateManager.loadCredentials.mockReturnValueOnce(null);
+      let result;
+      let error;
+
+      try {
+        result = await manager.load(account, true);
+      } catch (e) {
+        error = e;
+      }
+
+      expect(result).toBeNull();
+      expect(error).toBeUndefined();
+      expect(privateManager.loadCredentials).toHaveBeenCalledTimes(1);
+      expect(privateManager.loadCredentials).toHaveBeenCalledWith(account, true);
     });
   });
 

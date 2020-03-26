@@ -20,6 +20,9 @@ import { CustomRestClient } from "./__model__/CustomRestClient";
 import { CustomRestClientWithProcessError, EXPECTED_REST_ERROR } from "./__model__/CustomRestClientWithProcessError";
 import { getRandomBytes } from "../../../../__tests__/src/TestUtil";
 import { RestClientError } from "../../src/client/RestClientError";
+import { IOptionsFullResponse } from "../../src/client/doc/IOptionsFullResponse";
+import { IRestClientResponse } from "../../src/client/doc/IRestClientResponse";
+import { CLIENT_PROPERTY } from "../../src/client/types/AbstractRestClientProperties";
 
 /**
  * RestClient is already tested vie the AbstractRestClient test, so we will extend RestClient
@@ -218,6 +221,90 @@ describe("RestClient tests", () => {
         }
         expect(error).toBeUndefined();
         expect(response).toEqual(Buffer.concat([randomBytes1, randomBytes2]));
+    });
+    it("should be able to return full client response from various types of requests", async () => {
+
+        const randomByteLength = 40;
+        let randomBytes1 = await getRandomBytes(randomByteLength);
+        let randomBytes2 = await getRandomBytes(randomByteLength);
+        const emitter = new MockHttpRequestResponse();
+        const requestFnc = jest.fn((options, callback) => {
+            ProcessUtils.nextTick(async () => {
+
+                const newEmit = new MockHttpRequestResponse();
+                newEmit.statusCode = "200";
+                callback(newEmit);
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("data", randomBytes1);
+                });
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("data", randomBytes2);
+                });
+
+                await ProcessUtils.nextTick(() => {
+                    newEmit.emit("end"); // request is finished
+                });
+            });
+            return emitter;
+        });
+
+        (https.request as any) = requestFnc;
+
+        let error;
+        let response: IRestClientResponse;
+        const reqOptions: IOptionsFullResponse = {
+            resource: "/resource"
+        };
+
+        const listOfClientProperties = Object.keys(CLIENT_PROPERTY);
+
+        try {
+            response = await CustomRestClient.getExpectFullResponse(new Session({hostname: "test"}), reqOptions);
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error).toBeUndefined();
+        expect(response).toBeDefined();
+        expect(response.data).toEqual(Buffer.concat([randomBytes1, randomBytes2]));
+        listOfClientProperties.forEach((property) => expect(response[`${property}`]).toBeDefined());
+
+        randomBytes1 = await getRandomBytes(randomByteLength);
+        randomBytes2 = await getRandomBytes(randomByteLength);
+        try {
+            response = await CustomRestClient.deleteExpectFullResponse(new Session({hostname: "test"}), reqOptions);
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error).toBeUndefined();
+        expect(response).toBeDefined();
+        expect(response.data).toEqual(Buffer.concat([randomBytes1, randomBytes2]));
+        listOfClientProperties.forEach((property) => expect(response[`${property}`]).toBeDefined());
+
+        randomBytes1 = await getRandomBytes(randomByteLength);
+        randomBytes2 = await getRandomBytes(randomByteLength);
+        try {
+            response = await CustomRestClient.postExpectFullResponse(new Session({hostname: "test"}), reqOptions);
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error).toBeUndefined();
+        expect(response).toBeDefined();
+        expect(response.data).toEqual(Buffer.concat([randomBytes1, randomBytes2]));
+        listOfClientProperties.forEach((property) => expect(response[`${property}`]).toBeDefined());
+
+        randomBytes1 = await getRandomBytes(randomByteLength);
+        randomBytes2 = await getRandomBytes(randomByteLength);
+        try {
+            response = await CustomRestClient.putExpectFullResponse(new Session({hostname: "test"}), reqOptions);
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error).toBeUndefined();
+        expect(response).toBeDefined();
+        expect(response.data).toEqual(Buffer.concat([randomBytes1, randomBytes2]));
+        listOfClientProperties.forEach((property) => expect(response[`${property}`]).toBeDefined());
     });
 
 });

@@ -16,6 +16,10 @@ import { AbstractRestClient } from "./AbstractRestClient";
 import { JSONUtils } from "../../../utilities";
 import { Readable, Writable } from "stream";
 import { ITaskWithStatus } from "../../../operations";
+import { IRestClientResponse } from "./doc/IRestClientResponse";
+import { IOptionsFullResponse } from "./doc/IOptionsFullResponse";
+import { CLIENT_PROPERTY } from "./types/AbstractRestClientProperties";
+import { IRestOptions } from "./doc/IRestOptions";
 
 /**
  * Class to handle http(s) requests, build headers, collect data, report status codes, and header responses
@@ -112,7 +116,7 @@ export class RestClient extends AbstractRestClient {
      */
     public static async getExpectBuffer(session: AbstractSession, resource: string, reqHeaders: any[] = []): Promise<Buffer> {
         const client = new this(session);
-        await client.performRest(resource, HTTP_VERB.GET, reqHeaders);
+        await client.request({resource, request:HTTP_VERB.GET, reqHeaders});
         return client.data;
     }
 
@@ -130,7 +134,7 @@ export class RestClient extends AbstractRestClient {
      */
     public static async putExpectBuffer(session: AbstractSession, resource: string, reqHeaders: any[] = [], data: any): Promise<Buffer> {
         const client = new this(session);
-        await client.performRest(resource, HTTP_VERB.PUT, reqHeaders, data);
+        await client.request({resource, request:HTTP_VERB.PUT, reqHeaders, writeData:data});
         return client.data;
     }
 
@@ -148,7 +152,7 @@ export class RestClient extends AbstractRestClient {
      */
     public static async postExpectBuffer(session: AbstractSession, resource: string, reqHeaders: any[] = [], data?: any): Promise<Buffer> {
         const client = new this(session);
-        await client.performRest(resource, HTTP_VERB.POST, reqHeaders, data);
+        await client.request({resource, request:HTTP_VERB.POST, reqHeaders, writeData:data});
         return client.data;
     }
 
@@ -165,7 +169,7 @@ export class RestClient extends AbstractRestClient {
      */
     public static async deleteExpectBuffer(session: AbstractSession, resource: string, reqHeaders: any[] = []): Promise<Buffer> {
         const client = new this(session);
-        await client.performRest(resource, HTTP_VERB.DELETE, reqHeaders);
+        await client.request({resource, request:HTTP_VERB.DELETE, reqHeaders});
         return client.data;
     }
 
@@ -181,7 +185,7 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static getExpectString(session: AbstractSession, resource: string, reqHeaders: any[] = []): Promise<string> {
-        return new this(session).performRest(resource, HTTP_VERB.GET, reqHeaders);
+        return new this(session).request({resource, request:HTTP_VERB.GET, reqHeaders});
     }
 
     /**
@@ -197,7 +201,7 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static putExpectString(session: AbstractSession, resource: string, reqHeaders: any[] = [], data: any): Promise<string> {
-        return new this(session).performRest(resource, HTTP_VERB.PUT, reqHeaders, data);
+        return new this(session).request({resource, request:HTTP_VERB.PUT, reqHeaders, writeData:data});
     }
 
     /**
@@ -213,7 +217,7 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static postExpectString(session: AbstractSession, resource: string, reqHeaders: any[] = [], data?: any): Promise<string> {
-        return new this(session).performRest(resource, HTTP_VERB.POST, reqHeaders, data);
+        return new this(session).request({resource, request:HTTP_VERB.POST, reqHeaders, writeData:data});
     }
 
     /**
@@ -228,7 +232,7 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static deleteExpectString(session: AbstractSession, resource: string, reqHeaders: any[] = []): Promise<string> {
-        return new this(session).performRest(resource, HTTP_VERB.DELETE, reqHeaders);
+        return new this(session).request({resource, request:HTTP_VERB.DELETE, reqHeaders});
     }
 
     /**
@@ -250,8 +254,8 @@ export class RestClient extends AbstractRestClient {
                               responseStream: Writable,
                               normalizeResponseNewLines?: boolean,
                               task?: ITaskWithStatus): Promise<string> {
-        return new this(session).performRest(resource, HTTP_VERB.GET, reqHeaders, undefined, responseStream,
-            undefined, normalizeResponseNewLines, undefined, task);
+        return new this(session).request({resource, request:HTTP_VERB.GET, reqHeaders, responseStream,
+                                          normalizeResponseNewLines, task});
     }
 
     /**
@@ -276,8 +280,8 @@ export class RestClient extends AbstractRestClient {
                               responseStream: Writable, requestStream: Readable,
                               normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
                               task?: ITaskWithStatus): Promise<string> {
-        return new this(session).performRest(resource, HTTP_VERB.PUT, reqHeaders, undefined, responseStream, requestStream,
-            normalizeResponseNewLines, normalizeRequestNewLines, task);
+        return new this(session).request({resource, request:HTTP_VERB.PUT, reqHeaders, responseStream, requestStream,
+                                          normalizeResponseNewLines, normalizeRequestNewLines, task});
     }
 
     /**
@@ -299,8 +303,8 @@ export class RestClient extends AbstractRestClient {
                                          requestStream: Readable,
                                          normalizeRequestNewLines?: boolean,
                                          task?: ITaskWithStatus): Promise<string> {
-        return new this(session).performRest(resource, HTTP_VERB.PUT, reqHeaders, undefined, undefined, requestStream,
-            undefined, normalizeRequestNewLines, task);
+        return new this(session).request({resource, request:HTTP_VERB.PUT, reqHeaders, requestStream,
+                                          normalizeRequestNewLines, task});
     }
 
     /**
@@ -325,8 +329,8 @@ export class RestClient extends AbstractRestClient {
                                responseStream: Writable, requestStream: Readable,
                                normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
                                task?: ITaskWithStatus): Promise<string> {
-        return new this(session).performRest(resource, HTTP_VERB.POST, reqHeaders, undefined, responseStream, requestStream,
-            normalizeResponseNewLines, normalizeRequestNewLines, task);
+        return new this(session).request({resource, request:HTTP_VERB.POST, reqHeaders, responseStream, requestStream,
+                                          normalizeResponseNewLines, normalizeRequestNewLines, task});
     }
 
     /**
@@ -347,8 +351,8 @@ export class RestClient extends AbstractRestClient {
     public static postStreamedRequestOnly(session: AbstractSession, resource: string, reqHeaders: any[] = [],
                                           requestStream: Readable, normalizeRequestNewLines?: boolean,
                                           task?: ITaskWithStatus): Promise<string> {
-        return new this(session).performRest(resource, HTTP_VERB.POST, reqHeaders, undefined, undefined, requestStream,
-            undefined, normalizeRequestNewLines, task);
+        return new this(session).request({resource, request:HTTP_VERB.POST, reqHeaders, requestStream,
+                                          normalizeRequestNewLines, task});
     }
 
     /**
@@ -369,9 +373,124 @@ export class RestClient extends AbstractRestClient {
     public static deleteStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [], responseStream: Writable,
                                  normalizeResponseNewLines?: boolean,
                                  task?: ITaskWithStatus): Promise<string> {
-        return new this(session).performRest(resource, HTTP_VERB.DELETE, reqHeaders,
-            undefined, responseStream, undefined, normalizeResponseNewLines, undefined, task
-        );
+        return new this(session).request({resource, request:HTTP_VERB.DELETE, reqHeaders,
+                                          responseStream, normalizeResponseNewLines, task});
+    }
+
+    /**
+     * REST HTTP GET operation returning full HTTP(S) Response
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {IOptionsFullRequest} options - URI for which this request should go against
+     * @returns {Promise<IRestClientResponse>} - full response or filtered based on provided params
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static async getExpectFullResponse(session: AbstractSession,
+                                              options: IOptionsFullResponse): Promise<IRestClientResponse> {
+        const  requestOptions: IRestOptions = {
+            resource : options.resource,
+            request : HTTP_VERB.GET,
+            reqHeaders : options.reqHeaders,
+            writeData : options.writeData,
+            responseStream : options.responseStream,
+            requestStream : options.requestStream,
+            normalizeResponseNewLines : options.normalizeResponseNewLines,
+            normalizeRequestNewLines : options.normalizeRequestNewLines,
+            task : options.task,
+        };
+
+        const client = new this(session);
+        await client.request(requestOptions);
+        return this.extractExpectedData(client, options.dataToReturn);
+    }
+
+    /**
+     * REST HTTP PUT operation returning full HTTP(S) Response
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {IOptionsFullRequest} options - list of parameters
+     * @returns {Promise<IRestClientResponse>} - response content from http(s) call
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static async putExpectFullResponse(session: AbstractSession,
+                                              options: IOptionsFullResponse): Promise<IRestClientResponse> {
+        const  requestOptions: IRestOptions = {
+            resource : options.resource,
+            request : HTTP_VERB.PUT,
+            reqHeaders : options.reqHeaders,
+            writeData: options.writeData,
+            responseStream: options.responseStream,
+            requestStream: options.requestStream,
+            normalizeResponseNewLines: options.normalizeResponseNewLines,
+            normalizeRequestNewLines: options.normalizeRequestNewLines,
+            task: options.task,
+        };
+
+        const client = new this(session);
+        await client.request(requestOptions);
+        return this.extractExpectedData(client, options.dataToReturn);
+    }
+
+    /**
+     * REST HTTP delete operation returning full HTTP(S) Response
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {IOptionsFullRequest} options - list of parameters
+     * @returns {Promise<IRestClientResponse>} - response content from http(s) call
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static async deleteExpectFullResponse(session: AbstractSession,
+                                                 options: IOptionsFullResponse): Promise<IRestClientResponse> {
+        const  requestOptions: IRestOptions = {
+            resource : options.resource,
+            request : HTTP_VERB.DELETE,
+            reqHeaders : options.reqHeaders,
+            writeData: options.writeData,
+            responseStream: options.responseStream,
+            requestStream: options.requestStream,
+            normalizeResponseNewLines: options.normalizeResponseNewLines,
+            normalizeRequestNewLines: options.normalizeRequestNewLines,
+            task: options.task,
+        };
+
+        const client = new this(session);
+        await client.request(requestOptions);
+        return this.extractExpectedData(client, options.dataToReturn);
+    }
+
+    /**
+     * REST HTTP post operation returning full HTTP(S) Response
+     * @static
+     * @param {AbstractSession} session - representing connection to this api
+     * @param {IOptionsFullRequest} options - list of parameters
+     * @returns {Promise<IRestClientResponse>} - response content from http(s) call
+     * @throws  if the request gets a status code outside of the 200 range
+     *          or other connection problems occur (e.g. connection refused)
+     * @memberof RestClient
+     */
+    public static async postExpectFullResponse(session: AbstractSession,
+                                               options: IOptionsFullResponse): Promise<IRestClientResponse> {
+        const  requestOptions: IRestOptions = {
+            resource : options.resource,
+            request : HTTP_VERB.POST,
+            reqHeaders : options.reqHeaders,
+            writeData: options.writeData,
+            responseStream: options.responseStream,
+            requestStream: options.requestStream,
+            normalizeResponseNewLines: options.normalizeResponseNewLines,
+            normalizeRequestNewLines: options.normalizeRequestNewLines,
+            task: options.task,
+        };
+
+        const client = new this(session);
+        await client.request(requestOptions);
+        return this.extractExpectedData(client, options.dataToReturn);
     }
 
     /**
@@ -383,5 +502,25 @@ export class RestClient extends AbstractRestClient {
      */
     public static hasQueryString(query: string): boolean {
         return (query.slice(-1) !== RestConstants.QUERY_ID);
+    }
+
+    /**
+     * Helper method to extract requested data from response object
+     * If list is not passed, returns entire response
+     * @static
+     * @param {any} client - HTTP(S) response object
+     * @param {string[]} toReturn - list with object properties to return
+     * @returns {IRestClientResponse} - trimmed or full response object based on the list provided
+     * @memberof RestClient
+     */
+    private static extractExpectedData(client: AbstractRestClient,
+                                       toReturn: CLIENT_PROPERTY[] = Object.values(CLIENT_PROPERTY)
+                                       ): IRestClientResponse {
+        const tailoredResult: any = {};
+        toReturn.forEach((property) => {
+            tailoredResult[property] = client[property];
+        });
+
+        return tailoredResult as IRestClientResponse;
     }
 }

@@ -9,7 +9,7 @@ CCS141/
 .vscode/launch.json
 imperative.iml
 npm-shrinkwrap.json
-__tests__/__integration__/hello_world/package-lock.json
+__tests__/__integration__/*/package-lock.json
 __tests__/__integration__/imperative/jest-stare
 
 ## Sonar ignores
