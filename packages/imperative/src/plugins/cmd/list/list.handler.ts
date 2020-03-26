@@ -53,16 +53,16 @@ export default class ListHandler implements ICommandHandler {
             if (installedPlugins.hasOwnProperty(pluginName)) {
                 // Build the console output
                 if (firstTime) {
-                  listOutput = `\n${chalk.yellow.bold("Installed plugins:")} \n\n `;
+                  listOutput = `\n${chalk.yellow.bold("Installed plugins:")} \n\n`;
                 }
 
-                listOutput = listOutput + `${chalk.yellow.bold("-- pluginName: ")}` +
-                  `${chalk.red.bold(pluginName)} \n `;
-                listOutput = listOutput + `${chalk.yellow.bold("-- package: ")}` +
-                  `${chalk.red.bold(installedPlugins[pluginName].package)} \n `;
-                listOutput = listOutput + `${chalk.yellow.bold("-- version: ")}` +
-                  `${chalk.red.bold(installedPlugins[pluginName].version)} \n `;
-                listOutput = listOutput + `${chalk.yellow.bold("-- registry: ")}` +
+                listOutput = listOutput + `${chalk.yellow.bold(" -- pluginName: ")}` +
+                  `${chalk.red.bold(pluginName)} \n`;
+                listOutput = listOutput + `${chalk.yellow.bold(" -- package: ")}` +
+                  `${chalk.red.bold(installedPlugins[pluginName].package)} \n`;
+                listOutput = listOutput + `${chalk.yellow.bold(" -- version: ")}` +
+                  `${chalk.red.bold(installedPlugins[pluginName].version)} \n`;
+                listOutput = listOutput + `${chalk.yellow.bold(" -- registry: ")}` +
                   installedPlugins[pluginName].registry + "\n\n";
 
                 // Write to the log file
