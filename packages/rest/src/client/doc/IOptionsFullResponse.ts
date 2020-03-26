@@ -9,16 +9,15 @@
 *
 */
 
-import { HTTP_VERB } from "../types/HTTPVerb";
 import { Writable, Readable } from "stream";
 import { ITaskWithStatus } from "../../../../operations";
-
+import { CLIENT_PROPERTY } from "../types/AbstractRestClientProperties";
 /**
- * Interface to define input for AbstractRestClient.request method
+ * Interface to define input options for RestClient GET|POST|PUT|DELETE ExpectFullResponse methods
  * @export
- * @interface IRestOptions
+ * @interface IOptionsFullResponse
  */
-export interface IRestOptions {
+export interface IOptionsFullResponse {
 
     /**
      * URI for this request
@@ -26,13 +25,12 @@ export interface IRestOptions {
      * @memberof IRestOptions
      */
     resource: string;
-
     /**
-     * REST request type GET|PUT|POST|DELETE
-     * @type {HTTP_VERB}
-     * @memberof IRestOptions
+     * List of properties to return from REST call
+     * @type {CLIENT_PROPERTY[]}
+     * @memberof IFullResponseOptions
      */
-    request: HTTP_VERB;
+    dataToReturn?: CLIENT_PROPERTY[];
 
     /**
      * Headers to include with request

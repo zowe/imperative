@@ -20,7 +20,7 @@ import {
 } from "../../../profiles/__tests__/TestConstants";
 import { CredentialManagerFactory, DefaultCredentialManager } from "../../../security";
 import { BasicProfileManager } from "../../../profiles/src/BasicProfileManager";
-import { ProfilesConstants } from "../../../profiles";
+import { ProfilesConstants, ISaveProfile } from "../../../profiles";
 
 jest.mock("../../../profiles/src/utils/ProfileIO");
 jest.mock("../../../security/src/DefaultCredentialManager");
@@ -108,7 +108,7 @@ describe("Cli Profile Manager", () => {
                     }
                 };
 
-                jest.spyOn(BasicProfileManager.prototype, "saveProfile" as any).mockImplementation((tParms) => {
+                jest.spyOn(BasicProfileManager.prototype, "saveProfile" as any).mockImplementation((tParms: ISaveProfile) => {
                     return {
                         overwritten: tParms.overwrite,
                         profile: tParms.profile
@@ -159,7 +159,7 @@ describe("Cli Profile Manager", () => {
                     }
                 };
 
-                jest.spyOn(BasicProfileManager.prototype, "saveProfile" as any).mockImplementation((tParms) => {
+                jest.spyOn(BasicProfileManager.prototype, "saveProfile" as any).mockImplementation((tParms: ISaveProfile) => {
                     return {
                         overwritten: tParms.overwrite,
                         profile: tParms.profile
@@ -221,7 +221,7 @@ describe("Cli Profile Manager", () => {
                 dummyManager.save = jest.fn();
                 Object.defineProperty(CredentialManagerFactory, "manager", {get: jest.fn().mockReturnValue(dummyManager)});
 
-                jest.spyOn(BasicProfileManager.prototype, "saveProfile" as any).mockImplementation((tParms) => {
+                jest.spyOn(BasicProfileManager.prototype, "saveProfile" as any).mockImplementation((tParms: ISaveProfile) => {
                     return {
                         overwritten: tParms.overwrite,
                         profile: tParms.profile
@@ -299,7 +299,7 @@ describe("Cli Profile Manager", () => {
 
             it("should load credentials from a profile with constant string values for secure properties", async () => {
                 const dummyManager = new DefaultCredentialManager("dummy");
-                dummyManager.load = jest.fn((propKey: string) => {
+                dummyManager.load = jest.fn(async (propKey: string) => {
                     let ret = null;
                     if (propKey.indexOf("myCode") >= 0) {
                         ret = code;
@@ -352,7 +352,7 @@ describe("Cli Profile Manager", () => {
 
             it("should not load credentials from a profile if noSecure is specified", async () => {
                 const dummyManager = new DefaultCredentialManager("dummy");
-                dummyManager.load = jest.fn((propKey: string) => {
+                dummyManager.load = jest.fn(async (propKey: string) => {
                     let ret = null;
                     if (propKey.indexOf("myCode") >= 0) {
                         ret = code;
@@ -403,7 +403,7 @@ describe("Cli Profile Manager", () => {
 
             it("should not attempt to load secure fields if no credential manager is present", async () => {
                 const dummyManager = new DefaultCredentialManager("dummy");
-                dummyManager.load = jest.fn((propKey: string) => {
+                dummyManager.load = jest.fn(async (propKey: string) => {
                     let ret = null;
                     if (propKey.indexOf("myCode") >= 0) {
                         ret = code;

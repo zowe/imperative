@@ -35,7 +35,7 @@ export class InvalidCredentialManager extends AbstractCredentialManager {
         throw new BadCredentialManagerError(this.causeError);
     }
 
-    protected async loadCredentials(account: string): Promise<SecureCredential> {
+    protected async loadCredentials(account: string, optional?: boolean): Promise<SecureCredential> {
         throw new BadCredentialManagerError(this.causeError);
     }
 

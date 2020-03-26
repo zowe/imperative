@@ -27,7 +27,8 @@ node('ca-jenkins-agent') {
     pipeline.protectedBranches.addMap([
         [name: "master", tag: "latest", dependencies: ["@zowe/perf-timing": "latest"]],
         [name: "next", tag: "next", prerelease: "next", dependencies: ["@zowe/perf-timing": "latest"]],
-        [name: "lts-incremental", tag: "lts-incremental", level: SemverLevel.MINOR, dependencies: ["@zowe/perf-timing": "lts-incremental"]],
+        //[name: "zowe-v1-lts", tag: "zowe-v1-lts", level: SemverLevel.MINOR, dependencies: ["@zowe/perf-timing": "zowe-v1-lts"]],
+        [name: "lts-incremental", tag: "lts-incremental", level: SemverLevel.PATCH, dependencies: ["@zowe/perf-timing": "lts-incremental"]],
         [name: "lts-stable", tag: "lts-stable", level: SemverLevel.PATCH, dependencies: ["@zowe/perf-timing": "lts-stable"]]
     ])
 
@@ -170,10 +171,22 @@ node('ca-jenkins-agent') {
     // Check vulnerabilities
     pipeline.checkVulnerabilities()
 
+    pipeline.checkChangelog(
+        file: "CHANGELOG.md",
+        lines: 10,
+        header: "## Recent Changes"
+    )
+
     // Deploys the application if on a protected branch. Give the version input
     // 30 minutes before an auto timeout approve.
     pipeline.deploy(
         versionArguments: [timeout: [time: 30, unit: 'MINUTES']]
+    )
+
+    pipeline.updateChangelog(
+        file: "CHANGELOG.md",
+        lines: 10,
+        header: "## Recent Changes"
     )
 
     def logLocation = "__tests__/__results__"

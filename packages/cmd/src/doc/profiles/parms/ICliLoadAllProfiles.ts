@@ -9,23 +9,13 @@
 *
 */
 
+import { ILoadAllProfiles } from "../../../../../profiles";
+
 /**
  * Optional parameters to profile manager load all profiles
  * @export
  * @interface ICliLoadAllProfiles
+ * @extends ILoadAllProfiles
  */
-export interface ICliLoadAllProfiles {
-    /**
-     * If true, do not load secure fields
-     * @type {boolean}
-     * @memberof ICliLoadAllProfiles
-     */
-    noSecure?: boolean;
-    /**
-     * If true, loads only the profiles of the current instance of the profile
-     * managers "type" - specified when allocating the profile manager.
-     * @type {boolean}
-     * @memberof ICliLoadAllProfiles
-     */
-    typeOnly?: boolean;
-}
+// tslint:disable-next-line:no-empty-interface
+export interface ICliLoadAllProfiles extends ILoadAllProfiles {}

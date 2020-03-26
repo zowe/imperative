@@ -34,7 +34,7 @@ import { ICommandProfileProperty } from "../doc/profiles/definition/ICommandProf
 import { CredentialManagerFactory } from "../../../security";
 import { IDeleteProfile, IProfileDeleted, IProfileLoaded } from "../../../profiles/src/doc";
 import { SecureOperationFunction } from "../types/SecureOperationFunction";
-import { ICliILoadProfile } from "../doc/profiles/parms/ICliLoadProfile";
+import { ICliLoadProfile } from "../doc/profiles/parms/ICliLoadProfile";
 import { ICliLoadAllProfiles } from "../doc/profiles/parms/ICliLoadAllProfiles";
 import { CliUtils } from "../../../utilities/src/CliUtils";
 
@@ -186,10 +186,10 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
      * Overridden loadProfile functionality
      * After the BasicProfileManager loads the profile, we process the secured properties for the CLi to use
      *
-     * @param {ICliILoadProfile} parms - Load control params - see the interface for full details
+     * @param {ICliLoadProfile} parms - Load control params - see the interface for full details
      * @returns {Promise<IProfileLoaded>} - Promise that is fulfilled when complete (or rejected with an Imperative Error)
      */
-    protected async loadProfile(parms: ICliILoadProfile): Promise<IProfileLoaded> {
+    protected async loadProfile(parms: ICliLoadProfile): Promise<IProfileLoaded> {
         const loadedProfile = await super.loadProfile(parms);
         const profile = loadedProfile.profile;
 
@@ -201,7 +201,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
              * @param {string} propertyNamePath - The path to the property
              * @return {Promise<string>}
              */
-            securelyLoadValue = async (propertyNamePath: string): Promise<any> => {
+            securelyLoadValue = async (propertyNamePath: string, _: any, optional?: boolean): Promise<any> => {
                 let ret;
                 try {
                     this.log.debug(
@@ -210,7 +210,8 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     );
                     // Use the Credential Manager to store the credentials
                     ret = await CredentialManagerFactory.manager.load(
-                        ProfileUtils.getProfilePropertyKey(this.profileType, parms.name, propertyNamePath)
+                        ProfileUtils.getProfilePropertyKey(this.profileType, parms.name, propertyNamePath),
+                        optional
                     );
                 } catch (err) {
                     this.log.error(
@@ -353,7 +354,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             this.log.debug("Setting profile field %s from command line option %s", propNamePath, optionName);
             if (secureOp && prop.secure) {
                 this.log.debug("Performing secure operation on property %s", propNamePath);
-                return secureOp(propNamePath, propValue);
+                return secureOp(propNamePath, propValue, !prop.optionDefinition.required);
             }
             return propValue;
         }
