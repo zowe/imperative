@@ -2,6 +2,14 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `4.5.4`
+
+- Patched vulnerabilities.
+
+## `4.5.3`
+
+- Fixed alignment of output from `zowe plugins list` command.
+
 ## `4.5.2`
 
 - Fix failure to load secure profile fields that are optional when no value is found. Thanks @tjohnsonBCM

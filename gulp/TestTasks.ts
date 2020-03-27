@@ -160,7 +160,7 @@ const runIntegrationTests = (done: any,
             try {
                 const integrationTestResultContent = fs.readFileSync(unitTestReport);
                 const integrationTestFolder = require("path").dirname(integrationTestReport);
-                require("mkdirp")(integrationTestFolder);
+                require("fs-extra").mkdirpSync(integrationTestFolder);
                 fs.writeFileSync(integrationTestReport, integrationTestResultContent);
                 require("rimraf").sync(unitTestReport);
                 fancylog(ansiColors.blue("Integration test report moved from unit folder to " + integrationTestReport));
