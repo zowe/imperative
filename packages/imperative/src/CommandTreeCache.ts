@@ -204,11 +204,6 @@ export class CommandTreeCache {
      * @static
      */
     private checkIfOutdated() {
-        // Don't try caching if CLI home folder doesn't exist (used for tests)
-        if (!fs.existsSync(ImperativeConfig.instance.cliHome)) {
-            return;
-        }
-
         // Load cached package metadata from file if it exists
         let cachedMetadata: IImperativePackageMetadata[] = [];
         if (fs.existsSync(this.metadataFile)) {

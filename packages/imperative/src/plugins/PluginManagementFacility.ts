@@ -15,7 +15,7 @@ import { UpdateImpConfig } from "../../src/UpdateImpConfig";
 import { isAbsolute, join } from "path";
 import { ImperativeConfig, JsUtils } from "../../../utilities";
 import { Logger } from "../../../logger";
-import { existsSync, mkdirSync } from "fs";
+import { existsSync, lstatSync, mkdirSync } from "fs";
 import { PMFConstants } from "./utilities/PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { IPluginCfgProps } from "./doc/IPluginCfgProps";
@@ -253,7 +253,7 @@ export class PluginManagementFacility {
         // iterate through all of our installed plugins
         for (const nextPluginNm of Object.keys(this.pluginIssues.getInstalledPlugins())) {
             let cachedPluginCfg: IImperativeConfig;
-            if (pluginCfgs.length > 0 && Object.keys(pluginCfgs).indexOf(nextPluginNm) !== -1) {
+            if (Object.keys(pluginCfgs).indexOf(nextPluginNm) !== -1) {
                 cachedPluginCfg = pluginCfgs[nextPluginNm];
             }
 
@@ -399,7 +399,7 @@ export class PluginManagementFacility {
                 this.pluginNmForUseInCallback + "' :\n" + pluginModuleRuntimePath + "\n" +
                 "Reason = " + requireError.message
             );
-            return "{}";
+            return {};
         }
     }
 
@@ -888,6 +888,13 @@ export class PluginManagementFacility {
                     null, pkgJsonData, this.requirePluginModuleCallback.bind(this)
                 );
             } else {
+                // Throw error if plugin config file doesn't exist
+                ConfigurationLoader.load(
+                    null, pkgJsonData, (relativePath: string) => {
+                        const pluginModuleRuntimePath = this.formPluginRuntimePath(this.pluginNmForUseInCallback, relativePath);
+                        return lstatSync(pluginModuleRuntimePath);
+                    }
+                );
                 pluginConfig = cachedPluginCfg;
             }
         }
