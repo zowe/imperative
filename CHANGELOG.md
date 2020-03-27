@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Fix absence of default value text when falsy values are used.
+
 ## `4.5.4`
 
 - Patched vulnerabilities.
