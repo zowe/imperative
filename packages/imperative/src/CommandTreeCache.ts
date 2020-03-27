@@ -191,6 +191,10 @@ export class CommandTreeCache {
     }
 
     public savePackageMetadata() {
+        if (this.currentMetadata == null) {
+            return;
+        }
+
         fs.writeFileSync(this.metadataFile, JSON.stringify(this.currentMetadata, null, 2));
     }
 

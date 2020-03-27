@@ -247,7 +247,7 @@ export class PluginManagementFacility {
         let pluginCfgs: {[key: string]: IImperativeConfig} = {};
 
         if (CommandTreeCache.enabled && !CommandTreeCache.instance.outdated) {
-            pluginCfgs = CommandTreeCache.instance.tryLoadPluginCfgs();
+            pluginCfgs = CommandTreeCache.instance.tryLoadPluginCfgs() || {};
         }
 
         // iterate through all of our installed plugins
