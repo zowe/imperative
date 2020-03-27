@@ -19,6 +19,7 @@ import { Constants } from "./../../constants";
 import { ICommandDefinition } from "../../cmd";
 import { parse, stringify } from "flatted";
 import { Logger } from "../../logger";
+import { IImperativeConfig } from "./doc/IImperativeConfig";
 
 export class CommandTreeCache {
     /**
@@ -111,6 +112,10 @@ export class CommandTreeCache {
         return path.join(this.cacheDir, "metadata.json");
     }
 
+    private get pluginCfgCache(): string {
+        return path.join(this.cacheDir, "pluginCfgCache.json");
+    }
+
     public tryLoadCmdTree(): ICommandDefinition {
         if (this.currentMetadata == null) {
             return null;
@@ -139,8 +144,54 @@ export class CommandTreeCache {
         }
 
         fs.writeFileSync(this.cmdTreeCache, stringify(cmdTree));
-        fs.writeFileSync(this.metadataFile, JSON.stringify(this.currentMetadata, null, 2));
         this.impLogger.info(`Saved command tree to cache file: ${this.cmdTreeCache}`);
+    }
+
+    public tryLoadPluginCfgs(): {[key: string]: IImperativeConfig} {
+        if (this.currentMetadata == null) {
+            return null;
+        }
+
+        let pluginCfgs: {[key: string]: IImperativeConfig};
+
+        try {
+            pluginCfgs = parse(fs.readFileSync(this.pluginCfgCache, "utf8"));
+            this.impLogger.info(`Loaded plugin configs from cache file: ${this.pluginCfgCache}`);
+        } catch (err) {
+            this.mOutdated = true;
+            this.impLogger.error("Failed to load plugin configs from cache file: " + err);
+        }
+
+        return pluginCfgs;
+    }
+
+    public savePluginCfgs(pluginCfgs: {[key: string]: IImperativeConfig}) {
+        if (this.currentMetadata == null) {
+            return;
+        }
+
+        if (!fs.existsSync(this.cacheDir)) {
+            fs.mkdirSync(this.cacheDir);
+        }
+
+        fs.writeFileSync(this.pluginCfgCache, stringify(pluginCfgs));
+        this.impLogger.info(`Saved command tree to cache file: ${this.pluginCfgCache}`);
+    }
+
+    public isPluginSerializable(pluginCfg: IImperativeConfig): boolean {
+        if (pluginCfg.overrides != null) {
+            for (const override of Object.values(pluginCfg.overrides)) {
+                if (typeof override !== "string") {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public savePackageMetadata() {
+        fs.writeFileSync(this.metadataFile, JSON.stringify(this.currentMetadata, null, 2));
     }
 
     /**
@@ -149,6 +200,11 @@ export class CommandTreeCache {
      * @static
      */
     private checkIfOutdated() {
+        // Don't try caching if CLI home folder doesn't exist (used for tests)
+        if (!fs.existsSync(ImperativeConfig.instance.cliHome)) {
+            return;
+        }
+
         // Load cached package metadata from file if it exists
         let cachedMetadata: IImperativePackageMetadata[] = [];
         if (fs.existsSync(this.metadataFile)) {

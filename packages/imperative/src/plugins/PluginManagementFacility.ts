@@ -26,7 +26,6 @@ import { ConfigurationLoader } from "../ConfigurationLoader";
 import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
 import { IImperativeOverrides } from "../doc/IImperativeOverrides";
 import { AppSettings } from "../../../settings";
-import { IPluginJson } from "./doc/IPluginJson";
 import { CommandTreeCache } from "../CommandTreeCache";
 
 /**
@@ -244,28 +243,43 @@ export class PluginManagementFacility {
             writeFileSync(this.pmfConst.PLUGIN_JSON, {});
         }
 
-        const installedPlugins: IPluginJson = this.pluginIssues.getInstalledPlugins();
         const loadedOverrides: {[key: string]: IImperativeOverrides} = {};
+        let pluginCfgs: {[key: string]: IImperativeConfig} = {};
 
-        if (!CommandTreeCache.enabled || CommandTreeCache.instance.outdated) {
-            // iterate through all of our installed plugins
-            for (const nextPluginNm of Object.keys(installedPlugins)) {
-                const nextPluginCfgProps = this.loadPluginCfgProps(nextPluginNm);
-                if (nextPluginCfgProps) {
-                    this.mAllPluginCfgProps.push(nextPluginCfgProps);
+        if (CommandTreeCache.enabled && !CommandTreeCache.instance.outdated) {
+            pluginCfgs = CommandTreeCache.instance.tryLoadPluginCfgs();
+        }
 
-                    // Remember the overrides as a key of our temporary object
-                    loadedOverrides[nextPluginNm] = nextPluginCfgProps.impConfig.overrides;
+        // iterate through all of our installed plugins
+        for (const nextPluginNm of Object.keys(this.pluginIssues.getInstalledPlugins())) {
+            let cachedPluginCfg: IImperativeConfig;
+            if (pluginCfgs.length > 0 && Object.keys(pluginCfgs).indexOf(nextPluginNm) !== -1) {
+                cachedPluginCfg = pluginCfgs[nextPluginNm];
+            }
 
-                    this.impLogger.trace("Next plugin's configuration properties:\n" +
-                        JSON.stringify(nextPluginCfgProps, null, 2)
-                    );
-                } else {
-                    this.impLogger.error(
-                        "loadAllPluginCfgProps: Unable to load the configuration for the plug-in named '" +
-                        nextPluginNm + "' The plug-in was not added to the host CLI."
-                    );
+            const nextPluginCfgProps = this.loadPluginCfgProps(nextPluginNm, cachedPluginCfg);
+            if (nextPluginCfgProps) {
+                this.mAllPluginCfgProps.push(nextPluginCfgProps);
+
+                // Remember the overrides as a key of our temporary object
+                loadedOverrides[nextPluginNm] = nextPluginCfgProps.impConfig.overrides;
+
+                this.impLogger.trace("Next plugin's configuration properties:\n" +
+                    JSON.stringify(nextPluginCfgProps, null, 2)
+                );
+
+                if (CommandTreeCache.enabled && CommandTreeCache.instance.outdated) {
+                    if (CommandTreeCache.instance.isPluginSerializable(nextPluginCfgProps.impConfig)) {
+                        pluginCfgs[nextPluginNm] = nextPluginCfgProps.impConfig;
+                    } else {
+                        pluginCfgs[nextPluginNm] = null;
+                    }
                 }
+            } else {
+                this.impLogger.error(
+                    "loadAllPluginCfgProps: Unable to load the configuration for the plug-in named '" +
+                    nextPluginNm + "' The plug-in was not added to the host CLI."
+                );
             }
         }
 
@@ -355,6 +369,10 @@ export class PluginManagementFacility {
                 // the loadedOverrides object as the plugin name.
                 (this.mPluginOverrides as any)[setting] = loadedSetting;
             }
+        }
+
+        if (CommandTreeCache.enabled && CommandTreeCache.instance.outdated) {
+            CommandTreeCache.instance.savePluginCfgs(pluginCfgs);
         }
         this.impLogger.info("All plugin configurations have been loaded. Details at trace level of logging.");
     }
@@ -742,7 +760,7 @@ export class PluginManagementFacility {
      *    or null if the plugin's configuration cannot be retrieved.
      *    Errors are recorded in PluginIssues.
      */
-    private loadPluginCfgProps(pluginName: string): IPluginCfgProps {
+    private loadPluginCfgProps(pluginName: string, cachedPluginCfg?: IImperativeConfig): IPluginCfgProps {
         const pluginCfgProps: IPluginCfgProps = {
             pluginName,
             npmPackageName: "PluginHasNoNpmPkgName",
@@ -865,9 +883,13 @@ export class PluginManagementFacility {
         let pluginConfig: IImperativeConfig;
         this.pluginNmForUseInCallback = pluginName;
         try {
-            pluginConfig = ConfigurationLoader.load(
-                null, pkgJsonData, this.requirePluginModuleCallback.bind(this)
-            );
+            if (cachedPluginCfg == null) {
+                pluginConfig = ConfigurationLoader.load(
+                    null, pkgJsonData, this.requirePluginModuleCallback.bind(this)
+                );
+            } else {
+                pluginConfig = cachedPluginCfg;
+            }
         }
         catch (impError) {
             this.pluginIssues.recordIssue(pluginName, IssueSeverity.CFG_ERROR,
