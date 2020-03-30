@@ -139,12 +139,16 @@ export class CommandTreeCache {
             return;
         }
 
-        if (!fs.existsSync(this.cacheDir)) {
-            fs.mkdirSync(this.cacheDir);
-        }
+        try {
+            if (!fs.existsSync(this.cacheDir)) {
+                fs.mkdirSync(this.cacheDir);
+            }
 
-        fs.writeFileSync(this.cmdTreeCache, stringify(cmdTree));
-        this.impLogger.info(`Saved command tree to cache file: ${this.cmdTreeCache}`);
+            fs.writeFileSync(this.cmdTreeCache, stringify(cmdTree));
+            this.impLogger.info(`Saved command tree to cache file: ${this.cmdTreeCache}`);
+        } catch (err) {
+            this.impLogger.error("Failed to save command tree to cache file: " + err);
+        }
     }
 
     public tryLoadPluginCfgs(): {[key: string]: IImperativeConfig} {
@@ -170,12 +174,16 @@ export class CommandTreeCache {
             return;
         }
 
-        if (!fs.existsSync(this.cacheDir)) {
-            fs.mkdirSync(this.cacheDir);
-        }
+        try {
+            if (!fs.existsSync(this.cacheDir)) {
+                fs.mkdirSync(this.cacheDir);
+            }
 
-        fs.writeFileSync(this.pluginCfgCache, stringify(pluginCfgs));
-        this.impLogger.info(`Saved command tree to cache file: ${this.pluginCfgCache}`);
+            fs.writeFileSync(this.pluginCfgCache, stringify(pluginCfgs));
+            this.impLogger.info(`Saved plugin configs to cache file: ${this.pluginCfgCache}`);
+        } catch (err) {
+            this.impLogger.error("Failed to save plugin configs to cache file: " + err);
+        }
     }
 
     public isPluginSerializable(pluginCfg: IImperativeConfig): boolean {
@@ -195,7 +203,16 @@ export class CommandTreeCache {
             return;
         }
 
-        fs.writeFileSync(this.metadataFile, JSON.stringify(this.currentMetadata, null, 2));
+        try {
+            if (!fs.existsSync(this.cacheDir)) {
+                fs.mkdirSync(this.cacheDir);
+            }
+
+            fs.writeFileSync(this.metadataFile, JSON.stringify(this.currentMetadata, null, 2));
+            this.impLogger.info(`Saved package metadata to file: ${this.metadataFile}`);
+        } catch (err) {
+            this.impLogger.error("Failed to save package metadata to file: " + err);
+        }
     }
 
     /**
