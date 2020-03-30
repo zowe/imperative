@@ -268,12 +268,9 @@ export class PluginManagementFacility {
                     JSON.stringify(nextPluginCfgProps, null, 2)
                 );
 
-                if (CommandTreeCache.enabled && CommandTreeCache.instance.outdated) {
-                    if (CommandTreeCache.instance.isPluginSerializable(nextPluginCfgProps.impConfig)) {
-                        pluginCfgs[nextPluginNm] = nextPluginCfgProps.impConfig;
-                    } else {
-                        pluginCfgs[nextPluginNm] = null;
-                    }
+                if (CommandTreeCache.enabled && CommandTreeCache.instance.outdated &&
+                        CommandTreeCache.instance.isPluginSerializable(nextPluginCfgProps.impConfig)) {
+                    pluginCfgs[nextPluginNm] = nextPluginCfgProps.impConfig;
                 }
             } else {
                 this.impLogger.error(
