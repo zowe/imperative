@@ -219,24 +219,24 @@ export class Imperative {
                     JSON.stringify(config, null, 2)
                 );
 
-                let resolvedHostCliCmdTree: ICommandDefinition;
+                let preparedHostCliCmdTree: ICommandDefinition;
 
                 if (CommandTreeCache.enabled && !CommandTreeCache.instance.outdated) {
-                    resolvedHostCliCmdTree = CommandTreeCache.instance.tryLoadCmdTree();
+                    preparedHostCliCmdTree = CommandTreeCache.instance.tryLoadCmdTree();
                 }
 
-                if (resolvedHostCliCmdTree == null) {
-                    resolvedHostCliCmdTree = this.getResolvedCmdTree(config);
+                if (preparedHostCliCmdTree == null) {
+                    const resolvedHostCliCmdTree: ICommandDefinition = this.getResolvedCmdTree(config);
 
                     // If plugins are allowed, add plugins' commands and profiles to the CLI command tree
                     if (config.allowPlugins) {
                         PluginManagementFacility.instance.addAllPluginsToHostCli(resolvedHostCliCmdTree);
                         this.log.info("Plugins added to the CLI command tree.");
                     }
-                }
 
-                // final preparation of the command tree
-                const preparedHostCliCmdTree: ICommandDefinition = this.getPreparedCmdTree(resolvedHostCliCmdTree);
+                    // final preparation of the command tree
+                    preparedHostCliCmdTree = this.getPreparedCmdTree(resolvedHostCliCmdTree);
+                }
 
                 /**
                  * Initialize the profile environment
@@ -255,7 +255,7 @@ export class Imperative {
                 this.defineCommands(preparedHostCliCmdTree);
 
                 if (CommandTreeCache.enabled && CommandTreeCache.instance.outdated) {
-                    CommandTreeCache.instance.saveCmdTree(resolvedHostCliCmdTree);
+                    CommandTreeCache.instance.saveCmdTree(preparedHostCliCmdTree);
                     CommandTreeCache.instance.savePackageMetadata();
                 }
 
