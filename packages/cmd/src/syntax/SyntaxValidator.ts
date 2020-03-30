@@ -294,8 +294,20 @@ export class SyntaxValidator {
 
                 // check if the value of the option conforms to the allowableValues (if any)
                 if (!isNullOrUndefined(optionDef.allowableValues)) {
-                    if (!this.checkIfAllowable(optionDef.allowableValues, commandArguments[optionName])) {
-                        this.invalidOptionError(optionDef, responseObject, commandArguments[optionName]);
+                    // Make a copy of optionDef, so that modifications below are only used in this place
+                    const optionDefCopy: ICommandOptionDefinition = JSON.parse(JSON.stringify(optionDef));
+                    // Use modified regular expressions for allowable values to check and to generate error
+                    optionDefCopy.allowableValues.values = optionDef.allowableValues.values.map((regex) => {
+                        // If user-defined regex already contains ^ and/or $,
+                        // we assume user is aware of the usage and thus keep user's definition.
+                        if (regex.startsWith("^") || regex.endsWith("$")) {
+                            return regex;
+                        }
+                        // Otherwise wrap the regex in order to match the whole input
+                        return `^${regex}$`;
+                    });
+                    if (!this.checkIfAllowable(optionDefCopy.allowableValues, commandArguments[optionName])) {
+                        this.invalidOptionError(optionDefCopy, responseObject, commandArguments[optionName]);
                         valid = false;
                     }
                 }
