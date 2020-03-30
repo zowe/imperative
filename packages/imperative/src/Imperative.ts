@@ -220,21 +220,24 @@ export class Imperative {
                 );
 
                 let preparedHostCliCmdTree: ICommandDefinition;
+                let resolvedHostCliCmdTree: ICommandDefinition;
 
                 if (CommandTreeCache.enabled && !CommandTreeCache.instance.outdated) {
                     preparedHostCliCmdTree = CommandTreeCache.instance.tryLoadCmdTree();
                 }
 
                 if (preparedHostCliCmdTree == null) {
-                    const resolvedHostCliCmdTree: ICommandDefinition = this.getResolvedCmdTree(config);
+                    resolvedHostCliCmdTree = this.getResolvedCmdTree(config);
+                }
 
-                    // If plugins are allowed, add plugins' commands and profiles to the CLI command tree
-                    if (config.allowPlugins) {
-                        PluginManagementFacility.instance.addAllPluginsToHostCli(resolvedHostCliCmdTree);
-                        this.log.info("Plugins added to the CLI command tree.");
-                    }
+                // If plugins are allowed, add plugins' commands and profiles to the CLI command tree
+                if (config.allowPlugins) {
+                    PluginManagementFacility.instance.addAllPluginsToHostCli(resolvedHostCliCmdTree);
+                    this.log.info("Plugins added to the CLI command tree.");
+                }
 
-                    // final preparation of the command tree
+                // final preparation of the command tree
+                if (preparedHostCliCmdTree == null) {
                     preparedHostCliCmdTree = this.getPreparedCmdTree(resolvedHostCliCmdTree);
                 }
 

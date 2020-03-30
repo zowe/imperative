@@ -420,26 +420,32 @@ export class PluginManagementFacility {
          */
         let pluginCmdGroup: ICommandDefinition = null;
         try {
-            pluginCmdGroup = {
-                name: pluginCfgProps.impConfig.name,
-                description: pluginCfgProps.impConfig.rootCommandDescription,
-                type: "group",
-                children: DefinitionTreeResolver.combineAllCmdDefs(
-                    this.formPluginRuntimePath(pluginCfgProps.pluginName, "./lib"),
-                    pluginCfgProps.impConfig.definitions, pluginCfgProps.impConfig.commandModuleGlobs
-                )
-            };
-            /**
-             * Fill in the optional aliases and summary fields,
-             * if specified.
-             */
-            if (pluginCfgProps.impConfig.pluginSummary != null) {
-                this.impLogger.debug("Adding summary from pluginSummary field of configuration");
-                pluginCmdGroup.summary = pluginCfgProps.impConfig.pluginSummary;
-            }
-            if (pluginCfgProps.impConfig.pluginAliases != null) {
-                this.impLogger.debug("Adding aliases from pluginAliases field of configuration");
-                pluginCmdGroup.aliases = pluginCfgProps.impConfig.pluginAliases;
+            if (!CommandTreeCache.enabled || CommandTreeCache.instance.outdated) {
+                pluginCmdGroup = {
+                    name: pluginCfgProps.impConfig.name,
+                    description: pluginCfgProps.impConfig.rootCommandDescription,
+                    type: "group",
+                    children: DefinitionTreeResolver.combineAllCmdDefs(
+                        this.formPluginRuntimePath(pluginCfgProps.pluginName, "./lib"),
+                        pluginCfgProps.impConfig.definitions, pluginCfgProps.impConfig.commandModuleGlobs
+                    )
+                };
+                /**
+                 * Fill in the optional aliases and summary fields,
+                 * if specified.
+                 */
+                if (pluginCfgProps.impConfig.pluginSummary != null) {
+                    this.impLogger.debug("Adding summary from pluginSummary field of configuration");
+                    pluginCmdGroup.summary = pluginCfgProps.impConfig.pluginSummary;
+                }
+                if (pluginCfgProps.impConfig.pluginAliases != null) {
+                    this.impLogger.debug("Adding aliases from pluginAliases field of configuration");
+                    pluginCmdGroup.aliases = pluginCfgProps.impConfig.pluginAliases;
+                }
+            } else {
+                pluginCmdGroup = this.resolvedCliCmdTree.children.find((cmdDef: ICommandDefinition) => {
+                    return cmdDef.name === pluginCfgProps.impConfig.name;
+                });
             }
         }
         catch (impErr) {
@@ -531,6 +537,11 @@ export class PluginManagementFacility {
                 pluginName + "', " + errMsg);
             this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR, errMsg);
             return false;
+        }
+
+        if (CommandTreeCache.enabled && !CommandTreeCache.instance.outdated) {
+            this.impLogger.debug("Skipped adding definition = '" + cmdDefToAdd.name + "' to the resolved command tree because it was cached.");
+            return true;
         }
 
         const cmdDefInx = this.resolvedCliCmdTree.children.findIndex((existingCmdDef: ICommandDefinition) => {
