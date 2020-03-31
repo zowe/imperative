@@ -92,7 +92,7 @@ export interface ISession {
      * @type {string}
      * @memberof ISession
      */
-    tokenType?: string;
+    tokenType?: "LtpaToken2" | "jwtToken";
 
     /**
      * aldgfuq;iwgueroquw3evrqj4e0f9iuq0324fq9034ifgq0394fjg08934ujg0q93j4fq3j4f09jq40[f9j]

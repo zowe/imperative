@@ -27,6 +27,7 @@ import { ICommandArguments } from "../args/ICommandArguments";
  * @interface IHandlerParameters
  */
 export interface IHandlerParameters {
+
     /**
      * The response object used to issue messages and build responses to the command. No command should be
      * writing to console/stdout/stderr directly. The response object provides the capability of collecting
@@ -36,12 +37,14 @@ export interface IHandlerParameters {
      * @memberof IHandlerParameters
      */
     response: IHandlerResponseApi;
+
     /**
      * The arguments specified by the user on the command line (in the Yargs object format).
      * @type {Arguments}
      * @memberof IHandlerParameters
      */
     arguments: ICommandArguments;
+
     /**
      * The set of profiles loaded for this command handler - the map is built with the key being the type and it
      * returns the set of profiles loaded of that type. Multiple profiles can be loaded of the same type - depending
@@ -50,12 +53,14 @@ export interface IHandlerParameters {
      * @memberof IHandlerParameters
      */
     profiles: CommandProfiles;
+
     /**
      * The command definition node that defines the command being issued.
      * @type {ICommandDefinition}
      * @memberof IHandlerParameters
      */
     definition: ICommandDefinition;
+
     /**
      * The full command definition tree that includes the command being issued.
      * @type {ICommandDefinition}
