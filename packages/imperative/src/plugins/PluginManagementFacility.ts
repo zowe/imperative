@@ -15,7 +15,7 @@ import { UpdateImpConfig } from "../../src/UpdateImpConfig";
 import { isAbsolute, join } from "path";
 import { ImperativeConfig, JsUtils } from "../../../utilities";
 import { Logger } from "../../../logger";
-import { existsSync, lstatSync, mkdirSync } from "fs";
+import { existsSync, mkdirSync } from "fs";
 import { PMFConstants } from "./utilities/PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { IPluginCfgProps } from "./doc/IPluginCfgProps";
@@ -244,20 +244,11 @@ export class PluginManagementFacility {
         }
 
         const loadedOverrides: {[key: string]: IImperativeOverrides} = {};
-        let pluginCfgs: {[key: string]: IImperativeConfig} = {};
-
-        if (CommandTreeCache.enabled && !CommandTreeCache.instance.outdated) {
-            pluginCfgs = CommandTreeCache.instance.tryLoadPluginCfgs() || {};
-        }
 
         // iterate through all of our installed plugins
         for (const nextPluginNm of Object.keys(this.pluginIssues.getInstalledPlugins())) {
-            let cachedPluginCfg: IImperativeConfig;
-            if (Object.keys(pluginCfgs).indexOf(nextPluginNm) !== -1) {
-                cachedPluginCfg = pluginCfgs[nextPluginNm];
-            }
 
-            const nextPluginCfgProps = this.loadPluginCfgProps(nextPluginNm, cachedPluginCfg);
+            const nextPluginCfgProps = this.loadPluginCfgProps(nextPluginNm);
             if (nextPluginCfgProps) {
                 this.mAllPluginCfgProps.push(nextPluginCfgProps);
 
@@ -267,11 +258,6 @@ export class PluginManagementFacility {
                 this.impLogger.trace("Next plugin's configuration properties:\n" +
                     JSON.stringify(nextPluginCfgProps, null, 2)
                 );
-
-                if (CommandTreeCache.enabled && CommandTreeCache.instance.outdated &&
-                        CommandTreeCache.instance.isPluginSerializable(nextPluginCfgProps.impConfig)) {
-                    pluginCfgs[nextPluginNm] = nextPluginCfgProps.impConfig;
-                }
             } else {
                 this.impLogger.error(
                     "loadAllPluginCfgProps: Unable to load the configuration for the plug-in named '" +
@@ -368,9 +354,6 @@ export class PluginManagementFacility {
             }
         }
 
-        if (CommandTreeCache.enabled && CommandTreeCache.instance.outdated) {
-            CommandTreeCache.instance.savePluginCfgs(pluginCfgs);
-        }
         this.impLogger.info("All plugin configurations have been loaded. Details at trace level of logging.");
     }
 
@@ -420,7 +403,7 @@ export class PluginManagementFacility {
          */
         let pluginCmdGroup: ICommandDefinition = null;
         try {
-            if (!CommandTreeCache.enabled || CommandTreeCache.instance.outdated || this.resolvedCliCmdTree == null) {
+            if (!CommandTreeCache.enabled || CommandTreeCache.instance.outdated) {
                 pluginCmdGroup = {
                     name: pluginCfgProps.impConfig.name,
                     description: pluginCfgProps.impConfig.rootCommandDescription,
@@ -775,7 +758,7 @@ export class PluginManagementFacility {
      *    or null if the plugin's configuration cannot be retrieved.
      *    Errors are recorded in PluginIssues.
      */
-    private loadPluginCfgProps(pluginName: string, cachedPluginCfg?: IImperativeConfig): IPluginCfgProps {
+    private loadPluginCfgProps(pluginName: string): IPluginCfgProps {
         const pluginCfgProps: IPluginCfgProps = {
             pluginName,
             npmPackageName: "PluginHasNoNpmPkgName",
@@ -898,20 +881,12 @@ export class PluginManagementFacility {
         let pluginConfig: IImperativeConfig;
         this.pluginNmForUseInCallback = pluginName;
         try {
-            if (cachedPluginCfg == null) {
-                pluginConfig = ConfigurationLoader.load(
-                    null, pkgJsonData, this.requirePluginModuleCallback.bind(this)
-                );
-            } else {
-                // Throw error if plugin config file doesn't exist
-                ConfigurationLoader.load(
-                    null, pkgJsonData, (relativePath: string) => {
-                        const pluginModuleRuntimePath = this.formPluginRuntimePath(this.pluginNmForUseInCallback, relativePath);
-                        return lstatSync(pluginModuleRuntimePath);
-                    }
-                );
-                pluginConfig = cachedPluginCfg;
-            }
+            const startTime = new Date();
+            pluginConfig = ConfigurationLoader.load(
+                null, pkgJsonData, this.requirePluginModuleCallback.bind(this)
+            );
+            const endTime = new Date();
+            console.log((endTime as any) - (startTime as any), "ms", "-", pluginName);
         }
         catch (impError) {
             this.pluginIssues.recordIssue(pluginName, IssueSeverity.CFG_ERROR,
