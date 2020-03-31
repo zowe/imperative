@@ -420,7 +420,7 @@ export class PluginManagementFacility {
          */
         let pluginCmdGroup: ICommandDefinition = null;
         try {
-            if (!CommandTreeCache.enabled || CommandTreeCache.instance.outdated) {
+            if (!CommandTreeCache.enabled || CommandTreeCache.instance.outdated || this.resolvedCliCmdTree == null) {
                 pluginCmdGroup = {
                     name: pluginCfgProps.impConfig.name,
                     description: pluginCfgProps.impConfig.rootCommandDescription,
