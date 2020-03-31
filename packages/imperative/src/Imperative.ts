@@ -219,27 +219,24 @@ export class Imperative {
                     JSON.stringify(config, null, 2)
                 );
 
-                let preparedHostCliCmdTree: ICommandDefinition;
                 let resolvedHostCliCmdTree: ICommandDefinition;
 
                 if (CommandTreeCache.enabled && !CommandTreeCache.instance.outdated) {
-                    preparedHostCliCmdTree = CommandTreeCache.instance.tryLoadCmdTree();
+                    resolvedHostCliCmdTree = CommandTreeCache.instance.tryLoadCmdTree();
                 }
 
-                if (preparedHostCliCmdTree == null) {
+                if (resolvedHostCliCmdTree == null) {
                     resolvedHostCliCmdTree = this.getResolvedCmdTree(config);
                 }
 
                 // If plugins are allowed, add plugins' commands and profiles to the CLI command tree
                 if (config.allowPlugins) {
-                    PluginManagementFacility.instance.addAllPluginsToHostCli(resolvedHostCliCmdTree || preparedHostCliCmdTree);
+                    PluginManagementFacility.instance.addAllPluginsToHostCli(resolvedHostCliCmdTree);
                     this.log.info("Plugins added to the CLI command tree.");
                 }
 
                 // final preparation of the command tree
-                if (preparedHostCliCmdTree == null) {
-                    preparedHostCliCmdTree = this.getPreparedCmdTree(resolvedHostCliCmdTree);
-                }
+                const preparedHostCliCmdTree: ICommandDefinition = this.getPreparedCmdTree(resolvedHostCliCmdTree);
 
                 /**
                  * Initialize the profile environment
@@ -258,7 +255,7 @@ export class Imperative {
                 this.defineCommands(preparedHostCliCmdTree);
 
                 if (CommandTreeCache.enabled && CommandTreeCache.instance.outdated) {
-                    CommandTreeCache.instance.saveCmdTree(preparedHostCliCmdTree);
+                    CommandTreeCache.instance.saveCmdTree(resolvedHostCliCmdTree);
                     CommandTreeCache.instance.savePackageMetadata();
                 }
 

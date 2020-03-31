@@ -667,6 +667,13 @@ export class PluginManagementFacility {
         pluginGroupDefinition: ICommandDefinition,
         cmdTreeDef: ICommandDefinition
     ): {hasConflict: boolean, message: string} {
+        /* If cache is enabled and up to date, this check can be skipped.
+         * It will still run at plugin install because then cache is outdated.
+         */
+        if (CommandTreeCache.enabled && !CommandTreeCache.instance.outdated) {
+            return {hasConflict: false, message: undefined};
+        }
+
         const pluginGroupNm: string = pluginGroupDefinition.name;
         /* Confirm that pluginGroupNm is not an existing top-level
          * group or command in the imperative command tree
