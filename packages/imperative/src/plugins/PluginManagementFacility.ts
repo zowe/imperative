@@ -881,12 +881,12 @@ export class PluginManagementFacility {
         let pluginConfig: IImperativeConfig;
         this.pluginNmForUseInCallback = pluginName;
         try {
-            const startTime = new Date();
+            // const startTime = new Date();
             pluginConfig = ConfigurationLoader.load(
                 null, pkgJsonData, this.requirePluginModuleCallback.bind(this)
             );
-            const endTime = new Date();
-            console.log((endTime as any) - (startTime as any), "ms", "-", pluginName);
+            // const endTime = new Date();
+            // console.log((endTime as any) - (startTime as any), "ms", "-", pluginName);
         }
         catch (impError) {
             this.pluginIssues.recordIssue(pluginName, IssueSeverity.CFG_ERROR,
