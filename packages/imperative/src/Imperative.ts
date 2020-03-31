@@ -232,7 +232,7 @@ export class Imperative {
 
                 // If plugins are allowed, add plugins' commands and profiles to the CLI command tree
                 if (config.allowPlugins) {
-                    PluginManagementFacility.instance.addAllPluginsToHostCli(resolvedHostCliCmdTree);
+                    PluginManagementFacility.instance.addAllPluginsToHostCli(resolvedHostCliCmdTree || preparedHostCliCmdTree);
                     this.log.info("Plugins added to the CLI command tree.");
                 }
 
