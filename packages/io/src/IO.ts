@@ -17,8 +17,7 @@ import { ImperativeReject } from "../../interfaces";
 import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
 import { Readable, Writable } from "stream";
-
-const mkdirp = require("mkdirp");
+import { mkdirpSync } from "fs-extra";
 
 /**
  * This class will handle common sequences of node I/O and issue messages /
@@ -167,7 +166,7 @@ export class IO {
     public static createSymlinkToDir(newSymLinkPath: string, existingDirPath: string) {
         try {
             if (!fs.existsSync(newSymLinkPath)) {
-                fs.symlinkSync(existingDirPath, newSymLinkPath, "dir");
+                fs.symlinkSync(existingDirPath, newSymLinkPath, "junction");
                 return;
             }
 
@@ -175,7 +174,7 @@ export class IO {
             const fileStats = fs.lstatSync(newSymLinkPath);
             if (fileStats.isSymbolicLink()) {
                 fs.unlinkSync(newSymLinkPath);
-                fs.symlinkSync(existingDirPath, newSymLinkPath, "dir");
+                fs.symlinkSync(existingDirPath, newSymLinkPath, "junction");
                 return;
             }
         } catch (exception) {
@@ -197,14 +196,14 @@ export class IO {
     }
 
     /**
-     * Uses the mkdirp package to create a directory (and all subdirectories)
+     * Uses the fs-extra package to create a directory (and all subdirectories)
      * @static
      * @param {string} dir - the directory (do not include a file name)
      * @memberof IO
      */
     public static mkdirp(dir: string) {
         ImperativeExpect.toBeDefinedAndNonBlank(dir, "dir");
-        mkdirp.sync(dir);
+        mkdirpSync(dir);
     }
 
     /**
