@@ -79,6 +79,7 @@ export class CommandTreeCache {
 
     /**
      * Checks if command tree cache is out of date
+     * @readonly
      * @returns {boolean}
      */
     public get outdated(): boolean {
@@ -104,18 +105,31 @@ export class CommandTreeCache {
         return path.join(ImperativeConfig.instance.cliHome, Constants.CACHE_DIR);
     }
 
+    /**
+     * Gets the filename of command tree cache
+     * @private
+     * @readonly
+     * @returns {string} Absolute path of file
+     */
     private get cmdTreeCache(): string {
         return path.join(this.cacheDir, "cmdTreeCache.json");
     }
 
+    /**
+     * Gets the filename of package metadata associated with cache
+     * @private
+     * @readonly
+     * @returns {string} Absolute path of file
+     */
     private get metadataFile(): string {
         return path.join(this.cacheDir, "metadata.json");
     }
 
-    private get pluginCfgCache(): string {
-        return path.join(this.cacheDir, "pluginCfgCache.json");
-    }
-
+    /**
+     * Tries to load command tree from cache. If it fails, the outdated flag
+     * will be set to true.
+     * @returns {ICommandDefinition} Cached command tree
+     */
     public tryLoadCmdTree(): ICommandDefinition {
         if (this.currentMetadata == null) {
             return null;
@@ -134,6 +148,10 @@ export class CommandTreeCache {
         return cmdTree;
     }
 
+    /**
+     * Saves loaded command tree to cache
+     * @param cmdTree
+     */
     public saveCmdTree(cmdTree: ICommandDefinition) {
         if (this.currentMetadata == null) {
             return;
@@ -151,53 +169,9 @@ export class CommandTreeCache {
         }
     }
 
-    public tryLoadPluginCfgs(): {[key: string]: IImperativeConfig} {
-        if (this.currentMetadata == null) {
-            return null;
-        }
-
-        let pluginCfgs: {[key: string]: IImperativeConfig};
-
-        try {
-            pluginCfgs = parse(fs.readFileSync(this.pluginCfgCache, "utf8"));
-            this.impLogger.info(`Loaded plugin configs from cache file: ${this.pluginCfgCache}`);
-        } catch (err) {
-            this.mOutdated = true;
-            this.impLogger.error("Failed to load plugin configs from cache file: " + err);
-        }
-
-        return pluginCfgs;
-    }
-
-    public savePluginCfgs(pluginCfgs: {[key: string]: IImperativeConfig}) {
-        if (this.currentMetadata == null) {
-            return;
-        }
-
-        try {
-            if (!fs.existsSync(this.cacheDir)) {
-                fs.mkdirSync(this.cacheDir);
-            }
-
-            fs.writeFileSync(this.pluginCfgCache, stringify(pluginCfgs));
-            this.impLogger.info(`Saved plugin configs to cache file: ${this.pluginCfgCache}`);
-        } catch (err) {
-            this.impLogger.error("Failed to save plugin configs to cache file: " + err);
-        }
-    }
-
-    public isPluginSerializable(pluginCfg: IImperativeConfig): boolean {
-        if (pluginCfg.overrides != null) {
-            for (const override of Object.values(pluginCfg.overrides)) {
-                if (typeof override !== "string") {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
+    /**
+     * Saves package metadata associated for current command tree
+     */
     public savePackageMetadata() {
         if (this.currentMetadata == null) {
             return;
