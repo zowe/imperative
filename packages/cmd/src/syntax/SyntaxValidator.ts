@@ -298,13 +298,17 @@ export class SyntaxValidator {
                     const optionDefCopy: ICommandOptionDefinition = JSON.parse(JSON.stringify(optionDef));
                     // Use modified regular expressions for allowable values to check and to generate error
                     optionDefCopy.allowableValues.values = optionDef.allowableValues.values.map((regex) => {
-                        // If user-defined regex already contains ^ and/or $,
-                        // we assume user is aware of the usage and thus keep user's definition.
-                        if (regex.startsWith("^") || regex.endsWith("$")) {
-                            return regex;
+                        // Prepend "^" if not existing
+                        if (!regex.startsWith("^")) {
+                            regex = "^" + regex;
                         }
-                        // Otherwise wrap the regex in order to match the whole input
-                        return `^${regex}$`;
+
+                        // Append "$" if the last char is an escaped "$" or chars other than "$"
+                        if (!regex.endsWith("$") || regex.endsWith("\\$")) {
+                            regex = regex + "$";
+                        }
+
+                        return regex;
                     });
                     if (!this.checkIfAllowable(optionDefCopy.allowableValues, commandArguments[optionName])) {
                         this.invalidOptionError(optionDefCopy, responseObject, commandArguments[optionName]);

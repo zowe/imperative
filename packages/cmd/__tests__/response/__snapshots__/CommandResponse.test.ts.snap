@@ -28,7 +28,7 @@ Note that the data being formatted was extracted from property \\"name\\" becaus
 
 exports[`Command Response format APIs error checking should handle a circular reference and throw an error 1`] = `
 "Non-formatted output data:
-{ name: 'bad apple', fields: [Circular] }
+<ref *1> { name: 'bad apple', fields: [Circular *1] }
 "
 `;
 
