@@ -19,7 +19,7 @@ import { Constants } from "./../../constants";
 import { ICommandDefinition } from "../../cmd";
 import { parse, stringify } from "flatted";
 import { Logger } from "../../logger";
-import { IImperativeConfig } from "./doc/IImperativeConfig";
+import { IPluginJson } from "./plugins/doc/IPluginJson";
 
 export class CommandTreeCache {
     /**
@@ -202,9 +202,16 @@ export class CommandTreeCache {
         }
 
         // Load info about installed plugins if there are any
-        let installedPlugins = {};
+        let installedPlugins: IPluginJson = {};
         if (fs.existsSync(PMFConstants.instance.PLUGIN_JSON)) {
             installedPlugins = PluginIssues.instance.getInstalledPlugins();
+
+            // Exclude plugins with missing install folder
+            for (const name of Object.keys(installedPlugins)) {
+                if (!fs.existsSync(path.join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, name))) {
+                    delete installedPlugins[name];
+                }
+            }
         }
 
         // Compute current package metadata and compare it to cached
