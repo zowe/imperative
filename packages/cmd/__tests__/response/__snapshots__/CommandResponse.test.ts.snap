@@ -126,7 +126,7 @@ exports[`Command Response format APIs formatting should accept a JSON object and
 `;
 
 exports[`Command Response format APIs formatting should accept a JSON object and format a table with a header 1`] = `
-"name   details                       colors
+"name   details                       colors            
 banana A fruit that grows in a bunch yellow,green,black
 "
 `;
@@ -134,7 +134,7 @@ banana A fruit that grows in a bunch yellow,green,black
 exports[`Command Response format APIs formatting should accept a JSON object and prettify 1`] = `
 "name:    banana
 details: A fruit that grows in a bunch
-colors:
+colors: 
   - yellow
   - green
   - black
@@ -191,23 +191,23 @@ apple
 `;
 
 exports[`Command Response format APIs formatting should accept an array of JSON objects and format a list of prettified objects 1`] = `
-"-
+"- 
   name:    banana
   details: A fruit that grows in a bunch
-  colors:
+  colors: 
     - yellow
     - green
     - black
--
+- 
   name:    strawberry
   details: A fruit that grows on vines
-  colors:
+  colors: 
     - white
     - red
--
+- 
   name:    apple
   details: A fruit that grows on trees
-  colors:
+  colors: 
     - red
     - green
 "
@@ -227,24 +227,24 @@ exports[`Command Response format APIs formatting should accept an array of JSON 
 
 exports[`Command Response format APIs formatting should accept an array of JSON objects and format a table 1`] = `
 "banana     A fruit that grows in a bunch yellow,green,black
-strawberry A fruit that grows on vines   white,red
-apple      A fruit that grows on trees   red,green
+strawberry A fruit that grows on vines   white,red         
+apple      A fruit that grows on trees   red,green         
 "
 `;
 
 exports[`Command Response format APIs formatting should accept an array of JSON objects and format a table with a header 1`] = `
-"name       details                       colors
+"name       details                       colors            
 banana     A fruit that grows in a bunch yellow,green,black
-strawberry A fruit that grows on vines   white,red
-apple      A fruit that grows on trees   red,green
+strawberry A fruit that grows on vines   white,red         
+apple      A fruit that grows on trees   red,green         
 "
 `;
 
 exports[`Command Response format APIs formatting should accept an array of JSON objects and format a table with a single column 1`] = `
-"name
-banana
+"name      
+banana    
 strawberry
-apple
+apple     
 "
 `;
 
@@ -292,10 +292,10 @@ exports[`Command Response format APIs formatting should accept an array of objec
 `;
 
 exports[`Command Response format APIs formatting should accept an array of objects and allow filtering for table output 1`] = `
-"name       details
+"name       details                      
 banana     A fruit that grows in a bunch
-strawberry A fruit that grows on vines
-apple      A fruit that grows on trees
+strawberry A fruit that grows on vines  
+apple      A fruit that grows on trees  
 "
 `;
 
@@ -313,56 +313,56 @@ exports[`Command Response format APIs formatting should accept an array of strin
 
 exports[`Command Response format APIs formatting should allow extraction of multiple nested properties and consolidate for a table 1`] = `
 "description.full description.summary attributes.color attributes.rare
-a fruit          fruit               green            true
+a fruit          fruit               green            true           
 "
 `;
 
 exports[`Command Response format APIs formatting should allow extraction of multiple nested properties and keep the property structure 1`] = `
-"description:
+"description: 
   full:    a fruit
   summary: fruit
-attributes:
+attributes: 
   color: green
   rare:  true
 "
 `;
 
 exports[`Command Response format APIs formatting should allow options to override the default for filter 1`] = `
-"name       details                       colors
+"name       details                       colors            
 banana     A fruit that grows in a bunch yellow,green,black
-strawberry A fruit that grows on vines   white,red
-apple      A fruit that grows on trees   red,green
+strawberry A fruit that grows on vines   white,red         
+apple      A fruit that grows on trees   red,green         
 "
 `;
 
 exports[`Command Response format APIs formatting should allow options to override the default for format type 1`] = `
-"-
+"- 
   name:    banana
   details: A fruit that grows in a bunch
-  colors:
+  colors: 
     - yellow
     - green
     - black
--
+- 
   name:    strawberry
   details: A fruit that grows on vines
-  colors:
+  colors: 
     - white
     - red
--
+- 
   name:    apple
   details: A fruit that grows on trees
-  colors:
+  colors: 
     - red
     - green
 "
 `;
 
 exports[`Command Response format APIs formatting should allow options to override the default for header 1`] = `
-"name       details                       colors
+"name       details                       colors            
 banana     A fruit that grows in a bunch yellow,green,black
-strawberry A fruit that grows on vines   white,red
-apple      A fruit that grows on trees   red,green
+strawberry A fruit that grows on vines   white,red         
+apple      A fruit that grows on trees   red,green         
 "
 `;
 
