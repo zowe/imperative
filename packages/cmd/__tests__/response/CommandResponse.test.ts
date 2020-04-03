@@ -949,7 +949,8 @@ describe("Command Response", () => {
                     error = e;
                 }
                 process.stderr.write = ORIGINAL_STDERR_WRITE;
-                expect(messages).toMatchSnapshot();
+                expect(messages).toContain("bad apple");
+                expect(messages).toContain("Circular");
                 expect(error).toBeDefined();
                 expect(error instanceof ImperativeError).toBe(true);
                 expect(error.message).toContain("Error copying input parameters. Details: Converting circular structure to JSON");
