@@ -628,9 +628,9 @@ export abstract class AbstractRestClient {
         let payloadDetails: string = this.mWriteData + "";
         try {
             headerDetails = JSON.stringify(this.mReqHeaders);
-            payloadDetails = inspect(this.mWriteData, {depth: null});
+            payloadDetails = inspect(this.mWriteData, { depth: null });
         } catch (stringifyError) {
-            this.log.error("Error encountered trying to parse details for REST request error:\n %s", inspect(stringifyError, {depth: null}));
+            this.log.error("Error encountered trying to parse details for REST request error:\n %s", inspect(stringifyError, { depth: null }));
         }
 
         // Populate the "relevant" fields - caller will have the session, so
@@ -671,7 +671,7 @@ export abstract class AbstractRestClient {
         const processedError = this.processError(error);
         if (processedError != null) {
             this.log.debug("Error was processed by overridden processError method in RestClient %s", this.constructor.name);
-            finalError = {...finalError, ...processedError};
+            finalError = { ...finalError, ...processedError };
         }
 
         // Return the error object
