@@ -49,7 +49,7 @@ export const syntaxTestCommand: ICommandDefinition = {
                 name: "option-to-specify-3",
                 description: "Part of must specify one group",
                 type: "string",
-                allowableValues: {values: ["allowableA", "allowableB"], caseSensitive: false}
+                allowableValues: {values: ["allowableA", "allowableB", "^allowableC\\$"], caseSensitive: false}
             },
             {
                 name: "conflicts-with-1",
