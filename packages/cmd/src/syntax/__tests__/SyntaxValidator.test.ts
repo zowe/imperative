@@ -113,10 +113,34 @@ describe("Imperative should provide advanced syntax validation rules", () => {
                     alwaysRequired, false, ["must match"])();
             });
         it("If we specify an option that has a set of allowable string values," +
+            " but specify a value that partially match one of the values, the command should fail ",
+            function () {
+                return Promise.all([
+                    tryOptions.bind(this, "--option-to-specify-3 aallowableAA --absence-implies " +
+                        alwaysRequired, false, ["must match"])(),
+                    tryOptions.bind(this, "--option-to-specify-3 allowableC$C --absence-implies " +
+                        alwaysRequired, false, ["must match"])()
+                ]);
+            });
+        it("If we specify an option that has a set of allowable string values," +
+            " but specify a value that is the regular expression itself, the command should fail ",
+            function () {
+                return Promise.all([
+                    tryOptions.bind(this, "--option-to-specify-3 ^allowableA$ --absence-implies " +
+                        alwaysRequired, false, ["must match"])(),
+                    tryOptions.bind(this, "--option-to-specify-3 ^allowbaleC\\$ --absence-implies " +
+                        alwaysRequired, false, ["must match"])()
+                ]);
+            });
+        it("If we specify an option that has a set of allowable string values," +
             " and specify a value that matches one of the allowable values, the command should succeed ",
             function () {
-                return tryOptions.bind(this, "--option-to-specify-3 allowableA --absence-implies " +
-                    alwaysRequired, true, [])();
+                return Promise.all([
+                    tryOptions.bind(this, "--option-to-specify-3 allowableA --absence-implies " +
+                        alwaysRequired, true, [])(),
+                    tryOptions.bind(this, "--option-to-specify-3 allowableC$ --absence-implies " +
+                        alwaysRequired, true, [])()
+                ]);
             });
         it("If we don't specify an option, and the absence of that option implies " +
             "the presence of another option, and we omit that option as well, the command should fail ",
