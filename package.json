@@ -27,6 +27,7 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {
+    "prepare": "npm run build",
     "audit:public": "npm audit --registry https://registry.npmjs.org/",
     "build:packages": "gulp build && npm run build:webHelp && npm run browserify",
     "build": "npm run build:packages",
