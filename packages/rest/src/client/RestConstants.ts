@@ -101,4 +101,12 @@ export class RestConstants {
      * @memberof RestConstants
      */
     public static readonly BASIC_PREFIX: string = "Basic ";
+
+    /**
+     * Bearer auth
+     * @static
+     * @type {string}
+     * @memberof RestConstants
+     */
+    public static readonly BEARER_PREFIX: string = "Bearer ";
 }

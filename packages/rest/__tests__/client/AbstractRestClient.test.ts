@@ -594,4 +594,38 @@ describe("AbstractRestClient tests", () => {
         restOptions.dataToReturn.forEach((property) => expect(data[`${property}`]).toBeDefined());
         listOfClientProperties.forEach((property) => expect(data[`${property}`]).not.toBeDefined());
     });
+
+    it("should create buildOptions according to input parameter options", async () => {
+
+        const httpsRequestFnc = jest.fn((options, callback) => {
+            expect(options).toMatchSnapshot();
+            const emitter = new MockHttpRequestResponse();
+            ProcessUtils.nextTick(() => {
+                callback(new EventEmitter());
+                ProcessUtils.nextTick(() => {
+                    emitter.emit("error", "value");
+                });
+            });
+            return emitter;
+        });
+
+        (https.request as any) = httpsRequestFnc;
+
+        let error;
+        try {
+            await RestClient.getExpectString(
+                new Session({
+                    hostname: "test",
+                    port: 8080,
+                    protocol: "https",
+                    basePath: "baseURL",
+                    type: "bearer",
+                    tokenValue: "someToken"
+                }),
+                "/resource");
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(httpsRequestFnc).toBeCalled();
+    });
 });
