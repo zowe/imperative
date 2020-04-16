@@ -34,6 +34,14 @@ export abstract class AbstractSession {
     public static readonly BASIC_PREFIX: string = "Basic ";
 
     /**
+     * Bearer auth prefix
+     * @static
+     * @type {string}
+     * @memberof AbstractSession
+     */
+    public static readonly BEARER_PREFIX: string = "Bearer ";
+
+    /**
      * http protocol id
      * @static
      * @memberof AbstractSession
@@ -69,7 +77,14 @@ export abstract class AbstractSession {
     public static readonly TYPE_BASIC = "basic";
 
     /**
-     * Token type id
+     * Bearer type id
+     * @static
+     * @memberof AbstractSession
+     */
+    public static readonly TYPE_BEARER = "bearer";
+
+    /**
+     * type id for token in Cookie
      * @static
      * @memberof AbstractSession
      */
@@ -283,7 +298,8 @@ export abstract class AbstractSession {
         // populatedSession.type = populatedSession.type.toLocaleLowerCase();
 
         ImperativeExpect.keysToBeDefinedAndNonBlank(populatedSession, ["hostname"]);
-        ImperativeExpect.toBeOneOf(populatedSession.type, [AbstractSession.TYPE_NONE, AbstractSession.TYPE_BASIC, AbstractSession.TYPE_TOKEN]);
+        ImperativeExpect.toBeOneOf(populatedSession.type,
+            [AbstractSession.TYPE_NONE, AbstractSession.TYPE_BASIC, AbstractSession.TYPE_TOKEN, AbstractSession.TYPE_BEARER]);
         ImperativeExpect.toBeOneOf(populatedSession.protocol, [AbstractSession.HTTPS_PROTOCOL, AbstractSession.HTTP_PROTOCOL]);
 
         // if basic auth, must have user and password OR base 64 encoded credentials
@@ -292,8 +308,14 @@ export abstract class AbstractSession {
             ImperativeExpect.keysToBeUndefined(populatedSession, ["tokenType", "tokenValue"] );
         }
 
+        // if bearer auth, must have token
+        if (session.type === AbstractSession.TYPE_BEARER) {
+            ImperativeExpect.keysToBeDefinedAndNonBlank(populatedSession, ["tokenValue"] );
+            ImperativeExpect.keysToBeUndefined(populatedSession, ["tokenType", "user", "password"] );
+        }
+
         if (session.type === AbstractSession.TYPE_TOKEN) {
-            ImperativeExpect.keysToBeDefinedAndNonBlank(session, ["tokenType"], "You must provide a token type to use token authentication");
+            ImperativeExpect.keysToBeDefinedAndNonBlank(session, ["tokenType"], "You must provide a token type to use cookie authentication");
 
             // if you dont have a token, we need credentials to retrieve a token
             if (isNullOrUndefined(session.tokenValue)) {

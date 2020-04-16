@@ -119,7 +119,7 @@ You specified:
 hello
 
 The value must match one of the following regular expressions:
-[ 'ABC', '123' ].
+[ '^ABC$', '^123$' ].
 
 Use \\"cmd-cli respond with-syntax-errors --help\\" to view command description, usage, and options.
 "

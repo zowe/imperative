@@ -2,6 +2,14 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `4.6.0`
+
+- Add Bearer token in rest Session
+
+## `4.5.6`
+
+- Fix allowable values not exactly matching input
+
 ## `4.5.5`
 
 - Fix absence of default value text when falsy values are used.

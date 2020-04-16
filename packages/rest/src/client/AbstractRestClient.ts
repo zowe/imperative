@@ -456,6 +456,13 @@ export abstract class AbstractRestClient {
                     options.headers[property] = authentication;
                 });
             }
+        } else if (this.session.ISession.type === AbstractSession.TYPE_BEARER) {
+            this.log.trace("Using bearer authentication");
+            const headerKeys: string[] = Object.keys(Headers.BASIC_AUTHORIZATION);
+            const authentication: string = AbstractSession.BEARER_PREFIX + this.session.ISession.tokenValue;
+            headerKeys.forEach((property) => {
+                options.headers[property] = authentication;
+            });
         }
 
         // for all headers passed into this request, append them to our options object
