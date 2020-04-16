@@ -97,15 +97,19 @@ function updateCurrentNode(newNodeId: string, goto: boolean, expand: boolean, fo
         }
     }
     currentNodeId = newNodeId;
+    const nodeIdWithoutExt: string = currentNodeId.slice(0, -5);
 
     if (goto) {
         // Load docs page for node in iframe
         if (currentView === 0) {
             $("#docs-page").attr("src", `./docs/${currentNodeId}`);
         } else {
-            $("#docs-page").attr("src", `./docs/all.html#${currentNodeId.slice(0, -5)}`);
+            $("#docs-page").attr("src", `./docs/all.html#${nodeIdWithoutExt}`);
         }
     }
+
+    // Update page title
+    document.title = `${nodeIdWithoutExt.replace(/_/g, " ")} | ${headerStr} Docs`;
 
     // Select node in command tree
     $("#cmd-tree").jstree(true).deselect_all();
@@ -126,7 +130,7 @@ function updateCurrentNode(newNodeId: string, goto: boolean, expand: boolean, fo
     const baseUrl: string = window.location.href.replace(window.location.search, "");
     let queryString: string = "";
     if (currentNodeId !== treeNodes[0].id) {
-        queryString = "?p=" + currentNodeId.slice(0, -5);
+        queryString = "?p=" + nodeIdWithoutExt;
     }
     if (currentView === 1) {
         queryString = (queryString.length > 0) ? (queryString + "&v=1") : "?v=1";
