@@ -404,6 +404,96 @@ export class CliUtils {
     }
 
     /**
+     * Sleep for the specified number of miliseconds.
+     * @param timeInMs Number of miliseconds to sleep
+     *
+     * @example
+     *      // create a synchronous delay as follows:
+     *      await CliUtils.sleep(3000);
+     */
+    public static async sleep(timeInMs: number) {
+        return new Promise((resolve) => {
+            setTimeout(resolve, timeInMs);
+        });
+    }
+
+    /**
+     * Prompt the user with a question and wait for an answer,
+     * but only up to the specified timeout.
+     *
+     * @param questionText The text with which we will prompt the user.
+     *
+     * @param hideText Should we hide the text. True = display stars.
+     *                 False = display text. Default = false.
+     *
+     * @param secToWait The number of seconds that we will wait for an answer.
+     *                  If not supplied, the default is 30 seconds.
+     *
+     * @return A string containing the user's answer, or null if we timeout.
+     *
+     * @example
+     *      const answer = await CliUtils.promptWithTimeout("Type your answer here: ");
+     *      if (answer === null) {
+     *          // abort the operation that you wanted to perform
+     *      } else {
+     *          // use answer in some operation
+     *      }
+     */
+    public static async promptWithTimeout(
+        questionText: string,
+        hideText: boolean = false,
+        secToWait: number = 30
+    ): Promise<string> {
+
+        // readline provides our interface for terminal I/O
+        const readline = require("readline");
+        const ttyIo = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout,
+            terminal: true,
+            prompt: questionText
+        });
+
+        // ask user the desired question and then asynchronously read answer
+        ttyIo.prompt();
+        let answerToReturn: string = null;
+        ttyIo.on("line", (answer: string) => {
+            answerToReturn = answer;
+            ttyIo.close();
+        }).on("close", () => {
+            if (hideText) {
+                // The user's Enter key was echoed as a '*', so now output a newline
+                ttyIo._writeToOutput = writeToOutputOrig;
+                ttyIo.output.write("\n");
+            }
+        });
+
+        // when asked to hide text, override output to only display stars
+        const writeToOutputOrig = ttyIo._writeToOutput;
+        if (hideText) {
+            ttyIo._writeToOutput = function _writeToOutput(stringToWrite: string) {
+                ttyIo.output.write("*");
+            };
+        }
+
+        // Ensure that we use a reasonable timeout
+        const maxSecToWait = 900; // 15 minute max
+        if (secToWait > maxSecToWait || secToWait <= 0) {
+            secToWait = maxSecToWait;
+        }
+
+        // loop until timeout, to give our earlier asynch read a chance to work
+        for (let count = 1; answerToReturn === null && count <= secToWait; count++) {
+            const oneSecOfMilis = 1000;
+            await CliUtils.sleep(oneSecOfMilis);
+        }
+
+        // terminate our use of the ttyIo object
+        ttyIo.close();
+        return answerToReturn;
+    }
+
+    /**
      * Accepts the yargs argument object and constructs the base imperative
      * argument object. The objects are identical to maintain compatibility with
      * existing CLIs and plugins, but the intent is to eventually phase out
