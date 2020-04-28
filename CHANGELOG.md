@@ -4,7 +4,11 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
-- Include initial implementation of token handling
+- Enable the use of a token for authentication
+
+## `4.6.0`
+
+- Add Bearer token in rest Session
 
 ## `4.5.6`
 

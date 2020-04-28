@@ -70,14 +70,17 @@ export interface ISession {
      * Type of authentication, none is default
      * "none"  - no authorization header is used
      * "basic" - use basic auth for every request
-     * "token" - indicates use token value provided and check for timeout / expiration
+     * "bearer" - use bearer auth for every request.
+     *           Indicates use token value provided.
+     * "token" - use cookie auth for every request.
+     *           Indicates use token value provided and check for timeout / expiration
      *           if not token is provided, basic auth is used and the tokenType is obtained
      *           from the cookie header and stored as a token value to be used on subsequent
      *           requests
      * @type {string}
      * @memberof ISession
      */
-    type?: "none" | "basic" | "token";
+    type?: "none" | "basic" | "bearer" | "token";
 
     /**
      * Base 64 encoded authentication materials created by base 64 encoding:
