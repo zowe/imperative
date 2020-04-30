@@ -49,7 +49,7 @@
   "dependencies": {
     "@types/lodash-deep": "2.0.0",
     "@types/yargs": "13.0.4",
-    "@zowe/perf-timing": "1.0.6",
+    "@zowe/perf-timing": "1.0.7",
     "chalk": "2.4.2",
     "cli-table3": "0.5.1",
     "dataobject-parser": "1.2.1",
