@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Fix vulnerabilities by updating yargs
+
 ## `4.6.1`
 
 - Update perf-timing version
