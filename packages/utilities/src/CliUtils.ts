@@ -9,7 +9,6 @@
 *
 */
 
-import { isNullOrUndefined } from "util";
 import { ImperativeError } from "../../error";
 import { Constants } from "../../constants";
 import { Arguments } from "yargs";
@@ -47,7 +46,7 @@ export class CliUtils {
      * @returns {string} - e.g. --my-option
      */
     public static getDashFormOfOption(optionName: string): string {
-        if (!isNullOrUndefined(optionName) && optionName.length >= 1) {
+        if ((optionName !== undefined && optionName !== null) && optionName.length >= 1) {
             const dashes = optionName.length > 1 ? Constants.OPT_LONG_DASH : Constants.OPT_SHORT_DASH;
             return dashes + optionName;
         } else {
@@ -334,7 +333,7 @@ export class CliUtils {
      * @memberof CliUtils
      */
     public static formatHelpHeader(header: string, indent: string = " ", color: string): string {
-        if (isNullOrUndefined(header) || header.trim().length === 0) {
+        if (header === undefined || header === null || header.trim().length === 0) {
             throw new ImperativeError({
                 msg: "Null or empty header provided; could not be formatted."
             });
@@ -483,9 +482,9 @@ export class CliUtils {
         }
 
         // loop until timeout, to give our earlier asynch read a chance to work
+        const oneSecOfMillis = 1000;
         for (let count = 1; answerToReturn === null && count <= secToWait; count++) {
-            const oneSecOfMilis = 1000;
-            await CliUtils.sleep(oneSecOfMilis);
+            await CliUtils.sleep(oneSecOfMillis);
         }
 
         // terminate our use of the ttyIo object

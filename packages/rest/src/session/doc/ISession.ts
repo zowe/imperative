@@ -9,6 +9,8 @@
 *
 */
 
+import * as SessConstants from "../SessConstants";
+
 /**
  * Session interface for maintaining cookie and protocol information
  * @export
@@ -51,7 +53,7 @@ export interface ISession {
      * @type {string}
      * @memberof ISession
      */
-    protocol?: "http" | "https";
+    protocol?: SessConstants.HTTP_PROTOCOL_CHOICES;
 
     /**
      * The base path (or first part) of the resources that we will access.
@@ -80,7 +82,7 @@ export interface ISession {
      * @type {string}
      * @memberof ISession
      */
-    type?: "none" | "basic" | "bearer" | "token";
+    type?: SessConstants.AUTH_TYPE_CHOICES
 
     /**
      * Base 64 encoded authentication materials created by base 64 encoding:
@@ -95,7 +97,7 @@ export interface ISession {
      * @type {string}
      * @memberof ISession
      */
-    tokenType?: "LtpaToken2" | "jwtToken" | "apimlAuthenticationToken";
+    tokenType?: SessConstants.TOKEN_TYPE_CHOICES;
 
     /**
      * aldgfuq;iwgueroquw3evrqj4e0f9iuq0324fq9034ifgq0394fjg08934ujg0q93j4fq3j4f09jq40[f9j]

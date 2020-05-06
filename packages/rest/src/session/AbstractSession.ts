@@ -13,8 +13,8 @@ import * as http from "http";
 import { ISession } from "./doc/ISession";
 import { Logger } from "../../../logger";
 import { ImperativeError } from "../../../error";
-import { isNullOrUndefined } from "util";
 import { ImperativeExpect } from "../../../expect";
+import * as SessConstants from "./SessConstants";
 
 /**
  * The API session object, serves as the base for sessions and contains the fields that are required by
@@ -42,60 +42,55 @@ export abstract class AbstractSession {
     public static readonly BEARER_PREFIX: string = "Bearer ";
 
     /**
-     * http protocol id
-     * @static
-     * @memberof AbstractSession
+     * http protocol
+     * @deprecated Use SessConstants.HTTP_PROTOCOL
      */
-    public static readonly HTTP_PROTOCOL = "http";
+    public static readonly HTTP_PROTOCOL = SessConstants.HTTP_PROTOCOL;
 
     /**
-     * https protocol id
-     * @static
-     * @memberof AbstractSession
+     * https protocol
+     * @deprecated Use SessConstants.HTTPS_PROTOCOL
      */
-    public static readonly HTTPS_PROTOCOL = "https";
+    public static readonly HTTPS_PROTOCOL = SessConstants.HTTPS_PROTOCOL;
 
     /**
      * Default protocol
      * @static
      * @memberof AbstractSession
      */
-    public static readonly DEFAULT_PROTOCOL = AbstractSession.HTTPS_PROTOCOL;
+    public static readonly DEFAULT_PROTOCOL = SessConstants.HTTPS_PROTOCOL;
 
     /**
-     * None type id
-     * @static
-     * @memberof AbstractSession
+     * Session type property value for no authentication
+     * @deprecated Use SessConstants.AUTH_TYPE_NONE
      */
-    public static readonly TYPE_NONE = "none";
+    public static readonly TYPE_NONE = SessConstants.AUTH_TYPE_NONE;
 
     /**
-     * Basic type id
-     * @static
-     * @memberof AbstractSession
+     * Session type property value for no authentication
+     * @deprecated Use SessConstants.AUTH_TYPE_BASIC
      */
-    public static readonly TYPE_BASIC = "basic";
+    public static readonly TYPE_BASIC = SessConstants.AUTH_TYPE_BASIC;
 
     /**
-     * Bearer type id
-     * @static
-     * @memberof AbstractSession
+     * Session type property value for bearer token authentication
+     * @deprecated Use SessConstants.AUTH_TYPE_BEARER
      */
-    public static readonly TYPE_BEARER = "bearer";
+    public static readonly TYPE_BEARER = SessConstants.AUTH_TYPE_BEARER;
 
     /**
-     * type id for token in Cookie
-     * @static
-     * @memberof AbstractSession
+     * Session type property value for cookie token authentication,
+     * which uses a named token type.
+     * @deprecated Use SessConstants.AUTH_TYPE_TOKEN
      */
-    public static readonly TYPE_TOKEN = "token";
+    public static readonly TYPE_TOKEN = SessConstants.AUTH_TYPE_TOKEN;
 
     /**
      * Default session type
      * @static
      * @memberof AbstractSession
      */
-    public static readonly DEFAULT_TYPE = AbstractSession.TYPE_NONE;
+    public static readonly DEFAULT_TYPE = SessConstants.AUTH_TYPE_NONE;
 
     /**
      * Default http port 80
@@ -240,102 +235,107 @@ export abstract class AbstractSession {
     private buildSession(session: ISession): ISession {
         const populatedSession = session;
 
-
         // set protocol if not set
-        if (isNullOrUndefined(populatedSession.protocol)) {
+        if (populatedSession.protocol === undefined || populatedSession.protocol === null) {
             populatedSession.protocol = AbstractSession.DEFAULT_PROTOCOL;
         }
 
         // set rejectUnauthorized
-        if (isNullOrUndefined(populatedSession.rejectUnauthorized)) {
+        if (populatedSession.rejectUnauthorized === undefined || populatedSession.rejectUnauthorized === null) {
             populatedSession.rejectUnauthorized = AbstractSession.DEFAULT_REJECT_UNAUTHORIZED_SETTING;
         }
 
         // set strictSSL
-        if (isNullOrUndefined(populatedSession.strictSSL)) {
+        if (populatedSession.strictSSL === undefined || populatedSession.strictSSL === null) {
             populatedSession.strictSSL = AbstractSession.DEFAULT_STRICT_SSL;
         }
 
         // set port if not set
-        if (isNullOrUndefined(populatedSession.port)) {
-            if (populatedSession.protocol === AbstractSession.HTTP_PROTOCOL) {
+        if (populatedSession.port === undefined || populatedSession.port === null) {
+            if (populatedSession.protocol === SessConstants.HTTP_PROTOCOL) {
                 populatedSession.port = AbstractSession.DEFAULT_HTTP_PORT;
-            } else if (populatedSession.protocol === AbstractSession.HTTPS_PROTOCOL) {
+            } else if (populatedSession.protocol === SessConstants.HTTPS_PROTOCOL) {
                 populatedSession.port = AbstractSession.DEFAULT_HTTPS_PORT;
             }
         }
 
         // set protocol if not set
-        if (isNullOrUndefined(populatedSession.secureProtocol)) {
+        if (populatedSession.secureProtocol === undefined || populatedSession.secureProtocol === null) {
             populatedSession.secureProtocol = AbstractSession.DEFAULT_SECURE_PROTOCOL;
         }
 
         // set basePath if not set
-        if (isNullOrUndefined(populatedSession.basePath)) {
+        if (populatedSession.basePath === undefined || populatedSession.basePath === null) {
             populatedSession.basePath = AbstractSession.DEFAULT_BASE_PATH;
         }
 
         // set type if not set
-        if (isNullOrUndefined(populatedSession.type)) {
+        if (populatedSession.type === undefined || populatedSession.type === null) {
             populatedSession.type = AbstractSession.DEFAULT_TYPE;
         }
         // populatedSession.type = populatedSession.type.toLocaleLowerCase();
         ImperativeExpect.keysToBeDefinedAndNonBlank(populatedSession, ["hostname"]);
         ImperativeExpect.toBeOneOf(populatedSession.type,
-            [AbstractSession.TYPE_NONE, AbstractSession.TYPE_BASIC, AbstractSession.TYPE_TOKEN, AbstractSession.TYPE_BEARER]);
-        ImperativeExpect.toBeOneOf(populatedSession.protocol, [AbstractSession.HTTPS_PROTOCOL, AbstractSession.HTTP_PROTOCOL]);
+            [SessConstants.AUTH_TYPE_NONE, SessConstants.AUTH_TYPE_BASIC, SessConstants.AUTH_TYPE_TOKEN, SessConstants.AUTH_TYPE_BEARER]);
+        ImperativeExpect.toBeOneOf(populatedSession.protocol, [SessConstants.HTTPS_PROTOCOL, SessConstants.HTTP_PROTOCOL]);
 
         // if basic auth, must have user and password OR base 64 encoded credentials
-        if (session.type === AbstractSession.TYPE_BASIC) {
-            if (!isNullOrUndefined(session.user) && !isNullOrUndefined(session.password)) {
+        if (session.type === SessConstants.AUTH_TYPE_BASIC) {
+            if (session.user     !== undefined && session.user     !== null &&
+                session.password !== undefined && session.password !== null)
+            {
                 // ok
-            } else if (!isNullOrUndefined(session.base64EncodedAuth)) {
+            } else if (session.base64EncodedAuth !== undefined && session.base64EncodedAuth !== null) {
                 // ok
             } else {
                 throw new ImperativeError({
                     msg: "Must have user & password OR base64 encoded credentials",
-                    additionalDetails: "For CLI usage, see `zowe zosmf login --help`",
+                    additionalDetails: "For CLI usage, see 'zowe zosmf login --help'"
                 });
             }
             ImperativeExpect.keysToBeUndefined(populatedSession, ["tokenType", "tokenValue"]);
         }
 
         // if bearer auth, must have token
-        if (session.type === AbstractSession.TYPE_BEARER) {
+        if (session.type === SessConstants.AUTH_TYPE_BEARER) {
             ImperativeExpect.keysToBeDefinedAndNonBlank(populatedSession, ["tokenValue"] );
             ImperativeExpect.keysToBeUndefined(populatedSession, ["tokenType", "user", "password"] );
         }
 
-        if (session.type === AbstractSession.TYPE_TOKEN) {
+        if (session.type === SessConstants.AUTH_TYPE_TOKEN) {
             ImperativeExpect.keysToBeDefinedAndNonBlank(session, ["tokenType"], "You must provide a token type to use cookie authentication");
 
-            if (isNullOrUndefined(populatedSession.tokenValue)) {
-                if (!isNullOrUndefined(session.user) && !isNullOrUndefined(session.password)) {
+            if (populatedSession.tokenValue === undefined || populatedSession.tokenValue === null) {
+                if (session.user     !== undefined && session.user     !== null &&
+                    session.password !== undefined && session.password !== null)
+                {
                     // ok
-                } else if (!isNullOrUndefined(session.base64EncodedAuth)) {
+                } else if (session.base64EncodedAuth !== undefined && session.base64EncodedAuth !== null) {
                     // ok
                 } else {
                     throw new ImperativeError({
                         msg: "Must have user & password OR tokenType & tokenValue.",
-                        additionalDetails: "For CLI usage, see `zowe zosmf login --help`",
+                        additionalDetails: "For CLI usage, see 'zowe zosmf login --help'"
                     });
                 }
             }
         }
 
         // if basic auth
-        if (populatedSession.type === AbstractSession.TYPE_BASIC || populatedSession.type === AbstractSession.TYPE_TOKEN) {
+        if (populatedSession.type === SessConstants.AUTH_TYPE_BASIC || populatedSession.type === SessConstants.AUTH_TYPE_TOKEN) {
 
             // get base 64 encoded auth if not provided
-            if (isNullOrUndefined(populatedSession.base64EncodedAuth)) {
-                if (!isNullOrUndefined(populatedSession.user) && !isNullOrUndefined(populatedSession.password)) {
+            if (populatedSession.base64EncodedAuth === undefined || populatedSession.base64EncodedAuth === null) {
+                if (populatedSession.user     !== undefined && populatedSession.user     !== null &&
+                    populatedSession.password !== undefined && populatedSession.password !== null)
+                {
                     populatedSession.base64EncodedAuth = AbstractSession.getBase64Auth(populatedSession.user, populatedSession.password);
                 }
             } else {
-                if (isNullOrUndefined(populatedSession.user)) {
+                if (populatedSession.user === undefined || populatedSession.user === null) {
                     populatedSession.user = AbstractSession.getUsernameFromAuth(populatedSession.base64EncodedAuth);
                 }
-                if (isNullOrUndefined(populatedSession.password)) {
+                if (populatedSession.password === undefined || populatedSession.password === null) {
                     populatedSession.password = AbstractSession.getPasswordFromAuth(populatedSession.base64EncodedAuth);
                 }
             }
