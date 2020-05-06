@@ -1,6 +1,6 @@
 {
   "extends": "./tslint.json",
   "linterOptions": {
-    "exclude": ["**/__tests__/**/*"]
+    "exclude": ["**/__tests__/**/*", "packages/rest/index.ts"]
   }
 }
