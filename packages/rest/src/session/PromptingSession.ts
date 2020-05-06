@@ -16,7 +16,6 @@ import { ISession } from "./doc/ISession";
 import { Logger } from "../../../logger";
 import { Session } from "./Session";
 import * as SessConstants from "./SessConstants";
-import {isBoolean} from "util";
 
 /**
  * A Session class that will prompt for credentials

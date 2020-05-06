@@ -82,7 +82,7 @@ export interface ISession {
      * @type {string}
      * @memberof ISession
      */
-    type?: SessConstants.AUTH_TYPE_CHOICES
+    type?: SessConstants.AUTH_TYPE_CHOICES;
 
     /**
      * Base 64 encoded authentication materials created by base 64 encoding:
