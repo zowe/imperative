@@ -6,6 +6,10 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enable the use of a token for authentication
 
+## `4.6.1`
+
+- Update perf-timing version
+
 ## `4.6.0`
 
 - Add Bearer token in rest Session
