@@ -18,50 +18,53 @@ import { Session } from "./Session";
 import * as SessConstants from "./SessConstants";
 
 /**
- * A Session class that will prompt for credentials
- * when it detects that they are missing.
- *
- * We contain a Session instead of extending a Session, because
- * we must construct the session in an async function, to allow
- * our caller to wait for any required prompting.
+ * This class creates a session configuration object for making
+ * REST API calls with the Imperative RestClient.
  */
-export class PromptingSession {
+export class CredsForSesscfg {
 
     // ***********************************************************************
     /**
-     * Create a REST Client Session from command line arguments. Prompt for
-     * credentials if they are not specified in the command line arguments.
+     * Create a REST session configuration object starting with the supplied
+     * initialSessCfg and retrieving credential properties from the command
+     * line arguments (or environment, or profile). Failing that, we
+     * interactively prompt the user for user name and password.
+     * The possible credential properties are:
+     *      user
+     *      password
+     *      type
+     *      tokenType
+     *      tokenValue
+     *
+     * @param initialSessCfg
+     *        An initial session configuration (like ISession, or other
+     *        specially defined configuration) that contains the appropriate
+     *        session configuration properties.
      *
      * @param cmdArgs
      *        The arguments specified by the user on the command line
      *        (or in environment, or in profile)
-     *
-     * @param cmdResp
-     *        A command response object for displaying a message.
      *
      * @param forceUserPass
      *        When true, we force the use of user and password.
      *        This applies during a login command, or after a token
      *        has failed to authenticate because it has expired.
      *
-     * @returns {Session} - A session for usage in the z/OSMF REST Client
+     * @returns A session configuration object with credentials added
+     *          to the initialSessCfg. Its intended use is for our
+     *          caller to create a session for a REST Client
      */
-    public static async createSessFromCmdArgsOrPrompt(
+    public static async addCredsOrPrompt<T>(
+        initialSessCfg: T,
         cmdArgs: ICommandArguments,
-        cmdResp: IHandlerResponseApi,
-        forceUserPass: boolean
-    ): Promise<Session> {
+        forceUserPass: boolean = false
+    ): Promise<T> {
         const impLogger = Logger.getImperativeLogger();
 
-        // initialize iSess object with values from cmdLine (or environment, or profile)
-        const iSessObj: ISession = {
-            hostname: cmdArgs.host,
-            port: cmdArgs.port,
-            rejectUnauthorized: cmdArgs.rejectUnauthorized,
-            basePath: cmdArgs.basePath,
-        };
+        // initialize session config object
+        const finalSessCfg: any = initialSessCfg;
 
-        // confirm which properties were supplied by user
+        // confirm which credential properties were supplied by user
         let tokenValExists = false;
         let tokenTypeExists = false;
         let userExists = false;
@@ -91,6 +94,7 @@ export class PromptingSession {
             passExists = true;
         }
 
+        // set credential values from cmdLine (or environment, or profile)
         if (forceUserPass) {
             // ignoring tokenValue, will ensure that user & password are used for authentication
             tokenValExists = false;
@@ -99,13 +103,13 @@ export class PromptingSession {
         // We try to use the token if it is available
         if (tokenValExists) {
             impLogger.debug("Using token authentication");
-            iSessObj.tokenValue = cmdArgs.tokenValue;
+            finalSessCfg.tokenValue = cmdArgs.tokenValue;
             if (tokenTypeExists) {
-                iSessObj.type = SessConstants.AUTH_TYPE_TOKEN;
-                iSessObj.tokenType = cmdArgs.tokenType;
+                finalSessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
+                finalSessCfg.tokenType = cmdArgs.tokenType;
             } else {
                 // When no tokenType supplied, user wants bearer
-                iSessObj.type = SessConstants.AUTH_TYPE_BEARER;
+                finalSessCfg.type = SessConstants.AUTH_TYPE_BEARER;
             }
         } else { // we will use user and password
             if (tokenTypeExists) {
@@ -113,58 +117,58 @@ export class PromptingSession {
                  * authenticate with basic auth and get a token.
                  */
                 impLogger.debug("Using basic authentication to get token");
-                iSessObj.type = SessConstants.AUTH_TYPE_TOKEN;
-                iSessObj.tokenType = cmdArgs.tokenType;
+                finalSessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
+                finalSessCfg.tokenType = cmdArgs.tokenType;
             } else {
                 impLogger.debug("Using basic authentication with no request for token");
-                iSessObj.type = SessConstants.AUTH_TYPE_BASIC;
+                finalSessCfg.type = SessConstants.AUTH_TYPE_BASIC;
             }
 
             if (userExists) {
-                iSessObj.user = cmdArgs.user;
+                finalSessCfg.user = cmdArgs.user;
             } else {
                 let answer = "";
                 while (answer === "") {
                     answer = await CliUtils.promptWithTimeout(
-                        "User name required for authentication. Enter user name: "
+                        "Authentication required. Enter user name: "
                     );
                     if (answer === null) {
                         throw new ImperativeError({msg: "We timed-out waiting for user name."});
                     }
                 }
-                iSessObj.user = answer;
+                finalSessCfg.user = answer;
             }
 
             if (passExists) {
-                iSessObj.password = cmdArgs.password;
+                finalSessCfg.password = cmdArgs.password;
             } else {
                 let answer = "";
                 while (answer === "") {
                     answer = await CliUtils.promptWithTimeout(
-                        "Password  required for authentication. Enter password : ",
+                        "Authentication required. Enter password : ",
                         true
                     );
                     if (answer === null) {
                         throw new ImperativeError({msg: "We timed-out waiting for password."});
                     }
                 }
-                iSessObj.password = answer;
+                finalSessCfg.password = answer;
             }
         }
 
         // obscure the password for displaying in the log, then restore it before creating session
         let realPass: string;
-        if (iSessObj.password) {
-            realPass = iSessObj.password;
-            iSessObj.password = "Password_is_hidden";
+        if (finalSessCfg.password) {
+            realPass = finalSessCfg.password;
+            finalSessCfg.password = "Password_is_hidden";
         }
-        impLogger.debug("Creating a session with these properties:\n" +
-            JSON.stringify(iSessObj, null, 2)
+        impLogger.debug("Creating a session config with these properties:\n" +
+            JSON.stringify(finalSessCfg, null, 2)
         );
-        if (iSessObj.password) {
-            iSessObj.password = realPass;
+        if (finalSessCfg.password) {
+            finalSessCfg.password = realPass;
         }
 
-        return new Session(iSessObj);
+        return finalSessCfg;
     }
 }
