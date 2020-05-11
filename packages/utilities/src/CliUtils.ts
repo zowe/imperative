@@ -471,7 +471,19 @@ export class CliUtils {
         const writeToOutputOrig = ttyIo._writeToOutput;
         if (hideText) {
             ttyIo._writeToOutput = function _writeToOutput(stringToWrite: string) {
-                ttyIo.output.write("*");
+                if (stringToWrite.length === 1) {
+                    // display a star for each one character of the hidden response
+                    ttyIo.output.write("*");
+                } else {
+                    /* After a backspace, we get a string with the whole question
+                     * and the hidden response. Redisplay the prompt and hide the response.
+                     */
+                    let stringToShow = stringToWrite.substring(0, questionText.length);
+                    for (let count = 1; count <= stringToWrite.length - questionText.length; count ++) {
+                        stringToShow += "*";
+                    }
+                    ttyIo.output.write(stringToShow);
+                }
             };
         }
 
