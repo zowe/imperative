@@ -45,10 +45,9 @@ export class CredsForSesscfg {
      *        The arguments specified by the user on the command line
      *        (or in environment, or in profile)
      *
-     * @param forceUserPass
-     *        When true, we force the use of user and password.
-     *        This applies during a login command, or after a token
-     *        has failed to authenticate because it has expired.
+     * @param requestToken
+     *        When true, we use the user and password for the operation
+     *        to obtain a token. This applies during a login command.
      *
      * @returns A session configuration object with credentials added
      *          to the initialSessCfg. Its intended use is for our
@@ -57,7 +56,7 @@ export class CredsForSesscfg {
     public static async addCredsOrPrompt<T>(
         initialSessCfg: T,
         cmdArgs: ICommandArguments,
-        forceUserPass: boolean = false
+        requestToken: boolean = false
     ): Promise<T> {
         const impLogger = Logger.getImperativeLogger();
 
@@ -95,30 +94,26 @@ export class CredsForSesscfg {
         }
 
         // set credential values from cmdLine (or environment, or profile)
-        if (forceUserPass) {
+        if (requestToken) {
             // ignoring tokenValue, will ensure that user & password are used for authentication
             tokenValExists = false;
         }
 
-        // We try to use the token if it is available
-        if (tokenValExists) {
-            impLogger.debug("Using token authentication");
-            finalSessCfg.tokenValue = cmdArgs.tokenValue;
-            if (tokenTypeExists) {
-                finalSessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
-                finalSessCfg.tokenType = cmdArgs.tokenType;
-            } else {
-                // When no tokenType supplied, user wants bearer
-                finalSessCfg.type = SessConstants.AUTH_TYPE_BEARER;
-            }
-        } else { // we will use user and password
-            if (tokenTypeExists) {
-                /* When we have no token value but we have a tokenType,
-                 * authenticate with basic auth and get a token.
-                 */
+        if (userExists || tokenValExists === false) {
+            /* When a user name is supplied, that is what we use.
+             * If neither user name or token is supplied,
+             * we prompt for username and password, as needed.
+             */
+            if (requestToken) {
+                // Set our type to token to get a token from user and pass
                 impLogger.debug("Using basic authentication to get token");
                 finalSessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
-                finalSessCfg.tokenType = cmdArgs.tokenType;
+                if (tokenTypeExists) {
+                    finalSessCfg.tokenType = cmdArgs.tokenType;
+                } else {
+                    // When no tokenType supplied, user wants bearer
+                    finalSessCfg.tokenType = SessConstants.TOKEN_TYPE_LTPA;  // TODO:Gene: change to TOKEN_TYPE_APIML
+                }
             } else {
                 impLogger.debug("Using basic authentication with no request for token");
                 finalSessCfg.type = SessConstants.AUTH_TYPE_BASIC;
@@ -153,6 +148,17 @@ export class CredsForSesscfg {
                     }
                 }
                 finalSessCfg.password = answer;
+            }
+        } else {
+            // we have no user name, but we have a token. Use the token.
+            impLogger.debug("Using token authentication");
+            finalSessCfg.tokenValue = cmdArgs.tokenValue;
+            if (tokenTypeExists) {
+                finalSessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
+                finalSessCfg.tokenType = cmdArgs.tokenType;
+            } else {
+                // When no tokenType supplied, user wants bearer
+                finalSessCfg.type = SessConstants.AUTH_TYPE_BEARER;
             }
         }
 
