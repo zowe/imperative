@@ -21,7 +21,7 @@ import * as SessConstants from "./SessConstants";
  * This class creates a session configuration object for making
  * REST API calls with the Imperative RestClient.
  */
-export class CredsForSesscfg {
+export class CredsForSessCfg {
 
     // ***********************************************************************
     /**
