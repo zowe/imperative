@@ -25,6 +25,7 @@ export * from "./src/client/RestClientError";
 export * as SessConstants from "./src/session/SessConstants";
 
 export * from "./src/session/doc/ISession";
+export * from "./src/session/doc/IOptionsForAddCreds";
 export * from "./src/session/AbstractSession";
 export * from "./src/session/Session";
 export * from "./src/session/CredsForSessCfg";
