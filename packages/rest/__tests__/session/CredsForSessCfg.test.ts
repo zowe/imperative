@@ -26,7 +26,7 @@ describe("CredsForSessCfg tests", () => {
             password: "FakePassword"
         };
         const sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
-            intialSessCfg, args, false
+            intialSessCfg, args
         );
         expect(sessCfgWithCreds.hostname).toBe("SomeHost");
         expect(sessCfgWithCreds.user).toBe("FakeUser");
@@ -48,7 +48,7 @@ describe("CredsForSessCfg tests", () => {
             tokenType: SessConstants.TOKEN_TYPE_JWT
         };
         const sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
-            intialSessCfg, args, true
+            intialSessCfg, args, {requestToken: true}
         );
         expect(sessCfgWithCreds.hostname).toBe("SomeHost");
         expect(sessCfgWithCreds.user).toBe("FakeUser");
@@ -69,7 +69,7 @@ describe("CredsForSessCfg tests", () => {
             password: "FakePassword"
         };
         const sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
-            intialSessCfg, args, true
+            intialSessCfg, args, {requestToken: true}
         );
         expect(sessCfgWithCreds.hostname).toBe("SomeHost");
         expect(sessCfgWithCreds.user).toBe("FakeUser");
@@ -89,7 +89,7 @@ describe("CredsForSessCfg tests", () => {
             tokenValue: "FakeToken",
         };
         const sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
-            intialSessCfg, args, false
+            intialSessCfg, args
         );
         expect(sessCfgWithCreds.hostname).toBe("SomeHost");
         expect(sessCfgWithCreds.tokenValue).toBe("FakeToken");
@@ -109,7 +109,7 @@ describe("CredsForSessCfg tests", () => {
             tokenType: SessConstants.TOKEN_TYPE_APIML
         };
         const sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
-            intialSessCfg, args, false
+            intialSessCfg, args
         );
         expect(sessCfgWithCreds.hostname).toBe("SomeHost");
         expect(sessCfgWithCreds.tokenValue).toBe("FakeToken");
@@ -117,6 +117,26 @@ describe("CredsForSessCfg tests", () => {
         expect(sessCfgWithCreds.tokenType).toBe(SessConstants.TOKEN_TYPE_APIML);
         expect(sessCfgWithCreds.user).toBeUndefined();
         expect(sessCfgWithCreds.password).toBeUndefined();
+    });
+
+    it("not prompt when asked not to prompt", async() => {
+        const intialSessCfg = {
+            hostname: "SomeHost",
+            port: 11,
+            rejectUnauthorized: true,
+        };
+        const args = {
+        };
+
+        let sessCfgWithCreds: ISession;
+        sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
+            intialSessCfg, args, {doPrompting: false}
+        );
+        expect(sessCfgWithCreds.type).toBe(SessConstants.AUTH_TYPE_BASIC);
+        expect(sessCfgWithCreds.user).toBeUndefined();
+        expect(sessCfgWithCreds.password).toBeUndefined();
+        expect(sessCfgWithCreds.tokenType).toBeUndefined();
+        expect(sessCfgWithCreds.tokenValue).toBeUndefined();
     });
 
     it("timeout waiting for user name", async() => {
@@ -144,7 +164,7 @@ describe("CredsForSessCfg tests", () => {
         let caughtError;
         try {
             sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
-                intialSessCfg, args, false
+                intialSessCfg, args
             );
         } catch (thrownError) {
             caughtError = thrownError;
@@ -178,7 +198,7 @@ describe("CredsForSessCfg tests", () => {
         let caughtError;
         try {
             sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
-                intialSessCfg, args, false
+                intialSessCfg, args
             );
         } catch (thrownError) {
             caughtError = thrownError;
