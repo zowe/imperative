@@ -13,6 +13,8 @@ import { CredsForSessCfg } from "../../src/session/CredsForSessCfg";
 import { ImperativeError } from "../../../error";
 import * as SessConstants from "../../src/session/SessConstants";
 
+const waitForPrompt = 40000; // 40 sec is more than our prompting timeout of 30 sec
+
 describe("CredsForSessCfg tests", () => {
 
     it("authenticate with user and pass", async() => {
@@ -171,7 +173,7 @@ describe("CredsForSessCfg tests", () => {
         }
         expect(caughtError instanceof ImperativeError).toBe(true);
         expect(caughtError.message).toBe("We timed-out waiting for user name.");
-    });
+    }, waitForPrompt);
 
     it("timeout waiting for password", async() => {
         const intialSessCfg = {
@@ -205,5 +207,5 @@ describe("CredsForSessCfg tests", () => {
         }
         expect(caughtError instanceof ImperativeError).toBe(true);
         expect(caughtError.message).toBe("We timed-out waiting for password.");
-    });
+    }, waitForPrompt);
 });
