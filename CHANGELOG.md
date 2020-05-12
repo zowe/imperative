@@ -4,7 +4,11 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
-- Enable the use of a token for authentication
+- Use a token for authentication if a token is present in the underlying REST session object.
+- Add a new CredsForSessCfg.addCredsOrPrompt function that places credentials (including a possible token) into a session configuration object.
+    - Credentials are obtained from the command line, environment variables, or a profile.
+    - If no credentials are available, it will prompt for a user name and password.
+    - Any prompt will timeout after 30 seconds so that it will not hang an automated script.
 
 ## `4.6.2`
 
