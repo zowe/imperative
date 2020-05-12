@@ -26,9 +26,15 @@ export class CredsForSessCfg {
     /**
      * Create a REST session configuration object starting with the supplied
      * initialSessCfg and retrieving credential properties from the command
-     * line arguments (or environment, or profile). Failing that, we
-     * interactively prompt the user for user name and password.
-     * The possible credential properties are:
+     * line arguments (or environment, or profile). Upon finding no credentials,
+     * we interactively prompt the user for user name and password.
+     * Any prompt will timeout after 30 seconds so that this function can
+     * be run from an automated script, and will not indefinitely hang that
+     * script.
+     *
+     * The following are possible credential-related session properties that
+     * can be added to the session configuration:
+     *
      *      user
      *      password
      *      type
@@ -37,7 +43,7 @@ export class CredsForSessCfg {
      *
      * @param initialSessCfg
      *        An initial session configuration (like ISession, or other
-     *        specially defined configuration) that contains the appropriate
+     *        specially defined configuration) that contains your desired
      *        session configuration properties.
      *
      * @param cmdArgs
@@ -46,10 +52,25 @@ export class CredsForSessCfg {
      *
      * @param options
      *        Options that alter our actions. See IOptionsForAddCreds.
+     *        The options parameter need not be supplied.
+     *
+     * @example
+     *      // Within the process() function of a command handler,
+     *      // do steps similar to the following:
+     *      const sessCfg: ISession =  {
+     *          hostname: commandParameters.arguments.host,
+     *          port: commandParameters.arguments.port,
+     *          rejectUnauthorized: commandParameters.arguments.rejectUnauthorized,
+     *          basePath: commandParameters.arguments.basePath
+     *      };
+     *      const sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
+     *           sessCfg, commandParameters.arguments
+     *      );
+     *      mySession = new Session(sessCfgWithCreds);
      *
      * @returns A session configuration object with credentials added
      *          to the initialSessCfg. Its intended use is for our
-     *          caller to create a session for a REST Client
+     *          caller to create a session for a REST Client.
      */
     public static async addCredsOrPrompt<T>(
         initialSessCfg: T,
