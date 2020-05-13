@@ -121,8 +121,7 @@ export class CommandProfileLoader {
         }
 
         // add meta
-        const cmdProfiles = new CommandProfiles(profileMap);
-        cmdProfiles.addMeta(profileMetaMap);
+        const cmdProfiles = new CommandProfiles(profileMap, profileMetaMap);
 
         // Return the command profiles object for the handler
         return cmdProfiles;

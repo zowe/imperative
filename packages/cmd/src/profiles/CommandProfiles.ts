@@ -44,7 +44,7 @@ export class CommandProfiles {
      * @param {Map<string, IProfile[]>} map - The map of profiles
      * @memberof CommandProfiles
      */
-    constructor(map: Map<string, IProfile[]>) {
+    constructor(map: Map<string, IProfile[]>, metaMap?: Map<string, IProfileLoaded[]>) {
         // Simple validation of input parameters
         const err: string = "Command Profiles Internal Error:";
         ImperativeExpect.toNotBeNullOrUndefined(map, `${err} No map was supplied.`);
@@ -56,26 +56,10 @@ export class CommandProfiles {
             ImperativeExpect.toBeEqual((value.length > 0), true, `${err} No profiles supplied for type "${key}".`);
         });
         this.mMap = map;
-    }
 
-
-    /**
-     * Add to an instance of CommandProfiles
-     * @param {Map<string, IProfileLoaded[]>} map - The map of profiles with meta information
-     * @memberof CommandProfiles
-     */
-    public addMeta(map: Map<string, IProfileLoaded[]>) {
-        // Simple validation of input parameters
-        const err: string = "Command Profiles Internal Error:";
-        ImperativeExpect.toNotBeNullOrUndefined(map, `${err} No map was supplied.`);
-        ImperativeExpect.toBeEqual(map instanceof Map, true, `${err} The "map" supplied is not an instance of a map.`);
-
-        // Ensure the correctness of each map entry
-        map.forEach((value, key) => {
-            ImperativeExpect.toBeAnArray(value, `${err} The "profiles" supplied for type "${key}" is NOT an array.`);
-            ImperativeExpect.toBeEqual((value.length > 0), true, `${err} No profiles supplied for type "${key}".`);
-        });
-        this.mMetaMap = map;
+        if (metaMap) {
+            this.addMeta(metaMap);
+        }
     }
 
     /**
@@ -163,6 +147,26 @@ export class CommandProfiles {
             this.fail(type);
         }
         return profiles;
+    }
+
+    /**
+     * Add to an instance of CommandProfiles
+     * @private
+     * @param {Map<string, IProfileLoaded[]>} map - The map of profiles with meta information
+     * @memberof CommandProfiles
+     */
+    private addMeta(map: Map<string, IProfileLoaded[]>) {
+        // Simple validation of input parameters
+        const err: string = "Command Profiles Internal Error:";
+        ImperativeExpect.toNotBeNullOrUndefined(map, `${err} No map was supplied.`);
+        ImperativeExpect.toBeEqual(map instanceof Map, true, `${err} The "map" supplied is not an instance of a map.`);
+
+        // Ensure the correctness of each map entry
+        map.forEach((value, key) => {
+            ImperativeExpect.toBeAnArray(value, `${err} The "profiles" supplied for type "${key}" is NOT an array.`);
+            ImperativeExpect.toBeEqual((value.length > 0), true, `${err} No profiles supplied for type "${key}".`);
+        });
+        this.mMetaMap = map;
     }
 
     /**
