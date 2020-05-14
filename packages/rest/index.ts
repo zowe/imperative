@@ -19,9 +19,13 @@ export * from "./src/client/RestConstants";
 export * from "./src/client/RestStandAloneUtils";
 export * from "./src/client/RestClientError";
 
+/* The following line is valid, but tslint barfs on it.
+ * So, we exclude this file in imperative/tslint-packages.json.
+ */
+export * as SessConstants from "./src/session/SessConstants";
+
 export * from "./src/session/doc/ISession";
 export * from "./src/session/doc/IOptionsForAddCreds";
 export * from "./src/session/AbstractSession";
 export * from "./src/session/Session";
-export * from "./src/session/SessConstants";
 export * from "./src/session/CredsForSessCfg";
