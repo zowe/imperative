@@ -44,7 +44,7 @@ import {
     YargsConfigurer,
     YargsDefiner
 } from "../../cmd";
-import { ProfileUtils } from "../../profiles";
+import { ProfileUtils, IProfileTypeConfiguration } from "../../profiles";
 import { CompleteProfilesGroupBuilder } from "./profiles/builders/CompleteProfilesGroupBuilder";
 import { ImperativeHelpGeneratorFactory } from "./help/ImperativeHelpGeneratorFactory";
 import { OverridesLoader } from "./OverridesLoader";
@@ -645,7 +645,7 @@ export class Imperative {
             config.productDisplayName,
             dirname(ImperativeConfig.instance.callerLocation),
             this.log,
-            config.definitions, config.commandModuleGlobs
+            config.definitions, config.commandModuleGlobs, config.baseProfile != null
         );
     }
 
@@ -671,7 +671,12 @@ export class Imperative {
         if ((loadedConfig.autoGenerateProfileCommands == null || loadedConfig.autoGenerateProfileCommands) &&
             loadedConfig.profiles != null &&
             loadedConfig.profiles.length > 0) {
-            rootCommand.children.push(CompleteProfilesGroupBuilder.getProfileGroup(loadedConfig.profiles, this.log));
+            // Add base profile to list of profile types if it is defined
+            const allProfiles: IProfileTypeConfiguration[] = loadedConfig.profiles;
+            if (loadedConfig.baseProfile != null) {
+                allProfiles.push(loadedConfig.baseProfile);
+            }
+            rootCommand.children.push(CompleteProfilesGroupBuilder.getProfileGroup(allProfiles, this.log));
         }
         return rootCommand;
     }
