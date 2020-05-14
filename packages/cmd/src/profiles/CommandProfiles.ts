@@ -81,7 +81,6 @@ export class CommandProfiles {
             if (name != null && name.trim().length > 0) {
                 for (const prof of this.metaMap.get(type)) {
 
-                    // TODO(Kelosky): is this in error if the name is not contained in IProfile?
                     if (prof.name === name) {
                         profile = prof;
                         break;
@@ -116,7 +115,6 @@ export class CommandProfiles {
             if (name != null && name.trim().length > 0) {
                 for (const prof of this.map.get(type)) {
 
-                    // TODO(Kelosky): is this in error if the name is not contained in IProfile?
                     if (prof.name === name) {
                         profile = prof;
                         break;
