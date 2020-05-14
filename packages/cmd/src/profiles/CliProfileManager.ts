@@ -638,7 +638,8 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                 return tempProperties;
             }
 
-            return null;
+            // Don't define any value here if the profile field cannot be set by a CLI option
+            return undefined;
         };
 
         for (const propertyName of Object.keys(this.profileTypeConfiguration.schema.properties)) {
