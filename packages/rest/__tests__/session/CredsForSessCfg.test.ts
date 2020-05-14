@@ -10,10 +10,9 @@
 */
 
 import { CredsForSessCfg } from "../../src/session/CredsForSessCfg";
+import { CliUtils } from "../../../utilities/src/CliUtils";
 import { ImperativeError } from "../../../error";
 import * as SessConstants from "../../src/session/SessConstants";
-
-const waitForPrompt = 40000; // 40 sec is more than our prompting timeout of 30 sec
 
 describe("CredsForSessCfg tests", () => {
 
@@ -164,6 +163,8 @@ describe("CredsForSessCfg tests", () => {
          */
         let sessCfgWithCreds: ISession;
         let caughtError;
+        const sleepReal = CliUtils.sleep;
+        CliUtils.sleep = jest.fn();
         try {
             sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
                 intialSessCfg, args
@@ -171,9 +172,10 @@ describe("CredsForSessCfg tests", () => {
         } catch (thrownError) {
             caughtError = thrownError;
         }
+        CliUtils.sleep = sleepReal;
         expect(caughtError instanceof ImperativeError).toBe(true);
         expect(caughtError.message).toBe("We timed-out waiting for user name.");
-    }, waitForPrompt);
+    });
 
     it("timeout waiting for password", async() => {
         const intialSessCfg = {
@@ -198,6 +200,8 @@ describe("CredsForSessCfg tests", () => {
          */
         let sessCfgWithCreds: ISession;
         let caughtError;
+        const sleepReal = CliUtils.sleep;
+        CliUtils.sleep = jest.fn();
         try {
             sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
                 intialSessCfg, args
@@ -205,7 +209,8 @@ describe("CredsForSessCfg tests", () => {
         } catch (thrownError) {
             caughtError = thrownError;
         }
+        CliUtils.sleep = sleepReal;
         expect(caughtError instanceof ImperativeError).toBe(true);
         expect(caughtError.message).toBe("We timed-out waiting for password.");
-    }, waitForPrompt);
+    });
 });
