@@ -290,7 +290,7 @@ export abstract class AbstractSession {
             } else {
                 throw new ImperativeError({
                     msg: "Must have user & password OR base64 encoded credentials",
-                    additionalDetails: "For CLI usage, see 'zowe zosmf login --help'"
+                    additionalDetails: "For CLI usage, see '<your-cli> auth login <service> --help'"
                 });
             }
             ImperativeExpect.keysToBeUndefined(populatedSession, ["tokenType", "tokenValue"]);
@@ -315,7 +315,7 @@ export abstract class AbstractSession {
                 } else {
                     throw new ImperativeError({
                         msg: "Must have user & password OR tokenType & tokenValue.",
-                        additionalDetails: "For CLI usage, see 'zowe zosmf login --help'"
+                        additionalDetails: "For CLI usage, see '<your-cli> auth login <service> --help'"
                     });
                 }
             }
