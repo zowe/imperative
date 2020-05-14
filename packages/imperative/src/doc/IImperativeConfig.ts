@@ -159,6 +159,14 @@ export interface IImperativeConfig {
     profiles?: ICommandProfileTypeConfiguration[];
 
     /**
+     * Use this property to configure a base profile for your CLI. A base profile can store shared values for fields
+     * used by other profile types.
+     * @type {ICommandProfileTypeConfiguration}
+     * @memberof IImperativeConfig
+     */
+    baseProfile?: ICommandProfileTypeConfiguration;
+
+    /**
      * If you specify a list of profile configurations, you can set this to true to
      * automatically add a set of commands to your CLI to create, update, delete, and otherwise
      * manage user profiles.
