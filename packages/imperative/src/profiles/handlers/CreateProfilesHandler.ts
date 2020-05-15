@@ -41,6 +41,7 @@ export default class CreateProfilesHandler implements ICommandHandler {
             type: profileType,
             args: commandParameters.arguments,
             overwrite: commandParameters.arguments.overwrite,
+            disableDefaults: commandParameters.arguments.disableDefaults,
             profile: {}
         };
         /**

@@ -126,6 +126,10 @@ export const createProfileOptionOverwriteDesc: IMessageDefinition = {
     message: `Overwrite the {{type}} profile when a profile of the same name exists.`
 };
 
+export const createProfileDisableDefaultsDesc: IMessageDefinition = {
+    message: `Disable populating profile values of undefined properties with default values.`
+};
+
 export const deleteProfilesCommandSummary: IMessageDefinition = {
     message: `Delete existing profiles`
 };
