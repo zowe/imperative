@@ -14,7 +14,7 @@ then
 fi
 
 # Next create a kiwi profile
-cmd-cli profiles create kiwi-profile "test_kiwi" --amount $kiwiAmount
+cmd-cli profiles create kiwi-profile "test_kiwi" --amount $kiwiAmount --dd
 CMDRC=$?
 if [ $CMDRC -gt 0 ]
 then
