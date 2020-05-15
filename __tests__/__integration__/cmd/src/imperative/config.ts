@@ -21,6 +21,34 @@ export const config: IImperativeConfig = {
     name: "cmd-cli",
     allowConfigGroup: false,
     allowPlugins: false,
+    baseProfile: {
+        type: "base",
+        schema: {
+            type: "object",
+            title: "Fruit Profile",
+            description: "Fruit Profile",
+            properties: {
+                amount: {
+                    type: "number",
+                    optionDefinition: {
+                        name: "amount",
+                        aliases: ["a"],
+                        description: "The amount of fruits.",
+                        type: "number",
+                    },
+                },
+                price: {
+                    type: "number",
+                    optionDefinition: {
+                        name: "price",
+                        aliases: ["p"],
+                        description: "The price of one fruit.",
+                        type: "number",
+                    },
+                },
+            },
+        }
+    },
     profiles: [
         {
             type: "banana",
@@ -83,6 +111,39 @@ export const config: IImperativeConfig = {
                     },
                 },
                 required: ["amount"],
+            }
+        },
+        {
+            type: "kiwi",
+            schema: {
+                type: "object",
+                title: "Kiwi Profile",
+                description: "Kiwi Profile",
+                properties: {
+                    amount: {
+                        type: "number",
+                        optionDefinition: {
+                            name: "amount",
+                            aliases: ["a"],
+                            description: "The amount of kiwis.",
+                            type: "number",
+                        },
+                    },
+                    price: {
+                        type: "number",
+                        optionDefinition: {
+                            name: "price",
+                            aliases: ["p"],
+                            description: "The price of one kiwi.",
+                            type: "number",
+                            // TODO Add default value here after merging no-defaults branch
+                            // defaultValue: 1
+                        },
+                    },
+                    kiwiSecret: {
+                        type: "string"
+                    },
+                },
             }
         },
         {
