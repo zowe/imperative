@@ -747,7 +747,7 @@ export class CommandProcessor {
         // Set the default value for all options if defaultValue was specified on the command
         // definition and the option was not specified
         for (const option of allOpts) {
-            if (option.defaultValue != null && args[option.name] == null) {
+            if (option.defaultValue != null && args[option.name] == null && !args[Constants.DISABLE_DEFAULTS_OPTION] ) {
                 const defaultedArgs = CliUtils.setOptionValue(option.name,
                     ("aliases" in option) ? option.aliases : [],
                     option.defaultValue
