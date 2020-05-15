@@ -436,15 +436,6 @@ export class CommandPreparer {
             type: "boolean"
         });
 
-        // all commands have --disable-defaults
-        definition.options.push({
-            name: Constants.DISABLE_DEFAULTS_OPTION,
-            aliases: [Constants.DISABLE_DEFAULTS_OPTION_ALIAS],
-            group: Constants.GLOBAL_GROUP,
-            description: "Disable command defaults",
-            type: "boolean"
-        });
-
         /**
          * Append any profile related options
          */
