@@ -262,6 +262,10 @@ cmd-cli profile mapping
 
 	Tests Imperative's profile to CLI mapping capabilities.
 
+cmd-cli profile mapping-base
+
+	Tests handling of options across base and service profiles.
+
 cmd-cli profile mapping-name-type
 
 	Tests that --type and --name are not filled in from profiles.
@@ -274,9 +278,17 @@ cmd-cli profiles create banana-profile
 
 	Banana Profile
 
+cmd-cli profiles create base-profile
+
+	Fruit Profile
+
 cmd-cli profiles create insecure-profile
 
 	Test Secured Fields
+
+cmd-cli profiles create kiwi-profile
+
+	Kiwi Profile
 
 cmd-cli profiles create strawberry-profile
 
@@ -288,11 +300,23 @@ cmd-cli profiles delete banana-profile
 	a list of available profiles for deletion, issue the profiles list command. By
 	default, you will be prompted to confirm the profile removal.
 
+cmd-cli profiles delete base-profile
+
+	Delete a base profile. You must specify a profile name to be deleted. To find a
+	list of available profiles for deletion, issue the profiles list command. By
+	default, you will be prompted to confirm the profile removal.
+
 cmd-cli profiles delete insecure-profile
 
 	Delete a insecure profile. You must specify a profile name to be deleted. To
 	find a list of available profiles for deletion, issue the profiles list command.
 	By default, you will be prompted to confirm the profile removal.
+
+cmd-cli profiles delete kiwi-profile
+
+	Delete a kiwi profile. You must specify a profile name to be deleted. To find a
+	list of available profiles for deletion, issue the profiles list command. By
+	default, you will be prompted to confirm the profile removal.
 
 cmd-cli profiles delete strawberry-profile
 
@@ -304,9 +328,17 @@ cmd-cli profiles list banana-profiles
 
 	Banana Profile
 
+cmd-cli profiles list base-profiles
+
+	Fruit Profile
+
 cmd-cli profiles list insecure-profiles
 
 	Test Secured Fields
+
+cmd-cli profiles list kiwi-profiles
+
+	Kiwi Profile
 
 cmd-cli profiles list strawberry-profiles
 
@@ -319,11 +351,25 @@ cmd-cli profiles set-default banana-profile
 	options are specified, the default profiles for the command group are
 	automatically loaded for the command based on the commands profile requirements.
 
+cmd-cli profiles set-default base-profile
+
+	The base set default-profiles command allows you to set the default profiles for
+	this command group. When a base command is issued and no profile override
+	options are specified, the default profiles for the command group are
+	automatically loaded for the command based on the commands profile requirements.
+
 cmd-cli profiles set-default insecure-profile
 
 	The insecure set default-profiles command allows you to set the default profiles
 	for this command group. When a insecure command is issued and no profile
 	override options are specified, the default profiles for the command group are
+	automatically loaded for the command based on the commands profile requirements.
+
+cmd-cli profiles set-default kiwi-profile
+
+	The kiwi set default-profiles command allows you to set the default profiles for
+	this command group. When a kiwi command is issued and no profile override
+	options are specified, the default profiles for the command group are
 	automatically loaded for the command based on the commands profile requirements.
 
 cmd-cli profiles set-default strawberry-profile
@@ -338,9 +384,17 @@ cmd-cli profiles update banana-profile
 
 	Banana Profile
 
+cmd-cli profiles update base-profile
+
+	Fruit Profile
+
 cmd-cli profiles update insecure-profile
 
 	Test Secured Fields
+
+cmd-cli profiles update kiwi-profile
+
+	Kiwi Profile
 
 cmd-cli profiles update strawberry-profile
 
