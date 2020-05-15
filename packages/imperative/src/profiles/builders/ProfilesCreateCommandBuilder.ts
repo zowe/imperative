@@ -11,7 +11,7 @@
 
 import { ProfilesCommandBuilder } from "./ProfilesCommandBuilder";
 import { ICommandDefinition, ICommandProfileTypeConfiguration } from "../../../../cmd";
-import { createProfileCommandDesc, createProfileOptionDesc, createProfileOptionOverwriteDesc } from "../../../../messages";
+import { createProfileCommandDesc, createProfileOptionDesc, createProfileOptionOverwriteDesc, createProfileDisableDefaultsDesc } from "../../../../messages";
 import { Constants } from "../../../../constants";
 import { TextUtils } from "../../../../utilities";
 import { Logger } from "../../../../logger/index";
@@ -79,6 +79,12 @@ export class ProfilesCreateCommandBuilder extends ProfilesCommandBuilder {
         profileCommand.options.push({
             name: Constants.OVERWRITE_OPTION, aliases: ["ow"],
             description: TextUtils.formatMessage(createProfileOptionOverwriteDesc.message,
+                {type: this.mProfileType}),
+            type: "boolean"
+        });
+        profileCommand.options.push({
+            name: Constants.DISABLE_DEFAULTS_OPTION, aliases: ["dd"],
+            description: TextUtils.formatMessage(createProfileDisableDefaultsDesc.message,
                 {type: this.mProfileType}),
             type: "boolean"
         });
