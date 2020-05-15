@@ -120,64 +120,14 @@ export class CredsForSessCfg {
             passExists = true;
         }
 
-        // set credential values from cmdLine (or environment, or profile)
         if (optsToUse.requestToken) {
-            // ignoring tokenValue, will ensure that user & password are used for authentication
+            // ignoring tokenValue, will ensure that basic creds are used to authenticate and get token
             tokenValExists = false;
         }
 
-        if (userExists || tokenValExists === false) {
-            /* When a user name is supplied, that is what we use.
-             * If neither user name or token is supplied,
-             * we prompt for username and password, as needed.
-             */
-            if (optsToUse.requestToken) {
-                // Set our type to token to get a token from user and pass
-                impLogger.debug("Using basic authentication to get token");
-                finalSessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
-                if (tokenTypeExists) {
-                    finalSessCfg.tokenType = cmdArgs.tokenType;
-                } else {
-                    // When no tokenType supplied, user wants bearer
-                    finalSessCfg.tokenType = SessConstants.TOKEN_TYPE_LTPA;  // TODO:Gene: change to TOKEN_TYPE_APIML
-                }
-            } else {
-                impLogger.debug("Using basic authentication with no request for token");
-                finalSessCfg.type = SessConstants.AUTH_TYPE_BASIC;
-            }
-
-            if (userExists) {
-                finalSessCfg.user = cmdArgs.user;
-            } else if (optsToUse.doPrompting) {
-                let answer = "";
-                while (answer === "") {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Authentication required. Enter user name: "
-                    );
-                    if (answer === null) {
-                        throw new ImperativeError({msg: "We timed-out waiting for user name."});
-                    }
-                }
-                finalSessCfg.user = answer;
-            }
-
-            if (passExists) {
-                finalSessCfg.password = cmdArgs.password;
-            } else if (optsToUse.doPrompting) {
-                let answer = "";
-                while (answer === "") {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Authentication required. Enter password : ",
-                        true
-                    );
-                    if (answer === null) {
-                        throw new ImperativeError({msg: "We timed-out waiting for password."});
-                    }
-                }
-                finalSessCfg.password = answer;
-            }
-        } else {
-            // we have no user name, but we have a token. Use the token.
+        // our first choice is user name. But, what if we do not have one?
+        if (userExists === false && tokenValExists) {
+            // when no user name is supplied, we try to use a token
             impLogger.debug("Using token authentication");
             finalSessCfg.tokenValue = cmdArgs.tokenValue;
             if (tokenTypeExists) {
@@ -187,21 +137,108 @@ export class CredsForSessCfg {
                 // When no tokenType supplied, user wants bearer
                 finalSessCfg.type = SessConstants.AUTH_TYPE_BEARER;
             }
+            CredsForSessCfg.logSessCfg(finalSessCfg);
+            return finalSessCfg;
         }
 
-        // obscure the password for displaying in the log, then restore it before creating session
+        // At this point we ruled out token. So use user and password.
+        if (userExists) {
+            finalSessCfg.user = cmdArgs.user;
+        } else if (optsToUse.doPrompting) {
+            let answer = "";
+            while (answer === "") {
+                answer = await CliUtils.promptWithTimeout(
+                    "Authentication required. Enter user name: "
+                );
+                if (answer === null) {
+                    throw new ImperativeError({msg: "We timed-out waiting for user name."});
+                }
+            }
+            finalSessCfg.user = answer;
+        }
+
+        if (passExists) {
+            finalSessCfg.password = cmdArgs.password;
+        } else if (optsToUse.doPrompting) {
+            let answer = "";
+            while (answer === "") {
+                answer = await CliUtils.promptWithTimeout(
+                    "Authentication required. Enter password : ",
+                    true
+                );
+                if (answer === null) {
+                    throw new ImperativeError({msg: "We timed-out waiting for password."});
+                }
+            }
+            finalSessCfg.password = answer;
+        }
+
+        CredsForSessCfg.setTypeForBasicCreds(finalSessCfg, optsToUse.requestToken, cmdArgs.tokenType);
+        CredsForSessCfg.logSessCfg(finalSessCfg);
+        return finalSessCfg;
+    }
+
+    // ***********************************************************************
+    /**
+     * Determine if we want to use a basic authentication to acquire a token.
+     * Set the session configuration accordingly.
+     *
+     * @param sessCfg
+     *       The session configuration to be updated.
+     *
+     * @param weWantToken
+     *       If true, we want to request a token.
+     *
+     * @param tokenType
+     *       The type of token that we expect to receive.
+     */
+    private static setTypeForBasicCreds(
+        sessCfg: any,
+        weWantToken: boolean,
+        tokenType: SessConstants.TOKEN_TYPE_CHOICES
+    ) {
+        const impLogger = Logger.getImperativeLogger();
+        let logMsgtext = "Using basic authentication ";
+
+        if (weWantToken) {
+            // Set our type to token to get a token from user and pass
+            logMsgtext += "to get token";
+            sessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
+            if (tokenType) {
+                sessCfg.tokenType = tokenType;
+            } else {
+                // TODO:Gene: Code in imperative should be generic & CLI should default to TOKEN_TYPE_APIML
+                sessCfg.tokenType = SessConstants.TOKEN_TYPE_LTPA;
+            }
+        } else {
+            logMsgtext += "with no request for token";
+            sessCfg.type = SessConstants.AUTH_TYPE_BASIC;
+        }
+        impLogger.debug(logMsgtext);
+    }
+
+    // ***********************************************************************
+    /**
+     * Log the session configuration that resulted from the addition of
+     * credentials. Hide the password.
+     *
+     * @param sessCfg
+     *       The session configuration to be logged.
+     */
+    private static logSessCfg(sessCfg: any) {
+        const impLogger = Logger.getImperativeLogger();
+
+        // obscure the password for displaying in the log, then restore it.
         let realPass: string;
-        if (finalSessCfg.password) {
-            realPass = finalSessCfg.password;
-            finalSessCfg.password = "Password_is_hidden";
+        if (sessCfg.password) {
+            realPass = sessCfg.password;
+            sessCfg.password = "Password_is_hidden";
         }
         impLogger.debug("Creating a session config with these properties:\n" +
-            JSON.stringify(finalSessCfg, null, 2)
+            JSON.stringify(sessCfg, null, 2)
         );
-        if (finalSessCfg.password) {
-            finalSessCfg.password = realPass;
+        if (sessCfg.password) {
+            sessCfg.password = realPass;
         }
-
-        return finalSessCfg;
     }
 }
