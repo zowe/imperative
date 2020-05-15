@@ -136,8 +136,7 @@ export const config: IImperativeConfig = {
                             aliases: ["p"],
                             description: "The price of one kiwi.",
                             type: "number",
-                            // TODO Add default value here after merging no-defaults branch
-                            // defaultValue: 1
+                            defaultValue: 1
                         },
                     },
                     kiwiSecret: {
