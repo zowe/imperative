@@ -52,7 +52,7 @@ describe("cmd-cli", () => {
     it("should flag an invalid command and list valid commands", async () => {
         const response = runCliScript(__dirname + "/__scripts__/invalid_command2.sh", TEST_ENVIRONMENT.workingDir);
         expect(response.status).toBe(1);
-        expect(response.stderr.toString()).toContain("Available commands are \"banana-profile, strawberry-profile, insecure-profile\"");
+        expect(response.stderr.toString()).toContain("Available commands are \"banana-profile, strawberry-profile, kiwi-profile, insecure-profile, base-profile\"");
     });
 
     it("should display the version", async () => {
