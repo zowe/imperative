@@ -13,13 +13,14 @@ import { ICommandDefinition } from "../../../../../../packages/index";
 import { profileMappingCommand } from "./mapping/ProfileMapping.definition";
 import { profileMappingPositionalCommand } from "./mapping-positional/ProfileMapping.definition";
 import { profileMappingCommandNameType } from "./mapping-name-type/ProfileMappingNameType.definition";
+import { profileMappingBaseCommand } from "./mapping-base/ProfileMappingBase.definition";
 
 export const definition: ICommandDefinition = {
     name: "profile",
     description: "Invoke commands to validate that mapping profile fields to options is working correctly",
     summary: "Validate profile mapping",
     type: "group",
-    children: [profileMappingCommand, profileMappingPositionalCommand, profileMappingCommandNameType],
+    children: [profileMappingCommand, profileMappingPositionalCommand, profileMappingCommandNameType, profileMappingBaseCommand],
 };
 
 module.exports = definition;
