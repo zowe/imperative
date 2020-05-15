@@ -136,7 +136,7 @@ export class DefinitionTreeResolver {
         for (const child of cmdDefs) {
             allCmdDefs.push(child);
         }
-        return this.addBaseProfile(allCmdDefs);
+        return addBaseProfile ? this.addBaseProfile(allCmdDefs) : allCmdDefs;
     }
 
     /**
