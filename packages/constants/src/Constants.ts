@@ -62,8 +62,6 @@ export class Constants {
     public static readonly HELP_EXAMPLES = "help-examples";
     public static readonly HELP_WEB_OPTION = "help-web";
     public static readonly HELP_WEB_OPTION_ALIAS = "hw";
-    public static readonly DISABLE_DEFAULTS_OPTION = "disable-defaults";
-    public static readonly DISABLE_DEFAULTS_OPTION_ALIAS = "dd";
 
     public static readonly STDIN_OPTION = "stdin";
     public static readonly STDIN_OPTION_ALIAS = "pipe";
@@ -89,6 +87,7 @@ export class Constants {
     public static readonly PROFILE_NAME_OPTION = "profileName";
     public static readonly PROFILE_NAME_OPTION_ALIAS = "pn";
     public static readonly OVERWRITE_OPTION = "overwrite";
+    public static readonly DISABLE_DEFAULTS_OPTION = "disable-defaults";
     public static readonly DELETE_ACTION = "delete";
     public static readonly DETAILS_ACTION = "detail";
     public static readonly SHOW_DEPS_ACTION = "show-dependencies";
