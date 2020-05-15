@@ -470,7 +470,11 @@ export class CliUtils {
         // when asked to hide text, override output to only display stars
         const writeToOutputOrig = ttyIo._writeToOutput;
         if (hideText) {
+            const os = require("os");
             ttyIo._writeToOutput = function _writeToOutput(stringToWrite: string) {
+                if (stringToWrite === os.EOL) {
+                    return;
+                }
                 if (stringToWrite.length === 1) {
                     // display a star for each one character of the hidden response
                     ttyIo.output.write("*");
