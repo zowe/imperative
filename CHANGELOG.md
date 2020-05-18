@@ -9,6 +9,9 @@ All notable changes to the Imperative package will be documented in this file.
     - Credentials are obtained from the command line, environment variables, or a profile.
     - If no credentials are available, it will prompt for a user name and password.
     - Any prompt will timeout after 30 seconds so that it will not hang an automated script.
+- Add base profiles, a new type of profile which can store values shared between profiles of other types.
+    - To use base profiles in an Imperative-based CLI, define a `baseProfile` schema on your Imperative configuration object.
+    - If the `baseProfile` schema is defined, base profile support will be added to any command that uses profiles.
 
 ## `4.6.2`
 
