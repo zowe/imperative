@@ -1,6 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Command Profiles should accept a profile map and allow us to retreive by name 1`] = `
+exports[`Command Profiles should accept a loaded profile map and allow us to retrieve by name 1`] = `
+Object {
+  "failNotFound": false,
+  "message": "just right",
+  "name": "great",
+  "profile": Object {
+    "age": 1,
+  },
+  "type": "strawberry",
+}
+`;
+
+exports[`Command Profiles should accept a profile map and allow us to retrieve by name 1`] = `
 Object {
   "age": 2,
   "name": "awesome",

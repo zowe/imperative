@@ -9,7 +9,7 @@
 *
 */
 
-import { IProfile } from "../../../profiles";
+import { IProfile, IProfileLoaded } from "../../../profiles";
 import { CommandProfiles } from "../../src/profiles/CommandProfiles";
 import { ImperativeError } from "../../../error";
 
@@ -37,7 +37,7 @@ describe("Command Profiles", () => {
     let error;
     try {
       let map: any;
-      map = {not: "a-map"};
+      map = { not: "a-map" };
       const profs = new CommandProfiles(map);
     } catch (e) {
       error = e;
@@ -109,7 +109,7 @@ describe("Command Profiles", () => {
     expect(response).toBeUndefined();
   });
 
-  it("should accept a profile map and allow us to retreive by name", () => {
+  it("should accept a profile map and allow us to retrieve by name", () => {
     const map = new Map<string, IProfile[]>();
     map.set(STRAWBERRY_PROFILE_TYPE, [{
       name: "great",
@@ -122,6 +122,42 @@ describe("Command Profiles", () => {
     }]);
     const profiles = new CommandProfiles(map);
     const awesome = profiles.get(STRAWBERRY_PROFILE_TYPE, true, "awesome");
+    expect(awesome).toMatchSnapshot();
+  });
+
+  it("should accept a loaded profile map and allow us to retrieve by name", () => {
+    const map = new Map<string, IProfile[]>();
+    map.set(STRAWBERRY_PROFILE_TYPE, [{
+      name: "great",
+      type: STRAWBERRY_PROFILE_TYPE,
+      age: 1
+    }, {
+      name: "awesome",
+      type: STRAWBERRY_PROFILE_TYPE,
+      age: 2
+    }]);
+    const metaMap = new Map<string, IProfileLoaded[]>();
+    metaMap.set(STRAWBERRY_PROFILE_TYPE, [{
+      name: "great",
+      type: STRAWBERRY_PROFILE_TYPE,
+      profile: {
+        age: 1
+      },
+      message: "just right",
+      failNotFound: false
+    },
+    {
+      name: "gross",
+      type: STRAWBERRY_PROFILE_TYPE,
+      profile: {
+        age: 3
+      },
+      message: "too old",
+      failNotFound: false
+    }]);
+    const profiles = new CommandProfiles(map, metaMap);
+    const awesome = profiles.getMeta(STRAWBERRY_PROFILE_TYPE, false, "great");
+    console.log(JSON.stringify(awesome, null, 2))
     expect(awesome).toMatchSnapshot();
   });
 });
