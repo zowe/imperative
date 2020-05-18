@@ -12,6 +12,20 @@ Object {
 }
 `;
 
+exports[`Command Profiles should accept a loaded profile map and allow us to retrieve without a name 1`] = `
+Object {
+  "failNotFound": false,
+  "message": "just right",
+  "name": "great",
+  "profile": Object {
+    "age": 1,
+  },
+  "type": "strawberry",
+}
+`;
+
+exports[`Command Profiles should accept a loaded profile map and allow us to retrieve without a name 2`] = `undefined`;
+
 exports[`Command Profiles should accept a profile map and allow us to retrieve by name 1`] = `
 Object {
   "age": 2,
