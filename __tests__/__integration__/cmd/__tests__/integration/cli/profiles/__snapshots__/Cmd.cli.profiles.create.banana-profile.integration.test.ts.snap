@@ -25,5 +25,6 @@ exports[`cmd-cli profiles create banana should create profiles and only list the
   name:     test_kiwi (default) 
   contents: 
     amount: 1000
+    price:  1
 "
 `;
