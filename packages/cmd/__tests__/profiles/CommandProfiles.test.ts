@@ -194,5 +194,45 @@ describe("Command Profiles", () => {
     const awesome = profiles.getMeta(STRAWBERRY_PROFILE_TYPE, false, null);
     expect(awesome).toMatchSnapshot();
   });
-  
+
+  it("should accept a loaded profile map and allow us to retrieve with a name and fail", () => {
+    const map = new Map<string, IProfile[]>();
+    map.set(STRAWBERRY_PROFILE_TYPE, [{
+      name: "great",
+      type: STRAWBERRY_PROFILE_TYPE,
+      age: 1
+    }, {
+      name: "awesome",
+      type: STRAWBERRY_PROFILE_TYPE,
+      age: 2
+    }]);
+    const metaMap = new Map<string, IProfileLoaded[]>();
+    metaMap.set(STRAWBERRY_PROFILE_TYPE, [{
+      name: "great",
+      type: STRAWBERRY_PROFILE_TYPE,
+      profile: {
+        age: 1
+      },
+      message: "just right",
+      failNotFound: true
+    },
+    {
+      name: "gross",
+      type: STRAWBERRY_PROFILE_TYPE,
+      profile: {
+        age: 3
+      },
+      message: "too old",
+      failNotFound: true
+    }]);
+    const profiles = new CommandProfiles(map, metaMap);
+
+    let err;
+    try {
+      const awesome = profiles.getMeta("unknown", true, "tasty");
+    } catch (thrownError) {
+      err = thrownError;
+    }
+    expect(err.message).toMatchSnapshot();
+  });
 });
