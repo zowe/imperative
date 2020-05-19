@@ -83,7 +83,7 @@ export interface ICommandProfileTypeConfiguration extends IProfileTypeConfigurat
     schema: ICommandProfileSchema;
 
     /**
-     * Configuration for an authentication service to associate with this profile type.
+     * Configuration for authentication services to associate with this profile type.
      */
-    authConfig?: ICommandProfileAuthConfig;
+    authConfig?: ICommandProfileAuthConfig[];
 }

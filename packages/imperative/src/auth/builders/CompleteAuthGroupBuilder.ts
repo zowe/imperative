@@ -32,10 +32,10 @@ export class CompleteAuthGroupBuilder {
      * @param {Logger} logger - logger to use in the builder classes
      * @returns {ICommandDefinition} - the complete profile group of commands
      */
-    public static getAuthGroup(authConfigs: {[key: string]: ICommandProfileAuthConfig}, logger: Logger): ICommandDefinition {
+    public static getAuthGroup(authConfigs: {[key: string]: ICommandProfileAuthConfig[]}, logger: Logger): ICommandDefinition {
         const authGroup: ICommandDefinition = {
             name: Constants.AUTH_GROUP,
-            description: "Provides single sign-on (SSO) authentication and token management",
+            description: "Manage tokens for authentication services",
             type: "group",
             children: []
         };
@@ -60,10 +60,12 @@ export class CompleteAuthGroupBuilder {
 
         const cmdGroups: ICommandDefinition[] = [];
         for (const profileType of Object.keys(authConfigs)) {
-            const loginCommandAction = new AuthLoginCommandBuilder(profileType, logger, authConfigs[profileType]);
-            const logoutCommandAction = new AuthLogoutCommandBuilder(profileType, logger, authConfigs[profileType]);
-            loginGroup.children.push(loginCommandAction.build());
-            logoutGroup.children.push(logoutCommandAction.build());
+            for (const authConfig of authConfigs[profileType]) {
+                const loginCommandAction = new AuthLoginCommandBuilder(profileType, logger, authConfig);
+                const logoutCommandAction = new AuthLogoutCommandBuilder(profileType, logger, authConfig);
+                loginGroup.children.push(loginCommandAction.build());
+                logoutGroup.children.push(logoutCommandAction.build());
+            }
         }
         authGroup.children.push(loginGroup, logoutGroup);
         return authGroup;

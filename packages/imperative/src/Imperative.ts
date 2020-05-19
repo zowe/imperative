@@ -680,7 +680,7 @@ export class Imperative {
             }
             rootCommand.children.push(CompleteProfilesGroupBuilder.getProfileGroup(allProfiles, this.log));
         }
-        const authConfigs: {[key: string]: ICommandProfileAuthConfig} = {};
+        const authConfigs: {[key: string]: ICommandProfileAuthConfig[]} = {};
         if (loadedConfig.profiles != null) {
             loadedConfig.profiles.forEach((profile) => {
                 if (profile.authConfig != null) {
