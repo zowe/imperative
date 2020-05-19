@@ -56,6 +56,8 @@ import { dirname, join } from "path";
 
 import { Console } from "../../console";
 import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
+import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
+import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 
 // Bootstrap the performance tools
 if (PerfTiming.isEnabled) {
@@ -677,6 +679,17 @@ export class Imperative {
                 allProfiles.push(loadedConfig.baseProfile);
             }
             rootCommand.children.push(CompleteProfilesGroupBuilder.getProfileGroup(allProfiles, this.log));
+        }
+        const authConfigs: {[key: string]: ICommandProfileAuthConfig} = {};
+        if (loadedConfig.profiles != null) {
+            loadedConfig.profiles.forEach((profile) => {
+                if (profile.authConfig != null) {
+                    authConfigs[profile.type] = profile.authConfig;
+                }
+            });
+        }
+        if (Object.keys(authConfigs).length > 0) {
+            rootCommand.children.push(CompleteAuthGroupBuilder.getAuthGroup(authConfigs, this.log));
         }
         return rootCommand;
     }

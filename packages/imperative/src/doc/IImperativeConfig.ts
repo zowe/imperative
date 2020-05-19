@@ -12,6 +12,7 @@
 import { ICommandDefinition, ICommandProfileTypeConfiguration } from "../../../cmd";
 import { IImperativeLogsConfig } from "./IImperativeLogsConfig";
 import { IImperativeOverrides } from "./IImperativeOverrides";
+import { ICommandProfileAuthConfig } from "../../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 
 /**
  * All of the configuration required to set up your Imperative CLI app

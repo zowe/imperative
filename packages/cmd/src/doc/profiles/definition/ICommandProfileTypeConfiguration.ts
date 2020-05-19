@@ -12,6 +12,7 @@
 import { ICommandProfileSchema } from "./ICommandProfileSchema";
 import { IProfileTypeConfiguration } from "../../../../..";
 import { ICommandExampleDefinition } from "../../ICommandExampleDefinition";
+import { ICommandProfileAuthConfig } from "../../../../../imperative";
 
 /**
  * Cmd packages additions to the profile manager type configuration document. Used by the CliProfileManager. Allows
@@ -80,4 +81,9 @@ export interface ICommandProfileTypeConfiguration extends IProfileTypeConfigurat
      * @type {ICommandProfileSchema}
      */
     schema: ICommandProfileSchema;
+
+    /**
+     * Configuration for an authentication service to associate with this profile type.
+     */
+    authConfig?: ICommandProfileAuthConfig;
 }

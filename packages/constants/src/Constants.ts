@@ -103,4 +103,11 @@ export class Constants {
     public static readonly DEFAULT_PROMPT_PHRASE = "PROMPT*";
 
     public static readonly WEB_HELP_DIR = "web-help";
+
+    /**
+     * Auth group constants
+     */
+    public static readonly AUTH_GROUP = "auth";
+    public static readonly LOGIN_ACTION = "login";
+    public static readonly LOGOUT_ACTION = "logout";
 }

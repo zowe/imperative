@@ -333,7 +333,6 @@ export const locateProfilesDesc: IMessageDefinition = {
         ` ending the search when a profile is found:`
 };
 
-
 export const profileCreatedSuccessfully: IMessageDefinition = {
     message: `Profile created successfully.`
 };
@@ -344,4 +343,28 @@ export const unexpectedProfileCreationError: IMessageDefinition = {
 
 export const unexpectedProfileUpdateError: IMessageDefinition = {
     message: `An unexpected profile update error occurred: \n{{unexpectedError}}`
+};
+
+export const loginAuthsCommandSummary: IMessageDefinition = {
+    message: `Login to an authentication server`,
+};
+
+export const loginAuthsCommandDesc: IMessageDefinition = {
+    message: `${loginAuthsCommandSummary.message}.`,
+};
+
+export const loginAuthCommandDesc: IMessageDefinition = {
+    message: `Login to a {{type}} instance`
+};
+
+export const logoutAuthsCommandSummary: IMessageDefinition = {
+    message: `Logout of an authentication server`,
+};
+
+export const logoutAuthsCommandDesc: IMessageDefinition = {
+    message: `${logoutAuthsCommandSummary.message}.`,
+};
+
+export const logoutAuthCommandDesc: IMessageDefinition = {
+    message: `Logout of a {{type}} instance`
 };
