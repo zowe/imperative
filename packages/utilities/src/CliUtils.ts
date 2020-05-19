@@ -452,9 +452,23 @@ export class CliUtils {
             terminal: true,
             prompt: questionText
         });
+        const writeToOutputOrig = ttyIo._writeToOutput;
+
+        // ask user the desired question and then asynchronously read answer
+        ttyIo.prompt();
+        let answerToReturn: string = null;
+        ttyIo.on("line", (answer: string) => {
+            answerToReturn = answer;
+            ttyIo.close();
+        }).on("close", () => {
+            if (hideText) {
+                // The user's Enter key was echoed as a '*', so now output a newline
+                ttyIo._writeToOutput = writeToOutputOrig;
+                ttyIo.output.write("\n");
+            }
+        });
 
         // when asked to hide text, override output to only display stars
-        const writeToOutputOrig = ttyIo._writeToOutput;
         if (hideText) {
             const os = require("os");
             ttyIo._writeToOutput = function _writeToOutput(stringToWrite: string) {
@@ -476,20 +490,6 @@ export class CliUtils {
                 }
             };
         }
-
-        // ask user the desired question and then asynchronously read answer
-        ttyIo.prompt();
-        let answerToReturn: string = null;
-        ttyIo.on("line", (answer: string) => {
-            answerToReturn = answer;
-            ttyIo.close();
-        }).on("close", () => {
-            if (hideText) {
-                // The user's Enter key was echoed as a '*', so now output a newline
-                ttyIo._writeToOutput = writeToOutputOrig;
-                ttyIo.output.write("\n");
-            }
-        });
 
         // Ensure that we use a reasonable timeout
         const maxSecToWait = 900; // 15 minute max
