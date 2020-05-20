@@ -234,7 +234,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     });
                 }
 
-                return JSON.parse(ret); // Parse it after loading it. We stringify-ed before saving it
+                return (ret != null) ? JSON.parse(ret) : undefined; // Parse it after loading it. We stringify-ed before saving it
             };
         }
 
@@ -402,7 +402,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
              */
             securelyStoreValue = async (propertyNamePath: string, propertyValue: string): Promise<string> => {
                 if (isNullOrUndefined(propertyValue)) { // prevents from storing null values
-                    return null;
+                    return undefined;
                 }
 
                 try {
