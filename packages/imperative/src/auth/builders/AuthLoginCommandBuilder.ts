@@ -51,7 +51,7 @@ export class AuthLoginCommandBuilder extends AuthCommandBuilder {
                 {type: authType}),
             description: this.mConfig.login.description,
             type: "command",
-            handler: __dirname + "/../handlers/CreateProfilesHandler",
+            handler: this.mConfig.login.handler,
             customize: {}
         };
         authCommand.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY] = this.mProfileType;
