@@ -140,6 +140,74 @@ describe("CredsForSessCfg tests", () => {
         expect(sessCfgWithCreds.tokenValue).toBeUndefined();
     });
 
+    it("get user name from prompt", async() => {
+        const userFromPrompt = "FakeUser";
+        const passFromArgs = "FakePassword";
+
+        const sleepReal = CliUtils.sleep;
+        CliUtils.sleep = jest.fn();
+        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
+        CliUtils.promptWithTimeout = jest.fn(() => {
+            return userFromPrompt;
+        });
+
+        const intialSessCfg = {
+            hostname: "SomeHost",
+            port: 11,
+            rejectUnauthorized: true,
+        };
+        const args = {
+            password: passFromArgs,
+        };
+
+        let sessCfgWithCreds: ISession;
+        sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
+            intialSessCfg, args
+        );
+        CliUtils.sleep = sleepReal;
+        CliUtils.promptWithTimeout = promptWithTimeoutReal;
+
+        expect(sessCfgWithCreds.type).toBe(SessConstants.AUTH_TYPE_BASIC);
+        expect(sessCfgWithCreds.user).toBe(userFromPrompt);
+        expect(sessCfgWithCreds.password).toBe(passFromArgs);
+        expect(sessCfgWithCreds.tokenType).toBeUndefined();
+        expect(sessCfgWithCreds.tokenValue).toBeUndefined();
+    });
+
+    it("get password from prompt", async() => {
+        const userFromArgs = "FakeUser";
+        const passFromPrompt = "FakePassword";
+
+        const sleepReal = CliUtils.sleep;
+        CliUtils.sleep = jest.fn();
+        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
+        CliUtils.promptWithTimeout = jest.fn(() => {
+            return passFromPrompt;
+        });
+
+        const intialSessCfg = {
+            hostname: "SomeHost",
+            port: 11,
+            rejectUnauthorized: true,
+        };
+        const args = {
+            user: userFromArgs,
+        };
+
+        let sessCfgWithCreds: ISession;
+        sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
+            intialSessCfg, args
+        );
+        CliUtils.sleep = sleepReal;
+        CliUtils.promptWithTimeout = promptWithTimeoutReal;
+
+        expect(sessCfgWithCreds.type).toBe(SessConstants.AUTH_TYPE_BASIC);
+        expect(sessCfgWithCreds.user).toBe(userFromArgs);
+        expect(sessCfgWithCreds.password).toBe(passFromPrompt);
+        expect(sessCfgWithCreds.tokenType).toBeUndefined();
+        expect(sessCfgWithCreds.tokenValue).toBeUndefined();
+    });
+
     it("timeout waiting for user name", async() => {
         const sleepReal = CliUtils.sleep;
         CliUtils.sleep = jest.fn();
