@@ -141,6 +141,11 @@ describe("CredsForSessCfg tests", () => {
     });
 
     it("timeout waiting for user name", async() => {
+        const sleepReal = CliUtils.sleep;
+        CliUtils.sleep = jest.fn();
+        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
+        CliUtils.promptWithTimeout = jest.fn(() => null);
+
         const intialSessCfg = {
             hostname: "SomeHost",
             port: 11,
@@ -150,21 +155,8 @@ describe("CredsForSessCfg tests", () => {
             password: "FakePassword",
         };
 
-        /* Jest hangs forever when you request data from stdin.
-         * mock-stdin should let you supply data. We could not make that work.
-         * At least with mock-stdin we only get our expected 30 second timout.
-         */
-        const mockStdIn = require("mock-stdin").stdin();
-        mockStdIn.send("FakeUser\n");   // this does not work
-        mockStdIn.end();
-
-        /* jest redirects stdin and we could not override it.
-         * So we catch the timeout error.
-         */
         let sessCfgWithCreds: ISession;
         let caughtError;
-        const sleepReal = CliUtils.sleep;
-        CliUtils.sleep = jest.fn();
         try {
             sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
                 intialSessCfg, args
@@ -173,11 +165,17 @@ describe("CredsForSessCfg tests", () => {
             caughtError = thrownError;
         }
         CliUtils.sleep = sleepReal;
+        CliUtils.promptWithTimeout = promptWithTimeoutReal;
         expect(caughtError instanceof ImperativeError).toBe(true);
         expect(caughtError.message).toBe("We timed-out waiting for user name.");
     });
 
     it("timeout waiting for password", async() => {
+        const sleepReal = CliUtils.sleep;
+        CliUtils.sleep = jest.fn();
+        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
+        CliUtils.promptWithTimeout = jest.fn(() => null);
+
         const intialSessCfg = {
             hostname: "SomeHost",
             port: 11,
@@ -187,21 +185,8 @@ describe("CredsForSessCfg tests", () => {
             user: "FakeUser",
         };
 
-        /* Jest hangs forever when you request data from stdin.
-         * mock-stdin should let you supply data. We could not make that work.
-         * At least with mock-stdin we only get our expected 30 second timout.
-         */
-        const mockStdIn = require("mock-stdin").stdin();
-        mockStdIn.send("FakePassword\n");   // this does not work
-        mockStdIn.end();
-
-        /* jest redirects stdin and we could not override it.
-         * So we catch the timeout error.
-         */
         let sessCfgWithCreds: ISession;
         let caughtError;
-        const sleepReal = CliUtils.sleep;
-        CliUtils.sleep = jest.fn();
         try {
             sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
                 intialSessCfg, args
@@ -210,6 +195,7 @@ describe("CredsForSessCfg tests", () => {
             caughtError = thrownError;
         }
         CliUtils.sleep = sleepReal;
+        CliUtils.promptWithTimeout = promptWithTimeoutReal;
         expect(caughtError instanceof ImperativeError).toBe(true);
         expect(caughtError.message).toBe("We timed-out waiting for password.");
     });
