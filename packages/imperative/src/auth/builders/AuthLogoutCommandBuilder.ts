@@ -52,9 +52,12 @@ export class AuthLogoutCommandBuilder extends AuthCommandBuilder {
             description: this.mConfig.logout.description,
             type: "command",
             handler: this.mConfig.logout.handler,
+            profile: {
+                optional: [this.mProfileWithAuthConfig.type]
+            },
             customize: {}
         };
-        authCommand.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY] = this.mProfileType;
+        // authCommand.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY] = this.mProfileType;
 
         if (authCommand.description == null) {
             authCommand.description = authCommand.summary;

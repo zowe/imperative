@@ -10,7 +10,7 @@
 */
 
 import { AuthCommandBuilder } from "./AuthCommandBuilder";
-import { ICommandDefinition } from "../../../../cmd";
+import { ICommandDefinition, ICommandOptionDefinition } from "../../../../cmd";
 import { loginAuthCommandDesc } from "../../../../messages";
 import { Constants } from "../../../../constants";
 import { TextUtils } from "../../../../utilities";
@@ -45,6 +45,18 @@ export class AuthLoginCommandBuilder extends AuthCommandBuilder {
      */
     protected buildAuthSegmentFromConfig(): ICommandDefinition {
         const authType: string = this.mConfig.serviceName;
+
+        // Compute list of profile connection options to add to the login command
+        const profileOptions: ICommandOptionDefinition[] = [];
+        for (const propName of Object.keys(this.mProfileWithAuthConfig.schema.properties)) {
+            if (this.mProfileWithAuthConfig.schema.properties[propName].optionDefinition != null) {
+                profileOptions.push(this.mProfileWithAuthConfig.schema.properties[propName].optionDefinition);
+            }
+            if (this.mProfileWithAuthConfig.schema.properties[propName].optionDefinitions != null) {
+                profileOptions.push(...this.mProfileWithAuthConfig.schema.properties[propName].optionDefinitions);
+            }
+        }
+
         const authCommand: ICommandDefinition = {
             name: authType,
             summary: TextUtils.formatMessage(loginAuthCommandDesc.message,
@@ -52,15 +64,19 @@ export class AuthLoginCommandBuilder extends AuthCommandBuilder {
             description: this.mConfig.login.description,
             type: "command",
             handler: this.mConfig.login.handler,
+            options: profileOptions,
+            profile: {
+                optional: [this.mProfileWithAuthConfig.type]
+            },
             customize: {}
         };
-        authCommand.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY] = this.mProfileType;
+        // authCommand.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY] = this.mProfileType;
 
         if (authCommand.description == null) {
             authCommand.description = authCommand.summary;
         }
         if (this.mConfig.login.options != null) {
-            authCommand.options = this.mConfig.login.options;
+            authCommand.options.push(...this.mConfig.login.options);
         }
         if (this.mConfig.login.examples != null) {
             authCommand.examples = this.mConfig.login.examples;

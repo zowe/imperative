@@ -19,7 +19,6 @@ import { AuthLoginCommandBuilder } from "./AuthLoginCommandBuilder";
 import { AuthLogoutCommandBuilder } from "./AuthLogoutCommandBuilder";
 import { Logger } from "../../../../logger/index";
 import { IProfileTypeConfiguration } from "../../../../profiles";
-import { ICommandProfileAuthConfig } from "../../../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 
 /**
  * Generate a complete group of commands for logging in and out of services
@@ -28,11 +27,11 @@ import { ICommandProfileAuthConfig } from "../../../../cmd/src/doc/profiles/defi
 export class CompleteAuthGroupBuilder {
     /**
      * Get the complete auth group of commands
-     * @param {[key: string]: ICommandProfileAuthConfig} authConfigs - mapping of profile types to auth configs
+     * @param {ICommandProfileTypeConfiguration[]} profilesWithAuthConfigs - list of profiles with associated auth configs
      * @param {Logger} logger - logger to use in the builder classes
      * @returns {ICommandDefinition} - the complete profile group of commands
      */
-    public static getAuthGroup(authConfigs: {[key: string]: ICommandProfileAuthConfig[]}, logger: Logger): ICommandDefinition {
+    public static getAuthGroup(profilesWithAuthConfigs: ICommandProfileTypeConfiguration[], logger: Logger): ICommandDefinition {
         const authGroup: ICommandDefinition = {
             name: Constants.AUTH_GROUP,
             description: "Manage tokens for authentication services",
@@ -59,10 +58,10 @@ export class CompleteAuthGroupBuilder {
         };
 
         const cmdGroups: ICommandDefinition[] = [];
-        for (const profileType of Object.keys(authConfigs)) {
-            for (const authConfig of authConfigs[profileType]) {
-                const loginCommandAction = new AuthLoginCommandBuilder(profileType, logger, authConfig);
-                const logoutCommandAction = new AuthLogoutCommandBuilder(profileType, logger, authConfig);
+        for (const profile of profilesWithAuthConfigs) {
+            for (const authConfig of profile.authConfig) {
+                const loginCommandAction = new AuthLoginCommandBuilder(profile, logger, authConfig);
+                const logoutCommandAction = new AuthLogoutCommandBuilder(profile, logger, authConfig);
                 loginGroup.children.push(loginCommandAction.build());
                 logoutGroup.children.push(logoutCommandAction.build());
             }

@@ -42,7 +42,8 @@ import {
     IYargsResponse,
     WebHelpManager,
     YargsConfigurer,
-    YargsDefiner
+    YargsDefiner,
+    ICommandOptionDefinition
 } from "../../cmd";
 import { ProfileUtils, IProfileTypeConfiguration } from "../../profiles";
 import { CompleteProfilesGroupBuilder } from "./profiles/builders/CompleteProfilesGroupBuilder";
@@ -680,16 +681,13 @@ export class Imperative {
             }
             rootCommand.children.push(CompleteProfilesGroupBuilder.getProfileGroup(allProfiles, this.log));
         }
-        const authConfigs: {[key: string]: ICommandProfileAuthConfig[]} = {};
         if (loadedConfig.profiles != null) {
-            loadedConfig.profiles.forEach((profile) => {
-                if (profile.authConfig != null) {
-                    authConfigs[profile.type] = profile.authConfig;
-                }
+            const profilesWithAuthConfigs: ICommandProfileTypeConfiguration[] = loadedConfig.profiles.filter((profile) => {
+                return profile.authConfig != null;
             });
-        }
-        if (Object.keys(authConfigs).length > 0) {
-            rootCommand.children.push(CompleteAuthGroupBuilder.getAuthGroup(authConfigs, this.log));
+            if (profilesWithAuthConfigs.length > 0){
+                rootCommand.children.push(CompleteAuthGroupBuilder.getAuthGroup(profilesWithAuthConfigs, this.log));
+            }
         }
         return rootCommand;
     }
