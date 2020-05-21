@@ -31,7 +31,7 @@ export class DefinitionTreeResolver {
      * @param errorLogger - a logger instance to be used (e.g. a console logger) for errors
      * @param {ICommandDefinition[]} childrenDefinitions - already loaded definitions that have been passed by the user
      * @param {string[]} childrenModuleGlobs - list of globs that match definition files
-     * @param {boolean} addBaseProfile - Specifies whether to add optional base profile to command definition
+     * @param {boolean} addBaseProfile - Specifies whether to add optional base profile to command definitions
      * @returns {ICommandDefinition} - the complete command tree
      */
     public static resolve(rootCommandDescription: string,
@@ -85,7 +85,7 @@ export class DefinitionTreeResolver {
      *
      * @param {string[]} cmdModuleGlobs - list of globs that match definition files
      *
-     * @param {boolean} addBaseProfile - Specifies whether to add optional base profile to command definition
+     * @param {boolean} addBaseProfile - Specifies whether to add optional base profile to command definitions
      *
      * @returns {ICommandDefinition[]} - An array of all resolved command definitions
      */

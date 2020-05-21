@@ -52,8 +52,10 @@ export class AuthLogoutCommandBuilder extends AuthCommandBuilder {
             description: this.mConfig.logout.description,
             type: "command",
             handler: this.mConfig.logout.handler,
+            options: this.mConfig.login.options,
+            examples: this.mConfig.login.examples,
             profile: {
-                optional: [this.mProfileWithAuthConfig.type]
+                optional: [this.mProfileType]
             },
             customize: {}
         };
@@ -61,12 +63,6 @@ export class AuthLogoutCommandBuilder extends AuthCommandBuilder {
 
         if (authCommand.description == null) {
             authCommand.description = authCommand.summary;
-        }
-        if (this.mConfig.login.options != null) {
-            authCommand.options = this.mConfig.logout.options;
-        }
-        if (this.mConfig.login.examples != null) {
-            authCommand.examples = this.mConfig.logout.examples;
         }
         return authCommand;
     }

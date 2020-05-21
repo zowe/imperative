@@ -10,7 +10,7 @@
 */
 
 import { AbstractCommandBuilder } from "../../../../cmd/src/builders/AbstractCommandBuilder";
-import { ICommandDefinition, ICommandProfileTypeConfiguration } from "../../../../cmd";
+import { ICommandDefinition } from "../../../../cmd";
 import { Logger } from "../../../../logger";
 import { ICommandProfileAuthConfig } from "../../../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 
@@ -26,11 +26,11 @@ export abstract class AuthCommandBuilder implements AbstractCommandBuilder {
 
     /**
      * Construct the builder based on the auth config.
-     * @param mProfileWithAuthConfig - the profile name of the profile type e.g. banana
+     * @param mProfileType - the profile name of the profile type e.g. banana
      * @param {Logger} mLogger - logger instance to use for the builder class
      * @param {IImperativeAuthConfig} mAuthConfig - the config for the auth type
      */
-    constructor(protected mProfileWithAuthConfig: ICommandProfileTypeConfiguration,
+    constructor(protected mProfileType: string,
                 protected mLogger: Logger,
                 protected mAuthConfig: ICommandProfileAuthConfig) {
 

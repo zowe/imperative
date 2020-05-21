@@ -19,6 +19,7 @@ import { ProfileUtils } from "../../profiles";
 import { TextUtils } from "../../utilities";
 import { OptionConstants } from "./constants/OptionConstants";
 import * as DeepMerge from "deepmerge";
+import { ICommandProfileTypeConfiguration } from "./doc/profiles/definition/ICommandProfileTypeConfiguration";
 
 /**
  * Command preparer provides static utilities to ensure that command definitions are suitable for Imperative definition.
@@ -28,9 +29,10 @@ export class CommandPreparer {
      * Prepare the command definition and apply any pass on traits to children.
      * After a definition has been prepared, it should be considered final.
      * @param {ICommandDefinition} original - The original command definition tree to "prepare"
+     * @param {ICommandProfileTypeConfiguration} baseProfile - An optional base profile to add to command definitions
      * @return {ICommandDefinition} A copy of the original that has been prepared
      */
-    public static prepare(original: ICommandDefinition): ICommandDefinition {
+    public static prepare(original: ICommandDefinition, baseProfile?: ICommandProfileTypeConfiguration): ICommandDefinition {
         /**
          * Ensure it was specified
          */
@@ -74,7 +76,18 @@ export class CommandPreparer {
         /**
          * Prepare the definition by populating with default values, applying global options, etc.
          */
-        const prepared: ICommandDefinition = CommandPreparer.appendAutoOptions(copy);
+        const baseProfileOptions: ICommandOptionDefinition[] = [];
+        if (baseProfile != null) {
+            for (const propName of Object.keys(baseProfile.schema.properties)) {
+                if (baseProfile.schema.properties[propName].optionDefinition != null) {
+                    baseProfileOptions.push(baseProfile.schema.properties[propName].optionDefinition);
+                }
+                if (baseProfile.schema.properties[propName].optionDefinitions != null) {
+                    baseProfileOptions.push(...baseProfile.schema.properties[propName].optionDefinitions);
+                }
+            }
+        }
+        const prepared: ICommandDefinition = CommandPreparer.appendAutoOptions(copy, baseProfileOptions);
 
         /**
          * The document prepared for Imperative CLI usage/definition. This should be considered the final document.
@@ -397,9 +410,10 @@ export class CommandPreparer {
     /**
      * Appends options (for profiles, global options like help, etc.) automatically
      * @param {ICommandDefinition} definition - The original command definition tree to "prepare"
+     * @param {ICommandOptionDefinition[]} baseProfileOptions - Option definitions sourced from base profile
      * @return {ICommandDefinition} A copy of the original that has been prepared
      */
-    private static appendAutoOptions(definition: ICommandDefinition): ICommandDefinition {
+    private static appendAutoOptions(definition: ICommandDefinition, baseProfileOptions: ICommandOptionDefinition[]): ICommandDefinition {
         // add the json option for all commands
         definition.options.push({
             name: Constants.JSON_OPTION,
@@ -462,6 +476,16 @@ export class CommandPreparer {
                     type: "string"
                 });
             });
+
+            // Add any option definitions from base profile that are missing in service profile
+            if (definition.options != null && baseProfileOptions.length > 0 && types.length > 1) {
+                const optionNames: string[] = definition.options.map((cmdOpt) => cmdOpt.name);
+                for (const profOpt of baseProfileOptions) {
+                    if (optionNames.indexOf(profOpt.name) === -1) {
+                        definition.options.push(profOpt);
+                    }
+                }
+            }
         }
 
         if (!isNullOrUndefined(definition.children)) {
@@ -485,7 +509,7 @@ export class CommandPreparer {
                     child.experimental = true;
                 }
                 // prepare each child
-                return CommandPreparer.appendAutoOptions(child);
+                return CommandPreparer.appendAutoOptions(child, baseProfileOptions);
             }) : [];
 
         if (definition.enableStdin) {
