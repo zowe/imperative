@@ -96,7 +96,7 @@ describe("Cli Profile Manager", () => {
 
                 const tempProf: any = {
                     username: user,
-                    password: null,
+                    password: undefined,
                     secureBox: {
                         myCode: securelyStored,
                         myFlag: securelyStored,
@@ -204,7 +204,7 @@ describe("Cli Profile Manager", () => {
             const tempProf: any = {
                 description,
                 username: user,
-                password: null,
+                password: undefined,
                 secureBox: {
                     myCode: securelyStored,
                     myFlag: securelyStored,
