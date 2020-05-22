@@ -9,7 +9,21 @@
 *
 */
 
-import { IImperativeConfig } from "../../../../../packages/index";
+import { ICommandOptionDefinition, IImperativeConfig } from "../../../../../packages/index";
+
+const amountOption: ICommandOptionDefinition = {
+    name: "amount",
+    aliases: ["a"],
+    description: "The amount of fruits.",
+    type: "number",
+};
+
+const priceOption: ICommandOptionDefinition = {
+    name: "price",
+    aliases: ["p"],
+    description: "The price of one fruit.",
+    type: "number",
+};
 
 // Example to use with tsnode: */*CommandDefinitions!(.d).*s
 export const config: IImperativeConfig = {
@@ -30,24 +44,30 @@ export const config: IImperativeConfig = {
             properties: {
                 amount: {
                     type: "number",
-                    optionDefinition: {
-                        name: "amount",
-                        aliases: ["a"],
-                        description: "The amount of fruits.",
-                        type: "number",
-                    },
+                    optionDefinition: amountOption,
                 },
                 price: {
                     type: "number",
-                    optionDefinition: {
-                        name: "price",
-                        aliases: ["p"],
-                        description: "The price of one fruit.",
-                        type: "number",
-                    },
+                    optionDefinition: priceOption,
                 },
             },
-        }
+        },
+        authConfig: [
+            {
+                serviceName: "fruit",
+                login: {
+                    // TODO Improve this test with custom handler
+                    handler: __dirname + "/../cli/profile/mapping-base/ProfileMappingBase.handler",
+                    options: [
+                        amountOption,
+                        priceOption
+                    ]
+                },
+                logout: {
+                    handler: "fakeHandler"
+                }
+            }
+        ]
     },
     profiles: [
         {
