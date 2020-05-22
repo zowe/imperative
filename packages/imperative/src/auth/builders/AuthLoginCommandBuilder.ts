@@ -49,11 +49,18 @@ export class AuthLoginCommandBuilder extends AuthCommandBuilder {
             name: authType,
             summary: TextUtils.formatMessage(loginAuthCommandDesc.message,
                 {type: authType}),
-            description: this.mConfig.login.description,
             type: "command",
-            handler: this.mConfig.login.handler,
-            options: this.mConfig.login.options,
-            examples: this.mConfig.login.examples,
+            description: this.mConfig.login?.description,
+            handler: this.mConfig.handler,
+            options: [
+                {
+                    name: "show-token", aliases: ["st"],
+                    description: "Show the token when login is successful.",
+                    type: "boolean"
+                },
+                ...(this.mConfig.login?.options || [])
+            ],
+            examples: this.mConfig.login?.examples,
             profile: {
                 optional: [this.mProfileType]
             },

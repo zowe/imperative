@@ -49,11 +49,11 @@ export class AuthLogoutCommandBuilder extends AuthCommandBuilder {
             name: authType,
             summary: TextUtils.formatMessage(logoutAuthCommandDesc.message,
                 {type: authType}),
-            description: this.mConfig.logout.description,
             type: "command",
-            handler: this.mConfig.logout.handler,
-            options: this.mConfig.login.options,
-            examples: this.mConfig.login.examples,
+            description: this.mConfig.logout?.description,
+            handler: this.mConfig.handler,
+            options: this.mConfig.logout?.options,
+            examples: this.mConfig.logout?.examples,
             profile: {
                 optional: [this.mProfileType]
             },
