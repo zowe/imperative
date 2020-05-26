@@ -19,13 +19,24 @@ import { Imperative } from "../../Imperative";
  * This class is used by the auth command handlers as the base class for their implementation.
  */
 export abstract class BaseAuthHandler implements ICommandHandler {
-    protected mProfileType: string;
+    /**
+     * The profile type where token type and value should be stored.
+     */
+    protected abstract mProfileType: string;
+
+    /**
+     * The default token type to use if not specified as a command line option.
+     */
+    protected abstract mDefaultTokenType: SessConstants.TOKEN_TYPE_CHOICES;
 
     /**
      * The session creating from the command line arguments / profile
      */
     protected mSession: AbstractSession;
 
+    /**
+     * Imperative logger used to output debug messages.
+     */
     private log: Logger = Logger.getImperativeLogger();
 
     /**
@@ -37,8 +48,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * @returns {Promise<void>}
      */
     public async process(commandParameters: IHandlerParameters) {
-        this.mProfileType = "base";  // TODO How to dynamically set this?
-        switch (commandParameters.arguments._[1]) {  // TODO looking at 2nd arg is kind of a hack
+        switch (commandParameters.positionals[1]) {
             case Constants.LOGIN_ACTION:
                 this.processLogin(commandParameters);
                 break;
@@ -55,18 +65,36 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * This is called by the {@link ZosFilesBaseHandler#process} after it creates a session. Should
      * be used so that every class under files does not have to instantiate the session object.
      *
-     * @param {IHandlerParameters} commandParameters Command parameters sent to the handler.
-     * @param {AbstractSession} session The session object generated from the zosmf profile.
-     * @param {IProfile} zosmfProfile The zosmf profile that was loaded for the command.
+     * @param {ICommandArguments} args The command line arguments to use for building the session
      *
      * @returns {Promise<IZosFilesResponse>} The response from the underlying zos-files api call.
      */
-    public abstract createSessCfgFromArgs(args: ICommandArguments): ISession;
+    protected abstract createSessCfgFromArgs(args: ICommandArguments): ISession;
 
-    public abstract async doLogin(session: AbstractSession): Promise<string>;
+    /**
+     * This is called by the "auth login" command after it creates a session, to
+     * obtain a token that can be stored in a profile.
+     * @abstract
+     * @param {AbstractSession} session The session object to use to connect to the auth service
+     * 
+     * @returns {Promise<string>} The response from the auth service containing a token
+     */
+    protected abstract async doLogin(session: AbstractSession): Promise<string>;
 
-    public abstract async doLogout(session: AbstractSession): Promise<void>;
+    /**
+     * This is called by the "auth logout" command after it creates a session, to
+     * revoke a token before removing it from a profile.
+     * @abstract
+     * @param {AbstractSession} session The session object to use to connect to the auth service
+     */
+    protected abstract async doLogout(session: AbstractSession): Promise<void>;
 
+    /**
+     * Performs the login operation. Builds a session to connect to the auth
+     * service, sends a login request to it to obtain a token, and stores the
+     * resulting token in the profile of type `mProfileType`.
+     * @param {IHandlerParameters} params Command parameters sent by imperative.
+     */
     private async processLogin(params: IHandlerParameters) {
         const loadedProfile = params.profiles.getMeta(this.mProfileType, false);
 
@@ -82,15 +110,13 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         // we want to receive a token in our response
         this.mSession.ISession.type = SessConstants.AUTH_TYPE_TOKEN;
 
-        // TODO How to dynamically handle tokenType?
-
         // set the type of token we expect to receive
         if (params.arguments.tokenType) {
             // use the token type requested by the user
             this.mSession.ISession.tokenType = params.arguments.tokenType;
         } else {
             // use our default token
-            this.mSession.ISession.tokenType = SessConstants.TOKEN_TYPE_APIML;
+            this.mSession.ISession.tokenType = this.mDefaultTokenType;
         }
 
         // login to obtain a token

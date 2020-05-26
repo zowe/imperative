@@ -514,6 +514,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             try {
                 await handler.process({
                     arguments: CliUtils.buildBaseArgs(newArguments),
+                    positionals: newArguments._,
                     response,
                     fullDefinition: undefined,
                     definition: undefined,
@@ -576,6 +577,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             try {
                 await handler.process({
                     arguments: CliUtils.buildBaseArgs(profileArguments),
+                    positionals: profileArguments._,
                     response,
                     fullDefinition: undefined,
                     definition: undefined,
