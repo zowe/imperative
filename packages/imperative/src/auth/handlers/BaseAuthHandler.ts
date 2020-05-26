@@ -13,7 +13,7 @@ import { ICommandHandler, IHandlerParameters, ICommandArguments } from "../../..
 import { Constants } from "../../../../constants";
 import { Logger } from "../../../../Logger";
 import { ISession, CredsForSessCfg, Session, SessConstants, AbstractSession } from "../../../../rest";
-import { Imperative } from "../../..";
+import { Imperative } from "../../Imperative";
 
 /**
  * This class is used by the auth command handlers as the base class for their implementation.
