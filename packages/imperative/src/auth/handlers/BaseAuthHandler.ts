@@ -76,7 +76,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * obtain a token that can be stored in a profile.
      * @abstract
      * @param {AbstractSession} session The session object to use to connect to the auth service
-     * 
+     *
      * @returns {Promise<string>} The response from the auth service containing a token
      */
     protected abstract async doLogin(session: AbstractSession): Promise<string>;
