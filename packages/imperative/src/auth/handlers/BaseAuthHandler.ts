@@ -37,7 +37,8 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * @returns {Promise<void>}
      */
     public async process(commandParameters: IHandlerParameters) {
-        switch (commandParameters.definition.name) {
+        this.mProfileType = "base";  // TODO How to dynamically set this?
+        switch (commandParameters.arguments._[1]) {  // TODO looking at 2nd arg is kind of a hack
             case Constants.LOGIN_ACTION:
                 this.processLogin(commandParameters);
                 break;
@@ -62,7 +63,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      */
     public abstract createSessCfgFromArgs(args: ICommandArguments): ISession;
 
-    public abstract async doLogin(session: AbstractSession): Promise<void>;
+    public abstract async doLogin(session: AbstractSession): Promise<string>;
 
     public abstract async doLogout(session: AbstractSession): Promise<void>;
 
@@ -80,6 +81,8 @@ export abstract class BaseAuthHandler implements ICommandHandler {
 
         // we want to receive a token in our response
         this.mSession.ISession.type = SessConstants.AUTH_TYPE_TOKEN;
+
+        // TODO How to dynamically handle tokenType?
 
         // set the type of token we expect to receive
         if (params.arguments.tokenType) {
