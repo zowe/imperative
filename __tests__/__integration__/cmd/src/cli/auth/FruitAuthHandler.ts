@@ -34,7 +34,9 @@ export default class ApimlAuthHandler extends BaseAuthHandler {
      */
     protected createSessCfgFromArgs(args: ICommandArguments): ISession {
         return {
-            hostname: `Amount: ${args.amount}\nPrice: ${args.price}`
+            hostname: "fakeHost",
+            user: args.user,
+            password: args.password
         };
     }
 
@@ -45,7 +47,7 @@ export default class ApimlAuthHandler extends BaseAuthHandler {
      * @returns {Promise<string>} The response from the auth service containing a token
      */
     protected async doLogin(session: AbstractSession) {
-        return session.ISession.hostname;
+        return `${session.ISession.user}:${session.ISession.password}@fakeToken`;
     }
 
     /**

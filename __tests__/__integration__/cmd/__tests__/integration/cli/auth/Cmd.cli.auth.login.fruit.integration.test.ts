@@ -13,6 +13,7 @@ import { runCliScript } from "../../../../../../src/TestUtil";
 import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
 import { join } from "path";
+
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
 describe("cmd-cli auth login", () => {
@@ -30,15 +31,13 @@ describe("cmd-cli auth login", () => {
     });
 
     it("should have auth login command that loads values from base profile", () => {
-        const baseAmount = 500;
-        const basePrice = 2;
         const response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth.sh",
-            TEST_ENVIRONMENT.workingDir, [baseAmount, basePrice]);
+            TEST_ENVIRONMENT.workingDir, ["fakeUser", "fakePass"]);
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
 
-        // the output of the command should use the base profile values
-        expect(response.stdout.toString()).toContain(`Amount: ${baseAmount}`);
-        expect(response.stdout.toString()).toContain(`Price: ${basePrice}`);
+        // the output of the command should include token value
+        expect(response.stdout.toString()).toContain("tokenType:  jwtToken");
+        expect(response.stdout.toString()).toContain("tokenValue: fakeUser:fakePass@fakeToken");
     });
 });
