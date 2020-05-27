@@ -36,7 +36,9 @@ export default class ApimlAuthHandler extends BaseAuthHandler {
         return {
             hostname: "fakeHost",
             user: args.user,
-            password: args.password
+            password: args.password,
+            tokenType: args.tokenType,
+            tokenValue: args.tokenValue
         };
     }
 
@@ -56,6 +58,6 @@ export default class ApimlAuthHandler extends BaseAuthHandler {
      * @param {AbstractSession} session The session object to use to connect to the auth service
      */
     protected async doLogout(session: AbstractSession) {
-        // Not yet implemented
+        // Do nothing.
     }
 }

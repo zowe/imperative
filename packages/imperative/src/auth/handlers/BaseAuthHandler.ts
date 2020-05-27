@@ -158,9 +158,9 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         this.mSession = new Session(sessCfg);
 
         ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenType,
-            "Token type not supplied on session object, but is required for logout.");
+            "Token type not supplied, but is required for logout.");
         ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue,
-            "Token value not supplied on session object, but is required for logout.");
+            "Token value not supplied, but is required for logout.");
 
         // we want to receive a token in our response
         this.mSession.ISession.type = SessConstants.AUTH_TYPE_TOKEN;
