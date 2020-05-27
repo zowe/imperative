@@ -30,7 +30,7 @@ describe("cmd-cli auth login", () => {
         require("rimraf").sync(join(TEST_ENVIRONMENT.workingDir, "profiles"));
     });
 
-    it("should have auth login command that loads values from base profile", () => {
+    it("should load values from base profile and store token in it", () => {
         const response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth.sh",
             TEST_ENVIRONMENT.workingDir, ["fakeUser", "fakePass"]);
         expect(response.stderr.toString()).toBe("");
