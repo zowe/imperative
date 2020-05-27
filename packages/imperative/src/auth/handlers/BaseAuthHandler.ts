@@ -14,6 +14,7 @@ import { Constants } from "../../../../constants";
 import { Logger } from "../../../../Logger";
 import { ISession, CredsForSessCfg, Session, SessConstants, AbstractSession } from "../../../../rest";
 import { Imperative } from "../../Imperative";
+import { ImperativeExpect } from "../../../../expect";
 
 /**
  * This class is used by the auth command handlers as the base class for their implementation.
@@ -54,7 +55,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 this.processLogin(commandParameters);
                 break;
             case Constants.LOGOUT_ACTION:
-                this.log.info("Logout not yet implemented");
+                this.processLogout(commandParameters);
                 break;
             default:
                 this.log.error(`The group name "${commandParameters.positionals[1]}" was passed to the BaseAuthHandler, but it is not valid.`);
@@ -140,5 +141,50 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 ".\nThe following token was stored in your profile:\n" + tokenValue
             );
         }
+    }
+
+    /**
+     * Performs the logout operation. Deletes the token and token type from the profile,
+     * and rebuilds the session.
+     * @param {IHandlerParameters} params Command parameters sent by imperative.
+     */
+    private async processLogout(params: IHandlerParameters) {
+        const loadedProfile = params.profiles.getMeta(this.mProfileType, false);
+
+        const sessCfg: ISession = this.createSessCfgFromArgs(
+            params.arguments
+        );
+
+        this.mSession = new Session(sessCfg);
+
+        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenType,
+            "Token type not supplied on session object, but is required for logout.");
+        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue,
+            "Token value not supplied on session object, but is required for logout.");
+
+        // we want to receive a token in our response
+        this.mSession.ISession.type = SessConstants.AUTH_TYPE_TOKEN;
+        this.mSession.ISession.tokenType = params.arguments.tokenType;
+        this.mSession.ISession.tokenValue = params.arguments.tokenValue;
+
+        await this.doLogout(this.mSession);
+
+        await Imperative.api.profileManager(this.mProfileType).save({
+            name: loadedProfile.name,
+            type: loadedProfile.type,
+            overwrite: true,
+            profile: {
+                    ...loadedProfile.profile,
+                    tokenType: undefined,
+                    tokenValue: undefined
+            }
+        });
+
+        this.mSession.ISession.type = SessConstants.AUTH_TYPE_BASIC;
+        this.mSession.ISession.tokenType = undefined;
+        this.mSession.ISession.tokenValue = undefined;
+
+        params.response.console.log("Logout successful.");
+
     }
 }
