@@ -37,6 +37,18 @@ const passwordOption: ICommandOptionDefinition = {
     type: "string"
 };
 
+const tokenTypeOption: ICommandOptionDefinition = {
+    name: "tokenType",
+    description: "Fruit token type",
+    type: "string"
+};
+
+const tokenValueOption: ICommandOptionDefinition = {
+    name: "tokenValue",
+    description: "Fruit token value",
+    type: "string"
+};
+
 // Example to use with tsnode: */*CommandDefinitions!(.d).*s
 export const config: IImperativeConfig = {
     commandModuleGlobs: ["**/cli/*/*definition!(.d).*s"],
@@ -101,6 +113,14 @@ export const config: IImperativeConfig = {
                         priceOption,
                         userOption,
                         passwordOption
+                    ]
+                },
+                logout: {
+                    options: [
+                        amountOption,
+                        priceOption,
+                        tokenTypeOption,
+                        tokenValueOption
                     ]
                 }
             }

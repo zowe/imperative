@@ -16,12 +16,12 @@ import { join } from "path";
 
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
-describe("cmd-cli auth login", () => {
+describe("cmd-cli auth logout", () => {
     // Create the unique test environment
     beforeAll(async () => {
         TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
             cliHomeEnvVar: "CMD_CLI_CLI_HOME",
-            testName: "cmd_auth_login"
+            testName: "cmd_auth_logout"
         });
     });
 
@@ -30,8 +30,8 @@ describe("cmd-cli auth login", () => {
         require("rimraf").sync(join(TEST_ENVIRONMENT.workingDir, "profiles"));
     });
 
-    it("should load values from base profile and store token in it", () => {
-        const response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login.sh",
+    it("should have auth logout command that loads values from base profile and removes the token", () => {
+        let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login.sh",
             TEST_ENVIRONMENT.workingDir, ["fakeUser", "fakePass"]);
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
@@ -39,5 +39,14 @@ describe("cmd-cli auth login", () => {
         // the output of the command should include token value
         expect(response.stdout.toString()).toContain("tokenType:  jwtToken");
         expect(response.stdout.toString()).toContain("tokenValue: fakeUser:fakePass@fakeToken");
+
+        response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_logout.sh",
+            TEST_ENVIRONMENT.workingDir);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        // the output of the command should include token value
+        expect(response.stdout.toString()).not.toContain("tokenType:  jwtToken");
+        expect(response.stdout.toString()).not.toContain("tokenValue: fakeUser:fakePass@fakeToken");
     });
 });
