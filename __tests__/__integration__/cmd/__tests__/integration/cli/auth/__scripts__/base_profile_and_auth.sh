@@ -13,7 +13,7 @@ then
 fi
 
 # Next login to fruit auth
-cmd-cli auth login fruit
+cmd-cli auth login fruit --user fake --password fake --show-token
 CMDRC=$?
 if [ $CMDRC -gt 0 ]
 then

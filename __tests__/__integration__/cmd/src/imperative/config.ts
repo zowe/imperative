@@ -25,6 +25,18 @@ const priceOption: ICommandOptionDefinition = {
     type: "number",
 };
 
+const userOption: ICommandOptionDefinition = {
+    name: "user",
+    description: "Fruit username",
+    type: "string"
+};
+
+const passwordOption: ICommandOptionDefinition = {
+    name: "password",
+    description: "Fruit password",
+    type: "string"
+};
+
 // Example to use with tsnode: */*CommandDefinitions!(.d).*s
 export const config: IImperativeConfig = {
     commandModuleGlobs: ["**/cli/*/*definition!(.d).*s"],
@@ -44,27 +56,52 @@ export const config: IImperativeConfig = {
             properties: {
                 amount: {
                     type: "number",
-                    optionDefinition: amountOption,
+                    optionDefinition: amountOption
                 },
                 price: {
                     type: "number",
-                    optionDefinition: priceOption,
+                    optionDefinition: priceOption
                 },
+                user: {
+                    type: "string",
+                    optionDefinition: userOption,
+                    secure: true
+                },
+                password: {
+                    type: "string",
+                    optionDefinition: passwordOption,
+                    secure: true
+                },
+                tokenType: {
+                    type: "string",
+                    optionDefinition: {
+                        name: "token-type",
+                        description: "Fruit token type",
+                        type: "string"
+                    }
+                },
+                tokenValue: {
+                    type: "string",
+                    optionDefinition: {
+                        name: "token-value",
+                        description: "Fruit token value",
+                        type: "string"
+                    },
+                    secure: true
+                }
             },
         },
         authConfig: [
             {
                 serviceName: "fruit",
+                handler: __dirname + "/../cli/auth/FruitAuthHandler",
                 login: {
-                    // TODO Improve this test with custom handler
-                    handler: __dirname + "/../cli/profile/mapping-base/ProfileMappingBase.handler",
                     options: [
                         amountOption,
-                        priceOption
+                        priceOption,
+                        userOption,
+                        passwordOption
                     ]
-                },
-                logout: {
-                    handler: "fakeHandler"
                 }
             }
         ]

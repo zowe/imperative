@@ -59,6 +59,7 @@ import { Console } from "../../console";
 import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
 import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
+import { ImperativeExpect } from "../../expect";
 
 // Bootstrap the performance tools
 if (PerfTiming.isEnabled) {
@@ -686,6 +687,9 @@ export class Imperative {
         if (loadedConfig.profiles != null) {
             loadedConfig.profiles.forEach((profile) => {
                 if (profile.authConfig != null) {
+                    for (const requiredOption of ["user", "password", "tokenType", "tokenValue"]) {
+                        ImperativeExpect.toNotBeNullOrUndefined(profile.schema.properties[requiredOption], `Profile of type ${profile.type} with authConfig property must have ${requiredOption} option defined`);
+                    }
                     authConfigs[profile.type] = profile.authConfig;
                 }
             });

@@ -20,28 +20,29 @@ import { Imperative } from "../../Imperative";
  */
 export abstract class BaseAuthHandler implements ICommandHandler {
     /**
-     * The profile type where token type and value should be stored.
+     * The profile type where token type and value should be stored
      */
     protected abstract mProfileType: string;
 
     /**
-     * The default token type to use if not specified as a command line option.
+     * The default token type to use if not specified as a command line option
      */
     protected abstract mDefaultTokenType: SessConstants.TOKEN_TYPE_CHOICES;
 
     /**
-     * The session creating from the command line arguments / profile
+     * The session being created from the command line arguments / profile
      */
     protected mSession: AbstractSession;
 
     /**
-     * Imperative logger used to output debug messages.
+     * Imperative logger used to output debug messages
      */
     private log: Logger = Logger.getImperativeLogger();
 
     /**
-     * This will grab the zosmf profile and create a session before calling the subclass
-     * {@link ZosFilesBaseHandler#processWithSession} method.
+     * This handler is used for both "auth login" and "auth logout" commands.
+     * It determines the correct action to take and calls either `processLogin`
+     * or `processLogout` accordingly.
      *
      * @param {IHandlerParameters} commandParameters Command parameters sent by imperative.
      *
@@ -56,18 +57,18 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 this.log.info("Logout not yet implemented");
                 break;
             default:
-                this.log.error(`The definition name "${commandParameters.definition.name}" was passed to the BaseAuthHandler, but it is not valid.`);
+                this.log.error(`The group name "${commandParameters.positionals[1]}" was passed to the BaseAuthHandler, but it is not valid.`);
                 break;
         }
     }
 
     /**
-     * This is called by the {@link ZosFilesBaseHandler#process} after it creates a session. Should
-     * be used so that every class under files does not have to instantiate the session object.
-     *
+     * This is called by the {@link BaseAuthHandler#process} when it needs a
+     * session. Should be used to create a session to connect to the auth
+     * service.
+     * @abstract
      * @param {ICommandArguments} args The command line arguments to use for building the session
-     *
-     * @returns {Promise<IZosFilesResponse>} The response from the underlying zos-files api call.
+     * @returns {ISession} The session object built from the command line arguments.
      */
     protected abstract createSessCfgFromArgs(args: ICommandArguments): ISession;
 
@@ -76,7 +77,6 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * obtain a token that can be stored in a profile.
      * @abstract
      * @param {AbstractSession} session The session object to use to connect to the auth service
-     *
      * @returns {Promise<string>} The response from the auth service containing a token
      */
     protected abstract async doLogin(session: AbstractSession): Promise<string>;
