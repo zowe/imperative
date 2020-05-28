@@ -81,7 +81,8 @@ export class CredsForSessCfg {
 
         const optionDefaults: IOptionsForAddCreds = {
             requestToken: false,
-            doPrompting: true
+            doPrompting: true,
+            defaultTokenType: SessConstants.TOKEN_TYPE_JWT
         };
 
         // override our defaults with what our caller wants.
@@ -204,11 +205,7 @@ export class CredsForSessCfg {
             // Set our type to token to get a token from user and pass
             logMsgtext += "to get token";
             sessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
-            if (tokenType || options.defaultTokenType) {
-                sessCfg.tokenType = tokenType || options.defaultTokenType;
-            } else {
-                sessCfg.tokenType = SessConstants.TOKEN_TYPE_JWT;
-            }
+            sessCfg.tokenType = tokenType || options.defaultTokenType;
         } else {
             logMsgtext += "with no request for token";
             sessCfg.type = SessConstants.AUTH_TYPE_BASIC;

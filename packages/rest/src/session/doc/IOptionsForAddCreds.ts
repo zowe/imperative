@@ -37,9 +37,10 @@ export interface IOptionsForAddCreds {
     doPrompting?: boolean;
 
     /**
-     * Optional value that specifies a default token type to set. This is used
-     * by "auth login" commands that do not have a "tokenType" command line
+     * Specifies the default token type if not provided on the command line.
+     * Some commands such as "auth login" do not have a "tokenType" command line
      * option, but still need to specify a default token type.
+     * The default value is TOKEN_TYPE_JWT.
      */
     defaultTokenType?: SessConstants.TOKEN_TYPE_CHOICES;
 }

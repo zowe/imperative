@@ -113,8 +113,8 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         await Imperative.api.profileManager(this.mProfileType).update({
             name: loadedProfile.name,
             args: {
-                tokenType: this.mSession.ISession.tokenType,
-                tokenValue
+                "token-type": this.mSession.ISession.tokenType,
+                "token-value": tokenValue
             },
             merge: true
         });
