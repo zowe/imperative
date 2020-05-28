@@ -158,7 +158,10 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         await this.doLogout(this.mSession);
 
         // If you specified a token on the command line, then don't delete the one in the profile if it doesn't match
-        if (loadedProfile.name != null && params.arguments.tokenValue === loadedProfile.profile.tokenValue) {
+        if (loadedProfile.name != null &&
+            loadedProfile.profile != null &&
+            loadedProfile.profile.tokenValue != null &&
+            params.arguments.tokenValue === loadedProfile.profile.tokenValue) {
             await Imperative.api.profileManager(this.mProfileType).save({
                 name: loadedProfile.name,
                 type: loadedProfile.type,
