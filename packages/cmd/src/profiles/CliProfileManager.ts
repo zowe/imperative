@@ -401,11 +401,18 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
              * @return {Promise<string>}
              */
             securelyStoreValue = async (propertyNamePath: string, propertyValue: string): Promise<string> => {
-                if (isNullOrUndefined(propertyValue)) { // prevents from storing null values
-                    return null;
-                }
-
                 try {
+                    if (isNullOrUndefined(propertyValue)) {
+                        // don't store null values but still remove value that may have been stored previously
+                        this.log.debug(`Deleting secured field with key ${propertyNamePath}` +
+                            ` for profile (of type "${this.profileType}").`);
+                        await CredentialManagerFactory.manager.delete(
+                            ProfileUtils.getProfilePropertyKey(this.profileType, name, propertyNamePath)
+                        );
+
+                        return null;
+                    }
+
                     this.log.debug(`Associating secured field with key ${propertyNamePath}` +
                         ` for profile (of type "${this.profileType}").`);
                     // Use the Credential Manager to store the credentials
