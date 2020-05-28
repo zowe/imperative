@@ -11,10 +11,10 @@
 
 import { ICommandHandler, IHandlerParameters, ICommandArguments } from "../../../../cmd";
 import { Constants } from "../../../../constants";
-import { Logger } from "../../../../Logger";
 import { ISession, CredsForSessCfg, Session, SessConstants, AbstractSession } from "../../../../rest";
 import { Imperative } from "../../Imperative";
 import { ImperativeExpect } from "../../../../expect";
+import { ImperativeError } from "../../../../error";
 
 /**
  * This class is used by the auth command handlers as the base class for their implementation.
@@ -36,11 +36,6 @@ export abstract class BaseAuthHandler implements ICommandHandler {
     protected mSession: AbstractSession;
 
     /**
-     * Imperative logger used to output debug messages
-     */
-    private log: Logger = Logger.getImperativeLogger();
-
-    /**
      * This handler is used for both "auth login" and "auth logout" commands.
      * It determines the correct action to take and calls either `processLogin`
      * or `processLogout` accordingly.
@@ -52,13 +47,15 @@ export abstract class BaseAuthHandler implements ICommandHandler {
     public async process(commandParameters: IHandlerParameters) {
         switch (commandParameters.positionals[1]) {
             case Constants.LOGIN_ACTION:
-                this.processLogin(commandParameters);
+                await this.processLogin(commandParameters);
                 break;
             case Constants.LOGOUT_ACTION:
-                this.processLogout(commandParameters);
+                await this.processLogout(commandParameters);
                 break;
             default:
-                this.log.error(`The group name "${commandParameters.positionals[1]}" was passed to the BaseAuthHandler, but it is not valid.`);
+                throw new ImperativeError({
+                    msg: `The group name "${commandParameters.positionals[1]}" was passed to the BaseAuthHandler, but it is not valid.`
+                });
                 break;
         }
     }
@@ -103,22 +100,11 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             params.arguments
         );
         const sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
-            sessCfg, params.arguments, { requestToken: true }
+            sessCfg, params.arguments,
+            { requestToken: true, defaultTokenType: this.mDefaultTokenType }
         );
 
         this.mSession = new Session(sessCfgWithCreds);
-
-        // we want to receive a token in our response
-        this.mSession.ISession.type = SessConstants.AUTH_TYPE_TOKEN;
-
-        // set the type of token we expect to receive
-        if (params.arguments.tokenType) {
-            // use the token type requested by the user
-            this.mSession.ISession.tokenType = params.arguments.tokenType;
-        } else {
-            // use our default token
-            this.mSession.ISession.tokenType = this.mDefaultTokenType;
-        }
 
         // login to obtain a token
         const tokenValue = await this.doLogin(this.mSession);
@@ -127,8 +113,8 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         await Imperative.api.profileManager(this.mProfileType).update({
             name: loadedProfile.name,
             args: {
-                "token-type": this.mSession.ISession.tokenType,
-                "token-value": tokenValue
+                tokenType: this.mSession.ISession.tokenType,
+                tokenValue
             },
             merge: true
         });

@@ -76,7 +76,7 @@ describe("CredsForSessCfg tests", () => {
         expect(sessCfgWithCreds.user).toBe("FakeUser");
         expect(sessCfgWithCreds.password).toBe("FakePassword");
         expect(sessCfgWithCreds.type).toBe(SessConstants.AUTH_TYPE_TOKEN);
-        expect(sessCfgWithCreds.tokenType).toBe(SessConstants.TOKEN_TYPE_LTPA); // TODO:Gene: replace with SessConstants.TOKEN_TYPE_APIML
+        expect(sessCfgWithCreds.tokenType).toBe(SessConstants.TOKEN_TYPE_JWT);
         expect(sessCfgWithCreds.tokenValue).toBeUndefined();
     });
 
@@ -107,7 +107,7 @@ describe("CredsForSessCfg tests", () => {
         };
         const args = {
             tokenValue: "FakeToken",
-            tokenType: SessConstants.TOKEN_TYPE_APIML
+            tokenType: SessConstants.TOKEN_TYPE_LTPA
         };
         const sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
             intialSessCfg, args
@@ -115,7 +115,7 @@ describe("CredsForSessCfg tests", () => {
         expect(sessCfgWithCreds.hostname).toBe("SomeHost");
         expect(sessCfgWithCreds.tokenValue).toBe("FakeToken");
         expect(sessCfgWithCreds.type).toBe(SessConstants.AUTH_TYPE_TOKEN);
-        expect(sessCfgWithCreds.tokenType).toBe(SessConstants.TOKEN_TYPE_APIML);
+        expect(sessCfgWithCreds.tokenType).toBe(SessConstants.TOKEN_TYPE_LTPA);
         expect(sessCfgWithCreds.user).toBeUndefined();
         expect(sessCfgWithCreds.password).toBeUndefined();
     });

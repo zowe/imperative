@@ -173,7 +173,7 @@ export class CredsForSessCfg {
             finalSessCfg.password = answer;
         }
 
-        CredsForSessCfg.setTypeForBasicCreds(finalSessCfg, optsToUse.requestToken, cmdArgs.tokenType);
+        CredsForSessCfg.setTypeForBasicCreds(finalSessCfg, optsToUse, cmdArgs.tokenType);
         CredsForSessCfg.logSessCfg(finalSessCfg);
         return finalSessCfg;
     }
@@ -186,29 +186,28 @@ export class CredsForSessCfg {
      * @param sessCfg
      *       The session configuration to be updated.
      *
-     * @param weWantToken
-     *       If true, we want to request a token.
+     * @param options
+     *       Options that alter our actions. See IOptionsForAddCreds.
      *
      * @param tokenType
      *       The type of token that we expect to receive.
      */
     private static setTypeForBasicCreds(
         sessCfg: any,
-        weWantToken: boolean,
+        options: IOptionsForAddCreds,
         tokenType: SessConstants.TOKEN_TYPE_CHOICES
     ) {
         const impLogger = Logger.getImperativeLogger();
         let logMsgtext = "Using basic authentication ";
 
-        if (weWantToken) {
+        if (options.requestToken) {
             // Set our type to token to get a token from user and pass
             logMsgtext += "to get token";
             sessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
-            if (tokenType) {
-                sessCfg.tokenType = tokenType;
+            if (tokenType || options.defaultTokenType) {
+                sessCfg.tokenType = tokenType || options.defaultTokenType;
             } else {
-                // TODO:Gene: Code in imperative should be generic & CLI should default to TOKEN_TYPE_APIML
-                sessCfg.tokenType = SessConstants.TOKEN_TYPE_LTPA;
+                sessCfg.tokenType = SessConstants.TOKEN_TYPE_JWT;
             }
         } else {
             logMsgtext += "with no request for token";

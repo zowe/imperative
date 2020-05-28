@@ -9,6 +9,8 @@
 *
 */
 
+import { SessConstants } from "../../..";
+
 /**
  * Interface for options supplied to CredsForSessCfg.addCredsOrPrompt()
  * @export
@@ -33,4 +35,11 @@ export interface IOptionsForAddCreds {
      * The default value is true.
      */
     doPrompting?: boolean;
+
+    /**
+     * Optional value that specifies a default token type to set. This is used
+     * by "auth login" commands that do not have a "tokenType" command line
+     * option, but still need to specify a default token type.
+     */
+    defaultTokenType?: SessConstants.TOKEN_TYPE_CHOICES;
 }
