@@ -110,14 +110,16 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         const tokenValue = await this.doLogin(this.mSession);
 
         // update the profile given
-        await Imperative.api.profileManager(this.mProfileType).update({
-            name: loadedProfile.name,
-            args: {
-                "token-type": this.mSession.ISession.tokenType,
-                "token-value": tokenValue
-            },
-            merge: true
-        });
+        if (loadedProfile.name != null && !params.arguments.showToken) {
+            await Imperative.api.profileManager(this.mProfileType).update({
+                name: loadedProfile.name,
+                args: {
+                    "token-type": this.mSession.ISession.tokenType,
+                    "token-value": tokenValue
+                },
+                merge: true
+            });
+        }
 
         params.response.console.log("Login successful.");
 
@@ -143,10 +145,10 @@ export abstract class BaseAuthHandler implements ICommandHandler {
 
         this.mSession = new Session(sessCfg);
 
-        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenType,
-            "Token type not supplied, but is required for logout.");
-        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue,
-            "Token value not supplied, but is required for logout.");
+        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenType, "Token type not supplied, but is required for logout.");
+        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue, "Token value not supplied, but is required for logout.");
+        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.host, "Host not supplied, but is required for logout.");
+        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.port, "Port not supplied, but is required for logout.");
 
         // we want to receive a token in our response
         this.mSession.ISession.type = SessConstants.AUTH_TYPE_TOKEN;
@@ -155,16 +157,19 @@ export abstract class BaseAuthHandler implements ICommandHandler {
 
         await this.doLogout(this.mSession);
 
-        await Imperative.api.profileManager(this.mProfileType).save({
-            name: loadedProfile.name,
-            type: loadedProfile.type,
-            overwrite: true,
-            profile: {
-                    ...loadedProfile.profile,
-                    tokenType: undefined,
-                    tokenValue: undefined
-            }
-        });
+        // If you specified a token on the command line, then don't delete the one in the profile if it doesn't match
+        if (loadedProfile.name != null && params.arguments.tokenValue === loadedProfile.profile.tokenValue) {
+            await Imperative.api.profileManager(this.mProfileType).save({
+                name: loadedProfile.name,
+                type: loadedProfile.type,
+                overwrite: true,
+                profile: {
+                        ...loadedProfile.profile,
+                        tokenType: undefined,
+                        tokenValue: undefined
+                }
+            });
+        }
 
         this.mSession.ISession.type = SessConstants.AUTH_TYPE_BASIC;
         this.mSession.ISession.tokenType = undefined;

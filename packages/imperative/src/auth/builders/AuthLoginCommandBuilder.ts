@@ -55,7 +55,7 @@ export class AuthLoginCommandBuilder extends AuthCommandBuilder {
             options: [
                 {
                     name: "show-token", aliases: ["st"],
-                    description: "Show the token when login is successful.",
+                    description: "Show the token when login is successful. If specified, does not save the token to a profile.",
                     type: "boolean"
                 },
                 ...(this.mConfig.login?.options || [])
