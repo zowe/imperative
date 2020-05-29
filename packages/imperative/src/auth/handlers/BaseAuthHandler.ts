@@ -110,7 +110,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         const tokenValue = await this.doLogin(this.mSession);
 
         // update the profile given
-        if (loadedProfile.name != null && !params.arguments.showToken) {
+        if (loadedProfile != null && loadedProfile.name != null && !params.arguments.showToken) {
             await Imperative.api.profileManager(this.mProfileType).update({
                 name: loadedProfile.name,
                 args: {
@@ -161,7 +161,8 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         await this.doLogout(this.mSession);
 
         // If you specified a token on the command line, then don't delete the one in the profile if it doesn't match
-        if (loadedProfile.name != null &&
+        if (loadedProfile != null &&
+            loadedProfile.name != null &&
             loadedProfile.profile != null &&
             loadedProfile.profile.tokenValue != null &&
             params.arguments.tokenValue === loadedProfile.profile.tokenValue) {
