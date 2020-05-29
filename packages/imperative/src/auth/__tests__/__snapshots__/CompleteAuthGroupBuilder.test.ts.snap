@@ -29,6 +29,14 @@ Object {
               "type": "boolean",
             },
             Object {
+              "aliases": Array [
+                "cp",
+              ],
+              "description": "Create a default profile with the name 'default'. Will fail if a profile with the name 'default' already exists.",
+              "name": "create-profile",
+              "type": "boolean",
+            },
+            Object {
               "description": "Fake command option",
               "name": "fake",
               "type": "string",
