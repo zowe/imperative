@@ -11,7 +11,7 @@
 
 import { ICommandHandler, IHandlerParameters, ICommandArguments } from "../../../../cmd";
 import { Constants } from "../../../../constants";
-import { ISession, CredsForSessCfg, Session, SessConstants, AbstractSession } from "../../../../rest";
+import { ISession, ConnectionPropsForSessCfg, Session, SessConstants, AbstractSession } from "../../../../rest";
 import { Imperative } from "../../Imperative";
 import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
@@ -99,7 +99,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         const sessCfg: ISession = this.createSessCfgFromArgs(
             params.arguments
         );
-        const sessCfgWithCreds = await CredsForSessCfg.addCredsOrPrompt<ISession>(
+        const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             sessCfg, params.arguments,
             { requestToken: true, defaultTokenType: this.mDefaultTokenType }
         );

@@ -12,11 +12,11 @@
 import { SessConstants } from "../../..";
 
 /**
- * Interface for options supplied to CredsForSessCfg.addCredsOrPrompt()
+ * Interface for options supplied to ConnectionPropsForSessCfg.addPropsOrPrompt()
  * @export
  * @interface ISession
  */
-export interface IOptionsForAddCreds {
+export interface IOptionsForAddConnProps {
 
     /**
      * Indicates that we want to generate a token.
