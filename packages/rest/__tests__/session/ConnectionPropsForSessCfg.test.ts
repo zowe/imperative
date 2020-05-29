@@ -13,6 +13,7 @@ import { ConnectionPropsForSessCfg } from "../../src/session/ConnectionPropsForS
 import { CliUtils } from "../../../utilities/src/CliUtils";
 import { ImperativeError } from "../../../error";
 import * as SessConstants from "../../src/session/SessConstants";
+import { ISession } from "../../src/session/doc/ISession";
 
 describe("ConnectionPropsForSessCfg tests", () => {
 
@@ -21,6 +22,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
             rejectUnauthorized: true,
         };
         const args = {
+            $0: "zowe",
+            _: [""],
             host: "SomeHost",
             port: 11,
             user: "FakeUser",
@@ -30,6 +33,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             initialSessCfg, args
         );
         expect(sessCfgWithConnProps.hostname).toBe("SomeHost");
+        // tslint:disable-next-line: no-magic-numbers
         expect(sessCfgWithConnProps.port).toBe(11);
         expect(sessCfgWithConnProps.user).toBe("FakeUser");
         expect(sessCfgWithConnProps.password).toBe("FakePassword");
@@ -45,6 +49,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
             rejectUnauthorized: true
         };
         const args = {
+            $0: "zowe",
+            _: [""],
             user: "FakeUser",
             password: "FakePassword",
             tokenType: SessConstants.TOKEN_TYPE_JWT
@@ -67,6 +73,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
             rejectUnauthorized: true
         };
         const args = {
+            $0: "zowe",
+            _: [""],
             user: "FakeUser",
             password: "FakePassword"
         };
@@ -88,6 +96,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
             rejectUnauthorized: true,
         };
         const args = {
+            $0: "zowe",
+            _: [""],
             tokenValue: "FakeToken",
         };
         const sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
@@ -107,6 +117,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
             rejectUnauthorized: true
         };
         const args = {
+            $0: "zowe",
+            _: [""],
             tokenValue: "FakeToken",
             tokenType: SessConstants.TOKEN_TYPE_LTPA
         };
@@ -128,6 +140,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
             rejectUnauthorized: true
         };
         const args = {
+            $0: "zowe",
+            _: [""]
         };
 
         let sessCfgWithConnProps: ISession;
@@ -158,6 +172,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
             rejectUnauthorized: true
         };
         const args = {
+            $0: "zowe",
+            _: [""],
             password: passFromArgs
         };
 
@@ -192,6 +208,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
             rejectUnauthorized: true
         };
         const args = {
+            $0: "zowe",
+            _: [""],
             user: userFromArgs
         };
 
@@ -226,6 +244,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
             rejectUnauthorized: true,
         };
         const args = {
+            $0: "zowe",
+            _: [""],
             port: portFromArgs,
             user: userFromArgs,
             password: passFromArgs
@@ -263,6 +283,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
             rejectUnauthorized: true
         };
         const args = {
+            $0: "zowe",
+            _: [""],
             host: hostFromArgs,
             user: userFromArgs,
             password: passFromArgs
@@ -296,6 +318,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
             rejectUnauthorized: true
         };
         const args = {
+            $0: "zowe",
+            _: [""],
             password: "FakePassword"
         };
 
@@ -326,6 +350,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
             rejectUnauthorized: true
         };
         const args = {
+            $0: "zowe",
+            _: [""],
             user: "FakeUser"
         };
 
@@ -354,6 +380,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
             rejectUnauthorized: true,
         };
         const args = {
+            $0: "zowe",
+            _: [""],
             port: 11,
             user: "FakeUser",
             password: "FakePassword"
@@ -384,6 +412,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
             rejectUnauthorized: true,
         };
         const args = {
+            $0: "zowe",
+            _: [""],
             host: "SomeHost",
             user: "FakeUser",
             password: "FakePassword"

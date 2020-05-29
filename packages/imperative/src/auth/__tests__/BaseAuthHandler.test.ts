@@ -20,7 +20,7 @@ class FakeAuthHandler extends BaseAuthHandler {
     public mDefaultTokenType: SessConstants.TOKEN_TYPE_CHOICES = SessConstants.TOKEN_TYPE_JWT;
 
     protected createSessCfgFromArgs(args: ICommandArguments): ISession {
-        return { hostname: "fakeHost" };
+        return { hostname: "fakeHost", port: 3000 };
     }
 
     protected async doLogin(session: AbstractSession): Promise<string> {

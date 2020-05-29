@@ -49,4 +49,24 @@ describe("cmd-cli auth logout", () => {
         expect(response.stdout.toString()).not.toContain("tokenType:  jwtToken");
         expect(response.stdout.toString()).not.toContain("tokenValue: fakeUser:fakePass@fakeToken");
     });
+
+    it("should have auth logout command that invalidates another token", () => {
+        let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login.sh",
+            TEST_ENVIRONMENT.workingDir, ["fakeUser", "fakePass"]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        // the output of the command should include token value
+        expect(response.stdout.toString()).toContain("tokenType:  jwtToken");
+        expect(response.stdout.toString()).toContain("tokenValue: fakeUser:fakePass@fakeToken");
+
+        response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_logout_specify_token.sh",
+            TEST_ENVIRONMENT.workingDir, ["fakeToken:fakeToken@fakeToken"]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        // the output of the command should include token value
+        expect(response.stdout.toString()).toContain("tokenType:  jwtToken");
+        expect(response.stdout.toString()).toContain("tokenValue: fakeUser:fakePass@fakeToken");
+    });
 });

@@ -40,4 +40,22 @@ describe("cmd-cli auth login", () => {
         expect(response.stdout.toString()).toContain("tokenType:  jwtToken");
         expect(response.stdout.toString()).toContain("tokenValue: fakeUser:fakePass@fakeToken");
     });
+
+    it("should load values from base profile and show token only", () => {
+        let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_token.sh",
+            TEST_ENVIRONMENT.workingDir, ["fakeUser", "fakePass"]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        // the output of the command should include token value
+        expect(response.stdout.toString()).toContain("fakeUser:fakePass@fakeToken");
+
+        response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
+
+        // the output of the command should not include token value
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+        expect(response.stdout.toString()).not.toContain("tokenType:  jwtToken");
+        expect(response.stdout.toString()).not.toContain("tokenValue: fakeUser:fakePass@fakeToken");
+    });
 });

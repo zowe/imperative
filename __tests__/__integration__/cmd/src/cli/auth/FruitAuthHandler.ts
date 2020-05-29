@@ -35,6 +35,7 @@ export default class ApimlAuthHandler extends BaseAuthHandler {
     protected createSessCfgFromArgs(args: ICommandArguments): ISession {
         return {
             hostname: "fakeHost",
+            port: 3000,
             user: args.user,
             password: args.password,
             tokenType: args.tokenType,

@@ -139,21 +139,24 @@ export abstract class BaseAuthHandler implements ICommandHandler {
     private async processLogout(params: IHandlerParameters) {
         const loadedProfile = params.profiles.getMeta(this.mProfileType, false);
 
+        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenType, "Token type not supplied, but is required for logout.");
+        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue, "Token value not supplied, but is required for logout.");
+
+        // Force to use of token value, in case user and/or password also on base profile, make user undefined.
+        if (params.arguments.user != null) {
+            params.arguments.user = undefined;
+        }
+
         const sessCfg: ISession = this.createSessCfgFromArgs(
             params.arguments
         );
 
-        this.mSession = new Session(sessCfg);
+        const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+            sessCfg, params.arguments,
+            { requestToken: false, defaultTokenType: this.mDefaultTokenType }
+        );
 
-        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenType, "Token type not supplied, but is required for logout.");
-        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue, "Token value not supplied, but is required for logout.");
-        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.host, "Host not supplied, but is required for logout.");
-        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.port, "Port not supplied, but is required for logout.");
-
-        // we want to receive a token in our response
-        this.mSession.ISession.type = SessConstants.AUTH_TYPE_TOKEN;
-        this.mSession.ISession.tokenType = params.arguments.tokenType;
-        this.mSession.ISession.tokenValue = params.arguments.tokenValue;
+        this.mSession = new Session(sessCfgWithCreds);
 
         await this.doLogout(this.mSession);
 
