@@ -15,6 +15,7 @@ import { ImperativeError } from "../../../error";
 import { IOptionsForAddConnProps } from "./doc/IOptionsForAddConnProps";
 import { Logger } from "../../../logger";
 import * as SessConstants from "./SessConstants";
+import { isNumber } from "util";
 
 /**
  * This class adds connection information to an existing session configuration
@@ -132,13 +133,18 @@ export class ConnectionPropsForSessCfg {
             }
 
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.port) === false) {
-                let answer = "";
-                while (answer === "") {
+                let answer: any;
+                while (answer === undefined) {
                     answer = await CliUtils.promptWithTimeout(
                         "Enter the port number for your service: "
                     );
                     if (answer === null) {
                         throw new ImperativeError({msg: "We timed-out waiting for port number."});
+                    } else {
+                        answer = Number(answer);
+                        if (isNaN(answer)) {
+                            throw new ImperativeError({msg: "Specified port was not a number."});
+                        }
                     }
                 }
                 finalSessCfg.port = answer;
