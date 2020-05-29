@@ -24,7 +24,7 @@ Object {
               "aliases": Array [
                 "st",
               ],
-              "description": "Show the token when login is successful.",
+              "description": "Show the token when login is successful. If specified, does not save the token to a profile.",
               "name": "show-token",
               "type": "boolean",
             },

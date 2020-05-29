@@ -84,6 +84,8 @@ describe("BaseAuthHandler", () => {
                 }
             },
             arguments: {
+                host: "fakeHost",
+                port: "fakePort",
                 tokenType: handler.mDefaultTokenType,
                 tokenValue: "fakeToken"
             },
