@@ -2,6 +2,8 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
 - Update log4js to improve Webpack compatibility for extenders
 
 ## `4.6.2`
