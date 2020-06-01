@@ -16,7 +16,7 @@ import { Imperative } from "../../Imperative";
 import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs, IProfileSaved } from "../../../../profiles";
-import { ImperativeConfig } from "../../../../utilities";
+import { ImperativeConfig, CliUtils } from "../../../../utilities";
 
 /**
  * This class is used by the auth command handlers as the base class for their implementation.
@@ -111,9 +111,11 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         // login to obtain a token
         const tokenValue = await this.doLogin(this.mSession);
 
-        // update the profile given
-        if (loadedProfile != null && loadedProfile.name != null && !params.arguments.showToken && !params.arguments.createProfile) {
+        params.response.console.log(sessCfgWithCreds.hostname);
+        params.response.console.log(sessCfgWithCreds.port.toString());
 
+        // update the profile given
+        if (loadedProfile != null && loadedProfile.name != null && !params.arguments.showToken && tokenValue != null) {
             await Imperative.api.profileManager(this.mProfileType).update({
                 name: loadedProfile.name,
                 args: {
@@ -122,41 +124,47 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 },
                 merge: true
             });
-        } else if (params.arguments.createProfile && !params.arguments.showToken) {
+        } else if ((loadedProfile == null || loadedProfile.name == null ) && !params.arguments.showToken && tokenValue != null) {
 
             // Do not store non-profile arguments, user, or password. Set param arguments for prompted values from session.
-            params.arguments.createProfile = undefined;
-            params.arguments.showToken = undefined;
-            params.arguments.user = undefined;
-            params.arguments.password = undefined;
 
-            params.arguments.host = sessCfgWithCreds.hostname;
-            params.arguments.port = sessCfgWithCreds.port;
-            params.arguments.tokenType = sessCfgWithCreds.tokenType;
-            params.arguments["token-type"] = sessCfgWithCreds.tokenType;
-            params.arguments.tokenValue = sessCfgWithCreds.tokenValue;
-            params.arguments["token-value"] = sessCfgWithCreds.tokenType;
+            const copyArgs = {...params.arguments};
+            copyArgs.createProfile = undefined;
+            copyArgs.showToken = undefined;
+            copyArgs.user = undefined;
+            copyArgs.password = undefined;
 
+            copyArgs.host = sessCfgWithCreds.hostname;
+            copyArgs.port = sessCfgWithCreds.port;
+
+            copyArgs.tokenType = sessCfgWithCreds.tokenType;
+            copyArgs["token-type"] = sessCfgWithCreds.tokenType;
+
+            copyArgs.tokenValue = tokenValue;
+            copyArgs["token-value"] = tokenValue;
 
             const createParms: ISaveProfileFromCliArgs = {
                 name: "default",
                 type: this.mProfileType,
-                args: params.arguments,
+                args: copyArgs,
                 overwrite: false,
                 profile: {}
             };
 
-            try {
+            const answer: string = await CliUtils.promptWithTimeout(
+                "We require the host, port, and token must be stored on disk for use with future commands. Is this acceptable? [y/N]: ");
+            if (answer == null || !answer.toLowerCase().startsWith("y")) {
+                throw new ImperativeError({msg: `A login command was issued, but no ${this.mProfileType} profiles exist,` +
+                    ` the show token flag was not specified, or we were not given permission to create a profile.` +
+                    ` To resolve this problem, either specify the --showToken flag, create a base profile by using information found in` +
+                    ` '${ImperativeConfig.instance.rootCommandName} profiles create ${this.mProfileType} --help',` +
+                    ` or re-run the login command and agree to the prompt requesting to store information on disk.`});
+            } else {
                 const createResponse: IProfileSaved = await Imperative.api.profileManager(this.mProfileType).save(createParms);
-                params.response.console.log("Profile created successfully.");
-            } catch (err) {
-                if (err.message.includes("already exists and overwrite was NOT specified")) {
-                    throw new ImperativeError({msg: `A profile with name 'default' already exists. ` +
-                    `Please see '${ImperativeConfig.instance.rootCommandName} profiles create ${this.mProfileType} --help' ` +
-                    `or '${ImperativeConfig.instance.rootCommandName} profiles update ${this.mProfileType} --help' in order to ` +
-                    `create or update a profile`});
-                }
-                throw new ImperativeError({msg: err.message});
+                params.response.console.log(`\nProfile created successfully.\nTo create new profiles, which we use to store information, see ` +
+                `'${ImperativeConfig.instance.rootCommandName} profiles create ${this.mProfileType} --help'.\n` +
+                `To update this profile's information, see` +
+                `'${ImperativeConfig.instance.rootCommandName} profiles update ${this.mProfileType} --help'\n`);
             }
         }
 

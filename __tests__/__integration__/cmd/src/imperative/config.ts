@@ -15,14 +15,26 @@ const amountOption: ICommandOptionDefinition = {
     name: "amount",
     aliases: ["a"],
     description: "The amount of fruits.",
-    type: "number",
+    type: "number"
 };
 
 const priceOption: ICommandOptionDefinition = {
     name: "price",
     aliases: ["p"],
     description: "The price of one fruit.",
-    type: "number",
+    type: "number"
+};
+
+const hostOption: ICommandOptionDefinition = {
+    name: "host",
+    description: "Fruit host",
+    type: "string"
+};
+
+const portOption: ICommandOptionDefinition = {
+    name: "port",
+    description: "Fruit port",
+    type: "number"
 };
 
 const userOption: ICommandOptionDefinition = {
@@ -38,13 +50,13 @@ const passwordOption: ICommandOptionDefinition = {
 };
 
 const tokenTypeOption: ICommandOptionDefinition = {
-    name: "tokenType",
+    name: "token-type",
     description: "Fruit token type",
     type: "string"
 };
 
 const tokenValueOption: ICommandOptionDefinition = {
-    name: "tokenValue",
+    name: "token-value",
     description: "Fruit token value",
     type: "string"
 };
@@ -74,6 +86,14 @@ export const config: IImperativeConfig = {
                     type: "number",
                     optionDefinition: priceOption
                 },
+                host: {
+                    type: "string",
+                    optionDefinition: hostOption
+                },
+                port: {
+                    type: "number",
+                    optionDefinition: portOption
+                },
                 user: {
                     type: "string",
                     optionDefinition: userOption,
@@ -86,19 +106,11 @@ export const config: IImperativeConfig = {
                 },
                 tokenType: {
                     type: "string",
-                    optionDefinition: {
-                        name: "token-type",
-                        description: "Fruit token type",
-                        type: "string"
-                    }
+                    optionDefinition: tokenTypeOption
                 },
                 tokenValue: {
                     type: "string",
-                    optionDefinition: {
-                        name: "token-value",
-                        description: "Fruit token value",
-                        type: "string"
-                    },
+                    optionDefinition: tokenValueOption,
                     secure: true
                 }
             },
@@ -111,6 +123,8 @@ export const config: IImperativeConfig = {
                     options: [
                         amountOption,
                         priceOption,
+                        hostOption,
+                        portOption,
                         userOption,
                         passwordOption
                     ]
@@ -119,6 +133,8 @@ export const config: IImperativeConfig = {
                     options: [
                         amountOption,
                         priceOption,
+                        hostOption,
+                        portOption,
                         tokenTypeOption,
                         tokenValueOption
                     ]

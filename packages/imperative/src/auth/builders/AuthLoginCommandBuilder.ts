@@ -58,11 +58,6 @@ export class AuthLoginCommandBuilder extends AuthCommandBuilder {
                     description: "Show the token when login is successful. If specified, does not save the token to a profile.",
                     type: "boolean"
                 },
-                {
-                    name: "create-profile", aliases: ["cp"],
-                    description: "Create a default profile with the name 'default'. Will fail if a profile with the name 'default' already exists.",
-                    type: "boolean"
-                },
                 ...(this.mConfig.login?.options || [])
             ],
             examples: this.mConfig.login?.examples,
