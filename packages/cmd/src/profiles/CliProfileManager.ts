@@ -410,7 +410,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                             ProfileUtils.getProfilePropertyKey(this.profileType, name, propertyNamePath)
                         );
 
-                        return null;
+                        return undefined;
                     }
 
                     this.log.debug(`Associating secured field with key ${propertyNamePath}` +
