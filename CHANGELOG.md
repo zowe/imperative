@@ -14,6 +14,9 @@ All notable changes to the Imperative package will be documented in this file.
 - Add base profiles, a new type of profile which can store values shared between profiles of other types.
     - To use base profiles in an Imperative-based CLI, define a `baseProfile` schema on your Imperative configuration object.
     - If the `baseProfile` schema is defined, base profile support will be added to any command that uses profiles.
+- Add login and logout commands to get and delete/invalidate tokens
+  - Add showToken flag to display token only, and not save it to the user profile
+  - Add ability to create a user profile on login if no profile of that type existed previously
 
 ## `4.6.4`
 
