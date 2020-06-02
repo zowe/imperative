@@ -61,6 +61,27 @@ describe("cmd-cli auth login", () => {
         expect(response.stdout.toString()).not.toContain("tokenValue: fakeUser:fakePass@fakeToken");
     });
 
+    it("should load values from base profile and show token in rfj", () => {
+        let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_token_rfj_create.sh",
+            TEST_ENVIRONMENT.workingDir, ["fakeUser", "fakePass"]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        // the output of the command should include token value
+        response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_token_rfj.sh",
+            TEST_ENVIRONMENT.workingDir);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+        expect(JSON.parse(response.stdout.toString()).data).toMatchObject({tokenType: "jwtToken", tokenValue: "fakeUser:fakePass@fakeToken"});
+
+        // the output of the command should not include token value
+        response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+        expect(response.stdout.toString()).not.toContain("tokenType:  jwtToken");
+        expect(response.stdout.toString()).not.toContain("tokenValue: fakeUser:fakePass@fakeToken");
+    });
+
     it("should create a profile, if requested", () => {
         let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_create_profile.sh",
             TEST_ENVIRONMENT.workingDir, ["y", "fakeUser", "fakePass"]);

@@ -108,11 +108,8 @@ export abstract class BaseAuthHandler implements ICommandHandler {
 
         this.mSession = new Session(sessCfgWithCreds);
 
-        // login to obtain a token
+        // login to obtain a token.
         const tokenValue = await this.doLogin(this.mSession);
-
-        params.response.console.log(sessCfgWithCreds.hostname);
-        params.response.console.log(sessCfgWithCreds.port.toString());
 
         // update the profile given
         if (loadedProfile != null && loadedProfile.name != null && !params.arguments.showToken && tokenValue != null) {
@@ -134,11 +131,11 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             copyArgs.user = undefined;
             copyArgs.password = undefined;
 
-            copyArgs.host = sessCfgWithCreds.hostname;
-            copyArgs.port = sessCfgWithCreds.port;
+            copyArgs.host = this.mSession.ISession.hostname;
+            copyArgs.port = this.mSession.ISession.port;
 
-            copyArgs.tokenType = sessCfgWithCreds.tokenType;
-            copyArgs["token-type"] = sessCfgWithCreds.tokenType;
+            copyArgs.tokenType = this.mSession.ISession.tokenType;
+            copyArgs["token-type"] = this.mSession.ISession.tokenType;
 
             copyArgs.tokenValue = tokenValue;
             copyArgs["token-value"] = tokenValue;
@@ -175,6 +172,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 "\nReceived a token of type = " + this.mSession.ISession.tokenType +
                 ".\nThe following token was retrieved and will not be stored in your profile:\n" + tokenValue
             );
+            params.response.data.setObj({tokenType: this.mSession.ISession.tokenType, tokenValue});
         }
     }
 
