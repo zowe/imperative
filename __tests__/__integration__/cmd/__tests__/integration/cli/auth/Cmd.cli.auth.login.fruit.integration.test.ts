@@ -62,7 +62,7 @@ describe("cmd-cli auth login", () => {
     });
 
     it("should load values from base profile and show token in rfj", () => {
-        let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_token_rfj_create.sh",
+        let response = runCliScript(__dirname + "/__scripts__/base_profile_create.sh",
             TEST_ENVIRONMENT.workingDir, ["fakeUser", "fakePass"]);
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
