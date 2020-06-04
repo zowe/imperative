@@ -15,7 +15,6 @@ import { ImperativeError } from "../../../error";
 import { IOptionsForAddConnProps } from "./doc/IOptionsForAddConnProps";
 import { Logger } from "../../../logger";
 import * as SessConstants from "./SessConstants";
-import { isNumber } from "util";
 
 /**
  * This class adds connection information to an existing session configuration

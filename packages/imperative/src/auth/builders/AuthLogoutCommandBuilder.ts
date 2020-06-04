@@ -14,9 +14,6 @@ import { ICommandDefinition } from "../../../../cmd";
 import { logoutAuthCommandDesc } from "../../../../messages";
 import { Constants } from "../../../../constants";
 import { TextUtils } from "../../../../utilities";
-import { Logger } from "../../../../logger/index";
-import { ProfilesConstants } from "../../../../profiles";
-import { ICommandProfileAuthConfig } from "../../../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 
 /**
  * Used to build auth logout command definitions.

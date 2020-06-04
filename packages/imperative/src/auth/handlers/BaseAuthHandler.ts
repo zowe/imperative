@@ -157,7 +157,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 const answer: string = await CliUtils.promptWithTimeout(
                     "We require the host, port, and token must be stored on disk for use with future commands. Is this acceptable? [y/N]: ");
                 if (answer != null && (answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
-                    const createResponse: IProfileSaved = await Imperative.api.profileManager(this.mProfileType).save(createParms);
+                    await Imperative.api.profileManager(this.mProfileType).save(createParms);
                     params.response.console.log(`\nProfile created successfully.\nTo create new profiles, which we use to store information, see ` +
                     `'${ImperativeConfig.instance.rootCommandName} profiles create ${this.mProfileType} --help'.\n` +
                     `To update this profile's information, see ` +

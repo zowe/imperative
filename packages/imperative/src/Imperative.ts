@@ -42,8 +42,7 @@ import {
     IYargsResponse,
     WebHelpManager,
     YargsConfigurer,
-    YargsDefiner,
-    ICommandOptionDefinition
+    YargsDefiner
 } from "../../cmd";
 import { ProfileUtils, IProfileTypeConfiguration } from "../../profiles";
 import { CompleteProfilesGroupBuilder } from "./profiles/builders/CompleteProfilesGroupBuilder";
