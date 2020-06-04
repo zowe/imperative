@@ -24,7 +24,7 @@ class FakeAuthHandler extends BaseAuthHandler {
     }
 
     protected async doLogin(session: AbstractSession): Promise<string> {
-        return session.ISession.tokenValue;
+        return "fakeToken";
     }
 
     protected async doLogout(session: AbstractSession): Promise<void> { /* Do nothing */ }
