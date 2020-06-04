@@ -46,8 +46,8 @@ describe("cmd-cli auth logout", () => {
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
-        expect(response.stdout.toString()).not.toContain("tokenType:  jwtToken");
-        expect(response.stdout.toString()).not.toContain("tokenValue: fakeUser:fakePass@fakeToken");
+        expect(response.stdout.toString()).not.toContain("tokenType:");
+        expect(response.stdout.toString()).not.toContain("tokenValue:");
     });
 
     it("should have auth logout command that invalidates another token", () => {
