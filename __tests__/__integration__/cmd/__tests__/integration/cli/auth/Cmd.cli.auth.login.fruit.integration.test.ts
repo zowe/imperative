@@ -57,8 +57,8 @@ describe("cmd-cli auth login", () => {
         // the output of the command should not include token value
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
-        expect(response.stdout.toString()).not.toContain("tokenType:  jwtToken");
-        expect(response.stdout.toString()).not.toContain("tokenValue: fakeUser:fakePass@fakeToken");
+        expect(response.stdout.toString()).not.toContain("tokenType:");
+        expect(response.stdout.toString()).not.toContain("tokenValue:");
     });
 
     it("should load values from base profile and show token in rfj", () => {
@@ -78,11 +78,11 @@ describe("cmd-cli auth login", () => {
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
-        expect(response.stdout.toString()).not.toContain("tokenType:  jwtToken");
-        expect(response.stdout.toString()).not.toContain("tokenValue: fakeUser:fakePass@fakeToken");
+        expect(response.stdout.toString()).not.toContain("tokenType:");
+        expect(response.stdout.toString()).not.toContain("tokenValue:");
     });
 
-    it("should create a profile, if requested", () => {
+    it("should create a profile, if requested 1", () => {
         let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_create_profile.sh",
             TEST_ENVIRONMENT.workingDir, ["y", "fakeUser", "fakePass"]);
         expect(response.stderr.toString()).toBe("");
@@ -98,8 +98,28 @@ describe("cmd-cli auth login", () => {
         expect(response.stdout.toString()).toContain("port:       3000");
         expect(response.stdout.toString()).toContain("tokenType:  jwtToken");
         expect(response.stdout.toString()).toContain("tokenValue: fakeUser:fakePass@fakeToken");
-        expect(response.stdout.toString()).not.toContain("user:       fakeUser");
-        expect(response.stdout.toString()).not.toContain("password:   fakePass");
+        expect(response.stdout.toString()).not.toContain("user:");
+        expect(response.stdout.toString()).not.toContain("password:");
+    });
+
+    it("should create a profile, if requested 2", () => {
+        let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_create_profile.sh",
+            TEST_ENVIRONMENT.workingDir, ["yes", "fakeUser", "fakePass"]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+        expect(response.stdout.toString()).toContain("Profile created successfully.");
+        expect(response.stdout.toString()).toContain("Login successful.");
+
+        response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
+
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+        expect(response.stdout.toString()).toContain("host:       fakeHost");
+        expect(response.stdout.toString()).toContain("port:       3000");
+        expect(response.stdout.toString()).toContain("tokenType:  jwtToken");
+        expect(response.stdout.toString()).toContain("tokenValue: fakeUser:fakePass@fakeToken");
+        expect(response.stdout.toString()).not.toContain("user:");
+        expect(response.stdout.toString()).not.toContain("password:");
     });
 
     it("should not create a profile, if requested", () => {
@@ -115,12 +135,12 @@ describe("cmd-cli auth login", () => {
 
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
-        expect(response.stdout.toString()).not.toContain("user:       fakeUser");
-        expect(response.stdout.toString()).not.toContain("password:   fakePass");
-        expect(response.stdout.toString()).not.toContain("host:       fakeHost");
-        expect(response.stdout.toString()).not.toContain("port:       3000");
-        expect(response.stdout.toString()).not.toContain("tokenType:  jwtToken");
-        expect(response.stdout.toString()).not.toContain("tokenValue: fakeUser:fakePass@fakeToken");
+        expect(response.stdout.toString()).not.toContain("user:");
+        expect(response.stdout.toString()).not.toContain("password:");
+        expect(response.stdout.toString()).not.toContain("host:");
+        expect(response.stdout.toString()).not.toContain("port:");
+        expect(response.stdout.toString()).not.toContain("tokenType:");
+        expect(response.stdout.toString()).not.toContain("tokenValue:");
     });
 
     it("should not create a profile, if it times out", () => {
@@ -136,11 +156,11 @@ describe("cmd-cli auth login", () => {
 
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
-        expect(response.stdout.toString()).not.toContain("user:       fakeUser");
-        expect(response.stdout.toString()).not.toContain("password:   fakePass");
-        expect(response.stdout.toString()).not.toContain("host:       fakeHost");
-        expect(response.stdout.toString()).not.toContain("port:       3000");
-        expect(response.stdout.toString()).not.toContain("tokenType:  jwtToken");
-        expect(response.stdout.toString()).not.toContain("tokenValue: fakeUser:fakePass@fakeToken");
+        expect(response.stdout.toString()).not.toContain("user:");
+        expect(response.stdout.toString()).not.toContain("password:");
+        expect(response.stdout.toString()).not.toContain("host:");
+        expect(response.stdout.toString()).not.toContain("port:");
+        expect(response.stdout.toString()).not.toContain("tokenType:");
+        expect(response.stdout.toString()).not.toContain("tokenValue:");
     });
 });

@@ -13,6 +13,7 @@ import { AbstractCommandBuilder } from "../../../../cmd/src/builders/AbstractCom
 import { ICommandDefinition } from "../../../../cmd";
 import { Logger } from "../../../../logger";
 import { ICommandProfileAuthConfig } from "../../../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
+import { ImperativeError } from "../../../../error";
 
 /**
  * Abstract class for generating auth-related commands
@@ -36,7 +37,7 @@ export abstract class AuthCommandBuilder implements AbstractCommandBuilder {
 
         this.mConfig = mAuthConfig;
         if (this.mConfig == null) {
-            throw new Error(`Auth Builder Error: No auth config was supplied.`);
+            throw new ImperativeError({msg: `Auth Builder Error: No auth config was supplied.`});
         }
     }
 

@@ -111,69 +111,74 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         // login to obtain a token.
         const tokenValue = await this.doLogin(this.mSession);
 
-        // update the profile given
-        if (loadedProfile != null && loadedProfile.name != null && !params.arguments.showToken && tokenValue != null) {
-            await Imperative.api.profileManager(this.mProfileType).update({
-                name: loadedProfile.name,
-                args: {
-                    "token-type": this.mSession.ISession.tokenType,
-                    "token-value": tokenValue
-                },
-                merge: true
-            });
-        } else if ((loadedProfile == null || loadedProfile.name == null ) && !params.arguments.showToken && tokenValue != null) {
-
-            // Do not store non-profile arguments, user, or password. Set param arguments for prompted values from session.
-
-            const copyArgs = {...params.arguments};
-            copyArgs.createProfile = undefined;
-            copyArgs.showToken = undefined;
-            copyArgs.user = undefined;
-            copyArgs.password = undefined;
-
-            copyArgs.host = this.mSession.ISession.hostname;
-            copyArgs.port = this.mSession.ISession.port;
-
-            copyArgs.tokenType = this.mSession.ISession.tokenType;
-            copyArgs["token-type"] = this.mSession.ISession.tokenType;
-
-            copyArgs.tokenValue = tokenValue;
-            copyArgs["token-value"] = tokenValue;
-
-            const createParms: ISaveProfileFromCliArgs = {
-                name: "default",
-                type: this.mProfileType,
-                args: copyArgs,
-                overwrite: false,
-                profile: {}
-            };
-
-            const answer: string = await CliUtils.promptWithTimeout(
-                "We require the host, port, and token must be stored on disk for use with future commands. Is this acceptable? [y/N]: ");
-            if (answer == null || !answer.toLowerCase().startsWith("y")) {
-                throw new ImperativeError({msg: `A login command was issued, but no ${this.mProfileType} profiles exist,` +
-                    ` the show token flag was not specified, or we were not given permission to create a profile.` +
-                    ` To resolve this problem, either specify the --showToken flag, create a base profile by using information found in` +
-                    ` '${ImperativeConfig.instance.rootCommandName} profiles create ${this.mProfileType} --help',` +
-                    ` or re-run the login command and agree to the prompt requesting to store information on disk.`});
-            } else {
-                const createResponse: IProfileSaved = await Imperative.api.profileManager(this.mProfileType).save(createParms);
-                params.response.console.log(`\nProfile created successfully.\nTo create new profiles, which we use to store information, see ` +
-                `'${ImperativeConfig.instance.rootCommandName} profiles create ${this.mProfileType} --help'.\n` +
-                `To update this profile's information, see` +
-                `'${ImperativeConfig.instance.rootCommandName} profiles update ${this.mProfileType} --help'\n`);
-            }
+        // validate a token was returned
+        if (tokenValue == null) {
+            throw new ImperativeError({msg: "A token value was not returned from the login handler."});
         }
 
-        params.response.console.log("Login successful.");
+        // update the profile given
+        if (!params.arguments.showToken) {
+            if (loadedProfile != null && loadedProfile.name != null) {
+                await Imperative.api.profileManager(this.mProfileType).update({
+                    name: loadedProfile.name,
+                    args: {
+                        "token-type": this.mSession.ISession.tokenType,
+                        "token-value": tokenValue
+                    },
+                    merge: true
+                });
+            } else {
 
-        if (params.arguments.showToken) {
+                // Do not store non-profile arguments, user, or password. Set param arguments for prompted values from session.
+
+                const copyArgs = {...params.arguments};
+                copyArgs.createProfile = undefined;
+                copyArgs.showToken = undefined;
+                copyArgs.user = undefined;
+                copyArgs.password = undefined;
+
+                copyArgs.host = this.mSession.ISession.hostname;
+                copyArgs.port = this.mSession.ISession.port;
+
+                copyArgs.tokenType = this.mSession.ISession.tokenType;
+                copyArgs["token-type"] = this.mSession.ISession.tokenType;
+
+                copyArgs.tokenValue = tokenValue;
+                copyArgs["token-value"] = tokenValue;
+
+                const createParms: ISaveProfileFromCliArgs = {
+                    name: "default",
+                    type: this.mProfileType,
+                    args: copyArgs,
+                    overwrite: false,
+                    profile: {}
+                };
+
+                const answer: string = await CliUtils.promptWithTimeout(
+                    "We require the host, port, and token must be stored on disk for use with future commands. Is this acceptable? [y/N]: ");
+                if (answer != null && (answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
+                    const createResponse: IProfileSaved = await Imperative.api.profileManager(this.mProfileType).save(createParms);
+                    params.response.console.log(`\nProfile created successfully.\nTo create new profiles, which we use to store information, see ` +
+                    `'${ImperativeConfig.instance.rootCommandName} profiles create ${this.mProfileType} --help'.\n` +
+                    `To update this profile's information, see ` +
+                    `'${ImperativeConfig.instance.rootCommandName} profiles update ${this.mProfileType} --help'\n`);
+                } else {
+                    throw new ImperativeError({msg: `A login command was issued, but no ${this.mProfileType} profiles exist,` +
+                        ` the show token flag was not specified, or we were not given permission to create a profile.` +
+                        ` To resolve this problem, either specify the --show-token flag, create a base profile by using information found in` +
+                        ` '${ImperativeConfig.instance.rootCommandName} profiles create ${this.mProfileType} --help',` +
+                        ` or re-run the login command and agree to the prompt requesting to store information on disk.`});
+                }
+            }
+        } else {
             params.response.console.log(
                 "\nReceived a token of type = " + this.mSession.ISession.tokenType +
                 ".\nThe following token was retrieved and will not be stored in your profile:\n" + tokenValue
             );
             params.response.data.setObj({tokenType: this.mSession.ISession.tokenType, tokenValue});
         }
+
+        params.response.console.log("Login successful.");
     }
 
     /**
