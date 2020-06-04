@@ -15,7 +15,7 @@ import { ISession, ConnectionPropsForSessCfg, Session, SessConstants, AbstractSe
 import { Imperative } from "../../Imperative";
 import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
-import { ISaveProfileFromCliArgs, IProfileSaved } from "../../../../profiles";
+import { ISaveProfileFromCliArgs } from "../../../../profiles";
 import { ImperativeConfig, CliUtils } from "../../../../utilities";
 
 /**
