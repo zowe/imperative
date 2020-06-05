@@ -535,7 +535,9 @@ describe("Imperative", () => {
                                         user: { type: "string" },
                                         password: { type: "string" },
                                         tokenType: { type: "string" },
-                                        tokenValue: { type: "string" }
+                                        tokenValue: { type: "string" },
+                                        host: { type: "string" },
+                                        port: { type: "string" }
                                     }
                                 },
                                 authConfig: [
