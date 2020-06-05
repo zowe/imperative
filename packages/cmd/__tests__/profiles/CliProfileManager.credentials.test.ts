@@ -96,7 +96,7 @@ describe("Cli Profile Manager", () => {
 
                 const tempProf: any = {
                     username: user,
-                    password: null,
+                    password: undefined,
                     secureBox: {
                         myCode: securelyStored,
                         myFlag: securelyStored,
@@ -204,7 +204,7 @@ describe("Cli Profile Manager", () => {
             const tempProf: any = {
                 description,
                 username: user,
-                password: null,
+                password: undefined,
                 secureBox: {
                     myCode: securelyStored,
                     myFlag: securelyStored,
@@ -218,6 +218,8 @@ describe("Cli Profile Manager", () => {
 
             it("should update credentials and store a profile with a constant string value for secure properties", async () => {
                 const dummyManager = new DefaultCredentialManager("dummy");
+                const mockDeleteCreds = jest.fn();
+                dummyManager.delete = mockDeleteCreds;
                 dummyManager.save = jest.fn();
                 Object.defineProperty(CredentialManagerFactory, "manager", {get: jest.fn().mockReturnValue(dummyManager)});
 
@@ -251,6 +253,10 @@ describe("Cli Profile Manager", () => {
 
                 // writtenProfile === undefined since BasicProfileManager gets mocked and doesn't call ProfileIO.writeProfile
                 expect(writtenProfile).toBeUndefined();
+
+                // Should have deleted credentials for password in case it was defined previously
+                expect(mockDeleteCreds).toHaveBeenCalledTimes(1);
+                expect(mockDeleteCreds.mock.calls[0][0]).toContain("password");
 
                 (CliProfileManager.prototype as any).loadProfile.mockRestore();
                 (BasicProfileManager.prototype as any).saveProfile.mockRestore();

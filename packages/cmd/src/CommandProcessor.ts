@@ -562,6 +562,7 @@ export class CommandProcessor {
                     response,
                     profiles: prepared.profiles,
                     arguments: prepared.args,
+                    positionals: prepared.args._,
                     definition: this.definition,
                     fullDefinition: this.fullDefinition
                 });
@@ -628,6 +629,7 @@ export class CommandProcessor {
                             prepared.args,
                             this.log
                         ),
+                        positionals: prepared.args._,
                         definition: this.definition,
                         fullDefinition: this.fullDefinition,
                         isChained: true

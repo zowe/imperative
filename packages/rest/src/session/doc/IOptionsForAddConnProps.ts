@@ -9,12 +9,14 @@
 *
 */
 
+import { SessConstants } from "../../..";
+
 /**
- * Interface for options supplied to CredsForSessCfg.addCredsOrPrompt()
+ * Interface for options supplied to ConnectionPropsForSessCfg.addPropsOrPrompt()
  * @export
  * @interface ISession
  */
-export interface IOptionsForAddCreds {
+export interface IOptionsForAddConnProps {
 
     /**
      * Indicates that we want to generate a token.
@@ -33,4 +35,12 @@ export interface IOptionsForAddCreds {
      * The default value is true.
      */
     doPrompting?: boolean;
+
+    /**
+     * Specifies the default token type if not provided on the command line.
+     * Some commands such as "auth login" do not have a "tokenType" command line
+     * option, but still need to specify a default token type.
+     * The default value is TOKEN_TYPE_JWT.
+     */
+    defaultTokenType?: SessConstants.TOKEN_TYPE_CHOICES;
 }
