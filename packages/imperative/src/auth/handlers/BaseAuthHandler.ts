@@ -197,7 +197,6 @@ export abstract class BaseAuthHandler implements ICommandHandler {
     private async processLogout(params: IHandlerParameters) {
         const loadedProfile = params.profiles.getMeta(this.mProfileType, false);
 
-        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenType, "Token type not supplied, but is required for log out.");
         ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue, "Token value not supplied, but is required for log out.");
 
         // Force to use of token value, in case user and/or password also on base profile, make user undefined.
@@ -205,13 +204,15 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             params.arguments.user = undefined;
         }
 
+        params.arguments.tokenType = this.mDefaultTokenType;
+
         const sessCfg: ISession = this.createSessCfgFromArgs(
             params.arguments
         );
 
         const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             sessCfg, params.arguments,
-            { requestToken: false, defaultTokenType: this.mDefaultTokenType }
+            { requestToken: false }
         );
 
         this.mSession = new Session(sessCfgWithCreds);
