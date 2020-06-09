@@ -13,6 +13,11 @@ import { ICommandExampleDefinition, ICommandOptionDefinition } from "../../../..
 
 export interface ICommandProfileAuthCommand {
     /**
+     * Command summary for help text
+     */
+    summary?: string;
+
+    /**
      * Command description for help text
      */
     description?: string;

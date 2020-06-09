@@ -12,6 +12,7 @@
 import { ICommandDefinition, ICommandProfileTypeConfiguration } from "../../../cmd";
 import { IImperativeLogsConfig } from "./IImperativeLogsConfig";
 import { IImperativeOverrides } from "./IImperativeOverrides";
+import { IImperativeAuthGroupConfig } from "./IImperativeAuthGroupConfig";
 
 /**
  * All of the configuration required to set up your Imperative CLI app
@@ -165,6 +166,13 @@ export interface IImperativeConfig {
      * @memberof IImperativeConfig
      */
     baseProfile?: ICommandProfileTypeConfiguration;
+
+    /**
+     * Use this property to customize the command definitions for the auth command group.
+     * @type {IImperativeAuthGroupConfig}
+     * @memberof IImperativeConfig
+     */
+    authGroupConfig?: IImperativeAuthGroupConfig;
 
     /**
      * If you specify a list of profile configurations, you can set this to true to

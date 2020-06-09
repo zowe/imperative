@@ -74,6 +74,15 @@ export const TOKEN_TYPE_JWT = "jwtToken";
 export const TOKEN_TYPE_APIML = "apimlAuthenticationToken";
 
 /**
+ * list that specifies the choice of token types
+ */
+export const ALL_TOKEN_TYPES = [
+    TOKEN_TYPE_APIML,
+    TOKEN_TYPE_JWT,
+    TOKEN_TYPE_LTPA
+];
+
+/**
  * type that specifies the choice of token types
  */
 export type TOKEN_TYPE_CHOICES =

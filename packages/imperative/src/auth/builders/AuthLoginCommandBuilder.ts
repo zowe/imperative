@@ -11,7 +11,7 @@
 
 import { AuthCommandBuilder } from "./AuthCommandBuilder";
 import { ICommandDefinition } from "../../../../cmd";
-import { loginAuthCommandDesc } from "../../../../messages";
+import { authLoginCommandDesc, authLoginShowTokenDesc } from "../../../../messages";
 import { Constants } from "../../../../constants";
 import { TextUtils } from "../../../../utilities";
 
@@ -44,15 +44,14 @@ export class AuthLoginCommandBuilder extends AuthCommandBuilder {
         const authType: string = this.mConfig.serviceName;
         const authCommand: ICommandDefinition = {
             name: authType,
-            summary: TextUtils.formatMessage(loginAuthCommandDesc.message,
-                {type: authType}),
             type: "command",
+            summary: this.mConfig.login?.summary,
             description: this.mConfig.login?.description,
             handler: this.mConfig.handler,
             options: [
                 {
                     name: "show-token", aliases: ["st"],
-                    description: "Show the token when login is successful. If specified, does not save the token to a profile.",
+                    description: authLoginShowTokenDesc.message,
                     type: "boolean"
                 },
                 ...(this.mConfig.login?.options || [])
@@ -65,6 +64,9 @@ export class AuthLoginCommandBuilder extends AuthCommandBuilder {
         };
         // authCommand.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY] = this.mProfileType;
 
+        if (authCommand.summary == null) {
+            authCommand.summary = TextUtils.formatMessage(authLoginCommandDesc.message, {type: authType});
+        }
         if (authCommand.description == null) {
             authCommand.description = authCommand.summary;
         }

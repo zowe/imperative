@@ -11,7 +11,7 @@
 
 import { AuthCommandBuilder } from "./AuthCommandBuilder";
 import { ICommandDefinition } from "../../../../cmd";
-import { logoutAuthCommandDesc } from "../../../../messages";
+import { authLogoutCommandDesc } from "../../../../messages";
 import { Constants } from "../../../../constants";
 import { TextUtils } from "../../../../utilities";
 
@@ -44,9 +44,8 @@ export class AuthLogoutCommandBuilder extends AuthCommandBuilder {
         const authType: string = this.mConfig.serviceName;
         const authCommand: ICommandDefinition = {
             name: authType,
-            summary: TextUtils.formatMessage(logoutAuthCommandDesc.message,
-                {type: authType}),
             type: "command",
+            summary: this.mConfig.logout?.summary,
             description: this.mConfig.logout?.description,
             handler: this.mConfig.handler,
             options: this.mConfig.logout?.options,
@@ -58,6 +57,9 @@ export class AuthLogoutCommandBuilder extends AuthCommandBuilder {
         };
         // authCommand.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY] = this.mProfileType;
 
+        if (authCommand.summary == null) {
+            authCommand.summary = TextUtils.formatMessage(authLogoutCommandDesc.message, {type: authType});
+        }
         if (authCommand.description == null) {
             authCommand.description = authCommand.summary;
         }

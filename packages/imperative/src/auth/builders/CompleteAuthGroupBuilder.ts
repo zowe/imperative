@@ -11,51 +11,60 @@
 
 import { ICommandDefinition } from "../../../../cmd";
 import {
-    loginAuthsCommandDesc, loginAuthsCommandSummary,
-    logoutAuthsCommandDesc, logoutAuthsCommandSummary
+    authCategoryDesc,
+    authLoginGroupDesc, authLoginGroupSummary,
+    authLogoutGroupDesc, authLogoutGroupSummary
 } from "../../../../messages";
 import { Constants } from "../../../../constants";
 import { AuthLoginCommandBuilder } from "./AuthLoginCommandBuilder";
 import { AuthLogoutCommandBuilder } from "./AuthLogoutCommandBuilder";
 import { Logger } from "../../../../logger/index";
 import { ICommandProfileAuthConfig } from "../../../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
+import { IImperativeAuthGroupConfig } from "../../doc/IImperativeAuthGroupConfig";
 
 /**
  * Generate a complete group of commands for logging in and out of services
  * based on provided auth definitions.
  */
 export class CompleteAuthGroupBuilder {
+    private static defaultAuthGroup: ICommandDefinition = {
+        name: Constants.AUTH_GROUP,
+        description: authCategoryDesc.message,
+        type: "group",
+        children: []
+    };
+
+    private static defaultLoginGroup: ICommandDefinition = {
+        name: Constants.LOGIN_ACTION,
+        description: authLoginGroupDesc.message,
+        summary: authLoginGroupSummary.message,
+        aliases: ["li"],
+        type: "group",
+        children: [],
+    };
+
+    private static defaultLogoutGroup: ICommandDefinition = {
+        name: Constants.LOGOUT_ACTION,
+        description: authLogoutGroupDesc.message,
+        summary: authLogoutGroupSummary.message,
+        aliases: ["lo"],
+        type: "group",
+        children: [],
+    };
+
     /**
      * Get the complete auth group of commands
      * @param {[key: string]: ICommandProfileAuthConfig} authConfigs - mapping of profile types to auth configs
      * @param {Logger} logger - logger to use in the builder classes
+     * @param {IImperativeAuthGroupConfig} authGroupConfig - config that allows command definitions to be overridden
      * @returns {ICommandDefinition} - the complete profile group of commands
      */
-    public static getAuthGroup(authConfigs: {[key: string]: ICommandProfileAuthConfig[]}, logger: Logger): ICommandDefinition {
-        const authGroup: ICommandDefinition = {
-            name: Constants.AUTH_GROUP,
-            description: "Manage tokens for authentication services",
-            type: "group",
-            children: []
-        };
-
-        const loginGroup: ICommandDefinition = {
-            name: Constants.LOGIN_ACTION,
-            description: loginAuthsCommandDesc.message,
-            summary: loginAuthsCommandSummary.message,
-            aliases: ["li"],
-            type: "group",
-            children: [],
-        };
-
-        const logoutGroup: ICommandDefinition = {
-            name: Constants.LOGOUT_ACTION,
-            description: logoutAuthsCommandDesc.message,
-            summary: logoutAuthsCommandSummary.message,
-            aliases: ["lo"],
-            type: "group",
-            children: [],
-        };
+    public static getAuthGroup(authConfigs: {[key: string]: ICommandProfileAuthConfig[]},
+                               logger: Logger,
+                               authGroupConfig?: IImperativeAuthGroupConfig,): ICommandDefinition {
+        const authGroup: ICommandDefinition = {...this.defaultAuthGroup, ...authGroupConfig.authGroup};
+        const loginGroup: ICommandDefinition = {...this.defaultLoginGroup, ...authGroupConfig.loginGroup};
+        const logoutGroup: ICommandDefinition = {...this.defaultLogoutGroup, ...authGroupConfig.logoutGroup};
 
         const cmdGroups: ICommandDefinition[] = [];
         for (const profileType of Object.keys(authConfigs)) {
