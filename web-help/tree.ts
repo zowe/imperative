@@ -123,7 +123,9 @@ function updateCurrentNode(newNodeId: string, goto: boolean, expand: boolean, fo
     // Scroll node into view if needed
     setTimeout(() => {
         const nodeElem = document.getElementById(currentNodeId);
-        scrollIntoView(nodeElem, {scrollMode: "if-needed", block: "nearest", inline: "nearest"});
+        if (nodeElem) {
+            scrollIntoView(nodeElem, {scrollMode: "if-needed", block: "nearest", inline: "nearest"});
+        }
     }, 0);
 
     // Update URL in address bar to contain node ID
@@ -284,8 +286,7 @@ function loadTree() {
             search_callback: onTreeSearch
         }
     })
-    .on("model.jstree", onTreeLoaded)
-    .on("ready.jstree", onTreeLoaded)
+    .on("ready.jstree refresh.jstree", onTreeLoaded)
     .on("changed.jstree", onTreeSelectionChanged);
 
     // Connect events to search box and iframe

@@ -58,7 +58,7 @@
         minSize: 0
     });
     loadTree();
-    require("jquery")(".gutter").on("dblclick", function () {
+    document.querySelector(".gutter").addEventListener("dblclick", function () {
         toggleTree(splitter)
     });
     </script>
