@@ -113,11 +113,13 @@ export abstract class BaseAuthHandler implements ICommandHandler {
 
         // validate a token was returned
         if (tokenValue == null) {
-            throw new ImperativeError({msg: "A token value was not returned from the login handler."});
+            throw new ImperativeError({msg: "A token value was not returned from the log in handler."});
         }
 
         // update the profile given
         if (!params.arguments.showToken) {
+            let profileWithToken: string = null;
+
             if (loadedProfile != null && loadedProfile.name != null) {
                 await Imperative.api.profileManager(this.mProfileType).update({
                     name: loadedProfile.name,
@@ -127,6 +129,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                     },
                     merge: true
                 });
+                profileWithToken = loadedProfile.name;
             } else {
 
                 // Do not store non-profile arguments, user, or password. Set param arguments for prompted values from session.
@@ -160,16 +163,21 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                     `terminal and will not be stored on disk. [y/N]: `);
                 if (answer != null && (answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
                     await Imperative.api.profileManager(this.mProfileType).save(createParms);
-                    params.response.console.log(`\n` +
-                        `Log in successful. For future use, the authentication token has been stored to the '${createParms.name}' ` +
-                        `${this.mProfileType} profile. To revoke this token and remove it from your profile, please review the ` +
-                        `'zowe auth logout' command.`);
+                    profileWithToken = createParms.name;
                 } else {
                     params.arguments.showToken = true;
                 }
             }
+
+            if (profileWithToken != null) {
+                params.response.console.log(`\n` +
+                    `Log in successful. For future use, the authentication token has been stored to the '${profileWithToken}' ` +
+                    `${this.mProfileType} profile. To revoke this token and remove it from your profile, please review the ` +
+                    `'zowe auth logout' command.`);
+            }
         }
 
+        // show token instead of updating profile
         if (params.arguments.showToken) {
             params.response.console.log(`\n` +
                 `Received a token of type = ${this.mSession.ISession.tokenType}.\n` +
@@ -217,7 +225,6 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             loadedProfile.profile != null &&
             loadedProfile.profile.tokenValue != null &&
             params.arguments.tokenValue === loadedProfile.profile.tokenValue) {
-            profileWithToken = loadedProfile.name;
             await Imperative.api.profileManager(this.mProfileType).save({
                 name: loadedProfile.name,
                 type: loadedProfile.type,
@@ -228,6 +235,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                     tokenValue: undefined
                 }
             });
+            profileWithToken = loadedProfile.name;
         }
 
         this.mSession.ISession.type = SessConstants.AUTH_TYPE_BASIC;
