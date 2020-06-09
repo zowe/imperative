@@ -335,7 +335,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         CliUtils.sleep = sleepReal;
         CliUtils.promptWithTimeout = promptWithTimeoutReal;
         expect(caughtError instanceof ImperativeError).toBe(true);
-        expect(caughtError.message).toBe("We timed-out waiting for user name.");
+        expect(caughtError.message).toBe("Timed out waiting for user name.");
     });
 
     it("timeout waiting for password", async() => {
@@ -367,7 +367,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         CliUtils.sleep = sleepReal;
         CliUtils.promptWithTimeout = promptWithTimeoutReal;
         expect(caughtError instanceof ImperativeError).toBe(true);
-        expect(caughtError.message).toBe("We timed-out waiting for password.");
+        expect(caughtError.message).toBe("Timed out waiting for password.");
     });
 
     it("timeout waiting for host name", async() => {
@@ -399,7 +399,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         CliUtils.sleep = sleepReal;
         CliUtils.promptWithTimeout = promptWithTimeoutReal;
         expect(caughtError instanceof ImperativeError).toBe(true);
-        expect(caughtError.message).toBe("We timed-out waiting for host name.");
+        expect(caughtError.message).toBe("Timed out waiting for host name.");
     });
 
     it("timeout waiting for port number", async() => {
@@ -431,6 +431,6 @@ describe("ConnectionPropsForSessCfg tests", () => {
         CliUtils.sleep = sleepReal;
         CliUtils.promptWithTimeout = promptWithTimeoutReal;
         expect(caughtError instanceof ImperativeError).toBe(true);
-        expect(caughtError.message).toBe("We timed-out waiting for port number.");
+        expect(caughtError.message).toBe("Timed out waiting for port number.");
     });
 });
