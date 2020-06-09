@@ -2,6 +2,22 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `4.6.4`
+
+- Fix optional secure fields not deleted when overwriting a profile
+
+## `4.6.3`
+
+- Update log4js to improve Webpack compatibility for extenders
+
+## `4.6.2`
+
+- Fix vulnerabilities by updating yargs
+
+## `4.6.1`
+
+- Update perf-timing version
+
 ## `4.6.0`
 
 - Add Bearer token in rest Session
