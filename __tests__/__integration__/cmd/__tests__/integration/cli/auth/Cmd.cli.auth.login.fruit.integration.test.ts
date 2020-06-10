@@ -88,7 +88,7 @@ describe("cmd-cli auth login", () => {
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
         expect(response.stdout.toString()).toContain("Login successful.");
-        expect(response.stdout.toString()).toContain("the authentication token is stored in the 'default' base profile.");
+        expect(response.stdout.toString()).toContain("The authentication token is stored in the 'default' base profile");
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
 
@@ -108,7 +108,7 @@ describe("cmd-cli auth login", () => {
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
         expect(response.stdout.toString()).toContain("Login successful.");
-        expect(response.stdout.toString()).toContain("the authentication token is stored in the 'default' base profile.");
+        expect(response.stdout.toString()).toContain("The authentication token is stored in the 'default' base profile");
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
 
