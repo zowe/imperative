@@ -16,7 +16,7 @@ import { Imperative } from "../../Imperative";
 import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../profiles";
-import { ImperativeConfig, CliUtils } from "../../../../utilities";
+import { CliUtils } from "../../../../utilities";
 
 /**
  * This class is used by the auth command handlers as the base class for their implementation.
