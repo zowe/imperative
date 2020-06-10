@@ -183,7 +183,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 `Received a token of type = ${this.mSession.ISession.tokenType}.\n` +
                 `The following token was retrieved and will not be stored in your profile:\n` +
                 `${tokenValue}\n\n` +
-                `Login successful. To revoke this token, please review the 'zowe auth logout' command.`
+                `Login successful. To revoke this token, review the 'zowe auth logout' command.`
             );
             params.response.data.setObj({tokenType: this.mSession.ISession.tokenType, tokenValue});
         }
