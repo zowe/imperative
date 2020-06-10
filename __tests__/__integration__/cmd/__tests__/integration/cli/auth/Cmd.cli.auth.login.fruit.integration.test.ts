@@ -87,8 +87,8 @@ describe("cmd-cli auth login", () => {
             TEST_ENVIRONMENT.workingDir, ["y", "fakeUser", "fakePass"]);
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
-        expect(response.stdout.toString()).toContain("Profile created successfully.");
-        expect(response.stdout.toString()).toContain("Login successful.");
+        expect(response.stdout.toString()).toContain("Log in successful.");
+        expect(response.stdout.toString()).toContain("the authentication token has been stored to the 'default' base profile.");
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
 
@@ -107,8 +107,8 @@ describe("cmd-cli auth login", () => {
             TEST_ENVIRONMENT.workingDir, ["yes", "fakeUser", "fakePass"]);
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
-        expect(response.stdout.toString()).toContain("Profile created successfully.");
-        expect(response.stdout.toString()).toContain("Login successful.");
+        expect(response.stdout.toString()).toContain("Log in successful.");
+        expect(response.stdout.toString()).toContain("the authentication token has been stored to the 'default' base profile.");
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
 
@@ -125,11 +125,10 @@ describe("cmd-cli auth login", () => {
     it("should not create a profile, if requested", () => {
         let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_create_profile.sh",
             TEST_ENVIRONMENT.workingDir, ["n", "fakeUser", "fakePass"]);
-        expect(response.stderr.toString()).toContain("A login command was issued, but no base profiles exist," +
-            " the show token flag was not specified, or we were not given permission to create a profile.");
-        expect(response.status).toBe(1);
-        expect(response.stdout.toString()).not.toContain("Profile created successfully.");
-        expect(response.stdout.toString()).not.toContain("Login successful.");
+        expect(response.status).toBe(0);
+        expect(response.stdout.toString()).toContain("Log in successful.");
+        expect(response.stdout.toString()).toContain("will not be stored in your profile");
+        expect(response.stdout.toString()).toContain("fakeUser:fakePass@fakeToken");
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
 
@@ -146,11 +145,10 @@ describe("cmd-cli auth login", () => {
     it("should not create a profile, if it times out", () => {
         let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_create_profile_timeout.sh",
             TEST_ENVIRONMENT.workingDir, ["fakeUser", "fakePass"]);
-        expect(response.stderr.toString()).toContain("A login command was issued, but no base profiles exist," +
-            " the show token flag was not specified, or we were not given permission to create a profile.");
-        expect(response.status).toBe(1);
-        expect(response.stdout.toString()).not.toContain("Profile created successfully.");
-        expect(response.stdout.toString()).not.toContain("Login successful.");
+        expect(response.status).toBe(0);
+        expect(response.stdout.toString()).toContain("Log in successful.");
+        expect(response.stdout.toString()).toContain("will not be stored in your profile");
+        expect(response.stdout.toString()).toContain("fakeUser:fakePass@fakeToken");
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
 
