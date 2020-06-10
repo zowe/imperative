@@ -116,7 +116,7 @@ export const selectProfileNameDesc: IMessageDefinition = {
     message: `Specifies the name of the {{type}} ` +
         `
  profile to be used with this command. ` +
-        `To see profiles which can be validated, issue the list action for this module. ` +
+        `To see profiles that can be validated, issue the list action for this module. ` +
         `You can also load this profile by using the name on commands that support the ` +
         `"--{{typeOption}}" option.`
 };
@@ -362,7 +362,7 @@ export const authLoginCommandDesc: IMessageDefinition = {
 };
 
 export const authLoginShowTokenDesc: IMessageDefinition = {
-    message: `Show the token when log in is successful. If specified, does not save the token to a profile.`
+    message: `Show the token when login is successful. If specified, does not save the token to a profile.`
 };
 
 export const authLogoutGroupSummary: IMessageDefinition = {

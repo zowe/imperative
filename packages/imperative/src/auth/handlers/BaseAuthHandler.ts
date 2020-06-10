@@ -113,7 +113,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
 
         // validate a token was returned
         if (tokenValue == null) {
-            throw new ImperativeError({msg: "A token value was not returned from the log in handler."});
+            throw new ImperativeError({msg: "A token value was not returned from the login handler."});
         }
 
         // update the profile given
@@ -171,8 +171,8 @@ export abstract class BaseAuthHandler implements ICommandHandler {
 
             if (profileWithToken != null) {
                 params.response.console.log(`\n` +
-                    `Log in successful. For future use, the authentication token has been stored to the '${profileWithToken}' ` +
-                    `${this.mProfileType} profile. To revoke this token and remove it from your profile, please review the ` +
+                    `Login successful. The authentication token is stored in the '${profileWithToken}' ` +
+                    `${this.mProfileType} profile for future use. To revoke this token and remove it from your profile, review the ` +
                     `'zowe auth logout' command.`);
             }
         }
@@ -183,7 +183,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 `Received a token of type = ${this.mSession.ISession.tokenType}.\n` +
                 `The following token was retrieved and will not be stored in your profile:\n` +
                 `${tokenValue}\n\n` +
-                `Log in successful. To revoke this token, please review the 'zowe auth logout' command.`
+                `Login successful. To revoke this token, please review the 'zowe auth logout' command.`
             );
             params.response.data.setObj({tokenType: this.mSession.ISession.tokenType, tokenValue});
         }
@@ -197,7 +197,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
     private async processLogout(params: IHandlerParameters) {
         const loadedProfile = params.profiles.getMeta(this.mProfileType, false);
 
-        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue, "Token value not supplied, but is required for log out.");
+        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue, "Token value not supplied, but is required for logout.");
 
         // Force to use of token value, in case user and/or password also on base profile, make user undefined.
         if (params.arguments.user != null) {
@@ -243,7 +243,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         this.mSession.ISession.tokenType = undefined;
         this.mSession.ISession.tokenValue = undefined;
 
-        params.response.console.log("Log out successful. The authentication token has been revoked" +
+        params.response.console.log("Logout successful. The authentication token has been revoked" +
             (profileWithToken != null ? ` and removed from your '${profileWithToken}' ${this.mProfileType} profile` : "") +
             ".");
     }
