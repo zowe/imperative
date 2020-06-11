@@ -694,7 +694,7 @@ export class Imperative {
             });
         }
         if (Object.keys(authConfigs).length > 0) {
-            rootCommand.children.push(CompleteAuthGroupBuilder.getAuthGroup(authConfigs, this.log));
+            rootCommand.children.push(CompleteAuthGroupBuilder.getAuthGroup(authConfigs, this.log, loadedConfig.authGroupConfig));
         }
         return rootCommand;
     }

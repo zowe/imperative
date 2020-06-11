@@ -116,7 +116,7 @@ export const selectProfileNameDesc: IMessageDefinition = {
     message: `Specifies the name of the {{type}} ` +
         `
  profile to be used with this command. ` +
-        `To see profiles which can be validated, issue the list action for this module. ` +
+        `To see profiles that can be validated, issue the list action for this module. ` +
         `You can also load this profile by using the name on commands that support the ` +
         `"--{{typeOption}}" option.`
 };
@@ -345,26 +345,34 @@ export const unexpectedProfileUpdateError: IMessageDefinition = {
     message: `An unexpected profile update error occurred: \n{{unexpectedError}}`
 };
 
-export const loginAuthsCommandSummary: IMessageDefinition = {
-    message: `Login to an authentication server`,
+export const authCategoryDesc: IMessageDefinition = {
+    message: `Connect to token-based authentication services`
 };
 
-export const loginAuthsCommandDesc: IMessageDefinition = {
-    message: `${loginAuthsCommandSummary.message}.`,
+export const authLoginGroupSummary: IMessageDefinition = {
+    message: `Log in to an authentication service`
 };
 
-export const loginAuthCommandDesc: IMessageDefinition = {
-    message: `Login to a {{type}} instance`
+export const authLoginGroupDesc: IMessageDefinition = {
+    message: `${authLoginGroupSummary.message}.`
 };
 
-export const logoutAuthsCommandSummary: IMessageDefinition = {
-    message: `Logout of an authentication server`,
+export const authLoginCommandDesc: IMessageDefinition = {
+    message: `Log in to {{type}} authentication service`
 };
 
-export const logoutAuthsCommandDesc: IMessageDefinition = {
-    message: `${logoutAuthsCommandSummary.message}.`,
+export const authLoginShowTokenDesc: IMessageDefinition = {
+    message: `Show the token when login is successful. If specified, does not save the token to a profile.`
 };
 
-export const logoutAuthCommandDesc: IMessageDefinition = {
-    message: `Logout of a {{type}} instance`
+export const authLogoutGroupSummary: IMessageDefinition = {
+    message: `Log out of an authentication service`
+};
+
+export const authLogoutGroupDesc: IMessageDefinition = {
+    message: `${authLogoutGroupSummary.message}.`
+};
+
+export const authLogoutCommandDesc: IMessageDefinition = {
+    message: `Log out of {{type}} authentication service`
 };

@@ -125,7 +125,7 @@ export class ConnectionPropsForSessCfg {
                         "Enter the host name of your service: "
                     );
                     if (answer === null) {
-                        throw new ImperativeError({msg: "We timed-out waiting for host name."});
+                        throw new ImperativeError({msg: "Timed out waiting for host name."});
                     }
                 }
                 finalSessCfg.hostname = answer;
@@ -138,7 +138,7 @@ export class ConnectionPropsForSessCfg {
                         "Enter the port number for your service: "
                     );
                     if (answer === null) {
-                        throw new ImperativeError({msg: "We timed-out waiting for port number."});
+                        throw new ImperativeError({msg: "Timed out waiting for port number."});
                     } else {
                         answer = Number(answer);
                         if (isNaN(answer)) {
@@ -178,7 +178,7 @@ export class ConnectionPropsForSessCfg {
                         "Enter user name: "
                     );
                     if (answer === null) {
-                        throw new ImperativeError({msg: "We timed-out waiting for user name."});
+                        throw new ImperativeError({msg: "Timed out waiting for user name."});
                     }
                 }
                 finalSessCfg.user = answer;
@@ -192,7 +192,7 @@ export class ConnectionPropsForSessCfg {
                         true
                     );
                     if (answer === null) {
-                        throw new ImperativeError({msg: "We timed-out waiting for password."});
+                        throw new ImperativeError({msg: "Timed out waiting for password."});
                     }
                 }
                 finalSessCfg.password = answer;
