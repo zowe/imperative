@@ -4,11 +4,10 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
-- Remove temporary build modifications that were used to enable zowe-cli to build with an unpublished imperative.
 - Fix tests for interactive prompting.
 - Add the --dd flag to profile creation to allow the profile to be created without the default values specified for that profile.
 - Use a token for authentication if a token is present in the underlying REST session object.
-- Add a new CredsForSessCfg.addCredsOrPrompt function that places credentials (including a possible token) into a session configuration object.
+- Add a new ConnectionPropsForSessCfg.addPropsOrPrompt function that places credentials (including a possible token) into a session configuration object.
     - Credentials are obtained from the command line, environment variables, or a profile.
     - If no credentials are available, it will prompt for a user name and password.
     - Any prompt will timeout after 30 seconds so that it will not hang an automated script.
