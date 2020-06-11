@@ -28,9 +28,7 @@
   "typings": "lib/index.d.ts",
   "scripts": {
     "audit:public": "npm audit --registry https://registry.npmjs.org/",
-    "remove:gitinstall": "echo Remember to remove 'remove:gitinstall' and 'prepare' scripts before publishing to NPM.",
-    "prepare": "npm run build",
-    "build:packages": "gulp build && npm run build:webHelp && npm run browserify && npm run remove:gitinstall",
+    "build:packages": "gulp build && npm run build:webHelp && npm run browserify",
     "build": "npm run build:packages",
     "postbuild": "gulp build:install-all-cli-dependencies && gulp build:all-clis && npm run checkTestsCompile",
     "checkTestsCompile": "echo \"Checking that test source compiles\" && tsc --noEmit -p tsconfig-tests.json",
