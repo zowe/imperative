@@ -63,7 +63,7 @@ export interface ISaveProfile {
 
     /**
      * The argument to disable populating defaults
-     * @type {Arguments}
+     * @type {boolean}
      * @memberof ISaveProfileFromCliArgs
      */
     disableDefaults?: boolean;
