@@ -25,6 +25,14 @@ Object {
       "name": "overwrite",
       "type": "boolean",
     },
+    Object {
+      "aliases": Array [
+        "dd",
+      ],
+      "description": "Disable populating profile values of undefined properties with default values.",
+      "name": "disable-defaults",
+      "type": "boolean",
+    },
   ],
   "positionals": Array [
     Object {

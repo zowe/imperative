@@ -562,6 +562,7 @@ export class CommandProcessor {
                     response,
                     profiles: prepared.profiles,
                     arguments: prepared.args,
+                    positionals: prepared.args._,
                     definition: this.definition,
                     fullDefinition: this.fullDefinition
                 });
@@ -628,6 +629,7 @@ export class CommandProcessor {
                             prepared.args,
                             this.log
                         ),
+                        positionals: prepared.args._,
                         definition: this.definition,
                         fullDefinition: this.fullDefinition,
                         isChained: true
@@ -729,6 +731,7 @@ export class CommandProcessor {
         // Load all profiles for the command
         this.log.trace(`Loading profiles for "${this.definition.name}" command. ` +
             `Profile definitions: ${inspect(this.definition.profile, {depth: null})}`);
+
         const profiles = await CommandProfileLoader.loader({
             commandDefinition: this.definition,
             profileManagerFactory: this.profileFactory
@@ -746,7 +749,7 @@ export class CommandProcessor {
         // Set the default value for all options if defaultValue was specified on the command
         // definition and the option was not specified
         for (const option of allOpts) {
-            if (option.defaultValue != null && args[option.name] == null) {
+            if (option.defaultValue != null && args[option.name] == null && !args[Constants.DISABLE_DEFAULTS_OPTION] ) {
                 const defaultedArgs = CliUtils.setOptionValue(option.name,
                     ("aliases" in option) ? option.aliases : [],
                     option.defaultValue

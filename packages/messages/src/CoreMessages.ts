@@ -116,7 +116,7 @@ export const selectProfileNameDesc: IMessageDefinition = {
     message: `Specifies the name of the {{type}} ` +
         `
  profile to be used with this command. ` +
-        `To see profiles which can be validated, issue the list action for this module. ` +
+        `To see profiles that can be validated, issue the list action for this module. ` +
         `You can also load this profile by using the name on commands that support the ` +
         `"--{{typeOption}}" option.`
 };
@@ -124,6 +124,10 @@ export const selectProfileNameDesc: IMessageDefinition = {
 
 export const createProfileOptionOverwriteDesc: IMessageDefinition = {
     message: `Overwrite the {{type}} profile when a profile of the same name exists.`
+};
+
+export const createProfileDisableDefaultsDesc: IMessageDefinition = {
+    message: `Disable populating profile values of undefined properties with default values.`
 };
 
 export const deleteProfilesCommandSummary: IMessageDefinition = {
@@ -329,7 +333,6 @@ export const locateProfilesDesc: IMessageDefinition = {
         ` ending the search when a profile is found:`
 };
 
-
 export const profileCreatedSuccessfully: IMessageDefinition = {
     message: `Profile created successfully.`
 };
@@ -340,4 +343,36 @@ export const unexpectedProfileCreationError: IMessageDefinition = {
 
 export const unexpectedProfileUpdateError: IMessageDefinition = {
     message: `An unexpected profile update error occurred: \n{{unexpectedError}}`
+};
+
+export const authCategoryDesc: IMessageDefinition = {
+    message: `Connect to token-based authentication services`
+};
+
+export const authLoginGroupSummary: IMessageDefinition = {
+    message: `Log in to an authentication service`
+};
+
+export const authLoginGroupDesc: IMessageDefinition = {
+    message: `${authLoginGroupSummary.message}.`
+};
+
+export const authLoginCommandDesc: IMessageDefinition = {
+    message: `Log in to {{type}} authentication service`
+};
+
+export const authLoginShowTokenDesc: IMessageDefinition = {
+    message: `Show the token when login is successful. If specified, does not save the token to a profile.`
+};
+
+export const authLogoutGroupSummary: IMessageDefinition = {
+    message: `Log out of an authentication service`
+};
+
+export const authLogoutGroupDesc: IMessageDefinition = {
+    message: `${authLogoutGroupSummary.message}.`
+};
+
+export const authLogoutCommandDesc: IMessageDefinition = {
+    message: `Log out of {{type}} authentication service`
 };

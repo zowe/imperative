@@ -20,4 +20,4 @@ export * from "./src/DefinitionTreeResolver";
 export * from "./src/Imperative";
 export * from "./src/LoggingConfigurer";
 export * from "./src/plugins/PluginManagementFacility";
-
+export * from "./src/auth/handlers/BaseAuthHandler";

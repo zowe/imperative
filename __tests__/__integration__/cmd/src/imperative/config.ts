@@ -9,7 +9,57 @@
 *
 */
 
-import { IImperativeConfig } from "../../../../../packages/index";
+import { ICommandOptionDefinition, IImperativeConfig } from "../../../../../packages/index";
+
+const amountOption: ICommandOptionDefinition = {
+    name: "amount",
+    aliases: ["a"],
+    description: "The amount of fruits.",
+    type: "number"
+};
+
+const priceOption: ICommandOptionDefinition = {
+    name: "price",
+    aliases: ["p"],
+    description: "The price of one fruit.",
+    type: "number"
+};
+
+const hostOption: ICommandOptionDefinition = {
+    name: "host",
+    description: "Fruit host",
+    type: "string"
+};
+
+const portOption: ICommandOptionDefinition = {
+    name: "port",
+    description: "Fruit port",
+    type: "number"
+};
+
+const userOption: ICommandOptionDefinition = {
+    name: "user",
+    description: "Fruit username",
+    type: "string"
+};
+
+const passwordOption: ICommandOptionDefinition = {
+    name: "password",
+    description: "Fruit password",
+    type: "string"
+};
+
+const tokenTypeOption: ICommandOptionDefinition = {
+    name: "token-type",
+    description: "Fruit token type",
+    type: "string"
+};
+
+const tokenValueOption: ICommandOptionDefinition = {
+    name: "token-value",
+    description: "Fruit token value",
+    type: "string"
+};
 
 // Example to use with tsnode: */*CommandDefinitions!(.d).*s
 export const config: IImperativeConfig = {
@@ -21,6 +71,77 @@ export const config: IImperativeConfig = {
     name: "cmd-cli",
     allowConfigGroup: false,
     allowPlugins: false,
+    baseProfile: {
+        type: "base",
+        schema: {
+            type: "object",
+            title: "Fruit Profile",
+            description: "Fruit Profile",
+            properties: {
+                amount: {
+                    type: "number",
+                    optionDefinition: amountOption
+                },
+                price: {
+                    type: "number",
+                    optionDefinition: priceOption
+                },
+                host: {
+                    type: "string",
+                    optionDefinition: hostOption
+                },
+                port: {
+                    type: "number",
+                    optionDefinition: portOption
+                },
+                user: {
+                    type: "string",
+                    optionDefinition: userOption,
+                    secure: true
+                },
+                password: {
+                    type: "string",
+                    optionDefinition: passwordOption,
+                    secure: true
+                },
+                tokenType: {
+                    type: "string",
+                    optionDefinition: tokenTypeOption
+                },
+                tokenValue: {
+                    type: "string",
+                    optionDefinition: tokenValueOption,
+                    secure: true
+                }
+            },
+        },
+        authConfig: [
+            {
+                serviceName: "fruit",
+                handler: __dirname + "/../cli/auth/FruitAuthHandler",
+                login: {
+                    options: [
+                        amountOption,
+                        priceOption,
+                        hostOption,
+                        portOption,
+                        userOption,
+                        passwordOption
+                    ]
+                },
+                logout: {
+                    options: [
+                        amountOption,
+                        priceOption,
+                        hostOption,
+                        portOption,
+                        tokenTypeOption,
+                        tokenValueOption
+                    ]
+                }
+            }
+        ]
+    },
     profiles: [
         {
             type: "banana",
@@ -83,6 +204,38 @@ export const config: IImperativeConfig = {
                     },
                 },
                 required: ["amount"],
+            }
+        },
+        {
+            type: "kiwi",
+            schema: {
+                type: "object",
+                title: "Kiwi Profile",
+                description: "Kiwi Profile",
+                properties: {
+                    amount: {
+                        type: "number",
+                        optionDefinition: {
+                            name: "amount",
+                            aliases: ["a"],
+                            description: "The amount of kiwis.",
+                            type: "number",
+                        },
+                    },
+                    price: {
+                        type: "number",
+                        optionDefinition: {
+                            name: "price",
+                            aliases: ["p"],
+                            description: "The price of one kiwi.",
+                            type: "number",
+                            defaultValue: 1
+                        },
+                    },
+                    kiwiSecret: {
+                        type: "string"
+                    },
+                },
             }
         },
         {

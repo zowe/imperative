@@ -60,4 +60,11 @@ export interface ISaveProfile {
      * @memberof ISaveProfile
      */
     overwrite?: boolean;
+
+    /**
+     * The argument to disable populating defaults
+     * @type {boolean}
+     * @memberof ISaveProfileFromCliArgs
+     */
+    disableDefaults?: boolean;
 }

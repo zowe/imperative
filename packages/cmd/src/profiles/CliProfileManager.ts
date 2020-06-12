@@ -234,7 +234,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     });
                 }
 
-                return JSON.parse(ret); // Parse it after loading it. We stringify-ed before saving it
+                return (ret != null) ? JSON.parse(ret) : undefined; // Parse it after loading it. We stringify-ed before saving it
             };
         }
 
@@ -410,7 +410,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                             ProfileUtils.getProfilePropertyKey(this.profileType, name, propertyNamePath)
                         );
 
-                        return null;
+                        return undefined;
                     }
 
                     this.log.debug(`Associating secured field with key ${propertyNamePath}` +
@@ -521,6 +521,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             try {
                 await handler.process({
                     arguments: CliUtils.buildBaseArgs(newArguments),
+                    positionals: newArguments._,
                     response,
                     fullDefinition: undefined,
                     definition: undefined,
@@ -583,6 +584,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             try {
                 await handler.process({
                     arguments: CliUtils.buildBaseArgs(profileArguments),
+                    positionals: profileArguments._,
                     response,
                     fullDefinition: undefined,
                     definition: undefined,
@@ -645,7 +647,8 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                 return tempProperties;
             }
 
-            return null;
+            // Don't define any value here if the profile field cannot be set by a CLI option
+            return undefined;
         };
 
         for (const propertyName of Object.keys(this.profileTypeConfiguration.schema.properties)) {

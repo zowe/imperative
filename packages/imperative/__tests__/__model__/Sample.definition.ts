@@ -24,6 +24,9 @@ const IssueCommand: ICommandDefinition = {
             type: "string",
         }
     ],
+    profile: {
+        required: ["sample"]
+    }
 };
 
 export = IssueCommand;

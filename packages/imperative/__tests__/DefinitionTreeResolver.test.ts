@@ -40,5 +40,19 @@ describe("DefinitionTreeResolver tests", () => {
 
     it("should match on glob with dummy handler", () => {
         const def = DefinitionTreeResolver.resolve("", "", __dirname, new Logger(new Console()), [], ["**/*.definition!(.d).*s"]);
+        expect(def.children).toBeDefined();
+        expect(def.children.length).toBe(1);
+        expect(def.children[0].profile).toBeDefined();
+        expect(def.children[0].profile.required).toEqual(["sample"]);
+        expect(def.children[0].profile.optional).toBeUndefined();
+    });
+
+    it("should match on glob with dummy handler and add base profile", () => {
+        const def = DefinitionTreeResolver.resolve("", "", __dirname, new Logger(new Console()), [], ["**/*.definition!(.d).*s"], true);
+        expect(def.children).toBeDefined();
+        expect(def.children.length).toBe(1);
+        expect(def.children[0].profile).toBeDefined();
+        expect(def.children[0].profile.required).toEqual(["sample"]);
+        expect(def.children[0].profile.optional).toEqual(["base"]);
     });
 });

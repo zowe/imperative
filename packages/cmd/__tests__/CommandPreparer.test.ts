@@ -19,7 +19,9 @@ import {
     SUPPRESS_OPTION_MULTIPLE_GROUPS,
     VALID_COMPLEX_COMMAND,
     VALIDATE_MULTIPLE_GROUPS,
-    ORIGINAL_DEFINITIONS
+    ORIGINAL_DEFINITIONS,
+    VALID_COMMANDS_WITH_PROFILES,
+    SAMPLE_BASE_PROFILE
 } from "./__resources__/CommandDefinitions";
 import { ImperativeError } from "../../error/src/ImperativeError";
 import { UnitTestUtils } from "../../../__tests__/src/UnitTestUtils";
@@ -41,6 +43,15 @@ describe("Command Preparer", () => {
         const prepared: ICommandDefinition = CommandPreparer.prepare(newDef);
         TestLogger.info("\n\n" + inspect(prepared, {showHidden: true, depth: null}));
         expect(prepared).toMatchSnapshot();
+    });
+
+    it("should be able to generate options for base profile fields", () => {
+        VALID_COMMANDS_WITH_PROFILES.forEach((test) => {
+            const newDef: ICommandDefinition = JSON.parse(JSON.stringify(test));
+            const prepared: ICommandDefinition = CommandPreparer.prepare(newDef, SAMPLE_BASE_PROFILE);
+            TestLogger.info("\n\n" + inspect(prepared, {showHidden: true, depth: null}));
+            expect(prepared).toMatchSnapshot();
+        });
     });
 
     it("should be able to pass on (and overwrite) profile attributes from parents to children", () => {

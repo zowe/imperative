@@ -31,20 +31,30 @@ describe("cmd-cli profiles create banana", () => {
         expect(response.stderr.toString()).toBe("");
         expect(response.stdout.toString()).toContain("test_banana");
         expect(response.stdout.toString()).toContain("test_strawberry");
+        expect(response.stdout.toString()).toContain("test_kiwi");
         expect(response.stdout.toString()).not.toContain("Overwrote existing profile");
 
         // List the profiles for banana
-        const listBananaResponse = runCliScript(__dirname + "/__scripts__/profiles/list_banana_profiles.sh", TEST_ENVIRONMENT.workingDir);
+        const listBananaResponse = runCliScript(__dirname + "/__scripts__/profiles/list_profiles_of_type.sh", TEST_ENVIRONMENT.workingDir,
+            ["banana"]);
         expect(listBananaResponse.status).toBe(0);
         expect(listBananaResponse.stderr.toString()).toBe("");
         expect(listBananaResponse.stdout.toString()).not.toContain("strawberry");
         expect(listBananaResponse.stdout.toString()).toMatchSnapshot();
 
-        // List the profiles for banana
-        const listStrawberryResponse = runCliScript(__dirname + "/__scripts__/profiles/list_strawberry_profiles.sh", TEST_ENVIRONMENT.workingDir);
+        // List the profiles for strawberry
+        const listStrawberryResponse = runCliScript(__dirname + "/__scripts__/profiles/list_profiles_of_type.sh", TEST_ENVIRONMENT.workingDir,
+            ["strawberry"]);
         expect(listStrawberryResponse.status).toBe(0);
         expect(listStrawberryResponse.stderr.toString()).toBe("");
         expect(listStrawberryResponse.stdout.toString()).toMatchSnapshot();
         expect((listStrawberryResponse.stdout.toString().match(/default/g) || []).length).toBe(1);
+
+        // List the profiles for kiwi
+        const listKiwiResponse = runCliScript(__dirname + "/__scripts__/profiles/list_profiles_of_type.sh", TEST_ENVIRONMENT.workingDir, ["kiwi"]);
+        expect(listKiwiResponse.status).toBe(0);
+        expect(listKiwiResponse.stderr.toString()).toBe("");
+        expect(listKiwiResponse.stdout.toString()).not.toContain("kiwiSecret");
+        expect(listKiwiResponse.stdout.toString()).toMatchSnapshot();
     });
 });
