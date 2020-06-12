@@ -62,7 +62,6 @@ export class AuthLoginCommandBuilder extends AuthCommandBuilder {
             },
             customize: {}
         };
-        // authCommand.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY] = this.mProfileType;
 
         if (authCommand.summary == null) {
             authCommand.summary = TextUtils.formatMessage(authLoginCommandDesc.message, {type: authType});
