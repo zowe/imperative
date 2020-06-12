@@ -9,21 +9,21 @@
 *
 */
 
-import { ICommandDefinition } from "../../../cmd";
+import { IPartialCommandDefinition } from "../../../cmd";
 
 export interface IImperativeAuthGroupConfig {
     /**
      * Command definition for "auth" command group
      */
-    authGroup?: Partial<ICommandDefinition>;
+    authGroup?: IPartialCommandDefinition;
 
     /**
      * Command definition for "auth login" command group
      */
-    loginGroup?: Partial<ICommandDefinition>;
+    loginGroup?: IPartialCommandDefinition;
 
     /**
      * Command definition for "auth logout" command group
      */
-    logoutGroup?: Partial<ICommandDefinition>;
+    logoutGroup?: IPartialCommandDefinition;
 }

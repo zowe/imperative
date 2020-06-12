@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandProfileAuthCommand } from "./ICommandProfileAuthCommand";
+import { IPartialCommandDefinition } from "../../IPartialCommandDefinition";
 
 export interface ICommandProfileAuthConfig {
     /**
@@ -26,10 +26,10 @@ export interface ICommandProfileAuthConfig {
     /**
      * Command properties for `auth login <serviceName>`
      */
-    login?: ICommandProfileAuthCommand;
+    login?: IPartialCommandDefinition;
 
     /**
      * Command properties for `auth logout <serviceName>`
      */
-    logout?: ICommandProfileAuthCommand;
+    logout?: IPartialCommandDefinition;
 }
