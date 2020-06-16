@@ -110,10 +110,6 @@ export class ConnectionPropsForSessCfg {
         if (optsToUse.requestToken) {
             // deleting any tokenValue, ensures that basic creds are used to authenticate and get token
             delete finalSessCfg.tokenValue;
-        } else {
-            if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenValue)) {
-                finalSessCfg.tokenValue = cmdArgs.tokenValue;
-            }
         }
 
         // if our caller permits, prompt for host and port as needed
