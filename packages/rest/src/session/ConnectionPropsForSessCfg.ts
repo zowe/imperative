@@ -107,9 +107,16 @@ export class ConnectionPropsForSessCfg {
         if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.password)) {
             finalSessCfg.password = cmdArgs.password;
         }
+
         if (optsToUse.requestToken) {
             // deleting any tokenValue, ensures that basic creds are used to authenticate and get token
             delete finalSessCfg.tokenValue;
+        } else if (!ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) &&
+            !ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) &&
+            ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenValue))
+        {
+            // only set tokenValue if user and password were not supplied
+            finalSessCfg.tokenValue = cmdArgs.tokenValue;
         }
 
         // if our caller permits, prompt for host and port as needed
@@ -146,9 +153,10 @@ export class ConnectionPropsForSessCfg {
             }
         }
 
-        // when no user name is supplied, we use a token
-        if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) === false &&
-            ConnectionPropsForSessCfg.propHasValue(finalSessCfg.tokenValue) === true)
+        /* If tokenValue is set, we have already checked that user and password
+         * are not, so it's safe to proceed with using the token.
+         */
+        if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.tokenValue) === true)
         {
             impLogger.debug("Using token authentication");
             finalSessCfg.tokenValue = cmdArgs.tokenValue;
