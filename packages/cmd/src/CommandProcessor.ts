@@ -360,6 +360,29 @@ export class CommandProcessor {
 
         }
 
+        // determine if the command has the token value option and mask the token value
+        regEx = /--(token-value|tokenValue|tv) ([^\s]+)/gi;
+
+        if ((commandLine.search(regEx)) >= 0) {
+            // determine which version of token value option used to ensure it's used in the log.
+            let tokenValueString = "";
+            let regEx2 = /--token-value /gi;
+            if (commandLine.search(regEx2) >= 0) {
+                tokenValueString = "token-value";
+            }
+            regEx2 = /--tokenValue /gi;
+            if (commandLine.search(regEx2) >= 0) {
+                tokenValueString = "tokenValue";
+            }
+            regEx2 = /--tv /gi;
+            if (commandLine.search(regEx2) >= 0) {
+                tokenValueString = "tv";
+            }
+
+            commandLine = commandLine.replace(regEx, "--" + tokenValueString + " ****");
+
+        }
+
         // this.log.info(`post commandLine issued:\n\n${TextUtils.prettyJson(commandLine)}`);
         // Log the invoke
         this.log.info(`Invoking command "${this.definition.name}"...`);
