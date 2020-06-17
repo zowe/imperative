@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `4.7.1`
 
 - Don't load token value into Session object if user or password are supplied
 
