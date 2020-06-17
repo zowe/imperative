@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Hide sensitive session properties (user, password, and token value) in log file. Since 4.7.0, only password was hidden.
+
 ## `4.7.1`
 
 - Don't load token value into Session object if user or password are supplied

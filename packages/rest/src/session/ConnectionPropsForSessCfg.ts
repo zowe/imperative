@@ -208,6 +208,12 @@ export class ConnectionPropsForSessCfg {
         return finalSessCfg;
     }
 
+    /**
+     * List of properties on `sessCfg` object that should be kept secret and
+     * may not appear in Imperative log files.
+     */
+    private static readonly secureSessCfgProps: string[] = ["user", "password", "tokenValue"];
+
     // ***********************************************************************
     /**
      * Determine if we want to use a basic authentication to acquire a token.
@@ -253,18 +259,16 @@ export class ConnectionPropsForSessCfg {
     private static logSessCfg(sessCfg: any) {
         const impLogger = Logger.getImperativeLogger();
 
-        // obscure the password for displaying in the log, then restore it.
-        let realPass: string;
-        if (sessCfg.password) {
-            realPass = sessCfg.password;
-            sessCfg.password = "Password_is_hidden";
+        // create copy of sessCfg and obscure secure fields for displaying in the log
+        const sanitizedSessCfg = JSON.parse(JSON.stringify(sessCfg));
+        for (const secureProp of ConnectionPropsForSessCfg.secureSessCfgProps) {
+            if (sanitizedSessCfg[secureProp] != null) {
+                sanitizedSessCfg[secureProp] = `${secureProp}_is_hidden`;
+            }
         }
         impLogger.debug("Creating a session config with these properties:\n" +
-            JSON.stringify(sessCfg, null, 2)
+            JSON.stringify(sanitizedSessCfg, null, 2)
         );
-        if (sessCfg.password) {
-            sessCfg.password = realPass;
-        }
     }
 
     // ***********************************************************************

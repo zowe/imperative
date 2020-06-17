@@ -14,6 +14,7 @@ import { CliUtils } from "../../../utilities/src/CliUtils";
 import { ImperativeError } from "../../../error";
 import * as SessConstants from "../../src/session/SessConstants";
 import { ISession } from "../../src/session/doc/ISession";
+import { Logger } from "../../../logger";
 
 describe("ConnectionPropsForSessCfg tests", () => {
 
@@ -457,5 +458,26 @@ describe("ConnectionPropsForSessCfg tests", () => {
         CliUtils.promptWithTimeout = promptWithTimeoutReal;
         expect(caughtError instanceof ImperativeError).toBe(true);
         expect(caughtError.message).toBe("Timed out waiting for port number.");
+    });
+
+    it("should not log secure properties of session config", async () => {
+        const mockLoggerDebug = jest.fn();
+        const getImperativeLoggerSpy = jest.spyOn(Logger, "getImperativeLogger")
+            .mockReturnValueOnce({ debug: mockLoggerDebug } as any);
+        (ConnectionPropsForSessCfg as any).logSessCfg({
+            host: "SomeHost",
+            port: 11,
+            user: "FakeUser",
+            password: "FakePassword",
+            tokenType: SessConstants.TOKEN_TYPE_JWT,
+            tokenValue: "FakeToken"
+        });
+        getImperativeLoggerSpy.mockRestore();
+        expect(mockLoggerDebug).toHaveBeenCalledTimes(1);
+        const logOutput = mockLoggerDebug.mock.calls[0][0];
+        expect(logOutput).toContain("SomeHost");
+        expect(logOutput).not.toContain("FakeUser");
+        expect(logOutput).not.toContain("FakePassword");
+        expect(logOutput).not.toContain("FakeToken");
     });
 });
