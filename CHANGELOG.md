@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Don't load token value into Session object if user or password are supplied
+
 ## `4.7.0`
 
 - Add the --dd flag to profile creation to allow the profile to be created without the default values specified for that profile.
