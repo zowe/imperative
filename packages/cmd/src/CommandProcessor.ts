@@ -321,66 +321,22 @@ export class CommandProcessor {
         // determine if the command has the user option and mask the user value
         let regEx = /--(user|u) ([^\s]+)/gi;
 
-        if ((commandLine.search(regEx)) >= 0) {
-            // determine which version of password option used to ensure it's used in the log.
-            let userString = "";
-            let regEx2 = /--user /gi;
-            if (commandLine.search(regEx2) >= 0) {
-                userString = "user";
-            }
-            regEx2 = /--u /gi;
-            if (commandLine.search(regEx2) >= 0) {
-                userString = "u";
-            }
-
-            commandLine = commandLine.replace(regEx, "--" + userString + " ****");
-
+        if (commandLine.search(regEx) >= 0) {
+            commandLine = commandLine.replace(regEx, "--$1 ****");
         }
 
         // determine if the command has the password option and mask the password value
         regEx = /--(password|pass|pw) ([^\s]+)/gi;
 
-        if ((commandLine.search(regEx)) >= 0) {
-            // determine which version of password option used to ensure it's used in the log.
-            let passwordString = "";
-            let regEx2 = /--password /gi;
-            if (commandLine.search(regEx2) >= 0) {
-                passwordString = "password";
-            }
-            regEx2 = /--pass /gi;
-            if (commandLine.search(regEx2) >= 0) {
-                passwordString = "pass";
-            }
-            regEx2 = /--pw /gi;
-            if (commandLine.search(regEx2) >= 0) {
-                passwordString = "pw";
-            }
-
-            commandLine = commandLine.replace(regEx, "--" + passwordString + " ****");
-
+        if (commandLine.search(regEx) >= 0) {
+            commandLine = commandLine.replace(regEx, "--$1 ****");
         }
 
         // determine if the command has the token value option and mask the token value
         regEx = /--(token-value|tokenValue|tv) ([^\s]+)/gi;
 
-        if ((commandLine.search(regEx)) >= 0) {
-            // determine which version of token value option used to ensure it's used in the log.
-            let tokenValueString = "";
-            let regEx2 = /--token-value /gi;
-            if (commandLine.search(regEx2) >= 0) {
-                tokenValueString = "token-value";
-            }
-            regEx2 = /--tokenValue /gi;
-            if (commandLine.search(regEx2) >= 0) {
-                tokenValueString = "tokenValue";
-            }
-            regEx2 = /--tv /gi;
-            if (commandLine.search(regEx2) >= 0) {
-                tokenValueString = "tv";
-            }
-
-            commandLine = commandLine.replace(regEx, "--" + tokenValueString + " ****");
-
+        if (commandLine.search(regEx) >= 0) {
+            commandLine = commandLine.replace(regEx, "--$1 ****");
         }
 
         // this.log.info(`post commandLine issued:\n\n${TextUtils.prettyJson(commandLine)}`);
