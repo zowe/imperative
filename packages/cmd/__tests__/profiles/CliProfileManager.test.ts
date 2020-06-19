@@ -282,6 +282,34 @@ describe("Cli Profile Manager", () => {
         // validation should pass
     });
 
+    it("should still update a profile properly without providing args", async () => {
+        const configs = getTypeConfigurations();
+        const oldSum = 55;
+        (ProfileIO.exists as any) = jest.fn(() => {
+            return true; // pretend the profile already exists
+        });
+        ProfileIO.readProfileFile = jest.fn((fullFilePath: string, type: "string") => {
+            return {name: profileName, type: profileTypeOne, sum: oldSum};
+        });
+        const manager = new CliProfileManager({
+            profileRootDirectory: profileDir,
+            type: profileTypeOne,
+            logger: testLogger,
+            typeConfigurations: configs
+        });
+        const processSecurePropertiesSpy = jest.spyOn(manager as any, "processSecureProperties");
+        const newSum = 66;
+        const profileName = "myprofile";
+        const saveResult = await manager.update({
+            name: profileName, type: profileTypeOne,
+            profile: {sum: newSum}
+        });
+        testLogger.info("Update profile result: " + inspect(saveResult));
+        expect(saveResult.profile.sum).toEqual(newSum);
+        // Should have only processed secure properties once
+        expect(processSecurePropertiesSpy).toHaveBeenCalledTimes(1);
+    });
+
     it("should still fail profile validation on creation if no args are provided ", async () => {
         const configs = getTypeConfigurations();
 
@@ -498,33 +526,6 @@ describe("Cli Profile Manager", () => {
             expect(saveResult.profile.dependencies[0].name).toEqual(dependentProfileName);
             expect(saveResult.profile.dependencies[0].type).toEqual(profileTypeOne);
         });
-
-    it("should take a handler to update a profile from command line arguments, and " +
-        "the handler should be called and the resulting profile should have the created fields in it.", async () => {
-        const configs = getTypeConfigurations();
-        const oldSum = 55;
-        (ProfileIO.exists as any) = jest.fn(() => {
-            return true; // pretend the profile already exists
-        });
-        ProfileIO.readProfileFile = jest.fn((fullFilePath: string, type: "string") => {
-            return {name: profileName, type: profileTypeOne, sum: oldSum};
-        });
-        configs[0].updateProfileFromArgumentsHandler = addTwoNumbersHandler;
-        const manager = new CliProfileManager({
-            profileRootDirectory: profileDir,
-            type: profileTypeOne,
-            logger: testLogger,
-            typeConfigurations: configs
-        });
-        const a = 1;
-        const b = 2;
-        const profileName = "myprofile";
-        const saveResult = await manager.update({
-            name: profileName, type: profileTypeOne, profile: {}, args: {_: [], $0: "test", a, b}
-        });
-        testLogger.info("Save profile result: " + inspect(saveResult));
-        expect(saveResult.profile.sum).toEqual(a + b);
-    });
 
     it("should be able to map option definitions back to differently named " +
         "profile fields on update", async () => {
