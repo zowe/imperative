@@ -87,6 +87,7 @@ export class Constants {
     public static readonly PROFILE_NAME_OPTION = "profileName";
     public static readonly PROFILE_NAME_OPTION_ALIAS = "pn";
     public static readonly OVERWRITE_OPTION = "overwrite";
+    public static readonly DISABLE_DEFAULTS_OPTION = "disable-defaults";
     public static readonly DELETE_ACTION = "delete";
     public static readonly DETAILS_ACTION = "detail";
     public static readonly SHOW_DEPS_ACTION = "show-dependencies";
@@ -102,4 +103,11 @@ export class Constants {
     public static readonly DEFAULT_PROMPT_PHRASE = "PROMPT*";
 
     public static readonly WEB_HELP_DIR = "web-help";
+
+    /**
+     * Auth group constants
+     */
+    public static readonly AUTH_GROUP = "auth";
+    public static readonly LOGIN_ACTION = "login";
+    public static readonly LOGOUT_ACTION = "logout";
 }

@@ -9,7 +9,6 @@
 *
 */
 
-import { isNullOrUndefined } from "util";
 import { ImperativeError } from "../../error";
 import { Constants } from "../../constants";
 import { Arguments } from "yargs";
@@ -47,7 +46,7 @@ export class CliUtils {
      * @returns {string} - e.g. --my-option
      */
     public static getDashFormOfOption(optionName: string): string {
-        if (!isNullOrUndefined(optionName) && optionName.length >= 1) {
+        if ((optionName !== undefined && optionName !== null) && optionName.length >= 1) {
             const dashes = optionName.length > 1 ? Constants.OPT_LONG_DASH : Constants.OPT_SHORT_DASH;
             return dashes + optionName;
         } else {
@@ -334,7 +333,7 @@ export class CliUtils {
      * @memberof CliUtils
      */
     public static formatHelpHeader(header: string, indent: string = " ", color: string): string {
-        if (isNullOrUndefined(header) || header.trim().length === 0) {
+        if (header === undefined || header === null || header.trim().length === 0) {
             throw new ImperativeError({
                 msg: "Null or empty header provided; could not be formatted."
             });
@@ -401,6 +400,112 @@ export class CliUtils {
         const prompt = require("readline-sync");
         prompt.setDefaultOptions({mask: "", hideEchoBack: true});
         return prompt.question(message);
+    }
+
+    /**
+     * Sleep for the specified number of miliseconds.
+     * @param timeInMs Number of miliseconds to sleep
+     *
+     * @example
+     *      // create a synchronous delay as follows:
+     *      await CliUtils.sleep(3000);
+     */
+    public static async sleep(timeInMs: number) {
+        return new Promise((resolve) => {
+            setTimeout(resolve, timeInMs);
+        });
+    }
+
+    /**
+     * Prompt the user with a question and wait for an answer,
+     * but only up to the specified timeout.
+     *
+     * @param questionText The text with which we will prompt the user.
+     *
+     * @param hideText Should we hide the text. True = display stars.
+     *                 False = display text. Default = false.
+     *
+     * @param secToWait The number of seconds that we will wait for an answer.
+     *                  If not supplied, the default is 30 seconds.
+     *
+     * @return A string containing the user's answer, or null if we timeout.
+     *
+     * @example
+     *      const answer = await CliUtils.promptWithTimeout("Type your answer here: ");
+     *      if (answer === null) {
+     *          // abort the operation that you wanted to perform
+     *      } else {
+     *          // use answer in some operation
+     *      }
+     */
+    public static async promptWithTimeout(
+        questionText: string,
+        hideText: boolean = false,
+        secToWait: number = 30
+    ): Promise<string> {
+
+        // readline provides our interface for terminal I/O
+        const readline = require("readline");
+        const ttyIo = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout,
+            terminal: true,
+            prompt: questionText
+        });
+        const writeToOutputOrig = ttyIo._writeToOutput;
+
+        // ask user the desired question and then asynchronously read answer
+        ttyIo.prompt();
+        let answerToReturn: string = null;
+        ttyIo.on("line", (answer: string) => {
+            answerToReturn = answer;
+            ttyIo.close();
+        }).on("close", () => {
+            if (hideText) {
+                // The user's Enter key was echoed as a '*', so now output a newline
+                ttyIo._writeToOutput = writeToOutputOrig;
+                ttyIo.output.write("\n");
+            }
+        });
+
+        // when asked to hide text, override output to only display stars
+        if (hideText) {
+            const os = require("os");
+            ttyIo._writeToOutput = function _writeToOutput(stringToWrite: string) {
+                if (stringToWrite === os.EOL) {
+                    return;
+                }
+                if (stringToWrite.length === 1) {
+                    // display a star for each one character of the hidden response
+                    ttyIo.output.write("*");
+                } else {
+                    /* After a backspace, we get a string with the whole question
+                     * and the hidden response. Redisplay the prompt and hide the response.
+                     */
+                    let stringToShow = stringToWrite.substring(0, questionText.length);
+                    for (let count = 1; count <= stringToWrite.length - questionText.length; count ++) {
+                        stringToShow += "*";
+                    }
+                    ttyIo.output.write(stringToShow);
+                }
+            };
+        }
+
+        // Ensure that we use a reasonable timeout
+        const maxSecToWait = 900; // 15 minute max
+        if (secToWait > maxSecToWait || secToWait <= 0) {
+            secToWait = maxSecToWait;
+        }
+
+        // loop until timeout, to give our earlier asynch read a chance to work
+        const oneSecOfMillis = 1000;
+        for (let count = 1; answerToReturn === null && count <= secToWait; count++) {
+            await CliUtils.sleep(oneSecOfMillis);
+        }
+
+        // terminate our use of the ttyIo object
+        ttyIo.close();
+        return answerToReturn;
     }
 
     /**

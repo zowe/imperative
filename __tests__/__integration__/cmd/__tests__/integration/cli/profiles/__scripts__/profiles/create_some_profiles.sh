@@ -26,3 +26,12 @@ then
     echo "Creating a test_strawberry profile failed!" 1>&2
     exit $CMDRC
 fi
+
+# Next create a kiwi profile with kiwiSecret not defined
+cmd-cli profiles create kiwi-profile "test_kiwi" --amount 1000
+CMDRC=$?
+if [ $CMDRC -gt 0 ] 
+then
+    echo "Creating a test_kiwi profile failed!" 1>&2
+    exit $CMDRC
+fi

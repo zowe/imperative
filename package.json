@@ -1,6 +1,6 @@
 {
   "name": "@zowe/imperative",
-  "version": "4.6.4",
+  "version": "4.7.2",
   "description": "framework for building configurable CLIs",
   "author": "Broadcom",
   "license": "EPL-2.0",
@@ -128,9 +128,9 @@
     "split.js": "^1.5.11",
     "ts-jest": "^24.2.0",
     "ts-node": "^7.0.1",
-    "tslint": "^5.20.1",
+    "tslint": "^6.1.2",
     "typedoc": "^0.15.0",
-    "typescript": "^3.7.4",
+    "typescript": "^3.8.0",
     "url-search-params-polyfill": "^8.0.0",
     "uuid": "^3.3.2",
     "yargs-parser": "^16.1.0"

@@ -106,6 +106,238 @@ exports[`Command Preparer should be able to detect groups with undefined childre
 
 exports[`Command Preparer should be able to detect if a undefined or null attribute is being passed down (error) 1`] = `"You cannot pass on a trait (stdinOptionDescription) with a value of undefined (current command definition name: test-outer-group of type group)."`;
 
+exports[`Command Preparer should be able to generate options for base profile fields 1`] = `
+Object {
+  "aliases": Array [],
+  "children": Array [],
+  "description": "Command with only service profile",
+  "name": "command-with-service-profile",
+  "options": Array [
+    Object {
+      "aliases": Array [
+        "a",
+      ],
+      "description": "The amount of fruits.",
+      "group": "Options",
+      "name": "amount",
+      "type": "number",
+    },
+    Object {
+      "aliases": Array [
+        "rfj",
+      ],
+      "description": "Produce JSON formatted data from a command",
+      "group": "Global options",
+      "name": "response-format-json",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "h",
+      ],
+      "description": "Display help text",
+      "group": "Global options",
+      "name": "help",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [],
+      "description": "Display examples for all the commands in a the group",
+      "group": "Global options",
+      "name": "help-examples",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "apple-p",
+      ],
+      "description": "The name of a (apple) profile to load for this command execution.",
+      "group": "Profile Options",
+      "name": "apple-profile",
+      "type": "string",
+    },
+  ],
+  "passOn": Array [],
+  "positionals": Array [],
+  "profile": Object {
+    "optional": Array [
+      "apple",
+    ],
+  },
+  "type": "command",
+}
+`;
+
+exports[`Command Preparer should be able to generate options for base profile fields 2`] = `
+Object {
+  "aliases": Array [],
+  "children": Array [],
+  "description": "Command with only base profile",
+  "name": "command-with-base-profile",
+  "options": Array [
+    Object {
+      "aliases": Array [
+        "a",
+      ],
+      "description": "The amount of fruits.",
+      "group": "Options",
+      "name": "amount",
+      "type": "number",
+    },
+    Object {
+      "aliases": Array [
+        "rfj",
+      ],
+      "description": "Produce JSON formatted data from a command",
+      "group": "Global options",
+      "name": "response-format-json",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "h",
+      ],
+      "description": "Display help text",
+      "group": "Global options",
+      "name": "help",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [],
+      "description": "Display examples for all the commands in a the group",
+      "group": "Global options",
+      "name": "help-examples",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "fruit-p",
+      ],
+      "description": "The name of a (fruit) profile to load for this command execution.",
+      "group": "Profile Options",
+      "name": "fruit-profile",
+      "type": "string",
+    },
+  ],
+  "passOn": Array [],
+  "positionals": Array [],
+  "profile": Object {
+    "optional": Array [
+      "fruit",
+    ],
+  },
+  "type": "command",
+}
+`;
+
+exports[`Command Preparer should be able to generate options for base profile fields 3`] = `
+Object {
+  "aliases": Array [],
+  "children": Array [],
+  "description": "Command with both service and base profile",
+  "name": "command-with-both-profiles",
+  "options": Array [
+    Object {
+      "aliases": Array [
+        "a",
+      ],
+      "description": "The amount of fruits.",
+      "group": "Options",
+      "name": "amount",
+      "type": "number",
+    },
+    Object {
+      "aliases": Array [
+        "rfj",
+      ],
+      "description": "Produce JSON formatted data from a command",
+      "group": "Global options",
+      "name": "response-format-json",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "h",
+      ],
+      "description": "Display help text",
+      "group": "Global options",
+      "name": "help",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [],
+      "description": "Display examples for all the commands in a the group",
+      "group": "Global options",
+      "name": "help-examples",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "hw",
+      ],
+      "description": "Display HTML help in browser",
+      "group": "Global options",
+      "name": "help-web",
+      "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "apple-p",
+      ],
+      "description": "The name of a (apple) profile to load for this command execution.",
+      "group": "Profile Options",
+      "name": "apple-profile",
+      "type": "string",
+    },
+    Object {
+      "aliases": Array [
+        "fruit-p",
+      ],
+      "description": "The name of a (fruit) profile to load for this command execution.",
+      "group": "Profile Options",
+      "name": "fruit-profile",
+      "type": "string",
+    },
+    Object {
+      "aliases": Array [
+        "p",
+      ],
+      "description": "The price of one fruit.",
+      "group": "Options",
+      "name": "price",
+      "type": "number",
+    },
+  ],
+  "passOn": Array [],
+  "positionals": Array [],
+  "profile": Object {
+    "optional": Array [
+      "apple",
+      "fruit",
+    ],
+  },
+  "type": "command",
+}
+`;
+
 exports[`Command Preparer should be able to generate profile options (and suppress if desired) 1`] = `
 Object {
   "aliases": Array [],

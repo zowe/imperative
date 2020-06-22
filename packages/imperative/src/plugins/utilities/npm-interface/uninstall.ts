@@ -64,7 +64,9 @@ export function uninstall(packageName: string): void {
 
     const execOutput = execSync(`${npmCmd} uninstall "${npmPackage}" ` +
       `--prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g`, {
-      cwd  : PMFConstants.instance.PMF_ROOT,
+      cwd: PMFConstants.instance.PMF_ROOT,
+      // We need to capture stdout but apparently stderr also gives us a progress
+      // bar from the npm install.
       stdio: pipe
     });
 

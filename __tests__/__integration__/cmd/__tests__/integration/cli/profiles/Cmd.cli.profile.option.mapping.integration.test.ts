@@ -134,6 +134,21 @@ describe("cmd-cli profile mapping", () => {
         expect(response.stdout.toString()).toContain("Sweetness: " + envSweetness);
     });
 
+    it("should have service profile fields take precedence over base profile fields", () => {
+        const baseAmount = 500;
+        const basePrice = 2;
+        const kiwiAmount = 1000;
+        const response = runCliScript(__dirname + "/__scripts__/profiles/base_and_kiwi_profile.sh",
+            TEST_ENVIRONMENT.workingDir, [baseAmount, basePrice, kiwiAmount]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        // the output of the command should use the base profile values
+        // except for amount which was specified in service profile
+        expect(response.stdout.toString()).toContain(`Amount: ${kiwiAmount}`);
+        expect(response.stdout.toString()).toContain(`Price: ${basePrice}`);
+    });
+
     it("should be able to specify positional options via environmental variables", () => {
         // values used as env variables
         const envColor = "yellow and black";
