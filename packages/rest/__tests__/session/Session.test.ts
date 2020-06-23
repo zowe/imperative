@@ -93,6 +93,51 @@ describe("Session tests", () => {
         expect(session.ISession).toMatchSnapshot();
     });
 
+    it("should not allow tokenType for 'bearer' type", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "bearer", tokenValue: "blahblahblah", user: "user", password: "pass", tokenType: "LtpaToken2"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should not allow user for 'bearer' type", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "bearer", tokenValue: "blahblahblah", user: "user", password: "pass"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should not allow password for 'bearer' type", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "bearer", tokenValue: "blahblahblah", password: "pass"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should require token for 'bearer' type", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "bearer"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should not require user and password for 'bearer' type", () => {
+        const session = new Session({hostname: "localhost", type: "bearer", tokenValue: "blahblahblah"});
+        expect(session.ISession).toMatchSnapshot();
+    });
+
     it("should not fail to initialize with minimum data", () => {
         const session = new Session({hostname: "localhost"});
         expect(session.ISession).toMatchSnapshot();

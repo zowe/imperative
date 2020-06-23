@@ -14,3 +14,4 @@ export * from "./src/JSONUtils";
 export * from "./src/JsUtils";
 export * from "./src/ProcessUtils";
 export * from "./src/TextUtils";
+export * from "./src/CliUtils";

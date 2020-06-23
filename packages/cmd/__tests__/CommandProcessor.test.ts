@@ -827,6 +827,40 @@ describe("Command Processor", () => {
         expect(commandResponse).toMatchSnapshot();
     });
 
+    it("should mask sensitive CLI options like user and password in log output", async () => {
+        // Allocate the command processor
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            fullDefinition: SAMPLE_COMPLEX_COMMAND,
+            definition: SAMPLE_COMMAND_DEFINITION,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: "--user fakeUser --password fakePass --token-value fakeToken",
+            promptPhrase: "dummydummy"
+        });
+
+        // Mock log.info call
+        let logOutput: string = "";
+        const mockLogInfo = jest.fn((line) => {
+            logOutput += line + "\n";
+        });
+        Object.defineProperty(processor, "log", {
+            get: () => ({
+                debug: jest.fn(),
+                error: jest.fn(),
+                info: mockLogInfo,
+                trace: jest.fn()
+            })
+        });
+
+        const parms: any = {arguments: {_: [], $0: "", syntaxThrow: true}, responseFormat: "json", silent: true};
+        const commandResponse: ICommandResponse = await processor.invoke(parms);
+
+        expect(mockLogInfo).toHaveBeenCalled();
+        expect(logOutput).toContain("--user **** --password **** --token-value ****");
+    });
+
     it("should handle an error thrown from the profile loader", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({

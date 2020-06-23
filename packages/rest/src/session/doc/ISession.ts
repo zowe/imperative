@@ -9,6 +9,8 @@
 *
 */
 
+import * as SessConstants from "../SessConstants";
+
 /**
  * Session interface for maintaining cookie and protocol information
  * @export
@@ -51,7 +53,7 @@ export interface ISession {
      * @type {string}
      * @memberof ISession
      */
-    protocol?: "http" | "https";
+    protocol?: SessConstants.HTTP_PROTOCOL_CHOICES;
 
     /**
      * The base path (or first part) of the resources that we will access.
@@ -70,14 +72,17 @@ export interface ISession {
      * Type of authentication, none is default
      * "none"  - no authorization header is used
      * "basic" - use basic auth for every request
-     * "token" - indicates use token value provided and check for timeout / expiration
+     * "bearer" - use bearer auth for every request.
+     *           Indicates use token value provided.
+     * "token" - use cookie auth for every request.
+     *           Indicates use token value provided and check for timeout / expiration
      *           if not token is provided, basic auth is used and the tokenType is obtained
      *           from the cookie header and stored as a token value to be used on subsequent
      *           requests
      * @type {string}
      * @memberof ISession
      */
-    type?: "none" | "basic" | "token";
+    type?: SessConstants.AUTH_TYPE_CHOICES;
 
     /**
      * Base 64 encoded authentication materials created by base 64 encoding:
@@ -92,7 +97,7 @@ export interface ISession {
      * @type {string}
      * @memberof ISession
      */
-    tokenType?: string;
+    tokenType?: SessConstants.TOKEN_TYPE_CHOICES;
 
     /**
      * aldgfuq;iwgueroquw3evrqj4e0f9iuq0324fq9034ifgq0394fjg08934ujg0q93j4fq3j4f09jq40[f9j]

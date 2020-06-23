@@ -106,6 +106,7 @@ export class CommandProfileLoader {
 
         // Create the map that eventually will be returned
         const profileMap: Map<string, IProfile[]> = new Map<string, IProfile[]>();
+        const profileMetaMap: Map<string, IProfileLoaded[]> = new Map<string, IProfileLoaded[]>();
 
         // If there are no profile specifications on this command definition document node, then
         // we can immediately exit with an empty map
@@ -115,11 +116,13 @@ export class CommandProfileLoader {
             const responses: IProfileLoaded[] = await this.loadAll(loadList);
             this.log.debug(`"${responses.length}" profiles loaded.`);
             this.buildCommandMap(responses, profileMap);
+            this.buildCommandMetaMap(responses, profileMetaMap);
             this.log.trace(`All profiles loaded for command: ${this.definition.name}...`);
         }
 
         // Return the command profiles object for the handler
-        return new CommandProfiles(profileMap);
+        return new CommandProfiles(profileMap, profileMetaMap);
+
     }
 
     /**
@@ -139,6 +142,30 @@ export class CommandProfileLoader {
                     this.log.trace(`Adding profile "${resp.name}" of type "${resp.type}" to the map.`);
                     const existing = map.get(resp.type);
                     existing.push(resp.profile);
+                }
+            } else {
+                this.log.debug(`Profile load response without a profile: ${resp.message}`);
+            }
+        }
+    }
+
+    /**
+     * Builds the command meta map for input the the command map object for the command handlers
+     * @private
+     * @param {IProfileLoaded[]} responses - The full list of profiles loaded for this command
+     * @param {Map<string, IProfile[]>} map - The meta map to populate
+     * @memberof CommandProfileLoader
+     */
+    private buildCommandMetaMap(responses: IProfileLoaded[], map: Map<string, IProfileLoaded[]>) {
+        for (const resp of responses) {
+            if (resp.profile) {
+                if (isNullOrUndefined(map.get(resp.type))) {
+                    this.log.trace(`Adding first profile "${resp.name}" of type "${resp.type}" to the map.`);
+                    map.set(resp.type, [resp]);
+                } else {
+                    this.log.trace(`Adding profile "${resp.name}" of type "${resp.type}" to the map.`);
+                    const existing = map.get(resp.type);
+                    existing.push(resp);
                 }
             } else {
                 this.log.debug(`Profile load response without a profile: ${resp.message}`);

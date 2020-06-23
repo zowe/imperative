@@ -10,7 +10,7 @@
 */
 
 import { ImperativeError } from "../../../error";
-import { IProfile } from "../../../profiles";
+import { IProfile, IProfileLoaded } from "../../../profiles";
 import { ImperativeExpect } from "../../../expect";
 import { isNullOrUndefined } from "util";
 import { Imperative } from "../../../index";
@@ -31,11 +31,20 @@ export class CommandProfiles {
     private mMap: Map<string, IProfile[]>;
 
     /**
+     * The loaded profiles map with meta info - profiles are retrieved via the type key. More than one profile of a particular type
+     * can be loaded by the command processor (depending on dependencies, etc.)
+     * @private
+     * @type {Map<string, IProfileLoaded[]>}
+     * @memberof CommandProfiles
+     */
+    private mMetaMap: Map<string, IProfileLoaded[]> = new Map<string, IProfileLoaded[]>();
+
+    /**
      * Creates an instance of CommandProfiles.
      * @param {Map<string, IProfile[]>} map - The map of profiles
      * @memberof CommandProfiles
      */
-    constructor(map: Map<string, IProfile[]>) {
+    constructor(map: Map<string, IProfile[]>, metaMap?: Map<string, IProfileLoaded[]>) {
         // Simple validation of input parameters
         const err: string = "Command Profiles Internal Error:";
         ImperativeExpect.toNotBeNullOrUndefined(map, `${err} No map was supplied.`);
@@ -47,7 +56,45 @@ export class CommandProfiles {
             ImperativeExpect.toBeEqual((value.length > 0), true, `${err} No profiles supplied for type "${key}".`);
         });
         this.mMap = map;
+
+        if (metaMap) {
+            this.addMeta(metaMap);
+        }
     }
+
+    /**
+     * Gets the first (or by name) meta profile in the map - automatically throws an exception (unless disabled)
+     * @template T - The expected profile mapping to be returned
+     * @param {string} type - The profile type
+     * @param {string} [name=""] - The name of the profile to retrieve
+     * @param {boolean} [failNotFound=true] - Automatically throws an imperative exception if not profiles are not
+     * found - this is provided as convince for the handlers (will fail your command if not found) - This would
+     * normally be the result of a command configuration problem.
+     * @returns {T} - The first profile in the map (or the one located by name)
+     * @memberof CommandProfiles
+     */
+    public getMeta<T extends IProfileLoaded>(type: string, failNotFound = true, name = ""): IProfileLoaded {
+        let profile;
+        // If a profile is returned for the type, then we'll check if a profile of a specific name was requseted
+        // if not, just return the first profile found (first loaded)
+        if (this.metaMap.get(type) != null) {
+            if (name != null && name.trim().length > 0) {
+                for (const prof of this.metaMap.get(type)) {
+
+                    if (prof.name === name) {
+                        profile = prof;
+                        break;
+                    }
+                }
+            } else {
+                profile = this.metaMap.get(type)[0];
+            }
+        } else if (failNotFound) {
+            this.fail(type);
+        }
+        return profile;
+    }
+
 
     /**
      * Gets the first (or by name) profile in the map - automatically throws an exception (unless disabled)
@@ -67,6 +114,7 @@ export class CommandProfiles {
         if (this.map.get(type) != null) {
             if (name != null && name.trim().length > 0) {
                 for (const prof of this.map.get(type)) {
+
                     if (prof.name === name) {
                         profile = prof;
                         break;
@@ -100,6 +148,26 @@ export class CommandProfiles {
     }
 
     /**
+     * Add to an instance of CommandProfiles
+     * @private
+     * @param {Map<string, IProfileLoaded[]>} map - The map of profiles with meta information
+     * @memberof CommandProfiles
+     */
+    private addMeta(map: Map<string, IProfileLoaded[]>) {
+        // Simple validation of input parameters
+        const err: string = "Command Profiles Internal Error:";
+        ImperativeExpect.toNotBeNullOrUndefined(map, `${err} No map was supplied.`);
+        ImperativeExpect.toBeEqual(map instanceof Map, true, `${err} The "map" supplied is not an instance of a map.`);
+
+        // Ensure the correctness of each map entry
+        map.forEach((value, key) => {
+            ImperativeExpect.toBeAnArray(value, `${err} The "profiles" supplied for type "${key}" is NOT an array.`);
+            ImperativeExpect.toBeEqual((value.length > 0), true, `${err} No profiles supplied for type "${key}".`);
+        });
+        this.mMetaMap = map;
+    }
+
+    /**
      * Internal accessor for the map
      * @readonly
      * @private
@@ -108,6 +176,17 @@ export class CommandProfiles {
      */
     private get map(): Map<string, IProfile[]> {
         return this.mMap;
+    }
+
+    /**
+     * Internal accessor for the meta map
+     * @readonly
+     * @private
+     * @type {Map<string, IProfileLoaded[]>} - The profile Map
+     * @memberof CommandProfiles
+     */
+    private get metaMap(): Map<string, IProfileLoaded[]> {
+        return this.mMetaMap;
     }
 
     /**

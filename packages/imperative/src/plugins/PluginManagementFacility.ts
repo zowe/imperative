@@ -410,7 +410,8 @@ export class PluginManagementFacility {
                     type: "group",
                     children: DefinitionTreeResolver.combineAllCmdDefs(
                         this.formPluginRuntimePath(pluginCfgProps.pluginName, "./lib"),
-                        pluginCfgProps.impConfig.definitions, pluginCfgProps.impConfig.commandModuleGlobs
+                        pluginCfgProps.impConfig.definitions, pluginCfgProps.impConfig.commandModuleGlobs,
+                        ImperativeConfig.instance.loadedConfig.baseProfile != null
                     )
                 };
                 /**

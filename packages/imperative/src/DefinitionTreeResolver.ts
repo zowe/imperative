@@ -31,6 +31,7 @@ export class DefinitionTreeResolver {
      * @param errorLogger - a logger instance to be used (e.g. a console logger) for errors
      * @param {ICommandDefinition[]} childrenDefinitions - already loaded definitions that have been passed by the user
      * @param {string[]} childrenModuleGlobs - list of globs that match definition files
+     * @param {boolean} addBaseProfile - Specifies whether to add optional base profile to command definitions
      * @returns {ICommandDefinition} - the complete command tree
      */
     public static resolve(rootCommandDescription: string,
@@ -38,7 +39,8 @@ export class DefinitionTreeResolver {
                           callerDir: string,
                           errorLogger: Logger,
                           childrenDefinitions?: ICommandDefinition[],
-                          childrenModuleGlobs?: string[]): ICommandDefinition {
+                          childrenModuleGlobs?: string[],
+                          addBaseProfile?: boolean): ICommandDefinition {
         if (isNullOrUndefined(childrenDefinitions) && isNullOrUndefined(childrenModuleGlobs)) {
             throw new ImperativeError({
                 msg: "No command definitions have been provided " +
@@ -50,7 +52,7 @@ export class DefinitionTreeResolver {
             {
                 name: "",
                 description: rootCommandDescription,
-                children: this.combineAllCmdDefs(callerDir, childrenDefinitions, childrenModuleGlobs),
+                children: this.combineAllCmdDefs(callerDir, childrenDefinitions, childrenModuleGlobs, addBaseProfile),
                 type: "group",
                 options: [
                     {
@@ -83,12 +85,15 @@ export class DefinitionTreeResolver {
      *
      * @param {string[]} cmdModuleGlobs - list of globs that match definition files
      *
-     * @returns {ICommandDefinition} - An array of all resolved command definitions
+     * @param {boolean} addBaseProfile - Specifies whether to add optional base profile to command definitions
+     *
+     * @returns {ICommandDefinition[]} - An array of all resolved command definitions
      */
     public static combineAllCmdDefs(
         callerDir: string,
         cmdDefs: ICommandDefinition[]= [],
         cmdModuleGlobs: string[] = [],
+        addBaseProfile?: boolean
     ): ICommandDefinition[] {
 
         this.log.debug("Combining command definitions from caller directory %s, %d command definitions and %d globs",
@@ -129,9 +134,26 @@ export class DefinitionTreeResolver {
         }
 
         for (const child of cmdDefs) {
-                allCmdDefs.push(child);
+            allCmdDefs.push(child);
         }
-        return allCmdDefs;
+        return addBaseProfile ? this.addBaseProfile(allCmdDefs) : allCmdDefs;
+    }
+
+    /**
+     * Append optional base profile to profile type array for all command definitions that have profiles associated.
+     * @param cmdDefs - An array of all resolved command definitions
+     * @returns {ICommandDefinition[]} - An array of command definitions with base profile added
+     */
+    private static addBaseProfile(cmdDefs: ICommandDefinition[]): ICommandDefinition[] {
+        return cmdDefs.map((cmdDef: ICommandDefinition) => {
+            if (cmdDef.profile && Object.keys(cmdDef.profile).length > 0) {
+                cmdDef.profile.optional = [...(cmdDef.profile.optional || []), "base"];
+            }
+            if (cmdDef.children && cmdDef.children.length > 0) {
+                cmdDef.children = this.addBaseProfile(cmdDef.children);
+            }
+            return cmdDef;
+        });
     }
 
     private static get log(): Logger {
