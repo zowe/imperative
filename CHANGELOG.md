@@ -6,6 +6,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Fix web help failing to load in Internet Explorer 11
 - Fix `--help-web` not working on macOS when DISPLAY environment variable is undefined
+- Change type of `ISession.tokenType` to "string" (for compatiblity with versions older than 4.7.0).
 
 ## `4.7.2`
 
