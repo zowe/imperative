@@ -93,6 +93,7 @@
     "@types/progress": "^2.0.3",
     "@types/stack-trace": "^0.0.29",
     "ansi-colors": "^4.1.1",
+    "array-from": "^2.1.1",
     "balloon-css": "^1.0.4",
     "bootstrap": "^4.4.1",
     "browserify": "^16.5.0",
@@ -122,7 +123,6 @@
     "keytar": "^5.0.0",
     "madge": "^3.6.0",
     "node-pty": "^0.9.0",
-    "popper.js": "^1.16.0",
     "scroll-into-view-if-needed": "^2.2.22",
     "shebang-regex": "^2.0.0",
     "split.js": "^1.5.11",
@@ -131,6 +131,7 @@
     "tslint": "^6.1.2",
     "typedoc": "^0.15.0",
     "typescript": "^3.8.0",
+    "url-search-params-polyfill": "^8.0.0",
     "uuid": "^3.3.2",
     "yargs-parser": "^16.1.0"
   },
