@@ -4,6 +4,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
+- Fix web help failing to load in Internet Explorer 11
 - Fix `--help-web` not working on macOS when DISPLAY environment variable is undefined
 
 ## `4.7.2`
