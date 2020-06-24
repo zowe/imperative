@@ -69,12 +69,12 @@ export class ProcessUtils {
             return GuiResult.NO_GUI_SSH;
         }
 
-        /* On linux (and MAC) the DISPLAY environment variable
-         * indicates that we are in an X-Window environment.
+        /* On linux the DISPLAY environment variable indicates
+         * that we are in an X-Window environment.
          */
-        if ( process.platform !== "win32") {
+        if (process.platform !== "win32" && process.platform !== "darwin") {
             if (typeof process.env.DISPLAY === "undefined" ||
-                process.env.DISPLAY === "" )
+                process.env.DISPLAY === "")
             {
                 return GuiResult.NO_GUI_NO_DISPLAY;
             }
