@@ -93,14 +93,14 @@ export interface ISession {
     base64EncodedAuth?: string;
 
     /**
-     * e.g. LTPA2
+     * Type of token in `tokenValue`, e.g. LTPA2
      * @type {string}
      * @memberof ISession
      */
-    tokenType?: SessConstants.TOKEN_TYPE_CHOICES;
+    tokenType?: string;
 
     /**
-     * aldgfuq;iwgueroquw3evrqj4e0f9iuq0324fq9034ifgq0394fjg08934ujg0q93j4fq3j4f09jq40[f9j]
+     * Token value of type `tokenType`
      * @type {string}
      * @memberof ISession
      */
