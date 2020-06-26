@@ -11,17 +11,26 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      # fail-fast: false
+      fail-fast: false
       matrix:
         node-version: [8.x, 10.x, 12.x]
         os: [windows-latest, ubuntu-latest, macos-latest]
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Check out
+      uses: actions/checkout@v2
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
+
     - run: npm ci
+
     - run: npm run build --if-present
-    - run: npm test
+
+    - name: Unit Tests
+      run: npm run test:unit -- --silent
+
+    - name: Integration Tests
+      run: npm run test:integration -- --silent
