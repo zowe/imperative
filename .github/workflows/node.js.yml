@@ -53,7 +53,7 @@ jobs:
       run: |
         sudo apt-get install -qq -y dbus-x11 gnome-keyring
         eval $(dbus-launch --sh-syntax)
-        echo -n "" | /usr/bin/gnome-keyring-daemon -r -d --unlock
+        echo 'root' | /usr/bin/gnome-keyring-daemon -r -d --unlock
         npx jest CliProfileManager.credentials.spec.ts
 
     # - name: Upload Test Results
