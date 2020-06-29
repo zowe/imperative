@@ -30,13 +30,19 @@ jobs:
     - run: npm run build --if-present
 
     - name: Unit Tests
-      uses: dkershner6/jest-coverage-commenter-action@v1
-      with:
-        github_token: "${{ secrets.GITHUB_TOKEN }}"
-        test_command: "npm run test:unit"
+      run: npm run test:unit > unit-output.txt
 
     - name: Integration Tests
-      uses: dkershner6/jest-coverage-commenter-action@v1
+      run: npm run test:integration > integration-output.txt
+
+    - name: Archive Unit Test Artifact
+      uses: actions/upload-artifact@v1
       with:
-        github_token: "${{ secrets.GITHUB_TOKEN }}"
-        test_command: "npm run test:integration"
+        name: ${{ matrix.os }}-${{ matrix.node-version }}-unit-test.log
+        path: unit-output.txt
+
+    - name: Archive Integration Test Artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: ${{ matrix.os }}-${{ matrix.node-version }}-integration-test.log
+        path: integration-output.txt
