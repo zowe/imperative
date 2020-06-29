@@ -34,7 +34,8 @@ jobs:
     #   run: npm run lint
 
     - name: "Build: Source"
-      run: npm run build --if-present
+      # run: npm run build --if-present
+      run: npm run build:packages
 
     # - name: "Test: Unit"
     #   run: npm run test:unit
@@ -42,8 +43,9 @@ jobs:
     - name: Unlock Keyring
       if: matrix.os == 'ubuntu-latest'
       run: |
-        apt-get install dbus-x11
+        sudo apt-get install dbus-x11
         eval `dbus-launch --sh-syntax`
+        echo 'root' | gnome-keyring-daemon -r -d --unlock
 
     - name: "Test: Integration"
       # run: npm run test:integration
