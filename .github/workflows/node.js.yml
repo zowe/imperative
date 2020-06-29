@@ -30,14 +30,14 @@ jobs:
     - run: npm run build --if-present
 
     - name: Unit Tests
-      uses: mattallty/jest-github-actions@v1
+      uses: mattallty/jest-github-action@v1
       env:
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
       with:
         test-command: "npm run test:unit"
 
     - name: Integration Tests
-      uses: mattallty/jenkins-github-actions@v1
+      uses: mattallty/jenkins-github-action@v1
       env: 
         GITHUB_TOKEN: ${{ secrets.TOKEN }}
       with:
