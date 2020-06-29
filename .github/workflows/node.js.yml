@@ -20,23 +20,29 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
 
+
     - name: Install Node Package Dependencies
       run: npm ci
 
+
     - name: Lint
       run: npm run lint
+
 
     - name: Build Source
       # run: npm run build --if-present
       run: npm run build:packages
 
+
     - name: Unit Tests
       run: npm run test:unit -- --silent > unit-output.txt
+
 
     - name: Integration Tests
       if: matrix.os != 'ubuntu-latest'
@@ -48,7 +54,8 @@ jobs:
         sudo apt-get install -qq -y dbus-x11 gnome-keyring
         eval $(dbus-launch --sh-syntax)
         echo 'root' | /usr/bin/gnome-keyring-daemon -r -d --unlock
-        npx jest CliProfileManager.credentials.spec.ts
+        npm run test:integration -- --silent > integration-output.txt
+
 
     - name: Archive Unit Test Artifact
       uses: actions/upload-artifact@v1
@@ -62,6 +69,7 @@ jobs:
         name: ${{ matrix.os }}-${{ matrix.node-version }}-integration-test.log
         path: integration-output.txt
 
+
     # - name: Unlock Keyring
     #   if: matrix.os == 'ubuntu-latest'
     #   run: |
@@ -69,6 +77,7 @@ jobs:
     #     NO_AT_BRIDGE=1 eval $(dbus-launch --sh-syntax)
     #     eval $(echo -n "" | /usr/bin/gnome-keyring-daemon --login)
     #     eval $(/usr/bin/gnome-keyring-daemon --components=secrets --start)
+
 
     - name: Check Vulnerabilities
       run: npm audit --audit-level=moderate
