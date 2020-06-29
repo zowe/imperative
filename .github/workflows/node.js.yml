@@ -40,17 +40,22 @@ jobs:
     # - name: "Test: Unit"
     #   run: npm run test:unit
 
-    - name: Unlock Keyring
-      if: matrix.os == 'ubuntu-latest'
-      run: |
+    # - name: Unlock Keyring
+    #   if: matrix.os == 'ubuntu-latest'
+    #   run: |
+    #     sudo apt-get install -qq -y dbus-x11 gnome-keyring
+    #     NO_AT_BRIDGE=1 eval $(dbus-launch --sh-syntax)
+    #     eval $(echo -n "" | /usr/bin/gnome-keyring-daemon --login)
+    #     eval $(/usr/bin/gnome-keyring-daemon --components=secrets --start)
+
+    - name: "Test: Integration"
+      # run: npm run test:integration
+      run:
         sudo apt-get install -qq -y dbus-x11 gnome-keyring
         NO_AT_BRIDGE=1 eval $(dbus-launch --sh-syntax)
         eval $(echo -n "" | /usr/bin/gnome-keyring-daemon --login)
         eval $(/usr/bin/gnome-keyring-daemon --components=secrets --start)
-
-    - name: "Test: Integration"
-      # run: npm run test:integration
-      run: npx jest CliProfileManager.credentials.spec.ts
+        npx jest CliProfileManager.credentials.spec.ts
 
     # - name: Upload Test Results
     #   uses: actions/upload-artifact@v1
