@@ -43,13 +43,13 @@ jobs:
     - name: Unlock Keyring
       if: matrix.os == 'ubuntu-latest'
       run: |
-        sudo apt-get install -y dbus-x11
+        sudo apt-get install -qy dbus-x11
         eval `dbus-launch --sh-syntax`
     #    echo 'root' | gnome-keyring-daemon -r -d --unlock
 
     - name: "Test: Integration"
       # run: npm run test:integration
-      run: npx jest cli.imperative-test-cli.profiles.create.secured-profile.integration.test.ts
+      run: npx jest CliProfileManager.credentials.spec.ts
 
     # - name: Upload Test Results
     #   uses: actions/upload-artifact@v1
