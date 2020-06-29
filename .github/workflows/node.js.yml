@@ -30,10 +30,10 @@ jobs:
     - run: npm run build --if-present
 
     - name: Unit Tests
-      run: npm run test:unit > unit-output.txt
+      run: npm run test:unit | tee unit-output.txt
 
     - name: Integration Tests
-      run: npm run test:integration > integration-output.txt
+      run: npm run test:integration | tee integration-output.txt
 
     - name: Archive Unit Test Artifact
       uses: actions/upload-artifact@v1
