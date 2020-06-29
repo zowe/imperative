@@ -35,6 +35,8 @@ jobs:
         github_token: "${{ secrets.GITHUB_TOKEN }}"
         test_command: "npm run test:unit"
 
-
     - name: Integration Tests
-      run: npm run test:integration -- --silent
+      uses: dkershner6/jest-coverage-commenter-action@v1
+      with:
+        github_token: "${{ secrets.GITHUB_TOKEN }}"
+        test_command: "npm run test:integration"
