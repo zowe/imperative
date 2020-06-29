@@ -42,6 +42,7 @@ jobs:
     - name: Unlock Keyring
       if: matrix.os == 'ubuntu-latest'
       run: |
+        apt-get install dbus-x11
         eval `dbus-launch --sh-syntax`
 
     - name: "Test: Integration"
