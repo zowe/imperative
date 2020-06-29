@@ -13,11 +13,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [8.x, 10.x, 12.x]
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        # node-version: [8.x, 10.x, 12.x]
+        # os: [windows-latest, ubuntu-latest, macos-latest]
+        node-version: [12.x]
+        os: [ubuntu-latest]
 
     steps:
-    - name: Check out
+    - name: Checkout
       uses: actions/checkout@v2
 
     - name: Use Node.js ${{ matrix.node-version }}
@@ -25,12 +27,33 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    - run: npm ci
+    - name: Install Node Package Dependencies
+      run: npm ci
 
-    - run: npm run build --if-present
+    # - name: Lint
+    #   run: npm run lint
 
-    - name: Unit Tests
-      run: npm run test:unit -- --silent
+    - name: "Build: Source"
+      run: npm run build --if-present
 
-    - name: Integration Tests
-      run: npm run test:integration -- --silent
+    # - name: "Test: Unit"
+    #   run: npm run test:unit
+
+    - name: Unlock Keyring
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        eval `dbus-launch --sh-syntax`
+
+    - name: "Test: Integration"
+      # run: npm run test:integration
+      run: npx jest cli.imperative-test-cli.profiles.create.secured-profile.integration.test.ts
+
+    # - name: Upload Test Results
+    #   uses: actions/upload-artifact@v1
+    #   if: matrix.os == 'ubuntu-latest' && matrix.node-version == '12.x'
+    #   with:
+    #     name: results
+    #     path: __tests__/__results__/
+
+    # - name: Check Vulnerabilities
+    #   run: npm audit --audit-level=moderate
