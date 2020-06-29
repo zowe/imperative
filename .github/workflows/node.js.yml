@@ -32,14 +32,14 @@ jobs:
     - name: Unit Tests
       uses: mattallty/jest-github-action@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         test-command: "npm run test:unit"
 
     - name: Integration Tests
       uses: mattallty/jest-github-action@v1
       env: 
-        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         test-command: "npm run test:integration"
     
