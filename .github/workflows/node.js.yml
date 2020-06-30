@@ -48,10 +48,12 @@ jobs:
 
     - name: Unit Tests
       id: unit
+      if: ${{ steps.build.outcome == 'success' }}
       run: npm run test:unit -- --silent >> file.txt
 
     - name: Integration Tests
       id: integration
+      if: ${{ steps.build.outcome == 'success' }}
       run: npm run test:integration -- --silent >> file.txt
 
 
