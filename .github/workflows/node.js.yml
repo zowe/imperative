@@ -59,7 +59,7 @@ jobs:
         recursive: false
 
     - name: Archive Results
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: ${{ matrix.os }}-${{ matrix.node-version }}-results
         path: results.zip
