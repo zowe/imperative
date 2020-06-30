@@ -4,6 +4,7 @@ on:
     - cron: '0 0 * * *'
 
 jobs:
+
   delete-artifacts:
     runs-on: ubuntu-latest
     steps:
