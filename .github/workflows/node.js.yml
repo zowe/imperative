@@ -45,7 +45,6 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
       uses: tjohnsonBCM/unlock-keyring@master
 
-
     - name: Unit Tests
       id: unit
       if: ${{ steps.build.outcome == 'success' }}
@@ -73,7 +72,3 @@ jobs:
       with:
         name: ${{ matrix.os }}-${{ matrix.node-version }}-results
         path: results.zip
-
-
-    - name: Check Vulnerabilities
-      run: npm audit --audit-level=moderate
