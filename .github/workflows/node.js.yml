@@ -45,24 +45,23 @@ jobs:
 
 
     - name: Unit Tests
-      run: npm run test:unit -- --silent > unit-output.txt
+      run: npm run test:unit -- --silent
 
     - name: Integration Tests
-      run: npm run test:integration -- --silent > integration-output.txt
+      run: npm run test:integration -- --silent
 
 
-    - name: Archive Unit Test Artifact
+    - name: Zip Results
+      uses: edgarrc/action-7z@v1
+      with:
+        args: 7z a -tzip -mx=7 results.7z ./__tests__/__results__/*
+
+    - name: Archive Results
       uses: actions/upload-artifact@v1
       with:
-        name: ${{ matrix.os }}-${{ matrix.node-version }}-unit-test.log
-        path: unit-output.txt
+        name: ${{ matrix.os }}-${{ matrix.node-version }}-results
+        path: results.zip
 
-    - name: Archive Integration Test Artifact
-      uses: actions/upload-artifact@v1
-      with:
-        name: ${{ matrix.os }}-${{ matrix.node-version }}-integration-test.log
-        path: integration-output.txt
-  
 
     - name: Check Vulnerabilities
       run: npm audit --audit-level=moderate
