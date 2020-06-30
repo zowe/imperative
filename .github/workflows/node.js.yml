@@ -52,7 +52,7 @@ jobs:
 
 
     - name: Zip Results
-      uses: edgarrc/action-7z@v1
+      uses: edgarrc/action-7z@v1.0.4
       with:
         args: 7z a -tzip -mx=7 results.7z ./__tests__/__results__/*
 
