@@ -32,10 +32,12 @@ jobs:
 
 
     - name: Lint
+      id: lint
       run: npm run lint
 
 
     - name: Build Source
+      id: build
       run: npm run build --if-present
 
 
@@ -45,13 +47,17 @@ jobs:
 
 
     - name: Unit Tests
+      id: unit
       run: npm run test:unit -- --silent >> file.txt
 
     - name: Integration Tests
+      id: integration
       run: npm run test:integration -- --silent >> file.txt
 
 
     - name: Zip Results
+      id: zip
+      if: steps.build.outcome == "success"
       uses: papeloto/action-zip@v1
       with:
         files: __tests__/__results__/
@@ -59,6 +65,8 @@ jobs:
         recursive: false
 
     - name: Archive Results
+      id: upload
+      if: steps.build.outcome == "success"
       uses: actions/upload-artifact@v2
       with:
         name: ${{ matrix.os }}-${{ matrix.node-version }}-results
