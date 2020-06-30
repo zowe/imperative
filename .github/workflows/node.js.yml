@@ -57,7 +57,7 @@ jobs:
 
     - name: Zip Results
       id: zip
-      if: ${{ steps.build.outcome == "success" }}
+      if: ${{ steps.build.outcome == 'success' }}
       uses: papeloto/action-zip@v1
       with:
         files: __tests__/__results__/
@@ -66,7 +66,7 @@ jobs:
 
     - name: Archive Results
       id: upload
-      if: ${{ steps.build.outcome == "success" }}
+      if: ${{ steps.build.outcome == 'success' }}
       uses: actions/upload-artifact@v2
       with:
         name: ${{ matrix.os }}-${{ matrix.node-version }}-results
