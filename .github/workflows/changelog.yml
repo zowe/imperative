@@ -22,7 +22,7 @@ jobs:
         echo $FILES | grep 'CHANGELOG.md'
 
     - name: Display Message if Changelog Missing
-      if: ${{ steps.checkchangelogupdated.outcome == failure }}
+      if: ${{ steps.checkchangelogupdated.outcome == 'failure' }}
       run: echo 'The changelog has not changed and the no-changelog label was not applied. Pleasee see CONTRIBUTING.md for changelog format.'
 
     - name: Check Changelog Contents
@@ -31,6 +31,6 @@ jobs:
       run: cat CHANGELOG.md | grep '## Recent Changes' && echo 'Recent Changes header found.'
 
     - name: Display Message if Header Missing
-      if: ${{ steps.checkchangelogcontents.outcome == failure }}
+      if: ${{ steps.checkchangelogcontents.outcome == 'failure' }}
       run: echo 'No recent changes header was found. Please see CONTRIBUTING.md for changelog format.'
     
