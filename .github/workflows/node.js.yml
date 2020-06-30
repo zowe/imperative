@@ -45,10 +45,10 @@ jobs:
 
 
     - name: Unit Tests
-      run: npm run test:unit -- --silent
+      run: npm run test:unit -- --silent >> file.txt
 
     - name: Integration Tests
-      run: npm run test:integration -- --silent
+      run: npm run test:integration -- --silent >> file.txt
 
 
     - name: Zip Results
