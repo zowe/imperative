@@ -8,7 +8,7 @@ on:
 jobs:
   changelog:
     runs-on: ubuntu-latest
-    stragegy:
+    strategy:
       fail-fast: false
 
     steps:
