@@ -33,4 +33,9 @@ jobs:
     - name: Display Message if Header Missing
       if: ${{ steps.checkchangelogcontents.outcome == 'failure' }}
       run: echo 'No recent changes header was found. Please see CONTRIBUTING.md for changelog format.'
+
+    - name: Debug
+      if: ${{ always() }}
+      run: echo "${{ steps.checkchangelogupdated.outcome }} | ${{ steps.checkchangelogcontents.outcome }}"
+
     
