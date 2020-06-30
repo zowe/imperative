@@ -17,7 +17,7 @@ jobs:
       id: checkchangelogupdated
       if: ${{ contains( github.event.pull_request.labels.*.name, 'no-changelog') != 'true' }}
       run: |
-        URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.pull_request.number }}/files"
+        URL="https://api.github.com/repos/zowe/imperative/pulls/${{ github.event.pull_request.number }}/files"
         FILES=$(curl -s -H 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' -X GET -G $URL | jq -r '.[] | .filename')
         echo $FILES | grep 'CHANGELOG.md'
 
