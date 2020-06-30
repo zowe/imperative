@@ -51,12 +51,12 @@ jobs:
       run: npm run test:integration -- --silent
 
 
-    - name: Zip Results
-      uses: edgarrc/action-7z@v1.0.4
+    - name: Zip and Archive Results
+      uses: papeloto/action-zip@v1
       with:
-        args: 7z a -tzip -mx=7 results.zip ./__tests__/__results__/*
-
-    - name: Archive Results
+        files: __tests__/__results__/
+        dest: results.zip
+        recursive: false
       uses: actions/upload-artifact@v1
       with:
         name: ${{ matrix.os }}-${{ matrix.node-version }}-results
