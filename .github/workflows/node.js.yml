@@ -40,20 +40,19 @@ jobs:
       id: build
       run: npm run build --if-present
 
-
-    - name: Unlock Keyring
-      if: matrix.os == 'ubuntu-latest'
-      uses: tjohnsonBCM/unlock-keyring@master
-
     - name: Unit Tests
       id: unit
       if: ${{ always() && steps.build.outcome == 'success' }}
-      run: npm run test:unit -- --silent >> file.txt
+      run: npm run test:unit >> file.txt
+
+    - name: Unlock Keyring
+      if: ${{ always() && steps.build.outcome == 'success' && matrix.os == 'ubuntu-latest' }}
+      uses: tjohnsonBCM/unlock-keyring@master
 
     - name: Integration Tests
       id: integration
       if: ${{ always() && steps.build.outcome == 'success' }}
-      run: npm run test:integration -- --silent >> file.txt
+      run: npm run test:integration >> file.txt
 
 
     - name: Zip Results
