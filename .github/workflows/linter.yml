@@ -7,9 +7,7 @@ on:
       - 'zowe-v1-lts'
 
 jobs:
-  build:
-
-    name: Lint
+  lint:
     runs-on: ubuntu-latest
 
     steps:

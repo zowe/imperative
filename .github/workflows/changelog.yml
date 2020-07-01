@@ -8,8 +8,6 @@ on:
 jobs:
   changelog:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
 
     steps:
 
@@ -33,4 +31,3 @@ jobs:
     - name: Display Message if Header Missing
       if: ${{ always() && steps.checkchangelogcontents.outcome == 'failure' }}
       run: echo 'No recent changes header was found. Please see CONTRIBUTING.md for changelog format.'
-    
