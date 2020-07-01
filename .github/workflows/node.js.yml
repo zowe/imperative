@@ -16,6 +16,10 @@ jobs:
         node-version: [8.x, 10.x, 12.x]
         os: [windows-latest, ubuntu-latest, macos-latest]
 
+    env:
+      OS: ${{ matrix.os }}
+      NODE: ${{ matrix.node-version }}
+
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -65,5 +69,7 @@ jobs:
         path: results.zip
 
     - name: Upload Results to Codecov
-      if: ${{ always() && steps.build.outcome == 'success' && matrix.os == 'ubuntu-latest' && matrix.node-version == '12.x' }}
+      if: ${{ always() && steps.build.outcome == 'success' }}
       uses: codecov/codecov-action@v1
+      with:
+        env_vars: OS,NODE
