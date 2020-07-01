@@ -63,3 +63,10 @@ jobs:
       with:
         name: ${{ matrix.os }}-${{ matrix.node-version }}-results
         path: results.zip
+
+    - name: Upload Results to Codecov
+      if: ${{ always() && steps.build.outcome == 'success' }}
+      uses: codecov/codecov-action@v1
+      with:
+        file: ./__tests__/__results__/unit/coverage/cobertura-coverage.xml
+        flags: unittests
