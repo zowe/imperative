@@ -21,8 +21,8 @@ jobs:
       with:
         node-version: 12.x
 
-    - name: Install TSLint
-      run: npm install tslint typescript --save-dev
+    - name: Install Node Package Dependencies
+      run: npm ci
 
     - name: Lint
       run: npm run lint
