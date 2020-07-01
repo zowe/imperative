@@ -67,6 +67,3 @@ jobs:
     - name: Upload Results to Codecov
       if: ${{ always() && steps.build.outcome == 'success' && matrix.os == 'ubuntu-latest' && matrix.node-version == '12.x' }}
       uses: codecov/codecov-action@v1
-      with:
-        file: ./__tests__/__results__/unit/coverage/cobertura-coverage.xml
-        flags: unittests
