@@ -2,6 +2,8 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+Modify the changelog for the test.
+
 ## `4.7.3`
 
 - Fix web help failing to load in Internet Explorer 11
