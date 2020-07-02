@@ -18,6 +18,6 @@ jobs:
       if: ${{ contains( github.event.pull_request.labels.*.name, 'no-changelog') != true }}
       uses: awharn/check_changelog_action@master
       with:
-        header: '## Recent Chagnes'
+        header: '## Recent Changes'
         file: 'CHANGELOG.md'
         token: ${{ secrets.GITHUB_TOKEN }}
