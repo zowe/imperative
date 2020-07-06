@@ -2,8 +2,9 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
-- Modify the changelog for the test.
+## `4.7.4`
+
+- Fix update profile API storing secure fields incorrectly when called without CLI args
 
 ## `4.7.3`
 

@@ -176,7 +176,6 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             validationParms.readyForValidation = true;
             validationParms.profile = updated.profile;
             await this.validateProfile(validationParms);
-            updated.profile = await this.processSecureProperties(parms.name, updated.profile);
         }
 
         return updated;
