@@ -43,6 +43,7 @@ Object {
   "rejectUnauthorized": false,
   "secureProtocol": "SSLv23_method",
   "strictSSL": false,
+  "timeout": 20,
   "type": "none",
 }
 `;

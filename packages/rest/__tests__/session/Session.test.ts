@@ -149,7 +149,13 @@ describe("Session tests", () => {
     });
 
     it("should match other non-default values", () => {
-        const session = new Session({hostname: "localhost", rejectUnauthorized: false, strictSSL: false, checkServerIdentity: () => undefined});
+        const session = new Session({
+            hostname: "localhost",
+            rejectUnauthorized: false,
+            strictSSL: false,
+            timeout: 20,
+            checkServerIdentity: () => undefined
+        });
         expect(session.ISession).toMatchSnapshot();
     });
 

@@ -115,6 +115,13 @@ export interface ISession {
     rejectUnauthorized?: boolean;
 
     /**
+     * The amount of time to specify in the X-IBM-Response-Timeout header
+     * @type {number}
+     * @memberof ISession
+     */
+    timeout?: number;
+
+    /**
      * todo
      * @type {string}
      * @memberof ISession
