@@ -115,7 +115,7 @@ export interface ISession {
     rejectUnauthorized?: boolean;
 
     /**
-     * The amount of time to specify in the X-IBM-Response-Timeout header
+     * A convenience variable to make it easier to implement timeouts on extended or custom REST clients
      * @type {number}
      * @memberof ISession
      */
