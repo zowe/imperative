@@ -2,6 +2,11 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Add optional timeout variable to the ISession interface for extender convenience
+  - Extenders can create their own timeout implementation as they see fit
+
 ## `4.7.4`
 
 - Fix update profile API storing secure fields incorrectly when called without CLI args
