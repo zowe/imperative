@@ -217,10 +217,12 @@ export abstract class AbstractSession {
             const authArr = auth.split(";");
             // see each field in the cookie, e/g. Path=/; Secure; HttpOnly; LtpaToken2=...
             authArr.forEach((element: string) => {
-                // if we match requested token type, save it off for its length
+                // if element begins with tokenType, extract full tokenType and tokenValue.
                 if (element.indexOf(this.mISession.tokenType) === 0) {
-                    // parse off token value, minus LtpaToken2= (as an example)
-                    this.ISession.tokenValue = element.substr(this.ISession.tokenType.length + 1, element.length);
+                    // parse off token value, splitting element at first "=".
+                    const ejesCookie: string[] = element.split("=");
+                    this.ISession.tokenType  = ejesCookie[0];
+                    this.ISession.tokenValue = ejesCookie[1];
                 }
             });
         });
