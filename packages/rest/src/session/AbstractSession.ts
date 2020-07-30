@@ -220,9 +220,9 @@ export abstract class AbstractSession {
                 // if element begins with tokenType, extract full tokenType and tokenValue.
                 if (element.indexOf(this.mISession.tokenType) === 0) {
                     // parse off token value, splitting element at first "=".
-                    const temp: string[] = element.split("=");
-                    this.ISession.tokenType  = temp[0];
-                    this.ISession.tokenValue = temp[1];
+                    const split = element.indexOf("=");
+                    this.ISession.tokenType  = element.substring(0, split);
+                    this.ISession.tokenValue = element.substring(split + 1);
                 }
             });
         });
