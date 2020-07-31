@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - '**'
+if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
 
 jobs:
   lint:
