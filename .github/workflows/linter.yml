@@ -8,11 +8,11 @@ on:
   pull_request:
     branches:
       - '**'
-if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
 
 jobs:
   lint:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
 
     steps:
     - name: Checkout
