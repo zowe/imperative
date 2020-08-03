@@ -1,5 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`TextUtils should be able to color text red 1`] = `"[31mhighlighting with chalk[39m hello"`;
+exports[`TextUtils should be able to color text red 1`] = `"highlighting with chalk hello"`;
 
-exports[`TextUtils should be able to color text yellow 1`] = `"[33mhighlighting with chalk[39m hello"`;
+exports[`TextUtils should be able to color text yellow 1`] = `"highlighting with chalk hello"`;
