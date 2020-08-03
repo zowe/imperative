@@ -119,16 +119,44 @@ export class ConnectionPropsForSessCfg {
             finalSessCfg.tokenValue = cmdArgs.tokenValue;
         }
 
+        if (!optsToUse.doPrompting && optsToUse.getValuesBack) {
+            const promptForValues = [];
+            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.hostname)=== false) {
+                promptForValues.push("host");
+            }
+
+            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.port)=== false) {
+                promptForValues.push("port");
+            }
+
+            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user)=== false) {
+                promptForValues.push("user");
+            }
+
+            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password)=== false) {
+                promptForValues.push("password");
+            }
+            const answer = optsToUse.getValuesBack(promptForValues);
+            finalSessCfg.host = answer.host
+            finalSessCfg.port = answer.port
+            finalSessCfg.user = answer.user
+            finalSessCfg.password = answer.password
+        }
+
         // if our caller permits, prompt for host and port as needed
         if (optsToUse.doPrompting) {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.hostname) === false) {
                 let answer = "";
-                while (answer === "") {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Enter the host name of your service: "
-                    );
-                    if (answer === null) {
-                        throw new ImperativeError({msg: "Timed out waiting for host name."});
+                if (optsToUse.getValuesBack) {
+                    answer = optsToUse.getValuesBack("host");
+                } else {
+                    while (answer === "") {
+                        answer = await CliUtils.promptWithTimeout(
+                            "Enter the host name of your service: "
+                        );
+                        if (answer === null) {
+                            throw new ImperativeError({msg: "Timed out waiting for host name."});
+                        }
                     }
                 }
                 finalSessCfg.hostname = answer;
@@ -136,16 +164,20 @@ export class ConnectionPropsForSessCfg {
 
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.port) === false) {
                 let answer: any;
-                while (answer === undefined) {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Enter the port number for your service: "
-                    );
-                    if (answer === null) {
-                        throw new ImperativeError({msg: "Timed out waiting for port number."});
-                    } else {
-                        answer = Number(answer);
-                        if (isNaN(answer)) {
-                            throw new ImperativeError({msg: "Specified port was not a number."});
+                if (optsToUse.getValuesBack) {
+                    answer = optsToUse.getValuesBack("port");
+                } else {
+                    while (answer === undefined) {
+                        answer = await CliUtils.promptWithTimeout(
+                            "Enter the port number for your service: "
+                        );
+                        if (answer === null) {
+                            throw new ImperativeError({msg: "Timed out waiting for port number."});
+                        } else {
+                            answer = Number(answer);
+                            if (isNaN(answer)) {
+                                throw new ImperativeError({msg: "Specified port was not a number."});
+                            }
                         }
                     }
                 }
@@ -177,12 +209,16 @@ export class ConnectionPropsForSessCfg {
         if (optsToUse.doPrompting) {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) === false) {
                 let answer = "";
-                while (answer === "") {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Enter user name: "
-                    );
-                    if (answer === null) {
-                        throw new ImperativeError({msg: "Timed out waiting for user name."});
+                if (optsToUse.getValuesBack) {
+                    answer = optsToUse.getValuesBack("user");
+                } else {
+                    while (answer === "") {
+                        answer = await CliUtils.promptWithTimeout(
+                            "Enter user name: "
+                        );
+                        if (answer === null) {
+                            throw new ImperativeError({msg: "Timed out waiting for user name."});
+                        }
                     }
                 }
                 finalSessCfg.user = answer;
@@ -190,13 +226,17 @@ export class ConnectionPropsForSessCfg {
 
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) === false) {
                 let answer = "";
-                while (answer === "") {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Enter password : ",
-                        true
-                    );
-                    if (answer === null) {
-                        throw new ImperativeError({msg: "Timed out waiting for password."});
+                if (optsToUse.getValuesBack) {
+                    answer = optsToUse.getValuesBack("password");
+                } else {
+                    while (answer === "") {
+                        answer = await CliUtils.promptWithTimeout(
+                            "Enter password : ",
+                            true
+                        );
+                        if (answer === null) {
+                            throw new ImperativeError({msg: "Timed out waiting for password."});
+                        }
                     }
                 }
                 finalSessCfg.password = answer;

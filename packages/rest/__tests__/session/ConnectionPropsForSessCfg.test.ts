@@ -480,4 +480,49 @@ describe("ConnectionPropsForSessCfg tests", () => {
         expect(logOutput).not.toContain("FakePassword");
         expect(logOutput).not.toContain("FakeToken");
     });
+
+    it("authenticate with user and pass", async() => {
+        const initialSessCfg = {
+            rejectUnauthorized: true,
+        };
+        const args = {
+            $0: "zowe",
+            _: [""]
+        };
+        const fakeFunction = jest.fn((neededProps) => {
+            for (const value of neededProps) {
+                switch (value) {
+                case "host" :
+                    neededProps[value] = "SomeHost"
+                    break;
+                case "port" :
+                    neededProps[value] = 11
+                    break;
+                case "user" :
+                    neededProps[value] = "FakeUser"
+                    break;
+                case "password" :
+                    neededProps[value] = "FakePassword"
+                    break;
+                case "rejectUnauthorized" :
+                    neededProps[value] = "false"
+                    break;
+                default:
+                    return;
+                }
+            }
+            return neededProps;
+        });
+        const sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+            initialSessCfg, args, {doPrompting: false, getValuesBack: fakeFunction}
+        );
+        expect(sessCfgWithConnProps.hostname).toBe("SomeHost");
+        // tslint:disable-next-line: no-magic-numbers
+        expect(sessCfgWithConnProps.port).toBe(11);
+        expect(sessCfgWithConnProps.user).toBe("FakeUser");
+        expect(sessCfgWithConnProps.password).toBe("FakePassword");
+        expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
+        expect(sessCfgWithConnProps.tokenValue).toBeUndefined();
+        expect(sessCfgWithConnProps.tokenType).toBeUndefined();
+    });
 });

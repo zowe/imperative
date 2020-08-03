@@ -43,4 +43,9 @@ export interface IOptionsForAddConnProps {
      * The default value is TOKEN_TYPE_JWT.
      */
     defaultTokenType?: SessConstants.TOKEN_TYPE_CHOICES;
+
+    /**
+     * Specifies the functionality that external applications will use for prompting.
+     */
+    getValuesBack? (properties: any): any;
 }
