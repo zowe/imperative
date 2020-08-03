@@ -225,9 +225,6 @@ export abstract class AbstractSession {
                         this.ISession.tokenType  = element.substring(0, split);
                         this.ISession.tokenValue = element.substring(split + 1);
                     }
-                    else {
-                        this.ISession.tokenValue = "";
-                    }
                 }
             });
         });
