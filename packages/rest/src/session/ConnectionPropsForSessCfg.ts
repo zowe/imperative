@@ -122,7 +122,10 @@ export class ConnectionPropsForSessCfg {
             finalSessCfg.tokenValue = cmdArgs.tokenValue;
         }
 
+        // This function will provide all the needed properties in one array
         if (!optsToUse.doPrompting && optsToUse.getValuesBack) {
+
+            // check what properties are needed to be prompted
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.hostname)=== false) {
                 promptForValues.push("hostname");
             }
@@ -138,11 +141,23 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password)=== false) {
                 promptForValues.push("password");
             }
+
+            // put all the needed properties in an array and call the external function
             const answer = optsToUse.getValuesBack(promptForValues);
-            finalSessCfg.hostname = answer.hostname
-            finalSessCfg.port = answer.port
-            finalSessCfg.user = answer.user
-            finalSessCfg.password = answer.password
+
+            // validate what values are given back and move it to finalSessCfg
+            if (ConnectionPropsForSessCfg.propHasValue(answer.hostname)) {
+                finalSessCfg.hostname = answer.hostname;
+            }
+            if (ConnectionPropsForSessCfg.propHasValue(answer.port)) {
+                finalSessCfg.port = answer.port;
+            }
+            if (ConnectionPropsForSessCfg.propHasValue(answer.user)) {
+                finalSessCfg.user = answer.user;
+            }
+            if (ConnectionPropsForSessCfg.propHasValue(answer.password)) {
+                finalSessCfg.password = answer.password;
+            }
         }
 
         // if our caller permits, prompt for host and port as needed

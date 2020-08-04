@@ -481,7 +481,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         expect(logOutput).not.toContain("FakeToken");
     });
 
-    it("SSO CallBack woth doPrompting = false", async() => {
+    it("SSO CallBack with doPrompting = false", async() => {
         const initialSessCfg = {
             rejectUnauthorized: true,
         };
@@ -533,7 +533,58 @@ describe("ConnectionPropsForSessCfg tests", () => {
         expect(sessCfgWithConnProps.tokenType).toBeUndefined();
     });
 
-    it("SSO CallBack woth doPrompting = true", async() => {
+    it("SSO CallBack with doPrompting = false and partial session config", async() => {
+        const initialSessCfg = {
+            password: "FakePassword",
+            rejectUnauthorized: true,
+        };
+        const fakeFunctionSessCfg = {
+            hostname: "SomeHost",
+            port: 11,
+        };
+        const args = {
+            $0: "zowe",
+            _: [""],
+            user: "FakeUser",
+        };
+        const fakeFunction = jest.fn((neededProps) => {
+            for (const value of neededProps) {
+                switch (value) {
+                case "hostname" :
+                    neededProps[value] = fakeFunctionSessCfg.hostname
+                    break;
+                case "port" :
+                    neededProps[value] = fakeFunctionSessCfg.port
+                    break;
+                case "user" :
+                    neededProps[value] = args.user
+                    break;
+                case "password" :
+                    neededProps[value] = initialSessCfg.password
+                    break;
+                case "rejectUnauthorized" :
+                    neededProps[value] = initialSessCfg.rejectUnauthorized
+                    break;
+                default:
+                    return;
+                }
+            }
+            return neededProps;
+        });
+        const sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+            initialSessCfg, args, {doPrompting: false, getValuesBack: fakeFunction}
+        );
+        expect(sessCfgWithConnProps.hostname).toBe("SomeHost");
+        // tslint:disable-next-line: no-magic-numbers
+        expect(sessCfgWithConnProps.port).toBe(11);
+        expect(sessCfgWithConnProps.user).toBe("FakeUser");
+        expect(sessCfgWithConnProps.password).toBe("FakePassword");
+        expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
+        expect(sessCfgWithConnProps.tokenValue).toBeUndefined();
+        expect(sessCfgWithConnProps.tokenType).toBeUndefined();
+    });
+
+    it("SSO CallBack with doPrompting = true", async() => {
         const initialSessCfg = {
             rejectUnauthorized: true,
         };
