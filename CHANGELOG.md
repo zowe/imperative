@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `4.7.5`
+
+- Add the SSO Callback to allow other applications to call their own function in validating sessions
+
 ## `4.7.4`
 
 - Fix update profile API storing secure fields incorrectly when called without CLI args
