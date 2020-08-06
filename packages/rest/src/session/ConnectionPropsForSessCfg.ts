@@ -123,7 +123,7 @@ export class ConnectionPropsForSessCfg {
         }
 
         // This function will provide all the needed properties in one array
-        if (!optsToUse.doPrompting && optsToUse.getValuesBack) {
+        if (optsToUse.getAllValuesBack) {
 
             // check what properties are needed to be prompted
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.hostname)=== false) {
@@ -143,7 +143,7 @@ export class ConnectionPropsForSessCfg {
             }
 
             // put all the needed properties in an array and call the external function
-            const answer = optsToUse.getValuesBack(promptForValues);
+            const answer = optsToUse.getAllValuesBack(promptForValues);
 
             // validate what values are given back and move it to finalSessCfg
             if (ConnectionPropsForSessCfg.propHasValue(answer.hostname)) {
@@ -165,9 +165,7 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.hostname) === false) {
                 let answer = "";
                 if (optsToUse.getValuesBack) {
-                    promptForValues.push("hostname");
-                    const promptResponse = optsToUse.getValuesBack(promptForValues);
-                    answer = promptResponse.hostname;
+                    answer = optsToUse.getValuesBack("hostname");
                 } else {
                     while (answer === "") {
                         answer = await CliUtils.promptWithTimeout(
@@ -184,9 +182,7 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.port) === false) {
                 let answer: any;
                 if (optsToUse.getValuesBack) {
-                    promptForValues.push("port");
-                    const promptResponse = optsToUse.getValuesBack(promptForValues);
-                    answer = promptResponse.port;
+                    answer = optsToUse.getValuesBack("port");
                 } else {
                     while (answer === undefined) {
                         answer = await CliUtils.promptWithTimeout(
@@ -231,9 +227,7 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) === false) {
                 let answer = "";
                 if (optsToUse.getValuesBack) {
-                    promptForValues.push("user");
-                    const promptResponse = optsToUse.getValuesBack(promptForValues);
-                    answer = promptResponse.user;
+                    answer = optsToUse.getValuesBack("user");
                 } else {
                     while (answer === "") {
                         answer = await CliUtils.promptWithTimeout(
@@ -250,9 +244,7 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) === false) {
                 let answer = "";
                 if (optsToUse.getValuesBack) {
-                    promptForValues.push("password");
-                    const promptResponse = optsToUse.getValuesBack(promptForValues);
-                    answer = promptResponse.password;
+                    answer = optsToUse.getValuesBack("password");
                 } else {
                     while (answer === "") {
                         answer = await CliUtils.promptWithTimeout(

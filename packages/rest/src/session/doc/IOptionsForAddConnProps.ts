@@ -46,11 +46,12 @@ export interface IOptionsForAddConnProps {
 
     /**
      * Specifies the functionality that external applications will use for prompting.
-     * There are 2 ways to call this:
-     * - doPrompting = false && getValuesBack !== null. This option will ask the values for the
-     *   needed properties and it will provide an array that lists all the properties that it needs.
-     * - doPrompting = true && getValuesBack !== null. This option will ask the values for the
-     *   needed properties one by one. For more info, please check .\ConnectionPropsForSessCfg.test.ts
+     * Activate this function if needed propoerties are to be prompted one by one
      */
-    getValuesBack? (properties: any): any;
+    getValuesBack? (properties: string): any;
+    /**
+     * Specifies the functionality that external applications will use for prompting.
+     * Activate this function if all the needed propoerties are prompted all at once
+     */
+    getAllValuesBack? (properties: string[]): any;
 }

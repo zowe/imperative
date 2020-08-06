@@ -481,7 +481,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         expect(logOutput).not.toContain("FakeToken");
     });
 
-    it("SSO CallBack with doPrompting = false", async() => {
+    it("SSO CallBack with getAllValuesBack", async() => {
         const initialSessCfg = {
             rejectUnauthorized: true,
         };
@@ -521,7 +521,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             return neededProps;
         });
         const sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
-            initialSessCfg, args, {doPrompting: false, getValuesBack: fakeFunction}
+            initialSessCfg, args, {getAllValuesBack: fakeFunction}
         );
         expect(sessCfgWithConnProps.hostname).toBe("SomeHost");
         // tslint:disable-next-line: no-magic-numbers
@@ -533,7 +533,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         expect(sessCfgWithConnProps.tokenType).toBeUndefined();
     });
 
-    it("SSO CallBack with doPrompting = false and partial session config", async() => {
+    it("SSO CallBack with getAllValuesBAck and partial session config", async() => {
         const initialSessCfg = {
             password: "FakePassword",
             rejectUnauthorized: true,
@@ -572,7 +572,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             return neededProps;
         });
         const sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
-            initialSessCfg, args, {doPrompting: false, getValuesBack: fakeFunction}
+            initialSessCfg, args, {doPrompting: false, getAllValuesBack: fakeFunction}
         );
         expect(sessCfgWithConnProps.hostname).toBe("SomeHost");
         // tslint:disable-next-line: no-magic-numbers
@@ -584,7 +584,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         expect(sessCfgWithConnProps.tokenType).toBeUndefined();
     });
 
-    it("SSO CallBack with doPrompting = true", async() => {
+    it("SSO CallBack with getValuesBack", async() => {
         const initialSessCfg = {
             rejectUnauthorized: true,
         };
@@ -600,26 +600,24 @@ describe("ConnectionPropsForSessCfg tests", () => {
             _: [""]
         };
         const fakeFunction = jest.fn((neededProps) => {
-            for (const value of neededProps) {
-                switch (value) {
+            switch (neededProps) {
                 case "hostname" :
-                    neededProps[value] = fakeFunctionSessCfg.hostname
+                    neededProps = fakeFunctionSessCfg.hostname
                     break;
                 case "port" :
-                    neededProps[value] = fakeFunctionSessCfg.port
+                    neededProps = fakeFunctionSessCfg.port
                     break;
                 case "user" :
-                    neededProps[value] = fakeFunctionSessCfg.user
+                    neededProps = fakeFunctionSessCfg.user
                     break;
                 case "password" :
-                    neededProps[value] = fakeFunctionSessCfg.password
+                    neededProps = fakeFunctionSessCfg.password
                     break;
                 case "rejectUnauthorized" :
-                    neededProps[value] = initialSessCfg.rejectUnauthorized
+                    neededProps = initialSessCfg.rejectUnauthorized
                     break;
                 default:
                     return;
-                }
             }
             return neededProps;
         });
