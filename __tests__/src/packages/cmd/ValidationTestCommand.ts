@@ -37,6 +37,12 @@ export const ValidationTestCommand: ICommandDefinition = {
                 allowableValues: {values: ["allowableA", "allowableB", "^allowableC\\$"], caseSensitive: false}
             },
             {
+                name: "option-to-specify-4",
+                description: "Part of must specify one group",
+                type: "array",
+                allowableValues: {values: ["allowableA", "allowableB"], caseSensitive: false}
+            },
+            {
                 name: "conflicts-with-1",
                 description: "Conflicts with option-to-specify-2",
                 type: "string",
@@ -132,5 +138,5 @@ export const ValidationTestCommand: ICommandDefinition = {
                 required: true
             },
         ],
-    mustSpecifyOne: ["option-to-specify-1", "option-to-specify-2", "option-to-specify-3"]
+    mustSpecifyOne: ["option-to-specify-1", "option-to-specify-2", "option-to-specify-3", "option-to-specify-4"]
 };

@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Add allowableValues support for array
+
 ## `4.7.4`
 
 - Fix update profile API storing secure fields incorrectly when called without CLI args
