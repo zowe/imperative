@@ -92,7 +92,6 @@ export class ConnectionPropsForSessCfg {
         // initialize session config object with what our caller supplied
         const finalSessCfg: any = initialSessCfg;
 
-        // Array for getValuesBack
         const promptForValues = [];
 
         /* Override properties from our caller's initialSessCfg
@@ -143,7 +142,7 @@ export class ConnectionPropsForSessCfg {
             }
 
             // put all the needed properties in an array and call the external function
-            const answer = optsToUse.getAllValuesBack(promptForValues);
+            const answer = await optsToUse.getAllValuesBack(promptForValues);
 
             // validate what values are given back and move it to finalSessCfg
             if (ConnectionPropsForSessCfg.propHasValue(answer.hostname)) {
@@ -164,8 +163,8 @@ export class ConnectionPropsForSessCfg {
         if (optsToUse.doPrompting) {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.hostname) === false) {
                 let answer = "";
-                if (optsToUse.getValuesBack) {
-                    answer = optsToUse.getValuesBack("hostname");
+                if (optsToUse.getValueBack) {
+                    answer = await optsToUse.getValueBack("hostname");
                 } else {
                     while (answer === "") {
                         answer = await CliUtils.promptWithTimeout(
@@ -181,8 +180,8 @@ export class ConnectionPropsForSessCfg {
 
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.port) === false) {
                 let answer: any;
-                if (optsToUse.getValuesBack) {
-                    answer = optsToUse.getValuesBack("port");
+                if (optsToUse.getValueBack) {
+                    answer = await optsToUse.getValueBack("port");
                 } else {
                     while (answer === undefined) {
                         answer = await CliUtils.promptWithTimeout(
@@ -226,8 +225,8 @@ export class ConnectionPropsForSessCfg {
         if (optsToUse.doPrompting) {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) === false) {
                 let answer = "";
-                if (optsToUse.getValuesBack) {
-                    answer = optsToUse.getValuesBack("user");
+                if (optsToUse.getValueBack) {
+                    answer = await optsToUse.getValueBack("user");
                 } else {
                     while (answer === "") {
                         answer = await CliUtils.promptWithTimeout(
@@ -243,8 +242,8 @@ export class ConnectionPropsForSessCfg {
 
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) === false) {
                 let answer = "";
-                if (optsToUse.getValuesBack) {
-                    answer = optsToUse.getValuesBack("password");
+                if (optsToUse.getValueBack) {
+                    answer = await optsToUse.getValueBack("password");
                 } else {
                     while (answer === "") {
                         answer = await CliUtils.promptWithTimeout(

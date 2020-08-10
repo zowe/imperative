@@ -48,10 +48,10 @@ export interface IOptionsForAddConnProps {
      * Specifies the functionality that external applications will use for prompting.
      * Activate this function if needed propoerties are to be prompted one by one
      */
-    getValuesBack? (properties: string): any;
+    getValueBack? (properties: string): any;
     /**
      * Specifies the functionality that external applications will use for prompting.
-     * Activate this function if all the needed propoerties are prompted all at once
+     * Activate this function if all the needed properties are prompted all at once
      */
     getAllValuesBack? (properties: string[]): any;
 }

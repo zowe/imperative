@@ -584,7 +584,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         expect(sessCfgWithConnProps.tokenType).toBeUndefined();
     });
 
-    it("SSO CallBack with getValuesBack", async() => {
+    it("SSO CallBack with getValueBack", async() => {
         const initialSessCfg = {
             rejectUnauthorized: true,
         };
@@ -622,7 +622,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             return neededProps;
         });
         const sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
-            initialSessCfg, args, {doPrompting: true, getValuesBack: fakeFunction}
+            initialSessCfg, args, {doPrompting: true, getValueBack: fakeFunction}
         );
         expect(sessCfgWithConnProps.hostname).toBe("SomeHost");
         // tslint:disable-next-line: no-magic-numbers
