@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## `4.7.5`
+## Recent Changes
 
 - Add the SSO Callback to allow other applications to call their own function in validating sessions
 
