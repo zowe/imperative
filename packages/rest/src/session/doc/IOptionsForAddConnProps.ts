@@ -52,5 +52,5 @@ export interface IOptionsForAddConnProps {
      *           sessCfg, commandParameters.arguments, {getValuesBack: YourOwnFunction}
      *      );
      */
-    getValuesBack? (properties: string[]): any;
+    getValuesBack? (properties: string[]): { [key: string]: any };
 }
