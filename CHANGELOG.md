@@ -2,10 +2,6 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
-
-- Updated AbstractSession.storeCookie() to process cookie names not fully known at build-time.
-
 ## `4.7.5`
 
 - Add allowableValues support for array
