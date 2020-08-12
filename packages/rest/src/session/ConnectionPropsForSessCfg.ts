@@ -122,7 +122,10 @@ export class ConnectionPropsForSessCfg {
         }
 
         // This function will provide all the needed properties in one array
-        if (optsToUse.getAllValuesBack) {
+        if (optsToUse.getValuesBack) {
+
+            // set doPrompting to false if there's a value in getValuesBack
+            optionDefaults.doPrompting = false;
 
             // check what properties are needed to be prompted
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.hostname)=== false) {
@@ -142,7 +145,7 @@ export class ConnectionPropsForSessCfg {
             }
 
             // put all the needed properties in an array and call the external function
-            const answer = await optsToUse.getAllValuesBack(promptForValues);
+            const answer = await optsToUse.getValuesBack(promptForValues);
 
             // validate what values are given back and move it to finalSessCfg
             if (ConnectionPropsForSessCfg.propHasValue(answer.hostname)) {
@@ -163,16 +166,12 @@ export class ConnectionPropsForSessCfg {
         if (optsToUse.doPrompting) {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.hostname) === false) {
                 let answer = "";
-                if (optsToUse.getValueBack) {
-                    answer = await optsToUse.getValueBack("hostname");
-                } else {
-                    while (answer === "") {
-                        answer = await CliUtils.promptWithTimeout(
-                            "Enter the host name of your service: "
-                        );
-                        if (answer === null) {
-                            throw new ImperativeError({msg: "Timed out waiting for host name."});
-                        }
+                while (answer === "") {
+                    answer = await CliUtils.promptWithTimeout(
+                        "Enter the host name of your service: "
+                    );
+                    if (answer === null) {
+                        throw new ImperativeError({msg: "Timed out waiting for host name."});
                     }
                 }
                 finalSessCfg.hostname = answer;
@@ -180,20 +179,16 @@ export class ConnectionPropsForSessCfg {
 
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.port) === false) {
                 let answer: any;
-                if (optsToUse.getValueBack) {
-                    answer = await optsToUse.getValueBack("port");
-                } else {
-                    while (answer === undefined) {
-                        answer = await CliUtils.promptWithTimeout(
-                            "Enter the port number for your service: "
-                        );
-                        if (answer === null) {
-                            throw new ImperativeError({msg: "Timed out waiting for port number."});
-                        } else {
-                            answer = Number(answer);
-                            if (isNaN(answer)) {
-                                throw new ImperativeError({msg: "Specified port was not a number."});
-                            }
+                while (answer === undefined) {
+                    answer = await CliUtils.promptWithTimeout(
+                        "Enter the port number for your service: "
+                    );
+                    if (answer === null) {
+                        throw new ImperativeError({msg: "Timed out waiting for port number."});
+                    } else {
+                        answer = Number(answer);
+                        if (isNaN(answer)) {
+                            throw new ImperativeError({msg: "Specified port was not a number."});
                         }
                     }
                 }
@@ -225,16 +220,12 @@ export class ConnectionPropsForSessCfg {
         if (optsToUse.doPrompting) {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) === false) {
                 let answer = "";
-                if (optsToUse.getValueBack) {
-                    answer = await optsToUse.getValueBack("user");
-                } else {
-                    while (answer === "") {
-                        answer = await CliUtils.promptWithTimeout(
-                            "Enter user name: "
-                        );
-                        if (answer === null) {
-                            throw new ImperativeError({msg: "Timed out waiting for user name."});
-                        }
+                while (answer === "") {
+                    answer = await CliUtils.promptWithTimeout(
+                        "Enter user name: "
+                    );
+                    if (answer === null) {
+                        throw new ImperativeError({msg: "Timed out waiting for user name."});
                     }
                 }
                 finalSessCfg.user = answer;
@@ -242,17 +233,13 @@ export class ConnectionPropsForSessCfg {
 
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) === false) {
                 let answer = "";
-                if (optsToUse.getValueBack) {
-                    answer = await optsToUse.getValueBack("password");
-                } else {
-                    while (answer === "") {
-                        answer = await CliUtils.promptWithTimeout(
-                            "Enter password : ",
-                            true
-                        );
-                        if (answer === null) {
-                            throw new ImperativeError({msg: "Timed out waiting for password."});
-                        }
+                while (answer === "") {
+                    answer = await CliUtils.promptWithTimeout(
+                        "Enter password : ",
+                        true
+                    );
+                    if (answer === null) {
+                        throw new ImperativeError({msg: "Timed out waiting for password."});
                     }
                 }
                 finalSessCfg.password = answer;

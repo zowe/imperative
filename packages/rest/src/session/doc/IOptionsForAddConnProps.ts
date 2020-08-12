@@ -46,12 +46,11 @@ export interface IOptionsForAddConnProps {
 
     /**
      * Specifies the functionality that external applications will use for prompting.
-     * Activate this function if needed propoerties are to be prompted one by one
+     * Activate this function to get all the needed properties
+     * @example
+     * const connectableSessCfg = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+     *           sessCfg, commandParameters.arguments, {getValuesBack: YourOwnFunction}
+     *      );
      */
-    getValueBack? (properties: string): any;
-    /**
-     * Specifies the functionality that external applications will use for prompting.
-     * Activate this function if all the needed properties are prompted all at once
-     */
-    getAllValuesBack? (properties: string[]): any;
+    getValuesBack? (properties: string[]): any;
 }
