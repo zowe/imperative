@@ -310,10 +310,14 @@ export class SyntaxValidator {
 
                         return regex;
                     });
-                    if (!this.checkIfAllowable(optionDefCopy.allowableValues, commandArguments[optionName])) {
-                        this.invalidOptionError(optionDefCopy, responseObject, commandArguments[optionName]);
-                        valid = false;
-                    }
+
+                    const optionValue = commandArguments[optionName];
+                    const optionValueArray = Array.isArray(optionValue) ? optionValue : [optionValue];
+                    optionValueArray.filter(value => !this.checkIfAllowable(optionDefCopy.allowableValues, value))
+                        .forEach(value => {
+                            this.invalidOptionError(optionDefCopy, responseObject, value);
+                            valid = false;
+                        });
                 }
 
                 if (!isNullOrUndefined(optionDef.conflictsWith) && optionDef.conflictsWith.length > 0) {

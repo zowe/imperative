@@ -142,6 +142,20 @@ describe("Imperative should provide advanced syntax validation rules", () => {
                         alwaysRequired, true, [])()
                 ]);
             });
+        it("If we specify an option whose type is array and which has a set of allowable string values," +
+            " and specify multiple values each of which matches one of the allowable values," +
+            " the command should succeed ",
+            function() {
+                return tryOptions.bind(this, "--option-to-specify-4 allowableA --option-to-specify-4 allowableB " +
+                    "--absence-implies " + alwaysRequired, true, [])();
+            });
+        it("If we specify an option whose type is array and which has a set of allowable string values," +
+            " and specify multiple values one of which doesn't match one of the allowable values," +
+            " the command should fail ",
+            function() {
+                return tryOptions.bind(this, "--option-to-specify-4 allowableA --option-to-specify-4 notAllowable " +
+                    "--absence-implies " + alwaysRequired, false, ["must match"])();
+            });
         it("If we don't specify an option, and the absence of that option implies " +
             "the presence of another option, and we omit that option as well, the command should fail ",
             function () {

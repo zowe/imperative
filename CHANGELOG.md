@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## `4.7.6`
+## Recent Changes
 
 - Updated AbstractSession.storeCookie() to process cookie names not fully known at build-time.
 
