@@ -43,4 +43,14 @@ export interface IOptionsForAddConnProps {
      * The default value is TOKEN_TYPE_JWT.
      */
     defaultTokenType?: SessConstants.TOKEN_TYPE_CHOICES;
+
+    /**
+     * Specifies the functionality that external applications will use for prompting.
+     * Activate this function to get all the needed properties
+     * @example
+     * const connectableSessCfg = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+     *           sessCfg, commandParameters.arguments, {getValuesBack: YourOwnFunction}
+     *      );
+     */
+    getValuesBack? (properties: string[]): { [key: string]: any };
 }

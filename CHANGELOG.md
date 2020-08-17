@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Add the SSO Callback to allow other applications to call their own function in validating sessions
+
 ## `4.7.6`
 
 - Updated AbstractSession.storeCookie() to process cookie names not fully known at build-time.

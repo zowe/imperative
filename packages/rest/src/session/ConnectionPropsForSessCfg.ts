@@ -92,6 +92,8 @@ export class ConnectionPropsForSessCfg {
         // initialize session config object with what our caller supplied
         const finalSessCfg: any = initialSessCfg;
 
+        const promptForValues = [];
+
         /* Override properties from our caller's initialSessCfg
          * with any values from the command line.
          */
@@ -117,6 +119,47 @@ export class ConnectionPropsForSessCfg {
         {
             // only set tokenValue if user and password were not supplied
             finalSessCfg.tokenValue = cmdArgs.tokenValue;
+        }
+
+        // This function will provide all the needed properties in one array
+        if (optsToUse.getValuesBack) {
+
+            // set doPrompting to false if there's a value in getValuesBack
+            optionDefaults.doPrompting = false;
+
+            // check what properties are needed to be prompted
+            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.hostname)=== false) {
+                promptForValues.push("hostname");
+            }
+
+            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.port)=== false) {
+                promptForValues.push("port");
+            }
+
+            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user)=== false) {
+                promptForValues.push("user");
+            }
+
+            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password)=== false) {
+                promptForValues.push("password");
+            }
+
+            // put all the needed properties in an array and call the external function
+            const answer = await optsToUse.getValuesBack(promptForValues);
+
+            // validate what values are given back and move it to finalSessCfg
+            if (ConnectionPropsForSessCfg.propHasValue(answer.hostname)) {
+                finalSessCfg.hostname = answer.hostname;
+            }
+            if (ConnectionPropsForSessCfg.propHasValue(answer.port)) {
+                finalSessCfg.port = answer.port;
+            }
+            if (ConnectionPropsForSessCfg.propHasValue(answer.user)) {
+                finalSessCfg.user = answer.user;
+            }
+            if (ConnectionPropsForSessCfg.propHasValue(answer.password)) {
+                finalSessCfg.password = answer.password;
+            }
         }
 
         // if our caller permits, prompt for host and port as needed
@@ -281,10 +324,7 @@ export class ConnectionPropsForSessCfg {
      * @returns true is the property exists and has a value. false otherwise.
      */
     private static propHasValue(propToTest: string) {
-        if (propToTest === undefined || propToTest === null) {
-            return false;
-        }
-        if ((typeof propToTest) === "string" && propToTest.length === 0) {
+        if ((propToTest === undefined || propToTest === null) || ((typeof propToTest) === "string" && propToTest.length === 0)) {
             return false;
         }
         return true;
