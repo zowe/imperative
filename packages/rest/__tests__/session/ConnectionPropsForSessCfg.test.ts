@@ -189,7 +189,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         CliUtils.sleep = jest.fn();
         const promptWithTimeoutReal = CliUtils.promptWithTimeout;
         CliUtils.promptWithTimeout = jest.fn(() => {
-            return userFromPrompt;
+            return Promise.resolve(userFromPrompt);
         });
 
         const initialSessCfg = {
@@ -225,7 +225,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         CliUtils.sleep = jest.fn();
         const promptWithTimeoutReal = CliUtils.promptWithTimeout;
         CliUtils.promptWithTimeout = jest.fn(() => {
-            return passFromPrompt;
+            return Promise.resolve(passFromPrompt);
         });
 
         const initialSessCfg = {
@@ -263,7 +263,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         CliUtils.sleep = jest.fn();
         const promptWithTimeoutReal = CliUtils.promptWithTimeout;
         CliUtils.promptWithTimeout = jest.fn(() => {
-            return hostFromPrompt;
+            return Promise.resolve(hostFromPrompt);
         });
 
         const initialSessCfg = {
@@ -302,7 +302,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         CliUtils.sleep = jest.fn();
         const promptWithTimeoutReal = CliUtils.promptWithTimeout;
         CliUtils.promptWithTimeout = jest.fn(() => {
-            return portFromPrompt;
+            return Promise.resolve(portFromPrompt);
         });
 
         const initialSessCfg = {
@@ -330,6 +330,43 @@ describe("ConnectionPropsForSessCfg tests", () => {
         expect(sessCfgWithConnProps.port).toBe(portFromPrompt);
         expect(sessCfgWithConnProps.tokenType).toBeUndefined();
         expect(sessCfgWithConnProps.tokenValue).toBeUndefined();
+    });
+
+    it("throws an error if user doesn't enter port as a number", async() => {
+        const hostFromArgs = "FakeHost";
+        const portFromPrompt = "abcd";
+        const userFromArgs = "FakeUser";
+        const passFromArgs = "FakePassword";
+
+        const sleepReal = CliUtils.sleep;
+        CliUtils.sleep = jest.fn();
+        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
+        CliUtils.promptWithTimeout = jest.fn(() => {
+            return Promise.resolve(portFromPrompt);
+        });
+
+        const initialSessCfg = {
+            rejectUnauthorized: true
+        };
+        const args = {
+            $0: "zowe",
+            _: [""],
+            host: hostFromArgs,
+            user: userFromArgs,
+            password: passFromArgs
+        };
+
+        let sessCfgWithConnProps: ISession;
+        let theError;
+        try {
+            await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(initialSessCfg, args);
+        } catch (err) {
+            theError = err;
+        }
+        CliUtils.sleep = sleepReal;
+        CliUtils.promptWithTimeout = promptWithTimeoutReal;
+
+        expect(theError.message).toBe("Specified port was not a number.");
     });
 
     it("timeout waiting for user name", async() => {
