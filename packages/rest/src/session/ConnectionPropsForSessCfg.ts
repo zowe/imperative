@@ -324,10 +324,7 @@ export class ConnectionPropsForSessCfg {
      * @returns true is the property exists and has a value. false otherwise.
      */
     private static propHasValue(propToTest: string) {
-        if (propToTest === undefined || propToTest === null) {
-            return false;
-        }
-        if ((typeof propToTest) === "string" && propToTest.length === 0) {
+        if ((propToTest === undefined || propToTest === null) || ((typeof propToTest) === "string" && propToTest.length === 0)) {
             return false;
         }
         return true;
