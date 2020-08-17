@@ -356,7 +356,6 @@ describe("ConnectionPropsForSessCfg tests", () => {
             password: passFromArgs
         };
 
-        let sessCfgWithConnProps: ISession;
         let theError;
         try {
             await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(initialSessCfg, args);
