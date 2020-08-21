@@ -136,12 +136,14 @@ export class ConnectionPropsForSessCfg {
                 promptForValues.push("port");
             }
 
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user)=== false) {
-                promptForValues.push("user");
-            }
+            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.tokenValue)=== false) {
+                if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user)=== false) {
+                    promptForValues.push("user");
+                }
 
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password)=== false) {
-                promptForValues.push("password");
+                if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password)=== false) {
+                    promptForValues.push("password");
+                }
             }
 
             // put all the needed properties in an array and call the external function

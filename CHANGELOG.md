@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Updated the SSO Callback so it doesn't prompt for user/password if a token exists
+
 ## `4.8.0`
 
 - Add the SSO Callback to allow other applications to call their own function in validating sessions
