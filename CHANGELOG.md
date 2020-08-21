@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `4.8.1`
 
 - Updated the SSO Callback so it doesn't prompt for user/password if a token exists
 
