@@ -4,19 +4,19 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## `4.8.1`
 
-- Fixed an issue with `ConnectionPropsForSessCfg` where the user would be prompted for user/password even if a token was present. [#436](https://github.com/zowe/imperative/pull/436)
+- BugFix: Fixed an issue with `ConnectionPropsForSessCfg` where the user would be prompted for user/password even if a token was present. [#436](https://github.com/zowe/imperative/pull/436)
 
 ## `4.8.0`
 
-- Added the SSO Callback funtion, which allows applications to call their own functions in validating sessions. The callback option is named `getValuesBack`. [#422](https://github.com/zowe/imperative/issues/422)
+- Enhancement: Added the SSO Callback funtion, which allows applications to call their own functions in validating sessions. The callback option is named `getValuesBack`. [#422](https://github.com/zowe/imperative/issues/422)
 
 ## `4.7.6`
 
-- Added support for dynamically generated cookie names. Updated `AbstractSession.storeCookie()` to process cookie names that are not fully known at build-time. [#431](https://github.com/zowe/imperative/pull/431)
+- Enhancement: Added support for dynamically generated cookie names. Updated `AbstractSession.storeCookie()` to process cookie names that are not fully known at build-time. [#431](https://github.com/zowe/imperative/pull/431)
 
 ## `4.7.5`
 
-- Added support for creating an array with `allowableValues`. Previously, array type options could fail in the Syntax Validator. [#428](https://github.com/zowe/imperative/issues/428)
+- Bugfix: Added support for creating an array with `allowableValues`. Previously, array type options could fail in the Syntax Validator. [#428](https://github.com/zowe/imperative/issues/428)
 
 ## `4.7.4`
 
