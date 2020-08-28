@@ -8,7 +8,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## `4.8.0`
 
-- Enhancement: Added the SSO Callback funtion, which allows applications to call their own functions in validating sessions. The callback option is named `getValuesBack`. [#422](https://github.com/zowe/imperative/issues/422)
+- Enhancement: Added the SSO Callback funtion, which allows applications to call their own functions while validating session properties (i.e. host, port, user, password, token, etc...). The callback option is named `getValuesBack`. [#422](https://github.com/zowe/imperative/issues/422)
 
 ## `4.7.6`
 
