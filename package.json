@@ -133,7 +133,7 @@
     "typescript": "^3.8.0",
     "url-search-params-polyfill": "^8.0.0",
     "uuid": "^3.3.2",
-    "yargs-parser": "^16.1.0"
+    "yargs-parser": "^18.1.2"
   },
   "engines": {
     "node": ">=8.0.0"
