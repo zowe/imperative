@@ -790,7 +790,8 @@ export class CommandProcessor {
             definition: this.definition,
             args: params.arguments,
             silent: (params.silent == null) ? false : params.silent,
-            responseFormat: params.responseFormat
+            responseFormat: params.responseFormat,
+            stream: params.arguments.stream
         });
     }
 

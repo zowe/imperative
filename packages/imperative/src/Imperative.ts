@@ -56,6 +56,7 @@ import { dirname, join } from "path";
 
 import { Console } from "../../console";
 import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
+import { IYargsContext } from "./doc/IYargsContext";
 
 // Bootstrap the performance tools
 if (PerfTiming.isEnabled) {
@@ -294,11 +295,12 @@ export class Imperative {
         return this.constructConsoleApi();
     }
 
+
     /**
      * Parse command line arguments and issue the user's specified command
      * @returns {Imperative} this, for chaining syntax
      */
-    public static parse(): Imperative {
+    public static parse(args?: string, context?: IYargsContext): Imperative {
 
         const timingApi = PerfTiming.api;
 
@@ -307,7 +309,17 @@ export class Imperative {
             timingApi.mark("START_IMP_PARSE");
         }
 
-        Imperative.yargs.parse();
+        // Imperative.yargs.parse(args, context, (err: Error, argv: any, response: string) => {
+
+        //     if (argv.stream) {
+        //         argv.stream.write(response);
+        //         argv.stream.end();
+        //     }
+        //     // context.stream.write(output);
+        //     // context.stream.end();
+        // });
+
+        Imperative.yargs.parse(args, context);
 
         if (PerfTiming.isEnabled) {
             // Marks point END

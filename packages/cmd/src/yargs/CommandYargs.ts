@@ -256,7 +256,8 @@ export class CommandYargs extends AbstractCommandYargs {
                     } catch (processorError) {
                         const response = new CommandResponse({
                             silent: false,
-                            responseFormat: (printJson) ? "json" : "default"
+                            responseFormat: (printJson) ? "json" : "default",
+                            stream: argsForHandler.stream
                         });
                         response.failed();
                         response.console.errorHeader("Internal Command Error");

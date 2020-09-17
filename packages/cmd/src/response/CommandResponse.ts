@@ -30,6 +30,7 @@ import { inspect } from "util";
 import * as DeepMerge from "deepmerge";
 import ProgressBar = require("progress");
 import WriteStream = NodeJS.WriteStream;
+import * as net from "net";
 
 const DataObjectParser = require("dataobject-parser");
 
@@ -187,6 +188,7 @@ export class CommandResponse implements ICommandResponseApi {
      * @memberof CommandResponse
      */
     private mDefinition: ICommandDefinition;
+
     /**
      * The arguments passed to the command - may be undefined/null
      * @private
@@ -194,6 +196,22 @@ export class CommandResponse implements ICommandResponseApi {
      * @memberof CommandResponse
      */
     private mArguments: Arguments;
+
+    /**
+     * The stream to write to in daemon mode
+     * @private
+     * @type {net.Socket}
+     * @memberof CommandResponse
+     */
+    private mStream: net.Socket;
+
+    /**
+     * Alternate current working directory for daemon mode
+     * @private
+     * @type {string}
+     * @memberof CommandResponse
+     */
+    private mCwd: string;
 
     /**
      * Creates an instance of CommandResponse.
@@ -213,6 +231,8 @@ export class CommandResponse implements ICommandResponseApi {
             `${CommandResponse.RESPONSE_ERR_TAG} Response format invalid. Valid formats: "${formats.join(",")}"`);
         this.mSilent = (this.mControl.silent == null) ? false : this.mControl.silent;
         this.mProgressBarSpinnerChars = (this.mControl.progressBarSpinner == null) ? this.mProgressBarSpinnerChars : params.progressBarSpinner;
+        this.mStream = params.stream;
+        this.mCwd = params.cwd;
     }
 
     get format(): IHandlerFormatOutputApi {
@@ -926,6 +946,21 @@ export class CommandResponse implements ICommandResponseApi {
      */
     private writeStdout(data: any) {
         process.stdout.write(data);
+        this.writeStream(data);
+    }
+
+
+    /**
+     * Writes data to stream if provided (for daemon mode)
+     * @private
+     * @param {*} data
+     * @memberof CommandResponse
+     */
+    private writeStream(data: any) {
+        if (this.mStream) {
+            this.mStream.write(data);
+            this.mStream.end();
+        }
     }
 
     /**
@@ -949,6 +984,7 @@ export class CommandResponse implements ICommandResponseApi {
      */
     private writeStderr(data: any) {
         process.stderr.write(data);
+        this.writeStream(data);
     }
 
     /**

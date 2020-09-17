@@ -299,6 +299,7 @@ export abstract class AbstractCommandYargs {
             }).help(new CommandResponse({
                 silent: false,
                 responseFormat: (args[Constants.JSON_OPTION] || false) ? "json" : "default",
+                stream: args.stream
             }));
         } catch (helpErr) {
             const errorResponse: IYargsResponse = this.getBrightYargsResponse(false,
