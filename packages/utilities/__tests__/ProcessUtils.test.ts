@@ -43,10 +43,10 @@ describe("ProcessUtils tests", () => {
     });
 
     describe("isGuiAvailable", () => {
-        it("should report a GUI on Windows", async () => {
-            if ( process.platform === "win32") {
-                expect(ProcessUtils.isGuiAvailable()).toBe(GuiResult.GUI_AVAILABLE);
-            }
+        (process.platform === "win32" || process.platform === "darwin" ? it : it.skip)
+            ("should report a GUI on Windows or Mac", async () =>
+        {
+            expect(ProcessUtils.isGuiAvailable()).toBe(GuiResult.GUI_AVAILABLE);
         });
 
         it("should report no GUI on an ssh connection", async () => {

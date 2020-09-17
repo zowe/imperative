@@ -133,6 +133,84 @@ describe("CliUtils", () => {
         });
     });
 
+    describe("sleep", () => {
+        it("should sleep for 1 second", async() => {
+            const startTime = Date.now();
+            const oneSec = 1000;
+            await CliUtils.sleep(oneSec);
+            const timeDiff = Date.now() - startTime;
+            expect(timeDiff).toBeGreaterThanOrEqual(oneSec);
+        });
+    });
+
+    describe("promptWithTimeout", () => {
+        let readline = require("readline");
+        let readlineReal: any;
+        const mockedAnswer = "User answer";
+
+        beforeEach(() => {
+            readlineReal = readline;
+            readline.createInterface = jest.fn(()=> {
+                return {
+                    prompt: jest.fn(() => {
+                        // do nothing
+                    }),
+                    on: jest.fn((eventName: string, callback: any) => {
+                        if (eventName === "line") {
+                            callback(mockedAnswer);
+                        }
+                        return {
+                            on: jest.fn((chainedEvtNm: string, chainedCallBack: any) => {
+                                if (chainedEvtNm === "close") {
+                                    chainedCallBack();
+                                }
+                            }),
+                        };
+                    }),
+                    output: {
+                        write: jest.fn(() => {
+                            // do nothing
+                        })
+                    },
+                    close: jest.fn( () => {
+                        // do nothing
+                    })
+                };
+            });
+        });
+
+        afterEach(() => {
+            readline = readlineReal;
+        });
+
+        it("should return the user's answer", async() => {
+            const answer = await CliUtils.promptWithTimeout("Question to be asked: ");
+            expect(answer).toEqual(mockedAnswer);
+        });
+
+        it("should accept a hideText parameter", async() => {
+            const answer = await CliUtils.promptWithTimeout("Should we hide your answer: ", true);
+            expect(answer).toEqual(mockedAnswer);
+        });
+
+        it("should accept a secToWait parameter", async() => {
+            const secToWait = 15;
+            const answer = await CliUtils.promptWithTimeout("Should wait your amount of time: ",
+                false, secToWait
+            );
+            expect(answer).toEqual(mockedAnswer);
+        });
+
+        it("should limit to a max secToWait", async() => {
+            const tooLong = 1000;
+            const answer = await CliUtils.promptWithTimeout("Should wait your amount of time: ",
+                false, tooLong
+            );
+            expect(answer).toEqual(mockedAnswer);
+        });
+
+    });
+
     describe("buildBaseArgs", () => {
         it("should preserve the _ and $0 properties", () => {
             const args = CliUtils.buildBaseArgs({ _: ["cmd1", "cmd2"], $0: "test exe" });

@@ -10,12 +10,16 @@
 */
 
 import { LoggerUtils } from "../../logger";
-import { Arguments } from "yargs";
 
 describe("LoggerUtils tests", () => {
 
     it("Should hide --password operand", () => {
         const data = LoggerUtils.censorCLIArgs(["--password", "cantSeeMe"]);
+        expect(data).toContain(LoggerUtils.CENSOR_RESPONSE);
+    });
+
+    it("Should hide --token-value operand", () => {
+        const data = LoggerUtils.censorCLIArgs(["--token-value", "cantSeeMe"]);
         expect(data).toContain(LoggerUtils.CENSOR_RESPONSE);
     });
 

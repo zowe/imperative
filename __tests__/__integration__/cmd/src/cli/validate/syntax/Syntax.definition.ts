@@ -49,6 +49,12 @@ export const syntaxTestCommand: ICommandDefinition = {
                 name: "option-to-specify-3",
                 description: "Part of must specify one group",
                 type: "string",
+                allowableValues: {values: ["allowableA", "allowableB", "^allowableC\\$"], caseSensitive: false}
+            },
+            {
+                name: "option-to-specify-4",
+                description: "Part of must specify one group",
+                type: "array",
                 allowableValues: {values: ["allowableA", "allowableB"], caseSensitive: false}
             },
             {
@@ -161,5 +167,5 @@ export const syntaxTestCommand: ICommandDefinition = {
                 options: `"file.txt" "ibmuser.ps" --mr wait`
             },
         ],
-    mustSpecifyOne: ["option-to-specify-1", "option-to-specify-2", "option-to-specify-3"]
+    mustSpecifyOne: ["option-to-specify-1", "option-to-specify-2", "option-to-specify-3", "option-to-specify-4"]
 };

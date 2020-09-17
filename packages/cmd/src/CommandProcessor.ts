@@ -321,43 +321,22 @@ export class CommandProcessor {
         // determine if the command has the user option and mask the user value
         let regEx = /--(user|u) ([^\s]+)/gi;
 
-        if ((commandLine.search(regEx)) >= 0) {
-            // determine which version of password option used to ensure it's used in the log.
-            let userString = "";
-            let regEx2 = /--user /gi;
-            if (commandLine.search(regEx2) >= 0) {
-                userString = "user";
-            }
-            regEx2 = /--u /gi;
-            if (commandLine.search(regEx2) >= 0) {
-                userString = "u";
-            }
-
-            commandLine = commandLine.replace(regEx, "--" + userString + " ****");
-
+        if (commandLine.search(regEx) >= 0) {
+            commandLine = commandLine.replace(regEx, "--$1 ****");
         }
 
         // determine if the command has the password option and mask the password value
         regEx = /--(password|pass|pw) ([^\s]+)/gi;
 
-        if ((commandLine.search(regEx)) >= 0) {
-            // determine which version of password option used to ensure it's used in the log.
-            let passwordString = "";
-            let regEx2 = /--password /gi;
-            if (commandLine.search(regEx2) >= 0) {
-                passwordString = "password";
-            }
-            regEx2 = /--pass /gi;
-            if (commandLine.search(regEx2) >= 0) {
-                passwordString = "pass";
-            }
-            regEx2 = /--pw /gi;
-            if (commandLine.search(regEx2) >= 0) {
-                passwordString = "pw";
-            }
+        if (commandLine.search(regEx) >= 0) {
+            commandLine = commandLine.replace(regEx, "--$1 ****");
+        }
 
-            commandLine = commandLine.replace(regEx, "--" + passwordString + " ****");
+        // determine if the command has the token value option and mask the token value
+        regEx = /--(token-value|tokenValue|tv) ([^\s]+)/gi;
 
+        if (commandLine.search(regEx) >= 0) {
+            commandLine = commandLine.replace(regEx, "--$1 ****");
         }
 
         // this.log.info(`post commandLine issued:\n\n${TextUtils.prettyJson(commandLine)}`);
@@ -562,6 +541,7 @@ export class CommandProcessor {
                     response,
                     profiles: prepared.profiles,
                     arguments: prepared.args,
+                    positionals: prepared.args._,
                     definition: this.definition,
                     fullDefinition: this.fullDefinition
                 });
@@ -628,6 +608,7 @@ export class CommandProcessor {
                             prepared.args,
                             this.log
                         ),
+                        positionals: prepared.args._,
                         definition: this.definition,
                         fullDefinition: this.fullDefinition,
                         isChained: true
@@ -747,7 +728,7 @@ export class CommandProcessor {
         // Set the default value for all options if defaultValue was specified on the command
         // definition and the option was not specified
         for (const option of allOpts) {
-            if (option.defaultValue != null && args[option.name] == null) {
+            if (option.defaultValue != null && args[option.name] == null && !args[Constants.DISABLE_DEFAULTS_OPTION] ) {
                 const defaultedArgs = CliUtils.setOptionValue(option.name,
                     ("aliases" in option) ? option.aliases : [],
                     option.defaultValue

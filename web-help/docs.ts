@@ -9,8 +9,11 @@
 *
 */
 
+// Load polyfill for IE11 support
+const arrayFrom = require("array-from");
+
 const isInIframe: boolean = window.location !== window.parent.location;
-const links: any = Array.from(document.getElementsByTagName("a"));
+const links: any = arrayFrom(document.getElementsByTagName("a"));
 
 // Process all <a> tags on page
 links.forEach((link: any) => {
@@ -57,7 +60,7 @@ clipboard.on("error", (e: any) => setTooltip(e.trigger, "Failed!"));
 if (isInIframe && (window.location.href.indexOf("/all.html") !== -1)) {
     let currentCmdName: string;
     window.onscroll = (_: any) => {
-        const anchors = Array.from(document.getElementsByClassName("cmd-anchor"));
+        const anchors = arrayFrom(document.getElementsByClassName("cmd-anchor"));
         for (const anchor of anchors) {
             const headerBounds = (anchor.nextElementSibling as any).getBoundingClientRect();
             if (0 < headerBounds.bottom) {

@@ -26,12 +26,6 @@ The data being formatted is of type \\"string\\".
 Note that the data being formatted was extracted from property \\"name\\" because that field was specified as the single filter."
 `;
 
-exports[`Command Response format APIs error checking should handle a circular reference and throw an error 1`] = `
-"Non-formatted output data:
-{ name: 'bad apple', fields: [Circular] }
-"
-`;
-
 exports[`Command Response format APIs error checking should handle an invalid format type and throw an error 1`] = `""`;
 
 exports[`Command Response format APIs error checking should handle an invalid format type and throw an error 2`] = `"Expect Error: Output format must be one of the following: table,list,object,string"`;

@@ -176,7 +176,6 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             validationParms.readyForValidation = true;
             validationParms.profile = updated.profile;
             await this.validateProfile(validationParms);
-            updated.profile = await this.processSecureProperties(parms.name, updated.profile);
         }
 
         return updated;
@@ -234,7 +233,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     });
                 }
 
-                return JSON.parse(ret); // Parse it after loading it. We stringify-ed before saving it
+                return (ret != null) ? JSON.parse(ret) : undefined; // Parse it after loading it. We stringify-ed before saving it
             };
         }
 
@@ -401,11 +400,18 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
              * @return {Promise<string>}
              */
             securelyStoreValue = async (propertyNamePath: string, propertyValue: string): Promise<string> => {
-                if (isNullOrUndefined(propertyValue)) { // prevents from storing null values
-                    return null;
-                }
-
                 try {
+                    if (isNullOrUndefined(propertyValue)) {
+                        // don't store null values but still remove value that may have been stored previously
+                        this.log.debug(`Deleting secured field with key ${propertyNamePath}` +
+                            ` for profile (of type "${this.profileType}").`);
+                        await CredentialManagerFactory.manager.delete(
+                            ProfileUtils.getProfilePropertyKey(this.profileType, name, propertyNamePath)
+                        );
+
+                        return undefined;
+                    }
+
                     this.log.debug(`Associating secured field with key ${propertyNamePath}` +
                         ` for profile (of type "${this.profileType}").`);
                     // Use the Credential Manager to store the credentials
@@ -514,6 +520,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             try {
                 await handler.process({
                     arguments: CliUtils.buildBaseArgs(newArguments),
+                    positionals: newArguments._,
                     response,
                     fullDefinition: undefined,
                     definition: undefined,
@@ -576,6 +583,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             try {
                 await handler.process({
                     arguments: CliUtils.buildBaseArgs(profileArguments),
+                    positionals: profileArguments._,
                     response,
                     fullDefinition: undefined,
                     definition: undefined,
@@ -638,7 +646,8 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                 return tempProperties;
             }
 
-            return null;
+            // Don't define any value here if the profile field cannot be set by a CLI option
+            return undefined;
         };
 
         for (const propertyName of Object.keys(this.profileTypeConfiguration.schema.properties)) {

@@ -120,12 +120,8 @@ export class CommandProfileLoader {
             this.log.trace(`All profiles loaded for command: ${this.definition.name}...`);
         }
 
-        // add meta
-        const cmdProfiles = new CommandProfiles(profileMap);
-        cmdProfiles.addMeta(profileMetaMap);
-
         // Return the command profiles object for the handler
-        return cmdProfiles;
+        return new CommandProfiles(profileMap, profileMetaMap);
 
     }
 

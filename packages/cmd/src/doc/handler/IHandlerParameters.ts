@@ -46,6 +46,13 @@ export interface IHandlerParameters {
     arguments: ICommandArguments;
 
     /**
+     * The positional options specified by the user on the command line.
+     * @type {string[]}
+     * @memberof IHandlerParameters
+     */
+    positionals: string[];
+
+    /**
      * The set of profiles loaded for this command handler - the map is built with the key being the type and it
      * returns the set of profiles loaded of that type. Multiple profiles can be loaded of the same type - depending
      * on the request and the 0th entry is the first loaded.

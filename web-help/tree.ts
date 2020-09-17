@@ -11,8 +11,9 @@
 
 // Imports to help Browserify find dependencies
 import $ from "jquery";
-const bootstrap = require("bootstrap");
-const jstree = require("jstree");
+require("bootstrap");
+require("jstree");
+require("url-search-params-polyfill");
 const scrollIntoView = require("scroll-into-view-if-needed");
 
 // Recursive object used for command tree node
@@ -96,15 +97,19 @@ function updateCurrentNode(newNodeId: string, goto: boolean, expand: boolean, fo
         }
     }
     currentNodeId = newNodeId;
+    const nodeIdWithoutExt: string = currentNodeId.slice(0, -5);
 
     if (goto) {
         // Load docs page for node in iframe
         if (currentView === 0) {
             $("#docs-page").attr("src", `./docs/${currentNodeId}`);
         } else {
-            $("#docs-page").attr("src", `./docs/all.html#${currentNodeId.slice(0, -5)}`);
+            $("#docs-page").attr("src", `./docs/all.html#${nodeIdWithoutExt}`);
         }
     }
+
+    // Update page title
+    document.title = `${nodeIdWithoutExt.replace(/_/g, " ")} | ${headerStr} Docs`;
 
     // Select node in command tree
     $("#cmd-tree").jstree(true).deselect_all();
@@ -118,14 +123,16 @@ function updateCurrentNode(newNodeId: string, goto: boolean, expand: boolean, fo
     // Scroll node into view if needed
     setTimeout(() => {
         const nodeElem = document.getElementById(currentNodeId);
-        scrollIntoView(nodeElem, {scrollMode: "if-needed", block: "nearest", inline: "nearest"});
+        if (nodeElem) {
+            scrollIntoView(nodeElem, {scrollMode: "if-needed", block: "nearest", inline: "nearest"});
+        }
     }, 0);
 
     // Update URL in address bar to contain node ID
     const baseUrl: string = window.location.href.replace(window.location.search, "");
     let queryString: string = "";
     if (currentNodeId !== treeNodes[0].id) {
-        queryString = "?p=" + currentNodeId.slice(0, -5);
+        queryString = "?p=" + nodeIdWithoutExt;
     }
     if (currentView === 1) {
         queryString = (queryString.length > 0) ? (queryString + "&v=1") : "?v=1";
@@ -279,7 +286,7 @@ function loadTree() {
             search_callback: onTreeSearch
         }
     })
-    .on("model.jstree", onTreeLoaded)
+    .on("ready.jstree refresh.jstree", onTreeLoaded)
     .on("changed.jstree", onTreeSelectionChanged);
 
     // Connect events to search box and iframe

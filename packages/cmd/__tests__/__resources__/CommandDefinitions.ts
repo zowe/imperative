@@ -10,6 +10,8 @@
 */
 
 import { ICommandDefinition } from "../../src/doc/ICommandDefinition";
+import { ICommandOptionDefinition } from "../../src/doc/option/ICommandOptionDefinition";
+import { ICommandProfileTypeConfiguration } from "../../src/doc/profiles/definition/ICommandProfileTypeConfiguration";
 
 export const COMPLEX_COMMAND: ICommandDefinition = {
     name: "test-group",
@@ -473,3 +475,66 @@ export const ORIGINAL_DEFINITIONS: ICommandDefinition[] = [
         }]
     }
 ];
+
+const amountOption: ICommandOptionDefinition = {
+    name: "amount",
+    aliases: ["a"],
+    description: "The amount of fruits.",
+    type: "number",
+};
+
+export const VALID_COMMANDS_WITH_PROFILES: ICommandDefinition[] = [
+    {
+        name: "command-with-service-profile",
+        type: "command",
+        description: "Command with only service profile",
+        options: [
+            amountOption
+        ],
+        profile: {
+            optional: ["apple"]
+        }
+    },
+    {
+        name: "command-with-base-profile",
+        type: "command",
+        description: "Command with only base profile",
+        options: [
+            amountOption
+        ],
+        profile: {
+            optional: ["fruit"]
+        }
+    },
+    {
+        name: "command-with-both-profiles",
+        type: "command",
+        description: "Command with both service and base profile",
+        options: [
+            amountOption
+        ],
+        profile: {
+            optional: ["apple", "fruit"]
+        }
+    },
+];
+
+export const SAMPLE_BASE_PROFILE: ICommandProfileTypeConfiguration = {
+    type: "fruit",
+    schema: {
+        type: "object",
+        title: "Fruit Profile",
+        description: "Fruit Profile",
+        properties: {
+            price: {
+                type: "number",
+                optionDefinition: {
+                    name: "price",
+                    aliases: ["p"],
+                    description: "The price of one fruit.",
+                    type: "number",
+                }
+            }
+        },
+    },
+};

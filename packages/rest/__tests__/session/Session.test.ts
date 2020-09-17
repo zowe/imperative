@@ -24,6 +24,21 @@ describe("Session tests", () => {
         expect(session.ISession).toMatchSnapshot();
     });
 
+    it("should store partial/dynamic cookie token requested", () => {
+        const cookieNameBase = "LtpaToken";
+        const cookieNameFull = cookieNameBase + "74133";
+        const cookieValue = "7KM/bf1sE4+4pE5mKgf+slWo9JO6laQF6OOi/POW0C+hRwscFOFjUijI2eWZrMY+jL4F9" +
+        "nl1ubUvcK0hPgWmKH4xCOf1EoNafu40XaiLoO8wZnCo/rHmP2/h7MzSJV1te8dP4VM6NFdQCruuxtcgddTiDXU8gYZERFTnvtYhUu" +
+        "vk1Nne8xwo++sDAmEFVwvJbyg6Z0zT1RAGPIXd6hx8YPNXydAifoQhqI9CaoyZNptByyx2H7uJ0vt0HTNqrdgZclOQkDNMm65ETpdo" +
+        "1u4U7Vd6HPoshHJEQo7p40T9jJfgv7PJ6Bxhp1dAqF5zEkqE";
+        const cookie: object = [cookieNameFull + "=" + cookieValue +
+        "; path=/; domain=ca23; Secure; HttpOnly; Expires=Tue, 19 Jan 2038 03:14:07 GMT;"];
+        const session = new Session({hostname: "localhost", type: "token", tokenType: cookieNameBase, user: "user", password: "password"});
+        session.storeCookie(cookie);
+        expect(session.ISession.tokenType).toBe(cookieNameFull);
+        expect(session.ISession.tokenValue).toBe(cookieValue);
+    });
+
     it("should initialize with basic type and required input data", () => {
         const session = new Session({hostname: "localhost", type: "basic", user: "ibmuser", password: "mypass"});
         expect(session.ISession).toMatchSnapshot();
@@ -90,6 +105,51 @@ describe("Session tests", () => {
 
     it("should not require user and password for 'token' type", () => {
         const session = new Session({hostname: "localhost", type: "token", tokenType: "LtpaToken2", tokenValue: "blahblahblah"});
+        expect(session.ISession).toMatchSnapshot();
+    });
+
+    it("should not allow tokenType for 'bearer' type", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "bearer", tokenValue: "blahblahblah", user: "user", password: "pass", tokenType: "LtpaToken2"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should not allow user for 'bearer' type", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "bearer", tokenValue: "blahblahblah", user: "user", password: "pass"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should not allow password for 'bearer' type", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "bearer", tokenValue: "blahblahblah", password: "pass"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should require token for 'bearer' type", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "bearer"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should not require user and password for 'bearer' type", () => {
+        const session = new Session({hostname: "localhost", type: "bearer", tokenValue: "blahblahblah"});
         expect(session.ISession).toMatchSnapshot();
     });
 

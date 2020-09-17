@@ -31,6 +31,7 @@ import { IO } from "../../../io";
 import { ITaskWithStatus, TaskProgress, TaskStage } from "../../../operations";
 import { TextUtils } from "../../../utilities";
 import { IRestOptions } from "./doc/IRestOptions";
+import * as SessConstants from "../session/SessConstants";
 
 export type RestClientResolve = (data: string) => void;
 
@@ -238,9 +239,9 @@ export abstract class AbstractRestClient {
              * Perform the actual http request
              */
             let clientRequest: http.ClientRequest;
-            if (this.session.ISession.protocol === AbstractSession.HTTPS_PROTOCOL) {
+            if (this.session.ISession.protocol === SessConstants.HTTPS_PROTOCOL) {
                 clientRequest = https.request(buildOptions, this.requestHandler.bind(this));
-            } else if (this.session.ISession.protocol === AbstractSession.HTTP_PROTOCOL) {
+            } else if (this.session.ISession.protocol === SessConstants.HTTP_PROTOCOL) {
                 clientRequest = http.request(buildOptions, this.requestHandler.bind(this));
             }
 
@@ -439,8 +440,8 @@ export abstract class AbstractRestClient {
          * Here is where we conditionally perform our HTTP REST request using basic authentication or the stored
          * cookie in our session object.
          */
-        if (this.session.ISession.type === AbstractSession.TYPE_BASIC ||
-            this.session.ISession.type === AbstractSession.TYPE_TOKEN) {
+        if (this.session.ISession.type === SessConstants.AUTH_TYPE_BASIC ||
+            this.session.ISession.type === SessConstants.AUTH_TYPE_TOKEN) {
             if (this.session.ISession.tokenValue) {
                 this.log.trace("Using cookie authentication with token %s", this.session.ISession.tokenValue);
                 const headerKeys: string[] = Object.keys(Headers.COOKIE_AUTHORIZATION);
@@ -456,6 +457,13 @@ export abstract class AbstractRestClient {
                     options.headers[property] = authentication;
                 });
             }
+        } else if (this.session.ISession.type === SessConstants.AUTH_TYPE_BEARER) {
+            this.log.trace("Using bearer authentication");
+            const headerKeys: string[] = Object.keys(Headers.BASIC_AUTHORIZATION);
+            const authentication: string = AbstractSession.BEARER_PREFIX + this.session.ISession.tokenValue;
+            headerKeys.forEach((property) => {
+                options.headers[property] = authentication;
+            });
         }
 
         // for all headers passed into this request, append them to our options object
@@ -483,7 +491,7 @@ export abstract class AbstractRestClient {
         this.mResponse = res;
 
         if (this.requestSuccess) {
-            if (this.session.ISession.type === AbstractSession.TYPE_TOKEN) {
+            if (this.session.ISession.type === SessConstants.AUTH_TYPE_TOKEN) {
                 if (RestConstants.PROP_COOKIE in this.response.headers) {
                     this.session.storeCookie(this.response.headers[RestConstants.PROP_COOKIE]);
                 }

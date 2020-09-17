@@ -32,6 +32,7 @@ export * from "./src/doc/response/response/ICommandValidatorResponse";
 export * from "./src/doc/ICommandDefinition";
 export * from "./src/doc/ICommandDefinitionPassOn";
 export * from "./src/doc/ICommandExampleDefinition";
+export * from "./src/doc/IPartialCommandDefinition";
 
 export * from "./src/doc/args/ICommandArguments";
 

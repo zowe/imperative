@@ -294,10 +294,30 @@ export class SyntaxValidator {
 
                 // check if the value of the option conforms to the allowableValues (if any)
                 if (!isNullOrUndefined(optionDef.allowableValues)) {
-                    if (!this.checkIfAllowable(optionDef.allowableValues, commandArguments[optionName])) {
-                        this.invalidOptionError(optionDef, responseObject, commandArguments[optionName]);
-                        valid = false;
-                    }
+                    // Make a copy of optionDef, so that modifications below are only used in this place
+                    const optionDefCopy: ICommandOptionDefinition = JSON.parse(JSON.stringify(optionDef));
+                    // Use modified regular expressions for allowable values to check and to generate error
+                    optionDefCopy.allowableValues.values = optionDef.allowableValues.values.map((regex) => {
+                        // Prepend "^" if not existing
+                        if (!regex.startsWith("^")) {
+                            regex = "^" + regex;
+                        }
+
+                        // Append "$" if the last char is an escaped "$" or chars other than "$"
+                        if (!regex.endsWith("$") || regex.endsWith("\\$")) {
+                            regex = regex + "$";
+                        }
+
+                        return regex;
+                    });
+
+                    const optionValue = commandArguments[optionName];
+                    const optionValueArray = Array.isArray(optionValue) ? optionValue : [optionValue];
+                    optionValueArray.filter(value => !this.checkIfAllowable(optionDefCopy.allowableValues, value))
+                        .forEach(value => {
+                            this.invalidOptionError(optionDefCopy, responseObject, value);
+                            valid = false;
+                        });
                 }
 
                 if (!isNullOrUndefined(optionDef.conflictsWith) && optionDef.conflictsWith.length > 0) {
