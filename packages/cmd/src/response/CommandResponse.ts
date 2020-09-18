@@ -598,6 +598,13 @@ export class CommandResponse implements ICommandResponseApi {
                     outer.writeAndBufferStderr(msg);
                     return msg;
                 }
+
+                /**
+                 * Ends a stream connection
+                 */
+                public endStream() {
+                    outer.endStream();
+                }
             }();
         }
 
@@ -949,16 +956,29 @@ export class CommandResponse implements ICommandResponseApi {
         this.writeStream(data);
     }
 
-
     /**
      * Writes data to stream if provided (for daemon mode)
      * @private
      * @param {*} data
      * @memberof CommandResponse
      */
-    private writeStream(data: any) {
+    private writeStream(data: any, endStream = true) {
         if (this.mStream) {
             this.mStream.write(data);
+
+            if (endStream) {
+                this.mStream.end();
+            }
+        }
+    }
+
+    /**
+     * Explicitly end a stream
+     * @private
+     * @memberof CommandResponse
+     */
+    private endStream() {
+        if (this.mStream) {
             this.mStream.end();
         }
     }
@@ -969,10 +989,10 @@ export class CommandResponse implements ICommandResponseApi {
      * @param {(Buffer | string)} data - The data to write/buffer
      * @memberof CommandResponse
      */
-    private writeAndBufferStderr(data: Buffer | string) {
+    private writeAndBufferStderr(data: Buffer | string, endStream = false) {
         this.bufferStderr(data);
         if (this.write()) {
-            this.writeStderr(data);
+            this.writeStderr(data, endStream);
         }
     }
 
@@ -982,9 +1002,9 @@ export class CommandResponse implements ICommandResponseApi {
      * @param {*} data - the data to write to stderr
      * @memberof CommandResponse
      */
-    private writeStderr(data: any) {
+    private writeStderr(data: any, endStream = false) {
         process.stderr.write(data);
-        this.writeStream(data);
+        this.writeStream(data, endStream);
     }
 
     /**

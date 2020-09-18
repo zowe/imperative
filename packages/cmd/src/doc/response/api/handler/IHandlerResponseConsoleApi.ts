@@ -40,4 +40,10 @@ export interface IHandlerResponseConsoleApi {
      * @memberof IHandlerResponseConsoleApi
      */
     errorHeader(message: string, delimeter?: string): string;
+
+    /**
+     * Explicitly ends a stream.
+     * @memberof IHandlerResponseConsoleApi
+     */
+    endStream(): void;
 }

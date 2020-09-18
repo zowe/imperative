@@ -59,6 +59,7 @@ import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
 import { IYargsContext } from "./doc/IYargsContext";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 import { ImperativeExpect } from "../../expect";
+import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
 
 // Bootstrap the performance tools
 if (PerfTiming.isEnabled) {
@@ -98,6 +99,15 @@ export class Imperative {
      */
     public static get commandLine(): string {
         return this.mCommandLine;
+    }
+
+    /**
+     * Set the command line (needed for daemon where command changes and is not static)
+     * @static
+     * @memberof Imperative
+     */
+    public static set commandLine(args: string) {
+        this.mCommandLine = args;
     }
 
     /**
