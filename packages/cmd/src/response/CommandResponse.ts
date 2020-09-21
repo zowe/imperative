@@ -259,6 +259,7 @@ export class CommandResponse implements ICommandResponseApi {
                     // If the output is an array and the length is 0 or - do nothing
                     if ((Array.isArray(format.output) && format.output.length === 0) ||
                         (Object.keys(format.output).length === 0 && format.output.constructor === Object)) {
+                        outer.console.endStream();
                         return;
                     }
 
@@ -268,7 +269,7 @@ export class CommandResponse implements ICommandResponseApi {
                         formatCopy = JSON.parse(JSON.stringify(format));
                     } catch (copyErr) {
                         outer.console.errorHeader(`Non-formatted output data`);
-                        outer.console.error(`${inspect(format.output, {depth: null, compact: true} as any)}`);
+                        outer.console.error(`${inspect(format.output, { depth: null, compact: true } as any)}`);
                         throw new ImperativeError({
                             msg: `Error copying input parameters. Details: ${copyErr.message}`,
                             additionalDetails: copyErr
@@ -291,7 +292,7 @@ export class CommandResponse implements ICommandResponseApi {
                         this.formatOutput(formatCopy, outer);
                     } catch (formatErr) {
                         outer.console.errorHeader(`Non-formatted output data`);
-                        outer.console.error(`${inspect(format.output, {compact: true} as any)}`);
+                        outer.console.error(`${inspect(format.output, { compact: true } as any)}`);
                         throw formatErr;
                     }
                 }
