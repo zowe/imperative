@@ -33,6 +33,11 @@ export class ImperativeConfig {
     private mLoadedConfig: IImperativeConfig = null;
 
     /**
+     * Current command needed for processing
+     */
+    private mCommandLine: string;
+
+    /**
      * This parameter is used to contain the caller location of imperative configuration file.
      */
     private mCallerLocation: string = null;
@@ -183,6 +188,26 @@ export class ImperativeConfig {
     public get callerPackageJson(): any {
         return this.getCallerFile("package.json");
     }
+
+    /**
+     *  Retrieve the command line.
+     *  @example
+     *  For example, in "banana a b --c", "a b --c" is the command line.
+     *  @returns {string} - command line
+     */
+    public get commandLine(): string {
+        return this.mCommandLine;
+    }
+
+    /**
+     * Set the command line (needed for daemon where command changes and is not static)
+     * @static
+     * @memberof Imperative
+     */
+    public set commandLine(args: string) {
+        this.mCommandLine = args;
+    }
+
 
     /**
      * Require a file from a project using imperative accounting for imperative being contained

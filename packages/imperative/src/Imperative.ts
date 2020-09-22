@@ -108,6 +108,7 @@ export class Imperative {
      */
     public static set commandLine(args: string) {
         this.mCommandLine = args;
+        ImperativeConfig.instance.commandLine = args;
     }
 
     /**
@@ -543,7 +544,7 @@ export class Imperative {
             progressBarSpinner: ImperativeConfig.instance.loadedConfig.progressBarSpinner
         };
 
-        this.mCommandLine = process.argv.slice(2).join(" ");
+        this.commandLine = process.argv.slice(2).join(" ");
 
         // Configure Yargs to meet the CLI's needs
         new YargsConfigurer(
