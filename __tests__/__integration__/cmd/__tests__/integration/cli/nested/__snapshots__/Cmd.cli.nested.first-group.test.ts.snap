@@ -45,5 +45,9 @@ exports[`cmd-cli nested first-group should display both groups and commands in t
 
       Display HTML help in browser
 
+   --current-working-directory  | --cwd (string)
+
+      Alternate current working directory
+
 "
 `;
