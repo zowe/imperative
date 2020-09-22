@@ -43,6 +43,15 @@ Object {
     },
     Object {
       "aliases": Array [
+        "cwd",
+      ],
+      "description": "Alternate current working directory",
+      "group": "Global options",
+      "name": "current-working-directory",
+      "type": "string",
+    },
+    Object {
+      "aliases": Array [
         "rff",
       ],
       "description": "Filter (include) fields in the response. Accepts an array of field/property names to include in the output response. You can filter JSON objects properties OR table columns/fields. In addition, you can use this option in conjunction with '--response-format-type' to reduce the output of a command to a single field/property or a list of a single field/property.",
@@ -158,6 +167,15 @@ Object {
     },
     Object {
       "aliases": Array [
+        "cwd",
+      ],
+      "description": "Alternate current working directory",
+      "group": "Global options",
+      "name": "current-working-directory",
+      "type": "string",
+    },
+    Object {
+      "aliases": Array [
         "apple-p",
       ],
       "description": "The name of a (apple) profile to load for this command execution.",
@@ -229,6 +247,15 @@ Object {
     },
     Object {
       "aliases": Array [
+        "cwd",
+      ],
+      "description": "Alternate current working directory",
+      "group": "Global options",
+      "name": "current-working-directory",
+      "type": "string",
+    },
+    Object {
+      "aliases": Array [
         "fruit-p",
       ],
       "description": "The name of a (fruit) profile to load for this command execution.",
@@ -297,6 +324,15 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "cwd",
+      ],
+      "description": "Alternate current working directory",
+      "group": "Global options",
+      "name": "current-working-directory",
+      "type": "string",
     },
     Object {
       "aliases": Array [
@@ -399,6 +435,15 @@ Object {
               "name": "help-web",
               "type": "boolean",
             },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
           ],
           "passOn": Array [],
           "positionals": Array [
@@ -463,6 +508,15 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
             },
           ],
           "passOn": Array [],
@@ -529,6 +583,15 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
             },
             Object {
               "aliases": Array [
@@ -599,6 +662,15 @@ Object {
           "name": "help-web",
           "type": "boolean",
         },
+        Object {
+          "aliases": Array [
+            "cwd",
+          ],
+          "description": "Alternate current working directory",
+          "group": "Global options",
+          "name": "current-working-directory",
+          "type": "string",
+        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -641,6 +713,15 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "cwd",
+      ],
+      "description": "Alternate current working directory",
+      "group": "Global options",
+      "name": "current-working-directory",
+      "type": "string",
     },
   ],
   "passOn": Array [],
@@ -710,6 +791,15 @@ Object {
               "name": "help-web",
               "type": "boolean",
             },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
           ],
           "passOn": Array [],
           "positionals": Array [
@@ -774,6 +864,15 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
             },
           ],
           "passOn": Array [],
@@ -843,6 +942,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
+            Object {
+              "aliases": Array [
                 "apple-p",
               ],
               "description": "The name of a (apple) profile to load for this command execution.",
@@ -904,6 +1012,15 @@ Object {
           "name": "help-web",
           "type": "boolean",
         },
+        Object {
+          "aliases": Array [
+            "cwd",
+          ],
+          "description": "Alternate current working directory",
+          "group": "Global options",
+          "name": "current-working-directory",
+          "type": "string",
+        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -953,6 +1070,15 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "cwd",
+      ],
+      "description": "Alternate current working directory",
+      "group": "Global options",
+      "name": "current-working-directory",
+      "type": "string",
     },
   ],
   "passOn": Array [
@@ -1042,6 +1168,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
+            Object {
+              "aliases": Array [
                 "pipe",
               ],
               "description": "Pipe data into this command via stdin",
@@ -1114,6 +1249,15 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
             },
             Object {
               "aliases": Array [
@@ -1192,6 +1336,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
+            Object {
+              "aliases": Array [
                 "apple-p",
               ],
               "description": "The name of a (apple) profile to load for this command execution.",
@@ -1265,6 +1418,15 @@ Object {
         },
         Object {
           "aliases": Array [
+            "cwd",
+          ],
+          "description": "Alternate current working directory",
+          "group": "Global options",
+          "name": "current-working-directory",
+          "type": "string",
+        },
+        Object {
+          "aliases": Array [
             "pipe",
           ],
           "description": "Pipe data into this command via stdin",
@@ -1321,6 +1483,15 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "cwd",
+      ],
+      "description": "Alternate current working directory",
+      "group": "Global options",
+      "name": "current-working-directory",
+      "type": "string",
     },
   ],
   "passOn": Array [
@@ -1394,6 +1565,15 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
             },
             Object {
               "aliases": Array [
@@ -1473,6 +1653,15 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
             },
             Object {
               "aliases": Array [
@@ -1556,6 +1745,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
+            Object {
+              "aliases": Array [
                 "banana-p",
               ],
               "description": "The name of a (banana) profile to load for this command execution.",
@@ -1616,6 +1814,15 @@ Object {
           "group": "Global options",
           "name": "help-web",
           "type": "boolean",
+        },
+        Object {
+          "aliases": Array [
+            "cwd",
+          ],
+          "description": "Alternate current working directory",
+          "group": "Global options",
+          "name": "current-working-directory",
+          "type": "string",
         },
         Object {
           "aliases": Array [
@@ -1680,6 +1887,15 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "cwd",
+      ],
+      "description": "Alternate current working directory",
+      "group": "Global options",
+      "name": "current-working-directory",
+      "type": "string",
     },
   ],
   "passOn": Array [
@@ -1760,6 +1976,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
+            Object {
+              "aliases": Array [
                 "banana-p",
               ],
               "description": "The name of a (banana) profile to load for this command execution.",
@@ -1836,6 +2061,15 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
             },
             Object {
               "aliases": Array [
@@ -1919,6 +2153,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
+            Object {
+              "aliases": Array [
                 "banana-p",
               ],
               "description": "The name of a (banana) profile to load for this command execution.",
@@ -1980,6 +2223,15 @@ Object {
           "name": "help-web",
           "type": "boolean",
         },
+        Object {
+          "aliases": Array [
+            "cwd",
+          ],
+          "description": "Alternate current working directory",
+          "group": "Global options",
+          "name": "current-working-directory",
+          "type": "string",
+        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -2029,6 +2281,15 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "cwd",
+      ],
+      "description": "Alternate current working directory",
+      "group": "Global options",
+      "name": "current-working-directory",
+      "type": "string",
     },
   ],
   "passOn": Array [
@@ -2114,6 +2375,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
+            Object {
+              "aliases": Array [
                 "banana-p",
               ],
               "description": "The name of a (banana) profile to load for this command execution.",
@@ -2190,6 +2460,15 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
             },
             Object {
               "aliases": Array [
@@ -2273,6 +2552,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
+            Object {
+              "aliases": Array [
                 "banana-p",
               ],
               "description": "The name of a (banana) profile to load for this command execution.",
@@ -2333,6 +2621,15 @@ Object {
           "group": "Global options",
           "name": "help-web",
           "type": "boolean",
+        },
+        Object {
+          "aliases": Array [
+            "cwd",
+          ],
+          "description": "Alternate current working directory",
+          "group": "Global options",
+          "name": "current-working-directory",
+          "type": "string",
         },
         Object {
           "aliases": Array [
@@ -2397,6 +2694,15 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "cwd",
+      ],
+      "description": "Alternate current working directory",
+      "group": "Global options",
+      "name": "current-working-directory",
+      "type": "string",
     },
   ],
   "passOn": Array [
@@ -2488,6 +2794,15 @@ Object {
               "name": "help-web",
               "type": "boolean",
             },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
           ],
           "passOn": Array [],
           "positionals": Array [
@@ -2559,6 +2874,15 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
             },
           ],
           "passOn": Array [],
@@ -2635,6 +2959,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
+            Object {
+              "aliases": Array [
                 "apple-p",
               ],
               "description": "The name of a (apple) profile to load for this command execution.",
@@ -2703,6 +3036,15 @@ Object {
           "name": "help-web",
           "type": "boolean",
         },
+        Object {
+          "aliases": Array [
+            "cwd",
+          ],
+          "description": "Alternate current working directory",
+          "group": "Global options",
+          "name": "current-working-directory",
+          "type": "string",
+        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -2752,6 +3094,15 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "cwd",
+      ],
+      "description": "Alternate current working directory",
+      "group": "Global options",
+      "name": "current-working-directory",
+      "type": "string",
     },
   ],
   "passOn": Array [
@@ -2840,6 +3191,15 @@ Object {
               "name": "help-web",
               "type": "boolean",
             },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
           ],
           "passOn": Array [],
           "positionals": Array [
@@ -2911,6 +3271,15 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
             },
           ],
           "passOn": Array [],
@@ -2987,6 +3356,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
+            Object {
+              "aliases": Array [
                 "apple-p",
               ],
               "description": "The name of a (apple) profile to load for this command execution.",
@@ -3048,6 +3426,15 @@ Object {
           "name": "help-web",
           "type": "boolean",
         },
+        Object {
+          "aliases": Array [
+            "cwd",
+          ],
+          "description": "Alternate current working directory",
+          "group": "Global options",
+          "name": "current-working-directory",
+          "type": "string",
+        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -3097,6 +3484,15 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "cwd",
+      ],
+      "description": "Alternate current working directory",
+      "group": "Global options",
+      "name": "current-working-directory",
+      "type": "string",
     },
   ],
   "passOn": Array [
@@ -3190,6 +3586,15 @@ Object {
               "name": "help-web",
               "type": "boolean",
             },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
           ],
           "passOn": Array [],
           "positionals": Array [
@@ -3261,6 +3666,15 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
             },
           ],
           "passOn": Array [],
@@ -3337,6 +3751,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
+            Object {
+              "aliases": Array [
                 "apple-p",
               ],
               "description": "The name of a (apple) profile to load for this command execution.",
@@ -3405,6 +3828,15 @@ Object {
           "name": "help-web",
           "type": "boolean",
         },
+        Object {
+          "aliases": Array [
+            "cwd",
+          ],
+          "description": "Alternate current working directory",
+          "group": "Global options",
+          "name": "current-working-directory",
+          "type": "string",
+        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -3454,6 +3886,15 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "cwd",
+      ],
+      "description": "Alternate current working directory",
+      "group": "Global options",
+      "name": "current-working-directory",
+      "type": "string",
     },
   ],
   "passOn": Array [
@@ -3537,6 +3978,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
+            Object {
+              "aliases": Array [
                 "banana-p",
               ],
               "description": "The name of a (banana) profile to load for this command execution.",
@@ -3613,6 +4063,15 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
+            },
+            Object {
+              "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
             },
             Object {
               "aliases": Array [
@@ -3696,6 +4155,15 @@ Object {
             },
             Object {
               "aliases": Array [
+                "cwd",
+              ],
+              "description": "Alternate current working directory",
+              "group": "Global options",
+              "name": "current-working-directory",
+              "type": "string",
+            },
+            Object {
+              "aliases": Array [
                 "apple-p",
               ],
               "description": "The name of a (apple) profile to load for this command execution.",
@@ -3756,6 +4224,15 @@ Object {
           "group": "Global options",
           "name": "help-web",
           "type": "boolean",
+        },
+        Object {
+          "aliases": Array [
+            "cwd",
+          ],
+          "description": "Alternate current working directory",
+          "group": "Global options",
+          "name": "current-working-directory",
+          "type": "string",
         },
         Object {
           "aliases": Array [
@@ -3821,6 +4298,15 @@ Object {
       "name": "help-web",
       "type": "boolean",
     },
+    Object {
+      "aliases": Array [
+        "cwd",
+      ],
+      "description": "Alternate current working directory",
+      "group": "Global options",
+      "name": "current-working-directory",
+      "type": "string",
+    },
   ],
   "passOn": Array [
     Object {
@@ -3882,6 +4368,15 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "cwd",
+      ],
+      "description": "Alternate current working directory",
+      "group": "Global options",
+      "name": "current-working-directory",
+      "type": "string",
     },
     Object {
       "aliases": Array [
@@ -3963,6 +4458,15 @@ Object {
         },
         Object {
           "aliases": Array [
+            "cwd",
+          ],
+          "description": "Alternate current working directory",
+          "group": "Global options",
+          "name": "current-working-directory",
+          "type": "string",
+        },
+        Object {
+          "aliases": Array [
             "banana-p",
           ],
           "description": "The name of a (banana) profile to load for this command execution.",
@@ -4018,6 +4522,15 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
+    },
+    Object {
+      "aliases": Array [
+        "cwd",
+      ],
+      "description": "Alternate current working directory",
+      "group": "Global options",
+      "name": "current-working-directory",
+      "type": "string",
     },
   ],
   "passOn": Array [],
