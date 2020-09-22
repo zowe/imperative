@@ -316,7 +316,7 @@ export class CommandProcessor {
                 `${CommandProcessor.ERROR_TAG} invoke(): Cannot invoke the handler for command "${this.definition.name}". The handler is blank.`);
         }
 
-        let commandLine = ImperativeConfig.instance.commandLine;
+        let commandLine = this.commandLine;
 
         // determine if the command has the user option and mask the user value
         let regEx = /--(user|u) ([^\s]+)/gi;
