@@ -31,8 +31,9 @@ import { IInvokeCommandParms } from "./doc/parms/IInvokeCommandParms";
 import { ICommandProcessorParms } from "./doc/processor/ICommandProcessorParms";
 import { ImperativeExpect } from "../../expect";
 import { inspect, isString } from "util";
-import { ImperativeConfig, TextUtils } from "../../utilities";
+import { TextUtils } from "../../utilities";
 import * as nodePath from "path";
+import * as os from "os";
 import { ICommandHandlerRequire } from "./doc/handler/ICommandHandlerRequire";
 import { ChainedHandlerService } from "./ChainedHandlerUtils";
 import { Constants } from "../../constants";
@@ -790,7 +791,6 @@ export class CommandProcessor {
         } catch (handlerErr) {
             this.log.error(`Failed to load/require handler "${handlerPath}" for command "${this.definition.name}".`);
             this.log.error(`Error details: ${handlerErr.message}`);
-            const os = require("os");
             this.log.error("Diagnostic information:\n" +
                 "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
                 "Environmental variables: '%s'",
@@ -857,7 +857,6 @@ export class CommandProcessor {
         response.failed();
         response.endProgressBar();
 
-        const os = require("os");
         this.log.error("Diagnostic information:\n" +
             "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
             "Node versions: '%s'" +
