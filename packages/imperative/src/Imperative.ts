@@ -16,7 +16,7 @@
 import { PerfTiming } from "@zowe/perf-timing";
 import { Logger, LoggerConfigBuilder } from "../../logger";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
-import { Arguments } from "yargs";
+import * as yargs from "yargs";
 import { ConfigurationLoader } from "./ConfigurationLoader";
 import { ConfigurationValidator } from "./ConfigurationValidator";
 import { isNullOrUndefined } from "util";
@@ -334,7 +334,7 @@ export class Imperative {
 
         ImperativeConfig.instance.yargsContext = context;
 
-        Imperative.yargs.parse(args, context);
+        yargs.parse(args, context);
 
         if (PerfTiming.isEnabled) {
             // Marks point END
@@ -421,7 +421,6 @@ export class Imperative {
         return TextUtils.chalk[ImperativeConfig.instance.loadedConfig.secondaryTextColor](text);
     }
 
-    private static yargs = require("yargs");
     private static mApi: ImperativeApi;
     private static mConsoleLog: Logger;
     private static mFullCommandTree: ICommandDefinition;
@@ -551,7 +550,7 @@ export class Imperative {
         // Configure Yargs to meet the CLI's needs
         new YargsConfigurer(
             preparedHostCliCmdTree,
-            Imperative.yargs,
+            yargs,
             commandResponseParms,
             new ImperativeProfileManagerFactory(this.api),
             this.mHelpGeneratorFactory,
@@ -564,9 +563,9 @@ export class Imperative {
         ).configure();
 
         // Define the commands to yargs
-        CommandYargs.defineOptionsToYargs(Imperative.yargs, preparedHostCliCmdTree.options);
+        CommandYargs.defineOptionsToYargs(yargs, preparedHostCliCmdTree.options);
         const definer = new YargsDefiner(
-            Imperative.yargs,
+            yargs,
             ImperativeConfig.instance.loadedConfig.primaryTextColor,
             Imperative.rootCommandName,
             Imperative.commandLine,
@@ -580,7 +579,7 @@ export class Imperative {
 
         for (const child of preparedHostCliCmdTree.children) {
             definer.define(child,
-                (args: Arguments, response: IYargsResponse) => {
+                (args: yargs.Arguments, response: IYargsResponse) => {
                     if (response.success) {
                         if (response.exitCode == null) {
                             response.exitCode = 0;
