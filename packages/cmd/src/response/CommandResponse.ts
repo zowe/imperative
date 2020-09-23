@@ -232,7 +232,7 @@ export class CommandResponse implements ICommandResponseApi {
         this.mSilent = (this.mControl.silent == null) ? false : this.mControl.silent;
         this.mProgressBarSpinnerChars = (this.mControl.progressBarSpinner == null) ? this.mProgressBarSpinnerChars : params.progressBarSpinner;
         this.mStream = params ? params.stream : undefined;
-        this.mCwd = params ? params.cwd: undefined;
+        this.mCwd = params ? params.cwd : undefined;
     }
 
     get format(): IHandlerFormatOutputApi {

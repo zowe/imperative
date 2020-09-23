@@ -332,6 +332,8 @@ export class Imperative {
         //     // context.stream.end();
         // });
 
+        ImperativeConfig.instance.yargsContext = context;
+
         Imperative.yargs.parse(args, context);
 
         if (PerfTiming.isEnabled) {
