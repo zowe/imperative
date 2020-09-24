@@ -45,5 +45,5 @@ export interface IHandlerResponseConsoleApi {
      * Explicitly ends a stream.
      * @memberof IHandlerResponseConsoleApi
      */
-    endStream(): void;
+    endStream?(): void;
 }
