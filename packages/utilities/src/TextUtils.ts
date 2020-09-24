@@ -10,7 +10,6 @@
 */
 
 import { format, isArray, isNullOrUndefined, isNumber, isString } from "util";
-import * as yargs from "yargs";
 
 /**
  * Interface of an explanation map object
@@ -39,6 +38,7 @@ export class TextUtils {
      */
     public static getRecommendedWidth(preferredWidth: number = TextUtils.DEFAULT_WRAP_WIDTH): number {
         const widthSafeGuard = 8; // prevent partial words from continuing over lines
+        const yargs = require("yargs");
         const maxWidth = !isNullOrUndefined(yargs.terminalWidth() && yargs.terminalWidth() > 0) ?
             (yargs.terminalWidth() - widthSafeGuard) : preferredWidth;
         return Math.min(preferredWidth, maxWidth);

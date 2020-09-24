@@ -11,6 +11,7 @@
 
 jest.mock("log4js");
 jest.mock("fs");
+jest.mock("yargs");
 import * as log4js from "log4js";
 import { LoggingConfigurer } from "../../imperative/src/LoggingConfigurer";
 import { IConfigLogging, ILog4jsConfig, Logger } from "../../logger";
