@@ -189,7 +189,7 @@ export class YargsConfigurer {
                 error,
                 _: [],
                 $0: Constants.PRIMARY_COMMAND,
-                stream: ImperativeConfig.instance.yargsContext.stream
+                stream: ImperativeConfig.instance.yargsContext?.stream
             };
 
 
