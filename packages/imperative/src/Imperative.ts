@@ -30,6 +30,7 @@ import { ImperativeError } from "../../error";
 import { PluginManagementFacility } from "./plugins/PluginManagementFacility";
 import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
 import {
+    AbstractCommandYargs,
     CliProfileManager,
     CommandPreparer,
     CommandYargs,
@@ -322,17 +323,8 @@ export class Imperative {
             timingApi.mark("START_IMP_PARSE");
         }
 
-        // Imperative.yargs.parse(args, context, (err: Error, argv: any, response: string) => {
-
-        //     if (argv.stream) {
-        //         argv.stream.write(response);
-        //         argv.stream.end();
-        //     }
-        //     // context.stream.write(output);
-        //     // context.stream.end();
-        // });
-
         ImperativeConfig.instance.yargsContext = context;
+        AbstractCommandYargs.STOP_YARGS = false;
 
         yargs.parse(args, context);
 
