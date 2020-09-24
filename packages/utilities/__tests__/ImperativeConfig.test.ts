@@ -37,6 +37,12 @@ describe("ImperativeConfig", () => {
             ImperativeConfig.instance.getCallerFile("package.json");
         });
 
+        it("should get a yargs context", () => {
+            const yargsContext = { stream: {}};
+            ImperativeConfig.instance.yargsContext = yargsContext;
+            expect(ImperativeConfig.instance.yargsContext).toBe(yargsContext);
+        });
+
         it("should set and get callerLocation", async () => {
             const mockLocation = __dirname;
             ImperativeConfig.instance.callerLocation = mockLocation;
