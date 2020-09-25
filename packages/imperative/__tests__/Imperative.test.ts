@@ -271,6 +271,7 @@ describe("Imperative", () => {
                     });
 
                     (yargs as any).parse = parse;
+                    Imperative.parse();
 
                     const result = await Imperative.init();
                     expect(result).toBeUndefined();
