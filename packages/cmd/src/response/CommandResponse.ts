@@ -968,7 +968,7 @@ export class CommandResponse implements ICommandResponseApi {
             this.mStream.write(data);
 
             if (endStream) {
-                this.mStream.end();
+                this.endStream();
             }
         }
     }
