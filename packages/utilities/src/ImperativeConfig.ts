@@ -14,12 +14,14 @@ import { join } from "path";
 import { IImperativeConfig } from "../../imperative/src/doc/IImperativeConfig";
 import { ImperativeError } from "../../error";
 import { EnvironmentalVariableSettings } from "../../imperative/src/env/EnvironmentalVariableSettings";
+import { IYargsContext } from "../../imperative/src/doc/IYargsContext";
 
 /**
  * This class is used to contain all configuration being set by Imperative.
  * It is a singleton and should be accessed via ImperativeConfig.instance.
  */
 export class ImperativeConfig {
+
     /**
      * This is the variable that stores the specific instance of Imperative Config.
      * Defined as static so that it can be accessed from anywhere.
@@ -27,10 +29,24 @@ export class ImperativeConfig {
     private static mInstance: ImperativeConfig = null;
 
     /**
+     * This is the yargs context needed to pass to `yargs.fail()` in the event that we cannot extract
+     * context through a `yargs.parse()` call.
+     * @private
+     * @type {IYargsContext}
+     * @memberof ImperativeConfig
+     */
+    private mYargsContext: IYargsContext;
+
+    /**
      * This parameter is used as the container of all loaded configuration for
      * Imperative.
      */
     private mLoadedConfig: IImperativeConfig = null;
+
+    /**
+     * Current command needed for processing
+     */
+    private mCommandLine: string;
 
     /**
      * This parameter is used to contain the caller location of imperative configuration file.
@@ -182,6 +198,41 @@ export class ImperativeConfig {
      */
     public get callerPackageJson(): any {
         return this.getCallerFile("package.json");
+    }
+
+    /**
+     *  Retrieve the command line.
+     *  @example
+     *  For example, in "banana a b --c", "a b --c" is the command line.
+     *  @returns {string} - command line
+     */
+    public get commandLine(): string {
+        return this.mCommandLine;
+    }
+
+    /**
+     * Set the command line (needed for daemon where command changes and is not static)
+     * @memberof Imperative
+     */
+    public set commandLine(args: string) {
+        this.mCommandLine = args;
+    }
+
+    /**
+     * Set context for yargs to retrieve if no handler is called.
+     * @type {IYargsContext}
+     * @memberof ImperativeConfig
+     */
+    public get yargsContext(): IYargsContext {
+        return this.mYargsContext;
+    }
+
+    /**
+     * Context for yargs when no handler is invoked.
+     * @memberof ImperativeConfig
+     */
+    public set yargsContext(context: IYargsContext) {
+        this.mYargsContext = context;
     }
 
     /**

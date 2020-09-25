@@ -12,6 +12,8 @@
 import { COMMAND_RESPONSE_FORMAT } from "../api/processor/ICommandResponseApi";
 import { ICommandDefinition } from "../../../..";
 import { Arguments } from "yargs";
+import * as net from "net";
+
 /**
  * Command response control parameters. Indicates how the command response should behave and allows influence over
  * colorings, etc.
@@ -19,6 +21,21 @@ import { Arguments } from "yargs";
  * @interface ICommandResponseParms
  */
 export interface ICommandResponseParms {
+
+    /**
+     * Alternate current working directory (e.g. used for daemon mode)
+     * @type {string}
+     * @memberof ICommandResponseParms
+     */
+    cwd?: string;
+
+    /**
+     * Stream
+     * @type {*}
+     * @memberof ICommandResponseParms
+     */
+    stream?: any; // TODO(Kelosky): should be net.Socket
+
     /**
      * The arguments specified on the command line
      * @type {Arguments}

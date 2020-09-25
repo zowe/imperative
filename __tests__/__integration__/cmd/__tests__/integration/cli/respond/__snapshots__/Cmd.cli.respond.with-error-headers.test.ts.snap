@@ -52,12 +52,16 @@ exports[`cmd-cli respond with-error-headers should display the help 1`] = `
 
       Display HTML help in browser
 
+   --current-working-directory  | --cwd (string)
+
+      Alternate current working directory
+
 {
   \\"success\\": true,
   \\"exitCode\\": 0,
   \\"message\\": \\"The help was constructed for command: with-error-headers.\\",
-  \\"stdout\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-error-headers\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Responds with a few error headers (colorized in red).\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-error-headers [options]\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n   --help-examples  (boolean)\\\\n\\\\n      Display examples for all the commands in a the group\\\\n\\\\n   --help-web  | --hw (boolean)\\\\n\\\\n      Display HTML help in browser\\\\n\\\\n\\",
+  \\"stdout\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-error-headers\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Responds with a few error headers (colorized in red).\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-error-headers [options]\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n   --help-examples  (boolean)\\\\n\\\\n      Display examples for all the commands in a the group\\\\n\\\\n   --help-web  | --hw (boolean)\\\\n\\\\n      Display HTML help in browser\\\\n\\\\n   --current-working-directory  | --cwd (string)\\\\n\\\\n      Alternate current working directory\\\\n\\\\n\\",
   \\"stderr\\": \\"\\",
-  \\"data\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-error-headers\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Responds with a few error headers (colorized in red).\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-error-headers [options]\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n   --help-examples  (boolean)\\\\n\\\\n      Display examples for all the commands in a the group\\\\n\\\\n   --help-web  | --hw (boolean)\\\\n\\\\n      Display HTML help in browser\\\\n\\\\n\\"
+  \\"data\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-error-headers\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Responds with a few error headers (colorized in red).\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-error-headers [options]\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n   --help-examples  (boolean)\\\\n\\\\n      Display examples for all the commands in a the group\\\\n\\\\n   --help-web  | --hw (boolean)\\\\n\\\\n      Display HTML help in browser\\\\n\\\\n   --current-working-directory  | --cwd (string)\\\\n\\\\n      Alternate current working directory\\\\n\\\\n\\"
 }"
 `;

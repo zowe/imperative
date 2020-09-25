@@ -16,7 +16,7 @@
 import { PerfTiming } from "@zowe/perf-timing";
 import { Logger, LoggerConfigBuilder } from "../../logger";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
-import { Arguments } from "yargs";
+import * as yargs from "yargs";
 import { ConfigurationLoader } from "./ConfigurationLoader";
 import { ConfigurationValidator } from "./ConfigurationValidator";
 import { isNullOrUndefined } from "util";
@@ -30,6 +30,7 @@ import { ImperativeError } from "../../error";
 import { PluginManagementFacility } from "./plugins/PluginManagementFacility";
 import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
 import {
+    AbstractCommandYargs,
     CliProfileManager,
     CommandPreparer,
     CommandYargs,
@@ -56,9 +57,10 @@ import { dirname, join } from "path";
 
 import { Console } from "../../console";
 import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
-import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
+import { IYargsContext } from "./doc/IYargsContext";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 import { ImperativeExpect } from "../../expect";
+import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
 
 // Bootstrap the performance tools
 if (PerfTiming.isEnabled) {
@@ -98,6 +100,16 @@ export class Imperative {
      */
     public static get commandLine(): string {
         return this.mCommandLine;
+    }
+
+    /**
+     * Set the command line (needed for daemon where command changes and is not static)
+     * @static
+     * @memberof Imperative
+     */
+    public static set commandLine(args: string) {
+        this.mCommandLine = args;
+        ImperativeConfig.instance.commandLine = args;
     }
 
     /**
@@ -297,11 +309,12 @@ export class Imperative {
         return this.constructConsoleApi();
     }
 
+
     /**
      * Parse command line arguments and issue the user's specified command
      * @returns {Imperative} this, for chaining syntax
      */
-    public static parse(): Imperative {
+    public static parse(args?: string, context?: IYargsContext): Imperative {
 
         const timingApi = PerfTiming.api;
 
@@ -310,7 +323,10 @@ export class Imperative {
             timingApi.mark("START_IMP_PARSE");
         }
 
-        Imperative.yargs.parse();
+        ImperativeConfig.instance.yargsContext = context;
+        AbstractCommandYargs.STOP_YARGS = false;
+
+        yargs.parse(args, context);
 
         if (PerfTiming.isEnabled) {
             // Marks point END
@@ -397,7 +413,6 @@ export class Imperative {
         return TextUtils.chalk[ImperativeConfig.instance.loadedConfig.secondaryTextColor](text);
     }
 
-    private static yargs = require("yargs");
     private static mApi: ImperativeApi;
     private static mConsoleLog: Logger;
     private static mFullCommandTree: ICommandDefinition;
@@ -522,12 +537,12 @@ export class Imperative {
             progressBarSpinner: ImperativeConfig.instance.loadedConfig.progressBarSpinner
         };
 
-        this.mCommandLine = process.argv.slice(2).join(" ");
+        this.commandLine = process.argv.slice(2).join(" ");
 
         // Configure Yargs to meet the CLI's needs
         new YargsConfigurer(
             preparedHostCliCmdTree,
-            Imperative.yargs,
+            yargs,
             commandResponseParms,
             new ImperativeProfileManagerFactory(this.api),
             this.mHelpGeneratorFactory,
@@ -540,9 +555,9 @@ export class Imperative {
         ).configure();
 
         // Define the commands to yargs
-        CommandYargs.defineOptionsToYargs(Imperative.yargs, preparedHostCliCmdTree.options);
+        CommandYargs.defineOptionsToYargs(yargs, preparedHostCliCmdTree.options);
         const definer = new YargsDefiner(
-            Imperative.yargs,
+            yargs,
             ImperativeConfig.instance.loadedConfig.primaryTextColor,
             Imperative.rootCommandName,
             Imperative.commandLine,
@@ -556,7 +571,7 @@ export class Imperative {
 
         for (const child of preparedHostCliCmdTree.children) {
             definer.define(child,
-                (args: Arguments, response: IYargsResponse) => {
+                (args: yargs.Arguments, response: IYargsResponse) => {
                     if (response.success) {
                         if (response.exitCode == null) {
                             response.exitCode = 0;

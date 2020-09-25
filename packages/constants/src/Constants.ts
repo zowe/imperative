@@ -62,6 +62,8 @@ export class Constants {
     public static readonly HELP_EXAMPLES = "help-examples";
     public static readonly HELP_WEB_OPTION = "help-web";
     public static readonly HELP_WEB_OPTION_ALIAS = "hw";
+    public static readonly CURRENT_WORKING_DIRECTORY_OPTION = "current-working-directory";
+    public static readonly CURRENT_WORKING_DIRECTORY_OPTION_ALIAS = "cwd";
 
     public static readonly STDIN_OPTION = "stdin";
     public static readonly STDIN_OPTION_ALIAS = "pipe";

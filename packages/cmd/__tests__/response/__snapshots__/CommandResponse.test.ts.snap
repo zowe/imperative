@@ -1487,12 +1487,102 @@ Object {
 }
 `;
 
+exports[`Command Response should write to stderr and stream 1`] = `
+"hello from the tests
+"
+`;
+
+exports[`Command Response should write to stderr and stream 2`] = `
+Object {
+  "data": Object {},
+  "error": undefined,
+  "exitCode": 0,
+  "message": "",
+  "stderr": Object {
+    "data": Array [
+      104,
+      101,
+      108,
+      108,
+      111,
+      32,
+      102,
+      114,
+      111,
+      109,
+      32,
+      116,
+      104,
+      101,
+      32,
+      116,
+      101,
+      115,
+      116,
+      115,
+      10,
+    ],
+    "type": "Buffer",
+  },
+  "stdout": Object {
+    "data": Array [],
+    "type": "Buffer",
+  },
+  "success": true,
+}
+`;
+
 exports[`Command Response should write to stdout (with newline) and buffer to the response object 1`] = `
 "hello from the tests
 "
 `;
 
 exports[`Command Response should write to stdout (with newline) and buffer to the response object 2`] = `
+Object {
+  "data": Object {},
+  "error": undefined,
+  "exitCode": 0,
+  "message": "",
+  "stderr": Object {
+    "data": Array [],
+    "type": "Buffer",
+  },
+  "stdout": Object {
+    "data": Array [
+      104,
+      101,
+      108,
+      108,
+      111,
+      32,
+      102,
+      114,
+      111,
+      109,
+      32,
+      116,
+      104,
+      101,
+      32,
+      116,
+      101,
+      115,
+      116,
+      115,
+      10,
+    ],
+    "type": "Buffer",
+  },
+  "success": true,
+}
+`;
+
+exports[`Command Response should write to stdout stream 1`] = `
+"hello from the tests
+"
+`;
+
+exports[`Command Response should write to stdout stream 2`] = `
 Object {
   "data": Object {},
   "error": undefined,

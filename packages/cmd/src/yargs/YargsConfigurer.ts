@@ -22,6 +22,7 @@ import { IProfileManagerFactory } from "../../../profiles";
 import { ICommandProfileTypeConfiguration } from "../doc/profiles/definition/ICommandProfileTypeConfiguration";
 import { IHelpGeneratorFactory } from "../help/doc/IHelpGeneratorFactory";
 import { CliUtils } from "../../../utilities/src/CliUtils";
+import { ImperativeConfig } from "../../../utilities";
 
 /**
  * Before invoking commands, this class configures some settings and callbacks in Yargs,
@@ -60,7 +61,7 @@ export class YargsConfigurer {
         const preferredTerminalWidth = 100;
         const failedCommandHandler = __dirname + "/../handlers/FailedCommandHandler";
         const failedCommandDefinition: ICommandDefinition = {
-            name: this.rootCommandName + " " + this.commandLine,
+            name: this.rootCommandName + " " + ImperativeConfig.instance.commandLine,
             handler: failedCommandHandler,
             type: "command",
             description: "The command you tried to invoke failed"
@@ -140,7 +141,7 @@ export class YargsConfigurer {
                         helpGenerator: rootHelpGenerator,
                         profileManagerFactory: this.profileManagerFactory,
                         rootCommandName: this.rootCommandName,
-                        commandLine: this.commandLine,
+                        commandLine: ImperativeConfig.instance.commandLine,
                         envVariablePrefix: this.envVariablePrefix,
                         promptPhrase: this.promptPhrase
                     });
@@ -187,7 +188,8 @@ export class YargsConfigurer {
                 failureMessage,
                 error,
                 _: [],
-                $0: Constants.PRIMARY_COMMAND
+                $0: Constants.PRIMARY_COMMAND,
+                stream: ImperativeConfig.instance.yargsContext?.stream
             };
 
             // Invoke the fail command
@@ -216,13 +218,13 @@ export class YargsConfigurer {
                 helpGenerator: failHelpGenerator,
                 profileManagerFactory: this.profileManagerFactory,
                 rootCommandName: this.rootCommandName,
-                commandLine: this.commandLine,
+                commandLine: ImperativeConfig.instance.commandLine,
                 envVariablePrefix: this.envVariablePrefix,
                 promptPhrase: this.promptPhrase
             });
 
-            failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
-            const groupValues = this.commandLine.split(" ", 2);
+            failureMessage += `\nCommand entered: "${this.rootCommandName} ${ImperativeConfig.instance.commandLine}"`;
+            const groupValues = ImperativeConfig.instance.commandLine.split(" ", 2);
             failureMessage += `\nUse "${this.rootCommandName} ${groupValues[0]} ${groupValues[1]} --help" to view groups, commands, and options.`;
 
             // Construct the arguments
@@ -255,9 +257,9 @@ export class YargsConfigurer {
         let delimiter: string = ""; // used to delimit between possible 'command' values
 
         let failureMessage = "Command failed due to improper syntax";
-        failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
+        failureMessage += `\nCommand entered: "${this.rootCommandName} ${ImperativeConfig.instance.commandLine}"`;
         // limit to three to include two levels of group and command value, if present
-        const groupValues = this.commandLine.split(" ", three);
+        const groupValues = ImperativeConfig.instance.commandLine.split(" ", three);
 
         // loop through the top level groups
         for (const group of this.rootCommand.children) {

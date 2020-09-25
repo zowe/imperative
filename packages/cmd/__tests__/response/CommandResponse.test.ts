@@ -298,6 +298,47 @@ describe("Command Response", () => {
         expect(response.buildJsonResponse()).toMatchSnapshot();
     });
 
+    it("should write to stdout stream", () => {
+        let messages: string = "";
+        const fakeStream = {
+            write: jest.fn(),
+            end: jest.fn()
+        }
+        const response = new CommandResponse({
+            stream: fakeStream
+        });
+        process.stdout.write = jest.fn((data) => {
+            messages += data;
+        });
+        const msg: string = "hello from the tests";
+        response.console.log(msg);
+        process.stdout.write = ORIGINAL_STDOUT_WRITE;
+        expect(messages).toMatchSnapshot();
+        expect(response.buildJsonResponse().stdout.toString()).toEqual(msg + "\n");
+        expect(response.buildJsonResponse()).toMatchSnapshot();
+    });
+
+    it("should write to stderr and stream", () => {
+        let messages: string = "";
+        const fakeStream = {
+            write: jest.fn(),
+            end: jest.fn()
+        }
+        const response = new CommandResponse({
+            stream: fakeStream
+        });
+        process.stderr.write = jest.fn((data) => {
+            messages += data;
+        });
+        const msg: string = "hello from the tests";
+        response.console.error(msg);
+        process.stderr.write = ORIGINAL_STDERR_WRITE;
+        expect(messages).toMatchSnapshot();
+        expect(response.buildJsonResponse().stderr.toString()).toEqual(msg + "\n");
+        expect(response.buildJsonResponse()).toMatchSnapshot();
+    });
+
+
     it("should write to stderr (with newline) and buffer to the response object", () => {
         let messages: string = "";
         const response = new CommandResponse();

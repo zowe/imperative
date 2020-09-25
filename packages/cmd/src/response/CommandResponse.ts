@@ -30,6 +30,7 @@ import { inspect } from "util";
 import * as DeepMerge from "deepmerge";
 import ProgressBar = require("progress");
 import WriteStream = NodeJS.WriteStream;
+import * as net from "net";
 
 const DataObjectParser = require("dataobject-parser");
 
@@ -187,6 +188,7 @@ export class CommandResponse implements ICommandResponseApi {
      * @memberof CommandResponse
      */
     private mDefinition: ICommandDefinition;
+
     /**
      * The arguments passed to the command - may be undefined/null
      * @private
@@ -194,6 +196,22 @@ export class CommandResponse implements ICommandResponseApi {
      * @memberof CommandResponse
      */
     private mArguments: Arguments;
+
+    /**
+     * The stream to write to in daemon mode
+     * @private
+     * @type {net.Socket}
+     * @memberof CommandResponse
+     */
+    private mStream: net.Socket;
+
+    /**
+     * Alternate current working directory for daemon mode
+     * @private
+     * @type {string}
+     * @memberof CommandResponse
+     */
+    private mCwd: string;
 
     /**
      * Creates an instance of CommandResponse.
@@ -213,6 +231,8 @@ export class CommandResponse implements ICommandResponseApi {
             `${CommandResponse.RESPONSE_ERR_TAG} Response format invalid. Valid formats: "${formats.join(",")}"`);
         this.mSilent = (this.mControl.silent == null) ? false : this.mControl.silent;
         this.mProgressBarSpinnerChars = (this.mControl.progressBarSpinner == null) ? this.mProgressBarSpinnerChars : params.progressBarSpinner;
+        this.mStream = params ? params.stream : undefined;
+        this.mCwd = params ? params.cwd : undefined;
     }
 
     get format(): IHandlerFormatOutputApi {
@@ -239,6 +259,7 @@ export class CommandResponse implements ICommandResponseApi {
                     // If the output is an array and the length is 0 or - do nothing
                     if ((Array.isArray(format.output) && format.output.length === 0) ||
                         (Object.keys(format.output).length === 0 && format.output.constructor === Object)) {
+                        outer.console.endStream();
                         return;
                     }
 
@@ -248,7 +269,7 @@ export class CommandResponse implements ICommandResponseApi {
                         formatCopy = JSON.parse(JSON.stringify(format));
                     } catch (copyErr) {
                         outer.console.errorHeader(`Non-formatted output data`);
-                        outer.console.error(`${inspect(format.output, {depth: null, compact: true} as any)}`);
+                        outer.console.error(`${inspect(format.output, { depth: null, compact: true } as any)}`);
                         throw new ImperativeError({
                             msg: `Error copying input parameters. Details: ${copyErr.message}`,
                             additionalDetails: copyErr
@@ -271,7 +292,7 @@ export class CommandResponse implements ICommandResponseApi {
                         this.formatOutput(formatCopy, outer);
                     } catch (formatErr) {
                         outer.console.errorHeader(`Non-formatted output data`);
-                        outer.console.error(`${inspect(format.output, {compact: true} as any)}`);
+                        outer.console.error(`${inspect(format.output, { compact: true } as any)}`);
                         throw formatErr;
                     }
                 }
@@ -577,6 +598,13 @@ export class CommandResponse implements ICommandResponseApi {
                     const msg = TextUtils.chalk.red(message + `${delimeter}\n`);
                     outer.writeAndBufferStderr(msg);
                     return msg;
+                }
+
+                /**
+                 * Ends a stream connection
+                 */
+                public endStream() {
+                    outer.endStream();
                 }
             }();
         }
@@ -926,6 +954,34 @@ export class CommandResponse implements ICommandResponseApi {
      */
     private writeStdout(data: any) {
         process.stdout.write(data);
+        this.writeStream(data);
+    }
+
+    /**
+     * Writes data to stream if provided (for daemon mode)
+     * @private
+     * @param {*} data
+     * @memberof CommandResponse
+     */
+    private writeStream(data: any, endStream = true) {
+        if (this.mStream) {
+            this.mStream.write(data);
+
+            if (endStream) {
+                this.endStream();
+            }
+        }
+    }
+
+    /**
+     * Explicitly end a stream
+     * @private
+     * @memberof CommandResponse
+     */
+    private endStream() {
+        if (this.mStream) {
+            this.mStream.end();
+        }
     }
 
     /**
@@ -934,10 +990,10 @@ export class CommandResponse implements ICommandResponseApi {
      * @param {(Buffer | string)} data - The data to write/buffer
      * @memberof CommandResponse
      */
-    private writeAndBufferStderr(data: Buffer | string) {
+    private writeAndBufferStderr(data: Buffer | string, endStream = false) {
         this.bufferStderr(data);
         if (this.write()) {
-            this.writeStderr(data);
+            this.writeStderr(data, endStream);
         }
     }
 
@@ -947,8 +1003,9 @@ export class CommandResponse implements ICommandResponseApi {
      * @param {*} data - the data to write to stderr
      * @memberof CommandResponse
      */
-    private writeStderr(data: any) {
+    private writeStderr(data: any, endStream = false) {
         process.stderr.write(data);
+        this.writeStream(data, endStream);
     }
 
     /**

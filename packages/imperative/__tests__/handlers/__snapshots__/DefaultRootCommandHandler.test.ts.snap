@@ -217,6 +217,10 @@ exports[`Default Root Command Handler should display the help if no options are 
 
       Display HTML help in browser
 
+   --current-working-directory  | --cwd (string)
+
+      Alternate current working directory
+
 "
 `;
 

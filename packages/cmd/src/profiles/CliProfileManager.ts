@@ -502,7 +502,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             // if there is a custom update profile handler, they can call mergeProfile
             // from their handler, so we will not do it for them to avoid issues
             this.log.debug("Loading custom update profile handler: " + profileConfig.updateProfileFromArgumentsHandler);
-            const response = new CommandResponse({silent: true});
+            const response = new CommandResponse({silent: true, stream: newArguments.stream});
             let handler: ICommandHandler;
             try {
                 const commandHandler: ICommandHandlerRequire = require(profileConfig.updateProfileFromArgumentsHandler);
@@ -565,7 +565,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
     private async createProfileFromCommandArguments(profileArguments: Arguments, starterProfile: IProfile): Promise<IProfile> {
         const profileConfig = this.profileTypeConfiguration;
         if (!isNullOrUndefined(profileConfig.createProfileFromArgumentsHandler)) {
-            const response = new CommandResponse({silent: true, args: profileArguments});
+            const response = new CommandResponse({silent: true, args: profileArguments, stream: profileArguments.stream});
             let handler: ICommandHandler;
             try {
                 const commandHandler: ICommandHandlerRequire = require(profileConfig.createProfileFromArgumentsHandler);
