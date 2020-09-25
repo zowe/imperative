@@ -17,6 +17,8 @@ import { IImperativeOverrides } from "../src/doc/IImperativeOverrides";
 import { IConfigLogging } from "../../logger";
 import { IImperativeEnvironmentalVariableSettings } from "..";
 import { ICommandDefinition } from "../../cmd/src/doc/ICommandDefinition";
+import * as yargs from "yargs";
+import { AbstractCommandYargs } from "../..";
 
 describe("Imperative", () => {
     const mainModule = process.mainModule;
@@ -260,6 +262,19 @@ describe("Imperative", () => {
                 expect(mocks.Logger.initLogger).toHaveBeenCalledWith(
                     mocks.LoggingConfigurer.configureLogger("a", {})
                 );
+            });
+
+            describe("Parsing", () => {
+                it("should reset yargs context", async () => {
+                    const parse = jest.fn((parm1, parm2) => {
+                        // do nothing
+                    });
+
+                    (yargs as any).parse = parse;
+
+                    const result = await Imperative.init();
+                    expect(result).toBeUndefined();
+                });
             });
 
             describe("Environmental Var", () => {
