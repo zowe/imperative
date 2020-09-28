@@ -529,6 +529,22 @@ export class CliUtils {
         return impArgs;
     }
 
+    public static mergeConfigValues(config: any, cmdArr: Array<string>, merged: any) {
+        Object.keys(config).forEach((key: any) => {
+            if (typeof config[key] === "object") {
+                if (key === cmdArr[0]) {
+                    const newArr = Array.from(cmdArr);
+                    newArr.shift();
+                    this.mergeConfigValues(config[key], newArr, merged);
+                }
+            } else {
+                if (merged[key] == null) {
+                    merged[key] = config[key];
+                }
+            }
+        });
+    }
+
     /**
      * Takes a key and converts it to both camelCase and kebab-case.
      *

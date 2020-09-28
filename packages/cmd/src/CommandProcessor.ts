@@ -39,6 +39,7 @@ import { Constants } from "../../constants";
 import { ICommandArguments } from "./doc/args/ICommandArguments";
 import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "./help/WebHelpManager";
+import { IO } from "../../io";
 
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
@@ -261,7 +262,7 @@ export class CommandProcessor {
             this.log.error(err);
             response.console.error(err);
             response.failed();
-            response.setError({msg: err.message, stack: err.stack});
+            response.setError({ msg: err.message, stack: err.stack });
         }
         return this.finishResponse(response);
     }
@@ -343,8 +344,8 @@ export class CommandProcessor {
         // Log the invoke
         this.log.info(`Invoking command "${this.definition.name}"...`);
         this.log.info(`Command issued:\n\n${TextUtils.prettyJson(this.rootCommand + " " + commandLine)}`);
-        this.log.trace(`Invoke parameters:\n${inspect(params, {depth: null})}`);
-        this.log.trace(`Command definition:\n${inspect(this.definition, {depth: null})}`);
+        this.log.trace(`Invoke parameters:\n${inspect(params, { depth: null })}`);
+        this.log.trace(`Command definition:\n${inspect(this.definition, { depth: null })}`);
 
         // Build the response object, base args object, and the entire array of options for this command
         // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
@@ -659,12 +660,9 @@ export class CommandProcessor {
         // Display the first example on error
         if (this.mDefinition.examples && this.mDefinition.examples.length > 0) {
             let exampleText = TextUtils.wordWrap(`- ${this.mDefinition.examples[0].description}:\n\n`, undefined, " ");
-            exampleText += `      \$ ${
-                this.rootCommand
-                } ${
-                CommandUtils.getFullCommandName(this.mDefinition, this.mFullDefinition)
-                } ${
-                this.mDefinition.examples[0].options
+            exampleText += `      \$ ${this.rootCommand
+                } ${CommandUtils.getFullCommandName(this.mDefinition, this.mFullDefinition)
+                } ${this.mDefinition.examples[0].options
                 }\n`;
 
             finalHelp += `\nExample:\n\n${exampleText}`;
@@ -709,13 +707,13 @@ export class CommandProcessor {
 
         // Load all profiles for the command
         this.log.trace(`Loading profiles for "${this.definition.name}" command. ` +
-            `Profile definitions: ${inspect(this.definition.profile, {depth: null})}`);
+            `Profile definitions: ${inspect(this.definition.profile, { depth: null })}`);
 
         const profiles = await CommandProfileLoader.loader({
             commandDefinition: this.definition,
             profileManagerFactory: this.profileFactory
         }).loadProfiles(args);
-        this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, {depth: null})}`);
+        this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, { depth: null })}`);
 
         // If we have profiles listed on the command definition (the would be loaded already)
         // we can extract values from them for options arguments
@@ -725,10 +723,40 @@ export class CommandProcessor {
             args = CliUtils.mergeArguments(profArgs, args);
         }
 
+        // Load configuration files - locations can be overridden by env var 
+        // cliname_CONFIG 
+        // cliname_USER_CONFIG
+        const configEnvVar = `${this.mEnvVariablePrefix}_CONFIG`;
+        const userConfigEnvVar = `${this.mEnvVariablePrefix}_USER_CONFIG`;
+        const configPath = (process.env[configEnvVar] != null) ? process.env[configEnvVar] : `${this.mCommandRootName}_config.json`;
+        const userConfigPath = (process.env[userConfigEnvVar] != null) ? process.env[userConfigEnvVar] : `${this.mCommandRootName}_config_user.json`;
+        
+        // Get the full command in dot prop format
+        const qualifiedCmdStr = CommandUtils.getFullCommandName(this.mDefinition, this.mFullDefinition);
+        const qualifiedCmdArr = qualifiedCmdStr.split(" ");
+
+        // Read the config file
+        if (IO.existsSync(configPath)) {
+            let config = IO.readFileSync(configPath);
+            config = JSON.parse(config.toString());
+            const overrides = {};
+            CliUtils.mergeConfigValues(config, qualifiedCmdArr, overrides);
+            args = CliUtils.mergeArguments(args, overrides);
+        }
+
+        // Read the user config file
+        if (IO.existsSync(userConfigPath)) {
+            let userConfig = IO.readFileSync(userConfigPath);
+            userConfig = JSON.parse(userConfig.toString());
+            const overrides = {};
+            CliUtils.mergeConfigValues(userConfig, qualifiedCmdArr, overrides);
+            args = CliUtils.mergeArguments(args, overrides);
+        }
+
         // Set the default value for all options if defaultValue was specified on the command
         // definition and the option was not specified
         for (const option of allOpts) {
-            if (option.defaultValue != null && args[option.name] == null && !args[Constants.DISABLE_DEFAULTS_OPTION] ) {
+            if (option.defaultValue != null && args[option.name] == null && !args[Constants.DISABLE_DEFAULTS_OPTION]) {
                 const defaultedArgs = CliUtils.setOptionValue(option.name,
                     ("aliases" in option) ? option.aliases : [],
                     option.defaultValue
@@ -743,7 +771,7 @@ export class CommandProcessor {
 
         // Log for debugging
         this.log.trace(`Full argument object constructed:\n${inspect(args)}`);
-        return {profiles, args};
+        return { profiles, args };
     }
 
     /**
@@ -841,7 +869,7 @@ export class CommandProcessor {
             }
         }
         this.log.info(`Command "${this.definition.name}" completed with success flag: "${json.success}"`);
-        this.log.trace(`Command "${this.definition.name}" finished. Response object:\n${inspect(json, {depth: null})}`);
+        this.log.trace(`Command "${this.definition.name}" finished. Response object:\n${inspect(json, { depth: null })}`);
         return json;
     }
 
@@ -883,7 +911,7 @@ export class CommandProcessor {
             response.data.setMessage(handlerErr.message);
         } else if (handlerErr instanceof Error) {
             this.log.error(`Handler for ${this.mDefinition.name} rejected by unhandled exception.`);
-            response.setError({msg: handlerErr.message, stack: handlerErr.stack});
+            response.setError({ msg: handlerErr.message, stack: handlerErr.stack });
             response.data.setMessage(unexpectedCommandError.message + ": " + handlerErr.message);
             this.log.error(`An error was thrown during command execution of "${this.definition.name}". Error Details: ${handlerErr.message}`);
             response.console.errorHeader(unexpectedCommandError.message);
@@ -912,11 +940,11 @@ export class CommandProcessor {
             response.console.errorHeader("Command Error");
             response.console.error(handlerErr);
             response.data.setMessage(handlerErr);
-            response.setError({msg: handlerErr});
+            response.setError({ msg: handlerErr });
         } else if (handlerErr == null) {
             this.log.error("The handler rejected the promise with no message or error.");
             response.data.setMessage("Command failed");
-            response.setError({msg: "Command Failed"});
+            response.setError({ msg: "Command Failed" });
         } else {
             this.log.error("The handler rejected the promise via some means other than " +
                 "throwing an Error/ImperativeError or rejecting the promise with a string/nothing.");
