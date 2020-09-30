@@ -361,7 +361,6 @@ export class CommandProcessor {
             this.log.info(`Preparing (loading profiles, reading stdin, etc.) execution of "${this.definition.name}" command...`);
             prepared = await this.prepare(prepareResponse, params.arguments);
         } catch (prepareErr) {
-            console.log(prepareErr);
 
             // Indicate that the command has failed
             prepareResponse.failed();

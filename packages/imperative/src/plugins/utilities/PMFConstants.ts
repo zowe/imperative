@@ -103,8 +103,6 @@ export class PMFConstants {
             merge: [userConfigPath]
         });
 
-        console.log(config.exists);
-
         this.PLUGIN_CONFIG = config;
         this.NPM_NAMESPACE = "@zowe";
         this.CLI_CORE_PKG_NAME = ImperativeConfig.instance.hostPackageName;

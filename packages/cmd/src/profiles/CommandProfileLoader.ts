@@ -69,7 +69,7 @@ export class CommandProfileLoader {
      */
     private mLog: Logger;
 
-    private mOnly: Map<string,string>;
+    private mOnly: Map<string, string>;
 
     /**
      * Creates an instance of CommandProfileLoader.
@@ -79,7 +79,7 @@ export class CommandProfileLoader {
      * @memberof CommandProfileLoader
      */
     constructor(commandDefinition: ICommandDefinition, factory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
-                logger = Logger.getImperativeLogger(), only?: Map<string,string>) {
+        logger = Logger.getImperativeLogger(), only?: Map<string, string>) {
         const err: string = "Could not construct the profile loader.";
         ImperativeExpect.toNotBeNullOrUndefined(commandDefinition, `${err} No command definition supplied.`);
         ImperativeExpect.toNotBeNullOrUndefined(factory, `${err} No profile factory supplied.`);
@@ -105,7 +105,7 @@ export class CommandProfileLoader {
 
         // Log the API call
         this.log.info(`Request to load profiles for command: ${this.definition.name}...`);
-        this.log.trace(`Profile load arguments supplied:\n${inspect(commandArguments, {depth: null})}`);
+        this.log.trace(`Profile load arguments supplied:\n${inspect(commandArguments, { depth: null })}`);
 
         // Create the map that eventually will be returned
         const profileMap: Map<string, IProfile[]> = new Map<string, IProfile[]>();
@@ -184,7 +184,6 @@ export class CommandProfileLoader {
      * @memberof CommandProfileLoader
      */
     private constructLoadList(commandArguments: Arguments): ICommandLoadProfile[] {
-        
         let loadProfiles: ICommandLoadProfile[] = [];
         this.log.trace(`Building required profiles for the load list...`);
         loadProfiles = this.buildLoad(false, this.definition.profile.required, commandArguments);
@@ -227,7 +226,7 @@ export class CommandProfileLoader {
                 }
 
                 // Add to the list
-                this.log.trace(`Adding load parameters to list: ${inspect(load, {depth: null})}`);
+                this.log.trace(`Adding load parameters to list: ${inspect(load, { depth: null })}`);
 
                 // if the load only map is populated then check if we should be loading this profile
                 if (this.only == null || this.only.size === 0 || (this.only.get(type) != null && this.only.get(type) === load.name)) {
@@ -265,7 +264,7 @@ export class CommandProfileLoader {
             if (!load.optional && (isNullOrUndefined(response) || isNullOrUndefined(response.profile))) {
                 throw new ImperativeError({
                     msg: `Unexpected internal load error: The profile ` +
-                    `"${(load.loadDefault) ? "default requested" : load.name}" was not loaded by the profile manager.`
+                        `"${(load.loadDefault) ? "default requested" : load.name}" was not loaded by the profile manager.`
                 });
             }
 
@@ -321,7 +320,7 @@ export class CommandProfileLoader {
         return this.mLog;
     }
 
-    private get only(): Map<string,string> {
+    private get only(): Map<string, string> {
         return this.mOnly;
     }
 }
