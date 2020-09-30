@@ -138,12 +138,20 @@ export class PluginIssues {
   public getInstalledPlugins(): IPluginJson {
     if (this.installedPlugins == null) {
       try {
-        this.installedPlugins = readFileSync(PMFConstants.instance.PLUGIN_JSON);
+        if (!PMFConstants.instance.PLUGIN_USING_CONFIG) {
+          this.installedPlugins = readFileSync(PMFConstants.instance.PLUGIN_JSON);
+        } else {
+          const plugins: any = {};
+          PMFConstants.instance.PLUGIN_CONFIG.plugins.forEach((plugin: string) => {
+            plugins[plugin] = {};
+          });
+          this.installedPlugins = plugins;
+        }
       }
       catch (ioErr) {
         throw new ImperativeError({
-          msg:  "Cannot read '" + PMFConstants.instance.PLUGIN_JSON +
-          "' Reason = " + ioErr.message,
+          msg: "Cannot read '" + PMFConstants.instance.PLUGIN_JSON +
+            "' Reason = " + ioErr.message,
           causeErrors: ioErr
         });
       }

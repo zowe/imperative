@@ -38,4 +38,6 @@ export interface ICommandProfileLoaderParms {
      * @memberof ICommandProfileLoaderParms
      */
     logger?: Logger;
+
+    only?: Map<string,string>;
 }

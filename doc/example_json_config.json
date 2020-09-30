@@ -1,0 +1,22 @@
+{
+    "profiles": {
+        "zosmf": {
+            "host1": {
+                "host": "host1.com",
+                "reject-unauthorized": true
+            },
+            "host2": {
+                "host": "host2.com"
+            }
+        }
+    },
+    "defaults": {
+        "zosmf": "host1"
+    },
+    "properties": {
+        "base-profile": "creds"
+    },
+    "plugins": [
+        "@zowe/tasks-for-zowe-cli"
+    ]
+}

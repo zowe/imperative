@@ -95,38 +95,47 @@ export function install(packageLocation: string, registry: string, installFromFi
         let packageVersion = match[2];
 
         iConsole.debug("Reading in the current configuration.");
-        const installedPlugins: IPluginJson = readFileSync(PMFConstants.instance.PLUGIN_JSON);
 
-        // Set the correct name and version by checking if package is an npm package, this is done
-        // by searching for a / or \ as those are not valid characters for an npm package, but they
-        // would be for a url or local file.
-        if (packageLocation.search(/(\\|\/)/) === -1) {
-            // Getting here means that the package installed was an npm package. So the package property
-            // of the json file should be the same as the package name.
-            npmPackage = packageName;
-
-            const passedVersionIdx = packageLocation.indexOf("@");
-            if (passedVersionIdx !== -1) {
-                packageVersion = packageLocation.substr(passedVersionIdx + 1);
+        if (PMFConstants.instance.PLUGIN_USING_CONFIG) {
+            if(PMFConstants.instance.PLUGIN_CONFIG.plugins.indexOf(packageName) < 0) {
+                PMFConstants.instance.PLUGIN_CONFIG.plugins.push(packageName);
+                PMFConstants.instance.PLUGIN_CONFIG.save("plugins");
             }
+        } else {
+            const installedPlugins: IPluginJson =  readFileSync(PMFConstants.instance.PLUGIN_JSON);
+    
+            // Set the correct name and version by checking if package is an npm package, this is done
+            // by searching for a / or \ as those are not valid characters for an npm package, but they
+            // would be for a url or local file.
+            if (packageLocation.search(/(\\|\/)/) === -1) {
+                // Getting here means that the package installed was an npm package. So the package property
+                // of the json file should be the same as the package name.
+                npmPackage = packageName;
+    
+                const passedVersionIdx = packageLocation.indexOf("@");
+                if (passedVersionIdx !== -1) {
+                    packageVersion = packageLocation.substr(passedVersionIdx + 1);
+                }
+            }
+    
+            iConsole.debug(`Package version: ${packageVersion}`);
+    
+            const newPlugin: IPluginJsonObject = {
+                package: npmPackage,
+                registry,
+                version: packageVersion
+            };
+            iConsole.debug("Updating the current configuration with new plugin:\n" +
+                JSON.stringify(newPlugin, null, 2));
+    
+            installedPlugins[packageName] = newPlugin;
+    
+            iConsole.debug("Updating configuration file = " + PMFConstants.instance.PLUGIN_JSON);
+            writeFileSync(PMFConstants.instance.PLUGIN_JSON, installedPlugins, {
+                spaces: 2
+            });
         }
 
-        iConsole.debug(`Package version: ${packageVersion}`);
-
-        const newPlugin: IPluginJsonObject = {
-            package: npmPackage,
-            registry,
-            version: packageVersion
-        };
-        iConsole.debug("Updating the current configuration with new plugin:\n" +
-            JSON.stringify(newPlugin, null, 2));
-
-        installedPlugins[packageName] = newPlugin;
-
-        iConsole.debug("Updating configuration file = " + PMFConstants.instance.PLUGIN_JSON);
-        writeFileSync(PMFConstants.instance.PLUGIN_JSON, installedPlugins, {
-            spaces: 2
-        });
 
         iConsole.info("Plugin '" + packageName + "' successfully installed.");
         return packageName;

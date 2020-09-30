@@ -18,7 +18,7 @@ import { ICommandHandler } from "./doc/handler/ICommandHandler";
 import { couldNotInstantiateCommandHandler, unexpectedCommandError } from "../../messages";
 import { SharedOptions } from "./utils/SharedOptions";
 import { IImperativeError, ImperativeError } from "../../error";
-import { IProfileManagerFactory } from "../../profiles";
+import { IProfileLoaded, IProfileManagerFactory, ProfileUtils } from "../../profiles";
 import { SyntaxValidator } from "./syntax/SyntaxValidator";
 import { CommandProfileLoader } from "./profiles/CommandProfileLoader";
 import { ICommandProfileTypeConfiguration } from "./doc/profiles/definition/ICommandProfileTypeConfiguration";
@@ -40,6 +40,9 @@ import { ICommandArguments } from "./doc/args/ICommandArguments";
 import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "./help/WebHelpManager";
 import { IO } from "../../io";
+import { Config } from "../../config/Config";
+import { ICommandProfileLoaderParms } from "./doc/profiles/parms/ICommandProfileLoaderParms";
+import { CommandProfiles } from "./profiles/CommandProfiles";
 
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
@@ -358,6 +361,7 @@ export class CommandProcessor {
             this.log.info(`Preparing (loading profiles, reading stdin, etc.) execution of "${this.definition.name}" command...`);
             prepared = await this.prepare(prepareResponse, params.arguments);
         } catch (prepareErr) {
+            console.log(prepareErr);
 
             // Indicate that the command has failed
             prepareResponse.failed();
@@ -705,15 +709,76 @@ export class CommandProcessor {
         this.log.trace(`Reading stdin for "${this.definition.name}" command...`);
         await SharedOptions.readStdinIfRequested(commandArguments, response, this.definition.type);
 
+        // Load configuration files - locations can be overridden by env var
+        // cliname_CONFIG
+        // cliname_USER_CONFIG
+        const configEnvVar = `${this.mEnvVariablePrefix}_CONFIG`;
+        const userConfigEnvVar = `${this.mEnvVariablePrefix}_USER_CONFIG`;
+        const configPath = (process.env[configEnvVar] != null) ? process.env[configEnvVar] : `${this.mCommandRootName}.config.json`;
+        const userConfigPath = (process.env[userConfigEnvVar] != null) ? process.env[userConfigEnvVar] : `${this.mCommandRootName}.config.user.json`;
+
+        // Load from the config
+        const config = Config.load({
+            path: configPath,
+            merge: [userConfigPath]
+        });
+
+        // Get all the profile names to search for in the config
+        let configProfiles: string[] = [];
+        if (this.definition.profile != null) {
+            if (this.definition.profile.required != null) {
+                configProfiles = configProfiles.concat(this.definition.profile.required)
+            }
+            if (this.definition.profile.optional != null) {
+                configProfiles = configProfiles.concat(this.definition.profile.optional)
+            }
+        }
+
+        // list of profiles that should be loaded 
+        const loadProfiles = new Map<string, string>();
+        for (const configProfile of configProfiles) {
+            const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(configProfile);
+
+            // Only adjust based on config if hte user hasn't explicitly
+            // specified on the CLI
+            if (args[profOpt] == null || args[profOpt] === "") {
+
+                // If there are profile options specified in the properties object
+                // add these options to the args - this allows specifying
+                // profiles to be loaded in the properties keyword
+                if (config.properties != null && config.properties[profOpt] != null) {
+                    args[profOpt] = config.properties[profOpt];
+                    args[profOptAlias] = config.properties[profOpt];
+                    loadProfiles.set(configProfile, config.properties[profOpt]);
+                }
+
+                // If there is a defaults object in the config extract those
+                // profile names and place on args
+                if (config.defaults != null && config.defaults[configProfile] != null) {
+                    args[profOpt] = config.defaults[configProfile];
+                    args[profOptAlias] = config.defaults[configProfile];
+                }
+            }
+        }
+
         // Load all profiles for the command
         this.log.trace(`Loading profiles for "${this.definition.name}" command. ` +
             `Profile definitions: ${inspect(this.definition.profile, { depth: null })}`);
 
-        const profiles = await CommandProfileLoader.loader({
-            commandDefinition: this.definition,
-            profileManagerFactory: this.profileFactory
-        }).loadProfiles(args);
-        this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, { depth: null })}`);
+        let profiles = new CommandProfiles(new Map<string, IProfileLoaded[]>());
+        if (!config.exists || loadProfiles.size > 0) {
+            const profileParams: ICommandProfileLoaderParms = {
+                commandDefinition: this.definition,
+                profileManagerFactory: this.profileFactory,
+            };
+
+            if (loadProfiles.size > 0) {
+                profileParams.only = loadProfiles;
+            }
+
+            profiles = await CommandProfileLoader.loader(profileParams).loadProfiles(args);
+            this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, { depth: null })}`);
+        }
 
         // If we have profiles listed on the command definition (the would be loaded already)
         // we can extract values from them for options arguments
@@ -723,34 +788,14 @@ export class CommandProcessor {
             args = CliUtils.mergeArguments(profArgs, args);
         }
 
-        // Load configuration files - locations can be overridden by env var 
-        // cliname_CONFIG 
-        // cliname_USER_CONFIG
-        const configEnvVar = `${this.mEnvVariablePrefix}_CONFIG`;
-        const userConfigEnvVar = `${this.mEnvVariablePrefix}_USER_CONFIG`;
-        const configPath = (process.env[configEnvVar] != null) ? process.env[configEnvVar] : `${this.mCommandRootName}_config.json`;
-        const userConfigPath = (process.env[userConfigEnvVar] != null) ? process.env[userConfigEnvVar] : `${this.mCommandRootName}_config_user.json`;
-        
-        // Get the full command in dot prop format
-        const qualifiedCmdStr = CommandUtils.getFullCommandName(this.mDefinition, this.mFullDefinition);
-        const qualifiedCmdArr = qualifiedCmdStr.split(" ");
-
-        // Read the config file
-        if (IO.existsSync(configPath)) {
-            let config = IO.readFileSync(configPath);
-            config = JSON.parse(config.toString());
-            const overrides = {};
-            CliUtils.mergeConfigValues(config, qualifiedCmdArr, overrides);
-            args = CliUtils.mergeArguments(args, overrides);
-        }
-
-        // Read the user config file
-        if (IO.existsSync(userConfigPath)) {
-            let userConfig = IO.readFileSync(userConfigPath);
-            userConfig = JSON.parse(userConfig.toString());
-            const overrides = {};
-            CliUtils.mergeConfigValues(userConfig, qualifiedCmdArr, overrides);
-            args = CliUtils.mergeArguments(args, overrides);
+        // merge in the configs
+        args = CliUtils.mergeArguments(config.properties, args);
+        for (const configProfile of configProfiles) {
+            const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(configProfile);
+            if (args[profOpt] != null) {
+                const prof = config.profile(configProfile, args[profOpt]);
+                args = CliUtils.mergeArguments(prof, args);
+            }
         }
 
         // Set the default value for all options if defaultValue was specified on the command

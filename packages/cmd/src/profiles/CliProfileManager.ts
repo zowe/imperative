@@ -237,12 +237,14 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             };
         }
 
-        for (const prop of Object.keys(this.profileTypeConfiguration.schema.properties)) {
-            profile[prop] = await this.findOptions(this.profileTypeConfiguration.schema.properties[prop], prop, profile[prop], securelyLoadValue);
+        if (profile != null) {
+            for (const prop of Object.keys(this.profileTypeConfiguration.schema.properties)) {
+                profile[prop] = await this.findOptions(this.profileTypeConfiguration.schema.properties[prop], prop, profile[prop], securelyLoadValue);
+            }
         }
 
         // Return the loaded profile
-        loadedProfile.profile = profile;
+        loadedProfile.profile = profile || {};
         return loadedProfile;
     }
 

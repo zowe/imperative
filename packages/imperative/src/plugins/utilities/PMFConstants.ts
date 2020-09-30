@@ -12,6 +12,7 @@
 import { ImperativeConfig } from "../../../../utilities";
 import { join } from "path";
 import { Logger } from "../../../../logger";
+import { Config } from "../../../../config/Config";
 
 /**
  * Constants used by the PMF.
@@ -85,19 +86,36 @@ export class PMFConstants {
      */
     public readonly PLUGIN_NODE_MODULE_LOCATION: string;
 
+    public readonly PLUGIN_USING_CONFIG: boolean;
+
+    public readonly PLUGIN_CONFIG: Config;
+
     constructor() {
+        // Construct the path to the possible config locations
+        const configEnvVar = `${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_CONFIG`;
+        const userConfigEnvVar = `${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_USER_CONFIG`;
+        const configPath = (process.env[configEnvVar] != null) ? process.env[configEnvVar] : `${ImperativeConfig.instance.rootCommandName}.config.json`;
+        const userConfigPath = (process.env[userConfigEnvVar] != null) ? process.env[userConfigEnvVar] : `${ImperativeConfig.instance.rootCommandName}.config.user.json`;
+
+        // Load from the config
+        const config = Config.load({
+            path: configPath,
+            merge: [userConfigPath]
+        });
+
+        console.log(config.exists);
+
+        this.PLUGIN_CONFIG = config;
         this.NPM_NAMESPACE = "@zowe";
         this.CLI_CORE_PKG_NAME = ImperativeConfig.instance.hostPackageName;
         this.IMPERATIVE_PKG_NAME = ImperativeConfig.instance.imperativePackageName;
-        this.PMF_ROOT = join(ImperativeConfig.instance.cliHome, "plugins");
-        this.PLUGIN_JSON = join(this.PMF_ROOT, "plugins.json");
-        this.PLUGIN_INSTALL_LOCATION = join(
-            this.PMF_ROOT,
-            "installed"
-        );
+        this.PMF_ROOT = config.exists ? "." : join(ImperativeConfig.instance.cliHome, "plugins");
+        this.PLUGIN_JSON = join(this.PMF_ROOT, config.exists ? config.path : "plugins.json");
+        this.PLUGIN_USING_CONFIG = config.exists;
+        this.PLUGIN_INSTALL_LOCATION = config.exists ? this.PMF_ROOT : join(this.PMF_ROOT, "installed");
 
         // Windows format is <prefix>/node_modules
-        if (process.platform === "win32") {
+        if (process.platform === "win32" || this.PLUGIN_USING_CONFIG) {
             this.PLUGIN_NODE_MODULE_LOCATION = join(
                 this.PLUGIN_INSTALL_LOCATION,
                 "node_modules"

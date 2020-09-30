@@ -42,7 +42,7 @@ export class CommandProfileLoader {
      */
     public static loader(parms: ICommandProfileLoaderParms) {
         return new CommandProfileLoader(parms.commandDefinition, parms.profileManagerFactory,
-            parms.logger || Logger.getImperativeLogger());
+            parms.logger || Logger.getImperativeLogger(), parms.only);
     }
 
     /**
@@ -69,6 +69,8 @@ export class CommandProfileLoader {
      */
     private mLog: Logger;
 
+    private mOnly: Map<string,string>;
+
     /**
      * Creates an instance of CommandProfileLoader.
      * @param {ICommandDefinition} commandDefinition - The input command definition for the command being issued.
@@ -77,7 +79,7 @@ export class CommandProfileLoader {
      * @memberof CommandProfileLoader
      */
     constructor(commandDefinition: ICommandDefinition, factory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
-                logger = Logger.getImperativeLogger()) {
+                logger = Logger.getImperativeLogger(), only?: Map<string,string>) {
         const err: string = "Could not construct the profile loader.";
         ImperativeExpect.toNotBeNullOrUndefined(commandDefinition, `${err} No command definition supplied.`);
         ImperativeExpect.toNotBeNullOrUndefined(factory, `${err} No profile factory supplied.`);
@@ -85,6 +87,7 @@ export class CommandProfileLoader {
         this.mFactory = factory;
         ImperativeExpect.toBeEqual((logger instanceof Logger), true, `${err} The "logger" supplied is not of type Logger.`);
         this.mLog = logger;
+        this.mOnly = only;
         this.log.trace(`Profile loader created for command: ${commandDefinition.name}`);
     }
 
@@ -181,6 +184,7 @@ export class CommandProfileLoader {
      * @memberof CommandProfileLoader
      */
     private constructLoadList(commandArguments: Arguments): ICommandLoadProfile[] {
+        
         let loadProfiles: ICommandLoadProfile[] = [];
         this.log.trace(`Building required profiles for the load list...`);
         loadProfiles = this.buildLoad(false, this.definition.profile.required, commandArguments);
@@ -224,7 +228,11 @@ export class CommandProfileLoader {
 
                 // Add to the list
                 this.log.trace(`Adding load parameters to list: ${inspect(load, {depth: null})}`);
-                loadProfiles.push(load);
+
+                // if the load only map is populated then check if we should be loading this profile
+                if (this.only == null || this.only.size === 0 || (this.only.get(type) != null && this.only.get(type) === load.name)) {
+                    loadProfiles.push(load);
+                }
             });
         }
 
@@ -311,5 +319,9 @@ export class CommandProfileLoader {
      */
     private get log(): Logger {
         return this.mLog;
+    }
+
+    private get only(): Map<string,string> {
+        return this.mOnly;
     }
 }

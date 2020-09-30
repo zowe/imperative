@@ -76,7 +76,7 @@ export default class InstallHandler implements ICommandHandler {
     if (params.arguments.plugin != null && params.arguments.plugin.length > 0 && typeof params.arguments.file !== "undefined") {
       throw new ImperativeError({
         msg: `Option ${chalk.yellow.bold("--file")} can not be specified if positional ${chalk.yellow.bold("package...")} is as well. ` +
-        `They are mutually exclusive.`
+          `They are mutually exclusive.`
       });
     } else {
       try {
@@ -84,11 +84,11 @@ export default class InstallHandler implements ICommandHandler {
 
         // Get the registry to install to
         if (typeof params.arguments.registry === "undefined") {
-            installRegistry = getRegistry().replace("\n",  "");
+          installRegistry = getRegistry().replace("\n", "");
         } else {
           installRegistry = params.arguments.registry;
           if (params.arguments.login) {
-              npmLogin(installRegistry);
+            npmLogin(installRegistry);
           }
         }
 
@@ -147,7 +147,10 @@ export default class InstallHandler implements ICommandHandler {
               params.response.console.log("\n_______________________________________________________________");
               const pluginName = install(packageArgument, packageInfo.registry, true);
               params.response.console.log("Installed plugin name = '" + pluginName + "'");
-              params.response.console.log(runValidatePlugin(pluginName));
+
+              // TODO: update
+              if (!PMFConstants.instance.PLUGIN_USING_CONFIG)
+                params.response.console.log(runValidatePlugin(pluginName));
             }
           }
 
@@ -157,7 +160,9 @@ export default class InstallHandler implements ICommandHandler {
             params.response.console.log("\n_______________________________________________________________");
             const pluginName = install(`${packageString}`, installRegistry);
             params.response.console.log("Installed plugin name = '" + pluginName + "'");
-            params.response.console.log(runValidatePlugin(pluginName));
+            // TODO: update
+            if (!PMFConstants.instance.PLUGIN_USING_CONFIG)
+              params.response.console.log(runValidatePlugin(pluginName));
           }
         }
       } catch (e) {
