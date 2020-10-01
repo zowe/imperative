@@ -32,13 +32,14 @@ export class ConfigurationLoader {
      */
     public static load(providedConfig: IImperativeConfig, packageJson: any,
                        callerFileRequirer: (file: string) => any): IImperativeConfig {
-
         let config: IImperativeConfig = providedConfig;
+
         // if the user has not specified a config,
         // check their package.json
         if (config == null) {
             config = packageJson.imperative;
         }
+        
         // if the config is still not present, that means
         // it's not in the package.json either
         // if we have no config, that's an error.

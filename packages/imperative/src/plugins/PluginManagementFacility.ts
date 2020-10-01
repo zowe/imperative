@@ -366,7 +366,6 @@ export class PluginManagementFacility {
      * @returns {any} - The content exported from the specified module.
      */
     public requirePluginModuleCallback(relativePath: string): any {
-
         const pluginModuleRuntimePath = this.formPluginRuntimePath(this.pluginNmForUseInCallback, relativePath);
         try {
             return require(pluginModuleRuntimePath);

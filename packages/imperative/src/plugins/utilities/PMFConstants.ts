@@ -107,7 +107,7 @@ export class PMFConstants {
         this.NPM_NAMESPACE = "@zowe";
         this.CLI_CORE_PKG_NAME = ImperativeConfig.instance.hostPackageName;
         this.IMPERATIVE_PKG_NAME = ImperativeConfig.instance.imperativePackageName;
-        this.PMF_ROOT = config.exists ? "." : join(ImperativeConfig.instance.cliHome, "plugins");
+        this.PMF_ROOT = config.exists ? process.cwd() : join(ImperativeConfig.instance.cliHome, "plugins");
         this.PLUGIN_JSON = join(this.PMF_ROOT, config.exists ? config.path : "plugins.json");
         this.PLUGIN_USING_CONFIG = config.exists;
         this.PLUGIN_INSTALL_LOCATION = config.exists ? this.PMF_ROOT : join(this.PMF_ROOT, "installed");

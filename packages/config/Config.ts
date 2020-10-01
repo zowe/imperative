@@ -12,6 +12,8 @@
 import { ImperativeError } from "../error";
 import { IO } from "../io";
 import * as DeepMerge from "deepmerge";
+import { ICommandProfileSchema } from "../cmd";
+import { CredentialManagerFactory } from "../security";
 
 export class Config {
     private constructor(private params: any) { }
@@ -63,7 +65,38 @@ export class Config {
         return new Config(params);
     }
 
-    public allProfiles(type: string): string[] {
+    public async loadSecure() {
+        // If the secure option is set - load the secure values for the profiles
+        if (this.params.schemas != null && CredentialManagerFactory.initialized) {
+
+            // Iterate over each profile type
+            for (const [typeName, profiles] of Object.entries(this.params.config.profiles)) {
+
+                // Is there a schema for that type?
+                const schema = this.params.schemas[typeName];
+                if (schema != null) {
+
+                    // Iterate over each profile for the type
+                    for (const [profileName, profile] of Object.entries(profiles)) {
+                        for (const [schemaPropertyName, schemaProperty] of Object.entries(schema.properties)) {
+                            if ((schemaProperty as any).secure) {
+                                const retrievedValue = await CredentialManagerFactory.manager.load(
+                                    Config.constructSecureKey(profileName, typeName, schemaPropertyName), false);
+                                this.params.config.profiles[typeName][profileName][schemaPropertyName] =
+                                    (retrievedValue != null) ? JSON.parse(retrievedValue) : undefined;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public profileValidate(type: string, name: string, schema: ICommandProfileSchema) {
+        // TODO
+    }
+
+    public profileNames(type: string): string[] {
         return this.params.config.profiles[type] == null ? [] : Object.keys(this.params.config.profiles[type]);
     }
 
@@ -71,11 +104,40 @@ export class Config {
         return !(this.params.config.profiles[type] == null || this.params.config.profiles[type][name] == null);
     }
 
-    public profile(type: string, name: string): any {
+    public profileGet(type: string, name: string) {
         if (this.params.config.profiles[type] == null || this.params.config.profiles[type][name] == null) {
             return {};
         }
-        return DeepMerge(this.params.config.properties, this.params.config.profiles[type][name]);
+
+        return this.params.config.profiles[type][name];
+    }
+
+    public async profileSave(type: string, name: string, opts?: any): Promise<any> {
+        // Fail if the profile doesn't exist
+        if (this.params.config.profiles[type] == null || this.params.config.profiles[type][name] == null) {
+            throw new ImperativeError({ msg: `profile "${name}" of type "${type}" does not exist` });
+        }
+
+        // If the schema is present, validate the profile
+        if (opts.schema != null) {
+            this.profileValidate(type, name, opts.schema);
+        }
+
+        // If the schema is present, and secure loading was requested, attempt
+        // to load properties from the OS operating system vault
+        const profile: any = this.params.config.profiles[type][name];
+        if (opts.schema != null && opts.secure && CredentialManagerFactory.initialize) {
+            for (const [schemaPropertyName, schemaProperty] of Object.keys(opts.schema.properties)) {
+                if ((schemaProperty as any)[schemaPropertyName].secure && profile[schemaProperty] != null) {
+                    const value = JSON.stringify(profile[schemaProperty]);
+                    await CredentialManagerFactory.manager.save(Config.constructSecureKey(name, type, schemaProperty), value);
+                }
+            }
+        }
+    }
+
+    private static constructSecureKey(name: string, type: string, field: string): string {
+        return name + "_" + type + "_" + field.split(".").join("_");
     }
 
     public save(keyword: string) {

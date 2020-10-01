@@ -17,6 +17,7 @@ import { IOptionFormat } from "./doc/IOptionFormat";
 import { CommandProfiles, ICommandOptionDefinition, ICommandPositionalDefinition, ICommandProfile } from "../../cmd";
 import { ICommandArguments } from "../../cmd/src/doc/args/ICommandArguments";
 import { IProfile } from "../../profiles";
+import { Config } from "../../config/Config";
 
 /**
  * Cli Utils contains a set of static methods/helpers that are CLI related (forming options, censoring args, etc.)
@@ -114,7 +115,7 @@ export class CliUtils {
      * @memberof CliUtils
      */
     public static getOptValueFromProfiles(profiles: CommandProfiles, definitions: ICommandProfile,
-                                          options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): any {
+        options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): any {
         let args: any = {};
 
         // Construct the precedence order to iterate through the profiles
@@ -162,13 +163,14 @@ export class CliUtils {
                             ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
                             value
                         );
-                        args = {...args, ...keys};
+                        args = { ...args, ...keys };
                     }
                 });
             }
         });
         return args;
     }
+
 
     /**
      * Using Object.assign(), merges objects in the order they appear in call. Object.assign() copies and overwrites
@@ -184,7 +186,7 @@ export class CliUtils {
     public static mergeArguments(...args: any[]): any {
         let merged = {};
         args.forEach((obj) => {
-            merged = {...merged, ...obj};
+            merged = { ...merged, ...obj };
         });
         return merged;
     }
@@ -200,7 +202,7 @@ export class CliUtils {
      *
      */
     public static extractEnvForOptions(envPrefix: string,
-                                       options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): ICommandArguments["args"] {
+        options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): ICommandArguments["args"] {
         let args: ICommandArguments["args"] = {};
         options.forEach((opt) => {
             let envValue: any = CliUtils.getEnvValForOption(envPrefix, opt.name);
@@ -258,7 +260,7 @@ export class CliUtils {
                     ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
                     envValue
                 );
-                args = {...args, ...keys};
+                args = { ...args, ...keys };
             }
         });
         return args;
@@ -340,7 +342,7 @@ export class CliUtils {
         }
         const numDashes = header.length + 1;
         const headerText = TextUtils.formatMessage("{{indent}}{{headerText}}\n{{indent}}{{dashes}}",
-            {headerText: header.toUpperCase(), dashes: Array(numDashes).join("-"), indent});
+            { headerText: header.toUpperCase(), dashes: Array(numDashes).join("-"), indent });
         return TextUtils.chalk[color](headerText);
     }
 
@@ -398,7 +400,7 @@ export class CliUtils {
      */
     public static promptForInput(message: string): string {
         const prompt = require("readline-sync");
-        prompt.setDefaultOptions({mask: "", hideEchoBack: true});
+        prompt.setDefaultOptions({ mask: "", hideEchoBack: true });
         return prompt.question(message);
     }
 
@@ -483,7 +485,7 @@ export class CliUtils {
                      * and the hidden response. Redisplay the prompt and hide the response.
                      */
                     let stringToShow = stringToWrite.substring(0, questionText.length);
-                    for (let count = 1; count <= stringToWrite.length - questionText.length; count ++) {
+                    for (let count = 1; count <= stringToWrite.length - questionText.length; count++) {
                         stringToShow += "*";
                     }
                     ttyIo.output.write(stringToShow);
@@ -520,7 +522,7 @@ export class CliUtils {
      *
      */
     public static buildBaseArgs(args: Arguments): ICommandArguments {
-        const impArgs: ICommandArguments = {...args};
+        const impArgs: ICommandArguments = { ...args };
         Object.keys(impArgs).forEach((key) => {
             if (key !== "_" && key !== "$0" && impArgs[key] === undefined) {
                 delete impArgs[key];
