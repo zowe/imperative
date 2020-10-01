@@ -37,6 +37,8 @@ import {
 } from "../doc/";
 import { ProfileIO, ProfileUtils } from "../utils";
 import { ImperativeConfig } from "../../../utilities";
+import { Config } from "../../../config/Config";
+import { profile } from "console";
 
 const SchemaValidator = require("jsonschema").Validator;
 
@@ -184,6 +186,8 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
    */
   private mLogger: Logger = Logger.getImperativeLogger();
 
+  private mConfig: Config;
+
   /**
    * Creates an instance of ProfileManager - Performs basic parameter validation and will create the required
    * profile root directory (if it does not exist) and will attempt to load type configurations from the
@@ -229,13 +233,25 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     this.mProfileTypeConfiguration = ImperativeExpect.arrayToContain(this.mProfileTypeConfigurations, (entry) => {
       return entry.type === this.mProfileType;
     }, `Could not locate the profile type configuration for "${this.profileType}" within the input configuration list passed.` +
-      `\n${inspect(this.profileTypeConfigurations, {depth: null})}`);
+    `\n${inspect(this.profileTypeConfigurations, { depth: null })}`);
     for (const config of this.profileTypeConfigurations) {
       this.validateConfigurationDocument(config);
     }
     this.mProfileTypeSchema = this.mProfileTypeConfiguration.schema;
     this.mProfileTypeRootDirectory = this.createProfileTypeDirectory();
     this.mProfileTypeMetaFileName = this.constructMetaName();
+
+    // Construct the path to the possible config locations
+    const configEnvVar = `${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_CONFIG`;
+    const userConfigEnvVar = `${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_USER_CONFIG`;
+    const configPath = (process.env[configEnvVar] != null) ? process.env[configEnvVar] : `${ImperativeConfig.instance.rootCommandName}.config.json`;
+    const userConfigPath = (process.env[userConfigEnvVar] != null) ? process.env[userConfigEnvVar] : `${ImperativeConfig.instance.rootCommandName}.config.user.json`;
+
+    // Load from the config
+    this.mConfig = Config.load({
+      path: configPath,
+      merge: [userConfigPath]
+    });
   }
 
   /**
@@ -338,6 +354,10 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     return this.mProfileTypeRootDirectory;
   }
 
+  protected get config(): Config {
+    return this.mConfig;
+  }
+
   /**
    * Accessor for the profile meta file name - constructed as "<type>_meta"
    * @readonly
@@ -368,8 +388,12 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
    * @memberof AbstractProfileManager
    */
   public getAllProfileNames(): string[] {
-    return ProfileIO.getAllProfileNames(this.profileTypeRootDirectory,
-      AbstractProfileManager.PROFILE_EXTENSION, this.constructMetaName());
+    if (this.config.exists) {
+      return this.config.allProfiles(this.profileType);
+    } else {
+      return ProfileIO.getAllProfileNames(this.profileTypeRootDirectory,
+        AbstractProfileManager.PROFILE_EXTENSION, this.constructMetaName());
+    }
   }
 
   /**
@@ -420,8 +444,8 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     this.log.trace(`Invoking save profile of implementation...`);
     const response = await this.saveProfile(parms);
     if (isNullOrUndefined(response)) {
-      throw new ImperativeError({msg: `The profile manager implementation did NOT return a profile save response.`},
-        {tag: `Internal Profile Management Error`});
+      throw new ImperativeError({ msg: `The profile manager implementation did NOT return a profile save response.` },
+        { tag: `Internal Profile Management Error` });
     }
 
     // If the meta file exists - read to ensure that the name of the default is not null or undefined - this can
@@ -477,9 +501,9 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
           return this.failNotFoundDefaultResponse("default was requested");
         } else {
           this.log.error(`No default profile exists for type "${this.profileType}".`);
-          throw new ImperativeError({msg: `No default profile set for type "${this.profileType}".`});
+          throw new ImperativeError({ msg: `No default profile set for type "${this.profileType}".` });
         }
-      } else if (!this.locateExistingProfile(parms.name)) {
+      } else if (!this.profileExists(parms.name)) {
         this.log.error(`Default profile "${parms.name}" does not exist for type "${this.profileType}".`);
         throw new ImperativeError({
           msg: `Your default profile named ${parms.name} does not exist for type ${this.profileType}.\n` +
@@ -558,8 +582,8 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
 
     const response = await this.validateProfile(validateParms);
     if (isNullOrUndefined(response)) {
-      throw new ImperativeError({msg: `The profile manager implementation did NOT return a profile validate response.`},
-        {tag: `Internal Profile Management Error`});
+      throw new ImperativeError({ msg: `The profile manager implementation did NOT return a profile validate response.` },
+        { tag: `Internal Profile Management Error` });
     }
 
     return response;
@@ -664,7 +688,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     if (isNullOrUndefined(this.locateExistingProfile(parms.name))) {
       const msg: string = `Profile "${parms.name}" of type "${this.profileType}" does not exist.`;
       this.log.error(msg);
-      throw new ImperativeError({msg});
+      throw new ImperativeError({ msg });
     }
 
     // If specified, reject the delete if this profile is listed as dependency for another profile (of any type)
@@ -682,15 +706,15 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         }
         const msg: string = `The profile specified for deletion ("${parms.name}" of type ` +
           `"${this.profileType}") is marked as a dependency for profiles:` + depList;
-        throw new ImperativeError({msg});
+        throw new ImperativeError({ msg });
       }
     }
 
     this.log.trace(`Invoking implementation to delete profile "${parms.name}" of type "${this.profileType}".`);
     const response = await this.deleteProfile(parms);
     if (isNullOrUndefined(response)) {
-      throw new ImperativeError({msg: `The profile manager implementation did NOT return a profile delete response.`},
-        {tag: `Internal Profile Management Error`});
+      throw new ImperativeError({ msg: `The profile manager implementation did NOT return a profile delete response.` },
+        { tag: `Internal Profile Management Error` });
     }
 
     // If the meta file exists - read to check if the name of the default profile is the same as
@@ -729,8 +753,8 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     this.log.trace(`Invoking update profile implementation for profile "${parms.name}" of type "${this.profileType}".`);
     const response = await this.updateProfile(parms);
     if (isNullOrUndefined(response)) {
-      throw new ImperativeError({msg: `The profile manager implementation did NOT return a profile update response.`},
-        {tag: `Internal Profile Management Error`});
+      throw new ImperativeError({ msg: `The profile manager implementation did NOT return a profile update response.` },
+        { tag: `Internal Profile Management Error` });
     }
 
     return response;
@@ -779,7 +803,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         `Please create before attempting to set the default.`;
       this.log.error(msg);
       // The profile name specified does NOT actually exist. This is an error.
-      throw new ImperativeError({msg});
+      throw new ImperativeError({ msg });
     }
 
     return `Default profile for type "${this.profileType}" set to "${name}".`;
@@ -827,21 +851,25 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
    * @memberof AbstractProfileManager
    */
   public getDefaultProfileName(): string {
-    const metaFile: string = this.locateExistingProfile(this.constructMetaName());
     let defaultName: string;
-    if (isNullOrUndefined(metaFile)) {
-      return undefined;
-    }
-
-    let meta: IMetaProfile<T>;
-    try {
-      meta = this.readMeta(metaFile);
-      defaultName = meta.defaultProfile;
-    } catch (err) {
-      throw new ImperativeError({
-        msg: `Error reading "${this.profileType}" meta file: ${err.message}.`,
-        additionalDetails: err
-      });
+    if (this.config.exists) {
+      return this.config.defaults[this.profileType];
+    } else {
+      const metaFile: string = this.locateExistingProfile(this.constructMetaName());
+      if (isNullOrUndefined(metaFile)) {
+        return undefined;
+      }
+  
+      let meta: IMetaProfile<T>;
+      try {
+        meta = this.readMeta(metaFile);
+        defaultName = meta.defaultProfile;
+      } catch (err) {
+        throw new ImperativeError({
+          msg: `Error reading "${this.profileType}" meta file: ${err.message}.`,
+          additionalDetails: err
+        });
+      }
     }
 
     return defaultName;
@@ -1028,7 +1056,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
 
     // TODO - @ChrisB, is this supposed to be commented out?
     // schemaWithDependencies.dependencies = dependencyProperty;
-    const results = validator.validate(profile, schemaWithDependencies, {verbose: true});
+    const results = validator.validate(profile, schemaWithDependencies, { verbose: true });
     if (results.errors.length > 0) {
       let validationErrorMsg: string
         = `Errors located in profile "${name}" of type "${this.profileType}":\n`;
@@ -1038,7 +1066,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
           .replace(/^instance$/, "profile");
         validationErrorMsg += property + " " + validationError.message + "\n";
       }
-      throw new ImperativeError({msg: validationErrorMsg, additionalDetails: results});
+      throw new ImperativeError({ msg: validationErrorMsg, additionalDetails: results });
     }
   }
 
@@ -1052,6 +1080,14 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
    */
   protected constructFullProfilePath(name: string, type = this.profileType): string {
     return nodePath.resolve(this.profileRootDirectory + "/" + type + "/" + name + AbstractProfileManager.PROFILE_EXTENSION);
+  }
+
+  protected profileExists(name: string): boolean {
+    if (this.config.exists) {
+      return this.config.profileExists(this.profileType, name);
+    } else {
+      return this.locateExistingProfile(name) != null;
+    }
   }
 
   /**
@@ -1108,27 +1144,39 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
    * @memberof AbstractProfileManager
    */
   protected async loadSpecificProfile(name: string, failNotFound: boolean = true, loadDependencies: boolean = true): Promise<IProfileLoaded> {
-    // Ensure that the profile actually exists
-    const profileFilePath: string = this.locateExistingProfile(name);
+    let profileContents;
+    if (this.config.exists) {
+      if (this.config.profileExists(this.profileType, name)) {
+        profileContents = this.config.profile(this.profileType, name);
+      } else {
+        // If it doesn't exist and fail not found is false
+        if (failNotFound) {
+          this.loadFailed(name);
+        }
+        return this.failNotFoundDefaultResponse(name);
+      }
+    } else {
+      const profileFilePath: string = this.locateExistingProfile(name);
 
-    // If it doesn't exist and fail not found is false
-    if (isNullOrUndefined(profileFilePath) && !failNotFound) {
-      return this.failNotFoundDefaultResponse(name);
+      // If it doesn't exist and fail not found is false
+      if (isNullOrUndefined(profileFilePath) && !failNotFound) {
+        return this.failNotFoundDefaultResponse(name);
+      }
+
+      // Throw an error indicating that the load failed
+      if (isNullOrUndefined(profileFilePath)) {
+        this.loadFailed(name);
+      }
+
+      // Load the profile from disk
+      profileContents = ProfileIO.readProfileFile(profileFilePath, this.profileType);
     }
-
-    // Throw an error indicating that the load failed
-    if (isNullOrUndefined(profileFilePath)) {
-      this.loadFailed(name);
-    }
-
-    // Load the profile from disk
-    const profileContents = ProfileIO.readProfileFile(profileFilePath, this.profileType);
 
     // Insert the name and type - not persisted on disk
 
     let validateResponse;
     try {
-      validateResponse = await this.validate({name, profile: profileContents});
+      validateResponse = await this.validate({ name, profile: profileContents });
     } catch (e) {
       throw new ImperativeError({
         msg: `Profile validation error during load of profile "${name}" ` +

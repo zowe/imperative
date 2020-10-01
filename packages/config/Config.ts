@@ -26,7 +26,7 @@ export class Config {
             const configContents = IO.readFileSync(params.path).toString();
             try {
                 params.config = JSON.parse(configContents);
-                params.original = {...params.config};
+                params.original = { ...params.config };
                 params.exists = true;
             } catch (e) {
                 throw new ImperativeError({ msg: `error parsing config: ${e}` });
@@ -63,7 +63,15 @@ export class Config {
         return new Config(params);
     }
 
-    public profile(type: string, name: string, opts?: any): any {
+    public allProfiles(type: string): string[] {
+        return this.params.config.profiles[type] == null ? [] : Object.keys(this.params.config.profiles[type]);
+    }
+
+    public profileExists(type: string, name: string): boolean {
+        return !(this.params.config.profiles[type] == null || this.params.config.profiles[type][name] == null);
+    }
+
+    public profile(type: string, name: string): any {
         if (this.params.config.profiles[type] == null || this.params.config.profiles[type][name] == null) {
             return {};
         }

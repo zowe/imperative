@@ -711,73 +711,73 @@ export class CommandProcessor {
         // Load configuration files - locations can be overridden by env var
         // cliname_CONFIG
         // cliname_USER_CONFIG
-        const configEnvVar = `${this.mEnvVariablePrefix}_CONFIG`;
-        const userConfigEnvVar = `${this.mEnvVariablePrefix}_USER_CONFIG`;
-        const configPath = (process.env[configEnvVar] != null) ? process.env[configEnvVar] : `${this.mCommandRootName}.config.json`;
-        const userConfigPath = (process.env[userConfigEnvVar] != null) ? process.env[userConfigEnvVar] : `${this.mCommandRootName}.config.user.json`;
+        // const configEnvVar = `${this.mEnvVariablePrefix}_CONFIG`;
+        // const userConfigEnvVar = `${this.mEnvVariablePrefix}_USER_CONFIG`;
+        // const configPath = (process.env[configEnvVar] != null) ? process.env[configEnvVar] : `${this.mCommandRootName}.config.json`;
+        // const userConfigPath = (process.env[userConfigEnvVar] != null) ? process.env[userConfigEnvVar] : `${this.mCommandRootName}.config.user.json`;
 
-        // Load from the config
-        const config = Config.load({
-            path: configPath,
-            merge: [userConfigPath]
-        });
+        // // Load from the config
+        // const config = Config.load({
+        //     path: configPath,
+        //     merge: [userConfigPath]
+        // });
 
-        // Get all the profile names to search for in the config
-        let configProfiles: string[] = [];
-        if (this.definition.profile != null) {
-            if (this.definition.profile.required != null) {
-                configProfiles = configProfiles.concat(this.definition.profile.required)
-            }
-            if (this.definition.profile.optional != null) {
-                configProfiles = configProfiles.concat(this.definition.profile.optional)
-            }
-        }
+        // // Get all the profile names to search for in the config
+        // let configProfiles: string[] = [];
+        // if (this.definition.profile != null) {
+        //     if (this.definition.profile.required != null) {
+        //         configProfiles = configProfiles.concat(this.definition.profile.required)
+        //     }
+        //     if (this.definition.profile.optional != null) {
+        //         configProfiles = configProfiles.concat(this.definition.profile.optional)
+        //     }
+        // }
 
-        // list of profiles that should be loaded 
-        const loadProfiles = new Map<string, string>();
-        for (const configProfile of configProfiles) {
-            const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(configProfile);
+        // // list of profiles that should be loaded 
+        // const loadProfiles = new Map<string, string>();
+        // for (const configProfile of configProfiles) {
+        //     const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(configProfile);
 
-            // Only adjust based on config if hte user hasn't explicitly
-            // specified on the CLI
-            if (args[profOpt] == null || args[profOpt] === "") {
+        //     // Only adjust based on config if hte user hasn't explicitly
+        //     // specified on the CLI
+        //     if (args[profOpt] == null || args[profOpt] === "") {
 
-                // If there are profile options specified in the properties object
-                // add these options to the args - this allows specifying
-                // profiles to be loaded in the properties keyword
-                if (config.properties != null && config.properties[profOpt] != null) {
-                    args[profOpt] = config.properties[profOpt];
-                    args[profOptAlias] = config.properties[profOpt];
-                    loadProfiles.set(configProfile, config.properties[profOpt]);
-                }
+        //         // If there are profile options specified in the properties object
+        //         // add these options to the args - this allows specifying
+        //         // profiles to be loaded in the properties keyword
+        //         if (config.properties != null && config.properties[profOpt] != null) {
+        //             args[profOpt] = config.properties[profOpt];
+        //             args[profOptAlias] = config.properties[profOpt];
+        //             loadProfiles.set(configProfile, config.properties[profOpt]);
+        //         }
 
-                // If there is a defaults object in the config extract those
-                // profile names and place on args
-                if (config.defaults != null && config.defaults[configProfile] != null) {
-                    args[profOpt] = config.defaults[configProfile];
-                    args[profOptAlias] = config.defaults[configProfile];
-                }
-            }
-        }
+        //         // If there is a defaults object in the config extract those
+        //         // profile names and place on args
+        //         if (config.defaults != null && config.defaults[configProfile] != null) {
+        //             args[profOpt] = config.defaults[configProfile];
+        //             args[profOptAlias] = config.defaults[configProfile];
+        //         }
+        //     }
+        // }
 
         // Load all profiles for the command
         this.log.trace(`Loading profiles for "${this.definition.name}" command. ` +
             `Profile definitions: ${inspect(this.definition.profile, { depth: null })}`);
 
         let profiles = new CommandProfiles(new Map<string, IProfileLoaded[]>());
-        if (!config.exists || loadProfiles.size > 0) {
-            const profileParams: ICommandProfileLoaderParms = {
-                commandDefinition: this.definition,
-                profileManagerFactory: this.profileFactory,
-            };
+        // if (!config.exists || loadProfiles.size > 0) {
+        const profileParams: ICommandProfileLoaderParms = {
+            commandDefinition: this.definition,
+            profileManagerFactory: this.profileFactory,
+        };
 
-            if (loadProfiles.size > 0) {
-                profileParams.only = loadProfiles;
-            }
+        // if (loadProfiles.size > 0) {
+        //     profileParams.only = loadProfiles;
+        // }
 
-            profiles = await CommandProfileLoader.loader(profileParams).loadProfiles(args);
-            this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, { depth: null })}`);
-        }
+        profiles = await CommandProfileLoader.loader(profileParams).loadProfiles(args);
+        this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, { depth: null })}`);
+        // }
 
         // If we have profiles listed on the command definition (the would be loaded already)
         // we can extract values from them for options arguments
@@ -787,15 +787,15 @@ export class CommandProcessor {
             args = CliUtils.mergeArguments(profArgs, args);
         }
 
-        // merge in the configs
-        args = CliUtils.mergeArguments(config.properties, args);
-        for (const configProfile of configProfiles) {
-            const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(configProfile);
-            if (args[profOpt] != null) {
-                const prof = config.profile(configProfile, args[profOpt]);
-                args = CliUtils.mergeArguments(prof, args);
-            }
-        }
+        // // merge in the configs
+        // args = CliUtils.mergeArguments(config.properties, args);
+        // for (const configProfile of configProfiles) {
+        //     const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(configProfile);
+        //     if (args[profOpt] != null) {
+        //         const prof = config.profile(configProfile, args[profOpt]);
+        //         args = CliUtils.mergeArguments(prof, args);
+        //     }
+        // }
 
         // Set the default value for all options if defaultValue was specified on the command
         // definition and the option was not specified
