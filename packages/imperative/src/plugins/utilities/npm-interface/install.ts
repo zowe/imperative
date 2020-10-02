@@ -99,7 +99,7 @@ export function install(packageLocation: string, registry: string, installFromFi
         if (PMFConstants.instance.PLUGIN_USING_CONFIG) {
             if (PMFConstants.instance.PLUGIN_CONFIG.plugins.indexOf(packageName) < 0) {
                 PMFConstants.instance.PLUGIN_CONFIG.plugins.push(packageName);
-                PMFConstants.instance.PLUGIN_CONFIG.save("plugins");
+                PMFConstants.instance.PLUGIN_CONFIG.api.plugins.write();
             }
         } else {
             const installedPlugins: IPluginJson = readFileSync(PMFConstants.instance.PLUGIN_JSON);

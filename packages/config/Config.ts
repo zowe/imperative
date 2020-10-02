@@ -12,7 +12,6 @@
 import { ImperativeError } from "../error";
 import { IO } from "../io";
 import * as DeepMerge from "deepmerge";
-import { ICommandProfileSchema } from "../cmd";
 import { CredentialManagerFactory } from "../security";
 
 export class Config {
@@ -33,39 +32,93 @@ export class Config {
             } catch (e) {
                 throw new ImperativeError({ msg: `error parsing config: ${e}` });
             }
-
-            // Set empty objects if not present
-            params.config.properties = params.config.properties || {};
-            params.config.defaults = params.config.defaults || {};
-            params.config.profiles = params.config.profiles || {};
-            params.config.plugins = params.config.plugins || [];
-
-            // read and parse any additional configs - merge with the original config
-            if (params.merge != null) {
-                for (const mergePath of params.merge) {
-                    if (IO.existsSync(mergePath)) {
-                        const mergeConfigContents = IO.readFileSync(params.path).toString();
-                        try {
-                            const mergeConfigJSON = JSON.parse(mergeConfigContents);
-                            params.config = DeepMerge(params.config, mergeConfigJSON);
-                        } catch (e) {
-                            throw new ImperativeError({ msg: `error parsing config: ${e}` });
-                        }
-                    }
-                }
-            }
         } else {
             params.exists = false;
         }
 
-        if (params.config.properties == null) {
-            params.config.properties = {};
+        // Set empty objects if not present
+        params.config.merge = params.config.merge || { profiles: {}, options: {} };
+        params.config.defaults = params.config.defaults || {};
+        params.config.profiles = params.config.profiles || {};
+        params.config.plugins = params.config.plugins || [];
+        params.schemas = params.schemas || {};
+
+        // Create the object
+        params.api = {};
+        const config = new Config(params);
+
+        // setup the API for profiles
+        config.api.profiles = {
+            get: config.api_profiles_get.bind(config),
+            loadSecure: config.api_profiles_load.bind(config),
+            saveSecure: config.api_profiles_save.bind(config),
+            names: config.api_profiles_names.bind(config),
+            validate: config.api_profiles_validate.bind(config),
+            exists: config.api_profiles_exists.bind(config),
+            write: config.api_profiles_write.bind(config)
+        };
+
+        // setup the API for plugins
+        config.api.plugins = {
+            write: config.api_plugins_write.bind(config)
+        };
+
+
+        // read and parse any additional configs - merge with the original config
+        if (params.merge != null) {
+            for (const mergePath of params.merge) {
+                if (IO.existsSync(mergePath)) {
+
+                    // Create an instance of the config for the one we'd like to merge
+                    const mergeConfig = Config.load({ path: mergePath });
+
+                    // For profiles, only merge in entries that don't already exist
+                    for (const [typeName, typeObject] of Object.entries(mergeConfig.profiles)) {
+                        if (config.profiles[typeName] == null) {
+                            params.config.profiles[typeName] = { ...(typeObject as any) };
+                        } else {
+                            const ourProfileNames = config.api.profiles.names(typeName);
+                            const mergedProfileNames = mergeConfig.api.profiles.names(typeName).filter(
+                                (name: string) => ourProfileNames.indexOf(name) >= 0);
+                            mergedProfileNames.forEach((mergeProfile: string) => {
+                                params.config.profiles[typeName][mergeProfile] = mergeConfig.profiles[typeName][mergeProfile];
+                            });
+                        }
+                    }
+
+                    // For plugins, concatenate and eliminate duplicates
+                    params.config.plugins = new Set(mergeConfig.plugins.concat(params.config.plugins));
+
+                    // For defaults, only add those that don't exist
+                    for (const [defaultName, defaultObject] of Object.entries(mergeConfig.defaults)) {
+                        if (params.config.defaults[defaultName] == null) {
+                            params.config.defaults[defaultName] = { ...(defaultObject as any) };
+                        }
+                    }
+                }
+            }
         }
 
-        return new Config(params);
+        return config;
     }
 
-    public async loadSecure() {
+    public get api(): any {
+        return this.params.api;
+    }
+
+    private api_plugins_write() {
+        const original = this.original;
+        original.plugins = this.params.plugins;
+        IO.writeFile(this.params.path, Buffer.from(JSON.stringify(original, null, 4)));
+    }
+
+    private api_profiles_write(type: string, name: string) {
+        const original = this.original;
+        original.profiles[type][name] = this.params.config.profiles[type][name];
+        IO.writeFile(this.params.path, Buffer.from(JSON.stringify(original, null, 4)));
+    }
+
+    private async api_profiles_load() {
         // If the secure option is set - load the secure values for the profiles
         if (this.params.schemas != null && CredentialManagerFactory.initialized) {
 
@@ -81,9 +134,11 @@ export class Config {
                         for (const [schemaPropertyName, schemaProperty] of Object.entries(schema.properties)) {
                             if ((schemaProperty as any).secure) {
                                 const retrievedValue = await CredentialManagerFactory.manager.load(
-                                    Config.constructSecureKey(profileName, typeName, schemaPropertyName), false);
-                                this.params.config.profiles[typeName][profileName][schemaPropertyName] =
-                                    (retrievedValue != null) ? JSON.parse(retrievedValue) : undefined;
+                                    Config.constructSecureKey(typeName, profileName, schemaPropertyName), true);
+                                if (retrievedValue != null) {
+                                    this.params.config.profiles[typeName][profileName][schemaPropertyName] =
+                                        (retrievedValue != null) ? JSON.parse(retrievedValue) : undefined;
+                                }
                             }
                         }
                     }
@@ -92,19 +147,19 @@ export class Config {
         }
     }
 
-    public profileValidate(type: string, name: string, schema: ICommandProfileSchema) {
+    private api_profiles_validate(type: string, name: string) {
         // TODO
     }
 
-    public profileNames(type: string): string[] {
+    private api_profiles_names(type: string): string[] {
         return this.params.config.profiles[type] == null ? [] : Object.keys(this.params.config.profiles[type]);
     }
 
-    public profileExists(type: string, name: string): boolean {
+    private api_profiles_exists(type: string, name: string): boolean {
         return !(this.params.config.profiles[type] == null || this.params.config.profiles[type][name] == null);
     }
 
-    public profileGet(type: string, name: string) {
+    private api_profiles_get(type: string, name: string) {
         if (this.params.config.profiles[type] == null || this.params.config.profiles[type][name] == null) {
             return {};
         }
@@ -112,7 +167,7 @@ export class Config {
         return this.params.config.profiles[type][name];
     }
 
-    public async profileSave(type: string, name: string, opts?: any): Promise<any> {
+    private async api_profiles_save(type: string, name: string, opts?: any): Promise<any> {
         // Fail if the profile doesn't exist
         if (this.params.config.profiles[type] == null || this.params.config.profiles[type][name] == null) {
             throw new ImperativeError({ msg: `profile "${name}" of type "${type}" does not exist` });
@@ -120,38 +175,28 @@ export class Config {
 
         // If the schema is present, validate the profile
         if (opts.schema != null) {
-            this.profileValidate(type, name, opts.schema);
+            this.api_profiles_validate(type, name);
         }
 
         // If the schema is present, and secure loading was requested, attempt
         // to load properties from the OS operating system vault
         const profile: any = this.params.config.profiles[type][name];
-        if (opts.schema != null && opts.secure && CredentialManagerFactory.initialize) {
+        if (CredentialManagerFactory.initialize) {
             for (const [schemaPropertyName, schemaProperty] of Object.keys(opts.schema.properties)) {
                 if ((schemaProperty as any)[schemaPropertyName].secure && profile[schemaProperty] != null) {
                     const value = JSON.stringify(profile[schemaProperty]);
-                    await CredentialManagerFactory.manager.save(Config.constructSecureKey(name, type, schemaProperty), value);
+                    await CredentialManagerFactory.manager.save(Config.constructSecureKey(type, name, schemaProperty), value);
                 }
             }
         }
     }
 
-    private static constructSecureKey(name: string, type: string, field: string): string {
-        return name + "_" + type + "_" + field.split(".").join("_");
+    private static constructSecureKey(type: string, name: string, field: string): string {
+        return type + "_" + name + "_" + field.split(".").join("_");
     }
 
-    public save(keyword: string) {
-        const copy: any = this.original;
-        copy[keyword] = this.params.config[keyword];
-        try {
-            IO.writeFile(this.params.path, Buffer.from(JSON.stringify(copy, null, 4)));
-        } catch (e) {
-            throw new ImperativeError({ msg: `unable to save "${keyword}" to "${this.params.path}": ${e.message}` });
-        }
-    }
-
-    public get properties(): any {
-        return this.params.config.properties;
+    public get merge(): any {
+        return this.params.config.merge;
     }
 
     public get profiles(): any {

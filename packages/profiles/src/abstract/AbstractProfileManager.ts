@@ -390,7 +390,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
   public getAllProfileNames(): string[] {
     // if (this.config.exists) {
     if (false) {
-      return this.config.profileNames(this.profileType);
+      // return this.config.profileNames(this.profileType);
     } else {
       return ProfileIO.getAllProfileNames(this.profileTypeRootDirectory,
         AbstractProfileManager.PROFILE_EXTENSION, this.constructMetaName());
@@ -1087,7 +1087,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
   protected profileExists(name: string): boolean {
     // if (this.config.exists) {
     if (false) {
-      return this.config.profileExists(this.profileType, name);
+      // return this.config.profileExists(this.profileType, name);
     } else {
       return this.locateExistingProfile(name) != null;
     }
@@ -1150,15 +1150,15 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     let profileContents;
     // if (this.config.exists) {
     if (false) {
-      if (this.config.profileExists(this.profileType, name)) {
-        profileContents = this.config.profileGet(this.profileType, name);
-      } else {
-        // If it doesn't exist and fail not found is false
-        if (failNotFound) {
-          this.loadFailed(name);
-        }
-        return this.failNotFoundDefaultResponse(name);
-      }
+      // if (this.config.profileExists(this.profileType, name)) {
+      //   profileContents = this.config.profileGet(this.profileType, name);
+      // } else {
+      //   // If it doesn't exist and fail not found is false
+      //   if (failNotFound) {
+      //     this.loadFailed(name);
+      //   }
+      //   return this.failNotFoundDefaultResponse(name);
+      // }
     } else {
       const profileFilePath: string = this.locateExistingProfile(name);
 
