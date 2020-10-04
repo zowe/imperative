@@ -51,9 +51,9 @@ exports[`cmd-cli gen-help example-test should display the help with allowable op
 
       Display HTML help in browser
 
-   --current-working-directory  | --cwd (string)
+   --lcd  (string)
 
-      Alternate current working directory
+      Alternate local working directory
 
  EXAMPLES
  --------
