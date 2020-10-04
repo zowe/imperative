@@ -23,13 +23,6 @@ import * as net from "net";
 export interface ICommandResponseParms {
 
     /**
-     * Alternate current working directory (e.g. used for daemon mode)
-     * @type {string}
-     * @memberof ICommandResponseParms
-     */
-    cwd?: string;
-
-    /**
      * Stream
      * @type {*}
      * @memberof ICommandResponseParms

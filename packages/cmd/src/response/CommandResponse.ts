@@ -31,6 +31,7 @@ import * as DeepMerge from "deepmerge";
 import * as ProgressBar from "progress";
 import WriteStream = NodeJS.WriteStream;
 import * as net from "net";
+import { DaemonUtils } from "../../../utilities/DaemonUtils";
 
 const DataObjectParser = require("dataobject-parser");
 
@@ -206,14 +207,6 @@ export class CommandResponse implements ICommandResponseApi {
     private mStream: net.Socket;
 
     /**
-     * Alternate current working directory for daemon mode
-     * @private
-     * @type {string}
-     * @memberof CommandResponse
-     */
-    private mCwd: string;
-
-    /**
      * Creates an instance of CommandResponse.
      * @param {ICommandResponseParms} params - See the interface for details.
      * @memberof CommandResponse
@@ -232,7 +225,6 @@ export class CommandResponse implements ICommandResponseApi {
         this.mSilent = (this.mControl.silent == null) ? false : this.mControl.silent;
         this.mProgressBarSpinnerChars = (this.mControl.progressBarSpinner == null) ? this.mProgressBarSpinnerChars : params.progressBarSpinner;
         this.mStream = params ? params.stream : undefined;
-        this.mCwd = params ? params.cwd : undefined;
     }
 
     get format(): IHandlerFormatOutputApi {
@@ -845,14 +837,13 @@ export class CommandResponse implements ICommandResponseApi {
      */
     public buildJsonResponse(): ICommandResponse {
 
-        let exitCode = this.mExitCode;
-        if (exitCode == null) {
-            exitCode = this.mSucceeded ? 0 : Constants.ERROR_EXIT_CODE;
+        if (this.mExitCode == null) {
+            this.mExitCode = this.mSucceeded ? 0 : Constants.ERROR_EXIT_CODE;
         }
 
         return {
             success: this.mSucceeded,
-            exitCode,
+            exitCode: this.mExitCode,
             message: this.mMessage,
             stdout: this.mStdout,
             stderr: this.mStderr,
@@ -906,6 +897,7 @@ export class CommandResponse implements ICommandResponseApi {
             this.mProgressApi.endBar();
         }
     }
+
     /**
      * Explicitly end a stream
      * @private
@@ -913,8 +905,20 @@ export class CommandResponse implements ICommandResponseApi {
      */
     public endStream() {
         if (this.mStream) {
+            this.sendHeaders();
             this.mStream.end();
         }
+    }
+
+    /**
+     * Send headers to daemon client
+     * @private
+     * @param {string} headers
+     * @memberof CommandResponse
+     */
+    private sendHeaders() {
+        const daemonHeaders = DaemonUtils.buildHeader({ exitCode: this.mExitCode });
+        this.writeStream(daemonHeaders);
     }
 
     /**
@@ -972,18 +976,7 @@ export class CommandResponse implements ICommandResponseApi {
      */
     private writeStream(data: any) {
 
-        // const headers = [
-        //     "x-zowe-daemon-headers:7",
-        //     "x-zowe-daemon-version:1",
-        //     "x-zowe-daemon-exit:0",
-        //     "x-zowe-daemon-prompt:0",
-        //     "x-zowe-daemon-stdout:1",
-        //     "x-zowe-daemon-stderr:0",
-        //     "x-zowe-daemon-end:0",
-        // ];
-
         if (this.mStream) {
-            // this.mStream.write(headers.join(`;`) + '\n' + data);
             this.mStream.write(data);
         }
     }

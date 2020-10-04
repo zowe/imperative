@@ -453,7 +453,7 @@ export class CommandPreparer {
         definition.options.push({
             name: Constants.LOCAL_DIRECTORY_OPTION,
             group: Constants.GLOBAL_GROUP,
-            description: "Alternate current working directory",
+            description: "Alternate local working directory",
             type: "string"
         });
 
