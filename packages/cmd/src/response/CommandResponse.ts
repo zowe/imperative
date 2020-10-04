@@ -28,7 +28,7 @@ import { ICommandDefinition } from "../../src/doc/ICommandDefinition";
 import { OptionConstants } from "../constants/OptionConstants";
 import { inspect } from "util";
 import * as DeepMerge from "deepmerge";
-import ProgressBar = require("progress");
+import * as ProgressBar from "progress";
 import WriteStream = NodeJS.WriteStream;
 import * as net from "net";
 
@@ -715,8 +715,13 @@ export class CommandResponse implements ICommandResponseApi {
 
                         // Persist the task specifications and determine the stream to use for the progress bar
                         this.mProgressTask = params.task;
+
+                        // console.log(`@PROGRESS BAR`)
+
                         const stream: WriteStream = (params.stream == null) ?
                             process.stderr : params.stream;
+
+                        // console.log(stream)
 
                         // Create the progress bar instance
                         outer.mProgressBar = new ProgressBar(this.mProgressBarTemplate, {
@@ -748,8 +753,8 @@ export class CommandResponse implements ICommandResponseApi {
                             spin: " "
                         });
                         outer.mProgressBar.terminate();
-                        process.stdout.write(outer.mStdout);
-                        process.stderr.write(outer.mStderr);
+                        outer.writeStdout(outer.mStdout);
+                        outer.writeStderr(outer.mStderr);
                         this.mProgressTask = undefined;
 
                         // clear the progress bar field
@@ -964,7 +969,19 @@ export class CommandResponse implements ICommandResponseApi {
      * @memberof CommandResponse
      */
     private writeStream(data: any, endStream = true) {
+
+        // const headers = [
+        //     "x-zowe-daemon-headers:7",
+        //     "x-zowe-daemon-version:1",
+        //     "x-zowe-daemon-exit:0",
+        //     "x-zowe-daemon-prompt:0",
+        //     "x-zowe-daemon-stdout:1",
+        //     "x-zowe-daemon-stderr:0",
+        //     "x-zowe-daemon-end:0",
+        // ];
+
         if (this.mStream) {
+            // this.mStream.write(headers.join(`;`) + '\n' + data);
             this.mStream.write(data);
 
             if (endStream) {
