@@ -259,7 +259,6 @@ export class CommandResponse implements ICommandResponseApi {
                     // If the output is an array and the length is 0 or - do nothing
                     if ((Array.isArray(format.output) && format.output.length === 0) ||
                         (Object.keys(format.output).length === 0 && format.output.constructor === Object)) {
-                        outer.console.endStream();
                         return;
                     }
 
@@ -599,13 +598,6 @@ export class CommandResponse implements ICommandResponseApi {
                     outer.writeAndBufferStderr(msg);
                     return msg;
                 }
-
-                /**
-                 * Ends a stream connection
-                 */
-                public endStream() {
-                    outer.endStream();
-                }
             }();
         }
 
@@ -914,6 +906,16 @@ export class CommandResponse implements ICommandResponseApi {
             this.mProgressApi.endBar();
         }
     }
+    /**
+     * Explicitly end a stream
+     * @private
+     * @memberof CommandResponse
+     */
+    public endStream() {
+        if (this.mStream) {
+            this.mStream.end();
+        }
+    }
 
     /**
      * Internal accessor for the full control parameters passed to the command response object.
@@ -968,7 +970,7 @@ export class CommandResponse implements ICommandResponseApi {
      * @param {*} data
      * @memberof CommandResponse
      */
-    private writeStream(data: any, endStream = true) {
+    private writeStream(data: any) {
 
         // const headers = [
         //     "x-zowe-daemon-headers:7",
@@ -983,21 +985,6 @@ export class CommandResponse implements ICommandResponseApi {
         if (this.mStream) {
             // this.mStream.write(headers.join(`;`) + '\n' + data);
             this.mStream.write(data);
-
-            if (endStream) {
-                this.endStream();
-            }
-        }
-    }
-
-    /**
-     * Explicitly end a stream
-     * @private
-     * @memberof CommandResponse
-     */
-    private endStream() {
-        if (this.mStream) {
-            this.mStream.end();
         }
     }
 
@@ -1007,10 +994,10 @@ export class CommandResponse implements ICommandResponseApi {
      * @param {(Buffer | string)} data - The data to write/buffer
      * @memberof CommandResponse
      */
-    private writeAndBufferStderr(data: Buffer | string, endStream = false) {
+    private writeAndBufferStderr(data: Buffer | string) {
         this.bufferStderr(data);
         if (this.write()) {
-            this.writeStderr(data, endStream);
+            this.writeStderr(data);
         }
     }
 
@@ -1020,9 +1007,9 @@ export class CommandResponse implements ICommandResponseApi {
      * @param {*} data - the data to write to stderr
      * @memberof CommandResponse
      */
-    private writeStderr(data: any, endStream = false) {
+    private writeStderr(data: any) {
         process.stderr.write(data);
-        this.writeStream(data, endStream);
+        this.writeStream(data);
     }
 
     /**

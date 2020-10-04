@@ -841,6 +841,7 @@ export class CommandProcessor {
         }
         this.log.info(`Command "${this.definition.name}" completed with success flag: "${json.success}"`);
         this.log.trace(`Command "${this.definition.name}" finished. Response object:\n${inspect(json, { depth: null })}`);
+        response.endStream();
         return json;
     }
 
@@ -924,6 +925,5 @@ export class CommandProcessor {
             response.console.error(`"${handlerPath}"`);
             response.data.setObj(handlerErr);
         }
-        response.console.endStream();
     }
 }
