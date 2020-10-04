@@ -19,7 +19,7 @@
  * Integers are the only content passed.  For boolean header types, 0 = false, 1 = true.
  */
 
-import { IDaemonHeaderOptions } from "./src/doc/IDaemonHeaderOptions";
+import { IDaemonHeaderOptions } from "./doc/IDaemonHeaderOptions";
 
 /**
  * Class to construct headers for daemon mode protocol

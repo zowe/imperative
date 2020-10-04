@@ -31,7 +31,7 @@ import * as DeepMerge from "deepmerge";
 import * as ProgressBar from "progress";
 import WriteStream = NodeJS.WriteStream;
 import * as net from "net";
-import { DaemonUtils } from "../../../utilities/DaemonUtils";
+import { DaemonUtils } from "../../../utilities/src/DaemonUtils";
 
 const DataObjectParser = require("dataobject-parser");
 
