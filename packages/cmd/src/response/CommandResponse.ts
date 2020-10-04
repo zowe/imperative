@@ -699,13 +699,8 @@ export class CommandResponse implements ICommandResponseApi {
 
                         // Persist the task specifications and determine the stream to use for the progress bar
                         this.mProgressTask = params.task;
-
-                        // console.log(`@PROGRESS BAR`)
-
                         const stream: WriteStream = (params.stream == null) ?
                             process.stderr : params.stream;
-
-                        // console.log(stream)
 
                         // Create the progress bar instance
                         outer.mProgressBar = new ProgressBar(this.mProgressBarTemplate, {
