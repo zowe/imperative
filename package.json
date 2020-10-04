@@ -116,7 +116,7 @@
     "jest-html-reporter": "^2.5.0",
     "jest-junit": "^6.3.0",
     "jest-sonar-reporter": "^2.0.0",
-    "jest-stare": "^1.26.0",
+    "jest-stare": "^2.2.0",
     "jquery": "^3.4.1",
     "jsdoc": "^3.6.2",
     "jstree": "^3.3.8",
