@@ -10,9 +10,10 @@
 */
 
 import { ImperativeConfig } from "../../../../utilities";
-import { join } from "path";
+import { dirname, join } from "path";
 import { Logger } from "../../../../logger";
 import { Config } from "../../../../config/Config";
+import { REPL_MODE_SLOPPY } from "repl";
 
 /**
  * Constants used by the PMF.
@@ -84,7 +85,7 @@ export class PMFConstants {
      *
      * @type {string}
      */
-    public readonly PLUGIN_NODE_MODULE_LOCATION: string;
+    public readonly PLUGIN_NODE_MODULE_LOCATION: string[];
 
     public readonly PLUGIN_USING_CONFIG: boolean;
 
@@ -92,34 +93,44 @@ export class PMFConstants {
 
     constructor() {
         // Load from the config
-        const config = Config.load({
-            paths: ImperativeConfig.instance.configPaths
-        });
+        const config = Config.load(ImperativeConfig.instance.rootCommandName);
 
         this.PLUGIN_CONFIG = config;
         this.NPM_NAMESPACE = "@zowe";
         this.CLI_CORE_PKG_NAME = ImperativeConfig.instance.hostPackageName;
         this.IMPERATIVE_PKG_NAME = ImperativeConfig.instance.imperativePackageName;
-        this.PMF_ROOT = config.exists ? process.cwd() : join(ImperativeConfig.instance.cliHome, "plugins");
-        this.PLUGIN_JSON = join(this.PMF_ROOT, config.exists ? "" : "plugins.json");
+        this.PMF_ROOT =  join(ImperativeConfig.instance.cliHome, "plugins");
+        this.PLUGIN_JSON = join(this.PMF_ROOT, "plugins.json");
         this.PLUGIN_USING_CONFIG = config.exists;
-        this.PLUGIN_INSTALL_LOCATION = config.exists ? this.PMF_ROOT : join(this.PMF_ROOT, "installed");
+        this.PLUGIN_INSTALL_LOCATION = join(this.PMF_ROOT, "installed");
 
         // Windows format is <prefix>/node_modules
+        let cliHomeModPath;
         if (process.platform === "win32" || this.PLUGIN_USING_CONFIG) {
-            this.PLUGIN_NODE_MODULE_LOCATION = join(
+            cliHomeModPath = join(
                 this.PLUGIN_INSTALL_LOCATION,
                 "node_modules"
             );
         }
         // Everyone else is <prefix>/lib/node_modules
         else {
-            this.PLUGIN_NODE_MODULE_LOCATION = join(
+            cliHomeModPath = join(
                 this.PLUGIN_INSTALL_LOCATION,
                 "lib",
                 "node_modules"
             );
         }
+
+        // Build the paths to find the modules based on the config
+        const modPaths: string[] = [];
+        if (this.PLUGIN_USING_CONFIG) {
+            config.paths.forEach((path: string) => {
+                const dir = dirname(path);
+                modPaths.push(join(dir, (process.platform !== "win32") ? "lib" : "", "node_modules"));
+            });
+        }
+        modPaths.push(cliHomeModPath);
+        this.PLUGIN_NODE_MODULE_LOCATION = Array.from(new Set(modPaths));
 
         Logger.getImperativeLogger().debug(`PMF node_modules: ${this.PLUGIN_NODE_MODULE_LOCATION}`);
     }

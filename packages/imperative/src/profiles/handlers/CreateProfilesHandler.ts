@@ -39,8 +39,7 @@ export default class CreateProfilesHandler implements ICommandHandler {
         const profileName = commandParameters.arguments[Constants.PROFILE_NAME_OPTION];
 
         // Load the configuration and load secure fields from config
-        const config = Config.load({
-            paths: ImperativeConfig.instance.configPaths,
+        const config = Config.load(ImperativeConfig.instance.rootCommandName, {
             schemas: ImperativeConfig.instance.configSchemas
         });
 

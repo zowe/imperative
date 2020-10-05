@@ -138,15 +138,11 @@ export class PluginIssues {
   public getInstalledPlugins(): IPluginJson {
     if (this.installedPlugins == null) {
       try {
-        if (!PMFConstants.instance.PLUGIN_USING_CONFIG) {
-          this.installedPlugins = readFileSync(PMFConstants.instance.PLUGIN_JSON);
-        } else {
-          const plugins: any = {};
-          PMFConstants.instance.PLUGIN_CONFIG.plugins.forEach((plugin: string) => {
-            plugins[plugin] = {};
-          });
-          this.installedPlugins = plugins;
-        }
+        this.installedPlugins = readFileSync(PMFConstants.instance.PLUGIN_JSON);
+        PMFConstants.instance.PLUGIN_CONFIG.plugins.forEach((plugin: string) => {
+          if (this.installedPlugins[plugin] == null)
+            (this.installedPlugins as any)[plugin] = {};
+        });
       }
       catch (ioErr) {
         throw new ImperativeError({

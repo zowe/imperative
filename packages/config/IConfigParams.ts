@@ -10,9 +10,8 @@
 */
 
 export interface IConfigParams {
-    paths: string[];
+    // paths: string[];
 
     // TODO: create an interface
     schemas?: any[];
-    secure?: boolean;
 };

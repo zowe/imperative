@@ -712,8 +712,7 @@ export class CommandProcessor {
         await SharedOptions.readStdinIfRequested(commandArguments, response, this.definition.type);
 
         // Load the configuration and load secure fields from config
-        const config = Config.load({
-            paths: ImperativeConfig.instance.configPaths,
+        const config = Config.load(ImperativeConfig.instance.rootCommandName, {
             schemas: ImperativeConfig.instance.configSchemas
         });
         await config.api.profiles.loadSecure();

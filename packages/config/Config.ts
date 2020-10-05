@@ -19,13 +19,17 @@ import { IConfigLayer } from "./IConfigLayer";
 
 
 interface ICnfg {
-    paths: string[];
+    app: string;
+    paths?: string[];
     exists?: boolean;
     config?: IConfig;
     base?: IConfig;
     api?: IConfigApi;
     layers?: IConfigLayer[];
     schemas?: any;
+    home?: string;
+    name?: string;
+    user?: string;
 };
 
 export class Config {
@@ -33,8 +37,8 @@ export class Config {
 
     private constructor(private _: ICnfg) { }
 
-    public static load(params: IConfigParams): Config {
-        const _: ICnfg = { ...params }; // copy the parameters
+    public static load(app: string, opts?: IConfigParams): Config {
+        const _: ICnfg = { ...opts, app }; // copy the parameters
 
         ////////////////////////////////////////////////////////////////////////
         // Create the basic empty configuration
@@ -45,7 +49,24 @@ export class Config {
         (_ as any).config.plugins = [];
         (_ as any).api = {};
         (_ as any).layers = [];
-        (_ as any).schemas = params.schemas || {};
+        (_ as any).schemas = _.schemas || {};
+        (_ as any).home = _.home || path.join(require("os").homedir(), `.${app}`);
+        (_ as any).paths = [];
+        (_ as any).name = `${app}.config.json`;
+        (_ as any).user = `${app}.config.user.json`;
+
+        ////////////////////////////////////////////////////////////////////////
+        // Populate configuration file paths
+        const home = require('os').homedir();
+        const user = Config.search(_.user, { stop: home });
+        if (user != null) _.paths.push(user);
+        const cnfg = Config.search(_.name, { stop: home });
+        if (cnfg != null) _.paths.push(cnfg);
+        _.paths.push(path.join(_.home, _.user));
+        _.paths.push(path.join(_.home, _.name));
+
+        ////////////////////////////////////////////////////////////////////////
+        // Create the config and setup the APIs
         const config = new Config(_);
 
         // setup the API for profiles

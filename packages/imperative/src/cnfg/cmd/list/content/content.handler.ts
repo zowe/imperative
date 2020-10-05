@@ -29,7 +29,7 @@ export default class ContentHandler implements ICommandHandler {
      */
     public async process(params: IHandlerParameters): Promise<void> {
         const paths = ImperativeConfig.instance.configPaths;
-        const config = Config.load({ paths });
+        const config = Config.load(ImperativeConfig.instance.rootCommandName);
         params.response.data.setObj(config);
         if (params.arguments.locations) {
             const properties: any = {};

@@ -29,7 +29,7 @@ export default class ListProfilesHandler implements ICommandHandler {
      */
     public async process(params: IHandlerParameters): Promise<void> {
         const paths = ImperativeConfig.instance.configPaths;
-        const config = Config.load({ paths });
+        const config = Config.load(ImperativeConfig.instance.rootCommandName);
         if (params.arguments.locations) {
             const profiles: any = {};
             for (const layer of config.layers)
