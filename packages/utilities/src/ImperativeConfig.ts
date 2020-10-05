@@ -14,6 +14,8 @@ import { join } from "path";
 import { IImperativeConfig } from "../../imperative/src/doc/IImperativeConfig";
 import { ImperativeError } from "../../error";
 import { EnvironmentalVariableSettings } from "../../imperative/src/env/EnvironmentalVariableSettings";
+import { ICommandProfileTypeConfiguration } from "../../cmd";
+import { Config } from "../../config/Config";
 
 /**
  * This class is used to contain all configuration being set by Imperative.
@@ -184,6 +186,42 @@ export class ImperativeConfig {
         return this.getCallerFile("package.json");
     }
 
+    public get configFile(): string {
+        const configEnvVar = `${this.loadedConfig.envVariablePrefix}_CONFIG`;
+        return (process.env[configEnvVar] != null) ? process.env[configEnvVar] : `${this.rootCommandName}.config.json`;
+    }
+
+    public get configUserFile(): string {
+        const userEnvVar = `${this.loadedConfig.envVariablePrefix}_USER_CONFIG`;
+        return (process.env[userEnvVar] != null) ? process.env[userEnvVar] : `${this.rootCommandName}.config.user.json`;
+    }
+
+    public get configHomePaths(): string[] {
+        const usrHome = join(this.cliHome, this.configUserFile);
+        const home = join(this.cliHome, this.configFile);
+        return [usrHome, home];
+    }
+
+    public get configSchemas(): any {
+        const schemas: any = {};
+        if (ImperativeConfig.instance.loadedConfig.profiles != null) {
+            ImperativeConfig.instance.loadedConfig.profiles.forEach((profile: ICommandProfileTypeConfiguration) => {
+                schemas[profile.type] = profile.schema;
+            })
+        }
+        return schemas;
+    }
+
+    public get configPaths(): string[] {
+        const home = require('os').homedir();
+        const paths: string[] = [];
+        const user = Config.search(this.configUserFile, { stop: home });
+        if (user != null) paths.push(user);
+        const cnfg = Config.search(this.configFile, { stop: home });
+        if (cnfg != null) paths.push(cnfg);
+        return Array.from(new Set(paths.concat(this.configHomePaths)));
+    }
+
     /**
      * Require a file from a project using imperative accounting for imperative being contained
      * separately from the current implementers directory.
@@ -193,7 +231,7 @@ export class ImperativeConfig {
         // try to locate the file using find-up first
         let findupErr: Error;
         try {
-            const filePath = require("find-up").sync(file, {cwd: ImperativeConfig.instance.callerLocation});
+            const filePath = require("find-up").sync(file, { cwd: ImperativeConfig.instance.callerLocation });
             return require(filePath);
         } catch (e) {
             // couldn't locate using find-up, try to require directly
@@ -207,8 +245,7 @@ export class ImperativeConfig {
                 "searching the directories above " + this.callerLocation +
                 ". 'require()' error message: " + e.message +
                 " \n 'find-up' (directory search) error message:" + findupErr.message;
-            throw new ImperativeError({msg: e.message});
+            throw new ImperativeError({ msg: e.message });
         }
     }
-
 }

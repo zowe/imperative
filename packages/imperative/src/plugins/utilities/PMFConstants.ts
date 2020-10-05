@@ -91,16 +91,9 @@ export class PMFConstants {
     public readonly PLUGIN_CONFIG: Config;
 
     constructor() {
-        // Construct the path to the possible config locations
-        const configEnvVar = `${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_CONFIG`;
-        const userConfigEnvVar = `${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_USER_CONFIG`;
-        const configPath = (process.env[configEnvVar] != null) ? process.env[configEnvVar] : `${ImperativeConfig.instance.rootCommandName}.config.json`;
-        const userConfigPath = (process.env[userConfigEnvVar] != null) ? process.env[userConfigEnvVar] : `${ImperativeConfig.instance.rootCommandName}.config.user.json`;
-
         // Load from the config
         const config = Config.load({
-            path: configPath,
-            merge: [userConfigPath]
+            paths: ImperativeConfig.instance.configPaths
         });
 
         this.PLUGIN_CONFIG = config;
@@ -108,7 +101,7 @@ export class PMFConstants {
         this.CLI_CORE_PKG_NAME = ImperativeConfig.instance.hostPackageName;
         this.IMPERATIVE_PKG_NAME = ImperativeConfig.instance.imperativePackageName;
         this.PMF_ROOT = config.exists ? process.cwd() : join(ImperativeConfig.instance.cliHome, "plugins");
-        this.PLUGIN_JSON = join(this.PMF_ROOT, config.exists ? config.path : "plugins.json");
+        this.PLUGIN_JSON = join(this.PMF_ROOT, config.exists ? "" : "plugins.json");
         this.PLUGIN_USING_CONFIG = config.exists;
         this.PLUGIN_INSTALL_LOCATION = config.exists ? this.PMF_ROOT : join(this.PMF_ROOT, "installed");
 

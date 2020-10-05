@@ -248,10 +248,10 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     const userConfigPath = (process.env[userConfigEnvVar] != null) ? process.env[userConfigEnvVar] : `${ImperativeConfig.instance.rootCommandName}.config.user.json`;
 
     // Load from the config
-    this.mConfig = Config.load({
-      path: configPath,
-      merge: [userConfigPath]
-    });
+    // this.mConfig = Config.load({
+    //   path: configPath,
+    //   merge: [userConfigPath]
+    // });
   }
 
   /**

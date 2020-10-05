@@ -711,28 +711,10 @@ export class CommandProcessor {
         this.log.trace(`Reading stdin for "${this.definition.name}" command...`);
         await SharedOptions.readStdinIfRequested(commandArguments, response, this.definition.type);
 
-        // Load configuration files - locations can be overridden by env var
-        // cliname_CONFIG
-        // cliname_USER_CONFIG
-        const configEnvVar = `${this.mEnvVariablePrefix}_CONFIG`;
-        const userConfigEnvVar = `${this.mEnvVariablePrefix}_USER_CONFIG`;
-        const configPath = (process.env[configEnvVar] != null) ? process.env[configEnvVar] : `${this.mCommandRootName}.config.json`;
-        const userConfigPath = (process.env[userConfigEnvVar] != null) ? process.env[userConfigEnvVar] : `${this.mCommandRootName}.config.user.json`;
-        const homeConfigPath = nodePath.join(ImperativeConfig.instance.cliHome, `${this.mCommandRootName}.config.user.json`);
-
-        // Collect all the schemas
-        const profileSchemas: any = {};
-        if (ImperativeConfig.instance.loadedConfig.profiles != null) {
-            ImperativeConfig.instance.loadedConfig.profiles.forEach((profile: ICommandProfileTypeConfiguration) => {
-                profileSchemas[profile.type] = profile.schema;
-            })
-        }
-
         // Load the configuration and load secure fields from config
         const config = Config.load({
-            path: configPath,
-            merge: [userConfigPath, homeConfigPath],
-            schemas: profileSchemas
+            paths: ImperativeConfig.instance.configPaths,
+            schemas: ImperativeConfig.instance.configSchemas
         });
         await config.api.profiles.loadSecure();
 
@@ -804,7 +786,7 @@ export class CommandProcessor {
         }
 
         // merge in the configs
-        args = CliUtils.mergeArguments(config.merge.cli, args);
+        // args = CliUtils.mergeArguments(config.merge.cli, args);
         for (const configProfile of configProfiles) {
             const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(configProfile);
             if (args[profOpt] != null) {

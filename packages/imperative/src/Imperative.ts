@@ -59,6 +59,7 @@ import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
 import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 import { ImperativeExpect } from "../../expect";
+import { CnfgManagementFacility } from "./cnfg/CnfgManagementFacility";
 
 // Bootstrap the performance tools
 if (PerfTiming.isEnabled) {
@@ -188,6 +189,10 @@ export class Imperative {
                         PluginManagementFacility.instance.pluginOverrides
                     );
                 }
+
+                // Init config group
+                // TODO: imperative setting for config
+                CnfgManagementFacility.instance.init();
 
                 /**
                  * Once we have a complete representation of the config object, we should be able to
