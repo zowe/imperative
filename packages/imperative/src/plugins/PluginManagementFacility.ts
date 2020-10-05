@@ -265,15 +265,33 @@ export class PluginManagementFacility {
             }
         }
 
+        console.log(loadedOverrides);
+
+        // First come, first serve
+        let overrideSettings: any = {};
+        if (this.pmfConst.PLUGIN_USING_CONFIG) {
+            for (const plugin of this.pmfConst.PLUGIN_CONFIG.plugins) {
+                console.log(plugin);
+                if (loadedOverrides[plugin] != null) {
+                    for (const [key, value] of Object.entries(loadedOverrides[plugin])) {
+                        if (overrideSettings[key] == null) {
+                            overrideSettings[key] = plugin;
+                        }
+                    }
+                }
+            }
+        }
+        overrideSettings = {...AppSettings.instance.getNamespace("overrides"), ...overrideSettings};
+
         // Loop through each overrides setting here. Setting is an override that we are modifying while
         // plugin is the pluginName from which to get the setting. This is probably the ugliest piece
         // of code that I have ever written :/
-        for (const [setting, pluginName] of Object.entries(AppSettings.instance.getNamespace("overrides"))) {
+        for (const [setting, pluginName] of Object.entries(overrideSettings)) {
             if (pluginName !== false) {
                 Logger.getImperativeLogger().debug(
                     `PluginOverride: Attempting to overwrite "${setting}" with value provided by plugin "${pluginName}"`
                 );
-                if (!loadedOverrides.hasOwnProperty(pluginName)) {
+                if (!loadedOverrides.hasOwnProperty(pluginName as any)) {
                     // the plugin name specified in our settings is not available
                     const overrideErrMsg = `You attempted to override the "${setting}" setting ` +
                         `with a plugin named "${pluginName}" that is not installed and loadable.` +
@@ -305,7 +323,7 @@ export class PluginManagementFacility {
                 }
 
                 // Like the cli the overrides can be the actual class or the string path
-                let loadedSetting: string | object = (loadedOverrides[pluginName] as any)[setting];
+                let loadedSetting: string | object = (loadedOverrides[pluginName as any] as any)[setting];
 
                 // If the overrides loaded is a string path, just resolve it here since it would be much
                 // to do so in the overrides loader.
@@ -321,7 +339,7 @@ export class PluginManagementFacility {
                             // the plugin defines. So we then cd up a directory and resolve the path relative
                             // to the plugin entry file.
                             pathToPluginOverride = join(
-                                require.resolve(this.formPluginRuntimePath(pluginName)),
+                                require.resolve(this.formPluginRuntimePath(pluginName as any)),
                                 "../",
                                 pathToPluginOverride
                             );
@@ -333,7 +351,7 @@ export class PluginManagementFacility {
                         const overrideErrMsg = `Unable to override "${setting}" with "${pathToPluginOverride}" ` +
                             `from plugin "${pluginName}"\n` + "Reason = " + requireError.message +
                             `\nWe will use a "${setting}" that purposely fails until you reconfigure.`;
-                        PluginIssues.instance.recordIssue(pluginName, IssueSeverity.OVER_ERROR, overrideErrMsg);
+                        PluginIssues.instance.recordIssue(pluginName as any, IssueSeverity.OVER_ERROR, overrideErrMsg);
 
                         // See the big block comment above about using an anonymous class.
                         /* tslint:disable:max-classes-per-file */
