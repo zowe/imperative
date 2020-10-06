@@ -9,17 +9,16 @@
 *
 */
 
+import { IConfigLayer } from "./IConfigLayer";
+
 export interface IConfigApi {
     profiles: {
         get: (type: string, name: string) => any;
         loadSecure: () => void;
-        saveSecure: (type: string, name: string, opts?: any) => Promise<void>;
         names: (type: string) => string[];
         validate: (type: string, name: string) => void;
         exists: (type: string, name: string) => boolean;
-        write: (type: string, name: string, opts?: any) => Promise<void>;
         set: (type: string, name: string, contents: {[key: string]: any}) => void;
-        location: (type: string, name: string) => string;
     },
     plugins: {
         write: () => void;

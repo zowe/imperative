@@ -22,12 +22,28 @@ import { profilesDefinition } from "./profiles/profiles.definition";
 export const listDefinition: ICommandDefinition = {
     name: "list",
     aliases: ["ls"],
-    type: "group",
-    children: [
-        profilesDefinition,
-        pathsDefinition,
-        contentDefinition
+    type: "command",
+    positionals: [
+        {
+            name: "property",
+            required: false,
+            type: "string",
+            description: "the root level property in the config file to list, specify blank to list everything"
+        }
     ],
+    options: [
+        {
+            name: "locations",
+            description: "include the locations",
+            type: "boolean"
+        }
+    ],
+    handler: join(__dirname, "list.handler"),
+    // children: [
+    //     profilesDefinition,
+    //     pathsDefinition,
+    //     contentDefinition
+    // ],
     summary: "list configuration items",
     description: "list configuration items"
 };

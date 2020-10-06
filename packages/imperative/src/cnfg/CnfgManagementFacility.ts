@@ -12,8 +12,9 @@
 import { PerfTiming } from "@zowe/perf-timing";
 import { UpdateImpConfig } from "../UpdateImpConfig";
 import { Logger } from "../../../logger";
-import { pathsDefinition } from "./cmd/list/paths/paths.definition";
 import { listDefinition } from "./cmd/list/list.definition";
+import { setDefinition } from "./cmd/set/set.definition";
+import { InitDefinition } from "./cmd/init/init.definition";
 
 export class CnfgManagementFacility {
     private static mInstance: CnfgManagementFacility;
@@ -64,6 +65,8 @@ export class CnfgManagementFacility {
             description: "Manage JSON project and global configuration",
             children: [
                 listDefinition,
+                setDefinition,
+                InitDefinition
             ]
         });
 

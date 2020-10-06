@@ -139,7 +139,7 @@ export class PluginIssues {
     if (this.installedPlugins == null) {
       try {
         this.installedPlugins = readFileSync(PMFConstants.instance.PLUGIN_JSON);
-        PMFConstants.instance.PLUGIN_CONFIG.plugins.forEach((plugin: string) => {
+        PMFConstants.instance.PLUGIN_CONFIG.properties.plugins.forEach((plugin: string) => {
           if (this.installedPlugins[plugin] == null)
             (this.installedPlugins as any)[plugin] = {};
         });

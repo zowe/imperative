@@ -748,9 +748,9 @@ export class CommandProcessor {
 
                 // If there is a defaults object in the config extract those
                 // profile names and place on args
-                if (config.defaults != null && config.defaults[configProfile] != null) {
-                    args[profOpt] = config.defaults[configProfile];
-                    args[profOptAlias] = config.defaults[configProfile];
+                if (config.properties.defaults != null && config.properties.defaults[configProfile] != null) {
+                    args[profOpt] = config.properties.defaults[configProfile];
+                    args[profOptAlias] = config.properties.defaults[configProfile];
                 }
             }
         }
