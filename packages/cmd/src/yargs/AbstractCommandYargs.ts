@@ -411,6 +411,7 @@ export abstract class AbstractCommandYargs {
                 new CommandResponse({
                     silent: false,
                     responseFormat: (args[Constants.JSON_OPTION] || false) ? "json" : "default",
+                    stream: args.stream
                 })
             );
         } catch (helpErr) {
