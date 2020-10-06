@@ -31,7 +31,7 @@ import { IInvokeCommandParms } from "./doc/parms/IInvokeCommandParms";
 import { ICommandProcessorParms } from "./doc/processor/ICommandProcessorParms";
 import { ImperativeExpect } from "../../expect";
 import { inspect, isString } from "util";
-import { TextUtils } from "../../utilities";
+import { ImperativeConfig, TextUtils } from "../../utilities";
 import * as nodePath from "path";
 import * as os from "os";
 import { ICommandHandlerRequire } from "./doc/handler/ICommandHandlerRequire";
@@ -317,7 +317,7 @@ export class CommandProcessor {
                 `${CommandProcessor.ERROR_TAG} invoke(): Cannot invoke the handler for command "${this.definition.name}". The handler is blank.`);
         }
 
-        let commandLine = this.commandLine;
+        let commandLine = ImperativeConfig.instance.commandLine || this.commandLine;
 
         // determine if the command has the user option and mask the user value
         let regEx = /--(user|u) ([^\s]+)/gi;
