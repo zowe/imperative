@@ -2,8 +2,7 @@
     "profiles": {
         "zosmf": {
             "host1": {
-                "host": "host1.com",
-                "reject-unauthorized": true
+                "host": "host1.com"
             },
             "host2": {
                 "host": "host2.com"
