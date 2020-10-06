@@ -83,14 +83,14 @@ export class DaemonUtils {
      * @static
      * @memberof DaemonUtils
      */
-    public static readonly X_ZOWE_HEADERS_V1 = 1;
+    public static readonly X_ZOWE_V1 = 1;
 
     /**
      * Version 1 of the headers means there are 7 total.
      * @static
      * @memberof DaemonUtils
      */
-    public static readonly X_ZOWE_HEADERS_V1_LEN = 7;
+    public static readonly X_ZOWE_V1_LEN = 7;
 
     /**
      * Headers separator
@@ -116,11 +116,11 @@ export class DaemonUtils {
         const prompt = options.prompt ? 1 : 0;
 
         // beginning header
-        headers += DaemonUtils.X_ZOWE_DAEMON_HEADERS + DaemonUtils.X_ZOWE_HEADERS_V1_LEN;
+        headers += DaemonUtils.X_ZOWE_DAEMON_HEADERS + DaemonUtils.X_ZOWE_V1_LEN;
         headers += DaemonUtils.X_ZOWE_HEADERS_SEPARATOR;
 
         // version
-        headers += DaemonUtils.X_ZOWE_DAEMON_VERSION + DaemonUtils.X_ZOWE_HEADERS_V1;
+        headers += DaemonUtils.X_ZOWE_DAEMON_VERSION + DaemonUtils.X_ZOWE_V1;
         headers += DaemonUtils.X_ZOWE_HEADERS_SEPARATOR;
 
         // process exit
