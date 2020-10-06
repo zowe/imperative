@@ -13,8 +13,8 @@
     "defaults": {
         "zosmf": "host1"
     },
-    "properties": {
-        "base-profile": "creds"
+    "all": {
+        "rejectedUnauthorized": true
     },
     "plugins": [
         "@zowe/tasks-for-zowe-cli"
