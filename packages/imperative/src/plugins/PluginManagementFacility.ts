@@ -265,13 +265,12 @@ export class PluginManagementFacility {
             }
         }
 
-        console.log(loadedOverrides);
-
-        // First come, first serve
+        // First come, first serve - If we're using a config, aggregate the
+        // override specifications for each plugin - then we can add those
+        // from app settings
         let overrideSettings: any = {};
         if (this.pmfConst.PLUGIN_USING_CONFIG) {
             for (const plugin of this.pmfConst.PLUGIN_CONFIG.plugins) {
-                console.log(plugin);
                 if (loadedOverrides[plugin] != null) {
                     for (const [key, value] of Object.entries(loadedOverrides[plugin])) {
                         if (overrideSettings[key] == null) {
@@ -281,7 +280,7 @@ export class PluginManagementFacility {
                 }
             }
         }
-        overrideSettings = {...AppSettings.instance.getNamespace("overrides"), ...overrideSettings};
+        overrideSettings = { ...AppSettings.instance.getNamespace("overrides"), ...overrideSettings };
 
         // Loop through each overrides setting here. Setting is an override that we are modifying while
         // plugin is the pluginName from which to get the setting. This is probably the ugliest piece
