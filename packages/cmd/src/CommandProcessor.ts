@@ -549,6 +549,7 @@ export class CommandProcessor {
                     profiles: prepared.profiles,
                     arguments: prepared.args,
                     positionals: prepared.args._,
+                    configProfiles: prepared.configProfiles,
                     definition: this.definition,
                     fullDefinition: this.fullDefinition
                 });
@@ -618,6 +619,7 @@ export class CommandProcessor {
                         positionals: prepared.args._,
                         definition: this.definition,
                         fullDefinition: this.fullDefinition,
+                        configProfiles: prepared.configProfiles,
                         isChained: true
                     });
                     const builtResponse = chainedResponse.buildJsonResponse();
@@ -718,19 +720,19 @@ export class CommandProcessor {
         await config.api.profiles.loadSecure();
 
         // Get all the profile names to search for in the config
-        let configProfiles: string[] = [];
+        let cnfgProfs: string[] = [];
         if (this.definition.profile != null) {
             if (this.definition.profile.required != null) {
-                configProfiles = configProfiles.concat(this.definition.profile.required)
+                cnfgProfs = cnfgProfs.concat(this.definition.profile.required)
             }
             if (this.definition.profile.optional != null) {
-                configProfiles = configProfiles.concat(this.definition.profile.optional)
+                cnfgProfs = cnfgProfs.concat(this.definition.profile.optional)
             }
         }
 
         // list of profiles that should be loaded
         const loadProfiles = new Map<string, string>();
-        for (const configProfile of configProfiles) {
+        for (const configProfile of cnfgProfs) {
             const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(configProfile);
 
             // Only adjust based on config if hte user hasn't explicitly
@@ -786,31 +788,35 @@ export class CommandProcessor {
 
         // merge in the configs
         // args = CliUtils.mergeArguments(config.merge.cli, args);
-        for (const configProfile of configProfiles) {
-            const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(configProfile);
+        const configProfiles: any = {};
+        for (const cnfgProf of cnfgProfs) {
+            const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(cnfgProf);
             if (args[profOpt] != null) {
                 let profile = config.api.profiles.get(args[profOpt]);
-                allOpts.forEach((opt) => {
-                    const cases = CliUtils.getOptionFormat(opt.name);
-                    const profileKebab = profile[cases.kebabCase];
-                    const profileCamel = profile[cases.camelCase];
-
-                    if ((profileCamel !== undefined || profileKebab !== undefined) &&
-                        (!args.hasOwnProperty(cases.kebabCase) && !args.hasOwnProperty(cases.camelCase))) {
-
-                        // If both case properties are present in the profile, use the one that matches
-                        // the option name explicitly
-                        const value = (profileKebab !== undefined && profileCamel !== undefined) ?
-                            ((opt.name === cases.kebabCase) ? profileKebab : profileCamel) :
-                            ((profileKebab !== undefined) ? profileKebab : profileCamel);
-                        const keys = CliUtils.setOptionValue(opt.name,
-                            ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
-                            value
-                        );
-                        profile = { ...profile, ...keys };
-                    }
-                });
-                args = CliUtils.mergeArguments(profile, args);
+                if (profile != null) {
+                    configProfiles[cnfgProf] = args[profOpt];
+                    allOpts.forEach((opt) => {
+                        const cases = CliUtils.getOptionFormat(opt.name);
+                        const profileKebab = profile[cases.kebabCase];
+                        const profileCamel = profile[cases.camelCase];
+    
+                        if ((profileCamel !== undefined || profileKebab !== undefined) &&
+                            (!args.hasOwnProperty(cases.kebabCase) && !args.hasOwnProperty(cases.camelCase))) {
+    
+                            // If both case properties are present in the profile, use the one that matches
+                            // the option name explicitly
+                            const value = (profileKebab !== undefined && profileCamel !== undefined) ?
+                                ((opt.name === cases.kebabCase) ? profileKebab : profileCamel) :
+                                ((profileKebab !== undefined) ? profileKebab : profileCamel);
+                            const keys = CliUtils.setOptionValue(opt.name,
+                                ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
+                                value
+                            );
+                            profile = { ...profile, ...keys };
+                        }
+                    });
+                    args = CliUtils.mergeArguments(profile, args);
+                }
             }
         }
 
@@ -832,7 +838,8 @@ export class CommandProcessor {
 
         // Log for debugging
         this.log.trace(`Full argument object constructed:\n${inspect(args)}`);
-        return { profiles, args };
+        console.log(args);
+        return { profiles, args,  configProfiles};
     }
 
     /**

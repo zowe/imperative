@@ -38,10 +38,13 @@ export default class SetHandler implements ICommandHandler {
             try {
                 value = JSON.parse(value);
             } catch (e) {
-                throw new ImperativeError({msg: `could not parse JSON value: ${e.message}`});
+                throw new ImperativeError({ msg: `could not parse JSON value: ${e.message}` });
             }
         }
-        config.set(params.arguments.property, value);
+        config.set(params.arguments.property, value, {
+            secure: params.arguments.secure,
+            append: params.arguments.append
+        });
         await config.layerWrite();
     }
 }

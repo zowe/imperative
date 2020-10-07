@@ -9,8 +9,6 @@
 *
 */
 
-const setable = ["defaults", "all", "profiles", "group"];
-
 import { CredentialManagerFactory } from "../security";
 import { IConfigParams } from "./IConfigParams";
 import { IConfigApi } from "./IConfigApi";
@@ -193,29 +191,39 @@ export class Config {
 
     private async api_profiles_load_secure() {
         // If the secure option is set - load the secure values for the profiles
-        if (this._.schemas != null && CredentialManagerFactory.initialized) {
+        if (CredentialManagerFactory.initialized) {
+            console.log("load secure");
 
             // If we have fields that are indicated as secure, then we will load
             // and populate the values in the configuration
             if (this._.config.secure.length > 0) {
                 for (const layer of this._.layers) {
                     if (layer.properties.secure.length > 0) {
-                        for (const [name, profile] of Object.entries(layer.properties.profiles)) {
-                            for (const secure of layer.properties.secure) {
-                                if (secure.startsWith(`profiles.${name}`)) {
-                                    // TODO: this might not work in all cases
-                                    const property = secure.split(".")[secure.split(".").length - 1];
-                                    const value = await CredentialManagerFactory.manager.load(
-                                        Config.secureKey(layer.path, secure), true);
-                                    if (value != null)
-                                        profile[property] = JSON.parse(value);
+                        for (const property of layer.properties.secure) {
+
+                            // Load the secure field
+                            const value = await CredentialManagerFactory.manager.load(
+                                Config.secureKey(layer.path, property), true);
+
+                            // traverse the object and set the properties
+                            let obj: any = layer.properties;
+                            const segments = property.split(".");
+                            const n = segments.length;
+                            for (let x = 0; x < n; x++) {
+                                if (obj[segments[x]] == null)
+                                    break;
+                                if (x === n - 1) {
+                                    obj[segments[x]] = JSON.parse(value);
+                                    break;
                                 }
+                                obj = obj[segments[x]];
                             }
                         }
                     }
                 }
             }
         }
+
 
         // merge into config
         this.layerMerge();
@@ -297,13 +305,12 @@ export class Config {
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
 
-    public set(property: string, value: any, opts?: {secure?: boolean}) {
-        if (!this.isSetable(property))
-            throw new ImperativeError({ msg: `property '${property}' is not able to be set. Root must be: ${setable.toString()}` });
+    public set(property: string, value: any, opts?: { secure?: boolean, append?: boolean }) {
+        opts = opts || {};
 
         // TODO: additional validations
         if (property.startsWith("group") && !Array.isArray(value))
-            throw new ImperativeError({msg: `group property must be an array`});
+            throw new ImperativeError({ msg: `group property must be an array` });
 
         // TODO: make a copy and validate that the update would be legit
         // TODO: based on schema
@@ -323,11 +330,20 @@ export class Config {
                     value = false;
                 if (!isNaN(value) && !isNaN(parseFloat(value)))
                     value = parseInt(value, 10);
-                obj[segment] = value;
+                if (opts.append) {
+                    if (!Array.isArray(obj[segment]))
+                        throw new ImperativeError({ msg: `property ${property} is not an array` });
+                    obj[segment].push(value);
+                } else {
+                    obj[segment] = value;
+                }
             } else {
                 obj = obj[segment];
             }
         });
+
+        if (opts.secure)
+            layer.properties.secure = Array.from(new Set(layer.properties.secure.concat([property])));
 
         this.layerMerge();
     }
@@ -356,11 +372,6 @@ export class Config {
         return null;
     }
 
-    private isSetable(property: string) {
-        const properties = property.split(".");
-        return setable.indexOf(properties[0]) >= 0;
-    }
-
     private static secureKey(cnfg: string, property: string): string {
         return cnfg + "_" + property;
     }
@@ -376,13 +387,25 @@ export class Config {
         // If the credential manager factory is initialized then we must iterate
         // through the profiles and securely store the values
         if (CredentialManagerFactory.initialized) {
-            for (const [name, profile] of Object.entries(layer.properties.profiles)) {
-                for (const [property, value] of Object.entries(profile)) {
-                    const p = `profiles.${name}.${property}`;
-                    if (layer.properties.secure.indexOf(p) >= 0) {
-                        const save = JSON.stringify(value);
-                        profile[property] = `managed by ${CredentialManagerFactory.manager.name}`;
-                        await CredentialManagerFactory.manager.save(Config.secureKey(layer.path, p), save);
+            if (layer.properties.secure.length > 0) {
+                for (const property of layer.properties.secure) {
+                    let value: any = layer.properties
+                    const segments = property.split(".");
+                    const n = segments.length;
+                    let x = 0;
+                    let store = null;
+                    for (x = 0; x < n; x++) {
+                        if (value[segments[x]] == null)
+                            break;
+                        if (x === n - 1) {
+                            store = value[segments[x]];
+                            value[segments[x]] = `managed by ${CredentialManagerFactory.manager.name}`;
+                        }
+                        value = value[segments[x]];
+                    }
+                    if (store != null) {
+                        const save = JSON.stringify(store);
+                        await CredentialManagerFactory.manager.save(Config.secureKey(layer.path, property), save);
                     }
                 }
             }

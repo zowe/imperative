@@ -61,6 +61,8 @@ export interface IHandlerParameters {
      */
     profiles: CommandProfiles;
 
+    configProfiles?: any;
+
     /**
      * The command definition node that defines the command being issued.
      * @type {ICommandDefinition}

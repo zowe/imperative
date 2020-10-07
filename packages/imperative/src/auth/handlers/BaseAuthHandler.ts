@@ -16,7 +16,8 @@ import { Imperative } from "../../Imperative";
 import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../profiles";
-import { CliUtils } from "../../../../utilities";
+import { CliUtils, ImperativeConfig } from "../../../../utilities";
+import { Config } from "../../../../config/Config";
 
 /**
  * This class is used by the auth command handlers as the base class for their implementation.
@@ -113,14 +114,36 @@ export abstract class BaseAuthHandler implements ICommandHandler {
 
         // validate a token was returned
         if (tokenValue == null) {
-            throw new ImperativeError({msg: "A token value was not returned from the login handler."});
+            throw new ImperativeError({ msg: "A token value was not returned from the login handler." });
         }
 
         // update the profile given
         if (!params.arguments.showToken) {
             let profileWithToken: string = null;
+            const config = Config.load(ImperativeConfig.instance.rootCommandName, {
+                schemas: ImperativeConfig.instance.configSchemas
+            });
+            await config.api.profiles.loadSecure();
 
-            if (loadedProfile != null && loadedProfile.name != null) {
+            if (params.configProfiles[this.mProfileType] != null) {
+                const name = params.configProfiles[this.mProfileType];
+                const profile = config.layerGet().properties.profiles[name];
+                profile["token-type"] = this.mSession.ISession.tokenType;
+                profile["token-value"] = this.mSession.ISession.tokenType;
+                config.api.profiles.set(name, profile, { secure: ["token-value"] });
+                config.layerWrite();
+            } else if (config.exists) {
+                const profile = {
+                    "token-type": this.mSession.ISession.tokenType,
+                    "token-value": tokenValue,
+                    host: this.mSession.ISession.hostname,
+                    port: this.mSession.ISession.port,
+                    rejectUnauthorized: this.mSession.ISession.rejectUnauthorized
+                };
+                config.api.profiles.set("auth_login_default", profile, { secure: ["token-value"] });
+                config.set(`defaults.${this.mProfileType}`, "auth_login_default");
+                config.layerWrite();
+            } else if (loadedProfile != null && loadedProfile.name != null) {
                 await Imperative.api.profileManager(this.mProfileType).update({
                     name: loadedProfile.name,
                     args: {
@@ -134,7 +157,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
 
                 // Do not store non-profile arguments, user, or password. Set param arguments for prompted values from session.
 
-                const copyArgs = {...params.arguments};
+                const copyArgs = { ...params.arguments };
                 copyArgs.createProfile = undefined;
                 copyArgs.showToken = undefined;
                 copyArgs.user = undefined;
@@ -185,7 +208,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 `${tokenValue}\n\n` +
                 `Login successful. To revoke this token, review the 'zowe auth logout' command.`
             );
-            params.response.data.setObj({tokenType: this.mSession.ISession.tokenType, tokenValue});
+            params.response.data.setObj({ tokenType: this.mSession.ISession.tokenType, tokenValue });
         }
     }
 

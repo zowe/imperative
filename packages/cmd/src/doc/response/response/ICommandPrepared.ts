@@ -30,4 +30,6 @@ export interface ICommandPrepared {
      * @type {ICommandArguments}
      */
     args: ICommandArguments;
+
+    configProfiles: any;
 }

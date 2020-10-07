@@ -58,6 +58,12 @@ export const setDefinition: ICommandDefinition = {
             description: "secure the field",
             type: "boolean",
             defaultValue: false
+        },
+        {
+            name: "append",
+            description: "append to an array",
+            type: "boolean",
+            defaultValue: false
         }
     ],
     summary: "set configuration properties",
