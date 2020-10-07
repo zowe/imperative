@@ -838,7 +838,6 @@ export class CommandProcessor {
 
         // Log for debugging
         this.log.trace(`Full argument object constructed:\n${inspect(args)}`);
-        console.log(args);
         return { profiles, args,  configProfiles};
     }
 

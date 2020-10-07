@@ -192,7 +192,6 @@ export class Config {
     private async api_profiles_load_secure() {
         // If the secure option is set - load the secure values for the profiles
         if (CredentialManagerFactory.initialized) {
-            console.log("load secure");
 
             // If we have fields that are indicated as secure, then we will load
             // and populate the values in the configuration
@@ -436,7 +435,9 @@ export class Config {
                 this._.layers[i].properties.defaults = this._.layers[i].properties.defaults || {};
                 this._.layers[i].properties.profiles = this._.layers[i].properties.profiles || {};
                 this._.layers[i].properties.all = this._.layers[i].properties.all || {};
+                this._.layers[i].properties.group = this._.layers[i].properties.group || {};
                 this._.layers[i].properties.plugins = this._.layers[i].properties.plugins || [];
+                this._.layers[i].properties.secure = this._.layers[i].properties.secure || [];
             }
         }
         this.layerMerge();
