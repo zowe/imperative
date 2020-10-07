@@ -13,12 +13,11 @@ import { IConfigLayer } from "./IConfigLayer";
 
 export interface IConfigApi {
     profiles: {
-        get: (type: string, name: string) => any;
+        get: (name: string) => any;
         loadSecure: () => void;
-        names: (type: string) => string[];
-        validate: (type: string, name: string) => void;
-        exists: (type: string, name: string) => boolean;
-        set: (type: string, name: string, contents: {[key: string]: any}) => void;
+        names: () => string[];
+        exists: (name: string) => boolean;
+        set: (name: string, contents: {[key: string]: any}, opts?: {secure: string[]}) => void;
     },
     plugins: {
         write: () => void;

@@ -11,6 +11,7 @@
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { Config } from "../../../../../config/Config";
+import { ImperativeError } from "../../../../../error";
 import { ImperativeConfig } from "../../../../../utilities";
 
 
@@ -32,7 +33,15 @@ export default class SetHandler implements ICommandHandler {
             { schemas: ImperativeConfig.instance.configSchemas });
         config.layerActivate(params.arguments.user, params.arguments.global);
         await config.api.profiles.loadSecure();
-        config.set(params.arguments.property, params.arguments.value);
+        let value = params.arguments.value;
+        if (params.arguments.json) {
+            try {
+                value = JSON.parse(value);
+            } catch (e) {
+                throw new ImperativeError({msg: `could not parse JSON value: ${e.message}`});
+            }
+        }
+        config.set(params.arguments.property, value);
         await config.layerWrite();
     }
 }

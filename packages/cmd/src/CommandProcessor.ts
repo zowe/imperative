@@ -728,7 +728,7 @@ export class CommandProcessor {
             }
         }
 
-        // list of profiles that should be loaded 
+        // list of profiles that should be loaded
         const loadProfiles = new Map<string, string>();
         for (const configProfile of configProfiles) {
             const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(configProfile);
@@ -789,7 +789,7 @@ export class CommandProcessor {
         for (const configProfile of configProfiles) {
             const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(configProfile);
             if (args[profOpt] != null) {
-                let profile = config.api.profiles.get(configProfile, args[profOpt]);
+                let profile = config.api.profiles.get(args[profOpt]);
                 allOpts.forEach((opt) => {
                     const cases = CliUtils.getOptionFormat(opt.name);
                     const profileKebab = profile[cases.kebabCase];

@@ -38,12 +38,26 @@ export const setDefinition: ICommandDefinition = {
         {
             name: "global",
             description: "set in global config",
-            type: "boolean"
+            type: "boolean",
+            defaultValue: false
         },
         {
             name: "user",
             description: "set in user config",
-            type: "boolean"
+            type: "boolean",
+            defaultValue: false
+        },
+        {
+            name: "json",
+            description: "the value is JSON",
+            type: "boolean",
+            defaultValue: false
+        },
+        {
+            name: "secure",
+            description: "secure the field",
+            type: "boolean",
+            defaultValue: false
         }
     ],
     summary: "set configuration properties",

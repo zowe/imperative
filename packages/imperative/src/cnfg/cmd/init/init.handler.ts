@@ -39,48 +39,72 @@ export default class InitHandler implements ICommandHandler {
         if (params.arguments.url) {
             const cnfg = await this.getConfig(params.arguments.url);
             config.layerSet(cnfg);
-            await config.layerWrite();
         } else {
-            // Create the initial layer
-            if (params.arguments.profile != null || (await CliUtils.promptWithTimeout("init profiles (y)? ", false, 900)).toUpperCase() === "Y") {
-                for (const [type, schema] of Object.entries(ImperativeConfig.instance.configSchemas)) {
-                    if (params.arguments.profile != null && params.arguments.profile !== type) continue;
-                    while (params.arguments.profile === type ||
-                        (await CliUtils.promptWithTimeout(`init "${type}" profile (y)? `, false, 900)).toUpperCase() === "Y") {
-                        const name = await CliUtils.promptWithTimeout(`name: `, false, 900);
-                        if (name.trim().length === 0)
-                            throw new ImperativeError({ msg: `name is required` });
-                        const profile: any = {};
-                        for (const [property, schemaProperty] of Object.entries((schema as any).properties)) {
-                            if (params.arguments.secure === false || params.arguments.secure && (schemaProperty as any).secure) {
-                                const summary = (schemaProperty as any).optionDefinition.summary ||
-                                    (schemaProperty as any).optionDefinition.description;
-                                let value: any = await CliUtils.promptWithTimeout(`${property} (${summary}) - blank to skip: `,
-                                    (schemaProperty as any).secure, 900);
-                                if (value.trim().length > 0) {
-                                    if (value === "true")
-                                        value = true;
-                                    if (value === "false")
-                                        value = false;
-                                    if (!isNaN(value) && !isNaN(parseFloat(value)))
-                                        value = parseInt(value, 10);
-                                    profile[property] = value;
-                                } else if (params.arguments.default && (schemaProperty as any).optionDefinition.defaultValue != null) {
-                                    profile[property] = (schemaProperty as any).optionDefinition.defaultValue;
+
+            // Create a profile
+            if (params.arguments.profile) {
+
+                // If schemas are specified, use them as a guide
+                if (params.arguments.profileSchemas) {
+                    for (const schema of params.arguments.profileSchemas) {
+                        if (ImperativeConfig.instance.configSchemas[schema] != null) {
+
+                            // Get the schema - prompt for the name
+                            const s = ImperativeConfig.instance.configSchemas[schema];
+                            const name = await CliUtils.promptWithTimeout(`profile name: `, false, 900);
+                            if (name.trim().length === 0) throw new ImperativeError({ msg: `name is required` });
+
+                            // prompt for the values
+                            const profile: any = {};
+                            const secureProps: string[] = [];
+                            for (const [property, schemaProperty] of Object.entries((s as any).properties)) {
+                                if (params.arguments.secure === false || params.arguments.secure && (schemaProperty as any).secure) {
+
+                                    // get the summary and value
+                                    const summary = (schemaProperty as any).optionDefinition.summary ||
+                                        (schemaProperty as any).optionDefinition.description;
+                                    let value: any = await CliUtils.promptWithTimeout(`${property} (${summary}) - blank to skip: `,
+                                        (schemaProperty as any).secure, 900);
+
+                                    // if secure, remember for the config set
+                                    if ((schemaProperty as any).secure)
+                                        secureProps.push(property);
+
+                                    // coerce to correct type
+                                    if (value.trim().length > 0) {
+                                        if (value === "true")
+                                            value = true;
+                                        if (value === "false")
+                                            value = false;
+                                        if (!isNaN(value) && !isNaN(parseFloat(value)))
+                                            value = parseInt(value, 10);
+                                        profile[property] = value;
+                                    } else if (params.arguments.default && (schemaProperty as any).optionDefinition.defaultValue != null) {
+                                        profile[property] = (schemaProperty as any).optionDefinition.defaultValue;
+                                    }
                                 }
                             }
-                        }
 
-                        // Set the profile, set it as default if requested, and save
-                        config.api.profiles.set(type, name, profile);
-                        if (params.arguments.setDefault)
-                            config.set(`defaults.${type}`, name);
-                        await config.layerWrite();
-                        if (params.arguments.profile === type) break;
+                            // Set the profile, set it as default if requested, and save
+                            config.api.profiles.set(name, profile, { secure: secureProps });
+                            if (params.arguments.setDefault)
+                                config.set(`defaults.${schema}`, name);
+                        } else {
+                            params.response.console.error(`schema ${schema} does not exist`);
+                        }
                     }
+                } else {
+
+                    // Blank profile
+                    const name = await CliUtils.promptWithTimeout(`profile name: `, false, 900);
+                    if (name.trim().length === 0) throw new ImperativeError({ msg: `name is required` });
+                    config.api.profiles.set(name, {});
                 }
             }
         }
+
+        // Write the config
+        await config.layerWrite();
     }
 
     private getConfig(url: string): Promise<IConfig> {

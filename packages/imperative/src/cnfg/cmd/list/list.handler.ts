@@ -32,14 +32,18 @@ export default class ListHandler implements ICommandHandler {
             { schemas: ImperativeConfig.instance.configSchemas });
 
         // Do nothing if the property doesn't exist
-        if (params.arguments.property && (config.properties as any)[params.arguments.property] == null) {
+        if (params.arguments.property &&
+            (config.properties as any)[params.arguments.property] == null &&
+            params.arguments.property !== "schemas") {
             return;
         }
 
         // Populate the print object
         let obj: any = {};
         if (config.exists) {
-            if (params.arguments.locations) {
+            if (params.arguments.property === "schemas") {
+                obj = ImperativeConfig.instance.configSchemas;
+            } else if (params.arguments.locations) {
                 for (const layer of config.layers) {
                     if (layer.exists) {
                         obj[layer.path] = (params.arguments.property && (layer as any)[params.arguments.property] != null)
@@ -49,6 +53,13 @@ export default class ListHandler implements ICommandHandler {
             } else {
                 obj = (params.arguments.property) ? (config.properties as any)[params.arguments.property] : config.properties;
             }
+        }
+
+        if (params.arguments.root) {
+            const root = [];
+            for (const [property, value] of Object.entries(obj))
+                root.push(property);
+            obj = root;
         }
 
         // output to terminal

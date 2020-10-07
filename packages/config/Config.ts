@@ -9,7 +9,7 @@
 *
 */
 
-const setable = ["defaults", "all", "profiles"];
+const setable = ["defaults", "all", "profiles", "group"];
 
 import { CredentialManagerFactory } from "../security";
 import { IConfigParams } from "./IConfigParams";
@@ -100,7 +100,6 @@ export class Config {
             get: config.api_profiles_get.bind(config),
             loadSecure: config.api_profiles_load_secure.bind(config),
             names: config.api_profiles_names.bind(config),
-            validate: config.api_profiles_validate.bind(config),
             exists: config.api_profiles_exists.bind(config),
             set: config.api_profiles_set.bind(config)
         };
@@ -114,6 +113,7 @@ export class Config {
         ////////////////////////////////////////////////////////////////////////
         // Read and populate each configuration layer
         try {
+            let setActive = true;
             config._.layers.forEach((layer: IConfigLayer) => {
                 // Attempt to popluate the layer
                 if (fs.existsSync(layer.path)) {
@@ -126,10 +126,19 @@ export class Config {
                     }
                 }
 
+                // Find the active layer
+                if (setActive && layer.exists) {
+                    _.active.user = layer.user;
+                    _.active.global = layer.global;
+                    setActive = false;
+                }
+
                 // Populate any undefined defaults
                 layer.properties.defaults = layer.properties.defaults || {};
                 layer.properties.profiles = layer.properties.profiles || {};
                 layer.properties.all = layer.properties.all || {};
+                layer.properties.group = layer.properties.group || {};
+                layer.properties.secure = layer.properties.secure || [];
                 layer.properties.plugins = layer.properties.plugins || [];
             });
         } catch (e) {
@@ -186,26 +195,20 @@ export class Config {
         // If the secure option is set - load the secure values for the profiles
         if (this._.schemas != null && CredentialManagerFactory.initialized) {
 
-            // Iterate over each profile type
-            for (const [typeName, profiles] of Object.entries(this._.config.profiles)) {
-
-                // Is there a schema for that type?
-                const schema = this._.schemas[typeName];
-                if (schema != null) {
-
-                    // Iterate over each profile for the type
-                    for (const [profileName, profile] of Object.entries(profiles)) {
-                        for (const [schemaPropertyName, schemaProperty] of Object.entries(schema.properties)) {
-                            if ((schemaProperty as any).secure) {
-                                const value = await CredentialManagerFactory.manager.load(
-                                    Config.constructSecureKey(typeName, profileName, schemaPropertyName), true);
-                                if (value != null) {
-                                    for (const layer of this._.layers) {
-                                        if (layer.properties.profiles[typeName] != null && layer.properties.profiles[typeName][profileName]) {
-                                            layer.properties.profiles[typeName][profileName][schemaPropertyName] =
-                                                (value != null) ? JSON.parse(value) : undefined;
-                                        }
-                                    }
+            // If we have fields that are indicated as secure, then we will load
+            // and populate the values in the configuration
+            if (this._.config.secure.length > 0) {
+                for (const layer of this._.layers) {
+                    if (layer.properties.secure.length > 0) {
+                        for (const [name, profile] of Object.entries(layer.properties.profiles)) {
+                            for (const secure of layer.properties.secure) {
+                                if (secure.startsWith(`profiles.${name}`)) {
+                                    // TODO: this might not work in all cases
+                                    const property = secure.split(".")[secure.split(".").length - 1];
+                                    const value = await CredentialManagerFactory.manager.load(
+                                        Config.secureKey(layer.path, secure), true);
+                                    if (value != null)
+                                        profile[property] = JSON.parse(value);
                                 }
                             }
                         }
@@ -214,34 +217,47 @@ export class Config {
             }
         }
 
+        // merge into config
         this.layerMerge();
     }
 
-    private api_profiles_validate(type: string, name: string) {
-        // TODO
+    private api_profiles_names(): string[] {
+        return Object.keys(this._.config.profiles);
     }
 
-    private api_profiles_names(type: string): string[] {
-        return this._.config.profiles[type] == null ? [] : Object.keys(this._.config.profiles[type]);
+    private api_profiles_exists(name: string): boolean {
+        return this._.config.profiles[name] != null;
     }
 
-    private api_profiles_exists(type: string, name: string): boolean {
-        return !(this._.config.profiles[type] == null || this._.config.profiles[type][name] == null);
-    }
-
-    private api_profiles_get(type: string, name: string): any {
+    private api_profiles_get(name: string): any {
+        // Get any additional properties that should be applied to all profiles
         const all = JSON.parse(JSON.stringify(this._.config.all));
-        if (this._.config.profiles[type] == null || this._.config.profiles[type][name] == null)
-            return { ...all };
-        return { ...this._.config.profiles[type][name], ...all };
+        if (!this.api_profiles_exists(name))
+            return all;
+
+        // If there is a grouping, merge those profiles now - the original
+        // profile properties take precedence.
+        let profile = JSON.parse(JSON.stringify(this._.config.profiles[name]));
+        if (this._.config.group[name] != null) {
+            this._.config.group[name].forEach((add: any) => {
+                if (this.api_profiles_exists(add)) {
+                    profile = { ...JSON.parse(JSON.stringify(this._.config.profiles[add])), ...profile };
+                }
+            });
+        }
+
+        // Merge the profile with the additional properties
+        return { ...all, ...profile };
     }
 
-    private api_profiles_set(type: string, name: string, contents: { [key: string]: any }) {
+    private api_profiles_set(name: string, contents: { [key: string]: any }, opts?: { secure: string[] }) {
         const layer = this.layerActive();
-        if (layer.properties.profiles[type] == null) {
-            layer.properties.profiles[type] = {};
+        layer.properties.profiles[name] = contents;
+        if (opts != null && opts.secure) {
+            opts.secure.forEach((secure: string) => {
+                layer.properties.secure = Array.from(new Set(layer.properties.secure.concat([`profiles.${name}.${secure}`])));
+            });
         }
-        layer.properties.profiles[type][name] = contents;
         this.layerMerge();
     }
 
@@ -281,9 +297,13 @@ export class Config {
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
 
-    public set(property: string, value: any) {
+    public set(property: string, value: any, opts?: {secure?: boolean}) {
         if (!this.isSetable(property))
             throw new ImperativeError({ msg: `property '${property}' is not able to be set. Root must be: ${setable.toString()}` });
+
+        // TODO: additional validations
+        if (property.startsWith("group") && !Array.isArray(value))
+            throw new ImperativeError({msg: `group property must be an array`});
 
         // TODO: make a copy and validate that the update would be legit
         // TODO: based on schema
@@ -341,8 +361,8 @@ export class Config {
         return setable.indexOf(properties[0]) >= 0;
     }
 
-    private static constructSecureKey(type: string, name: string, field: string): string {
-        return type + "_" + name + "_" + field.split(".").join("_");
+    private static secureKey(cnfg: string, property: string): string {
+        return cnfg + "_" + property;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -351,22 +371,18 @@ export class Config {
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
     public async layerWrite(): Promise<any> {
-        const layer = JSON.parse(JSON.stringify(this.layerActive()));
+        const layer: IConfigLayer = JSON.parse(JSON.stringify(this.layerActive()));
 
         // If the credential manager factory is initialized then we must iterate
         // through the profiles and securely store the values
         if (CredentialManagerFactory.initialized) {
-            for (const [type, obj] of Object.entries(layer.properties.profiles)) {
-                const schema = this._.schemas[type];
-                if (schema) {
-                    for (const [name, profile] of Object.entries(layer.properties.profiles[type])) {
-                        for (const [schemaPropertyName, schemaProperty] of Object.entries(schema.properties)) {
-                            if ((schemaProperty as any).secure && (profile as any)[schemaPropertyName] != null) {
-                                const value = JSON.stringify((profile as any)[schemaPropertyName]);
-                                (profile as any)[schemaPropertyName] = `managed by ${CredentialManagerFactory.manager.name}`;
-                                await CredentialManagerFactory.manager.save(Config.constructSecureKey(type, name, schemaPropertyName), value);
-                            }
-                        }
+            for (const [name, profile] of Object.entries(layer.properties.profiles)) {
+                for (const [property, value] of Object.entries(profile)) {
+                    const p = `profiles.${name}.${property}`;
+                    if (layer.properties.secure.indexOf(p) >= 0) {
+                        const save = JSON.stringify(value);
+                        profile[property] = `managed by ${CredentialManagerFactory.manager.name}`;
+                        await CredentialManagerFactory.manager.save(Config.secureKey(layer.path, p), save);
                     }
                 }
             }
@@ -408,16 +424,26 @@ export class Config {
         this._.config.all = {};
         this._.config.defaults = {};
         this._.config.profiles = {};
+        this._.config.group = {};
         this._.config.plugins = [];
+        this._.config.secure = [];
 
         // merge each layer
         this._.layers.forEach((layer: IConfigLayer) => {
+            // merge "secure" - create a unique set from all entires
+            this._.config.secure = Array.from(new Set(layer.properties.secure.concat(this._.config.secure)));
+
             // Merge "plugins" - create a unique set from all entires
             this._.config.plugins = Array.from(new Set(layer.properties.plugins.concat(this._.config.plugins)));
 
             // Merge "defaults" - only add new properties from this layer
             for (const [name, value] of Object.entries(layer.properties.defaults)) {
                 this._.config.defaults[name] = this._.config.defaults[name] || value;
+            }
+
+            // Merge "group" - only add new properties from this layer
+            for (const [name, value] of Object.entries(layer.properties.group)) {
+                this._.config.group[name] = this._.config.group[name] || value;
             }
 
             // Merge "all" - only add new properties from this layer

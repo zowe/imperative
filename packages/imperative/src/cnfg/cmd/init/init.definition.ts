@@ -46,8 +46,14 @@ export const InitDefinition: ICommandDefinition = {
         },
         {
             name: "profile",
-            description: "the profile type to init",
-            type: "string",
+            description: "create a profile",
+            type: "boolean",
+            defaultValue: false
+        },
+        {
+            name: "profile-schemas",
+            description: "applies a schema to help construct the profile",
+            type: "array",
         },
         {
             name: "update",

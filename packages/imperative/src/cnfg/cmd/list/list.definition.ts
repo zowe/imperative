@@ -36,6 +36,11 @@ export const listDefinition: ICommandDefinition = {
             name: "locations",
             description: "include the locations",
             type: "boolean"
+        },
+        {
+            name: "root",
+            description: "list only the root property names",
+            type: "boolean"
         }
     ],
     handler: join(__dirname, "list.handler"),
