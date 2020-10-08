@@ -41,64 +41,54 @@ export default class InitHandler implements ICommandHandler {
             config.layerSet(cnfg);
         } else {
 
-            // Create a profile
-            if (params.arguments.profile) {
+            // If schemas are specified, use them as a guide
+            if (params.arguments.profiles) {
+                for (const schema of params.arguments.profiles) {
+                    if (ImperativeConfig.instance.configSchemas[schema] != null) {
 
-                // If schemas are specified, use them as a guide
-                if (params.arguments.profileSchemas) {
-                    for (const schema of params.arguments.profileSchemas) {
-                        if (ImperativeConfig.instance.configSchemas[schema] != null) {
+                        // Get the schema - prompt for the name
+                        const s = ImperativeConfig.instance.configSchemas[schema];
+                        const name = await CliUtils.promptWithTimeout(`profile name: `, false, 900);
+                        if (name.trim().length === 0) throw new ImperativeError({ msg: `name is required` });
 
-                            // Get the schema - prompt for the name
-                            const s = ImperativeConfig.instance.configSchemas[schema];
-                            const name = await CliUtils.promptWithTimeout(`profile name: `, false, 900);
-                            if (name.trim().length === 0) throw new ImperativeError({ msg: `name is required` });
+                        // prompt for the values
+                        const profile: any = {};
+                        const secureProps: string[] = [];
+                        for (const [property, schemaProperty] of Object.entries((s as any).properties)) {
+                            if (params.arguments.secure === false || params.arguments.secure && (schemaProperty as any).secure) {
 
-                            // prompt for the values
-                            const profile: any = {};
-                            const secureProps: string[] = [];
-                            for (const [property, schemaProperty] of Object.entries((s as any).properties)) {
-                                if (params.arguments.secure === false || params.arguments.secure && (schemaProperty as any).secure) {
+                                // get the summary and value
+                                const summary = (schemaProperty as any).optionDefinition.summary ||
+                                    (schemaProperty as any).optionDefinition.description;
+                                let value: any = await CliUtils.promptWithTimeout(`${property} (${summary}) - blank to skip: `,
+                                    (schemaProperty as any).secure, 900);
 
-                                    // get the summary and value
-                                    const summary = (schemaProperty as any).optionDefinition.summary ||
-                                        (schemaProperty as any).optionDefinition.description;
-                                    let value: any = await CliUtils.promptWithTimeout(`${property} (${summary}) - blank to skip: `,
-                                        (schemaProperty as any).secure, 900);
+                                // if secure, remember for the config set
+                                if ((schemaProperty as any).secure)
+                                    secureProps.push(property);
 
-                                    // if secure, remember for the config set
-                                    if ((schemaProperty as any).secure)
-                                        secureProps.push(property);
-
-                                    // coerce to correct type
-                                    if (value.trim().length > 0) {
-                                        if (value === "true")
-                                            value = true;
-                                        if (value === "false")
-                                            value = false;
-                                        if (!isNaN(value) && !isNaN(parseFloat(value)))
-                                            value = parseInt(value, 10);
-                                        profile[property] = value;
-                                    } else if (params.arguments.default && (schemaProperty as any).optionDefinition.defaultValue != null) {
-                                        profile[property] = (schemaProperty as any).optionDefinition.defaultValue;
-                                    }
+                                // coerce to correct type
+                                if (value.trim().length > 0) {
+                                    if (value === "true")
+                                        value = true;
+                                    if (value === "false")
+                                        value = false;
+                                    if (!isNaN(value) && !isNaN(parseFloat(value)))
+                                        value = parseInt(value, 10);
+                                    profile[property] = value;
+                                } else if (params.arguments.default && (schemaProperty as any).optionDefinition.defaultValue != null) {
+                                    profile[property] = (schemaProperty as any).optionDefinition.defaultValue;
                                 }
                             }
-
-                            // Set the profile, set it as default if requested, and save
-                            config.api.profiles.set(name, profile, { secure: secureProps });
-                            if (params.arguments.setDefault)
-                                config.set(`defaults.${schema}`, name);
-                        } else {
-                            params.response.console.error(`schema ${schema} does not exist`);
                         }
-                    }
-                } else {
 
-                    // Blank profile
-                    const name = await CliUtils.promptWithTimeout(`profile name: `, false, 900);
-                    if (name.trim().length === 0) throw new ImperativeError({ msg: `name is required` });
-                    config.api.profiles.set(name, {});
+                        // Set the profile, set it as default if requested, and save
+                        config.api.profiles.set(schema, name, profile, { secure: secureProps });
+                        if (params.arguments.setDefault)
+                            config.set(`defaults.${schema}`, name);
+                    } else {
+                        params.response.console.error(`schema ${schema} does not exist`);
+                    }
                 }
             }
         }

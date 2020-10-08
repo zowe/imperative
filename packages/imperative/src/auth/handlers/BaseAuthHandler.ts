@@ -140,7 +140,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                     port: this.mSession.ISession.port,
                     rejectUnauthorized: this.mSession.ISession.rejectUnauthorized
                 };
-                config.api.profiles.set("auth_login_default", profile, { secure: ["token-value"] });
+                config.api.profiles.set(this.mProfileType, "auth_login_default", profile, { secure: ["token-value"] });
                 config.set(`defaults.${this.mProfileType}`, "auth_login_default");
                 config.layerWrite();
             } else if (loadedProfile != null && loadedProfile.name != null) {

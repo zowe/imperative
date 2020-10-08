@@ -10,10 +10,9 @@
 */
 
 export interface IConfig {
-    secure?: string[];
-    defaults?: {[key: string]: any};
-    profiles?: {[key: string]: any};
-    all?: {[key: string]: any};
-    plugins?: string[];
-    group?: {[key: string]: string[]};
+    secure: any,
+    defaults: any,
+    profiles: any,
+    all: any,
+    plugins: any,
 }

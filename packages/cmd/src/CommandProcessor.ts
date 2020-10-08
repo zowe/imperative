@@ -792,7 +792,7 @@ export class CommandProcessor {
         for (const cnfgProf of cnfgProfs) {
             const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(cnfgProf);
             if (args[profOpt] != null) {
-                let profile = config.api.profiles.get(args[profOpt]);
+                let profile = config.api.profiles.get(cnfgProf, args[profOpt]);
                 if (profile != null) {
                     configProfiles[cnfgProf] = args[profOpt];
                     allOpts.forEach((opt) => {

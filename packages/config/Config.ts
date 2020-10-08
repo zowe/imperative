@@ -17,7 +17,7 @@ import * as path from "path";
 import { IConfig } from "./IConfig";
 import { IConfigLayer } from "./IConfigLayer";
 import { ImperativeError } from "../error";
-
+import * as deepmerge from "deepmerge";
 
 interface ICnfg {
     app: string;
@@ -37,7 +37,18 @@ interface ICnfg {
     };
 };
 
+enum layers {
+    project_user = 0,
+    project_config,
+    global_user,
+    global_config
+};
+
 export class Config {
+    private static readonly LAYERS = layers.global_config;
+    private static readonly LAYER_GROUP_PROJECT = [layers.project_user, layers.project_config];
+    private static readonly LAYER_GROUP_GLOBAL = [layers.global_user, layers.global_config];
+
     private static readonly IDENT: number = 4;
 
     private constructor(private _: ICnfg) { }
@@ -47,7 +58,7 @@ export class Config {
 
         ////////////////////////////////////////////////////////////////////////
         // Create the basic empty configuration
-        _.config = {};
+        (_ as any).config = {};
         _.config.profiles = {};
         _.config.defaults = {};
         _.config.all = {};
@@ -64,37 +75,44 @@ export class Config {
         ////////////////////////////////////////////////////////////////////////
         // Populate configuration file layers
         const home = require('os').homedir();
+        const properties: IConfig = {
+            secure: {},
+            profiles: {},
+            defaults: {},
+            all: {},
+            plugins: []
+        };
 
         // Find/create project user layer
         let user = Config.search(_.user, { stop: home });
         if (user == null)
             user = path.join(process.cwd(), _.user);
         _.paths.push(user);
-        _.layers.push({ path: user, exists: false, properties: {}, global: false, user: true });
+        _.layers.push({ path: user, exists: false, properties, global: false, user: true });
 
         // Find/create project layer
         let project = Config.search(_.name, { stop: home });
         if (project == null)
             project = path.join(process.cwd(), _.name);
         _.paths.push(project);
-        _.layers.push({ path: project, exists: false, properties: {}, global: false, user: false });
+        _.layers.push({ path: project, exists: false, properties, global: false, user: false });
 
         // create the user layer
         const usrGlbl = path.join(_.home, _.user);
         _.paths.push(usrGlbl);
-        _.layers.push({ path: usrGlbl, exists: false, properties: {}, global: true, user: true });
+        _.layers.push({ path: usrGlbl, exists: false, properties, global: true, user: true });
 
         // create the global layer
         const glbl = path.join(_.home, _.name);
         _.paths.push(glbl);
-        _.layers.push({ path: glbl, exists: false, properties: {}, global: true, user: false });
+        _.layers.push({ path: glbl, exists: false, properties, global: true, user: false });
 
         ////////////////////////////////////////////////////////////////////////
         // Create the config and setup the APIs
         const config = new Config(_);
 
         // setup the API for profiles
-        config.api.profiles = {
+        config.properties.profiles = {
             get: config.api_profiles_get.bind(config),
             loadSecure: config.api_profiles_load_secure.bind(config),
             names: config.api_profiles_names.bind(config),
@@ -103,8 +121,7 @@ export class Config {
         };
 
         // setup the API for plugins
-        config.api.plugins = {
-            write: config.api_plugins_write.bind(config),
+        config.properties.plugins = {
             new: config.api_plugins_new.bind(config)
         };
 
@@ -135,7 +152,6 @@ export class Config {
                 layer.properties.defaults = layer.properties.defaults || {};
                 layer.properties.profiles = layer.properties.profiles || {};
                 layer.properties.all = layer.properties.all || {};
-                layer.properties.group = layer.properties.group || {};
                 layer.properties.secure = layer.properties.secure || [];
                 layer.properties.plugins = layer.properties.plugins || [];
             });
@@ -232,34 +248,41 @@ export class Config {
         return Object.keys(this._.config.profiles);
     }
 
-    private api_profiles_exists(name: string): boolean {
-        return this._.config.profiles[name] != null;
+    private api_profiles_exists(type: string, name: string): boolean {
+        return this._.config.profiles[type] != null && this._.config.profiles[type][name] != null;
     }
 
-    private api_profiles_get(name: string): any {
-        // Get any additional properties that should be applied to all profiles
-        const all = JSON.parse(JSON.stringify(this._.config.all));
-        if (!this.api_profiles_exists(name))
-            return all;
+    private api_profiles_get(type: string, name: string): any {
+        if (!this.api_profiles_exists(type, name))
+            return null;
 
-        // If there is a grouping, merge those profiles now - the original
-        // profile properties take precedence.
-        let profile = JSON.parse(JSON.stringify(this._.config.profiles[name]));
-        if (this._.config.group[name] != null) {
-            this._.config.group[name].forEach((add: any) => {
-                if (this.api_profiles_exists(add)) {
-                    profile = { ...JSON.parse(JSON.stringify(this._.config.profiles[add])), ...profile };
-                }
-            });
+        // Locate the profile and merge with "all"
+        let all: any = {};
+        let profile: any = {};
+        for (let x = 0; x < Config.LAYERS; x++) {
+            if (this._.layers[x].properties.profiles[type] != null &&
+                this._.layers[x].properties.profiles[type][name] != null) {
+                profile = this._.layers[x].properties.profiles[type][name];
+
+                // Merge the user/config all of the project/global layer
+                const i = (x + 1 % 2 === 0) ? x - 1 : x + 2;
+                const all1 = JSON.parse(JSON.stringify(this._.layers[x].properties.all));
+                const all2 = JSON.parse(JSON.stringify(this._.layers[i].properties.all));
+                all = deepmerge(all2, all1);
+                break;
+            }
         }
 
         // Merge the profile with the additional properties
         return { ...all, ...profile };
     }
 
-    private api_profiles_set(name: string, contents: { [key: string]: any }, opts?: { secure: string[] }) {
+    private api_profiles_set(type: string, name: string, contents: { [key: string]: any }, opts?: { secure: string[] }) {
         const layer = this.layerActive();
-        layer.properties.profiles[name] = contents;
+        if (layer.properties.profiles[type] == null)
+            layer.properties.profiles[type] = {};
+
+        layer.properties.profiles[type][name] = contents;
         if (opts != null && opts.secure) {
             opts.secure.forEach((secure: string) => {
                 layer.properties.secure = Array.from(new Set(layer.properties.secure.concat([`profiles.${name}.${secure}`])));
@@ -435,7 +458,6 @@ export class Config {
                 this._.layers[i].properties.defaults = this._.layers[i].properties.defaults || {};
                 this._.layers[i].properties.profiles = this._.layers[i].properties.profiles || {};
                 this._.layers[i].properties.all = this._.layers[i].properties.all || {};
-                this._.layers[i].properties.group = this._.layers[i].properties.group || {};
                 this._.layers[i].properties.plugins = this._.layers[i].properties.plugins || [];
                 this._.layers[i].properties.secure = this._.layers[i].properties.secure || [];
             }
@@ -448,7 +470,6 @@ export class Config {
         this._.config.all = {};
         this._.config.defaults = {};
         this._.config.profiles = {};
-        this._.config.group = {};
         this._.config.plugins = [];
         this._.config.secure = [];
 
@@ -465,27 +486,36 @@ export class Config {
                 this._.config.defaults[name] = this._.config.defaults[name] || value;
             }
 
-            // Merge "group" - only add new properties from this layer
-            for (const [name, value] of Object.entries(layer.properties.group)) {
-                this._.config.group[name] = this._.config.group[name] || value;
-            }
-
             // Merge "all" - only add new properties from this layer
             for (const [name, value] of Object.entries(layer.properties.all)) {
                 this._.config.all[name] = this._.config.all[name] || value;
             }
+        });
 
-            // Merge "profiles" - only add new profiles from this layer
-            for (const [type, entries] of Object.entries(layer.properties.profiles)) {
-                if (this._.config.profiles[type] == null) {
-                    this._.config.profiles[type] = JSON.parse(JSON.stringify(entries));
-                } else {
-                    for (const [name, profile] of Object.entries(layer.properties.profiles[type])) {
-                        this._.config.profiles[type][name] = this._.config.profiles[type][name] || JSON.parse(JSON.stringify(profile));
-                    }
+        // Merge the project layer profiles together
+        const usrProject = this._.layers[layers.project_user].properties.profiles;
+        const project = this._.layers[layers.project_config].properties.profiles;
+        const p = deepmerge(project, usrProject);
+
+        // Merge the global layer profiles together
+        const usrGlobal = this._.layers[layers.global_user].properties.profiles;
+        const global = this._.layers[layers.global_config].properties.profiles;
+        const g = deepmerge(global, usrGlobal);
+
+        // merge both project and global layers to create
+        const all: any = p;
+        for (const [type, profiles] of Object.entries(g)) {
+            if (all[type] == null)
+                all[type] = profiles;
+            else {
+                for (const [name, profile] of Object.entries(all[type])) {
+                    all[type][name] = all[type][name] || profile;
                 }
             }
-        });
+        }
+
+        // Set them in the config
+        this._.config.profiles = all;
     }
 
     private layerActive(): IConfigLayer {

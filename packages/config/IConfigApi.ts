@@ -9,18 +9,29 @@
 *
 */
 
-import { IConfigLayer } from "./IConfigLayer";
-
-export interface IConfigApi {
+export interface IConfig {
+    secure: {
+        append: () => void;
+        get: () => string[];
+    },
+    defaults: {
+        get: (key: string) => any;
+        set: (key: string, value: string) => void;
+    },
     profiles: {
-        get: (name: string) => any;
+        get: (type: string, name: string) => any;
+        set: (type: string, name: string, contents: { [key: string]: any }, opts?: { secure: string[] }) => void;
         loadSecure: () => void;
         names: () => string[];
-        exists: (name: string) => boolean;
-        set: (name: string, contents: {[key: string]: any}, opts?: {secure: string[]}) => void;
+        exists: (type: string, name: string) => boolean;
+    };
+    all: {
+        get: (key: string) => any;
+        set: (key: string, value: string) => void;
     },
     plugins: {
-        write: () => void;
+        append: () => void;
+        get: () => string[];
         new: () => string[];
     },
-};
+}
