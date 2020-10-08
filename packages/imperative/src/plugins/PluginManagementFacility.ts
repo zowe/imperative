@@ -270,7 +270,7 @@ export class PluginManagementFacility {
         // from app settings
         let overrideSettings: any = {};
         if (this.pmfConst.PLUGIN_USING_CONFIG) {
-            for (const plugin of this.pmfConst.PLUGIN_CONFIG.properties.plugins) {
+            for (const plugin of this.pmfConst.PLUGIN_CONFIG.api.plugins.get()) {
                 if (loadedOverrides[plugin] != null) {
                     for (const [key, value] of Object.entries(loadedOverrides[plugin])) {
                         if (overrideSettings[key] == null) {

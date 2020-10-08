@@ -42,14 +42,20 @@ export default class InitHandler implements ICommandHandler {
         } else {
 
             // If schemas are specified, use them as a guide
-            if (params.arguments.profiles) {
-                for (const schema of params.arguments.profiles) {
-                    if (ImperativeConfig.instance.configSchemas[schema] != null) {
+            if (params.arguments.profile) {
+                const name = params.arguments.profile;
+                if (name.trim().length === 0) throw new ImperativeError({ msg: `name is required` });
+
+                // if the profile type is requested - walk them thru it
+                if (params.arguments.profileType) {
+                    const type = params.arguments.profileType;
+                    if (ImperativeConfig.instance.configSchemas[type] != null) {
+
+                        const tname = await CliUtils.promptWithTimeout(`profile name: `, false, 900);
+                        if (tname.trim().length === 0) throw new ImperativeError({ msg: `name is required` });
 
                         // Get the schema - prompt for the name
-                        const s = ImperativeConfig.instance.configSchemas[schema];
-                        const name = await CliUtils.promptWithTimeout(`profile name: `, false, 900);
-                        if (name.trim().length === 0) throw new ImperativeError({ msg: `name is required` });
+                        const s = ImperativeConfig.instance.configSchemas[type];
 
                         // prompt for the values
                         const profile: any = {};
@@ -83,12 +89,12 @@ export default class InitHandler implements ICommandHandler {
                         }
 
                         // Set the profile, set it as default if requested, and save
-                        config.api.profiles.set(schema, name, profile, { secure: secureProps });
-                        if (params.arguments.setDefault)
-                            config.set(`defaults.${schema}`, name);
+                        config.api.profiles.typeSet(name, type, tname, profile, { secure: secureProps });
                     } else {
-                        params.response.console.error(`schema ${schema} does not exist`);
+                        params.response.console.error(`type ${type} does not exist`);
                     }
+                } else {
+                    config.api.profiles.set({name});
                 }
             }
         }

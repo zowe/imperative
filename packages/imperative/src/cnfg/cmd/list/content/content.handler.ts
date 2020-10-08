@@ -41,7 +41,7 @@ export default class ContentHandler implements ICommandHandler {
             });
         } else {
             params.response.format.output({
-                output: config.properties,
+                output: config.api,
                 format: "object"
             });
         }

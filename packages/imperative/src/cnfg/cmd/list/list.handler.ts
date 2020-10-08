@@ -33,7 +33,7 @@ export default class ListHandler implements ICommandHandler {
 
         // Do nothing if the property doesn't exist
         if (params.arguments.property &&
-            (config.properties as any)[params.arguments.property] == null &&
+            (config.api as any)[params.arguments.property] == null &&
             params.arguments.property !== "schemas") {
             return;
         }

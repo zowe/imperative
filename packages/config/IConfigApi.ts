@@ -1,3 +1,5 @@
+import { configure } from "log4js";
+import { config } from "yargs";
 /*
 * This program and the accompanying materials are made available under the terms of the
 * Eclipse Public License v2.0 which accompanies this distribution, and is available at
@@ -9,29 +11,26 @@
 *
 */
 
-export interface IConfig {
-    secure: {
-        append: () => void;
-        get: () => string[];
-    },
+import { IConfgProfile, IConfigType } from "./IConfig";
+
+export interface IConfigApi {
     defaults: {
         get: (key: string) => any;
         set: (key: string, value: string) => void;
-    },
+    };
     profiles: {
-        get: (type: string, name: string) => any;
-        set: (type: string, name: string, contents: { [key: string]: any }, opts?: { secure: string[] }) => void;
+        set: (profile: IConfgProfile) => void;
+        get: (name: string, opts?: {active?: boolean}) => IConfgProfile;
         loadSecure: () => void;
         names: () => string[];
-        exists: (type: string, name: string) => boolean;
+        exists: (name: string) => boolean;
+        typeSet: (profile: string, type: string, name: string, properties: { [key: string]: string }, opts?: { secure: string[] }) => void;
+        typeGet: (profile: string, type: string, name: string) => IConfigType;
+        typeExists: (profile: string, type: string, name: string) => boolean;
     };
-    all: {
-        get: (key: string) => any;
-        set: (key: string, value: string) => void;
-    },
     plugins: {
         append: () => void;
         get: () => string[];
         new: () => string[];
-    },
+    };
 }

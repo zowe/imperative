@@ -855,7 +855,8 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     let defaultName: string;
     // if (this.config.exists) {
     if (false) {
-      return this.config.properties.defaults[this.profileType];
+      // return this.config.properties.defaults[this.profileType];
+      return "";
     } else {
       const metaFile: string = this.locateExistingProfile(this.constructMetaName());
       if (isNullOrUndefined(metaFile)) {

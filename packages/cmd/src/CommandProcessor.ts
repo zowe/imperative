@@ -750,10 +750,10 @@ export class CommandProcessor {
 
                 // If there is a defaults object in the config extract those
                 // profile names and place on args
-                if (config.properties.defaults != null && config.properties.defaults[configProfile] != null) {
-                    args[profOpt] = config.properties.defaults[configProfile];
-                    args[profOptAlias] = config.properties.defaults[configProfile];
-                }
+                // if (config.properties.defaults != null && config.properties.defaults[configProfile] != null) {
+                //     args[profOpt] = config.properties.defaults[configProfile];
+                //     args[profOptAlias] = config.properties.defaults[configProfile];
+                // }
             }
         }
 
@@ -792,13 +792,13 @@ export class CommandProcessor {
         for (const cnfgProf of cnfgProfs) {
             const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(cnfgProf);
             if (args[profOpt] != null) {
-                let profile = config.api.profiles.get(cnfgProf, args[profOpt]);
+                let profile = config.api.profiles.get(args[profOpt]);
                 if (profile != null) {
                     configProfiles[cnfgProf] = args[profOpt];
                     allOpts.forEach((opt) => {
                         const cases = CliUtils.getOptionFormat(opt.name);
-                        const profileKebab = profile[cases.kebabCase];
-                        const profileCamel = profile[cases.camelCase];
+                        const profileKebab = profile.properties[cases.kebabCase];
+                        const profileCamel = profile.properties[cases.camelCase];
     
                         if ((profileCamel !== undefined || profileKebab !== undefined) &&
                             (!args.hasOwnProperty(cases.kebabCase) && !args.hasOwnProperty(cases.camelCase))) {

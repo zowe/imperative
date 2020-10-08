@@ -41,7 +41,7 @@ export default class ListProfilesHandler implements ICommandHandler {
             });
         } else {
             params.response.format.output({
-                output: config.properties.profiles,
+                output: config.api.profiles,
                 format: "object"
             });
         }

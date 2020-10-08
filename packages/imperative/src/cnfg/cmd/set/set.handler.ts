@@ -32,7 +32,7 @@ export default class SetHandler implements ICommandHandler {
         const config = Config.load(ImperativeConfig.instance.rootCommandName,
             { schemas: ImperativeConfig.instance.configSchemas });
         config.layerActivate(params.arguments.user, params.arguments.global);
-        await config.api.profiles.loadSecure();
+        // await config.api.profiles.loadSecure();
         let value = params.arguments.value;
         if (params.arguments.json) {
             try {
@@ -41,10 +41,19 @@ export default class SetHandler implements ICommandHandler {
                 throw new ImperativeError({ msg: `could not parse JSON value: ${e.message}` });
             }
         }
-        config.set(params.arguments.property, value, {
-            secure: params.arguments.secure,
-            append: params.arguments.append
-        });
+
+        const segments = params.arguments.property.split(".");
+        if (segments[0] === "profiles") {
+            const name = segments[1];
+            const property = segments[3];
+            const p = config.api.profiles.get(name, {active: true});
+            if (p == null)
+                throw new ImperativeError({ msg: `${name} does not exist` });
+            p.properties[property] = params.arguments.value;
+            if (params.arguments.secure)
+                p.secure = Array.from(new Set(p.secure.concat(property)))
+            config.api.profiles.set(p);
+        }
         await config.layerWrite();
     }
 }

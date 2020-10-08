@@ -45,7 +45,7 @@ export default class CreateProfilesHandler implements ICommandHandler {
 
         if (config.exists) {
             const profile = this.argsToProfile(commandParameters.arguments, ImperativeConfig.instance.configSchemas[profileType]);
-            config.api.profiles.set(profileType, profileName, profile);
+            // config.api.profiles.set(profileType, profileName, profile);
             // await config.api.profiles.write(profileType, profileName);
         } else {
             const profileManager = Imperative.api.profileManager(profileType);

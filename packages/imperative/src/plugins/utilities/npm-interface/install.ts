@@ -97,9 +97,9 @@ export function install(packageLocation: string, registry: string, installFromFi
         iConsole.debug("Reading in the current configuration.");
 
         if (PMFConstants.instance.PLUGIN_USING_CONFIG) {
-            if (PMFConstants.instance.PLUGIN_CONFIG.properties.plugins.indexOf(packageName) < 0) {
-                PMFConstants.instance.PLUGIN_CONFIG.properties.plugins.push(packageName);
-                PMFConstants.instance.PLUGIN_CONFIG.api.plugins.write();
+            if (PMFConstants.instance.PLUGIN_CONFIG.api.plugins.get().indexOf(packageName) < 0) {
+                PMFConstants.instance.PLUGIN_CONFIG.api.plugins.get().push(packageName);
+                PMFConstants.instance.PLUGIN_CONFIG.layerWrite();
             }
         } else {
             const installedPlugins: IPluginJson = readFileSync(PMFConstants.instance.PLUGIN_JSON);
