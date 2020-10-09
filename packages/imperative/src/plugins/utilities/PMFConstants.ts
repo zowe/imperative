@@ -91,6 +91,8 @@ export class PMFConstants {
 
     public readonly PLUGIN_CONFIG: Config;
 
+    public readonly PLUGIN_HOME_LOCATION: string;
+
     constructor() {
         // Load from the config
         const config = Config.load(ImperativeConfig.instance.rootCommandName);
@@ -99,10 +101,11 @@ export class PMFConstants {
         this.NPM_NAMESPACE = "@zowe";
         this.CLI_CORE_PKG_NAME = ImperativeConfig.instance.hostPackageName;
         this.IMPERATIVE_PKG_NAME = ImperativeConfig.instance.imperativePackageName;
-        this.PMF_ROOT =  join(ImperativeConfig.instance.cliHome, "plugins");
+        this.PMF_ROOT = join(ImperativeConfig.instance.cliHome, "plugins");
         this.PLUGIN_JSON = join(this.PMF_ROOT, "plugins.json");
         this.PLUGIN_USING_CONFIG = config.exists;
-        this.PLUGIN_INSTALL_LOCATION = join(this.PMF_ROOT, "installed");
+        this.PLUGIN_HOME_LOCATION = join(this.PMF_ROOT, "installed");
+        this.PLUGIN_INSTALL_LOCATION = this.PLUGIN_HOME_LOCATION;
 
         // Windows format is <prefix>/node_modules
         let cliHomeModPath;
@@ -111,11 +114,20 @@ export class PMFConstants {
                 this.PLUGIN_INSTALL_LOCATION,
                 "node_modules"
             );
+            this.PLUGIN_HOME_LOCATION = join(
+                this.PLUGIN_HOME_LOCATION,
+                "node_modules"
+            );
         }
         // Everyone else is <prefix>/lib/node_modules
         else {
             cliHomeModPath = join(
                 this.PLUGIN_INSTALL_LOCATION,
+                "lib",
+                "node_modules"
+            );
+            this.PLUGIN_HOME_LOCATION = join(
+                this.PLUGIN_HOME_LOCATION,
                 "lib",
                 "node_modules"
             );
@@ -130,6 +142,7 @@ export class PMFConstants {
             });
         }
         modPaths.push(cliHomeModPath);
+        modPaths.push(this.PLUGIN_HOME_LOCATION);
         this.PLUGIN_NODE_MODULE_LOCATION = Array.from(new Set(modPaths));
 
         Logger.getImperativeLogger().debug(`PMF node_modules: ${this.PLUGIN_NODE_MODULE_LOCATION}`);

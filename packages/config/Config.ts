@@ -60,7 +60,7 @@ export class Config {
         // Create the basic empty configuration
         (_ as any).config = {};
         (_ as any).api = { plugins: {}, profiles: {} };
-        _.config.profiles = [];
+        _.config.profiles = {};
         _.config.defaults = {};
         _.config.plugins = [];
         _.layers = [];
@@ -75,7 +75,7 @@ export class Config {
         // Populate configuration file layers
         const home = require('os').homedir();
         const properties: IConfig = {
-            profiles: [],
+            profiles: {},
             defaults: {},
             plugins: []
         };
@@ -112,12 +112,16 @@ export class Config {
         config._.api.profiles = {
             set: config.api_profiles_set.bind(config),
             get: config.api_profiles_get.bind(config),
-            loadSecure: config.api_profiles_load_secure.bind(config),
             names: config.api_profiles_names.bind(config),
             exists: config.api_profiles_exists.bind(config),
-            typeSet: config.api_profiles_type_set.bind(config),
-            typeGet: config.api_profiles_type_get.bind(config),
-            typeExists: config.api_profiles_type_exists.bind(config)
+            typeExists: config.api_profiles_type_exists.bind(config),
+            typeNames: config.api_profiles_type_names.bind(config),
+            typeProfileNames: config.api_profiles_type_profile_names.bind(config),
+            typeProfileSet: config.api_profiles_type_profile_set.bind(config),
+            typeProfileGet: config.api_profiles_type_profile_get.bind(config),
+            typeProfileExists: config.api_profiles_type_profile_exists.bind(config),
+            typeDefaultGet: config.api_profiles_type_default_get.bind(config),
+            typeDefaultSet: config.api_profiles_type_default_set.bind(config)
         };
 
         // setup the API for plugins
@@ -125,6 +129,12 @@ export class Config {
             get: config.api_plugins_get.bind(config),
             new: config.api_plugins_new.bind(config),
             append: null,
+        };
+
+        // setup the API for defaults
+        config._.api.defaults = {
+            get: config.api_defaults_get.bind(config),
+            set: config.api_defaults_set.bind(config)
         };
 
         ////////////////////////////////////////////////////////////////////////
@@ -152,7 +162,7 @@ export class Config {
 
                 // Populate any undefined defaults
                 layer.properties.defaults = layer.properties.defaults || {};
-                layer.properties.profiles = layer.properties.profiles || [];
+                layer.properties.profiles = layer.properties.profiles || {};
                 layer.properties.plugins = layer.properties.plugins || [];
             });
         } catch (e) {
@@ -188,48 +198,78 @@ export class Config {
 
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
+    // defaults APIs
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+
+    private api_defaults_set(key: string, value: string) {
+        this.layerActive().properties.defaults[key] = value;
+    }
+
+    private api_defaults_get(key: string): { name: string, profile: IConfgProfile } {
+        const dflt = this._.config.defaults[key];
+        if (!this.api_profiles_exists(dflt))
+            return null;
+        return { name: dflt, profile: this.api_profiles_get(dflt) };
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
     // Profile APIs
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
 
-    private async api_profiles_load_secure() {
-        // If the secure option is set - load the secure values for the profiles
-        if (CredentialManagerFactory.initialized) {
-            for (const layer of this._.layers) {
-                for (const profile of layer.properties.profiles) {
+    private api_profiles_type_names(profile: string): string[] {
+        if (!this.api_profiles_exists(profile))
+            return null;
+        return Object.keys(this._.config.profiles[profile].types);
+    }
 
-                    // Load the secure fields at the root of the profile
-                    for (const secure of profile.secure) {
-                        const p = `${profile.name}.properties.${secure}`;
-                        const value = await CredentialManagerFactory.manager.load(Config.secureKey(layer.path, p), true);
-                        if (value != null) profile.properties[secure] = value;
-                    }
+    private api_profiles_type_default_set(profile: string, type: string, name: string) {
+        if (this.api_profiles_type_profile_exists(profile, type, name))
+            this._.config.profiles[profile].defaults[type] = name;
+    }
 
-                    // load the secure fields for each type
-                    for (const type of profile.types) {
-                        for (const secure of type.secure) {
-                            const p = `${profile.name}.${type}.${type.name}.${secure}`;
-                            const value = await CredentialManagerFactory.manager.load(Config.secureKey(layer.path, p), true);
-                            if (value != null) profile.properties[secure] = value;
-                        }
-                    }
-                }
-            }
-        }
-        // merge into config
-        this.layerMerge();
+    private api_profiles_type_default_get(profile: string, type: string): { name: string, profile: IConfigType } {
+        if (!this.api_profiles_type_exists(profile, type))
+            return null;
+        const dflt = this._.config.profiles[profile].defaults[type];
+        if (!this.api_profiles_type_profile_exists(profile, type, dflt))
+            return null;
+        return { name: dflt, profile: this.api_profiles_type_profile_get(profile, type, dflt) }
+    }
+
+    private api_profiles_type_profile_names(profile: string, type: string): string[] {
+        if (!this.api_profiles_type_exists(profile, type))
+            return null;
+        return Object.keys(this._.config.profiles[profile].types[type]);
     }
 
     private api_profiles_names(): string[] {
-        const names: string[] = [];
-        this._.config.profiles.forEach(profile => names.push(profile.name));
-        return names;
+        return Object.keys(this._.config.profiles);
     }
 
-    private api_profiles_type_exists(profile: string, type: string, name: string): boolean {
-        for (const p of this._.config.profiles) {
-            if (p.name === profile) {
-                for (const t of p.types) if (t.type === type && t.name === name) return true;
+    private api_profiles_type_exists(profile: string, type: string): boolean {
+        if (!this.api_profiles_exists(profile)) return false
+        return !(this._.config.profiles[profile].types[type] == null)
+    }
+
+    private api_profiles_type_profile_exists(profile: string, type: string, name: string): boolean {
+        // Look for matching profile name
+        for (const [n, p] of Object.entries(this._.config.profiles)) {
+            if (n === profile) {
+
+                // Look for matching type name
+                for (const [tn, tp] of Object.entries(p.types)) {
+                    if (tn === type) {
+
+                        // Look for matching type profile name
+                        for (const [pn, pc] of Object.entries(tp)) {
+                            if (pn === name) return true;
+                        }
+                        break;
+                    }
+                }
                 break;
             }
         }
@@ -237,81 +277,68 @@ export class Config {
     }
 
     private api_profiles_exists(name: string): boolean {
-        for (const p of this._.config.profiles)
-            if (p.name === name) return true;
+        // Look for matching profile name
+        for (const [n, p] of Object.entries(this._.config.profiles))
+            if (n === name) return true;
         return false;
     }
 
-    private api_profiles_get(name: string, opts?: {active?: boolean}): IConfgProfile {
+    private api_profiles_get(name: string, opts?: { active?: boolean }): IConfgProfile {
         opts = opts || {};
         if (!this.api_profiles_exists(name))
             return null;
         const profiles = (opts.active) ? this.layerActive().properties.profiles : this._.config.profiles;
-        for (const profile of profiles)
-            if (profile.name === name) return JSON.parse(JSON.stringify(profile));
+        for (const [n, p] of Object.entries(profiles))
+            if (n === name) return JSON.parse(JSON.stringify(p));
         return null;
     }
 
-    private api_profiles_type_get(profile: string, type: string, name: string): IConfigType {
-        if (!this.api_profiles_exists(profile) || !this.api_profiles_type_exists(profile, type, name))
+    private api_profiles_type_profile_get(profile: string, type: string, name: string): IConfigType {
+        if (!this.api_profiles_type_profile_exists(profile, type, name))
             return null;
-        for (const t of this.api_profiles_get(profile).types) {
-            if (t.name === name && t.type === type)
-                return t;
+        for (const [n, p] of Object.entries(this._.config.profiles)) {
+            if (n === profile) {
+
+                // Look for matching type name
+                for (const [tn, tp] of Object.entries(p.types)) {
+                    if (tn === type) {
+
+                        // Look for matching type profile name
+                        for (const [pn, pc] of Object.entries(tp))
+                            if (pn === name) return JSON.parse(JSON.stringify(pc));
+                        break;
+                    }
+                }
+                break;
+            }
         }
         return null;
     }
 
-    private api_profiles_type_set(profile: string, type: string, name: string,
-        properties: { [key: string]: string }, opts?: { secure?: string[] }): void {
-        opts = opts || {};
+    private api_profiles_type_profile_set(profile: string, type: string, name: string, properties: IConfigType): void {
         const layer = this.layerActive();
-        const tmp: IConfgProfile = { types: [], secure: [], properties: {}, name: profile };
 
-        if (!this.api_profiles_exists(profile)) {
-            // Profile exist exists - create it and add to types
-            tmp.types.push({ type, name, properties, secure: opts.secure || [] });
-            layer.properties.profiles.push(tmp);
+        // Create the profile if needed
+        if (!this.api_profiles_exists(profile))
+            layer.properties.profiles[profile] = { secure: [], properties: {}, types: {} };
+
+        // Create the profile type if needed
+        if (!this.api_profiles_type_exists(profile, type)) {
+            layer.properties.profiles[profile].types = {};
+            layer.properties.profiles[profile].types[type] = {};
         }
-        else {
 
-            // The profile exists - find it
-            for (const p of layer.properties.profiles) {
-                if (p.name === profile) {
-
-                    // find the type
-                    for (const t of p.types) {
-
-                        // If there is a match - set the properties
-                        if (t.name === name && t.type === type) {
-                            t.properties = properties;
-                            t.secure = t.secure || opts.secure;
-                            return;
-                        }
-                    }
-
-                    // No match - push the new type
-                    p.types.push({ name, type, properties, secure: opts.secure || [] });
-                    return;
-                }
-            }
-        }
+        // Set the profile
+        layer.properties.profiles[profile].types[type][name] = properties;
+        this.layerMerge();
     }
 
-    private api_profiles_set(profile: IConfgProfile) {
+    private api_profiles_set(name: string, profile: IConfgProfile) {
         profile.properties = profile.properties || {};
+        profile.types = profile.types || {};
         profile.secure = profile.secure || [];
-        profile.types = profile.types || [];
         const layer = this.layerActive();
-        let found = false;
-        for (const i in layer.properties.profiles) {
-            if (layer.properties.profiles[i].name === profile.name) {
-                found = true;
-                layer.properties.profiles[i] = profile;
-            }
-        }
-        if (!found)
-            layer.properties.profiles.push(profile);
+        layer.properties.profiles[name] = profile;
         this.layerMerge();
     }
 
@@ -375,6 +402,100 @@ export class Config {
 
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
+    // Manipulate properties
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+
+    // TODO: more validation
+    public set(property: string, value: any, opts?: { secure?: boolean, append?: boolean }) {
+        opts = opts || {};
+
+        // TODO: additional validations
+        if (property.startsWith("group") && !Array.isArray(value))
+            throw new ImperativeError({ msg: `group property must be an array` });
+
+        // TODO: make a copy and validate that the update would be legit
+        // TODO: based on schema
+        const layer = this.layerActive();
+        let obj: any = layer.properties;
+        const segments = property.split(".");
+        property.split(".").forEach((segment: string) => {
+            if (obj[segment] == null && segments.indexOf(segment) < segments.length - 1) {
+                obj[segment] = {};
+                obj = obj[segment];
+            } else if (segments.indexOf(segment) === segments.length - 1) {
+
+                // TODO: add ability to escape these values to string
+                if (value === "true")
+                    value = true;
+                if (value === "false")
+                    value = false;
+                if (!isNaN(value) && !isNaN(parseFloat(value)))
+                    value = parseInt(value, 10);
+                if (opts.append) {
+                    if (!Array.isArray(obj[segment]))
+                        throw new ImperativeError({ msg: `property ${property} is not an array` });
+                    obj[segment].push(value);
+                } else {
+                    obj[segment] = value;
+                }
+            } else {
+                obj = obj[segment];
+            }
+        });
+
+        // TODO: more validation
+        if (segments[0] === "profiles" && segments[2] === "properties") {
+            const name = segments[1];
+            layer.properties.profiles[name].secure =
+                layer.properties.profiles[name].secure || [];
+            layer.properties.profiles[name].secure =
+                Array.from(new Set(layer.properties.profiles[name].secure.concat(segments[3])));
+        } else if (segments[0] === "profiles" && segments[2] === "types") {
+            const name = segments[1];
+            const type = segments[3];
+            const tname = segments[4];
+            layer.properties.profiles[name].types[type][tname].secure =
+                layer.properties.profiles[name].types[type][tname].secure || [];
+            layer.properties.profiles[name].types[type][tname].secure =
+                Array.from(new Set(layer.properties.profiles[name].types[type][tname].secure.concat(segments[5])));
+        }
+
+        this.layerMerge();
+    }
+
+    public async loadSecure() {
+        // If the secure option is set - load the secure values for the profiles
+        if (CredentialManagerFactory.initialized) {
+            for (const layer of this._.layers) {
+                for (const [name, profile] of Object.entries(layer.properties.profiles)) {
+
+                    // Load the secure fields at the root of the profile
+                    for (const secure of profile.secure) {
+                        const p = `${name}.properties.${secure}`;
+                        const value = await CredentialManagerFactory.manager.load(Config.secureKey(layer.path, p), true);
+                        if (value != null) profile.properties[secure] = JSON.parse(value);
+                    }
+
+                    // load the secure fields for each type
+                    for (const [tname, types] of Object.entries(profile.types)) {
+                        for (const [ptname, tprofile] of Object.entries(types)) {
+                            for (const secure of tprofile.secure) {
+                                const p = `${name}.${tname}.${ptname}.${secure}`;
+                                const value = await CredentialManagerFactory.manager.load(Config.secureKey(layer.path, p), true);
+                                if (value != null) profile.properties[secure] = JSON.parse(value);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // merge into config
+        this.layerMerge();
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
     // Layer APIs
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
@@ -384,23 +505,27 @@ export class Config {
         // If the credential manager factory is initialized then we must iterate
         // through the profiles and securely store the values
         if (CredentialManagerFactory.initialized) {
-            for (const profile of layer.properties.profiles) {
 
+            for (const [n, p] of Object.entries(layer.properties.profiles)) {
                 // Secure the root level properties first
-                for (const secure of profile.secure) {
-                    const p = `${profile.name}.properties.${secure}`;
-                    const v = JSON.stringify(profile.properties[secure]);
-                    CredentialManagerFactory.manager.save(Config.secureKey(layer.path, p), v);
-                    profile.properties[secure] = `managed by ${CredentialManagerFactory.manager.name}`;
+                for (const secure of p.secure) {
+                    const s = `${n}.properties.${secure}`;
+                    const v = JSON.stringify(p.properties[secure]);
+                    CredentialManagerFactory.manager.save(Config.secureKey(layer.path, s), v);
+                    p.properties[secure] = `managed by ${CredentialManagerFactory.manager.name}`;
                 }
 
-                // secure the properties for each type entry
-                for (const type of profile.types) {
-                    for (const secure of type.secure) {
-                        const p = `${profile.name}.${type}.${type.name}.${secure}`;
-                        const v = JSON.stringify(type.properties[secure]);
-                        CredentialManagerFactory.manager.save(Config.secureKey(layer.path, p), v);
-                        type.properties[secure] = `managed by ${CredentialManagerFactory.manager.name}`;
+                // Look for matching type name
+                for (const [tn, tp] of Object.entries(p.types)) {
+
+                    // Look for matching type profile name
+                    for (const [pn, pc] of Object.entries(tp)) {
+                        for (const secure of pc.secure) {
+                            const s = `${n}.${tn}.${pn}.${secure}`;
+                            const v = JSON.stringify(pc.properties[secure]);
+                            CredentialManagerFactory.manager.save(Config.secureKey(layer.path, s), v);
+                            pc.properties[secure] = `managed by ${CredentialManagerFactory.manager.name}`;
+                        }
                     }
                 }
             }
@@ -429,7 +554,7 @@ export class Config {
             if (this._.layers[i].user === this._.active.user && this._.layers[i].global === this._.active.global) {
                 this._.layers[i].properties = config;
                 this._.layers[i].properties.defaults = this._.layers[i].properties.defaults || {};
-                this._.layers[i].properties.profiles = this._.layers[i].properties.profiles || [];
+                this._.layers[i].properties.profiles = this._.layers[i].properties.profiles || {};
                 this._.layers[i].properties.plugins = this._.layers[i].properties.plugins || [];
             }
         }
@@ -439,7 +564,7 @@ export class Config {
     private layerMerge() {
         // clear the config as it currently stands
         this._.config.defaults = {};
-        this._.config.profiles = [];
+        this._.config.profiles = {};
         this._.config.plugins = [];
 
         // merge each layer
@@ -454,67 +579,37 @@ export class Config {
         });
 
         // Merge the project layer profiles together
-        const usrProject: IConfgProfile[] = JSON.parse(JSON.stringify(this._.layers[layers.project_user].properties.profiles));
-        const project: IConfgProfile[] = JSON.parse(JSON.stringify(this._.layers[layers.project_config].properties.profiles));
-        let p: IConfgProfile[] = [];
-        for (const p1 of project) {
-            let merged = false;
-            // tslint:disable-next-line
-            for (let p2 = 0; p2 < usrProject.length; p2++) {
-                if (p1.name === usrProject[p2].name) {
-                    p.push(deepmerge(p1, usrProject[p2]));
-                    usrProject.splice(p2, 1);
-                    merged = true;
-                    break;
-                }
-            }
-
-            // Add to the list if not merged
-            if (!merged) p.push(p1);
-        }
-
-        // Add any remaining
-        p = p.concat(usrProject);
+        const usrProject = JSON.parse(JSON.stringify(this._.layers[layers.project_user].properties.profiles));
+        const project = JSON.parse(JSON.stringify(this._.layers[layers.project_config].properties.profiles));
+        const usr: any = deepmerge(project, usrProject);
 
         // Merge the global layer profiles together
         const usrGlobal = JSON.parse(JSON.stringify(this._.layers[layers.global_user].properties.profiles));
         const global = JSON.parse(JSON.stringify(this._.layers[layers.global_config].properties.profiles));
-        let g: IConfgProfile[] = [];
-        for (const g1 of global) {
-            let merged = false;
-            // tslint:disable-next-line
-            for (let g2 = 0; g2 < usrGlobal.length; g2++) {
-                if (g1.name === usrGlobal[g2].name) {
-                    g.push(deepmerge(g1, usrGlobal[g2]));
-                    usrGlobal.splice(g2, 1);
-                    merged = true;
-                    break;
+        const glbl: { [key: string]: IConfgProfile } = deepmerge(global, usrGlobal);
+
+        // Traverse all the global profiles merging any missing from project profiles
+        this._.config.profiles = usr;
+        for (const [n, p] of Object.entries(glbl)) {
+            if (this._.config.profiles[n] == null)
+                this._.config.profiles[n] = p;
+            else {
+
+                // Traverse types
+                for (const [tn, tp] of Object.entries(p.types)) {
+                    if (this._.config.profiles[n].types[tn] == null)
+                        this._.config.profiles[n].types[tn] = tp;
+                    else {
+
+                        // Traverse profiles
+                        for (const [pn, pc] of Object.entries(tp)) {
+                            if (this._.config.profiles[n].types[tn][pn] == null)
+                                this._.config.profiles[n].types[tn][pn] = pc;
+                        }
+                    }
                 }
             }
-
-            // Add to the list if not merged
-            if (!merged) p.push(g1);
         }
-
-        // Add any remaining
-        g = g.concat(usrGlobal);
-
-        // Merge to a final array - project takes precedence - if a global
-        // profile doesn't exist in the project array - merge
-        const all: IConfgProfile[] = p;
-        for (const glbl of g) {
-            let found = false;
-            for (const user of p) {
-                if (glbl.name === user.name) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) all.push(glbl);
-        }
-
-        // Set them in the config
-        this._.config.profiles = all;
     }
 
     private layerActive(): IConfigLayer {

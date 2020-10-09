@@ -50,9 +50,14 @@ export const InitDefinition: ICommandDefinition = {
             type: "string",
         },
         {
-            name: "profile-type",
+            name: "add-type",
             description: "create a profile type",
             type: "string",
+        },
+        {
+            name: "template",
+            description: "apply a type as a template to guide creation",
+            type: "string"
         },
         {
             name: "update",

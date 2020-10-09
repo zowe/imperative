@@ -15,22 +15,27 @@ import { IConfgProfile, IConfigType } from "./IConfig";
 
 export interface IConfigApi {
     defaults: {
-        get: (key: string) => any;
+        get: (key: string) => { name: string, profile: IConfgProfile };
         set: (key: string, value: string) => void;
     };
     profiles: {
-        set: (profile: IConfgProfile) => void;
-        get: (name: string, opts?: {active?: boolean}) => IConfgProfile;
-        loadSecure: () => void;
-        names: () => string[];
+        set: (name: string, profile: IConfgProfile) => void;
+        get: (name: string, opts?: { active?: boolean }) => IConfgProfile;
         exists: (name: string) => boolean;
-        typeSet: (profile: string, type: string, name: string, properties: { [key: string]: string }, opts?: { secure: string[] }) => void;
-        typeGet: (profile: string, type: string, name: string) => IConfigType;
-        typeExists: (profile: string, type: string, name: string) => boolean;
+        names: () => string[];
+
+        typeNames: (profile: string) => string[];
+        typeExists: (profile: string, type: string) => boolean;
+        typeDefaultSet: (profile: string, type: string, name: string) => void;
+        typeDefaultGet: (profile: string, type: string) => { name: string, profile: IConfigType };
+        typeProfileGet: (profile: string, type: string, name: string) => IConfigType;
+        typeProfileSet: (profile: string, type: string, name: string, properties: { [key: string]: string }, opts?: { secure: string[] }) => void;
+        typeProfileNames: (profile: string, type: string) => string[];
+        typeProfileExists: (profile: string, type: string, name: string) => boolean;
     };
     plugins: {
-        append: () => void;
         get: () => string[];
+        append: () => void;
         new: () => string[];
     };
 }

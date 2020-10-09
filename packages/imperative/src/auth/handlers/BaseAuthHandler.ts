@@ -123,7 +123,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             const config = Config.load(ImperativeConfig.instance.rootCommandName, {
                 schemas: ImperativeConfig.instance.configSchemas
             });
-            await config.api.profiles.loadSecure();
+            await config.loadSecure();
 
             if (params.configProfiles[this.mProfileType] != null) {
                 const name = params.configProfiles[this.mProfileType];

@@ -47,8 +47,8 @@ export default class InitHandler implements ICommandHandler {
                 if (name.trim().length === 0) throw new ImperativeError({ msg: `name is required` });
 
                 // if the profile type is requested - walk them thru it
-                if (params.arguments.profileType) {
-                    const type = params.arguments.profileType;
+                if (params.arguments.addType) {
+                    const type = params.arguments.addType;
                     if (ImperativeConfig.instance.configSchemas[type] != null) {
 
                         const tname = await CliUtils.promptWithTimeout(`profile name: `, false, 900);
@@ -89,12 +89,12 @@ export default class InitHandler implements ICommandHandler {
                         }
 
                         // Set the profile, set it as default if requested, and save
-                        config.api.profiles.typeSet(name, type, tname, profile, { secure: secureProps });
+                        config.api.profiles.typeProfileSet(name, type, tname, profile, { secure: secureProps });
                     } else {
                         params.response.console.error(`type ${type} does not exist`);
                     }
                 } else {
-                    config.api.profiles.set({name});
+                    config.api.profiles.set(name, {});
                 }
             }
         }

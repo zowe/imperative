@@ -10,21 +10,19 @@
 */
 
 export interface IConfigType {
-    name: string;
-    type: string;
     properties: { [key: string]: string }
     secure: string[],
 };
 
 export interface IConfgProfile {
-    name: string;
     properties?: { [key: string]: string },
     secure?: string[],
-    types?: IConfigType[]
+    defaults?: { [key: string]: string },
+    types?: { [key: string]: { [key: string]: IConfigType } }
 };
 
 export interface IConfig {
     defaults: { [key: string]: string },
-    profiles: IConfgProfile[],
+    profiles: { [key: string]: IConfgProfile },
     plugins: string[],
 }

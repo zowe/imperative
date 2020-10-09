@@ -713,69 +713,26 @@ export class CommandProcessor {
         this.log.trace(`Reading stdin for "${this.definition.name}" command...`);
         await SharedOptions.readStdinIfRequested(commandArguments, response, this.definition.type);
 
-        // Load the configuration and load secure fields from config
-        const config = Config.load(ImperativeConfig.instance.rootCommandName, {
-            schemas: ImperativeConfig.instance.configSchemas
-        });
-        await config.api.profiles.loadSecure();
-
-        // Get all the profile names to search for in the config
-        let cnfgProfs: string[] = [];
-        if (this.definition.profile != null) {
-            if (this.definition.profile.required != null) {
-                cnfgProfs = cnfgProfs.concat(this.definition.profile.required)
-            }
-            if (this.definition.profile.optional != null) {
-                cnfgProfs = cnfgProfs.concat(this.definition.profile.optional)
-            }
-        }
-
-        // list of profiles that should be loaded
-        const loadProfiles = new Map<string, string>();
-        for (const configProfile of cnfgProfs) {
-            const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(configProfile);
-
-            // Only adjust based on config if hte user hasn't explicitly
-            // specified on the CLI
-            if (args[profOpt] == null || args[profOpt] === "") {
-
-                // If there are profile options specified in the properties object
-                // add these options to the args - this allows specifying
-                // profiles to be loaded in the properties keyword
-                // if (config.properties != null && config.properties[profOpt] != null) {
-                //     args[profOpt] = config.properties[profOpt];
-                //     args[profOptAlias] = config.properties[profOpt];
-                //     loadProfiles.set(configProfile, config.properties[profOpt]);
-                // }
-
-                // If there is a defaults object in the config extract those
-                // profile names and place on args
-                // if (config.properties.defaults != null && config.properties.defaults[configProfile] != null) {
-                //     args[profOpt] = config.properties.defaults[configProfile];
-                //     args[profOptAlias] = config.properties.defaults[configProfile];
-                // }
-            }
-        }
-
         // Load all profiles for the command
         this.log.trace(`Loading profiles for "${this.definition.name}" command. ` +
             `Profile definitions: ${inspect(this.definition.profile, { depth: null })}`);
 
+        // Load the configuration and load secure fields from config
+        const config = Config.load(ImperativeConfig.instance.rootCommandName, {
+            schemas: ImperativeConfig.instance.configSchemas
+        });
+        await config.loadSecure();
+
+        // Load profiles if config doesn't exist
         let profiles = new CommandProfiles(new Map<string, IProfileLoaded[]>());
         if (!config.exists) {
-            // if (!config.exists || loadProfiles.size > 0) {
             const profileParams: ICommandProfileLoaderParms = {
                 commandDefinition: this.definition,
                 profileManagerFactory: this.profileFactory,
             };
 
-            // if (loadProfiles.size > 0) {
-            //     profileParams.only = loadProfiles;
-            // }
-
             profiles = await CommandProfileLoader.loader(profileParams).loadProfiles(args);
             this.log.trace(`Profiles loaded for "${this.definition.name}" command:\n${inspect(profiles, { depth: null })}`);
-            // }
 
             // If we have profiles listed on the command definition (the would be loaded already)
             // we can extract values from them for options arguments
@@ -786,39 +743,107 @@ export class CommandProcessor {
             }
         }
 
+        // Get all the profile names to search for in the config
+        let allProfileTypes: string[] = [];
+        if (this.definition.profile != null) {
+            if (this.definition.profile.required != null) {
+                allProfileTypes = allProfileTypes.concat(this.definition.profile.required)
+            }
+            if (this.definition.profile.optional != null) {
+                allProfileTypes = allProfileTypes.concat(this.definition.profile.optional)
+            }
+        }
+
+        // list of profiles that should be loaded
+        let configProps: any = {};
+        for (const profileType of allProfileTypes) {
+            const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(profileType);
+            let name = args[profOpt];
+            name = name || config.api.defaults.get(profileType);
+            if (name != null && name !== "") {
+                let merge = {};
+                const p = config.api.profiles.get(name);
+                if (p != null) {
+                    merge = { ...p.properties };
+
+                    const entries: string[] = config.api.profiles.typeProfileNames(name, profileType);
+                    if (entries != null && entries.length === 1) {
+                        const t = config.api.profiles.typeProfileGet(name, profileType, entries[0]);
+                        merge = { ...merge, ...t.properties };
+                    }
+
+                    const types: string[] = config.api.profiles.typeNames(name);
+                    for (const pt of allProfileTypes) {
+                        const [ptopt, _] = ProfileUtils.getProfileOptionAndAlias(pt);
+                        if (args[ptopt] != null) {
+                            console.log(args[ptopt]);
+                            if (types.indexOf(pt) >= 0) {
+                                if (config.api.profiles.typeProfileGet(name, pt, args[ptopt]) != null)
+                                    merge = { ...merge, ...config.api.profiles.typeProfileGet(name, pt, args[ptopt]).properties };
+                            }
+                        }
+                    }
+                }
+                configProps = CliUtils.mergeArguments(merge, configProps);
+            }
+        }
+
+        allOpts.forEach((opt) => {
+            const cases = CliUtils.getOptionFormat(opt.name);
+            const profileKebab = configProps[cases.kebabCase];
+            const profileCamel = configProps[cases.camelCase];
+
+            if ((profileCamel !== undefined || profileKebab !== undefined) &&
+                (!args.hasOwnProperty(cases.kebabCase) && !args.hasOwnProperty(cases.camelCase))) {
+
+                // If both case properties are present in the profile, use the one that matches
+                // the option name explicitly
+                const value = (profileKebab !== undefined && profileCamel !== undefined) ?
+                    ((opt.name === cases.kebabCase) ? profileKebab : profileCamel) :
+                    ((profileKebab !== undefined) ? profileKebab : profileCamel);
+                const keys = CliUtils.setOptionValue(opt.name,
+                    ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
+                    value
+                );
+                configProps = { ...configProps, ...keys };
+            }
+        });
+        // console.log(configProps);
+        args = CliUtils.mergeArguments(configProps, args);
+
         // merge in the configs
         // args = CliUtils.mergeArguments(config.merge.cli, args);
         const configProfiles: any = {};
-        for (const cnfgProf of cnfgProfs) {
-            const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(cnfgProf);
-            if (args[profOpt] != null) {
-                let profile = config.api.profiles.get(args[profOpt]);
-                if (profile != null) {
-                    configProfiles[cnfgProf] = args[profOpt];
-                    allOpts.forEach((opt) => {
-                        const cases = CliUtils.getOptionFormat(opt.name);
-                        const profileKebab = profile.properties[cases.kebabCase];
-                        const profileCamel = profile.properties[cases.camelCase];
-    
-                        if ((profileCamel !== undefined || profileKebab !== undefined) &&
-                            (!args.hasOwnProperty(cases.kebabCase) && !args.hasOwnProperty(cases.camelCase))) {
-    
-                            // If both case properties are present in the profile, use the one that matches
-                            // the option name explicitly
-                            const value = (profileKebab !== undefined && profileCamel !== undefined) ?
-                                ((opt.name === cases.kebabCase) ? profileKebab : profileCamel) :
-                                ((profileKebab !== undefined) ? profileKebab : profileCamel);
-                            const keys = CliUtils.setOptionValue(opt.name,
-                                ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
-                                value
-                            );
-                            profile = { ...profile, ...keys };
-                        }
-                    });
-                    args = CliUtils.mergeArguments(profile, args);
-                }
-            }
-        }
+        // for (const cnfgProf of cnfgProfs) {
+        //     const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(cnfgProf);
+        //     if (args[profOpt] != null) {
+        //         let profile = config.api.profiles.get(args[profOpt]);
+        //         if (profile != null) {
+        //             configProfiles[cnfgProf] = args[profOpt];
+        //             allOpts.forEach((opt) => {
+        //                 const cases = CliUtils.getOptionFormat(opt.name);
+        //                 const profileKebab = profile.properties[cases.kebabCase];
+        //                 const profileCamel = profile.properties[cases.camelCase];
+
+        //                 if ((profileCamel !== undefined || profileKebab !== undefined) &&
+        //                     (!args.hasOwnProperty(cases.kebabCase) && !args.hasOwnProperty(cases.camelCase))) {
+
+        //                     // If both case properties are present in the profile, use the one that matches
+        //                     // the option name explicitly
+        //                     const value = (profileKebab !== undefined && profileCamel !== undefined) ?
+        //                         ((opt.name === cases.kebabCase) ? profileKebab : profileCamel) :
+        //                         ((profileKebab !== undefined) ? profileKebab : profileCamel);
+        //                     const keys = CliUtils.setOptionValue(opt.name,
+        //                         ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
+        //                         value
+        //                     );
+        //                     profile = { ...profile, ...keys };
+        //                 }
+        //             });
+        //             args = CliUtils.mergeArguments(profile, args);
+        //         }
+        //     }
+        // }
 
         // Set the default value for all options if defaultValue was specified on the command
         // definition and the option was not specified
@@ -838,7 +863,8 @@ export class CommandProcessor {
 
         // Log for debugging
         this.log.trace(`Full argument object constructed:\n${inspect(args)}`);
-        return { profiles, args,  configProfiles};
+        console.log(args);
+        return { profiles, args, configProfiles };
     }
 
     /**
