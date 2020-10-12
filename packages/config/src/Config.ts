@@ -132,18 +132,30 @@ export class Config {
         return _;
     }
 
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    // APIs
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+
     get api() {
         // tslint:disable-next-line
         const outer = this;
 
         return new class {
 
+            ////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////
+            // Profiles API
+            ////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////
+
             // tslint:disable-next-line
             public profiles = new class {
 
                 public get(path: string, opts?: { active?: boolean }): IConfigProfile {
                     opts = opts || {};
-                    return outer.findProfile(path, (opts.active) ?
+                    return Config.findProfile(path, (opts.active) ?
                         JSON.parse(JSON.stringify(outer.activeLayer().properties.profiles)) :
                         JSON.parse(JSON.stringify(outer.properties.profiles)));
                 }
@@ -167,13 +179,13 @@ export class Config {
 
                 public build(path: string, opts?: { active?: boolean }): { [key: string]: string } {
                     opts = opts || {};
-                    return outer.buildProfile(path, (opts.active) ?
+                    return Config.buildProfile(path, (opts.active) ?
                         JSON.parse(JSON.stringify(outer.activeLayer().properties.profiles)) :
                         JSON.parse(JSON.stringify(outer.properties.profiles)));
                 }
 
                 public exists(path: string): boolean {
-                    return (outer.findProfile(path, outer.properties.profiles) != null);
+                    return (Config.findProfile(path, outer.properties.profiles) != null);
                 }
 
                 public names(): string[] {
@@ -200,6 +212,13 @@ export class Config {
 
             }(); // end of profiles inner class
 
+
+            ////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////
+            // Plugins API
+            ////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////
+
             // tslint:disable-next-line
             public plugins = new class {
 
@@ -207,6 +226,12 @@ export class Config {
                     return outer.properties.plugins;
                 }
             }(); // end of plugins inner class
+
+            ////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////
+            // Layers API
+            ////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////
 
             // tslint:disable-next-line
             public layers = new class {
@@ -262,6 +287,12 @@ export class Config {
                     }
                 }
             }(); // end of layers inner class
+
+            ////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////
+            // Secure API
+            ////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////
 
             // tslint:disable-next-line
             public secure = new class {
@@ -401,60 +432,9 @@ export class Config {
 
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
-    // Utilities
+    // Layer Utilities
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
-
-    public static search(file: string, opts?: any): string {
-        opts = opts || {};
-        if (opts.stop) opts.stop = node_path.resolve(opts.stop);
-        let p = node_path.join(process.cwd(), file);
-        const root = node_path.parse(process.cwd()).root;
-        let prev = null;
-        do {
-            // this should never happen, but we'll add a check to prevent
-            if (prev != null && prev === p)
-                throw new ImperativeError({ msg: `internal search error: prev === p (${prev})` });
-            if (fs.existsSync(p))
-                return p;
-            prev = p;
-            p = node_path.resolve(node_path.dirname(p), "..", file);
-        } while (p !== node_path.join(root, file) && opts.stop != null && node_path.dirname(p) !== opts.stop)
-        return null;
-    }
-
-    private static secureKey(cnfg: string, property: string): string {
-        return cnfg + "_" + property;
-    }
-
-    private buildProfile(path: string, profiles: { [key: string]: IConfigProfile }): { [key: string]: string } {
-        const segments: string[] = path.split(".");
-        let properties = {};
-        for (const [n, p] of Object.entries(profiles)) {
-            if (segments[0] === n) {
-                properties = { ...properties, ...p.properties };
-                if (segments.length > 1) {
-                    segments.splice(0, 1);
-                    properties = { ...properties, ...this.buildProfile(segments.join("."), p.profiles) };
-                }
-                break;
-            }
-        }
-        return properties;
-    }
-
-    private findProfile(path: string, profiles: { [key: string]: IConfigProfile }): IConfigProfile {
-        const segments: string[] = path.split(".");
-        for (const [n, p] of Object.entries(profiles)) {
-            if (segments.length === 1 && segments[0] === n) {
-                return p;
-            } else if (segments[0] === n && p.profiles != null) {
-                segments.splice(0, 1);
-                return this.findProfile(segments.join("."), p.profiles);
-            }
-        }
-        return null;
-    }
 
     private merge(): IConfig {
         const c: IConfig = {
@@ -500,5 +480,62 @@ export class Config {
                 return layer;
         }
         throw new ImperativeError({ msg: `internal error: no active layer found` });
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    // Static Utilities
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+
+    public static search(file: string, opts?: any): string {
+        opts = opts || {};
+        if (opts.stop) opts.stop = node_path.resolve(opts.stop);
+        let p = node_path.join(process.cwd(), file);
+        const root = node_path.parse(process.cwd()).root;
+        let prev = null;
+        do {
+            // this should never happen, but we'll add a check to prevent
+            if (prev != null && prev === p)
+                throw new ImperativeError({ msg: `internal search error: prev === p (${prev})` });
+            if (fs.existsSync(p))
+                return p;
+            prev = p;
+            p = node_path.resolve(node_path.dirname(p), "..", file);
+        } while (p !== node_path.join(root, file) && opts.stop != null && node_path.dirname(p) !== opts.stop)
+        return null;
+    }
+
+    private static secureKey(cnfg: string, property: string): string {
+        return cnfg + "_" + property;
+    }
+
+    private static buildProfile(path: string, profiles: { [key: string]: IConfigProfile }): { [key: string]: string } {
+        const segments: string[] = path.split(".");
+        let properties = {};
+        for (const [n, p] of Object.entries(profiles)) {
+            if (segments[0] === n) {
+                properties = { ...properties, ...p.properties };
+                if (segments.length > 1) {
+                    segments.splice(0, 1);
+                    properties = { ...properties, ...this.buildProfile(segments.join("."), p.profiles) };
+                }
+                break;
+            }
+        }
+        return properties;
+    }
+
+    private static findProfile(path: string, profiles: { [key: string]: IConfigProfile }): IConfigProfile {
+        const segments: string[] = path.split(".");
+        for (const [n, p] of Object.entries(profiles)) {
+            if (segments.length === 1 && segments[0] === n) {
+                return p;
+            } else if (segments[0] === n && p.profiles != null) {
+                segments.splice(0, 1);
+                return this.findProfile(segments.join("."), p.profiles);
+            }
+        }
+        return null;
     }
 }
