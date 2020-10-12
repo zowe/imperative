@@ -14,7 +14,7 @@ import { Config } from "../../../../../config/Config";
 import { ImperativeError } from "../../../../../error";
 import { CliUtils, ImperativeConfig } from "../../../../../utilities";
 import * as https from "https";
-import { IConfig } from "../../../../../config/IConfig";
+import { IConfgProfile, IConfig } from "../../../../../config/IConfig";
 
 /**
  * The get command group handler for cli configuration settings.
@@ -43,8 +43,9 @@ export default class InitHandler implements ICommandHandler {
 
             // If schemas are specified, use them as a guide
             if (params.arguments.profile) {
-                const name = params.arguments.profile;
-                if (name.trim().length === 0) throw new ImperativeError({ msg: `name is required` });
+                const profile: IConfgProfile = { properties: {} };
+                const path = params.arguments.profile;
+                if (path.trim().length === 0) throw new ImperativeError({ msg: `name is required` });
 
                 // if the profile type is requested - walk them thru it
                 if (params.arguments.addType) {
@@ -58,7 +59,6 @@ export default class InitHandler implements ICommandHandler {
                         const s = ImperativeConfig.instance.configSchemas[type];
 
                         // prompt for the values
-                        const profile: any = {};
                         const secureProps: string[] = [];
                         for (const [property, schemaProperty] of Object.entries((s as any).properties)) {
                             if (params.arguments.secure === false || params.arguments.secure && (schemaProperty as any).secure) {
@@ -81,21 +81,19 @@ export default class InitHandler implements ICommandHandler {
                                         value = false;
                                     if (!isNaN(value) && !isNaN(parseFloat(value)))
                                         value = parseInt(value, 10);
-                                    profile[property] = value;
+                                    profile.properties[property] = value;
                                 } else if (params.arguments.default && (schemaProperty as any).optionDefinition.defaultValue != null) {
-                                    profile[property] = (schemaProperty as any).optionDefinition.defaultValue;
+                                    profile.properties[property] = (schemaProperty as any).optionDefinition.defaultValue;
                                 }
                             }
                         }
-
-                        // Set the profile, set it as default if requested, and save
-                        config.api.profiles.typeProfileSet(name, type, tname, profile, { secure: secureProps });
                     } else {
                         params.response.console.error(`type ${type} does not exist`);
                     }
-                } else {
-                    config.api.profiles.set(name, {});
                 }
+
+                // Add the profile
+                config.api.profiles.set(path, profile);
             }
         }
 

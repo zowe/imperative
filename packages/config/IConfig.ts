@@ -9,20 +9,16 @@
 *
 */
 
-export interface IConfigType {
-    properties: { [key: string]: string }
-    secure: string[],
-};
 
 export interface IConfgProfile {
-    properties?: { [key: string]: string },
-    secure?: string[],
-    defaults?: { [key: string]: string },
-    types?: { [key: string]: { [key: string]: IConfigType } }
+    properties: { [key: string]: string };
+    type?: string;
+    profiles?: { [key: string]: IConfgProfile };
 };
 
 export interface IConfig {
     defaults: { [key: string]: string },
     profiles: { [key: string]: IConfgProfile },
     plugins: string[],
+    secure: string[]
 }

@@ -758,34 +758,10 @@ export class CommandProcessor {
         let configProps: any = {};
         for (const profileType of allProfileTypes) {
             const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(profileType);
-            let name = args[profOpt];
-            name = name || config.api.defaults.get(profileType);
-            if (name != null && name !== "") {
-                let merge = {};
-                const p = config.api.profiles.get(name);
-                if (p != null) {
-                    merge = { ...p.properties };
-
-                    const entries: string[] = config.api.profiles.typeProfileNames(name, profileType);
-                    if (entries != null && entries.length === 1) {
-                        const t = config.api.profiles.typeProfileGet(name, profileType, entries[0]);
-                        merge = { ...merge, ...t.properties };
-                    }
-
-                    const types: string[] = config.api.profiles.typeNames(name);
-                    for (const pt of allProfileTypes) {
-                        const [ptopt, _] = ProfileUtils.getProfileOptionAndAlias(pt);
-                        if (args[ptopt] != null) {
-                            console.log(args[ptopt]);
-                            if (types.indexOf(pt) >= 0) {
-                                if (config.api.profiles.typeProfileGet(name, pt, args[ptopt]) != null)
-                                    merge = { ...merge, ...config.api.profiles.typeProfileGet(name, pt, args[ptopt]).properties };
-                            }
-                        }
-                    }
-                }
-                configProps = CliUtils.mergeArguments(merge, configProps);
-            }
+            const p = (args[profOpt] != null && args[profOpt] !== "") ?
+                config.api.profiles.build(args[profOpt]) :
+                config.api.defaults.build(profileType)
+            configProps = { ...configProps, ...p };
         }
 
         allOpts.forEach((opt) => {

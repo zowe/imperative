@@ -11,27 +11,20 @@ import { config } from "yargs";
 *
 */
 
-import { IConfgProfile, IConfigType } from "./IConfig";
+import { IConfgProfile } from "./IConfig";
 
 export interface IConfigApi {
     defaults: {
+        build: (key: string) => {[key: string]: string};
         get: (key: string) => { name: string, profile: IConfgProfile };
         set: (key: string, value: string) => void;
     };
     profiles: {
-        set: (name: string, profile: IConfgProfile) => void;
-        get: (name: string, opts?: { active?: boolean }) => IConfgProfile;
-        exists: (name: string) => boolean;
+        set: (path: string, profile: IConfgProfile) => void;
+        get: (path: string, opts?: { active?: boolean }) => IConfgProfile;
+        build: (path: string, opts?:  { active?: boolean }) => {[key: string]: string};
+        exists: (path: string) => boolean;
         names: () => string[];
-
-        typeNames: (profile: string) => string[];
-        typeExists: (profile: string, type: string) => boolean;
-        typeDefaultSet: (profile: string, type: string, name: string) => void;
-        typeDefaultGet: (profile: string, type: string) => { name: string, profile: IConfigType };
-        typeProfileGet: (profile: string, type: string, name: string) => IConfigType;
-        typeProfileSet: (profile: string, type: string, name: string, properties: { [key: string]: string }, opts?: { secure: string[] }) => void;
-        typeProfileNames: (profile: string, type: string) => string[];
-        typeProfileExists: (profile: string, type: string, name: string) => boolean;
     };
     plugins: {
         get: () => string[];
