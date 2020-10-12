@@ -9,3 +9,10 @@
 *
 */
 
+export * from "./src/Config";
+export * from "./src/doc/IConfig";
+export * from "./src/doc/IConfigLayer";
+export * from "./src/doc/IConfigOpts";
+export * from "./src/doc/IConfigProfile";
+export * from "./src/doc/IConfigSecure";
+

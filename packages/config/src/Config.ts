@@ -9,16 +9,16 @@
 *
 */
 
-import { IConfig } from "./IConfig";
-import { IConfigLayer } from "./IConfigLayer";
-import { ImperativeError } from "../error";
-
 import * as node_path from "path";
 import * as fs from "fs";
 import * as deepmerge from "deepmerge";
-import { IConfigProfile } from "./IConfigProfile";
-import { IConfigVault } from "./IConfigSecure";
-import { IConfigOpts } from "./IConfigOpts";
+
+import { IConfig } from "./doc/IConfig";
+import { IConfigLayer } from "./doc/IConfigLayer";
+import { ImperativeError } from "../../error";
+import { IConfigProfile } from "./doc/IConfigProfile";
+import { IConfigVault } from "./doc/IConfigSecure";
+import { IConfigOpts } from "./doc/IConfigOpts";
 
 enum layers {
     project_user = 0,

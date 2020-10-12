@@ -12,7 +12,7 @@
 import { ImperativeConfig } from "../../../../utilities";
 import { dirname, join } from "path";
 import { Logger } from "../../../../logger";
-import { Config } from "../../../../config/Config";
+import { Config } from "../../../../config/src/Config";
 import { REPL_MODE_SLOPPY } from "repl";
 
 /**

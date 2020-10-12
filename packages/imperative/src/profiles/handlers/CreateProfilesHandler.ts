@@ -16,7 +16,7 @@ import { ICommandHandler, ICommandProfileProperty, IHandlerParameters } from "..
 
 import { Constants } from "../../../../constants";
 import { ImperativeConfig, TextUtils } from "../../../../utilities";
-import { Config } from "../../../../config/Config";
+import { Config } from "../../../../config/src/Config";
 
 import * as path from "path";
 

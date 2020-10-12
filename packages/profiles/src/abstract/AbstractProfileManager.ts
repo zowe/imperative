@@ -37,7 +37,7 @@ import {
 } from "../doc/";
 import { ProfileIO, ProfileUtils } from "../utils";
 import { ImperativeConfig } from "../../../utilities";
-import { Config } from "../../../config/Config";
+import { Config } from "../../../config/src/Config";
 import { profile } from "console";
 
 const SchemaValidator = require("jsonschema").Validator;

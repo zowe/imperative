@@ -17,7 +17,7 @@ import { ISettingsFilePersistence } from "./persistance/ISettingsFilePersistence
 import { JSONSettingsFilePersistence } from "./persistance/JSONSettingsFilePersistence";
 import { IO } from "../../io";
 import { ImperativeError } from "../../error";
-import { Config } from "../../config/Config";
+import { Config } from "../../config/src/Config";
 
 type SettingValue = false | string;
 

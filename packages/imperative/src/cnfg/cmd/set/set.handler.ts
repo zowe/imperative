@@ -10,12 +10,10 @@
 */
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { Config } from "../../../../../config/Config";
-import { IConfigOpts } from "../../../../../config/IConfigOpts";
+import { Config, IConfigOpts } from "../../../../../config";
 import { ImperativeError } from "../../../../../error";
 import { CredentialManagerFactory } from "../../../../../security";
 import { ImperativeConfig } from "../../../../../utilities";
-
 
 /**
  * The get command group handler for cli configuration settings.

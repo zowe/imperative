@@ -10,12 +10,11 @@
 */
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { Config } from "../../../../../config/Config";
+import { Config } from "../../../../../config/src/Config";
 import { ImperativeError } from "../../../../../error";
 import { CliUtils, ImperativeConfig } from "../../../../../utilities";
 import * as https from "https";
-import { IConfig } from "../../../../../config/IConfig";
-import { IConfigProfile } from "../../../../../config/IConfigProfile";
+import { IConfig, IConfigProfile } from "../../../../../config";
 
 /**
  * The get command group handler for cli configuration settings.

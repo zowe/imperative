@@ -15,7 +15,7 @@ import { IImperativeConfig } from "../../imperative/src/doc/IImperativeConfig";
 import { ImperativeError } from "../../error";
 import { EnvironmentalVariableSettings } from "../../imperative/src/env/EnvironmentalVariableSettings";
 import { ICommandProfileTypeConfiguration } from "../../cmd";
-import { Config } from "../../config/Config";
+import { Config } from "../../config/src/Config";
 
 /**
  * This class is used to contain all configuration being set by Imperative.

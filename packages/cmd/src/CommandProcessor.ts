@@ -40,13 +40,13 @@ import { ICommandArguments } from "./doc/args/ICommandArguments";
 import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "./help/WebHelpManager";
 import { IO } from "../../io";
-import { Config } from "../../config/Config";
+import { Config } from "../../config/src/Config";
 import { ICommandProfileLoaderParms } from "./doc/profiles/parms/ICommandProfileLoaderParms";
 import { CommandProfiles } from "./profiles/CommandProfiles";
 import { ICommandProfileSchema } from "./doc/profiles/definition/ICommandProfileSchema";
 import { ICommandOptionDefinition } from "./doc/option/ICommandOptionDefinition";
 import { CredentialManagerFactory } from "../../security";
-import { IConfigOpts } from "../../config/IConfigOpts";
+import { IConfigOpts } from "../../config";
 
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
