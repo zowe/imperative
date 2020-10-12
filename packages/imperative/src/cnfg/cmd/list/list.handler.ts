@@ -28,8 +28,7 @@ export default class ListHandler implements ICommandHandler {
      * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
-        const config = Config.load(ImperativeConfig.instance.rootCommandName,
-            { schemas: ImperativeConfig.instance.configSchemas });
+        const config = Config.load(ImperativeConfig.instance.rootCommandName);
 
         // Do nothing if the property doesn't exist
         if (params.arguments.property &&

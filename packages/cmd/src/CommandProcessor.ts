@@ -45,6 +45,8 @@ import { ICommandProfileLoaderParms } from "./doc/profiles/parms/ICommandProfile
 import { CommandProfiles } from "./profiles/CommandProfiles";
 import { ICommandProfileSchema } from "./doc/profiles/definition/ICommandProfileSchema";
 import { ICommandOptionDefinition } from "./doc/option/ICommandOptionDefinition";
+import { CredentialManagerFactory } from "../../security";
+import { IConfigOpts } from "../../config/IConfigOpts";
 
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
@@ -717,8 +719,24 @@ export class CommandProcessor {
         this.log.trace(`Loading profiles for "${this.definition.name}" command. ` +
             `Profile definitions: ${inspect(this.definition.profile, { depth: null })}`);
 
-        // Load the configuration and load secure fields from config
-        const config = Config.load(ImperativeConfig.instance.rootCommandName);
+        // If the credential manager is initialized - setup the interface
+        let opts: IConfigOpts = null;
+        if (CredentialManagerFactory.initialized) {
+            opts = {
+                vault: {
+                    load: ((key: string): Promise<string> => {
+                        return CredentialManagerFactory.manager.load(key)
+                    }),
+                    save: ((key: string, value: any): Promise<void> => {
+                        return CredentialManagerFactory.manager.save(key, value);
+                    }),
+                    name: CredentialManagerFactory.manager.name
+                }
+            };
+        }
+
+        // Load the config and load secure values
+        const config = Config.load(ImperativeConfig.instance.rootCommandName, opts);
         await config.api.secure.load();
 
         // Load profiles if config doesn't exist

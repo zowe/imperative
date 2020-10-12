@@ -9,11 +9,8 @@
 *
 */
 
-import { IConfigProfile } from "./IConfigProfile";
-
-export interface IConfig {
-    defaults: { [key: string]: string },
-    profiles: { [key: string]: IConfigProfile },
-    plugins: string[],
-    secure: string[]
-}
+export interface IConfigVault {
+    load: (key: string) => Promise<any>;
+    save: (key: string, value: any) => Promise<void>;
+    name: string;
+};

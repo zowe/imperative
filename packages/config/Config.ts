@@ -9,13 +9,16 @@
 *
 */
 
-import { CredentialManagerFactory } from "../security";
-import * as fs from "fs";
-import * as node_path from "path";
-import { IConfgProfile, IConfig } from "./IConfig";
+import { IConfig } from "./IConfig";
 import { IConfigLayer } from "./IConfigLayer";
 import { ImperativeError } from "../error";
+
+import * as node_path from "path";
+import * as fs from "fs";
 import * as deepmerge from "deepmerge";
+import { IConfigProfile } from "./IConfigProfile";
+import { IConfigVault } from "./IConfigSecure";
+import { IConfigOpts } from "./IConfigOpts";
 
 enum layers {
     project_user = 0,
@@ -30,7 +33,6 @@ export class Config {
     private _app: string;
     private _paths: string[];
     private _layers: IConfigLayer[];
-    private _base: IConfig;
     private _home: string;
     private _name: string;
     private _user: string;
@@ -38,10 +40,13 @@ export class Config {
         user: boolean;
         global: boolean
     };
+    private _vault: IConfigVault;
+    private _secure: boolean;
 
     private constructor() { }
 
-    public static load(app: string): Config {
+    public static load(app: string, opts?: IConfigOpts): Config {
+        opts = opts || {};
 
         ////////////////////////////////////////////////////////////////////////
         // Create the basic empty configuration
@@ -54,6 +59,8 @@ export class Config {
         _._user = `${app}.config.user.json`;
         _._active = { user: false, global: false };
         _._app = app;
+        _._vault = opts.vault;
+        _._secure = false;
 
         ////////////////////////////////////////////////////////////////////////
         // Populate configuration file layers
@@ -69,25 +76,25 @@ export class Config {
         let user = Config.search(_._user, { stop: home });
         if (user == null)
             user = node_path.join(process.cwd(), _._user);
-        _.paths.push(user);
-        _.layers.push({ path: user, exists: false, properties, global: false, user: true });
+        _._paths.push(user);
+        _._layers.push({ path: user, exists: false, properties, global: false, user: true });
 
         // Find/create project layer
         let project = Config.search(_._name, { stop: home });
         if (project == null)
             project = node_path.join(process.cwd(), _._name);
-        _.paths.push(project);
-        _.layers.push({ path: project, exists: false, properties, global: false, user: false });
+        _._paths.push(project);
+        _._layers.push({ path: project, exists: false, properties, global: false, user: false });
 
         // create the user layer
         const usrGlbl = node_path.join(_._home, _._user);
-        _.paths.push(usrGlbl);
-        _.layers.push({ path: usrGlbl, exists: false, properties, global: true, user: true });
+        _._paths.push(usrGlbl);
+        _._layers.push({ path: usrGlbl, exists: false, properties, global: true, user: true });
 
         // create the global layer
         const glbl = node_path.join(_._home, _._name);
-        _.paths.push(glbl);
-        _.layers.push({ path: glbl, exists: false, properties, global: true, user: false });
+        _._paths.push(glbl);
+        _._layers.push({ path: glbl, exists: false, properties, global: true, user: false });
 
         ////////////////////////////////////////////////////////////////////////
         // Read and populate each configuration layer
@@ -121,200 +128,196 @@ export class Config {
         }
 
         ////////////////////////////////////////////////////////////////////////
-        // Complete - retain the "base" aka original configuration
-        _._base = JSON.parse(JSON.stringify(_.merge()));
+        // Complete
         return _;
     }
 
-    get api2() {
+    get api() {
         // tslint:disable-next-line
-        const parent = this;
+        const outer = this;
 
-        // tslint:disable-next-line
         return new class {
 
             // tslint:disable-next-line
-            public profiles2 = new class {
-                public jason() {
-                    console.log("wow!");
+            public profiles = new class {
+
+                public get(path: string, opts?: { active?: boolean }): IConfigProfile {
+                    opts = opts || {};
+                    return outer.findProfile(path, (opts.active) ?
+                        JSON.parse(JSON.stringify(outer.activeLayer().properties.profiles)) :
+                        JSON.parse(JSON.stringify(outer.properties.profiles)));
                 }
-            }();
-        }();
-    }
 
-    // tslint:disable-next-line
-    public api = new class {
-        constructor(public parent: Config) { }
-
-        // tslint:disable-next-line
-        public profiles = new class {
-            constructor(public parent: Config) { }
-
-            public get(path: string, opts?: { active?: boolean }): IConfgProfile {
-                opts = opts || {};
-                return this.parent.findProfile(path, (opts.active) ?
-                    JSON.parse(JSON.stringify(this.parent.activeLayer().properties.profiles)) :
-                    JSON.parse(JSON.stringify(this.parent.properties.profiles)));
-            }
-
-            public set(path: string, profile: IConfgProfile): void {
-                profile.properties = profile.properties || {};
-                const layer = this.parent.activeLayer();
-                const segments: string[] = path.split(".");
-                let p: any = layer.properties;
-                for (let x = 0; x < segments.length; x++) {
-                    const segment = segments[x];
-                    if (p.profiles == null)
-                        p.profiles = {};
-                    if (p.profiles[segment] == null)
-                        p.profiles[segment] = { properties: {} };
-                    if (x === segments.length - 1)
-                        p.profiles[segment] = profile;
-                    p = p.profiles[segment];
+                public set(path: string, profile: IConfigProfile): void {
+                    profile.properties = profile.properties || {};
+                    const layer = outer.activeLayer();
+                    const segments: string[] = path.split(".");
+                    let p: any = layer.properties;
+                    for (let x = 0; x < segments.length; x++) {
+                        const segment = segments[x];
+                        if (p.profiles == null)
+                            p.profiles = {};
+                        if (p.profiles[segment] == null)
+                            p.profiles[segment] = { properties: {} };
+                        if (x === segments.length - 1)
+                            p.profiles[segment] = profile;
+                        p = p.profiles[segment];
+                    }
                 }
-            }
 
-            public build(path: string, opts?: { active?: boolean }): { [key: string]: string } {
-                opts = opts || {};
-                return this.parent.buildProfile(path, (opts.active) ?
-                    JSON.parse(JSON.stringify(this.parent.activeLayer().properties.profiles)) :
-                    JSON.parse(JSON.stringify(this.parent.properties.profiles)));
-            }
+                public build(path: string, opts?: { active?: boolean }): { [key: string]: string } {
+                    opts = opts || {};
+                    return outer.buildProfile(path, (opts.active) ?
+                        JSON.parse(JSON.stringify(outer.activeLayer().properties.profiles)) :
+                        JSON.parse(JSON.stringify(outer.properties.profiles)));
+                }
 
-            public exists(path: string): boolean {
-                return (this.parent.findProfile(path, this.parent.properties.profiles) != null);
-            }
+                public exists(path: string): boolean {
+                    return (outer.findProfile(path, outer.properties.profiles) != null);
+                }
 
-            public names(): string[] {
-                return Object.keys(this.parent.properties.profiles);
-            }
+                public names(): string[] {
+                    return Object.keys(outer.properties.profiles);
+                }
 
-            public defaultSet(key: string, value: string) {
-                this.parent.activeLayer().properties.defaults[key] = value;
-            }
+                public defaultSet(key: string, value: string) {
+                    outer.activeLayer().properties.defaults[key] = value;
+                }
 
-            public defaultGet(key: string): { name: string, profile: IConfgProfile } {
-                const dflt = this.parent.properties.defaults[key];
-                if (dflt == null || !this.exists(dflt))
-                    return null;
-                return { name: dflt, profile: this.get(dflt) };
-            }
+                public defaultGet(key: string): { name: string, profile: IConfigProfile } {
+                    const dflt = outer.properties.defaults[key];
+                    if (dflt == null || !this.exists(dflt))
+                        return null;
+                    return { name: dflt, profile: this.get(dflt) };
+                }
 
-            public defaultBuild(key: string): { [key: string]: string } {
-                const dflt = this.parent.properties.defaults[key];
-                if (dflt == null || !this.exists(dflt))
-                    return null;
-                return this.build(dflt);
-            }
+                public defaultBuild(key: string): { [key: string]: string } {
+                    const dflt = outer.properties.defaults[key];
+                    if (dflt == null || !this.exists(dflt))
+                        return null;
+                    return this.build(dflt);
+                }
 
-        }(this.parent); // end of profiles inner class
+            }(); // end of profiles inner class
 
-        // tslint:disable-next-line
-        public plugins = new class {
-            constructor(public parent: Config) { }
+            // tslint:disable-next-line
+            public plugins = new class {
 
-            public get(): string[] {
-                return this.parent.properties.plugins;
-            }
+                public get(): string[] {
+                    return outer.properties.plugins;
+                }
+            }(); // end of plugins inner class
 
-            public new(): string[] {
-                const base = this.parent._base.plugins;
-                return this.parent.properties.plugins.filter((plugin: string) => {
-                    return base.indexOf(plugin) < 0
-                });
-            }
+            // tslint:disable-next-line
+            public layers = new class {
 
-        }(this.parent); // end of plugins inner class
+                public write() {
+                    const layer: IConfigLayer = JSON.parse(JSON.stringify(outer.activeLayer()));
 
-        // tslint:disable-next-line
-        public layers = new class {
-            constructor(public parent: Config) { }
-
-            public async write(): Promise<any> {
-                const layer: IConfigLayer = JSON.parse(JSON.stringify(this.parent.activeLayer()));
-
-                // If the credential manager factory is initialized then we must iterate
-                // through the profiles and securely store the values
-                if (CredentialManagerFactory.initialized && layer.properties.secure != null) {
-                    for (const path of layer.properties.secure) {
-                        const segments = path.split(".");
-                        let obj: any = layer.properties;
-                        for (let x = 0; x < segments.length; x++) {
-                            const segment = segments[x];
-                            const v = obj[segment];
-                            if (v == null) break;
-                            if (x === segments.length - 1) {
-                                await CredentialManagerFactory.manager.save(Config.secureKey(layer.path, path), JSON.stringify(v));
-                                obj[segment] = `managed by ${CredentialManagerFactory.manager.name}`;
-                                break;
+                    // If fields are marked as secure
+                    if (layer.properties.secure != null && outer._secure) {
+                        for (const path of layer.properties.secure) {
+                            const segments = path.split(".");
+                            let obj: any = layer.properties;
+                            for (let x = 0; x < segments.length; x++) {
+                                const segment = segments[x];
+                                const v = obj[segment];
+                                if (v == null) break;
+                                if (x === segments.length - 1) {
+                                    obj[segment] = `managed by ${outer._vault.name}`;
+                                    break;
+                                }
+                                obj = obj[segment];
                             }
-                            obj = obj[segment];
+                        }
+                    }
+
+                    // Write the layer
+                    try {
+                        fs.writeFileSync(layer.path, JSON.stringify(layer.properties, null, Config.IDENT));
+                    } catch (e) {
+                        throw new ImperativeError({ msg: `error writing "${layer.path}": ${e.message}` });
+                    }
+                    layer.exists = true;
+                }
+
+                public activate(user: boolean, global: boolean) {
+                    outer._active.user = user;
+                    outer._active.global = global;
+                }
+
+                public get(): IConfigLayer {
+                    return JSON.parse(JSON.stringify(outer.activeLayer()));
+                }
+
+                public set(cnfg: IConfig) {
+                    for (const i in outer._layers) {
+                        if (outer._layers[i].user === outer._active.user &&
+                            outer._layers[i].global === outer._active.global) {
+                            outer._layers[i].properties = cnfg;
+                            outer._layers[i].properties.defaults = outer._layers[i].properties.defaults || {};
+                            outer._layers[i].properties.profiles = outer._layers[i].properties.profiles || {};
+                            outer._layers[i].properties.plugins = outer._layers[i].properties.plugins || [];
                         }
                     }
                 }
+            }(); // end of layers inner class
 
-                // Write the layer
-                try {
-                    fs.writeFileSync(layer.path, JSON.stringify(layer.properties, null, Config.IDENT));
-                } catch (e) {
-                    throw new ImperativeError({ msg: `error writing "${layer.path}": ${e.message}` });
-                }
-                layer.exists = true;
-            }
+            // tslint:disable-next-line
+            public secure = new class {
 
-            public activate(user: boolean, global: boolean) {
-                this.parent._active.user = user;
-                this.parent._active.global = global;
-            }
-
-            public get(): IConfigLayer {
-                return JSON.parse(JSON.stringify(this.parent.activeLayer()));
-            }
-
-            public set(cnfg: IConfig) {
-                for (const i in this.parent._layers) {
-                    if (this.parent._layers[i].user === this.parent._active.user &&
-                        this.parent._layers[i].global === this.parent._active.global) {
-                        this.parent._layers[i].properties = cnfg;
-                        this.parent._layers[i].properties.defaults = this.parent._layers[i].properties.defaults || {};
-                        this.parent._layers[i].properties.profiles = this.parent._layers[i].properties.profiles || {};
-                        this.parent._layers[i].properties.plugins = this.parent._layers[i].properties.plugins || [];
+                public async load() {
+                    // If the secure option is set - load the secure values for the profiles
+                    if (outer._vault != null) {
+                        for (const layer of outer.layers) {
+                            if (layer.properties.secure != null) {
+                                for (const path of layer.properties.secure) {
+                                    const segments = path.split(".");
+                                    let obj: any = outer.activeLayer().properties;
+                                    for (let x = 0; x < segments.length; x++) {
+                                        const segment = segments[x];
+                                        if (x === segments.length - 1) {
+                                            const v = await outer._vault.load(Config.secureKey(layer.path, path));
+                                            if (v != null) obj[segment] = JSON.parse(v);
+                                            break;
+                                        }
+                                        obj = obj[segment];
+                                        if (obj == null) break;
+                                    }
+                                }
+                            }
+                        }
+                        outer._secure = true;
                     }
                 }
-            }
-        }(this.parent); // end of layers inner class
 
-        // tslint:disable-next-line
-        public secure = new class {
-            constructor(public parent: Config) { }
-
-            public async load() {
-                // If the secure option is set - load the secure values for the profiles
-                if (CredentialManagerFactory.initialized) {
-                    for (const layer of this.parent.layers) {
-                        if (layer.properties.secure != null) {
-                            for (const path of layer.properties.secure) {
-                                const segments = path.split(".");
-                                let obj: any = this.parent.activeLayer().properties;
-                                for (let x = 0; x < segments.length; x++) {
-                                    const segment = segments[x];
-                                    if (x === segments.length - 1) {
-                                        const v = await CredentialManagerFactory.manager.load(Config.secureKey(layer.path, path), true);
-                                        if (v != null) obj[segment] = JSON.parse(v);
-                                        break;
+                public async save() {
+                    if (outer._vault != null) {
+                        for (const layer of outer.layers) {
+                            if (layer.properties.secure != null) {
+                                for (const path of layer.properties.secure) {
+                                    const segments = path.split(".");
+                                    let obj: any = layer.properties;
+                                    for (let x = 0; x < segments.length; x++) {
+                                        const segment = segments[x];
+                                        const v = obj[segment];
+                                        if (v == null) break;
+                                        if (x === segments.length - 1) {
+                                            await outer._vault.save(Config.secureKey(layer.path, path), JSON.stringify(v));
+                                            break;
+                                        }
+                                        obj = obj[segment];
                                     }
-                                    obj = obj[segment];
-                                    if (obj == null) break;
                                 }
                             }
                         }
                     }
                 }
-            }
 
-        }(this.parent); // end of secure inner class
+            }(); // end of secure inner class
 
-    }(this); // end of api inner class
+        }(); // end of api inner class
+    }
 
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
@@ -332,16 +335,16 @@ export class Config {
         return this._paths
     }
 
-    public get base(): IConfig {
-        return JSON.parse(JSON.stringify(this._base));
-    }
-
     public get layers(): IConfigLayer[] {
         return JSON.parse(JSON.stringify(this._layers));
     }
 
     public get properties(): IConfig {
         return this.merge();
+    }
+
+    public get app(): string {
+        return this._app;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -392,6 +395,10 @@ export class Config {
             layer.properties.secure = Array.from(new Set(layer.properties.secure.concat([path])));
     }
 
+    public write() {
+        this.api.layers.write();
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
     // Utilities
@@ -420,7 +427,7 @@ export class Config {
         return cnfg + "_" + property;
     }
 
-    private buildProfile(path: string, profiles: { [key: string]: IConfgProfile }): { [key: string]: string } {
+    private buildProfile(path: string, profiles: { [key: string]: IConfigProfile }): { [key: string]: string } {
         const segments: string[] = path.split(".");
         let properties = {};
         for (const [n, p] of Object.entries(profiles)) {
@@ -436,7 +443,7 @@ export class Config {
         return properties;
     }
 
-    private findProfile(path: string, profiles: { [key: string]: IConfgProfile }): IConfgProfile {
+    private findProfile(path: string, profiles: { [key: string]: IConfigProfile }): IConfigProfile {
         const segments: string[] = path.split(".");
         for (const [n, p] of Object.entries(profiles)) {
             if (segments.length === 1 && segments[0] === n) {
@@ -464,7 +471,7 @@ export class Config {
 
             // Merge "defaults" - only add new properties from this layer
             for (const [name, value] of Object.entries(layer.properties.defaults))
-                c.defaults[name] = JSON.parse(JSON.stringify(c.defaults[name])) || value;
+                c.defaults[name] = c.defaults[name] || value;
         });
 
         // Merge the project layer profiles together
@@ -475,7 +482,7 @@ export class Config {
         // Merge the global layer profiles together
         const usrGlobal = JSON.parse(JSON.stringify(this._layers[layers.global_user].properties.profiles));
         const global = JSON.parse(JSON.stringify(this._layers[layers.global_config].properties.profiles));
-        const glbl: { [key: string]: IConfgProfile } = deepmerge(global, usrGlobal);
+        const glbl: { [key: string]: IConfigProfile } = deepmerge(global, usrGlobal);
 
         // Traverse all the global profiles merging any missing from project profiles
         c.profiles = usr;

@@ -14,7 +14,8 @@ import { Config } from "../../../../../config/Config";
 import { ImperativeError } from "../../../../../error";
 import { CliUtils, ImperativeConfig } from "../../../../../utilities";
 import * as https from "https";
-import { IConfgProfile, IConfig } from "../../../../../config/IConfig";
+import { IConfig } from "../../../../../config/IConfig";
+import { IConfigProfile } from "../../../../../config/IConfigProfile";
 
 /**
  * The get command group handler for cli configuration settings.
@@ -29,21 +30,20 @@ export default class InitHandler implements ICommandHandler {
      * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
-        const config = Config.load(ImperativeConfig.instance.rootCommandName,
-            { schemas: ImperativeConfig.instance.configSchemas });
-        config.layerActivate(params.arguments.user, params.arguments.global);
-        const layer = config.layerGet();
+        const config = Config.load(ImperativeConfig.instance.rootCommandName);
+        config.api.layers.activate(params.arguments.user, params.arguments.global);
+        const layer = config.api.layers.get();
         if (layer.exists && !params.arguments.update)
             throw new ImperativeError({ msg: `config "${layer.path}" already exists` });
 
         if (params.arguments.url) {
             const cnfg = await this.getConfig(params.arguments.url);
-            config.layerSet(cnfg);
+            config.api.layers.set(cnfg);
         } else {
 
             // If schemas are specified, use them as a guide
             if (params.arguments.profile) {
-                const profile: IConfgProfile = { properties: {} };
+                const profile: IConfigProfile = { properties: {} };
                 const path = params.arguments.profile;
                 if (path.trim().length === 0) throw new ImperativeError({ msg: `name is required` });
 
@@ -98,7 +98,7 @@ export default class InitHandler implements ICommandHandler {
         }
 
         // Write the config
-        await config.layerWrite();
+        config.write();
     }
 
     private getConfig(url: string): Promise<IConfig> {

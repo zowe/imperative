@@ -11,7 +11,9 @@
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { Config } from "../../../../../config/Config";
+import { IConfigOpts } from "../../../../../config/IConfigOpts";
 import { ImperativeError } from "../../../../../error";
+import { CredentialManagerFactory } from "../../../../../security";
 import { ImperativeConfig } from "../../../../../utilities";
 
 
@@ -29,10 +31,23 @@ export default class SetHandler implements ICommandHandler {
      * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
-        const config = Config.load(ImperativeConfig.instance.rootCommandName,
-            { schemas: ImperativeConfig.instance.configSchemas });
-        await config.loadSecure();
-        config.layerActivate(params.arguments.user, params.arguments.global);
+        let opts: IConfigOpts = null;
+        if (CredentialManagerFactory.initialized) {
+            opts = {
+                vault: {
+                    load: ((k: string): Promise<string> => {
+                        return CredentialManagerFactory.manager.load(k)
+                    }),
+                    save: ((k: string, v: any): Promise<void> => {
+                        return CredentialManagerFactory.manager.save(k, v);
+                    }),
+                    name: CredentialManagerFactory.manager.name
+                }
+            };
+        }
+        const config = Config.load(ImperativeConfig.instance.rootCommandName, opts);
+        await config.api.secure.load();
+        config.api.layers.activate(params.arguments.user, params.arguments.global);
         // await config.api.profiles.loadSecure();
         let value = params.arguments.value;
         if (params.arguments.json) {
@@ -47,6 +62,7 @@ export default class SetHandler implements ICommandHandler {
             secure: params.arguments.secure,
             append: params.arguments.append
         });
-        await config.layerWrite();
+        await config.api.secure.save();
+        config.write();
     }
 }

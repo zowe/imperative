@@ -9,11 +9,3 @@
 *
 */
 
-import { IConfigProfile } from "./IConfigProfile";
-
-export interface IConfig {
-    defaults: { [key: string]: string },
-    profiles: { [key: string]: IConfigProfile },
-    plugins: string[],
-    secure: string[]
-}

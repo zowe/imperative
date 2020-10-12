@@ -120,18 +120,16 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         // update the profile given
         if (!params.arguments.showToken) {
             let profileWithToken: string = null;
-            const config = Config.load(ImperativeConfig.instance.rootCommandName, {
-                schemas: ImperativeConfig.instance.configSchemas
-            });
-            await config.loadSecure();
+            const config = Config.load(ImperativeConfig.instance.rootCommandName);
+            await config.api.secure.load();
 
             if (params.configProfiles[this.mProfileType] != null) {
                 const name = params.configProfiles[this.mProfileType];
-                const profile = config.layerGet().properties.profiles[name];
+                const profile = config.api.layers.get().properties.profiles[name];
                 profile.properties["token-type"] = this.mSession.ISession.tokenType;
                 profile.properties["token-value"] = this.mSession.ISession.tokenType;
                 // config.api.profiles.set(name, profile.properties, { secure: ["token-value"] });
-                config.layerWrite();
+                config.write()
             } else if (config.exists) {
                 const profile = {
                     "token-type": this.mSession.ISession.tokenType,
@@ -142,7 +140,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 };
                 // config.api.profiles.set("auth_login_default", profile, { secure: ["token-value"] });
                 // config.set(`defaults.${this.mProfileType}`, "auth_login_default");
-                config.layerWrite();
+                config.write();
             } else if (loadedProfile != null && loadedProfile.name != null) {
                 await Imperative.api.profileManager(this.mProfileType).update({
                     name: loadedProfile.name,
