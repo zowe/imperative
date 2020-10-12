@@ -718,10 +718,8 @@ export class CommandProcessor {
             `Profile definitions: ${inspect(this.definition.profile, { depth: null })}`);
 
         // Load the configuration and load secure fields from config
-        const config = Config.load(ImperativeConfig.instance.rootCommandName, {
-            schemas: ImperativeConfig.instance.configSchemas
-        });
-        await config.loadSecure();
+        const config = Config.load(ImperativeConfig.instance.rootCommandName);
+        await config.api.secure.load();
 
         // Load profiles if config doesn't exist
         let profiles = new CommandProfiles(new Map<string, IProfileLoaded[]>());
@@ -760,7 +758,7 @@ export class CommandProcessor {
             const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(profileType);
             const p = (args[profOpt] != null && args[profOpt] !== "") ?
                 config.api.profiles.build(args[profOpt]) :
-                config.api.defaults.build(profileType)
+                config.api.profiles.defaultBuild(profileType)
             configProps = { ...configProps, ...p };
         }
 
