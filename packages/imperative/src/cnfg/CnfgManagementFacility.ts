@@ -15,6 +15,7 @@ import { Logger } from "../../../logger";
 import { listDefinition } from "./cmd/list/list.definition";
 import { setDefinition } from "./cmd/set/set.definition";
 import { InitDefinition } from "./cmd/init/init.definition";
+import { SchemaDefinition } from "./cmd/schema/schema.definition";
 
 export class CnfgManagementFacility {
     private static mInstance: CnfgManagementFacility;
@@ -66,7 +67,8 @@ export class CnfgManagementFacility {
             children: [
                 listDefinition,
                 setDefinition,
-                InitDefinition
+                InitDefinition,
+                SchemaDefinition
             ]
         });
 
