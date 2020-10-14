@@ -72,6 +72,13 @@ export class DaemonUtils {
     public static readonly X_ZOWE_DAEMON_STDERR = "x-zowe-daemon-stderr:";
 
     /**
+     * Content is a progress spinner
+     * @static
+     * @memberof DaemonUtils
+     */
+    public static readonly X_ZOWE_DAEMON_PROGRESS = "x-zowe-daemon-progress:";
+
+    /**
      * Ending header.  Value does not matter.
      * @static
      * @memberof DaemonUtils
@@ -90,7 +97,7 @@ export class DaemonUtils {
      * @static
      * @memberof DaemonUtils
      */
-    public static readonly X_ZOWE_V1_LEN = 7;
+    public static readonly X_ZOWE_V1_LEN = 8;
 
     /**
      * Headers separator
@@ -114,6 +121,7 @@ export class DaemonUtils {
         const stdout = options.stdout ? 1 : 0;
         const stderr = options.stderr ? 1 : 0;
         const prompt = options.prompt ? 1 : 0;
+        const progress = options.progress ? 1 : 0;
 
         // beginning header
         headers += DaemonUtils.X_ZOWE_DAEMON_HEADERS + DaemonUtils.X_ZOWE_V1_LEN;
@@ -143,9 +151,15 @@ export class DaemonUtils {
         headers += prompt
         headers += DaemonUtils.X_ZOWE_HEADERS_SEPARATOR;
 
+        // progress
+        headers += DaemonUtils.X_ZOWE_DAEMON_PROGRESS;
+        headers += progress
+        headers += DaemonUtils.X_ZOWE_HEADERS_SEPARATOR;
+
         // ending header
         headers += DaemonUtils.X_ZOWE_DAEMON_END + 0;
 
+        headers += `\n`;
         return headers;
     }
 }

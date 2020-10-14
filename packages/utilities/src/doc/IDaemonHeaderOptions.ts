@@ -44,4 +44,11 @@ export interface IDaemonHeaderOptions {
      * @memberof IDaemonHeaderOptions
      */
     stderr?: boolean;
+
+    /**
+     * Content is progress spinner
+     * @type {boolean}
+     * @memberof IDaemonHeaderOptions
+     */
+    progress?: boolean;
 }
