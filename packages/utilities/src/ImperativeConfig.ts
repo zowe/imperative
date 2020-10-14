@@ -14,6 +14,7 @@ import { join } from "path";
 import { IImperativeConfig } from "../../imperative/src/doc/IImperativeConfig";
 import { ImperativeError } from "../../error";
 import { EnvironmentalVariableSettings } from "../../imperative/src/env/EnvironmentalVariableSettings";
+import { ICommandProfileSchema, ICommandProfileTypeConfiguration } from "../../cmd";
 
 /**
  * This class is used to contain all configuration being set by Imperative.
@@ -193,7 +194,7 @@ export class ImperativeConfig {
         // try to locate the file using find-up first
         let findupErr: Error;
         try {
-            const filePath = require("find-up").sync(file, {cwd: ImperativeConfig.instance.callerLocation});
+            const filePath = require("find-up").sync(file, { cwd: ImperativeConfig.instance.callerLocation });
             return require(filePath);
         } catch (e) {
             // couldn't locate using find-up, try to require directly
@@ -207,8 +208,18 @@ export class ImperativeConfig {
                 "searching the directories above " + this.callerLocation +
                 ". 'require()' error message: " + e.message +
                 " \n 'find-up' (directory search) error message:" + findupErr.message;
-            throw new ImperativeError({msg: e.message});
+            throw new ImperativeError({ msg: e.message });
         }
     }
 
+    /**
+     * @returns a key/value object where the key is the profile type and the
+     *          value is the profile type schema
+     */
+    public get profileSchemas(): { [key: string]: ICommandProfileSchema } {
+        const schemas: any = {};
+        if (ImperativeConfig.instance.loadedConfig.profiles != null)
+            ImperativeConfig.instance.loadedConfig.profiles.forEach(profile => schemas[profile.type] = profile.schema);
+        return schemas;
+    }
 }
