@@ -752,8 +752,12 @@ export class CommandResponse implements ICommandResponseApi {
                             this.mProgressBarInterval = undefined;
                         }
 
+                        let statusMessage = "Complete";
+                        if (this.mIsSocket) {
+                            statusMessage += '\n';
+                        }
                         outer.mProgressBar.update(1, {
-                            statusMessage: "Complete",
+                            statusMessage,
                             spin: " "
                         });
 
