@@ -28,9 +28,11 @@ import { ICommandDefinition } from "../../src/doc/ICommandDefinition";
 import { OptionConstants } from "../constants/OptionConstants";
 import { inspect } from "util";
 import * as DeepMerge from "deepmerge";
-import ProgressBar = require("progress");
+import * as ProgressBar from "progress";
 import WriteStream = NodeJS.WriteStream;
 import * as net from "net";
+import { DaemonUtils } from "../../../utilities/src/DaemonUtils";
+import * as tty from "tty";
 
 const DataObjectParser = require("dataobject-parser");
 
@@ -206,14 +208,6 @@ export class CommandResponse implements ICommandResponseApi {
     private mStream: net.Socket;
 
     /**
-     * Alternate current working directory for daemon mode
-     * @private
-     * @type {string}
-     * @memberof CommandResponse
-     */
-    private mCwd: string;
-
-    /**
      * Creates an instance of CommandResponse.
      * @param {ICommandResponseParms} params - See the interface for details.
      * @memberof CommandResponse
@@ -232,7 +226,6 @@ export class CommandResponse implements ICommandResponseApi {
         this.mSilent = (this.mControl.silent == null) ? false : this.mControl.silent;
         this.mProgressBarSpinnerChars = (this.mControl.progressBarSpinner == null) ? this.mProgressBarSpinnerChars : params.progressBarSpinner;
         this.mStream = params ? params.stream : undefined;
-        this.mCwd = params ? params.cwd : undefined;
     }
 
     get format(): IHandlerFormatOutputApi {
@@ -259,7 +252,6 @@ export class CommandResponse implements ICommandResponseApi {
                     // If the output is an array and the length is 0 or - do nothing
                     if ((Array.isArray(format.output) && format.output.length === 0) ||
                         (Object.keys(format.output).length === 0 && format.output.constructor === Object)) {
-                        outer.console.endStream();
                         return;
                     }
 
@@ -599,13 +591,6 @@ export class CommandResponse implements ICommandResponseApi {
                     outer.writeAndBufferStderr(msg);
                     return msg;
                 }
-
-                /**
-                 * Ends a stream connection
-                 */
-                public endStream() {
-                    outer.endStream();
-                }
             }();
         }
 
@@ -695,10 +680,13 @@ export class CommandResponse implements ICommandResponseApi {
                 private mProgressBarTemplate: string = " " + TextUtils.chalk[outer.mPrimaryTextColor](":bar|") + " :current%  " +
                     TextUtils.chalk[outer.mPrimaryTextColor](":spin") + " | :statusMessage";
                 private mProgressBarInterval: any;
+                private mIsSocket = false;
+
                 /**
                  * TODO: get from config - default value is below
                  */
                 private mProgressBarSpinnerChars: string = "-oO0)|(0Oo-";
+                private mSocketProgressBarSpinnerChars = ["-\n", "o\n", "O\n", "0\n", ")\n", "|\n", "(\n", "0\n", "O\n", "o\n", "-\n"];
 
                 /**
                  * Start a progress bar (assuming silent mode is not enabled).
@@ -715,8 +703,28 @@ export class CommandResponse implements ICommandResponseApi {
 
                         // Persist the task specifications and determine the stream to use for the progress bar
                         this.mProgressTask = params.task;
-                        const stream: WriteStream = (params.stream == null) ?
-                            process.stderr : params.stream;
+                        let stream: any = (params.stream == null) ? process.stderr : params.stream;
+                        const arbitraryColumnSize = 80;
+
+                        // if we have an outer stream (e.g. socket connection for daemon mode) use it
+                        if (outer.mStream) {
+                            this.mIsSocket = true;
+                            stream = outer.mStream;
+                            // NOTE(Kelosky): see https://github.com/visionmedia/node-progress/issues/110
+                            //                progress explicitly checks for TTY before writing, so
+                            //                we add the keys force this behavior.
+                            if (!(stream as any).isTTY) {
+                                const ttyPrototype = tty.WriteStream.prototype;
+                                Object.keys(ttyPrototype).forEach((key) => {
+                                    (stream as any)[key] = (ttyPrototype as any)[key];
+                                });
+                                (stream as any).columns = arbitraryColumnSize;
+                            }
+                        }
+
+                        // send header to enable progress bar streaming
+                        const daemonHeaders = DaemonUtils.buildHeader({ progress: true });
+                        outer.writeStream(daemonHeaders);
 
                         // Create the progress bar instance
                         outer.mProgressBar = new ProgressBar(this.mProgressBarTemplate, {
@@ -743,13 +751,23 @@ export class CommandResponse implements ICommandResponseApi {
                             clearInterval(this.mProgressBarInterval);
                             this.mProgressBarInterval = undefined;
                         }
+
+                        let statusMessage = "Complete";
+                        if (this.mIsSocket) {
+                            statusMessage += '\n';
+                        }
                         outer.mProgressBar.update(1, {
-                            statusMessage: "Complete",
+                            statusMessage,
                             spin: " "
                         });
+
+                        // send header to disable progress bar streaming
+                        const daemonHeaders = DaemonUtils.buildHeader({ progress: false });
+                        outer.writeStream(daemonHeaders);
+
                         outer.mProgressBar.terminate();
-                        process.stdout.write(outer.mStdout);
-                        process.stderr.write(outer.mStderr);
+                        outer.writeStdout(outer.mStdout);
+                        outer.writeStderr(outer.mStderr);
                         this.mProgressTask = undefined;
 
                         // clear the progress bar field
@@ -771,10 +789,18 @@ export class CommandResponse implements ICommandResponseApi {
                         if (this.mProgressBarInterval != null) {
                             const percentRatio = this.mProgressTask.percentComplete / TaskProgress.ONE_HUNDRED_PERCENT;
                             this.mProgressBarSpinnerIndex = (this.mProgressBarSpinnerIndex + 1) % this.mProgressBarSpinnerChars.length;
-                            outer.mProgressBar.update(percentRatio, {
-                                statusMessage: this.mProgressTask.statusMessage,
-                                spin: this.mProgressBarSpinnerChars[this.mProgressBarSpinnerIndex]
-                            });
+
+                            if (this.mIsSocket) {
+                                outer.mProgressBar.update(percentRatio, {
+                                    statusMessage: this.mProgressTask.statusMessage,
+                                    spin: this.mSocketProgressBarSpinnerChars[this.mProgressBarSpinnerIndex]
+                                });
+                            } else {
+                                outer.mProgressBar.update(percentRatio, {
+                                    statusMessage: this.mProgressTask.statusMessage,
+                                    spin: this.mProgressBarSpinnerChars[this.mProgressBarSpinnerIndex]
+                                });
+                            }
                         }
                     }
                 }
@@ -848,14 +874,13 @@ export class CommandResponse implements ICommandResponseApi {
      */
     public buildJsonResponse(): ICommandResponse {
 
-        let exitCode = this.mExitCode;
-        if (exitCode == null) {
-            exitCode = this.mSucceeded ? 0 : Constants.ERROR_EXIT_CODE;
+        if (this.mExitCode == null) {
+            this.mExitCode = this.mSucceeded ? 0 : Constants.ERROR_EXIT_CODE;
         }
 
         return {
             success: this.mSucceeded,
-            exitCode,
+            exitCode: this.mExitCode,
             message: this.mMessage,
             stdout: this.mStdout,
             stderr: this.mStderr,
@@ -911,6 +936,29 @@ export class CommandResponse implements ICommandResponseApi {
     }
 
     /**
+     * Explicitly end a stream
+     * @private
+     * @memberof CommandResponse
+     */
+    public endStream() {
+        if (this.mStream) {
+            this.sendHeaders();
+            this.mStream.end();
+        }
+    }
+
+    /**
+     * Send headers to daemon client
+     * @private
+     * @param {string} headers
+     * @memberof CommandResponse
+     */
+    private sendHeaders() {
+        const daemonHeaders = DaemonUtils.buildHeader({ exitCode: this.mExitCode });
+        this.writeStream(daemonHeaders);
+    }
+
+    /**
      * Internal accessor for the full control parameters passed to the command response object.
      * @readonly
      * @private
@@ -963,24 +1011,10 @@ export class CommandResponse implements ICommandResponseApi {
      * @param {*} data
      * @memberof CommandResponse
      */
-    private writeStream(data: any, endStream = true) {
+    private writeStream(data: any) {
+
         if (this.mStream) {
             this.mStream.write(data);
-
-            if (endStream) {
-                this.endStream();
-            }
-        }
-    }
-
-    /**
-     * Explicitly end a stream
-     * @private
-     * @memberof CommandResponse
-     */
-    private endStream() {
-        if (this.mStream) {
-            this.mStream.end();
         }
     }
 
@@ -990,10 +1024,10 @@ export class CommandResponse implements ICommandResponseApi {
      * @param {(Buffer | string)} data - The data to write/buffer
      * @memberof CommandResponse
      */
-    private writeAndBufferStderr(data: Buffer | string, endStream = false) {
+    private writeAndBufferStderr(data: Buffer | string) {
         this.bufferStderr(data);
         if (this.write()) {
-            this.writeStderr(data, endStream);
+            this.writeStderr(data);
         }
     }
 
@@ -1003,9 +1037,9 @@ export class CommandResponse implements ICommandResponseApi {
      * @param {*} data - the data to write to stderr
      * @memberof CommandResponse
      */
-    private writeStderr(data: any, endStream = false) {
+    private writeStderr(data: any) {
         process.stderr.write(data);
-        this.writeStream(data, endStream);
+        this.writeStream(data);
     }
 
     /**

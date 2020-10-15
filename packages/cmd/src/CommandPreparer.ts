@@ -451,10 +451,9 @@ export class CommandPreparer {
         });
 
         definition.options.push({
-            name: Constants.CURRENT_WORKING_DIRECTORY_OPTION,
-            aliases: [Constants.CURRENT_WORKING_DIRECTORY_OPTION_ALIAS],
+            name: Constants.LOCAL_DIRECTORY_OPTION,
             group: Constants.GLOBAL_GROUP,
-            description: "Alternate current working directory",
+            description: "Alternate local working directory",
             type: "string"
         });
 

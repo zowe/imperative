@@ -37,9 +37,9 @@ exports[`cmd-cli invoke unexpected-exception-handler should display the help 1`]
 
       Display HTML help in browser
 
-   --current-working-directory  | --cwd (string)
+   --lcd  (string)
 
-      Alternate current working directory
+      Alternate local working directory
 
 "
 `;

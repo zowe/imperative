@@ -43,9 +43,9 @@ exports[`cmd-cli nested should display both groups and commands in the help 1`] 
 
       Display HTML help in browser
 
-   --current-working-directory  | --cwd (string)
+   --lcd  (string)
 
-      Alternate current working directory
+      Alternate local working directory
 
 "
 `;

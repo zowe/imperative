@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement:  Allow process exit code to be passed to daemon clients.
+
 ## `5.0.0-next.202009251501`
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
