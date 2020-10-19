@@ -36,7 +36,7 @@ export default class InitHandler implements ICommandHandler {
         this.arguments = params.arguments;
 
         // Load the config and set the active layer according to user options
-        const config = Config.load(ImperativeConfig.instance.rootCommandName);
+        const config = ImperativeConfig.instance.config;
         config.api.layers.activate(params.arguments.user, params.arguments.global);
         const layer = config.api.layers.get();
 
@@ -52,7 +52,7 @@ export default class InitHandler implements ICommandHandler {
         }
 
         // Write the active created/updated config layer
-        config.write();
+        config.api.layers.write();
     }
 
     /**
@@ -61,7 +61,7 @@ export default class InitHandler implements ICommandHandler {
      */
     private initProfile(config: Config) {
         const profile: IConfigProfile = { properties: {} };
-        if (this.arguments.type != null) this.initProfileType(config, profile);
+        if (this.arguments.type != null) this.initProfileType(profile);
         config.api.profiles.set(this.arguments.profile, profile);
     }
 
@@ -70,7 +70,7 @@ export default class InitHandler implements ICommandHandler {
      * @param config The config
      * @param profile The profile object to populate
      */
-    private async initProfileType(config: Config, profile: IConfigProfile): Promise<void> {
+    private async initProfileType(profile: IConfigProfile): Promise<void> {
         const schema = ImperativeConfig.instance.profileSchemas[this.arguments.type];
         if (schema == null)
             throw new ImperativeError({ msg: `profile type ${this.arguments.type} does not exist.` });

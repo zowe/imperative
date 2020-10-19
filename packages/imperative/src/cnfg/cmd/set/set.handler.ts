@@ -36,7 +36,7 @@ export default class SetHandler implements ICommandHandler {
             opts = {
                 vault: {
                     load: ((k: string): Promise<string> => {
-                        return CredentialManagerFactory.manager.load(k)
+                        return CredentialManagerFactory.manager.load(k, true)
                     }),
                     save: ((k: string, v: any): Promise<void> => {
                         return CredentialManagerFactory.manager.save(k, v);
@@ -47,8 +47,7 @@ export default class SetHandler implements ICommandHandler {
         }
 
         // Create the config, load the secure values, and activate the desired layer
-        const config = Config.load(ImperativeConfig.instance.rootCommandName, opts);
-        await config.api.secure.load();
+        const config = ImperativeConfig.instance.config;
         config.api.layers.activate(params.arguments.user, params.arguments.global);
 
         // Get the value to set
@@ -65,7 +64,6 @@ export default class SetHandler implements ICommandHandler {
         config.set(params.arguments.property, params.arguments.value, {
             secure: params.arguments.secure,
         });
-        await config.api.secure.save();
-        config.write();
+        config.api.layers.write();
     }
 }

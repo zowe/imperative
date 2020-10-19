@@ -708,25 +708,8 @@ export class CommandProcessor {
         this.log.trace(`Reading stdin for "${this.definition.name}" command...`);
         await SharedOptions.readStdinIfRequested(commandArguments, response, this.definition.type);
 
-        // If the credential manager is initialized - setup the interface for config
-        let opts: IConfigOpts = null;
-        if (CredentialManagerFactory.initialized) {
-            opts = {
-                vault: {
-                    load: ((key: string): Promise<string> => {
-                        return CredentialManagerFactory.manager.load(key)
-                    }),
-                    save: ((key: string, value: any): Promise<void> => {
-                        return CredentialManagerFactory.manager.save(key, value);
-                    }),
-                    name: CredentialManagerFactory.manager.name
-                }
-            };
-        }
-
-        // Load the config and load secure values
-        const config = Config.load(ImperativeConfig.instance.rootCommandName, opts);
-        await config.api.secure.load();
+        // Get the config obj
+        const config = ImperativeConfig.instance.config;
 
         // Build a list of all profile types - this will help us search the CLI
         // options for profiles specified by the user
@@ -750,12 +733,12 @@ export class CommandProcessor {
             let p: any = {};
             if (args[opt] != null && config.api.profiles.exists(args[opt])) {
                 fulfilled.push(profileType);
-                p = config.api.profiles.build(args[opt]);
+                p = config.api.profiles.get(args[opt]);
             } else if (args[opt] == null &&
                 config.properties.defaults[profileType] != null &&
                 config.api.profiles.exists(config.properties.defaults[profileType])) {
                 fulfilled.push(profileType);
-                p = config.api.profiles.defaultBuild(profileType);
+                p = config.api.profiles.defaultGet(profileType);
             }
             fromCnfg = { ...fromCnfg, ...p };
         }
@@ -814,7 +797,7 @@ export class CommandProcessor {
             if (this.definition.profile.optional)
                 p.optional = this.definition.profile.optional.filter(type => fulfilled.indexOf(type) < 0);
 
-            const profArgs = CliUtils.getOptValueFromProfiles(profiles, this.definition.profile, allOpts);
+            const profArgs = CliUtils.getOptValueFromProfiles(profiles, p, allOpts);
             this.log.trace(`Arguments extract from the profile:\n${inspect(profArgs)}`);
             args = CliUtils.mergeArguments(profArgs, args);
         }

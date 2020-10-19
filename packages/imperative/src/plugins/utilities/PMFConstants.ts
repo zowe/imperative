@@ -108,55 +108,52 @@ export class PMFConstants {
     public readonly PLUGIN_HOME_LOCATION: string;
 
     constructor() {
-       // Load from the config
-       const config = Config.load(ImperativeConfig.instance.rootCommandName);
+        this.PLUGIN_CONFIG = ImperativeConfig.instance.config;
+        this.NPM_NAMESPACE = "@zowe";
+        this.CLI_CORE_PKG_NAME = ImperativeConfig.instance.hostPackageName;
+        this.IMPERATIVE_PKG_NAME = ImperativeConfig.instance.imperativePackageName;
+        this.PMF_ROOT = join(ImperativeConfig.instance.cliHome, "plugins");
+        this.PLUGIN_JSON = join(this.PMF_ROOT, "plugins.json");
+        this.PLUGIN_USING_CONFIG = ImperativeConfig.instance.config.exists;
+        this.PLUGIN_HOME_LOCATION = join(this.PMF_ROOT, "installed");
+        this.PLUGIN_INSTALL_LOCATION = this.PLUGIN_HOME_LOCATION;
 
-       this.PLUGIN_CONFIG = config;
-       this.NPM_NAMESPACE = "@zowe";
-       this.CLI_CORE_PKG_NAME = ImperativeConfig.instance.hostPackageName;
-       this.IMPERATIVE_PKG_NAME = ImperativeConfig.instance.imperativePackageName;
-       this.PMF_ROOT = join(ImperativeConfig.instance.cliHome, "plugins");
-       this.PLUGIN_JSON = join(this.PMF_ROOT, "plugins.json");
-       this.PLUGIN_USING_CONFIG = config.exists;
-       this.PLUGIN_HOME_LOCATION = join(this.PMF_ROOT, "installed");
-       this.PLUGIN_INSTALL_LOCATION = this.PLUGIN_HOME_LOCATION;
+        // Windows format is <prefix>/node_modules
+        let cliHomeModPath;
+        if (process.platform === "win32" || this.PLUGIN_USING_CONFIG) {
+            cliHomeModPath = join(
+                this.PLUGIN_INSTALL_LOCATION,
+                "node_modules"
+            );
+            this.PLUGIN_HOME_LOCATION = join(
+                this.PLUGIN_HOME_LOCATION,
+                "node_modules"
+            );
+        }
+        // Everyone else is <prefix>/lib/node_modules
+        else {
+            cliHomeModPath = join(
+                this.PLUGIN_INSTALL_LOCATION,
+                "lib",
+                "node_modules"
+            );
+            this.PLUGIN_HOME_LOCATION = join(
+                this.PLUGIN_HOME_LOCATION,
+                "lib",
+                "node_modules"
+            );
+        }
 
-       // Windows format is <prefix>/node_modules
-       let cliHomeModPath;
-       if (process.platform === "win32" || this.PLUGIN_USING_CONFIG) {
-           cliHomeModPath = join(
-               this.PLUGIN_INSTALL_LOCATION,
-               "node_modules"
-           );
-           this.PLUGIN_HOME_LOCATION = join(
-               this.PLUGIN_HOME_LOCATION,
-               "node_modules"
-           );
-       }
-       // Everyone else is <prefix>/lib/node_modules
-       else {
-           cliHomeModPath = join(
-               this.PLUGIN_INSTALL_LOCATION,
-               "lib",
-               "node_modules"
-           );
-           this.PLUGIN_HOME_LOCATION = join(
-               this.PLUGIN_HOME_LOCATION,
-               "lib",
-               "node_modules"
-           );
-       }
-
-       // Build the paths to find the modules based on the config
-       const modPaths: string[] = [];
-       if (this.PLUGIN_USING_CONFIG) {
-           config.paths.forEach((path: string) => {
-               const dir = dirname(path);
-               modPaths.push(join(dir, (process.platform !== "win32") ? "lib" : "", "node_modules"));
-           });
-       }
-       modPaths.push(cliHomeModPath);
-       modPaths.push(this.PLUGIN_HOME_LOCATION);
-       this.PLUGIN_NODE_MODULE_LOCATION = Array.from(new Set(modPaths));
+        // Build the paths to find the modules based on the config
+        const modPaths: string[] = [];
+        if (this.PLUGIN_USING_CONFIG) {
+            this.PLUGIN_CONFIG.paths.forEach((path: string) => {
+                const dir = dirname(path);
+                modPaths.push(join(dir, (process.platform !== "win32") ? "lib" : "", "node_modules"));
+            });
+        }
+        modPaths.push(cliHomeModPath);
+        modPaths.push(this.PLUGIN_HOME_LOCATION);
+        this.PLUGIN_NODE_MODULE_LOCATION = Array.from(new Set(modPaths));
     }
 }

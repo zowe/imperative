@@ -22,7 +22,7 @@ export default abstract class ListHandler implements ICommandHandler {
      * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
-        const config = Config.load(ImperativeConfig.instance.rootCommandName);
+        const config = ImperativeConfig.instance.config;
         const property = params.arguments.property;
 
         // Populate the print object

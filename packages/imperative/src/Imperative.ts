@@ -60,6 +60,8 @@ import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuild
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 import { ImperativeExpect } from "../../expect";
 import { CnfgManagementFacility } from "./cnfg/CnfgManagementFacility";
+import { Config, IConfigOpts } from "../../config";
+import { CredentialManagerFactory } from "../../security";
 
 // Bootstrap the performance tools
 if (PerfTiming.isEnabled) {
@@ -176,6 +178,9 @@ export class Imperative {
                     ConfigManagementFacility.instance.init();
                 }
 
+                // Load the base config
+                ImperativeConfig.instance.config = await Config.load(this.mRootCommandName);
+
                 // If plugins are allowed, enable core plugins commands
                 if (config.allowPlugins) {
                     PluginManagementFacility.instance.init();
@@ -189,9 +194,6 @@ export class Imperative {
                         PluginManagementFacility.instance.pluginOverrides
                     );
                 }
-
-                // Init config group
-                CnfgManagementFacility.instance.init();
 
                 /**
                  * Once we have a complete representation of the config object, we should be able to
@@ -209,6 +211,29 @@ export class Imperative {
                  */
                 await OverridesLoader.load(ImperativeConfig.instance.loadedConfig,
                     ImperativeConfig.instance.callerPackageJson);
+
+                /**
+                 * After the plugins and secure credentials are loaded, rebuild the configuration with the
+                 * secure values
+                 */
+                let opts: IConfigOpts = null;
+                if (CredentialManagerFactory.initialized) {
+                    opts = {
+                        vault: {
+                            load: ((key: string): Promise<string> => {
+                                return CredentialManagerFactory.manager.load(key, true)
+                            }),
+                            save: ((key: string, value: any): Promise<void> => {
+                                return CredentialManagerFactory.manager.save(key, value);
+                            }),
+                            name: CredentialManagerFactory.manager.name
+                        }
+                    };
+                    ImperativeConfig.instance.config = await Config.load(ImperativeConfig.instance.rootCommandName, opts);
+                }
+
+                // Init config group
+                CnfgManagementFacility.instance.init();
 
                 /**
                  * Build API object
@@ -276,7 +301,7 @@ export class Imperative {
                     JSON.stringify(process.env, null, 2));
                 Logger.writeInMemoryMessages(Imperative.DEFAULT_DEBUG_FILE);
                 if (error.report) {
-                    const {writeFileSync} = require("fs");
+                    const { writeFileSync } = require("fs");
                     writeFileSync(Imperative.DEFAULT_DEBUG_FILE, error.report);
                 }
                 initializationFailed(
@@ -686,7 +711,7 @@ export class Imperative {
             }
             rootCommand.children.push(CompleteProfilesGroupBuilder.getProfileGroup(allProfiles, this.log));
         }
-        const authConfigs: {[key: string]: ICommandProfileAuthConfig[]} = {};
+        const authConfigs: { [key: string]: ICommandProfileAuthConfig[] } = {};
         if (loadedConfig.profiles != null) {
             loadedConfig.profiles.forEach((profile) => {
                 if (profile.authConfig != null) {

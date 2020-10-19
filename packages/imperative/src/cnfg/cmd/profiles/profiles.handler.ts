@@ -26,7 +26,7 @@ export default class ProfilesHandler implements ICommandHandler {
      * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
-        const config = Config.load(ImperativeConfig.instance.rootCommandName);
+        const config = ImperativeConfig.instance.config;
         const paths: string[] = [];
         this.build(config.properties.profiles, "", paths);
         params.response.format.output({

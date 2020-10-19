@@ -14,7 +14,8 @@ import { join } from "path";
 import { IImperativeConfig } from "../../imperative/src/doc/IImperativeConfig";
 import { ImperativeError } from "../../error";
 import { EnvironmentalVariableSettings } from "../../imperative/src/env/EnvironmentalVariableSettings";
-import { ICommandProfileSchema, ICommandProfileTypeConfiguration } from "../../cmd";
+import { ICommandProfileSchema } from "../../cmd";
+import { Config } from "../../config";
 
 /**
  * This class is used to contain all configuration being set by Imperative.
@@ -57,6 +58,11 @@ export class ImperativeConfig {
      * This is our calling CLI's command name (taken from package.json: bin).
      */
     private mRootCommandName: string;
+
+    /**
+     * The config object
+     */
+    private mConfig: Config;
 
     /**
      * Gets a single instance of the PluginIssues. On the first call of
@@ -141,6 +147,20 @@ export class ImperativeConfig {
         }
 
         return this.mImperativePackageName;
+    }
+
+    /**
+     * Set the config
+     */
+    public set config(c: Config) {
+        this.mConfig = c;
+    }
+
+    /**
+     * Get the config properties
+     */
+    public get config(): Config {
+        return this.mConfig;
     }
 
     /**

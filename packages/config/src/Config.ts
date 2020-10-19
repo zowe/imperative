@@ -19,6 +19,7 @@ import { ImperativeError } from "../../error";
 import { IConfigProfile } from "./doc/IConfigProfile";
 import { IConfigVault } from "./doc/IConfigVault";
 import { IConfigOpts } from "./doc/IConfigOpts";
+import { IConfigSecure, IConfigSecureEntry, IConfigSecureProperty } from "./doc/IConfigSecure";
 
 enum layers {
     project_user = 0,
@@ -41,11 +42,11 @@ export class Config {
         global: boolean
     };
     private _vault: IConfigVault;
-    private _secure: boolean;
+    private _secure: IConfigSecure;
 
     private constructor() { }
 
-    public static load(app: string, opts?: IConfigOpts): Config {
+    public static async load(app: string, opts?: IConfigOpts): Promise<Config> {
         opts = opts || {};
 
         ////////////////////////////////////////////////////////////////////////
@@ -60,7 +61,7 @@ export class Config {
         _._active = { user: false, global: false };
         _._app = app;
         _._vault = opts.vault;
-        _._secure = false;
+        _._secure = { configs: [] };
 
         ////////////////////////////////////////////////////////////////////////
         // Populate configuration file layers
@@ -124,10 +125,15 @@ export class Config {
                 layer.properties.profiles = layer.properties.profiles || {};
                 layer.properties.properties = layer.properties.properties || {};
                 layer.properties.plugins = layer.properties.plugins || [];
+                layer.properties.secure = layer.properties.secure || [];
             });
         } catch (e) {
             throw new ImperativeError({ msg: `error reading config file: ${e.message}` });
         }
+
+        ////////////////////////////////////////////////////////////////////////
+        // load secure fields
+        await _.secureLoad();
 
         ////////////////////////////////////////////////////////////////////////
         // Complete
@@ -157,7 +163,7 @@ export class Config {
 
                 public set(path: string, profile: IConfigProfile): void {
                     profile.properties = profile.properties || {};
-                    const layer = outer.activeLayer();
+                    const layer = outer.layerActive();
                     const segments: string[] = path.split(".");
                     let p: any = layer.properties;
                     for (let x = 0; x < segments.length; x++) {
@@ -172,7 +178,7 @@ export class Config {
                     }
                 }
 
-                public build(path: string): { [key: string]: string } {
+                public get(path: string): { [key: string]: string } {
                     return Config.buildProfile(path, JSON.parse(JSON.stringify(outer.properties.profiles)));
                 }
 
@@ -180,19 +186,15 @@ export class Config {
                     return (Config.findProfile(path, outer.properties.profiles) != null);
                 }
 
-                public names(): string[] {
-                    return Object.keys(outer.properties.profiles);
-                }
-
                 public defaultSet(key: string, value: string) {
-                    outer.activeLayer().properties.defaults[key] = value;
+                    outer.layerActive().properties.defaults[key] = value;
                 }
 
-                public defaultBuild(key: string): { [key: string]: string } {
+                public defaultGet(key: string): { [key: string]: string } {
                     const dflt = outer.properties.defaults[key];
                     if (dflt == null || !this.exists(dflt))
                         return null;
-                    return this.build(dflt);
+                    return this.get(dflt);
                 }
 
             }(); // end of profiles inner class
@@ -221,11 +223,16 @@ export class Config {
             // tslint:disable-next-line
             public layers = new class {
 
-                public write() {
-                    const layer: IConfigLayer = JSON.parse(JSON.stringify(outer.activeLayer()));
+                public async write() {
+                    // TODO: should we prevent a write if there is no vault
+                    // TODO: specified and there are secure fields??
+
+                    // Save the secure fields in the credential vault
+                    await outer.secureSave();
 
                     // If fields are marked as secure
-                    if (layer.properties.secure != null && outer._secure) {
+                    const layer: IConfigLayer = JSON.parse(JSON.stringify(outer.layerActive()));
+                    if (layer.properties.secure != null) {
                         for (const path of layer.properties.secure) {
                             const segments = path.split(".");
                             let obj: any = layer.properties;
@@ -257,7 +264,7 @@ export class Config {
                 }
 
                 public get(): IConfigLayer {
-                    return JSON.parse(JSON.stringify(outer.activeLayer()));
+                    return JSON.parse(JSON.stringify(outer.layerActive()));
                 }
 
                 public set(cnfg: IConfig) {
@@ -268,69 +275,11 @@ export class Config {
                             outer._layers[i].properties.defaults = outer._layers[i].properties.defaults || {};
                             outer._layers[i].properties.profiles = outer._layers[i].properties.profiles || {};
                             outer._layers[i].properties.plugins = outer._layers[i].properties.plugins || [];
+                            outer._layers[i].properties.secure = outer._layers[i].properties.secure || [];
                         }
                     }
                 }
             }(); // end of layers inner class
-
-            ////////////////////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////////////////////
-            // Secure API
-            ////////////////////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////////////////////
-
-            // tslint:disable-next-line
-            public secure = new class {
-
-                public async load() {
-                    // If the secure option is set - load the secure values for the profiles
-                    if (outer._vault != null) {
-                        for (const layer of outer.layers) {
-                            if (layer.properties.secure != null) {
-                                for (const path of layer.properties.secure) {
-                                    const segments = path.split(".");
-                                    let obj: any = outer.activeLayer().properties;
-                                    for (let x = 0; x < segments.length; x++) {
-                                        const segment = segments[x];
-                                        if (x === segments.length - 1) {
-                                            const v = await outer._vault.load(Config.secureKey(layer.path, path));
-                                            if (v != null) obj[segment] = JSON.parse(v);
-                                            break;
-                                        }
-                                        obj = obj[segment];
-                                        if (obj == null) break;
-                                    }
-                                }
-                            }
-                        }
-                        outer._secure = true;
-                    }
-                }
-
-                public async save() {
-                    if (outer._vault != null) {
-                        for (const layer of outer.layers) {
-                            if (layer.properties.secure != null) {
-                                for (const path of layer.properties.secure) {
-                                    const segments = path.split(".");
-                                    let obj: any = layer.properties;
-                                    for (let x = 0; x < segments.length; x++) {
-                                        const segment = segments[x];
-                                        const v = obj[segment];
-                                        if (v == null) break;
-                                        if (x === segments.length - 1) {
-                                            await outer._vault.save(Config.secureKey(layer.path, path), JSON.stringify(v));
-                                            break;
-                                        }
-                                        obj = obj[segment];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-            }(); // end of secure inner class
 
         }(); // end of api inner class
     }
@@ -356,7 +305,7 @@ export class Config {
     }
 
     public get properties(): IConfig {
-        return this.merge();
+        return this.layerMerge();
     }
 
     public get app(): string {
@@ -373,13 +322,7 @@ export class Config {
     public set(path: string, value: any, opts?: { secure?: boolean }) {
         opts = opts || {};
 
-        // TODO: additional validations
-        if (path.startsWith("group") && !Array.isArray(value))
-            throw new ImperativeError({ msg: `group property must be an array` });
-
-        // TODO: make a copy and validate that the update would be legit
-        // TODO: based on schema
-        const layer = this.activeLayer();
+        const layer = this.layerActive();
         let obj: any = layer.properties;
         const segments = path.split(".");
         path.split(".").forEach((segment: string) => {
@@ -409,18 +352,16 @@ export class Config {
             layer.properties.secure = Array.from(new Set(layer.properties.secure.concat([path])));
     }
 
-    public write() {
-        this.api.layers.write();
-    }
-
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
     // Layer Utilities
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
 
-    private merge(): IConfig {
+    private layerMerge(): IConfig {
         // config starting point
+        // NOTE: "properties" and "secure" only apply to the individual layers
+        // NOTE: they will be blank for the merged config
         const c: IConfig = {
             defaults: {},
             profiles: {},
@@ -428,7 +369,6 @@ export class Config {
             plugins: [],
             secure: []
         };
-        delete c.properties;
 
         // merge each layer
         this._layers.forEach((layer: IConfigLayer) => {
@@ -475,12 +415,116 @@ export class Config {
         return c;
     }
 
-    private activeLayer(): IConfigLayer {
+    private layerActive(): IConfigLayer {
         for (const layer of this._layers) {
             if (layer.user === this._active.user && layer.global === this._active.global)
                 return layer;
         }
         throw new ImperativeError({ msg: `internal error: no active layer found` });
+    }
+
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+    // Secure Utilities
+    ////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////
+
+    private async secureLoad() {
+        if (this._vault == null) return;
+        if (!this.secureFields()) return;
+
+        // load the secure fields
+        const s: string = await this._vault.load(Config.secureKey(this._app));
+        if (s == null) return;
+        this._secure = JSON.parse(s);
+
+        // populate each layers properties
+        for (const layer of this._layers) {
+
+            // Find the matching layer
+            for (const sCnfg of this._secure.configs) {
+                if (sCnfg.path === layer.path) {
+
+                    // Only set those indicated by the config
+                    for (const p of layer.properties.secure) {
+
+                        // Extract and set secure properties
+                        for (const sp of sCnfg.properties) {
+                            if (sp.path === p) {
+                                const segments = sp.path.split(".");
+                                let obj: any = layer.properties;
+                                for (let x = 0; x < segments.length; x++) {
+                                    const segment = segments[x];
+                                    if (x === segments.length - 1) {
+                                        obj[segment] = sp.value;
+                                        break;
+                                    }
+                                    obj = obj[segment];
+                                    if (obj == null) break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private async secureSave() {
+        if (this._vault == null) return;
+        if (!this.secureFields()) return;
+
+        // Build the entries for each layer
+        for (const layer of this._layers) {
+
+            // Create all the secure property entries
+            const sp: IConfigSecureProperty[] = [];
+            for (const path of layer.properties.secure) {
+                const segments = path.split(".");
+                let obj: any = layer.properties;
+                for (let x = 0; x < segments.length; x++) {
+                    const segment = segments[x];
+                    const value = obj[segment];
+                    if (value == null) break;
+                    if (x === segments.length - 1) {
+                        sp.push({ path, value });
+                        break;
+                    }
+                    obj = obj[segment];
+                }
+            }
+
+            // Attempt to locate an existing entry
+            let sCnfgEntry: IConfigSecureEntry;
+            for (const sCnfg of this._secure.configs) {
+                if (sCnfg.path === layer.path) {
+                    sCnfgEntry = sCnfg;
+                    break;
+                }
+            }
+
+            // If it exists, set the secure properties,
+            // otherwise create the entry
+            if (sCnfgEntry != null)
+                sCnfgEntry.properties = sp;
+            else {
+                this._secure.configs.push({
+                    path: layer.path,
+                    properties: sp
+                });
+            }
+        }
+
+        // Save the entries if needed
+        if (this._secure.configs.length > 0)
+            await this._vault.save(Config.secureKey(this._app), JSON.stringify(this._secure));
+    }
+
+    private secureFields(): boolean {
+        for (const l of this.layers)
+            if (l.properties.secure.length > 0)
+                return true;
+        return false;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -507,8 +551,8 @@ export class Config {
         return null;
     }
 
-    private static secureKey(cnfg: string, property: string): string {
-        return cnfg + "_" + property;
+    private static secureKey(app: string): string {
+        return app + "_config";
     }
 
     private static buildProfile(path: string, profiles: { [key: string]: IConfigProfile }): { [key: string]: string } {
