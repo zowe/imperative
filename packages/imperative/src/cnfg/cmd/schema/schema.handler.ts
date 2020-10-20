@@ -76,7 +76,7 @@ export default class SchemaHandler implements ICommandHandler {
                                     $ref: "#/properties/profiles"
                                 }
                             },
-                            anyOf: entries
+                            allOf: entries
                         }
                     }
 
