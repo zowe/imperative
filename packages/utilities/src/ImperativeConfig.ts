@@ -15,6 +15,8 @@ import { IImperativeConfig } from "../../imperative/src/doc/IImperativeConfig";
 import { ImperativeError } from "../../error";
 import { EnvironmentalVariableSettings } from "../../imperative/src/env/EnvironmentalVariableSettings";
 import { IYargsContext } from "../../imperative/src/doc/IYargsContext";
+import { ICommandProfileSchema } from "../../cmd";
+import { Config } from "../../config";
 
 /**
  * This class is used to contain all configuration being set by Imperative.
@@ -72,6 +74,11 @@ export class ImperativeConfig {
      * This is our calling CLI's command name (taken from package.json: bin).
      */
     private mRootCommandName: string;
+
+    /**
+     * The config object
+     */
+    private mConfig: Config;
 
     /**
      * Gets a single instance of the PluginIssues. On the first call of
@@ -236,6 +243,20 @@ export class ImperativeConfig {
     }
 
     /**
+     * Set the config
+     */
+    public set config(c: Config) {
+        this.mConfig = c;
+    }
+
+    /**
+     * Get the config properties
+     */
+    public get config(): Config {
+        return this.mConfig;
+    }
+
+    /**
      * Require a file from a project using imperative accounting for imperative being contained
      * separately from the current implementers directory.
      * @param {string} file - the file to require from project using imperative
@@ -262,4 +283,14 @@ export class ImperativeConfig {
         }
     }
 
+    /**
+     * @returns a key/value object where the key is the profile type and the
+     *          value is the profile type schema
+     */
+    public get profileSchemas(): { [key: string]: ICommandProfileSchema } {
+        const schemas: any = {};
+        if (ImperativeConfig.instance.loadedConfig.profiles != null)
+            ImperativeConfig.instance.loadedConfig.profiles.forEach(profile => schemas[profile.type] = profile.schema);
+        return schemas;
+    }
 }

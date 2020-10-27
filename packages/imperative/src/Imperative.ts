@@ -61,6 +61,9 @@ import { IYargsContext } from "./doc/IYargsContext";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 import { ImperativeExpect } from "../../expect";
 import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
+import { Config, IConfigOpts } from "../../config";
+import { CredentialManagerFactory } from "../../security";
+import { CnfgManagementFacility } from "./cnfg/CnfgManagementFacility";
 
 // Bootstrap the performance tools
 if (PerfTiming.isEnabled) {
@@ -187,6 +190,9 @@ export class Imperative {
                     ConfigManagementFacility.instance.init();
                 }
 
+                // Load the base config
+                ImperativeConfig.instance.config = await Config.load(this.mRootCommandName);
+
                 // If plugins are allowed, enable core plugins commands
                 if (config.allowPlugins) {
                     PluginManagementFacility.instance.init();
@@ -217,6 +223,29 @@ export class Imperative {
                  */
                 await OverridesLoader.load(ImperativeConfig.instance.loadedConfig,
                     ImperativeConfig.instance.callerPackageJson);
+
+                /**
+                 * After the plugins and secure credentials are loaded, rebuild the configuration with the
+                 * secure values
+                 */
+                let opts: IConfigOpts = null;
+                if (CredentialManagerFactory.initialized) {
+                    opts = {
+                        vault: {
+                            load: ((key: string): Promise<string> => {
+                                return CredentialManagerFactory.manager.load(key, true)
+                            }),
+                            save: ((key: string, value: any): Promise<void> => {
+                                return CredentialManagerFactory.manager.save(key, value);
+                            }),
+                            name: CredentialManagerFactory.manager.name
+                        }
+                    };
+                    ImperativeConfig.instance.config = await Config.load(ImperativeConfig.instance.rootCommandName, opts);
+                }
+
+                // Init config group
+                CnfgManagementFacility.instance.init();
 
                 /**
                  * Build API object
