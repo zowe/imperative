@@ -18,7 +18,7 @@ import { ICommandHandler } from "./doc/handler/ICommandHandler";
 import { couldNotInstantiateCommandHandler, unexpectedCommandError } from "../../messages";
 import { SharedOptions } from "./utils/SharedOptions";
 import { IImperativeError, ImperativeError } from "../../error";
-import { IProfileManagerFactory } from "../../profiles";
+import { IProfileManagerFactory, ProfileUtils } from "../../profiles";
 import { SyntaxValidator } from "./syntax/SyntaxValidator";
 import { CommandProfileLoader } from "./profiles/CommandProfileLoader";
 import { ICommandProfileTypeConfiguration } from "./doc/profiles/definition/ICommandProfileTypeConfiguration";
@@ -40,6 +40,8 @@ import { Constants } from "../../constants";
 import { ICommandArguments } from "./doc/args/ICommandArguments";
 import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "./help/WebHelpManager";
+import { ICommandOptionDefinition } from "./doc/option/ICommandOptionDefinition";
+import { ICommandProfile } from "./doc/profiles/definition/ICommandProfile";
 
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
@@ -706,6 +708,68 @@ export class CommandProcessor {
         this.log.trace(`Reading stdin for "${this.definition.name}" command...`);
         await SharedOptions.readStdinIfRequested(commandArguments, response, this.definition.type);
 
+        // Get the config obj
+        const config = ImperativeConfig.instance.config;
+
+        // Build a list of all profile types - this will help us search the CLI
+        // options for profiles specified by the user
+        let allTypes: string[] = [];
+        if (this.definition.profile != null) {
+            if (this.definition.profile.required != null)
+                allTypes = allTypes.concat(this.definition.profile.required)
+            if (this.definition.profile.optional != null)
+                allTypes = allTypes.concat(this.definition.profile.optional)
+        }
+
+        // Build an object that contains all the options loaded from config
+        const fulfilled: string[] = [];
+        let fromCnfg: any = {};
+        for (const profileType of allTypes) {
+            const [opt, _] = ProfileUtils.getProfileOptionAndAlias(profileType);
+
+            // If the config contains the requested profiles, then "remember"
+            // that this type has been fulfilled - so that we do NOT load from
+            // the traditional profile location
+            let p: any = {};
+            if (args[opt] != null && config.api.profiles.exists(args[opt])) {
+                fulfilled.push(profileType);
+                p = config.api.profiles.get(args[opt]);
+            } else if (args[opt] == null &&
+                config.properties.defaults[profileType] != null &&
+                config.api.profiles.exists(config.properties.defaults[profileType])) {
+                fulfilled.push(profileType);
+                p = config.api.profiles.defaultGet(profileType);
+            }
+            fromCnfg = { ...fromCnfg, ...p };
+        }
+
+        // Convert each property extracted from the config to the correct yargs
+        // style cases for the command handler (kebab and camel)
+        allOpts.forEach((opt) => {
+            const cases = CliUtils.getOptionFormat(opt.name);
+            const profileKebab = fromCnfg[cases.kebabCase];
+            const profileCamel = fromCnfg[cases.camelCase];
+
+            if ((profileCamel !== undefined || profileKebab !== undefined) &&
+                (!args.hasOwnProperty(cases.kebabCase) && !args.hasOwnProperty(cases.camelCase))) {
+
+                // If both case properties are present in the profile, use the one that matches
+                // the option name explicitly
+                const value = (profileKebab !== undefined && profileCamel !== undefined) ?
+                    ((opt.name === cases.kebabCase) ? profileKebab : profileCamel) :
+                    ((profileKebab !== undefined) ? profileKebab : profileCamel);
+                const keys = CliUtils.setOptionValue(opt.name,
+                    ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
+                    value
+                );
+                fromCnfg = { ...fromCnfg, ...keys };
+            }
+        });
+
+        // Merge the arguments from the config into the CLI args
+        this.log.trace(`Arguments extract from the config:\n${inspect(fromCnfg)}`);
+        args = CliUtils.mergeArguments(fromCnfg, args);
+
         // Load all profiles for the command
         this.log.trace(`Loading profiles for "${this.definition.name}" command. ` +
             `Profile definitions: ${inspect(this.definition.profile, { depth: null })}`);
@@ -719,7 +783,21 @@ export class CommandProcessor {
         // If we have profiles listed on the command definition (the would be loaded already)
         // we can extract values from them for options arguments
         if (this.definition.profile != null) {
-            const profArgs = CliUtils.getOptValueFromProfiles(profiles, this.definition.profile, allOpts);
+
+            // "fake out" the cli util to only populate options for profiles
+            // that have not been fulfilled by the config
+            const p: ICommandProfile = {
+                required: [],
+                optional: [],
+                suppressOptions: this.definition.profile.suppressOptions
+            };
+
+            if (this.definition.profile.required)
+                p.required = this.definition.profile.required.filter(type => fulfilled.indexOf(type) < 0);
+            if (this.definition.profile.optional)
+                p.optional = this.definition.profile.optional.filter(type => fulfilled.indexOf(type) < 0);
+
+            const profArgs = CliUtils.getOptValueFromProfiles(profiles, p, allOpts);
             this.log.trace(`Arguments extract from the profile:\n${inspect(profArgs)}`);
             args = CliUtils.mergeArguments(profArgs, args);
         }
