@@ -66,7 +66,9 @@ describe("cmd-cli profile mapping", () => {
             ptyProcess.on("exit", (result: any) => {
                 process.stdout.write("prompting process ended with exit code " + result.exitCode);
                 expect(output.toString()).toContain("Color: " + myColor);
-                ptyProcess.destroy();
+                try {
+                    ptyProcess.destroy();
+                } catch { /* Do nothing */ }
                 resolve();
             });
         });
