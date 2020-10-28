@@ -28,12 +28,12 @@ describe("cmd-cli profile mapping", () => {
         require("rimraf").sync(join(TEST_ENVIRONMENT.workingDir, "profiles"));
     });
 
-    it("should prompt the user for a value when the default prompt phrase is specified", (done: any) => {
+    it("should prompt the user for a value when the default prompt phrase is specified", async () => {
 
         const myColor = "army green";
         // for some reason, node-pty won't find "sh" on Windows unless you add .exe
-        const shProgram = require("os").platform() === "win32" ? "bash.exe" : "bash";
-        const ptyProcess = require("node-pty") // tslint:disable-line
+        const shProgram = process.platform === "win32" ? "bash.exe" : "bash";
+        const ptyProcess = require("node-pty-prebuilt-multiarch") // tslint:disable-line
             .spawn(shProgram, [join(__dirname, "__scripts__", "prompt_for_color.sh")],
                 {
                     name: "xterm-color",
@@ -50,26 +50,25 @@ describe("cmd-cli profile mapping", () => {
         ptyProcess.on("data", (data: string) => {
             output = Buffer.concat([output, Buffer.from(data)]);
             process.stdout.write(data);
-            if (!colorWritten && output.toString().indexOf(":") >= 0) {
+            if (!colorWritten && output.toString().includes(":")) {
                 ptyProcess.write(myColor + "\r\n");
                 colorWritten = true;
                 process.stdout.write("wrote color to prompt\n");
+            } else if (colorWritten && output.toString().includes("undefined")) {
+                ptyProcess.kill();
             }
         });
 
         // node-pty crashes on the Jenkins server but works locally on windows and linux
         // we allow an error to be encountered as long as we still saw the expected output
         // since this is the only package that gets us close to an automated test of prompting
-        ptyProcess.on("error", (error: any) => {
-            process.stdout.write("prompting process encountered an error: " + error);
-            expect(output.toString()).toContain("Color: " + myColor);
-            ptyProcess.destroy();
-            done();
-        });
-        ptyProcess.on("end", () => {
-            process.stdout.write("prompting process ended");
-            expect(output.toString()).toContain("Color: " + myColor);
-            done();
+        await new Promise((resolve: any) => {
+            ptyProcess.on("exit", (result: any) => {
+                process.stdout.write("prompting process ended with exit code " + result.exitCode);
+                expect(output.toString()).toContain("Color: " + myColor);
+                ptyProcess.destroy();
+                resolve();
+            });
         });
 
     });
