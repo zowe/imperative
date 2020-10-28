@@ -5,7 +5,7 @@
   "license": "EPL 2.0",
   "repository": "",
   "bin": {
-    "imperative-test-cli": "./lib/__tests__/__integration__/imperative/src/main.js"
+    "imperative-test-cli": "lib/__tests__/__integration__/imperative/src/main.js"
   },
   "author": {
     "name": "",
