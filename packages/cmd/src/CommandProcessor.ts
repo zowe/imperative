@@ -358,8 +358,8 @@ export class CommandProcessor {
 
         // Build the response object, base args object, and the entire array of options for this command
         // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
-        if (params.arguments.lcd) {
-            process.chdir(params.arguments.lcd as string)
+        if (params.arguments.dcd) {
+            process.chdir(params.arguments.dcd as string)
         }
         const prepareResponse = this.constructResponseObject(params);
         prepareResponse.succeeded();
