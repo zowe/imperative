@@ -403,3 +403,26 @@ culpa qui officia deserunt mollit anim id est laborum\\\\.
 
 "
 `;
+
+exports[`Default Help Generator help text builder should getCommandHelpText without hidden option 1`] = `
+"
+ COMMAND NAME
+ ------------
+
+   hello
+
+ DESCRIPTION
+ -----------
+
+   my command
+
+ USAGE
+ -----
+
+   test-help a_experimental_parent hello [options]
+
+ GLOBAL OPTIONS
+ --------------
+
+"
+`;
