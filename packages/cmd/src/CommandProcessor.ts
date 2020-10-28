@@ -121,13 +121,20 @@ export class CommandProcessor {
      */
     private mLogger: Logger = Logger.getImperativeLogger();
 
-
     /**
      * Current working directory
      * @private
      * @memberof CommandProcessor
      */
     private mCwd: string;
+
+    /**
+     * Indicator to reset cwd on exit
+     * @private
+     * @type {boolean}
+     * @memberof CommandProcessor
+     */
+    private mResetCwd: boolean;
 
     /**
      * Creates an instance of CommandProcessor.
@@ -179,10 +186,6 @@ export class CommandProcessor {
         return this.mCommandLine;
     }
 
-    // set commandLine(command: string) {
-    //     this.mCommandLine = command;
-    // }
-
     /**
      * Accessor for the environment variable prefix
      * @readonly
@@ -202,7 +205,6 @@ export class CommandProcessor {
     get promptPhrase(): string {
         return this.mPromptPhrase;
     }
-
 
     /**
      * Accessor for the help generator passed to this instance of the command processor
@@ -359,6 +361,7 @@ export class CommandProcessor {
         // Build the response object, base args object, and the entire array of options for this command
         // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
         if (params.arguments.dcd) {
+            this.mResetCwd = true;
             process.chdir(params.arguments.dcd as string)
         }
         const prepareResponse = this.constructResponseObject(params);
@@ -854,7 +857,9 @@ export class CommandProcessor {
         this.log.info(`Command "${this.definition.name}" completed with success flag: "${json.success}"`);
         this.log.trace(`Command "${this.definition.name}" finished. Response object:\n${inspect(json, { depth: null })}`);
         response.endStream();
-        process.chdir(this.mCwd);
+        if (this.mResetCwd) {
+            process.chdir(this.mCwd);
+        }
         return json;
     }
 
