@@ -121,6 +121,14 @@ export class CommandProcessor {
      */
     private mLogger: Logger = Logger.getImperativeLogger();
 
+
+    /**
+     * Current working directory
+     * @private
+     * @memberof CommandProcessor
+     */
+    private mCwd: string;
+
     /**
      * Creates an instance of CommandProcessor.
      * @param {ICommandProcessorParms} params - See the interface for details.
@@ -147,6 +155,7 @@ export class CommandProcessor {
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["promptPhrase"], `${CommandProcessor.ERROR_TAG} No prompt phrase supplied.`);
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["rootCommandName"], `${CommandProcessor.ERROR_TAG} No root command supplied.`);
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["envVariablePrefix"], `${CommandProcessor.ERROR_TAG} No ENV variable prefix supplied.`);
+        this.mCwd = process.cwd();
         // TODO - check if the command definition passed actually exists within the full command definition tree passed
     }
 
@@ -349,6 +358,9 @@ export class CommandProcessor {
 
         // Build the response object, base args object, and the entire array of options for this command
         // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
+        if (params.arguments.lcd) {
+            process.chdir(params.arguments.lcd as string)
+        }
         const prepareResponse = this.constructResponseObject(params);
         prepareResponse.succeeded();
 
@@ -842,6 +854,7 @@ export class CommandProcessor {
         this.log.info(`Command "${this.definition.name}" completed with success flag: "${json.success}"`);
         this.log.trace(`Command "${this.definition.name}" finished. Response object:\n${inspect(json, { depth: null })}`);
         response.endStream();
+        process.chdir(this.mCwd);
         return json;
     }
 

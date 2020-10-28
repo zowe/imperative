@@ -163,25 +163,28 @@ export abstract class AbstractHelpGenerator implements IHelpGenerator {
             return;
         }
         for (const option of this.mCommandDefinition.options) {
-            const group = option.group;
-            if (!this.groupToOption[group]) {
-                this.groupToOption[group] = [];
-            }
-            const caseSensitive = this.getCaseSensitiveFlagByOptionName(option.name);
-            const optionAndAliases = this.getOptionAndAliasesString(option, caseSensitive);
-            this.groupToOption[group].push(optionAndAliases);
+            if (!option.hidden) {
 
-            // build the option help text
-            let optionText = option.description;
-            const defaultValueText = [undefined, null].includes(option.defaultValue) ? "" : this.grey("\nDefault value: " + option.defaultValue);
-            const allowableValuesText = option.allowableValues ? this.grey("\nAllowed values: " + option.allowableValues.values.join(", ")) : "";
-            if (defaultValueText.length > 0 || allowableValuesText.length > 0) {
-                optionText += "\n";
-                optionText += defaultValueText + allowableValuesText;
-            }
+                const group = option.group;
+                if (!this.groupToOption[group]) {
+                    this.groupToOption[group] = [];
+                }
+                const caseSensitive = this.getCaseSensitiveFlagByOptionName(option.name);
+                const optionAndAliases = this.getOptionAndAliasesString(option, caseSensitive);
+                this.groupToOption[group].push(optionAndAliases);
 
-            // Place the help text in the map
-            this.optionToDescription[optionAndAliases] = optionText;
+                // build the option help text
+                let optionText = option.description;
+                const defaultValueText = [undefined, null].includes(option.defaultValue) ? "" : this.grey("\nDefault value: " + option.defaultValue);
+                const allowableValuesText = option.allowableValues ? this.grey("\nAllowed values: " + option.allowableValues.values.join(", ")) : "";
+                if (defaultValueText.length > 0 || allowableValuesText.length > 0) {
+                    optionText += "\n";
+                    optionText += defaultValueText + allowableValuesText;
+                }
+
+                // Place the help text in the map
+                this.optionToDescription[optionAndAliases] = optionText;
+            }
         }
     }
 

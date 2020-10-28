@@ -454,7 +454,8 @@ export class CommandPreparer {
             name: Constants.LOCAL_DIRECTORY_OPTION,
             group: Constants.GLOBAL_GROUP,
             description: "Alternate local working directory",
-            type: "string"
+            type: "string",
+            hidden: true
         });
 
         /**
