@@ -902,7 +902,7 @@ export class CommandResponse implements ICommandResponseApi {
             (response.stderr as any) = response.stderr.toString();
             (response.stdout as any) = response.stdout.toString();
             if (!this.mSilent) {
-                this.writeStdout(JSON.stringify(response, null, 2) + '\n');
+                this.writeStdout(JSON.stringify(response, null, 2));
             }
         } catch (e) {
             throw new ImperativeError({
