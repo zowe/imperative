@@ -129,14 +129,6 @@ export class CommandProcessor {
     private mCwd: string;
 
     /**
-     * Indicator to reset cwd on exit
-     * @private
-     * @type {boolean}
-     * @memberof CommandProcessor
-     */
-    private mResetCwd: boolean;
-
-    /**
      * Creates an instance of CommandProcessor.
      * @param {ICommandProcessorParms} params - See the interface for details.
      * @memberof CommandProcessor
@@ -361,7 +353,10 @@ export class CommandProcessor {
         // Build the response object, base args object, and the entire array of options for this command
         // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
         if (params.arguments.dcd) {
-            this.mResetCwd = true;
+
+            // NOTE(Kelosky): we adjust `cwd` and do not restore it, so that multiple simultaneous requests from the same
+            // directory will operate without unexpected chdir taking place.  Multiple simultaneous requests from different
+            // directories may cause unpredictable results
             process.chdir(params.arguments.dcd as string)
         }
         const prepareResponse = this.constructResponseObject(params);
@@ -857,9 +852,6 @@ export class CommandProcessor {
         this.log.info(`Command "${this.definition.name}" completed with success flag: "${json.success}"`);
         this.log.trace(`Command "${this.definition.name}" finished. Response object:\n${inspect(json, { depth: null })}`);
         response.endStream();
-        if (this.mResetCwd) {
-            process.chdir(this.mCwd);
-        }
         return json;
     }
 
