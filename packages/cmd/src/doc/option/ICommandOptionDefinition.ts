@@ -72,6 +72,12 @@ export interface ICommandOptionDefinition {
      */
     type: CommandOptionType;
     /**
+     * Option is hidden from help
+     * @type {boolean}
+     * @memberof ICommandOptionDefinition
+     */
+    hidden?: boolean;
+    /**
      * If the user doesn't specify this option, you can specify a default value here
      * that will be filled in automatically.
      * @type {any}

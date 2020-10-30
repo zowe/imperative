@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Allow hidden options.
+
 ## `5.0.0-next.202010161240`
 
 - Enhancement:  Allow process exit code to be passed to daemon clients.

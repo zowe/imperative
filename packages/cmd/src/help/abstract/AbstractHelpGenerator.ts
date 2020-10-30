@@ -162,7 +162,8 @@ export abstract class AbstractHelpGenerator implements IHelpGenerator {
         if (isNullOrUndefined(this.mCommandDefinition.options)) {
             return;
         }
-        for (const option of this.mCommandDefinition.options) {
+        for (const option of this.mCommandDefinition.options.filter(opt => !opt.hidden)) {
+
             const group = option.group;
             if (!this.groupToOption[group]) {
                 this.groupToOption[group] = [];
