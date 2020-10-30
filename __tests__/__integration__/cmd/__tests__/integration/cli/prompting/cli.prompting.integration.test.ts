@@ -28,7 +28,8 @@ describe("cmd-cli profile mapping", () => {
         require("rimraf").sync(join(TEST_ENVIRONMENT.workingDir, "profiles"));
     });
 
-    it("should prompt the user for a value when the default prompt phrase is specified", (done: any) => {
+    // Skip this test on Windows until https://github.com/microsoft/node-pty/issues/437 is fixed
+    (process.platform !== "win32" ? it : it.skip)("should prompt the user for a value when the default prompt phrase is specified", (done: any) => {
 
         const myColor = "army green";
         // for some reason, node-pty won't find "sh" on Windows unless you add .exe
