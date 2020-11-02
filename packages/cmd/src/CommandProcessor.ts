@@ -734,14 +734,14 @@ export class CommandProcessor {
             if (args[opt] != null && config.api.profiles.exists(args[opt])) {
                 fulfilled.push(profileType);
                 p = config.api.profiles.get(args[opt]);
-            } else if (args[opt] == null &&
-                config.properties.defaults[profileType] != null &&
-                config.api.profiles.exists(config.properties.defaults[profileType])) {
-                fulfilled.push(profileType);
-                p = config.api.profiles.defaultGet(profileType);
             }
             fromCnfg = { ...fromCnfg, ...p };
         }
+
+        // get the active properties
+        const active = config.api.profiles.active();
+        this.log.trace(`Active arguments:\n${inspect(active)}`);
+        fromCnfg = { ...active, ...fromCnfg };
 
         // Convert each property extracted from the config to the correct yargs
         // style cases for the command handler (kebab and camel)
@@ -820,6 +820,9 @@ export class CommandProcessor {
 
         // Log for debugging
         this.log.trace(`Full argument object constructed:\n${inspect(args)}`);
+        // console.log("===ARGS:");
+        // console.log(JSON.stringify(args, null, 4));
+        // console.log("===END ARGS");
         return { profiles, args };
     }
 

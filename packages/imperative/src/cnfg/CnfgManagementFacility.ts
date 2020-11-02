@@ -17,6 +17,7 @@ import { initDefinition } from "./cmd/init/init.definition";
 import { schemaDefinition } from "./cmd/schema/schema.definition";
 import { profilesDefinition } from "./cmd/profiles/profiles.definition";
 import { secureDefinition } from "./cmd/secure/secure.definition";
+import { activeDefinition } from "./cmd/active/active.definition";
 
 export class CnfgManagementFacility {
     private static mInstance: CnfgManagementFacility;
@@ -70,7 +71,8 @@ export class CnfgManagementFacility {
                 secureDefinition,
                 initDefinition,
                 schemaDefinition,
-                profilesDefinition
+                profilesDefinition,
+                activeDefinition
             ]
         });
 

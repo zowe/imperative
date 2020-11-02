@@ -68,8 +68,7 @@ export class Config {
         const home = require('os').homedir();
         const properties: IConfig = {
             profiles: {},
-            defaults: {},
-            properties: {},
+            active: [],
             plugins: [],
             secure: []
         };
@@ -121,9 +120,8 @@ export class Config {
                 }
 
                 // Populate any undefined defaults
-                layer.properties.defaults = layer.properties.defaults || {};
+                layer.properties.active = layer.properties.active || [];
                 layer.properties.profiles = layer.properties.profiles || {};
-                layer.properties.properties = layer.properties.properties || {};
                 layer.properties.plugins = layer.properties.plugins || [];
                 layer.properties.secure = layer.properties.secure || [];
             });
@@ -179,22 +177,58 @@ export class Config {
                 }
 
                 public get(path: string): { [key: string]: string } {
-                    return Config.buildProfile(path, JSON.parse(JSON.stringify(outer.properties.profiles)));
+                    // find the layer where the profile exists and apply the
+                    // active values from that layer.
+                    let active = {};
+                    for (let l = layers.project_user; l <= layers.global_config; l++) {
+                        if (Config.findProfile(path, outer._layers[l].properties.profiles) != null) {
+                            const i1 = (l > layers.project_config) ? layers.global_user : layers.project_user;
+                            const i2 = (l > layers.project_config) ? layers.global_config : layers.project_config;
+                            const aArr = outer._layers[i1].properties.active.concat(outer._layers[i2].properties.active);
+                            aArr.forEach((a) => {
+                                const p1 = Config.buildProfile(a, outer._layers[i1].properties.profiles);
+                                const p2 = Config.buildProfile(a, outer._layers[i2].properties.profiles);
+                                const merged = deepmerge(p2, p1);
+                                active = deepmerge(merged, active);
+                            });
+                        }
+                    }
+
+                    // build the profile and merge with any active properties
+                    let p = Config.buildProfile(path, JSON.parse(JSON.stringify(outer.properties.profiles)));
+                    p = deepmerge(active, p);
+                    p = deepmerge(this.active(), p);
+                    return p;
                 }
 
                 public exists(path: string): boolean {
                     return (Config.findProfile(path, outer.properties.profiles) != null);
                 }
 
-                public defaultSet(key: string, value: string) {
-                    outer.layerActive().properties.defaults[key] = value;
-                }
+                public active(): { [key: string]: string } {
+                    let active: { [key: string]: string } = {};
 
-                public defaultGet(key: string): { [key: string]: string } {
-                    const dflt = outer.properties.defaults[key];
-                    if (dflt == null || !this.exists(dflt))
-                        return null;
-                    return this.get(dflt);
+                    // Merge together the active profiles at the project layer
+                    const projActive = outer._layers[layers.project_user].properties.active
+                        .concat(outer._layers[layers.project_config].properties.active);
+                    projActive.forEach((pActive) => {
+                        const p1 = Config.buildProfile(pActive, outer._layers[layers.project_user].properties.profiles);
+                        const p2 = Config.buildProfile(pActive, outer._layers[layers.project_config].properties.profiles);
+                        const merged = deepmerge(p2, p1);
+                        active = deepmerge(merged, active);
+                    });
+
+                    // Merge together the active profiles at the global layer
+                    const glblActive = outer._layers[layers.global_user].properties.active
+                        .concat(outer._layers[layers.global_config].properties.active);
+                    glblActive.forEach((gActive) => {
+                        const p1 = Config.buildProfile(gActive, outer._layers[layers.global_user].properties.profiles);
+                        const p2 = Config.buildProfile(gActive, outer._layers[layers.global_config].properties.profiles);
+                        const merged = deepmerge(p2, p1);
+                        active = deepmerge(merged, active);
+                    });
+
+                    return active;
                 }
 
             }(); // end of profiles inner class
@@ -272,7 +306,7 @@ export class Config {
                         if (outer._layers[i].user === outer._active.user &&
                             outer._layers[i].global === outer._active.global) {
                             outer._layers[i].properties = cnfg;
-                            outer._layers[i].properties.defaults = outer._layers[i].properties.defaults || {};
+                            outer._layers[i].properties.active = outer._layers[i].properties.active || [];
                             outer._layers[i].properties.profiles = outer._layers[i].properties.profiles || {};
                             outer._layers[i].properties.plugins = outer._layers[i].properties.plugins || [];
                             outer._layers[i].properties.secure = outer._layers[i].properties.secure || [];
@@ -363,11 +397,10 @@ export class Config {
         // NOTE: "properties" and "secure" only apply to the individual layers
         // NOTE: they will be blank for the merged config
         const c: IConfig = {
-            defaults: {},
             profiles: {},
-            properties: {},
             plugins: [],
-            secure: []
+            secure: [],
+            active: []
         };
 
         // merge each layer
@@ -376,9 +409,8 @@ export class Config {
             // Merge "plugins" - create a unique set from all entires
             c.plugins = Array.from(new Set(layer.properties.plugins.concat(c.plugins)));
 
-            // Merge "defaults" - only add new properties from this layer
-            for (const [name, value] of Object.entries(layer.properties.defaults))
-                c.defaults[name] = c.defaults[name] || value;
+            // Concat all active profiles
+            c.active = c.active.concat(layer.properties.active);
         });
 
         // Merge the project layer profiles
@@ -386,24 +418,10 @@ export class Config {
         const project = JSON.parse(JSON.stringify(this._layers[layers.project_config].properties.profiles));
         const proj: { [key: string]: IConfigProfile } = deepmerge(project, usrProject);
 
-        // Merge the project layer properties to the root level profile
-        const usrProjectP = JSON.parse(JSON.stringify(this._layers[layers.project_user].properties.properties));
-        const projectP = JSON.parse(JSON.stringify(this._layers[layers.project_config].properties.properties));
-        const projP: { [key: string]: any } = deepmerge(projectP, usrProjectP);
-        for (const [_, p] of Object.entries(proj))
-            p.properties = { ...projP, ...p.properties };
-
         // Merge the global layer profiles
         const usrGlobal = JSON.parse(JSON.stringify(this._layers[layers.global_user].properties.profiles));
         const global = JSON.parse(JSON.stringify(this._layers[layers.global_config].properties.profiles));
         const glbl: { [key: string]: IConfigProfile } = deepmerge(global, usrGlobal);
-
-        // Merge the global layer properties to the root level profile
-        const usrGlobalP = JSON.parse(JSON.stringify(this._layers[layers.global_user].properties.properties));
-        const globalP = JSON.parse(JSON.stringify(this._layers[layers.global_config].properties.properties));
-        const glblP: { [key: string]: any } = deepmerge(globalP, usrGlobalP);
-        for (const [_, p] of Object.entries(glbl))
-            p.properties = { ...glblP, ...p.properties };
 
         // Traverse all the global profiles merging any missing from project profiles
         c.profiles = proj;
