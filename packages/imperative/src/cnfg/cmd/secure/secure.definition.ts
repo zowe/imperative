@@ -17,37 +17,17 @@ export const secureDefinition: ICommandDefinition = {
     type: "command",
     handler: join(__dirname, "secure.handler"),
     summary: "secure configuration properties",
-    description: "secure configuration properties",
-    positionals: [
-        {
-            name: "property",
-            description: "The property to secure. You may specify a path using dot notation (e.g. profiles.host1.profiles.service1.properties.setting)",
-            required: true,
-            type: "string"
-        },
-        {
-            name: "value",
-            description: "The property value to set. The value may be JSON. Use '--json' to indicate.",
-            required: true,
-            type: "string"
-        }
-    ],
+    description: "prompt for secure configuration properties",
     options: [
         {
             name: "global",
-            description: "Set the property in global config.",
+            description: "Secure properties in global config.",
             type: "boolean",
             defaultValue: false
         },
         {
             name: "user",
-            description: "Set the property in user config.",
-            type: "boolean",
-            defaultValue: false
-        },
-        {
-            name: "json",
-            description: "The property value is JSON.",
+            description: "Secure properties in user config.",
             type: "boolean",
             defaultValue: false
         }
