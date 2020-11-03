@@ -10,12 +10,12 @@
 */
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { IConfigLayer, IConfigOpts } from "../../../../../config";
+import { IConfigOpts } from "../../../../../config";
 import { ImperativeError } from "../../../../../error";
 import { CredentialManagerFactory } from "../../../../../security";
-import { CliUtils, ImperativeConfig } from "../../../../../utilities";
+import { ImperativeConfig } from "../../../../../utilities";
 
-export default class SecureHandler implements ICommandHandler {
+export default class SetSecureHandler implements ICommandHandler {
 
     /**
      * Process the command and input.
@@ -47,23 +47,21 @@ export default class SecureHandler implements ICommandHandler {
         // Create the config, load the secure values, and activate the desired layer
         const config = ImperativeConfig.instance.config;
         config.api.layers.activate(params.arguments.user, params.arguments.global);
-        const secureProps: string[] = config.layers.flatMap((layer: IConfigLayer) => layer.properties.secure);
 
-        if (secureProps.length === 0) {
-            params.response.console.log("No secure properties found in your config");
-            return;
-        }
-
-        // Prompt for values designated as secure
-        for (const propName of secureProps) {
-            const propValue = CliUtils.promptForInput(`Please enter ${propName}: `);
-            // Save the value in the config securely
-            if (propValue) {
-                config.set(propName, propValue, { secure: true });
+        // Get the value to set
+        let value = params.arguments.value;
+        if (params.arguments.json) {
+            try {
+                value = JSON.parse(value);
+            } catch (e) {
+                throw new ImperativeError({ msg: `could not parse JSON value: ${e.message}` });
             }
         }
 
-        // Write the config layer
+        // Set the value in the config, save the secure values, write the config layer
+        config.set(params.arguments.property, params.arguments.value, {
+            secure: true,
+        });
         config.api.layers.write();
     }
 }
