@@ -44,6 +44,16 @@ export default class SchemaHandler implements ICommandHandler {
         schemas = schemas || [];
         const entries: any[] = [];
         schemas.forEach((schema: { type: string, schema: any }) => {
+            // Remove any non-JSON-schema properties and translate anything useful
+            for (const [_, v] of Object.entries(schema.schema.properties)) {
+                if ((v as any).optionDefinition != null) {
+                    if ((v as any).optionDefinition.description)
+                        (v as any).description = (v as any).optionDefinition.description;
+                }
+                delete (v as any).secure
+                delete (v as any).optionDefinition;
+            }
+
             entries.push({
                 if: { properties: { type: { const: schema.type } } },
                 then: { properties: { properties: schema.schema } },
