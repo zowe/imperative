@@ -241,7 +241,7 @@ export class Config {
                                 const v = obj[segment];
                                 if (v == null) break;
                                 if (x === segments.length - 1) {
-                                    obj[segment] = `managed by ${outer._vault.name}`;
+                                    delete obj[segment];
                                     break;
                                 }
                                 obj = obj[segment];
