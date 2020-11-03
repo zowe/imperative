@@ -740,7 +740,7 @@ export class CommandProcessor {
                 fulfilled.push(profileType);
                 p = config.api.profiles.defaultGet(profileType);
             }
-            fromCnfg = { ...fromCnfg, ...p };
+            fromCnfg = { ...p, ...fromCnfg };
         }
 
         // Convert each property extracted from the config to the correct yargs

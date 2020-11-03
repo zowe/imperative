@@ -69,7 +69,6 @@ export class Config {
         const properties: IConfig = {
             profiles: {},
             defaults: {},
-            properties: {},
             plugins: [],
             secure: []
         };
@@ -123,7 +122,6 @@ export class Config {
                 // Populate any undefined defaults
                 layer.properties.defaults = layer.properties.defaults || {};
                 layer.properties.profiles = layer.properties.profiles || {};
-                layer.properties.properties = layer.properties.properties || {};
                 layer.properties.plugins = layer.properties.plugins || [];
                 layer.properties.secure = layer.properties.secure || [];
             });
@@ -241,7 +239,7 @@ export class Config {
                                 const v = obj[segment];
                                 if (v == null) break;
                                 if (x === segments.length - 1) {
-                                    obj[segment] = `managed by ${outer._vault.name}`;
+                                    delete obj[segment];
                                     break;
                                 }
                                 obj = obj[segment];
@@ -365,7 +363,6 @@ export class Config {
         const c: IConfig = {
             defaults: {},
             profiles: {},
-            properties: {},
             plugins: [],
             secure: []
         };
@@ -386,24 +383,10 @@ export class Config {
         const project = JSON.parse(JSON.stringify(this._layers[layers.project_config].properties.profiles));
         const proj: { [key: string]: IConfigProfile } = deepmerge(project, usrProject);
 
-        // Merge the project layer properties to the root level profile
-        const usrProjectP = JSON.parse(JSON.stringify(this._layers[layers.project_user].properties.properties));
-        const projectP = JSON.parse(JSON.stringify(this._layers[layers.project_config].properties.properties));
-        const projP: { [key: string]: any } = deepmerge(projectP, usrProjectP);
-        for (const [_, p] of Object.entries(proj))
-            p.properties = { ...projP, ...p.properties };
-
         // Merge the global layer profiles
         const usrGlobal = JSON.parse(JSON.stringify(this._layers[layers.global_user].properties.profiles));
         const global = JSON.parse(JSON.stringify(this._layers[layers.global_config].properties.profiles));
         const glbl: { [key: string]: IConfigProfile } = deepmerge(global, usrGlobal);
-
-        // Merge the global layer properties to the root level profile
-        const usrGlobalP = JSON.parse(JSON.stringify(this._layers[layers.global_user].properties.properties));
-        const globalP = JSON.parse(JSON.stringify(this._layers[layers.global_config].properties.properties));
-        const glblP: { [key: string]: any } = deepmerge(globalP, usrGlobalP);
-        for (const [_, p] of Object.entries(glbl))
-            p.properties = { ...glblP, ...p.properties };
 
         // Traverse all the global profiles merging any missing from project profiles
         c.profiles = proj;

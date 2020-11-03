@@ -16,5 +16,4 @@ export interface IConfig {
     profiles: { [key: string]: IConfigProfile };
     plugins: string[];
     secure: string[];
-    properties: { [key: string]: any };
 }
