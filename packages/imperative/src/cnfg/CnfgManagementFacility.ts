@@ -62,7 +62,7 @@ export class CnfgManagementFacility {
 
         // Add the config group and related commands.
         UpdateImpConfig.addCmdGrp({
-            name: "cnfg",
+            name: "config",
             type: "group",
             summary: "Manage JSON project and global configuration",
             description: "Manage JSON project and global configuration",
