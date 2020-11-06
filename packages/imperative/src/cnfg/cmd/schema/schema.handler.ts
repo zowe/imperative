@@ -108,10 +108,6 @@ export default class SchemaHandler implements ICommandHandler {
                         type: "string",
                         description: "path to a property"
                     }
-                },
-                properties: {
-                    description: "properties that apply to all profiles",
-                    type: "object"
                 }
             }
         };
