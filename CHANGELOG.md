@@ -2,9 +2,9 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## `Recent Changes`
+## Recent Changes
 
-- BugFix: Update `opener` dependency due to command injection vulnerability in Windows - [GHSL-2020-145](https://securitylab.github.com/advisories/GHSL-2020-145-domenic-opener)
+- BugFix: Updated `opener` dependency due to command injection vulnerability on Windows - [GHSL-2020-145](https://securitylab.github.com/advisories/GHSL-2020-145-domenic-opener)
 
 ## `4.8.1`
 
