@@ -4,7 +4,8 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
-- Expose `trim` parameter from `wrap-ansi` within `TextUtils.wordWrap()`
+- BugFix: Updated `opener` dependency due to command injection vulnerability on Windows - [GHSL-2020-145](https://securitylab.github.com/advisories/GHSL-2020-145-domenic-opener)
+- Enhancement: Expose `trim` parameter from `wrap-ansi` within `TextUtils.wordWrap()`
 
 ## `4.8.1`
 
