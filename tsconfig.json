@@ -27,6 +27,7 @@
     "packages/**/*"
   ],
   "exclude": [
+    "./packages/1-unused-settings",
     "lib",
     "node_modules",
     "**/__mocks__/*",

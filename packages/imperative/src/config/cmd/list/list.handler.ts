@@ -9,26 +9,11 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { Logger } from "../../../../../logger/";
-import { ImperativeError } from "../../../../../error";
-import { AppSettings } from "../../../../../settings/src/AppSettings";
+import { ICommandHandler, ICommandOptionDefinition, IHandlerParameters } from "../../../../../cmd";
+import { Config } from "../../../../../config/src/Config";
+import { ImperativeConfig } from "../../../../../utilities";
 
-
-/**
- * The list command group handler for cli configuration settings.
- *
- */
-export default class ListHandler implements ICommandHandler {
-
-    /**
-     * A logger for this class
-     *
-     * @private
-     * @type {Logger}
-     */
-    private log: Logger = Logger.getImperativeLogger();
-
+export default abstract class ListHandler implements ICommandHandler {
     /**
      * Process the command and input.
      *
@@ -37,11 +22,40 @@ export default class ListHandler implements ICommandHandler {
      * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
-        const {values} = params.arguments;
-        const overrides = AppSettings.instance.getNamespace("overrides");
+        const config = ImperativeConfig.instance.config;
+        const property = params.arguments.property;
 
-        Object.keys(overrides)
-            .map((key) =>  values ? `${key} = ${overrides[key]}` : key)
-            .forEach(params.response.console.log);
+        // Populate the print object
+        let obj: any = {};
+        if (config.exists) {
+            if (params.arguments.locations) {
+                for (const layer of config.layers) {
+                    if (layer.exists) {
+                        obj[layer.path] = layer.properties;
+                        if (property != null)
+                            obj[layer.path] = (layer.properties as any)[property];
+                    }
+                }
+            } else {
+                obj = config.properties;
+                if (property != null)
+                    obj = (config.properties as any)[property];
+            }
+        }
+
+        // If requested, only include the root property
+        if (params.arguments.root && !Array.isArray(obj)) {
+            const root = [];
+            for (const [p, _] of Object.entries(obj))
+                root.push(p);
+            obj = root;
+        }
+
+        // output to terminal
+        params.response.data.setObj(obj);
+        params.response.format.output({
+            output: obj,
+            format: (Array.isArray(obj)) ? "list" : "object"
+        });
     }
 }

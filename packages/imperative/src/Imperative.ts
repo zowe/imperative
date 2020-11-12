@@ -28,7 +28,6 @@ import { ImperativeReject } from "../../interfaces";
 import { LoggingConfigurer } from "./LoggingConfigurer";
 import { ImperativeError } from "../../error";
 import { PluginManagementFacility } from "./plugins/PluginManagementFacility";
-import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
 import {
     AbstractCommandYargs,
     CliProfileManager,
@@ -52,18 +51,22 @@ import { OverridesLoader } from "./OverridesLoader";
 import { ImperativeProfileManagerFactory } from "./profiles/ImperativeProfileManagerFactory";
 import { DefinitionTreeResolver } from "./DefinitionTreeResolver";
 import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
-import { AppSettings } from "../../settings";
 import { dirname, join } from "path";
 
 import { Console } from "../../console";
-import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
 import { IYargsContext } from "./doc/IYargsContext";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 import { ImperativeExpect } from "../../expect";
 import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
 import { Config, IConfigOpts } from "../../config";
 import { CredentialManagerFactory } from "../../security";
-import { CnfgManagementFacility } from "./cnfg/CnfgManagementFacility";
+import { CnfgManagementFacility } from "./config/CnfgManagementFacility";
+
+/* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
+import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
+import { AppSettings } from "../../settings";
+import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
+*/
 
 // Bootstrap the performance tools
 if (PerfTiming.isEnabled) {
@@ -167,8 +170,11 @@ export class Imperative {
                 ConfigurationValidator.validate(config);
                 ImperativeConfig.instance.loadedConfig = config;
 
+                /* todo:overrides - If we ever need to reinstate ConfigMgr overrides,
+                * re-implement to use entries in zowe.config.json.
                 // Initialize our settings file
                 this.initAppSettings();
+                */
 
                 /**
                  * Get the command name from the package bin.
@@ -185,10 +191,12 @@ export class Imperative {
                 }
                 ImperativeConfig.instance.rootCommandName = this.mRootCommandName;
 
+                /* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
                 // If config group is enabled add config commands
                 if (config.allowConfigGroup) {
                     ConfigManagementFacility.instance.init();
                 }
+                */
 
                 // Load the base config
                 ImperativeConfig.instance.config = await Config.load(this.mRootCommandName);
@@ -460,6 +468,8 @@ export class Imperative {
      * Load the correct {@link AppSettings} instance from values located in the
      * cli home folder.
      */
+    /* todo:overrides - If we ever need to reinstate ConfigMgr overrides,
+     * re-implement to use entries in zowe.config.json.
     private static initAppSettings() {
         const cliSettingsRoot = join(ImperativeConfig.instance.cliHome, "settings");
         const cliSettingsFile = join(cliSettingsRoot, "imperative.json");
@@ -475,6 +485,7 @@ export class Imperative {
             defaultSettings,
         );
     }
+    todo:overrides */
 
     /**
      * Init log object such that subsequent calls to the Logger.getImperativeLogger() (or

@@ -12,8 +12,14 @@
 import { IImperativeOverrides } from "./doc/IImperativeOverrides";
 import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
+import { ImperativeConfig } from "../../utilities";
 import { isAbsolute, resolve } from "path";
+import { PMFConstants } from "./plugins/utilities/PMFConstants";
+
+/* todo:overrides - If we ever need to reinstate ConfigMgr overrides,
+ * re-implement to use entries in zowe.config.json.
 import { AppSettings } from "../../settings";
+*/
 
 /**
  * Imperative-internal class to load overrides
@@ -36,12 +42,47 @@ export class OverridesLoader {
   }
 
   /**
-   * Initialize the Credential Manager using the supplied override when provided.
+   * Load the baked-in zowe CredentialManager and initialize it.
+   * If we need to reinstate 3rd party overrides, delete this function and
+   * rename loadCredentialManager_NotCurrentlyUsed.
    *
    * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
    * @param {any} packageJson - the current package.json
    */
   private static async loadCredentialManager(
+    config: IImperativeConfig,
+    packageJson: any
+  ): Promise<void> {
+    const overrides: IImperativeOverrides = config.overrides;
+    const displayName: string = "@zowe/secure-credential-store-for-zowe-cli";
+    const pmfConst: PMFConstants = PMFConstants.instance;
+
+    // todo:gene: This is the location of SCS plugin. Will need our new built-in location
+    const Manager = resolve(pmfConst.PLUGIN_HOME_LOCATION,
+        "@zowe/secure-credential-store-for-zowe-cli/lib/credentials/KeytarCredentialManager");
+
+    await CredentialManagerFactory.initialize({
+      // Init the manager with the override specified OR (if null) default to keytar
+      Manager,
+      // The display name will be the plugin name that introduced the override OR it will default o the CLI name
+      displayName,
+      // The service is always the CLI name (Keytar and other plugins can use this to uniquely dentify the service)
+      service: config.name,
+      // If the default is to be used, we won't implant the invalid credential manager
+      invalidOnFailure: !(Manager == null)
+    });
+  }
+
+  /**
+   * Initialize the Credential Manager using the supplied override when provided.
+   *
+   * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
+   * @param {any} packageJson - the current package.json
+   */
+
+  /* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
+
+  private static async loadCredentialManager_NotCurrentlyUsed(
       config: IImperativeConfig,
       packageJson: any
   ): Promise<void> {
@@ -80,4 +121,8 @@ export class OverridesLoader {
       });
     }
   }
+
+  * todo:overrides: commented-out until we need to reinstate 3rd party overrides
+  */
+
 }

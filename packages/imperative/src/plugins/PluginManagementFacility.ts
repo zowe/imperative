@@ -25,8 +25,11 @@ import { ConfigurationValidator } from "../ConfigurationValidator";
 import { ConfigurationLoader } from "../ConfigurationLoader";
 import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
 import { IImperativeOverrides } from "../doc/IImperativeOverrides";
-import { AppSettings } from "../../../settings";
 import { ImperativeError } from "../../../error";
+
+/* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
+import { AppSettings } from "../../../settings";
+*/
 
 /**
  * This class is the main engine for the Plugin Management Facility. The
@@ -268,7 +271,7 @@ export class PluginManagementFacility {
         // First come, first serve - If we're using a config, aggregate the
         // override specifications for each plugin - then we can add those
         // from app settings
-        let overrideSettings: any = {};
+        const overrideSettings: any = {};
         if (this.pmfConst.PLUGIN_USING_CONFIG) {
             for (const plugin of this.pmfConst.PLUGIN_CONFIG.api.plugins.get()) {
                 if (loadedOverrides[plugin] != null) {
@@ -280,7 +283,10 @@ export class PluginManagementFacility {
                 }
             }
         }
+
+        /* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
         overrideSettings = { ...AppSettings.instance.getNamespace("overrides"), ...overrideSettings };
+        */
 
         // Loop through each overrides setting here. Setting is an override that we are modifying while
         // plugin is the pluginName from which to get the setting. This is probably the ugliest piece
