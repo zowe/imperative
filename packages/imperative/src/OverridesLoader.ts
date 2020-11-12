@@ -54,7 +54,7 @@ export class OverridesLoader {
     packageJson: any
   ): Promise<void> {
     const overrides: IImperativeOverrides = config.overrides;
-    const displayName: string = "@zowe/secure-credential-store-for-zowe-cli";
+    const displayName: string = "Zowe built-in Secure Credential Manager";
     const pmfConst: PMFConstants = PMFConstants.instance;
 
     // todo:gene: This is the location of SCS plugin. Will need our new built-in location

@@ -139,7 +139,7 @@ export class CredentialManagerFactory {
 
             // Log appropriate error messages
             if (Manager !== DefaultCredentialManager) {
-                const logError = `Failed to override the credential manager with one provided by "${displayName}"`;
+                const logError = `Failed to load the credential manager named "${displayName}"`;
 
                 // Be sure to log the messages both to the console and to a file
                 // so that support can also see these messages.
