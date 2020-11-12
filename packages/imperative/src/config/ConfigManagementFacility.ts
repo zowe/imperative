@@ -68,7 +68,7 @@ export class ConfigManagementFacility {
 
         // Add the config group and related commands.
         UpdateImpConfig.addCmdGrp({
-            name: "configToBeRemoved",
+            name: "config_unused",
             type: "group",
             summary: "Manage configuration and overrides",
             description: "Manage configuration and overrides. To see all set-able options use \"list\" command.",
