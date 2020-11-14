@@ -6,6 +6,11 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Add arrayAllowDuplicate option
 
+## `4.9.0`
+
+- BugFix: Updated `opener` dependency due to command injection vulnerability on Windows - [GHSL-2020-145](https://securitylab.github.com/advisories/GHSL-2020-145-domenic-opener)
+- Enhancement: Expose `trim` parameter from `wrap-ansi` within `TextUtils.wordWrap()`
+
 ## `4.8.1`
 
 - BugFix: Fixed an issue with `ConnectionPropsForSessCfg` where the user would be prompted for user/password even if a token was present. [#436](https://github.com/zowe/imperative/pull/436)
