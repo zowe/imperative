@@ -77,8 +77,10 @@ export class CredentialManagerFactory {
      *         When the override is provided by a plugin, we will fall back to the {@link InvalidCredentialManager}.
      */
     public static async initialize(params: ICredentialManagerInit): Promise<void> {
-        // Perform parameter validation
-        ImperativeExpect.toBeDefinedAndNonBlank(params.service, "service", "You must supply a service name for the credential manager.");
+        // The means to override the CredMgr exists, but we only use our built-in CredMgr.
+        if (params.service == null) {
+            params.service = DefaultCredentialManager.SVC_NAME;
+        }
 
         // If the display name is not passed, use the cli name
         const displayName = (params.displayName == null) ? params.service : params.displayName;
