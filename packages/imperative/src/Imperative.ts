@@ -60,7 +60,7 @@ import { ImperativeExpect } from "../../expect";
 import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
 import { Config, IConfigOpts } from "../../config";
 import { CredentialManagerFactory } from "../../security";
-import { CnfgManagementFacility } from "./config/CnfgManagementFacility";
+import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
 
 /* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
 import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
@@ -253,7 +253,7 @@ export class Imperative {
                 }
 
                 // Init config group
-                CnfgManagementFacility.instance.init();
+                ConfigManagementFacility.instance.init();
 
                 /**
                  * Build API object
