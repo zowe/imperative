@@ -57,19 +57,18 @@ export class OverridesLoader {
     const displayName: string = "Zowe built-in Secure Credential Manager";
     const pmfConst: PMFConstants = PMFConstants.instance;
 
-    // todo:gene: This is the location of SCS plugin. Will need our new built-in location
-    const Manager = resolve(pmfConst.PLUGIN_HOME_LOCATION,
-        "@zowe/secure-credential-store-for-zowe-cli/lib/credentials/KeytarCredentialManager");
-
     await CredentialManagerFactory.initialize({
-      // Init the manager with the override specified OR (if null) default to keytar
-      Manager,
+      // Specifying null forces the use of the CredentialManager built into Imperative, which
+      // is the only CredentialManager that we now permit (SCS is now part of Imperative).
+      Manager: null,
       // The display name will be the plugin name that introduced the override OR it will default o the CLI name
       displayName,
-      // The service is always the CLI name (Keytar and other plugins can use this to uniquely dentify the service)
-      service: config.name,
-      // If the default is to be used, we won't implant the invalid credential manager
-      invalidOnFailure: !(Manager == null)
+      // For overrides, the service could be the CLI name, but we do not override anymore.
+      // Null will use the service name of the built-in credential manager.
+      service: null,
+      // If the default is to be used, we won't implant the invalid credential manager.
+      // We do not use the invalid credential manager, since we no longer allow overrides.
+      invalidOnFailure: false
     });
   }
 
