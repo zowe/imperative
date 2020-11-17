@@ -145,7 +145,7 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
     this.checkForKeytar();
     // Helper function to handle all breaking changes
     const loadHelper = async (service: string) => {
-      let secureValue: string = await this.keytar.getPassword(service, account);
+      const secureValue: string = await this.keytar.getPassword(service, account);
 
       /* todo:gene - Remove this. Our single profile does not support old credential services.
       // Handle user vs username case // Zowe v1 -> v2 (i.e. @brightside/core@2.x -> @zowe/cli@6+ )
