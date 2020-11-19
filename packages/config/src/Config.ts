@@ -29,7 +29,7 @@ enum layers {
 };
 
 export class Config {
-    private static readonly IDENT: number = 4;
+    private static readonly INDENT: number = 4;
     private static readonly SECURE_ACCT = "secure_config_props";
 
     private _app: string;
@@ -250,7 +250,7 @@ export class Config {
 
                     // Write the layer
                     try {
-                        fs.writeFileSync(layer.path, JSON.stringify(layer.properties, null, Config.IDENT));
+                        fs.writeFileSync(layer.path, JSON.stringify(layer.properties, null, Config.INDENT));
                     } catch (e) {
                         throw new ImperativeError({ msg: `error writing "${layer.path}": ${e.message}` });
                     }
@@ -349,6 +349,19 @@ export class Config {
 
         if (opts.secure)
             layer.properties.secure = Array.from(new Set(layer.properties.secure.concat([path])));
+    }
+
+    public setSchema(value: string) {
+        const layer = this.layerActive();
+        delete layer.properties.$schema;
+        layer.properties = { $schema: value, ...layer.properties };
+    }
+
+    public addSecure(path: string) {
+        const layer = this.layerActive();
+        if (!layer.properties.secure.includes(path)) {
+            layer.properties.secure.push(path);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////

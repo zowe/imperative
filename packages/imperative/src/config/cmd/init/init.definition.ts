@@ -58,6 +58,7 @@ export const initDefinition: ICommandDefinition = {
             type: "string",
         },
         {
+            // TODO Should this be removed if it is unused?
             name: "template",
             description: "apply a type as a template to guide creation.",
             type: "string"

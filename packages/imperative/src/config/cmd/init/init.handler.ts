@@ -13,12 +13,16 @@ import { ICommandArguments, ICommandHandler, IHandlerParameters } from "../../..
 import { ImperativeError } from "../../../../../error";
 import { CliUtils, ImperativeConfig } from "../../../../../utilities";
 import * as https from "https";
-import { Config, IConfig, IConfigProfile } from "../../../../../config";
+import { Config, ConfigSchema, IConfig, IConfigProfile } from "../../../../../config";
+import * as fs from "fs";
+import * as path from "path";
+import * as util from "util";
 
 /**
  * Init config
  */
 export default class InitHandler implements ICommandHandler {
+    private static readonly INDENT: number = 4;
 
     // Prompt timeout......
     private static readonly TIMEOUT: number = 900;
@@ -48,7 +52,10 @@ export default class InitHandler implements ICommandHandler {
         if (this.arguments.url) {
             await this.initFromURL(config);
         } else if (this.arguments.profile) {
+            // TODO Should we remove old profile init code that prompts for values
             this.initProfile(config);
+        } else {
+            await this.initWithSchema(config);
         }
 
         // Write the active created/updated config layer
@@ -66,7 +73,7 @@ export default class InitHandler implements ICommandHandler {
     }
 
     /**
-     * Initialize the profile using teh type schema as a guide
+     * Initialize the profile using the type schema as a guide
      * @param config The config
      * @param profile The profile object to populate
      */
@@ -117,6 +124,7 @@ export default class InitHandler implements ICommandHandler {
      * @param url
      */
     private download(url: string): Promise<IConfig> {
+        // TODO Do we want to use node-fetch here?
         return new Promise<IConfig>((resolve, reject) => {
             https.get(url, (resp) => {
                 let data = '';
@@ -136,5 +144,77 @@ export default class InitHandler implements ICommandHandler {
                 });
             }).on("error", (err) => { reject(err); });
         });
+    }
+
+    private async initWithSchema(config: Config): Promise<void> {
+        const schemaFilePath = path.join(path.basename(config.api.layers.get().path), "schema.json");
+        const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
+        await util.promisify(fs.writeFile)(schemaFilePath, JSON.stringify(schema, null, InitHandler.INDENT));
+        config.setSchema("./schema.json");
+
+        const baseProfileType = ImperativeConfig.instance.loadedConfig.baseProfile?.type;
+        ImperativeConfig.instance.loadedConfig.profiles.forEach((profile) => {
+            let profilePath = `my_${profile.type}`;
+            if (baseProfileType && profile.type !== baseProfileType) {
+                profilePath = `my_profiles.${profile.type}`;
+            }
+            const properties: { [key: string]: any } = {};
+            for (const [k, v] of Object.entries(profile.schema.properties)) {
+                if (v.includeInTemplate) {
+                    if (v.secure) {
+                        config.addSecure(`profiles.${profilePath}.properties.${k}`);
+                    } else {
+                        if ((v as any).optionDefinition != null) {
+                            properties[k] = (v as any).optionDefinition.defaultValue;
+                        }
+                        if (properties[k] === undefined) {
+                            properties[k] = this.getDefaultValue(v.type);
+                        }
+                    }
+                }
+            }
+            config.api.profiles.set(profilePath, {
+                type: profile.type,
+                properties
+            });
+            config.api.profiles.defaultSet(profile.type, profilePath);
+        });
+        config.api.profiles.set("my_profiles", this.hoistTemplateProperties(config.properties.profiles.my_profiles));
+    }
+
+    private getDefaultValue(propType: string | string[]): any {
+        if (Array.isArray(propType)) {
+            propType = propType[0];
+        }
+        switch (propType) {
+            case "string":  return "";
+            case "number":  return 0;
+            case "object":  return {};
+            case "array":   return [];
+            case "boolean": return false;
+            default:        return null;
+        }
+    }
+
+    private hoistTemplateProperties(rootProfile: IConfigProfile): IConfigProfile {
+        const flattenedProps: { [key: string]: any[] } = {};
+        for (const childProfile of Object.values(rootProfile.profiles)) {
+            for (const [k, v] of Object.entries(childProfile.properties)) {
+                flattenedProps[k] = [...(flattenedProps[k] || []), v];
+            }
+        }
+        const duplicateProps: string[] = [];
+        for (const [k, v] of Object.entries(flattenedProps)) {
+            if (v.length > 1 && (new Set(v)).size === 1) {
+                duplicateProps.push(k);
+            }
+        }
+        for (const propName of duplicateProps) {
+            rootProfile.properties[propName] = flattenedProps[propName][0];
+            for (const childProfile of Object.values(rootProfile.profiles)) {
+                delete childProfile.properties[propName];
+            }
+        }
+        return rootProfile;
     }
 }
