@@ -74,6 +74,12 @@ export const initDefinition: ICommandDefinition = {
             description: "when profiles are created, set them as the default.",
             type: "boolean",
             defaultValue: false
+        },
+        {
+            name: "ci",
+            description: "don't prompt for secure values.",
+            type: "boolean",
+            defaultValue: false
         }
     ]
 };

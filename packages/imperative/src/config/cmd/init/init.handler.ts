@@ -17,6 +17,7 @@ import { Config, ConfigSchema, IConfig, IConfigProfile } from "../../../../../co
 import * as fs from "fs";
 import * as path from "path";
 import * as util from "util";
+import { IProfileProperty } from "../../../../../profiles";
 
 /**
  * Init config
@@ -87,22 +88,13 @@ export default class InitHandler implements ICommandHandler {
         const secure: string[] = [];
         for (const [name, property] of Object.entries(schema.properties)) {
 
-            // get the summary and value
-            const summary = property.optionDefinition.description;
-            let value: any = await CliUtils.promptWithTimeout(`${name} (${summary}) - blank to skip: `, property.secure, InitHandler.TIMEOUT);
+            const value: any = await this.promptForProp(property, name);
 
             // if secure, remember for the config set
             if (property.secure)
                 secure.push(name);
 
-            // coerce to correct type
-            if (value.trim().length > 0) {
-                if (value === "true")
-                    value = true;
-                if (value === "false")
-                    value = false;
-                if (!isNaN(value) && !isNaN(parseFloat(value)))
-                    value = parseInt(value, 10);
+            if (value != null) {
                 profile.properties[name] = value;
             } else if (this.arguments.default && property.optionDefinition.defaultValue != null) {
                 profile.properties[name] = property.optionDefinition.defaultValue;
@@ -153,6 +145,7 @@ export default class InitHandler implements ICommandHandler {
         config.setSchema("./schema.json");
 
         const baseProfileType = ImperativeConfig.instance.loadedConfig.baseProfile?.type;
+        const secureProps: { [key: string]: any } = {};
         for (const profile of ImperativeConfig.instance.loadedConfig.profiles) {
             let profilePath = `my_${profile.type}`;
             if (baseProfileType && profile.type !== baseProfileType) {
@@ -166,7 +159,13 @@ export default class InitHandler implements ICommandHandler {
             for (const [k, v] of Object.entries(profile.schema.properties)) {
                 if (v.includeInTemplate) {
                     if (v.secure) {
-                        config.addSecure(`profiles.${profilePath}.properties.${k}`);
+                        const propertyPath = `profiles.${profilePath}.properties.${k}`;
+                        const propertyValue = await this.promptForProp(v, k);
+                        if (propertyValue) {
+                            secureProps[propertyPath] = propertyValue;
+                        } else {
+                            config.addSecure(propertyPath);
+                        }
                     } else {
                         if ((v as any).optionDefinition != null) {
                             properties[k] = (v as any).optionDefinition.defaultValue;
@@ -182,6 +181,9 @@ export default class InitHandler implements ICommandHandler {
                 properties
             });
             config.api.profiles.defaultSet(profile.type, profilePath);
+        }
+        for (const [propPath, propValue] of Object.entries(secureProps)) {
+            config.set(propPath, propValue, { secure: true });
         }
         config.api.profiles.set("my_profiles", this.hoistTemplateProperties(config.properties.profiles.my_profiles));
     }
@@ -225,5 +227,31 @@ export default class InitHandler implements ICommandHandler {
             }
         }
         return rootProfile;
+    }
+
+    private async promptForProp(property: IProfileProperty, propName: string): Promise<any> {
+        // skip prompting in CI environment
+        if (this.arguments.ci) {
+            return null;
+        }
+
+        // get the summary and value
+        if ((property as any).optionDefinition?.description != null) {
+            propName = `${propName} (${(property as any).optionDefinition.description})`;
+        }
+        let propValue: any = await CliUtils.promptWithTimeout(`${propName} - blank to skip: `, property.secure,
+            InitHandler.TIMEOUT);
+
+        // coerce to correct type
+        if (propValue && propValue.trim().length > 0) {
+            if (propValue === "true")
+                propValue = true;
+            if (propValue === "false")
+                propValue = false;
+            if (!isNaN(propValue) && !isNaN(parseFloat(propValue)))
+                propValue = parseInt(propValue, 10);
+        }
+
+        return propValue || null;
     }
 }
