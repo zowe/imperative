@@ -147,7 +147,7 @@ export default class InitHandler implements ICommandHandler {
     }
 
     private async initWithSchema(config: Config): Promise<void> {
-        const schemaFilePath = path.join(path.basename(config.api.layers.get().path), "schema.json");
+        const schemaFilePath = path.join(path.dirname(config.api.layers.get().path), "schema.json");
         const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
         await util.promisify(fs.writeFile)(schemaFilePath, JSON.stringify(schema, null, InitHandler.INDENT));
         config.setSchema("./schema.json");
@@ -183,9 +183,11 @@ export default class InitHandler implements ICommandHandler {
     }
 
     private getDefaultValue(propType: string | string[]): any {
+        // TODO How to handle profile property with multiple types
         if (Array.isArray(propType)) {
             propType = propType[0];
         }
+        // Return empty value that is appropriate for the property type
         switch (propType) {
             case "string":  return "";
             case "number":  return 0;
@@ -197,18 +199,21 @@ export default class InitHandler implements ICommandHandler {
     }
 
     private hoistTemplateProperties(rootProfile: IConfigProfile): IConfigProfile {
+        // Flatten properties into object that maps property name to list of values
         const flattenedProps: { [key: string]: any[] } = {};
         for (const childProfile of Object.values(rootProfile.profiles)) {
             for (const [k, v] of Object.entries(childProfile.properties)) {
                 flattenedProps[k] = [...(flattenedProps[k] || []), v];
             }
         }
+        // List property names defined multiple times with the same value
         const duplicateProps: string[] = [];
         for (const [k, v] of Object.entries(flattenedProps)) {
             if (v.length > 1 && (new Set(v)).size === 1) {
                 duplicateProps.push(k);
             }
         }
+        // Remove duplicate properties from child profiles and hoist them up into root profile
         for (const propName of duplicateProps) {
             rootProfile.properties[propName] = flattenedProps[propName][0];
             for (const childProfile of Object.values(rootProfile.profiles)) {

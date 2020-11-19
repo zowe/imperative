@@ -27,6 +27,9 @@ export class ConfigSchema {
                 properties[k].description = (v as any).optionDefinition.description;
                 properties[k].default = (v as any).optionDefinition.defaultValue;
             }
+            if (v.secure) {
+                properties[k].secure = true;
+            }
         }
         return {
             type: schema.type,
