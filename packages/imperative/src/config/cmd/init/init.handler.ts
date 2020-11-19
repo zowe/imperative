@@ -44,9 +44,9 @@ export default class InitHandler implements ICommandHandler {
         config.api.layers.activate(params.arguments.user, params.arguments.global);
         const layer = config.api.layers.get();
 
-        // Protect against overwrite of the config
-        if (layer.exists && !params.arguments.update)
-            throw new ImperativeError({ msg: `config "${layer.path}" already exists` });
+        // // Protect against overwrite of the config
+        // if (layer.exists && !params.arguments.update)
+        //     throw new ImperativeError({ msg: `config "${layer.path}" already exists` });
 
         // Init as requested
         if (this.arguments.url) {
@@ -153,10 +153,14 @@ export default class InitHandler implements ICommandHandler {
         config.setSchema("./schema.json");
 
         const baseProfileType = ImperativeConfig.instance.loadedConfig.baseProfile?.type;
-        ImperativeConfig.instance.loadedConfig.profiles.forEach((profile) => {
+        for (const profile of ImperativeConfig.instance.loadedConfig.profiles) {
             let profilePath = `my_${profile.type}`;
             if (baseProfileType && profile.type !== baseProfileType) {
                 profilePath = `my_profiles.${profile.type}`;
+            }
+            // Don't overwrite existing profile with same path
+            if (config.api.profiles.exists(profilePath)) {
+                continue;
             }
             const properties: { [key: string]: any } = {};
             for (const [k, v] of Object.entries(profile.schema.properties)) {
@@ -178,7 +182,7 @@ export default class InitHandler implements ICommandHandler {
                 properties
             });
             config.api.profiles.defaultSet(profile.type, profilePath);
-        });
+        }
         config.api.profiles.set("my_profiles", this.hoistTemplateProperties(config.properties.profiles.my_profiles));
     }
 
@@ -213,7 +217,7 @@ export default class InitHandler implements ICommandHandler {
                 duplicateProps.push(k);
             }
         }
-        // Remove duplicate properties from child profiles and hoist them up into root profile
+        // Remove duplicate properties from child profiles and store them in root profile
         for (const propName of duplicateProps) {
             rootProfile.properties[propName] = flattenedProps[propName][0];
             for (const childProfile of Object.values(rootProfile.profiles)) {
