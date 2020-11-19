@@ -55,7 +55,24 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
   /**
    * The service name for our built-in credential manager.
    */
-  public static readonly SVC_NAME = "zowe";
+  public static readonly SVC_NAME = "Zowe";
+
+  /**
+   * Alternative services under which we will look for credentials.
+   * Do not change the order of the alternative services.
+   * When adding, removing or modifying the alternative services,
+   * double check the loadCredentials function.
+   */
+  private readonly ALTERNATIVE_SERVICES = ["@brightside/core", "@zowe/cli", "Zowe-Plugin"];
+
+  /**
+   * This variable indicates which service should be used when loading
+   * secure properties in the case of a conflict
+   * lts-incremental --> @brightside/core
+   * latest -----------> @zowe/cli
+   */
+  private readonly SERVICE_VER_PREFERENCE: string = "latest";
+
 
   /**
    * Reference to the lazily loaded keytar module.
@@ -74,6 +91,11 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
   private loadError: ImperativeError;
 
   /**
+   * Combined list of services that the plugin will go through
+   */
+  private allServices: string[];
+
+  /**
    * Pass-through to the superclass constructor.
    *
    * @param {string} service The service string to send to the superclass constructor.
@@ -84,6 +106,13 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
     // constructor doesn't do anything. Who knows what things might happen in
     // the abstract class initialization in the future.
     super(service, displayName);
+
+    // Gather all services
+    this.allServices = JSON.parse(JSON.stringify(this.ALTERNATIVE_SERVICES));
+    if (this.allServices.indexOf(this.service) === -1) {
+      this.allServices.push(this.service);
+    }
+    this.allServices.push(DefaultCredentialManager.SVC_NAME);
   }
 
   /**
@@ -118,17 +147,10 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
    * @returns {Promise<void>} A promise that the function has completed.
    *
    * @throws {@link ImperativeError} if keytar is not defined.
-   * @throws {@link ImperativeError} when keytar.deletePassword returns false.
    */
   protected async deleteCredentials(account: string): Promise<void> {
     this.checkForKeytar();
-
-    if (!await this.deleteCredentialsHelper(account)) {
-      throw new ImperativeError({
-        msg: "Unable to delete credentials.",
-        additionalDetails: this.getMissingEntryMessage(account)
-      });
-    }
+    await this.deleteCredentialsHelper(account);
   }
 
   /**
@@ -136,18 +158,18 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
    * account passed to the function by Imperative.
    *
    * @param {string} account The account for which to get credentials
+   * @param {boolean} optional Set to true if failure to find credentials should be ignored
+   *
    * @returns {Promise<SecureCredential>} A promise containing the credentials stored in keytar.
    *
    * @throws {@link ImperativeError} if keytar is not defined.
    * @throws {@link ImperativeError} when keytar.getPassword returns null or undefined.
    */
-  protected async loadCredentials(account: string): Promise<SecureCredential> {
+  protected async loadCredentials(account: string, optional?: boolean): Promise<SecureCredential> {
     this.checkForKeytar();
     // Helper function to handle all breaking changes
     const loadHelper = async (service: string) => {
-      const secureValue: string = await this.keytar.getPassword(service, account);
-
-      /* todo:gene - Remove this. Our single profile does not support old credential services.
+      let secureValue: string = await this.keytar.getPassword(service, account);
       // Handle user vs username case // Zowe v1 -> v2 (i.e. @brightside/core@2.x -> @zowe/cli@6+ )
       if (secureValue == null && account.endsWith("_username")) {
         secureValue = await this.keytar.getPassword(service, account.replace("_username", "_user"));
@@ -156,46 +178,46 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
       if (secureValue == null && account.endsWith("_pass")) {
         secureValue = await this.keytar.getPassword(service, account.replace("_pass", "_password"));
       }
-      todo:gene */
       return secureValue;
     };
 
-    /* todo:gene - Remove this. Our single profile does not support old credential services.
-    // check if the specified service name is in our list
-    let password = null;
-    if (this.ALTERNATIVE_SERVICES.indexOf(this.service) === -1) {
-      // Specified service not in our list
-      // Look for the account in this new service that we don't know about
-      password = await loadHelper(this.service);
+    // First, check for service that we (the built-in imperative CredMgr) is responsible for.
+    let secValue = await loadHelper(DefaultCredentialManager.SVC_NAME);
+    if (secValue == null) {
+      // We didn't find the account under our built-in service
+      // Let's check if the service name provided is in our list
+      if (this.ALTERNATIVE_SERVICES.indexOf(this.service) === -1) {
+        // Specified service not in our list
+        // Look for the account in this new service that we don't know about
+        secValue = await loadHelper(this.service);
+      }
     }
-    if (password == null) {
-      // The service value was not found
+    if (secValue == null) {
+      // The secure value was not found
       // Let us look for the account in our version-specific services
       const brightValue = await loadHelper(this.ALTERNATIVE_SERVICES[0]); // @brightside/core
       const zoweValue = await loadHelper(this.ALTERNATIVE_SERVICES[1]);   // @zowe/cli
 
       if (brightValue != null && zoweValue == null) {
-        password = brightValue; // Only found the account in the brightside service
+        secValue = brightValue; // Only found the account in the brightside service
       } else if (brightValue == null && zoweValue != null) {
-        password = zoweValue; // Only found the account in the zowe service
+        secValue = zoweValue; // Only found the account in the zowe service
       } else if (brightValue != null && zoweValue != null) {
         // Found the account in both services :'{ We got a conflict }':
         // Check which credentials should we use based on the constant variable
-        password = this.SERVICE_VER_PREFERENCE === "lts-incremental" ? brightValue : zoweValue;
+        secValue = this.SERVICE_VER_PREFERENCE === "lts-incremental" ? brightValue : zoweValue;
       }
     }
-    if (password == null) {
+    if (secValue == null) {
       // We got no value from our version-specific services. Try the remaining known services.
       for (let svcInx = 2; svcInx < this.ALTERNATIVE_SERVICES.length; svcInx++) {
-        password = await loadHelper(this.ALTERNATIVE_SERVICES[svcInx]);
-        if (password != null)
+        secValue = await loadHelper(this.ALTERNATIVE_SERVICES[svcInx]);
+        if (secValue != null)
           break;
       }
     }
-    todo:gene */
 
-    const secValue = await loadHelper(this.service);
-    if (secValue == null) {
+    if (secValue == null && !optional) {
       throw new ImperativeError({
         msg: "Unable to load credentials.",
         additionalDetails: this.getMissingEntryMessage(account)
@@ -257,15 +279,27 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
 
   private async deleteCredentialsHelper(account: string, keepRequestedSvc?: boolean): Promise<boolean> {
     let wasDeleted = false;
-    if (await this.keytar.deletePassword(DefaultCredentialManager.SVC_NAME, account)) {
-      wasDeleted = true;
+    for (const service of this.allServices) {
+      if (keepRequestedSvc && service === DefaultCredentialManager.SVC_NAME) {
+        continue;
+      }
+      if (await this.keytar.deletePassword(service, account)) {
+        wasDeleted = true;
+      }
     }
     return wasDeleted;
   }
 
   private getMissingEntryMessage(account: string) {
-    return "Could not find an entry in the credential vault for the \n" +
-        "service = '" + DefaultCredentialManager.SVC_NAME + "' and account = '" + account + "'\n\n" +
+    let listOfServices = `  Service = `;
+    for (const service of this.allServices) {
+      listOfServices += `${service}, `;
+    }
+    const commaAndSpace = 2;
+    listOfServices = listOfServices.slice(0, -1 * commaAndSpace) + `\n  Account = ${account}\n\n`;
+
+    return "Could not find an entry in the credential vault for the following:\n" +
+        listOfServices +
         "Possible Causes:\n" +
         "  This could have been caused by any manual removal of credentials from your vault.\n\n" +
         "Resolutions: \n" +
