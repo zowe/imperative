@@ -351,12 +351,27 @@ export class Config {
             layer.properties.secure = Array.from(new Set(layer.properties.secure.concat([path])));
     }
 
-    public setSchema(value: string) {
+    /**
+     * Sets the $schema value at the top of the config JSON, and saves the
+     * schema to disk if an object is provided.
+     * @param uri The URI of JSON schema
+     * @param schemaObj Schema object to write to disk (if URI is a local path)
+     */
+    public setSchema(uri: string, schemaObj?: any) {
         const layer = this.layerActive();
         delete layer.properties.$schema;
-        layer.properties = { $schema: value, ...layer.properties };
+        layer.properties = { $schema: uri, ...layer.properties };
+
+        if (schemaObj != null) {
+            const filePath = node_path.resolve(node_path.dirname(layer.path), uri);
+            fs.writeFileSync(filePath, JSON.stringify(schemaObj, null, Config.INDENT));
+        }
     }
 
+    /**
+     * Adds a property path to the secure array in the config JSON.
+     * @param path The property path to be secured
+     */
     public addSecure(path: string) {
         const layer = this.layerActive();
         if (!layer.properties.secure.includes(path)) {

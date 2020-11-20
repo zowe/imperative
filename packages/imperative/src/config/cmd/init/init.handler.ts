@@ -9,22 +9,17 @@
 *
 */
 
-import { ICommandArguments, ICommandHandler, IHandlerParameters, IHandlerResponseApi } from "../../../../../cmd";
+import { ICommandArguments, ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ImperativeError } from "../../../../../error";
 import { CliUtils, ImperativeConfig } from "../../../../../utilities";
 import * as https from "https";
 import { Config, ConfigSchema, IConfig, IConfigProfile } from "../../../../../config";
-import * as fs from "fs";
-import * as path from "path";
-import * as util from "util";
 import { IProfileProperty } from "../../../../../profiles";
 
 /**
  * Init config
  */
 export default class InitHandler implements ICommandHandler {
-    private static readonly INDENT: number = 4;
-
     // Prompt timeout......
     private static readonly TIMEOUT: number = 900;
 
@@ -56,11 +51,13 @@ export default class InitHandler implements ICommandHandler {
             // TODO Should we remove old profile init code that prompts for values
             this.initProfile(config);
         } else {
-            await this.initWithSchema(config, params.response);
+            await this.initWithSchema(config);
         }
 
         // Write the active created/updated config layer
         config.api.layers.write();
+
+        params.response.console.log(`Saved config template to ${layer.path}`);
     }
 
     /**
@@ -138,24 +135,31 @@ export default class InitHandler implements ICommandHandler {
         });
     }
 
-    private async initWithSchema(config: Config, response: IHandlerResponseApi): Promise<void> {
-        const configFilePath = config.api.layers.get().path;
-        const schemaFilePath = path.join(path.dirname(configFilePath), "schema.json");
+    /**
+     * Creates JSON template for config. Also creates a schema file in the same
+     * folder alongside the config.
+     * @param config Config object to be populated
+     */
+    private async initWithSchema(config: Config): Promise<void> {
+        // Build the schema and write it to disk
         const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
-        await util.promisify(fs.writeFile)(schemaFilePath, JSON.stringify(schema, null, InitHandler.INDENT));
-        config.setSchema("./schema.json");
+        config.setSchema("./schema.json", schema);
 
         const baseProfileType = ImperativeConfig.instance.loadedConfig.baseProfile?.type;
         const secureProps: { [key: string]: any } = {};
         for (const profile of ImperativeConfig.instance.loadedConfig.profiles) {
+            // Construct profile path
             let profilePath = `my_${profile.type}`;
             if (baseProfileType && profile.type !== baseProfileType) {
+                // Path should have two levels for non-base profiles
                 profilePath = `my_profiles.${profile.type}`;
             }
+
             // Don't overwrite existing profile with same path
             if (config.api.profiles.exists(profilePath)) {
                 continue;
             }
+
             const properties: { [key: string]: any } = {};
             for (const [k, v] of Object.entries(profile.schema.properties)) {
                 if (v.includeInTemplate) {
@@ -163,20 +167,25 @@ export default class InitHandler implements ICommandHandler {
                         const propertyPath = `profiles.${profilePath}.properties.${k}`;
                         const propertyValue = await this.promptForProp(v, k);
                         if (propertyValue) {
+                            // Save this value to be stored securely after profile is built
                             secureProps[propertyPath] = propertyValue;
                         } else {
+                            // Add property to secure array without defining a value for it
                             config.addSecure(propertyPath);
                         }
                     } else {
                         if ((v as any).optionDefinition != null) {
+                            // Use default value of ICommandOptionDefinition if present
                             properties[k] = (v as any).optionDefinition.defaultValue;
                         }
                         if (properties[k] === undefined) {
+                            // Fall back to an empty value
                             properties[k] = this.getDefaultValue(v.type);
                         }
                     }
                 }
             }
+            // Add the profile to config and set it as default
             config.api.profiles.set(profilePath, {
                 type: profile.type,
                 properties
@@ -186,16 +195,20 @@ export default class InitHandler implements ICommandHandler {
         for (const [propPath, propValue] of Object.entries(secureProps)) {
             config.set(propPath, propValue, { secure: true });
         }
+        // Hoist duplicate default properties
         config.api.profiles.set("my_profiles", this.hoistTemplateProperties(config.properties.profiles.my_profiles));
-        response.console.log(`Saved config template to ${configFilePath}`);
     }
 
+    /**
+     * Returns empty value that is appropriate for the property type.
+     * @param propType The type of profile property
+     * @returns Null or empty object
+     */
     private getDefaultValue(propType: string | string[]): any {
         // TODO How to handle profile property with multiple types
         if (Array.isArray(propType)) {
             propType = propType[0];
         }
-        // Return empty value that is appropriate for the property type
         switch (propType) {
             case "string":  return "";
             case "number":  return 0;
@@ -206,6 +219,12 @@ export default class InitHandler implements ICommandHandler {
         }
     }
 
+    /**
+     * Moves duplicate default properties across child profiles up to root
+     * profile.
+     * @param rootProfile The root profile object of the config JSON
+     * @returns The root profile with duplicate properties hoisted
+     */
     private hoistTemplateProperties(rootProfile: IConfigProfile): IConfigProfile {
         // Flatten properties into object that maps property name to list of values
         const flattenedProps: { [key: string]: any[] } = {};
@@ -231,6 +250,12 @@ export default class InitHandler implements ICommandHandler {
         return rootProfile;
     }
 
+    /**
+     * Prompts for the value of a property on the CLI. Returns null if `--ci`
+     * argument is passed, or prompt times out, or a blank value is entered.
+     * @param property The profile property definition
+     * @param propName The name of the property
+     */
     private async promptForProp(property: IProfileProperty, propName: string): Promise<any> {
         // skip prompting in CI environment
         if (this.arguments.ci) {

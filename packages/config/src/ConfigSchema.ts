@@ -12,12 +12,18 @@
 import { IProfileSchema, IProfileTypeConfiguration } from "../../profiles";
 
 export class ConfigSchema {
+    /**
+     * JSON schema URI used by our custom schemas
+     * @readonly
+     * @memberof ConfigSchema
+     */
     private static readonly JSON_SCHEMA = "https://json-schema.org/draft/2019-09/schema#";
 
     /**
      * Transform an Imperative profile schema to a JSON schema. Removes any
      * non-JSON-schema properties and translates anything useful.
      * @param schema The Imperative profile schema
+     * @returns JSON schema for profile properties
      */
     private static transformSchema(schema: IProfileSchema): any {
         const properties: { [key: string]: any } = {};
@@ -41,8 +47,9 @@ export class ConfigSchema {
     }
 
     /**
-     * Dynamically build the config schema
-     * @param schemas The schemas specified for this CLI
+     * Dynamically builds the config schema for this CLI.
+     * @param profiles The profiles supported by this CLI
+     * @returns JSON schema for all supported profile types
      */
     public static buildSchema(profiles: IProfileTypeConfiguration[]): any {
         const entries: any[] = [];
