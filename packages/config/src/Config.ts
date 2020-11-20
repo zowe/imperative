@@ -30,6 +30,7 @@ enum layers {
 
 export class Config {
     private static readonly IDENT: number = 4;
+    private static readonly SECURE_ACCT = "secure_config_props";
 
     private _app: string;
     private _paths: string[];
@@ -417,7 +418,7 @@ export class Config {
         if (!this.secureFields()) return;
 
         // load the secure fields
-        const s: string = await this._vault.load(Config.secureKey(this._app));
+        const s: string = await this._vault.load(Config.SECURE_ACCT);
         if (s == null) return;
         this._secure = JSON.parse(s);
 
@@ -500,7 +501,7 @@ export class Config {
 
         // Save the entries if needed
         if (this._secure.configs.length > 0)
-            await this._vault.save(Config.secureKey(this._app), JSON.stringify(this._secure));
+            await this._vault.save(Config.SECURE_ACCT, JSON.stringify(this._secure));
     }
 
     private secureFields(): boolean {
@@ -532,10 +533,6 @@ export class Config {
             p = node_path.resolve(node_path.dirname(p), "..", file);
         } while (p !== node_path.join(root, file) && opts.stop != null && node_path.dirname(p) !== opts.stop)
         return null;
-    }
-
-    private static secureKey(app: string): string {
-        return app + "_config";
     }
 
     private static buildProfile(path: string, profiles: { [key: string]: IConfigProfile }): { [key: string]: string } {

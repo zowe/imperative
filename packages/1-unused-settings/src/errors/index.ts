@@ -9,9 +9,5 @@
 *
 */
 
-const ConfigManagementFacility: any =
-    (jest.genMockFromModule("../ConfigManagementFacility") as any).ConfigManagementFacility;
-
-ConfigManagementFacility.instance = new ConfigManagementFacility();
-
-exports.ConfigManagementFacility = ConfigManagementFacility;
+export * from "./SettingsAlreadyInitialized";
+export * from "./SettingsNotInitialized";
