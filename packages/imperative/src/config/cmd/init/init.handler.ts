@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandArguments, ICommandHandler, IHandlerParameters } from "../../../../../cmd";
+import { ICommandArguments, ICommandHandler, IHandlerParameters, IHandlerResponseApi } from "../../../../../cmd";
 import { ImperativeError } from "../../../../../error";
 import { CliUtils, ImperativeConfig } from "../../../../../utilities";
 import * as https from "https";
@@ -56,7 +56,7 @@ export default class InitHandler implements ICommandHandler {
             // TODO Should we remove old profile init code that prompts for values
             this.initProfile(config);
         } else {
-            await this.initWithSchema(config);
+            await this.initWithSchema(config, params.response);
         }
 
         // Write the active created/updated config layer
@@ -138,8 +138,9 @@ export default class InitHandler implements ICommandHandler {
         });
     }
 
-    private async initWithSchema(config: Config): Promise<void> {
-        const schemaFilePath = path.join(path.dirname(config.api.layers.get().path), "schema.json");
+    private async initWithSchema(config: Config, response: IHandlerResponseApi): Promise<void> {
+        const configFilePath = config.api.layers.get().path;
+        const schemaFilePath = path.join(path.dirname(configFilePath), "schema.json");
         const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
         await util.promisify(fs.writeFile)(schemaFilePath, JSON.stringify(schema, null, InitHandler.INDENT));
         config.setSchema("./schema.json");
@@ -186,6 +187,7 @@ export default class InitHandler implements ICommandHandler {
             config.set(propPath, propValue, { secure: true });
         }
         config.api.profiles.set("my_profiles", this.hoistTemplateProperties(config.properties.profiles.my_profiles));
+        response.console.log(`Saved config template to ${configFilePath}`);
     }
 
     private getDefaultValue(propType: string | string[]): any {
