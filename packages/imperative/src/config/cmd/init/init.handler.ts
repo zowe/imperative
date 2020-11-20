@@ -20,6 +20,8 @@ import { IProfileProperty } from "../../../../../profiles";
  * Init config
  */
 export default class InitHandler implements ICommandHandler {
+    private static readonly DEFAULT_ROOT_PROFILE_NAME = "my_profiles";
+
     // Prompt timeout......
     private static readonly TIMEOUT: number = 900;
 
@@ -145,14 +147,15 @@ export default class InitHandler implements ICommandHandler {
         const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
         config.setSchema("./schema.json", schema);
 
-        const baseProfileType = ImperativeConfig.instance.loadedConfig.baseProfile?.type;
+        const baseProfileType: string = ImperativeConfig.instance.loadedConfig.baseProfile?.type;
+        const rootProfileName: string = ImperativeConfig.instance.loadedConfig.templateProfileName ?? InitHandler.DEFAULT_ROOT_PROFILE_NAME;
         const secureProps: { [key: string]: any } = {};
         for (const profile of ImperativeConfig.instance.loadedConfig.profiles) {
             // Construct profile path
             let profilePath = `my_${profile.type}`;
             if (baseProfileType && profile.type !== baseProfileType) {
                 // Path should have two levels for non-base profiles
-                profilePath = `my_profiles.${profile.type}`;
+                profilePath = `${rootProfileName}.${profile.type}`;
             }
 
             // Don't overwrite existing profile with same path
@@ -196,7 +199,7 @@ export default class InitHandler implements ICommandHandler {
             config.set(propPath, propValue, { secure: true });
         }
         // Hoist duplicate default properties
-        config.api.profiles.set("my_profiles", this.hoistTemplateProperties(config.properties.profiles.my_profiles));
+        config.api.profiles.set(rootProfileName, this.hoistTemplateProperties(config.properties.profiles[rootProfileName]));
     }
 
     /**
