@@ -128,8 +128,12 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
    */
   public async initialize(): Promise<void> {
       try {
+        // Imperative overrides the value of process.mainModule.filename to point to
+        // our calling CLI. Since our caller must supply keytar, we search for keytar
+        // within our caller's path.
+        const keytarPath = require.resolve("keytar", { paths: [ process.mainModule.filename ] });
         // tslint:disable-next-line:no-implicit-dependencies
-        this.keytar = await import("keytar");
+        this.keytar = await import(keytarPath);
       } catch (error) {
           this.loadError = new ImperativeError({
               msg: "Keytar not Installed",
