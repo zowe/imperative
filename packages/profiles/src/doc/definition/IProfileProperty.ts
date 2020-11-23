@@ -31,4 +31,10 @@ export interface IProfileProperty {
    */
   secure?: boolean;
 
+  /**
+   * Should this property be defined in a new config JSON template?
+   * @type {boolean}
+   * @memberof IProfileProperty
+   */
+  includeInTemplate?: boolean;
 }

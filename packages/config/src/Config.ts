@@ -29,7 +29,7 @@ enum layers {
 };
 
 export class Config {
-    private static readonly IDENT: number = 4;
+    private static readonly INDENT: number = 4;
     private static readonly SECURE_ACCT = "secure_config_props";
 
     private _app: string;
@@ -250,7 +250,7 @@ export class Config {
 
                     // Write the layer
                     try {
-                        fs.writeFileSync(layer.path, JSON.stringify(layer.properties, null, Config.IDENT));
+                        fs.writeFileSync(layer.path, JSON.stringify(layer.properties, null, Config.INDENT));
                     } catch (e) {
                         throw new ImperativeError({ msg: `error writing "${layer.path}": ${e.message}` });
                     }
@@ -349,6 +349,34 @@ export class Config {
 
         if (opts.secure)
             layer.properties.secure = Array.from(new Set(layer.properties.secure.concat([path])));
+    }
+
+    /**
+     * Sets the $schema value at the top of the config JSON, and saves the
+     * schema to disk if an object is provided.
+     * @param uri The URI of JSON schema
+     * @param schemaObj Schema object to write to disk (if URI is a local path)
+     */
+    public setSchema(uri: string, schemaObj?: any) {
+        const layer = this.layerActive();
+        delete layer.properties.$schema;
+        layer.properties = { $schema: uri, ...layer.properties };
+
+        if (schemaObj != null) {
+            const filePath = node_path.resolve(node_path.dirname(layer.path), uri);
+            fs.writeFileSync(filePath, JSON.stringify(schemaObj, null, Config.INDENT));
+        }
+    }
+
+    /**
+     * Adds a property path to the secure array in the config JSON.
+     * @param path The property path to be secured
+     */
+    public addSecure(path: string) {
+        const layer = this.layerActive();
+        if (!layer.properties.secure.includes(path)) {
+            layer.properties.secure.push(path);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////

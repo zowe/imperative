@@ -58,6 +58,7 @@ export const initDefinition: ICommandDefinition = {
             type: "string",
         },
         {
+            // TODO Should this be removed if it is unused?
             name: "template",
             description: "apply a type as a template to guide creation.",
             type: "string"
@@ -71,6 +72,12 @@ export const initDefinition: ICommandDefinition = {
         {
             name: "set-default",
             description: "when profiles are created, set them as the default.",
+            type: "boolean",
+            defaultValue: false
+        },
+        {
+            name: "ci",
+            description: "don't prompt for secure values.",
             type: "boolean",
             defaultValue: false
         }
