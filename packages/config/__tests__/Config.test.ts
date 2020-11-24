@@ -10,7 +10,7 @@
 */
 
 import * as fs from "fs";
-import { Config } from "../../Config";
+import { Config } from "../src/Config";
 
 const MY_APP = "my_app";
 

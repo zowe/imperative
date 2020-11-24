@@ -23,6 +23,7 @@ describe("Config Schema", () => {
             title: "zosmf",
             description: "A fake zosmf profile",
             type: "zosmf",
+            required: [],
             properties: {
                 host: {
                     type: "string",
@@ -37,6 +38,7 @@ describe("Config Schema", () => {
             title: "base",
             description: "A fake base profile",
             type: "base",
+            required: [],
             properties: {
                 port: {
                     type: "number",
@@ -52,6 +54,7 @@ describe("Config Schema", () => {
             title: "zosmf",
             description: "A fake zosmf profile",
             type: "zosmf",
+            required: [],
             properties: {
                 host: {
                     type: "string",
@@ -67,6 +70,7 @@ describe("Config Schema", () => {
                 title: "zosmf",
                 description: "A fake zosmf profile",
                 type: "zosmf",
+                required: [],
                 properties: {
                     host: {
                         type: "string",
@@ -74,7 +78,8 @@ describe("Config Schema", () => {
                             name: "host",
                             aliases: ["h"],
                             description: "The fake host to connect to",
-                            type: "string"
+                            type: "string",
+                            defaultValue: "fake"
                         }
                     }
                 }
@@ -84,7 +89,7 @@ describe("Config Schema", () => {
     it("should be able to successfully build with no profile type configuration", () => {
         const testConfig: IProfileTypeConfiguration[] = [];
         const returnedSchema = schema.buildSchema(testConfig);
-        const expectedAllOf = [];
+        const expectedAllOf: any = [];
         expect(returnedSchema).toMatchSnapshot();
         expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
     });
@@ -93,7 +98,7 @@ describe("Config Schema", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfiguration);
         testConfig.pop();
         const returnedSchema = schema.buildSchema(testConfig);
-        const expectedAllOf = [{
+        const expectedAllOf: any[] = [{
             if: {
                 properties: {
                     type: {
@@ -110,7 +115,7 @@ describe("Config Schema", () => {
                                 type: "string"
                             },
                         },
-                        required: undefined,
+                        required: [],
                         title: "zosmf",
                         type: "zosmf"
                     }
@@ -124,7 +129,7 @@ describe("Config Schema", () => {
     it("should be able to successfully build with two profile type configurations", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfiguration);
         const returnedSchema = schema.buildSchema(testConfig);
-        const expectedAllOf = [
+        const expectedAllOf: any[] = [
             {
                 if: {
                     properties: {
@@ -142,7 +147,7 @@ describe("Config Schema", () => {
                                     type: "string"
                                 },
                             },
-                            required: undefined,
+                            required: [],
                             title: "zosmf",
                             type: "zosmf"
                         }
@@ -166,7 +171,7 @@ describe("Config Schema", () => {
                                     type: "number"
                                 },
                             },
-                            required: undefined,
+                            required: [],
                             title: "base",
                             type: "base"
                         }
@@ -181,7 +186,7 @@ describe("Config Schema", () => {
     it("should be able to successfully build with a secure single profile type configuration", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfigurationSecure);
         const returnedSchema = schema.buildSchema(testConfig);
-        const expectedAllOf = [{
+        const expectedAllOf: any[] = [{
             if: {
                 properties: {
                     type: {
@@ -199,7 +204,7 @@ describe("Config Schema", () => {
                                 secure: true
                             },
                         },
-                        required: undefined,
+                        required: [],
                         title: "zosmf",
                         type: "zosmf"
                     }
@@ -213,7 +218,7 @@ describe("Config Schema", () => {
     it("should be able to successfully build with a secure single profile type configuration", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfigurationOptionDefinition);
         const returnedSchema = schema.buildSchema(testConfig);
-        const expectedAllOf = [{
+        const expectedAllOf: any[] = [{
             if: {
                 properties: {
                     type: {
@@ -228,11 +233,11 @@ describe("Config Schema", () => {
                         properties: {
                             host: {
                                 type: "string",
-                                default: undefined,
+                                default: "fake",
                                 description: "The fake host to connect to"
                             },
                         },
-                        required: undefined,
+                        required: [],
                         title: "zosmf",
                         type: "zosmf"
                     }
