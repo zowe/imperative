@@ -166,7 +166,7 @@ describe("Config tests", () => {
             config.addSecure(secureProp);
             expect(layer.properties.secure.includes(secureProp)).toBe(true);
             config.addSecure(secureProp);
-            expect(layer.properties.secure.filter((x) => x === secureProp).length).toBe(1);
+            expect(layer.properties.secure.filter((x: any) => x === secureProp).length).toBe(1);
         });
     });
 
