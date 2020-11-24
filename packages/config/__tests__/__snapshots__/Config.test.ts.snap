@@ -2,7 +2,10 @@
 
 exports[`Config tests load should load global config 1`] = `
 Object {
-  "defaults": Object {},
+  "defaults": Object {
+    "fruit": "fruit.banana",
+    "vegetable": "vegetable.artichoke",
+  },
   "plugins": Array [],
   "profiles": Object {
     "fruit": Object {
@@ -11,11 +14,13 @@ Object {
           "properties": Object {
             "color": "green",
           },
+          "type": "fruit",
         },
         "banana": Object {
           "properties": Object {
             "color": "yellow",
           },
+          "type": "fruit",
         },
       },
       "properties": Object {
@@ -28,6 +33,7 @@ Object {
           "properties": Object {
             "color": "green",
           },
+          "type": "vegetable",
         },
       },
       "properties": Object {
@@ -41,7 +47,9 @@ Object {
 
 exports[`Config tests load should load project config 1`] = `
 Object {
-  "defaults": Object {},
+  "defaults": Object {
+    "fruit": "fruit.orange",
+  },
   "plugins": Array [],
   "profiles": Object {
     "fruit": Object {
@@ -50,11 +58,13 @@ Object {
           "properties": Object {
             "color": "green",
           },
+          "type": "fruit",
         },
         "orange": Object {
           "properties": Object {
             "color": "orange",
           },
+          "type": "fruit",
         },
       },
       "properties": Object {
@@ -68,7 +78,9 @@ Object {
 
 exports[`Config tests load should load project user config 1`] = `
 Object {
-  "defaults": Object {},
+  "defaults": Object {
+    "fruit": "fruit.apple",
+  },
   "plugins": Array [],
   "profiles": Object {
     "fruit": Object {
@@ -77,11 +89,13 @@ Object {
           "properties": Object {
             "color": "red",
           },
+          "type": "fruit",
         },
         "orange": Object {
           "properties": Object {
             "color": "orange",
           },
+          "type": "fruit",
         },
       },
       "properties": Object {
@@ -95,7 +109,10 @@ Object {
 
 exports[`Config tests load should load user config 1`] = `
 Object {
-  "defaults": Object {},
+  "defaults": Object {
+    "fruit": "fruit.apple",
+    "vegetable": "vegetable.artichoke",
+  },
   "plugins": Array [],
   "profiles": Object {
     "fruit": Object {
@@ -104,11 +121,13 @@ Object {
           "properties": Object {
             "color": "red",
           },
+          "type": "fruit",
         },
         "banana": Object {
           "properties": Object {
             "color": "yellow",
           },
+          "type": "fruit",
         },
       },
       "properties": Object {
@@ -121,6 +140,7 @@ Object {
           "properties": Object {
             "color": "green",
           },
+          "type": "vegetable",
         },
       },
       "properties": Object {
@@ -134,7 +154,10 @@ Object {
 
 exports[`Config tests load should merge multiple config files 1`] = `
 Object {
-  "defaults": Object {},
+  "defaults": Object {
+    "fruit": "fruit.apple",
+    "vegetable": "vegetable.artichoke",
+  },
   "plugins": Array [],
   "profiles": Object {
     "fruit": Object {
@@ -143,11 +166,13 @@ Object {
           "properties": Object {
             "color": "red",
           },
+          "type": "fruit",
         },
         "orange": Object {
           "properties": Object {
             "color": "orange",
           },
+          "type": "fruit",
         },
       },
       "properties": Object {
@@ -160,6 +185,7 @@ Object {
           "properties": Object {
             "color": "green",
           },
+          "type": "vegetable",
         },
       },
       "properties": Object {

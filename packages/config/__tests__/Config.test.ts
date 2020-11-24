@@ -139,5 +139,70 @@ describe("Config tests", () => {
             expect(layer.properties.secure.length).toBe(1);
             expect(layer.properties.secure[0]).toBe("profiles.fruit.profiles.apple.properties.secret");
         });
+
+        it("should set schema URI at top of config", async () => {
+            const config = await Config.load(MY_APP);
+            const layer = (config as any).layerActive();
+            config.setSchema("./schema.json");
+            const jsonText = JSON.stringify(layer.properties);
+            expect(jsonText.match(/^{\s*"\$schema":/)).not.toBeNull();
+        });
+
+        it("should save schema to disk if object is provided", async () => {
+            const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValue(undefined);
+            const config = await Config.load(MY_APP);
+            const schemaObj = { $schema: "./schema.json" };
+            config.setSchema(schemaObj.$schema, schemaObj);
+            expect(writeFileSpy).toHaveBeenCalledTimes(1);
+            const jsonText = writeFileSpy.mock.calls[0][1];
+            expect(jsonText).toBeDefined();
+            expect(jsonText.match(/^{\s*"\$schema":/)).not.toBeNull();
+        });
+
+        it("should add new secure property to config", async () => {
+            const config = await Config.load(MY_APP);
+            const layer = (config as any).layerActive();
+            const secureProp = "profiles.fruit.properties.secret";
+            config.addSecure(secureProp);
+            expect(layer.properties.secure.includes(secureProp)).toBe(true);
+            config.addSecure(secureProp);
+            expect(layer.properties.secure.filter((x) => x === secureProp).length).toBe(1);
+        });
+    });
+
+    describe("secure", () => {
+        it("should securely load all secure properties", async () => {
+            throw new Error("TODO");
+        });
+
+        it("should securely save all secure properties", async () => {
+            throw new Error("TODO");
+        });
+    });
+
+    it("should find secure properties if any exist", () => {
+        const config = new (Config as any)();
+        config._layers = [
+            {
+                properties: { secure: [] }
+            },
+            {
+                properties: { secure: [ "tokenValue" ] }
+            },
+            {
+                properties: { secure: [] }
+            }
+        ];
+        expect(config.secureFields()).toBe(true);
+    });
+
+    it("should not find secure properties if none exist", () => {
+        const config = new (Config as any)();
+        config._layers = [
+            {
+                properties: { secure: [] }
+            }
+        ];
+        expect(config.secureFields()).toBe(false);
     });
 });

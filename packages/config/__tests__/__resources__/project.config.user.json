@@ -6,11 +6,13 @@
             },
             "profiles": {
                 "apple": {
+                    "type": "fruit",
                     "properties": {
                         "color": "red"
                     }
                 },
                 "orange": {
+                    "type": "fruit",
                     "properties": {
                         "color": "orange"
                     }
@@ -18,7 +20,8 @@
             }
         }
     },
-    "defaults": {},
-    "plugins": [],
-    "secure": []
+    "defaults": {
+        "fruit": "fruit.apple"
+    },
+    "plugins": []
 }
