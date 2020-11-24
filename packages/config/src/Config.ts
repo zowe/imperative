@@ -178,6 +178,7 @@ export class Config {
                     }
                 }
 
+                // TODO: If asked for inner layer profile, if profile doesn't exist, returns outer layer profile values (bug?)
                 public get(path: string): { [key: string]: string } {
                     return Config.buildProfile(path, JSON.parse(JSON.stringify(outer.properties.profiles)));
                 }
@@ -429,7 +430,7 @@ export class Config {
     }
 
     private layerActive(): IConfigLayer {
-        for (const layer of this._layers) {
+        for (const layer of (this._layers || [])) {
             if (layer.user === this._active.user && layer.global === this._active.global)
                 return layer;
         }
