@@ -1,0 +1,398 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Config Schema should be able to successfully build with a secure single profile type configuration 1`] = `
+Object {
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "description": "config",
+  "properties": Object {
+    "defaults": Object {
+      "description": "default profiles config",
+      "patternProperties": Object {
+        "^\\\\S*$": Object {
+          "description": "the type",
+          "type": "string",
+        },
+      },
+      "type": "object",
+    },
+    "profiles": Object {
+      "description": "named profiles config",
+      "patternProperties": Object {
+        "^\\\\S*$": Object {
+          "allOf": Array [
+            Object {
+              "if": Object {
+                "properties": Object {
+                  "type": Object {
+                    "const": "zosmf",
+                  },
+                },
+              },
+              "then": Object {
+                "properties": Object {
+                  "properties": Object {
+                    "description": "A fake zosmf profile",
+                    "properties": Object {
+                      "host": Object {
+                        "secure": true,
+                        "type": "string",
+                      },
+                    },
+                    "required": undefined,
+                    "title": "zosmf",
+                    "type": "zosmf",
+                  },
+                },
+              },
+            },
+          ],
+          "description": "a profile",
+          "properties": Object {
+            "profiles": Object {
+              "$ref": "#/properties/profiles",
+              "description": "additional sub-profiles",
+              "type": "object",
+            },
+            "properties": Object {
+              "description": "the profile properties",
+              "type": "object",
+            },
+            "type": Object {
+              "description": "the profile type",
+              "type": "string",
+            },
+          },
+          "type": "object",
+        },
+      },
+      "type": "object",
+    },
+    "secure": Object {
+      "description": "secure properties",
+      "items": Object {
+        "description": "path to a property",
+        "type": "string",
+      },
+      "type": "array",
+    },
+  },
+  "type": "object",
+}
+`;
+
+exports[`Config Schema should be able to successfully build with a secure single profile type configuration 2`] = `
+Object {
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "description": "config",
+  "properties": Object {
+    "defaults": Object {
+      "description": "default profiles config",
+      "patternProperties": Object {
+        "^\\\\S*$": Object {
+          "description": "the type",
+          "type": "string",
+        },
+      },
+      "type": "object",
+    },
+    "profiles": Object {
+      "description": "named profiles config",
+      "patternProperties": Object {
+        "^\\\\S*$": Object {
+          "allOf": Array [
+            Object {
+              "if": Object {
+                "properties": Object {
+                  "type": Object {
+                    "const": "zosmf",
+                  },
+                },
+              },
+              "then": Object {
+                "properties": Object {
+                  "properties": Object {
+                    "description": "A fake zosmf profile",
+                    "properties": Object {
+                      "host": Object {
+                        "default": undefined,
+                        "description": "The fake host to connect to",
+                        "type": "string",
+                      },
+                    },
+                    "required": undefined,
+                    "title": "zosmf",
+                    "type": "zosmf",
+                  },
+                },
+              },
+            },
+          ],
+          "description": "a profile",
+          "properties": Object {
+            "profiles": Object {
+              "$ref": "#/properties/profiles",
+              "description": "additional sub-profiles",
+              "type": "object",
+            },
+            "properties": Object {
+              "description": "the profile properties",
+              "type": "object",
+            },
+            "type": Object {
+              "description": "the profile type",
+              "type": "string",
+            },
+          },
+          "type": "object",
+        },
+      },
+      "type": "object",
+    },
+    "secure": Object {
+      "description": "secure properties",
+      "items": Object {
+        "description": "path to a property",
+        "type": "string",
+      },
+      "type": "array",
+    },
+  },
+  "type": "object",
+}
+`;
+
+exports[`Config Schema should be able to successfully build with a single profile type configuration 1`] = `
+Object {
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "description": "config",
+  "properties": Object {
+    "defaults": Object {
+      "description": "default profiles config",
+      "patternProperties": Object {
+        "^\\\\S*$": Object {
+          "description": "the type",
+          "type": "string",
+        },
+      },
+      "type": "object",
+    },
+    "profiles": Object {
+      "description": "named profiles config",
+      "patternProperties": Object {
+        "^\\\\S*$": Object {
+          "allOf": Array [
+            Object {
+              "if": Object {
+                "properties": Object {
+                  "type": Object {
+                    "const": "zosmf",
+                  },
+                },
+              },
+              "then": Object {
+                "properties": Object {
+                  "properties": Object {
+                    "description": "A fake zosmf profile",
+                    "properties": Object {
+                      "host": Object {
+                        "type": "string",
+                      },
+                    },
+                    "required": undefined,
+                    "title": "zosmf",
+                    "type": "zosmf",
+                  },
+                },
+              },
+            },
+          ],
+          "description": "a profile",
+          "properties": Object {
+            "profiles": Object {
+              "$ref": "#/properties/profiles",
+              "description": "additional sub-profiles",
+              "type": "object",
+            },
+            "properties": Object {
+              "description": "the profile properties",
+              "type": "object",
+            },
+            "type": Object {
+              "description": "the profile type",
+              "type": "string",
+            },
+          },
+          "type": "object",
+        },
+      },
+      "type": "object",
+    },
+    "secure": Object {
+      "description": "secure properties",
+      "items": Object {
+        "description": "path to a property",
+        "type": "string",
+      },
+      "type": "array",
+    },
+  },
+  "type": "object",
+}
+`;
+
+exports[`Config Schema should be able to successfully build with no profile type configuration 1`] = `
+Object {
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "description": "config",
+  "properties": Object {
+    "defaults": Object {
+      "description": "default profiles config",
+      "patternProperties": Object {
+        "^\\\\S*$": Object {
+          "description": "the type",
+          "type": "string",
+        },
+      },
+      "type": "object",
+    },
+    "profiles": Object {
+      "description": "named profiles config",
+      "patternProperties": Object {
+        "^\\\\S*$": Object {
+          "allOf": Array [],
+          "description": "a profile",
+          "properties": Object {
+            "profiles": Object {
+              "$ref": "#/properties/profiles",
+              "description": "additional sub-profiles",
+              "type": "object",
+            },
+            "properties": Object {
+              "description": "the profile properties",
+              "type": "object",
+            },
+            "type": Object {
+              "description": "the profile type",
+              "type": "string",
+            },
+          },
+          "type": "object",
+        },
+      },
+      "type": "object",
+    },
+    "secure": Object {
+      "description": "secure properties",
+      "items": Object {
+        "description": "path to a property",
+        "type": "string",
+      },
+      "type": "array",
+    },
+  },
+  "type": "object",
+}
+`;
+
+exports[`Config Schema should be able to successfully build with two profile type configurations 1`] = `
+Object {
+  "$schema": "https://json-schema.org/draft/2019-09/schema#",
+  "description": "config",
+  "properties": Object {
+    "defaults": Object {
+      "description": "default profiles config",
+      "patternProperties": Object {
+        "^\\\\S*$": Object {
+          "description": "the type",
+          "type": "string",
+        },
+      },
+      "type": "object",
+    },
+    "profiles": Object {
+      "description": "named profiles config",
+      "patternProperties": Object {
+        "^\\\\S*$": Object {
+          "allOf": Array [
+            Object {
+              "if": Object {
+                "properties": Object {
+                  "type": Object {
+                    "const": "zosmf",
+                  },
+                },
+              },
+              "then": Object {
+                "properties": Object {
+                  "properties": Object {
+                    "description": "A fake zosmf profile",
+                    "properties": Object {
+                      "host": Object {
+                        "type": "string",
+                      },
+                    },
+                    "required": undefined,
+                    "title": "zosmf",
+                    "type": "zosmf",
+                  },
+                },
+              },
+            },
+            Object {
+              "if": Object {
+                "properties": Object {
+                  "type": Object {
+                    "const": "base",
+                  },
+                },
+              },
+              "then": Object {
+                "properties": Object {
+                  "properties": Object {
+                    "description": "A fake base profile",
+                    "properties": Object {
+                      "port": Object {
+                        "type": "number",
+                      },
+                    },
+                    "required": undefined,
+                    "title": "base",
+                    "type": "base",
+                  },
+                },
+              },
+            },
+          ],
+          "description": "a profile",
+          "properties": Object {
+            "profiles": Object {
+              "$ref": "#/properties/profiles",
+              "description": "additional sub-profiles",
+              "type": "object",
+            },
+            "properties": Object {
+              "description": "the profile properties",
+              "type": "object",
+            },
+            "type": Object {
+              "description": "the profile type",
+              "type": "string",
+            },
+          },
+          "type": "object",
+        },
+      },
+      "type": "object",
+    },
+    "secure": Object {
+      "description": "secure properties",
+      "items": Object {
+        "description": "path to a property",
+        "type": "string",
+      },
+      "type": "array",
+    },
+  },
+  "type": "object",
+}
+`;
