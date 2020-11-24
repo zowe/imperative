@@ -6,11 +6,13 @@
             },
             "profiles": {
                 "apple": {
+                    "type": "fruit",
                     "properties": {
                         "color": "green"
                     }
                 },
                 "banana": {
+                    "type": "fruit",
                     "properties": {
                         "color": "yellow"
                     }
@@ -23,6 +25,7 @@
             },
             "profiles": {
                 "artichoke": {
+                    "type": "vegetable",
                     "properties": {
                         "color": "green"
                     }
@@ -30,7 +33,10 @@
             }
         }
     },
-    "defaults": {},
+    "defaults": {
+        "fruit": "fruit.banana",
+        "vegetable": "vegetable.artichoke"
+    },
     "plugins": [],
     "secure": []
 }
