@@ -1,0 +1,36 @@
+{
+    "profiles": {
+        "fruit": {
+            "properties": {
+                "origin": "California"
+            },
+            "profiles": {
+                "apple": {
+                    "properties": {
+                        "color": "green"
+                    }
+                },
+                "banana": {
+                    "properties": {
+                        "color": "yellow"
+                    }
+                }
+            }
+        },
+        "vegetable": {
+            "properties": {
+                "origin": "China"
+            },
+            "profiles": {
+                "artichoke": {
+                    "properties": {
+                        "color": "green"
+                    }
+                }
+            }
+        }
+    },
+    "defaults": {},
+    "plugins": [],
+    "secure": []
+}

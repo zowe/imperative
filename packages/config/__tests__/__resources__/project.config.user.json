@@ -1,0 +1,24 @@
+{
+    "profiles": {
+        "fruit": {
+            "properties": {
+                "origin": "California"
+            },
+            "profiles": {
+                "apple": {
+                    "properties": {
+                        "color": "red"
+                    }
+                },
+                "orange": {
+                    "properties": {
+                        "color": "orange"
+                    }
+                }
+            }
+        }
+    },
+    "defaults": {},
+    "plugins": [],
+    "secure": []
+}

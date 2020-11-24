@@ -35,7 +35,9 @@ export class Config {
     private _app: string;
     private _paths: string[];
     private _layers: IConfigLayer[];
-    private _home: string;
+    private get _home(): string {
+        return node_path.join(require("os").homedir(), `.${this.app}`);
+    }
     private _name: string;
     private _user: string;
     private _active: {
@@ -55,7 +57,6 @@ export class Config {
         const _ = new Config();
         (_ as any).config = {};
         _._layers = [];
-        _._home = node_path.join(require("os").homedir(), `.${app}`);
         _._paths = [];
         _._name = `${app}.config.json`;
         _._user = `${app}.config.user.json`;
@@ -296,7 +297,7 @@ export class Config {
     }
 
     public get paths(): string[] {
-        return this._paths
+        return this._paths;
     }
 
     public get layers(): IConfigLayer[] {
