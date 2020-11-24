@@ -58,7 +58,7 @@ import { IYargsContext } from "./doc/IYargsContext";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 import { ImperativeExpect } from "../../expect";
 import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
-import { Config, IConfigOpts } from "../../config";
+import { Config, ConfigVault, IConfigOpts } from "../../config";
 import { CredentialManagerFactory } from "../../security";
 import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
 
@@ -239,7 +239,7 @@ export class Imperative {
                 let opts: IConfigOpts = null;
                 if (CredentialManagerFactory.initialized) {
                     opts = {
-                        vault: {
+                        vault: new ConfigVault({
                             load: ((key: string): Promise<string> => {
                                 return CredentialManagerFactory.manager.load(key, true)
                             }),
@@ -247,7 +247,7 @@ export class Imperative {
                                 return CredentialManagerFactory.manager.save(key, value);
                             }),
                             name: CredentialManagerFactory.manager.name
-                        }
+                        })
                     };
                     ImperativeConfig.instance.config = await Config.load(ImperativeConfig.instance.rootCommandName, opts);
                 }

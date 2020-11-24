@@ -9,16 +9,10 @@
 *
 */
 
-export interface IConfigSecureProperty {
-    path: string;
-    value: any;
-}
+export type IConfigSecureProperties = { [key: string]: any };
 
-export interface IConfigSecureEntry {
-    path: string;
-    properties: IConfigSecureProperty[];
-}
+export type IConfigSecureFiles = { [key: string]: IConfigSecureProperties };
 
 export interface IConfigSecure {
-    configs: IConfigSecureEntry[];
+    configs: IConfigSecureFiles;
 };

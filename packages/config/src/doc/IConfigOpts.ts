@@ -9,8 +9,8 @@
 *
 */
 
-import { IConfigVault } from "./IConfigVault";
+import { ConfigVault } from "../ConfigVault";
 
 export interface IConfigOpts {
-    vault?: IConfigVault;
+    vault?: ConfigVault;
 };
