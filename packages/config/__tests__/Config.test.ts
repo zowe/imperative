@@ -427,9 +427,83 @@ describe("Config tests", () => {
         //     describe("write", () => {
 
         //     });
-        //     describe("activate", () => {
-
-        //     });
+            describe("activate", () => {
+                const filePathProjectConfig = path.join(__dirname, "__resources__", "project.config.json");
+                const filePathProjectUserConfig = path.join(__dirname, "__resources__", "project.config.user.json");
+                const filePathAppConfig = path.join(__dirname, "__resources__", "my_app.config.json");
+                const filePathAppUserConfig = path.join(__dirname, "__resources__", "my_app.config.user.json");
+                beforeEach(() => {
+                    jest.restoreAllMocks();
+                    jest.spyOn(Config, "search").mockReturnValueOnce(__dirname + "/__resources__/project.config.user.json")
+                                                .mockReturnValueOnce(__dirname + "/__resources__/project.config.json");
+                    jest.spyOn(path, "join").mockReturnValueOnce(__dirname + "/__resources__/my_app.config.user.json")
+                                            .mockReturnValueOnce(__dirname + "/__resources__/my_app.config.user.json")
+                                            .mockReturnValueOnce(__dirname + "/__resources__/my_app.config.json")
+                                            .mockReturnValueOnce(__dirname + "/__resources__/my_app.config.json");
+                    jest.spyOn(Config.prototype as any, "secureLoad").mockResolvedValue(undefined);
+                });
+                it("should activate the project configuration", async () => {
+                    const config = await Config.load(MY_APP);
+                    config.api.layers.activate(false, false);
+                    const properties = config.api.layers.get()
+                    const filePath = filePathProjectConfig;
+                    const fileContents = fs.readFileSync(filePath).toString()
+                    expect(properties.user).toBe(false);
+                    expect(properties.global).toBe(false);
+                    expect(properties.exists).toBe(true);
+                    expect(properties.path).toEqual(filePath);
+                    expect(properties.properties.defaults).toEqual(JSON.parse(fileContents).defaults);
+                    expect(properties.properties.plugins).toEqual(JSON.parse(fileContents).plugins);
+                    expect(properties.properties.profiles).toEqual(JSON.parse(fileContents).profiles);
+                    expect(properties.properties.secure).toEqual(JSON.parse(fileContents).secure);
+                });
+                it("should activate the project user configuration", async () => {
+                    const config = await Config.load(MY_APP);
+                    config.api.layers.activate(true, false);
+                    const properties = config.api.layers.get()
+                    const filePath = filePathProjectUserConfig;
+                    const fileContents = fs.readFileSync(filePath).toString()
+                    expect(properties.user).toBe(true);
+                    expect(properties.global).toBe(false);
+                    expect(properties.exists).toBe(true);
+                    expect(properties.path).toEqual(filePath);
+                    expect(properties.properties.defaults).toEqual(JSON.parse(fileContents).defaults);
+                    expect(properties.properties.plugins).toEqual(JSON.parse(fileContents).plugins);
+                    expect(properties.properties.profiles).toEqual(JSON.parse(fileContents).profiles);
+                });
+                it("should activate the global configuration", async () => {
+                    const config = await Config.load(MY_APP);
+                    config.api.layers.activate(false, true);
+                    const properties = config.api.layers.get()
+                    const filePath = filePathAppConfig;
+                    const fileContents = fs.readFileSync(filePath).toString()
+                    console.log(properties);
+                    expect(properties.user).toBe(false);
+                    expect(properties.global).toBe(true);
+                    expect(properties.exists).toBe(true);
+                    expect(properties.path).toEqual(filePath);
+                    expect(properties.properties.defaults).toEqual(JSON.parse(fileContents).defaults);
+                    expect(properties.properties.plugins).toEqual(JSON.parse(fileContents).plugins);
+                    expect(properties.properties.profiles).toEqual(JSON.parse(fileContents).profiles);
+                    expect(properties.properties.secure).toEqual(JSON.parse(fileContents).secure);
+                });
+                it("should activate the global user configuration", async () => {
+                    const config = await Config.load(MY_APP);
+                    config.api.layers.activate(true, true);
+                    const properties = config.api.layers.get()
+                    const filePath = filePathAppUserConfig;
+                    const fileContents = fs.readFileSync(filePath).toString()
+                    console.log(properties);
+                    expect(properties.user).toBe(true);
+                    expect(properties.global).toBe(true);
+                    expect(properties.exists).toBe(true);
+                    expect(properties.path).toEqual(filePath);
+                    expect(properties.properties.defaults).toEqual(JSON.parse(fileContents).defaults);
+                    expect(properties.properties.plugins).toEqual(JSON.parse(fileContents).plugins);
+                    expect(properties.properties.profiles).toEqual(JSON.parse(fileContents).profiles);
+                    expect(properties.properties.secure).toEqual(JSON.parse(fileContents).secure);
+                });
+            });
             describe("get", () => {
                 it("should get the active layer", async () => {
                     const config = await Config.load(MY_APP);
@@ -499,9 +573,6 @@ describe("Config tests", () => {
         const configFile = "project.config.user.json";
         const configDir = path.join(__dirname, "__resources__");
         const fakeConfigDir = path.join(__dirname, configFile);
-        // beforeEach(() => {
-        //     jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false);
-        // });
         it("should search for a file in the same directory", async () => {
             const joinedPath = path.join(configDir, configFile);
             const expectedPath = path.join(path.resolve(configDir), configFile);
