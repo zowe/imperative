@@ -56,6 +56,15 @@ Object {
 }
 `;
 
+exports[`Config tests api layers set should set the current layer when nothing is provided 1`] = `
+Object {
+  "defaults": Object {},
+  "plugins": Array [],
+  "profiles": Object {},
+  "secure": Array [],
+}
+`;
+
 exports[`Config tests api plugins get should get the plugins 1`] = `
 Array [
   "@zowe/fruit-for-imperative",
@@ -110,6 +119,17 @@ Object {
 exports[`Config tests api profiles set should set a second level profile to a first level profile that doesn't exist 2`] = `
 Object {
   "color": "brown",
+}
+`;
+
+exports[`Config tests load should fail to load config that is not JSON 1`] = `[Error: error reading config file: /home/ah891585/GitHub/imperative/packages/config/__tests__/__resources__/project.config.json: Unexpected token T in JSON at position 0]`;
+
+exports[`Config tests load should load a config and populate missing defaults 1`] = `
+Object {
+  "defaults": Object {},
+  "plugins": Array [],
+  "profiles": Object {},
+  "secure": Array [],
 }
 `;
 
@@ -311,5 +331,34 @@ Object {
     },
   },
   "secure": Array [],
+}
+`;
+
+exports[`Config tests set should add a new layer when one is specified in the set 1`] = `
+Object {
+  "fruit": Object {
+    "profiles": Object {
+      "apple": Object {
+        "properties": Object {
+          "color": "red",
+        },
+        "type": "fruit",
+      },
+      "mango": Object {
+        "properties": Object {
+          "color": "orange",
+        },
+      },
+      "orange": Object {
+        "properties": Object {
+          "color": "orange",
+        },
+        "type": "fruit",
+      },
+    },
+    "properties": Object {
+      "origin": "California",
+    },
+  },
 }
 `;

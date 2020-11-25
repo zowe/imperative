@@ -10,7 +10,7 @@
 */
 
 import * as fs from "fs";
-import { ImperativeError, ImperativeExpect } from "../..";
+import { ImperativeError } from "../..";
 import { Config } from "../src/Config";
 import { IConfig } from "../src/doc/IConfig";
 import { IConfigProfile } from "../src/doc/IConfigProfile";
@@ -82,6 +82,44 @@ describe("Config tests", () => {
             const config = await Config.load(MY_APP);
             expect(config.properties).toMatchSnapshot();
         });
+
+        it("should load a config and populate missing defaults", async () => {
+            jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/project.config.json");
+            jest.spyOn(fs, "existsSync")
+                .mockReturnValueOnce(false)     // Project user layer
+                .mockReturnValueOnce(true)      // Project layer
+                .mockReturnValueOnce(false)     // User layer
+                .mockReturnValueOnce(false);    // Global layer
+            jest.spyOn(fs, "readFileSync").mockReturnValueOnce("{}");
+            const config = await Config.load(MY_APP);
+            expect(config.properties).toMatchSnapshot();
+            expect(config.properties.defaults).toEqual({});
+            expect(config.properties.profiles).toEqual({});
+            expect(config.properties.plugins).toEqual([]);
+            expect(config.properties.secure).toEqual([]);
+        });
+
+        it("should fail to load config that is not JSON", async () => {
+            jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/project.config.json");
+            jest.spyOn(fs, "existsSync")
+                .mockReturnValueOnce(false)     // Project user layer
+                .mockReturnValueOnce(true)      // Project layer
+                .mockReturnValueOnce(false)     // User layer
+                .mockReturnValueOnce(false);    // Global layer
+            jest.spyOn(fs, "readFileSync").mockReturnValueOnce("This is not JSON");
+            let error: any;
+            let config: any;
+            try {
+                config = await Config.load(MY_APP);
+            } catch (err) {
+                error = err;
+            }
+            expect(error).toBeDefined();
+            expect(error.message).toContain("error reading config file");
+            expect(error.message).toContain(__dirname + "/__resources__");
+            expect(error instanceof ImperativeError).toBe(true);
+            expect(error).toMatchSnapshot();
+        });
     });
 
     it("should find config that exists if any layers exist", () => {
@@ -114,10 +152,16 @@ describe("Config tests", () => {
             jest.spyOn(Config.prototype as any, "secureLoad").mockResolvedValue(undefined);
         });
 
-        it("should set boolean value in config", async () => {
+        it("should set boolean true in config", async () => {
             const config = await Config.load(MY_APP);
             config.set("profiles.fruit.profiles.apple.properties.ripe", "true");
             expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(true);
+        });
+
+        it("should set boolean false in config", async () => {
+            const config = await Config.load(MY_APP);
+            config.set("profiles.fruit.profiles.apple.properties.ripe", "false");
+            expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(false);
         });
 
         it("should set integer value in config", async () => {
@@ -170,6 +214,13 @@ describe("Config tests", () => {
             expect(layer.properties.secure.includes(secureProp)).toBe(true);
             config.addSecure(secureProp);
             expect(layer.properties.secure.filter((x: any) => x === secureProp).length).toBe(1);
+        });
+
+        it("should add a new layer when one is specified in the set", async () => {
+            const config = await Config.load(MY_APP);
+            config.set("profiles.fruit.profiles.mango.properties.color", "orange");
+            expect(config.properties.profiles.fruit.profiles.mango.properties.color).toBe("orange");
+            expect (config.properties.profiles).toMatchSnapshot();
         });
     });
 
@@ -266,6 +317,18 @@ describe("Config tests", () => {
                     expect(profile).toMatchSnapshot();
                     expect(nestedProfile).toMatchSnapshot();
                     expect(nestedProfile.color).toEqual("brown");
+                });
+                it("should successfully set a profile missing properties", async () => {
+                    const config = await Config.load(MY_APP);
+                    const profilesApi = config.api.profiles;
+                    const fakeProfile: IConfigProfile = {
+                        type: "fruit",
+                        profiles: {},
+                        properties: undefined
+                    };
+                    profilesApi.set("grape", fakeProfile);
+                    const profile = profilesApi.get("grape");
+                    expect(profile).toEqual({});
                 });
             });
             describe("get", () => {
@@ -395,7 +458,38 @@ describe("Config tests", () => {
                     expect(retrievedConfig).toMatchSnapshot();
                     expect(retrievedConfig).toEqual(cnfg);
                 });
+
+                it("should set the current layer when nothing is provided", async () => {
+                    const config = await Config.load(MY_APP);
+                    const cnfg: IConfig = {
+                        $schema: undefined,
+                        defaults: undefined,
+                        plugins: undefined,
+                        secure: undefined,
+                        profiles: undefined
+                    };
+                    config.api.layers.set(cnfg);
+                    const retrievedConfig = config.api.layers.get().properties;
+                    expect(retrievedConfig).toMatchSnapshot();
+                    expect(retrievedConfig.defaults).toEqual({});
+                    expect(retrievedConfig.profiles).toEqual({});
+                    expect(retrievedConfig.plugins).toEqual([]);
+                    expect(retrievedConfig.secure).toEqual([]);
+                });
             });
         });
     });
+    describe("paths", () => {
+        beforeEach(() => {
+            jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/project.config.user.json");
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false);
+            jest.spyOn(Config.prototype as any, "secureLoad").mockResolvedValue(undefined);
+        });
+        it("should get paths", async () => {
+            const config = await Config.load(MY_APP);
+            const paths: string[] = config.paths;
+            const expectedPath: string = __dirname + "/__resources__/project.config.user.json";
+            expect(paths).toContain(expectedPath);
+        });
+    )};
 });
