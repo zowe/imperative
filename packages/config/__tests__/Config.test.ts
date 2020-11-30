@@ -477,7 +477,6 @@ describe("Config tests", () => {
                     const properties = config.api.layers.get()
                     const filePath = filePathAppConfig;
                     const fileContents = fs.readFileSync(filePath).toString()
-                    console.log(properties);
                     expect(properties.user).toBe(false);
                     expect(properties.global).toBe(true);
                     expect(properties.exists).toBe(true);
@@ -493,7 +492,6 @@ describe("Config tests", () => {
                     const properties = config.api.layers.get()
                     const filePath = filePathAppUserConfig;
                     const fileContents = fs.readFileSync(filePath).toString()
-                    console.log(properties);
                     expect(properties.user).toBe(true);
                     expect(properties.global).toBe(true);
                     expect(properties.exists).toBe(true);
