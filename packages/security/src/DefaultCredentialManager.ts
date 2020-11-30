@@ -138,7 +138,11 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
             // Imperative overrides the value of process.mainModule.filename to point to
             // our calling CLI. Since our caller must supply keytar, we search for keytar
             // within our caller's path.
-            const keytarPath = require.resolve("keytar", { paths: [ process.mainModule.filename ] });
+            const requireOpts = {};
+            if (process.mainModule?.filename != null) {
+                process.mainModule.paths = [ process.mainModule.filename ];
+            }
+            const keytarPath = require.resolve("keytar", requireOpts);
             // tslint:disable-next-line:no-implicit-dependencies
             this.keytar = await import(keytarPath);
         } catch (error) {
@@ -224,7 +228,7 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
             for (let svcInx = 2; svcInx < this.ALTERNATIVE_SERVICES.length; svcInx++) {
                 secValue = await loadHelper(this.ALTERNATIVE_SERVICES[svcInx]);
                 if (secValue != null)
-                break;
+                    break;
             }
         }
 
