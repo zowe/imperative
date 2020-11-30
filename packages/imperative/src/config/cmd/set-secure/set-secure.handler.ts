@@ -10,7 +10,7 @@
 */
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { ConfigVault, IConfigOpts } from "../../../../../config";
+import { IConfigOpts } from "../../../../../config";
 import { ImperativeError } from "../../../../../error";
 import { CredentialManagerFactory } from "../../../../../security";
 import { ImperativeConfig } from "../../../../../utilities";
@@ -30,7 +30,7 @@ export default class SetSecureHandler implements ICommandHandler {
         let opts: IConfigOpts = null;
         if (CredentialManagerFactory.initialized) {
             opts = {
-                vault: new ConfigVault({
+                vault: {
                     load: ((k: string): Promise<string> => {
                         return CredentialManagerFactory.manager.load(k, true)
                     }),
@@ -38,7 +38,7 @@ export default class SetSecureHandler implements ICommandHandler {
                         return CredentialManagerFactory.manager.save(k, v);
                     }),
                     name: CredentialManagerFactory.manager.name
-                })
+                }
             };
         } else {
             throw new ImperativeError({msg: `secure vault not enabled`});

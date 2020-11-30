@@ -19,7 +19,7 @@ import { ImperativeError } from "../../error";
 import { IConfigProfile } from "./doc/IConfigProfile";
 import { IConfigOpts } from "./doc/IConfigOpts";
 import { IConfigSecure, IConfigSecureProperties } from "./doc/IConfigSecure";
-import { ConfigVault } from "./ConfigVault";
+import { IConfigVault } from "./doc/IConfigVault";
 
 enum layers {
     project_user = 0,
@@ -42,7 +42,7 @@ export class Config {
         user: boolean;
         global: boolean
     };
-    private _vault: ConfigVault;
+    private _vault: IConfigVault;
     private _secure: IConfigSecure;
 
     private constructor() { }
@@ -507,12 +507,14 @@ export class Config {
             }
 
             // Create the entry to set the secure properties
-            this._secure.configs[layer.path] = sp;
+            if (Object.keys(sp).length > 0) {
+                this._secure.configs[layer.path] = sp;
+            }
         }
 
         // Save the entries if needed
         if (Object.keys(this._secure.configs).length > 0)
-            await this._vault.save(Config.SECURE_ACCT, JSON.stringify(this._secure));
+            await this._vault.save(Config.SECURE_ACCT, JSON.stringify(this._secure.configs));
     }
 
     private secureFields(): boolean {
