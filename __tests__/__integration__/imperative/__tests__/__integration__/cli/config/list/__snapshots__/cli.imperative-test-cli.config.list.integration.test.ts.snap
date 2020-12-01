@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`imperative-test-cli config list should list the configuration 1`] = `
+"defaults: 
+  secured: my_secured
+profiles: 
+  my_secured: 
+    type:       secured
+    properties: 
+      info: 
+plugins: 
+  (empty array)
+secure: 
+  (empty array)
+"
+`;
+
+exports[`imperative-test-cli config list should list the defaults configuration property 1`] = `
+"secured: my_secured
+"
+`;
+
+exports[`imperative-test-cli config list should list the profiles configuration property 1`] = `
+"my_secured: 
+  type:       secured
+  properties: 
+    info: 
+"
+`;
+
+exports[`imperative-test-cli config list should list the root level property names only 1`] = `
+"defaults
+profiles
+plugins
+secure
+"
+`;
+
+exports[`imperative-test-cli config list should not list the secure configuration property 1`] = `""`;
