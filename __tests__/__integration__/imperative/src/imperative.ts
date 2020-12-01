@@ -30,6 +30,7 @@ export const config: IImperativeConfig = {
                 properties: {
                     info: {
                         type: "string",
+                        includeInTemplate: true,
                         optionDefinition: {
                             name: "info",
                             description: "The info the keep in the profile.",
@@ -40,6 +41,7 @@ export const config: IImperativeConfig = {
                     secret: {
                         type: "string",
                         secure: true,
+                        includeInTemplate: true,
                         optionDefinition: {
                             name: "secret",
                             description: "The secret info the keep in the profile.",

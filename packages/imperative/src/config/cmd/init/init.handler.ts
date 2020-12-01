@@ -199,7 +199,9 @@ export default class InitHandler implements ICommandHandler {
             config.set(propPath, propValue, { secure: true });
         }
         // Hoist duplicate default properties
-        config.api.profiles.set(rootProfileName, this.hoistTemplateProperties(config.properties.profiles[rootProfileName]));
+        if (config.properties.profiles != null && config.properties.profiles[rootProfileName] != null) {
+            config.api.profiles.set(rootProfileName, this.hoistTemplateProperties(config.properties.profiles[rootProfileName]));
+        };
     }
 
     /**

@@ -571,6 +571,7 @@ describe("Config tests", () => {
         const configFile = "project.config.user.json";
         const configDir = path.join(__dirname, "__resources__");
         const fakeConfigDir = path.join(__dirname, configFile);
+        const parsedPath = path.parse(__dirname);
         it("should search for a file in the same directory", async () => {
             const joinedPath = path.join(configDir, configFile);
             const expectedPath = path.join(path.resolve(configDir), configFile);
@@ -615,7 +616,7 @@ describe("Config tests", () => {
             jest.spyOn(fs, "existsSync").mockReturnValue(false);
             jest.spyOn(path, "join").mockReturnValueOnce(joinedPath).mockReturnValue(fakeConfigDir);
             jest.spyOn(path, "resolve").mockReturnValue(joinedPath);
-            jest.spyOn(path, "parse").mockReturnValueOnce(__dirname);
+            jest.spyOn(path, "parse").mockReturnValueOnce(parsedPath);
             try {
                 Config.search(configFile, { stop: home });
             } catch (err) {
