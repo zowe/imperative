@@ -19,12 +19,95 @@ import * as fs from "fs";
 let TEST_ENVIRONMENT: ITestEnvironment;
 
 describe("imperative-test-cli config schema", () => {
+    const expectedSchemaObject = {
+        $schema: "https://json-schema.org/draft/2019-09/schema#",
+        type: "object",
+        description: "config",
+        properties: {
+            profiles: {
+                type: "object",
+                description: "named profiles config",
+                patternProperties: {
+                    "^\\S*$": {
+                        type: "object",
+                        description: "a profile",
+                        properties: {
+                            type: {
+                                description: "the profile type",
+                                type: "string"
+                            },
+                            properties: {
+                                description: "the profile properties",
+                                type: "object"
+                            },
+                            profiles: {
+                                description: "additional sub-profiles",
+                                type: "object",
+                                $ref: "#/properties/profiles"
+                            }
+                        },
+                        allOf: [
+                            {
+                                if: {
+                                    properties: {
+                                        type: {
+                                            const: "secured"
+                                        }
+                                    }
+                                },
+                                then: {
+                                    properties: {
+                                        properties: {
+                                            type: "object",
+                                            title: "Test Secured Fields",
+                                            description: "Test Secured Fields",
+                                            properties: {
+                                                info: {
+                                                    type: "string",
+                                                    description: "The info the keep in the profile."
+                                                },
+                                                secret: {
+                                                    type: "string",
+                                                    description: "The secret info the keep in the profile.",
+                                                    secure: true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            defaults: {
+                type: "object",
+                description: "default profiles config",
+                patternProperties: {
+                    "^\\S*$": {
+                        type: "string",
+                        description: "the type"
+                    }
+                }
+            },
+            secure: {
+                type: "array",
+                description: "secure properties",
+                items: {
+                    type: "string",
+                    description: "path to a property"
+                }
+            }
+        }
+    };
+
     // Create the test environment
     beforeAll(async () => {
         TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
             cliHomeEnvVar: "IMPERATIVE_TEST_CLI_CLI_HOME",
             testName: "imperative_test_cli_test_config_schema_command"
         });
+        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--ci"]);
     });
     it("should display the help", () => {
         const response = runCliScript(__dirname + "/../__scripts__/get_help.sh",
@@ -32,5 +115,14 @@ describe("imperative-test-cli config schema", () => {
         expect(response.output.toString()).toContain(`Dumps the JSON schema for the config. The schema is dynamically created based on`);
         expect(response.output.toString()).toContain(`your available plugins. Direct the output of this command to a file and include`);
         expect(response.output.toString()).toContain(`in your config with '$schema' property to get editor completion.`);
+        expect(response.stderr.toString()).toEqual("");
+        expect(response.error).not.toBeDefined();
     });
+    it("should print the generated schema", () => {
+        const response = runCliScript(__dirname + "/__scripts__/schema.sh", TEST_ENVIRONMENT.workingDir, [""]);
+        expect(response.stdout.toString()).toMatchSnapshot();
+        expect(JSON.parse(response.stdout.toString())).toEqual(expectedSchemaObject);
+        expect(response.stderr.toString()).toEqual("");
+        expect(response.error).not.toBeDefined();
+    })
 });

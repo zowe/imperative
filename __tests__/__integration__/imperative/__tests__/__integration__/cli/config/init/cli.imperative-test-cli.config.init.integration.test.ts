@@ -116,6 +116,8 @@ describe("imperative-test-cli config init", () => {
         expect(response.output.toString()).toContain(`current working directory unless otherwise specified. Use "--user" to init`);
         expect(response.output.toString()).toContain(`"undefined.config.user.json". Use "--global" to initialize the configuration`);
         expect(response.output.toString()).toContain(`files your home "~/.zowe" directory.`);
+        expect(response.stderr.toString()).toEqual("");
+        expect(response.error).not.toBeDefined();
     });
     it("should initialize a project config", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config.sh",

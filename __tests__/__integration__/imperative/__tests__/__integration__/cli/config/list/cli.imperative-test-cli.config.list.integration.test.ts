@@ -39,6 +39,8 @@ describe("imperative-test-cli config list", () => {
         const response = runCliScript(__dirname + "/../__scripts__/get_help.sh",
             TEST_ENVIRONMENT.workingDir, ["list"]);
         expect(response.stdout.toString()).toContain(`List config properties`);
+        expect(response.stderr.toString()).toEqual("");
+        expect(response.error).not.toBeDefined();
     });
     it("should list the configuration", () => {
         const response = runCliScript(__dirname + "/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, [""]);

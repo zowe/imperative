@@ -25,10 +25,23 @@ describe("imperative-test-cli config profiles", () => {
             cliHomeEnvVar: "IMPERATIVE_TEST_CLI_CLI_HOME",
             testName: "imperative_test_cli_test_config_profiles_command"
         });
+        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--ci"]);
+        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--user --ci"]);
+        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--global --ci"]);
+        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--user --global --ci"]);
     });
     it("should display the help", () => {
         const response = runCliScript(__dirname + "/../__scripts__/get_help.sh",
             TEST_ENVIRONMENT.workingDir, ["profiles"]);
-        expect(response.output.toString()).toContain(`Displays profile paths.`);
+        expect(response.stdout.toString()).toContain(`Displays profile paths.`);
+        expect(response.stderr.toString()).toEqual("");
+        expect(response.error).not.toBeDefined();
+    });
+    it("should list profiles", () => {
+        const response = runCliScript(__dirname + "/__scripts__/list_profiles.sh", TEST_ENVIRONMENT.workingDir, [""]);
+        expect(response.stdout.toString()).toMatchSnapshot();
+        expect(response.stdout.toString()).toContain("my_secured");
+        expect(response.stderr.toString()).toEqual("");
+        expect(response.error).not.toBeDefined();
     });
 });
