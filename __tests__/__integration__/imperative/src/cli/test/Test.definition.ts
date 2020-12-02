@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../packages/index";
+import { ICommandDefinition } from "../../../../../../lib/index";
 import { LoggingDefinition } from "./logging/Logging.definition";
 
 export const definition: ICommandDefinition = {

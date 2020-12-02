@@ -172,6 +172,9 @@ const build: ITaskFunction = (done) => {
             fancylog(ansiColors.red("Error encountered while adding copyright information"));
             done(licenseErr);
         }
+        if (fs.existsSync("tsconfig.tsbuildinfo")) {
+            fs.unlinkSync("tsconfig.tsbuildinfo");
+        }
         if (fs.existsSync(compileDir)) {
             rimraf(compileDir);
             fancylog("Deleted old compiled source in '%s' folder", compileDir);

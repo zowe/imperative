@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../../packages/index";
+import { ICommandDefinition } from "../../../../../../../lib/index";
 
 export const profileMappingCommandNameType: ICommandDefinition = {
     name: "mapping-name-type",

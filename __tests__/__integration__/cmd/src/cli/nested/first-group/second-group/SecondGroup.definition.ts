@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../../../packages/index";
+import { ICommandDefinition } from "../../../../../../../../lib/index";
 import { SecondGroupCommandOneDefinition } from "./second-group-command/second-group-command-one/SecondGroupCommandOne.definition";
 import { SecondGroupCommandTwoDefinition } from "./second-group-command/second-group-command-two/SecondGroupCommandTwo.definition";
 
