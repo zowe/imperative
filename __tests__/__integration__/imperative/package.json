@@ -45,7 +45,7 @@
     "js-yaml": "3.13.1",
     "jsonfile": "4.0.0",
     "jsonschema": "1.1.1",
-    "keytar": "5.0.0",
+    "keytar": "7.1.0",
     "levenshtein": "1.0.5",
     "lodash": "4.17.19",
     "log4js": "6.1.0",

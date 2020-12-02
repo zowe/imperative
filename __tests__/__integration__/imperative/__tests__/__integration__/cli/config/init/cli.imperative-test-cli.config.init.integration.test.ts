@@ -146,7 +146,7 @@ describe("imperative-test-cli config init", () => {
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
-        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir, ["imperative-test-cli.config.json schema.json"]);
+        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir, ["-rf imperative-test-cli.config.json test schema.json"]);
     });
     it("should initialize a user project config", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config.sh",
@@ -176,7 +176,7 @@ describe("imperative-test-cli config init", () => {
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
         runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
-            ["imperative-test-cli.config.user.json schema.json"]);
+            ["-rf imperative-test-cli.config.json test schema.json"]);
     });
     it("should initialize a global config", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config.sh",
@@ -205,7 +205,8 @@ describe("imperative-test-cli config init", () => {
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
-        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir, ["imperative-test-cli.config.json schema.json"]);
+        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
+            ["-rf imperative-test-cli.config.json test schema.json"]);
     });
     it("should initialize a user global config", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config.sh",
@@ -235,7 +236,7 @@ describe("imperative-test-cli config init", () => {
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
         runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
-            ["imperative-test-cli.config.user.json schema.json"]);
+            ["-rf imperative-test-cli.config.json test schema.json"]);
     });
     it("should initialize a project config with prompting", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config_prompt.sh",
@@ -264,7 +265,8 @@ describe("imperative-test-cli config init", () => {
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
-        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir, ["imperative-test-cli.config.json schema.json"]);
+        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
+            ["-rf imperative-test-cli.config.json test schema.json"]);
     });
     it("should initialize a user project config with prompting", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config_prompt.sh",
@@ -294,7 +296,7 @@ describe("imperative-test-cli config init", () => {
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
         runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
-            ["imperative-test-cli.config.user.json schema.json"]);
+            ["-rf imperative-test-cli.config.json test schema.json"]);
     });
     it("should initialize a global config with prompting", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config_prompt.sh",
@@ -323,7 +325,8 @@ describe("imperative-test-cli config init", () => {
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
-        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir, ["imperative-test-cli.config.json schema.json"]);
+        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
+            ["-rf imperative-test-cli.config.json test schema.json"]);
     });
     it("should initialize a user global config with prompting", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config_prompt.sh",
@@ -353,7 +356,7 @@ describe("imperative-test-cli config init", () => {
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
         runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
-            ["imperative-test-cli.config.user.json schema.json"]);
+            ["-rf imperative-test-cli.config.json test schema.json"]);
     });
     // it("should create a profile of a specified name", () => {
     //     const response = runCliScript(__dirname + "/__scripts__/init_config.sh",
