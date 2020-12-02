@@ -9,48 +9,47 @@
 *
 */
 
-import * as fs from "fs";
-import { ImperativeError } from "../..";
 import { Config } from "../src/Config";
-
-const MY_APP = "my_app";
+import { IConfigVault } from "../src/doc/IConfigVault";
 
 describe("Config secure tests", () => {
+    const mockVault: IConfigVault = {
+        load: jest.fn(),
+        save: jest.fn(),
+        name: "fake"
+    }
+
     afterEach(() => {
         jest.restoreAllMocks();
     });
 
-    it("should find secure properties if any exist", () => {
-        const config = new (Config as any)();
-        config._layers = [
-            {
-                properties: { secure: [] }
-            },
-            {
-                properties: { secure: [ "tokenValue" ] }
-            },
-            {
-                properties: { secure: [] }
-            }
-        ];
-        expect(config.secureFields()).toBe(true);
-    });
-
-    it("should not find secure properties if none exist", () => {
+    it("should skip secure load if there are no secure properties", async () => {
         const config = new (Config as any)();
         config._layers = [
             {
                 properties: { secure: [] }
             }
         ];
-        expect(config.secureFields()).toBe(false);
+        await (config as any).secureLoad();
+        expect(mockVault.load).not.toHaveBeenCalled();
     });
 
-    it("should securely load all secure properties", async () => {
+    it("should skip secure save if there are no secure properties", async () => {
+        const config = new (Config as any)();
+        config._layers = [
+            {
+                properties: { secure: [] }
+            }
+        ];
+        await (config as any).secureSave();
+        expect(mockVault.save).not.toHaveBeenCalled();
+    });
+
+    xit("should securely load all secure properties", async () => {
         throw new Error("TODO");
     });
 
-    it("should securely save all secure properties", async () => {
+    xit("should securely save all secure properties", async () => {
         throw new Error("TODO");
     });
 });
