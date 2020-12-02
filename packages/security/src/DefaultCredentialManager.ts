@@ -96,6 +96,13 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
   private allServices: string[];
 
   /**
+   * Maximum credential length allowed by Windows 7 and newer.
+   *
+   * We don't support older versions of Windows where the limit is 512 bytes.
+   */
+  private readonly WIN32_CRED_MAX_STRING_LENGTH = 2560;
+
+  /**
    * Pass-through to the superclass constructor.
    *
    * @param {string} service The service string to send to the superclass constructor.
@@ -131,7 +138,11 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
         // Imperative overrides the value of process.mainModule.filename to point to
         // our calling CLI. Since our caller must supply keytar, we search for keytar
         // within our caller's path.
-        const keytarPath = require.resolve("keytar", { paths: [ process.mainModule.filename ] });
+        const requireOpts = {};
+        if (process.mainModule?.filename != null) {
+          process.mainModule.paths = [ process.mainModule.filename ];
+        }
+        const keytarPath = require.resolve("keytar", requireOpts);
         // tslint:disable-next-line:no-implicit-dependencies
         this.keytar = await import(keytarPath);
       } catch (error) {
@@ -173,7 +184,7 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
     this.checkForKeytar();
     // Helper function to handle all breaking changes
     const loadHelper = async (service: string) => {
-      let secureValue: string = await this.keytar.getPassword(service, account);
+      let secureValue: string = await this.getCredentialsHelper(service, account);
       // Handle user vs username case // Zowe v1 -> v2 (i.e. @brightside/core@2.x -> @zowe/cli@6+ )
       if (secureValue == null && account.endsWith("_username")) {
         secureValue = await this.keytar.getPassword(service, account.replace("_username", "_user"));
@@ -248,7 +259,7 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
   protected async saveCredentials(account: string, credentials: SecureCredential): Promise<void> {
     this.checkForKeytar();
     await this.deleteCredentialsHelper(account, true);
-    await this.keytar.setPassword(this.service, account, credentials);
+    await this.setCredentialsHelper(this.service, account, credentials);
   }
 
   /**
@@ -281,6 +292,66 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
       }
   }
 
+  /**
+   * Helper to load credentials from vault that supports values longer than
+   * `DefaultCredentialManager.WIN32_CRED_MAX_STRING_LENGTH` on Windows.
+   * @private
+   * @param service The string service name.
+   * @param account The string account name.
+   * @returns A promise for the credential string.
+   */
+  private async getCredentialsHelper(service: string, account: string): Promise<SecureCredential> {
+    // Try to load single-field value from vault
+    let value = await this.keytar.getPassword(service, account);
+
+    // If not found, try to load multiple-field value on Windows
+    if (value == null && process.platform === "win32") {
+      let index = 1;
+      // Load multiple fields from vault and concat them
+      do {
+        const tempValue = await this.keytar.getPassword(service, `${account}-${index}`);
+        if (tempValue != null) {
+          value = (value || "") + tempValue;
+        }
+        index++;
+        // Loop until we've finished reading null-terminated value
+      } while (value != null && !value.endsWith('\0'));
+      // Strip off trailing null char
+      if (value != null) {
+        value = value.replace(/\0$/, "");
+      }
+    }
+
+    return value;
+}
+
+  /**
+   * Helper to save credentials to vault that supports values longer than
+   * `DefaultCredentialManager.WIN32_CRED_MAX_STRING_LENGTH` on Windows.
+   * @private
+   * @param service The string service name.
+   * @param account The string account name.
+   * @param value The string credential.
+   */
+  private async setCredentialsHelper(service: string, account: string, value: SecureCredential): Promise<void> {
+    // On Windows, save value across multiple fields if needed
+    if (process.platform === "win32" && value.length > this.WIN32_CRED_MAX_STRING_LENGTH) {
+      // First delete any fields previously used to store this value
+      await this.keytar.deletePassword(service, account);
+      value += '\0';
+      let index = 1;
+      while (value.length > 0) {
+        const tempValue = value.slice(0, this.WIN32_CRED_MAX_STRING_LENGTH);
+        await this.keytar.setPassword(service, `${account}-${index}`, tempValue);
+        value = value.slice(this.WIN32_CRED_MAX_STRING_LENGTH);
+        index++;
+      }
+    } else {
+      // Fall back to simple storage of single-field value
+      await this.keytar.setPassword(service, account, value);
+    }
+  }
+
   private async deleteCredentialsHelper(account: string, keepRequestedSvc?: boolean): Promise<boolean> {
     let wasDeleted = false;
     for (const service of this.allServices) {
@@ -291,6 +362,16 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
         wasDeleted = true;
       }
     }
+    if (process.platform === "win32") {
+      // Handle deletion of long values stored across multiple fields
+      let index = 1;
+      while (await this.keytar.deletePassword(DefaultCredentialManager.SVC_NAME, `${account}-${index}`)) {
+        index++;
+      }
+      if (index > 1) {
+        wasDeleted = true;
+      }
+  }
     return wasDeleted;
   }
 
