@@ -14,7 +14,7 @@ import { SetupTestEnvironment } from "../../../../../../__src__/environment/Setu
 import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import * as fs from "fs";
 import { TestLogger } from "../../../../../../TestLogger";
-import { LoggerConfigBuilder } from "../../../../../../../packages";
+import { LoggerConfigBuilder } from "../../../../../../../lib";
 
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;

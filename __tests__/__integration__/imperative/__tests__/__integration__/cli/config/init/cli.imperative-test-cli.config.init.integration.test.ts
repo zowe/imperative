@@ -12,7 +12,7 @@
 import { ITestEnvironment } from "../../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../../src/TestUtil";
-import { IConfig } from "../../../../../../../../packages/config";
+import { IConfig } from "../../../../../../../../lib/config";
 import * as fs from "fs";
 import * as path from "path";
 

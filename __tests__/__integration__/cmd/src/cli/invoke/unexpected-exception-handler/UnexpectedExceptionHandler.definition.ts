@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../../packages/index";
+import { ICommandDefinition } from "../../../../../../../lib/index";
 
 export const UnexpectedExceptionHandlerDefinition: ICommandDefinition = {
     name: "unexpected-exception-handler",

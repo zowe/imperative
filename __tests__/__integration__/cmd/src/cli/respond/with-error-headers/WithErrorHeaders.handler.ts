@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters } from "../../../../../../../packages/index";
+import { ICommandHandler, IHandlerParameters } from "../../../../../../../lib/index";
 /**
  * Handler that prints out multiple error headers
  * @export
