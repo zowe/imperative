@@ -30,6 +30,7 @@ export default class SetSecureHandler implements ICommandHandler {
         let opts: IConfigOpts = null;
         if (CredentialManagerFactory.initialized) {
             opts = {
+                homeDir: ImperativeConfig.instance.cliHome,
                 vault: {
                     load: ((k: string): Promise<string> => {
                         return CredentialManagerFactory.manager.load(k, true)

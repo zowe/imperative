@@ -20,7 +20,6 @@ import { IConfigProfile } from "./doc/IConfigProfile";
 import { IConfigVault } from "./doc/IConfigVault";
 import { IConfigOpts } from "./doc/IConfigOpts";
 import { IConfigSecure, IConfigSecureEntry, IConfigSecureProperty } from "./doc/IConfigSecure";
-import { ImperativeConfig } from "../../utilities";
 
 enum layers {
     project_user = 0,
@@ -36,9 +35,7 @@ export class Config {
     private _app: string;
     private _paths: string[];
     private _layers: IConfigLayer[];
-    private get _home(): string {
-        return ImperativeConfig.instance.cliHome ? ImperativeConfig.instance.cliHome : require("os").homedir();
-    }
+    private _home: string;
     private _name: string;
     private _user: string;
     private _active: {
@@ -58,6 +55,7 @@ export class Config {
         const _ = new Config();
         (_ as any).config = {};
         _._layers = [];
+        _._home = opts.homeDir || node_path.join(require("os").homedir(), `.${app}`);
         _._paths = [];
         _._name = `${app}.config.json`;
         _._user = `${app}.config.user.json`;
@@ -68,7 +66,7 @@ export class Config {
 
         ////////////////////////////////////////////////////////////////////////
         // Populate configuration file layers
-        const home = ImperativeConfig.instance.cliHome ? ImperativeConfig.instance.cliHome : require("os").homedir();
+        const home = require("os").homedir();
         const properties: IConfig = {
             profiles: {},
             defaults: {},
