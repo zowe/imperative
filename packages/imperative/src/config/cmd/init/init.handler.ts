@@ -47,14 +47,16 @@ export default class InitHandler implements ICommandHandler {
         //     throw new ImperativeError({ msg: `config "${layer.path}" already exists` });
 
         // Init as requested
-        if (this.arguments.url) {
-            await this.initFromURL(config);
-        } else if (this.arguments.profile) {
-            // TODO Should we remove old profile init code that prompts for values
-            this.initProfile(config);
-        } else {
-            await this.initWithSchema(config);
-        }
+        // if (this.arguments.url) {
+        //     await this.initFromURL(config);
+        // } else if (this.arguments.profile) {
+        //     // TODO Should we remove old profile init code that prompts for values
+        //     this.initProfile(config);
+        // } else {
+        //     await this.initWithSchema(config);
+        // }
+
+        await this.initWithSchema(config);
 
         // Write the active created/updated config layer
         config.api.layers.write();
@@ -66,76 +68,76 @@ export default class InitHandler implements ICommandHandler {
      * Initialize a profile in the config
      * @param config The config
      */
-    private initProfile(config: Config) {
-        const profile: IConfigProfile = { properties: {} };
-        if (this.arguments.type != null) this.initProfileType(profile);
-        config.api.profiles.set(this.arguments.profile, profile);
-    }
+    // private initProfile(config: Config) {
+    //     const profile: IConfigProfile = { properties: {} };
+    //     if (this.arguments.type != null) this.initProfileType(profile);
+    //     config.api.profiles.set(this.arguments.profile, profile);
+    // }
 
     /**
      * Initialize the profile using the type schema as a guide
      * @param config The config
      * @param profile The profile object to populate
      */
-    private async initProfileType(profile: IConfigProfile): Promise<void> {
-        const schema = ImperativeConfig.instance.profileSchemas[this.arguments.type];
-        if (schema == null)
-            throw new ImperativeError({ msg: `profile type ${this.arguments.type} does not exist.` });
+    // private async initProfileType(profile: IConfigProfile): Promise<void> {
+    //     const schema = ImperativeConfig.instance.profileSchemas[this.arguments.type];
+    //     if (schema == null)
+    //         throw new ImperativeError({ msg: `profile type ${this.arguments.type} does not exist.` });
 
-        // Use the schema to prompt for values
-        profile.type = this.arguments.type;
-        const secure: string[] = [];
-        for (const [name, property] of Object.entries(schema.properties)) {
+    //     // Use the schema to prompt for values
+    //     profile.type = this.arguments.type;
+    //     const secure: string[] = [];
+    //     for (const [name, property] of Object.entries(schema.properties)) {
 
-            const value: any = await this.promptForProp(property, name);
+    //         const value: any = await this.promptForProp(property, name);
 
-            // if secure, remember for the config set
-            if (property.secure)
-                secure.push(name);
+    //         // if secure, remember for the config set
+    //         if (property.secure)
+    //             secure.push(name);
 
-            if (value != null) {
-                profile.properties[name] = value;
-            } else if (this.arguments.default && property.optionDefinition.defaultValue != null) {
-                profile.properties[name] = property.optionDefinition.defaultValue;
-            }
-        }
-    }
+    //         if (value != null) {
+    //             profile.properties[name] = value;
+    //         } else if (this.arguments.default && property.optionDefinition.defaultValue != null) {
+    //             profile.properties[name] = property.optionDefinition.defaultValue;
+    //         }
+    //     }
+    // }
 
     /**
      * Download/create the config from a URL
      * @param config The config
      */
-    private async initFromURL(config: Config): Promise<void> {
-        const cnfg: IConfig = await this.download(this.arguments.url);
-        config.api.layers.set(cnfg);
-    }
+    // private async initFromURL(config: Config): Promise<void> {
+    //     const cnfg: IConfig = await this.download(this.arguments.url);
+    //     config.api.layers.set(cnfg);
+    // }
 
     /**
      * Download the config from a URL
      * @param url
      */
-    private download(url: string): Promise<IConfig> {
-        // TODO Do we want to use node-fetch here?
-        return new Promise<IConfig>((resolve, reject) => {
-            https.get(url, (resp) => {
-                let data = '';
-                resp.on('data', (chunk) => { data += chunk; });
-                resp.on('end', () => {
-                    let cnfg;
-                    let ok = false;
-                    try {
-                        cnfg = JSON.parse(data);
-                        // TODO: additional validation?
-                        ok = true;
-                    } catch (e) {
-                        reject(new ImperativeError({ msg: `unable to parse config: ${e.message}` }));
-                    }
-                    if (ok)
-                        resolve(cnfg);
-                });
-            }).on("error", (err) => { reject(err); });
-        });
-    }
+    // private download(url: string): Promise<IConfig> {
+    //     // TODO Do we want to use node-fetch here?
+    //     return new Promise<IConfig>((resolve, reject) => {
+    //         https.get(url, (resp) => {
+    //             let data = '';
+    //             resp.on('data', (chunk) => { data += chunk; });
+    //             resp.on('end', () => {
+    //                 let cnfg;
+    //                 let ok = false;
+    //                 try {
+    //                     cnfg = JSON.parse(data);
+    //                     // TODO: additional validation?
+    //                     ok = true;
+    //                 } catch (e) {
+    //                     reject(new ImperativeError({ msg: `unable to parse config: ${e.message}` }));
+    //                 }
+    //                 if (ok)
+    //                     resolve(cnfg);
+    //             });
+    //         }).on("error", (err) => { reject(err); });
+    //     });
+    // }
 
     /**
      * Creates JSON template for config. Also creates a schema file in the same
