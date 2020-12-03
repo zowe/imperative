@@ -75,14 +75,14 @@ export class Config {
         };
 
         // Find/create project user layer
-        let user = Config.search(_._user, { stop: home });
+        let user = Config.search(_._user, { stop: home, gbl: _._home });
         if (user == null)
             user = node_path.join(process.cwd(), _._user);
         _._paths.push(user);
         _._layers.push({ path: user, exists: false, properties, global: false, user: true });
 
         // Find/create project layer
-        let project = Config.search(_._name, { stop: home });
+        let project = Config.search(_._name, { stop: home, gbl: _._home });
         if (project == null)
             project = node_path.join(process.cwd(), _._name);
         _._paths.push(project);
@@ -534,6 +534,7 @@ export class Config {
     public static search(file: string, opts?: any): string {
         opts = opts || {};
         if (opts.stop) opts.stop = node_path.resolve(opts.stop);
+        if (opts.gbl) opts.gbl = node_path.resolve(opts.gbl);
         let p = node_path.join(process.cwd(), file);
         const root = node_path.parse(process.cwd()).root;
         let prev = null;
@@ -541,6 +542,12 @@ export class Config {
             // this should never happen, but we'll add a check to prevent
             if (prev != null && prev === p)
                 throw new ImperativeError({ msg: `internal search error: prev === p (${prev})` });
+            // do not use a global directory config file as a local directory one
+            if (opts.gbl && node_path.dirname(p) === opts.gbl) {
+                prev = p;
+                p = node_path.resolve(node_path.dirname(p), "..", file);
+                continue;
+            };
             if (fs.existsSync(p))
                 return p;
             prev = p;
