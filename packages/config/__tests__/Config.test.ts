@@ -255,6 +255,16 @@ describe("Config tests", () => {
             const file = Config.search(configFile, { stop: home });
             expect(file).toBe(expectedPath);
         });
+        it("should search for and not return file in the parent directory because the parent directory is the global directory", async () => {
+            const joinedPath = path.join(configDir, configFile);
+            const notExpectedPath = path.join(path.resolve(configDir, ".."), configFile);
+            const expectedPath = path.join(path.resolve(configDir, "..", ".."), configFile);
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValue(true);
+            jest.spyOn(path, "join").mockReturnValue(joinedPath);
+            const file = Config.search(configFile, { stop: home, gbl: path.resolve(configDir, "..") });
+            expect(file).not.toBe(notExpectedPath);
+            expect(file).toBe(expectedPath);
+        });
         it("should fail to find a file", async () => {
             const joinedPath = path.join(configDir, configFile);
             jest.spyOn(fs, "existsSync").mockReturnValue(false);
