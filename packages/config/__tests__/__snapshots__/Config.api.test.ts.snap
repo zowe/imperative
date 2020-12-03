@@ -65,6 +65,39 @@ Object {
 }
 `;
 
+exports[`Config API tests layers write should save the active config layer 1`] = `
+"{
+    \\"profiles\\": {
+        \\"fruit\\": {
+            \\"properties\\": {
+                \\"origin\\": \\"California\\"
+            },
+            \\"profiles\\": {
+                \\"apple\\": {
+                    \\"type\\": \\"fruit\\",
+                    \\"properties\\": {
+                        \\"color\\": \\"red\\"
+                    }
+                },
+                \\"orange\\": {
+                    \\"type\\": \\"fruit\\",
+                    \\"properties\\": {
+                        \\"color\\": \\"orange\\"
+                    }
+                }
+            }
+        }
+    },
+    \\"defaults\\": {
+        \\"fruit\\": \\"fruit.apple\\"
+    },
+    \\"plugins\\": [
+        \\"@zowe/fruit-for-imperative\\"
+    ],
+    \\"secure\\": []
+}"
+`;
+
 exports[`Config API tests plugins get should get the plugins 1`] = `
 Array [
   "@zowe/fruit-for-imperative",
