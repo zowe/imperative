@@ -23,5 +23,8 @@
     "defaults": {
         "fruit": "fruit.apple"
     },
-    "plugins": ["@zowe/fruit-for-imperative"]
+    "plugins": [
+        "@zowe/fruit-for-imperative"
+    ],
+    "secure": []
 }

@@ -184,9 +184,16 @@ describe("Config API tests", () => {
         });
     });
     describe("layers", () => {
-    //     describe("write", () => {
-
-    //     });
+        describe("write", () => {
+            it("should save the active config layer", async () => {
+                jest.spyOn(Config.prototype as any, "secureSave").mockResolvedValueOnce(undefined);
+                const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
+                const config = await Config.load(MY_APP);
+                await config.api.layers.write();
+                expect(writeFileSpy).toHaveBeenCalled();
+                expect(writeFileSpy.mock.calls[0][1]).toMatchSnapshot();
+            });
+        });
         describe("activate", () => {
             const filePathProjectConfig = path.join(__dirname, "__resources__", "project.config.json");
             const filePathProjectUserConfig = path.join(__dirname, "__resources__", "project.config.user.json");
@@ -194,12 +201,12 @@ describe("Config API tests", () => {
             const filePathAppUserConfig = path.join(__dirname, "__resources__", "my_app.config.user.json");
             beforeEach(() => {
                 jest.restoreAllMocks();
-                jest.spyOn(Config, "search").mockReturnValueOnce(__dirname + "/__resources__/project.config.user.json")
-                                            .mockReturnValueOnce(__dirname + "/__resources__/project.config.json");
-                jest.spyOn(path, "join").mockReturnValueOnce(__dirname + "/__resources__/my_app.config.user.json")
-                                        .mockReturnValueOnce(__dirname + "/__resources__/my_app.config.user.json")
-                                        .mockReturnValueOnce(__dirname + "/__resources__/my_app.config.json")
-                                        .mockReturnValueOnce(__dirname + "/__resources__/my_app.config.json");
+                jest.spyOn(Config, "search").mockReturnValueOnce(filePathProjectUserConfig)
+                                            .mockReturnValueOnce(filePathProjectConfig);
+                jest.spyOn(path, "join").mockReturnValueOnce(filePathAppUserConfig)
+                                        .mockReturnValueOnce(filePathAppUserConfig)
+                                        .mockReturnValueOnce(filePathAppConfig)
+                                        .mockReturnValueOnce(filePathAppConfig);
                 jest.spyOn(Config.prototype as any, "secureLoad").mockResolvedValue(undefined);
             });
             it("should activate the project configuration", async () => {
