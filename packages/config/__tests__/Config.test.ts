@@ -114,7 +114,6 @@ describe("Config tests", () => {
             expect(error.message).toContain("error reading config file");
             expect(error.message).toContain(__dirname + "/__resources__");
             expect(error instanceof ImperativeError).toBe(true);
-            expect(error).toMatchSnapshot();
         });
     });
 

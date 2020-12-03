@@ -4,7 +4,7 @@ exports[`Config API tests layers get should get the active layer 1`] = `
 Object {
   "exists": true,
   "global": false,
-  "path": "C:\\\\Users\\\\tj891237\\\\Projects\\\\zowe\\\\imperative\\\\packages\\\\config\\\\__tests__/__resources__/project.config.user.json",
+  "path": "project.config.user.json",
   "properties": Object {
     "defaults": Object {
       "fruit": "fruit.apple",

@@ -1,7 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Config tests load should fail to load config that is not JSON 1`] = `[Error: error reading config file: C:\\Users\\tj891237\\Projects\\zowe\\imperative\\packages\\config\\__tests__/__resources__/project.config.json: Unexpected token T in JSON at position 0]`;
-
 exports[`Config tests load should load a config and populate missing defaults 1`] = `
 Object {
   "defaults": Object {},

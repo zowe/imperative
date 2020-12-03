@@ -266,6 +266,7 @@ describe("Config API tests", () => {
             it("should get the active layer", async () => {
                 const config = await Config.load(MY_APP);
                 const layer = config.api.layers.get();
+                layer.path = path.basename(layer.path); // Everyone has a different path.
                 expect(layer).toMatchSnapshot();
                 expect(layer.properties).toEqual(config.properties);
             });
