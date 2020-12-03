@@ -109,6 +109,10 @@ describe("imperative-test-cli config init", () => {
             testName: "imperative_test_cli_test_config_init_command"
         });
     });
+    afterEach(() => {
+        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
+            ["-rf imperative-test-cli.config.user.json imperative-test-cli.config.json test schema.json"]);
+    })
     it("should display the help", () => {
         const response = runCliScript(__dirname + "/../__scripts__/get_help.sh",
             TEST_ENVIRONMENT.workingDir, ["init"]);
@@ -122,8 +126,8 @@ describe("imperative-test-cli config init", () => {
     it("should initialize a project config", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config.sh",
             TEST_ENVIRONMENT.workingDir, ["--ci"]);
-        const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.json");
-        const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "schema.json");
+        const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json");
+        const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "schema.json");
         const expectedConfigObject: IConfig = {
             $schema: "./schema.json",
             profiles: {
@@ -146,13 +150,13 @@ describe("imperative-test-cli config init", () => {
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
-        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir, ["imperative-test-cli.config.json schema.json"]);
+
     });
     it("should initialize a user project config", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config.sh",
             TEST_ENVIRONMENT.workingDir, ["--user --ci"]);
-        const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.user.json");
-        const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "schema.json");
+        const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.user.json");
+        const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "schema.json");
         const expectedConfigObject: IConfig = {
             $schema: "./schema.json",
             profiles: {
@@ -175,8 +179,6 @@ describe("imperative-test-cli config init", () => {
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
-        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
-            ["imperative-test-cli.config.user.json schema.json"]);
     });
     it("should initialize a global config", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config.sh",
@@ -205,7 +207,6 @@ describe("imperative-test-cli config init", () => {
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
-        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir, ["imperative-test-cli.config.json schema.json"]);
     });
     it("should initialize a user global config", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config.sh",
@@ -234,14 +235,12 @@ describe("imperative-test-cli config init", () => {
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
-        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
-            ["imperative-test-cli.config.user.json schema.json"]);
     });
     it("should initialize a project config with prompting", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config_prompt.sh",
             TEST_ENVIRONMENT.workingDir, [""]);
-        const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.json");
-        const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "schema.json");
+        const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json");
+        const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "schema.json");
         const expectedConfigObject: IConfig = {
             $schema: "./schema.json",
             profiles: {
@@ -262,15 +261,15 @@ describe("imperative-test-cli config init", () => {
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
+        console.log(fs.readFileSync(expectedConfigLocation).toString());
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
-        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir, ["imperative-test-cli.config.json schema.json"]);
     });
     it("should initialize a user project config with prompting", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config_prompt.sh",
             TEST_ENVIRONMENT.workingDir, ["--user"]);
-        const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.user.json");
-        const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "schema.json");
+        const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.user.json");
+        const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "schema.json");
         const expectedConfigObject: IConfig = {
             $schema: "./schema.json",
             profiles: {
@@ -293,8 +292,6 @@ describe("imperative-test-cli config init", () => {
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
-        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
-            ["imperative-test-cli.config.user.json schema.json"]);
     });
     it("should initialize a global config with prompting", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config_prompt.sh",
@@ -323,7 +320,6 @@ describe("imperative-test-cli config init", () => {
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
-        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir, ["imperative-test-cli.config.json schema.json"]);
     });
     it("should initialize a user global config with prompting", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config_prompt.sh",
@@ -352,8 +348,6 @@ describe("imperative-test-cli config init", () => {
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
-        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
-            ["imperative-test-cli.config.user.json schema.json"]);
     });
     // it("should create a profile of a specified name", () => {
     //     const response = runCliScript(__dirname + "/__scripts__/init_config.sh",

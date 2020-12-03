@@ -17,9 +17,9 @@ import { IConfig } from "./doc/IConfig";
 import { IConfigLayer } from "./doc/IConfigLayer";
 import { ImperativeError } from "../../error";
 import { IConfigProfile } from "./doc/IConfigProfile";
-import { IConfigVault } from "./doc/IConfigVault";
 import { IConfigOpts } from "./doc/IConfigOpts";
-import { IConfigSecure, IConfigSecureEntry, IConfigSecureProperty } from "./doc/IConfigSecure";
+import { IConfigSecure, IConfigSecureProperties } from "./doc/IConfigSecure";
+import { IConfigVault } from "./doc/IConfigVault";
 
 enum layers {
     project_user = 0,
@@ -62,7 +62,7 @@ export class Config {
         _._active = { user: false, global: false };
         _._app = app;
         _._vault = opts.vault;
-        _._secure = { configs: [] };
+        _._secure = { configs: {} };
 
         ////////////////////////////////////////////////////////////////////////
         // Populate configuration file layers
@@ -449,27 +449,27 @@ export class Config {
         // load the secure fields
         const s: string = await this._vault.load(Config.SECURE_ACCT);
         if (s == null) return;
-        this._secure = JSON.parse(s);
+        this._secure.configs = JSON.parse(s);
 
         // populate each layers properties
         for (const layer of this._layers) {
 
             // Find the matching layer
-            for (const sCnfg of this._secure.configs) {
-                if (sCnfg.path === layer.path) {
+            for (const [filePath, secureProps] of Object.entries(this._secure.configs)) {
+                if (filePath === layer.path) {
 
                     // Only set those indicated by the config
                     for (const p of layer.properties.secure) {
 
                         // Extract and set secure properties
-                        for (const sp of sCnfg.properties) {
-                            if (sp.path === p) {
-                                const segments = sp.path.split(".");
+                        for (const [sPath, sValue] of Object.entries(secureProps)) {
+                            if (sPath === p) {
+                                const segments = sPath.split(".");
                                 let obj: any = layer.properties;
                                 for (let x = 0; x < segments.length; x++) {
                                     const segment = segments[x];
                                     if (x === segments.length - 1) {
-                                        obj[segment] = sp.value;
+                                        obj[segment] = sValue;
                                         break;
                                     }
                                     obj = obj[segment];
@@ -491,7 +491,7 @@ export class Config {
         for (const layer of this._layers) {
 
             // Create all the secure property entries
-            const sp: IConfigSecureProperty[] = [];
+            const sp: IConfigSecureProperties = {};
             for (const path of layer.properties.secure) {
                 const segments = path.split(".");
                 let obj: any = layer.properties;
@@ -500,37 +500,22 @@ export class Config {
                     const value = obj[segment];
                     if (value == null) break;
                     if (x === segments.length - 1) {
-                        sp.push({ path, value });
+                        sp[path] = value;
                         break;
                     }
                     obj = obj[segment];
                 }
             }
 
-            // Attempt to locate an existing entry
-            let sCnfgEntry: IConfigSecureEntry;
-            for (const sCnfg of this._secure.configs) {
-                if (sCnfg.path === layer.path) {
-                    sCnfgEntry = sCnfg;
-                    break;
-                }
-            }
-
-            // If it exists, set the secure properties,
-            // otherwise create the entry
-            if (sCnfgEntry != null)
-                sCnfgEntry.properties = sp;
-            else {
-                this._secure.configs.push({
-                    path: layer.path,
-                    properties: sp
-                });
+            // Create the entry to set the secure properties
+            if (Object.keys(sp).length > 0) {
+                this._secure.configs[layer.path] = sp;
             }
         }
 
         // Save the entries if needed
-        if (this._secure.configs.length > 0)
-            await this._vault.save(Config.SECURE_ACCT, JSON.stringify(this._secure));
+        if (Object.keys(this._secure.configs).length > 0)
+            await this._vault.save(Config.SECURE_ACCT, JSON.stringify(this._secure.configs));
     }
 
     private secureFields(): boolean {

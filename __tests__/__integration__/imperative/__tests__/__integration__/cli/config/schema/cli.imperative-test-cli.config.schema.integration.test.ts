@@ -124,5 +124,5 @@ describe("imperative-test-cli config schema", () => {
         expect(JSON.parse(response.stdout.toString())).toEqual(expectedSchemaObject);
         expect(response.stderr.toString()).toEqual("");
         expect(response.error).not.toBeDefined();
-    })
+    });
 });
