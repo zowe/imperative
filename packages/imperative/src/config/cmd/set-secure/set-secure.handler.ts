@@ -60,7 +60,7 @@ export default class SetSecureHandler implements ICommandHandler {
         }
 
         // Set the value in the config, save the secure values, write the config layer
-        config.set(params.arguments.property, params.arguments.value, {
+        config.set(params.arguments.property, value, {
             secure: true,
         });
         config.api.layers.write();

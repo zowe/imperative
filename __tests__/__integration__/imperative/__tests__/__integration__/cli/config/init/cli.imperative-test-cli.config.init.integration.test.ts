@@ -261,7 +261,6 @@ describe("imperative-test-cli config init", () => {
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
-        console.log(fs.readFileSync(expectedConfigLocation).toString());
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
     });
