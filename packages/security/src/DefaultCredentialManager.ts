@@ -180,43 +180,30 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
    */
   protected async loadCredentials(account: string, optional?: boolean): Promise<SecureCredential> {
     this.checkForKeytar();
-    // Helper function to handle all breaking changes
-    const loadHelper = async (service: string) => {
-      let secureValue: string = await this.getCredentialsHelper(service, account);
-      // Handle user vs username case // Zowe v1 -> v2 (i.e. @brightside/core@2.x -> @zowe/cli@6+ )
-      if (secureValue == null && account.endsWith("_username")) {
-        secureValue = await this.keytar.getPassword(service, account.replace("_username", "_user"));
-      }
-      // Handle pass vs password case // Zowe v0 -> v1 (i.e. @brightside/core@1.x -> @brightside/core@2.x)
-      if (secureValue == null && account.endsWith("_pass")) {
-        secureValue = await this.keytar.getPassword(service, account.replace("_pass", "_password"));
-      }
-      return secureValue;
-    };
 
     // load secure properties using the first successful value from our known services
-    let secValue = null;
+    let secureValue = null;
     for (const nextService of this.allServices) {
-      secValue = await loadHelper(nextService);
-      if (secValue != null) {
-          break;
+      secureValue = await this.getCredentialsHelper(nextService, account);
+      if (secureValue != null) {
+        break;
       }
     }
 
-    if (secValue == null && !optional) {
+    if (secureValue == null && !optional) {
       throw new ImperativeError({
         msg: "Unable to load credentials.",
         additionalDetails: this.getMissingEntryMessage(account)
       });
     }
 
-    if (secValue != null) {
+    if (secureValue != null) {
       const impLogger = Logger.getImperativeLogger();
       impLogger.info("Successfully loaded secure value for service = '" + this.service +
         "' account = '" + account + "'");
     }
 
-    return secValue;
+    return secureValue;
   }
 
   /**
