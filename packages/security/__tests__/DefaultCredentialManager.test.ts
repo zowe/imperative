@@ -15,6 +15,8 @@ import { DefaultCredentialManager } from "..";
 import * as keytar from "keytar";
 import { ImperativeError } from "../../error";
 
+const winMaxCredentialLength = 2560;
+
 describe("DefaultCredentialManager", () => {
   beforeEach(() => {
     jest.resetAllMocks();
@@ -238,13 +240,13 @@ describe("DefaultCredentialManager", () => {
         it("should save credentials that exceed max length", async () => {
           // tslint:disable no-magic-numbers
           const longCredentials = values.credentials.repeat(512);
-          const numFields = Math.ceil(longCredentials.length / 2560);
+          const numFields = Math.ceil(longCredentials.length / winMaxCredentialLength);
 
           await privateManager.saveCredentials(values.account, longCredentials);
 
           expect(keytar.deletePassword).toHaveBeenCalledWith(privateManager.service, values.account);
           expect(keytar.setPassword).toHaveBeenCalledTimes(numFields);
-          expect(keytar.setPassword).toHaveBeenCalledWith(privateManager.service, `${values.account}-1`, longCredentials.slice(0, 2560));
+          expect(keytar.setPassword).toHaveBeenCalledWith(privateManager.service, `${values.account}-1`, longCredentials.slice(0, winMaxCredentialLength));
           // tslint:enable no-magic-numbers
         });
 
