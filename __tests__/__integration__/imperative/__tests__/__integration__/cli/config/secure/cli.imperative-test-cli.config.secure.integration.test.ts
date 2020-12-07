@@ -12,6 +12,7 @@
 import { ITestEnvironment } from "../../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../../src/TestUtil";
+import { expectedConfigObject } from "../__resources__/expectedObjects";
 import * as fs from "fs";
 import * as keytar from "keytar";
 import * as path from "path";
@@ -25,6 +26,12 @@ describe("imperative-test-cli config secure", () => {
     let expectedUserConfigLocation: string;
     let expectedGlobalProjectConfigLocation: string;
     let expectedGlobalUserConfigLocation: string;
+
+    const expectedJson = expectedConfigObject;
+    delete expectedJson.$schema;
+    expectedJson.profiles.my_secured.properties.secret = "anotherFakeValue";
+    expectedJson.secure = [];
+
     // Create the test environment
     beforeAll(async () => {
         TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
@@ -51,22 +58,6 @@ describe("imperative-test-cli config secure", () => {
         const fileContents = JSON.parse(fs.readFileSync(expectedProjectConfigLocation).toString());
         const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
         const configJson = JSON.parse(config);
-        const expectedJson = {
-            defaults: {
-                secured: "my_secured"
-            },
-            profiles: {
-                my_secured: {
-                    type: "secured",
-                    properties: {
-                        info: "",
-                        secret: "anotherFakeValue"
-                    }
-                }
-            },
-            plugins: [],
-            secure: []
-        };
         const securedValue = await keytar.getPassword("Zowe", "secure_config_props");
         const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
         const expectedSecuredValueJson = {};
@@ -89,22 +80,6 @@ describe("imperative-test-cli config secure", () => {
         const fileContents = JSON.parse(fs.readFileSync(expectedUserConfigLocation).toString());
         const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
         const configJson = JSON.parse(config);
-        const expectedJson = {
-            defaults: {
-                secured: "my_secured"
-            },
-            profiles: {
-                my_secured: {
-                    type: "secured",
-                    properties: {
-                        info: "",
-                        secret: "anotherFakeValue"
-                    }
-                }
-            },
-            plugins: [],
-            secure: []
-        };
         const securedValue = await keytar.getPassword("Zowe", "secure_config_props");
         const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
         const expectedSecuredValueJson = {};
@@ -127,22 +102,6 @@ describe("imperative-test-cli config secure", () => {
         const fileContents = JSON.parse(fs.readFileSync(expectedGlobalProjectConfigLocation).toString());
         const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
         const configJson = JSON.parse(config);
-        const expectedJson = {
-            defaults: {
-                secured: "my_secured"
-            },
-            profiles: {
-                my_secured: {
-                    type: "secured",
-                    properties: {
-                        info: "",
-                        secret: "anotherFakeValue"
-                    }
-                }
-            },
-            plugins: [],
-            secure: []
-        };
         const securedValue = await keytar.getPassword("Zowe", "secure_config_props");
         const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
         const expectedSecuredValueJson = {};
@@ -165,22 +124,6 @@ describe("imperative-test-cli config secure", () => {
         const fileContents = JSON.parse(fs.readFileSync(expectedGlobalUserConfigLocation).toString());
         const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
         const configJson = JSON.parse(config);
-        const expectedJson = {
-            defaults: {
-                secured: "my_secured"
-            },
-            profiles: {
-                my_secured: {
-                    type: "secured",
-                    properties: {
-                        info: "",
-                        secret: "anotherFakeValue"
-                    }
-                }
-            },
-            plugins: [],
-            secure: []
-        };
         const securedValue = await keytar.getPassword("Zowe", "secure_config_props");
         const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
         const expectedSecuredValueJson = {};

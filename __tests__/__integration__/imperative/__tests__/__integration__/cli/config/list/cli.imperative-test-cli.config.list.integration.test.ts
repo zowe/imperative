@@ -12,6 +12,7 @@
 import { ITestEnvironment } from "../../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../../src/TestUtil";
+import { expectedConfigObject } from "../__resources__/expectedObjects";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -112,22 +113,7 @@ describe("imperative-test-cli config list", () => {
             plugins: [],
             secure: []
         };
-        const expectedProjectConfig = {
-            $schema: "./schema.json",
-            profiles: {
-                my_secured: {
-                    type: "secured",
-                    properties: {
-                        info: ""
-                    }
-                }
-            },
-            defaults: {
-                secured: "my_secured"
-            },
-            plugins: [],
-            secure: ["profiles.my_secured.properties.secret"]
-        }
+        const expectedProjectConfig = expectedConfigObject;
         const expectedResponse = {
             data: {}
         };

@@ -13,6 +13,7 @@ import { ITestEnvironment } from "../../../../../../../__src__/environment/doc/r
 import { SetupTestEnvironment } from "../../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../../src/TestUtil";
 import { IConfig } from "../../../../../../../../packages/config";
+import { expectedSchemaObject, expectedConfigObject } from "../__resources__/expectedObjects";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -21,87 +22,6 @@ import * as path from "path";
 let TEST_ENVIRONMENT: ITestEnvironment;
 
 describe("imperative-test-cli config init", () => {
-    const expectedSchemaObject = {
-        $schema: "https://json-schema.org/draft/2019-09/schema#",
-        type: "object",
-        description: "config",
-        properties: {
-            profiles: {
-                type: "object",
-                description: "named profiles config",
-                patternProperties: {
-                    "^\\S*$": {
-                        type: "object",
-                        description: "a profile",
-                        properties: {
-                            type: {
-                                description: "the profile type",
-                                type: "string"
-                            },
-                            properties: {
-                                description: "the profile properties",
-                                type: "object"
-                            },
-                            profiles: {
-                                description: "additional sub-profiles",
-                                type: "object",
-                                $ref: "#/properties/profiles"
-                            }
-                        },
-                        allOf: [
-                            {
-                                if: {
-                                    properties: {
-                                        type: {
-                                            const: "secured"
-                                        }
-                                    }
-                                },
-                                then: {
-                                    properties: {
-                                        properties: {
-                                            type: "object",
-                                            title: "Test Secured Fields",
-                                            description: "Test Secured Fields",
-                                            properties: {
-                                                info: {
-                                                    type: "string",
-                                                    description: "The info the keep in the profile."
-                                                },
-                                                secret: {
-                                                    type: "string",
-                                                    description: "The secret info the keep in the profile.",
-                                                    secure: true
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                }
-            },
-            defaults: {
-                type: "object",
-                description: "default profiles config",
-                patternProperties: {
-                    "^\\S*$": {
-                        type: "string",
-                        description: "the type"
-                    }
-                }
-            },
-            secure: {
-                type: "array",
-                description: "secure properties",
-                items: {
-                    type: "string",
-                    description: "path to a property"
-                }
-            }
-        }
-    };
     // Create the test environment
     beforeAll(async () => {
         TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
@@ -128,22 +48,6 @@ describe("imperative-test-cli config init", () => {
             TEST_ENVIRONMENT.workingDir, ["--ci"]);
         const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json");
         const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "schema.json");
-        const expectedConfigObject: IConfig = {
-            $schema: "./schema.json",
-            profiles: {
-                my_secured: {
-                    type: "secured",
-                    properties: {
-                        info: ""
-                    }
-                }
-            },
-            defaults: {
-                secured: "my_secured"
-            },
-            plugins: [],
-            secure: ["profiles.my_secured.properties.secret"]
-        };
         expect(response.output.toString()).toContain(`Saved config template to`);
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);
@@ -157,22 +61,6 @@ describe("imperative-test-cli config init", () => {
             TEST_ENVIRONMENT.workingDir, ["--user --ci"]);
         const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.user.json");
         const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "schema.json");
-        const expectedConfigObject: IConfig = {
-            $schema: "./schema.json",
-            profiles: {
-                my_secured: {
-                    type: "secured",
-                    properties: {
-                        info: ""
-                    }
-                }
-            },
-            defaults: {
-                secured: "my_secured"
-            },
-            plugins: [],
-            secure: ["profiles.my_secured.properties.secret"]
-        };
         expect(response.output.toString()).toContain(`Saved config template to`);
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);
@@ -185,22 +73,6 @@ describe("imperative-test-cli config init", () => {
             TEST_ENVIRONMENT.workingDir, ["--global --ci"]);
         const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.json");
         const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "schema.json");
-        const expectedConfigObject: IConfig = {
-            $schema: "./schema.json",
-            profiles: {
-                my_secured: {
-                    type: "secured",
-                    properties: {
-                        info: ""
-                    }
-                }
-            },
-            defaults: {
-                secured: "my_secured"
-            },
-            plugins: [],
-            secure: ["profiles.my_secured.properties.secret"]
-        };
         expect(response.output.toString()).toContain(`Saved config template to`);
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);
@@ -213,22 +85,6 @@ describe("imperative-test-cli config init", () => {
             TEST_ENVIRONMENT.workingDir, ["--global --user --ci"]);
         const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.user.json");
         const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "schema.json");
-        const expectedConfigObject: IConfig = {
-            $schema: "./schema.json",
-            profiles: {
-                my_secured: {
-                    type: "secured",
-                    properties: {
-                        info: ""
-                    }
-                }
-            },
-            defaults: {
-                secured: "my_secured"
-            },
-            plugins: [],
-            secure: ["profiles.my_secured.properties.secret"]
-        };
         expect(response.output.toString()).toContain(`Saved config template to`);
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);
@@ -241,22 +97,6 @@ describe("imperative-test-cli config init", () => {
             TEST_ENVIRONMENT.workingDir, [""]);
         const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json");
         const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "schema.json");
-        const expectedConfigObject: IConfig = {
-            $schema: "./schema.json",
-            profiles: {
-                my_secured: {
-                    type: "secured",
-                    properties: {
-                        info: ""
-                    }
-                }
-            },
-            defaults: {
-                secured: "my_secured"
-            },
-            plugins: [],
-            secure: ["profiles.my_secured.properties.secret"]
-        };
         expect(response.output.toString()).toContain(`Saved config template to`);
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);
@@ -269,22 +109,6 @@ describe("imperative-test-cli config init", () => {
             TEST_ENVIRONMENT.workingDir, ["--user"]);
         const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.user.json");
         const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "schema.json");
-        const expectedConfigObject: IConfig = {
-            $schema: "./schema.json",
-            profiles: {
-                my_secured: {
-                    type: "secured",
-                    properties: {
-                        info: ""
-                    }
-                }
-            },
-            defaults: {
-                secured: "my_secured"
-            },
-            plugins: [],
-            secure: ["profiles.my_secured.properties.secret"]
-        };
         expect(response.output.toString()).toContain(`Saved config template to`);
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);
@@ -297,22 +121,6 @@ describe("imperative-test-cli config init", () => {
             TEST_ENVIRONMENT.workingDir, ["--global"]);
         const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.json");
         const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "schema.json");
-        const expectedConfigObject: IConfig = {
-            $schema: "./schema.json",
-            profiles: {
-                my_secured: {
-                    type: "secured",
-                    properties: {
-                        info: ""
-                    }
-                }
-            },
-            defaults: {
-                secured: "my_secured"
-            },
-            plugins: [],
-            secure: ["profiles.my_secured.properties.secret"]
-        };
         expect(response.output.toString()).toContain(`Saved config template to`);
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);
@@ -325,22 +133,6 @@ describe("imperative-test-cli config init", () => {
             TEST_ENVIRONMENT.workingDir, ["--global --user"]);
         const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.user.json");
         const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "schema.json");
-        const expectedConfigObject: IConfig = {
-            $schema: "./schema.json",
-            profiles: {
-                my_secured: {
-                    type: "secured",
-                    properties: {
-                        info: ""
-                    }
-                }
-            },
-            defaults: {
-                secured: "my_secured"
-            },
-            plugins: [],
-            secure: ["profiles.my_secured.properties.secret"]
-        };
         expect(response.output.toString()).toContain(`Saved config template to`);
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);

@@ -210,7 +210,7 @@ describe("DefaultCredentialManager", () => {
 
           expect(privateManager.checkForKeytar).toHaveBeenCalledTimes(1);
           // tslint:disable-next-line no-magic-numbers
-          expect(keytar.deletePassword).toHaveBeenCalledTimes(5);
+          expect(keytar.deletePassword).toHaveBeenCalled();
           expect(keytar.setPassword).toHaveBeenLastCalledWith(privateManager.service, values.account, values.credentials);
         });
       });
