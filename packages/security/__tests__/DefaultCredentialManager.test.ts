@@ -81,6 +81,17 @@ describe("DefaultCredentialManager", () => {
         credentials: "someUser:somePassword"
       };
 
+      const longValues = [
+        {
+          account: "test-1",
+          credentials: "someUser:"
+        },
+        {
+          account: "test-2",
+          credentials: "somePassword\0"
+        }
+      ];
+
       beforeEach(async () => {
         await manager.initialize();
       });
@@ -121,10 +132,9 @@ describe("DefaultCredentialManager", () => {
           expect(privateManager.checkForKeytar).toHaveBeenCalledTimes(1);
           expect(keytar.deletePassword).toHaveBeenCalledWith(privateManager.service, values.account);
         });
-        it("should throw an error on failure", async () => {
+        it("should silently fail to delete non-existent credentials", async () => {
+          const deleteSpy = jest.spyOn(privateManager, "deleteCredentialsHelper");
           let caughtError: ImperativeError;
-
-          (keytar.deletePassword as jest.Mock).mockReturnValueOnce(false);
 
           try {
             await privateManager.deleteCredentials(values.account);
@@ -132,9 +142,11 @@ describe("DefaultCredentialManager", () => {
             caughtError = error;
           }
 
-          expect(caughtError.message).toEqual("Unable to delete credentials.");
-          expect((caughtError as ImperativeError).additionalDetails).toContain(values.account);
-          expect((caughtError as ImperativeError).additionalDetails).toContain(service);
+          expect(caughtError).toBeUndefined();
+          expect(deleteSpy).toHaveBeenCalled();
+          await deleteSpy.mock.results[0].value.then((value: boolean) => {
+            expect(value).toBe(false);
+          });
         });
       });
 
@@ -147,7 +159,14 @@ describe("DefaultCredentialManager", () => {
           expect(await privateManager.loadCredentials(values.account)).toEqual(values.credentials);
 
           expect(privateManager.checkForKeytar).toHaveBeenCalledTimes(1);
-          expect(keytar.getPassword).toHaveBeenLastCalledWith(privateManager.service, values.account);
+          expect(keytar.getPassword).toHaveBeenLastCalledWith(service, values.account);
+        });
+
+        it("should return credentials for an alternate service", async () => {
+          (keytar.getPassword as jest.Mock).mockImplementation(async (svc, acct) => svc === service ? null : values.credentials);
+
+          expect(await privateManager.loadCredentials(values.account)).toEqual(values.credentials);
+          expect(keytar.getPassword).toHaveBeenLastCalledWith(DefaultCredentialManager.SVC_NAME, values.account);
         });
 
         it("should throw an error when required credential fails to load", async () => {
@@ -170,7 +189,7 @@ describe("DefaultCredentialManager", () => {
           let result;
           let caughtError: ImperativeError;
 
-          (keytar.getPassword as jest.Mock).mockReturnValueOnce(null);
+          (keytar.getPassword as jest.Mock).mockReturnValue(null);
 
           try {
             result = await privateManager.loadCredentials(values.account, true);
@@ -190,7 +209,51 @@ describe("DefaultCredentialManager", () => {
           await privateManager.saveCredentials(values.account, values.credentials);
 
           expect(privateManager.checkForKeytar).toHaveBeenCalledTimes(1);
+          // tslint:disable-next-line no-magic-numbers
+          expect(keytar.deletePassword).toHaveBeenCalledTimes(5);
           expect(keytar.setPassword).toHaveBeenLastCalledWith(privateManager.service, values.account, values.credentials);
+        });
+      });
+
+      describe("Windows credential management", () => {
+        const oldPlatform = process.platform;
+
+        beforeAll(() => {
+          Object.defineProperty(process, "platform", { get: () => "win32" });
+        });
+
+        afterAll(() => {
+          Object.defineProperty(process, "platform", oldPlatform);
+        });
+
+        it("should load credentials that exceed max length", async () => {
+          (keytar.getPassword as jest.Mock).mockReturnValueOnce(null)
+                                           .mockReturnValueOnce(longValues[0].credentials)
+                                           .mockReturnValueOnce(longValues[1].credentials);
+
+          expect(await privateManager.loadCredentials(values.account)).toEqual(values.credentials);
+          expect(keytar.getPassword).toHaveBeenLastCalledWith(service, longValues[1].account);
+        });
+
+        it("should save credentials that exceed max length", async () => {
+          // tslint:disable no-magic-numbers
+          const longCredentials = values.credentials.repeat(512);
+          const numFields = Math.ceil(longCredentials.length / 2560);
+
+          await privateManager.saveCredentials(values.account, longCredentials);
+
+          expect(keytar.deletePassword).toHaveBeenCalledWith(privateManager.service, values.account);
+          expect(keytar.setPassword).toHaveBeenCalledTimes(numFields);
+          expect(keytar.setPassword).toHaveBeenCalledWith(privateManager.service, `${values.account}-1`, longCredentials.slice(0, 2560));
+          // tslint:enable no-magic-numbers
+        });
+
+        it("should delete credentials that exceed max length", async () => {
+          (keytar.deletePassword as jest.Mock).mockImplementation((svc, acct) => acct.endsWith("-1"))
+
+          await privateManager.deleteCredentials(values.account);
+
+          expect(keytar.deletePassword).toHaveBeenLastCalledWith(DefaultCredentialManager.SVC_NAME, `${values.account}-2`);
         });
       });
     });
