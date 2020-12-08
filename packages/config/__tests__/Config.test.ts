@@ -193,22 +193,11 @@ describe("Config tests", () => {
         it("should save schema to disk if object is provided", async () => {
             const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValue(undefined);
             const config = await Config.load(MY_APP);
-            const schemaObj = { $schema: "./schema.json" };
-            config.setSchema(schemaObj.$schema, schemaObj);
+            config.setSchema({ $schema: "./schema.json" });
             expect(writeFileSpy).toHaveBeenCalledTimes(1);
             const jsonText = writeFileSpy.mock.calls[0][1];
             expect(jsonText).toBeDefined();
             expect(jsonText.match(/^{\s*"\$schema":/)).not.toBeNull();
-        });
-
-        it("should add new secure property to config", async () => {
-            const config = await Config.load(MY_APP);
-            const layer = (config as any).layerActive();
-            const secureProp = "profiles.fruit.properties.secret";
-            config.addSecure(secureProp);
-            expect(layer.properties.secure.includes(secureProp)).toBe(true);
-            config.addSecure(secureProp);
-            expect(layer.properties.secure.filter((x: any) => x === secureProp).length).toBe(1);
         });
 
         it("should add a new layer when one is specified in the set", async () => {

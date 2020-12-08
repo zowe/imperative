@@ -9,8 +9,8 @@
 *
 */
 
+import * as lodash from "lodash";
 import { IImperativeConfig } from "../../imperative";
-import { IProfileTypeConfiguration } from "../../profiles";
 import { Config } from "./Config";
 import { IConfig } from "./doc/IConfig";
 import { IConfigBuilderOpts } from "./doc/IConfigBuilderOpts";
@@ -27,19 +27,20 @@ export class ConfigBuilder {
         const rootProfileName: string = impConfig.templateProfileName || ConfigBuilder.DEFAULT_ROOT_PROFILE_NAME;
 
         for (const profile of impConfig.profiles) {
-            let profilePath = `my_${profile.type}`;
-            let propPathPrefix = `profiles.${profilePath}.properties`;
+            let profileShortPath = `my_${profile.type}`;
+            let profileLongPath = `profiles.${profileShortPath}`;
             if (baseProfileType && profile.type !== baseProfileType) {
                 // Path should have two levels for non-base profiles
-                profilePath = `${rootProfileName}.${profile.type}`;
-                propPathPrefix = `profiles.${rootProfileName}.profiles.${profile.type}.properties`;
+                profileShortPath = `${rootProfileName}.${profile.type}`;
+                profileLongPath = `profiles.${rootProfileName}.profiles.${profile.type}`;
+                lodash.set(config.profiles, `${rootProfileName}.properties`, {});
             }
 
             const properties: { [key: string]: any } = {};
             for (const [k, v] of Object.entries(profile.schema.properties)) {
                 if (opts.populateProperties && v.includeInTemplate) {
                     if (v.secure) {
-                        const propPath = `${propPathPrefix}.${k}`;
+                        const propPath = `${profileLongPath}.properties.${k}`;
                         config.secure.push(propPath);
 
                         const propValue = opts.getSecureValue ? await opts.getSecureValue(k, v) : null;
@@ -61,24 +62,13 @@ export class ConfigBuilder {
             }
 
             // Add the profile to config and set it as default
-            const segments = profilePath.split(".");
-            let profilesObj = config.profiles;
-            if (segments.length === 2) {
-                if (profilesObj[rootProfileName] == null) {
-                    profilesObj[rootProfileName] = {
-                        properties: {},
-                        profiles: {}
-                    };
-                }
-                profilesObj = profilesObj[rootProfileName].profiles;
-            }
-            profilesObj[segments[segments.length - 1]] = {
+            lodash.set(config, profileLongPath, {
                 type: profile.type,
                 properties
-            };
+            });
 
             if (opts.populateProperties) {
-                config.defaults[profile.type] = profilePath;
+                config.defaults[profile.type] = profileShortPath;
             }
         }
 
