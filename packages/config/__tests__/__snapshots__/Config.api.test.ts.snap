@@ -39,6 +39,49 @@ Object {
 }
 `;
 
+exports[`Config API tests layers merge should merge config layers with correct priority 1`] = `
+Object {
+  "defaults": Object {
+    "fruit": "fruit.apple",
+  },
+  "plugins": Array [
+    "@zowe/fruit-for-imperative",
+    "@zowe/vegetable-for-imperative",
+  ],
+  "profiles": Object {
+    "fruit": Object {
+      "profiles": Object {
+        "apple": Object {
+          "properties": Object {
+            "color": "red",
+          },
+          "type": "fruit",
+        },
+        "grape": Object {
+          "properties": Object {
+            "color": "red",
+          },
+          "type": "fruit",
+        },
+        "orange": Object {
+          "properties": Object {
+            "color": "orange",
+          },
+          "type": "fruit",
+        },
+      },
+      "properties": Object {
+        "origin": "California",
+        "shipDate": "2000-01-01",
+      },
+    },
+  },
+  "secure": Array [
+    "profiles.fruit.properties.secret",
+  ],
+}
+`;
+
 exports[`Config API tests layers set should set the current layer 1`] = `
 Object {
   "$schema": "fake",
