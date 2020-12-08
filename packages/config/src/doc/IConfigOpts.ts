@@ -12,5 +12,6 @@
 import { IConfigVault } from "./IConfigVault";
 
 export interface IConfigOpts {
+    homeDir?: string;
     vault?: IConfigVault;
 };
