@@ -11,6 +11,7 @@
 
 export * from "./src/Config";
 export * from "./src/ConfigSchema";
+export * from "./src/ConfigBuilder";
 export * from "./src/doc/IConfig";
 export * from "./src/doc/IConfigLayer";
 export * from "./src/doc/IConfigOpts";
