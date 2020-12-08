@@ -46,7 +46,7 @@ export class ConfigBuilder {
                         const propValue = opts.getSecureValue ? await opts.getSecureValue(k, v) : null;
                         if (propValue) {
                             // Save this value to be stored securely after profile is built
-                            properties[propPath] = propValue;
+                            properties[k] = propValue;
                         }
                     } else {
                         if ((v as any).optionDefinition != null) {
