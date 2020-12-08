@@ -30,6 +30,7 @@ enum layers {
 
 export class Config {
     private static readonly INDENT: number = 4;
+    private static readonly LOCAL_SCHEMA_URI = "./schema.json";
     private static readonly SECURE_ACCT = "secure_config_props";
 
     private _app: string;
@@ -46,6 +47,15 @@ export class Config {
     private _secure: IConfigSecure;
 
     private constructor() { }
+
+    public static empty(): IConfig {
+        return {
+            profiles: {},
+            defaults: {},
+            plugins: [],
+            secure: []
+        };
+    }
 
     public static async load(app: string, opts?: IConfigOpts): Promise<Config> {
         opts = opts || {};
@@ -67,43 +77,37 @@ export class Config {
         ////////////////////////////////////////////////////////////////////////
         // Populate configuration file layers
         const home = require("os").homedir();
-        const properties: IConfig = {
-            profiles: {},
-            defaults: {},
-            plugins: [],
-            secure: []
-        };
 
         // Find/create project user layer
         let user = Config.search(_._user, { stop: home, gbl: _._home });
         if (user == null)
             user = node_path.join(process.cwd(), _._user);
         _._paths.push(user);
-        _._layers.push({ path: user, exists: false, properties, global: false, user: true });
+        _._layers.push({ path: user, exists: false, properties: Config.empty(), global: false, user: true });
 
         // Find/create project layer
         let project = Config.search(_._name, { stop: home, gbl: _._home });
         if (project == null)
             project = node_path.join(process.cwd(), _._name);
         _._paths.push(project);
-        _._layers.push({ path: project, exists: false, properties, global: false, user: false });
+        _._layers.push({ path: project, exists: false, properties: Config.empty(), global: false, user: false });
 
         // create the user layer
         const usrGlbl = node_path.join(_._home, _._user);
         _._paths.push(usrGlbl);
-        _._layers.push({ path: usrGlbl, exists: false, properties, global: true, user: true });
+        _._layers.push({ path: usrGlbl, exists: false, properties: Config.empty(), global: true, user: true });
 
         // create the global layer
         const glbl = node_path.join(_._home, _._name);
         _._paths.push(glbl);
-        _._layers.push({ path: glbl, exists: false, properties, global: true, user: false });
+        _._layers.push({ path: glbl, exists: false, properties: Config.empty(), global: true, user: false });
 
         ////////////////////////////////////////////////////////////////////////
         // Read and populate each configuration layer
         try {
             let setActive = true;
             _._layers.forEach((layer: IConfigLayer) => {
-                // Attempt to popluate the layer
+                // Attempt to populate the layer
                 if (fs.existsSync(layer.path)) {
                     try {
                         layer.properties = JSON.parse(fs.readFileSync(layer.path).toString());
@@ -279,6 +283,22 @@ export class Config {
                         }
                     }
                 }
+
+                public merge(cnfg: IConfig) {
+                    const layer = outer.layerActive();
+                    layer.properties.profiles = deepmerge(cnfg.profiles, layer.properties.profiles);
+                    layer.properties.defaults = deepmerge(cnfg.defaults, layer.properties.defaults);
+                    for (const pluginName of cnfg.plugins) {
+                        if (!layer.properties.plugins.includes(pluginName)) {
+                            layer.properties.plugins.push(pluginName);
+                        }
+                    }
+                    for (const propPath of cnfg.secure) {
+                        if (!layer.properties.secure.includes(propPath)) {
+                            layer.properties.secure.push(propPath);
+                        }
+                    }
+                }
             }(); // end of layers inner class
 
         }(); // end of api inner class
@@ -355,28 +375,19 @@ export class Config {
     /**
      * Sets the $schema value at the top of the config JSON, and saves the
      * schema to disk if an object is provided.
-     * @param uri The URI of JSON schema
-     * @param schemaObj Schema object to write to disk (if URI is a local path)
+     * @param schema The URI of JSON schema, or a schema object to use
      */
-    public setSchema(uri: string, schemaObj?: any) {
+    public setSchema(schema: string | object) {
+        const schemaUri = (typeof schema === "string") ? schema : Config.LOCAL_SCHEMA_URI;
+        const schemaObj = (typeof schema !== "string") ? schema : null;
+
         const layer = this.layerActive();
         delete layer.properties.$schema;
-        layer.properties = { $schema: uri, ...layer.properties };
+        layer.properties = { $schema: schemaUri, ...layer.properties };
 
         if (schemaObj != null) {
-            const filePath = node_path.resolve(node_path.dirname(layer.path), uri);
+            const filePath = node_path.resolve(node_path.dirname(layer.path), schemaUri);
             fs.writeFileSync(filePath, JSON.stringify(schemaObj, null, Config.INDENT));
-        }
-    }
-
-    /**
-     * Adds a property path to the secure array in the config JSON.
-     * @param path The property path to be secured
-     */
-    public addSecure(path: string) {
-        const layer = this.layerActive();
-        if (!layer.properties.secure.includes(path)) {
-            layer.properties.secure.push(path);
         }
     }
 
@@ -390,17 +401,12 @@ export class Config {
         // config starting point
         // NOTE: "properties" and "secure" only apply to the individual layers
         // NOTE: they will be blank for the merged config
-        const c: IConfig = {
-            defaults: {},
-            profiles: {},
-            plugins: [],
-            secure: []
-        };
+        const c = Config.empty();
 
         // merge each layer
         this._layers.forEach((layer: IConfigLayer) => {
 
-            // Merge "plugins" - create a unique set from all entires
+            // Merge "plugins" - create a unique set from all entries
             c.plugins = Array.from(new Set(layer.properties.plugins.concat(c.plugins)));
 
             // Merge "defaults" - only add new properties from this layer

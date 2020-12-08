@@ -238,7 +238,7 @@ describe("DefaultCredentialManager", () => {
         });
 
         it("should save credentials that exceed max length", async () => {
-          // tslint:disable no-magic-numbers
+          // tslint:disable-next-line no-magic-numbers
           const longCredentials = values.credentials.repeat(512);
           const numFields = Math.ceil(longCredentials.length / winMaxCredentialLength);
 
@@ -246,8 +246,8 @@ describe("DefaultCredentialManager", () => {
 
           expect(keytar.deletePassword).toHaveBeenCalledWith(privateManager.service, values.account);
           expect(keytar.setPassword).toHaveBeenCalledTimes(numFields);
-          expect(keytar.setPassword).toHaveBeenCalledWith(privateManager.service, `${values.account}-1`, longCredentials.slice(0, winMaxCredentialLength));
-          // tslint:enable no-magic-numbers
+          expect(keytar.setPassword).toHaveBeenCalledWith(privateManager.service, `${values.account}-1`,
+            longCredentials.slice(0, winMaxCredentialLength));
         });
 
         it("should delete credentials that exceed max length", async () => {
