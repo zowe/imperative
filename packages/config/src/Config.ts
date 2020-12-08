@@ -30,7 +30,6 @@ enum layers {
 
 export class Config {
     private static readonly INDENT: number = 4;
-    private static readonly LOCAL_SCHEMA_URI = "./schema.json";
     private static readonly SECURE_ACCT = "secure_config_props";
 
     private _app: string;
@@ -39,6 +38,7 @@ export class Config {
     private _home: string;
     private _name: string;
     private _user: string;
+    private _schema: string;
     private _active: {
         user: boolean;
         global: boolean
@@ -69,6 +69,7 @@ export class Config {
         _._paths = [];
         _._name = `${app}.config.json`;
         _._user = `${app}.config.user.json`;
+        _._schema = `${app}.schema.json`;
         _._active = { user: false, global: false };
         _._app = app;
         _._vault = opts.vault;
@@ -378,7 +379,7 @@ export class Config {
      * @param schema The URI of JSON schema, or a schema object to use
      */
     public setSchema(schema: string | object) {
-        const schemaUri = (typeof schema === "string") ? schema : Config.LOCAL_SCHEMA_URI;
+        const schemaUri = (typeof schema === "string") ? schema : `./${this._schema}`;
         const schemaObj = (typeof schema !== "string") ? schema : null;
 
         const layer = this.layerActive();

@@ -13,11 +13,18 @@ import { IProfileSchema, IProfileTypeConfiguration } from "../../profiles";
 
 export class ConfigSchema {
     /**
-     * JSON schema URI used by our custom schemas
+     * JSON schema URI stored in $schema property of the schema
      * @readonly
      * @memberof ConfigSchema
      */
     private static readonly JSON_SCHEMA = "https://json-schema.org/draft/2019-09/schema#";
+
+    /**
+     * Version number stored in $version property of the schema
+     * @readonly
+     * @memberof ConfigSchema
+     */
+    private static readonly SCHEMA_VERSION = 1;
 
     /**
      * Transform an Imperative profile schema to a JSON schema. Removes any
@@ -61,6 +68,7 @@ export class ConfigSchema {
         });
         return {
             $schema: ConfigSchema.JSON_SCHEMA,
+            $version: ConfigSchema.SCHEMA_VERSION,
             type: "object",
             description: "config",
             properties: {

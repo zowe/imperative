@@ -16,6 +16,7 @@ import * as https from "https";
 import { Config, ConfigSchema, IConfig, IConfigProfile } from "../../../../../config";
 import { IProfileProperty } from "../../../../../profiles";
 import { ConfigBuilder } from "../../../../../config/src/ConfigBuilder";
+import { IConfigBuilderOpts } from "../../../../../config/src/doc/IConfigBuilderOpts";
 
 /**
  * Init config
@@ -57,12 +58,9 @@ export default class InitHandler implements ICommandHandler {
         //     await this.initWithSchema(config);
         // }
 
-        await this.initWithSchema(config);
+        await this.initWithSchema(config, params.arguments.user);
 
         // Write the active created/updated config layer
-        await config.api.layers.write();
-
-        await this.initEmptyUser(config);
         await config.api.layers.write();
 
         params.response.console.log(`Saved config template to ${layer.path}`);
@@ -147,26 +145,22 @@ export default class InitHandler implements ICommandHandler {
      * Creates JSON template for config. Also creates a schema file in the same
      * folder alongside the config.
      * @param config Config object to be populated
+     * @param user If true, properties will be left empty for user config
      */
-    private async initWithSchema(config: Config): Promise<void> {
+    private async initWithSchema(config: Config, user: boolean): Promise<void> {
         // Build the schema and write it to disk
         const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
         config.setSchema(schema);
 
-        // Write project config with profile properties populated
-        const projectConfig: IConfig = await ConfigBuilder.build(ImperativeConfig.instance.loadedConfig, {
-            populateProperties: true,
-            getSecureValue: this.promptForProp.bind(this)
-        });
-        config.api.layers.merge(projectConfig);
-    }
+        const opts: IConfigBuilderOpts = {};
+        if (!user) {
+            opts.populateProperties = true;
+            opts.getSecureValue = this.promptForProp.bind(this);
+        }
 
-    private async initEmptyUser(config: Config): Promise<void> {
-        // Write user config with empty properties
-        const userConfig: IConfig = await ConfigBuilder.build(ImperativeConfig.instance.loadedConfig);
-        config.api.layers.activate(true, false);
-        config.setSchema("./schema.json");
-        config.api.layers.merge(userConfig);
+        // Build new config and merge with existing layer
+        const newConfig: IConfig = await ConfigBuilder.build(ImperativeConfig.instance.loadedConfig, opts);
+        config.api.layers.merge(newConfig);
     }
 
     /**
