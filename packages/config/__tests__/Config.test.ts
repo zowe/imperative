@@ -235,8 +235,10 @@ describe("Config tests", () => {
             expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(true);
 
             const layer = config.api.layers.get();
-            expect(JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties.ripe, null, Config.INDENT)).toContain(blockComment);
-            expect(JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties.ripe, null, Config.INDENT)).toContain(lineComment);
+            const testObj = JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties, null, Config.INDENT)
+                .split("\n").find((item) => item.indexOf("ripe") >= 0);
+            expect(testObj).toContain(blockComment);
+            expect(testObj).toContain(lineComment);
         });
 
         it("should set boolean false in config", async () => {
@@ -245,8 +247,10 @@ describe("Config tests", () => {
             expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(false);
 
             const layer = config.api.layers.get();
-            expect(JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties.ripe, null, Config.INDENT)).toContain(blockComment);
-            expect(JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties.ripe, null, Config.INDENT)).toContain(lineComment);
+            const testObj = JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties, null, Config.INDENT)
+                .split("\n").find((item) => item.indexOf("ripe") >= 0);
+            expect(testObj).toContain(blockComment);
+            expect(testObj).toContain(lineComment);
         });
 
         it("should set integer value in config", async () => {
@@ -255,8 +259,10 @@ describe("Config tests", () => {
             expect(config.properties.profiles.fruit.profiles.apple.properties.price).toBe(2);
 
             const layer = config.api.layers.get();
-            expect(JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties.price, null, Config.INDENT)).toContain(blockComment);
-            expect(JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties.price, null, Config.INDENT)).toContain(lineComment);
+            const testObj = JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties, null, Config.INDENT)
+                .split("\n").find((item) => item.indexOf("price") >= 0);
+            expect(testObj).toContain(blockComment);
+            expect(testObj).toContain(lineComment);
         });
 
         it("should append to array value in config", async () => {
@@ -286,6 +292,7 @@ describe("Config tests", () => {
             expect(JSONC.stringify(layer.properties.secure, null, Config.INDENT)).toContain(lineComment);
         });
 
+        // NOTE: config.setSchema remove comments from the $schema property
         it("should set schema URI at top of config", async () => {
             const config = await Config.load(MY_APP);
             const layer = (config as any).layerActive();
@@ -293,37 +300,10 @@ describe("Config tests", () => {
             const jsonText = JSONC.stringify(layer.properties);
             expect(jsonText.match(/^{\s*"\$schema":/)).not.toBeNull();
 
-            expect(JSONC.stringify(layer.properties.$schema, null, Config.INDENT)).toContain(blockComment);
-            expect(JSONC.stringify(layer.properties.$schema, null, Config.INDENT)).toContain(lineComment);
+            const testObj = JSONC.stringify(layer.properties, null, Config.INDENT).split("\n").find((item) => item.indexOf("$schema") >= 0);
+            expect(testObj).not.toContain(blockComment);
+            expect(testObj).not.toContain(lineComment);
         });
-
-        // it("should save schema to disk if object is provided", async () => {
-        //     const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValue(undefined);
-        //     const config = await Config.load(MY_APP);
-        //     const schemaObj = { $schema: "./schema.json" };
-        //     config.setSchema(schemaObj.$schema, schemaObj);
-        //     expect(writeFileSpy).toHaveBeenCalledTimes(1);
-        //     const jsonText = writeFileSpy.mock.calls[0][1];
-        //     expect(jsonText).toBeDefined();
-        //     expect(jsonText.match(/^{\s*"\$schema":/)).not.toBeNull();
-        // });
-
-        // it("should add new secure property to config", async () => {
-        //     const config = await Config.load(MY_APP);
-        //     const layer = (config as any).layerActive();
-        //     const secureProp = "profiles.fruit.properties.secret";
-        //     config.addSecure(secureProp);
-        //     expect(layer.properties.secure.includes(secureProp)).toBe(true);
-        //     config.addSecure(secureProp);
-        //     expect(layer.properties.secure.filter((x: any) => x === secureProp).length).toBe(1);
-        // });
-
-        // it("should add a new layer when one is specified in the set", async () => {
-        //     const config = await Config.load(MY_APP);
-        //     config.set("profiles.fruit.profiles.mango.properties.color", "orange");
-        //     expect(config.properties.profiles.fruit.profiles.mango.properties.color).toBe("orange");
-        //     expect (config.properties.profiles).toMatchSnapshot();
-        // });
     });
 
     describe("paths", () => {
