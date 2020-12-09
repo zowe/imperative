@@ -219,7 +219,7 @@ describe("Configuration Initialization command handler", () => {
         expect(ImperativeConfig.instance.config.properties.profiles.my_secured.properties.secret).toEqual("fakeValue");
     });
 
-    it("should attempt to initialize the project user configuration", async () => {
+    it("should attempt to initialize the global project user configuration", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.user = true;
@@ -263,60 +263,179 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config
     });
 
-    // it("should attempt to initialize the user configuration", async () => {
-    //     const handler = new InitHandler();
-    //     const params = getIHandlerParametersObject();
-    //     params.arguments.user = true;
-    //     params.arguments.global = false;
-    //     params.arguments.ci = false;
-    //     await handler.process(params as IHandlerParameters);
-    // });
-    // it("should attempt to initialize the global project configuration", async () => {
-    //     const handler = new InitHandler();
-    //     const params = getIHandlerParametersObject();
-    //     params.arguments.user = false;
-    //     params.arguments.global = true;
-    //     params.arguments.ci = false;
-    //     await handler.process(params as IHandlerParameters);
-    // });
-    // it("should attempt to initialize the global user configuration", async () => {
-    //     const handler = new InitHandler();
-    //     const params = getIHandlerParametersObject();
-    //     params.arguments.user = true;
-    //     params.arguments.global = true;
-    //     params.arguments.ci = false;
-    //     await handler.process(params as IHandlerParameters);
-    // });
-    // it("should attempt to initialize the project configuration with ci", async () => {
-    //     const handler = new InitHandler();
-    //     const params = getIHandlerParametersObject();
-    //     params.arguments.user = false;
-    //     params.arguments.global = false;
-    //     params.arguments.ci = true;
-    //     await handler.process(params as IHandlerParameters);
-    // });
-    // it("should attempt to initialize the user configuration with ci", async () => {
-    //     const handler = new InitHandler();
-    //     const params = getIHandlerParametersObject();
-    //     params.arguments.user = true;
-    //     params.arguments.global = false;
-    //     params.arguments.ci = true;
-    //     await handler.process(params as IHandlerParameters);
-    // });
-    // it("should attempt to initialize the global project configuration with ci", async () => {
-    //     const handler = new InitHandler();
-    //     const params = getIHandlerParametersObject();
-    //     params.arguments.user = false;
-    //     params.arguments.global = true;
-    //     params.arguments.ci = true;
-    //     await handler.process(params as IHandlerParameters);
-    // });
-    // it("should attempt to initialize the global user configuration with ci", async () => {
-    //     const handler = new InitHandler();
-    //     const params = getIHandlerParametersObject();
-    //     params.arguments.user = true;
-    //     params.arguments.global = true;
-    //     params.arguments.ci = true;
-    //     await handler.process(params as IHandlerParameters);
-    // });
-}
+    it("should attempt to initialize the project configuration with CI flag", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.user = false;
+        params.arguments.global = false;
+        params.arguments.ci = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        await handler.process(params as IHandlerParameters);
+
+        const compObj: any = {};
+        // Make changes to satisfy what would be stored on the JSON
+        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+
+        expect(setSchemaSpy).toHaveBeenCalledTimes(1);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
+
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+    });
+
+    it("should attempt to initialize the project user configuration with CI flag", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.user = true;
+        params.arguments.global = false;
+        params.arguments.ci = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        await handler.process(params as IHandlerParameters);
+
+        const compObj: any = {};
+        // Make changes to satisfy what would be stored on the JSON
+        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
+        delete compObj.profiles.my_secured.properties.info; // Delete info as well
+
+        expect(setSchemaSpy).toHaveBeenCalledTimes(1);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
+
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, 4)); // Config
+    });
+
+    it("should attempt to initialize the global project configuration with CI flag", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.user = false;
+        params.arguments.global = true;
+        params.arguments.ci = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        await handler.process(params as IHandlerParameters);
+
+        const compObj: any = {};
+        // Make changes to satisfy what would be stored on the JSON
+        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+
+        expect(setSchemaSpy).toHaveBeenCalledTimes(1);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
+
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, 4)); // Config
+    });
+
+    it("should attempt to initialize the global project user configuration with CI flag", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.user = true;
+        params.arguments.global = true;
+        params.arguments.ci = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        await handler.process(params as IHandlerParameters);
+
+        const compObj: any = {};
+        // Make changes to satisfy what would be stored on the JSON
+        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
+        delete compObj.profiles.my_secured.properties.info; // Delete info as well
+
+        expect(setSchemaSpy).toHaveBeenCalledTimes(1);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
+
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config
+    });
+});
