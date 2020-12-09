@@ -10,15 +10,11 @@
 */
 
 import Mock = jest.Mock;
-import { join } from "path";
-import { generateRandomAlphaNumericString } from "../../../__tests__/src/TestUtil";
 import { IImperativeConfig } from "../src/doc/IImperativeConfig";
-import { IImperativeOverrides } from "../src/doc/IImperativeOverrides";
 import { IConfigLogging } from "../../logger";
 import { IImperativeEnvironmentalVariableSettings } from "..";
 import { ICommandDefinition } from "../../cmd/src/doc/ICommandDefinition";
 import * as yargs from "yargs";
-import { AbstractCommandYargs } from "../..";
 
 describe("Imperative", () => {
     const mainModule = process.mainModule;
@@ -29,7 +25,7 @@ describe("Imperative", () => {
 
     const reloadExternalMocks = () => {
         try {
-            jest.doMock("../src/OverridesLoader");
+            jest.doMock("../../security/src/CredentialManagerFactory");
             jest.doMock("../src/LoggingConfigurer");
             jest.doMock("../src/ConfigurationLoader");
             jest.doMock("../src/ConfigurationValidator");
@@ -37,17 +33,15 @@ describe("Imperative", () => {
             jest.doMock("../../utilities/src/ImperativeConfig");
             jest.doMock("../src/config/ConfigManagementFacility");
             jest.doMock("../src/plugins/PluginManagementFacility");
-            jest.doMock("../../settings/src/AppSettings");
             jest.doMock("../../logger/src/Logger");
             jest.doMock("../src/env/EnvironmentalVariableSettings");
             jest.doMock("../src/auth/builders/CompleteAuthGroupBuilder");
             jest.doMock("../src/profiles/builders/CompleteProfilesGroupBuilder");
 
-            const {OverridesLoader} = require("../src/OverridesLoader");
+            const {CredentialManagerFactory} = require("../../security/src/CredentialManagerFactory");
             const {LoggingConfigurer} = require("../src/LoggingConfigurer");
             const {ConfigurationLoader} = require("../src/ConfigurationLoader");
             const ConfigurationValidator = require("../src/ConfigurationValidator").ConfigurationValidator.validate;
-            const {AppSettings} = require("../../settings");
             const {ImperativeConfig} = require("../../utilities/src/ImperativeConfig");
             const {ConfigManagementFacility} = require("../src/config/ConfigManagementFacility");
             const {PluginManagementFacility} = require("../src/plugins/PluginManagementFacility");
@@ -56,17 +50,14 @@ describe("Imperative", () => {
             const {CompleteAuthGroupBuilder} = require("../src/auth/builders/CompleteAuthGroupBuilder");
             const {CompleteProfilesGroupBuilder} = require("../src/profiles/builders/CompleteProfilesGroupBuilder");
             return {
-                OverridesLoader: {
-                    load: OverridesLoader.load as Mock<typeof OverridesLoader.load>
+                CredentialManagerFactory: {
+                    initialize: CredentialManagerFactory.initialize as Mock<typeof CredentialManagerFactory.initialize>
                 },
                 ConfigurationLoader: {
                     load: ConfigurationLoader.load as Mock<typeof ConfigurationLoader.load>
                 },
                 ConfigurationValidator: {
                     validate: ConfigurationValidator.validate as Mock<typeof ConfigurationValidator.validate>
-                },
-                AppSettings: {
-                    initialize: AppSettings.initialize as Mock<typeof AppSettings.initialize>
                 },
                 ImperativeConfig,
                 ConfigManagementFacility,
@@ -159,7 +150,7 @@ describe("Imperative", () => {
             (Imperative as any).defineCommands = jest.fn(() => undefined);
 
             mocks.ConfigurationLoader.load.mockReturnValue(defaultConfig);
-            mocks.OverridesLoader.load.mockReturnValue(new Promise((resolve) => resolve()));
+            // mocks.OverridesLoader.load.mockReturnValue(new Promise((resolve) => resolve()));
         });
 
         it("should work when passed with nothing", async () => {
@@ -167,10 +158,15 @@ describe("Imperative", () => {
             const result = await Imperative.init();
 
             expect(result).toBeUndefined();
+            /* todo:overrides
             expect(mocks.OverridesLoader.load).toHaveBeenCalledTimes(1);
             expect(mocks.OverridesLoader.load).toHaveBeenCalledWith(defaultConfig, {version: 10000, name: "sample"});
+            */
+            expect(mocks.CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
+            expect(mocks.CredentialManagerFactory.initialize).toHaveBeenCalledWith({ service: null });
         });
 
+        /* todo:overrides
         describe("AppSettings", () => {
             const defaultSettings =  {overrides: {CredentialManager: false}};
             it("should initialize an app settings instance", async () => {
@@ -183,6 +179,7 @@ describe("Imperative", () => {
                 );
             });
         }); // End AppSettings
+        */
 
         describe("Config", () => {
             let ConfigManagementFacility = mocks.ConfigManagementFacility;
@@ -219,6 +216,7 @@ describe("Imperative", () => {
                 ).toHaveBeenCalledWith(Imperative.getResolvedCmdTree());
             });
 
+            /* todo:overrides
             // @FUTURE When there are more overrides we should think about making this function dynamic
             it("should allow a plugin to override modules", async () => {
                 const testOverrides: IImperativeOverrides = {
@@ -236,6 +234,7 @@ describe("Imperative", () => {
 
                 expect(mocks.ImperativeConfig.instance.loadedConfig).toEqual(expectedConfig);
             });
+            */
 
             it("should not override modules not specified by a plugin", async () => {
                 const expectedConfig = JSON.parse(JSON.stringify(defaultConfig));
@@ -381,7 +380,7 @@ describe("Imperative", () => {
             }
 
             expect(caughtError).toBeInstanceOf(ImperativeError);
-            expect(caughtError.message).toEqual("UNEXPECTED ERROR ENCOUNTERED");
+            expect(caughtError.message).toEqual("Unexpected Error Encountered");
             expect((caughtError as any).details.causeErrors).toEqual(error);
         });
 

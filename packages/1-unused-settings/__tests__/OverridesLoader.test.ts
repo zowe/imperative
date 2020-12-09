@@ -9,7 +9,7 @@
 *
 */
 
-import { IImperativeConfig } from "..";
+import { IImperativeConfig } from "../../imperative/src/doc/IImperativeConfig";
 
 jest.mock("../../security");
 

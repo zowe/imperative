@@ -191,7 +191,7 @@ describe("Config tests", () => {
         });
 
         it("should save schema to disk if object is provided", async () => {
-            const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValue(undefined);
+            const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
             const config = await Config.load(MY_APP);
             config.setSchema({ $schema: "./schema.json" });
             expect(writeFileSpy).toHaveBeenCalledTimes(1);

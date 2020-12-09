@@ -19,7 +19,6 @@ import { IImperativeConfig } from "./doc/IImperativeConfig";
 import * as yargs from "yargs";
 import { ConfigurationLoader } from "./ConfigurationLoader";
 import { ConfigurationValidator } from "./ConfigurationValidator";
-import { isNullOrUndefined } from "util";
 import { ImperativeApi } from "./api/ImperativeApi";
 import { IImperativeApi } from "./api/doc/IImperativeApi";
 import { Constants } from "../../constants";
@@ -28,6 +27,7 @@ import { ImperativeReject } from "../../interfaces";
 import { LoggingConfigurer } from "./LoggingConfigurer";
 import { ImperativeError } from "../../error";
 import { PluginManagementFacility } from "./plugins/PluginManagementFacility";
+import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
 import {
     AbstractCommandYargs,
     CliProfileManager,
@@ -47,7 +47,6 @@ import {
 import { ProfileUtils, IProfileTypeConfiguration } from "../../profiles";
 import { CompleteProfilesGroupBuilder } from "./profiles/builders/CompleteProfilesGroupBuilder";
 import { ImperativeHelpGeneratorFactory } from "./help/ImperativeHelpGeneratorFactory";
-import { OverridesLoader } from "./OverridesLoader";
 import { ImperativeProfileManagerFactory } from "./profiles/ImperativeProfileManagerFactory";
 import { DefinitionTreeResolver } from "./DefinitionTreeResolver";
 import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
@@ -60,12 +59,11 @@ import { ImperativeExpect } from "../../expect";
 import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
 import { Config, IConfigOpts } from "../../config";
 import { CredentialManagerFactory } from "../../security";
-import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
 
 /* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
-import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
 import { AppSettings } from "../../settings";
 import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
+import { OverridesLoader } from "./OverridesLoader";
 */
 
 // Bootstrap the performance tools
@@ -181,7 +179,7 @@ export class Imperative {
                  * If no command name exists, we will instead use the file name invoked
                  * and log a debug warning.
                  */
-                if (!isNullOrUndefined(ImperativeConfig.instance.findPackageBinName())) {
+                if (ImperativeConfig.instance.findPackageBinName() != null) {
                     this.mRootCommandName = ImperativeConfig.instance.findPackageBinName();
                 } else {
                     this.mRootCommandName = ImperativeConfig.instance.callerLocation;
@@ -191,15 +189,30 @@ export class Imperative {
                 }
                 ImperativeConfig.instance.rootCommandName = this.mRootCommandName;
 
-                /* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
-                // If config group is enabled add config commands
                 if (config.allowConfigGroup) {
                     ConfigManagementFacility.instance.init();
                 }
-                */
 
-                // Load the base config
-                ImperativeConfig.instance.config = await Config.load(this.mRootCommandName);
+                // Initialize the credential manager for storing secure values
+                // Null will use the service name of the built-in credential manager.
+                await CredentialManagerFactory.initialize({ service: null });
+
+                // Load all the app config layers
+                // todo:overrides If we reinstate overrides in the future, we need
+                // to delay load of secure values until after loading plugin overrides
+                const opts: IConfigOpts = { homeDir: ImperativeConfig.instance.cliHome };
+                if (CredentialManagerFactory.initialized) {
+                    opts.vault = {
+                        load: ((key: string): Promise<string> => {
+                            return CredentialManagerFactory.manager.load(key, true)
+                        }),
+                        save: ((key: string, value: any): Promise<void> => {
+                            return CredentialManagerFactory.manager.save(key, value);
+                        }),
+                        name: CredentialManagerFactory.manager.name
+                    };
+                }
+                ImperativeConfig.instance.config = await Config.load(this.mRootCommandName, opts);
 
                 // If plugins are allowed, enable core plugins commands
                 if (config.allowPlugins) {
@@ -208,11 +221,13 @@ export class Imperative {
                     // load the configuration of every installed plugin for later processing
                     PluginManagementFacility.instance.loadAllPluginCfgProps();
 
+                    /* todo:overrides
                     // Override the config object with things loaded from plugins
                     Object.assign(
                         ImperativeConfig.instance.loadedConfig.overrides,
                         PluginManagementFacility.instance.pluginOverrides
                     );
+                    */
                 }
 
                 /**
@@ -229,32 +244,10 @@ export class Imperative {
                  * Now we should apply any overrides to default Imperative functionality. This is where CLI
                  * developers are able to really start customizing Imperative and how it operates internally.
                  */
+                /* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
                 await OverridesLoader.load(ImperativeConfig.instance.loadedConfig,
                     ImperativeConfig.instance.callerPackageJson);
-
-                /**
-                 * After the plugins and secure credentials are loaded, rebuild the configuration with the
-                 * secure values
-                 */
-                let opts: IConfigOpts = null;
-                if (CredentialManagerFactory.initialized) {
-                    opts = {
-                        homeDir: ImperativeConfig.instance.cliHome,
-                        vault: {
-                            load: ((key: string): Promise<string> => {
-                                return CredentialManagerFactory.manager.load(key, true)
-                            }),
-                            save: ((key: string, value: any): Promise<void> => {
-                                return CredentialManagerFactory.manager.save(key, value);
-                            }),
-                            name: CredentialManagerFactory.manager.name
-                        }
-                    };
-                    ImperativeConfig.instance.config = await Config.load(ImperativeConfig.instance.rootCommandName, opts);
-                }
-
-                // Init config group
-                ConfigManagementFacility.instance.init();
+                */
 
                 /**
                  * Build API object
@@ -325,14 +318,15 @@ export class Imperative {
                     const {writeFileSync} = require("fs");
                     writeFileSync(Imperative.DEFAULT_DEBUG_FILE, error.report);
                 }
-                initializationFailed(
-                    error instanceof ImperativeError ?
-                        error :
-                        new ImperativeError({
-                            msg: "UNEXPECTED ERROR ENCOUNTERED",
-                            causeErrors: error
-                        })
-                );
+                if (!(error instanceof ImperativeError)) {
+                    const oldError = error;
+                    error = new ImperativeError({
+                        msg: "Unexpected Error Encountered",
+                        causeErrors: error
+                    });
+                    error.stack = "\n" + oldError.stack;
+                }
+                initializationFailed(error);
             }
         });
     }
@@ -381,7 +375,7 @@ export class Imperative {
      */
     public static getProfileConfiguration(type: string): ICommandProfileTypeConfiguration | undefined {
         const profileConfigs = ImperativeConfig.instance.loadedConfig.profiles;
-        if (isNullOrUndefined(profileConfigs) || profileConfigs.length === 0) {
+        if (profileConfigs == null || profileConfigs.length === 0) {
             return undefined;
         }
         let foundConfig: ICommandProfileTypeConfiguration;
@@ -409,7 +403,7 @@ export class Imperative {
      * @return {ImperativeApi}: The api object.
      */
     public static get api(): ImperativeApi {
-        if (isNullOrUndefined(this.mApi)) {
+        if (this.mApi == null) {
             throw new ImperativeError(
                 {
                     msg: "Imperative API object does not exist.  The Imperative.init() promise " +
@@ -557,7 +551,7 @@ export class Imperative {
      * @memberof Imperative
      */
     private static initProfiles(config: IImperativeConfig) {
-        if (!isNullOrUndefined(config.profiles) && config.profiles.length > 0) {
+        if (config.profiles != null && config.profiles.length > 0) {
             CliProfileManager.initialize({
                 configuration: config.profiles,
                 profileRootDirectory: ProfileUtils.constructProfilesRootDirectory(ImperativeConfig.instance.cliHome),
@@ -675,7 +669,7 @@ export class Imperative {
      * @return {Logger}: returns the default console Logger API object
      */
     private static constructConsoleApi(): Logger {
-        if (isNullOrUndefined(Imperative.mConsoleLog)) {
+        if (Imperative.mConsoleLog == null) {
             Imperative.mConsoleLog = Logger.getConsoleLogger();
             return Imperative.mConsoleLog;
         } else {
