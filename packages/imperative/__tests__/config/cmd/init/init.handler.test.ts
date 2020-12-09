@@ -33,18 +33,15 @@ const getIHandlerParametersObject = (): IHandlerParameters => {
 };
 
 const fakeConfig = config as IImperativeConfig;
-const fakeProjPath = path.join(__dirname, "fakeApp.config.json");
-const fakeProjUserPath = path.join(__dirname, "fakeApp.config.user.json");
+const fakeProjPath = path.join(__dirname, "fakeapp.config.json");
+const fakeSchemaPath = path.join(__dirname, "fakeapp.schema.json");
+const fakeProjUserPath = path.join(__dirname, "fakeapp.config.user.json");
 
 describe("Configuration Initialization command handler", () => {
-    let readFileSyncSpy: any;
     let writeFileSyncSpy: any;
     let existsSyncSpy: any;
-    let pathJoinSpy: any;
-    let pathResolveSpy: any;
-    let pathParseSpy: any;
-    let pathDirnameSpy: any;
     let osHomedirSpy: any;
+    let currentWorkingDirectorySpy: any;
     let searchSpy: any;
     let setSchemaSpy: any;
     let promptWithTimeoutSpy: any;
@@ -57,22 +54,18 @@ describe("Configuration Initialization command handler", () => {
         // 2. Mock out fs.existsSync and/or fs.readFileSync the appropriate number of times
 
         osHomedirSpy.mockReturnValue(__dirname); // Pretend the current directory is the homedir
+        currentWorkingDirectorySpy.mockReturnValue(__dirname); // Pretend the current directory is where the command was invoked
         ImperativeConfig.instance.config = await Config.load("fakeapp", {});
     }
 
     beforeEach( async () => {
         jest.resetAllMocks();
         ImperativeConfig.instance.loadedConfig = lodash.cloneDeep(fakeConfig);
-        ImperativeConfig.instance.config = await Config.load("fakeApp");
 
-        readFileSyncSpy = jest.spyOn(fs, "readFileSync");
         writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
         existsSyncSpy = jest.spyOn(fs, "existsSync");
-        pathJoinSpy = jest.spyOn(path, "join");
-        pathResolveSpy = jest.spyOn(path, "resolve");
-        pathParseSpy = jest.spyOn(path, "parse");
-        pathDirnameSpy = jest.spyOn(path, "dirname");
         osHomedirSpy = jest.spyOn(os, "homedir");
+        currentWorkingDirectorySpy = jest.spyOn(process, "cwd");
         searchSpy = jest.spyOn(Config, "search");
         setSchemaSpy = jest.spyOn(Config.prototype, "setSchema");
         promptWithTimeoutSpy = jest.spyOn(CliUtils, "promptWithTimeout");
@@ -97,18 +90,31 @@ describe("Configuration Initialization command handler", () => {
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
         osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
-
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
+
+        const compObj: any = {};
+        // Make changes to satisfy what would be stored on the JSON
+        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, make it first
+        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(string, true, 900)
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, 900);
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObject, null, 4));
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4));
 
     });
     // it("should attempt to initialize the user configuration", async () => {
