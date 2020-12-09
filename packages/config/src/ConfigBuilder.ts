@@ -44,7 +44,7 @@ export class ConfigBuilder {
                         config.secure.push(propPath);
 
                         const propValue = opts.getSecureValue ? await opts.getSecureValue(k, v) : null;
-                        if (propValue) {
+                        if (propValue != null) {
                             // Save this value to be stored securely after profile is built
                             properties[k] = propValue;
                         }
