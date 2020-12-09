@@ -25,10 +25,10 @@ import { ConfigurationValidator } from "../ConfigurationValidator";
 import { ConfigurationLoader } from "../ConfigurationLoader";
 import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
 import { IImperativeOverrides } from "../doc/IImperativeOverrides";
-import { ImperativeError } from "../../../error";
 import { IO } from "../../../io";
 
 /* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
+import { ImperativeError } from "../../../error";
 import { AppSettings } from "../../../settings";
 */
 
@@ -740,15 +740,11 @@ export class PluginManagementFacility {
         // Attempt to find the node_modules that contains the plugin
         let pluginRuntimeDir = null;
         for (const location of this.pmfConst.PLUGIN_NODE_MODULE_LOCATION) {
-            const p = join(location, pluginName);
-            if (existsSync(p)) {
-                pluginRuntimeDir = p;
+            pluginRuntimeDir = join(location, pluginName);
+            if (existsSync(pluginRuntimeDir)) {
                 break;
             }
         }
-
-        if (pluginRuntimeDir == null)
-            throw new ImperativeError({ msg: `unable to locate plugin "${pluginName}" in any path location` });
 
         if (relativePath.length === 0) {
             return pluginRuntimeDir;
