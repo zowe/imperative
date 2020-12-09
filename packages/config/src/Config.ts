@@ -351,7 +351,8 @@ export class Config {
         });
 
         if (opts.secure)
-            layer.properties.secure = Array.from(new Set(layer.properties.secure.concat([path])));
+            if (!layer.properties.secure.includes(path))
+                layer.properties.secure.push(path);
     }
 
     /**

@@ -14,6 +14,7 @@ import * as os from "os";
 import * as path from "path";
 import { ImperativeError } from "../..";
 import { Config } from "../src/Config";
+import * as JSONC from "comment-json";
 
 const MY_APP = "my_app";
 
@@ -217,6 +218,112 @@ describe("Config tests", () => {
             expect(config.properties.profiles.fruit.profiles.mango.properties.color).toBe("orange");
             expect (config.properties.profiles).toMatchSnapshot();
         });
+    });
+
+    describe("set (with comments)", () => {
+        const blockComment = "/* block-comment */";
+        const lineComment = "// line-comment";
+        beforeEach(() => {
+            jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/commented-project.config.user.json");
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false);
+            jest.spyOn(Config.prototype as any, "secureLoad").mockResolvedValue(undefined);
+        });
+
+        it("should set boolean true in config", async () => {
+            const config = await Config.load(MY_APP);
+            config.set("profiles.fruit.profiles.apple.properties.ripe", "true");
+            expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(true);
+
+            const layer = config.api.layers.get();
+            expect(JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties.ripe, null, Config.INDENT)).toContain(blockComment);
+            expect(JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties.ripe, null, Config.INDENT)).toContain(lineComment);
+        });
+
+        it("should set boolean false in config", async () => {
+            const config = await Config.load(MY_APP);
+            config.set("profiles.fruit.profiles.apple.properties.ripe", "false");
+            expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(false);
+
+            const layer = config.api.layers.get();
+            expect(JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties.ripe, null, Config.INDENT)).toContain(blockComment);
+            expect(JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties.ripe, null, Config.INDENT)).toContain(lineComment);
+        });
+
+        it("should set integer value in config", async () => {
+            const config = await Config.load(MY_APP);
+            config.set("profiles.fruit.profiles.apple.properties.price", "2");
+            expect(config.properties.profiles.fruit.profiles.apple.properties.price).toBe(2);
+
+            const layer = config.api.layers.get();
+            expect(JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties.price, null, Config.INDENT)).toContain(blockComment);
+            expect(JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties.price, null, Config.INDENT)).toContain(lineComment);
+        });
+
+        it("should append to array value in config", async () => {
+            const config = await Config.load(MY_APP);
+            // config.set("profiles.fruit.properties.tags", []);
+            config.set("profiles.fruit.properties.tags", "sweet");
+            expect(config.properties.profiles.fruit.properties.tags.length).toBe(1);
+            expect(config.properties.profiles.fruit.properties.tags[0]).toBe("sweet");
+
+            const layer = config.api.layers.get();
+            expect(JSONC.stringify(layer.properties.profiles.fruit.properties.tags, null, Config.INDENT)).toContain(blockComment);
+            expect(JSONC.stringify(layer.properties.profiles.fruit.properties.tags, null, Config.INDENT)).toContain(lineComment);
+        });
+
+        it("should set secure string value in config", async () => {
+            const config = await Config.load(MY_APP);
+            const layer = (config as any).layerActive();
+            layer.path = path.basename(layer.path); // Everyone has a different path.
+
+            config.set("profiles.fruit.profiles.apple.properties.secret", "@ppl3", { secure: true });
+
+            expect(config.properties.profiles.fruit.profiles.apple.properties.secret).toBe("@ppl3");
+            expect(layer.properties.secure.length).toBe(1);
+            expect(layer.properties.secure[0]).toBe("profiles.fruit.profiles.apple.properties.secret");
+
+            expect(JSONC.stringify(layer.properties.secure, null, Config.INDENT)).toContain(blockComment);
+            expect(JSONC.stringify(layer.properties.secure, null, Config.INDENT)).toContain(lineComment);
+        });
+
+        it("should set schema URI at top of config", async () => {
+            const config = await Config.load(MY_APP);
+            const layer = (config as any).layerActive();
+            config.setSchema("./schema.json");
+            const jsonText = JSONC.stringify(layer.properties);
+            expect(jsonText.match(/^{\s*"\$schema":/)).not.toBeNull();
+
+            expect(JSONC.stringify(layer.properties.$schema, null, Config.INDENT)).toContain(blockComment);
+            expect(JSONC.stringify(layer.properties.$schema, null, Config.INDENT)).toContain(lineComment);
+        });
+
+        // it("should save schema to disk if object is provided", async () => {
+        //     const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValue(undefined);
+        //     const config = await Config.load(MY_APP);
+        //     const schemaObj = { $schema: "./schema.json" };
+        //     config.setSchema(schemaObj.$schema, schemaObj);
+        //     expect(writeFileSpy).toHaveBeenCalledTimes(1);
+        //     const jsonText = writeFileSpy.mock.calls[0][1];
+        //     expect(jsonText).toBeDefined();
+        //     expect(jsonText.match(/^{\s*"\$schema":/)).not.toBeNull();
+        // });
+
+        // it("should add new secure property to config", async () => {
+        //     const config = await Config.load(MY_APP);
+        //     const layer = (config as any).layerActive();
+        //     const secureProp = "profiles.fruit.properties.secret";
+        //     config.addSecure(secureProp);
+        //     expect(layer.properties.secure.includes(secureProp)).toBe(true);
+        //     config.addSecure(secureProp);
+        //     expect(layer.properties.secure.filter((x: any) => x === secureProp).length).toBe(1);
+        // });
+
+        // it("should add a new layer when one is specified in the set", async () => {
+        //     const config = await Config.load(MY_APP);
+        //     config.set("profiles.fruit.profiles.mango.properties.color", "orange");
+        //     expect(config.properties.profiles.fruit.profiles.mango.properties.color).toBe("orange");
+        //     expect (config.properties.profiles).toMatchSnapshot();
+        // });
     });
 
     describe("paths", () => {
