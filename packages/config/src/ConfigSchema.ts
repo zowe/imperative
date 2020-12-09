@@ -38,19 +38,24 @@ export class ConfigSchema {
             properties[k] = { type: v.type };
             if ((v as any).optionDefinition != null) {
                 properties[k].description = (v as any).optionDefinition.description;
-                properties[k].default = (v as any).optionDefinition.defaultValue;
+                if ((v as any).optionDefinition.defaultValue != null) {
+                    properties[k].default = (v as any).optionDefinition.defaultValue;
+                }
             }
             if (v.secure) {
                 properties[k].secure = true;
             }
         }
-        return {
+
+        const obj: any = {
             type: schema.type,
             title: schema.title,
             description: schema.description,
-            properties,
-            required: schema.required
-        };
+            properties
+        }
+
+        if (schema.required) obj.required = schema.required;
+        return obj;
     }
 
     /**

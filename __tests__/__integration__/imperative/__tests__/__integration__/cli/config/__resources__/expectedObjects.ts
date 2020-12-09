@@ -13,6 +13,7 @@ import { IConfig } from "../../../../../../../../packages/config";
 
 export const expectedSchemaObject = {
     $schema: "https://json-schema.org/draft/2019-09/schema#",
+    $version: 1,
     type: "object",
     description: "config",
     properties: {
@@ -94,7 +95,7 @@ export const expectedSchemaObject = {
 };
 
 export const expectedConfigObject: IConfig = {
-    $schema: "./schema.json",
+    $schema: "./imperative-test-cli.schema.json",
     profiles: {
         my_secured: {
             type: "secured",

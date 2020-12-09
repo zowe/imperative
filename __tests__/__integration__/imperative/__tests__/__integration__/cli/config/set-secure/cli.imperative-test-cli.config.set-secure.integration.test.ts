@@ -48,7 +48,7 @@ describe("imperative-test-cli config set-secure", () => {
     });
     afterEach(() => {
         runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
-            ["-rf imperative-test-cli.config.user.json imperative-test-cli.config.json test schema.json"]);
+            ["-rf imperative-test-cli.config.user.json imperative-test-cli.config.json test imperative-test-cli.schema.json"]);
     });
     it("should display the help", () => {
         const response = runCliScript(__dirname + "/../__scripts__/get_help.sh",

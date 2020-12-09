@@ -99,7 +99,7 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain("type:       secured");
         expect(response.stdout.toString()).toContain("properties:");
         expect(response.stdout.toString()).toContain("secured: my_secured");
-        expect(response.stdout.toString()).toContain("$schema:  ./schema.json");
+        expect(response.stdout.toString()).toContain("$schema:  ./imperative-test-cli.schema.json");
         expect(response.stderr.toString()).toEqual("");
         expect(response.error).not.toBeDefined();
     });
@@ -107,7 +107,7 @@ describe("imperative-test-cli config list", () => {
         const response = runCliScript(__dirname + "/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--locations --rfj"]);
         const parsedResponse = JSON.parse(response.stdout.toString());
         const expectedUserConfig = {
-            $schema: "./schema.json",
+            $schema: "./imperative-test-cli.schema.json",
             profiles: {},
             defaults: {},
             plugins: [],

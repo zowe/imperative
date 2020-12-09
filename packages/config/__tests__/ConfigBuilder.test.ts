@@ -15,7 +15,7 @@ import { IProfileProperty } from "../../profiles";
 import * as config from "../../../__tests__/__integration__/imperative/src/imperative"
 import * as lodash from "lodash";
 
-const expectedConfigObject = {
+const expectedConfigObject: IConfig = {
     defaults: {},
     plugins: [],
     profiles: {
@@ -55,17 +55,17 @@ function buildProfileProperty(name: string, type: string | Array<string>, missin
 }
 
 describe("Config Builder tests", () => {
-    let configEmptySpy;
-    let getDefaultValueSpy;
-    let hoistTemplatePropertiesSpy;
-    let expectedConfig;
-    let testConfig;
+    let configEmptySpy: any;
+    let getDefaultValueSpy: any;
+    let hoistTemplatePropertiesSpy: any;
+    let expectedConfig: any;
+    let testConfig: any;
 
     beforeEach(() => {
         jest.clearAllMocks();
         configEmptySpy = jest.spyOn(Config, "empty");
-        getDefaultValueSpy = jest.spyOn(ConfigBuilder, "getDefaultValue");
-        hoistTemplatePropertiesSpy = jest.spyOn(ConfigBuilder, "hoistTemplateProperties");
+        getDefaultValueSpy = jest.spyOn(ConfigBuilder as any, "getDefaultValue");
+        hoistTemplatePropertiesSpy = jest.spyOn(ConfigBuilder as any, "hoistTemplateProperties");
         expectedConfig = lodash.cloneDeep(expectedConfigObject);
         testConfig = lodash.cloneDeep(config as IImperativeConfig);
     });
