@@ -15,7 +15,7 @@ import { UpdateImpConfig } from "../../src/UpdateImpConfig";
 import { isAbsolute, join } from "path";
 import { ImperativeConfig, JsUtils } from "../../../utilities";
 import { Logger } from "../../../logger";
-import { existsSync, mkdirSync } from "fs";
+import { existsSync } from "fs";
 import { PMFConstants } from "./utilities/PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { IPluginCfgProps } from "./doc/IPluginCfgProps";
@@ -26,6 +26,7 @@ import { ConfigurationLoader } from "../ConfigurationLoader";
 import { DefinitionTreeResolver } from "../DefinitionTreeResolver";
 import { IImperativeOverrides } from "../doc/IImperativeOverrides";
 import { ImperativeError } from "../../../error";
+import { IO } from "../../../io";
 
 /* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
 import { AppSettings } from "../../../settings";
@@ -239,14 +240,16 @@ export class PluginManagementFacility {
         if (!existsSync(this.pmfConst.PLUGIN_JSON) && !this.pmfConst.PLUGIN_USING_CONFIG) {
             if (!existsSync(this.pmfConst.PMF_ROOT)) {
                 this.impLogger.debug("Creating PMF_ROOT directory");
-                mkdirSync(this.pmfConst.PMF_ROOT);
+                IO.mkdirp(this.pmfConst.PMF_ROOT);
             }
 
             this.impLogger.debug("Creating PLUGIN_JSON file");
             writeFileSync(this.pmfConst.PLUGIN_JSON, {});
         }
 
+        /* todo:overrides
         const loadedOverrides: { [key: string]: IImperativeOverrides } = {};
+        */
 
         // iterate through all of our installed plugins
         for (const nextPluginNm of Object.keys(this.pluginIssues.getInstalledPlugins())) {
@@ -255,7 +258,7 @@ export class PluginManagementFacility {
                 this.mAllPluginCfgProps.push(nextPluginCfgProps);
 
                 // Remember the overrides as a key of our temporary object
-                loadedOverrides[nextPluginNm] = nextPluginCfgProps.impConfig.overrides;
+                // loadedOverrides[nextPluginNm] = nextPluginCfgProps.impConfig.overrides;
 
                 this.impLogger.trace("Next plugin's configuration properties:\n" +
                     JSON.stringify(nextPluginCfgProps, null, 2)
@@ -268,113 +271,112 @@ export class PluginManagementFacility {
             }
         }
 
-        // First come, first serve - If we're using a config, aggregate the
-        // override specifications for each plugin - then we can add those
-        // from app settings
-        const overrideSettings: any = {};
-        if (this.pmfConst.PLUGIN_USING_CONFIG) {
-            for (const plugin of this.pmfConst.PLUGIN_CONFIG.api.plugins.get()) {
-                if (loadedOverrides[plugin] != null) {
-                    for (const [key, _] of Object.entries(loadedOverrides[plugin])) {
-                        if (overrideSettings[key] == null) {
-                            overrideSettings[key] = plugin;
-                        }
-                    }
-                }
-            }
-        }
+        /* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides */
+        // // First come, first serve - If we're using a config, aggregate the
+        // // override specifications for each plugin - then we can add those
+        // // from app settings
+        // let overrideSettings: any = {};
+        // if (this.pmfConst.PLUGIN_USING_CONFIG) {
+        //     for (const plugin of this.pmfConst.PLUGIN_CONFIG.api.plugins.get()) {
+        //         if (loadedOverrides[plugin] != null) {
+        //             for (const [key, _] of Object.entries(loadedOverrides[plugin])) {
+        //                 if (overrideSettings[key] == null) {
+        //                     overrideSettings[key] = plugin;
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
-        /* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
-        overrideSettings = { ...AppSettings.instance.getNamespace("overrides"), ...overrideSettings };
-        */
+        // overrideSettings = { ...AppSettings.instance.getNamespace("overrides"), ...overrideSettings };
 
-        // Loop through each overrides setting here. Setting is an override that we are modifying while
-        // plugin is the pluginName from which to get the setting. This is probably the ugliest piece
-        // of code that I have ever written :/
-        for (const [setting, pluginName] of Object.entries(overrideSettings)) {
-            if (pluginName !== false) {
-                Logger.getImperativeLogger().debug(
-                    `PluginOverride: Attempting to overwrite "${setting}" with value provided by plugin "${pluginName}"`
-                );
-                if (!loadedOverrides.hasOwnProperty(pluginName as any)) {
-                    // the plugin name specified in our settings is not available
-                    const overrideErrMsg = `You attempted to override the "${setting}" setting ` +
-                        `with a plugin named "${pluginName}" that is not installed and loadable.` +
-                        `\nWe will use a "${setting}" that purposely fails until you reconfigure.`;
-                    Logger.getImperativeLogger().error(overrideErrMsg);
+        // // Loop through each overrides setting here. Setting is an override that we are modifying while
+        // // plugin is the pluginName from which to get the setting. This is probably the ugliest piece
+        // // of code that I have ever written :/
+        // for (const [setting, pluginName] of Object.entries(overrideSettings)) {
+        //     if (pluginName !== false) {
+        //         Logger.getImperativeLogger().debug(
+        //             `PluginOverride: Attempting to overwrite "${setting}" with value provided by plugin "${pluginName}"`
+        //         );
+        //         if (!loadedOverrides.hasOwnProperty(pluginName as any)) {
+        //             // the plugin name specified in our settings is not available
+        //             const overrideErrMsg = `You attempted to override the "${setting}" setting ` +
+        //                 `with a plugin named "${pluginName}" that is not installed and loadable.` +
+        //                 `\nWe will use a "${setting}" that purposely fails until you reconfigure.`;
+        //             Logger.getImperativeLogger().error(overrideErrMsg);
 
-                    /* We need to assign a class (which always shows an error when
-                     * the CLI tries to use credentials) into the current override setting.
-                     * We also need to embed our error message into that class. We cannot
-                     * create a new object from a class and pass the error into its
-                     * constructor, because the CredentialManagerFactory takes a class and
-                     * it calls the constructor of our supplied class. Thus we need an
-                     * anonymous class so that we can access our 'overrideErrMsg' variable.
-                     * Our trick is that we simply throw an error in the constructor
-                     * of our anonymous class. The CredentialManagerFactory catches
-                     * our error, and places it into its InvalidCredentialManager,
-                     * which in turn shows our error every time the CLI tries to use
-                     * credentials. Finally since lint complains about more than one
-                     * class in a file, we have to temporarily turn off that lint error.
-                     */
-                    /* tslint:disable:max-classes-per-file */
-                    (this.mPluginOverrides as any)[setting] = class {
-                        constructor() {
-                            throw overrideErrMsg;
-                        }
-                    };
-                    /* tslint:enable:max-classes-per-file */
-                    continue;
-                }
+        //             /* We need to assign a class (which always shows an error when
+        //              * the CLI tries to use credentials) into the current override setting.
+        //              * We also need to embed our error message into that class. We cannot
+        //              * create a new object from a class and pass the error into its
+        //              * constructor, because the CredentialManagerFactory takes a class and
+        //              * it calls the constructor of our supplied class. Thus we need an
+        //              * anonymous class so that we can access our 'overrideErrMsg' variable.
+        //              * Our trick is that we simply throw an error in the constructor
+        //              * of our anonymous class. The CredentialManagerFactory catches
+        //              * our error, and places it into its InvalidCredentialManager,
+        //              * which in turn shows our error every time the CLI tries to use
+        //              * credentials. Finally since lint complains about more than one
+        //              * class in a file, we have to temporarily turn off that lint error.
+        //              */
+        //             /* tslint:disable:max-classes-per-file */
+        //             (this.mPluginOverrides as any)[setting] = class {
+        //                 constructor() {
+        //                     throw overrideErrMsg;
+        //                 }
+        //             };
+        //             /* tslint:enable:max-classes-per-file */
+        //             continue;
+        //         }
 
-                // Like the cli the overrides can be the actual class or the string path
-                let loadedSetting: string | object = (loadedOverrides[pluginName as any] as any)[setting];
+        //         // Like the cli the overrides can be the actual class or the string path
+        //         let loadedSetting: string | object = (loadedOverrides[pluginName as any] as any)[setting];
 
-                // If the overrides loaded is a string path, just resolve it here since it would be much
-                // to do so in the overrides loader.
-                if (typeof loadedSetting === "string") {
-                    let pathToPluginOverride = loadedSetting;
-                    try {
-                        if (!isAbsolute(pathToPluginOverride)) {
-                            Logger.getImperativeLogger().trace(`PluginOverride: Resolving ${pathToPluginOverride} in ${pluginName}`);
+        //         // If the overrides loaded is a string path, just resolve it here since it would be much
+        //         // to do so in the overrides loader.
+        //         if (typeof loadedSetting === "string") {
+        //             let pathToPluginOverride = loadedSetting;
+        //             try {
+        //                 if (!isAbsolute(pathToPluginOverride)) {
+        //                     Logger.getImperativeLogger().trace(`PluginOverride: Resolving ${pathToPluginOverride} in ${pluginName}`);
 
-                            // This is actually kind of disgusting. What is happening is that we are getting the
-                            // entry file of the plugin using require.resolve since the modules loaded are different
-                            // when using node or ts-node. This require gets us the index.js/index.ts file that
-                            // the plugin defines. So we then cd up a directory and resolve the path relative
-                            // to the plugin entry file.
-                            pathToPluginOverride = join(
-                                require.resolve(this.formPluginRuntimePath(pluginName as any)),
-                                "../",
-                                pathToPluginOverride
-                            );
-                        }
-                        loadedSetting = require(pathToPluginOverride);
-                        Logger.getImperativeLogger().info(`PluginOverride: Overrode "${setting}" ` +
-                            `with "${pathToPluginOverride}" from plugin "${pluginName}"`);
-                    } catch (requireError) {
-                        const overrideErrMsg = `Unable to override "${setting}" with "${pathToPluginOverride}" ` +
-                            `from plugin "${pluginName}"\n` + "Reason = " + requireError.message +
-                            `\nWe will use a "${setting}" that purposely fails until you reconfigure.`;
-                        PluginIssues.instance.recordIssue(pluginName as any, IssueSeverity.OVER_ERROR, overrideErrMsg);
+        //                     // This is actually kind of disgusting. What is happening is that we are getting the
+        //                     // entry file of the plugin using require.resolve since the modules loaded are different
+        //                     // when using node or ts-node. This require gets us the index.js/index.ts file that
+        //                     // the plugin defines. So we then cd up a directory and resolve the path relative
+        //                     // to the plugin entry file.
+        //                     pathToPluginOverride = join(
+        //                         require.resolve(this.formPluginRuntimePath(pluginName as any)),
+        //                         "../",
+        //                         pathToPluginOverride
+        //                     );
+        //                 }
+        //                 loadedSetting = require(pathToPluginOverride);
+        //                 Logger.getImperativeLogger().info(`PluginOverride: Overrode "${setting}" ` +
+        //                     `with "${pathToPluginOverride}" from plugin "${pluginName}"`);
+        //             } catch (requireError) {
+        //                 const overrideErrMsg = `Unable to override "${setting}" with "${pathToPluginOverride}" ` +
+        //                     `from plugin "${pluginName}"\n` + "Reason = " + requireError.message +
+        //                     `\nWe will use a "${setting}" that purposely fails until you reconfigure.`;
+        //                 PluginIssues.instance.recordIssue(pluginName as any, IssueSeverity.OVER_ERROR, overrideErrMsg);
 
-                        // See the big block comment above about using an anonymous class.
-                        /* tslint:disable:max-classes-per-file */
-                        (this.mPluginOverrides as any)[setting] = class {
-                            constructor() {
-                                throw overrideErrMsg;
-                            }
-                        };
-                        /* tslint:enable:max-classes-per-file */
-                        continue;
-                    }
-                }
+        //                 // See the big block comment above about using an anonymous class.
+        //                 /* tslint:disable:max-classes-per-file */
+        //                 (this.mPluginOverrides as any)[setting] = class {
+        //                     constructor() {
+        //                         throw overrideErrMsg;
+        //                     }
+        //                 };
+        //                 /* tslint:enable:max-classes-per-file */
+        //                 continue;
+        //             }
+        //         }
 
-                // Save the setting in the mPluginsOverrides object that was stored previously in
-                // the loadedOverrides object as the plugin name.
-                (this.mPluginOverrides as any)[setting] = loadedSetting;
-            }
-        }
+        //         // Save the setting in the mPluginsOverrides object that was stored previously in
+        //         // the loadedOverrides object as the plugin name.
+        //         (this.mPluginOverrides as any)[setting] = loadedSetting;
+        //     }
+        // }
         this.impLogger.info("All plugin configurations have been loaded. Details at trace level of logging.");
     }
 

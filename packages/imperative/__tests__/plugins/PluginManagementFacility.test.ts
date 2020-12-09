@@ -9,7 +9,7 @@
 *
 */
 
-import Mock = jest.Mock;
+import Mock = jest.MockedFunction;
 
 jest.mock("fs");
 jest.mock("jsonfile");
@@ -146,11 +146,13 @@ describe("Plugin Management Facility", () => {
         type: "group",
         children: basePluginConfig.definitions
     };
+    /* test:overrides
     const defaultSettings: ISettingsFile = {
         overrides: {
             CredentialManager: false
         }
     };
+    */
 
     beforeEach(() => {
         jest.resetAllMocks();
@@ -598,7 +600,7 @@ describe("Plugin Management Facility", () => {
                 badPluginCfgProps.impConfig = badPluginConfig;
 
                 // Ensure we get to the function that we want to validate
-                mockConflictNmOrAlias.mockReturnValueOnce(false);
+                mockConflictNmOrAlias.mockReturnValueOnce({ hasConflict: false });
                 mockAreVersionsCompatible.mockReturnValueOnce(true);
 
                 isValid = PMF.validatePlugin(badPluginCfgProps, basePluginCmdDef);
@@ -620,7 +622,7 @@ describe("Plugin Management Facility", () => {
                 badPluginCfgProps.impConfig = badPluginConfig;
 
                 // Ensure we get to the function that we want to validate
-                mockConflictNmOrAlias.mockReturnValueOnce(false);
+                mockConflictNmOrAlias.mockReturnValueOnce({ hasConflict: false });
                 mockAreVersionsCompatible.mockReturnValueOnce(true);
 
                 isValid = PMF.validatePlugin(badPluginCfgProps, basePluginCmdDef);
@@ -630,7 +632,7 @@ describe("Plugin Management Facility", () => {
                 expect(issue.issueSev).toBe(IssueSeverity.CFG_ERROR);
                 expect(issue.issueText).toContain(
                     "The program for the 'imperative.pluginHealthCheck' property does not exist: " +
-                    join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, pluginName, "This/File/Does/Not/Exist.js"));
+                    join(PMFConstants.instance.PLUGIN_HOME_LOCATION, pluginName, "This/File/Does/Not/Exist.js"));
             });
 
             it("should record error when ConfigurationValidator throws an exception", () => {
@@ -801,7 +803,7 @@ describe("Plugin Management Facility", () => {
                 expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
                 expect(issue.issueText).toContain(
                     "The handler for command = 'foo (at depth = 2)' does not exist: " +
-                    join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, "sample-plugin/This/File/Does/Not/Exist.js"));
+                    join(PMFConstants.instance.PLUGIN_HOME_LOCATION, "sample-plugin/This/File/Does/Not/Exist.js"));
             });
 
             it("should record an error when a plugin command has no description", () => {
@@ -1075,7 +1077,7 @@ describe("Plugin Management Facility", () => {
             expect(issue.issueSev).toBe(IssueSeverity.CFG_ERROR);
             expect(issue.issueText).toContain(
                 "The path to the plugin does not exist: " +
-                join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, "sample-plugin"));
+                join(PMFConstants.instance.PLUGIN_HOME_LOCATION, "sample-plugin"));
         });
 
         it("should record an error when plugin's package.json does not exist", () => {
@@ -1093,7 +1095,7 @@ describe("Plugin Management Facility", () => {
             expect(issue.issueSev).toBe(IssueSeverity.CFG_ERROR);
             expect(issue.issueText).toContain(
                 "Configuration file does not exist: '" +
-                join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, "sample-plugin/package.json") + "'");
+                join(PMFConstants.instance.PLUGIN_HOME_LOCATION, "sample-plugin/package.json") + "'");
         });
 
         it("should record an error when readFileSync throws an error", () => {
@@ -1115,7 +1117,7 @@ describe("Plugin Management Facility", () => {
             expect(issue.issueSev).toBe(IssueSeverity.CFG_ERROR);
             expect(issue.issueText).toContain(
                 "Cannot read '" +
-                join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, "sample-plugin/package.json") +
+                join(PMFConstants.instance.PLUGIN_HOME_LOCATION, "sample-plugin/package.json") +
                 "' Reason = Mock I/O error");
         });
 
@@ -1138,7 +1140,7 @@ describe("Plugin Management Facility", () => {
             expect(issue.issueSev).toBe(IssueSeverity.WARNING);
             expect(issue.issueText).toContain("dependencies must be contained within a 'peerDependencies' property");
             expect(issue.issueText).toContain("property does not exist in the file " +
-                "'" + join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, "sample-plugin/package.json") + "'.");
+                "'" + join(PMFConstants.instance.PLUGIN_HOME_LOCATION, "sample-plugin/package.json") + "'.");
         });
 
         it("should record return null when ConfigurationLoader throws an exception", () => {
@@ -1637,12 +1639,12 @@ describe("Plugin Management Facility", () => {
     }); // end addAllPlugins
 
     describe("formPluginRuntimePath function", () => {
-        it("should an absolute path when a relative path is specified", () => {
+        it("should return an absolute path when a relative path is specified", () => {
             const relativePath = "./relative/path";
 
             const runtimePath = PMF.formPluginRuntimePath(pluginName, relativePath);
             expect(runtimePath).toBe(
-                join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, pluginName, relativePath));
+                join(PMFConstants.instance.PLUGIN_HOME_LOCATION, pluginName, relativePath));
             expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(0);
             expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
                 IssueSeverity.CFG_ERROR,
