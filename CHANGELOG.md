@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `4.10.0`
 
 - Add arrayAllowDuplicate option
 
