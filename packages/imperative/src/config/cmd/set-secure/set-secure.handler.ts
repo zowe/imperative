@@ -31,6 +31,7 @@ export default class SetSecureHandler implements ICommandHandler {
         let opts: IConfigOpts = null;
         if (CredentialManagerFactory.initialized) {
             opts = {
+                homeDir: ImperativeConfig.instance.cliHome,
                 vault: {
                     load: ((k: string): Promise<string> => {
                         return CredentialManagerFactory.manager.load(k, true)
@@ -60,7 +61,7 @@ export default class SetSecureHandler implements ICommandHandler {
         }
 
         // Set the value in the config, save the secure values, write the config layer
-        config.set(params.arguments.property, params.arguments.value, {
+        config.set(params.arguments.property, value, {
             secure: true,
         });
         config.api.layers.write();

@@ -1,0 +1,30 @@
+{
+    "profiles": {
+        "fruit": {
+            "properties": {
+                "origin": "California"
+            },
+            "profiles": {
+                "apple": {
+                    "type": "fruit",
+                    "properties": {
+                        "color": "red"
+                    }
+                },
+                "orange": {
+                    "type": "fruit",
+                    "properties": {
+                        "color": "orange"
+                    }
+                }
+            }
+        }
+    },
+    "defaults": {
+        "fruit": "fruit.apple"
+    },
+    "plugins": [
+        "@zowe/fruit-for-imperative"
+    ],
+    "secure": []
+}
