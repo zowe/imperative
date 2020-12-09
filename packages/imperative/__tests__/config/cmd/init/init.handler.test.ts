@@ -438,4 +438,152 @@ describe("Configuration Initialization command handler", () => {
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config
     });
+
+    it("should attempt to initialize the project configuration and use boolean true for the prompt", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.user = false;
+        params.arguments.global = false;
+        params.arguments.ci = false;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        promptWithTimeoutSpy.mockReturnValue("true"); // Add fake values for all prompts
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        await handler.process(params as IHandlerParameters);
+
+        const compObj: any = {};
+        // Make changes to satisfy what would be stored on the JSON
+        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+
+        expect(setSchemaSpy).toHaveBeenCalledTimes(1);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        // tslint:disable-next-line: no-magic-numbers
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, 900); // Prompting for secure property
+
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+
+        // Secure value supplied during prompting should be on properties
+        expect(ImperativeConfig.instance.config.properties.profiles.my_secured.properties.secret).toEqual(true);
+    });
+
+    it("should attempt to initialize the project configuration and use boolean false for the prompt", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.user = false;
+        params.arguments.global = false;
+        params.arguments.ci = false;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        promptWithTimeoutSpy.mockReturnValue("false"); // Add fake values for all prompts
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        await handler.process(params as IHandlerParameters);
+
+        const compObj: any = {};
+        // Make changes to satisfy what would be stored on the JSON
+        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+
+        expect(setSchemaSpy).toHaveBeenCalledTimes(1);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        // tslint:disable-next-line: no-magic-numbers
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, 900); // Prompting for secure property
+
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+
+        // Secure value supplied during prompting should be on properties
+        expect(ImperativeConfig.instance.config.properties.profiles.my_secured.properties.secret).toEqual(false);
+    });
+
+    it("should attempt to initialize the project configuration and use a number for the prompt", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.user = false;
+        params.arguments.global = false;
+        params.arguments.ci = false;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        promptWithTimeoutSpy.mockReturnValue("9001"); // Add fake values for all prompts
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        await handler.process(params as IHandlerParameters);
+
+        const compObj: any = {};
+        // Make changes to satisfy what would be stored on the JSON
+        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+
+        expect(setSchemaSpy).toHaveBeenCalledTimes(1);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        // tslint:disable-next-line: no-magic-numbers
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, 900); // Prompting for secure property
+
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+
+        // Secure value supplied during prompting should be on properties
+        // tslint:disable-next-line: no-magic-numbers
+        expect(ImperativeConfig.instance.config.properties.profiles.my_secured.properties.secret).toEqual(9001);
+    });
 });
