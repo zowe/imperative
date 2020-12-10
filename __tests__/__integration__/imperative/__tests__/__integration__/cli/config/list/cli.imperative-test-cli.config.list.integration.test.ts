@@ -15,7 +15,7 @@ import { runCliScript } from "../../../../../../../src/TestUtil";
 import { expectedConfigObject } from "../__resources__/expectedObjects";
 import * as fs from "fs";
 import * as path from "path";
-
+import * as lodash from "lodash";
 
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
@@ -108,18 +108,23 @@ describe("imperative-test-cli config list", () => {
         const parsedResponse = JSON.parse(response.stdout.toString());
         const expectedUserConfig = {
             $schema: "./imperative-test-cli.schema.json",
-            profiles: {},
+            profiles: {
+                my_secured: {
+                    properties: {},
+                    type: "secured"
+                }
+            },
             defaults: {},
             plugins: [],
             secure: []
         };
-        const expectedProjectConfig = expectedConfigObject;
+        const expectedProjectConfig = lodash.cloneDeep(expectedConfigObject);
         const expectedResponse = {
             data: {}
         };
         expectedResponse.data[expectedUserConfigLocation] = expectedUserConfig;
         expectedResponse.data[expectedGlobalUserConfigLocation] = expectedUserConfig;
-        expectedResponse.data[expectedGlobalProjectConfigLocation] = expectedUserConfig;
+        expectedResponse.data[expectedGlobalProjectConfigLocation] = expectedProjectConfig;
         expectedResponse.data[expectedProjectConfigLocation] = expectedProjectConfig;
         expect(parsedResponse.success).toEqual(true);
         expect(parsedResponse.stderr).toEqual("");
