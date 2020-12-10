@@ -11,7 +11,7 @@
 
 import * as JSONC from "comment-json";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { IConfigOpts, Config } from "../../../../../config";
+import { IConfigOpts } from "../../../../../config";
 import { ImperativeError } from "../../../../../error";
 import { CredentialManagerFactory } from "../../../../../security";
 import { ImperativeConfig } from "../../../../../utilities";

@@ -30,6 +30,7 @@ enum layers {
 };
 
 export class Config {
+    private static readonly INDENT: number = 4;
     private static readonly SECURE_ACCT = "secure_config_props";
 
     private _app: string;
@@ -46,8 +47,6 @@ export class Config {
     private _secure: IConfigSecure;
 
     private constructor() { }
-
-    public static readonly INDENT: number = 4;
 
     public static async load(app: string, opts?: IConfigOpts): Promise<Config> {
         opts = opts || {};
