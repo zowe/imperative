@@ -50,7 +50,7 @@ export default class SecureHandler implements ICommandHandler {
         // Create the config, load the secure values, and activate the desired layer
         const config = ImperativeConfig.instance.config;
         config.api.layers.activate(params.arguments.user, params.arguments.global);
-        const secureProps: string[] = config.layers.flatMap((layer: IConfigLayer) => layer.properties.secure);
+        const secureProps: string[] = config.api.layers.get().properties.secure;
 
         if (secureProps.length === 0) {
             params.response.console.log("No secure properties found in your config");

@@ -42,6 +42,7 @@ import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "./help/WebHelpManager";
 import { ICommandOptionDefinition } from "./doc/option/ICommandOptionDefinition";
 import { ICommandProfile } from "./doc/profiles/definition/ICommandProfile";
+import { Config } from "../../config";
 
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
@@ -122,6 +123,13 @@ export class CommandProcessor {
      * @memberof CommandProcessor
      */
     private mLogger: Logger = Logger.getImperativeLogger();
+    /**
+     * Config object used to load profiles from active config layers.
+     * @private
+     * @type {Config}
+     * @memberof CommandProcessor
+     */
+    private mConfig: Config;
 
     /**
      * Creates an instance of CommandProcessor.
@@ -146,6 +154,7 @@ export class CommandProcessor {
         this.mCommandLine = params.commandLine;
         this.mEnvVariablePrefix = params.envVariablePrefix;
         this.mPromptPhrase = params.promptPhrase;
+        this.mConfig = params.config;
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["promptPhrase"], `${CommandProcessor.ERROR_TAG} No prompt phrase supplied.`);
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["rootCommandName"], `${CommandProcessor.ERROR_TAG} No root command supplied.`);
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["envVariablePrefix"], `${CommandProcessor.ERROR_TAG} No ENV variable prefix supplied.`);
@@ -205,6 +214,16 @@ export class CommandProcessor {
      */
     get helpGenerator(): IHelpGenerator {
         return this.mHelpGenerator;
+    }
+
+    /**
+     * Accessor for the app config
+     * @readonly
+     * @type {Config}
+     * @memberof CommandProcessor
+     */
+    get config(): Config {
+        return this.mConfig;
     }
 
     /**
@@ -708,9 +727,6 @@ export class CommandProcessor {
         this.log.trace(`Reading stdin for "${this.definition.name}" command...`);
         await SharedOptions.readStdinIfRequested(commandArguments, response, this.definition.type);
 
-        // Get the config obj
-        const config = ImperativeConfig.instance.config;
-
         // Build a list of all profile types - this will help us search the CLI
         // options for profiles specified by the user
         let allTypes: string[] = [];
@@ -724,23 +740,25 @@ export class CommandProcessor {
         // Build an object that contains all the options loaded from config
         const fulfilled: string[] = [];
         let fromCnfg: any = {};
-        for (const profileType of allTypes) {
-            const [opt, _] = ProfileUtils.getProfileOptionAndAlias(profileType);
+        if (this.mConfig != null) {
+            for (const profileType of allTypes) {
+                const [opt, _] = ProfileUtils.getProfileOptionAndAlias(profileType);
 
-            // If the config contains the requested profiles, then "remember"
-            // that this type has been fulfilled - so that we do NOT load from
-            // the traditional profile location
-            let p: any = {};
-            if (args[opt] != null && config.api.profiles.exists(args[opt])) {
-                fulfilled.push(profileType);
-                p = config.api.profiles.get(args[opt]);
-            } else if (args[opt] == null &&
-                config.properties.defaults[profileType] != null &&
-                config.api.profiles.exists(config.properties.defaults[profileType])) {
-                fulfilled.push(profileType);
-                p = config.api.profiles.defaultGet(profileType);
+                // If the config contains the requested profiles, then "remember"
+                // that this type has been fulfilled - so that we do NOT load from
+                // the traditional profile location
+                let p: any = {};
+                if (args[opt] != null && this.mConfig.api.profiles.exists(args[opt])) {
+                    fulfilled.push(profileType);
+                    p = this.mConfig.api.profiles.get(args[opt]);
+                } else if (args[opt] == null &&
+                    this.mConfig.properties.defaults[profileType] != null &&
+                    this.mConfig.api.profiles.exists(this.mConfig.properties.defaults[profileType])) {
+                    fulfilled.push(profileType);
+                    p = this.mConfig.api.profiles.defaultGet(profileType);
+                }
+                fromCnfg = { ...p, ...fromCnfg };
             }
-            fromCnfg = { ...p, ...fromCnfg };
         }
 
         // Convert each property extracted from the config to the correct yargs
@@ -767,7 +785,7 @@ export class CommandProcessor {
         });
 
         // Merge the arguments from the config into the CLI args
-        this.log.trace(`Arguments extract from the config:\n${inspect(fromCnfg)}`);
+        this.log.trace(`Arguments extracted from the config:\n${inspect(fromCnfg)}`);
         args = CliUtils.mergeArguments(fromCnfg, args);
 
         // Load all profiles for the command

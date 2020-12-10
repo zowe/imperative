@@ -10,15 +10,13 @@
 */
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { ConfigSchema } from "../../../../../config";
+import { Config, ConfigSchema } from "../../../../../config";
 import { ImperativeConfig } from "../../../../../utilities";
 
 /**
  * The get command group handler for cli configuration settings.
  */
 export default class SchemaHandler implements ICommandHandler {
-    private static readonly INDENT: number = 4;
-
     /**
      * Process the command and input.
      *
@@ -28,6 +26,6 @@ export default class SchemaHandler implements ICommandHandler {
      */
     public async process(params: IHandlerParameters): Promise<void> {
         const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
-        params.response.console.log(JSON.stringify(schema, null, SchemaHandler.INDENT));
+        params.response.console.log(JSON.stringify(schema, null, Config.INDENT));
     }
 }

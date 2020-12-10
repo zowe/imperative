@@ -9,6 +9,7 @@
 *
 */
 
+import * as JSONC from "comment-json";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { IConfigOpts } from "../../../../../config";
 import { ImperativeError } from "../../../../../error";
@@ -53,7 +54,7 @@ export default class SetSecureHandler implements ICommandHandler {
         let value = params.arguments.value;
         if (params.arguments.json) {
             try {
-                value = JSON.parse(value);
+                value = JSONC.parse(value, null, true);
             } catch (e) {
                 throw new ImperativeError({ msg: `could not parse JSON value: ${e.message}` });
             }

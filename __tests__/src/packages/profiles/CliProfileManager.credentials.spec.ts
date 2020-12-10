@@ -9,7 +9,7 @@
 *
 */
 
-import * as T from "../../..//src/TestUtil";
+import * as T from "../../../src/TestUtil";
 import * as path from "path";
 import * as fs from "fs";
 import { IImperativeConfig } from "../../../../packages/imperative";
@@ -307,6 +307,7 @@ describe("Cli Profile Manager", () => {
     });
   });
 
+  /* todo:overrides
   describe("Custom Credential Management (Absolute String)", () => {
     const cliBin = path.join(__dirname, "test_cli/TestCustomCredString.ts");
     const config: IImperativeConfig = require(path.join(__dirname, "test_cli/TestCustomCredStringConfiguration"));
@@ -333,7 +334,9 @@ describe("Cli Profile Manager", () => {
       expect(JSON.parse(result.stdout)).toEqual({username: "custom", password: "custom"});
     });
   });
+  */
 
+  /* todo:overrides
   describe("Custom Credential Management (Class)", () => {
     const cliBin = path.join(__dirname, "test_cli/TestCustomCredClass.ts");
     const config: IImperativeConfig = require(path.join(__dirname, "test_cli/TestCustomCredClassConfiguration"));
@@ -360,4 +363,5 @@ describe("Cli Profile Manager", () => {
       expect(JSON.parse(result.stdout)).toEqual({ username: "custom", password: "custom"});
     });
   });
+  */
 });

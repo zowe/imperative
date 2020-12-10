@@ -227,7 +227,8 @@ export class CommandYargs extends AbstractCommandYargs {
                             rootCommandName: this.rootCommandName,
                             commandLine: ImperativeConfig.instance.commandLine,
                             envVariablePrefix: this.envVariablePrefix,
-                            promptPhrase: this.promptPhrase
+                            promptPhrase: this.promptPhrase,
+                            config: ImperativeConfig.instance.config
                         }).invoke({
                             arguments: argsForHandler,
                             silent: false,

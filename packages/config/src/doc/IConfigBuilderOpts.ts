@@ -9,11 +9,9 @@
 *
 */
 
-export * from "./src/Config";
-export * from "./src/ConfigSchema";
-export * from "./src/ConfigBuilder";
-export * from "./src/doc/IConfig";
-export * from "./src/doc/IConfigLayer";
-export * from "./src/doc/IConfigOpts";
-export * from "./src/doc/IConfigProfile";
-export * from "./src/doc/IConfigVault";
+import { IProfileProperty } from "../../../profiles";
+
+export interface IConfigBuilderOpts {
+    populateProperties?: boolean;
+    getSecureValue? (propName: string, property: IProfileProperty): Promise<any>;
+};

@@ -15,6 +15,8 @@ import { CliUtils, ImperativeConfig } from "../../../../../utilities";
 import * as https from "https";
 import { Config, ConfigSchema, IConfig, IConfigProfile } from "../../../../../config";
 import { IProfileProperty } from "../../../../../profiles";
+import { ConfigBuilder } from "../../../../../config/src/ConfigBuilder";
+import { IConfigBuilderOpts } from "../../../../../config/src/doc/IConfigBuilderOpts";
 
 /**
  * Init config
@@ -56,10 +58,10 @@ export default class InitHandler implements ICommandHandler {
         //     await this.initWithSchema(config);
         // }
 
-        await this.initWithSchema(config);
+        await this.initWithSchema(config, params.arguments.user);
 
         // Write the active created/updated config layer
-        config.api.layers.write();
+        await config.api.layers.write();
 
         params.response.console.log(`Saved config template to ${layer.path}`);
     }
@@ -143,127 +145,31 @@ export default class InitHandler implements ICommandHandler {
      * Creates JSON template for config. Also creates a schema file in the same
      * folder alongside the config.
      * @param config Config object to be populated
+     * @param user If true, properties will be left empty for user config
      */
-    private async initWithSchema(config: Config): Promise<void> {
+    private async initWithSchema(config: Config, user: boolean): Promise<void> {
         // Build the schema and write it to disk
         const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
-        config.setSchema("./schema.json", schema);
+        config.setSchema(schema);
 
-        const baseProfileType: string = ImperativeConfig.instance.loadedConfig.baseProfile?.type;
-        const rootProfileName: string = ImperativeConfig.instance.loadedConfig.templateProfileName ?? InitHandler.DEFAULT_ROOT_PROFILE_NAME;
-        const secureProps: { [key: string]: any } = {};
-        for (const profile of ImperativeConfig.instance.loadedConfig.profiles) {
-            // Construct profile path
-            let profilePath = `my_${profile.type}`;
-            if (baseProfileType && profile.type !== baseProfileType) {
-                // Path should have two levels for non-base profiles
-                profilePath = `${rootProfileName}.${profile.type}`;
-            }
+        const opts: IConfigBuilderOpts = {};
+        if (!user) {
+            opts.populateProperties = true;
+            opts.getSecureValue = this.promptForProp.bind(this);
+        }
 
-            // Don't overwrite existing profile with same path
-            if (config.api.profiles.exists(profilePath)) {
-                continue;
-            }
-
-            const properties: { [key: string]: any } = {};
-            for (const [k, v] of Object.entries(profile.schema.properties)) {
-                if (v.includeInTemplate) {
-                    if (v.secure) {
-                        const propertyPath = `profiles.${profilePath}.properties.${k}`;
-                        const propertyValue = await this.promptForProp(v, k);
-                        if (propertyValue) {
-                            // Save this value to be stored securely after profile is built
-                            secureProps[propertyPath] = propertyValue;
-                        } else {
-                            // Add property to secure array without defining a value for it
-                            config.addSecure(propertyPath);
-                        }
-                    } else {
-                        if ((v as any).optionDefinition != null) {
-                            // Use default value of ICommandOptionDefinition if present
-                            properties[k] = (v as any).optionDefinition.defaultValue;
-                        }
-                        if (properties[k] === undefined) {
-                            // Fall back to an empty value
-                            properties[k] = this.getDefaultValue(v.type);
-                        }
-                    }
-                }
-            }
-            // Add the profile to config and set it as default
-            config.api.profiles.set(profilePath, {
-                type: profile.type,
-                properties
-            });
-            config.api.profiles.defaultSet(profile.type, profilePath);
-        }
-        for (const [propPath, propValue] of Object.entries(secureProps)) {
-            config.set(propPath, propValue, { secure: true });
-        }
-        // Hoist duplicate default properties
-        if (config.properties.profiles != null && config.properties.profiles[rootProfileName] != null) {
-            config.api.profiles.set(rootProfileName, this.hoistTemplateProperties(config.properties.profiles[rootProfileName]));
-        };
-    }
-
-    /**
-     * Returns empty value that is appropriate for the property type.
-     * @param propType The type of profile property
-     * @returns Null or empty object
-     */
-    private getDefaultValue(propType: string | string[]): any {
-        // TODO How to handle profile property with multiple types
-        if (Array.isArray(propType)) {
-            propType = propType[0];
-        }
-        switch (propType) {
-            case "string":  return "";
-            case "number":  return 0;
-            case "object":  return {};
-            case "array":   return [];
-            case "boolean": return false;
-            default:        return null;
-        }
-    }
-
-    /**
-     * Moves duplicate default properties across child profiles up to root
-     * profile.
-     * @param rootProfile The root profile object of the config JSON
-     * @returns The root profile with duplicate properties hoisted
-     */
-    private hoistTemplateProperties(rootProfile: IConfigProfile): IConfigProfile {
-        // Flatten properties into object that maps property name to list of values
-        const flattenedProps: { [key: string]: any[] } = {};
-        for (const childProfile of Object.values(rootProfile.profiles)) {
-            for (const [k, v] of Object.entries(childProfile.properties)) {
-                flattenedProps[k] = [...(flattenedProps[k] || []), v];
-            }
-        }
-        // List property names defined multiple times with the same value
-        const duplicateProps: string[] = [];
-        for (const [k, v] of Object.entries(flattenedProps)) {
-            if (v.length > 1 && (new Set(v)).size === 1) {
-                duplicateProps.push(k);
-            }
-        }
-        // Remove duplicate properties from child profiles and store them in root profile
-        for (const propName of duplicateProps) {
-            rootProfile.properties[propName] = flattenedProps[propName][0];
-            for (const childProfile of Object.values(rootProfile.profiles)) {
-                delete childProfile.properties[propName];
-            }
-        }
-        return rootProfile;
+        // Build new config and merge with existing layer
+        const newConfig: IConfig = await ConfigBuilder.build(ImperativeConfig.instance.loadedConfig, opts);
+        config.api.layers.merge(newConfig);
     }
 
     /**
      * Prompts for the value of a property on the CLI. Returns null if `--ci`
      * argument is passed, or prompt times out, or a blank value is entered.
-     * @param property The profile property definition
      * @param propName The name of the property
+     * @param property The profile property definition
      */
-    private async promptForProp(property: IProfileProperty, propName: string): Promise<any> {
+    private async promptForProp(propName: string, property: IProfileProperty): Promise<any> {
         // skip prompting in CI environment
         if (this.arguments.ci) {
             return null;
@@ -279,9 +185,9 @@ export default class InitHandler implements ICommandHandler {
         // coerce to correct type
         if (propValue && propValue.trim().length > 0) {
             if (propValue === "true")
-                propValue = true;
+                return true;
             if (propValue === "false")
-                propValue = false;
+                return false;
             if (!isNaN(propValue) && !isNaN(parseFloat(propValue)))
                 propValue = parseInt(propValue, 10);
         }

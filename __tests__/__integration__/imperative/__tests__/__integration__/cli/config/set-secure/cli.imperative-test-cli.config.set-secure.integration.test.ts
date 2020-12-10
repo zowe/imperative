@@ -16,6 +16,7 @@ import { expectedConfigObject } from "../__resources__/expectedObjects";
 import * as fs from "fs";
 import * as path from "path";
 import * as keytar from "keytar";
+import * as lodash from "lodash";
 import { Config } from "../../../../../../../../packages/config";
 
 
@@ -28,11 +29,15 @@ describe("imperative-test-cli config set-secure", () => {
     let expectedGlobalProjectConfigLocation: string;
     let expectedGlobalUserConfigLocation: string;
 
-    const expectedJson = expectedConfigObject;
+    const expectedJson = lodash.cloneDeep(expectedConfigObject);
     delete expectedJson.$schema;
     expectedJson.profiles.my_secured.properties.info = "some_fake_information";
     expectedJson.profiles.my_secured.properties.secret = "fakeValue";
     expectedJson.secure = [];
+
+    const expectedUserJson = lodash.cloneDeep(expectedJson);
+    delete expectedUserJson.profiles.my_secured.properties.secret;
+    expectedUserJson.defaults = {};
 
     // Create the test environment
     beforeAll(async () => {
@@ -45,10 +50,11 @@ describe("imperative-test-cli config set-secure", () => {
         expectedUserConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.user.json");
         expectedProjectConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json");
         expectedJson.profiles.my_secured.properties.info = "some_fake_information";
+        expectedUserJson.profiles.my_secured.properties.info = "some_fake_information";
     });
     afterEach(() => {
         runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
-            ["-rf imperative-test-cli.config.user.json imperative-test-cli.config.json test schema.json"]);
+            ["-rf imperative-test-cli.config.user.json imperative-test-cli.config.json test imperative-test-cli.schema.json"]);
     });
     it("should display the help", () => {
         const response = runCliScript(__dirname + "/../__scripts__/get_help.sh",
@@ -90,15 +96,14 @@ describe("imperative-test-cli config set-secure", () => {
         const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
         const expectedSecuredValueJson = {};
         expectedSecuredValueJson[expectedUserConfigLocation] = {
-            "profiles.my_secured.properties.secret": "fakeValue",
             "profiles.my_secured.properties.info": "some_fake_information"
         };
 
         expect(response.stderr.toString()).toEqual("");
         expect(response.status).toEqual(0);
-        expect(configJson.data).toEqual(expectedJson);
+        expect(configJson.data).toEqual(expectedUserJson);
         // Should not contain human readable credentials
-        expect(fileContents.secure).toEqual(["profiles.my_secured.properties.secret", "profiles.my_secured.properties.info"]);
+        expect(fileContents.secure).toEqual(["profiles.my_secured.properties.info"]);
         expect(fileContents.profiles.my_secured.properties).not.toEqual({info: "some_fake_information"});
         // Check the securely stored JSON
         expect(securedValueJson).toEqual(expectedSecuredValueJson);
@@ -138,15 +143,14 @@ describe("imperative-test-cli config set-secure", () => {
         const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
         const expectedSecuredValueJson = {};
         expectedSecuredValueJson[expectedGlobalUserConfigLocation] = {
-            "profiles.my_secured.properties.secret": "fakeValue",
             "profiles.my_secured.properties.info": "some_fake_information"
         };
 
         expect(response.stderr.toString()).toEqual("");
         expect(response.status).toEqual(0);
-        expect(configJson.data).toEqual(expectedJson);
+        expect(configJson.data).toEqual(expectedUserJson);
         // Should not contain human readable credentials
-        expect(fileContents.secure).toEqual(["profiles.my_secured.properties.secret", "profiles.my_secured.properties.info"]);
+        expect(fileContents.secure).toEqual(["profiles.my_secured.properties.info"]);
         expect(fileContents.profiles.my_secured.properties).not.toEqual({info: "some_fake_information"});
         // Check the securely stored JSON
         expect(securedValueJson).toEqual(expectedSecuredValueJson);
@@ -158,20 +162,19 @@ describe("imperative-test-cli config set-secure", () => {
         const fileContents = JSON.parse(fs.readFileSync(expectedGlobalUserConfigLocation).toString());
         const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
         const configJson = JSON.parse(config);
-        expectedJson.profiles.my_secured.properties.info = {data: "fake"};
+        expectedUserJson.profiles.my_secured.properties.info = {data: "fake"};
         const securedValue = await keytar.getPassword("Zowe", "secure_config_props");
         const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
         const expectedSecuredValueJson = {};
         expectedSecuredValueJson[expectedGlobalUserConfigLocation] = {
-            "profiles.my_secured.properties.secret": "fakeValue",
             "profiles.my_secured.properties.info": {data: "fake"}
         };
 
         expect(response.stderr.toString()).toEqual("");
         expect(response.status).toEqual(0);
-        expect(configJson.data).toEqual(expectedJson);
+        expect(configJson.data).toEqual(expectedUserJson);
         // Should not contain human readable credentials
-        expect(fileContents.secure).toEqual(["profiles.my_secured.properties.secret", "profiles.my_secured.properties.info"]);
+        expect(fileContents.secure).toEqual(["profiles.my_secured.properties.info"]);
         expect(fileContents.profiles.my_secured.properties).not.toEqual({info: {data: "fake"}});
         // Check the securely stored JSON
         expect(securedValueJson).toEqual(expectedSecuredValueJson);

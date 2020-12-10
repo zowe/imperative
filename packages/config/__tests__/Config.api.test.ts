@@ -17,6 +17,40 @@ import { IConfigProfile } from "../src/doc/IConfigProfile";
 
 const MY_APP = "my_app";
 
+const mergeConfig: IConfig = {
+    profiles: {
+        fruit: {
+            properties: {
+                origin: "Costa Rica",
+                shipDate: "2000-01-01"
+            },
+            profiles: {
+                apple: {
+                    type: "fruit",
+                    properties: {
+                        color: "green"
+                    }
+                },
+                grape: {
+                    type: "fruit",
+                    properties: {
+                        color: "red"
+                    }
+                }
+            }
+        }
+    },
+    defaults: {
+        fruit: "fruit.grape"
+    },
+    plugins: [
+        "@zowe/vegetable-for-imperative"
+    ],
+    secure: [
+        "profiles.fruit.properties.secret"
+    ]
+};
+
 describe("Config API tests", () => {
     beforeEach(() => {
         jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/project.config.user.json");
@@ -317,6 +351,26 @@ describe("Config API tests", () => {
                 expect(retrievedConfig.profiles).toEqual({});
                 expect(retrievedConfig.plugins).toEqual([]);
                 expect(retrievedConfig.secure).toEqual([]);
+            });
+        });
+        describe("merge", () => {
+            it("should merge config layers with correct priority", async () => {
+                const config = await Config.load(MY_APP);
+                config.api.layers.merge(mergeConfig);
+                const retrievedConfig = (config as any).layerActive().properties;
+                expect(retrievedConfig).toMatchSnapshot();
+
+                // Check that new config was added
+                expect(retrievedConfig.plugins.length).toBe(2);
+                expect(retrievedConfig.profiles.fruit.profiles.grape).toBeDefined();
+                expect(retrievedConfig.profiles.fruit.properties.shipDate).toBeDefined();
+                expect(retrievedConfig.secure.length).toBe(1);
+
+                // Check that old config had priority
+                expect(retrievedConfig.defaults.fruit).toBe("fruit.apple");
+                expect(retrievedConfig.profiles.fruit.profiles.apple.properties.color).toBe("red");
+                expect(retrievedConfig.profiles.fruit.profiles.orange).toBeDefined();
+                expect(retrievedConfig.profiles.fruit.properties.origin).toBe("California");
             });
         });
     });

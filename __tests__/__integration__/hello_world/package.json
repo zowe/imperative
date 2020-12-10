@@ -38,7 +38,7 @@
     "chalk": "2.4.2",
     "cli-table3": "0.5.1",
     "dataobject-parser": "1.2.1",
-    "find-up": "2.1.0",
+    "find-up": "4.1.0",
     "glob": "7.1.6",
     "js-yaml": "3.13.1",
     "jsonfile": "4.0.0",

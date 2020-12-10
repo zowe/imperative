@@ -15,7 +15,7 @@ import { runCliScript } from "../../../../../../../src/TestUtil";
 import { expectedConfigObject } from "../__resources__/expectedObjects";
 import * as fs from "fs";
 import * as path from "path";
-
+import * as lodash from "lodash";
 
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
@@ -99,7 +99,7 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain("type:       secured");
         expect(response.stdout.toString()).toContain("properties:");
         expect(response.stdout.toString()).toContain("secured: my_secured");
-        expect(response.stdout.toString()).toContain("$schema:  ./schema.json");
+        expect(response.stdout.toString()).toContain("$schema:  ./imperative-test-cli.schema.json");
         expect(response.stderr.toString()).toEqual("");
         expect(response.error).not.toBeDefined();
     });
@@ -107,19 +107,24 @@ describe("imperative-test-cli config list", () => {
         const response = runCliScript(__dirname + "/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--locations --rfj"]);
         const parsedResponse = JSON.parse(response.stdout.toString());
         const expectedUserConfig = {
-            $schema: "./schema.json",
-            profiles: {},
+            $schema: "./imperative-test-cli.schema.json",
+            profiles: {
+                my_secured: {
+                    properties: {},
+                    type: "secured"
+                }
+            },
             defaults: {},
             plugins: [],
             secure: []
         };
-        const expectedProjectConfig = expectedConfigObject;
+        const expectedProjectConfig = lodash.cloneDeep(expectedConfigObject);
         const expectedResponse = {
             data: {}
         };
         expectedResponse.data[expectedUserConfigLocation] = expectedUserConfig;
         expectedResponse.data[expectedGlobalUserConfigLocation] = expectedUserConfig;
-        expectedResponse.data[expectedGlobalProjectConfigLocation] = expectedUserConfig;
+        expectedResponse.data[expectedGlobalProjectConfigLocation] = expectedProjectConfig;
         expectedResponse.data[expectedProjectConfigLocation] = expectedProjectConfig;
         expect(parsedResponse.success).toEqual(true);
         expect(parsedResponse.stderr).toEqual("");

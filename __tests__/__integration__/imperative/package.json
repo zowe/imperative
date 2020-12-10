@@ -40,7 +40,7 @@
     "dataobject-parser": "1.2.1",
     "deepmerge": "3.0.0",
     "express": "4.17.1",
-    "find-up": "2.1.0",
+    "find-up": "4.1.0",
     "glob": "7.1.6",
     "js-yaml": "3.13.1",
     "jsonfile": "4.0.0",

@@ -12,6 +12,8 @@
 import * as node_path from "path";
 import * as fs from "fs";
 import * as deepmerge from "deepmerge";
+import * as findUp from "find-up";
+import * as JSONC from "comment-json";
 
 import { IConfig } from "./doc/IConfig";
 import { IConfigLayer } from "./doc/IConfigLayer";
@@ -29,7 +31,6 @@ enum layers {
 };
 
 export class Config {
-    private static readonly INDENT: number = 4;
     private static readonly SECURE_ACCT = "secure_config_props";
 
     private _app: string;
@@ -38,6 +39,7 @@ export class Config {
     private _home: string;
     private _name: string;
     private _user: string;
+    private _schema: string;
     private _active: {
         user: boolean;
         global: boolean
@@ -46,6 +48,17 @@ export class Config {
     private _secure: IConfigSecure;
 
     private constructor() { }
+
+    public static readonly INDENT: number = 4;
+
+    public static empty(): IConfig {
+        return {
+            profiles: {},
+            defaults: {},
+            plugins: [],
+            secure: []
+        };
+    }
 
     public static async load(app: string, opts?: IConfigOpts): Promise<Config> {
         opts = opts || {};
@@ -59,6 +72,7 @@ export class Config {
         _._paths = [];
         _._name = `${app}.config.json`;
         _._user = `${app}.config.user.json`;
+        _._schema = `${app}.schema.json`;
         _._active = { user: false, global: false };
         _._app = app;
         _._vault = opts.vault;
@@ -67,46 +81,40 @@ export class Config {
         ////////////////////////////////////////////////////////////////////////
         // Populate configuration file layers
         const home = require("os").homedir();
-        const properties: IConfig = {
-            profiles: {},
-            defaults: {},
-            plugins: [],
-            secure: []
-        };
 
         // Find/create project user layer
         let user = Config.search(_._user, { stop: home, gbl: _._home });
         if (user == null)
             user = node_path.join(process.cwd(), _._user);
         _._paths.push(user);
-        _._layers.push({ path: user, exists: false, properties, global: false, user: true });
+        _._layers.push({ path: user, exists: false, properties: Config.empty(), global: false, user: true });
 
         // Find/create project layer
         let project = Config.search(_._name, { stop: home, gbl: _._home });
         if (project == null)
             project = node_path.join(process.cwd(), _._name);
         _._paths.push(project);
-        _._layers.push({ path: project, exists: false, properties, global: false, user: false });
+        _._layers.push({ path: project, exists: false, properties: Config.empty(), global: false, user: false });
 
         // create the user layer
         const usrGlbl = node_path.join(_._home, _._user);
         _._paths.push(usrGlbl);
-        _._layers.push({ path: usrGlbl, exists: false, properties, global: true, user: true });
+        _._layers.push({ path: usrGlbl, exists: false, properties: Config.empty(), global: true, user: true });
 
         // create the global layer
         const glbl = node_path.join(_._home, _._name);
         _._paths.push(glbl);
-        _._layers.push({ path: glbl, exists: false, properties, global: true, user: false });
+        _._layers.push({ path: glbl, exists: false, properties: Config.empty(), global: true, user: false });
 
         ////////////////////////////////////////////////////////////////////////
         // Read and populate each configuration layer
         try {
             let setActive = true;
             _._layers.forEach((layer: IConfigLayer) => {
-                // Attempt to popluate the layer
+                // Attempt to populate the layer
                 if (fs.existsSync(layer.path)) {
                     try {
-                        layer.properties = JSON.parse(fs.readFileSync(layer.path).toString());
+                        layer.properties = JSONC.parse(fs.readFileSync(layer.path).toString());
                         layer.exists = true;
                     } catch (e) {
                         throw new ImperativeError({ msg: `${layer.path}: ${e.message}` });
@@ -179,7 +187,7 @@ export class Config {
 
                 // TODO: If asked for inner layer profile, if profile doesn't exist, returns outer layer profile values (bug?)
                 public get(path: string): { [key: string]: string } {
-                    return Config.buildProfile(path, JSON.parse(JSON.stringify(outer.properties.profiles)));
+                    return Config.buildProfile(path, JSONC.parse(JSONC.stringify(outer.properties.profiles)));
                 }
 
                 public exists(path: string): boolean {
@@ -231,7 +239,7 @@ export class Config {
                     await outer.secureSave();
 
                     // If fields are marked as secure
-                    const layer: IConfigLayer = JSON.parse(JSON.stringify(outer.layerActive()));
+                    const layer: IConfigLayer = JSONC.parse(JSONC.stringify(outer.layerActive()));
                     if (layer.properties.secure != null) {
                         for (const path of layer.properties.secure) {
                             const segments = path.split(".");
@@ -251,7 +259,7 @@ export class Config {
 
                     // Write the layer
                     try {
-                        fs.writeFileSync(layer.path, JSON.stringify(layer.properties, null, Config.INDENT));
+                        fs.writeFileSync(layer.path, JSONC.stringify(layer.properties, null, Config.INDENT));
                     } catch (e) {
                         throw new ImperativeError({ msg: `error writing "${layer.path}": ${e.message}` });
                     }
@@ -264,7 +272,9 @@ export class Config {
                 }
 
                 public get(): IConfigLayer {
-                    return JSON.parse(JSON.stringify(outer.layerActive()));
+                    // Note: Add indentation to allow comments to be accessed via config.api.layers.get(), otherwise use layerActive()
+                    // return JSONC.parse(JSONC.stringify(outer.layerActive(), null, Config.INDENT));
+                    return JSONC.parse(JSONC.stringify(outer.layerActive()));
                 }
 
                 public set(cnfg: IConfig) {
@@ -276,6 +286,22 @@ export class Config {
                             outer._layers[i].properties.profiles = outer._layers[i].properties.profiles || {};
                             outer._layers[i].properties.plugins = outer._layers[i].properties.plugins || [];
                             outer._layers[i].properties.secure = outer._layers[i].properties.secure || [];
+                        }
+                    }
+                }
+
+                public merge(cnfg: IConfig) {
+                    const layer = outer.layerActive();
+                    layer.properties.profiles = deepmerge(cnfg.profiles, layer.properties.profiles);
+                    layer.properties.defaults = deepmerge(cnfg.defaults, layer.properties.defaults);
+                    for (const pluginName of cnfg.plugins) {
+                        if (!layer.properties.plugins.includes(pluginName)) {
+                            layer.properties.plugins.push(pluginName);
+                        }
+                    }
+                    for (const propPath of cnfg.secure) {
+                        if (!layer.properties.secure.includes(propPath)) {
+                            layer.properties.secure.push(propPath);
                         }
                     }
                 }
@@ -301,7 +327,7 @@ export class Config {
     }
 
     public get layers(): IConfigLayer[] {
-        return JSON.parse(JSON.stringify(this._layers));
+        return JSONC.parse(JSONC.stringify(this._layers));
     }
 
     public get properties(): IConfig {
@@ -349,34 +375,26 @@ export class Config {
         });
 
         if (opts.secure)
-            layer.properties.secure = Array.from(new Set(layer.properties.secure.concat([path])));
+            if (!layer.properties.secure.includes(path))
+                layer.properties.secure.push(path);
     }
 
     /**
-     * Sets the $schema value at the top of the config JSON, and saves the
+     * Sets the $schema value at the top of the config JSONC, and saves the
      * schema to disk if an object is provided.
-     * @param uri The URI of JSON schema
-     * @param schemaObj Schema object to write to disk (if URI is a local path)
+     * @param schema The URI of JSON schema, or a schema object to use
      */
-    public setSchema(uri: string, schemaObj?: any) {
+    public setSchema(schema: string | object) {
+        const schemaUri = (typeof schema === "string") ? schema : `./${this._schema}`;
+        const schemaObj = (typeof schema !== "string") ? schema : null;
+
         const layer = this.layerActive();
         delete layer.properties.$schema;
-        layer.properties = { $schema: uri, ...layer.properties };
+        layer.properties = { $schema: schemaUri, ...layer.properties };
 
         if (schemaObj != null) {
-            const filePath = node_path.resolve(node_path.dirname(layer.path), uri);
-            fs.writeFileSync(filePath, JSON.stringify(schemaObj, null, Config.INDENT));
-        }
-    }
-
-    /**
-     * Adds a property path to the secure array in the config JSON.
-     * @param path The property path to be secured
-     */
-    public addSecure(path: string) {
-        const layer = this.layerActive();
-        if (!layer.properties.secure.includes(path)) {
-            layer.properties.secure.push(path);
+            const filePath = node_path.resolve(node_path.dirname(layer.path), schemaUri);
+            fs.writeFileSync(filePath, JSONC.stringify(schemaObj, null, Config.INDENT));
         }
     }
 
@@ -390,17 +408,12 @@ export class Config {
         // config starting point
         // NOTE: "properties" and "secure" only apply to the individual layers
         // NOTE: they will be blank for the merged config
-        const c: IConfig = {
-            defaults: {},
-            profiles: {},
-            plugins: [],
-            secure: []
-        };
+        const c = Config.empty();
 
         // merge each layer
         this._layers.forEach((layer: IConfigLayer) => {
 
-            // Merge "plugins" - create a unique set from all entires
+            // Merge "plugins" - create a unique set from all entries
             c.plugins = Array.from(new Set(layer.properties.plugins.concat(c.plugins)));
 
             // Merge "defaults" - only add new properties from this layer
@@ -409,13 +422,13 @@ export class Config {
         });
 
         // Merge the project layer profiles
-        const usrProject = JSON.parse(JSON.stringify(this._layers[layers.project_user].properties.profiles));
-        const project = JSON.parse(JSON.stringify(this._layers[layers.project_config].properties.profiles));
+        const usrProject = JSONC.parse(JSONC.stringify(this._layers[layers.project_user].properties.profiles));
+        const project = JSONC.parse(JSONC.stringify(this._layers[layers.project_config].properties.profiles));
         const proj: { [key: string]: IConfigProfile } = deepmerge(project, usrProject);
 
         // Merge the global layer profiles
-        const usrGlobal = JSON.parse(JSON.stringify(this._layers[layers.global_user].properties.profiles));
-        const global = JSON.parse(JSON.stringify(this._layers[layers.global_config].properties.profiles));
+        const usrGlobal = JSONC.parse(JSONC.stringify(this._layers[layers.global_user].properties.profiles));
+        const global = JSONC.parse(JSONC.stringify(this._layers[layers.global_config].properties.profiles));
         const glbl: { [key: string]: IConfigProfile } = deepmerge(global, usrGlobal);
 
         // Traverse all the global profiles merging any missing from project profiles
@@ -449,7 +462,7 @@ export class Config {
         // load the secure fields
         const s: string = await this._vault.load(Config.SECURE_ACCT);
         if (s == null) return;
-        this._secure.configs = JSON.parse(s);
+        this._secure.configs = JSONC.parse(s);
 
         // populate each layers properties
         for (const layer of this._layers) {
@@ -515,7 +528,7 @@ export class Config {
 
         // Save the entries if needed
         if (Object.keys(this._secure.configs).length > 0)
-            await this._vault.save(Config.SECURE_ACCT, JSON.stringify(this._secure.configs));
+            await this._vault.save(Config.SECURE_ACCT, JSONC.stringify(this._secure.configs));
     }
 
     private secureFields(): boolean {
@@ -535,25 +548,12 @@ export class Config {
         opts = opts || {};
         if (opts.stop) opts.stop = node_path.resolve(opts.stop);
         if (opts.gbl) opts.gbl = node_path.resolve(opts.gbl);
-        let p = node_path.join(process.cwd(), file);
-        const root = node_path.parse(process.cwd()).root;
-        let prev = null;
-        do {
-            // this should never happen, but we'll add a check to prevent
-            if (prev != null && prev === p)
-                throw new ImperativeError({ msg: `internal search error: prev === p (${prev})` });
-            // do not use a global directory config file as a local directory one
-            if (opts.gbl && node_path.dirname(p) === opts.gbl) {
-                prev = p;
-                p = node_path.resolve(node_path.dirname(p), "..", file);
-                continue;
-            };
-            if (fs.existsSync(p))
-                return p;
-            prev = p;
-            p = node_path.resolve(node_path.dirname(p), "..", file);
-        } while (p !== node_path.join(root, file) && opts.stop != null && node_path.dirname(p) !== opts.stop)
-        return null;
+        const p = findUp.sync((directory: string) => {
+            if (directory === opts.stop) return findUp.stop;
+            if (directory === opts.gbl) return;
+            return fs.existsSync(node_path.join(directory, file)) && directory;
+        }, { type: "directory" });
+        return p ? node_path.join(p, file) : null;
     }
 
     private static buildProfile(path: string, profiles: { [key: string]: IConfigProfile }): { [key: string]: string } {
