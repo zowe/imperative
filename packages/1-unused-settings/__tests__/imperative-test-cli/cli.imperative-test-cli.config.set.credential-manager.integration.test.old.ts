@@ -9,9 +9,9 @@
 *
 */
 
-import { ITestEnvironment } from "../../../../__tests__/__src__/environment/doc/response/ITestEnvironment";
-import { SetupTestEnvironment } from "../../../../__tests__/__src__/environment/SetupTestEnvironment";
-import { runCliScript } from "../../../../__tests__/src/TestUtil";
+import { ITestEnvironment } from "../../../../../../../__src__/environment/doc/response/ITestEnvironment";
+import { SetupTestEnvironment } from "../../../../../../../__src__/environment/SetupTestEnvironment";
+import { runCliScript } from "../../../../../../../src/TestUtil";
 import * as fs from "fs";
 
 const TEST_CREDENTIAL_MANAGER: string = "@test/test-cm";
