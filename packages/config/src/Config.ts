@@ -13,6 +13,7 @@ import * as node_path from "path";
 import * as fs from "fs";
 import * as deepmerge from "deepmerge";
 import * as findUp from "find-up";
+import * as JSONC from "comment-json";
 
 import { IConfig } from "./doc/IConfig";
 import { IConfigLayer } from "./doc/IConfigLayer";
@@ -112,7 +113,7 @@ export class Config {
                 // Attempt to populate the layer
                 if (fs.existsSync(layer.path)) {
                     try {
-                        layer.properties = JSON.parse(fs.readFileSync(layer.path).toString());
+                        layer.properties = JSONC.parse(fs.readFileSync(layer.path).toString());
                         layer.exists = true;
                     } catch (e) {
                         throw new ImperativeError({ msg: `${layer.path}: ${e.message}` });
@@ -185,7 +186,7 @@ export class Config {
 
                 // TODO: If asked for inner layer profile, if profile doesn't exist, returns outer layer profile values (bug?)
                 public get(path: string): { [key: string]: string } {
-                    return Config.buildProfile(path, JSON.parse(JSON.stringify(outer.properties.profiles)));
+                    return Config.buildProfile(path, JSONC.parse(JSONC.stringify(outer.properties.profiles)));
                 }
 
                 public exists(path: string): boolean {
@@ -237,7 +238,7 @@ export class Config {
                     await outer.secureSave();
 
                     // If fields are marked as secure
-                    const layer: IConfigLayer = JSON.parse(JSON.stringify(outer.layerActive()));
+                    const layer: IConfigLayer = JSONC.parse(JSONC.stringify(outer.layerActive()));
                     if (layer.properties.secure != null) {
                         for (const path of layer.properties.secure) {
                             const segments = path.split(".");
@@ -257,7 +258,7 @@ export class Config {
 
                     // Write the layer
                     try {
-                        fs.writeFileSync(layer.path, JSON.stringify(layer.properties, null, Config.INDENT));
+                        fs.writeFileSync(layer.path, JSONC.stringify(layer.properties, null, Config.INDENT));
                     } catch (e) {
                         throw new ImperativeError({ msg: `error writing "${layer.path}": ${e.message}` });
                     }
@@ -270,7 +271,9 @@ export class Config {
                 }
 
                 public get(): IConfigLayer {
-                    return JSON.parse(JSON.stringify(outer.layerActive()));
+                    // Note: Add indentation to allow comments to be accessed via config.api.layers.get(), otherwise use layerActive()
+                    // return JSONC.parse(JSONC.stringify(outer.layerActive(), null, Config.INDENT));
+                    return JSONC.parse(JSONC.stringify(outer.layerActive()));
                 }
 
                 public set(cnfg: IConfig) {
@@ -323,7 +326,7 @@ export class Config {
     }
 
     public get layers(): IConfigLayer[] {
-        return JSON.parse(JSON.stringify(this._layers));
+        return JSONC.parse(JSONC.stringify(this._layers));
     }
 
     public get properties(): IConfig {
@@ -371,11 +374,12 @@ export class Config {
         });
 
         if (opts.secure)
-            layer.properties.secure = Array.from(new Set(layer.properties.secure.concat([path])));
+            if (!layer.properties.secure.includes(path))
+                layer.properties.secure.push(path);
     }
 
     /**
-     * Sets the $schema value at the top of the config JSON, and saves the
+     * Sets the $schema value at the top of the config JSONC, and saves the
      * schema to disk if an object is provided.
      * @param schema The URI of JSON schema, or a schema object to use
      */
@@ -389,7 +393,7 @@ export class Config {
 
         if (schemaObj != null) {
             const filePath = node_path.resolve(node_path.dirname(layer.path), schemaUri);
-            fs.writeFileSync(filePath, JSON.stringify(schemaObj, null, Config.INDENT));
+            fs.writeFileSync(filePath, JSONC.stringify(schemaObj, null, Config.INDENT));
         }
     }
 
@@ -417,13 +421,13 @@ export class Config {
         });
 
         // Merge the project layer profiles
-        const usrProject = JSON.parse(JSON.stringify(this._layers[layers.project_user].properties.profiles));
-        const project = JSON.parse(JSON.stringify(this._layers[layers.project_config].properties.profiles));
+        const usrProject = JSONC.parse(JSONC.stringify(this._layers[layers.project_user].properties.profiles));
+        const project = JSONC.parse(JSONC.stringify(this._layers[layers.project_config].properties.profiles));
         const proj: { [key: string]: IConfigProfile } = deepmerge(project, usrProject);
 
         // Merge the global layer profiles
-        const usrGlobal = JSON.parse(JSON.stringify(this._layers[layers.global_user].properties.profiles));
-        const global = JSON.parse(JSON.stringify(this._layers[layers.global_config].properties.profiles));
+        const usrGlobal = JSONC.parse(JSONC.stringify(this._layers[layers.global_user].properties.profiles));
+        const global = JSONC.parse(JSONC.stringify(this._layers[layers.global_config].properties.profiles));
         const glbl: { [key: string]: IConfigProfile } = deepmerge(global, usrGlobal);
 
         // Traverse all the global profiles merging any missing from project profiles
@@ -457,7 +461,7 @@ export class Config {
         // load the secure fields
         const s: string = await this._vault.load(Config.SECURE_ACCT);
         if (s == null) return;
-        this._secure.configs = JSON.parse(s);
+        this._secure.configs = JSONC.parse(s);
 
         // populate each layers properties
         for (const layer of this._layers) {
@@ -523,7 +527,7 @@ export class Config {
 
         // Save the entries if needed
         if (Object.keys(this._secure.configs).length > 0)
-            await this._vault.save(Config.SECURE_ACCT, JSON.stringify(this._secure.configs));
+            await this._vault.save(Config.SECURE_ACCT, JSONC.stringify(this._secure.configs));
     }
 
     private secureFields(): boolean {

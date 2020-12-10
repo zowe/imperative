@@ -52,6 +52,7 @@
     "@zowe/perf-timing": "1.0.7",
     "chalk": "2.4.2",
     "cli-table3": "0.5.1",
+    "comment-json": "4.1.0",
     "dataobject-parser": "1.2.1",
     "deepmerge": "3.0.0",
     "find-up": "4.1.0",
