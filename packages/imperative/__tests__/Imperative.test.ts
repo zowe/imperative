@@ -25,7 +25,7 @@ describe("Imperative", () => {
 
     const reloadExternalMocks = () => {
         try {
-            jest.doMock("../../security/src/CredentialManagerFactory");
+            jest.doMock("../src/OverridesLoader");
             jest.doMock("../src/LoggingConfigurer");
             jest.doMock("../src/ConfigurationLoader");
             jest.doMock("../src/ConfigurationValidator");
@@ -38,7 +38,7 @@ describe("Imperative", () => {
             jest.doMock("../src/auth/builders/CompleteAuthGroupBuilder");
             jest.doMock("../src/profiles/builders/CompleteProfilesGroupBuilder");
 
-            const {CredentialManagerFactory} = require("../../security/src/CredentialManagerFactory");
+            const {OverridesLoader} = require("../src/OverridesLoader");
             const {LoggingConfigurer} = require("../src/LoggingConfigurer");
             const {ConfigurationLoader} = require("../src/ConfigurationLoader");
             const ConfigurationValidator = require("../src/ConfigurationValidator").ConfigurationValidator.validate;
@@ -50,8 +50,8 @@ describe("Imperative", () => {
             const {CompleteAuthGroupBuilder} = require("../src/auth/builders/CompleteAuthGroupBuilder");
             const {CompleteProfilesGroupBuilder} = require("../src/profiles/builders/CompleteProfilesGroupBuilder");
             return {
-                CredentialManagerFactory: {
-                    initialize: CredentialManagerFactory.initialize as Mock<typeof CredentialManagerFactory.initialize>
+                OverridesLoader: {
+                    load: OverridesLoader.load as Mock<typeof OverridesLoader.load>
                 },
                 ConfigurationLoader: {
                     load: ConfigurationLoader.load as Mock<typeof ConfigurationLoader.load>
@@ -150,7 +150,7 @@ describe("Imperative", () => {
             (Imperative as any).defineCommands = jest.fn(() => undefined);
 
             mocks.ConfigurationLoader.load.mockReturnValue(defaultConfig);
-            // mocks.OverridesLoader.load.mockReturnValue(new Promise((resolve) => resolve()));
+            mocks.OverridesLoader.load.mockReturnValue(new Promise((resolve) => resolve()));
         });
 
         it("should work when passed with nothing", async () => {
@@ -158,12 +158,8 @@ describe("Imperative", () => {
             const result = await Imperative.init();
 
             expect(result).toBeUndefined();
-            /* todo:overrides
             expect(mocks.OverridesLoader.load).toHaveBeenCalledTimes(1);
             expect(mocks.OverridesLoader.load).toHaveBeenCalledWith(defaultConfig, {version: 10000, name: "sample"});
-            */
-            expect(mocks.CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
-            expect(mocks.CredentialManagerFactory.initialize).toHaveBeenCalledWith({ service: null });
         });
 
         /* todo:overrides

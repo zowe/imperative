@@ -47,6 +47,7 @@ import {
 import { ProfileUtils, IProfileTypeConfiguration } from "../../profiles";
 import { CompleteProfilesGroupBuilder } from "./profiles/builders/CompleteProfilesGroupBuilder";
 import { ImperativeHelpGeneratorFactory } from "./help/ImperativeHelpGeneratorFactory";
+import { OverridesLoader } from "./OverridesLoader";
 import { ImperativeProfileManagerFactory } from "./profiles/ImperativeProfileManagerFactory";
 import { DefinitionTreeResolver } from "./DefinitionTreeResolver";
 import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
@@ -63,7 +64,6 @@ import { CredentialManagerFactory } from "../../security";
 /* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
 import { AppSettings } from "../../settings";
 import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
-import { OverridesLoader } from "./OverridesLoader";
 */
 
 // Bootstrap the performance tools
@@ -193,9 +193,14 @@ export class Imperative {
                     ConfigManagementFacility.instance.init();
                 }
 
-                // Initialize the credential manager for storing secure values
-                // Null will use the service name of the built-in credential manager.
-                await CredentialManagerFactory.initialize({ service: null });
+                /**
+                 * Now we should apply any overrides to default Imperative functionality. This is where CLI
+                 * developers are able to really start customizing Imperative and how it operates internally.
+                 */
+                // todo:overrides If we reinstate overrides in the future, we need
+                // to delay apply of overrides until after loading plugin overrides
+                await OverridesLoader.load(ImperativeConfig.instance.loadedConfig,
+                    ImperativeConfig.instance.callerPackageJson);
 
                 // Load all the app config layers
                 // todo:overrides If we reinstate overrides in the future, we need
@@ -239,15 +244,6 @@ export class Imperative {
                  * Any other initialization added to this routine should occur after logging has been initialized.
                  */
                 this.initLogging();
-
-                /**
-                 * Now we should apply any overrides to default Imperative functionality. This is where CLI
-                 * developers are able to really start customizing Imperative and how it operates internally.
-                 */
-                /* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
-                await OverridesLoader.load(ImperativeConfig.instance.loadedConfig,
-                    ImperativeConfig.instance.callerPackageJson);
-                */
 
                 /**
                  * Build API object
