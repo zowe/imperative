@@ -239,6 +239,7 @@ export class Imperative {
                 let opts: IConfigOpts = null;
                 if (CredentialManagerFactory.initialized) {
                     opts = {
+                        homeDir: ImperativeConfig.instance.cliHome,
                         vault: {
                             load: ((key: string): Promise<string> => {
                                 return CredentialManagerFactory.manager.load(key, true)

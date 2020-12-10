@@ -63,7 +63,8 @@ describe("Config Schema", () => {
             }
         }
     }];
-    const testProfileConfigurationOptionDefinition: IProfileTypeConfiguration[] = [
+    // TODO Why doesn't type work here when optionDefinition is defined
+    const testProfileConfigurationOptionDefinition: any = [
         {
             type: "zosmf",
             schema: {

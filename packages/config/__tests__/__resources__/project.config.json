@@ -24,5 +24,7 @@
         "fruit": "fruit.orange"
     },
     "plugins": [],
-    "secure": []
+    "secure": [
+        "profiles.fruit.properties.secret"
+    ]
 }

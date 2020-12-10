@@ -17,10 +17,9 @@ import { IConfig } from "./doc/IConfig";
 import { IConfigLayer } from "./doc/IConfigLayer";
 import { ImperativeError } from "../../error";
 import { IConfigProfile } from "./doc/IConfigProfile";
-import { IConfigVault } from "./doc/IConfigVault";
 import { IConfigOpts } from "./doc/IConfigOpts";
-import { IConfigSecure, IConfigSecureEntry, IConfigSecureProperty } from "./doc/IConfigSecure";
-import { ImperativeConfig } from "../../utilities";
+import { IConfigSecure, IConfigSecureProperties } from "./doc/IConfigSecure";
+import { IConfigVault } from "./doc/IConfigVault";
 
 enum layers {
     project_user = 0,
@@ -36,9 +35,7 @@ export class Config {
     private _app: string;
     private _paths: string[];
     private _layers: IConfigLayer[];
-    private get _home(): string {
-        return ImperativeConfig.instance.cliHome ? ImperativeConfig.instance.cliHome : require("os").homedir();
-    }
+    private _home: string;
     private _name: string;
     private _user: string;
     private _active: {
@@ -58,17 +55,18 @@ export class Config {
         const _ = new Config();
         (_ as any).config = {};
         _._layers = [];
+        _._home = opts.homeDir || node_path.join(require("os").homedir(), `.${app}`);
         _._paths = [];
         _._name = `${app}.config.json`;
         _._user = `${app}.config.user.json`;
         _._active = { user: false, global: false };
         _._app = app;
         _._vault = opts.vault;
-        _._secure = { configs: [] };
+        _._secure = { configs: {} };
 
         ////////////////////////////////////////////////////////////////////////
         // Populate configuration file layers
-        const home = ImperativeConfig.instance.cliHome ? ImperativeConfig.instance.cliHome : require("os").homedir();
+        const home = require("os").homedir();
         const properties: IConfig = {
             profiles: {},
             defaults: {},
@@ -77,14 +75,14 @@ export class Config {
         };
 
         // Find/create project user layer
-        let user = Config.search(_._user, { stop: home });
+        let user = Config.search(_._user, { stop: home, gbl: _._home });
         if (user == null)
             user = node_path.join(process.cwd(), _._user);
         _._paths.push(user);
         _._layers.push({ path: user, exists: false, properties, global: false, user: true });
 
         // Find/create project layer
-        let project = Config.search(_._name, { stop: home });
+        let project = Config.search(_._name, { stop: home, gbl: _._home });
         if (project == null)
             project = node_path.join(process.cwd(), _._name);
         _._paths.push(project);
@@ -451,27 +449,27 @@ export class Config {
         // load the secure fields
         const s: string = await this._vault.load(Config.SECURE_ACCT);
         if (s == null) return;
-        this._secure = JSON.parse(s);
+        this._secure.configs = JSON.parse(s);
 
         // populate each layers properties
         for (const layer of this._layers) {
 
             // Find the matching layer
-            for (const sCnfg of this._secure.configs) {
-                if (sCnfg.path === layer.path) {
+            for (const [filePath, secureProps] of Object.entries(this._secure.configs)) {
+                if (filePath === layer.path) {
 
                     // Only set those indicated by the config
                     for (const p of layer.properties.secure) {
 
                         // Extract and set secure properties
-                        for (const sp of sCnfg.properties) {
-                            if (sp.path === p) {
-                                const segments = sp.path.split(".");
+                        for (const [sPath, sValue] of Object.entries(secureProps)) {
+                            if (sPath === p) {
+                                const segments = sPath.split(".");
                                 let obj: any = layer.properties;
                                 for (let x = 0; x < segments.length; x++) {
                                     const segment = segments[x];
                                     if (x === segments.length - 1) {
-                                        obj[segment] = sp.value;
+                                        obj[segment] = sValue;
                                         break;
                                     }
                                     obj = obj[segment];
@@ -493,7 +491,7 @@ export class Config {
         for (const layer of this._layers) {
 
             // Create all the secure property entries
-            const sp: IConfigSecureProperty[] = [];
+            const sp: IConfigSecureProperties = {};
             for (const path of layer.properties.secure) {
                 const segments = path.split(".");
                 let obj: any = layer.properties;
@@ -502,37 +500,22 @@ export class Config {
                     const value = obj[segment];
                     if (value == null) break;
                     if (x === segments.length - 1) {
-                        sp.push({ path, value });
+                        sp[path] = value;
                         break;
                     }
                     obj = obj[segment];
                 }
             }
 
-            // Attempt to locate an existing entry
-            let sCnfgEntry: IConfigSecureEntry;
-            for (const sCnfg of this._secure.configs) {
-                if (sCnfg.path === layer.path) {
-                    sCnfgEntry = sCnfg;
-                    break;
-                }
-            }
-
-            // If it exists, set the secure properties,
-            // otherwise create the entry
-            if (sCnfgEntry != null)
-                sCnfgEntry.properties = sp;
-            else {
-                this._secure.configs.push({
-                    path: layer.path,
-                    properties: sp
-                });
+            // Create the entry to set the secure properties
+            if (Object.keys(sp).length > 0) {
+                this._secure.configs[layer.path] = sp;
             }
         }
 
         // Save the entries if needed
-        if (this._secure.configs.length > 0)
-            await this._vault.save(Config.SECURE_ACCT, JSON.stringify(this._secure));
+        if (Object.keys(this._secure.configs).length > 0)
+            await this._vault.save(Config.SECURE_ACCT, JSON.stringify(this._secure.configs));
     }
 
     private secureFields(): boolean {
@@ -551,6 +534,7 @@ export class Config {
     public static search(file: string, opts?: any): string {
         opts = opts || {};
         if (opts.stop) opts.stop = node_path.resolve(opts.stop);
+        if (opts.gbl) opts.gbl = node_path.resolve(opts.gbl);
         let p = node_path.join(process.cwd(), file);
         const root = node_path.parse(process.cwd()).root;
         let prev = null;
@@ -558,6 +542,12 @@ export class Config {
             // this should never happen, but we'll add a check to prevent
             if (prev != null && prev === p)
                 throw new ImperativeError({ msg: `internal search error: prev === p (${prev})` });
+            // do not use a global directory config file as a local directory one
+            if (opts.gbl && node_path.dirname(p) === opts.gbl) {
+                prev = p;
+                p = node_path.resolve(node_path.dirname(p), "..", file);
+                continue;
+            };
             if (fs.existsSync(p))
                 return p;
             prev = p;
