@@ -12,6 +12,7 @@
 import * as node_path from "path";
 import * as fs from "fs";
 import * as deepmerge from "deepmerge";
+import * as findUp from "find-up";
 
 import { IConfig } from "./doc/IConfig";
 import { IConfigLayer } from "./doc/IConfigLayer";
@@ -542,25 +543,12 @@ export class Config {
         opts = opts || {};
         if (opts.stop) opts.stop = node_path.resolve(opts.stop);
         if (opts.gbl) opts.gbl = node_path.resolve(opts.gbl);
-        let p = node_path.join(process.cwd(), file);
-        const root = node_path.parse(process.cwd()).root;
-        let prev = null;
-        do {
-            // this should never happen, but we'll add a check to prevent
-            if (prev != null && prev === p)
-                throw new ImperativeError({ msg: `internal search error: prev === p (${prev})` });
-            // do not use a global directory config file as a local directory one
-            if (opts.gbl && node_path.dirname(p) === opts.gbl) {
-                prev = p;
-                p = node_path.resolve(node_path.dirname(p), "..", file);
-                continue;
-            };
-            if (fs.existsSync(p))
-                return p;
-            prev = p;
-            p = node_path.resolve(node_path.dirname(p), "..", file);
-        } while (p !== node_path.join(root, file) && opts.stop != null && node_path.dirname(p) !== opts.stop)
-        return null;
+        const p = findUp.sync((directory: string) => {
+            if (directory === opts.stop) return findUp.stop;
+            if (directory === opts.gbl) return;
+            return fs.existsSync(node_path.join(directory, file)) && directory;
+        }, { type: "directory" });
+        return p ? node_path.join(p, file) : null;
     }
 
     private static buildProfile(path: string, profiles: { [key: string]: IConfigProfile }): { [key: string]: string } {
