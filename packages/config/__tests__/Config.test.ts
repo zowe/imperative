@@ -234,7 +234,7 @@ describe("Config tests", () => {
             config.set("profiles.fruit.profiles.apple.properties.ripe", "true");
             expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(true);
 
-            const layer = config.api.layers.get();
+            const layer = (config as any).layerActive();
             const testObj = JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties, null, Config.INDENT)
                 .split("\n").find((item) => item.indexOf("ripe") >= 0);
             expect(testObj).toContain(blockComment);
@@ -246,7 +246,7 @@ describe("Config tests", () => {
             config.set("profiles.fruit.profiles.apple.properties.ripe", "false");
             expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(false);
 
-            const layer = config.api.layers.get();
+            const layer = (config as any).layerActive();
             const testObj = JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties, null, Config.INDENT)
                 .split("\n").find((item) => item.indexOf("ripe") >= 0);
             expect(testObj).toContain(blockComment);
@@ -258,7 +258,7 @@ describe("Config tests", () => {
             config.set("profiles.fruit.profiles.apple.properties.price", "2");
             expect(config.properties.profiles.fruit.profiles.apple.properties.price).toBe(2);
 
-            const layer = config.api.layers.get();
+            const layer = (config as any).layerActive();
             const testObj = JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties, null, Config.INDENT)
                 .split("\n").find((item) => item.indexOf("price") >= 0);
             expect(testObj).toContain(blockComment);
@@ -272,7 +272,7 @@ describe("Config tests", () => {
             expect(config.properties.profiles.fruit.properties.tags.length).toBe(1);
             expect(config.properties.profiles.fruit.properties.tags[0]).toBe("sweet");
 
-            const layer = config.api.layers.get();
+            const layer = (config as any).layerActive();
             expect(JSONC.stringify(layer.properties.profiles.fruit.properties.tags, null, Config.INDENT)).toContain(blockComment);
             expect(JSONC.stringify(layer.properties.profiles.fruit.properties.tags, null, Config.INDENT)).toContain(lineComment);
         });

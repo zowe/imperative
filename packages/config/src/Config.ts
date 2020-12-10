@@ -181,7 +181,7 @@ export class Config {
 
                 // TODO: If asked for inner layer profile, if profile doesn't exist, returns outer layer profile values (bug?)
                 public get(path: string): { [key: string]: string } {
-                    return Config.buildProfile(path, JSONC.parse(JSONC.stringify(outer.properties.profiles, null, Config.INDENT)));
+                    return Config.buildProfile(path, JSONC.parse(JSONC.stringify(outer.properties.profiles)));
                 }
 
                 public exists(path: string): boolean {
@@ -233,7 +233,7 @@ export class Config {
                     await outer.secureSave();
 
                     // If fields are marked as secure
-                    const layer: IConfigLayer = JSONC.parse(JSONC.stringify(outer.layerActive(), null, Config.INDENT));
+                    const layer: IConfigLayer = JSONC.parse(JSONC.stringify(outer.layerActive()));
                     if (layer.properties.secure != null) {
                         for (const path of layer.properties.secure) {
                             const segments = path.split(".");
@@ -266,7 +266,9 @@ export class Config {
                 }
 
                 public get(): IConfigLayer {
-                    return JSONC.parse(JSONC.stringify(outer.layerActive(), null, Config.INDENT));
+                    // Note: Add indentation to allow comments to be accessed via config.api.layers.get(), otherwise use layerActive()
+                    // return JSONC.parse(JSONC.stringify(outer.layerActive(), null, Config.INDENT));
+                    return JSONC.parse(JSONC.stringify(outer.layerActive()));
                 }
 
                 public set(cnfg: IConfig) {
@@ -303,7 +305,7 @@ export class Config {
     }
 
     public get layers(): IConfigLayer[] {
-        return JSONC.parse(JSONC.stringify(this._layers, null, Config.INDENT));
+        return JSONC.parse(JSONC.stringify(this._layers));
     }
 
     public get properties(): IConfig {
@@ -412,13 +414,13 @@ export class Config {
         });
 
         // Merge the project layer profiles
-        const usrProject = JSONC.parse(JSONC.stringify(this._layers[layers.project_user].properties.profiles, null, Config.INDENT));
-        const project = JSONC.parse(JSONC.stringify(this._layers[layers.project_config].properties.profiles, null, Config.INDENT));
+        const usrProject = JSONC.parse(JSONC.stringify(this._layers[layers.project_user].properties.profiles));
+        const project = JSONC.parse(JSONC.stringify(this._layers[layers.project_config].properties.profiles));
         const proj: { [key: string]: IConfigProfile } = deepmerge(project, usrProject);
 
         // Merge the global layer profiles
-        const usrGlobal = JSONC.parse(JSONC.stringify(this._layers[layers.global_user].properties.profiles, null, Config.INDENT));
-        const global = JSONC.parse(JSONC.stringify(this._layers[layers.global_config].properties.profiles, null, Config.INDENT));
+        const usrGlobal = JSONC.parse(JSONC.stringify(this._layers[layers.global_user].properties.profiles));
+        const global = JSONC.parse(JSONC.stringify(this._layers[layers.global_config].properties.profiles));
         const glbl: { [key: string]: IConfigProfile } = deepmerge(global, usrGlobal);
 
         // Traverse all the global profiles merging any missing from project profiles
@@ -518,7 +520,7 @@ export class Config {
 
         // Save the entries if needed
         if (Object.keys(this._secure.configs).length > 0)
-            await this._vault.save(Config.SECURE_ACCT, JSONC.stringify(this._secure.configs, null, Config.INDENT));
+            await this._vault.save(Config.SECURE_ACCT, JSONC.stringify(this._secure.configs));
     }
 
     private secureFields(): boolean {
