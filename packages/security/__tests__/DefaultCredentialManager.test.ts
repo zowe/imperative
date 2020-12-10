@@ -246,7 +246,11 @@ describe("DefaultCredentialManager", () => {
 
           expect(keytar.deletePassword).toHaveBeenCalledWith(privateManager.service, values.account);
           expect(keytar.setPassword).toHaveBeenCalledTimes(numFields);
-          expect(keytar.setPassword).toHaveBeenCalledWith(privateManager.service, `${values.account}-1`, longCredentials.slice(0, winMaxCredentialLength));
+          expect(keytar.setPassword).toHaveBeenCalledWith(
+            privateManager.service,
+            `${values.account}-1`,
+            longCredentials.slice(0, winMaxCredentialLength)
+          );
           // tslint:enable no-magic-numbers
         });
 
