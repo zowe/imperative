@@ -54,7 +54,7 @@
     "cli-table3": "0.5.1",
     "dataobject-parser": "1.2.1",
     "deepmerge": "3.0.0",
-    "find-up": "^4.1.0",
+    "find-up": "4.1.0",
     "fs-extra": "8.1.0",
     "glob": "7.1.6",
     "js-yaml": "3.13.1",
