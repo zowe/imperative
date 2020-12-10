@@ -189,7 +189,8 @@
       "packages/**/*.ts",
       "!**/__tests__/**",
       "!packages/**/doc/I*.ts",
-      "!**/main.ts"
+      "!**/main.ts",
+      "!packages/1-unused-settings/**/*.ts"
     ],
     "collectCoverage": false,
     "coverageReporters": [
