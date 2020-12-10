@@ -13,7 +13,7 @@ import { ITestEnvironment } from "../../../../../../../__src__/environment/doc/r
 import { SetupTestEnvironment } from "../../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../../src/TestUtil";
 import { IConfig } from "../../../../../../../../packages/config";
-import { expectedSchemaObject, expectedConfigObject } from "../__resources__/expectedObjects";
+import { expectedSchemaObject, expectedConfigObject, expectedUserConfigObject } from "../__resources__/expectedObjects";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -65,7 +65,7 @@ describe("imperative-test-cli config init", () => {
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
-        expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
+        expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedUserConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
     });
     it("should initialize a global config", () => {
@@ -89,7 +89,7 @@ describe("imperative-test-cli config init", () => {
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
-        expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
+        expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedUserConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
     });
     it("should initialize a project config with prompting", () => {
@@ -113,7 +113,7 @@ describe("imperative-test-cli config init", () => {
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
-        expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
+        expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedUserConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
     });
     it("should initialize a global config with prompting", () => {
@@ -137,7 +137,7 @@ describe("imperative-test-cli config init", () => {
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);
         expect(fs.existsSync(expectedSchemaLocation)).toEqual(true);
-        expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedConfigObject);
+        expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedUserConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
     });
     // it("should create a profile of a specified name", () => {

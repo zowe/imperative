@@ -110,3 +110,16 @@ export const expectedConfigObject: IConfig = {
     plugins: [],
     secure: ["profiles.my_secured.properties.secret"]
 };
+
+export const expectedUserConfigObject: IConfig = {
+    $schema: "./imperative-test-cli.schema.json",
+    profiles: {
+        my_secured: {
+            type: "secured",
+            properties: {}
+        }
+    },
+    defaults: {},
+    plugins: [],
+    secure: []
+};
