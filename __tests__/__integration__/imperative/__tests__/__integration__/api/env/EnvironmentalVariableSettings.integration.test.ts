@@ -12,7 +12,7 @@
 import { EnvironmentalVariableSettings,
     IImperativeEnvironmentalVariableSettings,
     IImperativeConfig,
-    Imperative } from "../../../../../../../lib";
+    Imperative } from "../../../../../../../packages";
 
 describe("environmental variable integration", () => {
     const mainModule = process.mainModule;

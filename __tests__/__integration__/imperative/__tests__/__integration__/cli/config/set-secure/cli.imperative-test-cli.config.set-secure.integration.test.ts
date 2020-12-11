@@ -17,7 +17,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as keytar from "keytar";
 import * as lodash from "lodash";
-import { Config } from "../../../../../../../../lib/config";
+import { Config } from "../../../../../../../../packages/config";
 
 
 // Test Environment populated in the beforeAll();
