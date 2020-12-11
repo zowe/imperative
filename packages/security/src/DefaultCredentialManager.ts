@@ -136,9 +136,9 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
         // Imperative overrides the value of process.mainModule.filename to point to
         // our calling CLI. Since our caller must supply keytar, we search for keytar
         // within our caller's path.
-        const requireOpts = {};
+        const requireOpts: any = {};
         if (process.mainModule?.filename != null) {
-          process.mainModule.paths = [ process.mainModule.filename ];
+          requireOpts.paths = [ process.mainModule.filename ];
         }
         const keytarPath = require.resolve("keytar", requireOpts);
         // tslint:disable-next-line:no-implicit-dependencies
