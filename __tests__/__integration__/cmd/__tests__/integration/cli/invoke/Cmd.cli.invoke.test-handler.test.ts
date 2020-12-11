@@ -12,8 +12,8 @@
 import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../src/TestUtil";
-import { ICommandResponse } from "../../../../../../../lib/cmd";
-import { Imperative } from "../../../../../../../lib/imperative";
+import { ICommandResponse } from "../../../../../../../packages/cmd";
+import { Imperative } from "../../../../../../../packages/imperative";
 import * as fs from "fs";
 
 // Test Environment populated in the beforeAll();
