@@ -91,6 +91,20 @@ describe("Configuration Secure command handler", () => {
         ImperativeConfig.instance.config = await Config.load("fakeapp", opts);
     }
 
+    beforeAll( async() => {
+        keytarGetPasswordSpy = jest.spyOn(keytar, "getPassword");
+        keytarSetPasswordSpy = jest.spyOn(keytar, "setPassword");
+        keytarDeletePasswordSpy = jest.spyOn(keytar, "deletePassword");
+
+        // Start mocking out some of the credential management functions
+        // Any secure data being loaded will appear to be fakeSecureValue
+        keytarGetPasswordSpy.mockReturnValue(fakeSecureData);
+        keytarSetPasswordSpy.mockImplementation();
+        keytarDeletePasswordSpy.mockImplementation();
+
+        await CredentialManagerFactory.initialize(credentialManager); // Prepare config setup
+    });
+
     beforeEach( async () => {
         ImperativeConfig.instance.loadedConfig = lodash.cloneDeep(fakeConfig);
 
@@ -114,16 +128,11 @@ describe("Configuration Secure command handler", () => {
         params.arguments.user = false;
         params.arguments.global = false;
 
-        // Start mocking out some of the credential management functions
-        // Any secure data being loaded will appear to be fakeSecureValue
+        // Start doing fs mocks
+        // And the prompting of the secure handler
         keytarGetPasswordSpy.mockReturnValue(fakeSecureData);
         keytarSetPasswordSpy.mockImplementation();
         keytarDeletePasswordSpy.mockImplementation();
-
-        await CredentialManagerFactory.initialize(credentialManager); // Prepare config setup
-
-        // Start doing fs mocks
-        // And the prompting of the secure handler
         readFileSyncSpy = jest.spyOn(fs, "readFileSync");
         writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
         existsSyncSpy = jest.spyOn(fs, "existsSync");
@@ -173,5 +182,326 @@ describe("Configuration Secure command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+    });
+
+    it("should attempt to secure the user configuration", async () => {
+        const handler = new SecureHandler();
+        const params = getIHandlerParametersObject();
+
+        params.arguments.user = true;
+        params.arguments.global = false;
+
+        // Start doing fs mocks
+        // And the prompting of the secure handler
+        keytarGetPasswordSpy.mockReturnValue(fakeSecureData);
+        keytarSetPasswordSpy.mockImplementation();
+        keytarDeletePasswordSpy.mockImplementation();
+        readFileSyncSpy = jest.spyOn(fs, "readFileSync");
+        writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
+        existsSyncSpy = jest.spyOn(fs, "existsSync");
+
+        const eco = lodash.cloneDeep(expectedConfigObject);
+        eco.$schema = "./fakeapp.schema.json";
+
+        readFileSyncSpy.mockReturnValueOnce(JSON.stringify(eco));
+        existsSyncSpy.mockReturnValueOnce(true).mockReturnValue(false); // Only the user config exists
+        writeFileSyncSpy.mockImplementation();
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
+
+        await setupConfigToLoad(); // Setup the config
+
+        // We aren't testing the config initialization - clear the spies
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+        promptWithTimeoutSpy.mockClear();
+        writeFileSyncSpy.mockClear();
+        existsSyncSpy.mockClear();
+        readFileSyncSpy.mockClear();
+
+        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        await handler.process(params);
+
+        const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
+        fakeSecureDataExpectedJson[fakeProjUserPath] = {"profiles.my_secured.properties.secret": "fakePromptingData"};
+        const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
+
+        const compObj: any = {};
+        // Make changes to satisfy what would be stored on the JSON
+        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+
+        // tslint:disable-next-line: no-magic-numbers
+        expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
+        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
+        expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        expect(keytarSetPasswordSpy).toHaveBeenCalledWith("imperativeTest", "secure_config_props", fakeSecureDataExpected);
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjUserPath, JSON.stringify(compObj, null, 4)); // Config
+    });
+
+    it("should attempt to secure the global project configuration", async () => {
+        const handler = new SecureHandler();
+        const params = getIHandlerParametersObject();
+
+        params.arguments.user = false;
+        params.arguments.global = true;
+
+        // Start doing fs mocks
+        // And the prompting of the secure handler
+        keytarGetPasswordSpy.mockReturnValue(fakeSecureData);
+        keytarSetPasswordSpy.mockImplementation();
+        keytarDeletePasswordSpy.mockImplementation();
+        readFileSyncSpy = jest.spyOn(fs, "readFileSync");
+        writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
+        existsSyncSpy = jest.spyOn(fs, "existsSync");
+
+        const eco = lodash.cloneDeep(expectedConfigObject);
+        eco.$schema = "./fakeapp.schema.json";
+
+        readFileSyncSpy.mockReturnValueOnce(JSON.stringify(eco));
+        existsSyncSpy.mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false)
+                     .mockReturnValueOnce(true).mockReturnValue(false); // Only the global project config exists
+        writeFileSyncSpy.mockImplementation();
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
+
+        await setupConfigToLoad(); // Setup the config
+
+        // We aren't testing the config initialization - clear the spies
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+        promptWithTimeoutSpy.mockClear();
+        writeFileSyncSpy.mockClear();
+        existsSyncSpy.mockClear();
+        readFileSyncSpy.mockClear();
+
+        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        await handler.process(params);
+
+        const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
+        fakeSecureDataExpectedJson[fakeGblProjPath] = {"profiles.my_secured.properties.secret": "fakePromptingData"};
+        const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
+
+        const compObj: any = {};
+        // Make changes to satisfy what would be stored on the JSON
+        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+
+        // tslint:disable-next-line: no-magic-numbers
+        expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
+        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
+        expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        expect(keytarSetPasswordSpy).toHaveBeenCalledWith("imperativeTest", "secure_config_props", fakeSecureDataExpected);
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblProjPath, JSON.stringify(compObj, null, 4)); // Config
+    });
+
+    it("should attempt to secure the global user configuration", async () => {
+        const handler = new SecureHandler();
+        const params = getIHandlerParametersObject();
+
+        params.arguments.user = true;
+        params.arguments.global = true;
+
+        // Start doing fs mocks
+        // And the prompting of the secure handler
+        keytarGetPasswordSpy.mockReturnValue(fakeSecureData);
+        keytarSetPasswordSpy.mockImplementation();
+        keytarDeletePasswordSpy.mockImplementation();
+        readFileSyncSpy = jest.spyOn(fs, "readFileSync");
+        writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
+        existsSyncSpy = jest.spyOn(fs, "existsSync");
+
+        const eco = lodash.cloneDeep(expectedConfigObject);
+        eco.$schema = "./fakeapp.schema.json";
+
+        readFileSyncSpy.mockReturnValueOnce(JSON.stringify(eco));
+        existsSyncSpy.mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(true)
+                     .mockReturnValue(false); // Only the global user config exists
+        writeFileSyncSpy.mockImplementation();
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
+
+        await setupConfigToLoad(); // Setup the config
+
+        // We aren't testing the config initialization - clear the spies
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+        promptWithTimeoutSpy.mockClear();
+        writeFileSyncSpy.mockClear();
+        existsSyncSpy.mockClear();
+        readFileSyncSpy.mockClear();
+
+        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        await handler.process(params);
+
+        const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
+        fakeSecureDataExpectedJson[fakeGblProjUserPath] = {"profiles.my_secured.properties.secret": "fakePromptingData"};
+        const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
+
+        const compObj: any = {};
+        // Make changes to satisfy what would be stored on the JSON
+        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+
+        // tslint:disable-next-line: no-magic-numbers
+        expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
+        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
+        expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        expect(keytarSetPasswordSpy).toHaveBeenCalledWith("imperativeTest", "secure_config_props", fakeSecureDataExpected);
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config
+    });
+
+    it("should fail to secure the project configuration if there is no project configuration", async () => {
+        const handler = new SecureHandler();
+        const params = getIHandlerParametersObject();
+
+        params.arguments.user = false;
+        params.arguments.global = false;
+
+        // Start doing fs mocks
+        // And the prompting of the secure handler
+        keytarGetPasswordSpy.mockReturnValue(fakeSecureData);
+        keytarSetPasswordSpy.mockImplementation();
+        keytarDeletePasswordSpy.mockImplementation();
+        readFileSyncSpy = jest.spyOn(fs, "readFileSync");
+        writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
+        existsSyncSpy = jest.spyOn(fs, "existsSync");
+
+        const eco = lodash.cloneDeep(expectedConfigObject);
+        eco.$schema = "./fakeapp.schema.json";
+
+        readFileSyncSpy.mockReturnValueOnce(JSON.stringify(eco));
+        existsSyncSpy.mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(true)
+                     .mockReturnValue(false); // Only the global user config exists
+        writeFileSyncSpy.mockImplementation();
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
+
+        await setupConfigToLoad(); // Setup the config
+
+        // We aren't testing the config initialization - clear the spies
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+        promptWithTimeoutSpy.mockClear();
+        writeFileSyncSpy.mockClear();
+        existsSyncSpy.mockClear();
+        readFileSyncSpy.mockClear();
+
+        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        await handler.process(params);
+
+        const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
+        fakeSecureDataExpectedJson[fakeGblProjUserPath] = {"profiles.my_secured.properties.secret": "fakePromptingData"};
+        const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
+
+        const compObj: any = {};
+        // Make changes to satisfy what would be stored on the JSON
+        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+
+        // tslint:disable-next-line: no-magic-numbers
+        expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(0);
+        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
+        expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(0);
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0);
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(0);
+        expect(ImperativeConfig.instance.config.api.layers.get().properties.secure.length).toEqual(0);
+    });
+
+    // it("should throw an error if the CredentialManagerFactory is not initialized", async () => {
+    //     const handler = new SecureHandler();
+    //     const params = getIHandlerParametersObject();
+
+    //     params.arguments.user = false;
+    //     params.arguments.global = false;
+
+    //     // Nope, not initialized
+    //     const credManagerInitializedSpy = jest.spyOn(CredentialManagerFactory, "initialized", "get");
+    //     credManagerInitializedSpy.mockReturnValue(false);
+
+    //     // Start doing fs mocks
+    //     // And the prompting of the secure handler
+    //     keytarGetPasswordSpy.mockReturnValue(fakeSecureData);
+    //     keytarSetPasswordSpy.mockImplementation();
+    //     keytarDeletePasswordSpy.mockImplementation();
+    //     readFileSyncSpy = jest.spyOn(fs, "readFileSync");
+    //     writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
+    //     existsSyncSpy = jest.spyOn(fs, "existsSync");
+
+    //     const eco = lodash.cloneDeep(expectedConfigObject);
+    //     eco.$schema = "./fakeapp.schema.json";
+
+    //     readFileSyncSpy.mockReturnValueOnce(JSON.stringify(eco));
+    //     existsSyncSpy.mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(true)
+    //                  .mockReturnValue(false); // Only the global user config exists
+    //     writeFileSyncSpy.mockImplementation();
+    //     searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+    //     promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
+
+    //     await setupConfigToLoad(); // Setup the config
+
+    //     // We aren't testing the config initialization - clear the spies
+    //     searchSpy.mockClear();
+    //     osHomedirSpy.mockClear();
+    //     currentWorkingDirectorySpy.mockClear();
+    //     promptWithTimeoutSpy.mockClear();
+    //     writeFileSyncSpy.mockClear();
+    //     existsSyncSpy.mockClear();
+    //     readFileSyncSpy.mockClear();
+
+    //     promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
+    //     setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+    //     await handler.process(params);
+
+    //     const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
+    //     fakeSecureDataExpectedJson[fakeGblProjUserPath] = {"profiles.my_secured.properties.secret": "fakePromptingData"};
+    //     const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
+
+    //     const compObj: any = {};
+    //     // Make changes to satisfy what would be stored on the JSON
+    //     compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+    //     lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+    //     delete compObj.profiles.my_secured.properties.secret; // Delete the secret
+    //     compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+
+    //     // tslint:disable-next-line: no-magic-numbers
+    //     expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
+    //     expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
+    //     expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
+    //     expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+    //     expect(keytarSetPasswordSpy).toHaveBeenCalledWith("imperativeTest", "secure_config_props", fakeSecureDataExpected);
+    //     expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
+    //     // tslint:disable-next-line: no-magic-numbers
+    //     expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config
     });
 });
