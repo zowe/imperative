@@ -210,6 +210,15 @@ Object {
 }
 `;
 
+exports[`Config tests load should not fail if secure load fails 1`] = `
+Object {
+  "defaults": Object {},
+  "plugins": Array [],
+  "profiles": Object {},
+  "secure": Array [],
+}
+`;
+
 exports[`Config tests set should add a new layer when one is specified in the set 1`] = `
 Object {
   "fruit": Object {

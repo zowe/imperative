@@ -117,6 +117,19 @@ describe("Config tests", () => {
             expect(error.message).toContain(__dirname + "/__resources__");
             expect(error instanceof ImperativeError).toBe(true);
         });
+
+        it("should not fail if secure load fails", async () => {
+            jest.spyOn(fs, "existsSync").mockReturnValue(false);
+            jest.spyOn(Config.prototype as any, "secureLoad").mockImplementationOnce(() => {
+                throw new Error("secure load failed");
+            });
+            const config = await Config.load(MY_APP);
+            expect(config.properties).toMatchSnapshot();
+            expect(config.properties.defaults).toEqual({});
+            expect(config.properties.profiles).toEqual({});
+            expect(config.properties.plugins).toEqual([]);
+            expect(config.properties.secure).toEqual([]);
+        })
     });
 
     it("should find config that exists if any layers exist", () => {
