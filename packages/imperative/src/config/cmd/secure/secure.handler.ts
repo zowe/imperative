@@ -30,20 +30,7 @@ export default class SecureHandler implements ICommandHandler {
 
         // Setup the credential vault API for the config
         let opts: IConfigOpts = null;
-        if (CredentialManagerFactory.initialized) {
-            opts = {
-                homeDir: ImperativeConfig.instance.cliHome,
-                vault: {
-                    load: ((k: string): Promise<string> => {
-                        return CredentialManagerFactory.manager.load(k, true)
-                    }),
-                    save: ((k: string, v: any): Promise<void> => {
-                        return CredentialManagerFactory.manager.save(k, v);
-                    }),
-                    name: CredentialManagerFactory.manager.name
-                }
-            };
-        } else {
+        if (!CredentialManagerFactory.initialized) {
             throw new ImperativeError({msg: `secure vault not enabled`});
         }
 
@@ -68,6 +55,6 @@ export default class SecureHandler implements ICommandHandler {
         }
 
         // Write the config layer
-        config.api.layers.write();
+        await config.api.layers.write();
     }
 }

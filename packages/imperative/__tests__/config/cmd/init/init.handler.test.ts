@@ -25,9 +25,7 @@ import * as os from "os";
 const getIHandlerParametersObject = (): IHandlerParameters => {
     const x: any = {
         response: new (CommandResponse as any)(),
-        arguments: {
-            package: undefined
-            },
+        arguments: {},
         };
     return x as IHandlerParameters;
 };
@@ -75,7 +73,7 @@ describe("Configuration Initialization command handler", () => {
 
     afterAll( () => {
         jest.restoreAllMocks();
-    })
+    });
 
     it("should attempt to initialize the project configuration", async () => {
         const handler = new InitHandler();
