@@ -120,10 +120,11 @@ describe("Config tests", () => {
 
         it("should not fail if secure load fails", async () => {
             jest.spyOn(fs, "existsSync").mockReturnValue(false);
-            jest.spyOn(Config.prototype as any, "secureLoad").mockImplementationOnce(() => {
+            const badLoadSpy = jest.spyOn(Config.prototype as any, "secureLoad").mockImplementationOnce(() => {
                 throw new Error("secure load failed");
             });
             const config = await Config.load(MY_APP);
+            expect(badLoadSpy).toHaveBeenCalled();
             expect(config.properties).toMatchSnapshot();
             expect(config.properties.defaults).toEqual({});
             expect(config.properties.profiles).toEqual({});
