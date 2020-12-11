@@ -374,9 +374,15 @@ export class Config {
             }
         });
 
-        if (opts.secure)
+        if (opts.secure) {
             if (!layer.properties.secure.includes(path))
                 layer.properties.secure.push(path);
+        } else if (opts.secure != null) {
+            const propIndex = layer.properties.secure.indexOf(path);
+            if (propIndex !== -1) {
+                layer.properties.secure.splice(propIndex, 1);
+            }
+        }
     }
 
     /**

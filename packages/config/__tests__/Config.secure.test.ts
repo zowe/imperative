@@ -89,4 +89,19 @@ describe("Config secure tests", () => {
         expect(writeFileSpy).toHaveBeenCalled();
         expect(writeFileSpy.mock.calls[0][1]).not.toContain("area51");
     });
+
+    it("should toggle the security of a property if requested", async () => {
+        jest.spyOn(Config, "search").mockReturnValue(projectConfigPath);
+        jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false);
+        mockSecureLoad.mockImplementation();
+        const config = await Config.load(MY_APP, { vault: mockVault });
+
+        config.set(securePropPath, "notSecret", { secure: false });
+        let layer = config.api.layers.get();
+        expect(layer.properties.secure.includes(securePropPath)).toBe(false);
+
+        config.set(securePropPath, "area51", { secure: true });
+        layer = config.api.layers.get();
+        expect(layer.properties.secure.includes(securePropPath)).toBe(true);
+    });
 });

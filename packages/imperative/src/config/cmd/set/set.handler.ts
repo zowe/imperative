@@ -11,12 +11,11 @@
 
 import * as JSONC from "comment-json";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { IConfigOpts } from "../../../../../config";
 import { ImperativeError } from "../../../../../error";
 import { CredentialManagerFactory } from "../../../../../security";
 import { ImperativeConfig } from "../../../../../utilities";
 
-export default class SetSecureHandler implements ICommandHandler {
+export default class SetHandler implements ICommandHandler {
 
     /**
      * Process the command and input.
@@ -27,28 +26,20 @@ export default class SetSecureHandler implements ICommandHandler {
      */
     public async process(params: IHandlerParameters): Promise<void> {
 
-        // Setup the credential vault API for the config
-        let opts: IConfigOpts = null;
-        if (CredentialManagerFactory.initialized) {
-            opts = {
-                homeDir: ImperativeConfig.instance.cliHome,
-                vault: {
-                    load: ((k: string): Promise<string> => {
-                        return CredentialManagerFactory.manager.load(k, true)
-                    }),
-                    save: ((k: string, v: any): Promise<void> => {
-                        return CredentialManagerFactory.manager.save(k, v);
-                    }),
-                    name: CredentialManagerFactory.manager.name
-                }
-            };
-        } else {
-            throw new ImperativeError({msg: `secure vault not enabled`});
-        }
-
         // Create the config, load the secure values, and activate the desired layer
         const config = ImperativeConfig.instance.config;
         config.api.layers.activate(params.arguments.user, params.arguments.global);
+
+        // Store the value securely if --secure was passed or the property name is in secure array
+        let secure = params.arguments.secure;
+        if (secure == null) {
+            secure = config.api.layers.get().properties.secure.includes(params.arguments.property);
+        }
+
+        // Setup the credential vault API for the config
+        if (secure && !CredentialManagerFactory.initialized) {
+            throw new ImperativeError({msg: `secure vault not enabled`});
+        }
 
         // Get the value to set
         let value = params.arguments.value;
@@ -61,9 +52,8 @@ export default class SetSecureHandler implements ICommandHandler {
         }
 
         // Set the value in the config, save the secure values, write the config layer
-        config.set(params.arguments.property, value, {
-            secure: true,
-        });
-        config.api.layers.write();
+        config.set(params.arguments.property, value, { secure });
+
+        await config.api.layers.write();
     }
 }

@@ -12,16 +12,16 @@
 import { ICommandDefinition } from "../../../../../cmd";
 import { join } from "path";
 
-export const setSecureDefinition: ICommandDefinition = {
-    name: "set-secure",
+export const setDefinition: ICommandDefinition = {
+    name: "set",
     type: "command",
-    handler: join(__dirname, "set-secure.handler"),
-    summary: "set secure configuration property",
-    description: "create or update secure configuration property",
+    handler: join(__dirname, "set.handler"),
+    summary: "set configuration property",
+    description: "create or update a configuration property",
     positionals: [
         {
             name: "property",
-            description: "The property to secure. You may specify a path using dot notation (e.g. profiles.host1.profiles.service1.properties.setting)",
+            description: "The property to set. You may specify a path using dot notation (e.g. profiles.host1.profiles.service1.properties.setting)",
             required: true,
             type: "string"
         },
@@ -50,6 +50,11 @@ export const setSecureDefinition: ICommandDefinition = {
             description: "The property value is JSON.",
             type: "boolean",
             defaultValue: false
+        },
+        {
+            name: "secure",
+            description: "Store the property value securely. If omitted, any property named in the secure array of the config file will be saved securely.",
+            type: "boolean"
         }
     ]
 };
