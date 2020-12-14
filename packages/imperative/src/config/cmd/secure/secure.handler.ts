@@ -29,7 +29,6 @@ export default class SecureHandler implements ICommandHandler {
     public async process(params: IHandlerParameters): Promise<void> {
 
         // Setup the credential vault API for the config
-        let opts: IConfigOpts = null;
         if (!CredentialManagerFactory.initialized) {
             throw new ImperativeError({msg: `secure vault not enabled`});
         }
