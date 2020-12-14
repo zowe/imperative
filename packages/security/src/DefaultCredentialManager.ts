@@ -91,7 +91,7 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
    * @param {string} service The service string to send to the superclass constructor.
    * @param {string} displayName The display name for this credential manager to send to the superclass constructor
    */
-  constructor(service: string, displayName: string = "Zowe Built-in Credential Manager") {
+  constructor(service: string, displayName: string = "default credential manager") {
     // Always ensure that a manager instantiates the super class, even if the
     // constructor doesn't do anything. Who knows what things might happen in
     // the abstract class initialization in the future.
@@ -100,24 +100,15 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
     /* Gather all services. We will load secure properties for the first
      * successful service found in the order that they are placed in this array.
      */
-    this.allServices = [this.service];
+    this.allServices = [service || DefaultCredentialManager.SVC_NAME];
 
-    /* In our current implementation, this.service is always
-     * DefaultCredentialManager.SVC_NAME. We keep the logic below,
-     * in case we re-enable overrides in the future.
-     */
-    if (this.service !== DefaultCredentialManager.SVC_NAME) {
-        this.allServices.push(DefaultCredentialManager.SVC_NAME);
+    if (this.defaultService === DefaultCredentialManager.SVC_NAME) {
+      /* Previous services under which we will look for credentials.
+       * We dropped @brightside/core because we no longer support the
+       * lts-incremental version of the product.
+       */
+      this.allServices.push("@zowe/cli", "Zowe-Plugin", "Broadcom-Plugin");
     }
-
-    /* Previous services under which we will look for credentials.
-     * We dropped @brightside/core because we no longer support the
-     * lts-incremental version of the product.
-     */
-    this.allServices.push("@zowe/cli");
-    this.allServices.push("Zowe-Plugin");
-    this.allServices.push("Broadcom-Plugin");
-
   }
 
   /**
@@ -224,6 +215,13 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
   }
 
   /**
+   * The default service name for storing credentials.
+   */
+  private get defaultService(): string {
+    return this.allServices[0];
+  }
+
+  /**
    * This function is called before the {@link deletePassword}, {@link getPassword}, and
    * {@link setPassword} functions. It will check if keytar is not null and will throw an error
    * if it is.
@@ -316,7 +314,7 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
   private async deleteCredentialsHelper(account: string, keepCurrentSvc?: boolean): Promise<boolean> {
     let wasDeleted = false;
     for (const service of this.allServices) {
-      if (keepCurrentSvc && service === DefaultCredentialManager.SVC_NAME) {
+      if (keepCurrentSvc && service === this.defaultService) {
         continue;
       }
       if (await this.keytar.deletePassword(service, account)) {
@@ -326,7 +324,7 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
     if (process.platform === "win32") {
       // Handle deletion of long values stored across multiple fields
       let index = 1;
-      while (await this.keytar.deletePassword(DefaultCredentialManager.SVC_NAME, `${account}-${index}`)) {
+      while (await this.keytar.deletePassword(this.defaultService, `${account}-${index}`)) {
         index++;
       }
       if (index > 1) {

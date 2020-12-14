@@ -326,4 +326,12 @@ export interface IImperativeConfig {
      * It will replace the main.css file that controls the style of the page.
      */
     webHelpCustomCssPath?: string;
+
+    /**
+     * Service name that should be used in vault for secure credentials.
+     * If omitted, the default service name "Zowe" is used.
+     * @type {string}
+     * @memberof IImperativeConfig
+     */
+    credentialServiceName?: string;
 }
