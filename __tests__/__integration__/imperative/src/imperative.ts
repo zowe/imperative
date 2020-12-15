@@ -9,7 +9,7 @@
 *
 */
 
-import { IImperativeConfig } from "../../../../packages/index";
+import { IImperativeConfig } from "../../../../lib/index";
 
 // Example to use with tsnode: */*CommandDefinitions!(.d).*s
 export const config: IImperativeConfig = {

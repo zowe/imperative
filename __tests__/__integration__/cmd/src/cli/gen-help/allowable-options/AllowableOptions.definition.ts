@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../../packages";
+import { ICommandDefinition } from "../../../../../../../lib";
 
 
 export const AllowableOptionsDefinition: ICommandDefinition = {

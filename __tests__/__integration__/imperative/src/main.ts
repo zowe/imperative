@@ -11,7 +11,7 @@
 */
 
 
-import { Imperative, ImperativeError } from "../../../../packages/index";
+import { Imperative, ImperativeError } from "../../../../lib/index";
 import { inspect } from "util";
 
 Imperative.init().then((response) => {

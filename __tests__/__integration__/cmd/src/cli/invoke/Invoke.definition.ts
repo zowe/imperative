@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../packages/index";
+import { ICommandDefinition } from "../../../../../../lib/index";
 import { TestAsyncHandlerDefinition } from "./test-async-handler/TestAsyncHandler.definition";
 import { testHandlerDefinition } from "./test-handler/TestHandler.definition";
 import { UnexpectedExceptionHandlerDefinition } from "./unexpected-exception-handler/UnexpectedExceptionHandler.definition";
