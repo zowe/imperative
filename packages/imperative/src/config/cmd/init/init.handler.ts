@@ -179,7 +179,7 @@ export default class InitHandler implements ICommandHandler {
         if ((property as any).optionDefinition?.description != null) {
             propName = `${propName} (${(property as any).optionDefinition.description})`;
         }
-        let propValue: any = await CliUtils.promptWithTimeout(`${propName} - blank to skip: `, property.secure,
+        const propValue: any = await CliUtils.promptWithTimeout(`${propName} - blank to skip: `, property.secure,
             InitHandler.TIMEOUT);
 
         // coerce to correct type
