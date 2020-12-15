@@ -75,7 +75,7 @@ export class ConfigBuilder {
         // Hoist duplicate default properties
         if (config.profiles != null && config.profiles[rootProfileName] != null) {
             config.profiles[rootProfileName] = this.hoistTemplateProperties(config.profiles[rootProfileName]);
-        };
+        }
 
         return config;
     }

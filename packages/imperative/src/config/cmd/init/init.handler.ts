@@ -189,7 +189,7 @@ export default class InitHandler implements ICommandHandler {
             if (propValue === "false")
                 return false;
             if (!isNaN(propValue) && !isNaN(parseFloat(propValue)))
-                propValue = parseInt(propValue, 10);
+                return parseInt(propValue, 10);
         }
 
         return propValue || null;
