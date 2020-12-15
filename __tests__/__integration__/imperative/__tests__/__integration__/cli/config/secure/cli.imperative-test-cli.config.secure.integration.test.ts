@@ -23,6 +23,7 @@ import * as lodash from "lodash";
 let TEST_ENVIRONMENT: ITestEnvironment;
 
 describe("imperative-test-cli config secure", () => {
+    const service = "imperative-test-cli";
     let expectedProjectConfigLocation: string;
     let expectedUserConfigLocation: string;
     let expectedGlobalProjectConfigLocation: string;
@@ -51,12 +52,7 @@ describe("imperative-test-cli config secure", () => {
     afterEach(async () => {
         runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
             ["-rf imperative-test-cli.config.user.json imperative-test-cli.config.json test schema.json"]);
-        const secureObj = JSON.parse(Buffer.from(await keytar.getPassword("Zowe", "secure_config_props"), "base64").toString());
-        delete secureObj[expectedGlobalUserConfigLocation];
-        delete secureObj[expectedGlobalProjectConfigLocation];
-        delete secureObj[expectedUserConfigLocation];
-        delete secureObj[expectedProjectConfigLocation];
-        await keytar.setPassword("Zowe", "secure_config_props", Buffer.from(JSON.stringify(secureObj)).toString("base64"));
+        await keytar.deletePassword(service, "secure_config_props");
     });
 
     it("should display the help", () => {
@@ -71,7 +67,7 @@ describe("imperative-test-cli config secure", () => {
         const fileContents = JSON.parse(fs.readFileSync(expectedProjectConfigLocation).toString());
         const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
         const configJson = JSON.parse(config);
-        const securedValue = await keytar.getPassword("Zowe", "secure_config_props");
+        const securedValue = await keytar.getPassword(service, "secure_config_props");
         const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
         const expectedSecuredValueJson = {};
         expectedSecuredValueJson[expectedProjectConfigLocation] = {
@@ -94,7 +90,7 @@ describe("imperative-test-cli config secure", () => {
         const fileContents = JSON.parse(fs.readFileSync(expectedUserConfigLocation).toString());
         const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
         const configJson = JSON.parse(config);
-        const securedValue = await keytar.getPassword("Zowe", "secure_config_props");
+        const securedValue = await keytar.getPassword(service, "secure_config_props");
         const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
         const expectedSecuredValueJson = {};
 
@@ -114,7 +110,7 @@ describe("imperative-test-cli config secure", () => {
         const fileContents = JSON.parse(fs.readFileSync(expectedGlobalProjectConfigLocation).toString());
         const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
         const configJson = JSON.parse(config);
-        const securedValue = await keytar.getPassword("Zowe", "secure_config_props");
+        const securedValue = await keytar.getPassword(service, "secure_config_props");
         const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
         const expectedSecuredValueJson = {};
         expectedSecuredValueJson[expectedGlobalProjectConfigLocation] = {
@@ -137,7 +133,7 @@ describe("imperative-test-cli config secure", () => {
         const fileContents = JSON.parse(fs.readFileSync(expectedGlobalUserConfigLocation).toString());
         const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
         const configJson = JSON.parse(config);
-        const securedValue = await keytar.getPassword("Zowe", "secure_config_props");
+        const securedValue = await keytar.getPassword(service, "secure_config_props");
         const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
         const expectedSecuredValueJson = {};
 
