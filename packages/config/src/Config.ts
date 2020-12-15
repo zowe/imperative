@@ -22,6 +22,7 @@ import { IConfigProfile } from "./doc/IConfigProfile";
 import { IConfigOpts } from "./doc/IConfigOpts";
 import { IConfigSecure, IConfigSecureProperties } from "./doc/IConfigSecure";
 import { IConfigVault } from "./doc/IConfigVault";
+import { Logger } from "../../logger";
 
 enum layers {
     project_user = 0,
@@ -140,7 +141,12 @@ export class Config {
 
         ////////////////////////////////////////////////////////////////////////
         // load secure fields
-        await _.secureLoad();
+        try {
+            await _.secureLoad();
+        } catch (err) {
+            // Secure vault is optional since we can prompt for values instead
+            Logger.getImperativeLogger().warn(`Secure vault not enabled. Reason: ${err.message}`);
+        }
 
         ////////////////////////////////////////////////////////////////////////
         // Complete

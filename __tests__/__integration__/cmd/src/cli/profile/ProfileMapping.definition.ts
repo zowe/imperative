@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../packages/index";
+import { ICommandDefinition } from "../../../../../../lib/index";
 import { profileMappingCommand } from "./mapping/ProfileMapping.definition";
 import { profileMappingPositionalCommand } from "./mapping-positional/ProfileMapping.definition";
 import { profileMappingCommandNameType } from "./mapping-name-type/ProfileMappingNameType.definition";

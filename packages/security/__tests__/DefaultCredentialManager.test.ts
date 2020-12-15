@@ -70,6 +70,31 @@ describe("DefaultCredentialManager", () => {
         expect(privateManager.loadError).toBeInstanceOf(ImperativeError);
         expect(privateManager.loadError.message).toEqual("Keytar not Installed");
       });
+
+      it("should look for keytar in CLI node_modules folder", async () => {
+        // Jest doesn't let us mock require.resolve, so instead we purposely
+        // fail the import and look for module path in the error message
+        const fakeCliPath = "/root/fakeCli";
+        process.mainModule = { filename: fakeCliPath } as any;
+
+        // Force enter the try catch
+        Object.defineProperty(manager, "keytar", {
+          writable: false
+        });
+
+        try {
+          await manager.initialize();
+
+          expect(privateManager.keytar).toBeUndefined();
+          expect(privateManager.loadError).toBeInstanceOf(ImperativeError);
+          const error: Error = privateManager.loadError.causeErrors;
+          expect(error).toBeDefined();
+          expect(error.message).toContain("Cannot resolve module");
+          expect(error.message).toContain(fakeCliPath);
+        } finally {
+          delete process.mainModule;
+        }
+      });
     });
 
     describe("methods after initialize", () => {
