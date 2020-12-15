@@ -53,16 +53,15 @@ export class OverridesLoader {
     config: IImperativeConfig,
     packageJson: any
   ): Promise<void> {
-    const overrides: IImperativeOverrides = config.overrides;
-    const displayName: string = "Zowe built-in Secure Credential Manager";
-    const pmfConst: PMFConstants = PMFConstants.instance;
+    const dependencies = {...(packageJson.dependencies || {}), ...(packageJson.optionalDependencies || {})};
+    if (dependencies.keytar == null) {
+      return;
+    }
 
+    // Load the CredentialManager built into Imperative for managing secure properties
     await CredentialManagerFactory.initialize({
-      // Specifying null forces the use of the CredentialManager built into Imperative, which
-      // is the only CredentialManager that we now permit (SCS is now part of Imperative).
-      Manager: null,
-      // The display name will be the plugin name that introduced the override OR it will default o the CLI name
-      displayName,
+      // The display name will be the plugin name that introduced the override OR it will default to the CLI name
+      displayName: config.productDisplayName || config.name,
       // For overrides, the service could be the CLI name, but we do not override anymore.
       // Null will use the service name of the built-in credential manager.
       service: null,

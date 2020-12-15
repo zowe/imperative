@@ -4,7 +4,8 @@
         "packages/**/*.ts",
         "!**/__tests__/**",
         "!packages/**/doc/**/I*.ts",
-        "!__tests__/"
+        "!__tests__/",
+        "!packages/1-unused-settings/**/*.ts"
     ],
     "coverageDirectory": "<rootDir>/__tests__/__results__/unit/coverage",
     "coverageReporters": [

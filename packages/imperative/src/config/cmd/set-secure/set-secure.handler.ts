@@ -54,7 +54,7 @@ export default class SetSecureHandler implements ICommandHandler {
         let value = params.arguments.value;
         if (params.arguments.json) {
             try {
-                value = JSON.stringify(JSONC.parse(value, null, true));
+                value = JSONC.parse(value, null, true);
             } catch (e) {
                 throw new ImperativeError({ msg: `could not parse JSON value: ${e.message}` });
             }

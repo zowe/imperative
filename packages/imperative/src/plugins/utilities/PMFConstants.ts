@@ -114,30 +114,19 @@ export class PMFConstants {
         this.PMF_ROOT = join(ImperativeConfig.instance.cliHome, "plugins");
         this.PLUGIN_JSON = join(this.PMF_ROOT, "plugins.json");
         this.PLUGIN_USING_CONFIG = ImperativeConfig.instance.config.exists;
-        this.PLUGIN_HOME_LOCATION = join(this.PMF_ROOT, "installed");
-        this.PLUGIN_INSTALL_LOCATION = this.PLUGIN_HOME_LOCATION;
+        this.PLUGIN_INSTALL_LOCATION = join(this.PMF_ROOT, "installed");
 
         // Windows format is <prefix>/node_modules
-        let cliHomeModPath;
-        if (process.platform === "win32" || this.PLUGIN_USING_CONFIG) {
-            cliHomeModPath = join(
-                this.PLUGIN_INSTALL_LOCATION,
-                "node_modules"
-            );
+        if (process.platform === "win32") {
             this.PLUGIN_HOME_LOCATION = join(
-                this.PLUGIN_HOME_LOCATION,
+                this.PLUGIN_INSTALL_LOCATION,
                 "node_modules"
             );
         }
         // Everyone else is <prefix>/lib/node_modules
         else {
-            cliHomeModPath = join(
-                this.PLUGIN_INSTALL_LOCATION,
-                "lib",
-                "node_modules"
-            );
             this.PLUGIN_HOME_LOCATION = join(
-                this.PLUGIN_HOME_LOCATION,
+                this.PLUGIN_INSTALL_LOCATION,
                 "lib",
                 "node_modules"
             );
@@ -151,7 +140,6 @@ export class PMFConstants {
                 modPaths.push(join(dir, (process.platform !== "win32") ? "lib" : "", "node_modules"));
             });
         }
-        modPaths.push(cliHomeModPath);
         modPaths.push(this.PLUGIN_HOME_LOCATION);
         this.PLUGIN_NODE_MODULE_LOCATION = Array.from(new Set(modPaths));
     }
