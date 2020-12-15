@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters } from "../../../../../../../packages/index";
+import { ICommandHandler, IHandlerParameters } from "../../../../../../../lib/index";
 /**
  * The unexpected exception handler attempts to perform an operation that results in an unexpected exception.
  * @export

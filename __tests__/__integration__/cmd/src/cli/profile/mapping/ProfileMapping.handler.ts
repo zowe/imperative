@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters } from "../../../../../../../packages/index";
+import { ICommandHandler, IHandlerParameters } from "../../../../../../../lib/index";
 
 /**
  * Test of mapping of profile fields to options

@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../../packages/index";
+import { ICommandDefinition } from "../../../../../../../lib/index";
 
 export const withErrorHeadersDefinition: ICommandDefinition = {
     name: "with-error-headers",

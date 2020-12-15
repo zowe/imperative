@@ -9,7 +9,7 @@
 *
 */
 
-import { IHandlerParameters, ICommandHandler, TextUtils } from "../../../../../../../packages/index";
+import { IHandlerParameters, ICommandHandler, TextUtils } from "../../../../../../../lib/index";
 
 export default class FirstGroupCommandOneHandler implements ICommandHandler {
     public async process(params: IHandlerParameters): Promise<void> {

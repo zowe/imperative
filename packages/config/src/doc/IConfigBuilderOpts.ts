@@ -14,4 +14,4 @@ import { IProfileProperty } from "../../../profiles";
 export interface IConfigBuilderOpts {
     populateProperties?: boolean;
     getSecureValue? (propName: string, property: IProfileProperty): Promise<any>;
-};
+}

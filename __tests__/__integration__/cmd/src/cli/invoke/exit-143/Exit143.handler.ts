@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters, ImperativeError } from "../../../../../../../packages/index";
+import { ICommandHandler, IHandlerParameters, ImperativeError } from "../../../../../../../lib/index";
 
 /**
  * Handler that returns a promise.
