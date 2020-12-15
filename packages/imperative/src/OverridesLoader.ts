@@ -53,7 +53,8 @@ export class OverridesLoader {
     config: IImperativeConfig,
     packageJson: any
   ): Promise<void> {
-    if (packageJson.dependencies?.keytar == null) {
+    const dependencies = {...(packageJson.dependencies || {}), ...(packageJson.optionalDependencies || {})};
+    if (dependencies.keytar == null) {
       return;
     }
 

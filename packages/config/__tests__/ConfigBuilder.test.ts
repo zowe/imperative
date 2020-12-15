@@ -92,11 +92,18 @@ describe("Config Builder tests", () => {
         });
 
         it("should build a config, populate properties, and securely load a file", async () => {
-            const builtConfig = await ConfigBuilder.build(testConfig, {populateProperties: true, getSecureValue: promptForProp});
+            let builtConfig;
+            let caughtError;
+            try {
+                builtConfig = await ConfigBuilder.build(testConfig, {populateProperties: true, getSecureValue: promptForProp});
+            } catch (error) {
+                caughtError = error;
+            }
             expectedConfig.profiles.my_secured.properties.info = "";
             expectedConfig.profiles.my_secured.properties.secret = "fake value";
             expectedConfig.secure.push("profiles.my_secured.properties.secret");
             expectedConfig.defaults.secured = "my_secured";
+            expect(caughtError).toBeUndefined();
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(1); // Populating default value for info
             expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(0);
@@ -176,7 +183,6 @@ describe("Config Builder tests", () => {
             expectedConfig.defaults.secured = "my_profiles.secured";
 
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
-            // tslint:disable-next-line: no-magic-numbers
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(1); // Populating default value for info
             expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1); // Hoisting host property from base profile
             expect(builtConfig).toEqual(expectedConfig);
