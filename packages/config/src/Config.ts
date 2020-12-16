@@ -14,13 +14,14 @@ import * as fs from "fs";
 import * as deepmerge from "deepmerge";
 import * as findUp from "find-up";
 import * as JSONC from "comment-json";
+import * as lodash from "lodash";
 
 import { IConfig } from "./doc/IConfig";
 import { IConfigLayer } from "./doc/IConfigLayer";
 import { ImperativeError } from "../../error";
 import { IConfigProfile } from "./doc/IConfigProfile";
 import { IConfigOpts } from "./doc/IConfigOpts";
-import { IConfigSecure, IConfigSecureProperties } from "./doc/IConfigSecure";
+import { IConfigSecure, IConfigSecureProperties, IConfigSecureFiles } from "./doc/IConfigSecure";
 import { IConfigVault } from "./doc/IConfigVault";
 import { Logger } from "../../logger";
 
@@ -510,7 +511,6 @@ export class Config {
 
     private async secureSave() {
         if (this._vault == null) return;
-        if (!this.secureFields()) return;
 
         // Build the entries for each layer
         for (const layer of this._layers) {
@@ -532,6 +532,9 @@ export class Config {
                 }
             }
 
+            // Clear the entry and rebuild it
+            delete this._secure.configs[layer.path];
+
             // Create the entry to set the secure properties
             if (Object.keys(sp).length > 0) {
                 this._secure.configs[layer.path] = sp;
@@ -539,8 +542,23 @@ export class Config {
         }
 
         // Save the entries if needed
-        if (Object.keys(this._secure.configs).length > 0)
-            await this._vault.save(Config.SECURE_ACCT, JSONC.stringify(this._secure.configs));
+        const keystoreConfigs = await this._vault.load(Config.SECURE_ACCT); // The configs in the vault
+        let mergedConfigs: IConfigSecureFiles = {};
+        if (keystoreConfigs != null) {
+            mergedConfigs = JSONC.parse(keystoreConfigs) as IConfigSecureFiles; // Make sure something was retrieved from keystore
+        };
+        for (const path of this._paths) {
+            delete mergedConfigs[path];
+        }
+        if (Object.keys(this._secure.configs).length > 0) {
+            const currentConfigs = lodash.cloneDeep(this._secure.configs); // Copy of our configs
+            for (const [key, value] of Object.entries(currentConfigs)) {
+                mergedConfigs[key] = value;
+            };
+        }
+        if (keystoreConfigs != null || Object.keys(mergedConfigs).length > 0) {
+            await this._vault.save(Config.SECURE_ACCT, JSONC.stringify(mergedConfigs));
+        }
     }
 
     private secureFields(): boolean {
