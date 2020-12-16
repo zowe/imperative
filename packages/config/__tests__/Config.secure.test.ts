@@ -38,7 +38,7 @@ describe("Config secure tests", () => {
     }
 
     afterEach(() => {
-        jest.restoreAllMocks();
+        jest.clearAllMocks();
     });
 
     it("should skip secure load if there are no secure properties", async () => {
@@ -55,7 +55,7 @@ describe("Config secure tests", () => {
         expect(mockSecureLoad).not.toHaveBeenCalled();
     });
 
-    it("should skip secure save if there are no secure properties", async () => {
+    it("should skip secure save if there are no secure properties or anything in keytar", async () => {
         const config = new (Config as any)();
         config._layers = [
             {
@@ -63,10 +63,32 @@ describe("Config secure tests", () => {
             }
         ];
         config._vault = mockVault;
+        config._secure = {};
+        config._secure.configs = {};
+        config._paths = [];
         const secureFieldsSpy = jest.spyOn(config, "secureFields");
         await (config as any).secureSave();
-        expect(secureFieldsSpy).toHaveReturnedWith(false);
-        expect(mockSecureSave).not.toHaveBeenCalled();
+        expect(secureFieldsSpy).toHaveBeenCalledTimes(0);
+        expect(mockSecureLoad).toHaveBeenCalledTimes(1);
+        expect(mockSecureSave).toHaveBeenCalledTimes(0);
+    });
+
+    it("should secure save if there are secure properties", async () => {
+        const config = new (Config as any)();
+        config._layers = [
+            {
+                properties: { secure: ["profiles.fake.properties.fake"], profiles: {fake: { properties: {fake: "fake"}}}}
+            }
+        ];
+        config._vault = mockVault;
+        config._secure = {};
+        config._secure.configs = {};
+        config._paths = [];
+        const secureFieldsSpy = jest.spyOn(config, "secureFields");
+        await (config as any).secureSave();
+        expect(secureFieldsSpy).toHaveBeenCalledTimes(0);
+        expect(mockSecureLoad).toHaveBeenCalledTimes(1);
+        expect(mockSecureSave).toHaveBeenCalledTimes(1);
     });
 
     it("should load and save all secure properties", async () => {
