@@ -4,7 +4,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## `4.10.0`
 
-- Add arrayAllowDuplicate option
+- Enhancement: Added an `arrayAllowDuplicate` option to the command definition handler. By default, the option value is set to `true` and duplicate values are allowed in an array. Specify `false` if you want Imperative to throw an error for duplicate array values. [#437](https://github.com/zowe/imperative/issues/437)
 
 ## `4.9.0`
 
