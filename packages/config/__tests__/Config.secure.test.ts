@@ -18,6 +18,7 @@ import { IConfigVault } from "../src/doc/IConfigVault";
 const MY_APP = "my_app";
 
 const projectConfigPath = path.join(__dirname, "__resources__/project.config.json");
+const projectUserConfigPath = path.join(__dirname, "__resources__/project.config.user.json");
 const securePropPath = "profiles.fruit.properties.secret";
 const secureConfigs: IConfigSecureFiles = {
     [projectConfigPath]: {
@@ -29,31 +30,27 @@ const secureConfigs: IConfigSecureFiles = {
 };
 
 describe("Config secure tests", () => {
-    const mockSecureLoad = jest.fn();
-    const mockSecureSave = jest.fn();
-    const mockVault: IConfigVault = {
+    let mockSecureLoad = jest.fn();
+    let mockSecureSave = jest.fn();
+    let mockVault: IConfigVault = {
         load: mockSecureLoad,
         save: mockSecureSave,
         name: "fake"
     }
 
     afterEach(() => {
-        jest.clearAllMocks();
+        jest.restoreAllMocks();
     });
 
-    it("should skip secure load if there are no secure properties", async () => {
-        const config = new (Config as any)();
-        config._layers = [
-            {
-                properties: { secure: [] }
-            }
-        ];
-        config._vault = mockVault;
-        const secureFieldsSpy = jest.spyOn(config, "secureFields");
-        await (config as any).secureLoad();
-        expect(secureFieldsSpy).toHaveReturnedWith(false);
-        expect(mockSecureLoad).not.toHaveBeenCalled();
-    });
+    beforeEach(() => {
+        mockSecureLoad = jest.fn();
+        mockSecureSave = jest.fn();
+        mockVault = {
+            load: mockSecureLoad,
+            save: mockSecureSave,
+            name: "fake"
+        }
+    })
 
     it("should skip secure save if there are no secure properties or anything in keytar", async () => {
         const config = new (Config as any)();
@@ -69,7 +66,7 @@ describe("Config secure tests", () => {
         const secureFieldsSpy = jest.spyOn(config, "secureFields");
         await (config as any).secureSave();
         expect(secureFieldsSpy).toHaveBeenCalledTimes(0);
-        expect(mockSecureLoad).toHaveBeenCalledTimes(1);
+        expect(mockSecureLoad).toHaveBeenCalledTimes(0);
         expect(mockSecureSave).toHaveBeenCalledTimes(0);
     });
 
@@ -77,6 +74,7 @@ describe("Config secure tests", () => {
         const config = new (Config as any)();
         config._layers = [
             {
+                path: "fake fakety fake",
                 properties: { secure: ["profiles.fake.properties.fake"], profiles: {fake: { properties: {fake: "fake"}}}}
             }
         ];
@@ -87,13 +85,13 @@ describe("Config secure tests", () => {
         const secureFieldsSpy = jest.spyOn(config, "secureFields");
         await (config as any).secureSave();
         expect(secureFieldsSpy).toHaveBeenCalledTimes(0);
-        expect(mockSecureLoad).toHaveBeenCalledTimes(1);
+        expect(mockSecureLoad).toHaveBeenCalledTimes(0);
         expect(mockSecureSave).toHaveBeenCalledTimes(1);
     });
 
     it("should load and save all secure properties", async () => {
-        jest.spyOn(Config, "search").mockReturnValue(projectConfigPath);
-        jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false);
+        jest.spyOn(Config, "search").mockReturnValueOnce(projectUserConfigPath).mockReturnValueOnce(projectConfigPath);
+        jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValueOnce(true).mockReturnValue(false);
         mockSecureLoad.mockReturnValueOnce(JSON.stringify(secureConfigs));
         const config = await Config.load(MY_APP, { vault: mockVault });
         // Check that secureLoad was called and secure value was extracted
@@ -102,9 +100,10 @@ describe("Config secure tests", () => {
 
         const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
         await config.api.layers.write();
+
         // Check that secureSave was called, secure value was preserved in
         // active layer, and the value was excluded from the config file
-        expect(mockSecureSave).toHaveBeenCalled();
+        expect(mockSecureSave).toHaveBeenCalledTimes(1);
         expect(mockSecureSave.mock.calls[0][0]).toBe("secure_config_props");
         expect(mockSecureSave.mock.calls[0][1]).toContain("area51");
         expect(config.properties.profiles.fruit.properties.secret).toBe("area51");

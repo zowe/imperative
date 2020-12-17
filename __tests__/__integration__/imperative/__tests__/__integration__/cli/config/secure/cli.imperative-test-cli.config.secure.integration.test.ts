@@ -55,6 +55,10 @@ describe("imperative-test-cli config secure", () => {
         await keytar.deletePassword(service, "secure_config_props");
     });
 
+    afterAll(() => {
+        jest.restoreAllMocks();
+    })
+
     it("should display the help", () => {
         const response = runCliScript(__dirname + "/../__scripts__/get_help.sh",
             TEST_ENVIRONMENT.workingDir, ["secure"]);
@@ -91,8 +95,8 @@ describe("imperative-test-cli config secure", () => {
         const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
         const configJson = JSON.parse(config);
         const securedValue = await keytar.getPassword(service, "secure_config_props");
-        const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
-        const expectedSecuredValueJson = {};
+        const securedValueJson = (securedValue == null ? null : JSON.parse(Buffer.from(securedValue, "base64").toString()));
+        const expectedSecuredValueJson = null;
 
         expect(response.stderr.toString()).toEqual("");
         expect(response.status).toEqual(0);
@@ -134,8 +138,8 @@ describe("imperative-test-cli config secure", () => {
         const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
         const configJson = JSON.parse(config);
         const securedValue = await keytar.getPassword(service, "secure_config_props");
-        const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
-        const expectedSecuredValueJson = {};
+        const securedValueJson = (securedValue == null ? null : JSON.parse(Buffer.from(securedValue, "base64").toString()));
+        const expectedSecuredValueJson = null;
 
         expect(response.stderr.toString()).toEqual("");
         expect(response.status).toEqual(0);

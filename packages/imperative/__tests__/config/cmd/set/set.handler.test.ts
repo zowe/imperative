@@ -182,7 +182,7 @@ describe("Configuration Secure command handler", () => {
             // tslint:disable-next-line: no-magic-numbers
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
         }
-        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(2);
+        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
@@ -321,7 +321,7 @@ describe("Configuration Secure command handler", () => {
             // tslint:disable-next-line: no-magic-numbers
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
         }
-        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(2);
+        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
@@ -450,7 +450,7 @@ describe("Configuration Secure command handler", () => {
 
         // tslint:disable-next-line: no-magic-numbers
         expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
-        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(2);
+        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
@@ -576,7 +576,7 @@ describe("Configuration Secure command handler", () => {
 
         // tslint:disable-next-line: no-magic-numbers
         expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
-        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(2);
+        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
@@ -708,7 +708,7 @@ describe("Configuration Secure command handler", () => {
 
         // tslint:disable-next-line: no-magic-numbers
         expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
-        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(2);
+        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
@@ -770,7 +770,7 @@ describe("Configuration Secure command handler", () => {
 
         // tslint:disable-next-line: no-magic-numbers
         expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
-        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(2);
+        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
@@ -832,7 +832,7 @@ describe("Configuration Secure command handler", () => {
 
         // tslint:disable-next-line: no-magic-numbers
         expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
-        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(2);
+        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
@@ -895,7 +895,7 @@ describe("Configuration Secure command handler", () => {
 
         // tslint:disable-next-line: no-magic-numbers
         expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
-        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(2);
+        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);

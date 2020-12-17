@@ -60,6 +60,7 @@ describe("Config API tests", () => {
 
     afterEach(() => {
         jest.restoreAllMocks();
+        jest.clearAllMocks();
     });
 
     describe("profiles", () => {

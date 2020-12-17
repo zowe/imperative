@@ -35,7 +35,7 @@ const getIHandlerParametersObject = (): IHandlerParameters => {
 };
 
 const credentialManager: ICredentialManagerInit = {
-    service: "imperativeTest",
+    service: "Zowe",
     displayName: "imperativeTestCredentialManager",
     invalidOnFailure: false
 };
@@ -47,10 +47,12 @@ const fakeProjUserPath = path.join(__dirname, "fakeapp.config.user.json");
 const fakeGblProjPath = path.join(__dirname, ".fakeapp", "fakeapp.config.json");
 const fakeGblSchemaPath = path.join(__dirname, ".fakeapp", "fakeapp.schema.json");
 const fakeGblProjUserPath = path.join(__dirname, ".fakeapp", "fakeapp.config.user.json");
+const fakeUnrelatedPath = path.join(__dirname, "fakeapp.unrelated.config.json");
 
 const fakeSecureDataJson = {};
 fakeSecureDataJson[fakeProjPath] = {"profiles.my_secured.properties.secure": "fakeSecureValue"};
 fakeSecureDataJson[fakeGblProjPath] = {"profiles.my_secured.properties.secure": "fakeSecureValue"};
+fakeSecureDataJson[fakeUnrelatedPath] = {"profiles.my_secured.properties.secure": "anotherFakeSecureValue"};
 
 const fakeSecureData = Buffer.from(JSON.stringify(fakeSecureDataJson)).toString("base64");
 
@@ -162,7 +164,8 @@ describe("Configuration Secure command handler", () => {
 
         await handler.process(params);
 
-        const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
+        const fakeSecureDataExpectedJson = {};
+        fakeSecureDataExpectedJson[fakeUnrelatedPath] = {"profiles.my_secured.properties.secure": "anotherFakeSecureValue"};
         fakeSecureDataExpectedJson[fakeProjPath] = {"profiles.my_secured.properties.secret": "fakePromptingData"};
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -175,15 +178,15 @@ describe("Configuration Secure command handler", () => {
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
-            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(5);
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
         } else {
             // tslint:disable-next-line: no-magic-numbers
-            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
         }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
-        expect(keytarSetPasswordSpy).toHaveBeenCalledWith("imperativeTest", "secure_config_props", fakeSecureDataExpected);
+        expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
@@ -230,7 +233,8 @@ describe("Configuration Secure command handler", () => {
 
         await handler.process(params);
 
-        const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
+        const fakeSecureDataExpectedJson = {};
+        fakeSecureDataExpectedJson[fakeUnrelatedPath] = {"profiles.my_secured.properties.secure": "anotherFakeSecureValue"};
         fakeSecureDataExpectedJson[fakeProjUserPath] = {"profiles.my_secured.properties.secret": "fakePromptingData"};
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -243,15 +247,15 @@ describe("Configuration Secure command handler", () => {
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
-            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(5);
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
         } else {
             // tslint:disable-next-line: no-magic-numbers
-            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
         }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
-        expect(keytarSetPasswordSpy).toHaveBeenCalledWith("imperativeTest", "secure_config_props", fakeSecureDataExpected);
+        expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjUserPath, JSON.stringify(compObj, null, 4)); // Config
@@ -299,7 +303,8 @@ describe("Configuration Secure command handler", () => {
 
         await handler.process(params);
 
-        const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
+        const fakeSecureDataExpectedJson = {};
+        fakeSecureDataExpectedJson[fakeUnrelatedPath] = {"profiles.my_secured.properties.secure": "anotherFakeSecureValue"};
         fakeSecureDataExpectedJson[fakeGblProjPath] = {"profiles.my_secured.properties.secret": "fakePromptingData"};
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -312,15 +317,15 @@ describe("Configuration Secure command handler", () => {
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
-            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(5);
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
         } else {
             // tslint:disable-next-line: no-magic-numbers
-            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
         }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
-        expect(keytarSetPasswordSpy).toHaveBeenCalledWith("imperativeTest", "secure_config_props", fakeSecureDataExpected);
+        expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblProjPath, JSON.stringify(compObj, null, 4)); // Config
@@ -368,7 +373,8 @@ describe("Configuration Secure command handler", () => {
 
         await handler.process(params);
 
-        const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
+        const fakeSecureDataExpectedJson = {};
+        fakeSecureDataExpectedJson[fakeUnrelatedPath] = {"profiles.my_secured.properties.secure": "anotherFakeSecureValue"};
         fakeSecureDataExpectedJson[fakeGblProjUserPath] = {"profiles.my_secured.properties.secret": "fakePromptingData"};
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -381,15 +387,15 @@ describe("Configuration Secure command handler", () => {
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
-            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(5);
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
         } else {
             // tslint:disable-next-line: no-magic-numbers
-            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
         }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
-        expect(keytarSetPasswordSpy).toHaveBeenCalledWith("imperativeTest", "secure_config_props", fakeSecureDataExpected);
+        expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config

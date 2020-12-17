@@ -470,7 +470,6 @@ export class Config {
 
     private async secureLoad() {
         if (this._vault == null) return;
-        if (!this.secureFields()) return;
 
         // load the secure fields
         const s: string = await this._vault.load(Config.SECURE_ACCT);
@@ -511,6 +510,7 @@ export class Config {
 
     private async secureSave() {
         if (this._vault == null) return;
+        const beforeLen = Object.keys(this._secure.configs).length;
 
         // Build the entries for each layer
         for (const layer of this._layers) {
@@ -542,22 +542,8 @@ export class Config {
         }
 
         // Save the entries if needed
-        const keystoreConfigs = await this._vault.load(Config.SECURE_ACCT); // The configs in the vault
-        let mergedConfigs: IConfigSecureFiles = {};
-        if (keystoreConfigs != null) {
-            mergedConfigs = JSONC.parse(keystoreConfigs) as IConfigSecureFiles; // Make sure something was retrieved from keystore
-        };
-        for (const path of this._paths) {
-            delete mergedConfigs[path];
-        }
-        if (Object.keys(this._secure.configs).length > 0) {
-            const currentConfigs = lodash.cloneDeep(this._secure.configs); // Copy of our configs
-            for (const [key, value] of Object.entries(currentConfigs)) {
-                mergedConfigs[key] = value;
-            };
-        }
-        if (keystoreConfigs != null || Object.keys(mergedConfigs).length > 0) {
-            await this._vault.save(Config.SECURE_ACCT, JSONC.stringify(mergedConfigs));
+        if (Object.keys(this._secure.configs).length > 0 || beforeLen > 0 ) {
+            await this._vault.save(Config.SECURE_ACCT, JSONC.stringify(this._secure.configs));
         }
     }
 
