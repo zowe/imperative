@@ -448,8 +448,13 @@ describe("Configuration Secure command handler", () => {
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         compObj.secure = []; // Add the secret field to the secrets
 
-        // tslint:disable-next-line: no-magic-numbers
-        expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
+        if (process.platform === "win32") {
+            // tslint:disable-next-line: no-magic-numbers
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
+        } else {
+            // tslint:disable-next-line: no-magic-numbers
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
+        }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
@@ -574,8 +579,13 @@ describe("Configuration Secure command handler", () => {
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         compObj.secure = []; // Add the secret field to the secrets
 
-        // tslint:disable-next-line: no-magic-numbers
-        expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
+        if (process.platform === "win32") {
+            // tslint:disable-next-line: no-magic-numbers
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
+        } else {
+            // tslint:disable-next-line: no-magic-numbers
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
+        }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
@@ -706,8 +716,13 @@ describe("Configuration Secure command handler", () => {
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         compObj.secure = []; // Add the secret field to the secrets
 
-        // tslint:disable-next-line: no-magic-numbers
-        expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
+        if (process.platform === "win32") {
+            // tslint:disable-next-line: no-magic-numbers
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
+        } else {
+            // tslint:disable-next-line: no-magic-numbers
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
+        }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
@@ -831,7 +846,13 @@ describe("Configuration Secure command handler", () => {
         compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
 
         // tslint:disable-next-line: no-magic-numbers
-        expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
+        if (process.platform === "win32") {
+            // tslint:disable-next-line: no-magic-numbers
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
+        } else {
+            // tslint:disable-next-line: no-magic-numbers
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
+        }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
@@ -893,8 +914,13 @@ describe("Configuration Secure command handler", () => {
         delete compObj.profiles.my_secured.properties.secret;
         compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
 
-        // tslint:disable-next-line: no-magic-numbers
-        expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
+        if (process.platform === "win32") {
+            // tslint:disable-next-line: no-magic-numbers
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
+        } else {
+            // tslint:disable-next-line: no-magic-numbers
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
+        }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
