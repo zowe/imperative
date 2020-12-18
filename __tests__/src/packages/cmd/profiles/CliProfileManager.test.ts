@@ -8,6 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 *
 */
+jest.mock("../../../../../packages/utilities/src/ImperativeConfig");
 
 import { inspect } from "util";
 import { rimraf, TEST_RESULT_DIR } from "../../../TestUtil";
