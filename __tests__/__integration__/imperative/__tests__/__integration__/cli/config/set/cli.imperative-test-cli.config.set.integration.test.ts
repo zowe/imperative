@@ -22,7 +22,7 @@ import * as lodash from "lodash";
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
 
-describe("imperative-test-cli config set-secure", () => {
+describe("imperative-test-cli config set", () => {
     const service = "imperative-test-cli";
     let expectedProjectConfigLocation: string;
     let expectedUserConfigLocation: string;
@@ -43,7 +43,7 @@ describe("imperative-test-cli config set-secure", () => {
     beforeAll(async () => {
         TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
             cliHomeEnvVar: "IMPERATIVE_TEST_CLI_CLI_HOME",
-            testName: "imperative_test_cli_test_config_set-secure_command"
+            testName: "imperative_test_cli_test_config_set_command"
         });
         expectedGlobalUserConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.user.json");
         expectedGlobalProjectConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.json");
