@@ -51,6 +51,7 @@ describe("imperative-test-cli config set", () => {
         expectedProjectConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json");
         expectedJson.profiles.my_secured.properties.info = "some_fake_information";
         expectedUserJson.profiles.my_secured.properties.info = "some_fake_information";
+        await keytar.setPassword("imperative-test-cli", "secure_config_props", Buffer.from("{}").toString("base64"));
     });
     afterEach(() => {
         runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
@@ -73,7 +74,7 @@ describe("imperative-test-cli config set", () => {
         // Should contain human readable credentials
         expect(fileContents.secure.length).toBe(0);
         expect(fileContents.profiles.my_secured.properties).toEqual({info: "some_fake_information"});
-        expect(securedValue).toBeNull();
+        expect(securedValue).toEqual(Buffer.from("{}").toString("base64"));
     });
     describe("secure", () => {
         afterEach(async () => {
