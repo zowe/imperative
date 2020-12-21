@@ -59,7 +59,6 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 throw new ImperativeError({
                     msg: `The group name "${commandParameters.positionals[1]}" was passed to the BaseAuthHandler, but it is not valid.`
                 });
-                break;
         }
     }
 
@@ -124,29 +123,45 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             const config = ImperativeConfig.instance.config;
             const beforeUser = config.api.layers.get().user;
             const beforeGlobal = config.api.layers.get().global;
-            let profileName = params.arguments[`${this.mProfileType}-profile`];
+            let profileShortPath = params.arguments[`${this.mProfileType}-profile`] || `my_${this.mProfileType}`;
+            let profileLongPath = profileShortPath.replace(/(^|\.)/g, "$1profiles.");
+            const profileExists = config.api.profiles.exists(profileShortPath);
 
-            if (profileName == null || !config.api.profiles.exists(profileName)) {
-                config.api.layers.activate(false, beforeGlobal);
-                if (!config.api.layers.get().exists) {
-                    if (!(await this.promptForBaseProfile(profileName))) {
-                        this.showToken(params.response, tokenValue);
-                        return;
-                    }
-                    ConfigBuilder.build(ImperativeConfig.instance.loadedConfig, { populateProperties: true });
-                    profileName = config.api.layers.get().properties.defaults.base;
+            const { profile, userProfile, global, overwrite } = this.findProfileForToken(config, profileLongPath);
+            if (!overwrite) {
+                const authServiceName = params.positionals[2];
+                profileShortPath = `${profileShortPath}_${authServiceName}`;
+                profileLongPath = `${profileLongPath}_${authServiceName}`;
+            }
+            const profileName = profileShortPath.slice(profileShortPath.lastIndexOf(".") + 1);
+            const newProfile = profile || userProfile;
+
+            // TODO Should we prompt only if user/password/token not found?
+            if (!profileExists) {
+                if (!(await this.promptForBaseProfile(profileName))) {
+                    this.showToken(params.response, tokenValue);
+                    return;
                 }
+
+                newProfile.properties.host = this.mSession.ISession.hostname;
+                newProfile.properties.port = this.mSession.ISession.port;
             }
 
-            const { profile, profilePath, layer } = this.findBaseProfile(config, profileName);
-            config.api.layers.activate(layer.user, layer.global);
+            newProfile.properties.tokenType = this.mSession.ISession.tokenType;
 
-            delete profile.properties.user;
-            delete profile.properties.password;
-            profile.properties.tokenType = this.mSession.ISession.tokenType;
-            profile.properties.tokenValue = tokenValue;
-            config.set(profilePath, profile);
+            // Activate layer where token properties should be added
+            config.api.layers.activate(profile == null, global);
+            const layer = config.api.layers.get();
+            if (!layer.exists) {
+                const newConfig = await ConfigBuilder.build(ImperativeConfig.instance.loadedConfig,
+                    { populateProperties: !layer.user });
+                config.api.layers.merge(newConfig);
+            }
+            config.set(profileLongPath, newProfile);
+            config.set(`${profileLongPath}.properties.tokenValue`, tokenValue, { secure: true });
+            config.api.profiles.defaultSet(this.mProfileType, profileShortPath);
 
+            // TODO Also clone user profile if necessary?
             await config.api.layers.write();
 
             params.response.console.log(`\n` +
@@ -159,17 +174,42 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         }
     }
 
-    private findBaseProfile(config: Config, profileName: string):
-            { profile: IConfigProfile, profilePath: string, layer: IConfigLayer } {
+    private findProfileForToken(config: Config, profilePath: string):
+            { profile: IConfigProfile, userProfile: IConfigProfile, global: boolean, overwrite: boolean } {
+        let profile = null;
+        let userProfile = null;
+        let global = false;
+        let overwrite = true;
         for (const layer of config.layers) {
-            const profilePath = lodash.findKey(layer.properties.profiles, profileName);
-            if (profilePath != null) {
-                return {
-                    profile: lodash.get(layer.properties.profiles, profilePath),
-                    profilePath, layer
-                };
+            // Skip searching global config if base profile was found in project config
+            if (layer.global && (profile != null || userProfile != null))
+                break;
+
+            if (!layer.exists)
+                continue;
+
+            const tempProfile = lodash.get(layer.properties, profilePath);
+            if (tempProfile != null) {
+                global = layer.global;
+
+                // If user/password in profile, create new profile instead of overwriting existing one
+                if (tempProfile.properties.user != null || tempProfile.properties.password != null) {
+                    overwrite = false;
+                }
+
+                if (!layer.user) {
+                    profile = lodash.cloneDeep(tempProfile);
+                } else {
+                    userProfile = lodash.cloneDeep(tempProfile);
+                }
             }
         }
+
+        if (profile == null && userProfile == null) {
+            profile = { type: this.mProfileType, properties: {} };
+        }
+
+        return { profile, userProfile, global, overwrite };
     }
 
     private async promptForBaseProfile(profileName: string): Promise<boolean> {
@@ -187,7 +227,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             `${tokenValue}\n\n` +
             `Login successful. To revoke this token, review the 'zowe auth logout' command.`
         );
-        response.data.setObj({tokenType: this.mSession.ISession.tokenType, tokenValue});
+        response.data.setObj({ tokenType: this.mSession.ISession.tokenType, tokenValue });
     }
 
     /**
