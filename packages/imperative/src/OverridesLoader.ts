@@ -64,7 +64,7 @@ export class OverridesLoader {
       displayName: config.productDisplayName || config.name,
       // For overrides, the service could be the CLI name, but we do not override anymore.
       // Null will use the service name of the built-in credential manager.
-      service: null,
+      service: config.credentialServiceName || null,
       // If the default is to be used, we won't implant the invalid credential manager.
       // We do not use the invalid credential manager, since we no longer allow overrides.
       invalidOnFailure: false

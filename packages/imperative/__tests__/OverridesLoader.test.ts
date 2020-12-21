@@ -35,6 +35,10 @@ describe("OverridesLoader", () => {
     process.mainModule = mainModule;
   });
 
+  afterAll(() => {
+    jest.restoreAllMocks();
+  })
+
   describe("loadCredentialManager", () => {
     it("should not set a credential manager if there are no overrides and keytar is not present", async () => {
       const cliName = "ABCD";

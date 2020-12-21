@@ -30,7 +30,7 @@ describe("DefaultCredentialManager", () => {
   });
 
   describe("instance methods", () => {
-    const service = "imperative-service";
+    const service = DefaultCredentialManager.SVC_NAME;
 
     /**
      * Use this manager as classes should use it.
@@ -190,10 +190,10 @@ describe("DefaultCredentialManager", () => {
         });
 
         it("should return credentials for an alternate service", async () => {
-          (keytar.getPassword as jest.Mock).mockImplementation(async (svc, acct) => svc === service ? null : values.credentials);
+          (keytar.getPassword as jest.Mock).mockImplementation(async (svc, _) => svc === service ? null : values.credentials);
 
           expect(await privateManager.loadCredentials(values.account)).toEqual(values.credentials);
-          expect(keytar.getPassword).toHaveBeenLastCalledWith(DefaultCredentialManager.SVC_NAME, values.account);
+          expect(keytar.getPassword).toHaveBeenLastCalledWith("@zowe/cli", values.account);
         });
 
         it("should throw an error when required credential fails to load", async () => {

@@ -14,13 +14,14 @@ import * as fs from "fs";
 import * as deepmerge from "deepmerge";
 import * as findUp from "find-up";
 import * as JSONC from "comment-json";
+import * as lodash from "lodash";
 
 import { IConfig } from "./doc/IConfig";
 import { IConfigLayer } from "./doc/IConfigLayer";
 import { ImperativeError } from "../../error";
 import { IConfigProfile } from "./doc/IConfigProfile";
 import { IConfigOpts } from "./doc/IConfigOpts";
-import { IConfigSecure, IConfigSecureProperties } from "./doc/IConfigSecure";
+import { IConfigSecure, IConfigSecureProperties, IConfigSecureFiles } from "./doc/IConfigSecure";
 import { IConfigVault } from "./doc/IConfigVault";
 import { Logger } from "../../logger";
 
@@ -380,9 +381,15 @@ export class Config {
             }
         });
 
-        if (opts.secure)
+        if (opts.secure) {
             if (!layer.properties.secure.includes(path))
                 layer.properties.secure.push(path);
+        } else if (opts.secure != null) {
+            const propIndex = layer.properties.secure.indexOf(path);
+            if (propIndex !== -1) {
+                layer.properties.secure.splice(propIndex, 1);
+            }
+        }
     }
 
     /**
@@ -463,7 +470,6 @@ export class Config {
 
     private async secureLoad() {
         if (this._vault == null) return;
-        if (!this.secureFields()) return;
 
         // load the secure fields
         const s: string = await this._vault.load(Config.SECURE_ACCT);
@@ -504,7 +510,7 @@ export class Config {
 
     private async secureSave() {
         if (this._vault == null) return;
-        if (!this.secureFields()) return;
+        const beforeLen = Object.keys(this._secure.configs).length;
 
         // Build the entries for each layer
         for (const layer of this._layers) {
@@ -526,6 +532,9 @@ export class Config {
                 }
             }
 
+            // Clear the entry and rebuild it
+            delete this._secure.configs[layer.path];
+
             // Create the entry to set the secure properties
             if (Object.keys(sp).length > 0) {
                 this._secure.configs[layer.path] = sp;
@@ -533,8 +542,9 @@ export class Config {
         }
 
         // Save the entries if needed
-        if (Object.keys(this._secure.configs).length > 0)
+        if (Object.keys(this._secure.configs).length > 0 || beforeLen > 0 ) {
             await this._vault.save(Config.SECURE_ACCT, JSONC.stringify(this._secure.configs));
+        }
     }
 
     private secureFields(): boolean {
