@@ -137,7 +137,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             const newProfile = profile || userProfile;
 
             // TODO Should we prompt only if user/password/token not found?
-            if (!profileExists) {
+            if (!profileExists || !overwrite) {
                 if (!(await this.promptForBaseProfile(profileName))) {
                     this.showToken(params.response, tokenValue);
                     return;
@@ -193,7 +193,9 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 global = layer.global;
 
                 // If user/password in profile, create new profile instead of overwriting existing one
-                if (tempProfile.properties.user != null || tempProfile.properties.password != null) {
+                if (tempProfile.properties.user != null || tempProfile.properties.password != null ||
+                    layer.properties.secure.includes(`${profilePath}.properties.user`) ||
+                    layer.properties.secure.includes(`${profilePath}.properties.password`)) {
                     overwrite = false;
                 }
 
@@ -236,8 +238,6 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * @param {IHandlerParameters} params Command parameters sent by imperative.
      */
     private async processLogout(params: IHandlerParameters) {
-        const loadedProfile = params.profiles.getMeta(this.mProfileType, false);
-
         ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue, "Token value not supplied, but is required for logout.");
 
         // Force to use of token value, in case user and/or password also on base profile, make user undefined.
@@ -261,23 +261,26 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         await this.doLogout(this.mSession);
 
         // If you specified a token on the command line, then don't delete the one in the profile if it doesn't match
+        const config = ImperativeConfig.instance.config;
+        const beforeUser = config.api.layers.get().user;
+        const beforeGlobal = config.api.layers.get().global;
+        const profileShortPath = params.arguments[`${this.mProfileType}-profile`] || `my_${this.mProfileType}`;
+        const profileLongPath = profileShortPath.replace(/(^|\.)/g, "$1profiles.");
+        const { profile, userProfile, global } = this.findProfileForToken(config, profileLongPath);
+        const loadedProfile = profile || userProfile;
         let profileWithToken: string = null;
         if (loadedProfile != null &&
-            loadedProfile.name != null &&
-            loadedProfile.profile != null &&
-            loadedProfile.profile.tokenValue != null &&
-            params.arguments.tokenValue === loadedProfile.profile.tokenValue) {
-            await Imperative.api.profileManager(this.mProfileType).save({
-                name: loadedProfile.name,
-                type: loadedProfile.type,
-                overwrite: true,
-                profile: {
-                    ...loadedProfile.profile,
-                    tokenType: undefined,
-                    tokenValue: undefined
-                }
-            });
-            profileWithToken = loadedProfile.name;
+            loadedProfile.properties != null &&
+            loadedProfile.properties.tokenValue != null &&
+            params.arguments.tokenValue === loadedProfile.properties.tokenValue) {
+            config.api.layers.activate(profile == null, global);
+            config.set(`${profileLongPath}.properties.tokenValue`, null, { secure: false });
+            delete loadedProfile.properties.tokenType;
+            delete loadedProfile.properties.tokenValue;
+            config.set(profileLongPath, loadedProfile);
+            await config.api.layers.write();
+            config.api.layers.activate(beforeUser, beforeGlobal);
+            profileWithToken = profileShortPath.slice(profileShortPath.lastIndexOf(".") + 1);
         }
 
         this.mSession.ISession.type = SessConstants.AUTH_TYPE_BASIC;
