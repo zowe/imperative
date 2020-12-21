@@ -18,6 +18,7 @@ export const config: IImperativeConfig = {
     defaultHome: "~/.imperative-test-cli",
     productDisplayName: "Imperative Package Test CLI",
     name: "imperative-test-cli",
+    credentialServiceName: "imperative-test-cli",
     envVariablePrefix: "IMPERATIVE_TEST_CLI",
     allowPlugins: false,
     profiles: [

@@ -176,6 +176,10 @@ describe("Plugin Management Facility", () => {
         // (AppSettings as any).mInstance = undefined;
     });
 
+    afterAll(() => {
+        jest.restoreAllMocks();
+    })
+
     it("should initialize properly", () => {
         mocks.existsSync.mockReturnValue(true);
         expect(PluginManagementFacility.instance).toBeTruthy();
