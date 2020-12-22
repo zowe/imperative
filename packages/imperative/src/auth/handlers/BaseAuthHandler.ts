@@ -13,7 +13,6 @@ import * as lodash from "lodash";
 import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerResponseApi } from "../../../../cmd";
 import { Constants } from "../../../../constants";
 import { ISession, ConnectionPropsForSessCfg, Session, SessConstants, AbstractSession } from "../../../../rest";
-import { Imperative } from "../../Imperative";
 import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
 import { CliUtils, ImperativeConfig } from "../../../../utilities";
@@ -127,7 +126,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             let profileLongPath = profileShortPath.replace(/(^|\.)/g, "$1profiles.");
             const profileExists = config.api.profiles.exists(profileShortPath);
 
-            const { profile, userProfile, global, overwrite } = this.findProfileForToken(config, profileLongPath);
+            const { profile, userProfile, global, overwrite } = this.findProfileForToken(config, profileLongPath, true);
             if (!overwrite) {
                 const authServiceName = params.positionals[2];
                 profileShortPath = `${profileShortPath}_${authServiceName}`;
@@ -174,7 +173,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         }
     }
 
-    private findProfileForToken(config: Config, profilePath: string):
+    private findProfileForToken(config: Config, profilePath: string, checkUserPass?: boolean):
             { profile: IConfigProfile, userProfile: IConfigProfile, global: boolean, overwrite: boolean } {
         let profile = null;
         let userProfile = null;
@@ -193,9 +192,9 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 global = layer.global;
 
                 // If user/password in profile, create new profile instead of overwriting existing one
-                if (tempProfile.properties.user != null || tempProfile.properties.password != null ||
+                if (checkUserPass && (tempProfile.properties.user != null || tempProfile.properties.password != null ||
                     layer.properties.secure.includes(`${profilePath}.properties.user`) ||
-                    layer.properties.secure.includes(`${profilePath}.properties.password`)) {
+                    layer.properties.secure.includes(`${profilePath}.properties.password`))) {
                     overwrite = false;
                 }
 
@@ -266,6 +265,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         const beforeGlobal = config.api.layers.get().global;
         const profileShortPath = params.arguments[`${this.mProfileType}-profile`] || `my_${this.mProfileType}`;
         const profileLongPath = profileShortPath.replace(/(^|\.)/g, "$1profiles.");
+        // TODO What happens when overwrite = false
         const { profile, userProfile, global } = this.findProfileForToken(config, profileLongPath);
         const loadedProfile = profile || userProfile;
         let profileWithToken: string = null;
