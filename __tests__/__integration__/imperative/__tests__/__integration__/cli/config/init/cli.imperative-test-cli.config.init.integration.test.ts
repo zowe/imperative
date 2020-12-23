@@ -36,9 +36,9 @@ describe("imperative-test-cli config init", () => {
     it("should display the help", () => {
         const response = runCliScript(__dirname + "/../__scripts__/get_help.sh",
             TEST_ENVIRONMENT.workingDir, ["init"]);
-        expect(response.output.toString()).toContain(`Initialize config files. Defaults to initializing "undefined.config.json" in the`);
+        expect(response.output.toString()).toContain(`Initialize config files. Defaults to initializing "imperative-test-cli.config.json" in the`);
         expect(response.output.toString()).toContain(`current working directory unless otherwise specified. Use "--user" to init`);
-        expect(response.output.toString()).toContain(`"undefined.config.user.json". Use "--global" to initialize the configuration`);
+        expect(response.output.toString()).toContain(`"imperative-test-cli.config.user.json". Use "--global" to initialize the configuration`);
         expect(response.output.toString()).toContain(`files your home "~/.zowe" directory.`);
         expect(response.stderr.toString()).toEqual("");
         expect(response.error).not.toBeDefined();
