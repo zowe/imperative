@@ -28,7 +28,6 @@ export const setDefinition: ICommandDefinition = {
         {
             name: "value",
             description: "The property value to set. The value may be JSON. Use '--json' to indicate.",
-            required: true,
             type: "string"
         }
     ],
