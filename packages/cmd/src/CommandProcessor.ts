@@ -740,7 +740,7 @@ export class CommandProcessor {
         // Build an object that contains all the options loaded from config
         const fulfilled: string[] = [];
         let fromCnfg: any = {};
-        if (this.mConfig != null && this.mConfig.exists) {
+        if (this.mConfig != null) {
             for (const profileType of allTypes) {
                 const [opt, _] = ProfileUtils.getProfileOptionAndAlias(profileType);
 
@@ -758,21 +758,6 @@ export class CommandProcessor {
                     p = this.mConfig.api.profiles.defaultGet(profileType);
                 }
                 fromCnfg = { ...p, ...fromCnfg };
-            }
-
-            // Parse token type out of token value
-            // TODO Evaluate whether we want this here for token compatibility
-            let tokenProp = null;
-            for (const propName of ["tokenValue", "token-value", "tv"]) {
-                if (fromCnfg[propName] != null) {
-                    tokenProp = propName;
-                    break;
-                }
-            }
-            if (tokenProp != null) {
-                const [tokenType, tokenValue] = fromCnfg[tokenProp].split("=", 2);
-                delete fromCnfg[tokenProp];
-                fromCnfg = { ...fromCnfg, tokenType, tokenValue };
             }
         }
 

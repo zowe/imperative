@@ -160,7 +160,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             }
 
             const profilePath = config.api.profiles.expandPath(profileName);
-            config.set(`${profilePath}.properties.tokenValue`,
+            config.set(`${profilePath}.properties.authToken`,
                 `${this.mSession.ISession.tokenType}=${this.mSession.ISession.tokenValue}`, { secure: true });
 
             await config.api.layers.write();
@@ -229,12 +229,12 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             let profileWithToken: string = null;
 
             // If you specified a token on the command line, then don't delete the one in the profile if it doesn't match
-            if (params.arguments.tokenValue === loadedProfile.properties.tokenValue.value) {
+            if (loadedProfile.properties.authToken.value === `${params.arguments.tokenType}=${params.arguments.tokenValue}`) {
                 const beforeLayer = config.api.layers.get();
-                config.api.layers.activate(loadedProfile.properties.tokenValue.user, loadedProfile.properties.tokenValue.global);
+                config.api.layers.activate(loadedProfile.properties.authToken.user, loadedProfile.properties.authToken.global);
 
                 const profilePath = config.api.profiles.expandPath(profileName);
-                config.delete(`${profilePath}.properties.tokenValue`);
+                config.delete(`${profilePath}.properties.authToken`);
 
                 await config.api.layers.write();
                 config.api.layers.activate(beforeLayer.user, beforeLayer.global);

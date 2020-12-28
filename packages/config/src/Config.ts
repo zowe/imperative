@@ -220,7 +220,6 @@ export class Config {
                 public expandPath(shortPath: string): string {
                     return shortPath.replace(/(^|\.)/g, "$1profiles.");
                 }
-
             }(); // end of profiles inner class
 
 
