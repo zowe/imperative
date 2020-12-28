@@ -272,9 +272,12 @@ export class Imperative {
                 const preparedHostCliCmdTree = this.getPreparedCmdTree(resolvedHostCliCmdTree, config.baseProfile);
 
                 /**
-                 * Initialize the profile environment
+                 * Only initialize the old-school profile environment
+                 * if we are not in single-profile mode.
                  */
-                this.initProfiles(config);
+                if (ImperativeConfig.instance.config.exists === false) {
+                    this.initProfiles(config);
+                }
 
                 /**
                  * Define all known commands

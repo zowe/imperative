@@ -15,6 +15,8 @@ jest.mock("fs");
 jest.mock("../../../../io/src/IO");
 jest.mock("js-yaml");
 jest.mock("yamljs");
+jest.mock("../../../../utilities/src/ImperativeConfig");
+
 import * as fs from "fs";
 import { IO } from "../../../../io/src/IO";
 import { ProfileIO } from "../ProfileIO";
