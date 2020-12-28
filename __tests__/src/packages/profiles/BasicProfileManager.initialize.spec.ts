@@ -8,6 +8,7 @@
 * Copyright Contributors to the Zowe Project.
 *
 */
+jest.mock("../../../../packages/utilities/src/ImperativeConfig");
 
 import * as TestUtil from "../../TestUtil";
 import { BasicProfileManager } from "../../../../packages/index";
