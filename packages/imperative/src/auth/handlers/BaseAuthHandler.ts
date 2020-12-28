@@ -297,7 +297,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 await Imperative.api.profileManager(this.mProfileType).save(createParms);
                 profileWithToken = createParms.name;
             } else {
-                params.arguments.showToken = true;
+                this.showToken(params.response, tokenValue);
             }
         }
 
