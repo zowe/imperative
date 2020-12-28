@@ -121,6 +121,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             await this.processLoginOld(params, tokenValue);
         } else {
             // update the profile given
+            // TODO Should config be added to IHandlerParameters?
             const config = ImperativeConfig.instance.config;
             let profileName = params.arguments[`${this.mProfileType}-profile`] || config.properties.defaults[this.mProfileType];
             if (profileName == null || !config.api.profiles.exists(profileName)) {

@@ -13,6 +13,7 @@ import { BaseAuthHandler } from "../handlers/BaseAuthHandler";
 import { ICommandArguments, IHandlerParameters } from "../../../../cmd";
 import { ISession, AbstractSession, SessConstants } from "../../../../rest";
 import { Imperative } from "../../Imperative";
+import { ImperativeConfig } from "../../../..";
 
 class FakeAuthHandler extends BaseAuthHandler {
     public mProfileType: string = "base";
@@ -38,6 +39,11 @@ describe("BaseAuthHandler", () => {
                     save: jest.fn(),
                     update: jest.fn()
                 })
+            })
+        });
+        Object.defineProperty(ImperativeConfig, "instance", {
+            get: () => ({
+                config: { exists: false }
             })
         });
     });

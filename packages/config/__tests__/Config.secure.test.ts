@@ -63,9 +63,7 @@ describe("Config secure tests", () => {
         config._secure = {};
         config._secure.configs = {};
         config._paths = [];
-        const secureFieldsSpy = jest.spyOn(config, "secureFields");
         await (config as any).secureSave();
-        expect(secureFieldsSpy).toHaveBeenCalledTimes(0);
         expect(mockSecureLoad).toHaveBeenCalledTimes(0);
         expect(mockSecureSave).toHaveBeenCalledTimes(0);
     });
@@ -82,9 +80,7 @@ describe("Config secure tests", () => {
         config._secure = {};
         config._secure.configs = {};
         config._paths = [];
-        const secureFieldsSpy = jest.spyOn(config, "secureFields");
         await (config as any).secureSave();
-        expect(secureFieldsSpy).toHaveBeenCalledTimes(0);
         expect(mockSecureLoad).toHaveBeenCalledTimes(0);
         expect(mockSecureSave).toHaveBeenCalledTimes(1);
     });
