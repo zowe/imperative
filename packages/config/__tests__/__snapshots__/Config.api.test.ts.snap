@@ -167,6 +167,53 @@ Object {
 }
 `;
 
+exports[`Config API tests profiles load should get a first level profile 1`] = `
+Object {
+  "profiles": Object {
+    "apple": Object {
+      "properties": Object {
+        "color": Object {
+          "global": false,
+          "user": true,
+          "value": "red",
+        },
+      },
+      "type": "fruit",
+    },
+    "orange": Object {
+      "properties": Object {
+        "color": Object {
+          "global": false,
+          "user": true,
+          "value": "orange",
+        },
+      },
+      "type": "fruit",
+    },
+  },
+  "properties": Object {
+    "origin": Object {
+      "global": false,
+      "user": true,
+      "value": "California",
+    },
+  },
+}
+`;
+
+exports[`Config API tests profiles load should get a second level profile 1`] = `
+Object {
+  "properties": Object {
+    "color": Object {
+      "global": false,
+      "user": true,
+      "value": "red",
+    },
+  },
+  "type": "fruit",
+}
+`;
+
 exports[`Config API tests profiles set should set a first level profile 1`] = `
 Object {
   "color": "green",

@@ -569,6 +569,7 @@ export class Config {
         }
     }
 
+    // TODO Does this need to recurse up through nested profiles?
     private loadProfile(path: string): IConfigLoadedProfile {
         const profile = lodash.get(this.properties, path);
         if (profile == null) {
