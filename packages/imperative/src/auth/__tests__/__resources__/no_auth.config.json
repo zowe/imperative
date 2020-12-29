@@ -1,0 +1,28 @@
+{
+    "profiles": {
+        "gala": {
+            "type": "apple",
+            "properties": {
+                "color": "red"
+            }
+        },
+        "mandarin": {
+            "type": "orange",
+            "properties": {
+                "color": "orange"
+            }
+        },
+        "my_fruit_creds": {
+            "type": "fruit",
+            "properties": {
+                "protocol": "ftp"
+            }
+        }
+    },
+    "defaults": {},
+    "plugins": [],
+    "secure": [
+        "profiles.my_fruit_creds.properties.user",
+        "profiles.my_fruit_creds.properties.password"
+    ]
+}

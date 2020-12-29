@@ -17,6 +17,7 @@ import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../profiles";
 import { CliUtils, ImperativeConfig } from "../../../../utilities";
+import { Config } from "../../../../config";
 
 /**
  * This class is used by the auth command handlers as the base class for their implementation.
@@ -123,10 +124,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             // update the profile given
             // TODO Should config be added to IHandlerParameters?
             const config = ImperativeConfig.instance.config;
-            let profileName = params.arguments[`${this.mProfileType}-profile`] || config.properties.defaults[this.mProfileType];
-            if (profileName == null || !config.api.profiles.exists(profileName)) {
-                profileName = `my_${this.mProfileType}_${params.positionals[2]}`;
-            }
+            let profileName = this.getBaseProfileName(params, config);
             const loadedProfile = config.api.profiles.load(profileName);
             let profileExists = loadedProfile != null && Object.keys(loadedProfile.properties).length > 0;
             const beforeLayer = config.api.layers.get();
@@ -172,6 +170,14 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 `${this.mProfileType} profile for future use. To revoke this token and remove it from your profile, review the ` +
                 `'zowe auth logout' command.`);
         }
+    }
+
+    private getBaseProfileName(params: IHandlerParameters, config: Config): string {
+        let profileName = params.arguments[`${this.mProfileType}-profile`] || config.properties.defaults[this.mProfileType];
+        if (profileName == null || !config.api.profiles.exists(profileName)) {
+            profileName = `my_${this.mProfileType}_${params.positionals[2]}`;
+        }
+        return profileName;
     }
 
     private async promptForBaseProfile(profileName: string): Promise<boolean> {
@@ -224,12 +230,13 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             await this.processLogoutOld(params);
         } else {
             const config = ImperativeConfig.instance.config;
-            const profileName = params.arguments[`${this.mProfileType}-profile`] || `my_${this.mProfileType}`;
+            const profileName = this.getBaseProfileName(params, config);
             const loadedProfile = config.api.profiles.load(profileName);
             let profileWithToken: string = null;
 
             // If you specified a token on the command line, then don't delete the one in the profile if it doesn't match
-            if (loadedProfile.properties.authToken.value === `${params.arguments.tokenType}=${params.arguments.tokenValue}`) {
+            if (loadedProfile?.properties.authToken != null &&
+                loadedProfile.properties.authToken.value === `${params.arguments.tokenType}=${params.arguments.tokenValue}`) {
                 const beforeLayer = config.api.layers.get();
                 config.api.layers.activate(loadedProfile.properties.authToken.user, loadedProfile.properties.authToken.global);
 

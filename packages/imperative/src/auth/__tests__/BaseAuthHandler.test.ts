@@ -9,27 +9,10 @@
 *
 */
 
-import { BaseAuthHandler } from "../handlers/BaseAuthHandler";
-import { ICommandArguments, IHandlerParameters } from "../../../../cmd";
-import { ISession, AbstractSession, SessConstants } from "../../../../rest";
+import { IHandlerParameters } from "../../../../cmd";
 import { Imperative } from "../../Imperative";
 import { ImperativeConfig } from "../../../..";
-
-class FakeAuthHandler extends BaseAuthHandler {
-    public mProfileType: string = "base";
-
-    public mDefaultTokenType: SessConstants.TOKEN_TYPE_CHOICES = SessConstants.TOKEN_TYPE_JWT;
-
-    protected createSessCfgFromArgs(args: ICommandArguments): ISession {
-        return { hostname: "fakeHost", port: 3000 };
-    }
-
-    protected async doLogin(session: AbstractSession): Promise<string> {
-        return "fakeToken";
-    }
-
-    protected async doLogout(session: AbstractSession): Promise<void> { /* Do nothing */ }
-}
+import { FakeAuthHandler } from "./__data__/FakeAuthHandler";
 
 describe("BaseAuthHandler", () => {
     beforeAll(() => {
