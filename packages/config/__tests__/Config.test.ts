@@ -338,6 +338,17 @@ describe("Config tests", () => {
             expect(config.properties.profiles.fruit.properties.secret).toBeUndefined();
             expect(layer.properties.secure).toContain("profiles.fruit.properties.secret");
         });
+
+        it("should remove profile from config and all its properties from secure array", async () => {
+            const config = await Config.load(MY_APP);
+            const layer = (config as any).layerActive();
+            config.set("profiles.fruit.properties.secret", "area51", { secure: true });
+            expect(config.properties.profiles.fruit.properties.secret).toBe("area51");
+            expect(layer.properties.secure).toContain("profiles.fruit.properties.secret");
+            config.delete("profiles.fruit");
+            expect(config.properties.profiles.fruit).toBeUndefined();
+            expect(layer.properties.secure).not.toContain("profiles.fruit.properties.secret");
+        });
     });
 
     describe("paths", () => {

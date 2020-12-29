@@ -144,6 +144,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 const user = Object.keys(loadedProfile.properties).every((k: string) => loadedProfile.properties[k].user);
                 const global = Object.keys(loadedProfile.properties).some((k: string) => loadedProfile.properties[k].global);
                 config.api.layers.activate(user, global);
+                // TODO Should we warn users that if lpar1.host is set, then base profile won't take effect?
             }
 
             if (!profileExists) {
@@ -159,7 +160,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
 
             const profilePath = config.api.profiles.expandPath(profileName);
             config.set(`${profilePath}.properties.authToken`,
-                `${this.mSession.ISession.tokenType}=${this.mSession.ISession.tokenValue}`, { secure: true });
+                `${this.mSession.ISession.tokenType}=${tokenValue}`, { secure: true });
 
             await config.api.layers.write();
             // Restore original active layer
@@ -204,7 +205,8 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * @param {IHandlerParameters} params Command parameters sent by imperative.
      */
     private async processLogout(params: IHandlerParameters) {
-        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue, "Token value not supplied, but is required for logout.");
+        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue || params.arguments.authToken,
+            "Token value not supplied, but is required for logout.");
 
         // Force to use of token value, in case user and/or password also on base profile, make user undefined.
         if (params.arguments.user != null) {
@@ -247,10 +249,6 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 config.api.layers.activate(beforeLayer.user, beforeLayer.global);
                 profileWithToken = profileName;
             }
-
-            this.mSession.ISession.type = SessConstants.AUTH_TYPE_BASIC;
-            this.mSession.ISession.tokenType = undefined;
-            this.mSession.ISession.tokenValue = undefined;
 
             params.response.console.log("Logout successful. The authentication token has been revoked" +
                 (profileWithToken != null ? ` and removed from your '${profileWithToken}' ${this.mProfileType} profile` : "") +

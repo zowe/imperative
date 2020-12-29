@@ -407,10 +407,9 @@ export class Config {
         lodash.unset(layer.properties, path);
 
         if (opts.secure !== false) {
-            const propIndex = layer.properties.secure.indexOf(path);
-            if (propIndex !== -1) {
-                layer.properties.secure.splice(propIndex, 1);
-            }
+            layer.properties.secure = layer.properties.secure.filter((secureProp: string) => {
+                return secureProp !== path && !secureProp.startsWith(`${path}.`);
+            });
         }
     }
 

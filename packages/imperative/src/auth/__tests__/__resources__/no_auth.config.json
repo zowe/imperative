@@ -12,7 +12,7 @@
                 "color": "orange"
             }
         },
-        "my_fruit_creds": {
+        "my_fruit": {
             "type": "fruit",
             "properties": {
                 "protocol": "ftp"
@@ -22,7 +22,7 @@
     "defaults": {},
     "plugins": [],
     "secure": [
-        "profiles.my_fruit_creds.properties.user",
-        "profiles.my_fruit_creds.properties.password"
+        "profiles.my_fruit.properties.user",
+        "profiles.my_fruit.properties.password"
     ]
 }
