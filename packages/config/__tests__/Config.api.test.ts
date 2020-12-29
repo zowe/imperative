@@ -231,15 +231,15 @@ describe("Config API tests", () => {
                 config.set("profiles.fruit.properties.origin", "Mexico");
                 config.set("profiles.fruit.properties.tags", ["sweet"]);
                 const profile = config.api.profiles.load("fruit");
-                expect(profile.properties.origin).toEqual({ value: "California", user: true, global: false });
-                expect(profile.properties.tags).toEqual([{ value: "sweet", user: false, global: false }]);
+                expect(profile.properties.origin).toEqual({ value: "California", secure: false, user: true, global: false });
+                expect(profile.properties.tags).toEqual([{ value: "sweet", secure: false, user: false, global: false }]);
             });
             it("should skip loading properties that are inactive", async () => {
                 const config = await Config.load(MY_APP);
                 config.api.layers.activate(false, true);
                 config.set("profiles.fruit.properties.tags", ["sweet"]);
                 const profile = config.api.profiles.load("fruit");
-                expect(profile.properties.origin).toEqual({ value: "California", user: true, global: false });
+                expect(profile.properties.origin).toEqual({ value: "California", secure: false, user: true, global: false });
                 expect(profile.properties.tags).toBeUndefined();
             });
             it("should include secure properties with no value defined", async () => {

@@ -13,7 +13,7 @@ import { IConfigProfile } from "./IConfigProfile";
 
 export interface IConfigLoadedProperty {
     value?: any;
-    secure?: boolean;
+    secure: boolean;
     user: boolean;
     global: boolean;
 };

@@ -134,6 +134,28 @@ describe("ConnectionPropsForSessCfg tests", () => {
         expect(sessCfgWithConnProps.password).toBeUndefined();
     });
 
+    it("authenticate with auth token", async() => {
+        const initialSessCfg = {
+            hostname: "SomeHost",
+            port: 11,
+            rejectUnauthorized: true
+        };
+        const args = {
+            $0: "zowe",
+            _: [""],
+            authToken: `${SessConstants.TOKEN_TYPE_LTPA}=FakeToken`
+        };
+        const sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+            initialSessCfg, args
+        );
+        expect(sessCfgWithConnProps.hostname).toBe("SomeHost");
+        expect(sessCfgWithConnProps.tokenValue).toBe("FakeToken");
+        expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_TOKEN);
+        expect(sessCfgWithConnProps.tokenType).toBe(SessConstants.TOKEN_TYPE_LTPA);
+        expect(sessCfgWithConnProps.user).toBeUndefined();
+        expect(sessCfgWithConnProps.password).toBeUndefined();
+    });
+
     it("not set tokenValue if user and pass are defined", async() => {
         const initialSessCfg = {
             hostname: "SomeHost",

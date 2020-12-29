@@ -581,10 +581,12 @@ export class Config {
                 for (const layer of this._layers) {
                     const propertyPath = `${path}.${p}`;
                     if (lodash.get(layer.properties, propertyPath) != null) {
-                        const property: IConfigLoadedProperty = { value, user: layer.user, global: layer.global };
-                        if (layer.properties.secure.includes(propertyPath)) {
-                            property.secure = true;
-                        }
+                        const property: IConfigLoadedProperty = {
+                            value,
+                            secure: layer.properties.secure.includes(propertyPath),
+                            user: layer.user,
+                            global: layer.global
+                        };
                         return property;
                     }
                 }
