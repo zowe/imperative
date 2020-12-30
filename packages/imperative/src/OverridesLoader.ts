@@ -10,16 +10,10 @@
 */
 
 import { IImperativeOverrides } from "./doc/IImperativeOverrides";
-import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
+import { CredentialManagerFactory } from "../../security";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
-import { ImperativeConfig } from "../../utilities";
 import { isAbsolute, resolve } from "path";
-import { PMFConstants } from "./plugins/utilities/PMFConstants";
-
-/* todo:overrides - If we ever need to reinstate ConfigMgr overrides,
- * re-implement to use entries in zowe.config.json.
 import { AppSettings } from "../../settings";
-*/
 
 /**
  * Imperative-internal class to load overrides
@@ -44,11 +38,12 @@ export class OverridesLoader {
   /**
    * Load the baked-in zowe CredentialManager and initialize it.
    * If we need to reinstate 3rd party overrides, delete this function and
-   * rename loadCredentialManager_NotCurrentlyUsed.
+   * rename loadCredentialManagerOld.
    *
    * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
    * @param {any} packageJson - the current package.json
    */
+  /* todo:overrides Reinstate this version of the function if we remove override support in the future
   private static async loadCredentialManager(
     config: IImperativeConfig,
     packageJson: any
@@ -70,6 +65,7 @@ export class OverridesLoader {
       invalidOnFailure: false
     });
   }
+  */
 
   /**
    * Initialize the Credential Manager using the supplied override when provided.
@@ -77,10 +73,7 @@ export class OverridesLoader {
    * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
    * @param {any} packageJson - the current package.json
    */
-
-  /* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
-
-  private static async loadCredentialManager_NotCurrentlyUsed(
+  private static async loadCredentialManager(
       config: IImperativeConfig,
       packageJson: any
   ): Promise<void> {
@@ -100,8 +93,10 @@ export class OverridesLoader {
         // App settings is not configured - use the CLI display name OR the package name as the manager name
         config.productDisplayName || config.name;
 
+    const callerPackageDependencies = {...(packageJson.dependencies || {}), ...(packageJson.optionalDependencies || {})};
+
     // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
-    if (overrides.CredentialManager != null || (packageJson.dependencies != null && packageJson.dependencies.keytar != null)) {
+    if (overrides.CredentialManager != null || callerPackageDependencies.keytar != null) {
       let Manager = overrides.CredentialManager;
       if (typeof overrides.CredentialManager === "string" && !isAbsolute(overrides.CredentialManager)) {
         Manager = resolve(process.mainModule.filename, "../", overrides.CredentialManager);
@@ -119,8 +114,4 @@ export class OverridesLoader {
       });
     }
   }
-
-  * todo:overrides: commented-out until we need to reinstate 3rd party overrides
-  */
-
 }

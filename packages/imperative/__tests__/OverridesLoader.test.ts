@@ -14,7 +14,7 @@ import { IImperativeConfig } from "../src/doc/IImperativeConfig";
 jest.mock("../../security");
 
 import { OverridesLoader } from "../src/OverridesLoader";
-import { CredentialManagerFactory, DefaultCredentialManager, AbstractCredentialManager } from "../../security";
+import { CredentialManagerFactory, AbstractCredentialManager } from "../../security";
 
 import * as path from "path";
 
@@ -76,11 +76,10 @@ describe("OverridesLoader", () => {
         Manager: undefined,
         displayName: config.productDisplayName,
         invalidOnFailure: false,
-        service: null
+        service: config.name
       });
     });
 
-    /* todo:overrides
     describe("should load a credential manager specified by the user", () => {
       it("was passed a class", async () => {
         const config: IImperativeConfig = {
@@ -174,6 +173,5 @@ describe("OverridesLoader", () => {
         });
       });
     });
-    */
   });
 });
