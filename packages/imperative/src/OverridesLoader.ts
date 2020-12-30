@@ -108,7 +108,7 @@ export class OverridesLoader {
         // The display name will be the plugin name that introduced the override OR it will default to the CLI name
         displayName,
         // The service is always the CLI name (Keytar and other plugins can use this to uniquely identify the service)
-        service: config.name,
+        service: config.credentialServiceName || config.name,
         // If the default is to be used, we won't implant the invalid credential manager
         invalidOnFailure: !(Manager == null)
       });
