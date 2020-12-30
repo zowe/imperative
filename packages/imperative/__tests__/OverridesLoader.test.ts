@@ -76,7 +76,7 @@ describe("OverridesLoader", () => {
         Manager: undefined,
         displayName: config.productDisplayName,
         invalidOnFailure: false,
-        service: config.name
+        service: null
       });
     });
 

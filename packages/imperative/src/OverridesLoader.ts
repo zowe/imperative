@@ -43,13 +43,15 @@ export class OverridesLoader {
    * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
    * @param {any} packageJson - the current package.json
    */
-  /* todo:overrides Reinstate this version of the function if we remove override support in the future
   private static async loadCredentialManager(
     config: IImperativeConfig,
     packageJson: any
   ): Promise<void> {
-    const dependencies = {...(packageJson.dependencies || {}), ...(packageJson.optionalDependencies || {})};
-    if (dependencies.keytar == null) {
+    if (config.overrides.CredentialManager != null) {
+      return this.loadCredentialManagerOld(config, packageJson);
+    }
+
+    if (packageJson.dependencies?.keytar == null && packageJson.optionalDependencies?.keytar == null) {
       return;
     }
 
@@ -65,7 +67,6 @@ export class OverridesLoader {
       invalidOnFailure: false
     });
   }
-  */
 
   /**
    * Initialize the Credential Manager using the supplied override when provided.
@@ -73,7 +74,7 @@ export class OverridesLoader {
    * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
    * @param {any} packageJson - the current package.json
    */
-  private static async loadCredentialManager(
+  private static async loadCredentialManagerOld(
       config: IImperativeConfig,
       packageJson: any
   ): Promise<void> {
@@ -93,10 +94,8 @@ export class OverridesLoader {
         // App settings is not configured - use the CLI display name OR the package name as the manager name
         config.productDisplayName || config.name;
 
-    const callerPackageDependencies = {...(packageJson.dependencies || {}), ...(packageJson.optionalDependencies || {})};
-
     // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
-    if (overrides.CredentialManager != null || callerPackageDependencies.keytar != null) {
+    if (overrides.CredentialManager != null || (packageJson.dependencies != null && packageJson.dependencies.keytar != null)) {
       let Manager = overrides.CredentialManager;
       if (typeof overrides.CredentialManager === "string" && !isAbsolute(overrides.CredentialManager)) {
         Manager = resolve(process.mainModule.filename, "../", overrides.CredentialManager);
@@ -108,7 +107,7 @@ export class OverridesLoader {
         // The display name will be the plugin name that introduced the override OR it will default to the CLI name
         displayName,
         // The service is always the CLI name (Keytar and other plugins can use this to uniquely identify the service)
-        service: config.credentialServiceName || config.name,
+        service: config.name,
         // If the default is to be used, we won't implant the invalid credential manager
         invalidOnFailure: !(Manager == null)
       });
