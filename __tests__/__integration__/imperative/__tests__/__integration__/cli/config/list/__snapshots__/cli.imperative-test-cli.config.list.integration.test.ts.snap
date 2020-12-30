@@ -2,12 +2,19 @@
 
 exports[`imperative-test-cli config list should list the configuration 1`] = `
 "profiles: 
-  my_secured: 
-    type:       secured
+  my_profiles: 
     properties: 
-      info: 
+    profiles: 
+      secured: 
+        type:       secured
+        properties: 
+          info: 
+  my_base: 
+    type:       base
+    properties: 
 defaults: 
-  secured: my_secured
+  secured: my_profiles.secured
+  base:    my_base
 plugins: 
   (empty array)
 secure: 
@@ -16,15 +23,22 @@ secure:
 `;
 
 exports[`imperative-test-cli config list should list the defaults configuration property 1`] = `
-"secured: my_secured
+"secured: my_profiles.secured
+base:    my_base
 "
 `;
 
 exports[`imperative-test-cli config list should list the profiles configuration property 1`] = `
-"my_secured: 
-  type:       secured
+"my_profiles: 
   properties: 
-    info: 
+  profiles: 
+    secured: 
+      type:       secured
+      properties: 
+        info: 
+my_base: 
+  type:       base
+  properties: 
 "
 `;
 
