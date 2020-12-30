@@ -128,4 +128,38 @@ describe("BaseAuthHandler", () => {
         expect(caughtError.message).toContain(`The group name "invalid"`);
         expect(caughtError.message).toContain("is not valid");
     });
+
+    it("should fail to login with invalid token value", async () => {
+        const handler = new FakeAuthHandler();
+        const params: IHandlerParameters = {
+            response: {
+                console: {
+                    log: jest.fn()
+                }
+            },
+            arguments: {
+                user: "fakeUser",
+                password: "fakePass"
+            },
+            positionals: ["auth", "login"],
+            profiles: {
+                getMeta: jest.fn(() => ({
+                    name: "fakeName"
+                }))
+            }
+        } as any;
+
+        const doLoginSpy = jest.spyOn(handler as any, "doLogin").mockResolvedValue(null);
+        let caughtError;
+
+        try {
+            await handler.process(params);
+        } catch (error) {
+            caughtError = error;
+        }
+
+        expect(caughtError).toBeDefined();
+        expect(caughtError.message).toContain("token value");
+        expect(doLoginSpy).toBeCalledTimes(1);
+    });
 });

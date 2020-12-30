@@ -370,8 +370,7 @@ describe("BaseAuthHandler config", () => {
             arguments: {
                 host: "fakeHost",
                 port: "fakePort",
-                tokenType: SessConstants.TOKEN_TYPE_JWT,
-                tokenValue: "fakeToken"
+                authToken: `${SessConstants.TOKEN_TYPE_JWT}=fakeToken`
             },
             positionals: ["auth", "logout", "creds"]
         } as any;
@@ -434,7 +433,7 @@ describe("BaseAuthHandler config", () => {
         it("should logout successfully without matching token in profile", async () => {
             const handler = new FakeAuthHandler();
             const params = lodash.cloneDeep(logoutParams);
-            params.arguments.tokenValue += "2";
+            params.arguments.authToken += "2";
             params.arguments["fruit-profile"] = "my_fruit";
             expect(fakeConfig.properties.profiles.my_fruit.properties.authToken).toBeDefined();
 
