@@ -76,6 +76,21 @@ describe("imperative-test-cli config set", () => {
         expect(fileContents.profiles.my_secured.properties).toEqual({info: "some_fake_information"});
         expect(securedValue).toEqual(Buffer.from("{}").toString("base64"));
     });
+    it("should prompt for and store a property in plain text", async () => {
+        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--user"]);
+        const response = runCliScript(__dirname + "/__scripts__/set_prompt.sh", TEST_ENVIRONMENT.workingDir,
+            ["profiles.my_secured.properties.info", "--user"]);
+        const fileContents = JSON.parse(fs.readFileSync(expectedUserConfigLocation).toString());
+        const securedValue = await keytar.getPassword(service, "secure_config_props");
+
+        expect(response.stderr.toString()).toEqual("");
+        expect(response.stdout.toString()).toContain("profiles.my_secured.properties.info");
+        expect(response.status).toEqual(0);
+        // Should contain human readable credentials
+        expect(fileContents.secure.length).toBe(0);
+        expect(fileContents.profiles.my_secured.properties).toEqual({info: "some_fake_information_prompted"});
+        expect(securedValue).toEqual(Buffer.from("{}").toString("base64"));
+    });
     describe("secure", () => {
         afterEach(async () => {
             await keytar.deletePassword(service, "secure_config_props");
