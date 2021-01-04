@@ -21,9 +21,10 @@ import { IConfigLayer } from "./doc/IConfigLayer";
 import { ImperativeError } from "../../error";
 import { IConfigProfile } from "./doc/IConfigProfile";
 import { IConfigOpts } from "./doc/IConfigOpts";
-import { IConfigSecure, IConfigSecureProperties, IConfigSecureFiles } from "./doc/IConfigSecure";
+import { IConfigSecure, IConfigSecureProperties } from "./doc/IConfigSecure";
 import { IConfigVault } from "./doc/IConfigVault";
 import { Logger } from "../../logger";
+import { IConfigLoadedProfile, IConfigLoadedProperty } from "./doc/IConfigLoadedProfile";
 
 enum layers {
     project_user = 0,
@@ -201,6 +202,10 @@ export class Config {
                     return (Config.findProfile(path, outer.properties.profiles) != null);
                 }
 
+                public load(path: string): IConfigLoadedProfile {
+                    return outer.loadProfile(this.expandPath(path));
+                }
+
                 public defaultSet(key: string, value: string) {
                     outer.layerActive().properties.defaults[key] = value;
                 }
@@ -212,6 +217,9 @@ export class Config {
                     return this.get(dflt);
                 }
 
+                public expandPath(shortPath: string): string {
+                    return shortPath.replace(/(^|\.)/g, "$1profiles.");
+                }
             }(); // end of profiles inner class
 
 
@@ -392,6 +400,19 @@ export class Config {
         }
     }
 
+    public delete(path: string, opts?: { secure?: boolean }) {
+        opts = opts || {};
+
+        const layer = this.layerActive();
+        lodash.unset(layer.properties, path);
+
+        if (opts.secure !== false) {
+            layer.properties.secure = layer.properties.secure.filter((secureProp: string) => {
+                return secureProp !== path && !secureProp.startsWith(`${path}.`);
+            });
+        }
+    }
+
     /**
      * Sets the $schema value at the top of the config JSONC, and saves the
      * schema to disk if an object is provided.
@@ -547,11 +568,43 @@ export class Config {
         }
     }
 
-    private secureFields(): boolean {
-        for (const l of this.layers)
-            if (l.properties.secure.length > 0)
-                return true;
-        return false;
+    // TODO Does this need to recurse up through nested profiles?
+    private loadProfile(path: string): IConfigLoadedProfile {
+        const profile = lodash.get(this.properties, path);
+        if (profile == null) {
+            return null;
+        }
+
+        const loadedProfile = require("lodash-deep").deepMapValues(profile, (value: any, p: string) => {
+            if (p.includes("properties.")) {
+                for (const layer of this._layers) {
+                    const propertyPath = `${path}.${p}`;
+                    if (lodash.get(layer.properties, propertyPath) != null) {
+                        const property: IConfigLoadedProperty = {
+                            value,
+                            secure: layer.properties.secure.includes(propertyPath),
+                            user: layer.user,
+                            global: layer.global
+                        };
+                        return property;
+                    }
+                }
+            }
+            return value;
+        });
+
+        for (const layer of this._layers) {
+            for (const secureProp of layer.properties.secure) {
+                if (secureProp.startsWith(`${path}.`)) {
+                    const subpath = secureProp.slice(path.length + 1);
+                    if (lodash.get(loadedProfile, subpath) == null) {
+                        lodash.set(loadedProfile, subpath, { secure: true, user: layer.user, global: layer.global });
+                    }
+                }
+            }
+        }
+
+        return loadedProfile;
     }
 
     ////////////////////////////////////////////////////////////////////////////

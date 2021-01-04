@@ -1,0 +1,28 @@
+{
+    "profiles": {
+        "gala": {
+            "type": "apple",
+            "properties": {
+                "color": "red"
+            }
+        },
+        "mandarin": {
+            "type": "orange",
+            "properties": {
+                "color": "orange"
+            }
+        },
+        "my_fruit": {
+            "type": "fruit",
+            "properties": {
+                "host": "fruitoftheloom.com",
+                "port": 1337
+            }
+        }
+    },
+    "defaults": {},
+    "plugins": [],
+    "secure": [
+        "profiles.my_fruit.properties.authToken"
+    ]
+}

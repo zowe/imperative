@@ -31,7 +31,7 @@ describe("imperative-test-cli config secure", () => {
 
     const expectedJson = lodash.cloneDeep(expectedConfigObject);
     delete expectedJson.$schema;
-    expectedJson.profiles.my_secured.properties.secret = "anotherFakeValue";
+    expectedJson.profiles.my_profiles.profiles.secured.properties.secret = "anotherFakeValue";
     expectedJson.secure = [];
 
     const expectedUserJson = expectedUserConfigObject;
@@ -75,15 +75,15 @@ describe("imperative-test-cli config secure", () => {
         const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
         const expectedSecuredValueJson = {};
         expectedSecuredValueJson[expectedProjectConfigLocation] = {
-            "profiles.my_secured.properties.secret": "anotherFakeValue"
+            "profiles.my_profiles.profiles.secured.properties.secret": "anotherFakeValue"
         };
 
         expect(response.stderr.toString()).toEqual("");
         expect(response.status).toEqual(0);
         expect(configJson.data).toEqual(expectedJson);
         // Should not contain human readable credentials
-        expect(fileContents.secure).toEqual(["profiles.my_secured.properties.secret"]);
-        expect(fileContents.profiles.my_secured.properties).not.toEqual({secret: "anotherFakeValue"});
+        expect(fileContents.secure).toEqual(["profiles.my_profiles.profiles.secured.properties.secret"]);
+        expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({secret: "anotherFakeValue"});
         // Check the securely stored JSON
         expect(securedValueJson).toEqual(expectedSecuredValueJson);
     });
@@ -102,8 +102,8 @@ describe("imperative-test-cli config secure", () => {
         expect(response.status).toEqual(0);
         expect(configJson.data).toEqual(expectedUserJson);
         // Should not contain human readable credentials
-        expect(fileContents.secure).not.toEqual(["profiles.my_secured.properties.secret"]);
-        expect(fileContents.profiles.my_secured.properties).not.toEqual({secret: "anotherFakeValue"});
+        expect(fileContents.secure).not.toEqual(["profiles.my_profiles.profiles.secured.properties.secret"]);
+        expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({secret: "anotherFakeValue"});
         // Check the securely stored JSON
         expect(securedValueJson).toEqual(expectedSecuredValueJson);
     });
@@ -118,15 +118,15 @@ describe("imperative-test-cli config secure", () => {
         const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
         const expectedSecuredValueJson = {};
         expectedSecuredValueJson[expectedGlobalProjectConfigLocation] = {
-            "profiles.my_secured.properties.secret": "anotherFakeValue"
+            "profiles.my_profiles.profiles.secured.properties.secret": "anotherFakeValue"
         };
 
         expect(response.stderr.toString()).toEqual("");
         expect(response.status).toEqual(0);
         expect(configJson.data).toEqual(expectedJson);
         // Should not contain human readable credentials
-        expect(fileContents.secure).toEqual(["profiles.my_secured.properties.secret"]);
-        expect(fileContents.profiles.my_secured.properties).not.toEqual({secret: "anotherFakeValue"});
+        expect(fileContents.secure).toEqual(["profiles.my_profiles.profiles.secured.properties.secret"]);
+        expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({secret: "anotherFakeValue"});
         // Check the securely stored JSON
         expect(securedValueJson).toEqual(expectedSecuredValueJson);
     });
@@ -145,8 +145,8 @@ describe("imperative-test-cli config secure", () => {
         expect(response.status).toEqual(0);
         expect(configJson.data).toEqual(expectedUserJson);
         // Should not contain human readable credentials
-        expect(fileContents.secure).not.toEqual(["profiles.my_secured.properties.secret"]);
-        expect(fileContents.profiles.my_secured.properties).not.toEqual({secret: "anotherFakeValue"});
+        expect(fileContents.secure).not.toEqual(["profiles.my_profiles.profiles.secured.properties.secret"]);
+        expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({secret: "anotherFakeValue"});
         // Check the securely stored JSON
         expect(securedValueJson).toEqual(expectedSecuredValueJson);
     });

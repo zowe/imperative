@@ -146,7 +146,7 @@ describe("Config API tests", () => {
                 const config = await Config.load(MY_APP);
                 const profile = config.api.profiles.get("vegetable");
                 expect(profile).toEqual({});
-            })
+            });
         });
         describe("exists", () => {
             it("should return first layer profile exists if it does", async () => {
@@ -204,6 +204,50 @@ describe("Config API tests", () => {
                 const config = await Config.load(MY_APP);
                 const profile = config.api.profiles.defaultGet("vegetable");
                 expect(profile).toBeNull();
+            });
+        });
+        describe("load", () => {
+            it("should get a first level profile", async () => {
+                const config = await Config.load(MY_APP);
+                const profile = config.api.profiles.load("fruit");
+                expect(profile).toMatchSnapshot();
+                expect(profile.properties.origin.value).toEqual("California");
+            });
+            it("should get a second level profile", async () => {
+                const config = await Config.load(MY_APP);
+                const profile = config.api.profiles.load("fruit.apple");
+                expect(profile).toMatchSnapshot();
+                expect(profile.properties.color.value).toEqual("red");
+                expect(profile.properties.origin).toBeUndefined();
+            });
+            it("should fail to get a profile that doesn't exist", async () => {
+                const config = await Config.load(MY_APP);
+                const profile = config.api.profiles.load("vegetable");
+                expect(profile).toBeNull();
+            });
+            it("should merge properties between project and user layers", async () => {
+                const config = await Config.load(MY_APP);
+                config.api.layers.activate(false, false);
+                config.set("profiles.fruit.properties.origin", "Mexico");
+                config.set("profiles.fruit.properties.tags", ["sweet"]);
+                const profile = config.api.profiles.load("fruit");
+                expect(profile.properties.origin).toEqual({ value: "California", secure: false, user: true, global: false });
+                expect(profile.properties.tags).toEqual([{ value: "sweet", secure: false, user: false, global: false }]);
+            });
+            it("should skip loading properties that are inactive", async () => {
+                const config = await Config.load(MY_APP);
+                config.api.layers.activate(false, true);
+                config.set("profiles.fruit.properties.tags", ["sweet"]);
+                const profile = config.api.profiles.load("fruit");
+                expect(profile.properties.origin).toEqual({ value: "California", secure: false, user: true, global: false });
+                expect(profile.properties.tags).toBeUndefined();
+            });
+            it("should include secure properties with no value defined", async () => {
+                const config = await Config.load(MY_APP);
+                (config as any).layerActive().properties.secure.push("profiles.fruit.properties.secret");
+                const profile = config.api.profiles.load("fruit");
+                expect(profile.properties.origin.value).toEqual("California");
+                expect(profile.properties.secret.secure).toBe(true);
             });
         });
     });
