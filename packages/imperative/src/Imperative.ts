@@ -209,7 +209,7 @@ export class Imperative {
                 if (CredentialManagerFactory.initialized) {
                     opts.vault = {
                         load: ((key: string): Promise<string> => {
-                            return CredentialManagerFactory.manager.load(key, true)
+                            return CredentialManagerFactory.manager.load(key, true);
                         }),
                         save: ((key: string, value: any): Promise<void> => {
                             return CredentialManagerFactory.manager.save(key, value);

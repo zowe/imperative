@@ -13,7 +13,7 @@ import { CommandResponse, IHandlerParameters } from "../../../../..";
 import { Config } from "../../../../../config/src/Config";
 import { CliUtils, ImperativeConfig } from "../../../../../utilities";
 import { IImperativeConfig } from "../../../../src/doc/IImperativeConfig";
-import { expectedSchemaObject } from
+import { expectedSchemaObjectNoBase } from
     "../../../../../../__tests__/__integration__/imperative/__tests__/__integration__/cli/config/__resources__/expectedObjects"
 import InitHandler from "../../../../src/config/cmd/init/init.handler";
 import * as config from "../../../../../../__tests__/__integration__/imperative/src/imperative";
@@ -104,11 +104,11 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
-        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
@@ -116,12 +116,12 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
 
         // Secure value supplied during prompting should be on properties
-        expect(ImperativeConfig.instance.config.properties.profiles.my_secured.properties.secret).toEqual("fakeValue");
+        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual("fakeValue");
     });
 
     it("should attempt to initialize the project user configuration", async () => {
@@ -153,17 +153,17 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
-        delete compObj.profiles.my_secured.properties.info; // Delete info as well
+        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
+        delete compObj.profiles.my_profiles.profiles.secured.properties.info; // Delete info as well
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // User config is a skeleton - no prompting should occur
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, 4)); // Config
     });
@@ -197,11 +197,11 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
-        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
@@ -209,12 +209,12 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, 4)); // Config
 
         // Secure value supplied during prompting should be on properties
-        expect(ImperativeConfig.instance.config.properties.profiles.my_secured.properties.secret).toEqual("fakeValue");
+        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual("fakeValue");
     });
 
     it("should attempt to initialize the global project user configuration", async () => {
@@ -246,17 +246,17 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
-        delete compObj.profiles.my_secured.properties.info; // Delete info as well
+        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
+        delete compObj.profiles.my_profiles.profiles.secured.properties.info; // Delete info as well
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // User config is a skeleton - no prompting should occur
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config
     });
@@ -290,17 +290,17 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
-        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
     });
@@ -334,17 +334,17 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
-        delete compObj.profiles.my_secured.properties.info; // Delete info as well
+        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
+        delete compObj.profiles.my_profiles.profiles.secured.properties.info; // Delete info as well
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, 4)); // Config
     });
@@ -378,17 +378,17 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
-        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, 4)); // Config
     });
@@ -422,17 +422,17 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
-        delete compObj.profiles.my_secured.properties.info; // Delete info as well
+        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
+        delete compObj.profiles.my_profiles.profiles.secured.properties.info; // Delete info as well
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config
     });
@@ -466,11 +466,11 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
-        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
@@ -478,12 +478,12 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
 
         // Secure value supplied during prompting should be on properties
-        expect(ImperativeConfig.instance.config.properties.profiles.my_secured.properties.secret).toEqual(true);
+        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(true);
     });
 
     it("should attempt to initialize the project configuration and use boolean false for the prompt", async () => {
@@ -515,11 +515,11 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
-        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
@@ -527,12 +527,12 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
 
         // Secure value supplied during prompting should be on properties
-        expect(ImperativeConfig.instance.config.properties.profiles.my_secured.properties.secret).toEqual(false);
+        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(false);
     });
 
     it("should attempt to initialize the project configuration and use a number for the prompt", async () => {
@@ -564,11 +564,11 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
-        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
@@ -576,13 +576,13 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
 
         // Secure value supplied during prompting should be on properties
         // tslint:disable-next-line: no-magic-numbers
-        expect(ImperativeConfig.instance.config.properties.profiles.my_secured.properties.secret).toEqual(9001);
+        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(9001);
     });
 
     it("should attempt to initialize the project configuration and handle getting nothing from the prompt", async () => {
@@ -614,11 +614,11 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_secured.properties.secret; // Delete the secret
-        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObject);
+        expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
@@ -626,12 +626,12 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObject, null, 4)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
 
         // Secure value supplied during prompting should be on properties
         // tslint:disable-next-line: no-magic-numbers
-        expect(ImperativeConfig.instance.config.properties.profiles.my_secured.properties.secret).toEqual(undefined);
+        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(undefined);
     });
 });

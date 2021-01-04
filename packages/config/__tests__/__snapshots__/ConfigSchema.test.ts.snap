@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Config Schema should be able to successfully build with a secure single profile type configuration 1`] = `
+exports[`Config Schema should be able to successfully build with a complex single profile type configuration 1`] = `
 Object {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
   "$version": 1,
@@ -35,7 +35,12 @@ Object {
                     "description": "A fake zosmf profile",
                     "properties": Object {
                       "host": Object {
-                        "secure": true,
+                        "default": "fake",
+                        "description": "The fake host to connect to",
+                        "enum": Array [
+                          "fake",
+                          "real",
+                        ],
                         "type": "string",
                       },
                     },
@@ -81,7 +86,7 @@ Object {
 }
 `;
 
-exports[`Config Schema should be able to successfully build with a secure single profile type configuration 2`] = `
+exports[`Config Schema should be able to successfully build with a secure single profile type configuration 1`] = `
 Object {
   "$schema": "https://json-schema.org/draft/2019-09/schema#",
   "$version": 1,
@@ -116,8 +121,7 @@ Object {
                     "description": "A fake zosmf profile",
                     "properties": Object {
                       "host": Object {
-                        "default": "fake",
-                        "description": "The fake host to connect to",
+                        "secure": true,
                         "type": "string",
                       },
                     },

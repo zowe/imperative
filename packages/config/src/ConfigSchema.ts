@@ -9,6 +9,7 @@
 *
 */
 
+import { ICommandProfileProperty } from "../../cmd";
 import { IProfileSchema, IProfileTypeConfiguration } from "../../profiles";
 
 export class ConfigSchema {
@@ -36,10 +37,14 @@ export class ConfigSchema {
         const properties: { [key: string]: any } = {};
         for (const [k, v] of Object.entries(schema.properties)) {
             properties[k] = { type: v.type };
-            if ((v as any).optionDefinition != null) {
-                properties[k].description = (v as any).optionDefinition.description;
-                if ((v as any).optionDefinition.defaultValue != null) {
-                    properties[k].default = (v as any).optionDefinition.defaultValue;
+            const cmdProp = v as ICommandProfileProperty;
+            if (cmdProp.optionDefinition != null) {
+                properties[k].description = cmdProp.optionDefinition.description;
+                if (cmdProp.optionDefinition.defaultValue != null) {
+                    properties[k].default = cmdProp.optionDefinition.defaultValue;
+                }
+                if (cmdProp.optionDefinition.allowableValues != null) {
+                    properties[k].enum = cmdProp.optionDefinition.allowableValues.values;
                 }
             }
             if (v.secure) {

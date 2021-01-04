@@ -310,6 +310,47 @@ describe("Config tests", () => {
         });
     });
 
+    describe("delete", () => {
+        beforeEach(() => {
+            jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/project.config.user.json");
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false);
+            jest.spyOn(Config.prototype as any, "secureLoad").mockResolvedValue(undefined);
+        });
+
+        it("should remove secure property from profile and secure array", async () => {
+            const config = await Config.load(MY_APP);
+            const layer = (config as any).layerActive();
+            config.set("profiles.fruit.properties.secret", "area51", { secure: true });
+            expect(config.properties.profiles.fruit.properties.secret).toBe("area51");
+            expect(layer.properties.secure).toContain("profiles.fruit.properties.secret");
+            config.delete("profiles.fruit.properties.secret");
+            expect(config.properties.profiles.fruit.properties.secret).toBeUndefined();
+            expect(layer.properties.secure).not.toContain("profiles.fruit.properties.secret");
+        });
+
+        it("should remove insecure property from profile only", async () => {
+            const config = await Config.load(MY_APP);
+            const layer = (config as any).layerActive();
+            config.set("profiles.fruit.properties.secret", "area51", { secure: true });
+            expect(config.properties.profiles.fruit.properties.secret).toBe("area51");
+            expect(layer.properties.secure).toContain("profiles.fruit.properties.secret");
+            config.delete("profiles.fruit.properties.secret", { secure: false });
+            expect(config.properties.profiles.fruit.properties.secret).toBeUndefined();
+            expect(layer.properties.secure).toContain("profiles.fruit.properties.secret");
+        });
+
+        it("should remove profile from config and all its properties from secure array", async () => {
+            const config = await Config.load(MY_APP);
+            const layer = (config as any).layerActive();
+            config.set("profiles.fruit.properties.secret", "area51", { secure: true });
+            expect(config.properties.profiles.fruit.properties.secret).toBe("area51");
+            expect(layer.properties.secure).toContain("profiles.fruit.properties.secret");
+            config.delete("profiles.fruit");
+            expect(config.properties.profiles.fruit).toBeUndefined();
+            expect(layer.properties.secure).not.toContain("profiles.fruit.properties.secret");
+        });
+    });
+
     describe("paths", () => {
         beforeEach(() => {
             jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/project.config.user.json");

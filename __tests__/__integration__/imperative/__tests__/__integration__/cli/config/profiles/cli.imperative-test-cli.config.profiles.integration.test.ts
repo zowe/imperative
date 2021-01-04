@@ -40,7 +40,7 @@ describe("imperative-test-cli config profiles", () => {
     it("should list profiles", () => {
         const response = runCliScript(__dirname + "/__scripts__/list_profiles.sh", TEST_ENVIRONMENT.workingDir, [""]);
         expect(response.stdout.toString()).toMatchSnapshot();
-        expect(response.stdout.toString()).toContain("my_secured");
+        expect(response.stdout.toString()).toContain("my_profiles.secured");
         expect(response.stderr.toString()).toEqual("");
         expect(response.error).not.toBeDefined();
     });
