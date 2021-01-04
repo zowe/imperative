@@ -12,6 +12,7 @@
 import { IProfileTypeConfiguration } from "../../profiles";
 import { ConfigSchema } from "../src/ConfigSchema";
 import { cloneDeep } from "lodash";
+import { ICommandProfileTypeConfiguration } from "../..";
 
 
 describe("Config Schema", () => {
@@ -63,8 +64,7 @@ describe("Config Schema", () => {
             }
         }
     }];
-    // TODO Why doesn't type work here when optionDefinition is defined
-    const testProfileConfigurationOptionDefinition: any = [
+    const testProfileConfigurationOptionDefinition: ICommandProfileTypeConfiguration[] = [
         {
             type: "zosmf",
             schema: {
@@ -80,7 +80,10 @@ describe("Config Schema", () => {
                             aliases: ["h"],
                             description: "The fake host to connect to",
                             type: "string",
-                            defaultValue: "fake"
+                            defaultValue: "fake",
+                            allowableValues: {
+                                values: ["fake", "real"]
+                            }
                         }
                     }
                 }
@@ -216,7 +219,7 @@ describe("Config Schema", () => {
         expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
     });
 
-    it("should be able to successfully build with a secure single profile type configuration", () => {
+    it("should be able to successfully build with a complex single profile type configuration", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfigurationOptionDefinition);
         const returnedSchema = schema.buildSchema(testConfig);
         const expectedAllOf: any[] = [{
@@ -235,7 +238,8 @@ describe("Config Schema", () => {
                             host: {
                                 type: "string",
                                 default: "fake",
-                                description: "The fake host to connect to"
+                                description: "The fake host to connect to",
+                                enum: ["fake", "real"]
                             },
                         },
                         required: [],

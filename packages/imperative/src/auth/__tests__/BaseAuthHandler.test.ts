@@ -9,26 +9,10 @@
 *
 */
 
-import { BaseAuthHandler } from "../handlers/BaseAuthHandler";
-import { ICommandArguments, IHandlerParameters } from "../../../../cmd";
-import { ISession, AbstractSession, SessConstants } from "../../../../rest";
+import { IHandlerParameters } from "../../../../cmd";
 import { Imperative } from "../../Imperative";
-
-class FakeAuthHandler extends BaseAuthHandler {
-    public mProfileType: string = "base";
-
-    public mDefaultTokenType: SessConstants.TOKEN_TYPE_CHOICES = SessConstants.TOKEN_TYPE_JWT;
-
-    protected createSessCfgFromArgs(args: ICommandArguments): ISession {
-        return { hostname: "fakeHost", port: 3000 };
-    }
-
-    protected async doLogin(session: AbstractSession): Promise<string> {
-        return "fakeToken";
-    }
-
-    protected async doLogout(session: AbstractSession): Promise<void> { /* Do nothing */ }
-}
+import { ImperativeConfig } from "../../../..";
+import { FakeAuthHandler } from "./__data__/FakeAuthHandler";
 
 describe("BaseAuthHandler", () => {
     beforeAll(() => {
@@ -38,6 +22,11 @@ describe("BaseAuthHandler", () => {
                     save: jest.fn(),
                     update: jest.fn()
                 })
+            })
+        });
+        Object.defineProperty(ImperativeConfig, "instance", {
+            get: () => ({
+                config: { exists: false }
             })
         });
     });
@@ -138,5 +127,39 @@ describe("BaseAuthHandler", () => {
         expect(caughtError).toBeDefined();
         expect(caughtError.message).toContain(`The group name "invalid"`);
         expect(caughtError.message).toContain("is not valid");
+    });
+
+    it("should fail to login with invalid token value", async () => {
+        const handler = new FakeAuthHandler();
+        const params: IHandlerParameters = {
+            response: {
+                console: {
+                    log: jest.fn()
+                }
+            },
+            arguments: {
+                user: "fakeUser",
+                password: "fakePass"
+            },
+            positionals: ["auth", "login"],
+            profiles: {
+                getMeta: jest.fn(() => ({
+                    name: "fakeName"
+                }))
+            }
+        } as any;
+
+        const doLoginSpy = jest.spyOn(handler as any, "doLogin").mockResolvedValue(null);
+        let caughtError;
+
+        try {
+            await handler.process(params);
+        } catch (error) {
+            caughtError = error;
+        }
+
+        expect(caughtError).toBeDefined();
+        expect(caughtError.message).toContain("token value");
+        expect(doLoginSpy).toBeCalledTimes(1);
     });
 });

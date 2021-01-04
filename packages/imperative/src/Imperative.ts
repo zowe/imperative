@@ -51,20 +51,17 @@ import { OverridesLoader } from "./OverridesLoader";
 import { ImperativeProfileManagerFactory } from "./profiles/ImperativeProfileManagerFactory";
 import { DefinitionTreeResolver } from "./DefinitionTreeResolver";
 import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
+import { AppSettings } from "../../settings";
 import { dirname, join } from "path";
 
 import { Console } from "../../console";
+import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
 import { IYargsContext } from "./doc/IYargsContext";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 import { ImperativeExpect } from "../../expect";
 import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
 import { Config, IConfigOpts } from "../../config";
 import { CredentialManagerFactory } from "../../security";
-
-/* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
-import { AppSettings } from "../../settings";
-import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
-*/
 
 // Bootstrap the performance tools
 if (PerfTiming.isEnabled) {
@@ -168,11 +165,8 @@ export class Imperative {
                 ConfigurationValidator.validate(config);
                 ImperativeConfig.instance.loadedConfig = config;
 
-                /* todo:overrides - If we ever need to reinstate ConfigMgr overrides,
-                * re-implement to use entries in zowe.config.json.
                 // Initialize our settings file
                 this.initAppSettings();
-                */
 
                 /**
                  * Get the command name from the package bin.
@@ -189,22 +183,43 @@ export class Imperative {
                 }
                 ImperativeConfig.instance.rootCommandName = this.mRootCommandName;
 
+                // If config group is enabled add config commands
                 if (config.allowConfigGroup) {
                     ConfigManagementFacility.instance.init();
                 }
+
+                // If plugins are allowed, enable core plugins commands
+                if (config.allowPlugins) {
+                    PluginManagementFacility.instance.init();
+
+                    // load the configuration of every installed plugin for later processing
+                    PluginManagementFacility.instance.loadAllPluginCfgProps();
+
+                    // Override the config object with things loaded from plugins
+                    Object.assign(
+                        ImperativeConfig.instance.loadedConfig.overrides,
+                        PluginManagementFacility.instance.pluginOverrides
+                    );
+                }
+
+                /**
+                 * Once we have a complete representation of the config object, we should be able to
+                 * use that and populate all required categories and expose them on our API object
+                 * so that an app using imperative can write to the imperative log, its own log, or
+                 * even a plug-in log.
+                 *
+                 * Any other initialization added to this routine should occur after logging has been initialized.
+                 */
+                this.initLogging();
 
                 /**
                  * Now we should apply any overrides to default Imperative functionality. This is where CLI
                  * developers are able to really start customizing Imperative and how it operates internally.
                  */
-                // todo:overrides If we reinstate overrides in the future, we need
-                // to delay apply of overrides until after loading plugin overrides
                 await OverridesLoader.load(ImperativeConfig.instance.loadedConfig,
                     ImperativeConfig.instance.callerPackageJson);
 
                 // Load all the app config layers
-                // todo:overrides If we reinstate overrides in the future, we need
-                // to delay load of secure values until after loading plugin overrides
                 const opts: IConfigOpts = { homeDir: ImperativeConfig.instance.cliHome };
                 if (CredentialManagerFactory.initialized) {
                     opts.vault = {
@@ -218,32 +233,6 @@ export class Imperative {
                     };
                 }
                 ImperativeConfig.instance.config = await Config.load(this.mRootCommandName, opts);
-
-                // If plugins are allowed, enable core plugins commands
-                if (config.allowPlugins) {
-                    PluginManagementFacility.instance.init();
-
-                    // load the configuration of every installed plugin for later processing
-                    PluginManagementFacility.instance.loadAllPluginCfgProps();
-
-                    /* todo:overrides
-                    // Override the config object with things loaded from plugins
-                    Object.assign(
-                        ImperativeConfig.instance.loadedConfig.overrides,
-                        PluginManagementFacility.instance.pluginOverrides
-                    );
-                    */
-                }
-
-                /**
-                 * Once we have a complete representation of the config object, we should be able to
-                 * use that and populate all required categories and expose them on our API object
-                 * so that an app using imperative can write to the imperative log, its own log, or
-                 * even a plug-in log.
-                 *
-                 * Any other initialization added to this routine should occur after logging has been initialized.
-                 */
-                this.initLogging();
 
                 /**
                  * Build API object
@@ -462,8 +451,6 @@ export class Imperative {
      * Load the correct {@link AppSettings} instance from values located in the
      * cli home folder.
      */
-    /* todo:overrides - If we ever need to reinstate ConfigMgr overrides,
-     * re-implement to use entries in zowe.config.json.
     private static initAppSettings() {
         const cliSettingsRoot = join(ImperativeConfig.instance.cliHome, "settings");
         const cliSettingsFile = join(cliSettingsRoot, "imperative.json");
@@ -479,7 +466,6 @@ export class Imperative {
             defaultSettings,
         );
     }
-    todo:overrides */
 
     /**
      * Init log object such that subsequent calls to the Logger.getImperativeLogger() (or

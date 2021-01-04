@@ -50,7 +50,7 @@ describe("imperative-test-cli config list", () => {
     it("should list the configuration", () => {
         const response = runCliScript(__dirname + "/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, [""]);
         expect(response.stdout.toString()).toMatchSnapshot();
-        expect(response.stdout.toString()).toContain("secured: my_secured");
+        expect(response.stdout.toString()).toContain("secured: my_profiles.secured");
         expect(response.stdout.toString()).toContain("type:       secured");
         expect(response.stdout.toString()).toContain("defaults:");
         expect(response.stdout.toString()).toContain("profiles:");
@@ -66,14 +66,24 @@ describe("imperative-test-cli config list", () => {
         const expectedResponse = {
             data: {
                 defaults: {
-                    secured: "my_secured"
+                    secured: "my_profiles.secured",
+                    base: "my_base"
                 },
                 profiles: {
-                    my_secured: {
-                        type: "secured",
-                        properties: {
-                            info: "",
-                        }
+                    my_base: {
+                        properties: {},
+                        type: "base"
+                    },
+                    my_profiles: {
+                        profiles: {
+                            secured: {
+                                type: "secured",
+                                properties: {
+                                    info: "",
+                                }
+                            }
+                        },
+                        properties: {}
                     }
                 },
                 plugins: [],
@@ -95,10 +105,10 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain("profiles:");
         expect(response.stdout.toString()).toContain("plugins:");
         expect(response.stdout.toString()).toContain("secure:");
-        expect(response.stdout.toString()).toContain("my_secured:");
+        expect(response.stdout.toString()).toContain("my_profiles:");
         expect(response.stdout.toString()).toContain("type:       secured");
         expect(response.stdout.toString()).toContain("properties:");
-        expect(response.stdout.toString()).toContain("secured: my_secured");
+        expect(response.stdout.toString()).toContain("secured: my_profiles.secured");
         expect(response.stdout.toString()).toContain("$schema:  ./imperative-test-cli.schema.json");
         expect(response.stderr.toString()).toEqual("");
         expect(response.error).not.toBeDefined();
@@ -109,9 +119,18 @@ describe("imperative-test-cli config list", () => {
         const expectedUserConfig = {
             $schema: "./imperative-test-cli.schema.json",
             profiles: {
-                my_secured: {
+                my_base: {
                     properties: {},
-                    type: "secured"
+                    type: "base"
+                },
+                my_profiles: {
+                    profiles: {
+                        secured: {
+                            properties: {},
+                            type: "secured"
+                        }
+                    },
+                    properties: {}
                 }
             },
             defaults: {},
@@ -153,7 +172,8 @@ describe("imperative-test-cli config list", () => {
     it("should list the profiles configuration property", () => {
         const response = runCliScript(__dirname + "/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["profiles"]);
         expect(response.stdout.toString()).toMatchSnapshot();
-        expect(response.stdout.toString()).toContain("my_secured:");
+        expect(response.stdout.toString()).toContain("my_profiles:");
+        expect(response.stdout.toString()).toContain("secured:");
         expect(response.stdout.toString()).toContain("type:       secured");
         expect(response.stdout.toString()).toContain("properties:");
         expect(response.stderr.toString()).toEqual("");
@@ -162,7 +182,7 @@ describe("imperative-test-cli config list", () => {
     it("should list the defaults configuration property", () => {
         const response = runCliScript(__dirname + "/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["defaults"]);
         expect(response.stdout.toString()).toMatchSnapshot();
-        expect(response.stdout.toString()).toContain("secured: my_secured");
+        expect(response.stdout.toString()).toContain("secured: my_profiles.secured");
         expect(response.stderr.toString()).toEqual("");
         expect(response.error).not.toBeDefined();
     });
