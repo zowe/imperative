@@ -238,7 +238,6 @@ describe("Using a Plugin", () => {
         expect(appLogContent).toContain(`Log message from test plugin: ERROR: ${randomTest}`);
     });
 
-    /* todo:overrides
     it("should override CredentialManager", () => {
         const installedPlugin = join(__dirname, "../test_plugins/override_plugin");
         const pluginName = "override-plugin";
@@ -278,7 +277,6 @@ describe("Using a Plugin", () => {
         // set the CredMgr back to default
         setCredMgrOverride(false);
     });
-    */
 
     // ___________________________________________________________________________
     /**
