@@ -149,7 +149,7 @@ describe("Command Profile Loader", () => {
     expect(error.message).toMatchSnapshot();
   });
 
-  it("should not load old profiles when in team-profile mode", async () => {
+  it("should not load old profiles when in team-config mode", async () => {
     const manager = new BasicProfileManagerFactory(TEST_PROFILES_DIR);
     const profManager = new BasicProfileManager({
         logger: TestLogger.getTestLogger(),
@@ -173,7 +173,7 @@ describe("Command Profile Loader", () => {
       return loadResp;
     });
 
-    // pretend that we have a team profile
+    // pretend that we have a team config
     ImperativeConfig.instance.config = {
         exists: true
     };
@@ -181,7 +181,7 @@ describe("Command Profile Loader", () => {
     const emptyProfileMetaMap: Map<string, IProfileLoaded[]> = new Map<string, IProfileLoaded[]>();
     const noProfilesLoaded = new CommandProfiles(emptyProfileMap, emptyProfileMetaMap);
 
-    // because we have a team profile, we should load no old-school profiles
+    // because we have a team config, we should load no old-school profiles
     const loadedCmdProfiles: CommandProfiles = await CommandProfileLoader.loader({
         commandDefinition: SAMPLE_COMMAND_PROFILE,
         profileManagerFactory: manager,
