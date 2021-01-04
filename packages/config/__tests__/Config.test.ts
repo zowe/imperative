@@ -135,7 +135,7 @@ describe("Config tests", () => {
                 error = err;
             }
             expect(error).toBeDefined();
-            expect(error.message).toContain("An error was encountered while reading the file");
+            expect(error.message).toContain("An error was encountered while trying to read the file");
             expect(error.message).toContain(__dirname + "/__resources__");
             expect(error instanceof ImperativeError).toBe(true);
         });

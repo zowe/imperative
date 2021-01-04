@@ -119,7 +119,7 @@ export class Config {
                     try {
                         fileContents = fs.readFileSync(layer.path);
                     } catch (e) {
-                        throw new ImperativeError({ msg: `An error was encountered while try to read the file '${layer.path}'.` +
+                        throw new ImperativeError({ msg: `An error was encountered while trying to read the file '${layer.path}'.` +
                             `\nError details: ${e.message}`,
                                                     suppressDump: true });
                     }
