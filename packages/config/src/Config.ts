@@ -115,11 +115,21 @@ export class Config {
             _._layers.forEach((layer: IConfigLayer) => {
                 // Attempt to populate the layer
                 if (fs.existsSync(layer.path)) {
+                    let fileContents: any;
                     try {
-                        layer.properties = JSONC.parse(fs.readFileSync(layer.path).toString());
+                        fileContents = fs.readFileSync(layer.path);
+                    } catch (e) {
+                        throw new ImperativeError({ msg: `An error was encountered while try to read the file '${layer.path}'.` +
+                            `\nError details: ${e.message}`,
+                                                    suppressDump: true });
+                    }
+                    try {
+                        layer.properties = JSONC.parse(fileContents.toString());
                         layer.exists = true;
                     } catch (e) {
-                        throw new ImperativeError({ msg: `${layer.path}: ${e.message}` });
+                        throw new ImperativeError({ msg: `Error parsing JSON in the file '${layer.path}'.\n` +
+                            `Please check this configuration file for errors.\nError details: ${e.message}\nLine ${e.line}, Column ${e.column}`,
+                                                    suppressDump: true});
                     }
                 }
 
@@ -137,7 +147,11 @@ export class Config {
                 layer.properties.secure = layer.properties.secure || [];
             });
         } catch (e) {
-            throw new ImperativeError({ msg: `error reading config file: ${e.message}` });
+            if (e instanceof ImperativeError) {
+                throw e;
+            } else {
+                throw new ImperativeError({ msg: `An unexpected error occurred during config load: ${e.message}` });
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////
