@@ -27,7 +27,7 @@ import { ImperativeReject } from "../../interfaces";
 import { LoggingConfigurer } from "./LoggingConfigurer";
 import { ImperativeError } from "../../error";
 import { PluginManagementFacility } from "./plugins/PluginManagementFacility";
-import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
+// import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
 import {
     AbstractCommandYargs,
     CliProfileManager,
@@ -185,7 +185,8 @@ export class Imperative {
 
                 // If config group is enabled add config commands
                 if (config.allowConfigGroup) {
-                    ConfigManagementFacility.instance.init();
+                    const ConfigManagementFacility = require("./config/ConfigManagementFacility"); // Delayed load req for init help text to work
+                    ConfigManagementFacility.ConfigManagementFacility.instance.init();
                 }
 
                 // If plugins are allowed, enable core plugins commands

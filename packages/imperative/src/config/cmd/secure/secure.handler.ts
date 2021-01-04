@@ -17,7 +17,7 @@ import { CliUtils, ImperativeConfig } from "../../../../../utilities";
 
 export default class SecureHandler implements ICommandHandler {
     // Prompt timeout......
-    private static readonly TIMEOUT: number = 900;
+    public static readonly TIMEOUT: number = 900;
 
     /**
      * Process the command and input.
