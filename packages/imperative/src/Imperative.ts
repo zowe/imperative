@@ -273,7 +273,7 @@ export class Imperative {
 
                 /**
                  * Only initialize the old-school profile environment
-                 * if we are not in single-profile mode.
+                 * if we are not in team-profile mode.
                  */
                 if (ImperativeConfig.instance.config.exists === false) {
                     this.initProfiles(config);

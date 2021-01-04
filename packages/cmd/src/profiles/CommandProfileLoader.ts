@@ -109,7 +109,7 @@ export class CommandProfileLoader {
         const profileMap: Map<string, IProfile[]> = new Map<string, IProfile[]>();
         const profileMetaMap: Map<string, IProfileLoaded[]> = new Map<string, IProfileLoaded[]>();
 
-        // do not load old school profiles if we are in single-profile mode
+        // do not load old school profiles if we are in team-profile mode
         if (ImperativeConfig.instance.config.exists) {
             return new CommandProfiles(profileMap, profileMetaMap);
         }
