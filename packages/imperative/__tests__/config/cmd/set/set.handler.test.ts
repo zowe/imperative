@@ -738,7 +738,7 @@ describe("Configuration Secure command handler", () => {
         params.arguments.user = false;
         params.arguments.global = false;
         params.arguments.secure = false;
-        params.arguments.property = "profiles.my_secured.properties.info";
+        params.arguments.property = "profiles.my_profiles.profiles.secured.properties.info";
 
         // Start doing fs mocks
         // And the prompting of the secure handler
@@ -774,15 +774,15 @@ describe("Configuration Secure command handler", () => {
         await handler.process(params);
 
         const fakeSecureDataExpectedJson = {};
-        fakeSecureDataExpectedJson[fakeProjPath] = {"profiles.my_secured.properties.secret": "fakeSecureValue"};
+        fakeSecureDataExpectedJson[fakeProjPath] = {"profiles.my_profiles.profiles.secured.properties.secret": "fakeSecureValue"};
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_secured.properties.secret;
-        compObj.secure = ["profiles.my_secured.properties.secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.my_profiles.profiles.secured.properties.secret;
+        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -798,7 +798,7 @@ describe("Configuration Secure command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
-        expect(compObj.profiles.my_secured.properties.info).toEqual("anUnsecuredTestProperty");
+        expect(compObj.profiles.my_profiles.profiles.secured.properties.info).toEqual("anUnsecuredTestProperty");
     });
 
     it("should allow you to define a property and add it to the project configuration with secure equal to null and secure it", async () => {
