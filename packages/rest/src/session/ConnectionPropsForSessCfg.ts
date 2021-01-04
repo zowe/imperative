@@ -80,6 +80,10 @@ export class ConnectionPropsForSessCfg {
     ): Promise<T> {
         const impLogger = Logger.getImperativeLogger();
 
+        // split authToken into tokenType and tokenValue
+        // TODO Evaluate if we want to keep this for new config
+        ConnectionPropsForSessCfg.processAuthToken(cmdArgs);
+
         const optionDefaults: IOptionsForAddConnProps = {
             requestToken: false,
             doPrompting: true,
@@ -204,7 +208,6 @@ export class ConnectionPropsForSessCfg {
         if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.tokenValue) === true)
         {
             impLogger.debug("Using token authentication");
-            finalSessCfg.tokenValue = cmdArgs.tokenValue;
             if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenType)) {
                 finalSessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
                 finalSessCfg.tokenType = cmdArgs.tokenType;
@@ -330,5 +333,18 @@ export class ConnectionPropsForSessCfg {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Split authToken loaded from config into tokenType and tokenValue args.
+     * @param cmdArgs Arguments specified by the user
+     */
+    private static processAuthToken(cmdArgs: ICommandArguments) {
+        if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.authToken)) {
+            const [tokenType, tokenValue] = cmdArgs.authToken.split("=", 2);
+            delete cmdArgs.authToken;
+            cmdArgs.tokenType = tokenType;
+            cmdArgs.tokenValue = tokenValue;
+        }
     }
 }

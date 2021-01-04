@@ -10,16 +10,10 @@
 */
 
 import { IImperativeOverrides } from "./doc/IImperativeOverrides";
-import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
+import { CredentialManagerFactory } from "../../security";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
-import { ImperativeConfig } from "../../utilities";
 import { isAbsolute, resolve } from "path";
-import { PMFConstants } from "./plugins/utilities/PMFConstants";
-
-/* todo:overrides - If we ever need to reinstate ConfigMgr overrides,
- * re-implement to use entries in zowe.config.json.
 import { AppSettings } from "../../settings";
-*/
 
 /**
  * Imperative-internal class to load overrides
@@ -44,7 +38,7 @@ export class OverridesLoader {
   /**
    * Load the baked-in zowe CredentialManager and initialize it.
    * If we need to reinstate 3rd party overrides, delete this function and
-   * rename loadCredentialManager_NotCurrentlyUsed.
+   * rename loadCredentialManagerOld.
    *
    * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
    * @param {any} packageJson - the current package.json
@@ -53,8 +47,11 @@ export class OverridesLoader {
     config: IImperativeConfig,
     packageJson: any
   ): Promise<void> {
-    const dependencies = {...(packageJson.dependencies || {}), ...(packageJson.optionalDependencies || {})};
-    if (dependencies.keytar == null) {
+    if (config.overrides.CredentialManager != null) {
+      return this.loadCredentialManagerOld(config, packageJson);
+    }
+
+    if (packageJson.dependencies?.keytar == null && packageJson.optionalDependencies?.keytar == null) {
       return;
     }
 
@@ -77,10 +74,7 @@ export class OverridesLoader {
    * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
    * @param {any} packageJson - the current package.json
    */
-
-  /* todo:overrides - Restore if we ever need to reinstate ConfigMgr overrides
-
-  private static async loadCredentialManager_NotCurrentlyUsed(
+  private static async loadCredentialManagerOld(
       config: IImperativeConfig,
       packageJson: any
   ): Promise<void> {
@@ -119,8 +113,4 @@ export class OverridesLoader {
       });
     }
   }
-
-  * todo:overrides: commented-out until we need to reinstate 3rd party overrides
-  */
-
 }
