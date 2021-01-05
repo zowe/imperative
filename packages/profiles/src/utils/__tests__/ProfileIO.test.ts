@@ -442,17 +442,29 @@ describe("Profile IO", () => {
         const configModeErr = "Profile IO Error: Tried to perform an old-school profile operation while in team-config mode";
 
         beforeEach(() => {
-            // pretend that we have a team config
-            ImperativeConfig.instance.config = {
-                exists: true
-            };
+            /* Pretend that we have a team config.
+             * config is a getter of a property, so mock we the property.
+             */
+            Object.defineProperty(ImperativeConfig.instance, "config", {
+                configurable: true,
+                get: jest.fn(() => {
+                    return {
+                        exists: true
+                    };
+                })
+            });
         });
 
         afterEach(() => {
             // set us back to old-school profile mode
-            ImperativeConfig.instance.config = {
-                exists: false
-            };
+            Object.defineProperty(ImperativeConfig.instance, "config", {
+                configurable: true,
+                get: jest.fn(() => {
+                    return {
+                        exists: false
+                    };
+                })
+            });
         });
 
         it("should crash in createProfileDirs", () => {
