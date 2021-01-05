@@ -191,7 +191,7 @@ describe("Imperative", () => {
                 ConfigManagementFacility = mocks.ConfigManagementFacility;
             });
 
-            it("not load old profiles in team-config mode", async () => {
+            it("should not load old profiles in team-config mode", async () => {
                 /* Pretend that we have a team config.
                 * config is a getter of a property, so mock we the property.
                 */
