@@ -177,6 +177,7 @@ describe("Command Profile Loader", () => {
     ImperativeConfig.instance.config = {
         exists: true
     };
+
     const emptyProfileMap: Map<string, IProfile[]> = new Map<string, IProfile[]>();
     const emptyProfileMetaMap: Map<string, IProfileLoaded[]> = new Map<string, IProfileLoaded[]>();
     const noProfilesLoaded = new CommandProfiles(emptyProfileMap, emptyProfileMetaMap);
@@ -189,6 +190,11 @@ describe("Command Profile Loader", () => {
       }).loadProfiles({_: undefined, $0: undefined});
 
     expect(loadedCmdProfiles).toEqual(noProfilesLoaded);
+
+    // restore to not having a team config for future tests
+    ImperativeConfig.instance.config = {
+        exists: false
+    };
   });
 
   it("should allow us to load a required profile", async () => {
