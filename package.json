@@ -40,6 +40,7 @@
     "lint": "npm run lint:packages && npm run lint:tests",
     "lint:packages": "tslint --format stylish -c ./tslint-packages.json \"packages/**/*.ts\"",
     "lint:tests": "tslint --format stylish -c ./tslint-tests.json \"**/__tests__/**/*.ts\"",
+    "prepare": "npm run build",
     "watch": "gulp watch",
     "build:webHelp": "cd web-help && tsc",
     "watch:webHelp": "cd web-help && tsc -w",
