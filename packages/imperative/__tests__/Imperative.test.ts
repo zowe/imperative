@@ -423,6 +423,32 @@ describe("Imperative", () => {
             }
 
             expect(caughtError).toBe(error);
+            expect(mocks.Logger.writeInMemoryMessages).toHaveBeenCalledTimes(1);
+        });
+
+        it("should propagate an ImperativeError up and handle suppressDump differently", async () => {
+            const error = new ImperativeError({
+                msg: "This is an imperative error",
+                additionalDetails: "Something",
+                suppressDump: true,
+                causeErrors:
+                    new Error("Some internal error")
+            });
+
+            mocks.ConfigurationLoader.load.mockImplementationOnce(() => {
+                throw error;
+            });
+
+            let caughtError: Error;
+
+            try {
+                await Imperative.init();
+            } catch (e) {
+                caughtError = e;
+            }
+
+            expect(caughtError).toBe(error);
+            expect(mocks.Logger.writeInMemoryMessages).toHaveBeenCalledTimes(0);
         });
     });
 

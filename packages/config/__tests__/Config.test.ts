@@ -113,7 +113,29 @@ describe("Config tests", () => {
                 error = err;
             }
             expect(error).toBeDefined();
-            expect(error.message).toContain("error reading config file");
+            expect(error.message).toContain("Error parsing JSON in the file");
+            expect(error.message).toContain(__dirname + "/__resources__");
+            expect(error.message).toContain("Line 1, Column 0");
+            expect(error instanceof ImperativeError).toBe(true);
+            expect(error.suppressDump).toBe(true);
+        });
+
+        it("should fail to load config that seems to exist but doesn't", async () => {
+            jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/fakeproject.config.json");
+            jest.spyOn(fs, "existsSync")
+                .mockReturnValueOnce(false)     // Project user layer
+                .mockReturnValueOnce(true)      // Project layer
+                .mockReturnValueOnce(false)     // User layer
+                .mockReturnValueOnce(false);    // Global layer
+            jest.spyOn(fs, "readFileSync")
+            let error: any;
+            try {
+                await Config.load(MY_APP);
+            } catch (err) {
+                error = err;
+            }
+            expect(error).toBeDefined();
+            expect(error.message).toContain("An error was encountered while trying to read the file");
             expect(error.message).toContain(__dirname + "/__resources__");
             expect(error instanceof ImperativeError).toBe(true);
         });
@@ -382,7 +404,7 @@ describe("Config tests", () => {
             const expectedPath = path.join(configDir, "..", configFile);
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValue(true);
             const file = Config.search(configFile, { stop: home });
-            expect(file).toBe(expectedPath);
+            expect(file).toBe(path.resolve(expectedPath));
         });
         it("should search for and not return file in the parent directory because the parent directory is the global directory", async () => {
             const notExpectedPath = path.join(configDir, "..", configFile);
@@ -390,7 +412,7 @@ describe("Config tests", () => {
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValue(true);
             const file = Config.search(configFile, { stop: home, gbl: path.join(configDir, "..") });
             expect(file).not.toBe(notExpectedPath);
-            expect(file).toBe(expectedPath);
+            expect(file).toBe(path.resolve(expectedPath));
         });
         it("should fail to find a file", async () => {
             jest.spyOn(fs, "existsSync").mockReturnValue(false);
