@@ -13,7 +13,8 @@ import * as JSONC from "comment-json";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ImperativeError } from "../../../../../error";
 import { CredentialManagerFactory } from "../../../../../security";
-import { ImperativeConfig } from "../../../../../utilities";
+import { CliUtils, ImperativeConfig } from "../../../../../utilities";
+import SecureHandler from "../secure/secure.handler";
 
 export default class SetHandler implements ICommandHandler {
 
@@ -42,7 +43,12 @@ export default class SetHandler implements ICommandHandler {
         }
 
         // Get the value to set
-        let value = params.arguments.value;
+        let value: string;
+        if (params.arguments.value) {
+            value = params.arguments.value;
+        } else {
+            value = await CliUtils.promptWithTimeout(`Please enter the value for ${params.arguments.property}: `, secure, SecureHandler.TIMEOUT);
+        }
         if (params.arguments.json) {
             try {
                 value = JSONC.parse(value, null, true);

@@ -12,7 +12,7 @@
 import { CommandResponse, IHandlerParameters } from "../../../../..";
 import { Config } from "../../../../../config/src/Config";
 import { IConfigOpts } from "../../../../../config";
-import { ImperativeConfig } from "../../../../../utilities";
+import { CliUtils, ImperativeConfig } from "../../../../../utilities";
 import { IImperativeConfig } from "../../../../src/doc/IImperativeConfig";
 import { ICredentialManagerInit } from "../../../../../security/src/doc/ICredentialManagerInit";
 import { CredentialManagerFactory } from "../../../../../security";
@@ -729,6 +729,76 @@ describe("Configuration Secure command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+    });
+
+    it("should prompt for a property and add it to the project configuration", async () => {
+        const handler = new SetHandler();
+        const params = getIHandlerParametersObject();
+
+        params.arguments.user = false;
+        params.arguments.global = false;
+        params.arguments.secure = false;
+        params.arguments.property = "profiles.my_profiles.profiles.secured.properties.info";
+
+        // Start doing fs mocks
+        // And the prompting of the secure handler
+        keytarGetPasswordSpy.mockReturnValue(fakeSecureData);
+        keytarSetPasswordSpy.mockImplementation();
+        keytarDeletePasswordSpy.mockImplementation();
+        readFileSyncSpy = jest.spyOn(fs, "readFileSync");
+        writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
+        existsSyncSpy = jest.spyOn(fs, "existsSync");
+
+        const eco = lodash.cloneDeep(expectedConfigObject);
+        eco.$schema = "./fakeapp.schema.json";
+
+        readFileSyncSpy.mockReturnValueOnce(JSON.stringify(eco));
+        existsSyncSpy.mockReturnValueOnce(false).mockReturnValueOnce(true).mockReturnValue(false); // Only the project config exists
+        writeFileSyncSpy.mockImplementation();
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+
+        await setupConfigToLoad(); // Setup the config
+
+        // We aren't testing the config initialization - clear the spies
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+        writeFileSyncSpy.mockClear();
+        existsSyncSpy.mockClear();
+        readFileSyncSpy.mockClear();
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+        const promptSpy = jest.spyOn(CliUtils, "promptWithTimeout");
+        promptSpy.mockReturnValueOnce("anUnsecuredTestProperty");
+
+        await handler.process(params);
+
+        const fakeSecureDataExpectedJson = {};
+        fakeSecureDataExpectedJson[fakeProjPath] = {"profiles.my_profiles.profiles.secured.properties.secret": "fakeSecureValue"};
+        const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
+
+        const compObj: any = {};
+        // Make changes to satisfy what would be stored on the JSON
+        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+        delete compObj.profiles.my_profiles.profiles.secured.properties.secret;
+        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
+
+        if (process.platform === "win32") {
+            // tslint:disable-next-line: no-magic-numbers
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
+        } else {
+            // tslint:disable-next-line: no-magic-numbers
+            expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
+        }
+        expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
+        expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
+        expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
+        expect(promptSpy).toHaveBeenCalledTimes(1);
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
+        // tslint:disable-next-line: no-magic-numbers
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+        expect(compObj.profiles.my_profiles.profiles.secured.properties.info).toEqual("anUnsecuredTestProperty");
     });
 
     it("should allow you to define a property and add it to the project configuration with secure equal to null and secure it", async () => {
