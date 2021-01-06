@@ -12,11 +12,13 @@
 import { IImperativeConfig } from "../src/doc/IImperativeConfig";
 
 jest.mock("../../security");
+jest.mock("../../utilities/src/ImperativeConfig");
 
 import { OverridesLoader } from "../src/OverridesLoader";
 import { CredentialManagerFactory, AbstractCredentialManager } from "../../security";
 
 import * as path from "path";
+import { ImperativeConfig } from "../..";
 
 const TEST_MANAGER_NAME = "test manager";
 
@@ -76,31 +78,7 @@ describe("OverridesLoader", () => {
         Manager: undefined,
         displayName: config.productDisplayName,
         invalidOnFailure: false,
-        service: null
-      });
-    });
-
-    it("should load the default when not passed any configuration and keytar is present in optional dependencies.", async () => {
-      const config: IImperativeConfig = {
-        name: "ABCD",
-        overrides: {}
-      };
-
-      // Fake out package.json for the overrides loader
-      const packageJson = {
-        optionalDependencies: {
-          keytar: "1.0"
-        }
-      };
-
-      await OverridesLoader.load(config, packageJson);
-
-      expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
-      expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith({
-        Manager: undefined,
-        displayName: config.name,
-        invalidOnFailure: false,
-        service: null
+        service: config.name
       });
     });
 
@@ -194,6 +172,77 @@ describe("OverridesLoader", () => {
           displayName: config.name,
           invalidOnFailure: true,
           service: config.name
+        });
+      });
+    });
+
+    describe("when config JSON exists", () => {
+      beforeEach(() => {
+        jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValueOnce({
+          config: { exists: () => false }
+        } as any);
+      });
+
+      it("should not set a credential manager if keytar is not present", async () => {
+        const cliName = "ABCD";
+        const config: IImperativeConfig = {
+          name: cliName,
+          overrides: {}
+        };
+
+        const packageJson = {};
+
+        await OverridesLoader.load(config, packageJson);
+
+        // It should not have called initialize
+        expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(0);
+      });
+
+      it("should load the default when keytar is present in dependencies.", async () => {
+        const config: IImperativeConfig = {
+          name: "ABCD",
+          overrides: {}
+        };
+
+        // Fake out package.json for the overrides loader
+        const packageJson = {
+          dependencies: {
+            keytar: "1.0"
+          }
+        };
+
+        await OverridesLoader.load(config, packageJson);
+
+        expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
+        expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith({
+          Manager: undefined,
+          displayName: config.name,
+          invalidOnFailure: false,
+          service: null
+        });
+      });
+
+      it("should load the default when keytar is present in optional dependencies.", async () => {
+        const config: IImperativeConfig = {
+          name: "ABCD",
+          overrides: {}
+        };
+
+        // Fake out package.json for the overrides loader
+        const packageJson = {
+          optionalDependencies: {
+            keytar: "1.0"
+          }
+        };
+
+        await OverridesLoader.load(config, packageJson);
+
+        expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
+        expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith({
+          Manager: undefined,
+          displayName: config.name,
+          invalidOnFailure: false,
+          service: null
         });
       });
     });
