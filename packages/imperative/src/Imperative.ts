@@ -60,7 +60,7 @@ import { IYargsContext } from "./doc/IYargsContext";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 import { ImperativeExpect } from "../../expect";
 import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
-import { Config, IConfigOpts } from "../../config";
+import { Config, IConfigVault } from "../../config";
 import { CredentialManagerFactory } from "../../security";
 
 // Bootstrap the performance tools
@@ -189,6 +189,10 @@ export class Imperative {
                     ConfigManagementFacility.ConfigManagementFacility.instance.init();
                 }
 
+                // Load the base config
+                ImperativeConfig.instance.config = await Config.load(this.mRootCommandName,
+                    { homeDir: ImperativeConfig.instance.cliHome });
+
                 // If plugins are allowed, enable core plugins commands
                 if (config.allowPlugins) {
                     PluginManagementFacility.instance.init();
@@ -220,20 +224,26 @@ export class Imperative {
                 await OverridesLoader.load(ImperativeConfig.instance.loadedConfig,
                     ImperativeConfig.instance.callerPackageJson);
 
-                // Load all the app config layers
-                const opts: IConfigOpts = { homeDir: ImperativeConfig.instance.cliHome };
+                /**
+                 * After the plugins and secure credentials are loaded, rebuild the configuration with the
+                 * secure values
+                 */
                 if (CredentialManagerFactory.initialized) {
-                    opts.vault = {
+                    const vault: IConfigVault = {
                         load: ((key: string): Promise<string> => {
-                            return CredentialManagerFactory.manager.load(key, true)
+                            return CredentialManagerFactory.manager.load(key, true);
                         }),
                         save: ((key: string, value: any): Promise<void> => {
                             return CredentialManagerFactory.manager.save(key, value);
-                        }),
-                        name: CredentialManagerFactory.manager.name
+                        })
                     };
+                    try {
+                        await ImperativeConfig.instance.config.secureLoad(vault);
+                    } catch (err) {
+                        // Secure vault is optional since we can prompt for values instead
+                        Logger.getImperativeLogger().warn(`Secure vault not enabled. Reason: ${err.message}`);
+                    }
                 }
-                ImperativeConfig.instance.config = await Config.load(this.mRootCommandName, opts);
 
                 /**
                  * Build API object
