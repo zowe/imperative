@@ -191,6 +191,24 @@ describe("Imperative", () => {
                 ConfigManagementFacility = mocks.ConfigManagementFacility;
             });
 
+            it("should not load old profiles in team-config mode", async () => {
+                /* Pretend that we have a team config.
+                * config is a getter of a property, so mock we the property.
+                */
+                Object.defineProperty(mocks.ImperativeConfig.instance, "config", {
+                    configurable: true,
+                    set: jest.fn(),
+                    get: jest.fn(() => {
+                        return {
+                            exists: true
+                        };
+                    })
+                });
+
+                await Imperative.init();
+                expect(Imperative.initProfiles).toHaveBeenCalledTimes(0);
+            });
+
             it("should call config functions when config group is allowed", async () => {
                 await Imperative.init();
 

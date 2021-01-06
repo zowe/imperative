@@ -12,7 +12,7 @@
 import { IProfileProperty } from "../../../../../profiles";
 import { ICommandOptionDefinition } from "../../option/ICommandOptionDefinition";
 /**
- * Extended version of a single profile schema property that can include option definitions
+ * Extended version of a team profile schema property that can include option definitions
  * for auto-generated commands.
  * @export
  * @interface ICommandProfileProperty
