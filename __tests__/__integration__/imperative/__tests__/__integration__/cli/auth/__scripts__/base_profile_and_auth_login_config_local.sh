@@ -27,7 +27,7 @@ then
 fi
 
 # Next login to fruit auth
-imperative-test-cli auth login fruit
+echo y | imperative-test-cli auth login fruit
 CMDRC=$?
 if [ $CMDRC -gt 0 ]
 then
