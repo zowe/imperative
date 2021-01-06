@@ -157,12 +157,7 @@ export class Config {
 
         ////////////////////////////////////////////////////////////////////////
         // load secure fields
-        try {
-            await _.secureLoad();
-        } catch (err) {
-            // Secure vault is optional since we can prompt for values instead
-            Logger.getImperativeLogger().warn(`Secure vault not enabled. Reason: ${err.message}`);
-        }
+        await _.secureLoad();
 
         ////////////////////////////////////////////////////////////////////////
         // Complete
@@ -503,7 +498,8 @@ export class Config {
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
 
-    private async secureLoad() {
+    public async secureLoad(vault?: IConfigVault) {
+        if (vault != null) this._vault = vault;
         if (this._vault == null) return;
 
         // load the secure fields

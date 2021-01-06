@@ -107,16 +107,13 @@ export class PMFConstants {
     public readonly PLUGIN_HOME_LOCATION: string;
 
     constructor() {
-        /* todo:plugins - restore PLUGIN_CONFIG and PLUGIN_USING_CONFIG below
-           if we add plugin support in zowe.config.json in the future */
-        // this.PLUGIN_CONFIG = ImperativeConfig.instance.config;
+        this.PLUGIN_CONFIG = ImperativeConfig.instance.config;
         this.NPM_NAMESPACE = "@zowe";
         this.CLI_CORE_PKG_NAME = ImperativeConfig.instance.hostPackageName;
         this.IMPERATIVE_PKG_NAME = ImperativeConfig.instance.imperativePackageName;
         this.PMF_ROOT = join(ImperativeConfig.instance.cliHome, "plugins");
         this.PLUGIN_JSON = join(this.PMF_ROOT, "plugins.json");
-        // this.PLUGIN_USING_CONFIG = ImperativeConfig.instance.config.exists;
-        this.PLUGIN_USING_CONFIG = false;
+        this.PLUGIN_USING_CONFIG = ImperativeConfig.instance.config.exists;
         this.PLUGIN_INSTALL_LOCATION = join(this.PMF_ROOT, "installed");
 
         // Windows format is <prefix>/node_modules

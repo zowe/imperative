@@ -34,8 +34,7 @@ describe("Config secure tests", () => {
     let mockSecureSave = jest.fn();
     let mockVault: IConfigVault = {
         load: mockSecureLoad,
-        save: mockSecureSave,
-        name: "fake"
+        save: mockSecureSave
     }
 
     afterEach(() => {
@@ -47,10 +46,16 @@ describe("Config secure tests", () => {
         mockSecureSave = jest.fn();
         mockVault = {
             load: mockSecureLoad,
-            save: mockSecureSave,
-            name: "fake"
+            save: mockSecureSave
         }
-    })
+    });
+
+    it("should set vault if provided for secure load", async () => {
+        const config = new (Config as any)();
+        expect((config as any)._vault).toBeUndefined();
+        await (config as any).secureLoad(mockVault);
+        expect((config as any)._vault).toBe(mockVault);
+    });
 
     it("should skip secure save if there are no secure properties or anything in keytar", async () => {
         const config = new (Config as any)();
