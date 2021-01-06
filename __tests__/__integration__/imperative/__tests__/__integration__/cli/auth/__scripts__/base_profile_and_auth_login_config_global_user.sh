@@ -4,7 +4,7 @@ baseUser=$1
 basePass=$2
 
 # First create a base profile
-imperative-test-cli config init --ci --global --user
+imperative-test-cli config init --prompt false --global --user
 CMDRC=$?
 if [ $CMDRC -gt 0 ]
 then

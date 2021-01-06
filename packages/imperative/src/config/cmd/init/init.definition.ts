@@ -27,6 +27,7 @@ export const initDefinition: ICommandDefinition = {
         {
             name: "global",
             description: "Target the global config files.",
+            aliases: ["g"],
             type: "boolean",
             defaultValue: false
         },
@@ -76,10 +77,10 @@ export const initDefinition: ICommandDefinition = {
         //     defaultValue: false
         // },
         {
-            name: "ci",
-            description: "don't prompt for secure values.",
+            name: "prompt",
+            description: "Prompt for secure values. Useful for disabling prompting in CI environments.",
             type: "boolean",
-            defaultValue: false
+            defaultValue: true
         }
     ]
 };
