@@ -160,6 +160,7 @@ describe("BaseAuthHandler config", () => {
                 expect(fakeConfig.properties.profiles.my_fruit_creds).toBeUndefined();
 
                 const doLoginSpy = jest.spyOn(handler as any, "doLogin");
+                const promptSpy = jest.spyOn(CliUtils, "promptWithTimeout").mockResolvedValueOnce("y");
                 const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
                 let caughtError;
 
@@ -171,6 +172,7 @@ describe("BaseAuthHandler config", () => {
 
                 expect(caughtError).toBeUndefined();
                 expect(doLoginSpy).toBeCalledTimes(1);
+                expect(promptSpy).toBeCalledTimes(1);
                 expect(writeFileSpy).toBeCalledTimes(1);
                 expect(fakeVault.save).toBeCalledTimes(1);
 
