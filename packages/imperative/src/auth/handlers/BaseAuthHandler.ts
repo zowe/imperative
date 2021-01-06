@@ -18,6 +18,8 @@ import { ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../profiles";
 import { CliUtils, ImperativeConfig } from "../../../../utilities";
 import { Config } from "../../../../config";
+import { CredentialManagerFactory } from "../../../../security";
+import { secureSaveError } from "../../../../config/src/ConfigUtils";
 
 /**
  * This class is used by the auth command handlers as the base class for their implementation.
@@ -120,6 +122,9 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         } else if (!ImperativeConfig.instance.config.exists) {
             // process login for old school profiles
             await this.processLoginOld(params, tokenValue);
+        } else if (!CredentialManagerFactory.initialized) {
+            throw secureSaveError(`Rerun this command with the "--show-token" flag to print the token to console. Store the token in an ` +
+                `environment variable ${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_OPT_AUTH_TOKEN to use it in future commands.`);
         } else {
             // update the profile given
             // TODO Should config be added to IHandlerParameters?

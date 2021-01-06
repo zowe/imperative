@@ -17,6 +17,7 @@ import { Config, ConfigSchema, IConfig, IConfigProfile } from "../../../../../co
 import { IProfileProperty } from "../../../../../profiles";
 import { ConfigBuilder } from "../../../../../config/src/ConfigBuilder";
 import { IConfigBuilderOpts } from "../../../../../config/src/doc/IConfigBuilderOpts";
+import { CredentialManagerFactory } from "../../../../../security";
 
 /**
  * Init config
@@ -59,6 +60,11 @@ export default class InitHandler implements ICommandHandler {
         // }
 
         await this.initWithSchema(config, params.arguments.user);
+
+        if (!CredentialManagerFactory.initialized && config.api.layers.get().properties.secure.length > 0) {
+            // TODO Consult with UX about the wording and status (warning vs error) of this message
+            params.response.console.log("Warning: secure vault not enabled");
+        }
 
         // Write the active created/updated config layer
         await config.api.layers.write();
@@ -171,7 +177,7 @@ export default class InitHandler implements ICommandHandler {
      */
     private async promptForProp(propName: string, property: IProfileProperty): Promise<any> {
         // skip prompting in CI environment
-        if (this.arguments.ci) {
+        if (this.arguments.ci || !CredentialManagerFactory.initialized) {
             return null;
         }
 

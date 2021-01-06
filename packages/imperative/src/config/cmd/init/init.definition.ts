@@ -22,7 +22,10 @@ export const initDefinition: ICommandDefinition = {
     type: "command",
     handler: join(__dirname, "init.handler"),
     summary: "init config files",
-    description: `Initialize config files. Defaults to initializing "${ImperativeConfig.instance.rootCommandName}.config.json" in the current working directory unless otherwise specified. Use "--user" to init "${ImperativeConfig.instance.rootCommandName}.config.user.json". Use "--global" to initialize the configuration files your home "~/.zowe" directory.`,
+    description: `Initialize config files. Defaults to initializing "${ImperativeConfig.instance.rootCommandName}.config.json" in the current ` +
+        `working directory unless otherwise specified.\n\nUse "--user" to init "${ImperativeConfig.instance.rootCommandName}.config.user.json". ` +
+        `Use "--global" to initialize the configuration files in your home "~/.zowe" directory.\n\nUse "--prompt false" to skip prompting for ` +
+        `values in a CI environment.`,
     options: [
         {
             name: "global",
