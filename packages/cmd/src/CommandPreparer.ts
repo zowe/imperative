@@ -451,10 +451,11 @@ export class CommandPreparer {
         });
 
         definition.options.push({
-            name: Constants.LOCAL_DIRECTORY_OPTION,
+            name: Constants.DAEMON_CLIENT_DIRECTORY,
             group: Constants.GLOBAL_GROUP,
-            description: "Alternate local working directory",
-            type: "string"
+            description: "Daemon client directory",
+            type: "string",
+            hidden: true
         });
 
         /**

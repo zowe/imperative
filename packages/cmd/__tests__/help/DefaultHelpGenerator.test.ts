@@ -133,6 +133,21 @@ describe("Default Help Generator", () => {
             description: "my command"
         };
 
+    const hiddenOptionDefinition: ICommandDefinition =
+        {
+            name: "hello",
+            type: "command",
+            options: [
+                {
+                    name: "aHiddenOption",
+                    description: "Part of must specify one group",
+                    type: "boolean",
+                    hidden: true
+                },
+            ],
+            description: "my command"
+        };
+
     const experimentalDefinition: ICommandDefinition =
         {
             name: "hello",
@@ -308,6 +323,15 @@ describe("Default Help Generator", () => {
             expect(helpGen.buildFullCommandHelpText()).toMatchSnapshot();
             const expGen: DefaultHelpGenerator = new DefaultHelpGenerator(GENERATOR_PARMS, {
                 commandDefinition: experimentalDefinition,
+                fullCommandTree: expParent
+            });
+            expect(expGen.buildFullCommandHelpText()).toMatchSnapshot();
+
+        });
+
+        it("should getCommandHelpText without hidden option", () => {
+            const expGen: DefaultHelpGenerator = new DefaultHelpGenerator(GENERATOR_PARMS, {
+                commandDefinition: hiddenOptionDefinition,
                 fullCommandTree: expParent
             });
             expect(expGen.buildFullCommandHelpText()).toMatchSnapshot();

@@ -5,7 +5,11 @@
   "license": "EPL-2.0",
   "repository": "",
   "bin": {
-    "cmd-cli": "lib/index.js"
+<<<<<<< HEAD
+    "cmd-cli": "./lib/index.js"
+=======
+    "cmd-cli": "lib/__tests__/__integration__/cmd/src/index.js"
+>>>>>>> next
   },
   "author": {
     "name": "",

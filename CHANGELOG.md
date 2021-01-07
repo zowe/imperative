@@ -6,6 +6,10 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: Allow comments to be added to any `.config.json` generated
 
+## `5.0.0-next.202010301408`
+
+- Enhancement: Allow hidden options.
+
 ## `5.0.0-next.202010161240`
 
 - Enhancement:  Allow process exit code to be passed to daemon clients.

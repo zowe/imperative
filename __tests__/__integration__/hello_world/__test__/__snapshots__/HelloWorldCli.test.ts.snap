@@ -49,10 +49,6 @@ exports[`Hello World should print help if the option is specified 1`] = `
 
       Display HTML help in browser
 
-   --lcd  (string)
-
-      Alternate local working directory
-
 "
 `;
 
