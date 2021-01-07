@@ -35,6 +35,7 @@ import { ImperativeConfig, TextUtils } from "../../utilities";
 import * as nodePath from "path";
 import * as os from "os";
 import { ICommandHandlerRequire } from "./doc/handler/ICommandHandlerRequire";
+import { IHandlerParameters } from "../../cmd";
 import { ChainedHandlerService } from "./ChainedHandlerUtils";
 import { Constants } from "../../constants";
 import { ICommandArguments } from "./doc/args/ICommandArguments";
@@ -43,7 +44,6 @@ import { WebHelpManager } from "./help/WebHelpManager";
 import { ICommandOptionDefinition } from "./doc/option/ICommandOptionDefinition";
 import { ICommandProfile } from "./doc/profiles/definition/ICommandProfile";
 import { Config } from "../../config";
-
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
  * response object and validates syntax, loads profiles, instantiates handlers, & invokes the handlers.
@@ -559,14 +559,17 @@ export class CommandProcessor {
             }
 
             try {
-                await handler.process({
+                const handlerParms: IHandlerParameters = {
                     response,
                     profiles: prepared.profiles,
                     arguments: prepared.args,
                     positionals: prepared.args._,
                     definition: this.definition,
                     fullDefinition: this.fullDefinition
-                });
+                };
+
+                CliUtils.showDeprecatedCmd(handlerParms);
+                await handler.process(handlerParms);
             } catch (processErr) {
 
                 this.handleHandlerError(processErr, response, this.definition.handler);
