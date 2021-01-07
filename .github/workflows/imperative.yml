@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [8.x, 10.x, 12.x]
+        node-version: [10.x, 12.x, 14.x]
         os: [windows-latest, ubuntu-latest, macos-latest]
 
     env:
@@ -46,7 +46,7 @@ jobs:
 
     - name: Unlock Keyring
       if: ${{ always() && steps.build.outcome == 'success' && matrix.os == 'ubuntu-latest' }}
-      uses: tjohnsonBCM/unlock-keyring@master
+      uses: t1m0thyj/unlock-keyring@master
 
     - name: Integration Tests
       id: integration

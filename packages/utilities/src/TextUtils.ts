@@ -218,8 +218,8 @@ export class TextUtils {
      * @returns {string}
      */
     public static wordWrap(text: string, width?: number,
-                           indent: string = "", hardWrap: boolean = false): string {
-        const wrappedText = require("wrap-ansi")(text, this.getRecommendedWidth(width), {hard: hardWrap});
+                           indent: string = "", hardWrap: boolean = false, trim: boolean = true): string {
+        const wrappedText = require("wrap-ansi")(text, this.getRecommendedWidth(width), {hard: hardWrap, trim});
         return wrappedText.split(/\n/g).map((line: string) => {
             if (line.length === 0) {
                 return line;
