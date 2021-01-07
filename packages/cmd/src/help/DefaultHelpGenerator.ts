@@ -128,6 +128,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
             if (this.mCommandDefinition.aliases != null && this.mCommandDefinition.aliases.length > 0) {
                 helpText += " | " + this.mCommandDefinition.aliases.join(" | ");
             }
+
             if (this.mCommandDefinition.experimental) {
                 helpText += this.grey(DefaultHelpGenerator.HELP_INDENT + "(experimental command)\n\n");
             } else {
@@ -345,6 +346,13 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         }
         let description = this.mCommandDefinition.description
             || this.mCommandDefinition.summary;
+
+        // we place the deprecated message in the DESCRIPTION help section
+        if (this.mCommandDefinition.deprecatedReplacement) {
+            description += "\n\nWarning: This " + this.mCommandDefinition.type +
+                " has been deprecated.\nRecommended replacement: " +
+                this.mCommandDefinition.deprecatedReplacement
+        }
         if (this.mProduceMarkdown) {
             description = description.replace(/([\*\#\-\`\_\[\]\+\.\!])/g, "\\$1");  // escape Markdown special characters
         }
