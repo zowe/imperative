@@ -132,13 +132,6 @@ export class CommandProcessor {
     private mConfig: Config;
 
     /**
-     * Current working directory
-     * @private
-     * @memberof CommandProcessor
-     */
-    private mCwd: string;
-
-    /**
      * Creates an instance of CommandProcessor.
      * @param {ICommandProcessorParms} params - See the interface for details.
      * @memberof CommandProcessor
@@ -165,7 +158,6 @@ export class CommandProcessor {
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["promptPhrase"], `${CommandProcessor.ERROR_TAG} No prompt phrase supplied.`);
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["rootCommandName"], `${CommandProcessor.ERROR_TAG} No root command supplied.`);
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["envVariablePrefix"], `${CommandProcessor.ERROR_TAG} No ENV variable prefix supplied.`);
-        this.mCwd = process.cwd();
         // TODO - check if the command definition passed actually exists within the full command definition tree passed
     }
 
@@ -374,11 +366,13 @@ export class CommandProcessor {
         // Build the response object, base args object, and the entire array of options for this command
         // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
         if (params.arguments.dcd) {
-
             // NOTE(Kelosky): we adjust `cwd` and do not restore it, so that multiple simultaneous requests from the same
             // directory will operate without unexpected chdir taking place.  Multiple simultaneous requests from different
             // directories may cause unpredictable results
             process.chdir(params.arguments.dcd as string)
+
+            // reinit config for daemon client directory
+            ImperativeConfig.instance.config = await Config.load(ImperativeConfig.instance.rootCommandName, ImperativeConfig.instance.config.opts);
         }
         const prepareResponse = this.constructResponseObject(params);
         prepareResponse.succeeded();
