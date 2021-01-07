@@ -176,6 +176,14 @@ export interface ICommandOptionDefinition {
      */
     stringLengthRange?: [number, number];
     /**
+     * If the type is array, this option defines if duplicate values in array
+     * are allowed. Default is true.
+     *
+     * @type {boolean}
+     * @memberOf ICommandOptionDefinition
+     */
+    arrayAllowDuplicate?: boolean;
+    /**
      * If the user specifies a certain value for this option,
      * then they must also specify other options (similar to a conditional "implies")
      *  @type {{[key: string]: ICommandOptionValueImplications}}
