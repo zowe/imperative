@@ -19,6 +19,7 @@ import {
     validateProfileGroupDesc, validateProfileCommandSummary
 } from "../../../../messages";
 import { Constants } from "../../../../constants";
+import { ProfilesConstants } from "../../../../profiles";
 import { ProfilesCreateCommandBuilder } from "./ProfilesCreateCommandBuilder";
 import { ProfilesUpdateCommandBuilder } from "./ProfilesUpdateCommandBuilder";
 import { ProfilesDeleteCommandBuilder } from "./ProfilesDeleteCommandBuilder";
@@ -48,6 +49,7 @@ export class CompleteProfilesGroupBuilder {
             name: Constants.PROFILE_GROUP,
             description: "Create and manage configuration profiles",
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_INIT,
             children: []
         };
 
@@ -57,6 +59,7 @@ export class CompleteProfilesGroupBuilder {
             summary: createProfilesCommandSummary.message,
             aliases: ["cre"],
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_INIT,
             children: [],
         };
 
@@ -66,6 +69,7 @@ export class CompleteProfilesGroupBuilder {
             summary: deleteProfilesCommandSummary.message,
             aliases: ["rm"],
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_EDIT,
             children: [],
         };
 
@@ -75,6 +79,7 @@ export class CompleteProfilesGroupBuilder {
             description: setProfileActionDesc.message,
             type: "group",
             aliases: ["set"],
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_SET,
             children: [],
         };
 
@@ -84,6 +89,7 @@ export class CompleteProfilesGroupBuilder {
             summary: updateProfileCommandSummary.message,
             aliases: ["upd"],
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_SET,
             children: [],
         };
 
@@ -93,6 +99,7 @@ export class CompleteProfilesGroupBuilder {
             summary: validateProfileCommandSummary.message,
             aliases: ["val"],
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_NONE,
             children: [],
         };
 
@@ -102,6 +109,7 @@ export class CompleteProfilesGroupBuilder {
             summary: listProfileCommandSummary.message,
             aliases: ["ls"],
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_LIST,
             children: [],
 
         };

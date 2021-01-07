@@ -58,6 +58,7 @@ export class ProfilesDeleteCommandBuilder extends ProfilesCommandBuilder {
                 {type: this.mProfileType}),
             type: "command",
             handler: __dirname + "/../handlers/NewDeleteProfilesHandler",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_EDIT,
             customize: {},
             options: [],
             positionals: [{

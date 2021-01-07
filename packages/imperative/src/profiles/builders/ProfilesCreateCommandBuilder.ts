@@ -62,6 +62,7 @@ export class ProfilesCreateCommandBuilder extends ProfilesCommandBuilder {
             description: this.mSchema.description,
             type: "command",
             handler: __dirname + "/../handlers/CreateProfilesHandler",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_INIT,
             customize: {},
             positionals: [{
                 name: Constants.PROFILE_NAME_OPTION,
