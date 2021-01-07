@@ -261,12 +261,12 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config
     });
 
-    it("should attempt to initialize the project configuration with CI flag", async () => {
+    it("should attempt to initialize the project configuration with prompt flag false", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.user = false;
         params.arguments.global = false;
-        params.arguments.ci = true;
+        params.arguments.prompt = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -349,12 +349,12 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, 4)); // Config
     });
 
-    it("should attempt to initialize the global project configuration with CI flag", async () => {
+    it("should attempt to initialize the global project configuration with prompt flag false", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.user = false;
         params.arguments.global = true;
-        params.arguments.ci = true;
+        params.arguments.prompt = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
