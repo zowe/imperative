@@ -19,7 +19,6 @@ import {
     validateProfileGroupDesc, validateProfileCommandSummary
 } from "../../../../messages";
 import { Constants } from "../../../../constants";
-import { ProfilesConstants } from "../../../../profiles";
 import { ProfilesCreateCommandBuilder } from "./ProfilesCreateCommandBuilder";
 import { ProfilesUpdateCommandBuilder } from "./ProfilesUpdateCommandBuilder";
 import { ProfilesDeleteCommandBuilder } from "./ProfilesDeleteCommandBuilder";
@@ -28,7 +27,7 @@ import { ProfilesListCommandBuilder } from "./ProfilesListCommandBuilder";
 import { ProfilesSetCommandBuilder } from "./ProfilesSetCommandBuilder";
 import { Logger } from "../../../../logger/index";
 import { isNullOrUndefined } from "util";
-import { IProfileTypeConfiguration } from "../../../../profiles";
+import { IProfileTypeConfiguration, ProfilesConstants } from "../../../../profiles";
 
 /**
  * Generate a complete group of commands for maintaining configuration profiles
