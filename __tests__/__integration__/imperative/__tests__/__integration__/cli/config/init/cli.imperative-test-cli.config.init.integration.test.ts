@@ -36,11 +36,15 @@ describe("imperative-test-cli config init", () => {
     it("should display the help", () => {
         const response = runCliScript(__dirname + "/../__scripts__/get_help.sh",
             TEST_ENVIRONMENT.workingDir, ["init"]);
-        expect(response.output.toString()).toContain(`Initialize config files. Defaults to initializing`);
-        expect(response.output.toString()).toContain(`"imperative-test-cli.config.json" in the current working directory unless`);
-        expect(response.output.toString()).toContain(`otherwise specified. Use "--user" to init`);
-        expect(response.output.toString()).toContain(`"imperative-test-cli.config.user.json". Use "--global" to initialize the`);
-        expect(response.output.toString()).toContain(`configuration files your home "~/.zowe" directory.`);
+        const expectedLines = [
+            `Initialize config files. Defaults to initializing`,
+            `"imperative-test-cli.config.json" in the current working directory unless`,
+            `otherwise specified.`,
+            `Use "--user" to init "imperative-test-cli.config.user.json". Use "--global" to`,
+            `initialize the configuration files in your home "~/.zowe" directory.`,
+            `Use "--no-prompt" to skip prompting for values in a CI environment.`
+        ];
+        expectedLines.forEach((line: string) => expect(response.output.toString()).toContain(line));
         expect(response.stderr.toString()).toEqual("");
         expect(response.error).not.toBeDefined();
     });
