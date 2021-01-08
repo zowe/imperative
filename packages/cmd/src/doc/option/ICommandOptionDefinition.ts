@@ -72,6 +72,12 @@ export interface ICommandOptionDefinition {
      */
     type: CommandOptionType;
     /**
+     * Option is hidden from help
+     * @type {boolean}
+     * @memberof ICommandOptionDefinition
+     */
+    hidden?: boolean;
+    /**
      * If the user doesn't specify this option, you can specify a default value here
      * that will be filled in automatically.
      * @type {any}
@@ -169,6 +175,14 @@ export interface ICommandOptionDefinition {
      * @memberOf ICommandOptionDefinition
      */
     stringLengthRange?: [number, number];
+    /**
+     * If the type is array, this option defines if duplicate values in array
+     * are allowed. Default is true.
+     *
+     * @type {boolean}
+     * @memberOf ICommandOptionDefinition
+     */
+    arrayAllowDuplicate?: boolean;
     /**
      * If the user specifies a certain value for this option,
      * then they must also specify other options (similar to a conditional "implies")

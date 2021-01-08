@@ -5,7 +5,7 @@
   "license": "EPL 2.0",
   "repository": "",
   "bin": {
-    "hello-world-cli": "./lib/index.js"
+    "hello-world-cli": "lib/index.js"
   },
   "author": {
     "name": "",
@@ -67,7 +67,6 @@
     "@types/progress": "^2.0.3",
     "@types/stack-trace": "^0.0.29",
     "@types/tmp": "^0.0.33",
-    "keytar": "^5.0.0",
     "clear-require": "^2.0.0",
     "codepage": "^1.12.2",
     "cowsay": "^1.2.1",
@@ -82,6 +81,7 @@
     "gulp-typedoc": "^2.2.3",
     "jest-sonar-reporter": "^2.0.0",
     "jsdoc": "^3.6.2",
+    "keytar": "^5.0.0",
     "madge": "^3.6.0",
     "shebang-regex": "^2.0.0",
     "tslint": "^5.20.1",

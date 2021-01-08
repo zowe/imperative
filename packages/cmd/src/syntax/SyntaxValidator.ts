@@ -412,6 +412,16 @@ export class SyntaxValidator {
                         responseObject) && valid;
                 }
 
+                /**
+                 * Validate array duplication
+                 */
+                if (optionDef.type === "array" && optionDef.arrayAllowDuplicate === false) {
+                    const value = commandArguments[optionDef.name];
+                    if (Array.isArray(value)) {
+                        valid = this.validateArrayDuplicate(optionDef, value, responseObject) && valid;
+                    }
+                }
+
                 if (!isNullOrUndefined(optionDef.valueImplications) && Object.keys(optionDef.valueImplications).length > 0) {
                     for (const value of Object.keys(optionDef.valueImplications)) {
                         const implicationObject: ICommandOptionValueImplications
@@ -656,6 +666,46 @@ export class SyntaxValidator {
             valid = false;
         }
 
+        return valid;
+    }
+
+    /**
+     * Validate if the option's value as array contains duplicates. If yes, error messages will be issued.
+     *
+     * @param {ICommandOptionDefinition} optionDefinition: The option definition
+     * @param {string} optionValue: The option value
+     * @param {CommandResponse} responseObject: The response object for producing messages.
+     * @return {boolean}: false if the value is not valid.
+     */
+    private validateArrayDuplicate(optionDefinition: ICommandOptionDefinition,
+                                   optionValue: string[],
+                                   responseObject: CommandResponse): boolean {
+        const existingValuesSet = new Set<string>();
+        const duplicateValuesSet = new Set<string>();
+
+        // Determine duplicate values
+        for (const value of optionValue) {
+            if (existingValuesSet.has(value)) {
+                duplicateValuesSet.add(value);
+            } else {
+                existingValuesSet.add(value);
+            }
+        }
+
+        // Print error for each duplicate value
+        for (const duplicateValue of duplicateValuesSet) {
+            responseObject.console.errorHeader(syntaxErrorHeader.message);
+            const msg: string = responseObject.console.error("Duplicate value specified for option:\n{{option}}\n\n" +
+                "You specified:\n{{value}}\n\n" +
+                "Duplicate values are not allowed", {
+                option: this.getDashFormOfOption(optionDefinition.name),
+                value: duplicateValue
+            });
+            this.appendValidatorError(responseObject,
+                {message: msg, optionInError: optionDefinition.name, definition: optionDefinition});
+        }
+
+        const valid = (duplicateValuesSet.size === 0);
         return valid;
     }
 

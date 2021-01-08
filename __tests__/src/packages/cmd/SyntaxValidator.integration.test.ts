@@ -312,6 +312,51 @@ describe("Imperative should provide advanced syntax validation rules", function 
                     false, ["between"])();
             });
 
+        it("If we specify an option whose type is array and do not specify arrayAllowDuplicate," +
+            " and specify an array containing duplicate values," +
+            " the command should succeed ",
+            function () {
+                 return tryOptions.bind(this,"--option-to-specify-4 allowableA --option-to-specify-4 allowableA " +
+                     "--absence-implies " + alwaysRequired, true, [])();
+            });
+
+        it("If we specify an option whose type is array and arrayAllowDuplicate is true," +
+            " and specify an array containing duplicate values," +
+            " the command should succeed ",
+            function () {
+                 return tryOptions.bind(this,
+                     minValidOptions + "--array-allow-duplicate value1 --array-allow-duplicate value1 ",
+                     true, [])();
+            });
+
+        it("If we specify an option whose type is array and arrayAllowDuplicate is false," +
+            " and specify an array containing duplicate values," +
+            " the command should fail ",
+            function () {
+                 return tryOptions.bind(this,
+                     minValidOptions + "--array-not-allow-duplicate value1 --array-not-allow-duplicate value1 " +
+                     "--array-not-allow-duplicate value2", false, ["Duplicate value", "value1"])();
+            });
+
+        it("If we specify an option whose type is array and arrayAllowDuplicate is false," +
+            " and specify an array containing multiple duplicate values," +
+            " the command should fail and the error message contains all duplicate values ",
+            function () {
+                 return tryOptions.bind(this,
+                     minValidOptions + "--array-not-allow-duplicate value1 --array-not-allow-duplicate value1 " +
+                     "--array-not-allow-duplicate value2 --array-not-allow-duplicate value2",
+                     false, ["Duplicate value", "value1", "value2"])();
+            });
+
+        it("If we specify an option whose type is array and arrayAllowDuplicate is false," +
+            " and specify an array containing no duplicate values," +
+            " the command should succeed ",
+            function () {
+                 return tryOptions.bind(this,
+                     minValidOptions + "--array-not-allow-duplicate value1 --array-not-allow-duplicate value2",
+                     true, [])();
+            });
+
         it("If there is an option that implies at least one of a set of other options, " +
             "if we specify that option but omit all of the implications, the command should fail ",
             function () {
