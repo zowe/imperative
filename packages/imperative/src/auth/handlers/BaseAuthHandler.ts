@@ -124,7 +124,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             await this.processLoginOld(params, tokenValue);
         } else if (!CredentialManagerFactory.initialized) {
             throw secureSaveError(`Instead of secure storage, rerun this command with the "--show-token" flag to print the token to console. ` +
-                `Store the token in an environment variable ${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_OPT_AUTH_TOKEN to use it ` +
+                `Store the token in an environment variable ${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_OPT_TOKEN_VALUE to use it ` +
                 `in future commands.`);
         } else {
             // update the profile given
