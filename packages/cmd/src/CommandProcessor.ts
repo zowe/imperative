@@ -373,6 +373,7 @@ export class CommandProcessor {
 
             // reinit config for daemon client directory
             ImperativeConfig.instance.config = await Config.load(ImperativeConfig.instance.rootCommandName, ImperativeConfig.instance.config.opts);
+            this.mConfig = ImperativeConfig.instance.config;
         }
         const prepareResponse = this.constructResponseObject(params);
         prepareResponse.succeeded();
