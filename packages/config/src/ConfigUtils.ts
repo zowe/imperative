@@ -2,18 +2,15 @@ import { ImperativeConfig } from "../../utilities";
 import { ImperativeError } from "../../error";
 
 export function secureSaveError(solution?: string): ImperativeError {
-    let details = `Problem: The Secure Credential feature is not installed. You may need to contact your security administrator to enable this ` +
-        `feature.\n\n`;
     const displayName = ImperativeConfig.instance.loadedConfig.productDisplayName || ImperativeConfig.instance.loadedConfig.name;
-    if (solution == null) {
-        details += `Solution: Install the prerequisites listed in ${ImperativeConfig.instance.loadedConfig.name} documentation for the Secure ` +
-            `Credential feature, and then reinstall ${displayName}.`;
-    } else {
-        details += `Solutions:\n(1) Install the prerequisites listed in ${ImperativeConfig.instance.loadedConfig.name} documentation for the ` +
-            `Secure Credential feature, and then reinstall ${displayName}.\n(2)${solution}`;
+    let details = `Possible Solutions:\n` +
+        ` 1. Reinstall ${displayName}. On Linux systems, also make sure to install the prerequisites listed in ${displayName} documentation.\n` +
+        ` 2. Ensure ${displayName} can access secure credential storage. ${displayName} needs access to the OS to securely store credentials.`;
+    if (solution != null) {
+        details += ` 3. ${solution}`;
     }
     return new ImperativeError({
-        msg: "Unable to save credentials.",
+        msg: "Unable to securely save credentials.",
         additionalDetails: details
     });
 }

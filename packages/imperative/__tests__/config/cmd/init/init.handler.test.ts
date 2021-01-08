@@ -21,6 +21,7 @@ import * as path from "path";
 import * as lodash from "lodash";
 import * as fs from "fs";
 import * as os from "os";
+import { CredentialManagerFactory } from "../../../../../security";
 
 const getIHandlerParametersObject = (): IHandlerParameters => {
     const x: any = {
@@ -62,6 +63,7 @@ describe("Configuration Initialization command handler", () => {
     beforeEach( async () => {
         jest.resetAllMocks();
         ImperativeConfig.instance.loadedConfig = lodash.cloneDeep(fakeConfig);
+        Object.defineProperty(CredentialManagerFactory, "initialized", { get: () => true });
 
         writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
         existsSyncSpy = jest.spyOn(fs, "existsSync");

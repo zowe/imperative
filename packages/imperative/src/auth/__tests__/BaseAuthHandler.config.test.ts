@@ -18,6 +18,7 @@ import { CliUtils, ImperativeConfig } from "../../../../utilities";
 import { Config } from "../../../../config";
 import { IConfigSecureFiles } from "../../../../config/src/doc/IConfigSecure";
 import { FakeAuthHandler } from "./__data__/FakeAuthHandler";
+import { CredentialManagerFactory } from "../../../../security";
 
 const MY_APP = "my_app";
 
@@ -33,6 +34,7 @@ describe("BaseAuthHandler config", () => {
     let fakeConfig: Config;
 
     beforeAll(() => {
+        Object.defineProperty(CredentialManagerFactory, "initialized", { get: () => true });
         Object.defineProperty(ImperativeConfig, "instance", {
             get: () => ({ config: fakeConfig })
         });
