@@ -46,7 +46,7 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static createProfileDirs(path: string) {
-        ProfileIO.crashInSingleProfileMode();
+        ProfileIO.crashInTeamConfigMode();
         try {
             IO.createDirsSync(path);
         } catch (err) {
@@ -68,7 +68,7 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static readMetaFile<T extends IProfileTypeConfiguration>(path: string): IMetaProfile<T> {
-        ProfileIO.crashInSingleProfileMode();
+        ProfileIO.crashInTeamConfigMode();
 
         let meta: IMetaProfile<T>;
         try {
@@ -91,7 +91,7 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static writeProfile(fullFilePath: string, profile: IProfile): void {
-        ProfileIO.crashInSingleProfileMode();
+        ProfileIO.crashInTeamConfigMode();
 
         try {
             /**
@@ -126,7 +126,7 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static deleteProfile(name: string, fullFilePath: string) {
-        ProfileIO.crashInSingleProfileMode();
+        ProfileIO.crashInTeamConfigMode();
 
         try {
             /**
@@ -164,7 +164,7 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static exists(path: string): string {
-        ProfileIO.crashInSingleProfileMode();
+        ProfileIO.crashInTeamConfigMode();
 
         let found: string;
         try {
@@ -186,7 +186,7 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static writeMetaFile(meta: IMetaProfile<IProfileTypeConfiguration>, path: string) {
-        ProfileIO.crashInSingleProfileMode();
+        ProfileIO.crashInTeamConfigMode();
 
         try {
             const yamlString: any = writeYaml.stringify(meta, ProfileIO.MAX_YAML_DEPTH);
@@ -209,7 +209,7 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static fileToProfileName(file: string, ext: string): string {
-        ProfileIO.crashInSingleProfileMode();
+        ProfileIO.crashInTeamConfigMode();
 
         file = pathPackage.basename(file);
         return file.substring(0, file.lastIndexOf(ext));
@@ -225,7 +225,7 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static getAllProfileDirectories(profileRootDirectory: string): string[] {
-        ProfileIO.crashInSingleProfileMode();
+        ProfileIO.crashInTeamConfigMode();
 
         let names: string[] = [];
         try {
@@ -256,7 +256,7 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static getAllProfileNames(profileTypeDir: string, ext: string, metaNameForType: string): string[] {
-        ProfileIO.crashInSingleProfileMode();
+        ProfileIO.crashInTeamConfigMode();
 
         const names: string[] = [];
         try {
@@ -289,7 +289,7 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static readProfileFile(filePath: string, type: string): IProfile {
-        ProfileIO.crashInSingleProfileMode();
+        ProfileIO.crashInTeamConfigMode();
 
         let profile: IProfile;
         try {
@@ -304,15 +304,15 @@ export class ProfileIO {
     }
 
     /**
-     * Crash if we detect that we are running in single-profile mode.
+     * Crash if we detect that we are running in team-config mode.
      * You should not be able to operate on old-school profiles
-     * when you are in single-profile mode. Give a meaningful
+     * when you are in team-config mode. Give a meaningful
      * message as part of our crash.
      */
-    private static crashInSingleProfileMode() {
+    private static crashInTeamConfigMode() {
         if (ImperativeConfig.instance.config.exists) {
             try {
-                throw new Error("Tried to perform an old-school profile operation while in single-profile mode.");
+                throw new Error("Tried to perform an old-school profile operation while in team-config mode.");
             } catch (err) {
                 throw new ImperativeError({
                     msg: err.message,

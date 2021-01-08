@@ -41,6 +41,8 @@ describe("Imperative", () => {
             jest.doMock("../src/env/EnvironmentalVariableSettings");
             jest.doMock("../src/auth/builders/CompleteAuthGroupBuilder");
             jest.doMock("../src/profiles/builders/CompleteProfilesGroupBuilder");
+            jest.doMock("../../config/src/Config");
+            jest.doMock("../../security/src/CredentialManagerFactory");
 
             const {OverridesLoader} = require("../src/OverridesLoader");
             const {LoggingConfigurer} = require("../src/LoggingConfigurer");
@@ -54,6 +56,8 @@ describe("Imperative", () => {
             const {EnvironmentalVariableSettings} = require("../src/env/EnvironmentalVariableSettings");
             const {CompleteAuthGroupBuilder} = require("../src/auth/builders/CompleteAuthGroupBuilder");
             const {CompleteProfilesGroupBuilder} = require("../src/profiles/builders/CompleteProfilesGroupBuilder");
+            const {Config} = require("../../config/src/Config");
+            const {CredentialManagerFactory} = require("../../security/src/CredentialManagerFactory");
             return {
                 OverridesLoader: {
                     load: OverridesLoader.load as Mock<typeof OverridesLoader.load>
@@ -78,7 +82,11 @@ describe("Imperative", () => {
                 },
                 CompleteProfilesGroupBuilder: {
                     getProfileGroup: CompleteProfilesGroupBuilder.getProfileGroup as Mock<typeof CompleteProfilesGroupBuilder.getProfileGroup>
-                }
+                },
+                Config: {
+                    load: Config.load as Mock<typeof Config.load>
+                },
+                CredentialManagerFactory
             };
         } catch (error) {
             // If we error here, jest silently fails and says the test is empty. So let's make sure
@@ -159,6 +167,7 @@ describe("Imperative", () => {
 
             mocks.ConfigurationLoader.load.mockReturnValue(defaultConfig);
             mocks.OverridesLoader.load.mockReturnValue(new Promise((resolve) => resolve()));
+            mocks.Config.load.mockResolvedValue({});
         });
 
         it("should work when passed with nothing", async () => {
@@ -191,10 +200,64 @@ describe("Imperative", () => {
                 ConfigManagementFacility = mocks.ConfigManagementFacility;
             });
 
+            it("should not load old profiles in team-config mode", async () => {
+                /* Pretend that we have a team config.
+                * config is a getter of a property, so mock we the property.
+                */
+                Object.defineProperty(mocks.ImperativeConfig.instance, "config", {
+                    configurable: true,
+                    set: jest.fn(),
+                    get: jest.fn(() => {
+                        return {
+                            exists: true
+                        };
+                    })
+                });
+
+                await Imperative.init();
+                expect(Imperative.initProfiles).toHaveBeenCalledTimes(0);
+            });
+
             it("should call config functions when config group is allowed", async () => {
                 await Imperative.init();
 
                 expect(ConfigManagementFacility.instance.init).toHaveBeenCalledTimes(1);
+            });
+
+            describe("load", () => {
+                beforeEach(() => {
+                    Object.defineProperty(mocks.CredentialManagerFactory, "initialized", { get: () => true });
+                });
+
+                it("should load config JSON layers", async () => {
+                    mocks.Config.load.mockResolvedValue({
+                        secureLoad: jest.fn()
+                    });
+
+                    await Imperative.init();
+
+                    expect(mocks.Config.load).toHaveBeenCalledTimes(1);
+                    expect(mocks.ImperativeConfig.instance.config.secureLoad).toHaveBeenCalledTimes(1);
+                });
+
+                it("should not fail if secure load fails", async () => {
+                    mocks.Config.load.mockResolvedValue({
+                        secureLoad: jest.fn(() => {
+                            throw new Error("secure load failed");
+                        })
+                    });
+                    let caughtError;
+
+                    try {
+                        await Imperative.init();
+                    } catch (error) {
+                        caughtError = error;
+                    }
+
+                    expect(mocks.Config.load).toHaveBeenCalledTimes(1);
+                    expect(mocks.ImperativeConfig.instance.config.secureLoad).toHaveBeenCalledTimes(1);
+                    expect(caughtError).toBeUndefined();
+                });
             });
         });
 

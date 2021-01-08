@@ -170,14 +170,14 @@ export default class InitHandler implements ICommandHandler {
     }
 
     /**
-     * Prompts for the value of a property on the CLI. Returns null if `--ci`
+     * Prompts for the value of a property on the CLI. Returns null if `--prompt false`
      * argument is passed, or prompt times out, or a blank value is entered.
      * @param propName The name of the property
      * @param property The profile property definition
      */
     private async promptForProp(propName: string, property: IProfileProperty): Promise<any> {
         // skip prompting in CI environment
-        if (this.arguments.ci || !CredentialManagerFactory.initialized) {
+        if (this.arguments.prompt === false || !CredentialManagerFactory.initialized) {
             return null;
         }
 

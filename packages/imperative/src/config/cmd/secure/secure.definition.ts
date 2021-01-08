@@ -22,6 +22,7 @@ export const secureDefinition: ICommandDefinition = {
         {
             name: "global",
             description: "Secure properties in global config.",
+            aliases: ["g"],
             type: "boolean",
             defaultValue: false
         },

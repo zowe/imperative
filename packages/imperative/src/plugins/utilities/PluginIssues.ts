@@ -142,7 +142,10 @@ export class PluginIssues {
         if (PMFConstants.instance.PLUGIN_USING_CONFIG) {
           PMFConstants.instance.PLUGIN_CONFIG.api.plugins.get().forEach((plugin: string) => {
             if (this.installedPlugins[plugin] == null)
-              (this.installedPlugins as any)[plugin] = {};
+              (this.installedPlugins as any)[plugin] = {
+                package: plugin,
+                version: "local"
+              };
           });
         }
       }
