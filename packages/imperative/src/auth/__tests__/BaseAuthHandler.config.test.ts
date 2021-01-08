@@ -142,7 +142,7 @@ describe("BaseAuthHandler config", () => {
                 }
 
                 expect(caughtError).toBeDefined();
-                expect(caughtError.message).toBe("Unable to securely save credentials");
+                expect(caughtError.message).toBe("Unable to securely save credentials.");
                 expect(caughtError).toBeInstanceOf(ImperativeError);
                 expect(caughtError.additionalDetails).toContain("FAKE_OPT_TOKEN_VALUE");
                 expect(doLoginSpy).toBeCalledTimes(1);
