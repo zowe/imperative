@@ -99,6 +99,18 @@ export const ValidationTestCommand: ICommandDefinition = {
                 numericValueRange: [1, 12] // tslint:disable-line:no-magic-numbers
             },
             {
+                name: "array-allow-duplicate",
+                description: "this array allows explicitly duplicate",
+                type: "array",
+                arrayAllowDuplicate: true
+            },
+            {
+                name: "array-not-allow-duplicate",
+                description: "this array does not allow duplicate",
+                type: "array",
+                arrayAllowDuplicate: false
+            },
+            {
                 name: "implies-one-of",
                 description: "this option implies at least one of a group of options",
                 type: "boolean",
