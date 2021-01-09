@@ -47,7 +47,7 @@ export default class SetHandler implements ICommandHandler {
         if (params.arguments.value) {
             value = params.arguments.value;
         } else {
-            value = await CliUtils.promptWithTimeout(`Please enter the value for ${params.arguments.property}: `, secure, SecureHandler.TIMEOUT);
+            value = await CliUtils.promptWithTimeout(`Please enter the value for ${params.arguments.property}: `, secure);
         }
         if (params.arguments.json) {
             try {

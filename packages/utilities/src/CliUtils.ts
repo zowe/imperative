@@ -17,6 +17,8 @@ import { IOptionFormat } from "./doc/IOptionFormat";
 import { CommandProfiles, ICommandOptionDefinition, ICommandPositionalDefinition, ICommandProfile } from "../../cmd";
 import { ICommandArguments } from "../../cmd/src/doc/args/ICommandArguments";
 import { IProfile } from "../../profiles";
+import * as prompt from "readline-sync";
+import * as os from "os";
 
 /**
  * Cli Utils contains a set of static methods/helpers that are CLI related (forming options, censoring args, etc.)
@@ -396,8 +398,8 @@ export class CliUtils {
      * @param message - The message to display to the user e.g. "Please enter password:"
      * @returns value - the value entered by the user
      */
+    // TODO(Kelosky): pompt* prompting
     public static promptForInput(message: string): string {
-        const prompt = require("readline-sync");
         prompt.setDefaultOptions({mask: "", hideEchoBack: true});
         return prompt.question(message);
     }
@@ -441,7 +443,7 @@ export class CliUtils {
     public static async promptWithTimeout(
         questionText: string,
         hideText: boolean = false,
-        secToWait: number = 30
+        secToWait: number = 900
     ): Promise<string> {
 
         // readline provides our interface for terminal I/O
@@ -470,7 +472,6 @@ export class CliUtils {
 
         // when asked to hide text, override output to only display stars
         if (hideText) {
-            const os = require("os");
             ttyIo._writeToOutput = function _writeToOutput(stringToWrite: string) {
                 if (stringToWrite === os.EOL) {
                     return;
