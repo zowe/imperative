@@ -398,7 +398,7 @@ export class CliUtils {
      * @param message - The message to display to the user e.g. "Please enter password:"
      * @returns value - the value entered by the user
      */
-    // TODO(Kelosky): pompt* prompting
+    // TODO(Kelosky): prompt* prompting
     public static promptForInput(message: string): string {
         prompt.setDefaultOptions({mask: "", hideEchoBack: true});
         return prompt.question(message);
