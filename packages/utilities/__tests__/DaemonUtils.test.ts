@@ -23,7 +23,7 @@ describe("DaemonUtils tests", () => {
             exitCode: 0,
             stdout: true,
             stderr: false,
-            prompt: false
+            prompt: 0
         });
         expect(daemonHeader).toMatchSnapshot();
     });
@@ -33,7 +33,7 @@ describe("DaemonUtils tests", () => {
             exitCode: 1,
             stdout: false,
             stderr: true,
-            prompt: true
+            prompt: 1
         });
         expect(daemonHeader).toMatchSnapshot();
     });
