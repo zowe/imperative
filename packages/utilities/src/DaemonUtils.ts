@@ -57,7 +57,7 @@ export class DaemonUtils {
     public static readonly X_ZOWE_DAEMON_EXIT = "x-zowe-daemon-exit:";
 
     /**
-     * Prompting is requested from the daemon to the client if 1.  Default is 0.
+     * Prompting is requested from the daemon to the client if 1 or 2, 2 indicates secure prompting.  Default is 0.
      * @static
      * @memberof DaemonUtils
      */
@@ -126,7 +126,7 @@ export class DaemonUtils {
         const exitCode = options.exitCode || 0;
         const stdout = options.stdout ? 1 : 0;
         const stderr = options.stderr ? 1 : 0;
-        const prompt = options.prompt ? 1 : 0;
+        const prompt = options.prompt || 0;
         const progress = options.progress ? 1 : 0;
 
         // beginning header
