@@ -604,10 +604,9 @@ export class CommandResponse implements ICommandResponseApi {
 
                             // build prompt headers and sent
                             const daemonHeaders = DaemonUtils.buildHeader({ prompt: true });
-                            outer.writeStream(daemonHeaders);
 
                             // send prompt content
-                            outer.writeStream(questionText + '\n');
+                            outer.writeStream(questionText + daemonHeaders);
 
                             // wait for a response here
                             outer.mStream.on("data", (data) => {
