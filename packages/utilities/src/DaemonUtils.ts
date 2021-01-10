@@ -64,6 +64,20 @@ export class DaemonUtils {
     public static readonly X_ZOWE_DAEMON_PROMPT = "x-zowe-daemon-prompt:";
 
     /**
+     * Unsecure prompting requested
+     * @static
+     * @memberof DaemonUtils
+     */
+    public static readonly X_ZOWE_DAEMON_PROMPT_UNSECURE = 1;
+
+    /**
+     * Secure prompting requested
+     * @static
+     * @memberof DaemonUtils
+     */
+    public static readonly X_ZOWE_DAEMON_PROMPT_SECURE = 2;
+
+    /**
      * Content is for stdout if 1.  Default is 1.
      * @static
      * @memberof DaemonUtils

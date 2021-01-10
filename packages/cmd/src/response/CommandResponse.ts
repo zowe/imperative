@@ -603,7 +603,8 @@ export class CommandResponse implements ICommandResponseApi {
                         return new Promise<string>((resolve) => {
 
                             // build prompt headers and sent
-                            const daemonHeaders = DaemonUtils.buildHeader({ prompt: opts?.hideText ? 2 : 1 });
+                            const daemonHeaders = DaemonUtils.buildHeader({ prompt: opts?.hideText ?
+                                DaemonUtils.X_ZOWE_DAEMON_PROMPT_SECURE : DaemonUtils.X_ZOWE_DAEMON_PROMPT_UNSECURE });
 
                             // send prompt content
                             outer.writeStream(questionText + daemonHeaders);
