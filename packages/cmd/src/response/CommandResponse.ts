@@ -616,8 +616,8 @@ export class CommandResponse implements ICommandResponseApi {
                                 outer.mStream.removeListener("data", listener);
 
                                 // strip response header and give to content the waiting handler
-                                let stringData = data.toString();
-                                let parsed = stringData.substr(DaemonUtils.X_ZOWE_DAEMON_REPLY.length, stringData.length).trim();
+                                const stringData = data.toString();
+                                const parsed = stringData.substr(DaemonUtils.X_ZOWE_DAEMON_REPLY.length, stringData.length).trim();
                                 resolve(parsed)
                             });
                         });
