@@ -13,7 +13,7 @@
 /**
  * Protocol for daemon mode is to send headers similar to those used in HTTP.  All headers
  * must appear on the same line without a newline.  The version 1 of this protocol requires
- * that all 7 original headers be present.  The first header must always be x-zowe-daemon-headers
+ * that all 8 original headers be present.  The first header must always be x-zowe-daemon-headers
  * and the last must always be x-zowe-daemon-end.
  *
  * Integers are the only content passed.  For boolean header types, 0 = false, 1 = true.
@@ -28,6 +28,12 @@ import { IDaemonHeaderOptions } from "./doc/IDaemonHeaderOptions";
  */
 export class DaemonUtils {
 
+    /**
+     * Header from the client to the server indicating a reply from `x-zowe-daemon-prompt`
+     * @static
+     * @memberof DaemonUtils
+     */
+    public static readonly X_ZOWE_DAEMON_REPLY = "x-zowe-daemon-reply:";
 
     /**
      * Header to indicate the count of total headers being sent including this header itself
@@ -37,14 +43,14 @@ export class DaemonUtils {
     public static readonly X_ZOWE_DAEMON_HEADERS = "x-zowe-daemon-headers:";
 
     /**
-     * Current version of the headers.  Version 1 = the first 7 headers.
+     * Current version of the headers.  Version 1 = the first 8 headers.
      * @static
      * @memberof DaemonUtils
      */
     public static readonly X_ZOWE_DAEMON_VERSION = "x-zowe-daemon-version:";
 
     /**
-     * Alternate process exit code.  Default is 1.
+     * Alternate process exit code.  Default is 0.
      * @static
      * @memberof DaemonUtils
      */
@@ -86,14 +92,14 @@ export class DaemonUtils {
     public static readonly X_ZOWE_DAEMON_END = "x-zowe-daemon-end:";
 
     /**
-     * Version 1 of the headers means there are 7 total.
+     * Version 1 of the headers means there are 8 total.
      * @static
      * @memberof DaemonUtils
      */
     public static readonly X_ZOWE_V1 = 1;
 
     /**
-     * Version 1 of the headers means there are 7 total.
+     * Version 1 of the headers means there are 8 total.
      * @static
      * @memberof DaemonUtils
      */

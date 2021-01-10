@@ -10,7 +10,7 @@
 */
 
 import { CliUtils } from "../../../utilities";
-import { ICommandArguments } from "../../../cmd";
+import { ICommandArguments, IHandlerParameters } from "../../../cmd";
 import { ImperativeError } from "../../../error";
 import { IOptionsForAddConnProps } from "./doc/IOptionsForAddConnProps";
 import { Logger } from "../../../logger";
@@ -76,7 +76,8 @@ export class ConnectionPropsForSessCfg {
     public static async addPropsOrPrompt<T>(
         initialSessCfg: T,
         cmdArgs: ICommandArguments,
-        options: IOptionsForAddConnProps = {}
+        options: IOptionsForAddConnProps = {},
+        parms?: IHandlerParameters
     ): Promise<T> {
         const impLogger = Logger.getImperativeLogger();
 
@@ -173,9 +174,12 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.hostname) === false) {
                 let answer = "";
                 while (answer === "") {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Enter the host name of your service: "
-                    );
+                    const text = "Enter the host name of your service: ";
+                    if (parms) {
+                        answer = await parms.response.console.prompt(text);
+                    } else {
+                        answer = await CliUtils.promptWithTimeout(text);
+                    }
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for host name."});
                     }
@@ -186,9 +190,12 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.port) === false) {
                 let answer: any;
                 while (answer === undefined) {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Enter the port number for your service: "
-                    );
+                    const text = "Enter the port number for your service: "
+                    if (parms) {
+                        answer = await parms.response.console.prompt(text);
+                    } else {
+                        answer = await CliUtils.promptWithTimeout(text);
+                    }
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for port number."});
                     } else {
@@ -226,9 +233,12 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) === false) {
                 let answer = "";
                 while (answer === "") {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Enter user name: "
-                    );
+                    const text = "Enter user name: ";
+                    if (parms) {
+                        answer = await parms.response.console.prompt(text);
+                    } else {
+                        answer = await CliUtils.promptWithTimeout(text);
+                    }
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for user name."});
                     }
@@ -239,10 +249,12 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) === false) {
                 let answer = "";
                 while (answer === "") {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Enter password : ",
-                        true
-                    );
+                    const text = "Enter password : ";
+                    if (parms) {
+                        answer = await parms.response.console.prompt(text, {hideText: true});
+                    } else {
+                        answer = await CliUtils.promptWithTimeout(text, true);
+                    }
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for password."});
                     }
