@@ -558,21 +558,21 @@ export class CommandProcessor {
                 return this.finishResponse(response);
             }
 
+            const handlerParms: IHandlerParameters = {
+                response,
+                profiles: prepared.profiles,
+                arguments: prepared.args,
+                positionals: prepared.args._,
+                definition: this.definition,
+                fullDefinition: this.fullDefinition
+            };
             try {
-                const handlerParms: IHandlerParameters = {
-                    response,
-                    profiles: prepared.profiles,
-                    arguments: prepared.args,
-                    positionals: prepared.args._,
-                    definition: this.definition,
-                    fullDefinition: this.fullDefinition
-                };
-
-                CliUtils.showDeprecatedCmd(handlerParms);
                 await handler.process(handlerParms);
             } catch (processErr) {
 
                 this.handleHandlerError(processErr, response, this.definition.handler);
+
+                CliUtils.showMsgWhenDeprecated(handlerParms);
 
                 // Return the failed response to the caller
                 return this.finishResponse(response);
@@ -587,6 +587,8 @@ export class CommandProcessor {
                 timingApi.mark("END_CMD_INVOKE");
                 timingApi.measure("Command executed: " + this.commandLine, "START_CMD_INVOKE", "END_CMD_INVOKE");
             }
+
+            CliUtils.showMsgWhenDeprecated(handlerParms);
 
             // Return the response to the caller
             return this.finishResponse(response);

@@ -347,13 +347,13 @@ export class CliUtils {
     }
 
     /**
-     * Display a message that the command is deprecated.
+     * Display a message when the command is deprecated.
      * @static
      * @param {string} handlerParms - the IHandlerParameters supplied to
      *                                a command handler's process() function.
      * @memberof CliUtils
      */
-    public static showDeprecatedCmd(handlerParms: IHandlerParameters) {
+    public static showMsgWhenDeprecated(handlerParms: IHandlerParameters) {
         if (handlerParms.definition.deprecatedReplacement) {
             // form the command that is deprecated
             let oldCmd: string;
@@ -365,9 +365,9 @@ export class CliUtils {
             }
 
             // display the message
-            handlerParms.response.console.log("Warning: The command '" + oldCmd + "' is deprecated.");
-            handlerParms.response.console.log("Recommended replacement: " +
-                handlerParms.definition.deprecatedReplacement + "\n");
+            handlerParms.response.console.error("\nWarning: The command '" + oldCmd + "' is deprecated.");
+            handlerParms.response.console.error("Recommended replacement: " +
+                handlerParms.definition.deprecatedReplacement);
         }
     }
 
