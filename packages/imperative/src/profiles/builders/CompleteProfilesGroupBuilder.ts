@@ -98,7 +98,7 @@ export class CompleteProfilesGroupBuilder {
             summary: validateProfileCommandSummary.message,
             aliases: ["val"],
             type: "group",
-            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_NONE,
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_EDIT,
             children: [],
         };
 

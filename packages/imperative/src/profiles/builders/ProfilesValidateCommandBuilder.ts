@@ -67,7 +67,7 @@ export class ProfilesValidateCommandBuilder extends ProfilesCommandBuilder {
                 {type: this.mProfileType}),
             type: "command",
             handler: __dirname + "/../handlers/ValidateProfileHandler",
-            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_NONE,
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_EDIT,
             customize: {},
             options: [ProfileValidator.PRINT_PLAN_OPTION],
             positionals: [{
