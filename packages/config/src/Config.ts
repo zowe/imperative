@@ -502,7 +502,7 @@ export class Config {
     public async secureLoad(vault?: IConfigVault) {
         if (vault != null) {
             this._vault = vault;
-            this.opts.vault = vault; // propagate to future config objects
+            if (this.opts) this.opts.vault = vault; // propagate to future config objects
         }
 
         if (this._vault == null) return;

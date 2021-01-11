@@ -112,7 +112,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, 900); // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined); // Prompting for secure property
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
@@ -205,7 +205,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, 900); // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined); // Prompting for secure property
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
@@ -474,7 +474,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, 900); // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined); // Prompting for secure property
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
@@ -523,7 +523,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, 900); // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined); // Prompting for secure property
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
@@ -572,7 +572,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, 900); // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined); // Prompting for secure property
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
@@ -622,7 +622,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, 900); // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined); // Prompting for secure property
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
