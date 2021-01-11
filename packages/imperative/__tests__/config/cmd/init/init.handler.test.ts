@@ -111,8 +111,9 @@ describe("Configuration Initialization command handler", () => {
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        // Prompting for secure property
         // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined); // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
@@ -204,8 +205,9 @@ describe("Configuration Initialization command handler", () => {
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        // Prompting for secure property
         // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined); // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
@@ -473,8 +475,9 @@ describe("Configuration Initialization command handler", () => {
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        // Prompting for secure property
         // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined); // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
@@ -522,8 +525,9 @@ describe("Configuration Initialization command handler", () => {
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        // Prompting for secure property
         // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined); // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
@@ -571,8 +575,9 @@ describe("Configuration Initialization command handler", () => {
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        // Prompting for secure property
         // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined); // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
@@ -621,8 +626,9 @@ describe("Configuration Initialization command handler", () => {
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        // Prompting for secure property
         // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined); // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // tslint:disable-next-line: no-magic-numbers
