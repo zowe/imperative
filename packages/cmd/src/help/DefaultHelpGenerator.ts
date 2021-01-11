@@ -211,13 +211,15 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
             let maximumLeftHandSide = 0;
             for (const command of definitions) {
                 let summaryText: string = "";
+                summaryText += command.summary || command.description;
 
-                // Mark with the experimental tag if necessary
-                if (command.experimental) {
+                if (command.deprecatedReplacement) {
+                    // Mark with the deprecated tag
+                    summaryText += this.grey(" (deprecated)");
+                } else if (command.experimental) {
+                    // Mark with the experimental tag
                     summaryText += this.grey("(experimental) ");
                 }
-
-                summaryText += command.summary || command.description;
                 const printString: string = DefaultHelpGenerator.HELP_INDENT + this.buildCommandAndAliases(command);
                 if (printString.length > maximumLeftHandSide) {
                     maximumLeftHandSide = printString.length;
