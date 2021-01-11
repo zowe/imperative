@@ -13,6 +13,9 @@ import { CliUtils } from "../src/CliUtils";
 import { CommandProfiles, ICommandOptionDefinition } from "../../cmd";
 import { IProfile } from "../../profiles";
 import { ImperativeError } from "../../error";
+import * as prompt from "readline-sync";
+
+jest.mock("readline-sync");
 
 const TEST_PREFIX = "TEST_CLI_PREFIX";
 const boolEnv = TEST_PREFIX + "_OPT_FAKE_BOOL_OPT";
@@ -124,8 +127,7 @@ describe("CliUtils", () => {
     describe("promptForInput", () => {
         it("should return the mocked value ", () => {
             const mockedPromptValue = "My value is here ";
-            jest.mock("readline-sync");
-            require("readline-sync").question= jest.fn(()=>{
+            (prompt as any).question= jest.fn(()=>{
                 return mockedPromptValue;
             });
             const value = CliUtils.promptForInput("my message goes here:");
