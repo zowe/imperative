@@ -115,7 +115,8 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT)); // Schema
+        // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT));
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
@@ -160,7 +161,8 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // User config is a skeleton - no prompting should occur
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT)); // Schema
+        // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT));
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
     });
 
@@ -204,7 +206,8 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT)); // Schema
+        // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT));
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
@@ -249,7 +252,8 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // User config is a skeleton - no prompting should occur
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT)); // Schema
+        // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT));
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
     });
 
