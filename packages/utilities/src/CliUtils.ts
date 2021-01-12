@@ -442,7 +442,7 @@ export class CliUtils {
     public static async promptWithTimeout(
         questionText: string,
         hideText: boolean = false,
-        secToWait: number = 900
+        secToWait: number = 60*10,
     ): Promise<string> {
 
         // readline provides our interface for terminal I/O
