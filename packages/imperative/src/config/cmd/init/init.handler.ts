@@ -11,12 +11,14 @@
 
 import { ICommandArguments, ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ImperativeError } from "../../../../../error";
-import { CliUtils, ImperativeConfig } from "../../../../../utilities";
+import { CliUtils, ImperativeConfig, TextUtils } from "../../../../../utilities";
 import * as https from "https";
 import { Config, ConfigSchema, IConfig, IConfigProfile } from "../../../../../config";
 import { IProfileProperty } from "../../../../../profiles";
 import { ConfigBuilder } from "../../../../../config/src/ConfigBuilder";
 import { IConfigBuilderOpts } from "../../../../../config/src/doc/IConfigBuilderOpts";
+import { CredentialManagerFactory } from "../../../../../security";
+import { secureSaveError } from "../../../../../config/src/ConfigUtils";
 
 /**
  * Init config
@@ -59,6 +61,12 @@ export default class InitHandler implements ICommandHandler {
         // }
 
         await this.initWithSchema(config, params.arguments.user);
+
+        if (params.arguments.prompt !== false && !CredentialManagerFactory.initialized && config.api.layers.get().properties.secure.length > 0) {
+            const warning = secureSaveError();
+            params.response.console.log(TextUtils.chalk.yellow("Warning:\n") +
+                `${warning.message} Skipped prompting for credentials.\n\n${warning.additionalDetails}\n`);
+        }
 
         // Write the active created/updated config layer
         await config.api.layers.write();
@@ -171,7 +179,7 @@ export default class InitHandler implements ICommandHandler {
      */
     private async promptForProp(propName: string, property: IProfileProperty): Promise<any> {
         // skip prompting in CI environment
-        if (this.arguments.prompt === false) {
+        if (this.arguments.prompt === false || !CredentialManagerFactory.initialized) {
             return null;
         }
 
