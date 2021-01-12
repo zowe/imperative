@@ -293,10 +293,11 @@ export class ConnectionPropsForSessCfg {
      * @memberof ConnectionPropsForSessCfg
      */
     private static async clientPrompt(promptText: string, opts: IHandlePromptOptions): Promise<string> {
+        const hideText: boolean = opts?.hideText ? true : false;
         if (opts.parms) {
-            return opts.parms.response.console.prompt(promptText, {hideText: true});
+            return opts.parms.response.console.prompt(promptText, {hideText});
         } else {
-            return CliUtils.promptWithTimeout(promptText, true);
+            return CliUtils.promptWithTimeout(promptText, hideText);
         }
     }
 
