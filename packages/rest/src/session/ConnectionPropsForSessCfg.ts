@@ -15,6 +15,23 @@ import { ImperativeError } from "../../../error";
 import { IOptionsForAddConnProps } from "./doc/IOptionsForAddConnProps";
 import { Logger } from "../../../logger";
 import * as SessConstants from "./SessConstants";
+import { IPromptOptions } from "../../../cmd/src/doc/response/api/handler/IPromptOptions";
+
+
+/**
+ * Extend options for IPromptOptions for internal wrapper method
+ * @interface IHandlePromptOptions
+ * @extends {IPromptOptions}
+ */
+interface IHandlePromptOptions extends IPromptOptions {
+
+    /**
+     * Adds IHandlerParameters to IPromptOptions
+     * @type {IHandlerParameters}
+     * @memberof IHandlePromptOptions
+     */
+    parms?: IHandlerParameters;
+}
 
 /**
  * This class adds connection information to an existing session configuration
@@ -174,12 +191,9 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.hostname) === false) {
                 let answer = "";
                 while (answer === "") {
-                    const text = "Enter the host name of your service: ";
-                    if (parms) {
-                        answer = await parms.response.console.prompt(text);
-                    } else {
-                        answer = await CliUtils.promptWithTimeout(text);
-                    }
+                    answer = await this.clientPrompt("Enter the host name of your service: ", {
+                        parms
+                    });
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for host name."});
                     }
@@ -190,12 +204,9 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.port) === false) {
                 let answer: any;
                 while (answer === undefined) {
-                    const text = "Enter the port number for your service: "
-                    if (parms) {
-                        answer = await parms.response.console.prompt(text);
-                    } else {
-                        answer = await CliUtils.promptWithTimeout(text);
-                    }
+                    answer = await this.clientPrompt("Enter the port number for your service: ", {
+                        parms
+                    });
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for port number."});
                     } else {
@@ -233,12 +244,9 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) === false) {
                 let answer = "";
                 while (answer === "") {
-                    const text = "Enter user name: ";
-                    if (parms) {
-                        answer = await parms.response.console.prompt(text);
-                    } else {
-                        answer = await CliUtils.promptWithTimeout(text);
-                    }
+                    answer = await this.clientPrompt("Enter user name: ", {
+                        parms
+                    });
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for user name."});
                     }
@@ -249,12 +257,12 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) === false) {
                 let answer = "";
                 while (answer === "") {
-                    const text = "Enter password : ";
-                    if (parms) {
-                        answer = await parms.response.console.prompt(text, {hideText: true});
-                    } else {
-                        answer = await CliUtils.promptWithTimeout(text, true);
-                    }
+
+                    answer = await this.clientPrompt("Enter password : ", {
+                        hideText: true,
+                        parms
+                    });
+
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for password."});
                     }
@@ -273,6 +281,24 @@ export class ConnectionPropsForSessCfg {
      * may not appear in Imperative log files.
      */
     private static readonly secureSessCfgProps: string[] = ["user", "password", "tokenValue"];
+
+    /**
+     * Handle prompting for clients.  If in a CLI environment, use the IHandlerParameters.response
+     * object prompt method.
+     * @private
+     * @static
+     * @param {string} promptText
+     * @param {IHandlePromptOptions} opts
+     * @returns {Promise<string>}
+     * @memberof ConnectionPropsForSessCfg
+     */
+    private static async clientPrompt(promptText: string, opts: IHandlePromptOptions): Promise<string> {
+        if (opts.parms) {
+            return opts.parms.response.console.prompt(promptText, {hideText: true});
+        } else {
+            return CliUtils.promptWithTimeout(promptText, true);
+        }
+    }
 
     // ***********************************************************************
     /**
