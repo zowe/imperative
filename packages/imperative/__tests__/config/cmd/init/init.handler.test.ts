@@ -566,7 +566,7 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema
         const randomValueString = "9001";
-        const randomValueNumber = parseInt(randomValueString);
+        const randomValueNumber = parseInt(randomValueString, 10);
         promptWithTimeoutSpy.mockReturnValue(randomValueString); // Add fake values for all prompts
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
