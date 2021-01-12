@@ -10,8 +10,7 @@
 */
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { IConfigLayer, IConfigOpts } from "../../../../../config";
-import { ImperativeError } from "../../../../../error";
+import { secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { CredentialManagerFactory } from "../../../../../security";
 import { CliUtils, ImperativeConfig } from "../../../../../utilities";
 
@@ -28,7 +27,7 @@ export default class SecureHandler implements ICommandHandler {
 
         // Setup the credential vault API for the config
         if (!CredentialManagerFactory.initialized) {
-            throw new ImperativeError({msg: `secure vault not enabled`});
+            throw secureSaveError();
         }
 
         // Create the config, load the secure values, and activate the desired layer

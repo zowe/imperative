@@ -18,6 +18,8 @@ import { CliUtils, ImperativeConfig } from "../../../../utilities";
 import { Config } from "../../../../config";
 import { IConfigSecureFiles } from "../../../../config/src/doc/IConfigSecure";
 import { FakeAuthHandler } from "./__data__/FakeAuthHandler";
+import { CredentialManagerFactory } from "../../../../security";
+import { ImperativeError } from "../../../..";
 
 const MY_APP = "my_app";
 
@@ -33,8 +35,12 @@ describe("BaseAuthHandler config", () => {
     let fakeConfig: Config;
 
     beforeAll(() => {
+        Object.defineProperty(CredentialManagerFactory, "initialized", { get: () => true });
         Object.defineProperty(ImperativeConfig, "instance", {
-            get: () => ({ config: fakeConfig })
+            get: () => ({
+                config: fakeConfig,
+                loadedConfig: { envVariablePrefix: "FAKE" }
+            })
         });
     });
 
@@ -120,6 +126,29 @@ describe("BaseAuthHandler config", () => {
                 expect(mockSetObj.mock.calls[0][0]).toEqual({ tokenType: handler.mDefaultTokenType, tokenValue: "fakeToken" });
             });
 
+            it("should fail if unable to securely save credentials", async () => {
+                const handler = new FakeAuthHandler();
+                const params = lodash.cloneDeep(loginParams);
+
+                jest.spyOn(CredentialManagerFactory, "initialized", "get").mockReturnValueOnce(false);
+                const doLoginSpy = jest.spyOn(handler as any, "doLogin");
+                const writeFileSpy = jest.spyOn(fs, "writeFileSync");
+                let caughtError;
+
+                try {
+                    await handler.process(params);
+                } catch (error) {
+                    caughtError = error;
+                }
+
+                expect(caughtError).toBeDefined();
+                expect(caughtError.message).toBe("Unable to securely save credentials.");
+                expect(caughtError).toBeInstanceOf(ImperativeError);
+                expect(caughtError.additionalDetails).toContain("FAKE_OPT_TOKEN_VALUE");
+                expect(doLoginSpy).toBeCalledTimes(1);
+                expect(writeFileSpy).not.toHaveBeenCalled();
+            });
+
             it("should create new profile if user accepts prompt", async () => {
                 const handler = new FakeAuthHandler();
                 const params = lodash.cloneDeep(loginParams);
@@ -160,6 +189,7 @@ describe("BaseAuthHandler config", () => {
                 expect(fakeConfig.properties.profiles.my_fruit_creds).toBeUndefined();
 
                 const doLoginSpy = jest.spyOn(handler as any, "doLogin");
+                const promptSpy = jest.spyOn(CliUtils, "promptWithTimeout").mockResolvedValueOnce("y");
                 const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
                 let caughtError;
 
@@ -171,6 +201,7 @@ describe("BaseAuthHandler config", () => {
 
                 expect(caughtError).toBeUndefined();
                 expect(doLoginSpy).toBeCalledTimes(1);
+                expect(promptSpy).toBeCalledTimes(1);
                 expect(writeFileSpy).toBeCalledTimes(1);
                 expect(fakeVault.save).toBeCalledTimes(1);
 

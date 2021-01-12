@@ -11,6 +11,7 @@
 
 import * as JSONC from "comment-json";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
+import { secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { ImperativeError } from "../../../../../error";
 import { CredentialManagerFactory } from "../../../../../security";
 import { CliUtils, ImperativeConfig } from "../../../../../utilities";
@@ -39,7 +40,7 @@ export default class SetHandler implements ICommandHandler {
 
         // Setup the credential vault API for the config
         if (secure && !CredentialManagerFactory.initialized) {
-            throw new ImperativeError({msg: `secure vault not enabled`});
+            throw secureSaveError();
         }
 
         // Get the value to set

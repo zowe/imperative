@@ -9,7 +9,7 @@
 *
 */
 
-import { CommandResponse, IHandlerParameters } from "../../../../..";
+import { IHandlerParameters } from "../../../../..";
 import { Config } from "../../../../../config/src/Config";
 import { CliUtils, ImperativeConfig } from "../../../../../utilities";
 import { IImperativeConfig } from "../../../../src/doc/IImperativeConfig";
@@ -21,10 +21,29 @@ import * as path from "path";
 import * as lodash from "lodash";
 import * as fs from "fs";
 import * as os from "os";
+import { CredentialManagerFactory } from "../../../../../security";
 
 const getIHandlerParametersObject = (): IHandlerParameters => {
     const x: any = {
-        response: new (CommandResponse as any)(),
+        response: {
+            data: {
+                setMessage: jest.fn((setMsgArgs) => {
+                    // Nothing
+                }),
+                setObj: jest.fn((setObjArgs) => {
+                    // Nothing
+                })
+            },
+            console: {
+                log: jest.fn((logs) => {
+                    // Nothing
+                }),
+                error: jest.fn((errors) => {
+                    // Nothing
+                }),
+                errorHeader: jest.fn(() => undefined)
+            }
+        },
         arguments: {},
         };
     return x as IHandlerParameters;
@@ -62,6 +81,7 @@ describe("Configuration Initialization command handler", () => {
     beforeEach( async () => {
         jest.resetAllMocks();
         ImperativeConfig.instance.loadedConfig = lodash.cloneDeep(fakeConfig);
+        Object.defineProperty(CredentialManagerFactory, "initialized", { get: () => true });
 
         writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
         existsSyncSpy = jest.spyOn(fs, "existsSync");
@@ -80,7 +100,7 @@ describe("Configuration Initialization command handler", () => {
         const params = getIHandlerParametersObject();
         params.arguments.user = false;
         params.arguments.global = false;
-        params.arguments.ci = false;
+        params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -128,7 +148,7 @@ describe("Configuration Initialization command handler", () => {
         const params = getIHandlerParametersObject();
         params.arguments.user = true;
         params.arguments.global = false;
-        params.arguments.ci = false;
+        params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -171,7 +191,7 @@ describe("Configuration Initialization command handler", () => {
         const params = getIHandlerParametersObject();
         params.arguments.user = false;
         params.arguments.global = true;
-        params.arguments.ci = false;
+        params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -219,7 +239,7 @@ describe("Configuration Initialization command handler", () => {
         const params = getIHandlerParametersObject();
         params.arguments.user = true;
         params.arguments.global = true;
-        params.arguments.ci = false;
+        params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -300,12 +320,12 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
     });
 
-    it("should attempt to initialize the project user configuration with CI flag", async () => {
+    it("should attempt to initialize the project user configuration with prompting disabled", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.user = true;
         params.arguments.global = false;
-        params.arguments.ci = true;
+        params.arguments.prompt = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -386,12 +406,12 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
     });
 
-    it("should attempt to initialize the global project user configuration with CI flag", async () => {
+    it("should attempt to initialize the global project user configuration with prompting disabled", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.user = true;
         params.arguments.global = true;
-        params.arguments.ci = true;
+        params.arguments.prompt = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -434,7 +454,7 @@ describe("Configuration Initialization command handler", () => {
         const params = getIHandlerParametersObject();
         params.arguments.user = false;
         params.arguments.global = false;
-        params.arguments.ci = false;
+        params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -482,7 +502,7 @@ describe("Configuration Initialization command handler", () => {
         const params = getIHandlerParametersObject();
         params.arguments.user = false;
         params.arguments.global = false;
-        params.arguments.ci = false;
+        params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -530,7 +550,7 @@ describe("Configuration Initialization command handler", () => {
         const params = getIHandlerParametersObject();
         params.arguments.user = false;
         params.arguments.global = false;
-        params.arguments.ci = false;
+        params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -579,7 +599,7 @@ describe("Configuration Initialization command handler", () => {
         const params = getIHandlerParametersObject();
         params.arguments.user = false;
         params.arguments.global = false;
-        params.arguments.ci = false;
+        params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -620,5 +640,44 @@ describe("Configuration Initialization command handler", () => {
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(undefined);
+    });
+
+    it("should display warning if unable to securely save credentials", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.user = false;
+        params.arguments.global = false;
+        params.arguments.prompt = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        promptWithTimeoutSpy.mockReturnValue(undefined); // Add fake values for all prompts
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+        jest.spyOn(CredentialManagerFactory, "initialized", "get").mockReturnValue(false);
+
+        await handler.process(params as IHandlerParameters);
+
+        const compObj: any = {};
+        // Make changes to satisfy what would be stored on the JSON
+        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
+        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
+        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0);
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
+        expect(params.response.console.log).toHaveBeenCalledTimes(2);
+        expect((params.response.console.log as any).mock.calls[0][0]).toContain("Unable to securely save credentials");
     });
 });
