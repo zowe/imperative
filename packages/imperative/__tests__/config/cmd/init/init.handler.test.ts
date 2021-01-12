@@ -565,8 +565,9 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        const randomValue = "9001";
-        promptWithTimeoutSpy.mockReturnValue(randomValue); // Add fake values for all prompts
+        const randomValueString = "9001";
+        const randomValueNumber = parseInt(randomValueString);
+        promptWithTimeoutSpy.mockReturnValue(randomValueString); // Add fake values for all prompts
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
