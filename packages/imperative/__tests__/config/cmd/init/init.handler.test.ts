@@ -112,14 +112,11 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        // tslint:disable-next-line: no-magic-numbers
         expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual("fakeValue");
@@ -163,10 +160,8 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // User config is a skeleton - no prompting should occur
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, 4)); // Config
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
     });
 
     it("should attempt to initialize the global project configuration", async () => {
@@ -206,14 +201,11 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        // tslint:disable-next-line: no-magic-numbers
         expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, 4)); // Config
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual("fakeValue");
@@ -257,10 +249,8 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // User config is a skeleton - no prompting should occur
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
     });
 
     it("should attempt to initialize the project configuration with prompt flag false", async () => {
@@ -301,10 +291,8 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
     });
 
     it("should attempt to initialize the project user configuration with CI flag", async () => {
@@ -345,10 +333,8 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, 4)); // Config
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
     });
 
     it("should attempt to initialize the global project configuration with prompt flag false", async () => {
@@ -389,10 +375,8 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, 4)); // Config
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
     });
 
     it("should attempt to initialize the global project user configuration with CI flag", async () => {
@@ -433,10 +417,8 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
     });
 
     it("should attempt to initialize the project configuration and use boolean true for the prompt", async () => {
@@ -476,14 +458,11 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        // tslint:disable-next-line: no-magic-numbers
         expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(true);
@@ -526,14 +505,11 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        // tslint:disable-next-line: no-magic-numbers
         expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(false);
@@ -559,7 +535,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("9001"); // Add fake values for all prompts
+        const randomValue = 9001;
+        promptWithTimeoutSpy.mockReturnValue(randomValue); // Add fake values for all prompts
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -576,18 +553,14 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        // tslint:disable-next-line: no-magic-numbers
         expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
-        // tslint:disable-next-line: no-magic-numbers
-        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(9001);
+        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(randomValue);
     });
 
     it("should attempt to initialize the project configuration and handle getting nothing from the prompt", async () => {
@@ -627,17 +600,13 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        // tslint:disable-next-line: no-magic-numbers
         expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT)); // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
-        // tslint:disable-next-line: no-magic-numbers
         expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(undefined);
     });
 });
