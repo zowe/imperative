@@ -2,13 +2,17 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+- Fix vulnerabilities by updating marked
+
 ## `4.10.1`
 
-- Fix vulnerabilities by updating marked
+- BugFix: Fixed an issue when `TypeError` has been raised by `Logger.getCallerFileAndLineTag()` when there was not filename for a stack frame. [#449](https://github.com/zowe/imperative/issues/449)
 
 ## `4.10.0`
 
 - Enhancement: Added an `arrayAllowDuplicate` option to the `ICommandOptionDefinition` interface. By default, the option value is set to `true` and duplicate values are allowed in an array. Specify `false` if you want Imperative to throw an error for duplicate array values. [#437](https://github.com/zowe/imperative/issues/437)
+
 
 ## `4.9.0`
 
