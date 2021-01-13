@@ -15,12 +15,15 @@ import { ImperativeConfig } from "../../../..";
 import { FakeAuthHandler } from "./__data__/FakeAuthHandler";
 
 describe("BaseAuthHandler", () => {
+    const mockSaveProfile = jest.fn();
+    const mockUpdateProfile = jest.fn();
+
     beforeAll(() => {
         Object.defineProperty(Imperative, "api", {
             get: () => ({
                 profileManager: (profType: string) => ({
-                    save: jest.fn(),
-                    update: jest.fn()
+                    save: mockSaveProfile,
+                    update: mockUpdateProfile
                 })
             })
         });
@@ -31,7 +34,11 @@ describe("BaseAuthHandler", () => {
         });
     });
 
-    it("should process login successfully", async () => {
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it("should process login successfully and update profile", async () => {
         const handler = new FakeAuthHandler();
         const params: IHandlerParameters = {
             response: {
@@ -62,6 +69,78 @@ describe("BaseAuthHandler", () => {
 
         expect(caughtError).toBeUndefined();
         expect(doLoginSpy).toBeCalledTimes(1);
+        expect(mockUpdateProfile).toBeCalledTimes(1);
+    });
+
+    it("should process login successfully and create profile", async () => {
+        const handler = new FakeAuthHandler();
+        const params: IHandlerParameters = {
+            response: {
+                console: {
+                    log: jest.fn(),
+                    prompt: jest.fn(async () => "y")
+                }
+            },
+            arguments: {
+                user: "fakeUser",
+                password: "fakePass"
+            },
+            positionals: ["auth", "login"],
+            profiles: {
+                getMeta: jest.fn()
+            }
+        } as any;
+
+        const doLoginSpy = jest.spyOn(handler as any, "doLogin");
+        let caughtError;
+
+        try {
+            await handler.process(params);
+        } catch (error) {
+            caughtError = error;
+        }
+
+        expect(caughtError).toBeUndefined();
+        expect(doLoginSpy).toBeCalledTimes(1);
+        expect(params.response.console.prompt).toHaveBeenCalledTimes(1);
+        expect(mockSaveProfile).toBeCalledTimes(1);
+    });
+
+    it("should process login successfully without creating profile on timeout", async () => {
+        const handler = new FakeAuthHandler();
+        const params: IHandlerParameters = {
+            response: {
+                console: {
+                    log: jest.fn(),
+                    prompt: jest.fn()
+                },
+                data: {
+                    setObj: jest.fn()
+                }
+            },
+            arguments: {
+                user: "fakeUser",
+                password: "fakePass"
+            },
+            positionals: ["auth", "login"],
+            profiles: {
+                getMeta: jest.fn()
+            }
+        } as any;
+
+        const doLoginSpy = jest.spyOn(handler as any, "doLogin");
+        let caughtError;
+
+        try {
+            await handler.process(params);
+        } catch (error) {
+            caughtError = error;
+        }
+
+        expect(caughtError).toBeUndefined();
+        expect(doLoginSpy).toBeCalledTimes(1);
+        expect(params.response.console.prompt).toHaveBeenCalledTimes(1);
+        expect(mockSaveProfile).toBeCalledTimes(0);
     });
 
     it("should process logout successfully", async () => {

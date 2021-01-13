@@ -141,24 +141,4 @@ describe("cmd-cli auth login", () => {
         expect(response.stdout.toString()).not.toContain("tokenType:");
         expect(response.stdout.toString()).not.toContain("tokenValue:");
     });
-
-    it("should not create a profile, if it times out", () => {
-        let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_create_profile_timeout.sh",
-            TEST_ENVIRONMENT.workingDir, ["fakeUser", "fakePass"]);
-        expect(response.status).toBe(0);
-        expect(response.stdout.toString()).toContain("Login successful.");
-        expect(response.stdout.toString()).toContain("will not be stored in your profile");
-        expect(response.stdout.toString()).toContain("fakeUser:fakePass@fakeToken");
-
-        response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
-
-        expect(response.stderr.toString()).toBe("");
-        expect(response.status).toBe(0);
-        expect(response.stdout.toString()).not.toContain("user:");
-        expect(response.stdout.toString()).not.toContain("password:");
-        expect(response.stdout.toString()).not.toContain("host:");
-        expect(response.stdout.toString()).not.toContain("port:");
-        expect(response.stdout.toString()).not.toContain("tokenType:");
-        expect(response.stdout.toString()).not.toContain("tokenValue:");
-    });
 });
