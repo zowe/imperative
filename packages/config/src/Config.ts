@@ -10,6 +10,7 @@
 */
 
 import * as node_path from "path";
+import * as os from "os";
 import * as fs from "fs";
 import * as deepmerge from "deepmerge";
 import * as findUp from "find-up";
@@ -50,7 +51,7 @@ export class Config {
     private _vault: IConfigVault;
     private _secure: IConfigSecure;
 
-    private constructor() { }
+    private constructor(public opts?: IConfigOpts) { }
 
     public static readonly INDENT: number = 4;
 
@@ -68,10 +69,10 @@ export class Config {
 
         ////////////////////////////////////////////////////////////////////////
         // Create the basic empty configuration
-        const _ = new Config();
+        const _ = new Config(opts);
         (_ as any).config = {};
         _._layers = [];
-        _._home = opts.homeDir || node_path.join(require("os").homedir(), `.${app}`);
+        _._home = opts.homeDir || node_path.join(os.homedir(), `.${app}`);
         _._paths = [];
         _._name = `${app}.config.json`;
         _._user = `${app}.config.user.json`;
@@ -83,7 +84,7 @@ export class Config {
 
         ////////////////////////////////////////////////////////////////////////
         // Populate configuration file layers
-        const home = require("os").homedir();
+        const home = os.homedir();
 
         // Find/create project user layer
         let user = Config.search(_._user, { stop: home, gbl: _._home });
@@ -157,12 +158,7 @@ export class Config {
 
         ////////////////////////////////////////////////////////////////////////
         // load secure fields
-        try {
-            await _.secureLoad();
-        } catch (err) {
-            // Secure vault is optional since we can prompt for values instead
-            Logger.getImperativeLogger().warn(`Secure vault not enabled. Reason: ${err.message}`);
-        }
+        await _.secureLoad();
 
         ////////////////////////////////////////////////////////////////////////
         // Complete
@@ -503,7 +499,8 @@ export class Config {
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
 
-    private async secureLoad() {
+    public async secureLoad(vault?: IConfigVault) {
+        if (vault != null) this._vault = vault;
         if (this._vault == null) return;
 
         // load the secure fields

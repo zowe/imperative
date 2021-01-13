@@ -14,6 +14,7 @@ import { CredentialManagerFactory } from "../../security";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import { isAbsolute, resolve } from "path";
 import { AppSettings } from "../../settings";
+import { ImperativeConfig } from "../../utilities";
 
 /**
  * Imperative-internal class to load overrides
@@ -47,7 +48,7 @@ export class OverridesLoader {
     config: IImperativeConfig,
     packageJson: any
   ): Promise<void> {
-    if (config.overrides.CredentialManager != null) {
+    if (!ImperativeConfig.instance.config.exists) {
       return this.loadCredentialManagerOld(config, packageJson);
     }
 

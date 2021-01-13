@@ -4,7 +4,7 @@ baseUser=$1
 basePass=$2
 
 # First create a base profile
-imperative-test-cli config init --ci --user
+imperative-test-cli config init --prompt false --user
 CMDRC=$?
 if [ $CMDRC -gt 0 ]
 then
@@ -34,7 +34,7 @@ then
 fi
 
 # Next login to fruit auth
-imperative-test-cli auth login fruit
+echo y | imperative-test-cli auth login fruit
 CMDRC=$?
 if [ $CMDRC -gt 0 ]
 then

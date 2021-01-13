@@ -36,17 +36,21 @@ describe("imperative-test-cli config init", () => {
     it("should display the help", () => {
         const response = runCliScript(__dirname + "/../__scripts__/get_help.sh",
             TEST_ENVIRONMENT.workingDir, ["init"]);
-        expect(response.output.toString()).toContain(`Initialize config files. Defaults to initializing`);
-        expect(response.output.toString()).toContain(`"imperative-test-cli.config.json" in the current working directory unless`);
-        expect(response.output.toString()).toContain(`otherwise specified. Use "--user" to init`);
-        expect(response.output.toString()).toContain(`"imperative-test-cli.config.user.json". Use "--global" to initialize the`);
-        expect(response.output.toString()).toContain(`configuration files your home "~/.zowe" directory.`);
+        const expectedLines = [
+            `Initialize config files. Defaults to initializing`,
+            `"imperative-test-cli.config.json" in the current working directory unless`,
+            `otherwise specified.`,
+            `Use "--user" to init "imperative-test-cli.config.user.json". Use "--global" to`,
+            `initialize the configuration files in your home "~/.zowe" directory.`,
+            `Use "--no-prompt" to skip prompting for values in a CI environment.`
+        ];
+        expectedLines.forEach((line: string) => expect(response.output.toString()).toContain(line));
         expect(response.stderr.toString()).toEqual("");
         expect(response.error).not.toBeDefined();
     });
     it("should initialize a project config", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config.sh",
-            TEST_ENVIRONMENT.workingDir, ["--ci"]);
+            TEST_ENVIRONMENT.workingDir, ["--prompt false"]);
         const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json");
         const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.schema.json");
         expect(response.output.toString()).toContain(`Saved config template to`);
@@ -59,7 +63,7 @@ describe("imperative-test-cli config init", () => {
     });
     it("should initialize a user project config", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config.sh",
-            TEST_ENVIRONMENT.workingDir, ["--user --ci"]);
+            TEST_ENVIRONMENT.workingDir, ["--user --prompt false"]);
         const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.user.json");
         const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.schema.json");
         expect(response.output.toString()).toContain(`Saved config template to`);
@@ -71,7 +75,7 @@ describe("imperative-test-cli config init", () => {
     });
     it("should initialize a global config", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config.sh",
-            TEST_ENVIRONMENT.workingDir, ["--global --ci"]);
+            TEST_ENVIRONMENT.workingDir, ["--global --prompt false"]);
         const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.json");
         const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.schema.json");
         expect(response.output.toString()).toContain(`Saved config template to`);
@@ -83,7 +87,7 @@ describe("imperative-test-cli config init", () => {
     });
     it("should initialize a user global config", () => {
         const response = runCliScript(__dirname + "/__scripts__/init_config.sh",
-            TEST_ENVIRONMENT.workingDir, ["--global --user --ci"]);
+            TEST_ENVIRONMENT.workingDir, ["--global --user --prompt false"]);
         const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.user.json");
         const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.schema.json");
         expect(response.output.toString()).toContain(`Saved config template to`);
@@ -143,7 +147,7 @@ describe("imperative-test-cli config init", () => {
     });
     // it("should create a profile of a specified name", () => {
     //     const response = runCliScript(__dirname + "/__scripts__/init_config.sh",
-    //         TEST_ENVIRONMENT.workingDir, ["--profile lpar.service --ci"]);
+    //         TEST_ENVIRONMENT.workingDir, ["--profile lpar.service --prompt false"]);
     //     const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.json");
     //     const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.schema.json");
     //     const expectedConfigObject: IConfig = {

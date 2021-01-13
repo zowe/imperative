@@ -43,9 +43,5 @@ exports[`cmd-cli nested should display both groups and commands in the help 1`] 
 
       Display HTML help in browser
 
-   --lcd  (string)
-
-      Alternate local working directory
-
 "
 `;

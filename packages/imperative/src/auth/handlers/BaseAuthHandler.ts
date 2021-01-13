@@ -18,6 +18,8 @@ import { ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../profiles";
 import { CliUtils, ImperativeConfig } from "../../../../utilities";
 import { Config } from "../../../../config";
+import { CredentialManagerFactory } from "../../../../security";
+import { secureSaveError } from "../../../../config/src/ConfigUtils";
 
 /**
  * This class is used by the auth command handlers as the base class for their implementation.
@@ -120,6 +122,10 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         } else if (!ImperativeConfig.instance.config.exists) {
             // process login for old school profiles
             await this.processLoginOld(params, tokenValue);
+        } else if (!CredentialManagerFactory.initialized) {
+            throw secureSaveError(`Instead of secure storage, rerun this command with the "--show-token" flag to print the token to console. ` +
+                `Store the token in an environment variable ${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_OPT_TOKEN_VALUE to use it ` +
+                `in future commands.`);
         } else {
             // update the profile given
             // TODO Should config be added to IHandlerParameters?
@@ -129,25 +135,20 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             let profileExists = loadedProfile != null && Object.keys(loadedProfile.properties).length > 0;
             const beforeLayer = config.api.layers.get();
 
+            // Check if existing base profile is reusable (does it include user/password?)
+            if (profileExists && (loadedProfile.properties.user != null || loadedProfile.properties.password != null)) {
+                profileName = `${profileName}_${params.positionals[2]}`;
+                profileExists = false;
+            }
+
             // If base profile is null or empty, prompt user before saving token to disk
             if (!profileExists) {
-                if (!(await this.promptForBaseProfile(profileName))) {
+                const ok = await this.promptForBaseProfile(profileName);
+                if (!ok) {
                     this.showToken(params.response, tokenValue);
                     return;
                 }
-            } else {
-                if (loadedProfile.properties.user != null || loadedProfile.properties.password != null) {
-                    profileName = `${profileName}_${params.positionals[2]}`;
-                    profileExists = false;
-                }
 
-                const user = Object.keys(loadedProfile.properties).every((k: string) => loadedProfile.properties[k].user);
-                const global = Object.keys(loadedProfile.properties).some((k: string) => loadedProfile.properties[k].global);
-                config.api.layers.activate(user, global);
-                // TODO Should we warn users that if lpar1.host is set, then base profile won't take effect?
-            }
-
-            if (!profileExists) {
                 config.api.profiles.set(profileName, {
                     type: this.mProfileType,
                     properties: {
@@ -156,6 +157,10 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                     }
                 });
                 config.api.profiles.defaultSet(this.mProfileType, profileName);
+            } else {
+                const user = Object.keys(loadedProfile.properties).every((k: string) => loadedProfile.properties[k].user);
+                const global = Object.keys(loadedProfile.properties).some((k: string) => loadedProfile.properties[k].global);
+                config.api.layers.activate(user, global);
             }
 
             const profilePath = config.api.profiles.expandPath(profileName);

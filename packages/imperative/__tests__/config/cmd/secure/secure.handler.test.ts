@@ -9,14 +9,14 @@
 *
 */
 
-import { CommandResponse, IHandlerParameters } from "../../../../..";
+import { IHandlerParameters } from "../../../../..";
 import { Config } from "../../../../../config/src/Config";
 import { IConfigOpts } from "../../../../../config";
 import { CliUtils, ImperativeConfig } from "../../../../../utilities";
 import { IImperativeConfig } from "../../../../src/doc/IImperativeConfig";
 import { ICredentialManagerInit } from "../../../../../security/src/doc/ICredentialManagerInit";
 import { CredentialManagerFactory } from "../../../../../security";
-import { expectedConfigObject, expectedSchemaObject } from
+import { expectedConfigObject } from
     "../../../../../../__tests__/__integration__/imperative/__tests__/__integration__/cli/config/__resources__/expectedObjects"
 import SecureHandler from "../../../../src/config/cmd/secure/secure.handler";
 import * as config from "../../../../../../__tests__/__integration__/imperative/src/imperative";
@@ -28,7 +28,25 @@ import * as os from "os";
 
 const getIHandlerParametersObject = (): IHandlerParameters => {
     const x: any = {
-        response: new (CommandResponse as any)(),
+        response: {
+            data: {
+                setMessage: jest.fn((setMsgArgs) => {
+                    // Nothing
+                }),
+                setObj: jest.fn((setObjArgs) => {
+                    // Nothing
+                })
+            },
+            console: {
+                log: jest.fn((logs) => {
+                    // Nothing
+                }),
+                error: jest.fn((errors) => {
+                    // Nothing
+                }),
+                errorHeader: jest.fn(() => undefined)
+            }
+        },
         arguments: {},
         };
     return x as IHandlerParameters;
