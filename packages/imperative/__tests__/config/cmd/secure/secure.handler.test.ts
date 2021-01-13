@@ -82,7 +82,6 @@ describe("Configuration Secure command handler", () => {
     let currentWorkingDirectorySpy: any;
     let searchSpy: any;
     let setSchemaSpy: any;
-    let promptWithTimeoutSpy: any;
     let keytarGetPasswordSpy: any;
     let keytarSetPasswordSpy: any;
     let keytarDeletePasswordSpy: any;
@@ -131,7 +130,6 @@ describe("Configuration Secure command handler", () => {
         osHomedirSpy = jest.spyOn(os, "homedir");
         currentWorkingDirectorySpy = jest.spyOn(process, "cwd");
         searchSpy = jest.spyOn(Config, "search");
-        promptWithTimeoutSpy = jest.spyOn(CliUtils, "promptWithTimeout");
         keytarGetPasswordSpy = jest.spyOn(keytar, "getPassword");
         keytarSetPasswordSpy = jest.spyOn(keytar, "setPassword");
         keytarDeletePasswordSpy = jest.spyOn(keytar, "deletePassword");
@@ -440,7 +438,6 @@ describe("Configuration Secure command handler", () => {
                      .mockReturnValue(false); // Only the global user config exists
         writeFileSyncSpy.mockImplementation();
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
-        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
 
         await setupConfigToLoad(); // Setup the config
 
@@ -448,12 +445,12 @@ describe("Configuration Secure command handler", () => {
         searchSpy.mockClear();
         osHomedirSpy.mockClear();
         currentWorkingDirectorySpy.mockClear();
-        promptWithTimeoutSpy.mockClear();
         writeFileSyncSpy.mockClear();
         existsSyncSpy.mockClear();
         readFileSyncSpy.mockClear();
 
-        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
+        const promptWithTimeoutSpy = jest.fn(() => "fakePromptingData");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
 
         await handler.process(params);

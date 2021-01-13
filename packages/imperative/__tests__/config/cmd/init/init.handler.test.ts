@@ -64,7 +64,6 @@ describe("Configuration Initialization command handler", () => {
     let currentWorkingDirectorySpy: any;
     let searchSpy: any;
     let setSchemaSpy: any;
-    let promptWithTimeoutSpy: any;
 
     async function setupConfigToLoad() {
         // Load the ImperativeConfig so init can work properly
@@ -88,7 +87,6 @@ describe("Configuration Initialization command handler", () => {
         osHomedirSpy = jest.spyOn(os, "homedir");
         currentWorkingDirectorySpy = jest.spyOn(process, "cwd");
         searchSpy = jest.spyOn(Config, "search");
-        promptWithTimeoutSpy = jest.spyOn(CliUtils, "promptWithTimeout");
     });
 
     afterAll( () => {
