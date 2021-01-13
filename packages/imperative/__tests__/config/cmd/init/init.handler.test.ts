@@ -115,7 +115,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -132,7 +133,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
@@ -163,7 +164,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -206,7 +208,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -223,7 +226,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
@@ -254,7 +257,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -297,7 +301,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -340,7 +345,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -383,7 +389,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -426,7 +433,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -469,7 +477,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("true"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "true");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -486,7 +495,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
@@ -517,7 +526,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("false"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "false");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -534,7 +544,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
@@ -567,7 +577,8 @@ describe("Configuration Initialization command handler", () => {
         // initWithSchema
         const randomValueString = "9001";
         const randomValueNumber = parseInt(randomValueString, 10);
-        promptWithTimeoutSpy.mockReturnValue(randomValueString); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => randomValueString);
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -584,7 +595,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
@@ -592,7 +603,7 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
-        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(randomValue);
+        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(randomValueNumber);
     });
 
     it("should attempt to initialize the project configuration and handle getting nothing from the prompt", async () => {
@@ -615,7 +626,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue(undefined); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => undefined);
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -632,7 +644,7 @@ describe("Configuration Initialization command handler", () => {
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, undefined);
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
@@ -663,7 +675,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue(undefined); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => undefined);
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
         jest.spyOn(CredentialManagerFactory, "initialized", "get").mockReturnValue(false);
 

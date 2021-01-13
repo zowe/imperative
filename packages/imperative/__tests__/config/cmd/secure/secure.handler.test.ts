@@ -164,7 +164,6 @@ describe("Configuration Secure command handler", () => {
         existsSyncSpy.mockReturnValueOnce(false).mockReturnValueOnce(true).mockReturnValue(false); // Only the project config exists
         writeFileSyncSpy.mockImplementation();
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
-        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
 
         await setupConfigToLoad(); // Setup the config
 
@@ -172,12 +171,12 @@ describe("Configuration Secure command handler", () => {
         searchSpy.mockClear();
         osHomedirSpy.mockClear();
         currentWorkingDirectorySpy.mockClear();
-        promptWithTimeoutSpy.mockClear();
         writeFileSyncSpy.mockClear();
         existsSyncSpy.mockClear();
         readFileSyncSpy.mockClear();
 
-        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
+        const promptWithTimeoutSpy = jest.fn(() => "fakePromptingData");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
 
         await handler.process(params);
@@ -233,7 +232,6 @@ describe("Configuration Secure command handler", () => {
         existsSyncSpy.mockReturnValueOnce(true).mockReturnValue(false); // Only the user config exists
         writeFileSyncSpy.mockImplementation();
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
-        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
 
         await setupConfigToLoad(); // Setup the config
 
@@ -241,12 +239,12 @@ describe("Configuration Secure command handler", () => {
         searchSpy.mockClear();
         osHomedirSpy.mockClear();
         currentWorkingDirectorySpy.mockClear();
-        promptWithTimeoutSpy.mockClear();
         writeFileSyncSpy.mockClear();
         existsSyncSpy.mockClear();
         readFileSyncSpy.mockClear();
 
-        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
+        const promptWithTimeoutSpy = jest.fn(() => "fakePromptingData");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
 
         await handler.process(params);
@@ -303,7 +301,6 @@ describe("Configuration Secure command handler", () => {
                      .mockReturnValueOnce(true).mockReturnValue(false); // Only the global project config exists
         writeFileSyncSpy.mockImplementation();
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
-        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
 
         await setupConfigToLoad(); // Setup the config
 
@@ -311,12 +308,12 @@ describe("Configuration Secure command handler", () => {
         searchSpy.mockClear();
         osHomedirSpy.mockClear();
         currentWorkingDirectorySpy.mockClear();
-        promptWithTimeoutSpy.mockClear();
         writeFileSyncSpy.mockClear();
         existsSyncSpy.mockClear();
         readFileSyncSpy.mockClear();
 
-        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
+        const promptWithTimeoutSpy = jest.fn(() => "fakePromptingData");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
 
         await handler.process(params);
@@ -373,7 +370,6 @@ describe("Configuration Secure command handler", () => {
                      .mockReturnValue(false); // Only the global user config exists
         writeFileSyncSpy.mockImplementation();
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
-        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
 
         await setupConfigToLoad(); // Setup the config
 
@@ -381,12 +377,13 @@ describe("Configuration Secure command handler", () => {
         searchSpy.mockClear();
         osHomedirSpy.mockClear();
         currentWorkingDirectorySpy.mockClear();
-        promptWithTimeoutSpy.mockClear();
         writeFileSyncSpy.mockClear();
         existsSyncSpy.mockClear();
         readFileSyncSpy.mockClear();
 
-        promptWithTimeoutSpy.mockReturnValue("fakePromptingData"); // Any secure data saved will appear to be fakePromptingData
+        const promptWithTimeoutSpy = jest.fn(() => "fakePromptingData");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
+
         setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
 
         await handler.process(params);
