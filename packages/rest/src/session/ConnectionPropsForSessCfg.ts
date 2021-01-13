@@ -94,7 +94,6 @@ export class ConnectionPropsForSessCfg {
         initialSessCfg: T,
         cmdArgs: ICommandArguments,
         options: IOptionsForAddConnProps = {},
-        parms?: IHandlerParameters
     ): Promise<T> {
         const impLogger = Logger.getImperativeLogger();
 
@@ -192,7 +191,7 @@ export class ConnectionPropsForSessCfg {
                 let answer = "";
                 while (answer === "") {
                     answer = await this.clientPrompt("Enter the host name of your service: ", {
-                        parms
+                        parms: optsToUse.parms
                     });
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for host name."});
@@ -205,7 +204,7 @@ export class ConnectionPropsForSessCfg {
                 let answer: any;
                 while (answer === undefined) {
                     answer = await this.clientPrompt("Enter the port number for your service: ", {
-                        parms
+                        parms: optsToUse.parms
                     });
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for port number."});
@@ -245,7 +244,7 @@ export class ConnectionPropsForSessCfg {
                 let answer = "";
                 while (answer === "") {
                     answer = await this.clientPrompt("Enter user name: ", {
-                        parms
+                        parms: optsToUse.parms
                     });
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for user name."});
@@ -260,7 +259,7 @@ export class ConnectionPropsForSessCfg {
 
                     answer = await this.clientPrompt("Enter password : ", {
                         hideText: true,
-                        parms
+                        parms: optsToUse.parms
                     });
 
                     if (answer === null) {

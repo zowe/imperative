@@ -103,8 +103,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         );
         const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             sessCfg, params.arguments,
-            { requestToken: true, defaultTokenType: this.mDefaultTokenType },
-            params
+            { requestToken: true, defaultTokenType: this.mDefaultTokenType, parms: params },
         );
 
         this.mSession = new Session(sessCfgWithCreds);
@@ -227,8 +226,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
 
         const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             sessCfg, params.arguments,
-            { requestToken: false },
-            params
+            { requestToken: false, parms: params },
         );
 
         this.mSession = new Session(sessCfgWithCreds);

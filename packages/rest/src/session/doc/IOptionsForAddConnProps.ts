@@ -10,6 +10,7 @@
 */
 
 import { SessConstants } from "../../..";
+import { IHandlerParameters } from "../../../../cmd";
 
 /**
  * Interface for options supplied to ConnectionPropsForSessCfg.addPropsOrPrompt()
@@ -53,4 +54,12 @@ export interface IOptionsForAddConnProps {
      *      );
      */
     getValuesBack? (properties: string[]): { [key: string]: any };
+
+    /**
+     * Specifies full command paramter object if running in a CLI environment (versus) as
+     * a Node.js SDK
+     * @type {IHandlerParameters}
+     * @memberof IOptionsForAddConnProps
+     */
+    parms?: IHandlerParameters
 }
