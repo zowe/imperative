@@ -24,23 +24,29 @@ export default class ListProfilesHandler implements ICommandHandler {
      * @return {Promise<ICommandResponse>}: The promise to fulfill when complete.
      */
     public async process(params: IHandlerParameters): Promise<void> {
-        const profileType: string = params.definition.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY];
         let profileManager: CliProfileManager;
-        let defaultName: string;
-        let loadResults: IProfileLoaded[];
-        try {
-            // Extract the profile type, profile manager, and the default profile
-            profileManager = Imperative.api.profileManager(profileType);
-            defaultName = profileManager.getDefaultProfileName();
 
-            // Load all profiles for the type contained in the manager
-            loadResults = await profileManager.loadAll({noSecure: true, typeOnly: true});
+        // Extract the profile type
+        const profileType: string = params.definition.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY];
+
+        try {
+            // Extract the profile manager
+            profileManager = Imperative.api.profileManager(profileType);
         } catch (error) {
-            const err: string = `Error occurred while listing profiles for ` +
-                `${profileType}.\n${error.message}`;
-            params.response.console.error(err);
+            // profileIO error is thrown when calling old profile functions in team config mode.
+            params.response.console.error(
+                "An error occurred trying to list profiles.\n" + error.message
+            );
             return;
         }
+
+        // Extract the default profile
+        const defaultName: string = profileManager.getDefaultProfileName();
+
+        // Load all profiles for the type contained in the manager
+        const loadResults: IProfileLoaded[] = await profileManager.loadAll(
+            {noSecure: true, typeOnly: true}
+        );
 
         // Set the data object
         params.response.data.setMessage(`"${loadResults.length}" profiles loaded for type "${profileType}"`);
