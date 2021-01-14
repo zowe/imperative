@@ -24,14 +24,23 @@ export default class ListProfilesHandler implements ICommandHandler {
      * @return {Promise<ICommandResponse>}: The promise to fulfill when complete.
      */
     public async process(params: IHandlerParameters): Promise<void> {
-
-        // Extract the profile type, profile manager, and the default profile
         const profileType: string = params.definition.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY];
-        const profileManager: CliProfileManager = Imperative.api.profileManager(profileType);
-        const defaultName = profileManager.getDefaultProfileName();
+        let profileManager: CliProfileManager;
+        let defaultName: string;
+        let loadResults: IProfileLoaded[];
+        try {
+            // Extract the profile type, profile manager, and the default profile
+            profileManager = Imperative.api.profileManager(profileType);
+            defaultName = profileManager.getDefaultProfileName();
 
-        // Load all profiles for the type contained in the manager
-        const loadResults: IProfileLoaded[] = await profileManager.loadAll({noSecure: true, typeOnly: true});
+            // Load all profiles for the type contained in the manager
+            loadResults = await profileManager.loadAll({noSecure: true, typeOnly: true});
+        } catch (error) {
+            const err: string = `Error occurred while listing profiles for ` +
+                `${profileType}.\n${error.message}`;
+            params.response.console.error(err);
+            return;
+        }
 
         // Set the data object
         params.response.data.setMessage(`"${loadResults.length}" profiles loaded for type "${profileType}"`);
