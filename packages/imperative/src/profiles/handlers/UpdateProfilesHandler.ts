@@ -11,9 +11,8 @@
 
 import { overroteProfileMessage, profileUpdatedSuccessfullyAndPath, profileReviewMessage } from "../../../../messages";
 import { Imperative } from "../../Imperative";
-import { ProfilesConstants } from "../../../../profiles";
+import { IProfileUpdated, ProfilesConstants } from "../../../../profiles";
 import { ICommandHandler, IHandlerParameters } from "../../../../cmd";
-import { IProfileUpdated } from "../../../../profiles";
 import { Constants } from "../../../../constants";
 import { TextUtils } from "../../../../utilities";
 
