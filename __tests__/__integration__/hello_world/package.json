@@ -67,7 +67,7 @@
     "@types/progress": "^2.0.3",
     "@types/stack-trace": "^0.0.29",
     "@types/tmp": "^0.0.33",
-    "keytar": "^5.0.0",
+    "keytar": "^7.1.0",
     "clear-require": "^2.0.0",
     "codepage": "^1.12.2",
     "cowsay": "^1.2.1",
