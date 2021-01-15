@@ -11,7 +11,7 @@
 
 import { format, isNullOrUndefined } from "util";
 import { AbstractHelpGenerator } from "./abstract/AbstractHelpGenerator";
-import { TextUtils } from "../../../utilities";
+import { ImperativeConfig, TextUtils } from "../../../utilities";
 import { Constants } from "../../../constants";
 import { CommandUtils } from "../utils/CommandUtils";
 import { ImperativeError } from "../../../error";
@@ -351,9 +351,12 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
 
         // we place the deprecated message in the DESCRIPTION help section
         if (this.mCommandDefinition.deprecatedReplacement) {
+            // remove any path information to the team config file for use in our help
+            const justFileNm = ImperativeConfig.instance.config.formMainConfigPathNm({addPath: false});
+            let noPathInText = this.mCommandDefinition.deprecatedReplacement.replace("\n", " ");
+            noPathInText = noPathInText.replace(/[^ ]*\.json/, justFileNm);
             description += "\n\nWarning: This " + this.mCommandDefinition.type +
-                " has been deprecated.\nRecommended replacement: " +
-                this.mCommandDefinition.deprecatedReplacement
+                " has been deprecated.\nRecommended replacement: " + noPathInText
         }
         if (this.mProduceMarkdown) {
             description = description.replace(/([\*\#\-\`\_\[\]\+\.\!])/g, "\\$1");  // escape Markdown special characters

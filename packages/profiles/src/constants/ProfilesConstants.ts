@@ -17,6 +17,6 @@ export class ProfilesConstants {
     public static readonly PROFILES_OPTION_SECURELY_STORED = "managed by";
     public static readonly DEPRECATE_TO_CONFIG_INIT = "Zowe V2 configuration (see 'config init')";
     public static readonly DEPRECATE_TO_CONFIG_LIST = "Zowe V2 configuration (see 'config list')";
-    public static readonly DEPRECATE_TO_CONFIG_EDIT = "Edit your Zowe V2 configuration (zowe.config.json)";
+    public static readonly DEPRECATE_TO_CONFIG_EDIT = "Edit your Zowe V2 configuration";
     public static readonly DEPRECATE_TO_CONFIG_SET = "Zowe V2 configuration (see 'config set')";
 }

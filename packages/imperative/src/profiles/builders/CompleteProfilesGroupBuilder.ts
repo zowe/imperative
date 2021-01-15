@@ -28,6 +28,7 @@ import { ProfilesSetCommandBuilder } from "./ProfilesSetCommandBuilder";
 import { Logger } from "../../../../logger/index";
 import { isNullOrUndefined } from "util";
 import { IProfileTypeConfiguration, ProfilesConstants } from "../../../../profiles";
+import { ImperativeConfig } from "../../../../utilities";
 
 /**
  * Generate a complete group of commands for maintaining configuration profiles
@@ -68,7 +69,8 @@ export class CompleteProfilesGroupBuilder {
             summary: deleteProfilesCommandSummary.message,
             aliases: ["rm"],
             type: "group",
-            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_EDIT,
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_EDIT + " " +
+                ImperativeConfig.instance.config.formMainConfigPathNm({addPath: false}),
             children: [],
         };
 
@@ -98,7 +100,8 @@ export class CompleteProfilesGroupBuilder {
             summary: validateProfileCommandSummary.message,
             aliases: ["val"],
             type: "group",
-            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_EDIT,
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_EDIT + " " +
+                ImperativeConfig.instance.config.formMainConfigPathNm({addPath: false}),
             children: [],
         };
 

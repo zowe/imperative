@@ -24,7 +24,6 @@ import { IConfigProfile } from "./doc/IConfigProfile";
 import { IConfigOpts } from "./doc/IConfigOpts";
 import { IConfigSecure, IConfigSecureProperties } from "./doc/IConfigSecure";
 import { IConfigVault } from "./doc/IConfigVault";
-import { Logger } from "../../logger";
 import { IConfigLoadedProfile, IConfigLoadedProperty } from "./doc/IConfigLoadedProfile";
 
 enum layers {
@@ -36,6 +35,8 @@ enum layers {
 
 export class Config {
     private static readonly SECURE_ACCT = "secure_config_props";
+    private static readonly END_OF_TEAM_CONFIG = ".config.json";
+    private static readonly END_OF_USER_CONFIG = ".config.user.json";
 
     private _app: string;
     private _paths: string[];
@@ -74,8 +75,8 @@ export class Config {
         _._layers = [];
         _._home = opts.homeDir || node_path.join(os.homedir(), `.${app}`);
         _._paths = [];
-        _._name = `${app}.config.json`;
-        _._user = `${app}.config.user.json`;
+        _._name = app + Config.END_OF_TEAM_CONFIG;
+        _._user = app + Config.END_OF_USER_CONFIG;
         _._schema = `${app}.schema.json`;
         _._active = { user: false, global: false };
         _._app = app;
@@ -634,6 +635,37 @@ export class Config {
             return fs.existsSync(node_path.join(directory, file)) && directory;
         }, { type: "directory" });
         return p ? node_path.join(p, file) : null;
+    }
+
+    /**
+     * Form the path name of the team config file to display in messages.
+     * Always return the team name (not the user name).
+     * If the a team configuration is active, return the full path to the
+     * config file.
+     *
+     * @param opts - a map containing option properties. Currently, the only
+     *               property supported is a boolean named addPath.
+     *               {addPath: true | false}
+     *
+     * @returns The path (if requested) and file name of the team config file.
+     */
+    public formMainConfigPathNm(options: any): string {
+        // if a team configuration is not active, just return the file name.
+        let configPathNm: string = this.app + Config.END_OF_TEAM_CONFIG;
+        if (options.addPath === false) {
+            // if our caller does not want the path, just return the file name.
+            return configPathNm;
+        }
+
+        if (this.exists){
+            // form the full path to the team config file
+            configPathNm = this.api.layers.get().path;
+
+            // this.api.layers.get() returns zowe.config.user.json when both exit.
+            // Ensure that we use zowe.config.json, not zowe.config.user.json.
+            configPathNm = configPathNm.replace(Config.END_OF_USER_CONFIG, Config.END_OF_TEAM_CONFIG);
+        }
+        return configPathNm;
     }
 
     private static buildProfile(path: string, profiles: { [key: string]: IConfigProfile }): { [key: string]: string } {
