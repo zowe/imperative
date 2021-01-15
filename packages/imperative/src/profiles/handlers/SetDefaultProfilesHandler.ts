@@ -36,7 +36,7 @@ export default class SetDefaultProfilesHandler implements ICommandHandler {
                     `${profileSpecified}`);
             } catch (error) {
                 const err: string = `Error occurred while setting default profile for ` +
-                    `${profileType}: ${error.message}`;
+                    `${profileType}.\n${error.message}`;
                 commandParameters.response.console.error(err);
                 invoked = true;
                 commandRejected();
