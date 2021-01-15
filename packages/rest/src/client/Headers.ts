@@ -14,6 +14,8 @@ import { IHeaderContent } from "./doc/IHeaderContent";
 export class Headers {
     public static readonly CONTENT_TYPE: string = "Content-Type";
     public static readonly CONTENT_LENGTH: string = "Content-Length";
+    public static readonly CONTENT_ENCODING: string = "Content-Encoding";
+    public static readonly CONTENT_ENCODING_TYPES = ["br", "deflate", "gzip"] as const;
     public static readonly APPLICATION_JSON: IHeaderContent = {"Content-Type": "application/json"};
     public static readonly TEXT_PLAIN: IHeaderContent = {"Content-Type": "text/plain"};
     public static readonly TEXT_PLAIN_UTF8: object = {"Content-Type": "text/plain; charset=utf8"};
@@ -21,3 +23,5 @@ export class Headers {
     public static readonly BASIC_AUTHORIZATION: object = {Authorization: ""};
     public static readonly COOKIE_AUTHORIZATION: object = {Cookie: ""};
 }
+
+export type ContentEncodingType = typeof Headers.CONTENT_ENCODING_TYPES[number];

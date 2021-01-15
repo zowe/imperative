@@ -15,7 +15,7 @@ import { IImperativeError } from "../../../error";
 import { AbstractSession } from "../session/AbstractSession";
 import * as https from "https";
 import * as http from "http";
-import { Headers } from "./Headers";
+import { ContentEncodingType, Headers } from "./Headers";
 import { RestConstants } from "./RestConstants";
 import { ImperativeReject } from "../../../interfaces";
 import { IHTTPSOptions } from "./doc/IHTTPSOptions";
@@ -32,6 +32,7 @@ import { ITaskWithStatus, TaskProgress, TaskStage } from "../../../operations";
 import { TextUtils } from "../../../utilities";
 import { IRestOptions } from "./doc/IRestOptions";
 import * as SessConstants from "../session/SessConstants";
+import { CompressionUtils } from "./CompressionUtils";
 
 export type RestClientResolve = (data: string) => void;
 
@@ -92,6 +93,16 @@ export abstract class AbstractRestClient {
      * @memberof AbstractRestClient
      */
     protected mContentLength: number;
+
+    /**
+     * If we get a response containing a Content-Encoding header,
+     * and it matches an encoding type that we recognize,
+     * it is saved here
+     * @private
+     * @type {ContentEncodingType}
+     * @memberof AbstractRestClient
+     */
+    protected mContentEncoding: ContentEncodingType;
 
     /**
      * Indicates if payload data is JSON to be stringified before writing
@@ -489,6 +500,7 @@ export abstract class AbstractRestClient {
      */
     private requestHandler(res: any) {
         this.mResponse = res;
+        this.mContentEncoding = null;
 
         if (this.requestSuccess) {
             if (this.session.ISession.type === SessConstants.AUTH_TYPE_TOKEN) {
@@ -505,10 +517,27 @@ export abstract class AbstractRestClient {
                     this.mContentLength = this.response.headers[Headers.CONTENT_LENGTH.toLowerCase()];
                     this.log.debug("Content length of response is: " + this.mContentLength);
                 }
+
+                let encoding: string;
+                if (Headers.CONTENT_ENCODING in this.response.headers) {
+                    encoding = this.response.headers[Headers.CONTENT_ENCODING];
+                }
+                if (Headers.CONTENT_ENCODING.toLowerCase() in this.response.headers) {
+                    encoding = this.response.headers[Headers.CONTENT_ENCODING.toLowerCase()];
+                }
+                if (typeof encoding === "string" && Headers.CONTENT_ENCODING_TYPES.find((x) => x === encoding)) {
+                    this.mContentEncoding = encoding as ContentEncodingType;
+                    this.log.debug("Content encoding of response is: " + this.mContentEncoding);
+                }
             }
         }
 
         if (this.mResponseStream != null) {
+            if (this.mContentEncoding != null) {
+                this.log.debug("Adding decompression transform to response stream");
+                this.mResponseStream = CompressionUtils.decompressStream(this.mResponseStream, this.mContentEncoding);
+                // TODO Better error handling, need to call mReject here?
+            }
             this.mResponseStream.on("error", (streamError: any) => {
                 this.mReject(this.populateError({
                     msg: "Error writing to responseStream",
@@ -592,6 +621,10 @@ export abstract class AbstractRestClient {
         if (this.mResponseStream != null) {
             this.log.debug("Ending response stream");
             this.mResponseStream.end();
+        } else if (this.mContentEncoding != null) {
+            this.log.debug("Decompressing encoded response");
+            this.mData = CompressionUtils.decompressBuffer(this.mData, this.mContentEncoding);
+            // TODO Better error handling, need to call mReject here?
         }
         if (this.requestFailure) {
             // Reject the promise with an error
