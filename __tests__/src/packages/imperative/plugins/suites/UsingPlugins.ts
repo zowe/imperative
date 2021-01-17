@@ -128,14 +128,14 @@ describe("Using a Plugin", () => {
 
         cmd = "profiles create foo myFooProfile --duration 5";
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toBe("");
+        expect(result.stderr).toContain("command 'profiles create' is deprecated");
         expect(result.stdout).toContain("Profile created successfully!");
         expect(result.stdout.replace(/\s+/g, " ")).toContain("size: small");
         expect(result.stdout.replace(/\s+/g, " ")).toContain("duration: 5");
 
         cmd = "profiles validate foo-profile";
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toBe("");
+        expect(result.stderr).toContain("command 'profiles validate' is deprecated");
         expect(result.stdout).toContain("Check the size of the Foo");
         expect(result.stdout).toContain("Repair in time");
         expect(result.stdout).toContain("Of 2 tests, 2 succeeded, 0 failed, and 0 had warnings or undetermined results.");
