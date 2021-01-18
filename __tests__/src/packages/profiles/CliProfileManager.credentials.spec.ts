@@ -81,7 +81,7 @@ describe("Cli Profile Manager", () => {
          `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
 
-        expect(result.stderr).toEqual("");
+        expect(result.stderr).toContain("command 'profiles create' is deprecated");
         expect(result.stdout).toContain("Profile created successfully!");
         cmd = `display-profile`;
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
@@ -98,13 +98,13 @@ describe("Cli Profile Manager", () => {
         let cmd = `profiles create ${testProfileName}-profile ${profileName} --username ${username} ` +
           `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toEqual("");
+        expect(result.stderr).toContain("command 'profiles create' is deprecated");
         expect(result.stdout).toContain("Profile created successfully!");
 
         cmd = `profiles create ${testProfileName}-profile ${profileName} --username ${username} ` +
           `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured} --ow`;
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toEqual("");
+        expect(result.stderr).toContain("command 'profiles create' is deprecated");
         expect(result.stdout).toContain("Overwrote existing profile");
         expect(result.stdout).toContain("Profile created successfully!");
       });
@@ -115,12 +115,12 @@ describe("Cli Profile Manager", () => {
         let cmd = `profiles create ${testProfileName}-profile ${profileName} --username ${username} ` +
           `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toEqual("");
+        expect(result.stderr).toContain("command 'profiles create' is deprecated");
         expect(result.stdout).toContain("Profile created successfully!");
 
         cmd = `profiles update ${testProfileName}-profile ${profileName} --username ${newName} --password ${newPass}`;
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toEqual("");
+        expect(result.stderr).toContain("command 'profiles update' is deprecated");
         expect(result.stdout).toContain("Overwrote existing profile");
         expect(result.stdout).toContain("Profile updated successfully!");
 
@@ -139,12 +139,12 @@ describe("Cli Profile Manager", () => {
         let cmd = `profiles create ${testProfileName}-profile ${profileName} --username ${username} ` +
           `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toEqual("");
+        expect(result.stderr).toContain("command 'profiles create' is deprecated");
         expect(result.stdout).toContain("Profile created successfully!");
 
         cmd = `profiles delete ${testProfileName}-profile ${profileName}`;
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toEqual("");
+        expect(result.stderr).toContain("command 'profiles delete' is deprecated");
         expect(result.stdout).toContain("successfully deleted");
       });
 
@@ -153,7 +153,7 @@ describe("Cli Profile Manager", () => {
           `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
 
-        expect(result.stderr).toEqual("");
+        expect(result.stderr).toContain("command 'profiles create' is deprecated");
         expect(result.stdout).toContain("Profile created successfully!");
 
         // profiles upd username-password username-password --password pass
@@ -166,7 +166,7 @@ describe("Cli Profile Manager", () => {
         cmd = `profiles delete ${testProfileName}-profile ${profileName}`;
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
 
-        expect(result.stderr).toEqual("");
+        expect(result.stderr).toContain("command 'profiles delete' is deprecated");
         expect(T.stripNewLines(result.stdout)).toContain("successfully deleted");
         expect(result.stdout).toMatchSnapshot();
       });
@@ -186,7 +186,7 @@ describe("Cli Profile Manager", () => {
           `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
 
-        expect(result.stderr).toEqual("");
+        expect(result.stderr).toContain("command 'profiles create' is deprecated");
         expect(result.stdout).toContain("Profile created successfully!");
 
         // Now change the name of the profile so that we can break it
@@ -204,7 +204,7 @@ describe("Cli Profile Manager", () => {
         cmd = `profiles delete ${testProfileName}-profile ${createdName}`;
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
 
-        expect(result.stderr).toEqual("");
+        expect(result.stderr).toContain("command 'profiles delete' is deprecated");
         expect(T.stripNewLines(result.stdout)).toContain("successfully deleted");
         expect(result.stdout).toMatchSnapshot();
       });
@@ -214,7 +214,7 @@ describe("Cli Profile Manager", () => {
           `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
 
-        expect(result.stderr).toEqual("");
+        expect(result.stderr).toContain("command 'profiles create' is deprecated");
         expect(result.stdout).toContain("Profile created successfully!");
 
         // Now change the name of the profile so that we can break it
@@ -232,7 +232,7 @@ describe("Cli Profile Manager", () => {
         cmd = `profiles delete ${testProfileName}-profile ${createdName}`;
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
 
-        expect(result.stderr).toEqual("");
+        expect(result.stderr).toContain("command 'profiles delete' is deprecated");
         expect(T.stripNewLines(result.stdout)).toContain("successfully deleted");
         expect(result.stdout).toMatchSnapshot();
       });
@@ -271,7 +271,7 @@ describe("Cli Profile Manager", () => {
         let cmd = `profiles create ${testProfileName}-profile ${profileName} --username ${username} ` +
           `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toEqual("");
+        expect(result.stderr).toContain("command 'profiles create' is deprecated");
         expect(result.stdout).toContain("Profile created successfully!");
 
         renameKeyTar();
@@ -286,7 +286,7 @@ describe("Cli Profile Manager", () => {
         let cmd = `profiles create ${testProfileName}-profile ${profileName} --username ${username} ` +
           `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toEqual("");
+        expect(result.stderr).toContain("command 'profiles create' is deprecated");
         expect(result.stdout).toContain("Profile created successfully!");
 
         renameKeyTar();
@@ -325,7 +325,7 @@ describe("Cli Profile Manager", () => {
 
       let cmd = `profiles create ${testProfileName}-profile ${profileName} --username ${username} --password ${password}`;
       let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-      expect(result.stderr).toEqual("");
+      expect(result.stderr).toContain("command 'profiles create' is deprecated");
       expect(result.stdout).toContain("Profile created successfully!");
 
       cmd = `display-profile`;
@@ -352,7 +352,7 @@ describe("Cli Profile Manager", () => {
 
       let cmd = `profiles create ${testProfileName}-profile ${profileName} --username ${username} --password ${password}`;
       let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-      expect(result.stderr).toEqual("");
+      expect(result.stderr).toContain("command 'profiles create' is deprecated");
       expect(result.stdout).toContain("Profile created successfully!");
 
       cmd = `display-profile`;
