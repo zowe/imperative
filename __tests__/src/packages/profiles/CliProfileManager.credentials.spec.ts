@@ -196,7 +196,8 @@ describe("Cli Profile Manager", () => {
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
 
         expect(T.stripNewLines(result.stderr)).toContain(`Profile \"${createdName}\" of type \"${testProfileName}\" does not exist.`);
-        expect(result.stderr).toMatchSnapshot();
+        expect(result.stderr).toContain("Profile \"profile-name\" of type \"username-password\" does not exist");
+        expect(result.stderr).toContain("The command 'profiles delete' is deprecated");
 
         // Now put it back for cleanup
         fs.renameSync(changedPath, createdPath);
@@ -206,7 +207,6 @@ describe("Cli Profile Manager", () => {
 
         expect(result.stderr).toContain("command 'profiles delete' is deprecated");
         expect(T.stripNewLines(result.stdout)).toContain("successfully deleted");
-        expect(result.stdout).toMatchSnapshot();
       });
 
       it("should fail if the Credential Manager is unable to retrieve a password", () => {
