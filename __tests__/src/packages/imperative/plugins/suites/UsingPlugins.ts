@@ -270,7 +270,7 @@ describe("Using a Plugin", () => {
         // Create a zosmf profile. That will trigger the CredMgr.
         cmd = "profiles create secure-pass-profile TestProfileName --password 'AnyPass' --overwrite";
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toBe("");
+        expect(result.stderr).toContain("command 'profiles create' is deprecated");
         expect(result.stdout).toContain("CredentialManager in sample-plugin is saving these creds:");
         expect(result.stdout).toContain("password: managed by override-plugin");
 
