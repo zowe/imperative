@@ -18,6 +18,7 @@ import { inspect } from "util";
 import { TestLogger } from "../../../../__tests__/TestLogger";
 import { IO } from "../../../io";
 import { OUTPUT_FORMAT } from "../..";
+import { CliUtils, DaemonUtils } from "../../../utilities";
 
 const EXAMPLE_LIST = [
     "banana",
@@ -312,6 +313,86 @@ describe("Command Response", () => {
         response.failed();
         response.succeeded();
         expect(response.buildJsonResponse()).toMatchSnapshot();
+    });
+
+    it("should prompt for input when in daemon mode and give a parsed result", async () => {
+
+        // this will be the response to the prompt
+        const responseMessage = "daemon response";
+
+        // construct the response in a proper protocol header (see DaemonUtils.ts)
+        const headerResponseMessage = DaemonUtils.X_ZOWE_DAEMON_REPLY + responseMessage;
+
+        // simulate a .on(data...) method
+        const stream = jest.fn((event: string, func: (data: any) => void) => {
+            func(Buffer.from(headerResponseMessage));
+        });
+
+        // ignore writestream, we just make sure that it's called, it will send a request our
+        // simulated daemon client asking for a response.
+        const writeStream = jest.fn((data) => {
+            // do nothing
+        });
+
+        // we remove a listener after we add one
+        const removeListener = jest.fn((event: string, func: (data: any) => void) => {
+            // do nothing
+        });
+
+        // build our pseudo socket object
+        const socket: any = {on: stream, write: writeStream, removeListener};
+
+        // create response object
+        const response = new CommandResponse({stream: socket});
+
+        // method to simulate writing
+        const write = jest.fn((data) => {
+            // do nothing
+        });
+        process.stdout.write = write;
+
+        // prompt the daemon client
+        const msg: string = "please give me a message";
+        const answer = await response.console.prompt(msg);
+
+        // restore
+        process.stdout.write = ORIGINAL_STDOUT_WRITE;
+
+        expect(write).not.toHaveBeenCalled();
+        expect(writeStream).toHaveBeenCalled();
+        expect(removeListener).toHaveBeenCalled();
+        expect(answer).toBe(responseMessage);
+    });
+
+    it("should prompt when not in daemon mode and give a parsed result", async () => {
+
+        // this will be the response to the prompt
+        const responseMessage = "normal response";
+
+        const response = new CommandResponse();
+
+        // method to simulate writing
+        const write = jest.fn((data) => {
+            // do nothing
+        });
+        process.stdout.write = write;
+
+        const normalPrompt = jest.fn((test, hide, wait) => {
+            return new Promise<string>((resolve) => {
+                resolve(responseMessage);
+            });
+        });
+
+        (CliUtils as any).promptWithTimeout = normalPrompt;
+
+        // prompt the user
+        const msg: string = "please give me a message";
+        const answer = await response.console.prompt(msg);
+
+        // restore
+        process.stdout.write = ORIGINAL_STDOUT_WRITE;
+
+        expect(normalPrompt).toHaveBeenCalled();
     });
 
     it("should write to stdout (with newline) and buffer to the response object", () => {

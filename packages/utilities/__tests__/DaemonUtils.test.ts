@@ -28,6 +28,20 @@ describe("DaemonUtils tests", () => {
         expect(daemonHeader).toMatchSnapshot();
     });
 
+    it("should build a header for prompting secure values", () => {
+        const daemonHeader = DaemonUtils.buildHeader({
+            prompt: DaemonUtils.X_ZOWE_DAEMON_PROMPT_SECURE
+        });
+        expect(daemonHeader).toMatchSnapshot();
+    });
+
+    it("should build a header for prompting insecure values", () => {
+        const daemonHeader = DaemonUtils.buildHeader({
+            prompt: DaemonUtils.X_ZOWE_DAEMON_PROMPT_UNSECURE
+        });
+        expect(daemonHeader).toMatchSnapshot();
+    });
+
     it("should build a default header response with explicit values that are different than defaults", () => {
         const daemonHeader = DaemonUtils.buildHeader({
             exitCode: 1,
