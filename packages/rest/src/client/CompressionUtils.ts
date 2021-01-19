@@ -34,7 +34,7 @@ export class CompressionUtils {
             }
         } catch (err) {
             throw new ImperativeError({
-                msg: `Failed to decompress response with content encoding type ${encoding}`,
+                msg: `Failed to decompress response buffer with content encoding type ${encoding}`,
                 causeErrors: err
             });
         }
@@ -53,17 +53,17 @@ export class CompressionUtils {
         }
 
         const multipipe = require("multipipe");
-        try {
-            switch (encoding) {
-                case "br":      return multipipe(zlib.createBrotliDecompress(), stream);
-                case "deflate": return multipipe(zlib.createInflate(), stream);
-                case "gzip":    return multipipe(zlib.createGunzip(), stream);
-            }
-        } catch (err) {
+        const onError = (err: any) => {
             throw new ImperativeError({
-                msg: `Failed to decompress response with content encoding type ${encoding}`,
+                msg: `Failed to decompress response stream with content encoding type ${encoding}`,
                 causeErrors: err
             });
+        };
+
+        switch (encoding) {
+            case "br":      return multipipe(zlib.createBrotliDecompress(), stream, onError);
+            case "deflate": return multipipe(zlib.createInflate(), stream, onError);
+            case "gzip":    return multipipe(zlib.createGunzip(), stream, onError);
         }
     }
 }
