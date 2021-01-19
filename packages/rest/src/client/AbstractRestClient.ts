@@ -535,8 +535,7 @@ export abstract class AbstractRestClient {
         if (this.mResponseStream != null) {
             if (this.mContentEncoding != null) {
                 this.log.debug("Adding decompression transform to response stream");
-                this.mResponseStream = CompressionUtils.decompressStream(this.mResponseStream, this.mContentEncoding);
-                // TODO Better error handling, need to call mReject here?
+                this.mResponseStream = CompressionUtils.decompressStream(this.mResponseStream, this.mContentEncoding, this.mReject);
             }
             this.mResponseStream.on("error", (streamError: any) => {
                 this.mReject(this.populateError({
@@ -623,8 +622,12 @@ export abstract class AbstractRestClient {
             this.mResponseStream.end();
         } else if (this.mContentEncoding != null) {
             this.log.debug("Decompressing encoded response");
-            this.mData = CompressionUtils.decompressBuffer(this.mData, this.mContentEncoding);
-            // TODO Better error handling, need to call mReject here?
+            try {
+                this.mData = CompressionUtils.decompressBuffer(this.mData, this.mContentEncoding);
+            } catch (err) {
+                this.mReject(err);
+                return;
+            }
         }
         if (this.requestFailure) {
             // Reject the promise with an error

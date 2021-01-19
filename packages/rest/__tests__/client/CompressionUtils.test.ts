@@ -9,12 +9,13 @@
 *
 */
 
-import { Readable, PassThrough } from "stream";
+import { PassThrough } from "stream";
 import * as zlib from "zlib";
+import * as streamToString from "stream-to-string";
 import { CompressionUtils } from "../../src/client/CompressionUtils";
 
 const responseText = "Request failed successfully";
-let rawBuffer = Buffer.from(responseText);
+const rawBuffer = Buffer.from(responseText);
 const brBuffer = zlib.brotliCompressSync(rawBuffer);
 const deflateBuffer = zlib.deflateSync(rawBuffer);
 const gzipBuffer = zlib.gzipSync(rawBuffer);
@@ -60,43 +61,31 @@ describe("CompressionUtils tests", () => {
     });
 
     describe("decompressStream", () => {
-        const stream = new PassThrough();
-        stream.on("data", (chunk: any) => {
-            rawBuffer = Buffer.concat([rawBuffer, chunk]);
+        it("should decompress stream using Brotli algorithm", async () => {
+            const responseStream = CompressionUtils.decompressStream(new PassThrough(), "br");
+            responseStream.end(brBuffer);
+            const result = await streamToString(responseStream);
+            expect(result).toBe(responseText);
         });
 
-        beforeEach(() => {
-            rawBuffer = Buffer.from("");
+        it("should decompress stream using deflate algorithm", async () => {
+            const responseStream = CompressionUtils.decompressStream(new PassThrough(), "deflate");
+            responseStream.end(deflateBuffer);
+            const result = await streamToString(responseStream);
+            expect(result).toBe(responseText);
         });
 
-        it("should decompress stream using Brotli algorithm", () => {
-            const responseStream = CompressionUtils.decompressStream(stream, "br");
-            Readable.from(brBuffer).pipe(responseStream);
-            stream.on("end", () => {
-                expect(rawBuffer.toString()).toBe(responseText);
-            });
-        });
-
-        it("should decompress stream using deflate algorithm", () => {
-            const responseStream = CompressionUtils.decompressStream(stream, "deflate");
-            Readable.from(deflateBuffer).pipe(responseStream);
-            stream.on("end", () => {
-                expect(rawBuffer.toString()).toBe(responseText);
-            });
-        });
-
-        it("should decompress stream using gzip algorithm", () => {
-            const responseStream = CompressionUtils.decompressStream(stream, "gzip");
-            Readable.from(gzipBuffer).pipe(responseStream);
-            stream.on("end", () => {
-                expect(rawBuffer.toString()).toBe(responseText);
-            });
+        it("should decompress stream using gzip algorithm", async () => {
+            const responseStream = CompressionUtils.decompressStream(new PassThrough(), "gzip");
+            responseStream.end(gzipBuffer);
+            const result = await streamToString(responseStream);
+            expect(result).toBe(responseText);
         });
 
         it("should fail to decompress stream using unknown algorithm", () => {
             let caughtError;
             try {
-                CompressionUtils.decompressStream(stream, null as any);
+                CompressionUtils.decompressStream(new PassThrough(), null as any);
             } catch (error) {
                 caughtError = error;
             }
@@ -104,18 +93,18 @@ describe("CompressionUtils tests", () => {
             expect(caughtError.message).toContain("Unsupported content encoding type");
         });
 
-        it("should fail to decompress stream with invalid data", () => {
+        it("should fail to decompress stream with invalid data", async () => {
             let caughtError;
             try {
-                const responseStream = CompressionUtils.decompressStream(stream, "gzip");
-                Readable.from(brBuffer).pipe(responseStream);
+                await new Promise((resolve, reject) => {
+                    const responseStream = CompressionUtils.decompressStream(new PassThrough(), "gzip", reject);
+                    responseStream.end(brBuffer);
+                });
             } catch (error) {
                 caughtError = error;
             }
-            stream.on("end", () => {
-                expect(caughtError).toBeDefined();
-                expect(caughtError.message).toContain("Failed to decompress response stream");
-            });
+            expect(caughtError).toBeDefined();
+            expect(caughtError.message).toContain("Failed to decompress response stream");
         });
     });
 });

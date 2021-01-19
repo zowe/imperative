@@ -9,7 +9,7 @@
 *
 */
 
-import { Writable } from "stream";
+import { Duplex, Transform, Writable } from "stream";
 import * as zlib from "zlib";
 import { ImperativeError } from "../../../error";
 import { ContentEncodingType, Headers } from "./Headers";
@@ -45,25 +45,36 @@ export class CompressionUtils {
      * data written to the returned stream will be decompressed.
      * @param stream Writable stream that will receive compressed data
      * @param encoding Value of Content-Encoding header
+     * @param reject Callback to handle decompression error
      * @throws {ImperativeError}
      */
-    public static decompressStream(stream: Writable, encoding: ContentEncodingType): Writable {
+    public static decompressStream(stream: Writable, encoding: ContentEncodingType, reject?: (error: Error) => void): Duplex {
         if (!Headers.CONTENT_ENCODING_TYPES.includes(encoding)) {
             throw new ImperativeError({ msg: `Unsupported content encoding type ${encoding}` });
         }
 
         const multipipe = require("multipipe");
-        const onError = (err: any) => {
-            throw new ImperativeError({
-                msg: `Failed to decompress response stream with content encoding type ${encoding}`,
-                causeErrors: err
-            });
-        };
+        const transform = this.zlibTransform(encoding);
+        const combinedStream = multipipe(transform, stream);
 
+        if (reject != null) {
+            transform.removeAllListeners("error");
+            transform.on("error", (err: any) => {
+                reject(new ImperativeError({
+                    msg: `Failed to decompress response stream with content encoding type ${encoding}`,
+                    causeErrors: err
+                }));
+            });
+        }
+
+        return combinedStream;
+    }
+
+    private static zlibTransform(encoding: ContentEncodingType): Transform {
         switch (encoding) {
-            case "br":      return multipipe(zlib.createBrotliDecompress(), stream, onError);
-            case "deflate": return multipipe(zlib.createInflate(), stream, onError);
-            case "gzip":    return multipipe(zlib.createGunzip(), stream, onError);
+            case "br":      return zlib.createBrotliDecompress();
+            case "deflate": return zlib.createInflate();
+            case "gzip":    return zlib.createGunzip();
         }
     }
 }
