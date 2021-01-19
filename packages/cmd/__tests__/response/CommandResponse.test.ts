@@ -324,7 +324,7 @@ describe("Command Response", () => {
         const headerResponseMessage = DaemonUtils.X_ZOWE_DAEMON_REPLY + responseMessage;
 
         // simulate a .on(data...) method
-        const stream = jest.fn((event: string, func: (data: any) => void) => {
+        const eventStream = jest.fn((event: string, func: (data: any) => void) => {
             func(Buffer.from(headerResponseMessage));
         });
 
@@ -340,7 +340,7 @@ describe("Command Response", () => {
         });
 
         // build our pseudo socket object
-        const socket: any = {on: stream, write: writeStream, removeListener};
+        const socket: any = {on: eventStream, write: writeStream, removeListener};
 
         // create response object
         const response = new CommandResponse({stream: socket});

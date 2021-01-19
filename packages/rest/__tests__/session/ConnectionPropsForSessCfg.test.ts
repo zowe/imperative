@@ -249,7 +249,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         CliUtils.sleep = sleepReal;
         CliUtils.promptWithTimeout = promptWithTimeoutReal;
 
-        expect(commandHandlerPrompt).toBeCalled();
+        expect(commandHandlerPrompt).toBeCalled(); // we are only testing that we call an already tested prompt method if in CLI mode
     });
 
     it("get user name from prompt", async() => {
