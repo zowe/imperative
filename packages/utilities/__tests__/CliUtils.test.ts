@@ -211,6 +211,44 @@ describe("CliUtils", () => {
 
     });
 
+    describe("showMsgWhenDeprecated", () => {
+        const notSetYet: string = "not_set_yet";
+        let responseErrText: string = notSetYet;
+
+        // create a fake set of command handler parameters
+        const handlerParms: any = {
+            definition: {
+                deprecatedReplacement: "Something must better"
+            },
+            positionals: [
+                "positional_one",
+                "positional_two"
+            ],
+            response: {
+                console: {
+                    // any error response is just stored in a variable
+                    error: jest.fn((msgText)=> {
+                        responseErrText = msgText;
+                    })
+                }
+            }
+        };
+
+        it("should produce a deprecated message when deprecated", () => {
+            responseErrText = notSetYet;
+            CliUtils.showMsgWhenDeprecated(handlerParms);
+            expect(responseErrText).toEqual("Recommended replacement: " +
+                handlerParms.definition.deprecatedReplacement);
+        });
+
+        it("should not produce a deprecated message when not deprecated", () => {
+            responseErrText = notSetYet;
+            delete handlerParms.definition.deprecatedReplacement;
+            CliUtils.showMsgWhenDeprecated(handlerParms);
+            expect(responseErrText).toEqual(notSetYet);
+        });
+    });
+
     describe("buildBaseArgs", () => {
         it("should preserve the _ and $0 properties", () => {
             const args = CliUtils.buildBaseArgs({ _: ["cmd1", "cmd2"], $0: "test exe" });
