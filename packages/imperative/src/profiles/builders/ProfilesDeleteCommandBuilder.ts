@@ -21,7 +21,6 @@ import {
 } from "../../../../messages/index";
 import { ImperativeConfig, TextUtils } from "../../../../utilities";
 import { ProfilesConstants, ProfileUtils } from "../../../../profiles";
-import * as path from 'path';
 
 /**
  * Used to build delete profile command definitions.
