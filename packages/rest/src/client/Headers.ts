@@ -24,4 +24,4 @@ export class Headers {
     public static readonly COOKIE_AUTHORIZATION: object = {Cookie: ""};
 }
 
-export type ContentEncodingType = typeof Headers.CONTENT_ENCODING_TYPES[number];
+export type ContentEncoding = typeof Headers.CONTENT_ENCODING_TYPES[number];

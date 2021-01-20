@@ -9,10 +9,11 @@
 *
 */
 
-import { Duplex, Writable } from "stream";
+import { Duplex, Transform, Writable } from "stream";
 import * as zlib from "zlib";
 import { ImperativeError } from "../../../error";
-import { ContentEncodingType, Headers } from "./Headers";
+import { IO } from "../../../io";
+import { ContentEncoding, Headers } from "./Headers";
 
 export class CompressionUtils {
     /**
@@ -21,7 +22,7 @@ export class CompressionUtils {
      * @param encoding Value of Content-Encoding header
      * @throws {ImperativeError}
      */
-    public static decompressBuffer(data: Buffer, encoding: ContentEncodingType): Buffer {
+    public static decompressBuffer(data: Buffer, encoding: ContentEncoding): Buffer {
         if (!Headers.CONTENT_ENCODING_TYPES.includes(encoding)) {
             throw new ImperativeError({ msg: `Unsupported content encoding type ${encoding}` });
         }
@@ -50,26 +51,40 @@ export class CompressionUtils {
      * the returned stream.
      * @param stream Writable stream that will receive compressed data
      * @param encoding Value of Content-Encoding header
+     * @param normalizeNewLines Specifies if line endings should be converted
      * @throws {ImperativeError}
      */
-    public static decompressStream(stream: Writable, encoding: ContentEncodingType): Duplex {
+    public static decompressStream(stream: Writable, encoding: ContentEncoding, normalizeNewLines?: boolean): Duplex {
         if (!Headers.CONTENT_ENCODING_TYPES.includes(encoding)) {
             throw new ImperativeError({ msg: `Unsupported content encoding type ${encoding}` });
         }
 
         try {
             const multipipe = require("multipipe");
-            switch (encoding) {
-                case "br":      return multipipe(zlib.createBrotliDecompress(), stream);
-                case "deflate": return multipipe(zlib.createInflate(), stream);
-                case "gzip":    return multipipe(zlib.createGunzip(), stream);
+            const transforms = [this.zlibTransform(encoding)];
+            if (normalizeNewLines) {
+                const transformSnd = new Transform({
+                    transform(chunk, _, callback) {
+                        callback(null, Buffer.from(IO.processNewlines(chunk.toString())));
+                    }
+                });
+                transforms.push(transformSnd);
             }
+            return multipipe(...transforms, stream);
         } catch (err) {
             throw new ImperativeError({
                 msg: `Failed to decompress response stream with content encoding type ${encoding}`,
                 additionalDetails: err.message,
                 causeErrors: err
             });
+        }
+    }
+
+    private static zlibTransform(encoding: ContentEncoding): Transform {
+        switch (encoding) {
+            case "br":      return zlib.createBrotliDecompress();
+            case "deflate": return zlib.createInflate();
+            case "gzip":    return zlib.createGunzip();
         }
     }
 }

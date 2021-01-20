@@ -9,6 +9,7 @@
 *
 */
 
+import * as os from "os";
 import { PassThrough, finished } from "stream";
 import * as util from "util";
 import * as zlib from "zlib";
@@ -81,6 +82,15 @@ describe("CompressionUtils tests", () => {
             responseStream.end(gzipBuffer);
             const result = await streamToString(responseStream);
             expect(result).toBe(responseText);
+        });
+
+        it("should decompress stream and normalize new lines", async () => {
+            jest.spyOn(os, "platform").mockReturnValueOnce("win32");
+            const responseStream = CompressionUtils.decompressStream(new PassThrough(), "gzip", true);
+            const unixBuffer = Buffer.concat([rawBuffer, Buffer.from("\n")]);
+            responseStream.end(zlib.gzipSync(unixBuffer));
+            const result = await streamToString(responseStream);
+            expect(result).toBe(`${responseText}\r\n`);
         });
 
         it("should fail to decompress stream using unknown algorithm", () => {

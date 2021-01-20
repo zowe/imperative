@@ -15,7 +15,7 @@ import { IImperativeError } from "../../../error";
 import { AbstractSession } from "../session/AbstractSession";
 import * as https from "https";
 import * as http from "http";
-import { ContentEncodingType, Headers } from "./Headers";
+import { ContentEncoding, Headers } from "./Headers";
 import { RestConstants } from "./RestConstants";
 import { ImperativeReject } from "../../../interfaces";
 import { IHTTPSOptions } from "./doc/IHTTPSOptions";
@@ -99,10 +99,10 @@ export abstract class AbstractRestClient {
      * and it matches an encoding type that we recognize,
      * it is saved here
      * @private
-     * @type {ContentEncodingType}
+     * @type {ContentEncoding}
      * @memberof AbstractRestClient
      */
-    protected mContentEncoding: ContentEncodingType;
+    protected mContentEncoding: ContentEncoding;
 
     /**
      * Indicates if payload data is JSON to be stringified before writing
@@ -526,7 +526,7 @@ export abstract class AbstractRestClient {
                     encoding = this.response.headers[Headers.CONTENT_ENCODING.toLowerCase()];
                 }
                 if (typeof encoding === "string" && Headers.CONTENT_ENCODING_TYPES.find((x) => x === encoding)) {
-                    this.mContentEncoding = encoding as ContentEncodingType;
+                    this.mContentEncoding = encoding as ContentEncoding;
                     this.log.debug("Content encoding of response is: " + this.mContentEncoding);
                 }
             }
@@ -536,7 +536,8 @@ export abstract class AbstractRestClient {
             if (this.mContentEncoding != null) {
                 this.log.debug("Adding decompression transform to response stream");
                 try {
-                    this.mResponseStream = CompressionUtils.decompressStream(this.mResponseStream, this.mContentEncoding);
+                    this.mResponseStream = CompressionUtils.decompressStream(this.mResponseStream, this.mContentEncoding,
+                        this.mNormalizeResponseNewlines);
                 } catch (err) {
                     this.mReject(err);
                 }
@@ -583,7 +584,7 @@ export abstract class AbstractRestClient {
             this.mData = Buffer.concat([this.mData, respData]);
         } else {
             this.log.debug("Streaming data chunk of length " + respData.length + " to response stream");
-            if (this.mNormalizeResponseNewlines) {
+            if (this.mNormalizeResponseNewlines && this.mContentEncoding == null) {
                 this.log.debug("Normalizing new lines in data chunk to operating system appropriate line endings");
                 respData = Buffer.from(IO.processNewlines(respData.toString()));
             }
