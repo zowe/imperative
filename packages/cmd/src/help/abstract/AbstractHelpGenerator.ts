@@ -276,7 +276,7 @@ export abstract class AbstractHelpGenerator implements IHelpGenerator {
         return TextUtils.chalk.grey(text);
     }
 
-    /**
+    /*
      * Highlight text in orange (disabled if producing markdown)
      * @param {string} text - the text you would like to highlight
      * @returns {string} the highlighted text
@@ -291,5 +291,5 @@ export abstract class AbstractHelpGenerator implements IHelpGenerator {
         }
         return TextUtils.chalk.keyword("orange")(text);
     }
-     */
+    */
 }
