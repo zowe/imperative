@@ -219,7 +219,7 @@ describe("CliUtils", () => {
         // create a fake set of command handler parameters
         const handlerParms: any = {
             definition: {
-                deprecatedReplacement: "Something must better"
+                deprecatedReplacement: "Something must be better"
             },
             positionals: [
                 "positional_one",
@@ -237,6 +237,22 @@ describe("CliUtils", () => {
 
         it("should produce a deprecated message when deprecated", () => {
             responseErrText = notSetYet;
+            CliUtils.showMsgWhenDeprecated(handlerParms);
+            expect(responseErrText).toEqual("Recommended replacement: " +
+                handlerParms.definition.deprecatedReplacement);
+        });
+
+        it("should produce a deprecated message with only one positional", () => {
+            responseErrText = notSetYet;
+            handlerParms.positionals = ["positional_one"];
+            CliUtils.showMsgWhenDeprecated(handlerParms);
+            expect(responseErrText).toEqual("Recommended replacement: " +
+                handlerParms.definition.deprecatedReplacement);
+        });
+
+        it("should produce a deprecated message with no positionals", () => {
+            responseErrText = notSetYet;
+            handlerParms.positionals = [];
             CliUtils.showMsgWhenDeprecated(handlerParms);
             expect(responseErrText).toEqual("Recommended replacement: " +
                 handlerParms.definition.deprecatedReplacement);
