@@ -88,7 +88,7 @@ const FAKE_PROFS: IProfileLoaded[] = [
     }
 ];
 
-const ProfileSaved = {
+const ProfileDeleted = {
     overwritten: true,
     path: "this/is/a/great/path",
     profile: {
@@ -114,7 +114,7 @@ const impApiMockedOk = {
                 return JSON.parse(JSON.stringify(FAKE_PROFS));
             }),
             delete: jest.fn(() => {
-                return ProfileSaved;
+                return ProfileDeleted;
             }),
         };
     },
