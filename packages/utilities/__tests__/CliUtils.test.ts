@@ -137,9 +137,10 @@ describe("CliUtils", () => {
         it("should sleep for 1 second", async() => {
             const startTime = Date.now();
             const oneSec = 1000;
+            const minElapsedTime = 990; // sometimes the OS returns in slightly less than one second
             await CliUtils.sleep(oneSec);
             const timeDiff = Date.now() - startTime;
-            expect(timeDiff).toBeGreaterThanOrEqual(oneSec);
+            expect(timeDiff).toBeGreaterThanOrEqual(minElapsedTime);
         });
     });
 
