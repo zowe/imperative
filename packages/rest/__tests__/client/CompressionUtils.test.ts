@@ -9,7 +9,8 @@
 *
 */
 
-import { PassThrough } from "stream";
+import { PassThrough, finished } from "stream";
+import * as util from "util";
 import * as zlib from "zlib";
 import * as streamToString from "stream-to-string";
 import { CompressionUtils } from "../../src/client/CompressionUtils";
@@ -93,18 +94,28 @@ describe("CompressionUtils tests", () => {
             expect(caughtError.message).toContain("Unsupported content encoding type");
         });
 
-        it("should fail to decompress stream with invalid data", async () => {
+        it("should fail to decompress invalid stream", async () => {
             let caughtError;
             try {
-                await new Promise((resolve, reject) => {
-                    const responseStream = CompressionUtils.decompressStream(new PassThrough(), "gzip", reject);
-                    responseStream.end(brBuffer);
-                });
+                CompressionUtils.decompressStream(null, "gzip");
             } catch (error) {
                 caughtError = error;
             }
             expect(caughtError).toBeDefined();
             expect(caughtError.message).toContain("Failed to decompress response stream");
+        });
+
+        it("should fail to decompress stream with invalid data", async () => {
+            let caughtError;
+            try {
+                const responseStream = CompressionUtils.decompressStream(new PassThrough(), "gzip");
+                responseStream.end(brBuffer);
+                await util.promisify(finished)(responseStream);
+            } catch (error) {
+                caughtError = error;
+            }
+            expect(caughtError).toBeDefined();
+            expect(caughtError.message).toContain("incorrect header check");
         });
     });
 });

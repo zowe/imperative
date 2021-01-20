@@ -9,14 +9,14 @@
 *
 */
 
-import { Duplex, Transform, Writable } from "stream";
+import { Duplex, Writable } from "stream";
 import * as zlib from "zlib";
 import { ImperativeError } from "../../../error";
 import { ContentEncodingType, Headers } from "./Headers";
 
 export class CompressionUtils {
     /**
-     * Decompress a buffer using zlib.
+     * Decompress a buffer using the specified algorithm.
      * @param data Compressed buffer
      * @param encoding Value of Content-Encoding header
      * @throws {ImperativeError}
@@ -35,6 +35,7 @@ export class CompressionUtils {
         } catch (err) {
             throw new ImperativeError({
                 msg: `Failed to decompress response buffer with content encoding type ${encoding}`,
+                additionalDetails: err.message,
                 causeErrors: err
             });
         }
@@ -42,39 +43,33 @@ export class CompressionUtils {
 
     /**
      * Add zlib decompression transform to a Writable stream. Any compressed
-     * data written to the returned stream will be decompressed.
+     * data written to the returned stream will be decompressed using the
+     * specified algorithm.
+     *
+     * To handle decompression errors, add a listener for the "error" event on
+     * the returned stream.
      * @param stream Writable stream that will receive compressed data
      * @param encoding Value of Content-Encoding header
-     * @param reject Callback to handle decompression error
      * @throws {ImperativeError}
      */
-    public static decompressStream(stream: Writable, encoding: ContentEncodingType, reject?: (error: Error) => void): Duplex {
+    public static decompressStream(stream: Writable, encoding: ContentEncodingType): Duplex {
         if (!Headers.CONTENT_ENCODING_TYPES.includes(encoding)) {
             throw new ImperativeError({ msg: `Unsupported content encoding type ${encoding}` });
         }
 
-        const multipipe = require("multipipe");
-        const transform = this.zlibTransform(encoding);
-        const combinedStream = multipipe(transform, stream);
-
-        if (reject != null) {
-            transform.removeAllListeners("error");
-            transform.on("error", (err: any) => {
-                reject(new ImperativeError({
-                    msg: `Failed to decompress response stream with content encoding type ${encoding}`,
-                    causeErrors: err
-                }));
+        try {
+            const multipipe = require("multipipe");
+            switch (encoding) {
+                case "br":      return multipipe(zlib.createBrotliDecompress(), stream);
+                case "deflate": return multipipe(zlib.createInflate(), stream);
+                case "gzip":    return multipipe(zlib.createGunzip(), stream);
+            }
+        } catch (err) {
+            throw new ImperativeError({
+                msg: `Failed to decompress response stream with content encoding type ${encoding}`,
+                additionalDetails: err.message,
+                causeErrors: err
             });
-        }
-
-        return combinedStream;
-    }
-
-    private static zlibTransform(encoding: ContentEncodingType): Transform {
-        switch (encoding) {
-            case "br":      return zlib.createBrotliDecompress();
-            case "deflate": return zlib.createInflate();
-            case "gzip":    return zlib.createGunzip();
         }
     }
 }
