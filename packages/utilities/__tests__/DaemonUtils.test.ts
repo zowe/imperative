@@ -23,7 +23,21 @@ describe("DaemonUtils tests", () => {
             exitCode: 0,
             stdout: true,
             stderr: false,
-            prompt: false
+            prompt: 0
+        });
+        expect(daemonHeader).toMatchSnapshot();
+    });
+
+    it("should build a header for prompting secure values", () => {
+        const daemonHeader = DaemonUtils.buildHeader({
+            prompt: DaemonUtils.X_ZOWE_DAEMON_PROMPT_SECURE
+        });
+        expect(daemonHeader).toMatchSnapshot();
+    });
+
+    it("should build a header for prompting insecure values", () => {
+        const daemonHeader = DaemonUtils.buildHeader({
+            prompt: DaemonUtils.X_ZOWE_DAEMON_PROMPT_UNSECURE
         });
         expect(daemonHeader).toMatchSnapshot();
     });
@@ -33,7 +47,7 @@ describe("DaemonUtils tests", () => {
             exitCode: 1,
             stdout: false,
             stderr: true,
-            prompt: true
+            prompt: 1
         });
         expect(daemonHeader).toMatchSnapshot();
     });

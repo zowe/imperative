@@ -14,7 +14,7 @@ import * as path from "path";
 import * as lodash from "lodash";
 import { IHandlerParameters } from "../../../../cmd";
 import { SessConstants } from "../../../../rest";
-import { CliUtils, ImperativeConfig } from "../../../../utilities";
+import { ImperativeConfig } from "../../../../utilities";
 import { Config } from "../../../../config";
 import { IConfigSecureFiles } from "../../../../config/src/doc/IConfigSecure";
 import { FakeAuthHandler } from "./__data__/FakeAuthHandler";
@@ -61,7 +61,8 @@ describe("BaseAuthHandler config", () => {
         const loginParams: IHandlerParameters = {
             response: {
                 console: {
-                    log: jest.fn()
+                    log: jest.fn(),
+                    prompt: jest.fn()
                 },
                 data: {
                     setObj: mockSetObj
@@ -103,12 +104,11 @@ describe("BaseAuthHandler config", () => {
                 expect(mockSetObj.mock.calls[0][0]).toEqual({ tokenType: handler.mDefaultTokenType, tokenValue: "fakeToken" });
             });
 
-            it("should show token without creating profile if user rejects prompt", async () => {
+            it("should show token without creating profile if prompt times out", async () => {
                 const handler = new FakeAuthHandler();
                 const params = lodash.cloneDeep(loginParams);
 
                 const doLoginSpy = jest.spyOn(handler as any, "doLogin");
-                const promptSpy = jest.spyOn(CliUtils, "promptWithTimeout").mockResolvedValueOnce("n");
                 const writeFileSpy = jest.spyOn(fs, "writeFileSync");
                 let caughtError;
 
@@ -120,7 +120,30 @@ describe("BaseAuthHandler config", () => {
 
                 expect(caughtError).toBeUndefined();
                 expect(doLoginSpy).toBeCalledTimes(1);
-                expect(promptSpy).toBeCalledTimes(1);
+                expect(params.response.console.prompt).toBeCalledTimes(1);
+                expect(writeFileSpy).not.toHaveBeenCalled();
+                expect(mockSetObj).toBeCalledTimes(1);
+                expect(mockSetObj.mock.calls[0][0]).toEqual({ tokenType: handler.mDefaultTokenType, tokenValue: "fakeToken" });
+            });
+
+            it("should show token without creating profile if user rejects prompt", async () => {
+                const handler = new FakeAuthHandler();
+                const params = lodash.cloneDeep(loginParams);
+
+                const doLoginSpy = jest.spyOn(handler as any, "doLogin");
+                params.response.console.prompt = jest.fn(async () => "n");
+                const writeFileSpy = jest.spyOn(fs, "writeFileSync");
+                let caughtError;
+
+                try {
+                    await handler.process(params);
+                } catch (error) {
+                    caughtError = error;
+                }
+
+                expect(caughtError).toBeUndefined();
+                expect(doLoginSpy).toBeCalledTimes(1);
+                expect(params.response.console.prompt).toBeCalledTimes(1);
                 expect(writeFileSpy).not.toHaveBeenCalled();
                 expect(mockSetObj).toBeCalledTimes(1);
                 expect(mockSetObj.mock.calls[0][0]).toEqual({ tokenType: handler.mDefaultTokenType, tokenValue: "fakeToken" });
@@ -155,7 +178,7 @@ describe("BaseAuthHandler config", () => {
                 expect(fakeConfig.properties.profiles.my_fruit_creds).toBeUndefined();
 
                 const doLoginSpy = jest.spyOn(handler as any, "doLogin");
-                const promptSpy = jest.spyOn(CliUtils, "promptWithTimeout").mockResolvedValueOnce("y");
+                params.response.console.prompt = jest.fn(async () => "y");
                 const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
                 let caughtError;
 
@@ -167,7 +190,7 @@ describe("BaseAuthHandler config", () => {
 
                 expect(caughtError).toBeUndefined();
                 expect(doLoginSpy).toBeCalledTimes(1);
-                expect(promptSpy).toBeCalledTimes(1);
+                expect(params.response.console.prompt).toBeCalledTimes(1);
                 expect(writeFileSpy).toBeCalledTimes(1);
                 expect(fakeVault.save).toBeCalledTimes(1);
 
@@ -189,7 +212,7 @@ describe("BaseAuthHandler config", () => {
                 expect(fakeConfig.properties.profiles.my_fruit_creds).toBeUndefined();
 
                 const doLoginSpy = jest.spyOn(handler as any, "doLogin");
-                const promptSpy = jest.spyOn(CliUtils, "promptWithTimeout").mockResolvedValueOnce("y");
+                params.response.console.prompt = jest.fn(async () => "y");
                 const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
                 let caughtError;
 
@@ -201,7 +224,7 @@ describe("BaseAuthHandler config", () => {
 
                 expect(caughtError).toBeUndefined();
                 expect(doLoginSpy).toBeCalledTimes(1);
-                expect(promptSpy).toBeCalledTimes(1);
+                expect(params.response.console.prompt).toBeCalledTimes(1);
                 expect(writeFileSpy).toBeCalledTimes(1);
                 expect(fakeVault.save).toBeCalledTimes(1);
 

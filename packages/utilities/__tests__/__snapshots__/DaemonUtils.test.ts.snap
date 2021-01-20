@@ -14,3 +14,13 @@ exports[`DaemonUtils tests should build a default header response with no option
 "x-zowe-daemon-headers:8;x-zowe-daemon-version:1;x-zowe-daemon-exit:0;x-zowe-daemon-stdout:0;x-zowe-daemon-stderr:0;x-zowe-daemon-prompt:0;x-zowe-daemon-progress:0;x-zowe-daemon-end:0
 "
 `;
+
+exports[`DaemonUtils tests should build a header for prompting insecure values 1`] = `
+"x-zowe-daemon-headers:8;x-zowe-daemon-version:1;x-zowe-daemon-exit:0;x-zowe-daemon-stdout:0;x-zowe-daemon-stderr:0;x-zowe-daemon-prompt:1;x-zowe-daemon-progress:0;x-zowe-daemon-end:0
+"
+`;
+
+exports[`DaemonUtils tests should build a header for prompting secure values 1`] = `
+"x-zowe-daemon-headers:8;x-zowe-daemon-version:1;x-zowe-daemon-exit:0;x-zowe-daemon-stdout:0;x-zowe-daemon-stderr:0;x-zowe-daemon-prompt:2;x-zowe-daemon-progress:0;x-zowe-daemon-end:0
+"
+`;

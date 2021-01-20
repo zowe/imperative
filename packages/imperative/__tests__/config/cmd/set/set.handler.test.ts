@@ -758,6 +758,10 @@ describe("Configuration Secure command handler", () => {
         params.arguments.secure = false;
         params.arguments.property = "profiles.my_profiles.profiles.secured.properties.info";
 
+
+        const promptSpy = jest.fn(() => "anUnsecuredTestProperty");
+        (params.response.console as any).prompt = promptSpy;
+
         // Start doing fs mocks
         // And the prompting of the secure handler
         keytarGetPasswordSpy.mockReturnValue(fakeSecureData);
@@ -786,8 +790,6 @@ describe("Configuration Secure command handler", () => {
         readFileSyncSpy.mockClear();
 
         setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
-        const promptSpy = jest.spyOn(CliUtils, "promptWithTimeout");
-        promptSpy.mockReturnValueOnce("anUnsecuredTestProperty");
 
         await handler.process(params);
 

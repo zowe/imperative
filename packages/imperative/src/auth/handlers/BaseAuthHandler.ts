@@ -103,7 +103,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         );
         const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             sessCfg, params.arguments,
-            { requestToken: true, defaultTokenType: this.mDefaultTokenType }
+            { requestToken: true, defaultTokenType: this.mDefaultTokenType, parms: params },
         );
 
         this.mSession = new Session(sessCfgWithCreds);
@@ -143,7 +143,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
 
             // If base profile is null or empty, prompt user before saving token to disk
             if (!profileExists) {
-                const ok = await this.promptForBaseProfile(profileName);
+                const ok = await this.promptForBaseProfile(params, profileName);
                 if (!ok) {
                     this.showToken(params.response, tokenValue);
                     return;
@@ -186,8 +186,8 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         return profileName;
     }
 
-    private async promptForBaseProfile(profileName: string): Promise<boolean> {
-        const answer: string = await CliUtils.promptWithTimeout(
+    private async promptForBaseProfile(params: IHandlerParameters, profileName: string): Promise<boolean> {
+        const answer: string = await params.response.console.prompt(
             `Do you want to store the host, port, and token on disk for use with future commands? If you answer Yes, the credentials will ` +
             `be saved to a ${this.mProfileType} profile named '${profileName}'. If you answer No, the token will be printed to the ` +
             `terminal and will not be stored on disk. [y/N]: `);
@@ -226,7 +226,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
 
         const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             sessCfg, params.arguments,
-            { requestToken: false }
+            { requestToken: false, parms: params },
         );
 
         this.mSession = new Session(sessCfgWithCreds);
@@ -303,7 +303,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 profile: {}
             };
 
-            if (await this.promptForBaseProfile(createParms.name)) {
+            if (await this.promptForBaseProfile(params, createParms.name)) {
                 await Imperative.api.profileManager(this.mProfileType).save(createParms);
                 profileWithToken = createParms.name;
             } else {

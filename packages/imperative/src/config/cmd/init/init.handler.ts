@@ -26,10 +26,7 @@ import { secureSaveError } from "../../../../../config/src/ConfigUtils";
 export default class InitHandler implements ICommandHandler {
     private static readonly DEFAULT_ROOT_PROFILE_NAME = "my_profiles";
 
-    // Prompt timeout......
-    private static readonly TIMEOUT: number = 900;
-
-    private arguments: ICommandArguments;
+    private params: IHandlerParameters;
 
     /**
      * Process the command and input.
@@ -39,7 +36,7 @@ export default class InitHandler implements ICommandHandler {
      * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
-        this.arguments = params.arguments;
+        this.params = params;
 
         // Load the config and set the active layer according to user options
         const config = ImperativeConfig.instance.config;
@@ -179,7 +176,7 @@ export default class InitHandler implements ICommandHandler {
      */
     private async promptForProp(propName: string, property: IProfileProperty): Promise<any> {
         // skip prompting in CI environment
-        if (this.arguments.prompt === false || !CredentialManagerFactory.initialized) {
+        if (this.params.arguments.prompt === false || !CredentialManagerFactory.initialized) {
             return null;
         }
 
@@ -187,8 +184,8 @@ export default class InitHandler implements ICommandHandler {
         if ((property as any).optionDefinition?.description != null) {
             propName = `${propName} (${(property as any).optionDefinition.description})`;
         }
-        const propValue: any = await CliUtils.promptWithTimeout(`${propName} - blank to skip: `, property.secure,
-            InitHandler.TIMEOUT);
+
+        const propValue: any = await this.params.response.console.prompt(`${propName} - blank to skip: `, {hideText: property.secure});
 
         // coerce to correct type
         if (propValue && propValue.trim().length > 0) {
