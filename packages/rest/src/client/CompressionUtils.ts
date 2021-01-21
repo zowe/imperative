@@ -34,11 +34,7 @@ export class CompressionUtils {
                 case "gzip":    return zlib.gunzipSync(data);
             }
         } catch (err) {
-            throw new ImperativeError({
-                msg: `Failed to decompress response buffer with content encoding type ${encoding}`,
-                additionalDetails: err.message,
-                causeErrors: err
-            });
+            throw this.decompressError(err, "buffer", encoding);
         }
     }
 
@@ -79,20 +75,36 @@ export class CompressionUtils {
             for (const [i, stream] of transforms.entries()) {
                 const next = transforms[i + 1] || responseStream;
                 stream.pipe(next);
-                stream.on("error", (err) => responseStream.emit("error", err));
+                stream.on("error", (err) => {
+                    responseStream.emit("error", this.decompressError(err, "stream", encoding));
+                });
             }
 
             // Return first stream in chain
             return transforms[0];
         } catch (err) {
-            throw new ImperativeError({
-                msg: `Failed to decompress response stream with content encoding type ${encoding}`,
-                additionalDetails: err.message,
-                causeErrors: err
-            });
+            throw this.decompressError(err, "stream", encoding);
         }
     }
 
+    /**
+     * Return ImperativeError populated with details of decompression error
+     * @param err Thrown error object
+     * @param source Type of object being decompressed
+     * @param encoding Value of Content-Encoding header
+     */
+    private static decompressError(err: Error, source: "buffer" | "stream", encoding: ContentEncoding): ImperativeError {
+        return new ImperativeError({
+            msg: `Failed to decompress response ${source} with content encoding type ${encoding}`,
+            additionalDetails: err.message,
+            causeErrors: err
+        });
+    }
+
+    /**
+     * Return zlib transform for the specified decompression algorithm.
+     * @param encoding Value of Content-Encoding header
+     */
     private static zlibTransform(encoding: ContentEncoding): Transform {
         switch (encoding) {
             case "br":      return zlib.createBrotliDecompress();

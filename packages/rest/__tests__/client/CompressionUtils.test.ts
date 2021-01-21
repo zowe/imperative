@@ -63,30 +63,35 @@ describe("CompressionUtils tests", () => {
     });
 
     describe("decompressStream", () => {
+        let duplex: PassThrough;
+
+        beforeEach(() => {
+            duplex = new PassThrough();
+        });
+
         it("should decompress stream using Brotli algorithm", async () => {
-            const responseStream = CompressionUtils.decompressStream(new PassThrough(), "br");
+            const responseStream = CompressionUtils.decompressStream(duplex, "br");
             responseStream.end(brBuffer);
-            const result = await streamToString(responseStream);
+            const result = await streamToString(duplex);
             expect(result).toBe(responseText);
         });
 
         it("should decompress stream using deflate algorithm", async () => {
-            const responseStream = CompressionUtils.decompressStream(new PassThrough(), "deflate");
+            const responseStream = CompressionUtils.decompressStream(duplex, "deflate");
             responseStream.end(deflateBuffer);
-            const result = await streamToString(responseStream);
+            const result = await streamToString(duplex);
             expect(result).toBe(responseText);
         });
 
         it("should decompress stream using gzip algorithm", async () => {
-            const responseStream = CompressionUtils.decompressStream(new PassThrough(), "gzip");
+            const responseStream = CompressionUtils.decompressStream(duplex, "gzip");
             responseStream.end(gzipBuffer);
-            const result = await streamToString(responseStream);
+            const result = await streamToString(duplex);
             expect(result).toBe(responseText);
         });
 
         it("should decompress stream and normalize new lines", async () => {
             jest.spyOn(os, "platform").mockReturnValueOnce("win32");
-            const duplex = new PassThrough();
             const responseStream = CompressionUtils.decompressStream(duplex, "gzip", true);
             const unixBuffer = Buffer.concat([rawBuffer, Buffer.from("\n")]);
             responseStream.end(zlib.gzipSync(unixBuffer));
@@ -97,7 +102,7 @@ describe("CompressionUtils tests", () => {
         it("should fail to decompress stream using unknown algorithm", () => {
             let caughtError;
             try {
-                CompressionUtils.decompressStream(new PassThrough(), null as any);
+                CompressionUtils.decompressStream(duplex, null as any);
             } catch (error) {
                 caughtError = error;
             }
@@ -117,9 +122,9 @@ describe("CompressionUtils tests", () => {
         });
 
         it("should fail to decompress stream with invalid data", async () => {
+            duplex.on("error", jest.fn());
             let caughtError;
             try {
-                const duplex = (new PassThrough()).on("error", jest.fn());
                 const responseStream = CompressionUtils.decompressStream(duplex, "gzip");
                 responseStream.end(brBuffer);
                 await util.promisify(finished)(responseStream);
