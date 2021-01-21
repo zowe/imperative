@@ -355,8 +355,8 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
             const justFileNm = ImperativeConfig.instance.config.formMainConfigPathNm({addPath: false});
             let noPathInText = this.mCommandDefinition.deprecatedReplacement.replace("\n", " ");
             noPathInText = noPathInText.replace(/[^ ]*\.json/, justFileNm);
-            description += "\n\nWarning: This " + this.mCommandDefinition.type +
-                " has been deprecated.\nRecommended replacement: " + noPathInText
+            description += this.grey("\n\nWarning: This " + this.mCommandDefinition.type +
+                " has been deprecated.\nRecommended replacement: " + noPathInText);
         }
         if (this.mProduceMarkdown) {
             description = description.replace(/([\*\#\-\`\_\[\]\+\.\!])/g, "\\$1");  // escape Markdown special characters
