@@ -9,11 +9,9 @@
 *
 */
 
-import { ICommandArguments, ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { ImperativeError } from "../../../../../error";
-import { CliUtils, ImperativeConfig, TextUtils } from "../../../../../utilities";
-import * as https from "https";
-import { Config, ConfigSchema, IConfig, IConfigProfile } from "../../../../../config";
+import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
+import { ImperativeConfig, TextUtils } from "../../../../../utilities";
+import { Config, ConfigSchema, IConfig } from "../../../../../config";
 import { IProfileProperty } from "../../../../../profiles";
 import { ConfigBuilder } from "../../../../../config/src/ConfigBuilder";
 import { IConfigBuilderOpts } from "../../../../../config/src/doc/IConfigBuilderOpts";

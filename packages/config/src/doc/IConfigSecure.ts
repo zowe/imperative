@@ -15,4 +15,4 @@ export type IConfigSecureFiles = { [key: string]: IConfigSecureProperties };
 
 export interface IConfigSecure {
     configs: IConfigSecureFiles;
-};
+}

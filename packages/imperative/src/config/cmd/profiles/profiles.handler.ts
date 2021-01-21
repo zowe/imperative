@@ -10,7 +10,7 @@
 */
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { Config, IConfigProfile } from "../../../../../config";
+import { IConfigProfile } from "../../../../../config";
 import { ImperativeConfig } from "../../../../../utilities";
 
 /**

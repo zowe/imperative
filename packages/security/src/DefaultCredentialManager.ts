@@ -349,4 +349,4 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
         "Resolutions: \n" +
         "  Recreate the credentials in the vault for the particular service in the vault.\n";
   }
-};
+}

@@ -13,7 +13,6 @@ import { AbstractCredentialManager } from "./abstract/AbstractCredentialManager"
 import { ImperativeError } from "../../error";
 import { ICredentialManagerInit } from "./doc/ICredentialManagerInit";
 import { DefaultCredentialManager } from "./DefaultCredentialManager";
-import { ImperativeExpect } from "../../expect";
 
 /**
  * This is a wrapper class that controls access to the credential manager used within

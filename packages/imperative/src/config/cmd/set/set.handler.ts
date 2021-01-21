@@ -14,8 +14,7 @@ import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { ImperativeError } from "../../../../../error";
 import { CredentialManagerFactory } from "../../../../../security";
-import { CliUtils, ImperativeConfig } from "../../../../../utilities";
-import SecureHandler from "../secure/secure.handler";
+import { ImperativeConfig } from "../../../../../utilities";
 
 export default class SetHandler implements ICommandHandler {
 

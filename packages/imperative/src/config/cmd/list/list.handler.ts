@@ -9,8 +9,7 @@
 *
 */
 
-import { ICommandHandler, ICommandOptionDefinition, IHandlerParameters } from "../../../../../cmd";
-import { Config } from "../../../../../config/src/Config";
+import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ImperativeConfig } from "../../../../../utilities";
 
 export default abstract class ListHandler implements ICommandHandler {

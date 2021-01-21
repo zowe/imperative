@@ -16,9 +16,9 @@ export interface IConfigLoadedProperty {
     secure: boolean;
     user: boolean;
     global: boolean;
-};
+}
 
 export interface IConfigLoadedProfile extends IConfigProfile {
     properties: { [key: string]: IConfigLoadedProperty };
     profiles?: { [key: string]: IConfigLoadedProfile };
-};
+}

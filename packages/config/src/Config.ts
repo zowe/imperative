@@ -31,7 +31,7 @@ enum layers {
     project_config,
     global_user,
     global_config
-};
+}
 
 export class Config {
     private static readonly SECURE_ACCT = "secure_config_props";

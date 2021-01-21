@@ -16,7 +16,7 @@ import { Imperative } from "../../Imperative";
 import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../profiles";
-import { CliUtils, ImperativeConfig } from "../../../../utilities";
+import { ImperativeConfig } from "../../../../utilities";
 import { Config } from "../../../../config";
 import { CredentialManagerFactory } from "../../../../security";
 import { secureSaveError } from "../../../../config/src/ConfigUtils";

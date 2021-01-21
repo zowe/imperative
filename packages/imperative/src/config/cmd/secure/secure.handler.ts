@@ -12,7 +12,7 @@
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { CredentialManagerFactory } from "../../../../../security";
-import { CliUtils, ImperativeConfig } from "../../../../../utilities";
+import { ImperativeConfig } from "../../../../../utilities";
 
 export default class SecureHandler implements ICommandHandler {
 

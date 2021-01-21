@@ -41,7 +41,6 @@ import { Constants } from "../../constants";
 import { ICommandArguments } from "./doc/args/ICommandArguments";
 import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "./help/WebHelpManager";
-import { ICommandOptionDefinition } from "./doc/option/ICommandOptionDefinition";
 import { ICommandProfile } from "./doc/profiles/definition/ICommandProfile";
 import { Config } from "../../config";
 /**
@@ -787,7 +786,7 @@ export class CommandProcessor {
                     ((opt.name === cases.kebabCase) ? profileKebab : profileCamel) :
                     ((profileKebab !== undefined) ? profileKebab : profileCamel);
                 const keys = CliUtils.setOptionValue(opt.name,
-                    ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
+                    ("aliases" in opt) ? opt.aliases : [],
                     value
                 );
                 fromCnfg = { ...fromCnfg, ...keys };
