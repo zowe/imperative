@@ -218,7 +218,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
                     summaryText += this.grey(" (deprecated)");
                 } else if (command.experimental) {
                     // Mark with the experimental tag
-                    summaryText += this.grey("(experimental) ");
+                    summaryText += this.grey(" (experimental) ");
                 }
                 const printString: string = DefaultHelpGenerator.HELP_INDENT + this.buildCommandAndAliases(command);
                 if (printString.length > maximumLeftHandSide) {

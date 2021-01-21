@@ -22,14 +22,14 @@ describe("We should provide the ability to set commands as experimental", functi
     it("should show the text 'experimental' when listing experimental commands",
         function () {
             T.findExpectedOutputInCommand(cliBin,
-                ["--help"], ["this command is experimental(experimental)"],
+                ["--help"], ["this command is experimental (experimental)"],
                 "stdout", true, this);
         });
 
     it("should mark parent commands with all experimental children as experimental",
         function () {
             T.findExpectedOutputInCommand(cliBin,
-                ["--help"], ["has experimental children(experimental)"],
+                ["--help"], ["has experimental children (experimental)"],
                 "stdout", true, this);
         });
 
