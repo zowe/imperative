@@ -533,6 +533,13 @@ export abstract class AbstractRestClient {
         }
 
         if (this.mResponseStream != null) {
+            this.mResponseStream.on("error", (streamError: any) => {
+                this.mReject(this.populateError({
+                    msg: "Error writing to responseStream",
+                    causeErrors: streamError,
+                    source: "client"
+                }));
+            });
             if (this.mContentEncoding != null) {
                 this.log.debug("Adding decompression transform to response stream");
                 try {
@@ -542,13 +549,6 @@ export abstract class AbstractRestClient {
                     this.mReject(err);
                 }
             }
-            this.mResponseStream.on("error", (streamError: any) => {
-                this.mReject(this.populateError({
-                    msg: "Error writing to responseStream",
-                    causeErrors: streamError,
-                    source: "client"
-                }));
-            });
         }
 
         /**

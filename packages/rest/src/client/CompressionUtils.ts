@@ -47,30 +47,43 @@ export class CompressionUtils {
      * data written to the returned stream will be decompressed using the
      * specified algorithm.
      *
-     * To handle decompression errors, add a listener for the "error" event on
-     * the returned stream.
-     * @param stream Writable stream that will receive compressed data
+     * The returned stream should only be used internally by a REST client to
+     * write to. Use the original stream to read back the decompressed output
+     * and handle decompression errors.
+     * @param responseStream Writable stream that will receive compressed data
      * @param encoding Value of Content-Encoding header
      * @param normalizeNewLines Specifies if line endings should be converted
      * @throws {ImperativeError}
      */
-    public static decompressStream(stream: Writable, encoding: ContentEncoding, normalizeNewLines?: boolean): Duplex {
+    public static decompressStream(responseStream: Writable, encoding: ContentEncoding, normalizeNewLines?: boolean): Duplex {
         if (!Headers.CONTENT_ENCODING_TYPES.includes(encoding)) {
             throw new ImperativeError({ msg: `Unsupported content encoding type ${encoding}` });
         }
 
         try {
-            const multipipe = require("multipipe");
+            // First transform handles decompression
             const transforms = [this.zlibTransform(encoding)];
+
+            // Second transform is optional and processes line endings
             if (normalizeNewLines) {
                 const transformSnd = new Transform({
                     transform(chunk, _, callback) {
-                        callback(null, Buffer.from(IO.processNewlines(chunk.toString())));
+                        this.push(Buffer.from(IO.processNewlines(chunk.toString())));
+                        callback();
                     }
                 });
                 transforms.push(transformSnd);
             }
-            return multipipe(...transforms, stream);
+
+            // Chain transforms and response stream together
+            for (const [i, stream] of transforms.entries()) {
+                const next = transforms[i + 1] || responseStream;
+                stream.pipe(next);
+                stream.on("error", (err) => responseStream.emit("error", err));
+            }
+
+            // Return first stream in chain
+            return transforms[0];
         } catch (err) {
             throw new ImperativeError({
                 msg: `Failed to decompress response stream with content encoding type ${encoding}`,

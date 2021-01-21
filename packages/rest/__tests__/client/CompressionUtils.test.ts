@@ -86,10 +86,11 @@ describe("CompressionUtils tests", () => {
 
         it("should decompress stream and normalize new lines", async () => {
             jest.spyOn(os, "platform").mockReturnValueOnce("win32");
-            const responseStream = CompressionUtils.decompressStream(new PassThrough(), "gzip", true);
+            const duplex = new PassThrough();
+            const responseStream = CompressionUtils.decompressStream(duplex, "gzip", true);
             const unixBuffer = Buffer.concat([rawBuffer, Buffer.from("\n")]);
             responseStream.end(zlib.gzipSync(unixBuffer));
-            const result = await streamToString(responseStream);
+            const result = await streamToString(duplex);
             expect(result).toBe(`${responseText}\r\n`);
         });
 
@@ -118,7 +119,8 @@ describe("CompressionUtils tests", () => {
         it("should fail to decompress stream with invalid data", async () => {
             let caughtError;
             try {
-                const responseStream = CompressionUtils.decompressStream(new PassThrough(), "gzip");
+                const duplex = (new PassThrough()).on("error", jest.fn());
+                const responseStream = CompressionUtils.decompressStream(duplex, "gzip");
                 responseStream.end(brBuffer);
                 await util.promisify(finished)(responseStream);
             } catch (error) {
