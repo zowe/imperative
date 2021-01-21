@@ -27,7 +27,8 @@ import { ProfilesListCommandBuilder } from "./ProfilesListCommandBuilder";
 import { ProfilesSetCommandBuilder } from "./ProfilesSetCommandBuilder";
 import { Logger } from "../../../../logger/index";
 import { isNullOrUndefined } from "util";
-import { IProfileTypeConfiguration } from "../../../../profiles";
+import { IProfileTypeConfiguration, ProfilesConstants } from "../../../../profiles";
+import { ImperativeConfig } from "../../../../utilities";
 
 /**
  * Generate a complete group of commands for maintaining configuration profiles
@@ -48,6 +49,7 @@ export class CompleteProfilesGroupBuilder {
             name: Constants.PROFILE_GROUP,
             description: "Create and manage configuration profiles",
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_INIT,
             children: []
         };
 
@@ -57,6 +59,7 @@ export class CompleteProfilesGroupBuilder {
             summary: createProfilesCommandSummary.message,
             aliases: ["cre"],
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_INIT,
             children: [],
         };
 
@@ -66,6 +69,8 @@ export class CompleteProfilesGroupBuilder {
             summary: deleteProfilesCommandSummary.message,
             aliases: ["rm"],
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_EDIT + " " +
+                ImperativeConfig.instance.config.formMainConfigPathNm({addPath: false}),
             children: [],
         };
 
@@ -75,6 +80,7 @@ export class CompleteProfilesGroupBuilder {
             description: setProfileActionDesc.message,
             type: "group",
             aliases: ["set"],
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_SET,
             children: [],
         };
 
@@ -84,6 +90,7 @@ export class CompleteProfilesGroupBuilder {
             summary: updateProfileCommandSummary.message,
             aliases: ["upd"],
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_SET,
             children: [],
         };
 
@@ -93,6 +100,8 @@ export class CompleteProfilesGroupBuilder {
             summary: validateProfileCommandSummary.message,
             aliases: ["val"],
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_EDIT + " " +
+                ImperativeConfig.instance.config.formMainConfigPathNm({addPath: false}),
             children: [],
         };
 
@@ -102,6 +111,7 @@ export class CompleteProfilesGroupBuilder {
             summary: listProfileCommandSummary.message,
             aliases: ["ls"],
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_LIST,
             children: [],
 
         };

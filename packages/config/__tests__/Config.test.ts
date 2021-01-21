@@ -51,6 +51,50 @@ describe("Config tests", () => {
             expect(config.properties).toMatchSnapshot();
         });
 
+        it("should form the full path to the config file", async () => {
+            const actualConfigPathNm = __dirname + "/__resources__/project.config.json";
+            jest.spyOn(Config, "search").mockReturnValue(actualConfigPathNm);
+            jest.spyOn(fs, "existsSync")
+                .mockReturnValueOnce(false)     // Project user layer
+                .mockReturnValueOnce(true)      // Project layer
+                .mockReturnValueOnce(false)     // User layer
+                .mockReturnValueOnce(false);    // Global layer
+            const config = await Config.load(MY_APP);
+            const formedConfigPathNm = config.formMainConfigPathNm({addPath: true});
+            expect(formedConfigPathNm).toBe(actualConfigPathNm);
+        });
+
+        it("should form the just the config file name", async () => {
+            const actualConfigFileNm = MY_APP + ".config.json";
+            const actualConfigPathNm = __dirname + "/__resources__/" + actualConfigFileNm;
+            jest.spyOn(Config, "search").mockReturnValue(actualConfigPathNm);
+            jest.spyOn(fs, "existsSync")
+                .mockReturnValueOnce(false)     // Project user layer
+                .mockReturnValueOnce(true)      // Project layer
+                .mockReturnValueOnce(false)     // User layer
+                .mockReturnValueOnce(false);    // Global layer
+            const config = await Config.load(MY_APP);
+            const formedConfigFileNm = config.formMainConfigPathNm({addPath: false});
+            expect(formedConfigFileNm).toBe(actualConfigFileNm);
+        });
+
+        it("should form the just the config file name when no config exists", async () => {
+            const actualConfigFileNm = MY_APP + ".config.json";
+            const actualConfigPathNm = __dirname + "/__resources__/" + actualConfigFileNm;
+            jest.spyOn(Config, "search").mockReturnValue(actualConfigPathNm);
+            jest.spyOn(fs, "existsSync")
+                .mockReturnValueOnce(false)     // Project user layer
+                .mockReturnValueOnce(true)      // Project layer
+                .mockReturnValueOnce(false)     // User layer
+                .mockReturnValueOnce(false);    // Global layer
+            const config = new (Config as any)();
+            config._app = MY_APP;
+            config._layers = [ { exists: false } ];
+
+            const formedConfigFileNm = config.formMainConfigPathNm({addPath: true});
+            expect(formedConfigFileNm).toBe(actualConfigFileNm);
+        });
+
         it("should load user config", async () => {
             jest.spyOn(Config, "search").mockReturnValue(null);
             jest.spyOn(fs, "existsSync")

@@ -9,6 +9,7 @@ Object {
   "customize": Object {
     "profileTypeIdentifier": "type-a",
   },
+  "deprecatedReplacement": "The 'config set' command",
   "description": "The type-a set default-profiles command allows you to set the default profiles for this command group. When a type-a command is issued and no profile override options are specified, the default profiles for the command group are automatically loaded for the command based on the commands profile requirements.",
   "examples": Array [
     Object {

@@ -9,6 +9,7 @@ Object {
   "customize": Object {
     "profileTypeIdentifier": "type-a",
   },
+  "deprecatedReplacement": "The 'config set' command",
   "description": "Type A profile for builder tests",
   "name": "type-a-profile",
   "options": Array [

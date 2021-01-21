@@ -11,7 +11,7 @@
 
 import { format, isNullOrUndefined } from "util";
 import { AbstractHelpGenerator } from "./abstract/AbstractHelpGenerator";
-import { TextUtils } from "../../../utilities";
+import { ImperativeConfig, TextUtils } from "../../../utilities";
 import { Constants } from "../../../constants";
 import { CommandUtils } from "../utils/CommandUtils";
 import { ImperativeError } from "../../../error";
@@ -128,6 +128,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
             if (this.mCommandDefinition.aliases != null && this.mCommandDefinition.aliases.length > 0) {
                 helpText += " | " + this.mCommandDefinition.aliases.join(" | ");
             }
+
             if (this.mCommandDefinition.experimental) {
                 helpText += this.grey(DefaultHelpGenerator.HELP_INDENT + "(experimental command)\n\n");
             } else {
@@ -210,13 +211,15 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
             let maximumLeftHandSide = 0;
             for (const command of definitions) {
                 let summaryText: string = "";
-
-                // Mark with the experimental tag if necessary
-                if (command.experimental) {
-                    summaryText += this.grey("(experimental) ");
-                }
-
                 summaryText += command.summary || command.description;
+
+                if (command.deprecatedReplacement) {
+                    // Mark with the deprecated tag
+                    summaryText += this.grey(" (deprecated)");
+                } else if (command.experimental) {
+                    // Mark with the experimental tag
+                    summaryText += this.grey(" (experimental) ");
+                }
                 const printString: string = DefaultHelpGenerator.HELP_INDENT + this.buildCommandAndAliases(command);
                 if (printString.length > maximumLeftHandSide) {
                     maximumLeftHandSide = printString.length;
@@ -345,6 +348,16 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         }
         let description = this.mCommandDefinition.description
             || this.mCommandDefinition.summary;
+
+        // we place the deprecated message in the DESCRIPTION help section
+        if (this.mCommandDefinition.deprecatedReplacement) {
+            // remove any path information to the team config file for use in our help
+            const justFileNm = ImperativeConfig.instance.config.formMainConfigPathNm({addPath: false});
+            let noPathInText = this.mCommandDefinition.deprecatedReplacement.replace("\n", " ");
+            noPathInText = noPathInText.replace(/[^ ]*\.json/, justFileNm);
+            description += this.grey("\n\nWarning: This " + this.mCommandDefinition.type +
+                " has been deprecated.\nRecommended replacement: " + noPathInText);
+        }
         if (this.mProduceMarkdown) {
             description = description.replace(/([\*\#\-\`\_\[\]\+\.\!])/g, "\\$1");  // escape Markdown special characters
         }

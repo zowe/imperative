@@ -4,6 +4,8 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
+- Deprecated:  All 'zowe profiles' commands.
+- Enhancement: Add deprecatedReplacement property to deprecate a command.
 - Enhancement: Allow comments to be added to any `.config.json` generated
 
 ## `5.0.0-next.202010301408`

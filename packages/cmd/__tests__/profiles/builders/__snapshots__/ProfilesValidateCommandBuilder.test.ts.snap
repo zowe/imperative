@@ -9,6 +9,8 @@ Object {
   "customize": Object {
     "profileTypeIdentifier": "type-a",
   },
+  "deprecatedReplacement": "Edit your Zowe V2 configuration
+    zowe.config.json",
   "description": "Test the validity of a type-a profile.",
   "name": "type-a-profile",
   "options": Array [

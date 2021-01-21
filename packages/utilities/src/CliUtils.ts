@@ -14,7 +14,9 @@ import { Constants } from "../../constants";
 import { Arguments } from "yargs";
 import { TextUtils } from "./TextUtils";
 import { IOptionFormat } from "./doc/IOptionFormat";
-import { CommandProfiles, ICommandOptionDefinition, ICommandPositionalDefinition, ICommandProfile } from "../../cmd";
+import { CommandProfiles, ICommandOptionDefinition, ICommandPositionalDefinition,
+         ICommandProfile, IHandlerParameters
+} from "../../cmd";
 import { ICommandArguments } from "../../cmd/src/doc/args/ICommandArguments";
 import { IProfile } from "../../profiles";
 import * as prompt from "readline-sync";
@@ -346,6 +348,30 @@ export class CliUtils {
         return TextUtils.chalk[color](headerText);
     }
 
+    /**
+     * Display a message when the command is deprecated.
+     * @static
+     * @param {string} handlerParms - the IHandlerParameters supplied to
+     *                                a command handler's process() function.
+     * @memberof CliUtils
+     */
+    public static showMsgWhenDeprecated(handlerParms: IHandlerParameters) {
+        if (handlerParms.definition.deprecatedReplacement) {
+            // form the command that is deprecated
+            let oldCmd: string;
+            if (handlerParms.positionals.length >= 1) {
+                oldCmd = handlerParms.positionals[0];
+            }
+            if (handlerParms.positionals.length >= 2) {
+                oldCmd = oldCmd + " " + handlerParms.positionals[1];
+            }
+
+            // display the message
+            handlerParms.response.console.error("\nWarning: The command '" + oldCmd + "' is deprecated.");
+            handlerParms.response.console.error("Recommended replacement: " +
+                handlerParms.definition.deprecatedReplacement);
+        }
+    }
 
     /**
      * Accepts an option name, and array of option aliases, and their value

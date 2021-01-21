@@ -139,9 +139,10 @@ describe("CliUtils", () => {
         it("should sleep for 1 second", async() => {
             const startTime = Date.now();
             const oneSec = 1000;
+            const minElapsedTime = 990; // sometimes the OS returns in slightly less than one second
             await CliUtils.sleep(oneSec);
             const timeDiff = Date.now() - startTime;
-            expect(timeDiff).toBeGreaterThanOrEqual(oneSec);
+            expect(timeDiff).toBeGreaterThanOrEqual(minElapsedTime);
         });
     });
 
@@ -211,6 +212,60 @@ describe("CliUtils", () => {
             expect(answer).toEqual(mockedAnswer);
         });
 
+    });
+
+    describe("showMsgWhenDeprecated", () => {
+        const notSetYet: string = "not_set_yet";
+        let responseErrText: string = notSetYet;
+
+        // create a fake set of command handler parameters
+        const handlerParms: any = {
+            definition: {
+                deprecatedReplacement: "Something must be better"
+            },
+            positionals: [
+                "positional_one",
+                "positional_two"
+            ],
+            response: {
+                console: {
+                    // any error response is just stored in a variable
+                    error: jest.fn((msgText)=> {
+                        responseErrText = msgText;
+                    })
+                }
+            }
+        };
+
+        it("should produce a deprecated message when deprecated", () => {
+            responseErrText = notSetYet;
+            CliUtils.showMsgWhenDeprecated(handlerParms);
+            expect(responseErrText).toEqual("Recommended replacement: " +
+                handlerParms.definition.deprecatedReplacement);
+        });
+
+        it("should produce a deprecated message with only one positional", () => {
+            responseErrText = notSetYet;
+            handlerParms.positionals = ["positional_one"];
+            CliUtils.showMsgWhenDeprecated(handlerParms);
+            expect(responseErrText).toEqual("Recommended replacement: " +
+                handlerParms.definition.deprecatedReplacement);
+        });
+
+        it("should produce a deprecated message with no positionals", () => {
+            responseErrText = notSetYet;
+            handlerParms.positionals = [];
+            CliUtils.showMsgWhenDeprecated(handlerParms);
+            expect(responseErrText).toEqual("Recommended replacement: " +
+                handlerParms.definition.deprecatedReplacement);
+        });
+
+        it("should not produce a deprecated message when not deprecated", () => {
+            responseErrText = notSetYet;
+            delete handlerParms.definition.deprecatedReplacement;
+            CliUtils.showMsgWhenDeprecated(handlerParms);
+            expect(responseErrText).toEqual(notSetYet);
+        });
     });
 
     describe("buildBaseArgs", () => {
