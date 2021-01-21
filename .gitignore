@@ -97,6 +97,7 @@ __tests__/src/plugins/suites/sample-plugin.json
 /__tests__/__integration__/imperative/node_modules/
 /__tests__/__integration__/imperative/__tests__/__results__/
 /__tests__/__results__/
+someHome/
 
 ## Including imperative symbolic link for testing purposes
 !/__tests__/src/packages/imperative/plugins/test_cli/node_modules/
