@@ -20,8 +20,7 @@ import { EventEmitter } from "events";
 import { ImperativeError } from "../../../error";
 import { IOptionsFullResponse } from "../../src/client/doc/IOptionsFullResponse";
 import { CLIENT_PROPERTY } from "../../src/client/types/AbstractRestClientProperties";
-import { PassThrough, finished } from "stream";
-import * as util from "util";
+import { PassThrough } from "stream";
 import * as zlib from "zlib";
 import * as streamToString from "stream-to-string";
 
@@ -770,7 +769,7 @@ describe("AbstractRestClient tests", () => {
                 await RestClient.getStreamed(new Session({
                     hostname: "test"
                 }), "/resource", [], responseStream);
-                await util.promisify(finished)(responseStream);
+                await streamToString(responseStream);
             } catch (error) {
                 caughtError = error;
             }

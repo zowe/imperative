@@ -10,8 +10,7 @@
 */
 
 import * as os from "os";
-import { PassThrough, finished } from "stream";
-import * as util from "util";
+import { PassThrough } from "stream";
 import * as zlib from "zlib";
 import * as streamToString from "stream-to-string";
 import { CompressionUtils } from "../../src/client/CompressionUtils";
@@ -59,6 +58,7 @@ describe("CompressionUtils tests", () => {
             }
             expect(caughtError).toBeDefined();
             expect(caughtError.message).toContain("Failed to decompress response buffer");
+            expect(caughtError.causeErrors).toBeDefined();
         });
     });
 
@@ -122,17 +122,17 @@ describe("CompressionUtils tests", () => {
         });
 
         it("should fail to decompress stream with invalid data", async () => {
-            duplex.on("error", jest.fn());
             let caughtError;
             try {
                 const responseStream = CompressionUtils.decompressStream(duplex, "gzip");
                 responseStream.end(brBuffer);
-                await util.promisify(finished)(responseStream);
+                await streamToString(duplex);
             } catch (error) {
                 caughtError = error;
             }
             expect(caughtError).toBeDefined();
-            expect(caughtError.message).toContain("incorrect header check");
+            expect(caughtError.message).toContain("Failed to decompress response stream");
+            expect(caughtError.causeErrors).toBeDefined();
         });
     });
 });
