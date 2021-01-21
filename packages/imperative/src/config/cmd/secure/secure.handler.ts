@@ -15,8 +15,6 @@ import { CredentialManagerFactory } from "../../../../../security";
 import { CliUtils, ImperativeConfig } from "../../../../../utilities";
 
 export default class SecureHandler implements ICommandHandler {
-    // Prompt timeout......
-    public static readonly TIMEOUT: number = 900;
 
     /**
      * Process the command and input.
@@ -44,8 +42,8 @@ export default class SecureHandler implements ICommandHandler {
 
         // Prompt for values designated as secure
         for (const propName of secureProps) {
-            const propValue = await CliUtils.promptWithTimeout(`Please enter ${propName}: `, true,
-                SecureHandler.TIMEOUT);
+            const propValue = await params.response.console.prompt(`Please enter ${propName}: `, {hideText: true});
+
             // Save the value in the config securely
             if (propValue) {
                 config.set(propName, propValue, { secure: true });

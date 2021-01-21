@@ -501,7 +501,11 @@ export class Config {
     ////////////////////////////////////////////////////////////////////////////
 
     public async secureLoad(vault?: IConfigVault) {
-        if (vault != null) this._vault = vault;
+        if (vault != null) {
+            this._vault = vault;
+            if (this.opts) this.opts.vault = vault; // propagate to future config objects
+        }
+
         if (this._vault == null) return;
 
         // load the secure fields

@@ -64,7 +64,6 @@ describe("Configuration Initialization command handler", () => {
     let currentWorkingDirectorySpy: any;
     let searchSpy: any;
     let setSchemaSpy: any;
-    let promptWithTimeoutSpy: any;
 
     async function setupConfigToLoad() {
         // Load the ImperativeConfig so init can work properly
@@ -88,7 +87,6 @@ describe("Configuration Initialization command handler", () => {
         osHomedirSpy = jest.spyOn(os, "homedir");
         currentWorkingDirectorySpy = jest.spyOn(process, "cwd");
         searchSpy = jest.spyOn(Config, "search");
-        promptWithTimeoutSpy = jest.spyOn(CliUtils, "promptWithTimeout");
     });
 
     afterAll( () => {
@@ -115,7 +113,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -131,14 +130,13 @@ describe("Configuration Initialization command handler", () => {
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, 900); // Prompting for secure property
+        // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+        // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT));
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual("fakeValue");
@@ -164,7 +162,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -182,10 +181,9 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // User config is a skeleton - no prompting should occur
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, 4)); // Config
+        // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT));
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
     });
 
     it("should attempt to initialize the global project configuration", async () => {
@@ -208,7 +206,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -224,14 +223,13 @@ describe("Configuration Initialization command handler", () => {
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, 900); // Prompting for secure property
+        // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, 4)); // Config
+        // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT));
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual("fakeValue");
@@ -257,7 +255,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -275,10 +274,9 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // User config is a skeleton - no prompting should occur
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config
+        // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT));
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
     });
 
     it("should attempt to initialize the project configuration with prompt flag false", async () => {
@@ -301,7 +299,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -319,10 +318,9 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+        // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT));
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
     });
 
     it("should attempt to initialize the project user configuration with prompting disabled", async () => {
@@ -345,7 +343,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -363,10 +362,9 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, 4)); // Config
+        // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT));
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
     });
 
     it("should attempt to initialize the global project configuration with prompt flag false", async () => {
@@ -389,7 +387,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -407,10 +406,9 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, 4)); // Config
+        // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT));
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
     });
 
     it("should attempt to initialize the global project user configuration with prompting disabled", async () => {
@@ -433,7 +431,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("fakeValue"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -451,10 +450,9 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config
+        // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT));
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
     });
 
     it("should attempt to initialize the project configuration and use boolean true for the prompt", async () => {
@@ -477,7 +475,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("true"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "true");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -493,14 +492,13 @@ describe("Configuration Initialization command handler", () => {
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, 900); // Prompting for secure property
+        // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+        // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT));
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(true);
@@ -526,7 +524,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("false"); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => "false");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -542,14 +541,13 @@ describe("Configuration Initialization command handler", () => {
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, 900); // Prompting for secure property
+        // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+        // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT));
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(false);
@@ -575,7 +573,10 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue("9001"); // Add fake values for all prompts
+        const randomValueString = "9001";
+        const randomValueNumber = parseInt(randomValueString, 10);
+        const promptWithTimeoutSpy = jest.fn(() => randomValueString);
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -591,18 +592,16 @@ describe("Configuration Initialization command handler", () => {
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, 900); // Prompting for secure property
+        // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+        // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT));
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
-        // tslint:disable-next-line: no-magic-numbers
-        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(9001);
+        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(randomValueNumber);
     });
 
     it("should attempt to initialize the project configuration and handle getting nothing from the prompt", async () => {
@@ -625,7 +624,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue(undefined); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => undefined);
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
         await handler.process(params as IHandlerParameters);
@@ -641,17 +641,15 @@ describe("Configuration Initialization command handler", () => {
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), true, 900); // Prompting for secure property
+        // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, 4)); // Schema
-        // tslint:disable-next-line: no-magic-numbers
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
+        // Schema
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, Config.INDENT));
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, Config.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
-        // tslint:disable-next-line: no-magic-numbers
         expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(undefined);
     });
 
@@ -675,7 +673,8 @@ describe("Configuration Initialization command handler", () => {
         currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
-        promptWithTimeoutSpy.mockReturnValue(undefined); // Add fake values for all prompts
+        const promptWithTimeoutSpy = jest.fn(() => undefined);
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
         jest.spyOn(CredentialManagerFactory, "initialized", "get").mockReturnValue(false);
 
