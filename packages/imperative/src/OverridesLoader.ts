@@ -52,7 +52,7 @@ export class OverridesLoader {
       return this.loadCredentialManagerOld(config, packageJson);
     }
 
-    if (packageJson.dependencies?.keytar == null && packageJson.optionalDependencies?.keytar == null) {
+    if (!this.hasKeytarDep(packageJson)) {
       return;
     }
 
@@ -96,7 +96,7 @@ export class OverridesLoader {
         config.productDisplayName || config.name;
 
     // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
-    if (overrides.CredentialManager != null || (packageJson.dependencies != null && packageJson.dependencies.keytar != null)) {
+    if (overrides.CredentialManager != null || this.hasKeytarDep(packageJson)) {
       let Manager = overrides.CredentialManager;
       if (typeof overrides.CredentialManager === "string" && !isAbsolute(overrides.CredentialManager)) {
         Manager = resolve(process.mainModule.filename, "../", overrides.CredentialManager);
@@ -113,5 +113,9 @@ export class OverridesLoader {
         invalidOnFailure: !(Manager == null)
       });
     }
+  }
+
+  private static hasKeytarDep(packageJson: any): boolean {
+    return packageJson.dependencies?.keytar != null || packageJson.optionalDependencies?.keytar != null;
   }
 }
