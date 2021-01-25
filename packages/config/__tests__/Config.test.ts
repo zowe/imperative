@@ -203,9 +203,21 @@ describe("Config tests", () => {
 
     it("should provide a deep copy of layers", () => {
         const config = new (Config as any)();
-        config._layers = {};
-        config.layers.properties = {};
+        config._layers = [];
+        config.layers.push({});
         expect(Object.keys(config._layers).length).toBe(0);
+    });
+
+    it("should make secure values in maskedProperties", async () => {
+        jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/project.config.json");
+        jest.spyOn(fs, "existsSync")
+            .mockReturnValueOnce(false)     // Project user layer
+            .mockReturnValueOnce(true)      // Project layer
+            .mockReturnValueOnce(false)     // User layer
+            .mockReturnValueOnce(false);    // Global layer
+        const config = await Config.load(MY_APP);
+        expect(config.properties.profiles.fruit.properties.secret).toBeUndefined();
+        expect(config.maskedProperties.profiles.fruit.properties.secret).toBe(Config.SECURE_VALUE);
     });
 
     describe("set", () => {
