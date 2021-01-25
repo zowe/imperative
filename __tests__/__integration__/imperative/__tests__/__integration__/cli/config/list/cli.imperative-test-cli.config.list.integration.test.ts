@@ -80,6 +80,7 @@ describe("imperative-test-cli config list", () => {
                                 type: "secured",
                                 properties: {
                                     info: "",
+                                    secret: "(secure value)"
                                 }
                             }
                         },
