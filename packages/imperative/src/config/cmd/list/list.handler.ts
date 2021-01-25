@@ -9,7 +9,9 @@
 *
 */
 
+import * as lodash from "lodash";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
+import { Config } from "../../../../../config";
 import { ImperativeConfig } from "../../../../../utilities";
 
 export default abstract class ListHandler implements ICommandHandler {
@@ -33,10 +35,15 @@ export default abstract class ListHandler implements ICommandHandler {
                         obj[layer.path] = layer.properties;
                         if (property != null)
                             obj[layer.path] = (layer.properties as any)[property];
+                        if (obj[layer.path] != null) {
+                            for (const secureProp of layer.properties.secure) {
+                                lodash.set(obj[layer.path], secureProp, Config.SECURE_VALUE);
+                            }
+                        }
                     }
                 }
             } else {
-                obj = config.properties;
+                obj = config.maskedProperties;
                 if (property != null)
                     obj = (config.properties as any)[property];
             }
