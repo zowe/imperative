@@ -51,15 +51,15 @@ const configProps: IConfig = {
                 incoming: {
                     type: "imap",
                     properties: {
-                        host: "imap.gmail.com",
-                        port: 993
+                        host: "fakeHost",
+                        port: 143
                     }
                 },
                 outgoing: {
                     type: "smtp",
                     properties: {
-                        host: "smtp.gmail.com",
-                        port: 587
+                        host: "fakeHost",
+                        port: 25
                     }
                 }
             },

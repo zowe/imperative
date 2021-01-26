@@ -54,8 +54,8 @@ const configLayers: IConfigLayer[] = [
             profiles: {
                 email: {
                     properties: {
-                        host: "smtp.gmail.com",
-                        port: 587,
+                        host: "fakeHost",
+                        port: 25,
                         user: "admin",
                         password: "123456"
                     }
