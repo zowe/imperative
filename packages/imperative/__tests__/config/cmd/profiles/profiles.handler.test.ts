@@ -71,7 +71,7 @@ const configProps: IConfig = {
     secure: []
 };
 
-describe("Configuration List command handler", () => {
+describe("Configuration Profiles command handler", () => {
     const configMock = jest.fn();
 
     beforeAll(() => {
