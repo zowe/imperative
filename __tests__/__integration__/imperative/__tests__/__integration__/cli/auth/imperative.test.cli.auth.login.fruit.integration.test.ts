@@ -12,14 +12,18 @@
 import { runCliScript } from "../../../../../../src/TestUtil";
 import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
-import { join } from "path";
 import * as fs from "fs";
-import * as os from "os";
 import * as keytar from "keytar";
 
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
 describe("imperative-test-cli auth login", () => {
+    async function loadSecureProp(profileName: string): Promise<string> {
+        const securedValue = await keytar.getPassword("imperative-test-cli", "secure_config_props");
+        const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
+        return Object.values(securedValueJson)[0][`profiles.${profileName}.properties.authToken`];
+    }
+
     // Create the unique test environment
     beforeAll(async () => {
         TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
@@ -41,7 +45,7 @@ describe("imperative-test-cli auth login", () => {
             await keytar.deletePassword("imperative-test-cli", "secure_config_props");
         });
 
-        it("should load values from base profile and store token in it 1", () => {
+        it("should load values from base profile and store token in it 1", async () => {
             const response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_config_local.sh",
                 TEST_ENVIRONMENT.workingDir + "/testDir", ["fakeUser", "fakePass"]);
             expect(response.stderr.toString()).toBe("");
@@ -50,10 +54,11 @@ describe("imperative-test-cli auth login", () => {
             // the output of the command should include token value
             expect(response.stdout.toString()).toContain("user:     fakeUser");
             expect(response.stdout.toString()).toContain("password: fakePass");
-            expect(response.stdout.toString()).toContain("authToken: jwtToken=fakeUser:fakePass@fakeToken");
+            expect(response.stdout.toString()).toContain("authToken: (secure value)");
+            expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=fakeUser:fakePass@fakeToken");
         });
 
-        it("should load values from base profile and store token in it 2", () => {
+        it("should load values from base profile and store token in it 2", async () => {
             const response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_config_global.sh",
                 TEST_ENVIRONMENT.workingDir + "/testDir", ["fakeUser", "fakePass"]);
             expect(response.stderr.toString()).toBe("");
@@ -62,10 +67,11 @@ describe("imperative-test-cli auth login", () => {
             // the output of the command should include token value
             expect(response.stdout.toString()).toContain("user:     fakeUser");
             expect(response.stdout.toString()).toContain("password: fakePass");
-            expect(response.stdout.toString()).toContain("authToken: jwtToken=fakeUser:fakePass@fakeToken");
+            expect(response.stdout.toString()).toContain("authToken: (secure value)");
+            expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=fakeUser:fakePass@fakeToken");
         });
 
-        it("should load values from base profile and store token in it 3", () => {
+        it("should load values from base profile and store token in it 3", async () => {
             const response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_config_local_user.sh",
                 TEST_ENVIRONMENT.workingDir + "/testDir", ["fakeUser", "fakePass"]);
             expect(response.stderr.toString()).toBe("");
@@ -74,10 +80,11 @@ describe("imperative-test-cli auth login", () => {
             // the output of the command should include token value
             expect(response.stdout.toString()).toContain("user:     fakeUser");
             expect(response.stdout.toString()).toContain("password: fakePass");
-            expect(response.stdout.toString()).toContain("authToken: jwtToken=fakeUser:fakePass@fakeToken");
+            expect(response.stdout.toString()).toContain("authToken: (secure value)");
+            expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=fakeUser:fakePass@fakeToken");
         });
 
-        it("should load values from base profile and store token in it 4", () => {
+        it("should load values from base profile and store token in it 4", async () => {
             const response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_config_global_user.sh",
                 TEST_ENVIRONMENT.workingDir + "/testDir", ["fakeUser", "fakePass"]);
             expect(response.stderr.toString()).toBe("");
@@ -86,7 +93,8 @@ describe("imperative-test-cli auth login", () => {
             // the output of the command should include token value
             expect(response.stdout.toString()).toContain("user:     fakeUser");
             expect(response.stdout.toString()).toContain("password: fakePass");
-            expect(response.stdout.toString()).toContain("authToken: jwtToken=fakeUser:fakePass@fakeToken");
+            expect(response.stdout.toString()).toContain("authToken: (secure value)");
+            expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=fakeUser:fakePass@fakeToken");
         });
 
         it("should load values from base profile and show token only", () => {
@@ -130,7 +138,7 @@ describe("imperative-test-cli auth login", () => {
             expect(response.stdout.toString()).not.toContain("authToken:");
         });
 
-        it("should create a profile, if requested 1", () => {
+        it("should create a profile, if requested 1", async () => {
             let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_create_config.sh",
                 TEST_ENVIRONMENT.workingDir + "/testDir", ["y", "fakeUser", "fakePass"]);
             expect(response.stderr.toString()).toBe("");
@@ -144,12 +152,13 @@ describe("imperative-test-cli auth login", () => {
             expect(response.status).toBe(0);
             expect(response.stdout.toString()).toContain("host:      fakeHost");
             expect(response.stdout.toString()).toContain("port:      3000");
-            expect(response.stdout.toString()).toContain("authToken: jwtToken=fakeUser:fakePass@fakeToken");
+            expect(response.stdout.toString()).toContain("authToken: (secure value)");
+            expect(await loadSecureProp("my_base")).toBe("jwtToken=fakeUser:fakePass@fakeToken");
             expect(response.stdout.toString()).not.toContain("user:");
             expect(response.stdout.toString()).not.toContain("password:");
         });
 
-        it("should create a profile, if requested 2", () => {
+        it("should create a profile, if requested 2", async () => {
             let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_create_config.sh",
                 TEST_ENVIRONMENT.workingDir + "/testDir", ["yes", "fakeUser", "fakePass"]);
             expect(response.stderr.toString()).toBe("");
@@ -163,7 +172,8 @@ describe("imperative-test-cli auth login", () => {
             expect(response.status).toBe(0);
             expect(response.stdout.toString()).toContain("host:      fakeHost");
             expect(response.stdout.toString()).toContain("port:      3000");
-            expect(response.stdout.toString()).toContain("authToken: jwtToken=fakeUser:fakePass@fakeToken");
+            expect(response.stdout.toString()).toContain("authToken: (secure value)");
+            expect(await loadSecureProp("my_base")).toBe("jwtToken=fakeUser:fakePass@fakeToken");
             expect(response.stdout.toString()).not.toContain("user:");
             expect(response.stdout.toString()).not.toContain("password:");
         });

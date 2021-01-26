@@ -13,7 +13,6 @@ import { ITestEnvironment } from "../../../../../../../__src__/environment/doc/r
 import { SetupTestEnvironment } from "../../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../../src/TestUtil";
 import { expectedConfigObject } from "../__resources__/expectedObjects";
-import * as fs from "fs";
 import * as path from "path";
 import * as lodash from "lodash";
 
@@ -139,6 +138,7 @@ describe("imperative-test-cli config list", () => {
             secure: []
         };
         const expectedProjectConfig = lodash.cloneDeep(expectedConfigObject);
+        expectedProjectConfig.profiles.my_profiles.profiles.secured.properties.secret = "(secure value)";
         const expectedResponse = {
             data: {}
         };

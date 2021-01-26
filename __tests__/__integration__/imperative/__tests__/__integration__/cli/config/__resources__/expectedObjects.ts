@@ -250,8 +250,7 @@ export const expectedConfigObject: IConfig = {
                 secured: {
                     type: "secured",
                     properties: {
-                        info: "",
-                        secret: "(secure value)"
+                        info: ""
                     }
                 }
             },
