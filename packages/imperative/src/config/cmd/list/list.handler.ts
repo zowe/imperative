@@ -45,7 +45,7 @@ export default abstract class ListHandler implements ICommandHandler {
             } else {
                 obj = config.maskedProperties;
                 if (property != null)
-                    obj = (config.properties as any)[property];
+                    obj = (config.maskedProperties as any)[property];
             }
         }
 
