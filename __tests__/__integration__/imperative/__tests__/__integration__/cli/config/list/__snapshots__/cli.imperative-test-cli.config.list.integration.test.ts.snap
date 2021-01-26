@@ -36,7 +36,8 @@ exports[`imperative-test-cli config list should list the profiles configuration 
     secured: 
       type:       secured
       properties: 
-        info: 
+        info:   
+        secret: (secure value)
 my_base: 
   type:       base
   properties: 
