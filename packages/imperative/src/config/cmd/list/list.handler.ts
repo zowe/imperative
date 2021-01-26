@@ -14,7 +14,7 @@ import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { Config } from "../../../../../config";
 import { ImperativeConfig } from "../../../../../utilities";
 
-export default abstract class ListHandler implements ICommandHandler {
+export default class ListHandler implements ICommandHandler {
     /**
      * Process the command and input.
      *

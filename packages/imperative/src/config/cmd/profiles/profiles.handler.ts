@@ -29,6 +29,7 @@ export default class ProfilesHandler implements ICommandHandler {
         const config = ImperativeConfig.instance.config;
         const paths: string[] = [];
         this.build(config.properties.profiles, "", paths);
+        params.response.data.setObj(paths);
         params.response.format.output({
             format: "list",
             output: paths
