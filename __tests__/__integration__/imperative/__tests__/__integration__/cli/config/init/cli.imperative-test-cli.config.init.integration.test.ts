@@ -102,6 +102,7 @@ describe("imperative-test-cli config init", () => {
             TEST_ENVIRONMENT.workingDir, [""]);
         const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json");
         const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.schema.json");
+        expect(response.output.toString()).not.toContain("Unable to securely save credentials");
         expect(response.output.toString()).toContain(`Saved config template to`);
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);
@@ -114,6 +115,7 @@ describe("imperative-test-cli config init", () => {
             TEST_ENVIRONMENT.workingDir, ["--user"]);
         const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.user.json");
         const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.schema.json");
+        expect(response.output.toString()).not.toContain("Unable to securely save credentials");
         expect(response.output.toString()).toContain(`Saved config template to`);
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);
@@ -126,6 +128,7 @@ describe("imperative-test-cli config init", () => {
             TEST_ENVIRONMENT.workingDir, ["--global"]);
         const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.json");
         const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.schema.json");
+        expect(response.output.toString()).not.toContain("Unable to securely save credentials");
         expect(response.output.toString()).toContain(`Saved config template to`);
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);
@@ -138,6 +141,7 @@ describe("imperative-test-cli config init", () => {
             TEST_ENVIRONMENT.workingDir, ["--global --user"]);
         const expectedConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.user.json");
         const expectedSchemaLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.schema.json");
+        expect(response.output.toString()).not.toContain("Unable to securely save credentials");
         expect(response.output.toString()).toContain(`Saved config template to`);
         expect(response.output.toString()).toContain(expectedConfigLocation);
         expect(fs.existsSync(expectedConfigLocation)).toEqual(true);

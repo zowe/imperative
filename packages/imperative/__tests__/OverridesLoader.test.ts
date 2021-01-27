@@ -82,31 +82,6 @@ describe("OverridesLoader", () => {
       });
     });
 
-    it("should load the default when not passed any configuration and keytar is present in optional dependencies.", async () => {
-      const config: IImperativeConfig = {
-        name: "ABCD",
-        overrides: {},
-        productDisplayName: "a fake CLI"
-      };
-
-      // Fake out package.json for the overrides loader
-      const packageJson = {
-        optionalDependencies: {
-          keytar: "1.0"
-        }
-      };
-
-      await OverridesLoader.load(config, packageJson);
-
-      expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
-      expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith({
-        Manager: undefined,
-        displayName: config.productDisplayName,
-        invalidOnFailure: false,
-        service: config.name
-      });
-    });
-
     describe("should load a credential manager specified by the user", () => {
       it("was passed a class", async () => {
         const config: IImperativeConfig = {

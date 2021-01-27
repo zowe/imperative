@@ -11,12 +11,14 @@
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ImperativeConfig, TextUtils } from "../../../../../utilities";
-import { Config, ConfigSchema, IConfig } from "../../../../../config";
+import { Config, ConfigSchema, IConfig, IConfigVault } from "../../../../../config";
 import { IProfileProperty } from "../../../../../profiles";
 import { ConfigBuilder } from "../../../../../config/src/ConfigBuilder";
 import { IConfigBuilderOpts } from "../../../../../config/src/doc/IConfigBuilderOpts";
 import { CredentialManagerFactory } from "../../../../../security";
 import { secureSaveError } from "../../../../../config/src/ConfigUtils";
+import { OverridesLoader } from "../../../OverridesLoader";
+import { Logger } from "../../../../../logger";
 
 /**
  * Init config
@@ -37,6 +39,7 @@ export default class InitHandler implements ICommandHandler {
         this.params = params;
 
         // Load the config and set the active layer according to user options
+        await this.ensureCredentialManagerLoaded();
         const config = ImperativeConfig.instance.config;
         config.api.layers.activate(params.arguments.user, params.arguments.global);
         const layer = config.api.layers.get();
@@ -67,6 +70,44 @@ export default class InitHandler implements ICommandHandler {
         await config.api.layers.write();
 
         params.response.console.log(`Saved config template to ${layer.path}`);
+    }
+
+    /**
+     * If CredentialManager was not already loaded by Imperative.init, load it
+     * now before performing config operations in the init handler.
+     */
+    private async ensureCredentialManagerLoaded() {
+        if (CredentialManagerFactory.initialized) {
+            return;
+        }
+
+        /**
+         * Now we should apply any overrides to default Imperative functionality. This is where CLI
+         * developers are able to really start customizing Imperative and how it operates internally.
+         */
+        await OverridesLoader.loadCredentialManager(ImperativeConfig.instance.loadedConfig,
+            ImperativeConfig.instance.callerPackageJson);
+
+        /**
+         * After the plugins and secure credentials are loaded, rebuild the configuration with the
+         * secure values
+         */
+        if (CredentialManagerFactory.initialized) {
+            const vault: IConfigVault = {
+                load: ((key: string): Promise<string> => {
+                    return CredentialManagerFactory.manager.load(key, true);
+                }),
+                save: ((key: string, value: any): Promise<void> => {
+                    return CredentialManagerFactory.manager.save(key, value);
+                })
+            };
+            try {
+                await ImperativeConfig.instance.config.secureLoad(vault);
+            } catch (err) {
+                // Secure vault is optional since we can prompt for values instead
+                Logger.getImperativeLogger().warn(`Secure vault not enabled. Reason: ${err.message}`);
+            }
+        }
     }
 
     /**

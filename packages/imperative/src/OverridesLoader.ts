@@ -33,7 +33,7 @@ export class OverridesLoader {
       packageJson: any
   ): Promise<void> {
     // Initialize the Credential Manager
-    await this.loadCredentialManager(config, packageJson);
+    await (ImperativeConfig.instance.config.exists ? this.loadCredentialManager : this.loadCredentialManagerOld)(config, packageJson);
   }
 
   /**
@@ -41,18 +41,15 @@ export class OverridesLoader {
    * If we need to reinstate 3rd party overrides, delete this function and
    * rename loadCredentialManagerOld.
    *
+   * @internal
    * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
    * @param {any} packageJson - the current package.json
    */
-  private static async loadCredentialManager(
+  public static async loadCredentialManager(
     config: IImperativeConfig,
     packageJson: any
   ): Promise<void> {
-    if (!ImperativeConfig.instance.config.exists) {
-      return this.loadCredentialManagerOld(config, packageJson);
-    }
-
-    if (!this.hasKeytarDep(packageJson)) {
+    if (packageJson.dependencies?.keytar == null && packageJson.optionalDependencies?.keytar == null) {
       return;
     }
 
@@ -96,7 +93,7 @@ export class OverridesLoader {
         config.productDisplayName || config.name;
 
     // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
-    if (overrides.CredentialManager != null || this.hasKeytarDep(packageJson)) {
+    if (overrides.CredentialManager != null || packageJson.dependencies?.keytar != null) {
       let Manager = overrides.CredentialManager;
       if (typeof overrides.CredentialManager === "string" && !isAbsolute(overrides.CredentialManager)) {
         Manager = resolve(process.mainModule.filename, "../", overrides.CredentialManager);
@@ -113,9 +110,5 @@ export class OverridesLoader {
         invalidOnFailure: !(Manager == null)
       });
     }
-  }
-
-  private static hasKeytarDep(packageJson: any): boolean {
-    return packageJson.dependencies?.keytar != null || packageJson.optionalDependencies?.keytar != null;
   }
 }
