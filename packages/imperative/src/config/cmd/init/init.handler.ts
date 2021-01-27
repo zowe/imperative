@@ -77,36 +77,9 @@ export default class InitHandler implements ICommandHandler {
      * now before performing config operations in the init handler.
      */
     private async ensureCredentialManagerLoaded() {
-        if (CredentialManagerFactory.initialized) {
-            return;
-        }
-
-        /**
-         * Now we should apply any overrides to default Imperative functionality. This is where CLI
-         * developers are able to really start customizing Imperative and how it operates internally.
-         */
-        await OverridesLoader.loadCredentialManager(ImperativeConfig.instance.loadedConfig,
-            ImperativeConfig.instance.callerPackageJson);
-
-        /**
-         * After the plugins and secure credentials are loaded, rebuild the configuration with the
-         * secure values
-         */
-        if (CredentialManagerFactory.initialized) {
-            const vault: IConfigVault = {
-                load: ((key: string): Promise<string> => {
-                    return CredentialManagerFactory.manager.load(key, true);
-                }),
-                save: ((key: string, value: any): Promise<void> => {
-                    return CredentialManagerFactory.manager.save(key, value);
-                })
-            };
-            try {
-                await ImperativeConfig.instance.config.secureLoad(vault);
-            } catch (err) {
-                // Secure vault is optional since we can prompt for values instead
-                Logger.getImperativeLogger().warn(`Secure vault not enabled. Reason: ${err.message}`);
-            }
+        if (!CredentialManagerFactory.initialized) {
+            await OverridesLoader.loadCredentialManager(ImperativeConfig.instance.loadedConfig,
+                ImperativeConfig.instance.callerPackageJson);
         }
     }
 

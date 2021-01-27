@@ -60,8 +60,7 @@ import { IYargsContext } from "./doc/IYargsContext";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 import { ImperativeExpect } from "../../expect";
 import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
-import { Config, IConfigVault } from "../../config";
-import { CredentialManagerFactory } from "../../security";
+import { Config } from "../../config";
 
 // Bootstrap the performance tools
 if (PerfTiming.isEnabled) {
@@ -223,27 +222,6 @@ export class Imperative {
                  */
                 await OverridesLoader.load(ImperativeConfig.instance.loadedConfig,
                     ImperativeConfig.instance.callerPackageJson);
-
-                /**
-                 * After the plugins and secure credentials are loaded, rebuild the configuration with the
-                 * secure values
-                 */
-                if (CredentialManagerFactory.initialized) {
-                    const vault: IConfigVault = {
-                        load: ((key: string): Promise<string> => {
-                            return CredentialManagerFactory.manager.load(key, true);
-                        }),
-                        save: ((key: string, value: any): Promise<void> => {
-                            return CredentialManagerFactory.manager.save(key, value);
-                        })
-                    };
-                    try {
-                        await ImperativeConfig.instance.config.secureLoad(vault);
-                    } catch (err) {
-                        // Secure vault is optional since we can prompt for values instead
-                        Logger.getImperativeLogger().warn(`Secure vault not enabled. Reason: ${err.message}`);
-                    }
-                }
 
                 /**
                  * Build API object
