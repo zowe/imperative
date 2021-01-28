@@ -274,7 +274,7 @@ describe("OverridesLoader", () => {
         expect(caughtError).toBeUndefined();
         expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
         expect(ImperativeConfig.instance.config.secureLoad).toHaveBeenCalledTimes(1);
-    });
+      });
     });
   });
 });

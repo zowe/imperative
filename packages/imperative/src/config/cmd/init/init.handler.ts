@@ -11,14 +11,13 @@
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ImperativeConfig, TextUtils } from "../../../../../utilities";
-import { Config, ConfigSchema, IConfig, IConfigVault } from "../../../../../config";
+import { Config, ConfigSchema, IConfig } from "../../../../../config";
 import { IProfileProperty } from "../../../../../profiles";
 import { ConfigBuilder } from "../../../../../config/src/ConfigBuilder";
 import { IConfigBuilderOpts } from "../../../../../config/src/doc/IConfigBuilderOpts";
 import { CredentialManagerFactory } from "../../../../../security";
 import { secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { OverridesLoader } from "../../../OverridesLoader";
-import { Logger } from "../../../../../logger";
 
 /**
  * Init config
