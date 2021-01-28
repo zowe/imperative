@@ -104,6 +104,7 @@ describe("Configuration Initialization command handler", () => {
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
         await setupConfigToLoad(); // Setup the config
 
+        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
         setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
 
         // We aren't testing the config initialization - clear the spies
@@ -126,6 +127,7 @@ describe("Configuration Initialization command handler", () => {
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
         compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
 
+        expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
@@ -153,6 +155,7 @@ describe("Configuration Initialization command handler", () => {
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
         await setupConfigToLoad(); // Setup the config
 
+        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
         setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
 
         // We aren't testing the config initialization - clear the spies
@@ -175,6 +178,7 @@ describe("Configuration Initialization command handler", () => {
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
         delete compObj.profiles.my_profiles.profiles.secured.properties.info; // Delete info as well
 
+        expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
@@ -197,6 +201,7 @@ describe("Configuration Initialization command handler", () => {
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
         await setupConfigToLoad(); // Setup the config
 
+        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
         setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
 
         // We aren't testing the config initialization - clear the spies
@@ -219,6 +224,7 @@ describe("Configuration Initialization command handler", () => {
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
         compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
 
+        expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
@@ -246,6 +252,7 @@ describe("Configuration Initialization command handler", () => {
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
         await setupConfigToLoad(); // Setup the config
 
+        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
         setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
 
         // We aren't testing the config initialization - clear the spies
@@ -268,6 +275,7 @@ describe("Configuration Initialization command handler", () => {
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
         delete compObj.profiles.my_profiles.profiles.secured.properties.info; // Delete info as well
 
+        expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 

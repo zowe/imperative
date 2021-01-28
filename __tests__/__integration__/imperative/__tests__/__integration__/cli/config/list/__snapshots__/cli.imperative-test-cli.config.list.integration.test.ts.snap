@@ -8,7 +8,8 @@ exports[`imperative-test-cli config list should list the configuration 1`] = `
       secured: 
         type:       secured
         properties: 
-          info: 
+          info:   
+          secret: (secure value)
   my_base: 
     type:       base
     properties: 
@@ -35,7 +36,8 @@ exports[`imperative-test-cli config list should list the profiles configuration 
     secured: 
       type:       secured
       properties: 
-        info: 
+        info:   
+        secret: (secure value)
 my_base: 
   type:       base
   properties: 

@@ -178,8 +178,11 @@ describe("OverridesLoader", () => {
 
     describe("when config JSON exists", () => {
       beforeEach(() => {
-        jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValueOnce({
-          config: { exists: () => false }
+        jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
+          config: {
+            exists: () => true,
+            secureLoad: jest.fn()
+          }
         } as any);
       });
 
@@ -244,6 +247,33 @@ describe("OverridesLoader", () => {
           invalidOnFailure: false,
           service: null
         });
+      });
+
+      it("should not fail if secure load fails", async () => {
+        const config: IImperativeConfig = {
+          name: "ABCD",
+          overrides: {}
+        };
+
+        // Fake out package.json for the overrides loader
+        const packageJson = {
+          dependencies: {
+            keytar: "1.0"
+          }
+        };
+
+        Object.defineProperty(CredentialManagerFactory, "initialized", { get: () => true });
+        let caughtError;
+
+        try {
+          await OverridesLoader.load(config, packageJson);
+        } catch (error) {
+          caughtError = error;
+        }
+
+        expect(caughtError).toBeUndefined();
+        expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
+        expect(ImperativeConfig.instance.config.secureLoad).toHaveBeenCalledTimes(1);
       });
     });
   });

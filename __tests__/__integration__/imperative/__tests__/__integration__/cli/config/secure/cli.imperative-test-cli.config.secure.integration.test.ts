@@ -31,7 +31,7 @@ describe("imperative-test-cli config secure", () => {
 
     const expectedJson = lodash.cloneDeep(expectedConfigObject);
     delete expectedJson.$schema;
-    expectedJson.profiles.my_profiles.profiles.secured.properties.secret = "anotherFakeValue";
+    expectedJson.profiles.my_profiles.profiles.secured.properties.secret = "(secure value)";
     expectedJson.secure = [];
 
     const expectedUserJson = expectedUserConfigObject;

@@ -55,6 +55,7 @@ export class Config {
     private constructor(public opts?: IConfigOpts) { }
 
     public static readonly INDENT: number = 4;
+    public static readonly SECURE_VALUE = "(secure value)";
 
     public static empty(): IConfig {
         return {
@@ -357,7 +358,16 @@ export class Config {
     }
 
     public get properties(): IConfig {
-        return this.layerMerge();
+        return this.layerMerge(false);
+    }
+
+    /**
+     * The properties object with secure values masked.
+     * @type {IConfig}
+     * @memberof Config
+     */
+    public get maskedProperties(): IConfig {
+        return this.layerMerge(true);
     }
 
     public get app(): string {
@@ -449,7 +459,7 @@ export class Config {
     ////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
 
-    private layerMerge(): IConfig {
+    private layerMerge(maskSecure?: boolean): IConfig {
         // config starting point
         // NOTE: "properties" and "secure" only apply to the individual layers
         // NOTE: they will be blank for the merged config
@@ -467,13 +477,13 @@ export class Config {
         });
 
         // Merge the project layer profiles
-        const usrProject = JSONC.parse(JSONC.stringify(this._layers[layers.project_user].properties.profiles));
-        const project = JSONC.parse(JSONC.stringify(this._layers[layers.project_config].properties.profiles));
+        const usrProject = this.layerProfiles(this._layers[layers.project_user], maskSecure);
+        const project = this.layerProfiles(this._layers[layers.project_config], maskSecure);
         const proj: { [key: string]: IConfigProfile } = deepmerge(project, usrProject);
 
         // Merge the global layer profiles
-        const usrGlobal = JSONC.parse(JSONC.stringify(this._layers[layers.global_user].properties.profiles));
-        const global = JSONC.parse(JSONC.stringify(this._layers[layers.global_config].properties.profiles));
+        const usrGlobal = this.layerProfiles(this._layers[layers.global_user], maskSecure);
+        const global = this.layerProfiles(this._layers[layers.global_config], maskSecure);
         const glbl: { [key: string]: IConfigProfile } = deepmerge(global, usrGlobal);
 
         // Traverse all the global profiles merging any missing from project profiles
@@ -484,6 +494,16 @@ export class Config {
         }
 
         return c;
+    }
+
+    private layerProfiles(layer: IConfigLayer, maskSecure?: boolean): { [key: string]: IConfigProfile } {
+        const properties = JSONC.parse(JSONC.stringify(layer.properties));
+        if (maskSecure) {
+            for (const secureProp of properties.secure) {
+                lodash.set(properties, secureProp, Config.SECURE_VALUE);
+            }
+        }
+        return properties.profiles;
     }
 
     private layerActive(): IConfigLayer {

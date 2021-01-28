@@ -17,6 +17,7 @@ import { ConfigBuilder } from "../../../../../config/src/ConfigBuilder";
 import { IConfigBuilderOpts } from "../../../../../config/src/doc/IConfigBuilderOpts";
 import { CredentialManagerFactory } from "../../../../../security";
 import { secureSaveError } from "../../../../../config/src/ConfigUtils";
+import { OverridesLoader } from "../../../OverridesLoader";
 
 /**
  * Init config
@@ -37,6 +38,7 @@ export default class InitHandler implements ICommandHandler {
         this.params = params;
 
         // Load the config and set the active layer according to user options
+        await this.ensureCredentialManagerLoaded();
         const config = ImperativeConfig.instance.config;
         config.api.layers.activate(params.arguments.user, params.arguments.global);
         const layer = config.api.layers.get();
@@ -67,6 +69,17 @@ export default class InitHandler implements ICommandHandler {
         await config.api.layers.write();
 
         params.response.console.log(`Saved config template to ${layer.path}`);
+    }
+
+    /**
+     * If CredentialManager was not already loaded by Imperative.init, load it
+     * now before performing config operations in the init handler.
+     */
+    private async ensureCredentialManagerLoaded() {
+        if (!CredentialManagerFactory.initialized) {
+            await OverridesLoader.loadCredentialManager(ImperativeConfig.instance.loadedConfig,
+                ImperativeConfig.instance.callerPackageJson);
+        }
     }
 
     /**

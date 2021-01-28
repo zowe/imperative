@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
+import { ICommandHandler, ICommandProfileTypeConfiguration, IHandlerParameters } from "../../../../../cmd";
 import { Config, ConfigSchema } from "../../../../../config";
 import { ImperativeConfig } from "../../../../../utilities";
 
@@ -25,7 +25,15 @@ export default class SchemaHandler implements ICommandHandler {
      * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
-        const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
+        let profileConfigs: ICommandProfileTypeConfiguration[];
+        try {
+            profileConfigs = ImperativeConfig.instance.loadedConfig.profiles;
+        } catch (err) {
+            params.response.console.error("Failed to load profile schemas");
+            return;
+        }
+        const schema = ConfigSchema.buildSchema(profileConfigs);
+        params.response.data.setObj(schema);
         params.response.console.log(JSON.stringify(schema, null, Config.INDENT));
     }
 }

@@ -166,7 +166,7 @@ describe("Imperative", () => {
             (Imperative as any).defineCommands = jest.fn(() => undefined);
 
             mocks.ConfigurationLoader.load.mockReturnValue(defaultConfig);
-            mocks.OverridesLoader.load.mockReturnValue(new Promise((resolve) => resolve()));
+            mocks.OverridesLoader.load.mockResolvedValue(undefined);
             mocks.Config.load.mockResolvedValue({});
         });
 
@@ -175,6 +175,7 @@ describe("Imperative", () => {
             const result = await Imperative.init();
 
             expect(result).toBeUndefined();
+            expect(mocks.Config.load).toHaveBeenCalledTimes(1);
             expect(mocks.OverridesLoader.load).toHaveBeenCalledTimes(1);
             expect(mocks.OverridesLoader.load).toHaveBeenCalledWith(defaultConfig, {version: 10000, name: "sample"});
         });
@@ -222,42 +223,6 @@ describe("Imperative", () => {
                 await Imperative.init();
 
                 expect(ConfigManagementFacility.instance.init).toHaveBeenCalledTimes(1);
-            });
-
-            describe("load", () => {
-                beforeEach(() => {
-                    Object.defineProperty(mocks.CredentialManagerFactory, "initialized", { get: () => true });
-                });
-
-                it("should load config JSON layers", async () => {
-                    mocks.Config.load.mockResolvedValue({
-                        secureLoad: jest.fn()
-                    });
-
-                    await Imperative.init();
-
-                    expect(mocks.Config.load).toHaveBeenCalledTimes(1);
-                    expect(mocks.ImperativeConfig.instance.config.secureLoad).toHaveBeenCalledTimes(1);
-                });
-
-                it("should not fail if secure load fails", async () => {
-                    mocks.Config.load.mockResolvedValue({
-                        secureLoad: jest.fn(() => {
-                            throw new Error("secure load failed");
-                        })
-                    });
-                    let caughtError;
-
-                    try {
-                        await Imperative.init();
-                    } catch (error) {
-                        caughtError = error;
-                    }
-
-                    expect(mocks.Config.load).toHaveBeenCalledTimes(1);
-                    expect(mocks.ImperativeConfig.instance.config.secureLoad).toHaveBeenCalledTimes(1);
-                    expect(caughtError).toBeUndefined();
-                });
             });
         });
 

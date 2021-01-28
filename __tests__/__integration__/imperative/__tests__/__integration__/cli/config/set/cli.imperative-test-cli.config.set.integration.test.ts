@@ -31,8 +31,8 @@ describe("imperative-test-cli config set", () => {
 
     const expectedJson = lodash.cloneDeep(expectedConfigObject);
     delete expectedJson.$schema;
-    expectedJson.profiles.my_profiles.profiles.secured.properties.info = "some_fake_information";
-    expectedJson.profiles.my_profiles.profiles.secured.properties.secret = "fakeValue";
+    expectedJson.profiles.my_profiles.profiles.secured.properties.info = "(secure value)";
+    expectedJson.profiles.my_profiles.profiles.secured.properties.secret = "(secure value)";
     expectedJson.secure = [];
 
     const expectedUserJson = lodash.cloneDeep(expectedJson);
@@ -49,8 +49,6 @@ describe("imperative-test-cli config set", () => {
         expectedGlobalProjectConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.json");
         expectedUserConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.user.json");
         expectedProjectConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json");
-        expectedJson.profiles.my_profiles.profiles.secured.properties.info = "some_fake_information";
-        expectedUserJson.profiles.my_profiles.profiles.secured.properties.info = "some_fake_information";
         await keytar.setPassword("imperative-test-cli", "secure_config_props", Buffer.from("{}").toString("base64"));
     });
     afterEach(() => {
@@ -198,7 +196,6 @@ describe("imperative-test-cli config set", () => {
             const fileContents = JSON.parse(fs.readFileSync(expectedGlobalUserConfigLocation).toString());
             const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
             const configJson = JSON.parse(config);
-            expectedUserJson.profiles.my_profiles.profiles.secured.properties.info = {data: "fake"};
             const securedValue = await keytar.getPassword(service, "secure_config_props");
             const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
             const expectedSecuredValueJson = {};
