@@ -18,7 +18,7 @@ import { ICommandHandler } from "./doc/handler/ICommandHandler";
 import { couldNotInstantiateCommandHandler, unexpectedCommandError } from "../../messages";
 import { SharedOptions } from "./utils/SharedOptions";
 import { IImperativeError, ImperativeError } from "../../error";
-import { IProfileManagerFactory } from "../../profiles";
+import { IProfileManagerFactory, ProfileUtils } from "../../profiles";
 import { SyntaxValidator } from "./syntax/SyntaxValidator";
 import { CommandProfileLoader } from "./profiles/CommandProfileLoader";
 import { ICommandProfileTypeConfiguration } from "./doc/profiles/definition/ICommandProfileTypeConfiguration";
@@ -35,12 +35,14 @@ import { ImperativeConfig, TextUtils } from "../../utilities";
 import * as nodePath from "path";
 import * as os from "os";
 import { ICommandHandlerRequire } from "./doc/handler/ICommandHandlerRequire";
+import { IHandlerParameters } from "../../cmd";
 import { ChainedHandlerService } from "./ChainedHandlerUtils";
 import { Constants } from "../../constants";
 import { ICommandArguments } from "./doc/args/ICommandArguments";
 import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "./help/WebHelpManager";
-
+import { ICommandProfile } from "./doc/profiles/definition/ICommandProfile";
+import { Config } from "../../config";
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
  * response object and validates syntax, loads profiles, instantiates handlers, & invokes the handlers.
@@ -120,13 +122,13 @@ export class CommandProcessor {
      * @memberof CommandProcessor
      */
     private mLogger: Logger = Logger.getImperativeLogger();
-
     /**
-     * Current working directory
+     * Config object used to load profiles from active config layers.
      * @private
+     * @type {Config}
      * @memberof CommandProcessor
      */
-    private mCwd: string;
+    private mConfig: Config;
 
     /**
      * Creates an instance of CommandProcessor.
@@ -151,10 +153,10 @@ export class CommandProcessor {
         this.mCommandLine = params.commandLine;
         this.mEnvVariablePrefix = params.envVariablePrefix;
         this.mPromptPhrase = params.promptPhrase;
+        this.mConfig = params.config;
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["promptPhrase"], `${CommandProcessor.ERROR_TAG} No prompt phrase supplied.`);
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["rootCommandName"], `${CommandProcessor.ERROR_TAG} No root command supplied.`);
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["envVariablePrefix"], `${CommandProcessor.ERROR_TAG} No ENV variable prefix supplied.`);
-        this.mCwd = process.cwd();
         // TODO - check if the command definition passed actually exists within the full command definition tree passed
     }
 
@@ -206,6 +208,16 @@ export class CommandProcessor {
      */
     get helpGenerator(): IHelpGenerator {
         return this.mHelpGenerator;
+    }
+
+    /**
+     * Accessor for the app config
+     * @readonly
+     * @type {Config}
+     * @memberof CommandProcessor
+     */
+    get config(): Config {
+        return this.mConfig;
     }
 
     /**
@@ -353,11 +365,14 @@ export class CommandProcessor {
         // Build the response object, base args object, and the entire array of options for this command
         // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
         if (params.arguments.dcd) {
-
             // NOTE(Kelosky): we adjust `cwd` and do not restore it, so that multiple simultaneous requests from the same
             // directory will operate without unexpected chdir taking place.  Multiple simultaneous requests from different
             // directories may cause unpredictable results
             process.chdir(params.arguments.dcd as string)
+
+            // reinit config for daemon client directory
+            ImperativeConfig.instance.config = await Config.load(ImperativeConfig.instance.rootCommandName, ImperativeConfig.instance.config.opts);
+            this.mConfig = ImperativeConfig.instance.config;
         }
         const prepareResponse = this.constructResponseObject(params);
         prepareResponse.succeeded();
@@ -547,18 +562,21 @@ export class CommandProcessor {
                 return this.finishResponse(response);
             }
 
+            const handlerParms: IHandlerParameters = {
+                response,
+                profiles: prepared.profiles,
+                arguments: prepared.args,
+                positionals: prepared.args._,
+                definition: this.definition,
+                fullDefinition: this.fullDefinition
+            };
             try {
-                await handler.process({
-                    response,
-                    profiles: prepared.profiles,
-                    arguments: prepared.args,
-                    positionals: prepared.args._,
-                    definition: this.definition,
-                    fullDefinition: this.fullDefinition
-                });
+                await handler.process(handlerParms);
             } catch (processErr) {
 
                 this.handleHandlerError(processErr, response, this.definition.handler);
+
+                CliUtils.showMsgWhenDeprecated(handlerParms);
 
                 // Return the failed response to the caller
                 return this.finishResponse(response);
@@ -573,6 +591,8 @@ export class CommandProcessor {
                 timingApi.mark("END_CMD_INVOKE");
                 timingApi.measure("Command executed: " + this.commandLine, "START_CMD_INVOKE", "END_CMD_INVOKE");
             }
+
+            CliUtils.showMsgWhenDeprecated(handlerParms);
 
             // Return the response to the caller
             return this.finishResponse(response);
@@ -716,6 +736,67 @@ export class CommandProcessor {
         this.log.trace(`Reading stdin for "${this.definition.name}" command...`);
         await SharedOptions.readStdinIfRequested(commandArguments, response, this.definition.type);
 
+        // Build a list of all profile types - this will help us search the CLI
+        // options for profiles specified by the user
+        let allTypes: string[] = [];
+        if (this.definition.profile != null) {
+            if (this.definition.profile.required != null)
+                allTypes = allTypes.concat(this.definition.profile.required)
+            if (this.definition.profile.optional != null)
+                allTypes = allTypes.concat(this.definition.profile.optional)
+        }
+
+        // Build an object that contains all the options loaded from config
+        const fulfilled: string[] = [];
+        let fromCnfg: any = {};
+        if (this.mConfig != null) {
+            for (const profileType of allTypes) {
+                const [opt, _] = ProfileUtils.getProfileOptionAndAlias(profileType);
+
+                // If the config contains the requested profiles, then "remember"
+                // that this type has been fulfilled - so that we do NOT load from
+                // the traditional profile location
+                let p: any = {};
+                if (args[opt] != null && this.mConfig.api.profiles.exists(args[opt])) {
+                    fulfilled.push(profileType);
+                    p = this.mConfig.api.profiles.get(args[opt]);
+                } else if (args[opt] == null &&
+                    this.mConfig.properties.defaults[profileType] != null &&
+                    this.mConfig.api.profiles.exists(this.mConfig.properties.defaults[profileType])) {
+                    fulfilled.push(profileType);
+                    p = this.mConfig.api.profiles.defaultGet(profileType);
+                }
+                fromCnfg = { ...p, ...fromCnfg };
+            }
+        }
+
+        // Convert each property extracted from the config to the correct yargs
+        // style cases for the command handler (kebab and camel)
+        allOpts.forEach((opt) => {
+            const cases = CliUtils.getOptionFormat(opt.name);
+            const profileKebab = fromCnfg[cases.kebabCase];
+            const profileCamel = fromCnfg[cases.camelCase];
+
+            if ((profileCamel !== undefined || profileKebab !== undefined) &&
+                (!args.hasOwnProperty(cases.kebabCase) && !args.hasOwnProperty(cases.camelCase))) {
+
+                // If both case properties are present in the profile, use the one that matches
+                // the option name explicitly
+                const value = (profileKebab !== undefined && profileCamel !== undefined) ?
+                    ((opt.name === cases.kebabCase) ? profileKebab : profileCamel) :
+                    ((profileKebab !== undefined) ? profileKebab : profileCamel);
+                const keys = CliUtils.setOptionValue(opt.name,
+                    ("aliases" in opt) ? opt.aliases : [],
+                    value
+                );
+                fromCnfg = { ...fromCnfg, ...keys };
+            }
+        });
+
+        // Merge the arguments from the config into the CLI args
+        this.log.trace(`Arguments extracted from the config:\n${inspect(fromCnfg)}`);
+        args = CliUtils.mergeArguments(fromCnfg, args);
+
         // Load all profiles for the command
         this.log.trace(`Loading profiles for "${this.definition.name}" command. ` +
             `Profile definitions: ${inspect(this.definition.profile, { depth: null })}`);
@@ -729,7 +810,21 @@ export class CommandProcessor {
         // If we have profiles listed on the command definition (the would be loaded already)
         // we can extract values from them for options arguments
         if (this.definition.profile != null) {
-            const profArgs = CliUtils.getOptValueFromProfiles(profiles, this.definition.profile, allOpts);
+
+            // "fake out" the cli util to only populate options for profiles
+            // that have not been fulfilled by the config
+            const p: ICommandProfile = {
+                required: [],
+                optional: [],
+                suppressOptions: this.definition.profile.suppressOptions
+            };
+
+            if (this.definition.profile.required)
+                p.required = this.definition.profile.required.filter(type => fulfilled.indexOf(type) < 0);
+            if (this.definition.profile.optional)
+                p.optional = this.definition.profile.optional.filter(type => fulfilled.indexOf(type) < 0);
+
+            const profArgs = CliUtils.getOptValueFromProfiles(profiles, p, allOpts);
             this.log.trace(`Arguments extract from the profile:\n${inspect(profArgs)}`);
             args = CliUtils.mergeArguments(profArgs, args);
         }

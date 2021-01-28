@@ -13,7 +13,7 @@ import {
     ICommandHandler,
     IHandlerParameters,
     ImperativeError
-} from "../../../../../../../packages/index";
+} from "../../../../../../../lib/index";
 /**
  * A test handler with async.
  * @export

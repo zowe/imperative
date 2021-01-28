@@ -25,6 +25,7 @@ import { WebHelpManager } from "../src/help/WebHelpManager";
 
 jest.mock("../src/syntax/SyntaxValidator");
 jest.mock("../src/utils/SharedOptions");
+jest.mock("../../utilities/src/ImperativeConfig");
 
 // Persist the original definitions of process.write
 const ORIGINAL_STDOUT_WRITE = process.stdout.write;

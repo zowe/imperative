@@ -9,12 +9,24 @@
 *
 */
 
+jest.mock("../../../../utilities/src/ImperativeConfig");
+
+import { ImperativeConfig } from "../../../../utilities"
 import { deleteHandlerPaths, testBuilderProfiles } from "./ProfileBuilderTestConstants";
 import { TestLogger } from "../../../../../__tests__/TestLogger";
 import { CompleteProfilesGroupBuilder } from "../../../../imperative/src/profiles/builders/CompleteProfilesGroupBuilder";
 
 describe("Complete Profiles Group Builder", () => {
     const logger = TestLogger.getTestLogger();
+
+    // pretend that we have a team config
+    (ImperativeConfig.instance.config as any) = {
+        exists: true,
+        formMainConfigPathNm: jest.fn(() => {
+            return "zowe.config.json";
+        })
+    };
+
     it("should provide a valid command definition for the " +
         "complete auto generated profile group if passed a valid " +
         "profile configuration document", () => {

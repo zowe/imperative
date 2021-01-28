@@ -9,14 +9,17 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters, ICommandArguments } from "../../../../cmd";
+import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerResponseApi } from "../../../../cmd";
 import { Constants } from "../../../../constants";
 import { ISession, ConnectionPropsForSessCfg, Session, SessConstants, AbstractSession } from "../../../../rest";
 import { Imperative } from "../../Imperative";
 import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../profiles";
-import { CliUtils } from "../../../../utilities";
+import { ImperativeConfig } from "../../../../utilities";
+import { Config } from "../../../../config";
+import { CredentialManagerFactory } from "../../../../security";
+import { secureSaveError } from "../../../../config/src/ConfigUtils";
 
 /**
  * This class is used by the auth command handlers as the base class for their implementation.
@@ -58,7 +61,6 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 throw new ImperativeError({
                     msg: `The group name "${commandParameters.positionals[1]}" was passed to the BaseAuthHandler, but it is not valid.`
                 });
-                break;
         }
     }
 
@@ -79,7 +81,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * @param {AbstractSession} session The session object to use to connect to the auth service
      * @returns {Promise<string>} The response from the auth service containing a token
      */
-    protected abstract async doLogin(session: AbstractSession): Promise<string>;
+    protected abstract doLogin(session: AbstractSession): Promise<string>;
 
     /**
      * This is called by the "auth logout" command after it creates a session, to
@@ -87,7 +89,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * @abstract
      * @param {AbstractSession} session The session object to use to connect to the auth service
      */
-    protected abstract async doLogout(session: AbstractSession): Promise<void>;
+    protected abstract doLogout(session: AbstractSession): Promise<void>;
 
     /**
      * Performs the login operation. Builds a session to connect to the auth
@@ -96,14 +98,12 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * @param {IHandlerParameters} params Command parameters sent by imperative.
      */
     private async processLogin(params: IHandlerParameters) {
-        const loadedProfile = params.profiles.getMeta(this.mProfileType, false);
-
         const sessCfg: ISession = this.createSessCfgFromArgs(
             params.arguments
         );
         const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             sessCfg, params.arguments,
-            { requestToken: true, defaultTokenType: this.mDefaultTokenType }
+            { requestToken: true, defaultTokenType: this.mDefaultTokenType, parms: params },
         );
 
         this.mSession = new Session(sessCfgWithCreds);
@@ -116,77 +116,92 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             throw new ImperativeError({msg: "A token value was not returned from the login handler."});
         }
 
-        // update the profile given
-        if (!params.arguments.showToken) {
-            let profileWithToken: string = null;
-
-            if (loadedProfile != null && loadedProfile.name != null) {
-                await Imperative.api.profileManager(this.mProfileType).update({
-                    name: loadedProfile.name,
-                    args: {
-                        "token-type": this.mSession.ISession.tokenType,
-                        "token-value": tokenValue
-                    },
-                    merge: true
-                });
-                profileWithToken = loadedProfile.name;
-            } else {
-
-                // Do not store non-profile arguments, user, or password. Set param arguments for prompted values from session.
-
-                const copyArgs = {...params.arguments};
-                copyArgs.createProfile = undefined;
-                copyArgs.showToken = undefined;
-                copyArgs.user = undefined;
-                copyArgs.password = undefined;
-
-                copyArgs.host = this.mSession.ISession.hostname;
-                copyArgs.port = this.mSession.ISession.port;
-
-                copyArgs.tokenType = this.mSession.ISession.tokenType;
-                copyArgs["token-type"] = this.mSession.ISession.tokenType;
-
-                copyArgs.tokenValue = tokenValue;
-                copyArgs["token-value"] = tokenValue;
-
-                const createParms: ISaveProfileFromCliArgs = {
-                    name: "default",
-                    type: this.mProfileType,
-                    args: copyArgs,
-                    overwrite: false,
-                    profile: {}
-                };
-
-                const answer: string = await CliUtils.promptWithTimeout(
-                    `Do you want to store the host, port, and token on disk for use with future commands? If you answer Yes, the credentials will ` +
-                    `be saved to a ${this.mProfileType} profile named '${createParms.name}'. If you answer No, the token will be printed to the ` +
-                    `terminal and will not be stored on disk. [y/N]: `);
-                if (answer != null && (answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
-                    await Imperative.api.profileManager(this.mProfileType).save(createParms);
-                    profileWithToken = createParms.name;
-                } else {
-                    params.arguments.showToken = true;
-                }
-            }
-
-            if (profileWithToken != null) {
-                params.response.console.log(`\n` +
-                    `Login successful. The authentication token is stored in the '${profileWithToken}' ` +
-                    `${this.mProfileType} profile for future use. To revoke this token and remove it from your profile, review the ` +
-                    `'zowe auth logout' command.`);
-            }
-        }
-
-        // show token instead of updating profile
         if (params.arguments.showToken) {
+            // show token instead of updating profile
+            this.showToken(params.response, tokenValue);
+        } else if (!ImperativeConfig.instance.config.exists) {
+            // process login for old school profiles
+            await this.processLoginOld(params, tokenValue);
+        } else if (!CredentialManagerFactory.initialized) {
+            throw secureSaveError(`Instead of secure storage, rerun this command with the "--show-token" flag to print the token to console. ` +
+                `Store the token in an environment variable ${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_OPT_TOKEN_VALUE to use it ` +
+                `in future commands.`);
+        } else {
+            // update the profile given
+            // TODO Should config be added to IHandlerParameters?
+            const config = ImperativeConfig.instance.config;
+            let profileName = this.getBaseProfileName(params, config);
+            const loadedProfile = config.api.profiles.load(profileName);
+            let profileExists = loadedProfile != null && Object.keys(loadedProfile.properties).length > 0;
+            const beforeLayer = config.api.layers.get();
+
+            // Check if existing base profile is reusable (does it include user/password?)
+            if (profileExists && (loadedProfile.properties.user != null || loadedProfile.properties.password != null)) {
+                profileName = `${profileName}_${params.positionals[2]}`;
+                profileExists = false;
+            }
+
+            // If base profile is null or empty, prompt user before saving token to disk
+            if (!profileExists) {
+                const ok = await this.promptForBaseProfile(params, profileName);
+                if (!ok) {
+                    this.showToken(params.response, tokenValue);
+                    return;
+                }
+
+                config.api.profiles.set(profileName, {
+                    type: this.mProfileType,
+                    properties: {
+                        host: this.mSession.ISession.hostname,
+                        port: this.mSession.ISession.port
+                    }
+                });
+                config.api.profiles.defaultSet(this.mProfileType, profileName);
+            } else {
+                const user = Object.keys(loadedProfile.properties).every((k: string) => loadedProfile.properties[k].user);
+                const global = Object.keys(loadedProfile.properties).some((k: string) => loadedProfile.properties[k].global);
+                config.api.layers.activate(user, global);
+            }
+
+            const profilePath = config.api.profiles.expandPath(profileName);
+            config.set(`${profilePath}.properties.authToken`,
+                `${this.mSession.ISession.tokenType}=${tokenValue}`, { secure: true });
+
+            await config.api.layers.write();
+            // Restore original active layer
+            config.api.layers.activate(beforeLayer.user, beforeLayer.global);
+
             params.response.console.log(`\n` +
-                `Received a token of type = ${this.mSession.ISession.tokenType}.\n` +
-                `The following token was retrieved and will not be stored in your profile:\n` +
-                `${tokenValue}\n\n` +
-                `Login successful. To revoke this token, review the 'zowe auth logout' command.`
-            );
-            params.response.data.setObj({tokenType: this.mSession.ISession.tokenType, tokenValue});
+                `Login successful. The authentication token is stored in the '${profileName}' ` +
+                `${this.mProfileType} profile for future use. To revoke this token and remove it from your profile, review the ` +
+                `'zowe auth logout' command.`);
         }
+    }
+
+    private getBaseProfileName(params: IHandlerParameters, config: Config): string {
+        let profileName = params.arguments[`${this.mProfileType}-profile`] || config.properties.defaults[this.mProfileType];
+        if (profileName == null || !config.api.profiles.exists(profileName)) {
+            profileName = `my_${this.mProfileType}_${params.positionals[2]}`;
+        }
+        return profileName;
+    }
+
+    private async promptForBaseProfile(params: IHandlerParameters, profileName: string): Promise<boolean> {
+        const answer: string = await params.response.console.prompt(
+            `Do you want to store the host, port, and token on disk for use with future commands? If you answer Yes, the credentials will ` +
+            `be saved to a ${this.mProfileType} profile named '${profileName}'. If you answer No, the token will be printed to the ` +
+            `terminal and will not be stored on disk. [y/N]: `);
+        return (answer != null && (answer.toLowerCase() === "y" || answer.toLowerCase() === "yes"));
+    }
+
+    private showToken(response: IHandlerResponseApi, tokenValue: string) {
+        response.console.log(`\n` +
+            `Received a token of type = ${this.mSession.ISession.tokenType}.\n` +
+            `The following token was retrieved and will not be stored in your profile:\n` +
+            `${tokenValue}\n\n` +
+            `Login successful. To revoke this token, review the 'zowe auth logout' command.`
+        );
+        response.data.setObj({ tokenType: this.mSession.ISession.tokenType, tokenValue });
     }
 
     /**
@@ -195,9 +210,8 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * @param {IHandlerParameters} params Command parameters sent by imperative.
      */
     private async processLogout(params: IHandlerParameters) {
-        const loadedProfile = params.profiles.getMeta(this.mProfileType, false);
-
-        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue, "Token value not supplied, but is required for logout.");
+        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue || params.arguments.authToken,
+            "Token value not supplied, but is required for logout.");
 
         // Force to use of token value, in case user and/or password also on base profile, make user undefined.
         if (params.arguments.user != null) {
@@ -212,12 +226,101 @@ export abstract class BaseAuthHandler implements ICommandHandler {
 
         const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             sessCfg, params.arguments,
-            { requestToken: false }
+            { requestToken: false, parms: params },
         );
 
         this.mSession = new Session(sessCfgWithCreds);
 
         await this.doLogout(this.mSession);
+
+        if (!ImperativeConfig.instance.config.exists) {
+            await this.processLogoutOld(params);
+        } else {
+            const config = ImperativeConfig.instance.config;
+            const profileName = this.getBaseProfileName(params, config);
+            const loadedProfile = config.api.profiles.load(profileName);
+            let profileWithToken: string = null;
+
+            // If you specified a token on the command line, then don't delete the one in the profile if it doesn't match
+            if (loadedProfile?.properties.authToken != null &&
+                loadedProfile.properties.authToken.value === `${params.arguments.tokenType}=${params.arguments.tokenValue}`) {
+                const beforeLayer = config.api.layers.get();
+                config.api.layers.activate(loadedProfile.properties.authToken.user, loadedProfile.properties.authToken.global);
+
+                const profilePath = config.api.profiles.expandPath(profileName);
+                config.delete(`${profilePath}.properties.authToken`);
+
+                await config.api.layers.write();
+                config.api.layers.activate(beforeLayer.user, beforeLayer.global);
+                profileWithToken = profileName;
+            }
+
+            params.response.console.log("Logout successful. The authentication token has been revoked" +
+                (profileWithToken != null ? ` and removed from your '${profileWithToken}' ${this.mProfileType} profile` : "") +
+                ".");
+        }
+    }
+
+    /* Methods for old-school profiles below */
+    private async processLoginOld(params: IHandlerParameters, tokenValue: string) {
+        const loadedProfile = params.profiles.getMeta(this.mProfileType, false);
+        let profileWithToken: string = null;
+
+        if (loadedProfile != null && loadedProfile.name != null) {
+            await Imperative.api.profileManager(this.mProfileType).update({
+                name: loadedProfile.name,
+                args: {
+                    "token-type": this.mSession.ISession.tokenType,
+                    "token-value": tokenValue
+                },
+                merge: true
+            });
+            profileWithToken = loadedProfile.name;
+        } else {
+
+            // Do not store non-profile arguments, user, or password. Set param arguments for prompted values from session.
+
+            const copyArgs = {...params.arguments};
+            copyArgs.createProfile = undefined;
+            copyArgs.showToken = undefined;
+            copyArgs.user = undefined;
+            copyArgs.password = undefined;
+
+            copyArgs.host = this.mSession.ISession.hostname;
+            copyArgs.port = this.mSession.ISession.port;
+
+            copyArgs.tokenType = this.mSession.ISession.tokenType;
+            copyArgs["token-type"] = this.mSession.ISession.tokenType;
+
+            copyArgs.tokenValue = tokenValue;
+            copyArgs["token-value"] = tokenValue;
+
+            const createParms: ISaveProfileFromCliArgs = {
+                name: "default",
+                type: this.mProfileType,
+                args: copyArgs,
+                overwrite: false,
+                profile: {}
+            };
+
+            if (await this.promptForBaseProfile(params, createParms.name)) {
+                await Imperative.api.profileManager(this.mProfileType).save(createParms);
+                profileWithToken = createParms.name;
+            } else {
+                this.showToken(params.response, tokenValue);
+            }
+        }
+
+        if (profileWithToken != null) {
+            params.response.console.log(`\n` +
+                `Login successful. The authentication token is stored in the '${profileWithToken}' ` +
+                `${this.mProfileType} profile for future use. To revoke this token and remove it from your profile, review the ` +
+                `'zowe auth logout' command.`);
+        }
+    }
+
+    private async processLogoutOld(params: IHandlerParameters) {
+        const loadedProfile = params.profiles.getMeta(this.mProfileType, false);
 
         // If you specified a token on the command line, then don't delete the one in the profile if it doesn't match
         let profileWithToken: string = null;

@@ -12,7 +12,7 @@
 import { overroteProfileMessage, profileCreatedSuccessfullyAndPath, profileReviewMessage } from "../../../../messages";
 import { Imperative } from "../../Imperative";
 import { IProfileSaved, ISaveProfileFromCliArgs, ProfilesConstants } from "../../../../profiles";
-import { ICommandHandler, IHandlerParameters } from "../../../../cmd";
+import { CliProfileManager, ICommandHandler, IHandlerParameters } from "../../../../cmd";
 
 import { Constants } from "../../../../constants";
 import { TextUtils } from "../../../../utilities";
@@ -33,9 +33,19 @@ export default class CreateProfilesHandler implements ICommandHandler {
      */
     public async process(commandParameters: IHandlerParameters) {
         const profileType: string = commandParameters.definition.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY];
-        const profileManager = Imperative.api.profileManager(profileType);
-        const profileName = commandParameters.arguments[Constants.PROFILE_NAME_OPTION];
+        let profileManager: CliProfileManager;
 
+        try {
+            profileManager = Imperative.api.profileManager(profileType);
+        } catch (error) {
+            // profileIO error is thrown when calling old profile functions in team config mode.
+            commandParameters.response.console.error(
+                "An error occurred trying to create a profile.\n" + error.message
+            );
+            return;
+        }
+
+        const profileName = commandParameters.arguments[Constants.PROFILE_NAME_OPTION];
         const createParms: ISaveProfileFromCliArgs = {
             name: profileName,
             type: profileType,

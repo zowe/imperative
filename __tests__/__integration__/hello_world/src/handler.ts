@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters } from "../../../../packages/index";
+import { ICommandHandler, IHandlerParameters } from "../../../../lib/index";
 
 export default class Handler implements ICommandHandler {
     public async process(commandParameters: IHandlerParameters) {

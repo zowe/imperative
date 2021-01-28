@@ -134,6 +134,28 @@ describe("ConnectionPropsForSessCfg tests", () => {
         expect(sessCfgWithConnProps.password).toBeUndefined();
     });
 
+    it("authenticate with auth token", async() => {
+        const initialSessCfg = {
+            hostname: "SomeHost",
+            port: 11,
+            rejectUnauthorized: true
+        };
+        const args = {
+            $0: "zowe",
+            _: [""],
+            authToken: `${SessConstants.TOKEN_TYPE_LTPA}=FakeToken`
+        };
+        const sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+            initialSessCfg, args
+        );
+        expect(sessCfgWithConnProps.hostname).toBe("SomeHost");
+        expect(sessCfgWithConnProps.tokenValue).toBe("FakeToken");
+        expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_TOKEN);
+        expect(sessCfgWithConnProps.tokenType).toBe(SessConstants.TOKEN_TYPE_LTPA);
+        expect(sessCfgWithConnProps.user).toBeUndefined();
+        expect(sessCfgWithConnProps.password).toBeUndefined();
+    });
+
     it("not set tokenValue if user and pass are defined", async() => {
         const initialSessCfg = {
             hostname: "SomeHost",
@@ -179,6 +201,55 @@ describe("ConnectionPropsForSessCfg tests", () => {
         expect(sessCfgWithConnProps.password).toBeUndefined();
         expect(sessCfgWithConnProps.tokenType).toBeUndefined();
         expect(sessCfgWithConnProps.tokenValue).toBeUndefined();
+    });
+
+
+    it("get user name from prompt from daemon client", async() => {
+        const userFromPrompt = "FakeUser";
+        const passFromArgs = "FakePassword";
+
+        const sleepReal = CliUtils.sleep;
+        CliUtils.sleep = jest.fn();
+        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
+        CliUtils.promptWithTimeout = jest.fn(() => {
+            return Promise.resolve(userFromPrompt);
+        });
+
+        const initialSessCfg = {
+            hostname: "SomeHost",
+            port: 11,
+            rejectUnauthorized: true
+        };
+        const args = {
+            $0: "zowe",
+            _: [""],
+            password: passFromArgs
+        };
+
+        // command handler prompt method (CLI versus SDK-based prompting)
+        const commandHandlerPrompt = jest.fn(() => {
+            // do nothing
+        });
+
+        // pretend we have a command handler object
+        const parms = {
+            response: {
+                console: {
+                    prompt: commandHandlerPrompt
+                }
+            }
+        }
+
+        let sessCfgWithConnProps: ISession;
+        sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+            initialSessCfg, args, {
+                parms: parms as any // treat this as a CLI-based prompt
+            }
+        );
+        CliUtils.sleep = sleepReal;
+        CliUtils.promptWithTimeout = promptWithTimeoutReal;
+
+        expect(commandHandlerPrompt).toBeCalled(); // we are only testing that we call an already tested prompt method if in CLI mode
     });
 
     it("get user name from prompt", async() => {

@@ -5,7 +5,7 @@
   "license": "EPL 2.0",
   "repository": "",
   "bin": {
-    "imperative-test-cli": "lib/__tests__/__integration__/imperative/src/main.js"
+    "imperative-test-cli": "lib/main.js"
   },
   "author": {
     "name": "",
@@ -21,13 +21,13 @@
   "main": "lib/main.js",
   "typings": "lib/main.d.ts",
   "imperative": {
-    "configurationModule": "lib/__tests__/__integration__/imperative/src/imperative.js"
+    "configurationModule": "lib/imperative.js"
   },
   "scripts": {
     "clean": "rimraf lib && rimraf coverage",
     "lint": "tslint --force --format verbose \"src/**/*.ts\"",
     "prebuild": "npm run clean && npm run lint && echo Using TypeScript && tsc --version",
-    "build": "tsc --pretty",
+    "build": "tsc -b --pretty",
     "pretest": "npm install -g",
     "test": "jest",
     "posttest": "npm uninstall -g",
@@ -40,12 +40,12 @@
     "dataobject-parser": "1.2.1",
     "deepmerge": "3.0.0",
     "express": "4.17.1",
-    "find-up": "2.1.0",
+    "find-up": "4.1.0",
     "glob": "7.1.6",
     "js-yaml": "3.13.1",
     "jsonfile": "4.0.0",
     "jsonschema": "1.1.1",
-    "keytar": "6.0.1",
+    "keytar": "7.1.0",
     "levenshtein": "1.0.5",
     "lodash": "4.17.19",
     "log4js": "6.1.0",

@@ -14,9 +14,13 @@ import { Constants } from "../../constants";
 import { Arguments } from "yargs";
 import { TextUtils } from "./TextUtils";
 import { IOptionFormat } from "./doc/IOptionFormat";
-import { CommandProfiles, ICommandOptionDefinition, ICommandPositionalDefinition, ICommandProfile } from "../../cmd";
+import { CommandProfiles, ICommandOptionDefinition, ICommandPositionalDefinition,
+         ICommandProfile, IHandlerParameters
+} from "../../cmd";
 import { ICommandArguments } from "../../cmd/src/doc/args/ICommandArguments";
 import { IProfile } from "../../profiles";
+import * as prompt from "readline-sync";
+import * as os from "os";
 
 /**
  * Cli Utils contains a set of static methods/helpers that are CLI related (forming options, censoring args, etc.)
@@ -344,6 +348,30 @@ export class CliUtils {
         return TextUtils.chalk[color](headerText);
     }
 
+    /**
+     * Display a message when the command is deprecated.
+     * @static
+     * @param {string} handlerParms - the IHandlerParameters supplied to
+     *                                a command handler's process() function.
+     * @memberof CliUtils
+     */
+    public static showMsgWhenDeprecated(handlerParms: IHandlerParameters) {
+        if (handlerParms.definition.deprecatedReplacement) {
+            // form the command that is deprecated
+            let oldCmd: string;
+            if (handlerParms.positionals.length >= 1) {
+                oldCmd = handlerParms.positionals[0];
+            }
+            if (handlerParms.positionals.length >= 2) {
+                oldCmd = oldCmd + " " + handlerParms.positionals[1];
+            }
+
+            // display the message
+            handlerParms.response.console.error("\nWarning: The command '" + oldCmd + "' is deprecated.");
+            handlerParms.response.console.error("Recommended replacement: " +
+                handlerParms.definition.deprecatedReplacement);
+        }
+    }
 
     /**
      * Accepts an option name, and array of option aliases, and their value
@@ -397,7 +425,6 @@ export class CliUtils {
      * @returns value - the value entered by the user
      */
     public static promptForInput(message: string): string {
-        const prompt = require("readline-sync");
         prompt.setDefaultOptions({mask: "", hideEchoBack: true});
         return prompt.question(message);
     }
@@ -441,7 +468,7 @@ export class CliUtils {
     public static async promptWithTimeout(
         questionText: string,
         hideText: boolean = false,
-        secToWait: number = 30
+        secToWait: number = 600,
     ): Promise<string> {
 
         // readline provides our interface for terminal I/O
@@ -470,7 +497,6 @@ export class CliUtils {
 
         // when asked to hide text, override output to only display stars
         if (hideText) {
-            const os = require("os");
             ttyIo._writeToOutput = function _writeToOutput(stringToWrite: string) {
                 if (stringToWrite === os.EOL) {
                     return;

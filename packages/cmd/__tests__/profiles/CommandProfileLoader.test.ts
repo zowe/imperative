@@ -11,6 +11,7 @@
 
 jest.mock("../../../profiles/src/BasicProfileManager");
 jest.mock("../../../profiles/src/BasicProfileManagerFactory");
+jest.mock("../../../utilities/src/ImperativeConfig");
 import { CommandProfileLoader } from "../../src/profiles/CommandProfileLoader";
 import { ICommandDefinition } from "../../src/doc/ICommandDefinition";
 import { BasicProfileManager } from "../../../profiles/src/BasicProfileManager";
@@ -18,6 +19,7 @@ import { TestLogger } from "../../../../__tests__/TestLogger";
 import { CommandProfiles } from "../../src/profiles/CommandProfiles";
 import { ImperativeError } from "../../../error";
 import { BasicProfileManagerFactory, IProfileLoaded } from "../../../profiles";
+import { ImperativeConfig } from "../../../utilities";
 
 const TEST_PROFILES_DIR = "/test/data/profiles/fake";
 
@@ -145,6 +147,54 @@ describe("Command Profile Loader", () => {
     expect(error).toBeDefined();
     expect(error instanceof ImperativeError).toBe(true);
     expect(error.message).toMatchSnapshot();
+  });
+
+  it("should not load old profiles when in team-config mode", async () => {
+    const manager = new BasicProfileManagerFactory(TEST_PROFILES_DIR);
+    const profManager = new BasicProfileManager({
+        logger: TestLogger.getTestLogger(),
+        profileRootDirectory: sampleRoot,
+        type: PROFILE_BANANA_TYPE
+    });
+    manager.getManager = jest.fn((type) => {
+        return profManager;
+    });
+    profManager.load = jest.fn((parms) => {
+      const loadResp: IProfileLoaded = {
+        message: "Profile Loaded",
+        type: PROFILE_BANANA_TYPE,
+        name: "tasty",
+        failNotFound: true,
+        profile: {
+          name: "tasty",
+          type: PROFILE_BANANA_TYPE,
+        }
+      };
+      return loadResp;
+    });
+
+    // pretend that we have a team config
+    ImperativeConfig.instance.config = {
+        exists: true
+    };
+
+    const emptyProfileMap: Map<string, IProfile[]> = new Map<string, IProfile[]>();
+    const emptyProfileMetaMap: Map<string, IProfileLoaded[]> = new Map<string, IProfileLoaded[]>();
+    const noProfilesLoaded = new CommandProfiles(emptyProfileMap, emptyProfileMetaMap);
+
+    // because we have a team config, we should load no old-school profiles
+    const loadedCmdProfiles: CommandProfiles = await CommandProfileLoader.loader({
+        commandDefinition: SAMPLE_COMMAND_PROFILE,
+        profileManagerFactory: manager,
+        logger: TestLogger.getTestLogger()
+      }).loadProfiles({_: undefined, $0: undefined});
+
+    expect(loadedCmdProfiles).toEqual(noProfilesLoaded);
+
+    // restore to not having a team config for future tests
+    ImperativeConfig.instance.config = {
+        exists: false
+    };
   });
 
   it("should allow us to load a required profile", async () => {

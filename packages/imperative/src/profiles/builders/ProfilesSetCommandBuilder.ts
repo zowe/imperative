@@ -58,6 +58,7 @@ export class ProfilesSetCommandBuilder extends ProfilesCommandBuilder {
                 {type: this.mProfileType}),
             type: "command",
             handler: __dirname + "/../handlers/SetDefaultProfilesHandler",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_SET,
             options: [],
             positionals: [{
                 name: Constants.PROFILE_NAME_OPTION,

@@ -10,6 +10,7 @@
 */
 
 import { ImperativeError } from "../../../error";
+import { ImperativeConfig } from "../../../utilities";
 import * as fs from "fs";
 import { IProfile } from "../doc/definition/IProfile";
 import { IMetaProfile } from "../doc/definition/IMetaProfile";
@@ -45,6 +46,7 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static createProfileDirs(path: string) {
+        ProfileIO.crashInTeamConfigMode();
         try {
             IO.createDirsSync(path);
         } catch (err) {
@@ -66,6 +68,8 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static readMetaFile<T extends IProfileTypeConfiguration>(path: string): IMetaProfile<T> {
+        ProfileIO.crashInTeamConfigMode();
+
         let meta: IMetaProfile<T>;
         try {
             meta = readYaml.safeLoad(fs.readFileSync(path), "utf8");
@@ -87,6 +91,8 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static writeProfile(fullFilePath: string, profile: IProfile): void {
+        ProfileIO.crashInTeamConfigMode();
+
         try {
             /**
              * Write the YAML file - clone the object first and remove the name. Imperative will not persist the
@@ -120,6 +126,8 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static deleteProfile(name: string, fullFilePath: string) {
+        ProfileIO.crashInTeamConfigMode();
+
         try {
             /**
              * Attempt to remove the file and ensure that it was removed successfully
@@ -156,6 +164,8 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static exists(path: string): string {
+        ProfileIO.crashInTeamConfigMode();
+
         let found: string;
         try {
             found = (fs.existsSync(path)) ? path : undefined;
@@ -176,6 +186,8 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static writeMetaFile(meta: IMetaProfile<IProfileTypeConfiguration>, path: string) {
+        ProfileIO.crashInTeamConfigMode();
+
         try {
             const yamlString: any = writeYaml.stringify(meta, ProfileIO.MAX_YAML_DEPTH);
             fs.writeFileSync(path, yamlString, {encoding: "utf8"});
@@ -197,6 +209,8 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static fileToProfileName(file: string, ext: string): string {
+        ProfileIO.crashInTeamConfigMode();
+
         file = pathPackage.basename(file);
         return file.substring(0, file.lastIndexOf(ext));
     }
@@ -211,6 +225,8 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static getAllProfileDirectories(profileRootDirectory: string): string[] {
+        ProfileIO.crashInTeamConfigMode();
+
         let names: string[] = [];
         try {
             names = fs.readdirSync(profileRootDirectory);
@@ -240,6 +256,8 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static getAllProfileNames(profileTypeDir: string, ext: string, metaNameForType: string): string[] {
+        ProfileIO.crashInTeamConfigMode();
+
         const names: string[] = [];
         try {
             let profileFiles = fs.readdirSync(profileTypeDir);
@@ -271,6 +289,8 @@ export class ProfileIO {
      * @memberof ProfileIO
      */
     public static readProfileFile(filePath: string, type: string): IProfile {
+        ProfileIO.crashInTeamConfigMode();
+
         let profile: IProfile;
         try {
             profile = readYaml.safeLoad(fs.readFileSync(filePath, "utf8"));
@@ -281,6 +301,25 @@ export class ProfileIO {
             }, {tag: ProfileIO.ERROR_ID});
         }
         return profile;
+    }
+
+    /**
+     * Crash if we detect that we are running in team-config mode.
+     * You should not be able to operate on old-school profiles
+     * when you are in team-config mode. Give a meaningful
+     * message as part of our crash.
+     */
+    private static crashInTeamConfigMode() {
+        if (ImperativeConfig.instance.config.exists) {
+            try {
+                throw new Error("A Zowe V1 profile operation was attempted with a Zowe V2 configuration in use.");
+            } catch (err) {
+                throw new ImperativeError({
+                    msg: err.message,
+                    additionalDetails: err.stack,
+                }, {tag: ProfileIO.ERROR_ID});
+            }
+        }
     }
 
     /**

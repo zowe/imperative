@@ -26,10 +26,10 @@ export interface IDaemonHeaderOptions {
 
     /**
      * Indicator for prompting
-     * @type {boolean}
+     * @type {number}
      * @memberof IDaemonHeaderOptions
      */
-    prompt?: boolean;
+    prompt?: number;
 
     /**
      * Content is for stdout

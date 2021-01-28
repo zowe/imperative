@@ -2,6 +2,14 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Added new config API intended to replace the profiles API, and new "config" command group to manage config JSON files. The new API makes it easier for users to create, share, and switch between profile configurations.
+- Deprecated: The "profiles" command group for managing global profiles in "{cliHome}/profiles". Use the new "config" command group instead.
+- **Breaking**: Removed "config" command group for managing app settings in "{cliHome}/imperative/settings.json". If app settings already exist they are still loaded for backwards compatibility. For storing app settings use the new config API instead.
+- Enhancement: Added support for secure credential storage without any plug-ins required. Include the "keytar" package as a dependency in your CLI to make use of it.
+- Enhancement: Added `deprecatedReplacement` property to `ICommandDefinition` to deprecate a command.
+
 ## `5.0.0-next.202010301408`
 
 - Enhancement: Allow hidden options.

@@ -9,7 +9,7 @@
 *
 */
 
-import { IHandlerParameters, ICommandHandler, Imperative } from "../../../../../../../packages/index";
+import { IHandlerParameters, ICommandHandler, Imperative } from "../../../../../../../lib/index";
 /**
  * Syntax test handler. Invoked if the syntax for the command is correct.
  * @export

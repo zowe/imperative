@@ -9,52 +9,166 @@
 *
 */
 
-import { ISettingsFile } from "../../../../../settings/src/doc/ISettingsFile";
+jest.mock("../../../../../utilities/src/ImperativeConfig");
 
-jest.mock("../../../../../settings/src/AppSettings");
+import { IConfig, IConfigLayer } from "../../../../../config";
+import { ImperativeConfig } from "../../../../../utilities";
+import ListHandler from "../../../../src/config/cmd/list/list.handler";
 
-import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
-import { AppSettings } from "../../../../../settings";
+let dataObj: any;
+let formatObj: any;
+let errorText: string;
+let logText: string;
 
-describe("Config management list handler", () => {
-
-    afterEach(() => {
-        // Mocks need cleared after every test for clean test runs
-        jest.resetAllMocks();
-    });
-    const defaultSettings: ISettingsFile = {
-        overrides: {
-            CredentialManager: false
-        }
-    };
-    /**
-     *  Create object to be passed to process function
-     *
-     * @returns {IHandlerParameters}
-     */
-    const getIHandlerParametersObject = (values: boolean): IHandlerParameters => {
-        const x: any = {
-        response: new (CommandResponse as any)(),
-        arguments: {
-            values
+// "Mocked" version of the handler parameters for a config list command
+const handlerParms: any = {
+    response: {
+        data: {
+            setObj: jest.fn((jsonObj) => {
+                dataObj = jsonObj;
+            })
         },
-        };
-        return x as IHandlerParameters;
-    };
+        format: {
+            output: jest.fn((formatArgs) => {
+                formatObj = formatArgs.output;
+            })
+        },
+        console: {
+            log: jest.fn((msgText) => {
+                logText = msgText;
+            }),
+            error: jest.fn((msgText) => {
+                errorText = msgText;
+            })
+        }
+    }
+};
 
-    it("should list all settings", async () => {
+const configLayers: IConfigLayer[] = [
+    {
+        exists: true,
+        path: "fakePath",
+        user: false,
+        global: false,
+        properties: {
+            profiles: {
+                email: {
+                    properties: {
+                        host: "fakeHost",
+                        port: 25,
+                        user: "admin",
+                        password: "123456"
+                    }
+                }
+            },
+            defaults: {},
+            plugins: [],
+            secure: [
+                "profiles.email.properties.user",
+                "profiles.email.properties.password"
+            ]
+        }
+    }
+];
 
-        const handlerReq = require("../../../../src/config/cmd/list/list.handler");
-        const handler = new handlerReq.default();
+const configMaskedProps: IConfig = configLayers[0].properties;
+configMaskedProps.profiles.email.properties.user = "(secure value)";
+configMaskedProps.profiles.email.properties.password = "(secure value)";
 
-        const params = getIHandlerParametersObject(false);
+describe("Configuration List command handler", () => {
+    const configMock = jest.fn();
 
-        const appSettings = AppSettings.initialize("foo",defaultSettings);
+    beforeAll(() => {
+        Object.defineProperty(ImperativeConfig.instance, "config", {
+            get: configMock
+        });
+    });
 
-        await handler.process(params as IHandlerParameters);
+    beforeEach(() => {
+        dataObj = null;
+        formatObj = null;
+        errorText = null;
+        logText = null;
+    })
 
-        expect(appSettings.getNamespace).toHaveBeenCalledWith("overrides");
-        expect(appSettings.getNamespace("overrides")).toBeDefined();
+    it("should output empty object when there is no config", async () => {
+        configMock.mockReturnValueOnce({
+            exists: false
+        });
+        handlerParms.arguments = {};
+
+        await (new ListHandler()).process(handlerParms);
+        expect(errorText).toBeNull();
+        expect(dataObj).toEqual({});
+        expect(formatObj).toEqual(dataObj);
+    });
+
+    it("should output entire config", async () => {
+        configMock.mockReturnValueOnce({
+            exists: true,
+            maskedProperties: configMaskedProps
+        });
+        handlerParms.arguments = {};
+
+        await (new ListHandler()).process(handlerParms);
+        expect(errorText).toBeNull();
+        expect(dataObj).toEqual(configLayers[0].properties);
+        expect(dataObj.profiles.email.properties.user).toBe("(secure value)");
+        expect(dataObj.profiles.email.properties.password).toBe("(secure value)");
+        expect(formatObj).toEqual(dataObj);
+    });
+
+    it("should output config property", async () => {
+        configMock.mockReturnValueOnce({
+            exists: true,
+            maskedProperties: configMaskedProps
+        });
+        handlerParms.arguments = { property: "secure" };
+
+        await (new ListHandler()).process(handlerParms);
+        expect(errorText).toBeNull();
+        expect(dataObj).toEqual(configLayers[0].properties.secure);
+        expect(formatObj).toEqual(dataObj);
+    });
+
+    it("should output entire config listed by location", async () => {
+        configMock.mockReturnValueOnce({
+            exists: true,
+            layers: configLayers
+        });
+        handlerParms.arguments = { locations: true };
+
+        await (new ListHandler()).process(handlerParms);
+        expect(errorText).toBeNull();
+        expect(dataObj.fakePath).toEqual(configLayers[0].properties);
+        expect(dataObj.fakePath.profiles.email.properties.user).toBe("(secure value)");
+        expect(dataObj.fakePath.profiles.email.properties.password).toBe("(secure value)");
+        expect(formatObj).toEqual(dataObj);
+    });
+
+    it("should output config property listed by location", async () => {
+        configMock.mockReturnValueOnce({
+            exists: true,
+            layers: configLayers
+        });
+        handlerParms.arguments = { locations: true, property: "secure" };
+
+        await (new ListHandler()).process(handlerParms);
+        expect(errorText).toBeNull();
+        expect(dataObj.fakePath).toEqual(configLayers[0].properties.secure);
+        expect(formatObj).toEqual(dataObj);
+    });
+
+    it("should output entire config at root level", async () => {
+        configMock.mockReturnValueOnce({
+            exists: true,
+            maskedProperties: configMaskedProps
+        });
+        handlerParms.arguments = { root: true };
+
+        await (new ListHandler()).process(handlerParms);
+        expect(errorText).toBeNull();
+        expect(dataObj).toEqual(Object.keys(configLayers[0].properties));
+        expect(formatObj).toEqual(dataObj);
     });
 });
-

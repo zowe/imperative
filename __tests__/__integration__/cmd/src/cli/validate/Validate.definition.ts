@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../packages/index";
+import { ICommandDefinition } from "../../../../../../lib/index";
 import { syntaxTestCommand } from "./syntax/Syntax.definition";
 import { stringOrEmptyTestCommand } from "./string-or-empty/string-or-empty.definition";
 

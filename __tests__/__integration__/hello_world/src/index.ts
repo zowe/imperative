@@ -11,7 +11,7 @@
 */
 
 
-import { Imperative } from "../../../../packages/index";
+import { Imperative } from "../../../../lib/index";
 
 Imperative.init().then((response) => {
     Imperative.parse();

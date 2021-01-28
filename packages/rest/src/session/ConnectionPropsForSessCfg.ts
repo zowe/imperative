@@ -10,11 +10,28 @@
 */
 
 import { CliUtils } from "../../../utilities";
-import { ICommandArguments } from "../../../cmd";
+import { ICommandArguments, IHandlerParameters } from "../../../cmd";
 import { ImperativeError } from "../../../error";
 import { IOptionsForAddConnProps } from "./doc/IOptionsForAddConnProps";
 import { Logger } from "../../../logger";
 import * as SessConstants from "./SessConstants";
+import { IPromptOptions } from "../../../cmd/src/doc/response/api/handler/IPromptOptions";
+
+
+/**
+ * Extend options for IPromptOptions for internal wrapper method
+ * @interface IHandlePromptOptions
+ * @extends {IPromptOptions}
+ */
+interface IHandlePromptOptions extends IPromptOptions {
+
+    /**
+     * Adds IHandlerParameters to IPromptOptions
+     * @type {IHandlerParameters}
+     * @memberof IHandlePromptOptions
+     */
+    parms?: IHandlerParameters;
+}
 
 /**
  * This class adds connection information to an existing session configuration
@@ -76,9 +93,13 @@ export class ConnectionPropsForSessCfg {
     public static async addPropsOrPrompt<T>(
         initialSessCfg: T,
         cmdArgs: ICommandArguments,
-        options: IOptionsForAddConnProps = {}
+        options: IOptionsForAddConnProps = {},
     ): Promise<T> {
         const impLogger = Logger.getImperativeLogger();
+
+        // split authToken into tokenType and tokenValue
+        // TODO Evaluate if we want to keep this for new config
+        ConnectionPropsForSessCfg.processAuthToken(cmdArgs);
 
         const optionDefaults: IOptionsForAddConnProps = {
             requestToken: false,
@@ -169,9 +190,9 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.hostname) === false) {
                 let answer = "";
                 while (answer === "") {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Enter the host name of your service: "
-                    );
+                    answer = await this.clientPrompt("Enter the host name of your service: ", {
+                        parms: optsToUse.parms
+                    });
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for host name."});
                     }
@@ -182,9 +203,9 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.port) === false) {
                 let answer: any;
                 while (answer === undefined) {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Enter the port number for your service: "
-                    );
+                    answer = await this.clientPrompt("Enter the port number for your service: ", {
+                        parms: optsToUse.parms
+                    });
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for port number."});
                     } else {
@@ -204,7 +225,6 @@ export class ConnectionPropsForSessCfg {
         if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.tokenValue) === true)
         {
             impLogger.debug("Using token authentication");
-            finalSessCfg.tokenValue = cmdArgs.tokenValue;
             if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenType)) {
                 finalSessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
                 finalSessCfg.tokenType = cmdArgs.tokenType;
@@ -223,9 +243,9 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) === false) {
                 let answer = "";
                 while (answer === "") {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Enter user name: "
-                    );
+                    answer = await this.clientPrompt("Enter user name: ", {
+                        parms: optsToUse.parms
+                    });
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for user name."});
                     }
@@ -236,10 +256,12 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) === false) {
                 let answer = "";
                 while (answer === "") {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Enter password : ",
-                        true
-                    );
+
+                    answer = await this.clientPrompt("Enter password : ", {
+                        hideText: true,
+                        parms: optsToUse.parms
+                    });
+
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for password."});
                     }
@@ -258,6 +280,24 @@ export class ConnectionPropsForSessCfg {
      * may not appear in Imperative log files.
      */
     private static readonly secureSessCfgProps: string[] = ["user", "password", "tokenValue"];
+
+    /**
+     * Handle prompting for clients.  If in a CLI environment, use the IHandlerParameters.response
+     * object prompt method.
+     * @private
+     * @static
+     * @param {string} promptText
+     * @param {IHandlePromptOptions} opts
+     * @returns {Promise<string>}
+     * @memberof ConnectionPropsForSessCfg
+     */
+    private static async clientPrompt(promptText: string, opts: IHandlePromptOptions): Promise<string> {
+        if (opts.parms) {
+            return opts.parms.response.console.prompt(promptText, {hideText: opts.hideText, secToWait: opts.secToWait});
+        } else {
+            return CliUtils.promptWithTimeout(promptText, opts.hideText, opts.secToWait);
+        }
+    }
 
     // ***********************************************************************
     /**
@@ -330,5 +370,18 @@ export class ConnectionPropsForSessCfg {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Split authToken loaded from config into tokenType and tokenValue args.
+     * @param cmdArgs Arguments specified by the user
+     */
+    private static processAuthToken(cmdArgs: ICommandArguments) {
+        if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.authToken)) {
+            const [tokenType, tokenValue] = cmdArgs.authToken.split("=", 2);
+            delete cmdArgs.authToken;
+            cmdArgs.tokenType = tokenType;
+            cmdArgs.tokenValue = tokenValue;
+        }
     }
 }

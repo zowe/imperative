@@ -9,17 +9,14 @@
 *
 */
 
+import * as JSONC from "comment-json";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
+import { secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { ImperativeError } from "../../../../../error";
-import { AppSettings } from "../../../../../settings";
+import { CredentialManagerFactory } from "../../../../../security";
+import { ImperativeConfig } from "../../../../../utilities";
 
-
-/**
- * The set command group handler for cli configuration settings.
- *
- */
 export default class SetHandler implements ICommandHandler {
-
 
     /**
      * Process the command and input.
@@ -29,7 +26,41 @@ export default class SetHandler implements ICommandHandler {
      * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
-        const {configName, configValue} = params.arguments;
-        AppSettings.instance.set("overrides", configName, configValue);
+
+        // Create the config, load the secure values, and activate the desired layer
+        const config = ImperativeConfig.instance.config;
+        config.api.layers.activate(params.arguments.user, params.arguments.global);
+
+        // Store the value securely if --secure was passed or the property name is in secure array
+        let secure = params.arguments.secure;
+        if (secure == null) {
+            secure = config.api.layers.get().properties.secure.includes(params.arguments.property);
+        }
+
+        // Setup the credential vault API for the config
+        if (secure && !CredentialManagerFactory.initialized) {
+            throw secureSaveError();
+        }
+
+        // Get the value to set
+        let value: string;
+        if (params.arguments.value) {
+            value = params.arguments.value;
+        } else {
+            value = await params.response.console.prompt(`Please enter the value for ${params.arguments.property}: `, {hideText: secure});
+        }
+
+        if (params.arguments.json) {
+            try {
+                value = JSONC.parse(value, null, true);
+            } catch (e) {
+                throw new ImperativeError({ msg: `could not parse JSON value: ${e.message}` });
+            }
+        }
+
+        // Set the value in the config, save the secure values, write the config layer
+        config.set(params.arguments.property, value, { secure });
+
+        await config.api.layers.write();
     }
 }

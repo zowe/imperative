@@ -9,6 +9,8 @@
 *
 */
 
+import { IPromptOptions } from "./IPromptOptions";
+
 /**
  * Handler resposne API for console messages.
  * @export
@@ -40,4 +42,12 @@ export interface IHandlerResponseConsoleApi {
      * @memberof IHandlerResponseConsoleApi
      */
     errorHeader(message: string, delimeter?: string): string;
+    /**
+     * Handles prompting for CLI handlers
+     * @param {string} questionText
+     * @param {IPromptOptions} [opts]
+     * @returns {Promise<String>}
+     * @memberof IHandlerResponseConsoleApi
+     */
+    prompt(questionText: string, opts?: IPromptOptions): Promise<string>;
 }

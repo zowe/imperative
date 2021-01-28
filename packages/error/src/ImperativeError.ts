@@ -102,6 +102,16 @@ export class ImperativeError extends Error {
     }
 
     /**
+     * Return whether or not the error dump should be suppressed
+     * @readonly
+     * @type {string}
+     * @memberof ImperativeError
+     */
+    public get suppressDump(): boolean {
+        return this.mDetails.suppressDump;
+    }
+
+    /**
      * Return stack info
      * @readonly
      * @type {string}

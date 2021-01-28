@@ -11,7 +11,7 @@
 
 import { overroteProfileMessage, profileUpdatedSuccessfullyAndPath, profileReviewMessage } from "../../../../messages";
 import { Imperative } from "../../Imperative";
-import { ProfilesConstants } from "../../../../profiles";
+import { IProfileUpdated, ProfilesConstants } from "../../../../profiles";
 import { ICommandHandler, IHandlerParameters } from "../../../../cmd";
 import { Constants } from "../../../../constants";
 import { TextUtils } from "../../../../utilities";
@@ -32,14 +32,24 @@ export default class UpdateProfilesHandler implements ICommandHandler {
          */
         const profileType = commandParameters.definition.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY];
         const profileSpecified: string = commandParameters.arguments[Constants.PROFILE_NAME_OPTION];
-        const profileUpdated = await  Imperative.api.profileManager(profileType).update({
-            name: profileSpecified,
-            args: commandParameters.arguments,
-            merge: true
-        });
+        let profileUpdated: IProfileUpdated;
+
+        try {
+            profileUpdated = await  Imperative.api.profileManager(profileType).update({
+                name: profileSpecified,
+                args: commandParameters.arguments,
+                merge: true
+            });
+        } catch (error) {
+            // profileIO error is thrown when calling old profile functions in team config mode.
+            commandParameters.response.console.error(
+                "An error occurred trying to update a profile.\n" + error.message
+            );
+            return;
+        }
+
         commandParameters.response.console.log(overroteProfileMessage.message, {
-            profileOption: commandParameters
-                .arguments[Constants.PROFILE_NAME_OPTION]
+            profileOption: commandParameters.arguments[Constants.PROFILE_NAME_OPTION]
         });
         commandParameters.response.console.log(profileUpdatedSuccessfullyAndPath.message);
         commandParameters.response.console.log(profileUpdated.path);

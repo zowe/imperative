@@ -1,0 +1,42 @@
+{
+    "profiles": {
+        "fruit": {
+            "properties": {
+                "origin": "California"
+            },
+            "profiles": {
+                "apple": {
+                    "type": "fruit",
+                    "properties": {
+                        "color": "red"
+                    }
+                },
+                "banana": {
+                    "type": "fruit",
+                    "properties": {
+                        "color": "yellow"
+                    }
+                }
+            }
+        },
+        "vegetable": {
+            "properties": {
+                "origin": "Mexico"
+            },
+            "profiles": {
+                "artichoke": {
+                    "type": "vegetable",
+                    "properties": {
+                        "color": "green"
+                    }
+                }
+            }
+        }
+    },
+    "defaults": {
+        "fruit": "fruit.apple",
+        "vegetable": "vegetable.artichoke"
+    },
+    "plugins": [],
+    "secure": []
+}

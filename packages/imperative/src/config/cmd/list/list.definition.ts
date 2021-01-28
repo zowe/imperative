@@ -9,35 +9,33 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../cmd";
 import { join } from "path";
+import { ICommandDefinition } from "../../../../../cmd";
 
-/**
- * Definition of the list command.
- * @type {ICommandDefinition}
- */
 export const listDefinition: ICommandDefinition = {
     name: "list",
-    aliases: ["li"],
+    aliases: ["ls"],
     type: "command",
+    summary: "list config properties",
+    description: "List config properties",
     handler: join(__dirname, "list.handler"),
-    summary: "List all configuration setting options",
-    description: "List all configuration setting options.",
-    options: [
+    positionals: [
         {
-        name: "values",
-        type: "boolean",
-        description: "Show values for every option",
-        },
-    ],
-    examples: [
-        {
-            options: "",
-            description: "List all configuration setting options"
-        },
-        {
-            options: "--values",
-            description: "List all configuration setting options with values"
+            name: "property",
+            description: "The config property to list. Blank to list all properties.",
+            type: "string"
         }
     ],
+    options: [
+        {
+            name: "locations",
+            description: "Separate the config properties into their respective config file locations. Helpful to determine where configuration value is specified.",
+            type: "boolean"
+        },
+        {
+            name: "root",
+            description: "List only the root level property names. For example, specify in addition to '--locations' to get a list of config file paths only.",
+            type: "boolean"
+        }
+    ]
 };

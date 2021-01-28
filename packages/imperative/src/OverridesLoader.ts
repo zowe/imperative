@@ -10,10 +10,13 @@
 */
 
 import { IImperativeOverrides } from "./doc/IImperativeOverrides";
-import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
+import { CredentialManagerFactory } from "../../security";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import { isAbsolute, resolve } from "path";
 import { AppSettings } from "../../settings";
+import { ImperativeConfig } from "../../utilities";
+import { IConfigVault } from "../../config";
+import { Logger } from "../../logger";
 
 /**
  * Imperative-internal class to load overrides
@@ -32,7 +35,37 @@ export class OverridesLoader {
       packageJson: any
   ): Promise<void> {
     // Initialize the Credential Manager
-    await this.loadCredentialManager(config, packageJson);
+    await (ImperativeConfig.instance.config.exists ? this.loadCredentialManager : this.loadCredentialManagerOld)(config, packageJson);
+  }
+
+  /**
+   * Load the baked-in zowe CredentialManager and initialize it.
+   * If we need to reinstate 3rd party overrides, delete this function and
+   * rename loadCredentialManagerOld.
+   *
+   * @internal
+   * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
+   * @param {any} packageJson - the current package.json
+   */
+  public static async loadCredentialManager(
+    config: IImperativeConfig,
+    packageJson: any
+  ): Promise<void> {
+    if (packageJson.dependencies?.keytar != null || packageJson.optionalDependencies?.keytar != null) {
+      // Load the CredentialManager built into Imperative for managing secure properties
+      await CredentialManagerFactory.initialize({
+        // The display name will be the plugin name that introduced the override OR it will default to the CLI name
+        displayName: config.productDisplayName || config.name,
+        // For overrides, the service could be the CLI name, but we do not override anymore.
+        // Null will use the service name of the built-in credential manager.
+        service: config.credentialServiceName || null,
+        // If the default is to be used, we won't implant the invalid credential manager.
+        // We do not use the invalid credential manager, since we no longer allow overrides.
+        invalidOnFailure: false
+      });
+    }
+
+    await OverridesLoader.loadSecureConfig();
   }
 
   /**
@@ -41,7 +74,7 @@ export class OverridesLoader {
    * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
    * @param {any} packageJson - the current package.json
    */
-  private static async loadCredentialManager(
+  private static async loadCredentialManagerOld(
       config: IImperativeConfig,
       packageJson: any
   ): Promise<void> {
@@ -62,7 +95,7 @@ export class OverridesLoader {
         config.productDisplayName || config.name;
 
     // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
-    if (overrides.CredentialManager != null || (packageJson.dependencies != null && packageJson.dependencies.keytar != null)) {
+    if (overrides.CredentialManager != null || packageJson.dependencies?.keytar != null) {
       let Manager = overrides.CredentialManager;
       if (typeof overrides.CredentialManager === "string" && !isAbsolute(overrides.CredentialManager)) {
         Manager = resolve(process.mainModule.filename, "../", overrides.CredentialManager);
@@ -78,6 +111,32 @@ export class OverridesLoader {
         // If the default is to be used, we won't implant the invalid credential manager
         invalidOnFailure: !(Manager == null)
       });
+    }
+
+    await OverridesLoader.loadSecureConfig();
+  }
+
+  /**
+   * After the plugins and secure credentials are loaded, rebuild the configuration with the
+   * secure values
+   */
+  private static async loadSecureConfig() {
+    if (!CredentialManagerFactory.initialized) return;
+
+    const vault: IConfigVault = {
+      load: ((key: string): Promise<string> => {
+        return CredentialManagerFactory.manager.load(key, true);
+      }),
+      save: ((key: string, value: any): Promise<void> => {
+        return CredentialManagerFactory.manager.save(key, value);
+      })
+    };
+
+    try {
+      await ImperativeConfig.instance.config.secureLoad(vault);
+    } catch (err) {
+      // Secure vault is optional since we can prompt for values instead
+      Logger.getImperativeLogger().warn(`Secure vault not enabled. Reason: ${err.message}`);
     }
   }
 }

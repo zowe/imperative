@@ -275,4 +275,21 @@ export abstract class AbstractHelpGenerator implements IHelpGenerator {
         }
         return TextUtils.chalk.grey(text);
     }
+
+    /*
+     * Highlight text in orange (disabled if producing markdown)
+     * @param {string} text - the text you would like to highlight
+     * @returns {string} the highlighted text
+     *
+     * This function is unused, but it is here in case we ever want it.
+     * It is too difficult to test uncalled private functions in jest,
+     * so this function is just commented out.
+     *
+    protected orange(text: string) {
+        if (this.mProduceMarkdown) {
+            return text;
+        }
+        return TextUtils.chalk.keyword("orange")(text);
+    }
+    */
 }

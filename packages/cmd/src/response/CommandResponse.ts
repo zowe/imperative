@@ -14,7 +14,7 @@ import { IHandlerResponseConsoleApi } from "../doc/response/api/handler/IHandler
 import { IHandlerResponseDataApi } from "../doc/response/api/handler/IHandlerResponseDataApi";
 import { ICommandResponseParms } from "../doc/response/parms/ICommandResponseParms";
 import { ICommandResponse } from "../doc/response/response/ICommandResponse";
-import { TextUtils } from "../../../utilities";
+import { CliUtils, TextUtils } from "../../../utilities";
 import { COMMAND_RESPONSE_FORMAT, ICommandResponseApi } from "../doc/response/api/processor/ICommandResponseApi";
 import { ITaskWithStatus, TaskProgress, TaskStage } from "../../../operations";
 import { IHandlerProgressApi } from "../doc/response/api/handler/IHandlerProgressApi";
@@ -29,10 +29,10 @@ import { OptionConstants } from "../constants/OptionConstants";
 import { inspect } from "util";
 import * as DeepMerge from "deepmerge";
 import * as ProgressBar from "progress";
-import WriteStream = NodeJS.WriteStream;
 import * as net from "net";
 import { DaemonUtils } from "../../../utilities/src/DaemonUtils";
 import * as tty from "tty";
+import { IPromptOptions } from "../doc/response/api/handler/IPromptOptions";
 
 const DataObjectParser = require("dataobject-parser");
 
@@ -590,6 +590,40 @@ export class CommandResponse implements ICommandResponseApi {
                     const msg = TextUtils.chalk.red(message + `${delimeter}\n`);
                     outer.writeAndBufferStderr(msg);
                     return msg;
+                }
+
+                /**
+                 * Handles prompting for command input
+                 * @param {string} questionText
+                 * @param {IPromptOptions} [opts]
+                 * @returns {Promise<string>}
+                 */
+                public prompt(questionText: string, opts?: IPromptOptions): Promise<string> {
+                    if (outer.mStream) {
+                        return new Promise<string>((resolve) => {
+
+                            // build prompt headers and sent
+                            const daemonHeaders = DaemonUtils.buildHeader({ prompt: opts?.hideText ?
+                                DaemonUtils.X_ZOWE_DAEMON_PROMPT_SECURE : DaemonUtils.X_ZOWE_DAEMON_PROMPT_UNSECURE });
+
+                            // send prompt content
+                            outer.writeStream(questionText + daemonHeaders);
+
+                            // wait for a response here
+                            outer.mStream.on("data", function listener(data) {
+
+                                // remove this listener
+                                outer.mStream.removeListener("data", listener);
+
+                                // strip response header and give to content the waiting handler
+                                const stringData = data.toString();
+                                const parsed = stringData.substr(DaemonUtils.X_ZOWE_DAEMON_REPLY.length, stringData.length).trim();
+                                resolve(parsed)
+                            });
+                        });
+                    } else {
+                        return CliUtils.promptWithTimeout(questionText, opts?.hideText, opts?.secToWait);
+                    }
                 }
             }();
         }

@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../packages/index";
+import { ICommandDefinition } from "../../../../../../lib/index";
 import { CmdOutputDefinition } from "./cmd-output/CmdOutput.definition";
 import { ObjectDefinition } from "./object/Object.definition";
 import { TableDefinition } from "./table/Table.definition";

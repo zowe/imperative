@@ -14,6 +14,9 @@ import { IImperativeConfig } from "../../../imperative/src/doc/IImperativeConfig
 
 export class ImperativeConfig {
     private static mInstance: ImperativeConfig = null;
+    private mConfig: any = {
+        exists: false
+    };
     private mLoadedConfig: IImperativeConfig = {
         name: "test-cli",
         allowConfigGroup: false,
@@ -44,6 +47,14 @@ export class ImperativeConfig {
 
     public get cliHome(): string {
         return "/home";
+    }
+
+    public get config(): any {
+        return this.mConfig;
+    }
+
+    public set config(c: any) {
+        this.mConfig = c;
     }
 
     public findPackageBinName(): string {

@@ -50,4 +50,11 @@ export interface IImperativeError {
    * @memberof IImperativeError
    */
   errorCode?: string;
+
+  /**
+   * Whether or not the error should suppress a full error dump, like in Imperative init
+   * @type {boolean}
+   * @memberof IImperativeError
+   */
+  suppressDump?: boolean;
 }

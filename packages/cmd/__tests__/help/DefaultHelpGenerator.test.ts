@@ -10,11 +10,14 @@
 */
 
 jest.mock("../../../imperative/src/Imperative");
+jest.mock("../../../utilities/src/ImperativeConfig");
+
 import { IHelpGeneratorFactoryParms } from "../../../cmd/src/help/doc/IHelpGeneratorFactoryParms";
 import { ICommandDefinition } from "../../src/doc/ICommandDefinition";
 import { DefaultHelpGenerator } from "../../src/help/DefaultHelpGenerator";
 import { ICommandOptionDefinition } from "../..";
 import { ImperativeError } from "../../..";
+import { ImperativeConfig } from "../../../utilities"
 
 const chalkColor: string = "blue";
 const oldForceColorOption = process.env.FORCE_COLOR;
@@ -111,6 +114,46 @@ describe("Default Help Generator", () => {
         summary: "The example tree",
         children: [EXAMPLE_COMMAND,
             EXAMPLE_EXPERIMENTAL_COMMAND]
+    };
+
+    const deprecatedGroup: ICommandDefinition = {
+        name: "deprecated-group",
+        deprecatedReplacement: "Use a better group",
+        aliases: ["dg"],
+        type: "group",
+        description: "This is an example deprecated group with deprecated children",
+        summary: "The deprecated tree",
+        children: [
+            {
+                name: "deprecated-command-one",
+                deprecatedReplacement: "Use a better command than dc1",
+                aliases: ["dc1"],
+                type: "command",
+                description: "Our first deprecated command. ",
+                options: [EXAMPLE_APPLE_OPTION,
+                    EXAMPLE_STRAWBERRY_OPTION,
+                    EXAMPLE_PICK_OPTION]
+            },
+            {
+                name: "not-deprecated-command",
+                aliases: ["ndc"],
+                type: "command",
+                description: "Our non-deprecated command. ",
+                options: [EXAMPLE_APPLE_OPTION,
+                    EXAMPLE_STRAWBERRY_OPTION,
+                    EXAMPLE_PICK_OPTION]
+            },
+            {
+                name: "deprecated-command-two",
+                deprecatedReplacement: "Use a better command than dc2",
+                aliases: ["dc2"],
+                type: "command",
+                description: "Our second deprecated command. ",
+                options: [EXAMPLE_APPLE_OPTION,
+                    EXAMPLE_STRAWBERRY_OPTION,
+                    EXAMPLE_PICK_OPTION]
+            }
+        ]
     };
 
     const definition: ICommandDefinition =
@@ -512,6 +555,37 @@ describe("Default Help Generator", () => {
             const helpGen: DefaultHelpGenerator = new DefaultHelpGenerator(PARMS_GENERATE_MARKDOWN,
                 { commandDefinition: COMMAND_WITH_MARKDOWN_SPECIAL_CHRACTERS, fullCommandTree: fakeParent });
             expect(helpGen.buildDescriptionSection()).toMatchSnapshot();
+        });
+    });
+
+    describe("deprecated commands", () => {
+        // pretend that we have a team config
+        (ImperativeConfig.instance.config as any) = {
+            exists: true,
+            formMainConfigPathNm: jest.fn(() => {
+                return "zowe.config.json";
+            })
+        };
+
+        it("should show a deprecated message in description", () => {
+            const helpGen: DefaultHelpGenerator = new DefaultHelpGenerator(GENERATOR_PARMS,
+                { commandDefinition: deprecatedGroup, fullCommandTree: fakeParent });
+            const description = helpGen.buildDescriptionSection();
+            expect(description).toContain("This is an example deprecated group with deprecated children");
+            expect(description).toContain("Warning: This group has been deprecated");
+            expect(description).toContain("Recommended replacement: Use a better group");
+        });
+
+        it("should show deprecated indicators in command summary", () => {
+            const helpGen: DefaultHelpGenerator = new DefaultHelpGenerator(GENERATOR_PARMS,
+                { commandDefinition: deprecatedGroup, fullCommandTree: fakeParent });
+            const summary = helpGen.buildChildrenSummaryTables();
+            expect(summary).toContain("deprecated-command-one | dc1 Our first deprecated command. (deprecated)");
+            expect(summary).toContain("deprecated-command-two | dc2 Our second deprecated command. (deprecated)");
+            expect(summary).toContain("not-deprecated-command | ndc Our non-deprecated command.");
+
+            // jest's weird way of testing that a string does not contain a specific string
+            expect(summary).toEqual(expect.not.stringContaining("not-deprecated-command | ndc Our non-deprecated command. (deprecated)"));
         });
     });
 });

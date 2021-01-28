@@ -175,6 +175,13 @@ export interface IImperativeConfig {
     authGroupConfig?: IImperativeAuthGroupConfig;
 
     /**
+     * Specify the name to use in the config template for the root profile that contains all supported profiles.
+     * @type {string}
+     * @memberof IImperativeConfig
+     */
+    templateProfileName?: string;
+
+    /**
      * If you specify a list of profile configurations, you can set this to true to
      * automatically add a set of commands to your CLI to create, update, delete, and otherwise
      * manage user profiles.
@@ -319,4 +326,12 @@ export interface IImperativeConfig {
      * It will replace the main.css file that controls the style of the page.
      */
     webHelpCustomCssPath?: string;
+
+    /**
+     * Service name that should be used in vault for secure credentials.
+     * If omitted, the default service name "Zowe" is used.
+     * @type {string}
+     * @memberof IImperativeConfig
+     */
+    credentialServiceName?: string;
 }

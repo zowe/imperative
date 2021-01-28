@@ -18,7 +18,6 @@ import { IConfigLogging } from "../../logger";
 import { IImperativeEnvironmentalVariableSettings } from "..";
 import { ICommandDefinition } from "../../cmd/src/doc/ICommandDefinition";
 import * as yargs from "yargs";
-import { AbstractCommandYargs } from "../..";
 
 describe("Imperative", () => {
     const mainModule = process.mainModule;
@@ -42,6 +41,8 @@ describe("Imperative", () => {
             jest.doMock("../src/env/EnvironmentalVariableSettings");
             jest.doMock("../src/auth/builders/CompleteAuthGroupBuilder");
             jest.doMock("../src/profiles/builders/CompleteProfilesGroupBuilder");
+            jest.doMock("../../config/src/Config");
+            jest.doMock("../../security/src/CredentialManagerFactory");
 
             const {OverridesLoader} = require("../src/OverridesLoader");
             const {LoggingConfigurer} = require("../src/LoggingConfigurer");
@@ -55,6 +56,8 @@ describe("Imperative", () => {
             const {EnvironmentalVariableSettings} = require("../src/env/EnvironmentalVariableSettings");
             const {CompleteAuthGroupBuilder} = require("../src/auth/builders/CompleteAuthGroupBuilder");
             const {CompleteProfilesGroupBuilder} = require("../src/profiles/builders/CompleteProfilesGroupBuilder");
+            const {Config} = require("../../config/src/Config");
+            const {CredentialManagerFactory} = require("../../security/src/CredentialManagerFactory");
             return {
                 OverridesLoader: {
                     load: OverridesLoader.load as Mock<typeof OverridesLoader.load>
@@ -79,7 +82,11 @@ describe("Imperative", () => {
                 },
                 CompleteProfilesGroupBuilder: {
                     getProfileGroup: CompleteProfilesGroupBuilder.getProfileGroup as Mock<typeof CompleteProfilesGroupBuilder.getProfileGroup>
-                }
+                },
+                Config: {
+                    load: Config.load as Mock<typeof Config.load>
+                },
+                CredentialManagerFactory
             };
         } catch (error) {
             // If we error here, jest silently fails and says the test is empty. So let's make sure
@@ -159,7 +166,8 @@ describe("Imperative", () => {
             (Imperative as any).defineCommands = jest.fn(() => undefined);
 
             mocks.ConfigurationLoader.load.mockReturnValue(defaultConfig);
-            mocks.OverridesLoader.load.mockReturnValue(new Promise((resolve) => resolve()));
+            mocks.OverridesLoader.load.mockResolvedValue(undefined);
+            mocks.Config.load.mockResolvedValue({});
         });
 
         it("should work when passed with nothing", async () => {
@@ -167,6 +175,7 @@ describe("Imperative", () => {
             const result = await Imperative.init();
 
             expect(result).toBeUndefined();
+            expect(mocks.Config.load).toHaveBeenCalledTimes(1);
             expect(mocks.OverridesLoader.load).toHaveBeenCalledTimes(1);
             expect(mocks.OverridesLoader.load).toHaveBeenCalledWith(defaultConfig, {version: 10000, name: "sample"});
         });
@@ -190,6 +199,24 @@ describe("Imperative", () => {
             beforeEach(() => {
                 defaultConfig.allowConfigGroup = true;
                 ConfigManagementFacility = mocks.ConfigManagementFacility;
+            });
+
+            it("should not load old profiles in team-config mode", async () => {
+                /* Pretend that we have a team config.
+                * config is a getter of a property, so mock we the property.
+                */
+                Object.defineProperty(mocks.ImperativeConfig.instance, "config", {
+                    configurable: true,
+                    set: jest.fn(),
+                    get: jest.fn(() => {
+                        return {
+                            exists: true
+                        };
+                    })
+                });
+
+                await Imperative.init();
+                expect(Imperative.initProfiles).toHaveBeenCalledTimes(0);
             });
 
             it("should call config functions when config group is allowed", async () => {
@@ -381,7 +408,7 @@ describe("Imperative", () => {
             }
 
             expect(caughtError).toBeInstanceOf(ImperativeError);
-            expect(caughtError.message).toEqual("UNEXPECTED ERROR ENCOUNTERED");
+            expect(caughtError.message).toEqual("Unexpected Error Encountered");
             expect((caughtError as any).details.causeErrors).toEqual(error);
         });
 
@@ -406,6 +433,32 @@ describe("Imperative", () => {
             }
 
             expect(caughtError).toBe(error);
+            expect(mocks.Logger.writeInMemoryMessages).toHaveBeenCalledTimes(1);
+        });
+
+        it("should propagate an ImperativeError up and handle suppressDump differently", async () => {
+            const error = new ImperativeError({
+                msg: "This is an imperative error",
+                additionalDetails: "Something",
+                suppressDump: true,
+                causeErrors:
+                    new Error("Some internal error")
+            });
+
+            mocks.ConfigurationLoader.load.mockImplementationOnce(() => {
+                throw error;
+            });
+
+            let caughtError: Error;
+
+            try {
+                await Imperative.init();
+            } catch (e) {
+                caughtError = e;
+            }
+
+            expect(caughtError).toBe(error);
+            expect(mocks.Logger.writeInMemoryMessages).toHaveBeenCalledTimes(0);
         });
     });
 

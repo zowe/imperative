@@ -85,6 +85,7 @@ export class ProfilesUpdateCommandBuilder extends ProfilesCommandBuilder {
             description: this.mSchema.description,
             type: "command",
             handler: __dirname + "/../handlers/UpdateProfilesHandler",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_SET,
             customize: {},
             positionals: [{
                 name: Constants.PROFILE_NAME_OPTION,
