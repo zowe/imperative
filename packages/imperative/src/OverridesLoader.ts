@@ -51,43 +51,21 @@ export class OverridesLoader {
     config: IImperativeConfig,
     packageJson: any
   ): Promise<void> {
-    if (packageJson.dependencies?.keytar == null && packageJson.optionalDependencies?.keytar == null) {
-      return;
+    if (packageJson.dependencies?.keytar != null || packageJson.optionalDependencies?.keytar != null) {
+      // Load the CredentialManager built into Imperative for managing secure properties
+      await CredentialManagerFactory.initialize({
+        // The display name will be the plugin name that introduced the override OR it will default to the CLI name
+        displayName: config.productDisplayName || config.name,
+        // For overrides, the service could be the CLI name, but we do not override anymore.
+        // Null will use the service name of the built-in credential manager.
+        service: config.credentialServiceName || null,
+        // If the default is to be used, we won't implant the invalid credential manager.
+        // We do not use the invalid credential manager, since we no longer allow overrides.
+        invalidOnFailure: false
+      });
     }
 
-    // Load the CredentialManager built into Imperative for managing secure properties
-    await CredentialManagerFactory.initialize({
-      // The display name will be the plugin name that introduced the override OR it will default to the CLI name
-      displayName: config.productDisplayName || config.name,
-      // For overrides, the service could be the CLI name, but we do not override anymore.
-      // Null will use the service name of the built-in credential manager.
-      service: config.credentialServiceName || null,
-      // If the default is to be used, we won't implant the invalid credential manager.
-      // We do not use the invalid credential manager, since we no longer allow overrides.
-      invalidOnFailure: false
-    });
-
-    /**
-     * After the plugins and secure credentials are loaded, rebuild the configuration with the
-     * secure values
-     */
-    if (CredentialManagerFactory.initialized) {
-      const vault: IConfigVault = {
-        load: ((key: string): Promise<string> => {
-          return CredentialManagerFactory.manager.load(key, true);
-        }),
-        save: ((key: string, value: any): Promise<void> => {
-          return CredentialManagerFactory.manager.save(key, value);
-        })
-      };
-
-      try {
-        await ImperativeConfig.instance.config.secureLoad(vault);
-      } catch (err) {
-        // Secure vault is optional since we can prompt for values instead
-        Logger.getImperativeLogger().warn(`Secure vault not enabled. Reason: ${err.message}`);
-      }
-    }
+    await OverridesLoader.loadSecureConfig();
   }
 
   /**
@@ -133,6 +111,32 @@ export class OverridesLoader {
         // If the default is to be used, we won't implant the invalid credential manager
         invalidOnFailure: !(Manager == null)
       });
+    }
+
+    await OverridesLoader.loadSecureConfig();
+  }
+
+  /**
+   * After the plugins and secure credentials are loaded, rebuild the configuration with the
+   * secure values
+   */
+  private static async loadSecureConfig() {
+    if (!CredentialManagerFactory.initialized) return;
+
+    const vault: IConfigVault = {
+      load: ((key: string): Promise<string> => {
+        return CredentialManagerFactory.manager.load(key, true);
+      }),
+      save: ((key: string, value: any): Promise<void> => {
+        return CredentialManagerFactory.manager.save(key, value);
+      })
+    };
+
+    try {
+      await ImperativeConfig.instance.config.secureLoad(vault);
+    } catch (err) {
+      // Secure vault is optional since we can prompt for values instead
+      Logger.getImperativeLogger().warn(`Secure vault not enabled. Reason: ${err.message}`);
     }
   }
 }
