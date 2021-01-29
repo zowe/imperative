@@ -35,7 +35,7 @@ export class OverridesLoader {
       packageJson: any
   ): Promise<void> {
     // Initialize the Credential Manager
-    await (ImperativeConfig.instance.config.exists ? this.loadCredentialManager : this.loadCredentialManagerOld)(config, packageJson);
+    await (ImperativeConfig.instance.config?.exists ? this.loadCredentialManager : this.loadCredentialManagerOld)(config, packageJson);
   }
 
   /**

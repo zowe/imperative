@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed error when Imperative APIs are called and "config" property of ImperativeConfig is not initialized. [#533](https://github.com/zowe/imperative/issues/533)
+
 ## `5.0.0-next.202101281717`
 
 - Enhancement: Added new config API intended to replace the profiles API, and new "config" command group to manage config JSON files. The new API makes it easier for users to create, share, and switch between profile configurations.
