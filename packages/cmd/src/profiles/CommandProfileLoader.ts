@@ -110,7 +110,7 @@ export class CommandProfileLoader {
         const profileMetaMap: Map<string, IProfileLoaded[]> = new Map<string, IProfileLoaded[]>();
 
         // do not load old school profiles if we are in team-config mode
-        if (ImperativeConfig.instance.config.exists) {
+        if (ImperativeConfig.instance.config?.exists) {
             return new CommandProfiles(profileMap, profileMetaMap);
         }
 
