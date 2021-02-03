@@ -13,6 +13,7 @@ import { PMFConstants } from "../PMFConstants";
 import * as path from "path";
 import * as fs from "fs";
 import { readFileSync, writeFileSync } from "jsonfile";
+import * as pacote from "pacote";
 import { IPluginJson } from "../../doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { ImperativeError } from "../../../../../error";
@@ -48,7 +49,7 @@ import { installPackages } from "../NpmFunctions";
  *                                          it.
  * @returns {string} The name of the plugin.
  */
-export function install(packageLocation: string, registry: string, installFromFile = false) {
+export async function install(packageLocation: string, registry: string, installFromFile = false) {
     const iConsole = Logger.getImperativeLogger();
     let npmPackage = packageLocation;
 
@@ -85,31 +86,12 @@ export function install(packageLocation: string, registry: string, installFromFi
 
         const installOutput = installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, registry, npmPackage);
 
-        /* We get the package name (aka plugin name)
-         * from the output of the npm command.
-         * The regex is meant to match: + plugin-name@version.
-         */
-        const regex = /\+\s(.*)@(.*)$/gm;
-        const match = regex.exec(installOutput);
-        const packageName = match[1];
-        let packageVersion = match[2];
+        const packageManifest = await pacote.manifest(npmPackage, { registry });
+        const packageName = packageManifest.name;
+        const packageVersion = packageManifest.version;
 
         iConsole.debug("Reading in the current configuration.");
         const installedPlugins: IPluginJson = readFileSync(PMFConstants.instance.PLUGIN_JSON);
-
-        // Set the correct name and version by checking if package is an npm package, this is done
-        // by searching for a / or \ as those are not valid characters for an npm package, but they
-        // would be for a url or local file.
-        if (packageLocation.search(/(\\|\/)/) === -1) {
-            // Getting here means that the package installed was an npm package. So the package property
-            // of the json file should be the same as the package name.
-            npmPackage = packageName;
-
-            const passedVersionIdx = packageLocation.indexOf("@");
-            if (passedVersionIdx !== -1) {
-                packageVersion = packageLocation.substr(passedVersionIdx + 1);
-            }
-        }
 
         iConsole.debug(`Package version: ${packageVersion}`);
 
