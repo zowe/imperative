@@ -12,7 +12,7 @@
 
 import org.zowe.pipelines.nodejs.models.SemverLevel
 
-node('ca-jenkins-agent') {
+node('zowe-jenkins-agent-dind') {
     // Initialize the pipeline
     def pipeline = new NodeJSPipeline(this)
 
@@ -54,7 +54,7 @@ node('ca-jenkins-agent') {
     ]
 
     // Initialize the pipeline library, should create 5 steps
-    pipeline.setup()
+    pipeline.setup(nodeJsVersion: 'v10.23.2')
 
     // Create a custom lint stage that runs immediately after the setup.
     pipeline.createStage(
