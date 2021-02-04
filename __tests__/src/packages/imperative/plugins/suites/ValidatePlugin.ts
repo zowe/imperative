@@ -12,6 +12,7 @@
 import * as T from "../../../../../src/TestUtil";
 import { cliBin } from "../PluginManagementFacility.spec";
 import { join } from "path";
+import { execSync } from "child_process";
 
 describe("Validate plugin", () => {
     const testPluginDir = join(__dirname, "../test_plugins");
@@ -20,6 +21,19 @@ describe("Validate plugin", () => {
         str = str.replace(/\r?\n|\r/g, " ");
         return str;
     };
+
+    /**
+     * Specifies whether warnings about missing peer dependencies should be
+     * expected in stderr output of `npm install`. This defaults to true and is
+     * set to false if version 7 or newer of NPM is detected.
+     * @type {boolean}
+     */
+    let peerDepWarning: boolean = true;
+
+    beforeAll(() => {
+        // tslint:disable-next-line no-magic-numbers
+        peerDepWarning = parseInt(execSync("npm --version").toString().trim().split(".")[0], 10) < 7;
+    });
 
     describe("should validate successfully", () => {
         it("when all plugin installed successfully and no plugin name is provided", () => {
@@ -121,9 +135,13 @@ describe("Validate plugin", () => {
                 let cmd = `plugins install ${normalPlugin} ${fullPluginPath}`;
                 let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
 
-                expect(result.stderr).toMatch(/npm.*WARN/);
-                expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-                expect(result.stderr).toContain("You must install peer dependencies yourself");
+                if (peerDepWarning) {
+                    expect(result.stderr).toMatch(/npm.*WARN/);
+                    expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+                    expect(result.stderr).toContain("You must install peer dependencies yourself");
+                } else {
+                    expect(result.stderr).toEqual("");
+                }
 
                 expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
 
