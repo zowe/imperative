@@ -32,8 +32,9 @@ export async function update(packageName: string, registry: string) {
   // NOTE: Using npm install in order to retrieve the version which may be updated
   iConsole.info("updating package...this may take some time.");
 
-  const execOutput = installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, registry, npmPackage);
+  installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, registry, npmPackage);
 
+  // We fetch the package version with pacote (NPM SDK)
   const packageManifest = await pacote.manifest(npmPackage, { registry });
   const packageVersion = packageManifest.version;
 

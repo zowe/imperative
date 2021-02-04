@@ -84,14 +84,29 @@ export async function install(packageLocation: string, registry: string, install
         // Perform the npm install.
         iConsole.info("Installing packages...this may take some time.");
 
-        const installOutput = installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, registry, npmPackage);
+        installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, registry, npmPackage);
 
+        // We fetch the package name and version with pacote (NPM SDK)
         const packageManifest = await pacote.manifest(npmPackage, { registry });
         const packageName = packageManifest.name;
-        const packageVersion = packageManifest.version;
+        let packageVersion = packageManifest.version;
 
         iConsole.debug("Reading in the current configuration.");
         const installedPlugins: IPluginJson = readFileSync(PMFConstants.instance.PLUGIN_JSON);
+
+        // Set the correct name and version by checking if package is an npm package, this is done
+        // by searching for a / or \ as those are not valid characters for an npm package, but they
+        // would be for a url or local file.
+        if (packageLocation.search(/(\\|\/)/) === -1) {
+            // Getting here means that the package installed was an npm package. So the package property
+            // of the json file should be the same as the package name.
+            npmPackage = packageName;
+
+            const passedVersionIdx = packageLocation.indexOf("@");
+            if (passedVersionIdx !== -1) {
+                packageVersion = packageLocation.substr(passedVersionIdx + 1);
+            }
+        }
 
         iConsole.debug(`Package version: ${packageVersion}`);
 
