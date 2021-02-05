@@ -235,7 +235,9 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath,
+            JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT)
+        );
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
@@ -284,7 +286,9 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath,
+            JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT)
+        );
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
     });
 
@@ -416,7 +420,9 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath,
+            JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT)
+        );
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
     });
 
@@ -460,8 +466,12 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblSchemaPath,
+            JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT)
+        );
+        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath,
+            JSON.stringify(compObj, null, ConfigConstants.INDENT)
+        ); // Config
     });
 
     it("should attempt to initialize the project configuration and use boolean true for the prompt", async () => {
