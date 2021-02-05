@@ -324,8 +324,9 @@ export class WebHelpGenerator {
         htmlContent = htmlContent.replace(/(%5C|\\)(?=.+?<\/a>)/g, "");
 
         // Add Copy buttons after command line examples
-        htmlContent = htmlContent.replace(/<code>\$\s*(.*?)<\/code>/g,
-            "<code>$1</code> <button class=\"btn-copy no-print\" data-balloon-pos=\"right\" data-clipboard-text=\"$1\">Copy</button>");
+        htmlContent = htmlContent.replace(/<pre><code>\*\s`\$\s*(.*?)`<\/code><\/pre>/g,
+            `<ul>\n<li><code>$1</code> <button class="btn-copy no-print" data-balloon-pos="right" ` +
+            `data-clipboard-text="$1">Copy</button></li>\n</ul>`);
 
         // Sanitize references to user's home directory
         if (this.sanitizeHomeDir) {
