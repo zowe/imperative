@@ -9,6 +9,7 @@
 *
 */
 
-export type IConfigSecureProperties = { [key: string]: any };
-
-export type IConfigSecure = { [path: string]: IConfigSecureProperties };
+export * from "./ConfigLayers";
+export * from "./ConfigPlugins";
+export * from "./ConfigProfiles";
+export * from "./ConfigSecure";

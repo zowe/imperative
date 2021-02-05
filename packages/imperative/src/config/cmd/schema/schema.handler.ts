@@ -10,7 +10,7 @@
 */
 
 import { ICommandHandler, ICommandProfileTypeConfiguration, IHandlerParameters } from "../../../../../cmd";
-import { Config, ConfigSchema } from "../../../../../config";
+import { ConfigConstants, ConfigSchema } from "../../../../../config";
 import { ImperativeConfig } from "../../../../../utilities";
 
 /**
@@ -34,6 +34,6 @@ export default class SchemaHandler implements ICommandHandler {
         }
         const schema = ConfigSchema.buildSchema(profileConfigs);
         params.response.data.setObj(schema);
-        params.response.console.log(JSON.stringify(schema, null, Config.INDENT));
+        params.response.console.log(JSON.stringify(schema, null, ConfigConstants.INDENT));
     }
 }

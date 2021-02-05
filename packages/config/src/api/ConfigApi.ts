@@ -9,6 +9,8 @@
 *
 */
 
-export type IConfigSecureProperties = { [key: string]: any };
+import { Config } from "../Config";
 
-export type IConfigSecure = { [path: string]: IConfigSecureProperties };
+export class ConfigApi {
+    constructor (protected mConfig: Config) { }
+}

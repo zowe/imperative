@@ -9,6 +9,10 @@
 *
 */
 
-export type IConfigSecureProperties = { [key: string]: any };
+import { ConfigApi } from "./ConfigApi";
 
-export type IConfigSecure = { [path: string]: IConfigSecureProperties };
+export class ConfigPlugins extends ConfigApi {
+    public get(): string[] {
+        return this.mConfig.properties.plugins;
+    }
+}
