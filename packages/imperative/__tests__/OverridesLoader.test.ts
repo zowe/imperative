@@ -255,6 +255,14 @@ describe("OverridesLoader", () => {
           overrides: {}
         };
 
+        (ImperativeConfig.instance.config as any) = {
+          api: {
+            secure: {
+              load: jest.fn()
+            }
+          }
+        };
+
         // Fake out package.json for the overrides loader
         const packageJson = {
           dependencies: {
@@ -273,7 +281,7 @@ describe("OverridesLoader", () => {
 
         expect(caughtError).toBeUndefined();
         expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
-        expect(ImperativeConfig.instance.config.secureLoad).toHaveBeenCalledTimes(1);
+        expect(ImperativeConfig.instance.config.api.secure.load).toHaveBeenCalledTimes(1);
       });
     });
   });

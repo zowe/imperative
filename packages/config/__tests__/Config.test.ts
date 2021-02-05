@@ -15,7 +15,9 @@ import * as path from "path";
 import * as findUp from "find-up";
 import { ImperativeError } from "../..";
 import { Config } from "../src/Config";
+import { ConfigConstants } from "../src/ConfigConstants";
 import * as JSONC from "comment-json";
+import { ConfigSecure } from "../src/api";
 
 const MY_APP = "my_app";
 
@@ -26,7 +28,7 @@ describe("Config tests", () => {
 
     describe("load", () => {
         beforeEach(() => {
-            jest.spyOn(Config.prototype as any, "secureLoad").mockResolvedValue(undefined);
+            jest.spyOn(ConfigSecure.prototype, "load").mockResolvedValue(undefined);
         });
 
         it("should load project user config", async () => {
@@ -217,14 +219,14 @@ describe("Config tests", () => {
             .mockReturnValueOnce(false);    // Global layer
         const config = await Config.load(MY_APP);
         expect(config.properties.profiles.fruit.properties.secret).toBeUndefined();
-        expect(config.maskedProperties.profiles.fruit.properties.secret).toBe(Config.SECURE_VALUE);
+        expect(config.maskedProperties.profiles.fruit.properties.secret).toBe(ConfigConstants.SECURE_VALUE);
     });
 
     describe("set", () => {
         beforeEach(() => {
             jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/project.config.user.json");
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false);
-            jest.spyOn(Config.prototype as any, "secureLoad").mockResolvedValue(undefined);
+            jest.spyOn(ConfigSecure.prototype, "load").mockResolvedValue(undefined);
         });
 
         it("should set boolean true in config", async () => {
@@ -294,7 +296,7 @@ describe("Config tests", () => {
         beforeEach(() => {
             jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/commented-project.config.user.json");
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false);
-            jest.spyOn(Config.prototype as any, "secureLoad").mockResolvedValue(undefined);
+            jest.spyOn(ConfigSecure.prototype, "load").mockResolvedValue(undefined);
         });
 
         it("should set boolean true in config", async () => {
@@ -303,7 +305,7 @@ describe("Config tests", () => {
             expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(true);
 
             const layer = (config as any).layerActive();
-            const testObj = JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties, null, Config.INDENT)
+            const testObj = JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties, null, ConfigConstants.INDENT)
                 .split("\n").find((item) => item.indexOf("ripe") >= 0);
             expect(testObj).toContain(blockComment);
             expect(testObj).toContain(lineComment);
@@ -315,7 +317,7 @@ describe("Config tests", () => {
             expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(false);
 
             const layer = (config as any).layerActive();
-            const testObj = JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties, null, Config.INDENT)
+            const testObj = JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties, null, ConfigConstants.INDENT)
                 .split("\n").find((item) => item.indexOf("ripe") >= 0);
             expect(testObj).toContain(blockComment);
             expect(testObj).toContain(lineComment);
@@ -327,7 +329,7 @@ describe("Config tests", () => {
             expect(config.properties.profiles.fruit.profiles.apple.properties.price).toBe(2);
 
             const layer = (config as any).layerActive();
-            const testObj = JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties, null, Config.INDENT)
+            const testObj = JSONC.stringify(layer.properties.profiles.fruit.profiles.apple.properties, null, ConfigConstants.INDENT)
                 .split("\n").find((item) => item.indexOf("price") >= 0);
             expect(testObj).toContain(blockComment);
             expect(testObj).toContain(lineComment);
@@ -341,8 +343,8 @@ describe("Config tests", () => {
             expect(config.properties.profiles.fruit.properties.tags[0]).toBe("sweet");
 
             const layer = (config as any).layerActive();
-            expect(JSONC.stringify(layer.properties.profiles.fruit.properties.tags, null, Config.INDENT)).toContain(blockComment);
-            expect(JSONC.stringify(layer.properties.profiles.fruit.properties.tags, null, Config.INDENT)).toContain(lineComment);
+            expect(JSONC.stringify(layer.properties.profiles.fruit.properties.tags, null, ConfigConstants.INDENT)).toContain(blockComment);
+            expect(JSONC.stringify(layer.properties.profiles.fruit.properties.tags, null, ConfigConstants.INDENT)).toContain(lineComment);
         });
 
         it("should set secure string value in config", async () => {
@@ -356,8 +358,8 @@ describe("Config tests", () => {
             expect(layer.properties.secure.length).toBe(1);
             expect(layer.properties.secure[0]).toBe("profiles.fruit.profiles.apple.properties.secret");
 
-            expect(JSONC.stringify(layer.properties.secure, null, Config.INDENT)).toContain(blockComment);
-            expect(JSONC.stringify(layer.properties.secure, null, Config.INDENT)).toContain(lineComment);
+            expect(JSONC.stringify(layer.properties.secure, null, ConfigConstants.INDENT)).toContain(blockComment);
+            expect(JSONC.stringify(layer.properties.secure, null, ConfigConstants.INDENT)).toContain(lineComment);
         });
 
         // NOTE: config.setSchema remove comments from the $schema property
@@ -368,7 +370,7 @@ describe("Config tests", () => {
             const jsonText = JSONC.stringify(layer.properties);
             expect(jsonText.match(/^{\s*"\$schema":/)).not.toBeNull();
 
-            const testObj = JSONC.stringify(layer.properties, null, Config.INDENT).split("\n").find((item) => item.indexOf("$schema") >= 0);
+            const testObj = JSONC.stringify(layer.properties, null, ConfigConstants.INDENT).split("\n").find((item) => item.indexOf("$schema") >= 0);
             expect(testObj).not.toContain(blockComment);
             expect(testObj).not.toContain(lineComment);
         });
@@ -378,7 +380,7 @@ describe("Config tests", () => {
         beforeEach(() => {
             jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/project.config.user.json");
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false);
-            jest.spyOn(Config.prototype as any, "secureLoad").mockResolvedValue(undefined);
+            jest.spyOn(ConfigSecure.prototype, "load").mockResolvedValue(undefined);
         });
 
         it("should remove secure property from profile and secure array", async () => {
@@ -419,7 +421,7 @@ describe("Config tests", () => {
         beforeEach(() => {
             jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/project.config.user.json");
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false);
-            jest.spyOn(Config.prototype as any, "secureLoad").mockResolvedValue(undefined);
+            jest.spyOn(ConfigSecure.prototype, "load").mockResolvedValue(undefined);
         });
         it("should get paths", async () => {
             const config = await Config.load(MY_APP);
@@ -439,26 +441,26 @@ describe("Config tests", () => {
         });
         it("should search for a file in the same directory", async () => {
             const expectedPath = path.join(configDir, configFile);
-            const file = Config.search(configFile, { stop: home });
+            const file = Config.search(configFile);
             expect(file).toBe(expectedPath);
         });
         it("should search for a file in the parent directory", async () => {
             const expectedPath = path.join(configDir, "..", configFile);
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValue(true);
-            const file = Config.search(configFile, { stop: home });
+            const file = Config.search(configFile);
             expect(file).toBe(path.resolve(expectedPath));
         });
         it("should search for and not return file in the parent directory because the parent directory is the global directory", async () => {
             const notExpectedPath = path.join(configDir, "..", configFile);
             const expectedPath = path.join(configDir, "..", "..", configFile);
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValue(true);
-            const file = Config.search(configFile, { stop: home, gbl: path.join(configDir, "..") });
+            const file = Config.search(configFile, { ignoreDirs: [path.join(configDir, "..")] });
             expect(file).not.toBe(notExpectedPath);
             expect(file).toBe(path.resolve(expectedPath));
         });
         it("should fail to find a file", async () => {
             jest.spyOn(fs, "existsSync").mockReturnValue(false);
-            const file = Config.search(configFile, { stop: home });
+            const file = Config.search(configFile);
             expect(file).toBeNull();
         });
         it("should search for and find a file without opts", async () => {
@@ -469,7 +471,7 @@ describe("Config tests", () => {
         });
         it("should search for and fail to find a file without opts", async () => {
             jest.spyOn(fs, "existsSync").mockReturnValue(false);
-            const file = Config.search(configFile, { stop: home });
+            const file = Config.search(configFile);
             expect(file).toBeNull();
         });
     });

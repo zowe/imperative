@@ -179,9 +179,11 @@ describe("Configuration Secure command handler", () => {
 
         await handler.process(params);
 
-        const fakeSecureDataExpectedJson = {};
-        fakeSecureDataExpectedJson[fakeUnrelatedPath] = {"profiles.my_profiles.profiles.secured.properties.secure": "anotherFakeSecureValue"};
-        fakeSecureDataExpectedJson[fakeProjPath] = {"profiles.my_profiles.profiles.secured.properties.secret": "fakePromptingData"};
+        const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
+        delete fakeSecureDataExpectedJson[fakeProjPath];
+        fakeSecureDataExpectedJson[fakeProjPath] = {
+            "profiles.my_profiles.profiles.secured.properties.secret": "fakePromptingData"
+        };
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
         const compObj: any = {};
@@ -247,9 +249,10 @@ describe("Configuration Secure command handler", () => {
 
         await handler.process(params);
 
-        const fakeSecureDataExpectedJson = {};
-        fakeSecureDataExpectedJson[fakeUnrelatedPath] = {"profiles.my_profiles.profiles.secured.properties.secure": "anotherFakeSecureValue"};
-        fakeSecureDataExpectedJson[fakeProjUserPath] = {"profiles.my_profiles.profiles.secured.properties.secret": "fakePromptingData"};
+        const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
+        fakeSecureDataExpectedJson[fakeProjUserPath] = {
+            "profiles.my_profiles.profiles.secured.properties.secret": "fakePromptingData"
+        };
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
         const compObj: any = {};
@@ -316,8 +319,8 @@ describe("Configuration Secure command handler", () => {
 
         await handler.process(params);
 
-        const fakeSecureDataExpectedJson = {};
-        fakeSecureDataExpectedJson[fakeUnrelatedPath] = {"profiles.my_profiles.profiles.secured.properties.secure": "anotherFakeSecureValue"};
+        const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
+        delete fakeSecureDataExpectedJson[fakeGblProjPath];
         fakeSecureDataExpectedJson[fakeGblProjPath] = {"profiles.my_profiles.profiles.secured.properties.secret": "fakePromptingData"};
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -386,8 +389,8 @@ describe("Configuration Secure command handler", () => {
 
         await handler.process(params);
 
-        const fakeSecureDataExpectedJson = {};
-        fakeSecureDataExpectedJson[fakeUnrelatedPath] = {"profiles.my_profiles.profiles.secured.properties.secure": "anotherFakeSecureValue"};
+        const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
+        delete fakeSecureDataExpectedJson[fakeGblProjUserPath];
         fakeSecureDataExpectedJson[fakeGblProjUserPath] = {"profiles.my_profiles.profiles.secured.properties.secret": "fakePromptingData"};
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
