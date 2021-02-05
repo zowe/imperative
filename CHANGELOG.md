@@ -4,11 +4,12 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
+- Enhancement: Fixed plugin install commands which were broken in npm@7. [#457](https://github.com/zowe/imperative/issues/457)
 - BugFix: Fixed incorrect formatting of code blocks in web help. [#535](https://github.com/zowe/imperative/issues/535)
 
 ## `4.10.2`
 
-- Fix vulnerabilities by updating marked
+- BugFix: Fixed vulnerabilities by updating marked
 
 ## `4.10.1`
 

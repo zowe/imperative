@@ -145,7 +145,7 @@ export default class InstallHandler implements ICommandHandler {
               this.console.debug(`Package: ${packageArgument}`);
 
               params.response.console.log("\n_______________________________________________________________");
-              const pluginName = install(packageArgument, packageInfo.registry, true);
+              const pluginName = await install(packageArgument, packageInfo.registry, true);
               params.response.console.log("Installed plugin name = '" + pluginName + "'");
               params.response.console.log(runValidatePlugin(pluginName));
             }
@@ -155,7 +155,7 @@ export default class InstallHandler implements ICommandHandler {
         } else {
           for (const packageString of params.arguments.plugin) {
             params.response.console.log("\n_______________________________________________________________");
-            const pluginName = install(`${packageString}`, installRegistry);
+            const pluginName = await install(`${packageString}`, installRegistry);
             params.response.console.log("Installed plugin name = '" + pluginName + "'");
             params.response.console.log(runValidatePlugin(pluginName));
           }
