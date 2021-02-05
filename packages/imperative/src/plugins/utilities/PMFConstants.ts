@@ -113,7 +113,7 @@ export class PMFConstants {
         this.IMPERATIVE_PKG_NAME = ImperativeConfig.instance.imperativePackageName;
         this.PMF_ROOT = join(ImperativeConfig.instance.cliHome, "plugins");
         this.PLUGIN_JSON = join(this.PMF_ROOT, "plugins.json");
-        this.PLUGIN_USING_CONFIG = ImperativeConfig.instance.config.exists;
+        this.PLUGIN_USING_CONFIG = ImperativeConfig.instance.config?.exists;
         this.PLUGIN_INSTALL_LOCATION = join(this.PMF_ROOT, "installed");
 
         // Windows format is <prefix>/node_modules
