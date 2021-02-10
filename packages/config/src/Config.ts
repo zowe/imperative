@@ -207,6 +207,7 @@ export class Config {
      * Zowe home.). For golbal config files we only retrieve config files
      * from the Zowe home directory.
      *
+     * @internal
      * @param layer Enum value for config layer
      */
     private layerPath(layer: Layers): string {
