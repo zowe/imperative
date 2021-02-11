@@ -187,6 +187,12 @@ describe("Config tests", () => {
         });
     });
 
+    it("should return the app name", () => {
+        const config = new (Config as any)();
+        config.mApp = "greatAppName";
+        expect(config.appName).toBe("greatAppName");
+    });
+
     it("should find config that exists if any layers exist", () => {
         const config = new (Config as any)();
         config.mLayers = [
