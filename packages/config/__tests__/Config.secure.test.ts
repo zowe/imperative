@@ -52,21 +52,20 @@ describe("Config secure tests", () => {
 
     it("should set vault if provided for secure load", async () => {
         const config = new (Config as any)();
-        expect((config as any)._vault).toBeUndefined();
+        expect((config as any).mVault).toBeUndefined();
         await (config.api.secure as any).load(mockVault);
-        expect((config as any)._vault).toBe(mockVault);
+        expect((config as any).mVault).toBe(mockVault);
     });
 
     it("should skip secure save if there are no secure properties or anything in keytar", async () => {
         const config = new (Config as any)();
-        config._layers = [
+        config.mLayers = [
             {
                 properties: { secure: [] }
             }
         ];
-        config._vault = mockVault;
-        config._secure = {};
-        config._paths = [];
+        config.mVault = mockVault;
+        config.mSecure = {};
         await (config.api.secure as any).save(true);
         expect(mockSecureLoad).toHaveBeenCalledTimes(0);
         expect(mockSecureSave).toHaveBeenCalledTimes(0);
@@ -74,15 +73,14 @@ describe("Config secure tests", () => {
 
     it("should secure save if there are secure properties", async () => {
         const config = new (Config as any)();
-        config._layers = [
+        config.mLayers = [
             {
                 path: "fake fakety fake",
                 properties: { secure: ["profiles.fake.properties.fake"], profiles: {fake: { properties: {fake: "fake"}}}}
             }
         ];
-        config._vault = mockVault;
-        config._secure = {};
-        config._paths = [];
+        config.mVault = mockVault;
+        config.mSecure = {};
         await (config.api.secure as any).save(true);
         expect(mockSecureLoad).toHaveBeenCalledTimes(0);
         expect(mockSecureSave).toHaveBeenCalledTimes(1);

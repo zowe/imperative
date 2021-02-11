@@ -90,8 +90,8 @@ describe("Config tests", () => {
                 .mockReturnValueOnce(false)     // User layer
                 .mockReturnValueOnce(false);    // Global layer
             const config = new (Config as any)();
-            config._app = MY_APP;
-            config._layers = [ { exists: false } ];
+            config.mApp = MY_APP;
+            config.mLayers = [ { exists: false } ];
 
             const formedConfigFileNm = config.formMainConfigPathNm({addPath: true});
             expect(formedConfigFileNm).toBe(actualConfigFileNm);
@@ -189,7 +189,7 @@ describe("Config tests", () => {
 
     it("should find config that exists if any layers exist", () => {
         const config = new (Config as any)();
-        config._layers = [
+        config.mLayers = [
             { exists: false },
             { exists: true },
             { exists: false }
@@ -199,15 +199,15 @@ describe("Config tests", () => {
 
     it("should not find config that exists if no layers exist", () => {
         const config = new (Config as any)();
-        config._layers = [ { exists: false } ];
+        config.mLayers = [ { exists: false } ];
         expect(config.exists).toBe(false);
     });
 
     it("should provide a deep copy of layers", () => {
         const config = new (Config as any)();
-        config._layers = [];
+        config.mLayers = [];
         config.layers.push({});
-        expect(Object.keys(config._layers).length).toBe(0);
+        expect(Object.keys(config.mLayers).length).toBe(0);
     });
 
     it("should make secure values in maskedProperties", async () => {
