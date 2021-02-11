@@ -19,6 +19,11 @@ import { IConfigProfile } from "./doc/IConfigProfile";
 export class ConfigBuilder {
     private static readonly DEFAULT_ROOT_PROFILE_NAME = "my_profiles";
 
+    /**
+     * Build a new Config object from an Imperative CLI app configuration.
+     * @param impConfig The Imperative CLI app configuration.
+     * @param opts Options to control aspects of the builder.
+     */
     public static async build(impConfig: IImperativeConfig, opts?: IConfigBuilderOpts): Promise<IConfig> {
         opts = opts || {};
         const config: IConfig = Config.empty();
