@@ -30,20 +30,20 @@ export class ConfigSecure extends ConfigApi {
      */
     public async load(vault?: IConfigVault) {
         if (vault != null) {
-            this.mConfig._vault = vault;
+            this.mConfig.mVault = vault;
         }
-        if (this.mConfig._vault == null) return;
+        if (this.mConfig.mVault == null) return;
 
         // load the secure fields
-        const s: string = await this.mConfig._vault.load(ConfigConstants.SECURE_ACCT);
+        const s: string = await this.mConfig.mVault.load(ConfigConstants.SECURE_ACCT);
         if (s == null) return;
-        this.mConfig._secure = JSONC.parse(s);
+        this.mConfig.mSecure = JSONC.parse(s);
 
         // populate each layers properties
-        for (const layer of this.mConfig._layers) {
+        for (const layer of this.mConfig.mLayers) {
 
             // Find the matching layer
-            for (const [filePath, secureProps] of Object.entries(this.mConfig._secure)) {
+            for (const [filePath, secureProps] of Object.entries(this.mConfig.mSecure)) {
                 if (filePath === layer.path) {
 
                     // Only set those indicated by the config
@@ -80,12 +80,12 @@ export class ConfigSecure extends ConfigApi {
      *                  Only save the active layer when false.
      */
     public async save(allLayers?: boolean) {
-        if (this.mConfig._vault == null) return;
-        const beforeLen = Object.keys(this.mConfig._secure).length;
+        if (this.mConfig.mVault == null) return;
+        const beforeLen = Object.keys(this.mConfig.mSecure).length;
 
         // Build the entries for each layer
-        for (const layer of this.mConfig._layers) {
-            if ((allLayers === false) && (layer.user !== this.mConfig._active.user || layer.global !== this.mConfig._active.global)) {
+        for (const layer of this.mConfig.mLayers) {
+            if ((allLayers === false) && (layer.user !== this.mConfig.mActive.user || layer.global !== this.mConfig.mActive.global)) {
                 continue;
             }
 
@@ -107,17 +107,17 @@ export class ConfigSecure extends ConfigApi {
             }
 
             // Clear the entry and rebuild it
-            delete this.mConfig._secure[layer.path];
+            delete this.mConfig.mSecure[layer.path];
 
             // Create the entry to set the secure properties
             if (Object.keys(sp).length > 0) {
-                this.mConfig._secure[layer.path] = sp;
+                this.mConfig.mSecure[layer.path] = sp;
             }
         }
 
         // Save the entries if needed
-        if (Object.keys(this.mConfig._secure).length > 0 || beforeLen > 0 ) {
-            await this.mConfig._vault.save(ConfigConstants.SECURE_ACCT, JSONC.stringify(this.mConfig._secure));
+        if (Object.keys(this.mConfig.mSecure).length > 0 || beforeLen > 0 ) {
+            await this.mConfig.mVault.save(ConfigConstants.SECURE_ACCT, JSONC.stringify(this.mConfig.mSecure));
         }
     }
 

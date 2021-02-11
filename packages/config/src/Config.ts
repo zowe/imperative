@@ -52,25 +52,25 @@ export class Config {
      * App name used in config filenames (e.g., *my_cli*.config.json)
      * @internal
      */
-    public _app: string;
+    public mApp: string;
 
     /**
      * List to store each of the config layers enumerated in `layers` enum
      * @internal
      */
-    public _layers: IConfigLayer[];
+    public mLayers: IConfigLayer[];
 
     /**
      * Directory where global config files are located. Defaults to `~/.appName`.
      * @internal
      */
-    public _home: string;
+    public mHome: string;
 
     /**
      * Currently active layer whose properties will be manipulated
      * @internal
      */
-    public _active: {
+    public mActive: {
         user: boolean;
         global: boolean
     };
@@ -79,13 +79,13 @@ export class Config {
      * Vault object with methods for loading and saving secure credentials
      * @internal
      */
-    public _vault: IConfigVault;
+    public mVault: IConfigVault;
 
     /**
      * Secure properties object stored in credential vault
      * @internal
      */
-    public _secure: IConfigSecure;
+    public mSecure: IConfigSecure;
 
     // _______________________________________________________________________
     /**
@@ -118,21 +118,21 @@ export class Config {
         opts = opts || {};
 
         // Create the basic empty configuration
-        const _ = new Config(opts);
-        _._app = app;
-        _._layers = [];
-        _._home = opts.homeDir || node_path.join(os.homedir(), `.${app}`);
-        _._active = { user: false, global: false };
-        _._vault = opts.vault;
-        _._secure = {};
+        const myNewConfig = new Config(opts);
+        myNewConfig.mApp = app;
+        myNewConfig.mLayers = [];
+        myNewConfig.mHome = opts.homeDir || node_path.join(os.homedir(), `.${app}`);
+        myNewConfig.mActive = { user: false, global: false };
+        myNewConfig.mVault = opts.vault;
+        myNewConfig.mSecure = {};
 
         // Populate configuration file layers
         for (const layer of [
             Layers.ProjectUser, Layers.ProjectConfig,
             Layers.GlobalUser, Layers.GlobalConfig
         ]) {
-            _._layers.push({
-                path: _.layerPath(layer),
+            myNewConfig.mLayers.push({
+                path: myNewConfig.layerPath(layer),
                 exists: false,
                 properties: Config.empty(),
                 global: layer === Layers.GlobalUser || layer === Layers.GlobalConfig,
@@ -143,13 +143,13 @@ export class Config {
         // Read and populate each configuration layer
         try {
             let setActive = true;
-            for (const currLayer of _._layers) {
-                await _.api.layers.read(currLayer);
+            for (const currLayer of myNewConfig.mLayers) {
+                await myNewConfig.api.layers.read(currLayer);
 
                 // Find the active layer
                 if (setActive && currLayer.exists) {
-                    _._active.user = currLayer.user;
-                    _._active.global = currLayer.global;
+                    myNewConfig.mActive.user = currLayer.user;
+                    myNewConfig.mActive.global = currLayer.global;
                     setActive = false;
                 }
 
@@ -168,9 +168,9 @@ export class Config {
         }
 
         // Load secure fields
-        await _.api.secure.load();
+        await myNewConfig.api.secure.load();
 
-        return _;
+        return myNewConfig;
     }
 
     // _______________________________________________________________________
@@ -183,9 +183,9 @@ export class Config {
         await this.api.secure.save(allLayers);
 
         try {
-            for (const currLayer of this._layers) {
+            for (const currLayer of this.mLayers) {
                 if ((allLayers !== false) ||
-                    (currLayer.user === this._active.user && currLayer.global === this._active.global))
+                    (currLayer.user === this.mActive.user && currLayer.global === this.mActive.global))
                 {
                     await this.api.layers.write(currLayer);
                 }
@@ -213,13 +213,13 @@ export class Config {
     private layerPath(layer: Layers): string {
         switch (layer) {
             case Layers.ProjectUser:
-                return Config.search(this.userConfigName, { ignoreDirs: [this._home] }) || node_path.join(process.cwd(), this.userConfigName);
+                return Config.search(this.userConfigName, { ignoreDirs: [this.mHome] }) || node_path.join(process.cwd(), this.userConfigName);
             case Layers.ProjectConfig:
-                return Config.search(this.configName, { ignoreDirs: [this._home] }) || node_path.join(process.cwd(), this.configName);
+                return Config.search(this.configName, { ignoreDirs: [this.mHome] }) || node_path.join(process.cwd(), this.configName);
             case Layers.GlobalUser:
-                return node_path.join(this._home, this.userConfigName);
+                return node_path.join(this.mHome, this.userConfigName);
             case Layers.GlobalConfig:
-                return node_path.join(this._home, this.configName);
+                return node_path.join(this.mHome, this.configName);
         }
     }
 
@@ -241,7 +241,7 @@ export class Config {
      * True if any config layers exist on disk, otherwise false.
      */
     public get exists(): boolean {
-        for (const layer of this._layers)
+        for (const layer of this.mLayers)
             if (layer.exists) return true;
         return false;
     }
@@ -251,7 +251,7 @@ export class Config {
      * List of absolute file paths for all config layers.
      */
     public get paths(): string[] {
-        return this._layers.map((layer: IConfigLayer) => layer.path);
+        return this.mLayers.map((layer: IConfigLayer) => layer.path);
     }
 
     // _______________________________________________________________________
@@ -260,7 +260,7 @@ export class Config {
      * Returns a clone to prevent accidental edits of the original object.
      */
     public get layers(): IConfigLayer[] {
-        return JSONC.parse(JSONC.stringify(this._layers));
+        return JSONC.parse(JSONC.stringify(this.mLayers));
     }
 
     // _______________________________________________________________________
@@ -277,7 +277,7 @@ export class Config {
      * App name used in config filenames (e.g., *my_cli*.config.json)
      */
     public get appName(): string {
-        return this._app;
+        return this.mApp;
     }
 
     // _______________________________________________________________________
@@ -285,7 +285,7 @@ export class Config {
      * Filename used for config JSONC files
      */
     public get configName(): string {
-        return `${this._app}${Config.END_OF_TEAM_CONFIG}`;
+        return `${this.mApp}${Config.END_OF_TEAM_CONFIG}`;
     }
 
     // _______________________________________________________________________
@@ -293,7 +293,7 @@ export class Config {
      * Filename used for user config JSONC files
      */
     public get userConfigName(): string {
-        return `${this._app}${Config.END_OF_USER_CONFIG}`;
+        return `${this.mApp}${Config.END_OF_USER_CONFIG}`;
     }
 
     // _______________________________________________________________________
@@ -301,7 +301,7 @@ export class Config {
      * Filename used for config schema JSON files
      */
     public get schemaName(): string {
-        return `${this._app}.schema.json`;
+        return `${this.mApp}.schema.json`;
     }
 
     // _______________________________________________________________________
@@ -438,7 +438,7 @@ export class Config {
         const c = Config.empty();
 
         // merge each layer
-        this._layers.forEach((layer: IConfigLayer) => {
+        this.mLayers.forEach((layer: IConfigLayer) => {
 
             // Merge "plugins" - create a unique set from all entries
             c.plugins = Array.from(new Set(layer.properties.plugins.concat(c.plugins)));
@@ -449,13 +449,13 @@ export class Config {
         });
 
         // Merge the project layer profiles
-        const usrProject = this.layerProfiles(this._layers[Layers.ProjectUser], maskSecure);
-        const project = this.layerProfiles(this._layers[Layers.ProjectConfig], maskSecure);
+        const usrProject = this.layerProfiles(this.mLayers[Layers.ProjectUser], maskSecure);
+        const project = this.layerProfiles(this.mLayers[Layers.ProjectConfig], maskSecure);
         const proj: { [key: string]: IConfigProfile } = deepmerge(project, usrProject);
 
         // Merge the global layer profiles
-        const usrGlobal = this.layerProfiles(this._layers[Layers.GlobalUser], maskSecure);
-        const global = this.layerProfiles(this._layers[Layers.GlobalConfig], maskSecure);
+        const usrGlobal = this.layerProfiles(this.mLayers[Layers.GlobalUser], maskSecure);
+        const global = this.layerProfiles(this.mLayers[Layers.GlobalConfig], maskSecure);
         const glbl: { [key: string]: IConfigProfile } = deepmerge(global, usrGlobal);
 
         // Traverse all the global profiles merging any missing from project profiles
@@ -499,7 +499,7 @@ export class Config {
      * @returns The desired layer object. Null if no layer matches.
      */
     public findLayer(user: boolean, global: boolean): IConfigLayer {
-        for (const layer of (this._layers || [])) {
+        for (const layer of (this.mLayers || [])) {
             if (layer.user === user && layer.global === global)
                 return layer;
         }
@@ -514,7 +514,7 @@ export class Config {
      * @returns The active layer object
      */
     public layerActive(): IConfigLayer {
-            const layer = this.findLayer(this._active.user, this._active.global);
+            const layer = this.findLayer(this.mActive.user, this.mActive.global);
             if (layer != null) return layer;
             throw new ImperativeError({ msg: `internal error: no active layer found` });
     }
@@ -534,7 +534,7 @@ export class Config {
      */
     public formMainConfigPathNm(options: any): string {
         // if a team configuration is not active, just return the file name.
-        let configPathNm: string = this._app + Config.END_OF_TEAM_CONFIG;
+        let configPathNm: string = this.mApp + Config.END_OF_TEAM_CONFIG;
         if (options.addPath === false) {
             // if our caller does not want the path, just return the file name.
             return configPathNm;

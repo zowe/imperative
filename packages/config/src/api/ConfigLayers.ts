@@ -109,8 +109,8 @@ export class ConfigLayers extends ConfigApi {
      *              for this layer.
      */
     public activate(user: boolean, global: boolean, inDir?: string) {
-        this.mConfig._active.user = user;
-        this.mConfig._active.global = global;
+        this.mConfig.mActive.user = user;
+        this.mConfig.mActive.global = global;
 
         if (inDir != null) {
             const layer = this.mConfig.layerActive();
@@ -138,14 +138,14 @@ export class ConfigLayers extends ConfigApi {
      * @param user True if you want the user layer.
      */
     public set(cnfg: IConfig) {
-        for (const i in this.mConfig._layers) {
-            if (this.mConfig._layers[i].user === this.mConfig._active.user &&
-                this.mConfig._layers[i].global === this.mConfig._active.global) {
-                this.mConfig._layers[i].properties = cnfg;
-                this.mConfig._layers[i].properties.defaults = this.mConfig._layers[i].properties.defaults || {};
-                this.mConfig._layers[i].properties.profiles = this.mConfig._layers[i].properties.profiles || {};
-                this.mConfig._layers[i].properties.plugins = this.mConfig._layers[i].properties.plugins || [];
-                this.mConfig._layers[i].properties.secure = this.mConfig._layers[i].properties.secure || [];
+        for (const i in this.mConfig.mLayers) {
+            if (this.mConfig.mLayers[i].user === this.mConfig.mActive.user &&
+                this.mConfig.mLayers[i].global === this.mConfig.mActive.global) {
+                this.mConfig.mLayers[i].properties = cnfg;
+                this.mConfig.mLayers[i].properties.defaults = this.mConfig.mLayers[i].properties.defaults || {};
+                this.mConfig.mLayers[i].properties.profiles = this.mConfig.mLayers[i].properties.profiles || {};
+                this.mConfig.mLayers[i].properties.plugins = this.mConfig.mLayers[i].properties.plugins || [];
+                this.mConfig.mLayers[i].properties.secure = this.mConfig.mLayers[i].properties.secure || [];
             }
         }
     }

@@ -147,7 +147,7 @@ export class ConfigProfiles extends ConfigApi {
 
         const loadedProfile = lodashDeep.deepMapValues(profile, (value: any, p: string) => {
             if (p.includes("properties.")) {
-                for (const layer of this.mConfig._layers) {
+                for (const layer of this.mConfig.mLayers) {
                     const propertyPath = `${path}.${p}`;
                     if (lodash.get(layer.properties, propertyPath) != null) {
                         const property: IConfigLoadedProperty = {
@@ -163,7 +163,7 @@ export class ConfigProfiles extends ConfigApi {
             return value;
         });
 
-        for (const layer of this.mConfig._layers) {
+        for (const layer of this.mConfig.mLayers) {
             for (const secureProp of layer.properties.secure) {
                 if (secureProp.startsWith(`${path}.`)) {
                     const subpath = secureProp.slice(path.length + 1);
