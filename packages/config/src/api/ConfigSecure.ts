@@ -15,7 +15,19 @@ import { IConfigVault } from "../doc/IConfigVault";
 import { IConfigSecureProperties } from "../doc/IConfigSecure";
 import { ConfigConstants } from "../ConfigConstants";
 
+/**
+ * API Class for manipulating config layers.
+ */
 export class ConfigSecure extends ConfigApi {
+
+    // _______________________________________________________________________
+    /**
+     * Load the secure application properties from secure storage using the
+     * specified vault interface. The vault interface is placed into our
+     * Config object. The secure values are placed into our Config layers.
+     *
+     * @param vault Interface for loading and saving to secure storage.
+     */
     public async load(vault?: IConfigVault) {
         if (vault != null) {
             this.mConfig._vault = vault;
@@ -59,6 +71,14 @@ export class ConfigSecure extends ConfigApi {
         }
     }
 
+    // _______________________________________________________________________
+    /**
+     * Save the secure application properties into secure storage using
+     * the vault interface from our config object.
+     *
+     * @param allLayers Save all Config layers when true.
+     *                  Only save the active layer when false.
+     */
     public async save(allLayers?: boolean) {
         if (this.mConfig._vault == null) return;
         const beforeLen = Object.keys(this.mConfig._secure).length;
@@ -101,6 +121,13 @@ export class ConfigSecure extends ConfigApi {
         }
     }
 
+    // _______________________________________________________________________
+    /**
+     * Do we have secure fields in any layer of our Config object?
+     *
+     * @returns true -> we have secure fields.
+     *          false -> no secure fields.
+     */
     private secureFields(): boolean {
         for (const l of this.mConfig.layers)
             if (l.properties.secure.length > 0) return true;

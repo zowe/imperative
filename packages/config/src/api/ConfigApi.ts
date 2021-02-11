@@ -11,6 +11,9 @@
 
 import { Config } from "../Config";
 
+/**
+ * Base class from which all Config APIs are derived.
+ */
 export class ConfigApi {
     constructor (protected mConfig: Config) { }
 }

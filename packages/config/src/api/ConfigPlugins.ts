@@ -11,6 +11,9 @@
 
 import { ConfigApi } from "./ConfigApi";
 
+/**
+ * API Class for manipulating plugins.
+ */
 export class ConfigPlugins extends ConfigApi {
     public get(): string[] {
         return this.mConfig.properties.plugins;

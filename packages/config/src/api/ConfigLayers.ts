@@ -19,7 +19,18 @@ import { IConfigLayer } from "../doc/IConfigLayer";
 import { ConfigApi } from "./ConfigApi";
 import { IConfig } from "../doc/IConfig";
 
+/**
+ * API Class for manipulating config layers.
+ */
 export class ConfigLayers extends ConfigApi {
+
+    // _______________________________________________________________________
+    /**
+     * Read a config layer from disk into memory for application use.
+     *
+     * @param opts The user and global flags that indicate which of the four
+     *             config files (aka layers) is to be read.
+     */
     public async read(opts?: { user: boolean; global: boolean }) {
         // Attempt to populate the layer
         const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
@@ -49,6 +60,13 @@ export class ConfigLayers extends ConfigApi {
         layer.properties.secure = layer.properties.secure || [];
     }
 
+    // _______________________________________________________________________
+    /**
+     * Write a config layer to disk.
+     *
+     * @param opts The user and global flags that indicate which of the four
+     *             config files (aka layers) is to be written.
+     */
     public async write(opts?: { user: boolean; global: boolean }) {
         // TODO: should we prevent a write if there is no vault
         // TODO: specified and there are secure fields??
@@ -81,6 +99,15 @@ export class ConfigLayers extends ConfigApi {
         layer.exists = true;
     }
 
+    // _______________________________________________________________________
+    /**
+     * Select which layer is the currently active layer.
+     *
+     * @param user True if you want the user layer.
+     * @param global True if you want the global layer.
+     * @param inDir The directory to which you want to set the file path
+     *              for this layer.
+     */
     public activate(user: boolean, global: boolean, inDir?: string) {
         this.mConfig._active.user = user;
         this.mConfig._active.global = global;
@@ -92,12 +119,24 @@ export class ConfigLayers extends ConfigApi {
         }
     }
 
+    // _______________________________________________________________________
+    /**
+     * Gets a json object that represents the currently active layer.
+     *
+     * @returns The json object
+     */
     public get(): IConfigLayer {
         // Note: Add indentation to allow comments to be accessed via config.api.layers.get(), otherwise use layerActive()
         // return JSONC.parse(JSONC.stringify(this.mConfig.layerActive(), null, ConfigConstants.INDENT));
         return JSONC.parse(JSONC.stringify(this.mConfig.layerActive()));
     }
 
+    // _______________________________________________________________________
+    /**
+     * Set the the currently active layer to the supplied json object.
+     *
+     * @param user True if you want the user layer.
+     */
     public set(cnfg: IConfig) {
         for (const i in this.mConfig._layers) {
             if (this.mConfig._layers[i].user === this.mConfig._active.user &&
@@ -111,6 +150,12 @@ export class ConfigLayers extends ConfigApi {
         }
     }
 
+    // _______________________________________________________________________
+    /**
+     * Merge properties from the supplied Config object into the active layer.
+     *
+     * @param cnfg The Config object to merge.
+     */
     public merge(cnfg: IConfig) {
         const layer = this.mConfig.layerActive();
         layer.properties.profiles = deepmerge(cnfg.profiles, layer.properties.profiles);
