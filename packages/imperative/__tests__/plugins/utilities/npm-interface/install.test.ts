@@ -16,6 +16,7 @@ jest.mock("jsonfile");
 jest.mock("path");
 jest.mock("fs");
 jest.mock("find-up");
+jest.mock("pacote");
 jest.mock("../../../../src/plugins/utilities/PMFConstants");
 jest.mock("../../../../../logger");
 jest.mock("../../../../../cmd/src/response/CommandResponse");
@@ -34,6 +35,7 @@ import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { sync } from "find-up";
 import { installPackages } from "../../../../src/plugins/utilities/NpmFunctions";
+import { manifest } from "pacote";
 
 describe("PMF: Install Interface", () => {
   // Objects created so types are correct.
@@ -48,7 +50,8 @@ describe("PMF: Install Interface", () => {
     writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
     normalize: normalize as Mock<typeof normalize>,
     lstatSync: lstatSync as Mock<typeof lstatSync>,
-    sync: sync as Mock<typeof sync>
+    sync: sync as Mock<typeof sync>,
+    manifest: manifest as Mock<typeof manifest>
   };
 
   const packageName = "a";
@@ -110,7 +113,7 @@ describe("PMF: Install Interface", () => {
 
   describe("Basic install", () => {
     beforeEach(() => {
-      mocks.installPackages.mockReturnValue(`+ ${packageName}@${packageVersion}`);
+      mocks.manifest.mockResolvedValue({ name: packageName, version: packageVersion });
       mocks.existsSync.mockReturnValue(true);
       mocks.normalize.mockReturnValue("testing");
       mocks.lstatSync.mockReturnValue({
@@ -198,7 +201,7 @@ describe("PMF: Install Interface", () => {
 
       mocks.isAbsolute.mockReturnValue(false);
       mocks.existsSync.mockReturnValue(true);
-      mocks.installPackages.mockReturnValue(`+ ${packageName}@${packageVersion}`);
+      mocks.manifest.mockResolvedValue({ name: packageName, version: packageVersion });
       mocks.normalize.mockReturnValue("testing");
       mocks.lstatSync.mockReturnValue({
         isSymbolicLink: jest.fn().mockReturnValue(true)
@@ -225,7 +228,7 @@ describe("PMF: Install Interface", () => {
       mocks.isAbsolute.mockReturnValue(true);
 
       // This is valid under semver ^1.5.2
-      mocks.installPackages.mockReturnValue(`+ ${packageName}@1.5.16`);
+      mocks.manifest.mockResolvedValue({ name: packageName, version: "1.5.16" });
 
       // Call the install
       await install(semverPackage, packageRegistry);
@@ -249,7 +252,7 @@ describe("PMF: Install Interface", () => {
         }
       };
 
-      mocks.installPackages.mockReturnValue(`+ ${packageName}@${packageVersion}`);
+      mocks.manifest.mockResolvedValue({ name: packageName, version: packageVersion });
       mocks.existsSync.mockReturnValue(true);
       mocks.normalize.mockReturnValue("testing");
       mocks.lstatSync.mockReturnValue({
