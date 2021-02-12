@@ -81,7 +81,7 @@
     "gulp-typedoc": "^2.2.3",
     "jest-sonar-reporter": "^2.0.0",
     "jsdoc": "^3.6.2",
-    "keytar": "^5.0.0",
+    "keytar": "^7.1.0",
     "madge": "^3.6.0",
     "shebang-regex": "^2.0.0",
     "tslint": "^5.20.1",
