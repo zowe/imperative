@@ -16,14 +16,14 @@ import { IHandlerParameters } from "../../../../cmd";
 import { SessConstants } from "../../../../rest";
 import { ImperativeConfig } from "../../../../utilities";
 import { Config } from "../../../../config";
-import { IConfigSecureFiles } from "../../../../config/src/doc/IConfigSecure";
+import { IConfigSecure } from "../../../../config/src/doc/IConfigSecure";
 import { FakeAuthHandler } from "./__data__/FakeAuthHandler";
 import { CredentialManagerFactory } from "../../../../security";
 import { ImperativeError } from "../../../..";
 
 const MY_APP = "my_app";
 
-function secureConfig(file: string, profileName: string): IConfigSecureFiles {
+function secureConfig(file: string, profileName: string): IConfigSecure {
     return {
         [file]: {
             [`profiles.${profileName}.properties.authToken`]: `${SessConstants.TOKEN_TYPE_JWT}=fakeToken`

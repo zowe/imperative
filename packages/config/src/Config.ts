@@ -17,46 +17,88 @@ import * as findUp from "find-up";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 
+import { ConfigConstants } from "./ConfigConstants";
 import { IConfig } from "./doc/IConfig";
 import { IConfigLayer } from "./doc/IConfigLayer";
 import { ImperativeError } from "../../error";
 import { IConfigProfile } from "./doc/IConfigProfile";
 import { IConfigOpts } from "./doc/IConfigOpts";
-import { IConfigSecure, IConfigSecureProperties } from "./doc/IConfigSecure";
+import { IConfigSecure } from "./doc/IConfigSecure";
 import { IConfigVault } from "./doc/IConfigVault";
-import { IConfigLoadedProfile, IConfigLoadedProperty } from "./doc/IConfigLoadedProfile";
+import { ConfigLayers, ConfigPlugins, ConfigProfiles, ConfigSecure } from "./api";
 
-enum layers {
-    project_user = 0,
-    project_config,
-    global_user,
-    global_config
+/**
+ * Enum used by Config class to maintain order of config layers
+ */
+enum Layers {
+    ProjectUser = 0,
+    ProjectConfig,
+    GlobalUser,
+    GlobalConfig
 }
 
 export class Config {
-    private static readonly SECURE_ACCT = "secure_config_props";
+    /**
+     * The trailing portion of a shared config file name
+     */
     private static readonly END_OF_TEAM_CONFIG = ".config.json";
+
+    /**
+     * The trailing portion of a user-specific config file name
+     */
     private static readonly END_OF_USER_CONFIG = ".config.user.json";
 
-    private _app: string;
-    private _paths: string[];
-    private _layers: IConfigLayer[];
-    private _home: string;
-    private _name: string;
-    private _user: string;
-    private _schema: string;
-    private _active: {
+    /**
+     * App name used in config filenames (e.g., *my_cli*.config.json)
+     * @internal
+     */
+    public mApp: string;
+
+    /**
+     * List to store each of the config layers enumerated in `layers` enum
+     * @internal
+     */
+    public mLayers: IConfigLayer[];
+
+    /**
+     * Directory where global config files are located. Defaults to `~/.appName`.
+     * @internal
+     */
+    public mHome: string;
+
+    /**
+     * Currently active layer whose properties will be manipulated
+     * @internal
+     */
+    public mActive: {
         user: boolean;
         global: boolean
     };
-    private _vault: IConfigVault;
-    private _secure: IConfigSecure;
 
+    /**
+     * Vault object with methods for loading and saving secure credentials
+     * @internal
+     */
+    public mVault: IConfigVault;
+
+    /**
+     * Secure properties object stored in credential vault
+     * @internal
+     */
+    public mSecure: IConfigSecure;
+
+    // _______________________________________________________________________
+    /**
+     * Constructor for Config class. Don't use this directly. Await `Config.load` instead.
+     * @param opts Options to control how Config class behaves
+     * @private
+     */
     private constructor(public opts?: IConfigOpts) { }
 
-    public static readonly INDENT: number = 4;
-    public static readonly SECURE_VALUE = "(secure value)";
-
+    // _______________________________________________________________________
+    /**
+     * Return a Config interface with required fields initialized as empty.
+     */
     public static empty(): IConfig {
         return {
             profiles: {},
@@ -66,90 +108,57 @@ export class Config {
         };
     }
 
+    // _______________________________________________________________________
+    /**
+     * Load config files from disk and secure properties from vault.
+     * @param app App name used in config filenames (e.g., *my_cli*.config.json)
+     * @param opts Options to control how Config class behaves
+     */
     public static async load(app: string, opts?: IConfigOpts): Promise<Config> {
         opts = opts || {};
 
-        ////////////////////////////////////////////////////////////////////////
         // Create the basic empty configuration
-        const _ = new Config(opts);
-        (_ as any).config = {};
-        _._layers = [];
-        _._home = opts.homeDir || node_path.join(os.homedir(), `.${app}`);
-        _._paths = [];
-        _._name = app + Config.END_OF_TEAM_CONFIG;
-        _._user = app + Config.END_OF_USER_CONFIG;
-        _._schema = `${app}.schema.json`;
-        _._active = { user: false, global: false };
-        _._app = app;
-        _._vault = opts.vault;
-        _._secure = { configs: {} };
+        const myNewConfig = new Config(opts);
+        myNewConfig.mApp = app;
+        myNewConfig.mLayers = [];
+        myNewConfig.mHome = opts.homeDir || node_path.join(os.homedir(), `.${app}`);
+        myNewConfig.mActive = { user: false, global: false };
+        myNewConfig.mVault = opts.vault;
+        myNewConfig.mSecure = {};
 
-        ////////////////////////////////////////////////////////////////////////
         // Populate configuration file layers
-        const home = os.homedir();
+        for (const layer of [
+            Layers.ProjectUser, Layers.ProjectConfig,
+            Layers.GlobalUser, Layers.GlobalConfig
+        ]) {
+            myNewConfig.mLayers.push({
+                path: myNewConfig.layerPath(layer),
+                exists: false,
+                properties: Config.empty(),
+                global: layer === Layers.GlobalUser || layer === Layers.GlobalConfig,
+                user: layer === Layers.ProjectUser || layer === Layers.GlobalUser
+            });
+        }
 
-        // Find/create project user layer
-        let user = Config.search(_._user, { stop: home, gbl: _._home });
-        if (user == null)
-            user = node_path.join(process.cwd(), _._user);
-        _._paths.push(user);
-        _._layers.push({ path: user, exists: false, properties: Config.empty(), global: false, user: true });
-
-        // Find/create project layer
-        let project = Config.search(_._name, { stop: home, gbl: _._home });
-        if (project == null)
-            project = node_path.join(process.cwd(), _._name);
-        _._paths.push(project);
-        _._layers.push({ path: project, exists: false, properties: Config.empty(), global: false, user: false });
-
-        // create the user layer
-        const usrGlbl = node_path.join(_._home, _._user);
-        _._paths.push(usrGlbl);
-        _._layers.push({ path: usrGlbl, exists: false, properties: Config.empty(), global: true, user: true });
-
-        // create the global layer
-        const glbl = node_path.join(_._home, _._name);
-        _._paths.push(glbl);
-        _._layers.push({ path: glbl, exists: false, properties: Config.empty(), global: true, user: false });
-
-        ////////////////////////////////////////////////////////////////////////
         // Read and populate each configuration layer
         try {
             let setActive = true;
-            _._layers.forEach((layer: IConfigLayer) => {
-                // Attempt to populate the layer
-                if (fs.existsSync(layer.path)) {
-                    let fileContents: any;
-                    try {
-                        fileContents = fs.readFileSync(layer.path);
-                    } catch (e) {
-                        throw new ImperativeError({ msg: `An error was encountered while trying to read the file '${layer.path}'.` +
-                            `\nError details: ${e.message}`,
-                                                    suppressDump: true });
-                    }
-                    try {
-                        layer.properties = JSONC.parse(fileContents.toString());
-                        layer.exists = true;
-                    } catch (e) {
-                        throw new ImperativeError({ msg: `Error parsing JSON in the file '${layer.path}'.\n` +
-                            `Please check this configuration file for errors.\nError details: ${e.message}\nLine ${e.line}, Column ${e.column}`,
-                                                    suppressDump: true});
-                    }
-                }
+            for (const currLayer of myNewConfig.mLayers) {
+                await myNewConfig.api.layers.read(currLayer);
 
                 // Find the active layer
-                if (setActive && layer.exists) {
-                    _._active.user = layer.user;
-                    _._active.global = layer.global;
+                if (setActive && currLayer.exists) {
+                    myNewConfig.mActive.user = currLayer.user;
+                    myNewConfig.mActive.global = currLayer.global;
                     setActive = false;
                 }
 
                 // Populate any undefined defaults
-                layer.properties.defaults = layer.properties.defaults || {};
-                layer.properties.profiles = layer.properties.profiles || {};
-                layer.properties.plugins = layer.properties.plugins || [];
-                layer.properties.secure = layer.properties.secure || [];
-            });
+                currLayer.properties.defaults = currLayer.properties.defaults || {};
+                currLayer.properties.profiles = currLayer.properties.profiles || {};
+                currLayer.properties.plugins = currLayer.properties.plugins || [];
+                currLayer.properties.secure = currLayer.properties.secure || [];
+            }
         } catch (e) {
             if (e instanceof ImperativeError) {
                 throw e;
@@ -158,209 +167,164 @@ export class Config {
             }
         }
 
-        ////////////////////////////////////////////////////////////////////////
-        // load secure fields
-        await _.secureLoad();
+        // Load secure fields
+        await myNewConfig.api.secure.load();
 
-        ////////////////////////////////////////////////////////////////////////
-        // Complete
-        return _;
+        return myNewConfig;
     }
 
-    ////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
-    // APIs
-    ////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
+    // _______________________________________________________________________
+    /**
+     * Save config files to disk and store secure properties in vault.
+     * @param allLayers Specify false to save only the active config layer
+     */
+    public async save(allLayers?: boolean) {
+        // Save secure fields
+        await this.api.secure.save(allLayers);
 
+        try {
+            for (const currLayer of this.mLayers) {
+                if ((allLayers !== false) ||
+                    (currLayer.user === this.mActive.user && currLayer.global === this.mActive.global))
+                {
+                    await this.api.layers.write(currLayer);
+                }
+            }
+        } catch (e) {
+            if (e instanceof ImperativeError) {
+                throw e;
+            } else {
+                throw new ImperativeError({ msg: `An unexpected error occurred during config save: ${e.message}` });
+            }
+        }
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Get absolute file path for a config layer.
+     * For project config files, We search up from our current directory and
+     * ignore the Zowe hone directory (in case our current directory is under
+     * Zowe home.). For golbal config files we only retrieve config files
+     * from the Zowe home directory.
+     *
+     * @internal
+     * @param layer Enum value for config layer
+     */
+    private layerPath(layer: Layers): string {
+        switch (layer) {
+            case Layers.ProjectUser:
+                return Config.search(this.userConfigName, { ignoreDirs: [this.mHome] }) || node_path.join(process.cwd(), this.userConfigName);
+            case Layers.ProjectConfig:
+                return Config.search(this.configName, { ignoreDirs: [this.mHome] }) || node_path.join(process.cwd(), this.configName);
+            case Layers.GlobalUser:
+                return node_path.join(this.mHome, this.userConfigName);
+            case Layers.GlobalConfig:
+                return node_path.join(this.mHome, this.configName);
+        }
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Access the config API for manipulating profiles, plugins, layers, and secure values.
+     */
     get api() {
-        // tslint:disable-next-line
-        const outer = this;
-
-        return new class {
-
-            ////////////////////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////////////////////
-            // Profiles API
-            ////////////////////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////////////////////
-
-            // tslint:disable-next-line
-            public profiles = new class {
-
-                public set(path: string, profile: IConfigProfile): void {
-                    profile.properties = profile.properties || {};
-                    const layer = outer.layerActive();
-                    const segments: string[] = path.split(".");
-                    let p: any = layer.properties;
-                    for (let x = 0; x < segments.length; x++) {
-                        const segment = segments[x];
-                        if (p.profiles == null)
-                            p.profiles = {};
-                        if (p.profiles[segment] == null)
-                            p.profiles[segment] = { properties: {} };
-                        if (x === segments.length - 1)
-                            p.profiles[segment] = profile;
-                        p = p.profiles[segment];
-                    }
-                }
-
-                // TODO: If asked for inner layer profile, if profile doesn't exist, returns outer layer profile values (bug?)
-                public get(path: string): { [key: string]: string } {
-                    return Config.buildProfile(path, JSONC.parse(JSONC.stringify(outer.properties.profiles)));
-                }
-
-                public exists(path: string): boolean {
-                    return (Config.findProfile(path, outer.properties.profiles) != null);
-                }
-
-                public load(path: string): IConfigLoadedProfile {
-                    return outer.loadProfile(this.expandPath(path));
-                }
-
-                public defaultSet(key: string, value: string) {
-                    outer.layerActive().properties.defaults[key] = value;
-                }
-
-                public defaultGet(key: string): { [key: string]: string } {
-                    const dflt = outer.properties.defaults[key];
-                    if (dflt == null || !this.exists(dflt))
-                        return null;
-                    return this.get(dflt);
-                }
-
-                public expandPath(shortPath: string): string {
-                    return shortPath.replace(/(^|\.)/g, "$1profiles.");
-                }
-            }(); // end of profiles inner class
-
-
-            ////////////////////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////////////////////
-            // Plugins API
-            ////////////////////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////////////////////
-
-            // tslint:disable-next-line
-            public plugins = new class {
-
-                public get(): string[] {
-                    return outer.properties.plugins;
-                }
-            }(); // end of plugins inner class
-
-            ////////////////////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////////////////////
-            // Layers API
-            ////////////////////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////////////////////
-
-            // tslint:disable-next-line
-            public layers = new class {
-
-                public async write() {
-                    // TODO: should we prevent a write if there is no vault
-                    // TODO: specified and there are secure fields??
-
-                    // Save the secure fields in the credential vault
-                    await outer.secureSave();
-
-                    // If fields are marked as secure
-                    const layer: IConfigLayer = JSONC.parse(JSONC.stringify(outer.layerActive()));
-                    if (layer.properties.secure != null) {
-                        for (const path of layer.properties.secure) {
-                            const segments = path.split(".");
-                            let obj: any = layer.properties;
-                            for (let x = 0; x < segments.length; x++) {
-                                const segment = segments[x];
-                                const v = obj[segment];
-                                if (v == null) break;
-                                if (x === segments.length - 1) {
-                                    delete obj[segment];
-                                    break;
-                                }
-                                obj = obj[segment];
-                            }
-                        }
-                    }
-
-                    // Write the layer
-                    try {
-                        fs.writeFileSync(layer.path, JSONC.stringify(layer.properties, null, Config.INDENT));
-                    } catch (e) {
-                        throw new ImperativeError({ msg: `error writing "${layer.path}": ${e.message}` });
-                    }
-                    layer.exists = true;
-                }
-
-                public activate(user: boolean, global: boolean) {
-                    outer._active.user = user;
-                    outer._active.global = global;
-                }
-
-                public get(): IConfigLayer {
-                    // Note: Add indentation to allow comments to be accessed via config.api.layers.get(), otherwise use layerActive()
-                    // return JSONC.parse(JSONC.stringify(outer.layerActive(), null, Config.INDENT));
-                    return JSONC.parse(JSONC.stringify(outer.layerActive()));
-                }
-
-                public set(cnfg: IConfig) {
-                    for (const i in outer._layers) {
-                        if (outer._layers[i].user === outer._active.user &&
-                            outer._layers[i].global === outer._active.global) {
-                            outer._layers[i].properties = cnfg;
-                            outer._layers[i].properties.defaults = outer._layers[i].properties.defaults || {};
-                            outer._layers[i].properties.profiles = outer._layers[i].properties.profiles || {};
-                            outer._layers[i].properties.plugins = outer._layers[i].properties.plugins || [];
-                            outer._layers[i].properties.secure = outer._layers[i].properties.secure || [];
-                        }
-                    }
-                }
-
-                public merge(cnfg: IConfig) {
-                    const layer = outer.layerActive();
-                    layer.properties.profiles = deepmerge(cnfg.profiles, layer.properties.profiles);
-                    layer.properties.defaults = deepmerge(cnfg.defaults, layer.properties.defaults);
-                    for (const pluginName of cnfg.plugins) {
-                        if (!layer.properties.plugins.includes(pluginName)) {
-                            layer.properties.plugins.push(pluginName);
-                        }
-                    }
-                    for (const propPath of cnfg.secure) {
-                        if (!layer.properties.secure.includes(propPath)) {
-                            layer.properties.secure.push(propPath);
-                        }
-                    }
-                }
-            }(); // end of layers inner class
-
-        }(); // end of api inner class
+        return {
+            profiles: new ConfigProfiles(this),
+            plugins: new ConfigPlugins(this),
+            layers: new ConfigLayers(this),
+            secure: new ConfigSecure(this)
+        };
     }
 
-    ////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
-    // Accessors
-    ////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
-
+    // _______________________________________________________________________
+    /**
+     * True if any config layers exist on disk, otherwise false.
+     */
     public get exists(): boolean {
-        for (const layer of this._layers)
+        for (const layer of this.mLayers)
             if (layer.exists) return true;
         return false;
     }
 
+    // _______________________________________________________________________
+    /**
+     * List of absolute file paths for all config layers.
+     */
     public get paths(): string[] {
-        return this._paths;
+        return this.mLayers.map((layer: IConfigLayer) => layer.path);
     }
 
+    // _______________________________________________________________________
+    /**
+     * List of all config layers.
+     * Returns a clone to prevent accidental edits of the original object.
+     */
     public get layers(): IConfigLayer[] {
-        return JSONC.parse(JSONC.stringify(this._layers));
+        return JSONC.parse(JSONC.stringify(this.mLayers));
     }
 
+    // _______________________________________________________________________
+    /**
+     * List of properties across all config layers.
+     * Returns a clone to prevent accidental edits of the orignal object.
+     */
     public get properties(): IConfig {
         return this.layerMerge(false);
     }
 
+    // _______________________________________________________________________
+    /**
+     * App name used in config filenames (e.g., *my_cli*.config.json)
+     */
+    public get appName(): string {
+        return this.mApp;
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Filename used for config JSONC files
+     */
+    public get configName(): string {
+        return `${this.mApp}${Config.END_OF_TEAM_CONFIG}`;
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Filename used for user config JSONC files
+     */
+    public get userConfigName(): string {
+        return `${this.mApp}${Config.END_OF_USER_CONFIG}`;
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Filename used for config schema JSON files
+     */
+    public get schemaName(): string {
+        return `${this.mApp}.schema.json`;
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Search for up the directory tree for the directory containing the
+     * specified config file.
+     *
+     * @param file Contains the name of the desired config file
+     * @param opts.ignoreDirs Contains an array of direcory names to be
+     *        ignored (skipped) during the search.
+     *
+     * @returns The full path name to config file or null if not found.
+     */
+    public static search(file: string, opts?: { ignoreDirs?: string[] }): string {
+        opts = opts || {};
+        const p = findUp.sync((directory: string) => {
+            if (opts.ignoreDirs?.includes(directory)) return;
+            return fs.existsSync(node_path.join(directory, file)) && directory;
+        }, { type: "directory" });
+        return p ? node_path.join(p, file) : null;
+    }
+
+    // _______________________________________________________________________
     /**
      * The properties object with secure values masked.
      * @type {IConfig}
@@ -370,17 +334,15 @@ export class Config {
         return this.layerMerge(true);
     }
 
-    public get app(): string {
-        return this._app;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
-    // Generic Property Manipulation
-    ////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
-
-    // TODO: more validation
+    // _______________________________________________________________________
+    /**
+     * Set value of a property in the active config layer.
+     * TODO: more validation
+     *
+     * @param path Property path
+     * @param value Property value
+     * @param opts Include `secure: true` to store the property securely
+     */
     public set(path: string, value: any, opts?: { secure?: boolean }) {
         opts = opts || {};
 
@@ -421,6 +383,12 @@ export class Config {
         }
     }
 
+    // _______________________________________________________________________
+    /**
+     * Unset value of a property in the active config layer.
+     * @param path Property path
+     * @param opts Include `secure: false` to preserve property in secure array
+     */
     public delete(path: string, opts?: { secure?: boolean }) {
         opts = opts || {};
 
@@ -434,13 +402,14 @@ export class Config {
         }
     }
 
+    // _______________________________________________________________________
     /**
-     * Sets the $schema value at the top of the config JSONC, and saves the
-     * schema to disk if an object is provided.
+     * Set the $schema value at the top of the config JSONC.
+     * Also save the schema to disk if an object is provided.
      * @param schema The URI of JSON schema, or a schema object to use
      */
     public setSchema(schema: string | object) {
-        const schemaUri = (typeof schema === "string") ? schema : `./${this._schema}`;
+        const schemaUri = (typeof schema === "string") ? schema : `./${this.schemaName}`;
         const schemaObj = (typeof schema !== "string") ? schema : null;
 
         const layer = this.layerActive();
@@ -449,16 +418,19 @@ export class Config {
 
         if (schemaObj != null) {
             const filePath = node_path.resolve(node_path.dirname(layer.path), schemaUri);
-            fs.writeFileSync(filePath, JSONC.stringify(schemaObj, null, Config.INDENT));
+            fs.writeFileSync(filePath, JSONC.stringify(schemaObj, null, ConfigConstants.INDENT));
         }
     }
 
-    ////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
-    // Layer Utilities
-    ////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
-
+    // _______________________________________________________________________
+    /**
+     * Merge the properties from multiple layers into a single Config object.
+     *
+     * @internal
+     * @param maskSecure Indicates whether we should mask off secure properties.
+     *
+     * @returns The resulting Config object
+     */
     private layerMerge(maskSecure?: boolean): IConfig {
         // config starting point
         // NOTE: "properties" and "secure" only apply to the individual layers
@@ -466,7 +438,7 @@ export class Config {
         const c = Config.empty();
 
         // merge each layer
-        this._layers.forEach((layer: IConfigLayer) => {
+        this.mLayers.forEach((layer: IConfigLayer) => {
 
             // Merge "plugins" - create a unique set from all entries
             c.plugins = Array.from(new Set(layer.properties.plugins.concat(c.plugins)));
@@ -477,13 +449,13 @@ export class Config {
         });
 
         // Merge the project layer profiles
-        const usrProject = this.layerProfiles(this._layers[layers.project_user], maskSecure);
-        const project = this.layerProfiles(this._layers[layers.project_config], maskSecure);
+        const usrProject = this.layerProfiles(this.mLayers[Layers.ProjectUser], maskSecure);
+        const project = this.layerProfiles(this.mLayers[Layers.ProjectConfig], maskSecure);
         const proj: { [key: string]: IConfigProfile } = deepmerge(project, usrProject);
 
         // Merge the global layer profiles
-        const usrGlobal = this.layerProfiles(this._layers[layers.global_user], maskSecure);
-        const global = this.layerProfiles(this._layers[layers.global_config], maskSecure);
+        const usrGlobal = this.layerProfiles(this.mLayers[Layers.GlobalUser], maskSecure);
+        const global = this.layerProfiles(this.mLayers[Layers.GlobalConfig], maskSecure);
         const glbl: { [key: string]: IConfigProfile } = deepmerge(global, usrGlobal);
 
         // Traverse all the global profiles merging any missing from project profiles
@@ -496,186 +468,73 @@ export class Config {
         return c;
     }
 
-    private layerProfiles(layer: IConfigLayer, maskSecure?: boolean): { [key: string]: IConfigProfile } {
+    // _______________________________________________________________________
+    /**
+     * Obtain the profiles object for a specified layer object.
+     *
+     * @internal
+     * @param layer The layer for which we want the profiles.
+     * @param maskSecure If true, we will mask the values of secure properties.
+     *
+     * @returns The resulting profile object
+     */
+    public layerProfiles(layer: IConfigLayer, maskSecure?: boolean): { [key: string]: IConfigProfile } {
         const properties = JSONC.parse(JSONC.stringify(layer.properties));
         if (maskSecure) {
             for (const secureProp of properties.secure) {
-                lodash.set(properties, secureProp, Config.SECURE_VALUE);
+                lodash.set(properties, secureProp, ConfigConstants.SECURE_VALUE);
             }
         }
         return properties.profiles;
     }
 
-    private layerActive(): IConfigLayer {
-        for (const layer of (this._layers || [])) {
-            if (layer.user === this._active.user && layer.global === this._active.global)
+    // _______________________________________________________________________
+    /**
+     * Find the layer with the specified user and global properties.
+     *
+     * @internal
+     * @param user True specifies that you want the user layer.
+     * @param global True specifies that you want the layer at the global level.
+     *
+     * @returns The desired layer object. Null if no layer matches.
+     */
+    public findLayer(user: boolean, global: boolean): IConfigLayer {
+        for (const layer of (this.mLayers || [])) {
+            if (layer.user === user && layer.global === global)
                 return layer;
         }
-        throw new ImperativeError({ msg: `internal error: no active layer found` });
     }
 
-    ////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
-    // Secure Utilities
-    ////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
-
-    public async secureLoad(vault?: IConfigVault) {
-        if (vault != null) {
-            this._vault = vault;
-            if (this.opts) this.opts.vault = vault; // propagate to future config objects
-        }
-
-        if (this._vault == null) return;
-
-        // load the secure fields
-        const s: string = await this._vault.load(Config.SECURE_ACCT);
-        if (s == null) return;
-        this._secure.configs = JSONC.parse(s);
-
-        // populate each layers properties
-        for (const layer of this._layers) {
-
-            // Find the matching layer
-            for (const [filePath, secureProps] of Object.entries(this._secure.configs)) {
-                if (filePath === layer.path) {
-
-                    // Only set those indicated by the config
-                    for (const p of layer.properties.secure) {
-
-                        // Extract and set secure properties
-                        for (const [sPath, sValue] of Object.entries(secureProps)) {
-                            if (sPath === p) {
-                                const segments = sPath.split(".");
-                                let obj: any = layer.properties;
-                                for (let x = 0; x < segments.length; x++) {
-                                    const segment = segments[x];
-                                    if (x === segments.length - 1) {
-                                        obj[segment] = sValue;
-                                        break;
-                                    }
-                                    obj = obj[segment];
-                                    if (obj == null) break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    // _______________________________________________________________________
+    /**
+     * Obtain the layer object that is currently active.
+     *
+     * @internal
+     *
+     * @returns The active layer object
+     */
+    public layerActive(): IConfigLayer {
+            const layer = this.findLayer(this.mActive.user, this.mActive.global);
+            if (layer != null) return layer;
+            throw new ImperativeError({ msg: `internal error: no active layer found` });
     }
 
-    private async secureSave() {
-        if (this._vault == null) return;
-        const beforeLen = Object.keys(this._secure.configs).length;
-
-        // Build the entries for each layer
-        for (const layer of this._layers) {
-
-            // Create all the secure property entries
-            const sp: IConfigSecureProperties = {};
-            for (const path of layer.properties.secure) {
-                const segments = path.split(".");
-                let obj: any = layer.properties;
-                for (let x = 0; x < segments.length; x++) {
-                    const segment = segments[x];
-                    const value = obj[segment];
-                    if (value == null) break;
-                    if (x === segments.length - 1) {
-                        sp[path] = value;
-                        break;
-                    }
-                    obj = obj[segment];
-                }
-            }
-
-            // Clear the entry and rebuild it
-            delete this._secure.configs[layer.path];
-
-            // Create the entry to set the secure properties
-            if (Object.keys(sp).length > 0) {
-                this._secure.configs[layer.path] = sp;
-            }
-        }
-
-        // Save the entries if needed
-        if (Object.keys(this._secure.configs).length > 0 || beforeLen > 0 ) {
-            await this._vault.save(Config.SECURE_ACCT, JSONC.stringify(this._secure.configs));
-        }
-    }
-
-    // TODO Does this need to recurse up through nested profiles?
-    private loadProfile(path: string): IConfigLoadedProfile {
-        const profile = lodash.get(this.properties, path);
-        if (profile == null) {
-            return null;
-        }
-
-        const loadedProfile = require("lodash-deep").deepMapValues(profile, (value: any, p: string) => {
-            if (p.includes("properties.")) {
-                for (const layer of this._layers) {
-                    const propertyPath = `${path}.${p}`;
-                    if (lodash.get(layer.properties, propertyPath) != null) {
-                        const property: IConfigLoadedProperty = {
-                            value,
-                            secure: layer.properties.secure.includes(propertyPath),
-                            user: layer.user,
-                            global: layer.global
-                        };
-                        return property;
-                    }
-                }
-            }
-            return value;
-        });
-
-        for (const layer of this._layers) {
-            for (const secureProp of layer.properties.secure) {
-                if (secureProp.startsWith(`${path}.`)) {
-                    const subpath = secureProp.slice(path.length + 1);
-                    if (lodash.get(loadedProfile, subpath) == null) {
-                        lodash.set(loadedProfile, subpath, { secure: true, user: layer.user, global: layer.global });
-                    }
-                }
-            }
-        }
-
-        return loadedProfile;
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
-    // Static Utilities
-    ////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////
-
-    public static search(file: string, opts?: any): string {
-        opts = opts || {};
-        if (opts.stop) opts.stop = node_path.resolve(opts.stop);
-        if (opts.gbl) opts.gbl = node_path.resolve(opts.gbl);
-        const p = findUp.sync((directory: string) => {
-            if (directory === opts.stop) return findUp.stop;
-            if (directory === opts.gbl) return;
-            return fs.existsSync(node_path.join(directory, file)) && directory;
-        }, { type: "directory" });
-        return p ? node_path.join(p, file) : null;
-    }
-
+    // _______________________________________________________________________
     /**
      * Form the path name of the team config file to display in messages.
      * Always return the team name (not the user name).
      * If the a team configuration is active, return the full path to the
      * config file.
      *
-     * @param opts - a map containing option properties. Currently, the only
-     *               property supported is a boolean named addPath.
-     *               {addPath: true | false}
+     * @param options - a map containing option properties. Currently, the only
+     *                  property supported is a boolean named addPath.
+     *                  {addPath: true | false}
      *
      * @returns The path (if requested) and file name of the team config file.
      */
     public formMainConfigPathNm(options: any): string {
         // if a team configuration is not active, just return the file name.
-        let configPathNm: string = this.app + Config.END_OF_TEAM_CONFIG;
+        let configPathNm: string = this.mApp + Config.END_OF_TEAM_CONFIG;
         if (options.addPath === false) {
             // if our caller does not want the path, just return the file name.
             return configPathNm;
@@ -685,39 +544,12 @@ export class Config {
             // form the full path to the team config file
             configPathNm = this.api.layers.get().path;
 
-            // this.api.layers.get() returns zowe.config.user.json when both exit.
+            // this.api.layers.get() returns zowe.config.user.json
+            // when both shared and user config files exit.
             // Ensure that we use zowe.config.json, not zowe.config.user.json.
             configPathNm = configPathNm.replace(Config.END_OF_USER_CONFIG, Config.END_OF_TEAM_CONFIG);
         }
         return configPathNm;
     }
 
-    private static buildProfile(path: string, profiles: { [key: string]: IConfigProfile }): { [key: string]: string } {
-        const segments: string[] = path.split(".");
-        let properties = {};
-        for (const [n, p] of Object.entries(profiles)) {
-            if (segments[0] === n) {
-                properties = { ...properties, ...p.properties };
-                if (segments.length > 1) {
-                    segments.splice(0, 1);
-                    properties = { ...properties, ...this.buildProfile(segments.join("."), p.profiles) };
-                }
-                break;
-            }
-        }
-        return properties;
-    }
-
-    private static findProfile(path: string, profiles: { [key: string]: IConfigProfile }): IConfigProfile {
-        const segments: string[] = path.split(".");
-        for (const [n, p] of Object.entries(profiles)) {
-            if (segments.length === 1 && segments[0] === n) {
-                return p;
-            } else if (segments[0] === n && p.profiles != null) {
-                segments.splice(0, 1);
-                return this.findProfile(segments.join("."), p.profiles);
-            }
-        }
-        return null;
-    }
 }

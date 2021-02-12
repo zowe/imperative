@@ -9,6 +9,7 @@
 *
 */
 
+import { IConfigSecureProperties } from "../../../../../../../packages/config/src/doc/IConfigSecure";
 import { runCliScript } from "../../../../../../src/TestUtil";
 import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
@@ -19,9 +20,32 @@ import * as keytar from "keytar";
 let TEST_ENVIRONMENT: ITestEnvironment;
 describe("imperative-test-cli auth login", () => {
     async function loadSecureProp(profileName: string): Promise<string> {
-        const securedValue = await keytar.getPassword("imperative-test-cli", "secure_config_props");
-        const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
-        return Object.values(securedValueJson)[0][`profiles.${profileName}.properties.authToken`];
+        const credSvc = "imperative-test-cli";
+        const credAcct = "secure_config_props";
+
+        const securedValue = await keytar.getPassword(credSvc, credAcct);
+        if (securedValue == null) {
+            return `${credSvc}/${credAcct} does not exist in cred store`;
+        }
+
+        const securedValueJson: IConfigSecureProperties = JSON.parse(
+            Buffer.from(securedValue, "base64").toString()
+        );
+        if (securedValueJson == null) {
+            return `Value of ${credSvc}/${credAcct} parsed to JSON gives null`;
+        }
+
+        const secValArray = Object.values(securedValueJson);
+        if (secValArray.length < 1) {
+            return `${credSvc}/${credAcct} contained no secure values`;
+        }
+
+        const authTokenVal = secValArray[0][`profiles.${profileName}.properties.authToken`];
+        if (authTokenVal == null) {
+            return `${credSvc}/${credAcct} contains no auth token`;
+        }
+
+        return authTokenVal;
     }
 
     // Create the unique test environment

@@ -11,6 +11,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { ConfigSecure } from "../src/api";
 import { Config } from "../src/Config";
 import { IConfig } from "../src/doc/IConfig";
 import { IConfigProfile } from "../src/doc/IConfigProfile";
@@ -55,7 +56,7 @@ describe("Config API tests", () => {
     beforeEach(() => {
         jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/project.config.user.json");
         jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false);
-        jest.spyOn(Config.prototype as any, "secureLoad").mockResolvedValue(undefined);
+        jest.spyOn(ConfigSecure.prototype, "load").mockResolvedValue(undefined);
     });
 
     afterEach(() => {
@@ -265,7 +266,7 @@ describe("Config API tests", () => {
     describe("layers", () => {
         describe("write", () => {
             it("should save the active config layer", async () => {
-                jest.spyOn(Config.prototype as any, "secureSave").mockResolvedValueOnce(undefined);
+                jest.spyOn(ConfigSecure.prototype, "save").mockResolvedValueOnce(undefined);
                 const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
                 const config = await Config.load(MY_APP);
                 await config.api.layers.write();
@@ -286,7 +287,7 @@ describe("Config API tests", () => {
                                         .mockReturnValueOnce(filePathAppUserConfig)
                                         .mockReturnValueOnce(filePathAppConfig)
                                         .mockReturnValueOnce(filePathAppConfig);
-                jest.spyOn(Config.prototype as any, "secureLoad").mockResolvedValue(undefined);
+                jest.spyOn(ConfigSecure.prototype, "load").mockResolvedValue(undefined);
             });
             it("should activate the project configuration", async () => {
                 const config = await Config.load(MY_APP);

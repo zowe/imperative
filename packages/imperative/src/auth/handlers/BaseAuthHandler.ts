@@ -167,7 +167,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             config.set(`${profilePath}.properties.authToken`,
                 `${this.mSession.ISession.tokenType}=${tokenValue}`, { secure: true });
 
-            await config.api.layers.write();
+            await config.save(false);
             // Restore original active layer
             config.api.layers.activate(beforeLayer.user, beforeLayer.global);
 
@@ -250,7 +250,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 const profilePath = config.api.profiles.expandPath(profileName);
                 config.delete(`${profilePath}.properties.authToken`);
 
-                await config.api.layers.write();
+                await config.save(false);
                 config.api.layers.activate(beforeLayer.user, beforeLayer.global);
                 profileWithToken = profileName;
             }

@@ -13,6 +13,7 @@ then
 fi
 
 imperative-test-cli config set "profiles.my_base.properties.user" "$baseUser"
+CMDRC=$?
 if [ $CMDRC -gt 0 ]
 then
     echo "Setting user of config failed!" 1>&2
@@ -20,6 +21,7 @@ then
 fi
 
 imperative-test-cli config set "profiles.my_base.properties.password" "$basePass"
+CMDRC=$?
 if [ $CMDRC -gt 0 ]
 then
     echo "Setting password of config failed!" 1>&2

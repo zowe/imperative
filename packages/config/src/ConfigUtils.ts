@@ -12,6 +12,11 @@
 import { ImperativeConfig } from "../../utilities";
 import { ImperativeError } from "../../error";
 
+/**
+ * Form an error message for failres to securely save a value.
+ *
+ * @param solution Text that our caller can supply for a solution.
+ */
 export function secureSaveError(solution?: string): ImperativeError {
     const displayName = ImperativeConfig.instance.loadedConfig.productDisplayName || ImperativeConfig.instance.loadedConfig.name;
     let details = `Possible Solutions:\n` +

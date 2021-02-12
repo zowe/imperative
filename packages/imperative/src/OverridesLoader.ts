@@ -133,7 +133,7 @@ export class OverridesLoader {
     };
 
     try {
-      await ImperativeConfig.instance.config.secureLoad(vault);
+      await ImperativeConfig.instance.config.api.secure.load(vault);
     } catch (err) {
       // Secure vault is optional since we can prompt for values instead
       Logger.getImperativeLogger().warn(`Secure vault not enabled. Reason: ${err.message}`);

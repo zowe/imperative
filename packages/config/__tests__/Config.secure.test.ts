@@ -12,7 +12,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { Config } from "../src/Config";
-import { IConfigSecureFiles } from "../src/doc/IConfigSecure";
+import { IConfigSecure } from "../src/doc/IConfigSecure";
 import { IConfigVault } from "../src/doc/IConfigVault";
 
 const MY_APP = "my_app";
@@ -20,7 +20,7 @@ const MY_APP = "my_app";
 const projectConfigPath = path.join(__dirname, "__resources__/project.config.json");
 const projectUserConfigPath = path.join(__dirname, "__resources__/project.config.user.json");
 const securePropPath = "profiles.fruit.properties.secret";
-const secureConfigs: IConfigSecureFiles = {
+const secureConfigs: IConfigSecure = {
     [projectConfigPath]: {
         [securePropPath]: "area51"
     },
@@ -52,40 +52,36 @@ describe("Config secure tests", () => {
 
     it("should set vault if provided for secure load", async () => {
         const config = new (Config as any)();
-        expect((config as any)._vault).toBeUndefined();
-        await (config as any).secureLoad(mockVault);
-        expect((config as any)._vault).toBe(mockVault);
+        expect((config as any).mVault).toBeUndefined();
+        await (config.api.secure as any).load(mockVault);
+        expect((config as any).mVault).toBe(mockVault);
     });
 
     it("should skip secure save if there are no secure properties or anything in keytar", async () => {
         const config = new (Config as any)();
-        config._layers = [
+        config.mLayers = [
             {
                 properties: { secure: [] }
             }
         ];
-        config._vault = mockVault;
-        config._secure = {};
-        config._secure.configs = {};
-        config._paths = [];
-        await (config as any).secureSave();
+        config.mVault = mockVault;
+        config.mSecure = {};
+        await (config.api.secure as any).save(true);
         expect(mockSecureLoad).toHaveBeenCalledTimes(0);
         expect(mockSecureSave).toHaveBeenCalledTimes(0);
     });
 
     it("should secure save if there are secure properties", async () => {
         const config = new (Config as any)();
-        config._layers = [
+        config.mLayers = [
             {
                 path: "fake fakety fake",
                 properties: { secure: ["profiles.fake.properties.fake"], profiles: {fake: { properties: {fake: "fake"}}}}
             }
         ];
-        config._vault = mockVault;
-        config._secure = {};
-        config._secure.configs = {};
-        config._paths = [];
-        await (config as any).secureSave();
+        config.mVault = mockVault;
+        config.mSecure = {};
+        await (config.api.secure as any).save(true);
         expect(mockSecureLoad).toHaveBeenCalledTimes(0);
         expect(mockSecureSave).toHaveBeenCalledTimes(1);
     });
@@ -100,7 +96,7 @@ describe("Config secure tests", () => {
         expect(config.properties.profiles.fruit.properties.secret).toBe("area51");
 
         const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
-        await config.api.layers.write();
+        await config.save(false);
 
         // Check that secureSave was called, secure value was preserved in
         // active layer, and the value was excluded from the config file

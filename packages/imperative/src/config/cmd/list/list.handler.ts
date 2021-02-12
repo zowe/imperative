@@ -11,7 +11,7 @@
 
 import * as lodash from "lodash";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { Config } from "../../../../../config";
+import { ConfigConstants } from "../../../../../config";
 import { ImperativeConfig } from "../../../../../utilities";
 
 export default class ListHandler implements ICommandHandler {
@@ -37,7 +37,7 @@ export default class ListHandler implements ICommandHandler {
                             obj[layer.path] = (layer.properties as any)[property];
                         if (obj[layer.path] != null) {
                             for (const secureProp of layer.properties.secure) {
-                                lodash.set(obj[layer.path], secureProp, Config.SECURE_VALUE);
+                                lodash.set(obj[layer.path], secureProp, ConfigConstants.SECURE_VALUE);
                             }
                         }
                     }
