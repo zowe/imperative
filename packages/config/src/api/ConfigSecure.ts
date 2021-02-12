@@ -125,12 +125,15 @@ export class ConfigSecure extends ConfigApi {
     /**
      * Do we have secure fields in any layer of our Config object?
      *
+     * This function is never called. To avoid skewing code coverage of tests,
+     * this function is commented out. If you ever need it, you know what to do.
+     *
      * @returns true -> we have secure fields.
      *          false -> no secure fields.
      */
-    private secureFields(): boolean {
-        for (const l of this.mConfig.layers)
-            if (l.properties.secure.length > 0) return true;
-        return false;
-    }
+    // private secureFields(): boolean {
+    //     for (const l of this.mConfig.layers)
+    //         if (l.properties.secure.length > 0) return true;
+    //     return false;
+    // }
 }
