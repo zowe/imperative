@@ -18,6 +18,7 @@ import * as T from "../../../../../src/TestUtil";
 import { cliBin, config } from "../PluginManagementFacility.spec";
 import { join, resolve } from "path";
 import { readFileSync, writeFileSync } from "fs";
+import { execSync } from "child_process";
 
 describe("Using a Plugin", () => {
 
@@ -33,6 +34,19 @@ describe("Using a Plugin", () => {
      */
     const pluginProfDir = join(config.defaultHome, "profiles");
 
+    /**
+     * Specifies whether warnings about missing peer dependencies should be
+     * expected in stderr output of `npm install`. This defaults to true and is
+     * set to false if version 7 or newer of NPM is detected.
+     * @type {boolean}
+     */
+    let peerDepWarning: boolean = true;
+
+    beforeAll(() => {
+        // tslint:disable-next-line no-magic-numbers
+        peerDepWarning = parseInt(execSync("npm --version").toString().trim().split(".")[0], 10) < 7;
+    });
+
     beforeEach(() => {
         // ensure that each test starts with no installed plugins
         T.rimraf(pluginJsonFile);
@@ -44,9 +58,13 @@ describe("Using a Plugin", () => {
         const pluginName = "normal-plugin";
         let cmd = `plugins install ${installedPlugin}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toMatch(/npm.*WARN/);
-        expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-        expect(result.stderr).toContain("You must install peer dependencies yourself");
+        if (peerDepWarning) {
+            expect(result.stderr).toMatch(/npm.*WARN/);
+            expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+            expect(result.stderr).toContain("You must install peer dependencies yourself");
+        } else {
+            expect(result.stderr).toEqual("");
+        }
 
         cmd = ``;
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
@@ -92,9 +110,13 @@ describe("Using a Plugin", () => {
         const pluginName = "normal-plugin-3";
         let cmd = `plugins install ${installedPlugin}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toMatch(/npm.*WARN/);
-        expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-        expect(result.stderr).toContain("You must install peer dependencies yourself");
+        if (peerDepWarning) {
+            expect(result.stderr).toMatch(/npm.*WARN/);
+            expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+            expect(result.stderr).toContain("You must install peer dependencies yourself");
+        } else {
+            expect(result.stderr).toEqual("");
+        }
 
         cmd = ``;
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
@@ -151,9 +173,13 @@ describe("Using a Plugin", () => {
         const pluginName = "normal-plugin-misc";
         let cmd = `plugins install ${installedPlugin}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toMatch(/npm.*WARN/);
-        expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-        expect(result.stderr).toContain("You must install peer dependencies yourself");
+        if (peerDepWarning) {
+            expect(result.stderr).toMatch(/npm.*WARN/);
+            expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+            expect(result.stderr).toContain("You must install peer dependencies yourself");
+        } else {
+            expect(result.stderr).toEqual("");
+        }
         let stdout = "";
 
         cmd = ``;
@@ -245,9 +271,13 @@ describe("Using a Plugin", () => {
         // install the override plugin
         let cmd = `plugins install ${installedPlugin}`;
         let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toMatch(/npm.*WARN/);
-        expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-        expect(result.stderr).toContain("You must install peer dependencies yourself");
+        if (peerDepWarning) {
+            expect(result.stderr).toMatch(/npm.*WARN/);
+            expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+            expect(result.stderr).toContain("You must install peer dependencies yourself");
+        } else {
+            expect(result.stderr).toEqual("");
+        }
 
         // confirm the plugin summary is displayed from zowe help
         cmd = ``;

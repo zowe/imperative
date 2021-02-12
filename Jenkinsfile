@@ -12,7 +12,7 @@
 
 import org.zowe.pipelines.nodejs.models.SemverLevel
 
-node('ca-jenkins-agent') {
+node('zowe-jenkins-agent-dind') {
     // Initialize the pipeline
     def pipeline = new NodeJSPipeline(this)
 
@@ -55,7 +55,7 @@ node('ca-jenkins-agent') {
     ]
 
     // Initialize the pipeline library, should create 5 steps
-    pipeline.setup()
+    pipeline.setup(nodeJsVersion: 'v10.23.2')
 
     // Create a custom lint stage that runs immediately after the setup.
     pipeline.createStage(
@@ -132,32 +132,6 @@ node('ca-jenkins-agent') {
         junitOutput: INTEGRATION_JUNIT_OUTPUT
     )
 
-    // Perform sonar qube operations
-    pipeline.createStage(
-        name: "Code Analysis",
-        stage: {
-            // append sonar.links.ci, sonar.branch.name or sonar.pullrequest to sonar-project.properties
-            def sonarProjectFile = 'sonar-project.properties'
-            sh "echo sonar.links.ci=${env.BUILD_URL} >> ${sonarProjectFile}"
-            if (env.CHANGE_BRANCH) { // is pull request
-                sh "echo sonar.pullrequest.key=${env.CHANGE_ID} >> ${sonarProjectFile}"
-                // we may see warnings like these
-                //  WARN: Parameter 'sonar.pullrequest.branch' can be omitted because the project on SonarCloud is linked to the source repository.
-                //  WARN: Parameter 'sonar.pullrequest.base' can be omitted because the project on SonarCloud is linked to the source repository.
-                // if we provide parameters below
-                sh "echo sonar.pullrequest.branch=${env.CHANGE_BRANCH} >> ${sonarProjectFile}"
-                sh "echo sonar.pullrequest.base=${env.CHANGE_TARGET} >> ${sonarProjectFile}"
-            } else {
-                sh "echo sonar.branch.name=${env.BRANCH_NAME} >> ${sonarProjectFile}"
-            }
-
-            def scannerHome = tool 'sonar-scanner-4.0.0'
-            withSonarQubeEnv('sonarcloud-server') {
-                sh "${scannerHome}/bin/sonar-scanner"
-            }
-        }
-    )
-
     //Upload Reports to Code Coverage
     pipeline.createStage(
         name: "Codecov",
@@ -168,6 +142,9 @@ node('ca-jenkins-agent') {
         }
     )
 
+    // Perform sonar qube operations
+    pipeline.sonarScan()
+
     // Check vulnerabilities
     pipeline.checkVulnerabilities()
 
@@ -176,16 +153,18 @@ node('ca-jenkins-agent') {
         header: "## Recent Changes"
     )
 
-    // Deploys the application if on a protected branch. Give the version input
-    // 30 minutes before an auto timeout approve.
-    pipeline.deploy(
-        versionArguments: [timeout: [time: 30, unit: 'MINUTES']]
+    // Perform the versioning email mechanism
+    pipeline.version(
+        timeout: [time: 30, unit: 'MINUTES'],
+        updateChangelogArgs: [
+            file: "CHANGELOG.md",
+            header: "## Recent Changes"
+        ]
     )
 
-    pipeline.updateChangelog(
-        file: "CHANGELOG.md",
-        header: "## Recent Changes"
-    )
+    // Deploys the application if on a protected branch. Give the version input
+    // 30 minutes before an auto timeout approve.
+    pipeline.deploy()
 
     def logLocation = "__tests__/__results__"
     // Once called, no stages can be added and all added stages will be executed. On completion
