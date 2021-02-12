@@ -35,7 +35,7 @@ enum Layers {
     ProjectConfig,
     GlobalUser,
     GlobalConfig
-};
+}
 
 export class Config {
     /**
