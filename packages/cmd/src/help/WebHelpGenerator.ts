@@ -55,7 +55,7 @@ export class WebHelpGenerator {
     private mDocsDir: string;
 
     /**
-     * Marked module used to convert markdown to HTML
+     * Markdown-it module used to convert markdown to HTML
      * @private
      * @memberof WebHelpGenerator
      */
@@ -106,7 +106,7 @@ export class WebHelpGenerator {
         cmdResponse.console.log(Buffer.from("Generating web help"));
 
         // Load additional dependencies
-        this.marked = require("marked");
+        this.marked = require("markdown-it")({html: true});
         const fsExtra = require("fs-extra");
 
         // Ensure web-help/docs folder exists and is empty
@@ -158,10 +158,10 @@ export class WebHelpGenerator {
 
         let rootHelpContent: string = this.genDocsHeader(rootCommandName);
         rootHelpContent += `<h2><a href="${rootCommandName}.html" name="${rootCommandName}">${rootCommandName}</a>${this.genPrintButton()}</h2>\n`;
-        rootHelpContent += this.marked(this.mConfig.loadedConfig.rootCommandDescription) + "\n";
+        rootHelpContent += this.marked.render(this.mConfig.loadedConfig.rootCommandDescription) + "\n";
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
             { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions });
-        rootHelpContent += this.marked("<h4>Groups</h4>\n" +
+        rootHelpContent += this.marked.render("<h4>Groups</h4>\n" +
             this.buildChildrenSummaryTables(helpGen, rootCommandName) + "\n\n" +
             helpGen.buildGlobalOptionsSection().replace(/Global options/, "Global Options"));
         this.singlePageHtml = rootHelpContent.replace(/<h4>Groups.+?<\/ul>/s, "");
@@ -318,15 +318,14 @@ export class WebHelpGenerator {
         markdownContent = markdownContent.replace(/^(\s+Default value:.+$)(\s+Allowed values:.+$)/gm, "$1\n$2");
 
         let htmlContent = "<h2>" + this.genBreadcrumb(rootCommandName, fullCommandName) + this.genPrintButton() + "</h2>\n";
-        htmlContent += this.marked(markdownContent);
+        htmlContent += this.marked.render(markdownContent);
 
         // Remove backslash escapes from URLs
         htmlContent = htmlContent.replace(/(%5C|\\)(?=.+?<\/a>)/g, "");
 
         // Add Copy buttons after command line examples
-        htmlContent = htmlContent.replace(/<pre><code>\*\s`\$\s*(.*?)`<\/code><\/pre>/g,
-            `<ul>\n<li><code>$1</code> <button class="btn-copy no-print" data-balloon-pos="right" ` +
-            `data-clipboard-text="$1">Copy</button></li>\n</ul>`);
+        htmlContent = htmlContent.replace(/<code>\$\s*(.*?)<\/code>/g,
+        `<code>$1</code> <button class="btn-copy no-print" data-balloon-pos="right" data-clipboard-text="$1">Copy</button>`);
 
         // Sanitize references to user's home directory
         if (this.sanitizeHomeDir) {
