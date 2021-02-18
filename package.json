@@ -73,6 +73,7 @@
     "readline-sync": "1.4.10",
     "rimraf": "2.6.3",
     "semver": "5.7.0",
+    "sanitize-html": "2.3.2",
     "stack-trace": "0.0.10",
     "wrap-ansi": "3.0.1",
     "yamljs": "0.3.0",
