@@ -4,7 +4,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
-- BugFix: Fixed vulnerabilites by replacing marked with markdown-it and sanitize-html
+- BugFix: Fixed vulnerabilities by replacing marked with markdown-it and sanitize-html
 
 ## `4.11.0`
 
