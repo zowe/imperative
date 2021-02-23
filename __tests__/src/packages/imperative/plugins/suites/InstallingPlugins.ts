@@ -103,8 +103,18 @@ describe("Installing Plugins", () => {
    */
   let envNpmRegistry: string = "";
 
+  /**
+   * Specifies whether warnings about missing peer dependencies should be
+   * expected in stderr output of `npm install`. This defaults to true and is
+   * set to false if version 7 or newer of NPM is detected.
+   * @type {boolean}
+   */
+  let peerDepWarning: boolean = true;
+
   beforeAll(() => {
     envNpmRegistry = execSync("npm config get registry").toString().trim();
+    // tslint:disable-next-line no-magic-numbers
+    peerDepWarning = parseInt(execSync("npm --version").toString().trim().split(".")[0], 10) < 7;
   });
 
   beforeEach(() => {
@@ -141,9 +151,13 @@ describe("Installing Plugins", () => {
 
     // Now go ahead and install the sample
     result = executeCommandString(this, `${pluginGroup} install ${plugins.normal.location}`);
-    expect(result.stderr).toMatch(/npm.*WARN/);
-    expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-    expect(result.stderr).toContain("You must install peer dependencies yourself");
+    if (peerDepWarning) {
+      expect(result.stderr).toMatch(/npm.*WARN/);
+      expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+      expect(result.stderr).toContain("You must install peer dependencies yourself");
+    } else {
+      expect(result.stderr).toEqual("");
+    }
 
     const strippedOutput = T.stripNewLines(result.stdout);
     expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
@@ -167,9 +181,13 @@ describe("Installing Plugins", () => {
 
     // Now check that they install
     result = executeCommandString(this, `${pluginGroup} install ${plugins.normal.location} ${plugins.normal2.location} --registry ${TEST_REGISTRY}`);
-    expect(result.stderr).toMatch(/npm.*WARN/);
-    expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-    expect(result.stderr).toContain("You must install peer dependencies yourself");
+    if (peerDepWarning) {
+      expect(result.stderr).toMatch(/npm.*WARN/);
+      expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+      expect(result.stderr).toContain("You must install peer dependencies yourself");
+    } else {
+      expect(result.stderr).toEqual("");
+    }
 
     const strippedOutput = T.stripNewLines(result.stdout);
     expect(strippedOutput).toContain("Registry = " + TEST_REGISTRY);
@@ -189,9 +207,13 @@ describe("Installing Plugins", () => {
     // check before install, and after
     const beforeInstall = executeCommandString(this, "--help");
     let result = executeCommandString(this, `${pluginGroup} install ${plugins.normal.location}`);
-    expect(result.stderr).toMatch(/npm.*WARN/);
-    expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-    expect(result.stderr).toContain("You must install peer dependencies yourself");
+    if (peerDepWarning) {
+      expect(result.stderr).toMatch(/npm.*WARN/);
+      expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+      expect(result.stderr).toContain("You must install peer dependencies yourself");
+    } else {
+      expect(result.stderr).toEqual("");
+    }
 
     let strippedOutput = T.stripNewLines(result.stdout);
     expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
@@ -208,9 +230,13 @@ describe("Installing Plugins", () => {
 
     // Try to install it back by using the plugins.json file that should still exist
     result = executeCommandString(this, `${pluginGroup} install`);
-    expect(result.stderr).toMatch(/npm.*WARN/);
-    expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-    expect(result.stderr).toContain("You must install peer dependencies yourself");
+    if (peerDepWarning) {
+      expect(result.stderr).toMatch(/npm.*WARN/);
+      expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+      expect(result.stderr).toContain("You must install peer dependencies yourself");
+    } else {
+      expect(result.stderr).toEqual("");
+    }
 
     strippedOutput = T.stripNewLines(result.stdout);
     expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
@@ -230,9 +256,13 @@ describe("Installing Plugins", () => {
 
     // Now go ahead and install the sample
     result = T.executeTestCLICommand(cliBin, this, [pluginGroup, "install", plugins.space_in_path.location]);
-    expect(result.stderr).toMatch(/npm.*WARN/);
-    expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-    expect(result.stderr).toContain("You must install peer dependencies yourself");
+    if (peerDepWarning) {
+      expect(result.stderr).toMatch(/npm.*WARN/);
+      expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+      expect(result.stderr).toContain("You must install peer dependencies yourself");
+    } else {
+      expect(result.stderr).toEqual("");
+    }
 
     const strippedOutput = T.stripNewLines(result.stdout);
     expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
@@ -358,9 +388,13 @@ describe("Installing Plugins", () => {
       result = executeCommandString(this, `${pluginGroup} install --file ${testFile}`);
       const strippedOutput = T.stripNewLines(result.stdout);
 
-      expect(result.stderr).toMatch(/npm.*WARN/);
-      expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-      expect(result.stderr).toContain("You must install peer dependencies yourself");
+      if (peerDepWarning) {
+        expect(result.stderr).toMatch(/npm.*WARN/);
+        expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+        expect(result.stderr).toContain("You must install peer dependencies yourself");
+      } else {
+        expect(result.stderr).toEqual("");
+      }
 
       expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal.name}'`);
       expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal2.name}'`);
@@ -397,9 +431,13 @@ describe("Installing Plugins", () => {
         `${pluginGroup} install ${plugins.normal.location} ${plugins.normal3.location} --registry ${TEST_REGISTRY}`
       );
 
-      expect(result.stderr).toMatch(/npm.*WARN/);
-      expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-      expect(result.stderr).toContain("You must install peer dependencies yourself");
+      if (peerDepWarning) {
+        expect(result.stderr).toMatch(/npm.*WARN/);
+        expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+        expect(result.stderr).toContain("You must install peer dependencies yourself");
+      } else {
+        expect(result.stderr).toEqual("");
+      }
 
       expect(result.stdout).toContain(plugins.normal.name);
       expect(result.stdout).toContain(plugins.normal3.name);
@@ -415,9 +453,13 @@ describe("Installing Plugins", () => {
       // Now install from the file and verify that everything exists
       result = executeCommandString(this, `${pluginGroup} install --file ${testFile}`);
 
-      expect(result.stderr).toMatch(/npm.*WARN/);
-      expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-      expect(result.stderr).toContain("You must install peer dependencies yourself");
+      if (peerDepWarning) {
+        expect(result.stderr).toMatch(/npm.*WARN/);
+        expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+        expect(result.stderr).toContain("You must install peer dependencies yourself");
+      } else {
+        expect(result.stderr).toEqual("");
+      }
 
       expect(result.stdout).toContain(plugins.normal.name);
       expect(result.stdout).toContain(plugins.normal2.name);

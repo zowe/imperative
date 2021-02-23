@@ -47,7 +47,7 @@ export function installPackages(prefix: string, registry: string, npmPackage: st
     const pipe: StdioOptions = ["pipe", "pipe", process.stderr];
     try {
         const execOutput = execSync(`${npmCmd} install "${npmPackage}" --prefix "${prefix}" ` +
-            `-g --registry "${registry}"`, {
+            `-g --registry "${registry}" --legacy-peer-deps`, {
             cwd: PMFConstants.instance.PMF_ROOT,
             stdio: pipe
         });
