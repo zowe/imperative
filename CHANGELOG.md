@@ -4,6 +4,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
+- BugFix: Fixed vulnerabilities by replacing marked with markdown-it and sanitize-html.
 - BugFix: Fixed plugin install failing to install package from private registry.
 
 ## `4.11.0`
