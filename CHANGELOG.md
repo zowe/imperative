@@ -5,7 +5,8 @@ All notable changes to the Imperative package will be documented in this file.
 ## Recent Changes
 
 - Enhancement: Added automatic decompression for REST responses with Content-Encoding `gzip`, `deflate`, or `br`. [#318](https://github.com/zowe/imperative/issues/318)
-- BugFix: Fixed vulnerabilities by replacing marked with markdown-it and sanitize-html
+- BugFix: Fixed vulnerabilities by replacing marked with markdown-it and sanitize-html.
+- BugFix: Fixed plugin install failing to install package from private registry.
 
 ## `4.11.0`
 
