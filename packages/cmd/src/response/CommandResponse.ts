@@ -33,6 +33,7 @@ import * as net from "net";
 import { DaemonUtils } from "../../../utilities/src/DaemonUtils";
 import * as tty from "tty";
 import { IPromptOptions } from "../doc/response/api/handler/IPromptOptions";
+import { IInteractiveOptions } from "../doc/response/api/handler/IInteractiveOptions";
 
 const DataObjectParser = require("dataobject-parser");
 
@@ -280,7 +281,7 @@ export class CommandResponse implements ICommandResponseApi {
                     // Format the output for the command, if an error occurs, output the format error data
                     // so that the response is still available to the user
                     try {
-                        this.formatOutput(formatCopy, outer);
+                        outer.console.log(this.formatOutput(formatCopy));
                     } catch (formatErr) {
                         outer.console.errorHeader(`Non-formatted output data`);
                         outer.console.error(`${inspect(format.output, { compact: true } as any)}`);
@@ -298,7 +299,7 @@ export class CommandResponse implements ICommandResponseApi {
                  * @param {Arguments} args - the arguments passed on the command line by the user
                  * @memberof CommandProcessor
                  */
-                private formatOutput(params: ICommandOutputFormat, response: CommandResponse) {
+                private formatOutput(params: ICommandOutputFormat): any {
 
                     // If a single filter is specified, save the field the data was extracted from
                     const extractedFrom = (params.fields != null && params.fields.length === 1 && typeof params.output !== "string") ?
@@ -317,8 +318,6 @@ export class CommandResponse implements ICommandResponseApi {
                                 params.output = JSON.stringify(params.output);
                             }
 
-                            // Log the string data
-                            response.console.log(params.output);
                             break;
                         // Output the data as a list of strings
                         case "list":
@@ -336,7 +335,6 @@ export class CommandResponse implements ICommandResponseApi {
 
                                 // Join each array entry on a newline
                                 params.output = list.join("\n");
-                                response.console.log(params.output);
                             } else {
                                 throw new ImperativeError({
                                     msg: this.errorDetails(params, "Arrays", extractedFrom)
@@ -361,8 +359,7 @@ export class CommandResponse implements ICommandResponseApi {
                                     });
                                 }
 
-                                // Print the output
-                                response.console.log(pretty);
+                                return pretty;
                             } else {
                                 throw new ImperativeError({
                                     msg: this.errorDetails(params, "JSON objects or Arrays", extractedFrom)
@@ -393,8 +390,7 @@ export class CommandResponse implements ICommandResponseApi {
                                     });
                                 }
 
-                                // Print the table
-                                response.console.log(table);
+                                return table;
                             } else {
                                 throw new ImperativeError({
                                     msg: this.errorDetails(params, "JSON objects or Arrays", extractedFrom)
@@ -407,6 +403,7 @@ export class CommandResponse implements ICommandResponseApi {
                                     `Contact the command handler creators for support.`
                             });
                     }
+                    return params.output;
                 }
 
                 /**
@@ -623,9 +620,44 @@ export class CommandResponse implements ICommandResponseApi {
                         return CliUtils.readPrompt(questionText, opts);
                     }
                 }
+
+                /**
+                 * Handles interactive menu selection for command input
+                 * @param {string[]} menu
+                 * @param {IInteractiveOptions} [opts]
+                 */
+                public interactiveSelection(menu: string[], opts?: IInteractiveOptions): Promise<number> {
+                    if (outer.mStream) {
+                        return new Promise<number>((resolve) => {
+                            // build interactive header
+                            const daemonHeaders = DaemonUtils.buildHeader({interactive: true});
+
+                            const obj: any = {}
+                            if (opts?.header) obj.header = opts.header;
+                            obj.menu = menu;
+                            outer.writeStream(JSON.stringify(obj));
+
+                            // send interactive content
+                            outer.writeStream(daemonHeaders);
+
+                            // wait for a response here
+                            outer.mStream.on("data", function listener(data) {
+
+                                // remove this listener
+                                outer.mStream.removeListener("data", listener);
+
+                                // strip response header and give to content the waiting handler
+                                const stringData = data.toString();
+                                const parsed = stringData.substr(DaemonUtils.X_ZOWE_DAEMON_REPLY.length, stringData.length).trim();
+                                resolve(+(parsed));
+                            });
+                        });
+                    } else {
+                        return CliUtils.interactiveSelection(menu, opts);
+                    }
+                }
             }();
         }
-
         // Return the instance of the console API
         return this.mConsoleApi;
     }

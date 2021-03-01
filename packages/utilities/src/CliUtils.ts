@@ -22,6 +22,7 @@ import { IProfile } from "../../profiles";
 import * as prompt from "readline-sync";
 import * as os from "os";
 import { IPromptOptions } from "../../cmd/src/doc/response/api/handler/IPromptOptions";
+import { IInteractiveOptions } from "../../cmd/src/doc/response/api/handler/IInteractiveOptions";
 
 /**
  * Cli Utils contains a set of static methods/helpers that are CLI related (forming options, censoring args, etc.)
@@ -546,6 +547,34 @@ export class CliUtils {
         // terminate our use of the ttyIo object
         ttyIo.close();
         return answerToReturn;
+    }
+
+    public static async interactiveSelection(menu: string[], opts?: IInteractiveOptions): Promise<number> {
+        return new Promise<number>(async (resolve, reject) => {
+            // TODO(Fernando) - Move terminal code out of the API
+            const term = require("terminal-kit").terminal;
+            if (opts?.header != null) term.defaultColor(" " + opts.header);
+            try {
+                term.grabInput(true);
+                const cursor = await term.getCursorLocation();
+                term.on("key", (name: string) => {
+                    if (name === "CTRL_C" || name === "ESCAPE") {
+                        if (name === "CTRL_C") {
+                            term.moveTo(1, cursor.y + menu.length + (opts?.header != null ? 1 : 0) + 1);
+                        }
+                        term.grabInput(false);
+                        reject("No input selected!");
+                    }
+                });
+                const singleColumnMenu = require("util").promisify(term.singleColumnMenu);
+                const userInteraction = await singleColumnMenu.call(term, menu, {cancelable: true});
+                term.grabInput(false);
+                resolve(userInteraction.selectedIndex + 1);
+            } catch(err) {
+                term.grabInput(false);
+                reject("Oh oh! Something went wrong!\nDetails:\n" + err.message);
+            }
+        });
     }
 
     /**

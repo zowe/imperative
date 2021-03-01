@@ -32,6 +32,13 @@ export interface IDaemonHeaderOptions {
     prompt?: number;
 
     /**
+     * Indicator for interactive
+     * @type {number}
+     * @memberof IDaemonHeaderOptions
+     */
+    interactive?: boolean;
+
+    /**
      * Content is for stdout
      * @type {boolean}
      * @memberof IDaemonHeaderOptions
