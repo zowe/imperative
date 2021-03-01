@@ -20,6 +20,9 @@ import { EventEmitter } from "events";
 import { ImperativeError } from "../../../error";
 import { IOptionsFullResponse } from "../../src/client/doc/IOptionsFullResponse";
 import { CLIENT_PROPERTY } from "../../src/client/types/AbstractRestClientProperties";
+import { PassThrough } from "stream";
+import * as zlib from "zlib";
+import * as streamToString from "stream-to-string";
 
 
 /**
@@ -627,5 +630,152 @@ describe("AbstractRestClient tests", () => {
             error = thrownError;
         }
         expect(httpsRequestFnc).toBeCalled();
+    });
+
+    describe("content encoding", () => {
+        const responseText = "Request failed successfully";
+        const rawBuffer = Buffer.from(responseText);
+        const gzipBuffer = zlib.gzipSync(rawBuffer);
+
+        it("should not error when decompressing gzip buffer", async () => {
+            const emitter = new MockHttpRequestResponse();
+            const requestFnc = jest.fn((options, callback) => {
+                ProcessUtils.nextTick(async () => {
+
+                    const newEmit = new MockHttpRequestResponse();
+                    newEmit.headers = { "Content-Encoding": "gzip" };
+                    callback(newEmit);
+
+                    await ProcessUtils.nextTick(() => {
+                        newEmit.emit("data", gzipBuffer);
+                    });
+
+                    await ProcessUtils.nextTick(() => {
+                        newEmit.emit("end");
+                    });
+                });
+
+                return emitter;
+            });
+
+            (https.request as any) = requestFnc;
+
+            const result = await RestClient.getExpectString(new Session({
+                hostname: "test"
+            }), "/resource");
+            expect(result).toBe(responseText);
+        });
+
+        it("should not error when decompressing gzip stream", async () => {
+            const emitter = new MockHttpRequestResponse();
+            const requestFnc = jest.fn((options, callback) => {
+                ProcessUtils.nextTick(async () => {
+
+                    const newEmit = new MockHttpRequestResponse();
+                    newEmit.headers = { "Content-Encoding": "gzip" };
+                    callback(newEmit);
+
+                    await ProcessUtils.nextTick(() => {
+                        newEmit.emit("data", gzipBuffer);
+                    });
+
+                    await ProcessUtils.nextTick(() => {
+                        newEmit.emit("end");
+                    });
+                });
+
+                return emitter;
+            });
+
+            (https.request as any) = requestFnc;
+
+            let responseStream = new PassThrough();
+            await RestClient.getStreamed(new Session({
+                hostname: "test"
+            }), "/resource", [], responseStream, false);
+            let result = await streamToString(responseStream);
+            expect(result).toBe(responseText);
+
+            responseStream = new PassThrough();
+            await RestClient.getStreamed(new Session({
+                hostname: "test"
+            }), "/resource", [], responseStream, true);
+            result = await streamToString(responseStream);
+            expect(result).toBe(responseText);
+        });
+
+        it("should error when decompressing invalid gzip buffer", async () => {
+            const emitter = new MockHttpRequestResponse();
+            const requestFnc = jest.fn((options, callback) => {
+                ProcessUtils.nextTick(async () => {
+
+                    const newEmit = new MockHttpRequestResponse();
+                    newEmit.headers = { "Content-Encoding": "gzip" };
+                    callback(newEmit);
+
+                    await ProcessUtils.nextTick(() => {
+                        newEmit.emit("data", rawBuffer);
+                    });
+
+                    await ProcessUtils.nextTick(() => {
+                        newEmit.emit("end");
+                    });
+                });
+
+                return emitter;
+            });
+
+            (https.request as any) = requestFnc;
+            let caughtError;
+
+            try {
+                await RestClient.getExpectString(new Session({
+                    hostname: "test"
+                }), "/resource");
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError instanceof ImperativeError).toBe(true);
+            expect(caughtError.message).toMatchSnapshot();
+        });
+
+        it("should error when decompressing invalid gzip stream", async () => {
+            const emitter = new MockHttpRequestResponse();
+            const requestFnc = jest.fn((options, callback) => {
+                ProcessUtils.nextTick(async () => {
+
+                    const newEmit = new MockHttpRequestResponse();
+                    newEmit.headers = { "Content-Encoding": "gzip" };
+                    callback(newEmit);
+
+                    await ProcessUtils.nextTick(() => {
+                        newEmit.emit("data", rawBuffer);
+                    });
+
+                    await ProcessUtils.nextTick(() => {
+                        newEmit.emit("end");
+                    });
+                });
+
+                return emitter;
+            });
+
+            (https.request as any) = requestFnc;
+            const responseStream = new PassThrough();
+            let caughtError;
+
+            try {
+                await RestClient.getStreamed(new Session({
+                    hostname: "test"
+                }), "/resource", [], responseStream);
+                await streamToString(responseStream);
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError instanceof ImperativeError).toBe(true);
+            expect(caughtError.message).toMatchSnapshot();
+        });
     });
 });

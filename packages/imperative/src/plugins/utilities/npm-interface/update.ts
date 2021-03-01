@@ -11,7 +11,7 @@
 
 import { PMFConstants } from "../PMFConstants";
 import { Logger } from "../../../../../logger";
-import { installPackages } from "../NpmFunctions";
+import { getPackageInfo, installPackages } from "../NpmFunctions";
 
 /**
  * @TODO - allow multiple packages to be updated?
@@ -22,7 +22,7 @@ import { installPackages } from "../NpmFunctions";
  * @param {string} registry The npm registry.
  *
  */
-export function update(packageName: string, registry: string) {
+export async function update(packageName: string, registry: string) {
   const iConsole = Logger.getImperativeLogger();
   const npmPackage = packageName;
 
@@ -31,17 +31,11 @@ export function update(packageName: string, registry: string) {
   // NOTE: Using npm install in order to retrieve the version which may be updated
   iConsole.info("updating package...this may take some time.");
 
-  const execOutput = installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, registry, npmPackage);
+  installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, registry, npmPackage);
 
-  /* We get the package name (aka plugin name)
-   * from the output of the npm command.
-   * The regex is meant to match: + plugin-name@version.
-   */
-  const stringOutput = execOutput.toString();
-  iConsole.info("stringOutput = " + stringOutput);
-  const regex = /\+\s(.*)@(.*)$/gm;
-  const match = regex.exec(stringOutput);
-  const packageVersion = match[2];
+  // We fetch the package version of newly installed plugin
+  const packageInfo = await getPackageInfo(npmPackage);
+  const packageVersion = packageInfo.version;
 
   iConsole.info("Update complete");
 

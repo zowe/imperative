@@ -25,7 +25,7 @@ node('zowe-jenkins-agent-dind') {
 
     // Protected branch property definitions
     pipeline.protectedBranches.addMap([
-        [name: "master", tag: "latest", dependencies: ["@zowe/perf-timing": "latest"], aliasTags: ["zowe-v1-lts"]],
+        //[name: "master", tag: "latest", dependencies: ["@zowe/perf-timing": "latest"], aliasTags: ["zowe-v1-lts"]],
         //[name: "zowe-v1-lts", tag: "zowe-v1-lts", level: SemverLevel.MINOR, dependencies: ["@zowe/perf-timing": "zowe-v1-lts"]],
         [name: "lts-incremental", tag: "lts-incremental", level: SemverLevel.PATCH, dependencies: ["@zowe/perf-timing": "lts-incremental"]],
         [name: "lts-stable", tag: "lts-stable", level: SemverLevel.PATCH, dependencies: ["@zowe/perf-timing": "lts-stable"]]
@@ -152,16 +152,18 @@ node('zowe-jenkins-agent-dind') {
         header: "## Recent Changes"
     )
 
-    // Deploys the application if on a protected branch. Give the version input
-    // 30 minutes before an auto timeout approve.
-    pipeline.deploy(
-        versionArguments: [timeout: [time: 30, unit: 'MINUTES']]
+    // Perform the versioning email mechanism
+    pipeline.version(
+        timeout: [time: 30, unit: 'MINUTES'],
+        updateChangelogArgs: [
+            file: "CHANGELOG.md",
+            header: "## Recent Changes"
+        ]
     )
 
-    pipeline.updateChangelog(
-        file: "CHANGELOG.md",
-        header: "## Recent Changes"
-    )
+    // Deploys the application if on a protected branch. Give the version input
+    // 30 minutes before an auto timeout approve.
+    pipeline.deploy()
 
     def logLocation = "__tests__/__results__"
     // Once called, no stages can be added and all added stages will be executed. On completion
