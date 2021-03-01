@@ -37,6 +37,14 @@ enum Layers {
     GlobalConfig
 }
 
+/**
+ * The Config class provides facilities for reading and writing team
+ * configuration files. It is used by Imperative to perform low-level
+ * operations on a team configuration. The intent is that consumer
+ * apps will not typically use the Config class, since end-users are
+ * expected to write team configuration files by directly editing them
+ * in an editor like VSCode.
+ */
 export class Config {
     /**
      * The trailing portion of a shared config file name
