@@ -371,7 +371,9 @@ export class CommandProcessor {
             process.chdir(params.arguments.dcd as string)
 
             // reinit config for daemon client directory
-            ImperativeConfig.instance.config = await Config.load(ImperativeConfig.instance.rootCommandName, ImperativeConfig.instance.config.opts);
+            const newOpts = ImperativeConfig.instance.config?.opts || {};
+            if (newOpts.vault == null) newOpts.vault = ImperativeConfig.instance.config?.mVault;
+            ImperativeConfig.instance.config = await Config.load(ImperativeConfig.instance.rootCommandName, newOpts);
             this.mConfig = ImperativeConfig.instance.config;
         }
         const prepareResponse = this.constructResponseObject(params);

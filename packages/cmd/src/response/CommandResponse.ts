@@ -33,6 +33,7 @@ import * as net from "net";
 import { DaemonUtils } from "../../../utilities/src/DaemonUtils";
 import * as tty from "tty";
 import { IPromptOptions } from "../doc/response/api/handler/IPromptOptions";
+import { IInteractiveOptions } from "../doc/response/api/handler/IInteractiveOptions";
 
 const DataObjectParser = require("dataobject-parser");
 
@@ -625,9 +626,44 @@ export class CommandResponse implements ICommandResponseApi {
                         return CliUtils.promptWithTimeout(questionText, opts?.hideText, opts?.secToWait);
                     }
                 }
+
+                /**
+                 * Handles interactive menu selection for command input
+                 * @param {string[]} menu
+                 * @param {IInteractiveOptions} [opts]
+                 */
+                public interactiveSelection(menu: string[], opts?: IInteractiveOptions): Promise<number> {
+                    if (outer.mStream) {
+                        return new Promise<number>((resolve) => {
+                            // build interactive header
+                            const daemonHeaders = DaemonUtils.buildHeader({interactive: true});
+
+                            const obj: any = {}
+                            if (opts?.header) obj.header = opts.header;
+                            obj.menu = menu;
+                            outer.writeStream(JSON.stringify(obj));
+
+                            // send interactive content
+                            outer.writeStream(daemonHeaders);
+
+                            // wait for a response here
+                            outer.mStream.on("data", function listener(data) {
+
+                                // remove this listener
+                                outer.mStream.removeListener("data", listener);
+
+                                // strip response header and give to content the waiting handler
+                                const stringData = data.toString();
+                                const parsed = stringData.substr(DaemonUtils.X_ZOWE_DAEMON_REPLY.length, stringData.length).trim();
+                                resolve(+(parsed));
+                            });
+                        });
+                    } else {
+                        return CliUtils.interactiveSelection(menu, opts);
+                    }
+                }
             }();
         }
-
         // Return the instance of the console API
         return this.mConsoleApi;
     }

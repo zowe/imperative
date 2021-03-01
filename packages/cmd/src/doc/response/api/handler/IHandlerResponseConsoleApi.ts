@@ -9,6 +9,7 @@
 *
 */
 
+import { IInteractiveOptions } from "./IInteractiveOptions";
 import { IPromptOptions } from "./IPromptOptions";
 
 /**
@@ -50,4 +51,12 @@ export interface IHandlerResponseConsoleApi {
      * @memberof IHandlerResponseConsoleApi
      */
     prompt(questionText: string, opts?: IPromptOptions): Promise<string>;
+    /**
+     * Handles interactive menu selection for CLI handlers
+     * @param {string} menu
+     * @param {IInteractiveOptions} [opts]
+     * @returns {Promise<number>}
+     * @memberof IHandlerResponseConsoleApi
+     */
+    interactiveSelection(menu: string[], opts?: IInteractiveOptions): Promise<number>;
 }

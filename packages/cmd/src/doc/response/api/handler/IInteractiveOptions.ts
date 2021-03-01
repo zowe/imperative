@@ -10,23 +10,17 @@
 */
 
 /**
- * Interface for prompt options
+ * Interface for interactive options
  * @export
- * @interface IPromptOptions
+ * @interface IInteractiveOptions
  */
-export interface IPromptOptions {
+export interface IInteractiveOptions {
 
     /**
-     * Whether or not to obscure answered prompt (e.g. for passwords)
+     * Header to be applied to the menu
      * @type {boolean}
-     * @memberof IPromptOptions
+     * @memberof IInteractiveOptions
      */
-    hideText?: boolean;
+    header?: string;
 
-    /**
-     * How long to wait in seconds for prompting
-     * @type {number}
-     * @memberof IPromptOptions
-     */
-    secToWait?: number;
 }

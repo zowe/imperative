@@ -76,6 +76,7 @@
     "rimraf": "2.6.3",
     "semver": "5.7.0",
     "stack-trace": "0.0.10",
+    "terminal-kit": "^1.47.2",
     "wrap-ansi": "3.0.1",
     "yamljs": "0.3.0",
     "yargs": "15.3.1"
@@ -97,6 +98,7 @@
     "@types/progress": "^2.0.3",
     "@types/readline-sync": "^1.4.3",
     "@types/stack-trace": "^0.0.29",
+    "@types/terminal-kit": "^1.28.2",
     "ansi-colors": "^4.1.1",
     "array-from": "^2.1.1",
     "balloon-css": "^1.0.4",

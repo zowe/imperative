@@ -78,6 +78,13 @@ export class DaemonUtils {
     public static readonly X_ZOWE_DAEMON_PROMPT_SECURE = 2;
 
     /**
+     * Interactive is requested from the daemon to the client
+     * @static
+     * @memberof DaemonUtils
+     */
+    public static readonly X_ZOWE_DAEMON_INTERACTIVE = "x-zowe-daemon-interactive:";
+
+    /**
      * Content is for stdout if 1.  Default is 1.
      * @static
      * @memberof DaemonUtils
@@ -117,7 +124,7 @@ export class DaemonUtils {
      * @static
      * @memberof DaemonUtils
      */
-    public static readonly X_ZOWE_V1_LEN = 8;
+    public static readonly X_ZOWE_V1_LEN = 9;
 
     /**
      * Headers separator
@@ -141,6 +148,7 @@ export class DaemonUtils {
         const stdout = options.stdout ? 1 : 0;
         const stderr = options.stderr ? 1 : 0;
         const prompt = options.prompt || 0;
+        const interactive = options.interactive ? 1 : 0;
         const progress = options.progress ? 1 : 0;
 
         // beginning header
@@ -153,27 +161,32 @@ export class DaemonUtils {
 
         // process exit
         headers += DaemonUtils.X_ZOWE_DAEMON_EXIT;
-        headers += exitCode
+        headers += exitCode;
         headers += DaemonUtils.X_ZOWE_HEADERS_SEPARATOR;
 
         // stdout
         headers += DaemonUtils.X_ZOWE_DAEMON_STDOUT;
-        headers += stdout
+        headers += stdout;
         headers += DaemonUtils.X_ZOWE_HEADERS_SEPARATOR;
 
         // stderr
         headers += DaemonUtils.X_ZOWE_DAEMON_STDERR;
-        headers += stderr
+        headers += stderr;
         headers += DaemonUtils.X_ZOWE_HEADERS_SEPARATOR;
 
         // prompt
         headers += DaemonUtils.X_ZOWE_DAEMON_PROMPT;
-        headers += prompt
+        headers += prompt;
+        headers += DaemonUtils.X_ZOWE_HEADERS_SEPARATOR;
+
+        // interactive
+        headers += DaemonUtils.X_ZOWE_DAEMON_INTERACTIVE;
+        headers += interactive;
         headers += DaemonUtils.X_ZOWE_HEADERS_SEPARATOR;
 
         // progress
         headers += DaemonUtils.X_ZOWE_DAEMON_PROGRESS;
-        headers += progress
+        headers += progress;
         headers += DaemonUtils.X_ZOWE_HEADERS_SEPARATOR;
 
         // ending header

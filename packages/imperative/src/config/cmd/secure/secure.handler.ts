@@ -24,7 +24,6 @@ export default class SecureHandler implements ICommandHandler {
      * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
-
         // Setup the credential vault API for the config
         if (!CredentialManagerFactory.initialized) {
             throw secureSaveError();
