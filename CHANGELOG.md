@@ -2,8 +2,13 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Added `Protocol` to the Error Details coming from the `AbstractRestClient`. [#539](https://github.com/zowe/imperative/issues/539)
+
 ## `4.10.2`
-- Fix vulnerabilities by updating marked
+
+- BugFix: Fixed vulnerabilities by updating marked
 
 ## `4.10.1`
 
