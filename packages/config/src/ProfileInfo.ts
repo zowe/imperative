@@ -14,6 +14,7 @@ import { IProfArgAttrs } from "./doc/IProfArgAttrs";
 import { IProfMergedArg } from "./doc/IProfMergedArg";
 import { Config } from "./config";
 import { IConfigOpts } from "./doc/IConfigOpts";
+import { ImperativeError } from "../../error";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -52,7 +53,7 @@ import { IConfigOpts } from "./doc/IConfigOpts";
  *            profInfo.mergeArgsForProfileType("zosmf");
  *
  *        let finalZosmfArgs =
- *            youPromptForMissingArgsAndCombineWithKnownArgs
+ *            youPromptForMissingArgsAndCombineWithKnownArgs(
  *                zosmfMergedArgs.knownArgs,
  *                zosmfMergedArgs.missingArgs
  *            );
@@ -117,11 +118,20 @@ export class ProfileInfo {
      *          for the specified type, we return null;
      */
     public getDefaultProfile(profileType: string): IProfAttrs {
+        this.ensureReadFromDisk();
+
         let defaultProfile: IProfAttrs;
 
-        // todo: Actually implement something
+        // todo: lint complains when we don't assign something to defaultProfile
+        // Remove when we actually implement something
         const implementSomething: any = null;
         defaultProfile = implementSomething;
+
+        if (this.mUsingTeamConfig) {
+            // todo: get default profile from the team config
+        } else {
+            // todo: get default profile from the old-school profile
+        }
 
         return defaultProfile;
     }
@@ -144,9 +154,7 @@ export class ProfileInfo {
      *          the team configuration on disk.
      */
     public getTeamConfig(): Config {
-        if (this.mLoadedConfig == null) {
-            throw Error("You must first call ProfileInfo.readProfilesFromDisk().");
-        }
+        this.ensureReadFromDisk();
         return this.mLoadedConfig;
     }
     // _______________________________________________________________________
@@ -227,14 +235,14 @@ export class ProfileInfo {
      */
     public async readProfilesFromDisk(appName: string, teamCfgOpts?: IConfigOpts) {
         this.mLoadedConfig = await Config.load(appName, teamCfgOpts);
-        if ( "todo: WeWriteCodeToDetermineThatWeAreUsingTeamConfig") {
+        if (this.mLoadedConfig.exists) {
             this.mUsingTeamConfig = true;
         }
     }
 
     // _______________________________________________________________________
     /**
-     * Retuns an indicator of whether we are using a team configuration or
+     * Returns an indicator of whether we are using a team configuration or
      * old-school profiles.
      *
      * You must call ProfileInfo.readProfilesFromDisk() before calling this function.
@@ -242,8 +250,20 @@ export class ProfileInfo {
      * @returns True when we are using a team config. False means old-school profiles.
      */
     public usingTeamConfig(): boolean {
-        if (this.mLoadedConfig == null) {
-            throw Error("You must first call ProfileInfo.readProfilesFromDisk().");
-        }
+        this.ensureReadFromDisk();
         return this.mUsingTeamConfig;
-    }}
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Ensures that ProfileInfo.readProfilesFromDisk() is called before
+     * an operation that requires that information.
+     */
+    private ensureReadFromDisk()  {
+        if (this.mLoadedConfig == null) {
+            throw new ImperativeError({
+                msg: "You must first call ProfileInfo.readProfilesFromDisk()."
+            });
+        }
+    }
+}
