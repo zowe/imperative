@@ -644,6 +644,7 @@ export abstract class AbstractRestClient {
         // Populate the "relevant" fields - caller will have the session, so
         // no need to duplicate "everything" here, just host/port for easy diagnosis
         finalError.errorCode = errorCode;
+        finalError.protocol = this.mSession.ISession.protocol;
         finalError.port = this.mSession.ISession.port;
         finalError.host = this.mSession.ISession.hostname;
         finalError.basePath = this.mSession.ISession.basePath;
@@ -664,6 +665,7 @@ export abstract class AbstractRestClient {
                 `HTTP(S) error status "${finalError.httpStatus}" received.\n` +
                 `Review request details (resource, base path, credentials, payload) and ensure correctness.`) +
             "\n" +
+            "\nProtocol:  " + finalError.protocol +
             "\nHost:      " + finalError.host +
             "\nPort:      " + finalError.port +
             "\nBase Path: " + finalError.basePath +

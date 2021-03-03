@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Added `Protocol` to the Error Details coming from the `AbstractRestClient`. [#539](https://github.com/zowe/imperative/issues/539)
+
 ## `4.11.1`
 
 - BugFix: Fixed vulnerabilities by replacing marked with markdown-it and sanitize-html
