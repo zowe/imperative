@@ -39,6 +39,7 @@ exports[`AbstractRestClient tests should error with request rejection when statu
 "HTTP(S) error status \\"400\\" received.
 Review request details (resource, base path, credentials, payload) and ensure correctness.
 
+Protocol:  https
 Host:      test
 Port:      443
 Base Path: 

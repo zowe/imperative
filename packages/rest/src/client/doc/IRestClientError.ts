@@ -51,6 +51,11 @@ export interface IRestClientError extends IImperativeError {
      */
     syscall?: string;
     /**
+     * The protocol used to connect to the remote host. Specified on the session object.
+     * @type {string}
+     */
+    protocol?: string;
+    /**
      * The port number of the remote host. Specified on the session object.
      * @type {number}
      */
