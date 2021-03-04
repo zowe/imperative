@@ -1,0 +1,76 @@
+{
+    "profiles": {
+        "base_glob": {
+            "type": "base",
+            "properties": {
+                "user": "userNameBase",
+                "password": "passwordBase",
+                "rejectUnauthorized": false
+            }
+        },
+        "LPAR1": {
+            "type": "zosmf",
+            "properties": {
+                "host": "LPAR1.your.domain.net",
+                "port": 1234,
+                "responseFormatHeader": true
+            },
+            "profiles": {
+                "tsoProfName": {
+                    "type": "tso",
+                    "properties": {
+                        "account": "12345678",
+                        "characterSet": "697",
+                        "codePage": "1047",
+                        "columns": 80,
+                        "logonProcedure": "LOGPROC",
+                        "regionSize": 4096,
+                        "rows": 24
+                    }
+                }
+            }
+        },
+        "LPAR2": {
+            "type": "zosmf",
+            "properties": {
+                "host": "LPAR1.your.domain.net",
+                "port": 6789,
+                "responseFormatHeader": true
+            }
+        },
+        "LPAR3": {
+            "type": "zosmf",
+            "properties": {
+                "host": "LPAR1.your.domain.net",
+                "port": 456
+            },
+            "profiles": {
+                "jckProfNm": {
+                    "type": "jclcheck",
+                    "properties": {
+                        "port": 1111,
+                        "protocol": "https",
+                        "jclcheckOptions": "NOAS NOAU HCD NOJCL NORES SEC NOSIGN"
+                    }
+                }
+            }
+        },
+        "matProfNm": {
+            "type": "mat",
+            "properties": {
+                "hostname": "LPAR4.your.domain.net",
+                "port": 12345,
+                "user": "userNameMat",
+                "pass": "passwordMat"
+            }
+        }
+    },
+    "defaults": {
+        "mat": "matProfNm",
+        "zosmf": "LPAR1",
+        "tso": "LPAR1.tsoProfName",
+        "jclcheck": "LPAR3.jckProfNm"
+    },
+    "plugins": [],
+    "secure": []
+}
