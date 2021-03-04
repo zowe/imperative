@@ -11,9 +11,11 @@
 
 import { IProfAttrs } from "./doc/IProfAttrs";
 import { IProfArgAttrs } from "./doc/IProfArgAttrs";
+import { IProfLoc, ProfLocType } from "./doc/IProfLoc";
 import { IProfMergedArg } from "./doc/IProfMergedArg";
 import { Config } from "./config";
 import { IConfigOpts } from "./doc/IConfigOpts";
+import { IConfigLayer } from "./doc/IConfigLayer";
 import { ImperativeError } from "../../error";
 
 /**
@@ -72,7 +74,7 @@ import { ImperativeError } from "../../error";
  *        youSetValuesToOverwrite(
  *            zosmfMergedArgs.knownArgs, zosmfMergedArgs.missingArgs
  *        );
- *    if (profInfo.usingTeamConfig()) {
+ *    if (profInfo.usingTeamConfig {
  *        let configObj: Config = profInfo.getTeamConfig();
  *        youWriteArgValuesUsingConfigObj(
  *            configObj, yourZosmfArgsToWrite
@@ -120,18 +122,44 @@ export class ProfileInfo {
     public getDefaultProfile(profileType: string): IProfAttrs {
         this.ensureReadFromDisk();
 
-        let defaultProfile: IProfAttrs;
+        const defaultProfile: IProfAttrs = {
+            profName: null,
+            profType: null,
+            isDefaultProfile: false,
+            profLoc: {
+                locType: null
+           }
+        };
 
-        // todo: lint complains when we don't assign something to defaultProfile
-        // Remove when we actually implement something
-        const implementSomething: any = null;
-        defaultProfile = implementSomething;
+        if (this.usingTeamConfig) {
+            // get default profile name from the team config
+            if (!this.mLoadedConfig.maskedProperties.defaults.hasOwnProperty(profileType)) {
+                // no default exists for the requested type
+                return null;
+            }
 
-        if (this.mUsingTeamConfig) {
-            // todo: get default profile from the team config
+            // extract info from the underlying team config
+            const foundJsonLoc = this.mLoadedConfig.maskedProperties.defaults[profileType];
+            const activeLayer: IConfigLayer =this.mLoadedConfig.layerActive();
+
+            // for a team config, we use the last node of the jsonLoc as the name
+            const segments = foundJsonLoc.split(".");
+            const foundProfNm = segments[segments.length - 1];
+
+            // assign the required poperties to defaultProfile
+            defaultProfile.profName = foundProfNm;
+            defaultProfile.profType = profileType;
+            defaultProfile.isDefaultProfile = true;
+            defaultProfile.profLoc = {
+                locType: ProfLocType.TEAM_CONFIG,
+                osLoc: activeLayer.path,
+                jsonLoc: foundJsonLoc
+            }
         } else {
-            // todo: get default profile from the old-school profile
+            // todo: get default profile from the old-school profiles
         }
+
+        // todo: overwite with any values found in environment
 
         return defaultProfile;
     }
@@ -249,7 +277,7 @@ export class ProfileInfo {
      *
      * @returns True when we are using a team config. False means old-school profiles.
      */
-    public usingTeamConfig(): boolean {
+    public get usingTeamConfig(): boolean {
         this.ensureReadFromDisk();
         return this.mUsingTeamConfig;
     }
