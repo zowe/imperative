@@ -197,6 +197,14 @@ export abstract class AbstractRestClient {
     protected mBytesReceived: number = 0;
 
     /**
+     * Whether or not to try and decode any encoded response
+     * @private
+     * @type {boolean}
+     * @memberof AbstractRestClient
+     */
+    protected mDecode: boolean;
+
+    /**
      * Creates an instance of AbstractRestClient.
      * @param {AbstractSession} mSession - representing connection to this api
      * @memberof AbstractRestClient
@@ -526,8 +534,11 @@ export abstract class AbstractRestClient {
                     encoding = this.response.headers[Headers.CONTENT_ENCODING.toLowerCase()];
                 }
                 if (typeof encoding === "string" && Headers.CONTENT_ENCODING_TYPES.find((x) => x === encoding)) {
-                    this.mContentEncoding = encoding as ContentEncoding;
-                    this.log.debug("Content encoding of response is: " + this.mContentEncoding);
+                    this.log.debug("Content encoding of response is: " + encoding as ContentEncoding);
+                    if (this.mDecode) {
+                        this.mContentEncoding = encoding as ContentEncoding;
+                        this.log.debug("Using encoding: " + this.mContentEncoding);
+                    }
                 }
             }
         }

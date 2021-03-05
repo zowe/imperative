@@ -23,6 +23,7 @@ import { CLIENT_PROPERTY } from "../../src/client/types/AbstractRestClientProper
 import { PassThrough } from "stream";
 import * as zlib from "zlib";
 import * as streamToString from "stream-to-string";
+import { AbstractRestClient } from "../../src/client/AbstractRestClient";
 
 
 /**
@@ -636,6 +637,9 @@ describe("AbstractRestClient tests", () => {
         const responseText = "Request failed successfully";
         const rawBuffer = Buffer.from(responseText);
         const gzipBuffer = zlib.gzipSync(rawBuffer);
+        afterEach(() => {
+            (AbstractRestClient.prototype as any).mDecode = false;
+        });
 
         it("should not error when decompressing gzip buffer", async () => {
             const emitter = new MockHttpRequestResponse();
@@ -659,6 +663,7 @@ describe("AbstractRestClient tests", () => {
             });
 
             (https.request as any) = requestFnc;
+            (AbstractRestClient.prototype as any).mDecode = true;
 
             const result = await RestClient.getExpectString(new Session({
                 hostname: "test"
@@ -688,6 +693,7 @@ describe("AbstractRestClient tests", () => {
             });
 
             (https.request as any) = requestFnc;
+            (AbstractRestClient.prototype as any).mDecode = true;
 
             let responseStream = new PassThrough();
             await RestClient.getStreamed(new Session({
@@ -726,6 +732,7 @@ describe("AbstractRestClient tests", () => {
             });
 
             (https.request as any) = requestFnc;
+            (AbstractRestClient.prototype as any).mDecode = true;
             let caughtError;
 
             try {
@@ -762,6 +769,7 @@ describe("AbstractRestClient tests", () => {
             });
 
             (https.request as any) = requestFnc;
+            (AbstractRestClient.prototype as any).mDecode = true;
             const responseStream = new PassThrough();
             let caughtError;
 
