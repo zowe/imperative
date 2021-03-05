@@ -2,11 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## `4.11.2`
-
-- BugFix: Added `Protocol` to the Error Details coming from the `AbstractRestClient`. [#539](https://github.com/zowe/imperative/issues/539)
-
-## `4.11.1`
+## `4.12.0`
 
 - Enhancement: Added decompression support for REST responses with Content-Encoding `gzip`, `deflate`, or `br`. [#318](https://github.com/zowe/imperative/issues/318)
 
