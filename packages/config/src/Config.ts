@@ -64,7 +64,13 @@ export class Config {
      * Directory where global config files are located. Defaults to `~/.appName`.
      * @internal
      */
-    public mHome: string;
+    public mHomeDir: string;
+
+    /**
+     * Directory where project config files are located. Defaults to working directory.
+     * @internal
+     */
+    public mProjectDir: string;
 
     /**
      * Currently active layer whose properties will be manipulated
@@ -121,7 +127,8 @@ export class Config {
         const myNewConfig = new Config(opts);
         myNewConfig.mApp = app;
         myNewConfig.mLayers = [];
-        myNewConfig.mHome = opts.homeDir || node_path.join(os.homedir(), `.${app}`);
+        myNewConfig.mHomeDir = opts.homeDir || node_path.join(os.homedir(), `.${app}`);
+        myNewConfig.mProjectDir = opts.projectDir || process.cwd();
         myNewConfig.mActive = { user: false, global: false };
         myNewConfig.mVault = opts.vault;
         myNewConfig.mSecure = {};
@@ -213,13 +220,13 @@ export class Config {
     private layerPath(layer: Layers): string {
         switch (layer) {
             case Layers.ProjectUser:
-                return Config.search(this.userConfigName, { ignoreDirs: [this.mHome] }) || node_path.join(process.cwd(), this.userConfigName);
+                return Config.search(this.userConfigName, { ignoreDirs: [this.mHomeDir], startDir: this.mProjectDir });
             case Layers.ProjectConfig:
-                return Config.search(this.configName, { ignoreDirs: [this.mHome] }) || node_path.join(process.cwd(), this.configName);
+                return Config.search(this.configName, { ignoreDirs: [this.mHomeDir], startDir: this.mProjectDir });
             case Layers.GlobalUser:
-                return node_path.join(this.mHome, this.userConfigName);
+                return node_path.join(this.mHomeDir, this.userConfigName);
             case Layers.GlobalConfig:
-                return node_path.join(this.mHome, this.configName);
+                return node_path.join(this.mHomeDir, this.configName);
         }
     }
 
@@ -306,21 +313,23 @@ export class Config {
 
     // _______________________________________________________________________
     /**
-     * Search for up the directory tree for the directory containing the
+     * Search up the directory tree for the directory containing the
      * specified config file.
      *
      * @param file Contains the name of the desired config file
-     * @param opts.ignoreDirs Contains an array of direcory names to be
+     * @param opts.ignoreDirs Contains an array of directory names to be
      *        ignored (skipped) during the search.
+     * @param opts.startDir Contains the name of the directory where the
+     *        search should be started. Defaults to working directory.
      *
      * @returns The full path name to config file or null if not found.
      */
-    public static search(file: string, opts?: { ignoreDirs?: string[] }): string {
+    public static search(file: string, opts?: { ignoreDirs?: string[]; startDir?: string }): string {
         opts = opts || {};
         const p = findUp.sync((directory: string) => {
             if (opts.ignoreDirs?.includes(directory)) return;
             return fs.existsSync(node_path.join(directory, file)) && directory;
-        }, { type: "directory" });
+        }, { cwd: opts.startDir, type: "directory" });
         return p ? node_path.join(p, file) : null;
     }
 
