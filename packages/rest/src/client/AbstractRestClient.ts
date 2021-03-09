@@ -202,7 +202,7 @@ export abstract class AbstractRestClient {
      * @type {boolean}
      * @memberof AbstractRestClient
      */
-    protected mDecode: boolean;
+    protected mDecode: boolean = true;
 
     /**
      * Creates an instance of AbstractRestClient.
