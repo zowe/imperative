@@ -61,4 +61,10 @@ export class MockHttpRequestResponse extends EventEmitter {
     set statusCode(status: string) {
         this.mStatus = status;
     }
+
+    /**
+     * Simulate response headers
+     * @memberof RequestOrResponse
+     */
+    public headers: { [key: string]: any };
 }

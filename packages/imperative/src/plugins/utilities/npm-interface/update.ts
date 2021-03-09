@@ -9,10 +9,9 @@
 *
 */
 
-import * as pacote from "pacote";
 import { PMFConstants } from "../PMFConstants";
 import { Logger } from "../../../../../logger";
-import { installPackages } from "../NpmFunctions";
+import { getPackageInfo, installPackages } from "../NpmFunctions";
 
 /**
  * @TODO - allow multiple packages to be updated?
@@ -34,9 +33,9 @@ export async function update(packageName: string, registry: string) {
 
   installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, registry, npmPackage);
 
-  // We fetch the package version with pacote (NPM SDK)
-  const packageManifest = await pacote.manifest(npmPackage, { registry });
-  const packageVersion = packageManifest.version;
+  // We fetch the package version of newly installed plugin
+  const packageInfo = await getPackageInfo(npmPackage);
+  const packageVersion = packageInfo.version;
 
   iConsole.info("Update complete");
 

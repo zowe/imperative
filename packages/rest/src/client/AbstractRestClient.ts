@@ -15,7 +15,7 @@ import { IImperativeError } from "../../../error";
 import { AbstractSession } from "../session/AbstractSession";
 import * as https from "https";
 import * as http from "http";
-import { Headers } from "./Headers";
+import { ContentEncoding, Headers } from "./Headers";
 import { RestConstants } from "./RestConstants";
 import { ImperativeReject } from "../../../interfaces";
 import { IHTTPSOptions } from "./doc/IHTTPSOptions";
@@ -32,6 +32,7 @@ import { ITaskWithStatus, TaskProgress, TaskStage } from "../../../operations";
 import { TextUtils } from "../../../utilities";
 import { IRestOptions } from "./doc/IRestOptions";
 import * as SessConstants from "../session/SessConstants";
+import { CompressionUtils } from "./CompressionUtils";
 
 export type RestClientResolve = (data: string) => void;
 
@@ -92,6 +93,16 @@ export abstract class AbstractRestClient {
      * @memberof AbstractRestClient
      */
     protected mContentLength: number;
+
+    /**
+     * If we get a response containing a Content-Encoding header,
+     * and it matches an encoding type that we recognize,
+     * it is saved here
+     * @private
+     * @type {ContentEncoding}
+     * @memberof AbstractRestClient
+     */
+    protected mContentEncoding: ContentEncoding;
 
     /**
      * Indicates if payload data is JSON to be stringified before writing
@@ -184,6 +195,14 @@ export abstract class AbstractRestClient {
      * @memberof AbstractRestClient
      */
     protected mBytesReceived: number = 0;
+
+    /**
+     * Whether or not to try and decode any encoded response
+     * @private
+     * @type {boolean}
+     * @memberof AbstractRestClient
+     */
+    protected mDecode: boolean;
 
     /**
      * Creates an instance of AbstractRestClient.
@@ -489,6 +508,7 @@ export abstract class AbstractRestClient {
      */
     private requestHandler(res: any) {
         this.mResponse = res;
+        this.mContentEncoding = null;
 
         if (this.requestSuccess) {
             if (this.session.ISession.type === SessConstants.AUTH_TYPE_TOKEN) {
@@ -505,6 +525,21 @@ export abstract class AbstractRestClient {
                     this.mContentLength = this.response.headers[Headers.CONTENT_LENGTH.toLowerCase()];
                     this.log.debug("Content length of response is: " + this.mContentLength);
                 }
+
+                let encoding: string;
+                if (Headers.CONTENT_ENCODING in this.response.headers) {
+                    encoding = this.response.headers[Headers.CONTENT_ENCODING];
+                }
+                if (Headers.CONTENT_ENCODING.toLowerCase() in this.response.headers) {
+                    encoding = this.response.headers[Headers.CONTENT_ENCODING.toLowerCase()];
+                }
+                if (typeof encoding === "string" && Headers.CONTENT_ENCODING_TYPES.find((x) => x === encoding)) {
+                    this.log.debug("Content encoding of response is: " + encoding as ContentEncoding);
+                    if (this.mDecode) {
+                        this.mContentEncoding = encoding as ContentEncoding;
+                        this.log.debug("Using encoding: " + this.mContentEncoding);
+                    }
+                }
             }
         }
 
@@ -516,6 +551,15 @@ export abstract class AbstractRestClient {
                     source: "client"
                 }));
             });
+            if (this.mContentEncoding != null) {
+                this.log.debug("Adding decompression transform to response stream");
+                try {
+                    this.mResponseStream = CompressionUtils.decompressStream(this.mResponseStream, this.mContentEncoding,
+                        this.mNormalizeResponseNewlines);
+                } catch (err) {
+                    this.mReject(err);
+                }
+            }
         }
 
         /**
@@ -551,7 +595,7 @@ export abstract class AbstractRestClient {
             this.mData = Buffer.concat([this.mData, respData]);
         } else {
             this.log.debug("Streaming data chunk of length " + respData.length + " to response stream");
-            if (this.mNormalizeResponseNewlines) {
+            if (this.mNormalizeResponseNewlines && this.mContentEncoding == null) {
                 this.log.debug("Normalizing new lines in data chunk to operating system appropriate line endings");
                 respData = Buffer.from(IO.processNewlines(respData.toString()));
             }
@@ -592,6 +636,13 @@ export abstract class AbstractRestClient {
         if (this.mResponseStream != null) {
             this.log.debug("Ending response stream");
             this.mResponseStream.end();
+        } else if (this.mContentEncoding != null) {
+            this.log.debug("Decompressing encoded response");
+            try {
+                this.mData = CompressionUtils.decompressBuffer(this.mData, this.mContentEncoding);
+            } catch (err) {
+                this.mReject(err);
+            }
         }
         if (this.requestFailure) {
             // Reject the promise with an error
@@ -644,6 +695,7 @@ export abstract class AbstractRestClient {
         // Populate the "relevant" fields - caller will have the session, so
         // no need to duplicate "everything" here, just host/port for easy diagnosis
         finalError.errorCode = errorCode;
+        finalError.protocol = this.mSession.ISession.protocol;
         finalError.port = this.mSession.ISession.port;
         finalError.host = this.mSession.ISession.hostname;
         finalError.basePath = this.mSession.ISession.basePath;
@@ -664,6 +716,7 @@ export abstract class AbstractRestClient {
                 `HTTP(S) error status "${finalError.httpStatus}" received.\n` +
                 `Review request details (resource, base path, credentials, payload) and ensure correctness.`) +
             "\n" +
+            "\nProtocol:  " + finalError.protocol +
             "\nHost:      " + finalError.host +
             "\nPort:      " + finalError.port +
             "\nBase Path: " + finalError.basePath +
