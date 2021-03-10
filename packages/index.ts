@@ -10,6 +10,7 @@
 */
 
 export * from "./cmd";
+export * from "./config";
 export * from "./console";
 export * from "./constants";
 export * from "./error";
@@ -24,4 +25,3 @@ export * from "./profiles";
 export * from "./rest";
 export * from "./security";
 export * from "./utilities";
-

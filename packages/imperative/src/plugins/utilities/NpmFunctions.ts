@@ -12,6 +12,9 @@
 import { PMFConstants } from "./PMFConstants";
 import * as path from "path";
 import { execSync, StdioOptions } from "child_process";
+import { readFileSync } from "jsonfile";
+import * as npmPackageArg from "npm-package-arg";
+import * as pacote from "pacote";
 const npmCmd = cmdToRun();
 
 /**
@@ -81,5 +84,20 @@ export function npmLogin(registry: string) {
             `--always-auth --auth-type=legacy`, {stdio: [0,1,2]});
     } catch (err) {
         throw(err.message);
+    }
+}
+
+/**
+ * Fetch name and version of NPM package that was installed
+ * @param pkgSpec The package name as specified on NPM install
+ */
+export async function getPackageInfo(pkgSpec: string): Promise<{ name: string, version: string }> {
+    const pkgInfo = npmPackageArg(pkgSpec);
+    if (pkgInfo.registry) {
+        // We already know package name, so read name and version from package.json
+        return readFileSync(path.join(PMFConstants.instance.PLUGIN_HOME_LOCATION, pkgInfo.name, "package.json"));
+    } else {
+        // Package name is unknown, so fetch name and version with pacote (npm SDK)
+        return pacote.manifest(pkgSpec);
     }
 }
