@@ -26,6 +26,19 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
 
+## `4.12.0`
+
+- Enhancement: Added decompression support for REST responses with Content-Encoding `gzip`, `deflate`, or `br`. [#318](https://github.com/zowe/imperative/issues/318)
+
+## `4.11.2`
+
+- BugFix: Added `Protocol` to the Error Details coming from the `AbstractRestClient`. [#539](https://github.com/zowe/imperative/issues/539)
+
+## `4.11.1`
+
+- BugFix: Fixed vulnerabilities by replacing marked with markdown-it and sanitize-html.
+- BugFix: Fixed plugin install failing to install package from private registry.
+
 ## `4.11.0`
 
 - Enhancement: Fixed plugin install commands which were broken in npm@7. [#457](https://github.com/zowe/imperative/issues/457)

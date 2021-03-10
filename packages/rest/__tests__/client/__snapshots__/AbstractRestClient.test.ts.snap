@@ -1,5 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`AbstractRestClient tests content encoding should error when decompressing invalid gzip buffer 1`] = `"Failed to decompress response buffer with content encoding type gzip"`;
+
+exports[`AbstractRestClient tests content encoding should error when decompressing invalid gzip stream 1`] = `"Failed to decompress response stream with content encoding type gzip"`;
+
 exports[`AbstractRestClient tests should create buildOptions according to input parameter options 1`] = `
 Object {
   "headers": Object {
@@ -35,6 +39,7 @@ exports[`AbstractRestClient tests should error with request rejection when statu
 "HTTP(S) error status \\"400\\" received.
 Review request details (resource, base path, credentials, payload) and ensure correctness.
 
+Protocol:  https
 Host:      test
 Port:      443
 Base Path: 

@@ -13,12 +13,11 @@ import { PMFConstants } from "../PMFConstants";
 import * as path from "path";
 import * as fs from "fs";
 import { readFileSync, writeFileSync } from "jsonfile";
-import * as pacote from "pacote";
 import { IPluginJson } from "../../doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { ImperativeError } from "../../../../../error";
 import { IPluginJsonObject } from "../../doc/IPluginJsonObject";
-import { installPackages } from "../NpmFunctions";
+import { getPackageInfo, installPackages } from "../NpmFunctions";
 
 
 /**
@@ -86,10 +85,10 @@ export async function install(packageLocation: string, registry: string, install
 
         installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, registry, npmPackage);
 
-        // We fetch the package name and version with pacote (NPM SDK)
-        const packageManifest = await pacote.manifest(npmPackage, { registry });
-        const packageName = packageManifest.name;
-        let packageVersion = packageManifest.version;
+        // We fetch the package name and version of newly installed plugin
+        const packageInfo = await getPackageInfo(npmPackage);
+        const packageName = packageInfo.name;
+        let packageVersion = packageInfo.version;
 
         iConsole.debug("Reading in the current configuration.");
         const installedPlugins: IPluginJson = readFileSync(PMFConstants.instance.PLUGIN_JSON);
