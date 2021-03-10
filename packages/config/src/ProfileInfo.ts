@@ -9,14 +9,30 @@
 *
 */
 
+import * as os from "os";
+import * as nodeJsPath from "path";
+
+// for ProfileInfo structures
 import { IProfAttrs } from "./doc/IProfAttrs";
 import { IProfArgAttrs } from "./doc/IProfArgAttrs";
 import { IProfLoc, ProfLocType } from "./doc/IProfLoc";
 import { IProfMergedArg } from "./doc/IProfMergedArg";
+
+// for team config functions
 import { Config } from "./config";
 import { IConfigOpts } from "./doc/IConfigOpts";
 import { IConfigLayer } from "./doc/IConfigLayer";
+
+// for old-school profile operations
+import { AbstractProfileManager } from "../../profiles/src/abstract/AbstractProfileManager";
+import { CliProfileManager } from "../../cmd";
+
+// for imperative operations
+import { EnvironmentalVariableSettings, LoggingConfigurer} from "../../imperative";
+import { ImperativeConfig } from "../../utilities";
 import { ImperativeError } from "../../error";
+import { ImperativeExpect } from "../../expect";
+import { Logger } from "../../logger";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -27,8 +43,8 @@ import { ImperativeError } from "../../error";
  * Pseudocode examples:
  * <pre>
  *    // Construct a new object. Use it to read the profiles from disk
- *    profInfo = new ProfileInfo();
- *    profInfo.readProfilesFromDisk("zowe");
+ *    profInfo = new ProfileInfo("zowe");
+ *    profInfo.readProfilesFromDisk();
  *
  *    // Maybe you want the list of all zosmf profiles
  *    let arrayOfProfiles = profInfo.getAllProfiles("zosmf");
@@ -87,6 +103,21 @@ import { ImperativeError } from "../../error";
 export class ProfileInfo {
     private mLoadedConfig: Config = null;
     private mUsingTeamConfig: boolean = false;
+    private mAppName: string = null;
+    private mImpLogger: Logger = null;
+
+    // _______________________________________________________________________
+    /**
+     * Constructor for ProfileInfo class.
+     *
+     * @param appName
+     *        The name of the application (like "zowe" in zowe.config.json)
+     *        whose configuration you want to access.
+     */
+    public constructor(appName: string) {
+        this.mAppName = appName;
+        this.initImpUtils();
+    }
 
     // _______________________________________________________________________
     /**
@@ -118,14 +149,16 @@ export class ProfileInfo {
      *
      * @returns The default profile. If no profile exists
      *          for the specified type, we return null;
+     *
+     * todo: Remove disk I/O for old-school profiles and remove async
      */
-    public getDefaultProfile(profileType: string): IProfAttrs {
+    public async getDefaultProfile(profileType: string): Promise<IProfAttrs> {
         this.ensureReadFromDisk();
 
         const defaultProfile: IProfAttrs = {
             profName: null,
-            profType: null,
-            isDefaultProfile: false,
+            profType: profileType,
+            isDefaultProfile: true,
             profLoc: {
                 locType: null
            }
@@ -135,6 +168,9 @@ export class ProfileInfo {
             // get default profile name from the team config
             if (!this.mLoadedConfig.maskedProperties.defaults.hasOwnProperty(profileType)) {
                 // no default exists for the requested type
+                this.mImpLogger.warn("Found no profile of type '" +
+                    profileType + "' in team config."
+                );
                 return null;
             }
 
@@ -148,18 +184,36 @@ export class ProfileInfo {
 
             // assign the required poperties to defaultProfile
             defaultProfile.profName = foundProfNm;
-            defaultProfile.profType = profileType;
-            defaultProfile.isDefaultProfile = true;
             defaultProfile.profLoc = {
                 locType: ProfLocType.TEAM_CONFIG,
                 osLoc: activeLayer.path,
                 jsonLoc: foundJsonLoc
             }
         } else {
-            // todo: get default profile from the old-school profiles
-        }
+            // get default profile from the old-school profiles
+            try {
+                const profRootDir = nodeJsPath.join(ImperativeConfig.instance.cliHome, "profiles");
+                const profileManager = new CliProfileManager({
+                    profileRootDirectory: profRootDir,
+                    type: profileType
+                });
+                const loadedProfile = await profileManager.load({loadDefault: true});
+                ImperativeExpect.toBeEqual(loadedProfile.type, profileType);
 
-        // todo: overwite with any values found in environment
+                // assign the required properties to defaultProfile
+                defaultProfile.profName = loadedProfile.name;
+                defaultProfile.profLoc = {
+                    locType: ProfLocType.OLD_PROFILE,
+                    osLoc: nodeJsPath.resolve(profRootDir + "/" + profileType + "/" +
+                        loadedProfile.name + AbstractProfileManager.PROFILE_EXTENSION)
+                }
+            } catch (err) {
+                this.mImpLogger.warn("Found no old-school profile of type '" +
+                    profileType + "'. Details: " + err.message
+                );
+                return null;
+            }
+        }
 
         return defaultProfile;
     }
@@ -191,7 +245,6 @@ export class ProfileInfo {
      * specified profile. Values are retrieved from the following sources.
      * Each successive source will override the previous source.
      * - A default value for the argument that is defined in the profile definition.
-     * - An environment variable for that argument.
      * - A value defined in the base profile.
      * - A value defined in the specified service profile.
      * - For a team configuration, both the base profile values and the
@@ -204,8 +257,7 @@ export class ProfileInfo {
      * @returns An object that contains an array of known profile argument
      *          values and an array of required profile arguments which
      *          have no value assigned. Either of the two arrays could be
-     *          of zero length, depending on the user's configuration and
-     *          environment.
+     *          of zero length, depending on the user's configuration
      *
      *          We will return null if the profile does not exist
      *          in the current Zowe configuration.
@@ -249,20 +301,14 @@ export class ProfileInfo {
      * Read either the new team configuration files (if any exist) or
      * read the old-school profile files.
      *
-     * todo: Does our consumer need to call this function for old-school profiles?
-     *
-     * @param appName
-     *        The name of the application (like "zowe" in zowe.config.json)
-     *        whose configuration we want to read.
-     *
      * @param teamCfgOpts
      *        The optional choices used when reading a team configuration.
      *        This parameter is ignored, if the end-user is using old-school
      *        profiles.
      *        todo: We must add a startingProjectSearchDir to IConfigOpts.
      */
-    public async readProfilesFromDisk(appName: string, teamCfgOpts?: IConfigOpts) {
-        this.mLoadedConfig = await Config.load(appName, teamCfgOpts);
+    public async readProfilesFromDisk(teamCfgOpts?: IConfigOpts) {
+        this.mLoadedConfig = await Config.load(this.mAppName, teamCfgOpts);
         if (this.mLoadedConfig.exists) {
             this.mUsingTeamConfig = true;
         }
@@ -293,5 +339,39 @@ export class ProfileInfo {
                 msg: "You must first call ProfileInfo.readProfilesFromDisk()."
             });
         }
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Perform a rudimentary initialization of some Imperative utilities.
+     * We must do this because VSCode apps do not typically call imperative.init.
+     */
+    private initImpUtils() {
+        // create a rudimentary ImperativeConfig if it has not been initialized
+        if (ImperativeConfig.instance.loadedConfig == null) {
+            let homeDir: string = null;
+            const envVarPrefix = this.mAppName.toUpperCase();
+            const envVarNm = envVarPrefix + EnvironmentalVariableSettings.CLI_HOME_SUFFIX;
+            if (process.env[envVarNm] === undefined) {
+                // use OS home directory
+                homeDir = nodeJsPath.join(os.homedir(), "." + this.mAppName.toLowerCase());
+            } else {
+                // use the available environment variable
+                homeDir = nodeJsPath.normalize(process.env[envVarNm]);
+            }
+            ImperativeConfig.instance.loadedConfig = {
+                name: this.mAppName,
+                defaultHome: homeDir,
+                envVariablePrefix: envVarPrefix
+            };
+            ImperativeConfig.instance.rootCommandName = this.mAppName;
+        }
+
+        // initialize logging
+        const loggingConfig = LoggingConfigurer.configureLogger(
+            ImperativeConfig.instance.cliHome, ImperativeConfig.instance.loadedConfig
+        );
+        Logger.initLogger(loggingConfig);
+        this.mImpLogger = Logger.getImperativeLogger();
     }
 }
