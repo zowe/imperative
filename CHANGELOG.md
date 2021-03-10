@@ -4,6 +4,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
+- Enhancement: Allow custom directory to be specified for project config in `Config.load` method. [#544](https://github.com/zowe/imperative/issues/544)
 - BugFix: Fixed Config object not exported at top level. [#543](https://github.com/zowe/imperative/issues/543)
 
 ## `5.0.0-next.202101292016`
