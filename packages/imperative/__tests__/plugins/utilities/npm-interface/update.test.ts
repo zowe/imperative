@@ -15,7 +15,6 @@ jest.mock("child_process");
 jest.mock("jsonfile");
 jest.mock("path");
 jest.mock("fs");
-jest.mock("pacote");
 jest.mock("../../../../src/plugins/utilities/PMFConstants");
 jest.mock("../../../../../logger");
 jest.mock("../../../../../cmd/src/response/CommandResponse");
@@ -28,9 +27,8 @@ import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
 import { Logger } from "../../../../../logger";
 import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { readFileSync } from "jsonfile";
-import { manifest } from "pacote";
 import { update } from "../../../../src/plugins/utilities/npm-interface";
-import { installPackages } from "../../../../src/plugins/utilities/NpmFunctions";
+import { getPackageInfo, installPackages } from "../../../../src/plugins/utilities/NpmFunctions";
 
 describe("PMF: update Interface", () => {
   // Objects created so types are correct.
@@ -38,7 +36,7 @@ describe("PMF: update Interface", () => {
     installPackages: installPackages as Mock<typeof installPackages>,
     existsSync: existsSync as Mock<typeof existsSync>,
     readFileSync: readFileSync as Mock<typeof readFileSync>,
-    manifest: manifest as Mock<typeof manifest>
+    getPackageInfo: getPackageInfo as Mock<typeof getPackageInfo>
   };
 
   const packageName = "pretty-format";
@@ -83,7 +81,7 @@ describe("PMF: update Interface", () => {
       }
     };
 
-    mocks.manifest.mockResolvedValue({ name: packageName, version: packageVersion });
+    mocks.getPackageInfo.mockResolvedValue({ name: packageName, version: packageVersion });
     mocks.readFileSync.mockReturnValue(oneOldPlugin);
 
     const data = await update(packageName, packageRegistry);
@@ -104,7 +102,7 @@ describe("PMF: update Interface", () => {
       }
     };
 
-    mocks.manifest.mockResolvedValue({ name: packageName, version: packageVersion });
+    mocks.getPackageInfo.mockResolvedValue({ name: packageName, version: packageVersion });
     mocks.readFileSync.mockReturnValue(oneOldPlugin);
 
     const data = await update(packageName, packageRegistry);
