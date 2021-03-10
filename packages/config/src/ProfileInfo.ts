@@ -28,7 +28,7 @@ import { AbstractProfileManager } from "../../profiles/src/abstract/AbstractProf
 import { CliProfileManager } from "../../cmd";
 
 // for imperative operations
-import { EnvironmentalVariableSettings, LoggingConfigurer} from "../../imperative";
+import { EnvironmentalVariableSettings, LoggingConfigurer } from "../../imperative";
 import { ImperativeConfig } from "../../utilities";
 import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
