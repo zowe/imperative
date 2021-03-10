@@ -1,0 +1,7 @@
+instance: ENDEVOR
+environment: DEV
+system: NETM081
+subsystem: GA
+type: SANDBOX
+stageNumber: '1'
+maxrc: 12

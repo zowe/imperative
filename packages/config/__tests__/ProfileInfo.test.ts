@@ -14,22 +14,29 @@ import { ProfileInfo } from "../src/ProfileInfo";
 import { ImperativeError } from "../..";
 import { Config } from "../src/Config";
 
+const testAppNm = "ProfInfoApp";
+
+function createNewProfInfo(newDir: string): ProfileInfo {
+    // create a new ProfileInfo in the desired directory
+    process.chdir(newDir);
+    return new ProfileInfo(testAppNm);
+}
+
 describe("ProfileInfo tests", () => {
 
-    const configAppNm = "ProfInfoApp";
     const tsoProfName = "tsoProfName";
     const tsoJsonLoc = "LPAR1." + tsoProfName;
-    const configDirNm = __dirname + "/__resources__";
-    const expectedOsLoc = path.normalize(
-        configDirNm + "/" + configAppNm + ".config.json"
-    );
-    let profInfo: ProfileInfo;
+    const testDir = __dirname + "/__resources__";
+    const teamProjDir = testDir + "/" + testAppNm + "_team_config_proj";
+    const homeDirPath = testDir + "/" + testAppNm + "_home";
     let origDir: string;
 
     beforeAll(() => {
-        // go to the directory with our team config file
+        // remember our original directory
         origDir = process.cwd();
-        process.chdir(__dirname + "/__resources__");
+
+        // set our desired app home directory into the environment
+        process.env[testAppNm.toUpperCase() + "_CLI_HOME"] = homeDirPath;
     });
 
     afterAll(() => {
@@ -37,61 +44,101 @@ describe("ProfileInfo tests", () => {
         process.chdir(origDir);
     });
 
-    beforeEach(() => {
-        profInfo = new ProfileInfo();
-    });
-
     afterEach(() => {
         jest.restoreAllMocks();
     });
 
-    describe("readProfilesFromDisk", () => {
+    describe("TeamConfig Tests", () => {
+        describe("readProfilesFromDisk", () => {
 
-        it("should cause getDefaultProfile to throw exception if not called", async () => {
-            let impErr: ImperativeError;
-            try {
-                profInfo.getDefaultProfile("zosmf");
-            } catch (err) {
-                impErr = err;
-            }
-            expect(impErr.message).toContain("You must first call ProfileInfo.readProfilesFromDisk().");
+            it("should throw exception if readProfilesFromDisk not called: TeamConfig", async () => {
+                let impErr: ImperativeError;
+                const profInfo = createNewProfInfo(teamProjDir);
+                try {
+                    await profInfo.getDefaultProfile("zosmf"); // todo: remove await
+                } catch (err) {
+                    impErr = err;
+                }
+                expect(impErr.message).toContain(
+                    "You must first call ProfileInfo.readProfilesFromDisk()."
+                );
+            });
 
+            it("should successfully read a team config", async () => {
+                const profInfo = createNewProfInfo(teamProjDir)
+                await profInfo.readProfilesFromDisk();
+
+                expect(profInfo.usingTeamConfig).toBe(true);
+                const teamConfig: Config = profInfo.getTeamConfig();
+                expect(teamConfig).not.toBeNull();
+                expect(teamConfig.exists).toBe(true);
+
+            });
         });
 
-        it("should successfully read a team config", async () => {
-            await profInfo.readProfilesFromDisk(configAppNm);
-            expect(profInfo.usingTeamConfig).toBe(true);
-            const teamConfig: Config = profInfo.getTeamConfig();
-            expect(teamConfig).not.toBeNull();
-            expect(teamConfig.exists).toBe(true);
+        describe("getDefaultProfile", () => {
 
+            it("should return null if no default for that type exists: TeamConfig", async () => {
+                const profInfo = createNewProfInfo(teamProjDir)
+                await profInfo.readProfilesFromDisk();
+                const profAttrs = await profInfo.getDefaultProfile("ThisTypeDoesNotExist"); // todo: remove await
+                expect(profAttrs).toBeNull();
+            });
+
+            it("should return a profile if one exists: TeamConfig", async () => {
+                const profInfo = createNewProfInfo(teamProjDir)
+                await profInfo.readProfilesFromDisk();
+                const desiredProfType = "tso";
+                const profAttrs = await profInfo.getDefaultProfile(desiredProfType);  // todo: remove await
+
+                expect(profAttrs).not.toBeNull();
+                expect(profAttrs.isDefaultProfile).toBe(true);
+                expect(profAttrs.profName).toBe(tsoProfName);
+                expect(profAttrs.profType).toBe(desiredProfType);
+                expect(profAttrs.profLoc.locType).not.toBeNull();
+
+                const retrievedOsLoc = path.normalize(profAttrs.profLoc.osLoc);
+                const expectedOsLoc = path.normalize(teamProjDir + "/" +
+                    testAppNm + ".config.json"
+                );
+                expect(retrievedOsLoc).toBe(expectedOsLoc);
+
+                expect(profAttrs.profLoc.jsonLoc).toBe(tsoJsonLoc);
+            });
         });
     });
 
-    describe("getDefaultProfile", () => {
+    describe("Old-school Profile Tests", () => {
 
-        it("should return null if no default for that type exists", async () => {
-            await profInfo.readProfilesFromDisk(configAppNm);
-            const profAttrs = profInfo.getDefaultProfile("ThisTypeDoesNotExist");
-            expect(profAttrs).toBeNull();
+        describe("getDefaultProfile", () => {
 
-        });
+            it("should return null if no default for that type exists: oldSchool", async () => {
+                const profInfo = createNewProfInfo(__dirname)
+                await profInfo.readProfilesFromDisk();
+                const profAttrs = await profInfo.getDefaultProfile("ThisTypeDoesNotExist"); // todo: remove await
+                expect(profAttrs).toBeNull();
+            });
 
-        it("should return a profile if one exists", async () => {
-            await profInfo.readProfilesFromDisk(configAppNm);
-            const desiredProfType = "tso";
-            const profAttrs = profInfo.getDefaultProfile(desiredProfType);
+            it("should return a profile if one exists: oldSchool", async () => {
+                const profInfo = createNewProfInfo(__dirname)
+                await profInfo.readProfilesFromDisk();
+                const desiredProfType = "tso";
+                const profAttrs = await profInfo.getDefaultProfile(desiredProfType);  // todo: remove await
 
-            expect(profAttrs).not.toBeNull();
-            expect(profAttrs.isDefaultProfile).toBe(true);
-            expect(profAttrs.profName).toBe(tsoProfName);
-            expect(profAttrs.profType).toBe(desiredProfType);
-            expect(profAttrs.profLoc.locType).not.toBeNull();
+                expect(profAttrs).not.toBeNull();
+                expect(profAttrs.isDefaultProfile).toBe(true);
+                expect(profAttrs.profName).toBe(tsoProfName);
+                expect(profAttrs.profType).toBe(desiredProfType);
+                expect(profAttrs.profLoc.locType).not.toBeNull();
 
-            const retrievedOsLoc = path.normalize(profAttrs.profLoc.osLoc);
-            expect(retrievedOsLoc).toBe(expectedOsLoc);
+                const retrievedOsLoc = path.normalize(profAttrs.profLoc.osLoc);
+                const expectedOsLoc = path.normalize(homeDirPath + "/profiles/" +
+                    desiredProfType + "/" + profAttrs.profName + ".yaml"
+                );
+                expect(retrievedOsLoc).toBe(expectedOsLoc);
 
-            expect(profAttrs.profLoc.jsonLoc).toBe(tsoJsonLoc);
+                expect(profAttrs.profLoc.jsonLoc).toBeUndefined();
+            });
         });
     });
 });

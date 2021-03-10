@@ -1,0 +1,6 @@
+host: mvsde20.lvn.broadcom.net
+port: 1699
+user: someUser
+password: somePassword
+rejectUnauthorized: false
+protocol: https

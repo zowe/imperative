@@ -1,0 +1,7 @@
+host: usilca32.lvn.broadcom.net
+port: 3480
+user: someUser
+password: somePassword
+protocol: http
+basePath: EndevorService/rest
+rejectUnauthorized: false

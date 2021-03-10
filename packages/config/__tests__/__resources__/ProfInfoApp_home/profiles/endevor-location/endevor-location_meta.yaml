@@ -1,0 +1,109 @@
+defaultProfile: endv_loc
+configuration:
+    type: endevor-location
+    schema:
+        type: object
+        title: 'The CA Endevor SCM element inventory location specification profile'
+        description: 'The CA Endevor SCM element location, where you specify your working environment, system and subsystem'
+        properties:
+            instance:
+                optionDefinition:
+                    description: 'The STC/datasource of the session'
+                    type: string
+                    name: instance
+                    aliases:
+                        - i
+                type: string
+            environment:
+                optionDefinition:
+                    description: 'The CA Endevor SCM environment where your project resides'
+                    type: string
+                    name: environment
+                    aliases:
+                        - env
+                    defaultValue: DEV
+                    stringLengthRange:
+                        - 1
+                        - 8
+                type: string
+            system:
+                optionDefinition:
+                    description: 'The CA Endevor SCM system where the element resides'
+                    type: string
+                    name: system
+                    aliases:
+                        - sys
+                    stringLengthRange:
+                        - 1
+                        - 8
+                type: string
+            subsystem:
+                optionDefinition:
+                    description: 'The CA Endevor SCM subsystem where your element resides'
+                    type: string
+                    name: subsystem
+                    aliases:
+                        - sub
+                    stringLengthRange:
+                        - 1
+                        - 8
+                type: string
+            type:
+                optionDefinition:
+                    description: 'Name of the CA Endevor SCM element''s type'
+                    type: string
+                    name: type
+                    aliases:
+                        - typ
+                    stringLengthRange:
+                        - 1
+                        - 8
+                type: string
+            stageNumber:
+                optionDefinition:
+                    description: 'The CA Endevor SCM stage where your project resides'
+                    type: string
+                    name: stage-number
+                    aliases:
+                        - sn
+                    allowableValues:
+                        values:
+                            - '1'
+                            - '2'
+                type: string
+            comment:
+                optionDefinition:
+                    description: 'The CA Endevor SCM comment you want to use when performing an action'
+                    type: string
+                    name: comment
+                    aliases:
+                        - com
+                    stringLengthRange:
+                        - 1
+                        - 40
+                type: string
+            ccid:
+                optionDefinition:
+                    description: 'The CA Endevor SCM CCID you want to use when performing an action'
+                    type: string
+                    name: ccid
+                    aliases:
+                        - cci
+                    stringLengthRange:
+                        - 1
+                        - 12
+                type: string
+            maxrc:
+                optionDefinition:
+                    description: 'The return code of CA Endevor SCM that defines a failed action'
+                    type: number
+                    name: maxrc
+                    defaultValue: 12
+                type: number
+    createProfileExamples:
+        -
+            options: 'ndvrLoc --env ENV --sys SYS --sub SUBSYS --typ COBOL --sn 1 -i ENDEVOR'
+            description: 'Create a location profile called ''ndvrLoc'' to work at CA Endevor SCM location ENV/1/SYS/SUBSYS, with elements of type COBOL, using CA Endevor SCM web services configuration ENDEVOR'
+        -
+            options: 'ndvrLoc2 --env ENV --sys SYS --sub SUBSYS --sn 1 --com ''sample comment'' --cci ''CCID'''
+            description: 'Create a location profile called ''ndvrLoc2'' to work at CA Endevor SCM location ENV/1/SYS/SUBSYS, using CCID ''CCID'' and comment ''sample comment'''

@@ -1,0 +1,5 @@
+host: usilca32.lvn.broadcom.net
+port: 1443
+user: someUser
+password: somePassword
+rejectUnauthorized: false

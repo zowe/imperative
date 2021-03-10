@@ -1,0 +1,5 @@
+host: mvsde20.lvn.broadcom.net
+port: 449
+user: someUser
+password: somePassword
+rejectUnauthorized: false

@@ -1,0 +1,40 @@
+defaultProfile: de20_jck
+configuration:
+    type: jclcheck
+    schema:
+        type: object
+        title: 'JCLCheck Profile'
+        description: 'A JCLCheck profile is required to issue commands in the jcl command group that interact with JCLCheck. The JCLCheck profile contains your host and port for the JCLCheck instance of your choice.'
+        properties:
+            host:
+                type: string
+                optionDefinition:
+                    name: host
+                    type: string
+                    description: 'Host name of JCL Check API service on the mainframe.'
+                    required: true
+                    group: 'JCLCheck Connection Options'
+            port:
+                type: number
+                optionDefinition:
+                    name: port
+                    type: number
+                    description: 'Port for JCL Check API service on the mainframe'
+                    required: true
+                    group: 'JCLCheck Connection Options'
+            basePath:
+                type: string
+                optionDefinition:
+                    name: base-path
+                    aliases:
+                        - bp
+                    description: 'The base path for your API mediation layer instance. Specify this option to prepend the base path to all resources when making REST requests. Do not specify this option if you are not using an API mediation layer.'
+                    type: string
+                    group: 'JCLCheck Connection Options'
+        required:
+            - host
+            - port
+    createProfileExamples:
+        -
+            options: 'jcl123 --host zos123 --port 1234'
+            description: 'Create a JCLCheck profile named ''jcl123'' to run JCLCheck at host zos123 and port 1234'

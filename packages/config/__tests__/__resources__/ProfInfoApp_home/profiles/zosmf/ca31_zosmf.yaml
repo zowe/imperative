@@ -1,0 +1,5 @@
+host: usilca31.ca.com
+port: 443
+user: someUser
+password: somePassword
+rejectUnauthorized: false
