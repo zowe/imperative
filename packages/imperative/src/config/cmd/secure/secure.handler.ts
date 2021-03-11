@@ -30,6 +30,12 @@ export default class SecureHandler implements ICommandHandler {
             throw secureSaveError();
         }
 
+        // Use global config if we are in home directory
+        // TODO Don't reference mHomeDir
+        if (process.cwd() === ImperativeConfig.instance.config.mHomeDir) {
+            params.arguments.global = true;
+        }
+
         // Create the config, load the secure values, and activate the desired layer
         const config = ImperativeConfig.instance.config;
         config.api.layers.activate(params.arguments.user, params.arguments.global);
