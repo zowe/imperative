@@ -12,6 +12,18 @@
 import { IConfigVault } from "./IConfigVault";
 
 export interface IConfigOpts {
+    /**
+     * Directory where global config files are located. Defaults to `~/.appName`.
+     */
     homeDir?: string;
+
+    /**
+     * Directory where project config files are located. Defaults to working directory.
+     */
+    projectDir?: string;
+
+    /**
+     * Vault object with methods for loading and saving secure credentials
+     */
     vault?: IConfigVault;
 }

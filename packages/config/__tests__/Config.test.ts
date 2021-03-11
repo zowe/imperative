@@ -10,7 +10,6 @@
 */
 
 import * as fs from "fs";
-import * as os from "os";
 import * as path from "path";
 import * as findUp from "find-up";
 import { ImperativeError } from "../..";
@@ -438,47 +437,49 @@ describe("Config tests", () => {
     });
 
     describe("search", () => {
-        const home = os.homedir();
         const configFile = "project.config.user.json";
         const configDir = path.join(__dirname, "__resources__");
-        const oldFindUp = findUp.sync;
-        beforeEach(() => {
-            jest.spyOn(findUp, "sync").mockImplementationOnce((matcher, options) => oldFindUp(matcher, {...options, cwd: configDir}));
-        });
         it("should search for a file in the same directory", async () => {
             const expectedPath = path.join(configDir, configFile);
-            const file = Config.search(configFile);
+            const file = Config.search(configFile, { startDir: configDir });
             expect(file).toBe(expectedPath);
         });
         it("should search for a file in the parent directory", async () => {
             const expectedPath = path.join(configDir, "..", configFile);
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValue(true);
-            const file = Config.search(configFile);
+            const file = Config.search(configFile, { startDir: configDir });
             expect(file).toBe(path.resolve(expectedPath));
         });
         it("should search for and not return file in the parent directory because the parent directory is the global directory", async () => {
             const notExpectedPath = path.join(configDir, "..", configFile);
             const expectedPath = path.join(configDir, "..", "..", configFile);
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(false).mockReturnValue(true);
-            const file = Config.search(configFile, { ignoreDirs: [path.join(configDir, "..")] });
+            const file = Config.search(configFile, { ignoreDirs: [path.join(configDir, "..")], startDir: configDir });
             expect(file).not.toBe(notExpectedPath);
             expect(file).toBe(path.resolve(expectedPath));
         });
         it("should fail to find a file", async () => {
             jest.spyOn(fs, "existsSync").mockReturnValue(false);
-            const file = Config.search(configFile);
+            const file = Config.search(configFile, { startDir: configDir });
             expect(file).toBeNull();
         });
-        it("should search for and find a file without opts", async () => {
-            const expectedPath = path.join(configDir, configFile);
-            jest.spyOn(fs, "existsSync").mockReturnValue(true);
-            const file = Config.search(configFile);
-            expect(file).toBe(expectedPath);
-        });
-        it("should search for and fail to find a file without opts", async () => {
-            jest.spyOn(fs, "existsSync").mockReturnValue(false);
-            const file = Config.search(configFile);
-            expect(file).toBeNull();
-        });
+
+        describe("without opts", () => {
+            beforeEach(() => {
+                const oldFindUp = findUp.sync;
+                jest.spyOn(findUp, "sync").mockImplementationOnce((matcher, options) => oldFindUp(matcher, {...options, cwd: configDir}));
+            });
+            it("should search for and find a file", async () => {
+                const expectedPath = path.join(configDir, configFile);
+                jest.spyOn(fs, "existsSync").mockReturnValue(true);
+                const file = Config.search(configFile);
+                expect(file).toBe(expectedPath);
+            });
+            it("should search for and fail to find a file", async () => {
+                jest.spyOn(fs, "existsSync").mockReturnValue(false);
+                const file = Config.search(configFile);
+                expect(file).toBeNull();
+            });
+        })
     });
 });
