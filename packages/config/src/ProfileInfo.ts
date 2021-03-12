@@ -11,6 +11,7 @@
 
 import * as os from "os";
 import * as nodeJsPath from "path";
+import * as lodash from "lodash";
 
 // for ProfileInfo structures
 import { IProfAttrs } from "./doc/IProfAttrs";
@@ -33,6 +34,7 @@ import { ImperativeConfig } from "../../utilities";
 import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
 import { Logger } from "../../logger";
+import { IConfigLoadedProfile } from "./doc/IConfigLoadedProfile";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -263,13 +265,96 @@ export class ProfileInfo {
      *          in the current Zowe configuration.
      */
     public mergeArgsForProfile(profile: IProfAttrs): IProfMergedArg {
-        let mergedArgs: IProfMergedArg = null;
+        // TODO? Add back environment variables: https://github.com/zowe/imperative/commit/ed98ce6
+        // TODO Add default values if needed by ZE
+        const mergedArgs: IProfMergedArg = {
+            knownArgs: [],
+            missingArgs: []
+        };
 
-        // todo: Actually implement something
-        const implementSomething: any = null;
-        mergedArgs = implementSomething;
+        if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
+            const serviceProfile = this.mLoadedConfig.api.profiles.get(profile.profName);
+            for (const [propName, propVal] of Object.entries(serviceProfile)) {
+                mergedArgs.knownArgs.push({
+                    argName: lodash.camelCase(propName),
+                    dataType: this.argDataType(typeof propVal) as any,
+                    argValue: propVal,
+                    argLoc: this.argTeamConfigLoc(profile.profName, propName)
+                });
+            }
+
+            const baseProfile = this.mLoadedConfig.api.profiles.defaultGet("base");
+            if (baseProfile != null) {
+                for (const [propName, propVal] of Object.entries(baseProfile)) {
+                    const argName = lodash.camelCase(propName);
+                    if (!mergedArgs.knownArgs.find((arg) => arg.argName === argName)) {
+                        mergedArgs.knownArgs.push({
+                            argName,
+                            dataType: this.argDataType(typeof propVal) as any,
+                            argValue: propVal,
+                            argLoc: this.argTeamConfigLoc(profile.profName, propName)
+                        });
+                    }
+                }
+            }
+        } else if (profile.profLoc.locType === ProfLocType.OLD_PROFILE) {
+            // TODO Implement something for old-school profiles
+        } else {
+            throw new ImperativeError({ msg: "Invalid profile location type" });
+        }
+
+        if (profile.profSchema) {
+            const missingRequired = [];
+            for (const [propName, propObj] of Object.entries(profile.profSchema.properties)) {
+                if (!mergedArgs.knownArgs.find((arg) => arg.argName === propName)) {
+                    mergedArgs.missingArgs.push({
+                        argName: propName,
+                        dataType: this.argDataType(propObj.type) as any,
+                        argValue: null,  // TODO Null or undefined?
+                        argLoc: { locType: ProfLocType.DEFAULT }
+                    });
+
+                    if (profile.profSchema.required?.includes(propName)) {
+                        missingRequired.push(propName);
+                    }
+                }
+            }
+            if (missingRequired.length > 0) {
+                throw new ImperativeError({ msg: "Missing required properties: " + missingRequired.join(", ") });
+            }
+        }
 
         return mergedArgs;
+    }
+
+    private argDataType(propType: string | string[]): string {
+        // TODO Make return type more strict to avoid "as any"
+        const simpleTypes = ["string", "number", "boolean"];
+        if (typeof propType === "string" && simpleTypes.includes(propType)) {
+            return propType;
+        }
+        return "object";
+    }
+
+    private argTeamConfigLoc(profileName: string, propName: string): IProfLoc {
+        const profilePath = this.mLoadedConfig.api.profiles.expandPath(profileName);
+        const pathSegments = profilePath.split(".");
+        while (pathSegments.length > 0 && !lodash.get(this.mLoadedConfig.properties, `${pathSegments.join(".")}.${propName}`)) {
+            pathSegments.pop();
+        };
+        const jsonPath = (pathSegments.length > 0) ? `${pathSegments.join(".")}.${propName}` : undefined;
+        let filePath: string;
+        for (const layer of this.mLoadedConfig.layers) {
+            if (lodash.get(layer.properties, jsonPath)) {
+                filePath = layer.path;
+                break;
+            }
+        }
+        return {
+            locType: ProfLocType.TEAM_CONFIG,
+            osLoc: filePath,
+            jsonLoc: jsonPath
+        };
     }
 
     // _______________________________________________________________________

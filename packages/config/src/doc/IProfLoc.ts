@@ -26,6 +26,7 @@ export interface IProfLoc {
     /**
      * The type of location for this property
      */
+    // TODO Should we distinguish between base and service profile for location?
     locType:    ProfLocType.OLD_PROFILE |
                 ProfLocType.TEAM_CONFIG |
                 ProfLocType.DEFAULT;
@@ -41,7 +42,7 @@ export interface IProfLoc {
      * For SOURCE_TEAM_CONFIG, this is the dotted path into
      * the JSON configuration object for the profile.
      * This property is not used (undefined) for SOURCE_OLD_PROFILE,
-     * because the old-shool profiles use a simple name/value pair like:
+     * because the old-school profiles use a simple name/value pair like:
      *      ArgumentName: value
      * This property is also not used for DEFAULT.
      */

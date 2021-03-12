@@ -9,6 +9,7 @@
 *
 */
 
+import { IProfileSchema } from "../../../profiles";
 import { IProfLoc } from "./IProfLoc";
 
 /**
@@ -30,4 +31,7 @@ export interface IProfAttrs {
      * because this is the location of a profile, not an argument value.
      */
     profLoc: IProfLoc;
+
+    /** Profile schema to be used for validation purposes */
+    profSchema?: IProfileSchema;
 }

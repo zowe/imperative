@@ -119,7 +119,7 @@ export class ConfigProfiles extends ConfigApi {
      *
      * @param shortPath The short path.
      *
-     * @returns The expande path.
+     * @returns The expanded path.
      *
      */
     public expandPath(shortPath: string): string {
