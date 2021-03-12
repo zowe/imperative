@@ -126,7 +126,7 @@
     "jsdoc": "^3.6.2",
     "jstree": "^3.3.8",
     "keytar": "^7.1.0",
-    "madge": "^3.6.0",
+    "madge": "^4.0.1",
     "node-pty": "^0.9.0",
     "scroll-into-view-if-needed": "^2.2.22",
     "shebang-regex": "^2.0.0",
