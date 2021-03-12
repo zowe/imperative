@@ -216,7 +216,7 @@ export class ProfileInfo {
                 defaultProfile.profName = loadedProfile.name;
                 defaultProfile.profLoc = {
                     locType: ProfLocType.OLD_PROFILE,
-                    osLoc: nodeJsPath.resolve(profRootDir + "/" + profileType + "/" +
+                    osLoc: nodeJsPath.join(profRootDir, profileType,
                         loadedProfile.name + AbstractProfileManager.PROFILE_EXTENSION)
                 }
             } catch (err) {

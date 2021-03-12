@@ -26,9 +26,9 @@ describe("ProfileInfo tests", () => {
 
     const tsoProfName = "tsoProfName";
     const tsoJsonLoc = "LPAR1." + tsoProfName;
-    const testDir = __dirname + "/__resources__";
-    const teamProjDir = testDir + "/" + testAppNm + "_team_config_proj";
-    const homeDirPath = testDir + "/" + testAppNm + "_home";
+    const testDir = path.join(__dirname,  "__resources__");
+    const teamProjDir = path.join(testDir, testAppNm + "_team_config_proj");
+    const homeDirPath = path.join(testDir, testAppNm + "_home");
     let origDir: string;
 
     beforeAll(() => {
@@ -132,8 +132,8 @@ describe("ProfileInfo tests", () => {
                 expect(profAttrs.profLoc.locType).not.toBeNull();
 
                 const retrievedOsLoc = path.normalize(profAttrs.profLoc.osLoc);
-                const expectedOsLoc = path.normalize(homeDirPath + "/profiles/" +
-                    desiredProfType + "/" + profAttrs.profName + ".yaml"
+                const expectedOsLoc = path.join(homeDirPath, "profiles",
+                    desiredProfType, profAttrs.profName + ".yaml"
                 );
                 expect(retrievedOsLoc).toBe(expectedOsLoc);
 
