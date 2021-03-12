@@ -115,6 +115,9 @@ export class ProfileInfo {
      * @param appName
      *        The name of the application (like "zowe" in zowe.config.json)
      *        whose configuration you want to access.
+     *
+     * @param profInfoOpts
+     *        Options that will control the behavior of ProfileInfo.
      */
     public constructor(appName: string, profInfoOpts?: IProfOpts) {
         this.mAppName = appName;
