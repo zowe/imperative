@@ -20,7 +20,7 @@ import { IProfMergedArg } from "./doc/IProfMergedArg";
 import { IProfOpts } from "./doc/IProfOpts";
 
 // for team config functions
-import { Config } from "./config";
+import { Config } from "./Config";
 import { IConfigOpts } from "./doc/IConfigOpts";
 import { IConfigLayer } from "./doc/IConfigLayer";
 
