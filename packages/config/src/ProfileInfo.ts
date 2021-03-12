@@ -33,6 +33,8 @@ import { ImperativeConfig } from "../../utilities";
 import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
 import { Logger } from "../../logger";
+import { profile } from "console";
+import { config } from "yargs";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -136,8 +138,47 @@ export class ProfileInfo {
      *          no profiles of any kind exist), we return an empty array
      *          ie, length is zero.
      */
-    public getAllProfiles(profileType?: string): IProfAttrs[] {
-        return [];
+    public async getAllProfiles(app: string, profileType?: string): Promise<IProfAttrs[]> {
+        this.ensureReadFromDisk();
+        const profiles: IProfAttrs[] = [];
+
+        const teamConfig = await Config.load(app);
+        const teamConfigProfs = teamConfig.profiles;
+        const teamConfigDefs = teamConfig.defaults;
+
+        if (teamConfigProfs) {
+            // We have profiles in the team config
+            // Iterate over them
+            for (const prof in teamConfigProfs) {
+                // Check if the profile has a type
+                if (teamConfigProfs[prof].type) {
+                    // The profile has a type
+                    // Iterate over defaults to see if it's a default profile
+                    let defaultProfile: boolean = false;
+                    for (const def in teamConfigDefs) {
+                        if (teamConfigDefs[def] === prof) {
+                            // A match was found, it is a default profile
+                            defaultProfile = true;
+                        }
+                    }
+                    const profAttrs: IProfAttrs = {
+                        profName: prof,
+                        profType: teamConfigProfs[profile].type,
+                        isDefaultProfile: defaultProfile,
+                        profLoc: {
+                            locType: ProfLocType.TEAM_CONFIG,
+                            osLoc: undefined,
+                            jsonLoc: undefined
+                        }
+                    }
+                }
+            }
+        } else {
+            // put something here
+        }
+
+
+        return profiles;
     }
 
     // _______________________________________________________________________
@@ -373,5 +414,12 @@ export class ProfileInfo {
         );
         Logger.initLogger(loggingConfig);
         this.mImpLogger = Logger.getImperativeLogger();
+    }
+
+    private getTeamSubProfiles(path: string, profileType?: string): IProfAttrs[] {
+        const profiles: IProfAttrs[] = [];
+        
+        this.getTeamSubProfiles(profileType);
+        return profiles;
     }
 }
