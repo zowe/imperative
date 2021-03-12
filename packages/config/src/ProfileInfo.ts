@@ -17,6 +17,7 @@ import { IProfAttrs } from "./doc/IProfAttrs";
 import { IProfArgAttrs } from "./doc/IProfArgAttrs";
 import { IProfLoc, ProfLocType } from "./doc/IProfLoc";
 import { IProfMergedArg } from "./doc/IProfMergedArg";
+import { IProfOpts } from "./doc/IProfOpts";
 
 // for team config functions
 import { Config } from "./config";
@@ -105,6 +106,7 @@ export class ProfileInfo {
     private mUsingTeamConfig: boolean = false;
     private mAppName: string = null;
     private mImpLogger: Logger = null;
+    private mOverrideWithEnv: boolean = false;
 
     // _______________________________________________________________________
     /**
@@ -114,8 +116,15 @@ export class ProfileInfo {
      *        The name of the application (like "zowe" in zowe.config.json)
      *        whose configuration you want to access.
      */
-    public constructor(appName: string) {
+    public constructor(appName: string, profInfoOpts?: IProfOpts) {
         this.mAppName = appName;
+
+        // use any supplied environment override setting
+        if (profInfoOpts?.overrideWithEnv) {
+            this.mOverrideWithEnv = profInfoOpts.overrideWithEnv;
+        }
+
+        // do enough Imperative stuff to let imperative utilities work
         this.initImpUtils();
     }
 
@@ -250,6 +259,8 @@ export class ProfileInfo {
      * - For a team configuration, both the base profile values and the
      *   service profile values will be overridden with values from a
      *   zowe.config.user.json file (if it exists).
+     * - An environment variable for that argument (if environment overrides
+     *   are enabled).
      *
      * @param profile
      *        The profile whose arguments are to be merged.
@@ -257,7 +268,8 @@ export class ProfileInfo {
      * @returns An object that contains an array of known profile argument
      *          values and an array of required profile arguments which
      *          have no value assigned. Either of the two arrays could be
-     *          of zero length, depending on the user's configuration
+     *          of zero length, depending on the user's configuration and
+     *          environment.
      *
      *          We will return null if the profile does not exist
      *          in the current Zowe configuration.
@@ -268,6 +280,9 @@ export class ProfileInfo {
         // todo: Actually implement something
         const implementSomething: any = null;
         mergedArgs = implementSomething;
+
+        // overwrite with any values found in environment
+        this.overrideWithEnv(mergedArgs);
 
         return mergedArgs;
     }
@@ -292,6 +307,9 @@ export class ProfileInfo {
         // todo: Actually implement something
         const implementSomething: any = null;
         mergedArgs = implementSomething;
+
+        // overwrite with any values found in environment
+        this.overrideWithEnv(mergedArgs);
 
         return mergedArgs;
     }
@@ -333,7 +351,7 @@ export class ProfileInfo {
      * Ensures that ProfileInfo.readProfilesFromDisk() is called before
      * an operation that requires that information.
      */
-    private ensureReadFromDisk()  {
+    private ensureReadFromDisk() {
         if (this.mLoadedConfig == null) {
             throw new ImperativeError({
                 msg: "You must first call ProfileInfo.readProfilesFromDisk()."
@@ -373,5 +391,27 @@ export class ProfileInfo {
         );
         Logger.initLogger(loggingConfig);
         this.mImpLogger = Logger.getImperativeLogger();
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Override values in a merged argument object with values found in
+     * environment variables. The choice to override enviroment variables is
+     * controlled by an option on the ProfileInfo constructor.
+     *
+     * @param mergedArgs
+     *      On input, this must be an object containing merged arguments
+     *      obtained from configuration settings. This function will override
+     *      values in mergedArgs.knownArgs with values found in environment
+     *      variables. It will also move arguments from mergedArgs.missingArgs
+     *      into mergedArgs.knownArgs if a value is found in an environment
+     *      variable for any missingArgs.
+     */
+    private overrideWithEnv(mergedArgs: IProfMergedArg) {
+        if (this.mOverrideWithEnv === false) {
+            return;
+        }
+
+        // todo: get values from environment variables
     }
 }
