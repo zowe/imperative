@@ -98,9 +98,7 @@ describe("ProfileInfo tests", () => {
                 expect(profAttrs.profLoc.locType).not.toBeNull();
 
                 const retrievedOsLoc = path.normalize(profAttrs.profLoc.osLoc);
-                const expectedOsLoc = path.normalize(teamProjDir + "/" +
-                    testAppNm + ".config.json"
-                );
+                const expectedOsLoc = path.join(teamProjDir, testAppNm + ".config.json");
                 expect(retrievedOsLoc).toBe(expectedOsLoc);
 
                 expect(profAttrs.profLoc.jsonLoc).toBe(tsoJsonLoc);
