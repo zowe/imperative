@@ -27,8 +27,9 @@ export interface IProfAttrs {
 
     /**
      * Location of this profile.
-     * profNmLoc.ProfLocType can never be ProfLocType.DEFAULT,
-     * because this is the location of a profile, not an argument value.
+     * profNmLoc.ProfLocType can never be ProfLocType.ENV or
+     * ProfLocType.DEFAULT, because this is the location of a profile,
+     * not an argument value.
      */
     profLoc: IProfLoc;
 
