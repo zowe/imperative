@@ -14,6 +14,7 @@ import { ProfileInfo } from "../src/ProfileInfo";
 import { ImperativeError } from "../..";
 import { Config } from "../src/Config";
 import { ProfLocType } from "../src/doc/IProfLoc";
+import { IProfileSchema } from "../../profiles";
 
 const testAppNm = "ProfInfoApp";
 
@@ -106,7 +107,23 @@ describe("ProfileInfo tests", () => {
             });
         });
 
-        fdescribe("mergeArgsForProfile", () => {
+        describe("mergeArgsForProfile", () => {
+            const profSchema: Partial<IProfileSchema> = {
+                properties: {
+                    host: { type: "string" },
+                    username: { type: "string" },
+                    password: { type: "string" }
+                }
+            };
+
+            const requiredProfSchema: Partial<IProfileSchema> = {
+                properties: {
+                    ...profSchema.properties,
+                    protocol: { type: "string" }
+                },
+                required: [ "protocol" ]
+            };
+
             it("should find known args in simple service profile: TeamConfig", async () => {
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
@@ -182,6 +199,122 @@ describe("ProfileInfo tests", () => {
                     expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.(base_glob|LPAR1)\.properties\./);
                     expect(arg.argLoc.osLoc).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
                 }
+            });
+
+            it("should find known args defined with kebab case names: TeamConfig", async () => {
+                const fakeBasePath = "api/v1";
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                (profInfo as any).mLoadedConfig.set("profiles.LPAR1.properties.base-path", fakeBasePath);
+                const profAttrs = await profInfo.getDefaultProfile("zosmf");  // todo: remove await
+                const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
+
+                const expectedArgs = [
+                    { argName: "host", dataType: "string" },
+                    { argName: "port", dataType: "number" },
+                    { argName: "responseFormatHeader", dataType: "boolean" },
+                    { argName: "basePath", dataType: "string", argValue: fakeBasePath }
+                ];
+
+                expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
+                for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
+                    expect(arg).toMatchObject(expectedArgs[idx]);
+                    expect(arg.argValue).toBeDefined();
+                    expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
+                    expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.LPAR1\.properties\./);
+                    expect(arg.argLoc.osLoc).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                }
+            });
+
+            // TODO Is this test desirable or do we only need to support camel and kebab case?
+            it("should find known args defined with snake case names: TeamConfig", async () => {
+                const fakeBasePath = "api/v1";
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                (profInfo as any).mLoadedConfig.set("profiles.LPAR1.properties.base_path", fakeBasePath);
+                const profAttrs = await profInfo.getDefaultProfile("zosmf");  // todo: remove await
+                const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
+
+                const expectedArgs = [
+                    { argName: "host", dataType: "string" },
+                    { argName: "port", dataType: "number" },
+                    { argName: "responseFormatHeader", dataType: "boolean" },
+                    { argName: "basePath", dataType: "string", argValue: fakeBasePath }
+                ];
+
+                expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
+                for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
+                    expect(arg).toMatchObject(expectedArgs[idx]);
+                    expect(arg.argValue).toBeDefined();
+                    expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
+                    expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.LPAR1\.properties\./);
+                    expect(arg.argLoc.osLoc).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                }
+            });
+
+            // TODO Is this test desirable or do we only need to support camel and kebab case?
+            it("should find known args defined with upper case names: TeamConfig", async () => {
+                const fakeBasePath = "api/v1";
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                (profInfo as any).mLoadedConfig.set("profiles.LPAR1.properties.BASE_PATH", fakeBasePath);
+                const profAttrs = await profInfo.getDefaultProfile("zosmf");  // todo: remove await
+                const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
+
+                const expectedArgs = [
+                    { argName: "host", dataType: "string" },
+                    { argName: "port", dataType: "number" },
+                    { argName: "responseFormatHeader", dataType: "boolean" },
+                    { argName: "basePath", dataType: "string", argValue: fakeBasePath }
+                ];
+
+                expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
+                for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
+                    expect(arg).toMatchObject(expectedArgs[idx]);
+                    expect(arg.argValue).toBeDefined();
+                    expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
+                    expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.LPAR1\.properties\./);
+                    expect(arg.argLoc.osLoc).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                }
+            });
+
+            it("should list optional args missing in service profile: TeamConfig", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                const profAttrs = await profInfo.getDefaultProfile("zosmf");  // todo: remove await
+                profAttrs.profSchema = profSchema as IProfileSchema;
+                const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
+
+                const expectedArgs = [
+                    { argName: "username", dataType: "string" },
+                    { argName: "password", dataType: "string" }
+                ];
+
+                expect(mergedArgs.missingArgs.length).toBe(expectedArgs.length);
+                for (const [idx, arg] of mergedArgs.missingArgs.entries()) {
+                    expect(arg).toMatchObject(expectedArgs[idx]);
+                    expect(arg.argValue).toBeUndefined();
+                    expect(arg.argLoc.locType).toBe(ProfLocType.DEFAULT);
+                    expect(arg.argLoc.jsonLoc).toBeUndefined();
+                    expect(arg.argLoc.osLoc).toBeUndefined();
+                }
+            });
+
+            it("should throw if there are required args missing in service profile: TeamConfig", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                const profAttrs = await profInfo.getDefaultProfile("zosmf");  // todo: remove await
+                profAttrs.profSchema = requiredProfSchema as IProfileSchema;
+
+                let caughtError;
+                try {
+                    profInfo.mergeArgsForProfile(profAttrs);
+                } catch (error) {
+                    caughtError = error;
+                }
+
+                expect(caughtError).toBeDefined();
+                expect(caughtError.message).toContain("Missing required properties: protocol");
             });
         });
     });

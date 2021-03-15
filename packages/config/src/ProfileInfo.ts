@@ -327,7 +327,7 @@ export class ProfileInfo {
                         argName: propName,
                         dataType: this.argDataType(propObj.type) as any,
                         argValue: undefined,
-                        argLoc: { locType: ProfLocType.DEFAULT }
+                        argLoc: { locType: ProfLocType.DEFAULT }  // TODO What should locType be here?
                     });
 
                     if (profile.profSchema.required?.includes(propName)) {
