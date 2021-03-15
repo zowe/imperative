@@ -288,18 +288,19 @@ export class ProfileInfo {
         };
 
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
-            const serviceProfile = this.mLoadedConfig.api.profiles.get(profile.profName);
+            const serviceProfile = this.mLoadedConfig.api.profiles.get(profile.profLoc.jsonLoc);
             for (const [propName, propVal] of Object.entries(serviceProfile)) {
                 mergedArgs.knownArgs.push({
                     argName: lodash.camelCase(propName),
                     dataType: this.argDataType(typeof propVal) as any,
                     argValue: propVal,
-                    argLoc: this.argTeamConfigLoc(profile.profName, propName)
+                    argLoc: this.argTeamConfigLoc(profile.profLoc.jsonLoc, propName)
                 });
             }
 
             const baseProfile = this.mLoadedConfig.api.profiles.defaultGet("base");
             if (baseProfile != null) {
+                const baseProfileName = this.mLoadedConfig.properties.defaults.base;
                 for (const [propName, propVal] of Object.entries(baseProfile)) {
                     const argName = lodash.camelCase(propName);
                     if (!mergedArgs.knownArgs.find((arg) => arg.argName === argName)) {
@@ -307,7 +308,7 @@ export class ProfileInfo {
                             argName,
                             dataType: this.argDataType(typeof propVal) as any,
                             argValue: propVal,
-                            argLoc: this.argTeamConfigLoc(profile.profName, propName)
+                            argLoc: this.argTeamConfigLoc(baseProfileName, propName)
                         });
                     }
                 }
@@ -325,7 +326,7 @@ export class ProfileInfo {
                     mergedArgs.missingArgs.push({
                         argName: propName,
                         dataType: this.argDataType(propObj.type) as any,
-                        argValue: null,  // TODO Null or undefined?
+                        argValue: undefined,
                         argLoc: { locType: ProfLocType.DEFAULT }
                     });
 
@@ -355,15 +356,15 @@ export class ProfileInfo {
     }
 
     private argTeamConfigLoc(profileName: string, propName: string): IProfLoc {
-        const profilePath = this.mLoadedConfig.api.profiles.expandPath(profileName);
-        const pathSegments = profilePath.split(".");
-        while (pathSegments.length > 0 && !lodash.get(this.mLoadedConfig.properties, `${pathSegments.join(".")}.${propName}`)) {
+        const pathSegments = this.mLoadedConfig.api.profiles.expandPath(profileName).split(".");
+        const buildPath = (ps: string[], p: string) => `${ps.join(".")}.properties.${p}`;
+        while (pathSegments.length > 0 && lodash.get(this.mLoadedConfig.properties, buildPath(pathSegments, propName)) === undefined) {
             pathSegments.pop();
         };
-        const jsonPath = (pathSegments.length > 0) ? `${pathSegments.join(".")}.${propName}` : undefined;
+        const jsonPath = (pathSegments.length > 0) ? buildPath(pathSegments, propName) : undefined;
         let filePath: string;
         for (const layer of this.mLoadedConfig.layers) {
-            if (lodash.get(layer.properties, jsonPath)) {
+            if (lodash.get(layer.properties, jsonPath) !== undefined) {
                 filePath = layer.path;
                 break;
             }

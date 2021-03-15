@@ -13,6 +13,7 @@ import * as path from "path";
 import { ProfileInfo } from "../src/ProfileInfo";
 import { ImperativeError } from "../..";
 import { Config } from "../src/Config";
+import { ProfLocType } from "../src/doc/IProfLoc";
 
 const testAppNm = "ProfInfoApp";
 
@@ -102,6 +103,85 @@ describe("ProfileInfo tests", () => {
                 expect(retrievedOsLoc).toBe(expectedOsLoc);
 
                 expect(profAttrs.profLoc.jsonLoc).toBe(tsoJsonLoc);
+            });
+        });
+
+        fdescribe("mergeArgsForProfile", () => {
+            it("should find known args in simple service profile: TeamConfig", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                const profAttrs = await profInfo.getDefaultProfile("zosmf");  // todo: remove await
+                const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
+
+                const expectedArgs = [
+                    { argName: "host", dataType: "string" },
+                    { argName: "port", dataType: "number" },
+                    { argName: "responseFormatHeader", dataType: "boolean" }
+                ];
+
+                expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
+                for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
+                    expect(arg).toMatchObject(expectedArgs[idx]);
+                    expect(arg.argValue).toBeDefined();
+                    expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
+                    expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.LPAR1\.properties\./);
+                    expect(arg.argLoc.osLoc).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                }
+            });
+
+            it("should find known args in nested service profile: TeamConfig", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                const profAttrs = await profInfo.getDefaultProfile("tso");  // todo: remove await
+                const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
+
+                const expectedArgs = [
+                    { argName: "host", dataType: "string" },
+                    { argName: "port", dataType: "number" },
+                    { argName: "responseFormatHeader", dataType: "boolean" },
+                    { argName: "account", dataType: "string" },
+                    { argName: "characterSet", dataType: "string" },
+                    { argName: "codePage", dataType: "string" },
+                    { argName: "columns", dataType: "number" },
+                    { argName: "logonProcedure", dataType: "string" },
+                    { argName: "regionSize", dataType: "number" },
+                    { argName: "rows", dataType: "number" }
+                ];
+
+                expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
+                for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
+                    expect(arg).toMatchObject(expectedArgs[idx]);
+                    expect(arg.argValue).toBeDefined();
+                    expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
+                    expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.LPAR1\.(profiles|properties)\./);
+                    expect(arg.argLoc.osLoc).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                }
+            });
+
+            it("should find known args in service and base profile: TeamConfig", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                (profInfo as any).mLoadedConfig.api.profiles.defaultSet("base", "base_glob");
+                const profAttrs = await profInfo.getDefaultProfile("zosmf");  // todo: remove await
+                const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
+
+                const expectedArgs = [
+                    { argName: "host", dataType: "string" },
+                    { argName: "port", dataType: "number" },
+                    { argName: "responseFormatHeader", dataType: "boolean" },
+                    { argName: "user", dataType: "string" },
+                    { argName: "password", dataType: "string" },
+                    { argName: "rejectUnauthorized", dataType: "boolean" }
+                ];
+
+                expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
+                for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
+                    expect(arg).toMatchObject(expectedArgs[idx]);
+                    expect(arg.argValue).toBeDefined();
+                    expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
+                    expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.(base_glob|LPAR1)\.properties\./);
+                    expect(arg.argLoc.osLoc).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                }
             });
         });
     });
