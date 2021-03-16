@@ -211,7 +211,7 @@ export class ProfileInfo {
                     profileRootDirectory: profRootDir,
                     type: profileType
                 });
-                const loadedProfile = await profileManager.load({loadDefault: true});
+                const loadedProfile = await profileManager.load({ loadDefault: true, noSecure: true });
                 ImperativeExpect.toBeEqual(loadedProfile.type, profileType);
 
                 // assign the required properties to defaultProfile
@@ -402,7 +402,6 @@ export class ProfileInfo {
      * @returns The complete set of required properties;
      */
     public mergeArgsForProfileType(profileType: string): IProfMergedArg {
-        // TODO Does this implementation work for old-school profiles?
         if (this.mUsingTeamConfig) {
             // TODO How can we get profile schema object to use here?
             // Should we ignore base profile properties missing from schema?
