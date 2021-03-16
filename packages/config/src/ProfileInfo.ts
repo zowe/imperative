@@ -280,7 +280,6 @@ export class ProfileInfo {
      *          in the current Zowe configuration.
      */
     public mergeArgsForProfile(profile: IProfAttrs): IProfMergedArg {
-        // TODO? Add back environment variables: https://github.com/zowe/imperative/commit/ed98ce6
         // TODO Add default values if needed by ZE
         const mergedArgs: IProfMergedArg = {
             knownArgs: [],
@@ -288,11 +287,16 @@ export class ProfileInfo {
         };
 
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
+            // TODO Is it ok to use lodash.camelCase?
+            // This converts any case (kebab, snake, upper, etc) to camel
+            // Config class only supports camel and kebab cases
+            // Inconsistency in supported arg cases could be bad
+            // Perhaps this method should also only support those 2 cases
             const serviceProfile = this.mLoadedConfig.api.profiles.get(profile.profLoc.jsonLoc);
             for (const [propName, propVal] of Object.entries(serviceProfile)) {
                 mergedArgs.knownArgs.push({
                     argName: lodash.camelCase(propName),
-                    dataType: this.argDataType(typeof propVal) as any,
+                    dataType: this.argDataType(typeof propVal),
                     argValue: propVal,
                     argLoc: this.argTeamConfigLoc(profile.profLoc.jsonLoc, propName)
                 });
@@ -306,7 +310,7 @@ export class ProfileInfo {
                     if (!mergedArgs.knownArgs.find((arg) => arg.argName === argName)) {
                         mergedArgs.knownArgs.push({
                             argName,
-                            dataType: this.argDataType(typeof propVal) as any,
+                            dataType: this.argDataType(typeof propVal),
                             argValue: propVal,
                             argLoc: this.argTeamConfigLoc(baseProfileName, propName)
                         });
@@ -316,7 +320,7 @@ export class ProfileInfo {
         } else if (profile.profLoc.locType === ProfLocType.OLD_PROFILE) {
             // TODO Implement something for old-school profiles
         } else {
-            throw new ImperativeError({ msg: "Invalid profile location type" });
+            throw new ImperativeError({ msg: "Invalid profile location type: " + profile.profLoc.locType });
         }
 
         if (profile.profSchema) {
@@ -325,9 +329,9 @@ export class ProfileInfo {
                 if (!mergedArgs.knownArgs.find((arg) => arg.argName === propName)) {
                     mergedArgs.missingArgs.push({
                         argName: propName,
-                        dataType: this.argDataType(propObj.type) as any,
+                        dataType: this.argDataType(propObj.type),
                         argValue: undefined,
-                        argLoc: { locType: ProfLocType.DEFAULT }  // TODO What should locType be here?
+                        argLoc: { locType: profile.profLoc.locType }
                     });
 
                     if (profile.profSchema.required?.includes(propName)) {
@@ -346,13 +350,15 @@ export class ProfileInfo {
         return mergedArgs;
     }
 
-    private argDataType(propType: string | string[]): string {
-        // TODO Make return type more strict to avoid "as any"
-        const simpleTypes = ["string", "number", "boolean"];
-        if (typeof propType === "string" && simpleTypes.includes(propType)) {
-            return propType;
+    private argDataType(propType: string | string[]): "string" | "number" | "boolean" | "object" {
+        switch (propType) {
+            case "string":
+            case "number":
+            case "boolean":
+                return propType;
+            default:
+                return "object";
         }
-        return "object";
     }
 
     private argTeamConfigLoc(profileName: string, propName: string): IProfLoc {

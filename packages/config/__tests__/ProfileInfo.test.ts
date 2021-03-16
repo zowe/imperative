@@ -226,58 +226,6 @@ describe("ProfileInfo tests", () => {
                 }
             });
 
-            // TODO Is this test desirable or do we only need to support camel and kebab case?
-            it("should find known args defined with snake case names: TeamConfig", async () => {
-                const fakeBasePath = "api/v1";
-                const profInfo = createNewProfInfo(teamProjDir);
-                await profInfo.readProfilesFromDisk();
-                (profInfo as any).mLoadedConfig.set("profiles.LPAR1.properties.base_path", fakeBasePath);
-                const profAttrs = await profInfo.getDefaultProfile("zosmf");  // todo: remove await
-                const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
-
-                const expectedArgs = [
-                    { argName: "host", dataType: "string" },
-                    { argName: "port", dataType: "number" },
-                    { argName: "responseFormatHeader", dataType: "boolean" },
-                    { argName: "basePath", dataType: "string", argValue: fakeBasePath }
-                ];
-
-                expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
-                for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
-                    expect(arg).toMatchObject(expectedArgs[idx]);
-                    expect(arg.argValue).toBeDefined();
-                    expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
-                    expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.LPAR1\.properties\./);
-                    expect(arg.argLoc.osLoc).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
-                }
-            });
-
-            // TODO Is this test desirable or do we only need to support camel and kebab case?
-            it("should find known args defined with upper case names: TeamConfig", async () => {
-                const fakeBasePath = "api/v1";
-                const profInfo = createNewProfInfo(teamProjDir);
-                await profInfo.readProfilesFromDisk();
-                (profInfo as any).mLoadedConfig.set("profiles.LPAR1.properties.BASE_PATH", fakeBasePath);
-                const profAttrs = await profInfo.getDefaultProfile("zosmf");  // todo: remove await
-                const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
-
-                const expectedArgs = [
-                    { argName: "host", dataType: "string" },
-                    { argName: "port", dataType: "number" },
-                    { argName: "responseFormatHeader", dataType: "boolean" },
-                    { argName: "basePath", dataType: "string", argValue: fakeBasePath }
-                ];
-
-                expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
-                for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
-                    expect(arg).toMatchObject(expectedArgs[idx]);
-                    expect(arg.argValue).toBeDefined();
-                    expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
-                    expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.LPAR1\.properties\./);
-                    expect(arg.argLoc.osLoc).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
-                }
-            });
-
             it("should list optional args missing in service profile: TeamConfig", async () => {
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
@@ -294,7 +242,7 @@ describe("ProfileInfo tests", () => {
                 for (const [idx, arg] of mergedArgs.missingArgs.entries()) {
                     expect(arg).toMatchObject(expectedArgs[idx]);
                     expect(arg.argValue).toBeUndefined();
-                    expect(arg.argLoc.locType).toBe(ProfLocType.DEFAULT);
+                    expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
                     expect(arg.argLoc.jsonLoc).toBeUndefined();
                     expect(arg.argLoc.osLoc).toBeUndefined();
                 }
