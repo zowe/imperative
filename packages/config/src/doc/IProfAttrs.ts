@@ -35,5 +35,5 @@ export interface IProfAttrs {
 
     /** Profile schema to be used for validation purposes */
     // TODO Does this property make sense for team config profiles?
-    profSchema?: IProfileSchema;
+    profSchema?: Partial<IProfileSchema>;
 }

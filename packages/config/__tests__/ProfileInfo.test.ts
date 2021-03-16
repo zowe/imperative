@@ -230,7 +230,7 @@ describe("ProfileInfo tests", () => {
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
                 const profAttrs = await profInfo.getDefaultProfile("zosmf");  // todo: remove await
-                profAttrs.profSchema = profSchema as IProfileSchema;
+                profAttrs.profSchema = profSchema;
                 const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
                 const expectedArgs = [
@@ -252,7 +252,7 @@ describe("ProfileInfo tests", () => {
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
                 const profAttrs = await profInfo.getDefaultProfile("zosmf");  // todo: remove await
-                profAttrs.profSchema = requiredProfSchema as IProfileSchema;
+                profAttrs.profSchema = requiredProfSchema;
 
                 let caughtError;
                 try {
@@ -263,6 +263,30 @@ describe("ProfileInfo tests", () => {
 
                 expect(caughtError).toBeDefined();
                 expect(caughtError.message).toContain("Missing required properties: protocol");
+            });
+        });
+
+        describe("mergeArgsForProfileType", () => {
+            it("should find known args in base profile: TeamConfig", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                (profInfo as any).mLoadedConfig.api.profiles.defaultSet("base", "base_glob");
+                const mergedArgs = profInfo.mergeArgsForProfileType("cics");
+
+                const expectedArgs = [
+                    { argName: "user", dataType: "string" },
+                    { argName: "password", dataType: "string" },
+                    { argName: "rejectUnauthorized", dataType: "boolean" }
+                ];
+
+                expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
+                for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
+                    expect(arg).toMatchObject(expectedArgs[idx]);
+                    expect(arg.argValue).toBeDefined();
+                    expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
+                    expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.base_glob\.properties\./);
+                    expect(arg.argLoc.osLoc).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                }
             });
         });
     });

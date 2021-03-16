@@ -292,14 +292,16 @@ export class ProfileInfo {
             // Config class only supports camel and kebab cases
             // Inconsistency in supported arg cases could be bad
             // Perhaps this method should also only support those 2 cases
-            const serviceProfile = this.mLoadedConfig.api.profiles.get(profile.profLoc.jsonLoc);
-            for (const [propName, propVal] of Object.entries(serviceProfile)) {
-                mergedArgs.knownArgs.push({
-                    argName: lodash.camelCase(propName),
-                    dataType: this.argDataType(typeof propVal),
-                    argValue: propVal,
-                    argLoc: this.argTeamConfigLoc(profile.profLoc.jsonLoc, propName)
-                });
+            if (profile.profLoc.jsonLoc != null) {
+                const serviceProfile = this.mLoadedConfig.api.profiles.get(profile.profLoc.jsonLoc);
+                for (const [propName, propVal] of Object.entries(serviceProfile)) {
+                    mergedArgs.knownArgs.push({
+                        argName: lodash.camelCase(propName),
+                        dataType: this.argDataType(typeof propVal),
+                        argValue: propVal,
+                        argLoc: this.argTeamConfigLoc(profile.profLoc.jsonLoc, propName)
+                    });
+                }
             }
 
             const baseProfile = this.mLoadedConfig.api.profiles.defaultGet("base");
@@ -323,9 +325,19 @@ export class ProfileInfo {
             throw new ImperativeError({ msg: "Invalid profile location type: " + profile.profLoc.locType });
         }
 
+        // perform validation with profile schema if available
         if (profile.profSchema) {
             const missingRequired = [];
-            for (const [propName, propObj] of Object.entries(profile.profSchema.properties)) {
+            for (const propName of (profile.profSchema.required || [])) {
+                if (!mergedArgs.knownArgs.find((arg) => arg.argName === propName)) {
+                    missingRequired.push(propName);
+                }
+            }
+            if (missingRequired.length > 0) {
+                throw new ImperativeError({ msg: "Missing required properties: " + missingRequired.join(", ") });
+            }
+
+            for (const [propName, propObj] of Object.entries(profile.profSchema.properties || {})) {
                 if (!mergedArgs.knownArgs.find((arg) => arg.argName === propName)) {
                     mergedArgs.missingArgs.push({
                         argName: propName,
@@ -333,14 +345,7 @@ export class ProfileInfo {
                         argValue: undefined,
                         argLoc: { locType: profile.profLoc.locType }
                     });
-
-                    if (profile.profSchema.required?.includes(propName)) {
-                        missingRequired.push(propName);
-                    }
                 }
-            }
-            if (missingRequired.length > 0) {
-                throw new ImperativeError({ msg: "Missing required properties: " + missingRequired.join(", ") });
             }
         }
 
@@ -397,16 +402,19 @@ export class ProfileInfo {
      * @returns The complete set of required properties;
      */
     public mergeArgsForProfileType(profileType: string): IProfMergedArg {
-        let mergedArgs: IProfMergedArg = null;
-
-        // todo: Actually implement something
-        const implementSomething: any = null;
-        mergedArgs = implementSomething;
-
-        // overwrite with any values found in environment
-        this.overrideWithEnv(mergedArgs);
-
-        return mergedArgs;
+        // TODO Does this implementation work for old-school profiles?
+        if (this.mUsingTeamConfig) {
+            // TODO How can we get profile schema object to use here?
+            // Should we ignore base profile properties missing from schema?
+            return this.mergeArgsForProfile({
+                profName: null,
+                profType: profileType,
+                isDefaultProfile: false,
+                profLoc: { locType: ProfLocType.TEAM_CONFIG }
+            });
+        } else {
+            // TODO Implement something for old-school profiles
+        }
     }
 
     // _______________________________________________________________________
@@ -418,7 +426,6 @@ export class ProfileInfo {
      *        The optional choices used when reading a team configuration.
      *        This parameter is ignored, if the end-user is using old-school
      *        profiles.
-     *        todo: We must add a startingProjectSearchDir to IConfigOpts.
      */
     public async readProfilesFromDisk(teamCfgOpts?: IConfigOpts) {
         this.mLoadedConfig = await Config.load(this.mAppName, teamCfgOpts);
