@@ -15,9 +15,21 @@
  */
 export interface IProfOpts {
     /**
+     * TODO? Disable loading of secure properties in profiles.
+     */
+    // noSecure?: boolean;
+
+    /**
      * Indicates if environment variables should override values
      * stored in Zowe configuration profiles on disk.
      * The default is false.
      */
     overrideWithEnv?: boolean;
+
+    /**
+     * Implements a custom method to require Keytar module which manages
+     * secure credentials. If undefined, the default implementation is to
+     * `require("keytar")` from the caller app's node_modules folder.
+     */
+    requireKeytar?: () => NodeModule;
 }

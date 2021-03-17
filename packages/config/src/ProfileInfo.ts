@@ -34,6 +34,7 @@ import { ImperativeConfig } from "../../utilities";
 import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
 import { Logger } from "../../logger";
+import { ProfileCredentials } from "./ProfileCredentials";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -107,6 +108,7 @@ export class ProfileInfo {
     private mAppName: string = null;
     private mImpLogger: Logger = null;
     private mOverrideWithEnv: boolean = false;
+    private mCredentials: ProfileCredentials;
 
     // _______________________________________________________________________
     /**
@@ -126,6 +128,8 @@ export class ProfileInfo {
         if (profInfoOpts?.overrideWithEnv) {
             this.mOverrideWithEnv = profInfoOpts.overrideWithEnv;
         }
+
+        this.mCredentials = new ProfileCredentials(this, profInfoOpts.requireKeytar);
 
         // do enough Imperative stuff to let imperative utilities work
         this.initImpUtils();
@@ -332,6 +336,10 @@ export class ProfileInfo {
         this.mLoadedConfig = await Config.load(this.mAppName, teamCfgOpts);
         if (this.mLoadedConfig.exists) {
             this.mUsingTeamConfig = true;
+        }
+
+        if (this.mCredentials.isSecured) {
+            await this.mCredentials.loadManager();
         }
     }
 
