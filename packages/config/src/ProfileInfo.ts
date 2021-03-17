@@ -9,8 +9,11 @@
 *
 */
 
+import * as fs from "fs";
 import * as os from "os";
 import * as nodeJsPath from "path";
+import * as url from "url";
+import * as jsonfile from "jsonfile";
 import * as lodash from "lodash";
 
 // for ProfileInfo structures
@@ -35,7 +38,8 @@ import { ImperativeConfig } from "../../utilities";
 import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
 import { Logger } from "../../logger";
-import { IConfigLoadedProfile } from "./doc/IConfigLoadedProfile";
+import { IProfileSchema, ProfileIO } from "../../profiles";
+import { ConfigSchema } from "./ConfigSchema";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -109,6 +113,7 @@ export class ProfileInfo {
     private mAppName: string = null;
     private mImpLogger: Logger = null;
     private mOverrideWithEnv: boolean = false;
+    private mProfileSchemaCache: Map<string, IProfileSchema>[];
 
     // _______________________________________________________________________
     /**
@@ -149,6 +154,8 @@ export class ProfileInfo {
      *          If no profile exists for the specified type (or if
      *          no profiles of any kind exist), we return an empty array
      *          ie, length is zero.
+     *
+     * todo: Add profile schema to IProfAttrs when possible
      */
     public getAllProfiles(profileType?: string): IProfAttrs[] {
         return [];
@@ -165,6 +172,7 @@ export class ProfileInfo {
      *          for the specified type, we return null;
      *
      * todo: Remove disk I/O for old-school profiles and remove async
+     * todo: Add profile schema to IProfAttrs when possible
      */
     public async getDefaultProfile(profileType: string): Promise<IProfAttrs> {
         this.ensureReadFromDisk();
@@ -385,6 +393,49 @@ export class ProfileInfo {
             osLoc: filePath,
             jsonLoc: jsonPath
         };
+    }
+
+    private loadSchema(profileType: string): IProfileSchema | null {
+        // TODO Should we load all schemas in readProfilesFromDisk and cache them?
+        // TODO Issue warning when schema object cannot be found
+        if (this.mUsingTeamConfig) {
+            const layer = this.getTeamConfig().layerActive();
+            if (layer.properties.$schema == null) {
+                return null;
+            }
+
+            // TODO Fix relative paths not working (e.g., ./schema.json)
+            const schemaFile = new url.URL(layer.properties.$schema, layer.path);
+            const schemaPath = nodeJsPath.resolve(nodeJsPath.dirname(layer.path), schemaFile.pathname);
+            if (!fs.existsSync(schemaPath)) {
+                return null;
+            }
+
+            const schemaJson = jsonfile.readFileSync(schemaPath);
+            return ConfigSchema.findProfileSchema(profileType, schemaJson);
+        } else {
+            const metaFile = `${profileType}_meta.yaml`;
+            const metaPath = nodeJsPath.join(ImperativeConfig.instance.cliHome, "profiles", profileType, metaFile);
+            if (!fs.existsSync(metaPath)) {
+                return null;
+            }
+
+            const metaProfile = ProfileIO.readMetaFile(metaPath);
+            return metaProfile.configuration.schema;
+        }
+    }
+
+    private loadAllSchemas(): void {
+        this.mProfileSchemaCache = [];
+        if (this.usingTeamConfig) {
+            const configDirs = new Set(this.getTeamConfig().paths.map(nodeJsPath.dirname));
+            // for (const dir of configDirs) {
+            //     const profileSchemas: Map<string, IProfileSchema> = new Map();
+            //     profileSchemas.set(profType, this.loadSchema(profType));
+            // }
+        } else {
+
+        }
     }
 
     // _______________________________________________________________________

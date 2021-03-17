@@ -18,6 +18,7 @@ export * from "./src/doc/IConfig";
 export * from "./src/doc/IConfigLayer";
 export * from "./src/doc/IConfigOpts";
 export * from "./src/doc/IConfigProfile";
+export * from "./src/doc/IConfigSchema";
 export * from "./src/doc/IConfigVault";
 export * from "./src/doc/IProfArgAttrs";
 export * from "./src/doc/IProfAttrs";
