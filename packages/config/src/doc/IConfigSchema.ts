@@ -15,5 +15,4 @@ export interface IConfigSchema {
     type: string;
     description: string;
     properties: { [key: string]: any };
-
 }

@@ -162,7 +162,7 @@ export class ConfigSchema {
     }
 
     /**
-     * Find an Imperative profile schema in the schema JSON file.
+     * Loads Imperative profile schema objects from a schema JSON file.
      * @param schemaJson The schema JSON for config
      */
     public static loadProfileSchemas(schemaJson: IConfigSchema): IProfileSchema[] {

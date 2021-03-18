@@ -22,12 +22,8 @@ export interface IProfArgAttrs {
     dataType: "string" | "number" | "boolean" | "object";
 
     /** The value for the argument */
-    // TODO Should argValue be secure ID instead of actual value when isSecure=true?
     argValue: string | number | boolean | object;
 
     /** The location of this argument */
     argLoc: IProfLoc;
-
-    /** TODO: Specifies if the argument was securely stored */
-    // isSecure: boolean;
 }

@@ -252,4 +252,21 @@ describe("Config Schema", () => {
         expect(returnedSchema).toMatchSnapshot();
         expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
     });
+
+    it("should be able to regenerate profile schemas from a schema object", () => {
+        const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfiguration);
+        const returnedSchema = schema.buildSchema(testConfig);
+        const origSchemas = schema.loadProfileSchemas(returnedSchema);
+        expect(origSchemas.length).toBe(2);
+        expect(testConfig[0].schema).toMatchObject(origSchemas[0]);
+        expect(testConfig[1].schema).toMatchObject(origSchemas[1]);
+    });
+
+    it("should be able to regenerate profile schemas with option definitions from a schema object", () => {
+        const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfigurationOptionDefinition);
+        const returnedSchema = schema.buildSchema(testConfig);
+        const origSchemas = schema.loadProfileSchemas(returnedSchema);
+        expect(origSchemas.length).toBe(1);
+        expect(testConfig[0].schema).toMatchObject(origSchemas[0]);
+    });
 });
