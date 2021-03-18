@@ -1,6 +1,5 @@
-host: mvsde20.lvn.broadcom.net
-port: 1699
+host: lpar2.fakehost.com
+port: 443
 user: someUser
 password: somePassword
 rejectUnauthorized: false
-protocol: https

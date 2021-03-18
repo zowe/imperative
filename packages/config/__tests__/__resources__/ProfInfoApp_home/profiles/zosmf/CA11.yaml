@@ -1,7 +1,0 @@
-host: usilca11.lvn.broadcom.net
-port: 1443
-user: someUser
-password: somePassword
-rejectUnauthorized: false
-encoding: 0
-responseTimeout: 0

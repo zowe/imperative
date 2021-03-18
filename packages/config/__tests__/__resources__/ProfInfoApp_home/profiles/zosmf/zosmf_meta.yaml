@@ -1,4 +1,4 @@
-defaultProfile: ca32_zosmf
+defaultProfile: lpar1_zosmf
 configuration:
     type: zosmf
     schema:
