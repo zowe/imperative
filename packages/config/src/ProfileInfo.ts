@@ -25,6 +25,7 @@ import { IProfOpts } from "./doc/IProfOpts";
 
 // for team config functions
 import { Config } from "./Config";
+import { ConfigSchema } from "./ConfigSchema";
 import { IConfigOpts } from "./doc/IConfigOpts";
 import { IConfigLayer } from "./doc/IConfigLayer";
 
@@ -34,12 +35,12 @@ import { CliProfileManager, ICommandProfileProperty } from "../../cmd";
 import { IProfileLoaded, IProfileSchema, ProfileIO } from "../../profiles";
 
 // for imperative operations
-import { EnvironmentalVariableSettings, LoggingConfigurer } from "../../imperative";
+import { EnvironmentalVariableSettings } from "../../imperative/src/env/EnvironmentalVariableSettings";
+import { LoggingConfigurer } from "../../imperative/src/LoggingConfigurer";
 import { ImperativeConfig } from "../../utilities";
 import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
 import { Logger } from "../../logger";
-import { ConfigSchema } from "./ConfigSchema";
 
 /**
  * This class provides functions to retrieve profile-related information.
