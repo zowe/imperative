@@ -11,13 +11,14 @@
 
 /**
  * This enum represents the type of location for a property.
- * Note that properties with location type of DEFAULT
+ * Note that properties with location types of ENV and DEFAULT
  * cannot be stored back to disk. Thus the consumer app must
  * make its own decision about where to store the property.
  */
 export enum ProfLocType {
     OLD_PROFILE = 0,    // an old-school profile
     TEAM_CONFIG,        // a team configuration
+    ENV,                // an environment variable
     DEFAULT             // the default value from a profile definition
 };
 
@@ -28,11 +29,13 @@ export interface IProfLoc {
      */
     locType:    ProfLocType.OLD_PROFILE |
                 ProfLocType.TEAM_CONFIG |
+                ProfLocType.ENV |
                 ProfLocType.DEFAULT;
 
     /**
      * For OLD_PROFILE and TEAM_CONFIG, this is the path to
      * the file on disk which contains the argument.
+     * For ENV, this is the name of the environment variable.
      * This is not used for DEFAULT.
      */
     osLoc?: string[];
@@ -41,9 +44,9 @@ export interface IProfLoc {
      * For SOURCE_TEAM_CONFIG, this is the dotted path into
      * the JSON configuration object for the profile.
      * This property is not used (undefined) for SOURCE_OLD_PROFILE,
-     * because the old-shool profiles use a simple name/value pair like:
+     * because the old-school profiles use a simple name/value pair like:
      *      ArgumentName: value
-     * This property is also not used for DEFAULT.
+     * This property is also not used for ENV or DEFAULT.
      */
     jsonLoc?: string;
 };
