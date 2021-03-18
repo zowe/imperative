@@ -58,12 +58,6 @@ export default class ListHandler implements ICommandHandler {
             obj = root;
         }
 
-        /*
-        const profInfo = new ProfileInfo("zowe");
-        const nan = await profInfo.readProfilesFromDisk();
-        const obj = profInfo.getAllProfiles(property);
-        */
-
         // output to terminal
         params.response.data.setObj(obj);
         params.response.format.output({
