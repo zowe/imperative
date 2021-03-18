@@ -165,11 +165,14 @@ export class ConfigSchema {
      * Loads Imperative profile schema objects from a schema JSON file.
      * @param schemaJson The schema JSON for config
      */
-    public static loadProfileSchemas(schemaJson: IConfigSchema): IProfileSchema[] {
+    public static loadProfileSchemas(schemaJson: IConfigSchema): IProfileTypeConfiguration[] {
         const patternName = Object.keys(schemaJson.properties.profiles.patternProperties)[0];
-        const profileSchemas: IProfileSchema[] = [];
+        const profileSchemas: IProfileTypeConfiguration[] = [];
         for (const obj of schemaJson.properties.profiles.patternProperties[patternName].allOf) {
-            profileSchemas.push(this.parseJsonSchema(obj.then.properties.properties));
+            profileSchemas.push({
+                type: obj.if.properties.type.const,
+                schema: this.parseJsonSchema(obj.then.properties.properties)
+            });
         }
         return profileSchemas;
     }

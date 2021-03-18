@@ -411,6 +411,7 @@ export class ProfileInfo {
                 })?.profile;
                 if (serviceProfile != null) {
                     for (const [propName, propVal] of Object.entries(serviceProfile)) {
+                        if (propVal === undefined) continue;
                         mergedArgs.knownArgs.push({
                             argName: lodash.camelCase(propName),
                             dataType: this.argDataType(typeof propVal),
@@ -428,12 +429,16 @@ export class ProfileInfo {
                 })?.profile;
                 if (baseProfile != null) {
                     for (const [propName, propVal] of Object.entries(baseProfile)) {
-                        mergedArgs.knownArgs.push({
-                            argName: lodash.camelCase(propName),
-                            dataType: this.argDataType(typeof propVal),
-                            argValue: propVal,
-                            argLoc: this.argOldProfileLoc(baseProfileName, "base")
-                        });
+                        if (propVal === undefined) continue;
+                        const argName = lodash.camelCase(propName);
+                        if (!mergedArgs.knownArgs.find((arg) => arg.argName === argName)) {
+                            mergedArgs.knownArgs.push({
+                                argName,
+                                dataType: this.argDataType(typeof propVal),
+                                argValue: propVal,
+                                argLoc: this.argOldProfileLoc(baseProfileName, "base")
+                            });
+                        }
                     }
                 }
             }
@@ -535,15 +540,16 @@ export class ProfileInfo {
             // Load profile schemas for all layers
             for (const layer of this.getTeamConfig().layers) {
                 if (layer.properties.$schema == null) continue;
-                const schemaUri = new url.URL(layer.properties.$schema, layer.path);
-                if (schemaUri.hostname != null || schemaUri.pathname == null) {
+                const schemaUri = new url.URL(layer.properties.$schema, url.pathToFileURL(layer.path));
+                if (schemaUri.hostname != null) {
                     // TODO Handle network URI not supported
                 }
-                if (fs.existsSync(schemaUri.pathname)) {
+                const schemaPath = url.fileURLToPath(schemaUri);
+                if (fs.existsSync(schemaPath)) {
                     try {
-                        const schemaJson = jsonfile.readFileSync(schemaUri.pathname);
-                        for (const schema of ConfigSchema.loadProfileSchemas(schemaJson)) {
-                            this.mProfileSchemaCache.set(`${layer.path}:${schema.type}`, schema);
+                        const schemaJson = jsonfile.readFileSync(schemaPath);
+                        for (const { type, schema } of ConfigSchema.loadProfileSchemas(schemaJson)) {
+                            this.mProfileSchemaCache.set(`${layer.path}:${type}`, schema);
                         }
                     } catch (error) {
                         // TODO Handle failure to read json file
