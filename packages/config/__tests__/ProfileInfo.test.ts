@@ -10,6 +10,8 @@
 */
 
 import * as path from "path";
+import * as jsonfile from "jsonfile";
+import * as lodash from "lodash";
 import { ProfileInfo } from "../src/ProfileInfo";
 import { ImperativeError } from "../..";
 import { Config } from "../src/Config";
@@ -110,23 +112,79 @@ describe("ProfileInfo tests", () => {
         describe("getAllProfiles", () => {
             it("should return all profiles if no type is specified: TeamConfig", async () => {
                 const length = 5;
+                const expectedDefaultProfiles = 3;
+                const expectedDefaultProfileNameZosmf = "LPAR1";
+                const expectedDefaultProfileNameTso = "LPAR1.tsoProfName";
+                const expectedDefaultProfileNameBase = "base_glob";
+                let actualDefaultProfiles = 0;
+                let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3", "LPAR1.tsoProfName", "base_glob"];
+
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
                 const profAttrs = profInfo.getAllProfiles();
 
-                expect(profAttrs).not.toBeNull();
                 expect(profAttrs.length).toEqual(length);
+                for (const prof of profAttrs) {
+                    if (prof.isDefaultProfile) {
+                        let expectedName = "";
+                        switch(prof.profType) {
+                            case "zosmf": expectedName = expectedDefaultProfileNameZosmf; break;
+                            case "tso": expectedName = expectedDefaultProfileNameTso; break;
+                            case "base": expectedName = expectedDefaultProfileNameBase; break;
+                        }
+                        expect(prof.profName).toEqual(expectedName);
+                        actualDefaultProfiles += 1;
+                    }
+                    expect(expectedProfileNames).toContain(prof.profName);
+                    expect(profileTypes).toContain(prof.profType);
+                    expect(prof.profLoc.locType).toEqual(ProfLocType.TEAM_CONFIG);
+                    expect(prof.profLoc.osLoc).toBeDefined();
+                    expect(prof.profLoc.osLoc.length).toEqual(1);
+                    expect(prof.profLoc.osLoc[0]).toEqual(path.join(teamProjDir, testAppNm + ".config.json"));
+                    expect(prof.profLoc.jsonLoc).toBeDefined();
+
+                    const propertiesJson = jsonfile.readFileSync(path.join(teamProjDir, testAppNm + ".config.json"));
+                    expect(lodash.get(propertiesJson, prof.profLoc.jsonLoc)).toBeDefined();
+
+                    expectedProfileNames = expectedProfileNames.filter(obj => obj !== prof.profName);
+                }
+                expect(actualDefaultProfiles).toEqual(expectedDefaultProfiles);
+                expect(expectedProfileNames.length).toEqual(0);
             });
 
             it("should return some profiles if a type is specified: TeamConfig", async () => {
                 const length = 3;
+                const desiredProfType = "zosmf";
+                const expectedName = "LPAR1";
+                const expectedDefaultProfiles = 1;
+                let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3"];
+                let actualDefaultProfiles = 0;
+
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
-                const desiredProfType = "zosmf";
                 const profAttrs = profInfo.getAllProfiles(desiredProfType);
 
-                expect(profAttrs).not.toBeNull();
                 expect(profAttrs.length).toEqual(length);
+                for (const prof of profAttrs) {
+                    if (prof.isDefaultProfile) {
+                        expect(prof.profName).toEqual(expectedName);
+                        actualDefaultProfiles += 1;
+                    }
+                    expect(expectedProfileNames).toContain(prof.profName);
+                    expect(profileTypes).toContain(prof.profType);
+                    expect(prof.profLoc.locType).toEqual(ProfLocType.TEAM_CONFIG);
+                    expect(prof.profLoc.osLoc).toBeDefined();
+                    expect(prof.profLoc.osLoc.length).toEqual(1);
+                    expect(prof.profLoc.osLoc[0]).toEqual(path.join(teamProjDir, testAppNm + ".config.json"));
+                    expect(prof.profLoc.jsonLoc).toBeDefined();
+
+                    const propertiesJson = jsonfile.readFileSync(path.join(teamProjDir, testAppNm + ".config.json"));
+                    expect(lodash.get(propertiesJson, prof.profLoc.jsonLoc)).toBeDefined();
+
+                    expectedProfileNames = expectedProfileNames.filter(obj => obj !== prof.profName);
+                }
+                expect(actualDefaultProfiles).toEqual(expectedDefaultProfiles);
+                expect(expectedProfileNames.length).toEqual(0);
             });
         });
     });
@@ -173,11 +231,11 @@ describe("ProfileInfo tests", () => {
                 const expectedDefaultProfiles = 3;
                 let expectedProfileNames = ["lpar1_zosmf", "lpar2_zosmf", "lpar3_zosmf", "lpar4_zosmf", "lpar5_zosmf", "tsoProfName",
                                               "base_for_userNm", "base_apiml"];
+                let actualDefaultProfiles = 0;
 
                 const profInfo = createNewProfInfo(homeDirPath);
                 await profInfo.readProfilesFromDisk();
                 const profAttrs = profInfo.getAllProfiles();
-                let actualDefaultProfiles = 0;
 
                 expect(profAttrs.length).toEqual(length);
                 for (const prof of profAttrs) {
@@ -207,13 +265,13 @@ describe("ProfileInfo tests", () => {
                 const length = 5;
                 const expectedName = "lpar1_zosmf";
                 const expectedDefaultProfiles = 1;
+                const desiredProfType = "zosmf";
                 let expectedProfileNames = ["lpar1_zosmf", "lpar2_zosmf", "lpar3_zosmf", "lpar4_zosmf", "lpar5_zosmf"];
+                let actualDefaultProfiles = 0;
 
                 const profInfo = createNewProfInfo(homeDirPath);
                 await profInfo.readProfilesFromDisk();
-                const desiredProfType = "zosmf";
                 const profAttrs = profInfo.getAllProfiles(desiredProfType);
-                let actualDefaultProfiles = 0;
 
                 expect(profAttrs.length).toEqual(length);
                 for (const prof of profAttrs) {
