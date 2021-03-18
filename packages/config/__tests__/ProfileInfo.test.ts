@@ -98,7 +98,7 @@ describe("ProfileInfo tests", () => {
                 expect(profAttrs.profLoc.locType).not.toBeNull();
 
                 const retrievedOsLoc = path.normalize(profAttrs.profLoc.osLoc[0]);
-                const expectedOsLoc = path.normalize(teamProjDir + "/" +
+                const expectedOsLoc = path.join(teamProjDir,
                     testAppNm + ".config.json"
                 );
                 expect(retrievedOsLoc).toBe(expectedOsLoc);
@@ -144,8 +144,8 @@ describe("ProfileInfo tests", () => {
                 expect(profAttrs.profLoc.locType).not.toBeNull();
 
                 const retrievedOsLoc = path.normalize(profAttrs.profLoc.osLoc[0]);
-                const expectedOsLoc = path.normalize(homeDirPath + "/profiles/" +
-                    desiredProfType + "/" + profAttrs.profName + ".yaml"
+                const expectedOsLoc = path.join(homeDirPath, "profiles",
+                    desiredProfType, profAttrs.profName + ".yaml"
                 );
                 expect(retrievedOsLoc).toBe(expectedOsLoc);
 
