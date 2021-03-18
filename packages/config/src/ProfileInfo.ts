@@ -30,8 +30,8 @@ import { IConfigLayer } from "./doc/IConfigLayer";
 
 // for old-school profile operations
 import { AbstractProfileManager } from "../../profiles/src/abstract/AbstractProfileManager";
-import { CliProfileManager } from "../../cmd";
-import { IProfileLoaded, ProfileIO, ProfileUtils } from "../../profiles";
+import { CliProfileManager, ICommandProfileProperty } from "../../cmd";
+import { IProfileLoaded, IProfileSchema, ProfileIO } from "../../profiles";
 
 // for imperative operations
 import { EnvironmentalVariableSettings, LoggingConfigurer } from "../../imperative";
@@ -39,7 +39,6 @@ import { ImperativeConfig } from "../../utilities";
 import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
 import { Logger } from "../../logger";
-import { IProfileSchema, ProfileIO } from "../../profiles";
 import { ConfigSchema } from "./ConfigSchema";
 
 /**
@@ -162,8 +161,6 @@ export class ProfileInfo {
      *          If no profile exists for the specified type (or if
      *          no profiles of any kind exist), we return an empty array
      *          ie, length is zero.
-     *
-     * todo: Add profile schema to IProfAttrs when possible
      */
     public getAllProfiles(profileType?: string): IProfAttrs[] {
         this.ensureReadFromDisk();
@@ -242,9 +239,6 @@ export class ProfileInfo {
      *
      * @returns The default profile. If no profile exists
      *          for the specified type, we return null;
-     *
-     * todo: Remove disk I/O for old-school profiles and remove async
-     * todo: Add profile schema to IProfAttrs when possible
      */
     public getDefaultProfile(profileType: string): IProfAttrs {
         this.ensureReadFromDisk();
@@ -374,7 +368,6 @@ export class ProfileInfo {
      *          in the current Zowe configuration.
      */
     public mergeArgsForProfile(profile: IProfAttrs): IProfMergedArg {
-        // TODO Add default values if needed by ZE
         const mergedArgs: IProfMergedArg = {
             knownArgs: [],
             missingArgs: []
@@ -414,15 +407,47 @@ export class ProfileInfo {
                 }
             }
         } else if (profile.profLoc.locType === ProfLocType.OLD_PROFILE) {
-            // TODO Implement something for old-school profiles
+            if (profile.profName != null) {
+                const serviceProfile = this.mOldSchoolProfileCache.find(obj => {
+                    return obj.name === profile.profName && obj.type === profile.profType
+                })?.profile;
+                if (serviceProfile != null) {
+                    for (const [propName, propVal] of Object.entries(serviceProfile)) {
+                        mergedArgs.knownArgs.push({
+                            argName: lodash.camelCase(propName),
+                            dataType: this.argDataType(typeof propVal),
+                            argValue: propVal,
+                            argLoc: this.argOldProfileLoc(profile.profName, profile.profType)
+                        });
+                    }
+                }
+            }
+
+            const baseProfileName = this.mOldSchoolProfileDefaults.base;
+            if (baseProfileName != null) {
+                const baseProfile = this.mOldSchoolProfileCache.find(obj => {
+                    return obj.name === baseProfileName && obj.type === "base"
+                })?.profile;
+                if (baseProfile != null) {
+                    for (const [propName, propVal] of Object.entries(baseProfile)) {
+                        mergedArgs.knownArgs.push({
+                            argName: lodash.camelCase(propName),
+                            dataType: this.argDataType(typeof propVal),
+                            argValue: propVal,
+                            argLoc: this.argOldProfileLoc(baseProfileName, "base")
+                        });
+                    }
+                }
+            }
         } else {
             throw new ImperativeError({ msg: "Invalid profile location type: " + profile.profLoc.locType });
         }
 
         // perform validation with profile schema if available
-        if (profile.profSchema) {
+        const profSchema = this.loadSchema(profile);
+        if (profSchema) {
             const missingRequired = [];
-            for (const propName of (profile.profSchema.required || [])) {
+            for (const propName of (profSchema.required || [])) {
                 if (!mergedArgs.knownArgs.find((arg) => arg.argName === propName)) {
                     missingRequired.push(propName);
                 }
@@ -431,12 +456,12 @@ export class ProfileInfo {
                 throw new ImperativeError({ msg: "Missing required properties: " + missingRequired.join(", ") });
             }
 
-            for (const [propName, propObj] of Object.entries(profile.profSchema.properties || {})) {
+            for (const [propName, propObj] of Object.entries(profSchema.properties || {})) {
                 if (!mergedArgs.knownArgs.find((arg) => arg.argName === propName)) {
                     mergedArgs.missingArgs.push({
                         argName: propName,
                         dataType: this.argDataType(propObj.type),
-                        argValue: undefined,
+                        argValue: (propObj as ICommandProfileProperty).optionDefinition?.defaultValue,
                         argLoc: { locType: profile.profLoc.locType }
                     });
                 }
@@ -476,9 +501,16 @@ export class ProfileInfo {
         }
         return {
             locType: ProfLocType.TEAM_CONFIG,
-            osLoc: filePath,
+            osLoc: [filePath],
             jsonLoc: jsonPath
         };
+    }
+
+    private argOldProfileLoc(profileName: string, profileType: string): IProfLoc {
+        return {
+            locType: ProfLocType.OLD_PROFILE,
+            osLoc: [nodeJsPath.join(this.mOldSchoolProfileRootDir, profileType, `${profileName}.yaml`)]
+        }
     }
 
     private loadSchema(profile: IProfAttrs): IProfileSchema | null {
@@ -521,15 +553,13 @@ export class ProfileInfo {
                 }
             }
         } else {
-            // TODO Use cached list of profile types
             // Load profile schemas from meta files in profile root dir
-            const profileTypes = ProfileIO.getAllProfileDirectories(nodeJsPath.join(ImperativeConfig.instance.cliHome, "profiles"));
-            for (const profType of profileTypes) {
-                const metaPath = nodeJsPath.join(ImperativeConfig.instance.cliHome, "profiles", profType, `${profType}_meta.yaml`);
+            for (const { type } of this.mOldSchoolProfileCache) {
+                const metaPath = nodeJsPath.join(this.mOldSchoolProfileRootDir, type, `${type}_meta.yaml`);
                 if (fs.existsSync(metaPath)) {
                     try {
                         const metaProfile = ProfileIO.readMetaFile(metaPath);
-                        this.mProfileSchemaCache.set(profType, metaProfile.configuration.schema);
+                        this.mProfileSchemaCache.set(type, metaProfile.configuration.schema);
                     } catch (error) {
                         // TODO Handle failure to read meta file
                     }
@@ -553,18 +583,12 @@ export class ProfileInfo {
      * @returns The complete set of required properties;
      */
     public mergeArgsForProfileType(profileType: string): IProfMergedArg {
-        if (this.mUsingTeamConfig) {
-            // TODO How can we get profile schema object to use here?
-            // Should we ignore base profile properties missing from schema?
-            return this.mergeArgsForProfile({
-                profName: null,
-                profType: profileType,
-                isDefaultProfile: false,
-                profLoc: { locType: ProfLocType.TEAM_CONFIG }
-            });
-        } else {
-            // TODO Implement something for old-school profiles
-        }
+        return this.mergeArgsForProfile({
+            profName: null,
+            profType: profileType,
+            isDefaultProfile: false,
+            profLoc: { locType: this.mUsingTeamConfig ? ProfLocType.TEAM_CONFIG : ProfLocType.OLD_PROFILE }
+        });
     }
 
     // _______________________________________________________________________

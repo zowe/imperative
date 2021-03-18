@@ -111,8 +111,14 @@ describe("ProfileInfo tests", () => {
             const profSchema: Partial<IProfileSchema> = {
                 properties: {
                     host: { type: "string" },
-                    username: { type: "string" },
-                    password: { type: "string" }
+                    username: {
+                        type: "string",
+                        optionDefinition: { defaultValue: "admin" }
+                    } as any,
+                    password: {
+                        type: "string",
+                        optionDefinition: { defaultValue: "admin" }
+                    } as any
                 }
             };
 
@@ -127,7 +133,7 @@ describe("ProfileInfo tests", () => {
             it("should find known args in simple service profile: TeamConfig", async () => {
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
-                const profAttrs = await profInfo.getDefaultProfile("zosmf");  // todo: remove await
+                const profAttrs = profInfo.getDefaultProfile("zosmf");
                 const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
                 const expectedArgs = [
@@ -142,14 +148,14 @@ describe("ProfileInfo tests", () => {
                     expect(arg.argValue).toBeDefined();
                     expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
                     expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.LPAR1\.properties\./);
-                    expect(arg.argLoc.osLoc).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                    expect(arg.argLoc.osLoc[0]).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
                 }
             });
 
             it("should find known args in nested service profile: TeamConfig", async () => {
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
-                const profAttrs = await profInfo.getDefaultProfile("tso");  // todo: remove await
+                const profAttrs = profInfo.getDefaultProfile("tso");
                 const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
                 const expectedArgs = [
@@ -171,7 +177,7 @@ describe("ProfileInfo tests", () => {
                     expect(arg.argValue).toBeDefined();
                     expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
                     expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.LPAR1\.(profiles|properties)\./);
-                    expect(arg.argLoc.osLoc).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                    expect(arg.argLoc.osLoc[0]).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
                 }
             });
 
@@ -179,7 +185,7 @@ describe("ProfileInfo tests", () => {
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
                 (profInfo as any).mLoadedConfig.api.profiles.defaultSet("base", "base_glob");
-                const profAttrs = await profInfo.getDefaultProfile("zosmf");  // todo: remove await
+                const profAttrs = profInfo.getDefaultProfile("zosmf");
                 const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
                 const expectedArgs = [
@@ -197,7 +203,7 @@ describe("ProfileInfo tests", () => {
                     expect(arg.argValue).toBeDefined();
                     expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
                     expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.(base_glob|LPAR1)\.properties\./);
-                    expect(arg.argLoc.osLoc).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                    expect(arg.argLoc.osLoc[0]).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
                 }
             });
 
@@ -206,7 +212,7 @@ describe("ProfileInfo tests", () => {
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
                 (profInfo as any).mLoadedConfig.set("profiles.LPAR1.properties.base-path", fakeBasePath);
-                const profAttrs = await profInfo.getDefaultProfile("zosmf");  // todo: remove await
+                const profAttrs = profInfo.getDefaultProfile("zosmf");
                 const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
                 const expectedArgs = [
@@ -222,26 +228,25 @@ describe("ProfileInfo tests", () => {
                     expect(arg.argValue).toBeDefined();
                     expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
                     expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.LPAR1\.properties\./);
-                    expect(arg.argLoc.osLoc).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                    expect(arg.argLoc.osLoc[0]).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
                 }
             });
 
             it("should list optional args missing in service profile: TeamConfig", async () => {
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
-                const profAttrs = await profInfo.getDefaultProfile("zosmf");  // todo: remove await
-                profAttrs.profSchema = profSchema;
+                const profAttrs = profInfo.getDefaultProfile("zosmf");
+                jest.spyOn(profInfo as any, "loadSchema").mockReturnValue(profSchema);
                 const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
                 const expectedArgs = [
-                    { argName: "username", dataType: "string" },
-                    { argName: "password", dataType: "string" }
+                    { argName: "username", dataType: "string", argValue: "admin" },
+                    { argName: "password", dataType: "string", argValue: "admin" }
                 ];
 
                 expect(mergedArgs.missingArgs.length).toBe(expectedArgs.length);
                 for (const [idx, arg] of mergedArgs.missingArgs.entries()) {
                     expect(arg).toMatchObject(expectedArgs[idx]);
-                    expect(arg.argValue).toBeUndefined();
                     expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
                     expect(arg.argLoc.jsonLoc).toBeUndefined();
                     expect(arg.argLoc.osLoc).toBeUndefined();
@@ -251,8 +256,8 @@ describe("ProfileInfo tests", () => {
             it("should throw if there are required args missing in service profile: TeamConfig", async () => {
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
-                const profAttrs = await profInfo.getDefaultProfile("zosmf");  // todo: remove await
-                profAttrs.profSchema = requiredProfSchema;
+                const profAttrs = profInfo.getDefaultProfile("zosmf");
+                jest.spyOn(profInfo as any, "loadSchema").mockReturnValue(requiredProfSchema);
 
                 let caughtError;
                 try {
@@ -285,7 +290,7 @@ describe("ProfileInfo tests", () => {
                     expect(arg.argValue).toBeDefined();
                     expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
                     expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.base_glob\.properties\./);
-                    expect(arg.argLoc.osLoc).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                    expect(arg.argLoc.osLoc[0]).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
                 }
             });
         });
