@@ -12,6 +12,7 @@
 import * as lodash from "lodash";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ConfigConstants } from "../../../../../config";
+import { ProfileInfo } from "../../../../../config/src/ProfileInfo";
 import { ImperativeConfig } from "../../../../../utilities";
 
 export default class ListHandler implements ICommandHandler {
@@ -56,6 +57,12 @@ export default class ListHandler implements ICommandHandler {
                 root.push(p);
             obj = root;
         }
+
+        /*
+        const profInfo = new ProfileInfo("zowe");
+        const nan = await profInfo.readProfilesFromDisk();
+        const obj = profInfo.getAllProfiles(property);
+        */
 
         // output to terminal
         params.response.data.setObj(obj);
