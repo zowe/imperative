@@ -35,7 +35,7 @@ export interface IProfLoc {
      * the file on disk which contains the argument.
      * This is not used for DEFAULT.
      */
-    osLoc?: string;
+    osLoc?: string[];
 
     /**
      * For SOURCE_TEAM_CONFIG, this is the dotted path into

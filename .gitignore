@@ -110,3 +110,11 @@ someHome/
 # Browserified bundles and compiled JS for web help
 /web-help/dist/css/bundle*
 /web-help/dist/js/
+
+# Ignore the schema and config files
+zowe.config.json
+zowe.config.json.bak
+zowe.config.user.json
+zowe.config.user.json.bak
+zowe.schema.json
+zowe.schema.json.bak
