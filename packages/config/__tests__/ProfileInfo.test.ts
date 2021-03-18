@@ -33,12 +33,17 @@ describe("ProfileInfo tests", () => {
     const testDir = path.join(__dirname,  "__resources__");
     const teamProjDir = path.join(testDir, testAppNm + "_team_config_proj");
     const homeDirPath = path.join(testDir, testAppNm + "_home");
+    const homeDirPathTwo = path.join(testDir, testAppNm + "_home_two");
+    const homeDirPathThree = path.join(testDir, testAppNm + "_home_three");
+    const four = 4;
     let origDir: string;
 
     beforeAll(() => {
         // remember our original directory
         origDir = process.cwd();
+    });
 
+    beforeEach(() => {
         // set our desired app home directory into the environment
         process.env[testAppNm.toUpperCase() + "_CLI_HOME"] = homeDirPath;
     });
@@ -111,13 +116,13 @@ describe("ProfileInfo tests", () => {
 
         describe("getAllProfiles", () => {
             it("should return all profiles if no type is specified: TeamConfig", async () => {
-                const length = 5;
+                const length = 6;
                 const expectedDefaultProfiles = 3;
                 const expectedDefaultProfileNameZosmf = "LPAR1";
                 const expectedDefaultProfileNameTso = "LPAR1.tsoProfName";
                 const expectedDefaultProfileNameBase = "base_glob";
                 let actualDefaultProfiles = 0;
-                let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3", "LPAR1.tsoProfName", "base_glob"];
+                let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3", "LPAR1.tsoProfName", "LPAR1.tsoProfName.tsoSubProfName", "base_glob"];
 
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
@@ -193,15 +198,44 @@ describe("ProfileInfo tests", () => {
 
         describe("getDefaultProfile", () => {
 
-            it("should return null if no default for that type exists: oldSchool", async () => {
-                const profInfo = createNewProfInfo(__dirname)
+            afterEach(() => {
+                jest.clearAllMocks();
+            })
+
+            it("should return null if no default for that type exists 1: oldSchool", async () => {
+                const profInfo = createNewProfInfo(homeDirPath);
+                const warnSpy = jest.spyOn((profInfo as any).mImpLogger, "warn");
                 await profInfo.readProfilesFromDisk();
                 const profAttrs = profInfo.getDefaultProfile("ThisTypeDoesNotExist");
                 expect(profAttrs).toBeNull();
+                expect(warnSpy).toHaveBeenCalledTimes(1);
+                expect(warnSpy).toHaveBeenCalledWith("Found no old-school profile for type 'ThisTypeDoesNotExist'.");
+            });
+
+            it("should return null if no default for that type exists 2: oldSchool", async () => {
+                process.env[testAppNm.toUpperCase() + "_CLI_HOME"] = homeDirPathTwo;
+                const profInfo = createNewProfInfo(homeDirPathTwo);
+                const warnSpy = jest.spyOn((profInfo as any).mImpLogger, "warn");
+                await profInfo.readProfilesFromDisk();
+                const profAttrs = profInfo.getDefaultProfile("zosmf");
+                expect(profAttrs).toBeNull();
+                expect(warnSpy).toHaveBeenCalledTimes(four);
+                expect(warnSpy).toHaveBeenLastCalledWith("Found no default old-school profiles.");
+            });
+
+            it("should return null if no default for that type exists 3: oldSchool", async () => {
+                process.env[testAppNm.toUpperCase() + "_CLI_HOME"] = homeDirPathThree;
+                const profInfo = createNewProfInfo(homeDirPathThree);
+                const warnSpy = jest.spyOn((profInfo as any).mImpLogger, "warn");
+                await profInfo.readProfilesFromDisk();
+                const profAttrs = profInfo.getDefaultProfile("zosmf");
+                expect(profAttrs).toBeNull();
+                expect(warnSpy).toHaveBeenCalledTimes(four);
+                expect(warnSpy).toHaveBeenLastCalledWith("Found no old-school profiles.");
             });
 
             it("should return a profile if one exists: oldSchool", async () => {
-                const profInfo = createNewProfInfo(__dirname)
+                const profInfo = createNewProfInfo(homeDirPath)
                 await profInfo.readProfilesFromDisk();
                 const desiredProfType = "tso";
                 const profAttrs = profInfo.getDefaultProfile(desiredProfType);

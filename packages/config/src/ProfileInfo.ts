@@ -270,12 +270,12 @@ export class ProfileInfo {
         } else {
             // get default profile from the old-school profiles
             // first, some validation
-            if (!this.mOldSchoolProfileCache) {
+            if (!this.mOldSchoolProfileCache || this.mOldSchoolProfileCache.length === 0) {
                 // No old school profiles in the cache - warn and return null
                 this.mImpLogger.warn("Found no old-school profiles.");
                 return null;
             }
-            if (!this.mOldSchoolProfileDefaults) {
+            if (!this.mOldSchoolProfileDefaults || Object.keys(this.mOldSchoolProfileDefaults).length === 0) {
                 // No old-school default profiles found - warn and return null
                 this.mImpLogger.warn("Found no default old-school profiles.");
                 return null;
@@ -293,7 +293,7 @@ export class ProfileInfo {
             });
             if (!loadedProfile) {
                 // Something really weird happened
-                this.mImpLogger.warn("Profile with name '" + profName + " was defined as the default profile for type '" + profileType + "' but was missing from the cache.");
+                this.mImpLogger.warn("Profile with name '" + profName + "' was defined as the default profile for type '" + profileType + "' but was missing from the cache.");
                 return null;
             }
 

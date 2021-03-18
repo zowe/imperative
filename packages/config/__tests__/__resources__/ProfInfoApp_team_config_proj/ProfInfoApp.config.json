@@ -26,6 +26,14 @@
                         "logonProcedure": "LOGPROC",
                         "regionSize": 4096,
                         "rows": 24
+                    },
+                    "profiles": {
+                        "tsoSubProfName": {
+                            "type": "tso",
+                            "properties": {
+                                "account": "IZUACCT"
+                            }
+                        }
                     }
                 }
             }
