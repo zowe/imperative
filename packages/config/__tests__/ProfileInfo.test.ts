@@ -57,7 +57,7 @@ describe("ProfileInfo tests", () => {
                 let impErr: ImperativeError;
                 const profInfo = createNewProfInfo(teamProjDir);
                 try {
-                    await profInfo.getDefaultProfile("zosmf"); // todo: remove await
+                    profInfo.getDefaultProfile("zosmf");
                 } catch (err) {
                     impErr = err;
                 }
@@ -83,7 +83,7 @@ describe("ProfileInfo tests", () => {
             it("should return null if no default for that type exists: TeamConfig", async () => {
                 const profInfo = createNewProfInfo(teamProjDir)
                 await profInfo.readProfilesFromDisk();
-                const profAttrs = await profInfo.getDefaultProfile("ThisTypeDoesNotExist"); // todo: remove await
+                const profAttrs = profInfo.getDefaultProfile("ThisTypeDoesNotExist");
                 expect(profAttrs).toBeNull();
             });
 
@@ -91,7 +91,7 @@ describe("ProfileInfo tests", () => {
                 const profInfo = createNewProfInfo(teamProjDir)
                 await profInfo.readProfilesFromDisk();
                 const desiredProfType = "tso";
-                const profAttrs = await profInfo.getDefaultProfile(desiredProfType);  // todo: remove await
+                const profAttrs = profInfo.getDefaultProfile(desiredProfType);
 
                 expect(profAttrs).not.toBeNull();
                 expect(profAttrs.isDefaultProfile).toBe(true);
@@ -99,7 +99,7 @@ describe("ProfileInfo tests", () => {
                 expect(profAttrs.profType).toBe(desiredProfType);
                 expect(profAttrs.profLoc.locType).not.toBeNull();
 
-                const retrievedOsLoc = path.normalize(profAttrs.profLoc.osLoc);
+                const retrievedOsLoc = path.normalize(profAttrs.profLoc.osLoc[0]);
                 const expectedOsLoc = path.join(teamProjDir, testAppNm + ".config.json");
                 expect(retrievedOsLoc).toBe(expectedOsLoc);
 
@@ -289,6 +289,18 @@ describe("ProfileInfo tests", () => {
                 }
             });
         });
+
+        describe("getAllProfiles", () => {
+            it("should return all profiles if no type is specified: TeamConfig", () => {
+                // Add tests
+                expect(true).toBe(true);
+            });
+
+            it("should return some profiles if a type is specified: TeamConfig", () => {
+                // Add tests
+                expect(true).toBe(true);
+            });
+        });
     });
 
     describe("Old-school Profile Tests", () => {
@@ -298,7 +310,7 @@ describe("ProfileInfo tests", () => {
             it("should return null if no default for that type exists: oldSchool", async () => {
                 const profInfo = createNewProfInfo(__dirname)
                 await profInfo.readProfilesFromDisk();
-                const profAttrs = await profInfo.getDefaultProfile("ThisTypeDoesNotExist"); // todo: remove await
+                const profAttrs = profInfo.getDefaultProfile("ThisTypeDoesNotExist");
                 expect(profAttrs).toBeNull();
             });
 
@@ -306,7 +318,7 @@ describe("ProfileInfo tests", () => {
                 const profInfo = createNewProfInfo(__dirname)
                 await profInfo.readProfilesFromDisk();
                 const desiredProfType = "tso";
-                const profAttrs = await profInfo.getDefaultProfile(desiredProfType);  // todo: remove await
+                const profAttrs = profInfo.getDefaultProfile(desiredProfType);
 
                 expect(profAttrs).not.toBeNull();
                 expect(profAttrs.isDefaultProfile).toBe(true);
@@ -314,7 +326,7 @@ describe("ProfileInfo tests", () => {
                 expect(profAttrs.profType).toBe(desiredProfType);
                 expect(profAttrs.profLoc.locType).not.toBeNull();
 
-                const retrievedOsLoc = path.normalize(profAttrs.profLoc.osLoc);
+                const retrievedOsLoc = path.normalize(profAttrs.profLoc.osLoc[0]);
                 const expectedOsLoc = path.join(homeDirPath, "profiles",
                     desiredProfType, profAttrs.profName + ".yaml"
                 );

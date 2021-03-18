@@ -39,7 +39,7 @@ export interface IProfLoc {
      * For ENV, this is the name of the environment variable.
      * This is not used for DEFAULT.
      */
-    osLoc?: string;
+    osLoc?: string[];
 
     /**
      * For SOURCE_TEAM_CONFIG, this is the dotted path into
