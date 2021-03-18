@@ -113,7 +113,11 @@ export class ProfileInfo {
     private mAppName: string = null;
     private mImpLogger: Logger = null;
     private mOverrideWithEnv: boolean = false;
-    private mProfileSchemaCache: Map<string, IProfileSchema>[];
+    /**
+     * Cache of profile schema objects mapped by profile type and config path
+     * if applicable.
+     */
+    private mProfileSchemaCache: Map<string, IProfileSchema>;
 
     // _______________________________________________________________________
     /**
@@ -395,46 +399,60 @@ export class ProfileInfo {
         };
     }
 
-    private loadSchema(profileType: string): IProfileSchema | null {
-        // TODO Should we load all schemas in readProfilesFromDisk and cache them?
+    private loadSchema(profile: IProfAttrs): IProfileSchema | null {
         // TODO Issue warning when schema object cannot be found
-        if (this.mUsingTeamConfig) {
-            const layer = this.getTeamConfig().layerActive();
-            if (layer.properties.$schema == null) {
-                return null;
-            }
+        let schemaMapKey: string;
 
-            // TODO Fix relative paths not working (e.g., ./schema.json)
-            const schemaFile = new url.URL(layer.properties.$schema, layer.path);
-            const schemaPath = nodeJsPath.resolve(nodeJsPath.dirname(layer.path), schemaFile.pathname);
-            if (!fs.existsSync(schemaPath)) {
-                return null;
-            }
-
-            const schemaJson = jsonfile.readFileSync(schemaPath);
-            return ConfigSchema.findProfileSchema(profileType, schemaJson);
-        } else {
-            const metaFile = `${profileType}_meta.yaml`;
-            const metaPath = nodeJsPath.join(ImperativeConfig.instance.cliHome, "profiles", profileType, metaFile);
-            if (!fs.existsSync(metaPath)) {
-                return null;
-            }
-
-            const metaProfile = ProfileIO.readMetaFile(metaPath);
-            return metaProfile.configuration.schema;
+        if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
+            schemaMapKey = `${profile.profLoc.osLoc}:${profile.profType}`;
+        } else if (profile.profLoc.locType === ProfLocType.OLD_PROFILE) {
+            schemaMapKey = profile.profType;
         }
+
+        if (schemaMapKey != null && this.mProfileSchemaCache.has(schemaMapKey)) {
+            return this.mProfileSchemaCache.get(schemaMapKey);
+        }
+
+        return null;
     }
 
     private loadAllSchemas(): void {
-        this.mProfileSchemaCache = [];
+        this.mProfileSchemaCache = new Map();
         if (this.usingTeamConfig) {
-            const configDirs = new Set(this.getTeamConfig().paths.map(nodeJsPath.dirname));
-            // for (const dir of configDirs) {
-            //     const profileSchemas: Map<string, IProfileSchema> = new Map();
-            //     profileSchemas.set(profType, this.loadSchema(profType));
-            // }
+            // TODO Could be more efficient if same schema file isn't reloaded
+            // Load profile schemas for all layers
+            for (const layer of this.getTeamConfig().layers) {
+                if (layer.properties.$schema == null) continue;
+                const schemaUri = new url.URL(layer.properties.$schema, layer.path);
+                if (schemaUri.hostname != null || schemaUri.pathname == null) {
+                    // TODO Handle network URI not supported
+                }
+                if (fs.existsSync(schemaUri.pathname)) {
+                    try {
+                        const schemaJson = jsonfile.readFileSync(schemaUri.pathname);
+                        for (const schema of ConfigSchema.loadProfileSchemas(schemaJson)) {
+                            this.mProfileSchemaCache.set(`${layer.path}:${schema.type}`, schema);
+                        }
+                    } catch (error) {
+                        // TODO Handle failure to read json file
+                    }
+                }
+            }
         } else {
-
+            // TODO Use cached list of profile types
+            // Load profile schemas from meta files in profile root dir
+            const profileTypes = ProfileIO.getAllProfileDirectories(nodeJsPath.join(ImperativeConfig.instance.cliHome, "profiles"));
+            for (const profType of profileTypes) {
+                const metaPath = nodeJsPath.join(ImperativeConfig.instance.cliHome, "profiles", profType, `${profType}_meta.yaml`);
+                if (fs.existsSync(metaPath)) {
+                    try {
+                        const metaProfile = ProfileIO.readMetaFile(metaPath);
+                        this.mProfileSchemaCache.set(profType, metaProfile.configuration.schema);
+                    } catch (error) {
+                        // TODO Handle failure to read meta file
+                    }
+                }
+            }
         }
     }
 
@@ -482,6 +500,7 @@ export class ProfileInfo {
         if (this.mLoadedConfig.exists) {
             this.mUsingTeamConfig = true;
         }
+        this.loadAllSchemas();
     }
 
     // _______________________________________________________________________

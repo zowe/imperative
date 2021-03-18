@@ -163,16 +163,14 @@ export class ConfigSchema {
 
     /**
      * Find an Imperative profile schema in the schema JSON file.
-     * @param profileType Type of profile
      * @param schemaJson The schema JSON for config
      */
-    public static findProfileSchema(profileType: string, schemaJson: IConfigSchema): IProfileSchema | null {
+    public static loadProfileSchemas(schemaJson: IConfigSchema): IProfileSchema[] {
         const patternName = Object.keys(schemaJson.properties.profiles.patternProperties)[0];
+        const profileSchemas: IProfileSchema[] = [];
         for (const obj of schemaJson.properties.profiles.patternProperties[patternName].allOf) {
-            if (obj.if.properties.type.const === profileType) {
-                return this.parseJsonSchema(obj.then.properties.properties);
-            }
+            profileSchemas.push(this.parseJsonSchema(obj.then.properties.properties));
         }
-        return null;
+        return profileSchemas;
     }
 }
