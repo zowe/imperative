@@ -296,14 +296,25 @@ describe("ProfileInfo tests", () => {
         });
 
         describe("getAllProfiles", () => {
-            it("should return all profiles if no type is specified: TeamConfig", () => {
-                // Add tests
-                expect(true).toBe(true);
+            it("should return all profiles if no type is specified: TeamConfig", async () => {
+                const length = 5;
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                const profAttrs = profInfo.getAllProfiles();
+
+                expect(profAttrs).not.toBeNull();
+                expect(profAttrs.length).toEqual(length);
             });
 
-            it("should return some profiles if a type is specified: TeamConfig", () => {
-                // Add tests
-                expect(true).toBe(true);
+            it("should return some profiles if a type is specified: TeamConfig", async () => {
+                const length = 3;
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                const desiredProfType = "zosmf";
+                const profAttrs = profInfo.getAllProfiles(desiredProfType);
+
+                expect(profAttrs).not.toBeNull();
+                expect(profAttrs.length).toEqual(length);
             });
         });
     });
@@ -338,6 +349,68 @@ describe("ProfileInfo tests", () => {
                 expect(retrievedOsLoc).toBe(expectedOsLoc);
 
                 expect(profAttrs.profLoc.jsonLoc).toBeUndefined();
+            });
+        });
+
+        describe("getAllProfiles", () => {
+            it("should return all profiles if no type is specified: oldSchool", async () => {
+                const length = 8;
+                const expectedDefaultProfileNameZosmf = "lpar1_zosmf";
+                const expectedDefaultProfileNameTso = "tsoProfName";
+                const expectedDefaultProfileNameBase = "base_for_userNm";
+                const expectedDefaultProfiles = 3;
+                const expectedProfileNames = ["lpar1_zosmf", "lpar2_zosmf", "lpar3_zosmf", "lpar4_zosmf", "lpar5_zosmf", "tsoProfName",
+                                              "base_for_userNm", "base_apiml"];
+
+                const profInfo = createNewProfInfo(homeDirPath);
+                await profInfo.readProfilesFromDisk();
+                const profAttrs = profInfo.getAllProfiles();
+                let actualDefaultProfiles = 0;
+
+                expect(profAttrs).not.toBeNull();
+                expect(profAttrs.length).toEqual(length);
+                for (const prof of profAttrs) {
+                    if (prof.isDefaultProfile) {
+                        let expectedName = "";
+                        switch(prof.profType) {
+                            case "zosmf": expectedName = expectedDefaultProfileNameZosmf;
+                            case "tso": expectedName = expectedDefaultProfileNameTso;
+                            case "base": expectedName = expectedDefaultProfileNameBase;
+                        }
+                        expect(prof.profName).toEqual(expectedName);
+                        actualDefaultProfiles += 1;
+                        expect(expectedProfileNames).toContain(prof.profName);
+                        delete expectedProfileNames[expectedProfileNames.indexOf(prof.profName)];
+                    }
+                }
+                expect(actualDefaultProfiles).toEqual(expectedDefaultProfiles);
+                expect(expectedProfileNames.length).toEqual(0);
+            });
+
+            it("should return some profiles if a type is specified: oldSchool", async () => {
+                const length = 5;
+                const expectedName = "lpar1_zosmf";
+                const expectedDefaultProfiles = 1;
+                const expectedProfileNames = ["lpar1_zosmf", "lpar2_zosmf", "lpar3_zosmf", "lpar4_zosmf", "lpar5_zosmf"];
+
+                const profInfo = createNewProfInfo(homeDirPath);
+                await profInfo.readProfilesFromDisk();
+                const desiredProfType = "zosmf";
+                const profAttrs = profInfo.getAllProfiles(desiredProfType);
+                let actualDefaultProfiles = 0;
+
+                expect(profAttrs).not.toBeNull();
+                expect(profAttrs.length).toEqual(length);
+                for (const prof of profAttrs) {
+                    if (prof.isDefaultProfile) {
+                        expect(prof.profName).toEqual(expectedName);
+                        actualDefaultProfiles += 1;
+                    }
+                    expect(expectedProfileNames).toContain(prof.profName);
+                    delete expectedProfileNames[expectedProfileNames.indexOf(prof.profName)];
+                }
+                expect(actualDefaultProfiles).toEqual(expectedDefaultProfiles);
+                expect(expectedProfileNames.length).toEqual(0);
             });
         });
     });

@@ -43,33 +43,13 @@
             "properties": {
                 "host": "LPAR1.your.domain.net",
                 "port": 456
-            },
-            "profiles": {
-                "jckProfNm": {
-                    "type": "jclcheck",
-                    "properties": {
-                        "port": 1111,
-                        "protocol": "https",
-                        "jclcheckOptions": "NOAS NOAU HCD NOJCL NORES SEC NOSIGN"
-                    }
-                }
-            }
-        },
-        "matProfNm": {
-            "type": "mat",
-            "properties": {
-                "hostname": "LPAR4.your.domain.net",
-                "port": 12345,
-                "user": "userNameMat",
-                "pass": "passwordMat"
             }
         }
     },
     "defaults": {
-        "mat": "matProfNm",
         "zosmf": "LPAR1",
         "tso": "LPAR1.tsoProfName",
-        "jclcheck": "LPAR3.jckProfNm"
+        "base": "base_glob"
     },
     "plugins": [],
     "secure": []

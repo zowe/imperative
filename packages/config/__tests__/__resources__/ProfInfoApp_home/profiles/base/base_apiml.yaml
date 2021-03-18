@@ -1,4 +1,4 @@
-host: usilca32.lvn.broadcom.net
+host: lpar1.fakehost.com
 port: 60004
 rejectUnauthorized: true
 tokenType: apimlAuthenticationToken

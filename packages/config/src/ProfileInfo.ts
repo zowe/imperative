@@ -170,8 +170,6 @@ export class ProfileInfo {
         // Do we have team config profiles?
         if (this.mUsingTeamConfig) {
             const teamConfigProfs = this.mLoadedConfig.properties.profiles;
-            const teamConfigDefs = this.mLoadedConfig.properties.defaults;
-            const teamConfigGbl = this.mLoadedConfig.mActive.global;
             // Iterate over them
             // tslint:disable-next-line: forin
             for (const prof in teamConfigProfs) {
@@ -181,10 +179,10 @@ export class ProfileInfo {
                     const profAttrs: IProfAttrs = {
                         profName: prof,
                         profType: teamConfigProfs[prof].type,
-                        isDefaultProfile: this.isDefaultTeamProfile(prof, teamConfigDefs, profileType),
+                        isDefaultProfile: this.isDefaultTeamProfile(prof, profileType),
                         profLoc: {
                             locType: ProfLocType.TEAM_CONFIG,
-                            osLoc: this.findTeamOsLocation(jsonLocation, teamConfigGbl),
+                            osLoc: this.findTeamOsLocation(jsonLocation),
                             jsonLoc: jsonLocation
                         }
                     }
@@ -194,8 +192,7 @@ export class ProfileInfo {
                 if (teamConfigProfs[prof].profiles) {
                     // Get the subprofiles and add to profiles list
                     const jsonPath = "profiles." + prof;
-                    const subProfiles: IProfAttrs[] = this.getTeamSubProfiles(prof, jsonPath, teamConfigGbl, teamConfigProfs[prof].profiles,
-                                                                                    teamConfigDefs, profileType);
+                    const subProfiles: IProfAttrs[] = this.getTeamSubProfiles(prof, jsonPath, teamConfigProfs[prof].profiles, profileType);
                     for (const subProfile of subProfiles) {
                         profiles.push(subProfile);
                     }
@@ -701,8 +698,31 @@ export class ProfileInfo {
         this.mImpLogger = Logger.getImperativeLogger();
     }
 
-    private getTeamSubProfiles(path: string, jsonPath: string, gbl: boolean, profObj: { [key: string]: any },
-                               teamConfigDefs: { [key: string]: string }, profileType?: string): IProfAttrs[] {
+    // _______________________________________________________________________
+    /**
+     * Get all of the sub-profiles in the configuration.
+     *
+     * @param path
+     *          The short form profile name dotted path
+     * @param jsonPath
+     *          The long form profile dotted path
+     * @param profObj
+     *          The profiles object from the parent profile.
+     *          Contains the sub-profiles to search through.
+     * @param profileType
+     *          Limit selection to only profiles of the specified type.
+     *          If not supplied, the names of all typed profiles are returned.
+     *
+     * @returns An array of profile attribute objects.
+     *          In addition to the name, you get the profile type,
+     *          an indicator of whether the profile is the default profile
+     *          for that type, and the location of that profile.
+     *
+     *          If no profile exists for the specified type (or if
+     *          no profiles of any kind exist), we return an empty array
+     *          ie, length is zero.
+     */
+    private getTeamSubProfiles(path: string, jsonPath: string, profObj: { [key: string]: any }, profileType?: string): IProfAttrs[] {
         const profiles: IProfAttrs[] = [];
         // tslint:disable-next-line: forin
         for (const prof in profObj) {
@@ -712,10 +732,10 @@ export class ProfileInfo {
                 const profAttrs: IProfAttrs = {
                     profName: newProfName,
                     profType: profObj[prof].type,
-                    isDefaultProfile: this.isDefaultTeamProfile(newProfName, teamConfigDefs, profileType),
+                    isDefaultProfile: this.isDefaultTeamProfile(newProfName, profileType),
                     profLoc: {
                         locType: ProfLocType.TEAM_CONFIG,
-                        osLoc: this.findTeamOsLocation(newJsonPath, gbl),
+                        osLoc: this.findTeamOsLocation(newJsonPath),
                         jsonLoc: newJsonPath
                     }
                 }
@@ -724,8 +744,7 @@ export class ProfileInfo {
             // Check for subprofiles
             if (profObj[prof].profiles) {
                 // Get the subprofiles and add to profiles list
-                const subProfiles: IProfAttrs[] = this.getTeamSubProfiles(newProfName, newJsonPath, gbl, profObj[prof].profiles,
-                                                                          teamConfigDefs, profileType);
+                const subProfiles: IProfAttrs[] = this.getTeamSubProfiles(newProfName, newJsonPath, profObj[prof].profiles, profileType);
                 for (const subProfile of subProfiles) {
                     profiles.push(subProfile);
                 }
@@ -734,17 +753,26 @@ export class ProfileInfo {
         return profiles;
     }
 
-    private isDefaultTeamProfile(path: string, defaults: { [key : string]: string}, profileType?: string): boolean {
+    /**
+     *
+     * @param path
+     *              The short form profile name dotted path
+     * @param profileType
+     *              Limit selection to profiles of the specified type
+     * @returns A boolean true if the profile is a default profile,
+     *          and a boolean false if the profile is not a default profile
+     */
+    private isDefaultTeamProfile(path: string, profileType?: string): boolean {
 
         // Is it defined for a particular profile type?
         if (profileType) {
-            if (defaults[profileType] === path) return true;
+            if (this.mLoadedConfig.properties.defaults[profileType] === path) return true;
             else return false;
         }
 
         // Iterate over defaults to see if it's a default profile
-        for (const def in defaults) {
-            if (defaults[def] === path) {
+        for (const def in this.mLoadedConfig.properties.defaults) {
+            if (this.mLoadedConfig.properties.defaults[def] === path) {
                 return true;
             }
         }
@@ -752,11 +780,18 @@ export class ProfileInfo {
         return false;
     }
 
-    private findTeamOsLocation(path: string, gbl: boolean): string[] {
+    /**
+     *
+     * @param jsonPath
+     *              The long form JSON path of the profile we are searching for.
+     * @returns A string array containing the location of all files containing the specified team profile
+     */
+    private findTeamOsLocation(jsonPath: string): string[] {
         const files: string[] = [];
         const layers = this.mLoadedConfig.layers;
         for (const layer of layers) {
-            if (lodash.get(layer.properties, path) !== undefined && gbl === layer.global) {
+            if (lodash.get(layer.properties, jsonPath) !== undefined &&
+                this.mLoadedConfig.mActive.global === layer.global) {
                 files.push(layer.path);
             }
         }
