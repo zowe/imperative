@@ -191,10 +191,13 @@ export class ProfileInfo {
         } else {
             for (const loadedProfile of this.mOldSchoolProfileCache) {
                 if (!profileType || profileType === loadedProfile.type) {
+                    const typeDefaultProfile = this.getDefaultProfile(loadedProfile.type);
+                    let defaultProfile = false;
+                    if (typeDefaultProfile && typeDefaultProfile.profName === loadedProfile.name) {defaultProfile = true};
                     profiles.push({
                         profName: loadedProfile.name,
                         profType: loadedProfile.type,
-                        isDefaultProfile: ((this.getDefaultProfile(loadedProfile.type)).profName === loadedProfile.name),
+                        isDefaultProfile: defaultProfile,
                         profLoc: {
                             locType: ProfLocType.OLD_PROFILE,
                             osLoc: [nodeJsPath.resolve(this.mOldSchoolProfileRootDir + "/" + loadedProfile.type + "/" +
@@ -203,16 +206,6 @@ export class ProfileInfo {
                         }
                     });
                 }
-            }
-            if (!profiles) {
-                if (profileType) {
-                    this.mImpLogger.warn("Found no old-school profiles of type '" +
-                        profileType + "'."
-                    );
-                } else {
-                    this.mImpLogger.warn("found no old-school profiles.");
-                }
-                return null;
             }
         }
         return profiles;
