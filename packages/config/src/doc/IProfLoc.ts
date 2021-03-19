@@ -27,11 +27,7 @@ export interface IProfLoc {
     /**
      * The type of location for this property
      */
-    // TODO Should we distinguish between base and service profile for location?
-    locType:    ProfLocType.OLD_PROFILE |
-                ProfLocType.TEAM_CONFIG |
-                ProfLocType.ENV |
-                ProfLocType.DEFAULT;
+    locType: ProfLocType;
 
     /**
      * For OLD_PROFILE and TEAM_CONFIG, this is the path to

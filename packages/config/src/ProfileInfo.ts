@@ -37,7 +37,7 @@ import { IProfileLoaded, IProfileSchema, ProfileIO } from "../../profiles";
 // for imperative operations
 import { EnvironmentalVariableSettings } from "../../imperative/src/env/EnvironmentalVariableSettings";
 import { LoggingConfigurer } from "../../imperative/src/LoggingConfigurer";
-import { ImperativeConfig } from "../../utilities";
+import { CliUtils, ImperativeConfig } from "../../utilities";
 import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
 import { Logger } from "../../logger";
@@ -372,16 +372,11 @@ export class ProfileInfo {
         };
 
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
-            // TODO Is it ok to use lodash.camelCase?
-            // This converts any case (kebab, snake, upper, etc) to camel
-            // Config class only supports camel and kebab cases
-            // Inconsistency in supported arg cases could be bad
-            // Perhaps this method should also only support those 2 cases
             if (profile.profLoc.jsonLoc != null) {
                 const serviceProfile = this.mLoadedConfig.api.profiles.get(profile.profLoc.jsonLoc);
                 for (const [propName, propVal] of Object.entries(serviceProfile)) {
                     mergedArgs.knownArgs.push({
-                        argName: lodash.camelCase(propName),
+                        argName: CliUtils.getOptionFormat(propName).camelCase,
                         dataType: this.argDataType(typeof propVal),
                         argValue: propVal,
                         argLoc: this.argTeamConfigLoc(profile.profLoc.jsonLoc, propName)
@@ -393,7 +388,7 @@ export class ProfileInfo {
             if (baseProfile != null) {
                 const baseProfileName = this.mLoadedConfig.properties.defaults.base;
                 for (const [propName, propVal] of Object.entries(baseProfile)) {
-                    const argName = lodash.camelCase(propName);
+                    const argName = CliUtils.getOptionFormat(propName).camelCase;
                     if (!mergedArgs.knownArgs.find((arg) => arg.argName === argName)) {
                         mergedArgs.knownArgs.push({
                             argName,
@@ -413,7 +408,7 @@ export class ProfileInfo {
                     for (const [propName, propVal] of Object.entries(serviceProfile)) {
                         if (propVal === undefined) continue;
                         mergedArgs.knownArgs.push({
-                            argName: lodash.camelCase(propName),
+                            argName: CliUtils.getOptionFormat(propName).camelCase,
                             dataType: this.argDataType(typeof propVal),
                             argValue: propVal,
                             argLoc: this.argOldProfileLoc(profile.profName, profile.profType)
@@ -430,7 +425,7 @@ export class ProfileInfo {
                 if (baseProfile != null) {
                     for (const [propName, propVal] of Object.entries(baseProfile)) {
                         if (propVal === undefined) continue;
-                        const argName = lodash.camelCase(propName);
+                        const argName = CliUtils.getOptionFormat(propName).camelCase;
                         if (!mergedArgs.knownArgs.find((arg) => arg.argName === argName)) {
                             mergedArgs.knownArgs.push({
                                 argName,
@@ -536,8 +531,8 @@ export class ProfileInfo {
     private loadAllSchemas(): void {
         this.mProfileSchemaCache = new Map();
         if (this.usingTeamConfig) {
-            // TODO Could be more efficient if same schema file isn't reloaded
             // Load profile schemas for all layers
+            let lastSchema: { path: string, json: any } = { path: null, json: null };
             for (const layer of this.getTeamConfig().layers) {
                 if (layer.properties.$schema == null) continue;
                 const schemaUri = new url.URL(layer.properties.$schema, url.pathToFileURL(layer.path));
@@ -547,7 +542,13 @@ export class ProfileInfo {
                 const schemaPath = url.fileURLToPath(schemaUri);
                 if (fs.existsSync(schemaPath)) {
                     try {
-                        const schemaJson = jsonfile.readFileSync(schemaPath);
+                        let schemaJson;
+                        if (schemaPath !== lastSchema.path) {
+                            schemaJson = jsonfile.readFileSync(schemaPath);
+                            lastSchema = { path: schemaPath, json: schemaJson };
+                        } else {
+                            schemaJson = lastSchema.json;
+                        }
                         for (const { type, schema } of ConfigSchema.loadProfileSchemas(schemaJson)) {
                             this.mProfileSchemaCache.set(`${layer.path}:${type}`, schema);
                         }
