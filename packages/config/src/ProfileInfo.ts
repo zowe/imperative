@@ -365,15 +365,15 @@ export class ProfileInfo {
         };
 
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
-            if (profile.profLoc.jsonLoc != null) {
+            if (profile.profName != null) {
                 // Load args from service profile if one exists
-                const serviceProfile = this.mLoadedConfig.api.profiles.get(profile.profLoc.jsonLoc);
+                const serviceProfile = this.mLoadedConfig.api.profiles.get(profile.profName);
                 for (const [propName, propVal] of Object.entries(serviceProfile)) {
                     mergedArgs.knownArgs.push({
                         argName: CliUtils.getOptionFormat(propName).camelCase,
                         dataType: this.argDataType(typeof propVal),  // TODO Is using `typeof` bad for "null" values that may be int or bool?
                         argValue: propVal,
-                        argLoc: this.argTeamConfigLoc(profile.profLoc.jsonLoc, propName)
+                        argLoc: this.argTeamConfigLoc(profile.profName, propName)
                     });
                 }
             }
