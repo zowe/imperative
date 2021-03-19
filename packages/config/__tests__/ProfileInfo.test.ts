@@ -337,7 +337,7 @@ describe("ProfileInfo tests", () => {
                 expect(mergedArgs.missingArgs.length).toBe(expectedArgs.length);
                 for (const [idx, arg] of mergedArgs.missingArgs.entries()) {
                     expect(arg).toMatchObject(expectedArgs[idx]);
-                    expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
+                    expect(arg.argLoc.locType).toBe(ProfLocType.DEFAULT);
                     expect(arg.argLoc.jsonLoc).toBeUndefined();
                     expect(arg.argLoc.osLoc).toBeUndefined();
                 }
@@ -380,7 +380,7 @@ describe("ProfileInfo tests", () => {
                 expect(mergedArgs.missingArgs.length).toBe(expectedArgs.length);
                 for (const [idx, arg] of mergedArgs.missingArgs.entries()) {
                     expect(arg).toMatchObject(expectedArgs[idx]);
-                    expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
+                    expect(arg.argLoc.locType).toBe(ProfLocType.DEFAULT);
                     expect(arg.argLoc.jsonLoc).toBeUndefined();
                     expect(arg.argLoc.osLoc).toBeUndefined();
                 }
@@ -657,7 +657,7 @@ describe("ProfileInfo tests", () => {
                 expect(mergedArgs.missingArgs.length).toBe(expectedArgs.length);
                 for (const [idx, arg] of mergedArgs.missingArgs.entries()) {
                     expect(arg).toMatchObject(expectedArgs[idx]);
-                    expect(arg.argLoc.locType).toBe(ProfLocType.OLD_PROFILE);
+                    expect(arg.argLoc.locType).toBe(ProfLocType.DEFAULT);
                     expect(arg.argLoc.osLoc).toBeUndefined();
                 }
             });
@@ -695,7 +695,7 @@ describe("ProfileInfo tests", () => {
                 expect(mergedArgs.missingArgs.length).toBe(expectedArgs.length);
                 for (const [idx, arg] of mergedArgs.missingArgs.entries()) {
                     expect(arg).toMatchObject(expectedArgs[idx]);
-                    expect(arg.argLoc.locType).toBe(ProfLocType.OLD_PROFILE);
+                    expect(arg.argLoc.locType).toBe(ProfLocType.DEFAULT);
                     expect(arg.argLoc.osLoc).toBeUndefined();
                 }
             });

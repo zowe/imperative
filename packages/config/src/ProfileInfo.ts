@@ -119,7 +119,9 @@ export class ProfileInfo {
     private mOverrideWithEnv: boolean = false;
     /**
      * Cache of profile schema objects mapped by profile type and config path
-     * if applicable.
+     * if applicable. Examples of map keys:
+     *  - For team config: "/root/.zowe/zowe.config.json:zosmf"
+     *  - For old profiles: "zosmf"
      */
     private mProfileSchemaCache: Map<string, IProfileSchema>;
 
@@ -373,11 +375,12 @@ export class ProfileInfo {
 
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
             if (profile.profLoc.jsonLoc != null) {
+                // Load args from service profile if one exists
                 const serviceProfile = this.mLoadedConfig.api.profiles.get(profile.profLoc.jsonLoc);
                 for (const [propName, propVal] of Object.entries(serviceProfile)) {
                     mergedArgs.knownArgs.push({
                         argName: CliUtils.getOptionFormat(propName).camelCase,
-                        dataType: this.argDataType(typeof propVal),
+                        dataType: this.argDataType(typeof propVal),  // TODO Is using `typeof` bad for "null" values that may be int or bool?
                         argValue: propVal,
                         argLoc: this.argTeamConfigLoc(profile.profLoc.jsonLoc, propName)
                     });
@@ -386,9 +389,11 @@ export class ProfileInfo {
 
             const baseProfile = this.mLoadedConfig.api.profiles.defaultGet("base");
             if (baseProfile != null) {
+                // Load args from default base profile if one exists
                 const baseProfileName = this.mLoadedConfig.properties.defaults.base;
                 for (const [propName, propVal] of Object.entries(baseProfile)) {
                     const argName = CliUtils.getOptionFormat(propName).camelCase;
+                    // Skip properties already loaded from service profile
                     if (!mergedArgs.knownArgs.find((arg) => arg.argName === argName)) {
                         mergedArgs.knownArgs.push({
                             argName,
@@ -405,7 +410,9 @@ export class ProfileInfo {
                     return obj.name === profile.profName && obj.type === profile.profType
                 })?.profile;
                 if (serviceProfile != null) {
+                    // Load args from service profile if one exists
                     for (const [propName, propVal] of Object.entries(serviceProfile)) {
+                        // Skip undefined properties because they don't meet criteria for known args
                         if (propVal === undefined) continue;
                         mergedArgs.knownArgs.push({
                             argName: CliUtils.getOptionFormat(propName).camelCase,
@@ -419,13 +426,16 @@ export class ProfileInfo {
 
             const baseProfileName = this.mOldSchoolProfileDefaults.base;
             if (baseProfileName != null) {
+                // Load args from default base profile if one exists
                 const baseProfile = this.mOldSchoolProfileCache.find(obj => {
                     return obj.name === baseProfileName && obj.type === "base"
                 })?.profile;
                 if (baseProfile != null) {
                     for (const [propName, propVal] of Object.entries(baseProfile)) {
+                        // Skip undefined properties because they don't meet criteria for known args
                         if (propVal === undefined) continue;
                         const argName = CliUtils.getOptionFormat(propName).camelCase;
+                        // Skip properties already loaded from service profile
                         if (!mergedArgs.knownArgs.find((arg) => arg.argName === argName)) {
                             mergedArgs.knownArgs.push({
                                 argName,
@@ -438,31 +448,34 @@ export class ProfileInfo {
                 }
             }
         } else {
+            // TODO Handle nicely instead of throwing error
             throw new ImperativeError({ msg: "Invalid profile location type: " + profile.profLoc.locType });
         }
 
         // perform validation with profile schema if available
         const profSchema = this.loadSchema(profile);
         if (profSchema) {
-            const missingRequired = [];
-            for (const propName of (profSchema.required || [])) {
-                if (!mergedArgs.knownArgs.find((arg) => arg.argName === propName)) {
-                    missingRequired.push(propName);
-                }
-            }
-            if (missingRequired.length > 0) {
-                throw new ImperativeError({ msg: "Missing required properties: " + missingRequired.join(", ") });
-            }
+            const missingRequired: string[] = [];
 
             for (const [propName, propObj] of Object.entries(profSchema.properties || {})) {
+                // Check if property in schema is missing from known args
                 if (!mergedArgs.knownArgs.find((arg) => arg.argName === propName)) {
                     mergedArgs.missingArgs.push({
                         argName: propName,
                         dataType: this.argDataType(propObj.type),
                         argValue: (propObj as ICommandProfileProperty).optionDefinition?.defaultValue,
-                        argLoc: { locType: profile.profLoc.locType }
+                        argLoc: { locType: ProfLocType.DEFAULT }
                     });
+
+                    if (profSchema.required?.includes(propName)) {
+                        missingRequired.push(propName);
+                    }
                 }
+            }
+
+            if (missingRequired.length > 0) {
+                // TODO Handle nicely instead of throwing error
+                throw new ImperativeError({ msg: "Missing required properties: " + missingRequired.join(", ") });
             }
         }
 
@@ -470,107 +483,6 @@ export class ProfileInfo {
         this.overrideWithEnv(mergedArgs);
 
         return mergedArgs;
-    }
-
-    private argDataType(propType: string | string[]): "string" | "number" | "boolean" | "object" {
-        switch (propType) {
-            case "string":
-            case "number":
-            case "boolean":
-                return propType;
-            default:
-                return "object";
-        }
-    }
-
-    private argTeamConfigLoc(profileName: string, propName: string): IProfLoc {
-        const pathSegments = this.mLoadedConfig.api.profiles.expandPath(profileName).split(".");
-        const buildPath = (ps: string[], p: string) => `${ps.join(".")}.properties.${p}`;
-        while (pathSegments.length > 0 && lodash.get(this.mLoadedConfig.properties, buildPath(pathSegments, propName)) === undefined) {
-            pathSegments.pop();
-        };
-        const jsonPath = (pathSegments.length > 0) ? buildPath(pathSegments, propName) : undefined;
-        let filePath: string;
-        for (const layer of this.mLoadedConfig.layers) {
-            if (lodash.get(layer.properties, jsonPath) !== undefined) {
-                filePath = layer.path;
-                break;
-            }
-        }
-        return {
-            locType: ProfLocType.TEAM_CONFIG,
-            osLoc: [filePath],
-            jsonLoc: jsonPath
-        };
-    }
-
-    private argOldProfileLoc(profileName: string, profileType: string): IProfLoc {
-        return {
-            locType: ProfLocType.OLD_PROFILE,
-            osLoc: [nodeJsPath.join(this.mOldSchoolProfileRootDir, profileType, `${profileName}.yaml`)]
-        }
-    }
-
-    private loadSchema(profile: IProfAttrs): IProfileSchema | null {
-        // TODO Issue warning when schema object cannot be found
-        let schemaMapKey: string;
-
-        if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
-            schemaMapKey = `${profile.profLoc.osLoc}:${profile.profType}`;
-        } else if (profile.profLoc.locType === ProfLocType.OLD_PROFILE) {
-            schemaMapKey = profile.profType;
-        }
-
-        if (schemaMapKey != null && this.mProfileSchemaCache.has(schemaMapKey)) {
-            return this.mProfileSchemaCache.get(schemaMapKey);
-        }
-
-        return null;
-    }
-
-    private loadAllSchemas(): void {
-        this.mProfileSchemaCache = new Map();
-        if (this.usingTeamConfig) {
-            // Load profile schemas for all layers
-            let lastSchema: { path: string, json: any } = { path: null, json: null };
-            for (const layer of this.getTeamConfig().layers) {
-                if (layer.properties.$schema == null) continue;
-                const schemaUri = new url.URL(layer.properties.$schema, url.pathToFileURL(layer.path));
-                if (schemaUri.hostname != null) {
-                    // TODO Handle network URI not supported
-                }
-                const schemaPath = url.fileURLToPath(schemaUri);
-                if (fs.existsSync(schemaPath)) {
-                    try {
-                        let schemaJson;
-                        if (schemaPath !== lastSchema.path) {
-                            schemaJson = jsonfile.readFileSync(schemaPath);
-                            lastSchema = { path: schemaPath, json: schemaJson };
-                        } else {
-                            schemaJson = lastSchema.json;
-                        }
-                        for (const { type, schema } of ConfigSchema.loadProfileSchemas(schemaJson)) {
-                            this.mProfileSchemaCache.set(`${layer.path}:${type}`, schema);
-                        }
-                    } catch (error) {
-                        // TODO Handle failure to read json file
-                    }
-                }
-            }
-        } else {
-            // Load profile schemas from meta files in profile root dir
-            for (const { type } of this.mOldSchoolProfileCache) {
-                const metaPath = nodeJsPath.join(this.mOldSchoolProfileRootDir, type, `${type}_meta.yaml`);
-                if (fs.existsSync(metaPath)) {
-                    try {
-                        const metaProfile = ProfileIO.readMetaFile(metaPath);
-                        this.mProfileSchemaCache.set(type, metaProfile.configuration.schema);
-                    } catch (error) {
-                        // TODO Handle failure to read meta file
-                    }
-                }
-            }
-        }
     }
 
     // _______________________________________________________________________
@@ -704,6 +616,57 @@ export class ProfileInfo {
         this.mImpLogger = Logger.getImperativeLogger();
     }
 
+    /**
+     * Load any profile schema objects found on disk and cache them. For team
+     * config, we check each config layer and load its schema JSON if there is
+     * one associated. For old school profiles, we load the meta YAML file for
+     * each profile type if it exists in the profile root directory.
+     */
+    private loadAllSchemas(): void {
+        this.mProfileSchemaCache = new Map();
+        if (this.usingTeamConfig) {
+            // Load profile schemas for all layers
+            let lastSchema: { path: string, json: any } = { path: null, json: null };
+            for (const layer of this.getTeamConfig().layers) {
+                if (layer.properties.$schema == null) continue;
+                const schemaUri = new url.URL(layer.properties.$schema, url.pathToFileURL(layer.path));
+                if (schemaUri.hostname != null) {
+                    // TODO Handle network URI not supported
+                }
+                const schemaPath = url.fileURLToPath(schemaUri);
+                if (fs.existsSync(schemaPath)) {
+                    try {
+                        let schemaJson;
+                        if (schemaPath !== lastSchema.path) {
+                            schemaJson = jsonfile.readFileSync(schemaPath);
+                            lastSchema = { path: schemaPath, json: schemaJson };
+                        } else {
+                            schemaJson = lastSchema.json;
+                        }
+                        for (const { type, schema } of ConfigSchema.loadProfileSchemas(schemaJson)) {
+                            this.mProfileSchemaCache.set(`${layer.path}:${type}`, schema);
+                        }
+                    } catch (error) {
+                        // TODO Handle failure to read json file
+                    }
+                }
+            }
+        } else {
+            // Load profile schemas from meta files in profile root dir
+            for (const { type } of this.mOldSchoolProfileCache) {
+                const metaPath = nodeJsPath.join(this.mOldSchoolProfileRootDir, type, `${type}_meta.yaml`);
+                if (fs.existsSync(metaPath)) {
+                    try {
+                        const metaProfile = ProfileIO.readMetaFile(metaPath);
+                        this.mProfileSchemaCache.set(type, metaProfile.configuration.schema);
+                    } catch (error) {
+                        // TODO Handle failure to read meta file
+                    }
+                }
+            }
+        }
+    }
+
     // _______________________________________________________________________
     /**
      * Get all of the sub-profiles in the configuration.
@@ -802,6 +765,91 @@ export class ProfileInfo {
             }
         }
         return files;
+    }
+
+    /**
+     * Get arg data type from a "typeof" string. Arg data types can be basic
+     * types like string, number, and boolean. If they are any other type or a
+     * union of types, their type will be represented simply as object.
+     * @param propType The type of a profile property
+     */
+    private argDataType(propType: string | string[]): "string" | "number" | "boolean" | "object" {
+        switch (propType) {
+            case "string":
+            case "number":
+            case "boolean":
+                return propType;
+            default:
+                return "object";
+        }
+    }
+
+    /**
+     * Given a profile name and property name, compute the profile location
+     * object containing OS and JSON locations.
+     * @param profileName Name of a team config profile (e.g., LPAR1.zosmf)
+     * @param propName Name of a team config property (e.g., host)
+     */
+    private argTeamConfigLoc(profileName: string, propName: string): IProfLoc {
+        const pathSegments = this.mLoadedConfig.api.profiles.expandPath(profileName).split(".");
+        const buildPath = (ps: string[], p: string) => `${ps.join(".")}.properties.${p}`;
+        while (pathSegments.length > 0 && lodash.get(this.mLoadedConfig.properties, buildPath(pathSegments, propName)) === undefined) {
+            // Drop segment from end of path if property not found
+            pathSegments.pop();
+        };
+        const jsonPath = (pathSegments.length > 0) ? buildPath(pathSegments, propName) : undefined;
+        if (jsonPath == null) {
+            // TODO Issue warning - this should never happen, but if it does osLoc and jsonLoc will be undefined
+            return { locType: ProfLocType.TEAM_CONFIG };
+        }
+        let filePath: string;
+        for (const layer of this.mLoadedConfig.layers) {
+            // Find the first layer that includes the JSON path
+            if (lodash.get(layer.properties, jsonPath) !== undefined) {
+                filePath = layer.path;
+                break;
+            }
+        }
+        return {
+            locType: ProfLocType.TEAM_CONFIG,
+            osLoc: [filePath],
+            jsonLoc: jsonPath
+        };
+    }
+
+    /**
+     * Given a profile name and type, compute the profile location object
+     * containing OS location.
+     * @param profileName Name of an old school profile (e.g., LPAR1)
+     * @param profileType Type of an old school profile (e.g., zosmf)
+     */
+    private argOldProfileLoc(profileName: string, profileType: string): IProfLoc {
+        return {
+            locType: ProfLocType.OLD_PROFILE,
+            osLoc: [nodeJsPath.join(this.mOldSchoolProfileRootDir, profileType, `${profileName}.yaml`)]
+        }
+    }
+
+    /**
+     * Load the cached schema object for a profile type. Returns null if
+     * schema is not found in the cache.
+     * @param profile Profile attributes object
+     */
+    private loadSchema(profile: IProfAttrs): IProfileSchema | null {
+        // TODO Issue warning when schema object cannot be found
+        let schemaMapKey: string;
+
+        if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
+            schemaMapKey = `${profile.profLoc.osLoc}:${profile.profType}`;
+        } else if (profile.profLoc.locType === ProfLocType.OLD_PROFILE) {
+            schemaMapKey = profile.profType;
+        }
+
+        if (schemaMapKey != null && this.mProfileSchemaCache.has(schemaMapKey)) {
+            return this.mProfileSchemaCache.get(schemaMapKey);
+        }
+
+        return null;
     }
 
     // _______________________________________________________________________
