@@ -28,8 +28,9 @@ function createNewProfInfo(newDir: string): ProfileInfo {
 
 describe("ProfileInfo tests", () => {
 
-    const tsoProfName = "tsoProfName";
-    const tsoJsonLoc = "LPAR1." + tsoProfName;
+    const tsoName = "tsoProfName";
+    const tsoProfName = "LPAR1.tsoProfName"
+    const tsoJsonLoc = "profiles.LPAR1.profiles." + tsoName;
     const testDir = path.join(__dirname,  "__resources__");
     const teamProjDir = path.join(testDir, testAppNm + "_team_config_proj");
     const homeDirPath = path.join(testDir, testAppNm + "_home");
@@ -88,14 +89,14 @@ describe("ProfileInfo tests", () => {
         describe("getDefaultProfile", () => {
 
             it("should return null if no default for that type exists: TeamConfig", async () => {
-                const profInfo = createNewProfInfo(teamProjDir)
+                const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
                 const profAttrs = profInfo.getDefaultProfile("ThisTypeDoesNotExist");
                 expect(profAttrs).toBeNull();
             });
 
             it("should return a profile if one exists: TeamConfig", async () => {
-                const profInfo = createNewProfInfo(teamProjDir)
+                const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
                 const desiredProfType = "tso";
                 const profAttrs = profInfo.getDefaultProfile(desiredProfType);
@@ -242,7 +243,7 @@ describe("ProfileInfo tests", () => {
 
                 expect(profAttrs).not.toBeNull();
                 expect(profAttrs.isDefaultProfile).toBe(true);
-                expect(profAttrs.profName).toBe(tsoProfName);
+                expect(profAttrs.profName).toBe(tsoName);
                 expect(profAttrs.profType).toBe(desiredProfType);
                 expect(profAttrs.profLoc.locType).not.toBeNull();
 

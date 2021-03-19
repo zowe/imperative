@@ -159,20 +159,21 @@ export class ProfileInfo {
 
         // Do we have team config profiles?
         if (this.mUsingTeamConfig) {
-            const teamConfigProfs = this.mLoadedConfig.properties.profiles;
+            const teamConfigProfs = this.mLoadedConfig.maskedProperties.profiles;
             // Iterate over them
             // tslint:disable-next-line: forin
             for (const prof in teamConfigProfs) {
                 // Check if the profile has a type
                 if (teamConfigProfs[prof].type && (profileType == null || teamConfigProfs[prof].type === profileType)) {
                     const jsonLocation: string = "profiles." + prof;
+                    const teamOsLocation: string[] = this.findTeamOsLocation(jsonLocation);
                     const profAttrs: IProfAttrs = {
                         profName: prof,
                         profType: teamConfigProfs[prof].type,
                         isDefaultProfile: this.isDefaultTeamProfile(prof, profileType),
                         profLoc: {
                             locType: ProfLocType.TEAM_CONFIG,
-                            osLoc: this.findTeamOsLocation(jsonLocation),
+                            osLoc: teamOsLocation,
                             jsonLoc: jsonLocation
                         }
                     }
@@ -220,8 +221,6 @@ export class ProfileInfo {
      *
      * @returns The default profile. If no profile exists
      *          for the specified type, we return null;
-     *
-     * todo: Remove disk I/O for old-school profiles and remove async
      */
     public getDefaultProfile(profileType: string): IProfAttrs {
         this.ensureReadFromDisk();
@@ -246,19 +245,18 @@ export class ProfileInfo {
             }
 
             // extract info from the underlying team config
-            const foundJsonLoc = this.mLoadedConfig.maskedProperties.defaults[profileType];
-            const activeLayer: IConfigLayer =this.mLoadedConfig.layerActive();
+            const foundProfNm = this.mLoadedConfig.maskedProperties.defaults[profileType];
 
             // for a team config, we use the last node of the jsonLoc as the name
-            const segments = foundJsonLoc.split(".");
-            const foundProfNm = segments[segments.length - 1];
+            const foundJson = this.mLoadedConfig.api.profiles.expandPath(foundProfNm);
+            const teamOsLocation: string[] = this.findTeamOsLocation(foundJson);
 
             // assign the required poperties to defaultProfile
             defaultProfile.profName = foundProfNm;
             defaultProfile.profLoc = {
                 locType: ProfLocType.TEAM_CONFIG,
-                osLoc: [activeLayer.path],
-                jsonLoc: foundJsonLoc
+                osLoc: teamOsLocation,
+                jsonLoc: foundJson
             }
         } else {
             // get default profile from the old-school profiles
@@ -567,13 +565,13 @@ export class ProfileInfo {
 
         // Is it defined for a particular profile type?
         if (profileType) {
-            if (this.mLoadedConfig.properties.defaults[profileType] === path) return true;
+            if (this.mLoadedConfig.maskedProperties.defaults[profileType] === path) return true;
             else return false;
         }
 
         // Iterate over defaults to see if it's a default profile
-        for (const def in this.mLoadedConfig.properties.defaults) {
-            if (this.mLoadedConfig.properties.defaults[def] === path) {
+        for (const def in this.mLoadedConfig.maskedProperties.defaults) {
+            if (this.mLoadedConfig.maskedProperties.defaults[def] === path) {
                 return true;
             }
         }
