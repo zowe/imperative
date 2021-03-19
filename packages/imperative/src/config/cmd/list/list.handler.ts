@@ -12,6 +12,7 @@
 import * as lodash from "lodash";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ConfigConstants } from "../../../../../config";
+import { ProfileInfo } from "../../../../../config/src/ProfileInfo";
 import { ImperativeConfig } from "../../../../../utilities";
 
 export default class ListHandler implements ICommandHandler {
