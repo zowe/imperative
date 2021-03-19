@@ -448,13 +448,12 @@ export class ProfileInfo {
                 }
             }
         } else {
-            // TODO Handle nicely instead of throwing error
-            throw new ImperativeError({ msg: "Invalid profile location type: " + profile.profLoc.locType });
+            throw new ImperativeError({ msg: "Invalid profile location type: " + ProfLocType[profile.profLoc.locType] });
         }
 
         // perform validation with profile schema if available
         const profSchema = this.loadSchema(profile);
-        if (profSchema) {
+        if (profSchema != null) {
             const missingRequired: string[] = [];
 
             for (const [propName, propObj] of Object.entries(profSchema.properties || {})) {
@@ -474,9 +473,10 @@ export class ProfileInfo {
             }
 
             if (missingRequired.length > 0) {
-                // TODO Handle nicely instead of throwing error
                 throw new ImperativeError({ msg: "Missing required properties: " + missingRequired.join(", ") });
             }
+        } else {
+            throw new ImperativeError({ msg: `Failed to load schema for profile type ${profile.profType}` });
         }
 
         // overwrite with any values found in environment
@@ -624,14 +624,14 @@ export class ProfileInfo {
      */
     private loadAllSchemas(): void {
         this.mProfileSchemaCache = new Map();
-        if (this.usingTeamConfig) {
+        if (this.mUsingTeamConfig) {
             // Load profile schemas for all layers
             let lastSchema: { path: string, json: any } = { path: null, json: null };
             for (const layer of this.getTeamConfig().layers) {
                 if (layer.properties.$schema == null) continue;
                 const schemaUri = new url.URL(layer.properties.$schema, url.pathToFileURL(layer.path));
-                if (schemaUri.hostname != null) {
-                    // TODO Handle network URI not supported
+                if (schemaUri.protocol !== "file:") {
+                    throw new ImperativeError({ msg: `Failed to load schema for config file ${layer.path}: web URLs are not supported by ProfileInfo API` });
                 }
                 const schemaPath = url.fileURLToPath(schemaUri);
                 if (fs.existsSync(schemaPath)) {
@@ -647,7 +647,10 @@ export class ProfileInfo {
                             this.mProfileSchemaCache.set(`${layer.path}:${type}`, schema);
                         }
                     } catch (error) {
-                        // TODO Handle failure to read json file
+                        throw new ImperativeError({
+                            msg: `Failed to load schema for config file ${layer.path}: invalid schema file`,
+                            causeErrors: error
+                        });
                     }
                 }
             }
@@ -660,7 +663,10 @@ export class ProfileInfo {
                         const metaProfile = ProfileIO.readMetaFile(metaPath);
                         this.mProfileSchemaCache.set(type, metaProfile.configuration.schema);
                     } catch (error) {
-                        // TODO Handle failure to read meta file
+                        throw new ImperativeError({
+                            msg: `Failed to load schema for profile type ${type}: invalid meta file`,
+                            causeErrors: error
+                        });
                     }
                 }
             }
@@ -791,17 +797,17 @@ export class ProfileInfo {
      * @param propName Name of a team config property (e.g., host)
      */
     private argTeamConfigLoc(profileName: string, propName: string): IProfLoc {
-        const pathSegments = this.mLoadedConfig.api.profiles.expandPath(profileName).split(".");
-        const buildPath = (ps: string[], p: string) => `${ps.join(".")}.properties.${p}`;
-        while (pathSegments.length > 0 && lodash.get(this.mLoadedConfig.properties, buildPath(pathSegments, propName)) === undefined) {
+        const segments = this.mLoadedConfig.api.profiles.expandPath(profileName).split(".profiles.");
+        const buildPath = (ps: string[], p: string) => `${ps.join(".profiles.")}.properties.${p}`;
+        while (segments.length > 0 && lodash.get(this.mLoadedConfig.properties, buildPath(segments, propName)) === undefined) {
             // Drop segment from end of path if property not found
-            pathSegments.pop();
+            segments.pop();
         };
-        const jsonPath = (pathSegments.length > 0) ? buildPath(pathSegments, propName) : undefined;
+        const jsonPath = (segments.length > 0) ? buildPath(segments, propName) : undefined;
         if (jsonPath == null) {
-            // TODO Issue warning - this should never happen, but if it does osLoc and jsonLoc will be undefined
-            return { locType: ProfLocType.TEAM_CONFIG };
+            throw new ImperativeError({ msg: `Failed to find property ${propName} in the profile ${profileName}` });
         }
+
         let filePath: string;
         for (const layer of this.mLoadedConfig.layers) {
             // Find the first layer that includes the JSON path
@@ -810,6 +816,7 @@ export class ProfileInfo {
                 break;
             }
         }
+
         return {
             locType: ProfLocType.TEAM_CONFIG,
             osLoc: [filePath],
@@ -836,7 +843,6 @@ export class ProfileInfo {
      * @param profile Profile attributes object
      */
     private loadSchema(profile: IProfAttrs): IProfileSchema | null {
-        // TODO Issue warning when schema object cannot be found
         let schemaMapKey: string;
 
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {

@@ -16,7 +16,7 @@ import { ProfileInfo } from "../src/ProfileInfo";
 import { ImperativeError } from "../..";
 import { Config } from "../src/Config";
 import { ProfLocType } from "../src/doc/IProfLoc";
-import { IProfileSchema } from "../../profiles";
+import { IProfileSchema, ProfileIO } from "../../profiles";
 
 const testAppNm = "ProfInfoApp";
 const profileTypes = ["zosmf", "tso", "base"];
@@ -299,7 +299,7 @@ describe("ProfileInfo tests", () => {
                 const fakeBasePath = "api/v1";
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
-                (profInfo as any).mLoadedConfig.set("profiles.LPAR1.properties.base-path", fakeBasePath);
+                profInfo.getTeamConfig().set("profiles.LPAR1.properties.base-path", fakeBasePath);
                 const profAttrs = profInfo.getDefaultProfile("zosmf");
                 delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
                 const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
@@ -319,6 +319,21 @@ describe("ProfileInfo tests", () => {
                     expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.LPAR1\.properties\./);
                     expect(arg.argLoc.osLoc[0]).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
                 }
+            });
+
+            it("should throw if property location cannot be found in JSON: TeamConfig", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                let caughtError;
+
+                try {
+                    (profInfo as any).argTeamConfigLoc("doesNotExist", "fake");
+                } catch (error) {
+                    caughtError = error;
+                }
+
+                expect(caughtError).toBeDefined();
+                expect(caughtError.message).toContain("Failed to find property fake in the profile doesNotExist");
             });
 
             it("should list optional args missing in service profile: TeamConfig", async () => {
@@ -348,8 +363,8 @@ describe("ProfileInfo tests", () => {
                 await profInfo.readProfilesFromDisk();
                 const profAttrs = profInfo.getDefaultProfile("zosmf");
                 jest.spyOn(profInfo as any, "loadSchema").mockReturnValueOnce(requiredProfSchema);
-
                 let caughtError;
+
                 try {
                     profInfo.mergeArgsForProfile(profAttrs);
                 } catch (error) {
@@ -385,13 +400,31 @@ describe("ProfileInfo tests", () => {
                     expect(arg.argLoc.osLoc).toBeUndefined();
                 }
             });
+
+            it("should throw if schema fails to load: TeamConfig", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                const profAttrs = profInfo.getDefaultProfile("zosmf");
+                jest.spyOn(profInfo as any, "loadSchema").mockReturnValueOnce(null);
+                let caughtError;
+
+                try {
+                    profInfo.mergeArgsForProfile(profAttrs);
+                } catch (error) {
+                    caughtError = error;
+                }
+
+                expect(caughtError).toBeDefined();
+                expect(caughtError.message).toContain("Failed to load schema for profile type zosmf");
+            });
         });
 
         describe("mergeArgsForProfileType", () => {
             it("should find known args in base profile: TeamConfig", async () => {
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
-                (profInfo as any).mLoadedConfig.api.profiles.defaultSet("base", "base_glob");
+                profInfo.getTeamConfig().api.profiles.defaultSet("base", "base_glob");
+                jest.spyOn(profInfo as any, "loadSchema").mockReturnValueOnce({});
                 const mergedArgs = profInfo.mergeArgsForProfileType("cics");
 
                 const expectedArgs = [
@@ -410,6 +443,44 @@ describe("ProfileInfo tests", () => {
                 }
             });
         });
+
+        describe("loadAllSchemas", () => {
+            it("should throw when schema property references a web URL: TeamConfig", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                profInfo.getTeamConfig().layerActive().properties.$schema = "http://example.com/schema";
+                let caughtError;
+
+                try {
+                    (profInfo as any).loadAllSchemas();
+                } catch (error) {
+                    caughtError = error;
+                }
+
+                expect(caughtError).toBeDefined();
+                expect(caughtError.message).toContain("Failed to load schema for config file");
+                expect(caughtError.message).toContain("web URLs are not supported by ProfileInfo API");
+            });
+
+            it("should throw when schema file is invalid: TeamConfig", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                jest.spyOn(jsonfile, "readFileSync").mockImplementationOnce(() => {
+                    throw new Error("bad schema")
+                });
+                let caughtError;
+
+                try {
+                    (profInfo as any).loadAllSchemas();
+                } catch (error) {
+                    caughtError = error;
+                }
+
+                expect(caughtError).toBeDefined();
+                expect(caughtError.message).toContain("Failed to load schema for config file");
+                expect(caughtError.message).toContain("invalid schema file");
+            });
+        })
     });
 
     describe("Old-school Profile Tests", () => {
@@ -699,12 +770,30 @@ describe("ProfileInfo tests", () => {
                     expect(arg.argLoc.osLoc).toBeUndefined();
                 }
             });
+
+            it("should throw if schema fails to load: oldSchool", async () => {
+                const profInfo = createNewProfInfo(homeDirPath);
+                await profInfo.readProfilesFromDisk();
+                const profAttrs = profInfo.getDefaultProfile("zosmf");
+                jest.spyOn(profInfo as any, "loadSchema").mockReturnValueOnce(null);
+                let caughtError;
+
+                try {
+                    profInfo.mergeArgsForProfile(profAttrs);
+                } catch (error) {
+                    caughtError = error;
+                }
+
+                expect(caughtError).toBeDefined();
+                expect(caughtError.message).toContain("Failed to load schema for profile type zosmf");
+            });
         });
 
         describe("mergeArgsForProfileType", () => {
             it("should find known args in base profile: oldSchool", async () => {
                 const profInfo = createNewProfInfo(homeDirPath);
                 await profInfo.readProfilesFromDisk();
+                jest.spyOn(profInfo as any, "loadSchema").mockReturnValueOnce({});
                 const mergedArgs = profInfo.mergeArgsForProfileType("cics");
 
                 const expectedArgs = [
@@ -721,6 +810,48 @@ describe("ProfileInfo tests", () => {
                     expect(arg.argLoc.osLoc[0]).toMatch(/base_for_userNm\.yaml$/);
                 }
             });
+        });
+
+        describe("loadAllSchemas", () => {
+            it("should throw when schema file is invalid: oldSchool", async () => {
+                const profInfo = createNewProfInfo(homeDirPath);
+                await profInfo.readProfilesFromDisk();
+                jest.spyOn(ProfileIO, "readMetaFile").mockImplementationOnce(() => {
+                    throw new Error("bad meta")
+                });
+                let caughtError;
+
+                try {
+                    (profInfo as any).loadAllSchemas();
+                } catch (error) {
+                    caughtError = error;
+                }
+
+                expect(caughtError).toBeDefined();
+                expect(caughtError.message).toContain("Failed to load schema for profile type");
+                expect(caughtError.message).toContain("invalid meta file");
+            });
+        })
+    });
+
+    describe("mergeArgsForProfile", () => {
+        it("should throw if profile location type is invalid", () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            let caughtError;
+
+            try {
+                profInfo.mergeArgsForProfile({
+                    profName: null,
+                    profType: "test",
+                    isDefaultProfile: false,
+                    profLoc: { locType: ProfLocType.DEFAULT }
+                });
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeDefined();
+            expect(caughtError.message).toContain("Invalid profile location type: DEFAULT");
         });
     });
 });
