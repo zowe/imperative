@@ -607,9 +607,8 @@ export class ProfileInfo {
      */
     public async readProfilesFromDisk(teamCfgOpts?: IConfigOpts) {
         this.mLoadedConfig = await Config.load(this.mAppName, teamCfgOpts);
-        if (this.mLoadedConfig.exists) {
-            this.mUsingTeamConfig = true;
-        } else {
+        this.mUsingTeamConfig = this.mLoadedConfig.exists;
+        if (!this.mUsingTeamConfig) {
             // Clear out the values
             this.mOldSchoolProfileCache = [];
             this.mOldSchoolProfileDefaults = {};
