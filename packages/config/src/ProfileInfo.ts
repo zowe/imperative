@@ -15,20 +15,18 @@ import * as lodash from "lodash";
 
 // for ProfileInfo structures
 import { IProfAttrs } from "./doc/IProfAttrs";
-import { IProfArgAttrs } from "./doc/IProfArgAttrs";
-import { IProfLoc, ProfLocType } from "./doc/IProfLoc";
+import { ProfLocType } from "./doc/IProfLoc";
 import { IProfMergedArg } from "./doc/IProfMergedArg";
 import { IProfOpts } from "./doc/IProfOpts";
 
 // for team config functions
 import { Config } from "./Config";
 import { IConfigOpts } from "./doc/IConfigOpts";
-import { IConfigLayer } from "./doc/IConfigLayer";
 
 // for old-school profile operations
 import { AbstractProfileManager } from "../../profiles/src/abstract/AbstractProfileManager";
 import { CliProfileManager } from "../../cmd";
-import { IProfileLoaded, ProfileIO, ProfileUtils } from "../../profiles";
+import { IProfileLoaded, ProfileIO } from "../../profiles";
 
 // for imperative operations
 import { EnvironmentalVariableSettings, LoggingConfigurer } from "../../imperative";
@@ -194,7 +192,7 @@ export class ProfileInfo {
                 if (!profileType || profileType === loadedProfile.type) {
                     const typeDefaultProfile = this.getDefaultProfile(loadedProfile.type);
                     let defaultProfile = false;
-                    if (typeDefaultProfile && typeDefaultProfile.profName === loadedProfile.name) {defaultProfile = true};
+                    if (typeDefaultProfile && typeDefaultProfile.profName === loadedProfile.name) {defaultProfile = true;}
                     profiles.push({
                         profName: loadedProfile.name,
                         profType: loadedProfile.type,
