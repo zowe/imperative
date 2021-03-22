@@ -1,4 +1,5 @@
 {
+    "$schema": "./ProfInfoApp.schema.json",
     "profiles": {
         "base_glob": {
             "type": "base",

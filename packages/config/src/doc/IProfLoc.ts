@@ -27,10 +27,7 @@ export interface IProfLoc {
     /**
      * The type of location for this property
      */
-    locType:    ProfLocType.OLD_PROFILE |
-                ProfLocType.TEAM_CONFIG |
-                ProfLocType.ENV |
-                ProfLocType.DEFAULT;
+    locType: ProfLocType;
 
     /**
      * For OLD_PROFILE and TEAM_CONFIG, this is the path to
