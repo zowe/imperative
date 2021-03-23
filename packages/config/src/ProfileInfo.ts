@@ -21,6 +21,7 @@ import { IProfAttrs } from "./doc/IProfAttrs";
 import { IProfLoc, ProfLocType } from "./doc/IProfLoc";
 import { IProfMergedArg } from "./doc/IProfMergedArg";
 import { IProfOpts } from "./doc/IProfOpts";
+import { ProfInfoErr } from "./ProfInfoErr";
 
 // for team config functions
 import { Config } from "./Config";
@@ -48,9 +49,25 @@ import { Logger } from "../../logger";
  *
  * Pseudocode examples:
  * <pre>
- *    // Construct a new object. Use it to read the profiles from disk
+ *    // Construct a new object. Use it to read the profiles from disk.
+ *    // ProfileInfo functions throw a ProfInfoErr exception for errors.
+ *    // You can catch those errors and test the errorCode for known
+ *    // values. We are only showing the try/catch on the function
+ *    // below, but it applies to any ProfileInfo function.
  *    profInfo = new ProfileInfo("zowe");
- *    profInfo.readProfilesFromDisk();
+ *    try {
+ *        profInfo.readProfilesFromDisk();
+ *    } catch(err) {
+ *        if (err instanceof ProfInfoErr) {
+ *            if (err.errcode == ProfInfoErr.CANT_GET_SCHEMA_URL) {
+ *                youTakeAnAlternateAction();
+ *            } else {
+ *                // report the error
+ *            }
+ *        } else {
+ *            // handle other exceptions
+ *        }
+ *    }
  *
  *    // Maybe you want the list of all zosmf profiles
  *    let arrayOfProfiles = profInfo.getAllProfiles("zosmf");
@@ -439,7 +456,10 @@ export class ProfileInfo {
                 }
             }
         } else {
-            throw new ImperativeError({ msg: "Invalid profile location type: " + ProfLocType[profile.profLoc.locType] });
+            throw new ProfInfoErr({
+                errorCode: ProfInfoErr.INVALID_PROF_LOC_TYPE,
+                msg: "Invalid profile location type: " + ProfLocType[profile.profLoc.locType]
+            });
         }
 
         // perform validation with profile schema if available
@@ -464,10 +484,16 @@ export class ProfileInfo {
             }
 
             if (missingRequired.length > 0) {
-                throw new ImperativeError({ msg: "Missing required properties: " + missingRequired.join(", ") });
+                throw new ProfInfoErr({
+                    errorCode: ProfInfoErr.MISSING_REQ_PROP,
+                    msg: "Missing required properties: " + missingRequired.join(", ")
+                });
             }
         } else {
-            throw new ImperativeError({ msg: `Failed to load schema for profile type ${profile.profType}` });
+            throw new ProfInfoErr({
+                errorCode: ProfInfoErr.LOAD_SCHEMA_FAILED,
+                msg: `Failed to load schema for profile type ${profile.profType}`
+            });
         }
 
         // overwrite with any values found in environment
@@ -567,7 +593,8 @@ export class ProfileInfo {
      */
     private ensureReadFromDisk() {
         if (this.mLoadedConfig == null) {
-            throw new ImperativeError({
+            throw new ProfInfoErr({
+                errorCode: ProfInfoErr.MUST_READ_FROM_DISK,
                 msg: "You must first call ProfileInfo.readProfilesFromDisk()."
             });
         }
@@ -622,7 +649,10 @@ export class ProfileInfo {
                 if (layer.properties.$schema == null) continue;
                 const schemaUri = new url.URL(layer.properties.$schema, url.pathToFileURL(layer.path));
                 if (schemaUri.protocol !== "file:") {
-                    throw new ImperativeError({ msg: `Failed to load schema for config file ${layer.path}: web URLs are not supported by ProfileInfo API` });
+                    throw new ProfInfoErr({
+                        errorCode: ProfInfoErr.CANT_GET_SCHEMA_URL,
+                        msg: `Failed to load schema for config file ${layer.path}: web URLs are not supported by ProfileInfo API`
+                    });
                 }
                 const schemaPath = url.fileURLToPath(schemaUri);
                 if (fs.existsSync(schemaPath)) {
@@ -638,7 +668,8 @@ export class ProfileInfo {
                             this.mProfileSchemaCache.set(`${layer.path}:${type}`, schema);
                         }
                     } catch (error) {
-                        throw new ImperativeError({
+                        throw new ProfInfoErr({
+                            errorCode: ProfInfoErr.LOAD_SCHEMA_FAILED,
                             msg: `Failed to load schema for config file ${layer.path}: invalid schema file`,
                             causeErrors: error
                         });
@@ -654,7 +685,8 @@ export class ProfileInfo {
                         const metaProfile = ProfileIO.readMetaFile(metaPath);
                         this.mProfileSchemaCache.set(type, metaProfile.configuration.schema);
                     } catch (error) {
-                        throw new ImperativeError({
+                        throw new ProfInfoErr({
+                            errorCode: ProfInfoErr.LOAD_SCHEMA_FAILED,
                             msg: `Failed to load schema for profile type ${type}: invalid meta file`,
                             causeErrors: error
                         });
@@ -796,7 +828,10 @@ export class ProfileInfo {
         };
         const jsonPath = (segments.length > 0) ? buildPath(segments, propName) : undefined;
         if (jsonPath == null) {
-            throw new ImperativeError({ msg: `Failed to find property ${propName} in the profile ${profileName}` });
+            throw new ProfInfoErr({
+                errorCode: ProfInfoErr.PROP_NOT_IN_PROFILE,
+                msg: `Failed to find property ${propName} in the profile ${profileName}`
+            });
         }
 
         let filePath: string;
