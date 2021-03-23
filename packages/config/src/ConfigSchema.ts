@@ -10,7 +10,8 @@
 */
 
 import { ICommandProfileProperty } from "../../cmd";
-import { IProfileSchema, IProfileTypeConfiguration } from "../../profiles";
+import { IProfileProperty, IProfileSchema, IProfileTypeConfiguration } from "../../profiles";
+import { IConfigSchema } from "./doc/IConfigSchema";
 
 export class ConfigSchema {
     /**
@@ -33,7 +34,7 @@ export class ConfigSchema {
      * @param schema The Imperative profile schema
      * @returns JSON schema for profile properties
      */
-    private static transformSchema(schema: IProfileSchema): any {
+    private static generateJsonSchema(schema: IProfileSchema): any {
         const properties: { [key: string]: any } = {};
         for (const [k, v] of Object.entries(schema.properties)) {
             properties[k] = { type: v.type };
@@ -64,16 +65,45 @@ export class ConfigSchema {
     }
 
     /**
+     * Transform a JSON schema to an Imperative profile schema.
+     * @param schema The JSON schema for profile properties
+     * @returns Imperative profile schema
+     */
+    private static parseJsonSchema(schema: any): IProfileSchema {
+        const properties: { [key: string]: IProfileProperty } = {};
+        for (const [k, v] of Object.entries(schema.properties as { [key: string]: any })) {
+            properties[k] = { type: v.type };
+            if (v.description != null || v.default != null || v.enum != null) {
+                (properties[k] as ICommandProfileProperty).optionDefinition = {
+                    name: k,
+                    type: v.type,
+                    description: v.description,
+                    defaultValue: v.default,
+                    allowableValues: v.enum ? { values: v.enum } : undefined
+                };
+            }
+        }
+
+        return {
+            title: schema.title,
+            description: schema.description,
+            type: schema.type,
+            properties,
+            required: schema.required
+        };
+    }
+
+    /**
      * Dynamically builds the config schema for this CLI.
      * @param profiles The profiles supported by this CLI
      * @returns JSON schema for all supported profile types
      */
-    public static buildSchema(profiles: IProfileTypeConfiguration[]): any {
+    public static buildSchema(profiles: IProfileTypeConfiguration[]): IConfigSchema {
         const entries: any[] = [];
         profiles.forEach((profile: { type: string, schema: IProfileSchema }) => {
             entries.push({
                 if: { properties: { type: { const: profile.type } } },
-                then: { properties: { properties: this.transformSchema(profile.schema) } },
+                then: { properties: { properties: this.generateJsonSchema(profile.schema) } },
             });
         });
         return {
@@ -129,5 +159,21 @@ export class ConfigSchema {
                 }
             }
         };
+    }
+
+    /**
+     * Loads Imperative profile schema objects from a schema JSON file.
+     * @param schemaJson The schema JSON for config
+     */
+    public static loadProfileSchemas(schemaJson: IConfigSchema): IProfileTypeConfiguration[] {
+        const patternName = Object.keys(schemaJson.properties.profiles.patternProperties)[0];
+        const profileSchemas: IProfileTypeConfiguration[] = [];
+        for (const obj of schemaJson.properties.profiles.patternProperties[patternName].allOf) {
+            profileSchemas.push({
+                type: obj.if.properties.type.const,
+                schema: this.parseJsonSchema(obj.then.properties.properties)
+            });
+        }
+        return profileSchemas;
     }
 }

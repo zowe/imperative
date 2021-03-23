@@ -1,4 +1,4 @@
-defaultProfile: lpar1_zosmf
+defaultProfile: null
 configuration:
     type: zosmf
     schema:
@@ -37,14 +37,13 @@ configuration:
                     type: string
                     required: true
                     group: 'Zosmf Connection Options'
-            password:
+            pass:
                 type: string
                 secure: true
                 optionDefinition:
-                    name: password
+                    name: pass
                     aliases:
-                        - pass
-                        - pw
+                        - p
                     description: 'Mainframe (z/OSMF) password, which can be the same as your TSO password.'
                     type: string
                     group: 'Zosmf Connection Options'
@@ -58,15 +57,6 @@ configuration:
                     description: 'Reject self-signed certificates.'
                     type: boolean
                     defaultValue: true
-                    group: 'Zosmf Connection Options'
-            basePath:
-                type: string
-                optionDefinition:
-                    name: base-path
-                    aliases:
-                        - bp
-                    description: 'The base path for your API mediation layer instance. Specify this option to prepend the base path to all z/OSMF resources when making REST requests. Do not specify this option if you are not using an API mediation layer.'
-                    type: string
                     group: 'Zosmf Connection Options'
         required:
             - host
