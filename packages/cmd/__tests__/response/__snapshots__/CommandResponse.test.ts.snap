@@ -999,6 +999,20 @@ Object {
 }
 `;
 
+exports[`Command Response should not duplicate output when calling endBar 1`] = `
+"Message before progress bar
+Message during progress bar
+Message after progress bar
+"
+`;
+
+exports[`Command Response should not duplicate output when calling endBar 2`] = `
+"Message before progress bar
+[1G ██████████| 100%    | Complete[0K[2K[1G[2K[1GMessage during progress bar
+Message after progress bar
+"
+`;
+
 exports[`Command Response should not write an error header to stderr (but still buffer) if silent mode is enabled 1`] = `
 Object {
   "data": Object {},
