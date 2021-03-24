@@ -1,5 +1,5 @@
-host: usilca11.lvn.broadcom.net
-port: 1443
+host: lpar5.fakehost.com
+port: 443
 user: someUser
 password: somePassword
 rejectUnauthorized: false

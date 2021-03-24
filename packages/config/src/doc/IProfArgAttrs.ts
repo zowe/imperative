@@ -19,10 +19,10 @@ export interface IProfArgAttrs {
     argName: string;
 
     /** The type of data for this property */
-    dataType: "string" | "number";
+    dataType: "string" | "number" | "boolean" | "object";
 
     /** The value for the argument */
-    argValue: string | number;
+    argValue: string | number | boolean | object;
 
     /** The location of this argument */
     argLoc: IProfLoc;
