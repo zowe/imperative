@@ -10,7 +10,9 @@
 */
 
 // for imperative operations
-import { ImperativeError } from "../../error";
+import { IProfInfoErr } from "./doc/IProfInfoErr";
+import { ImperativeError, IImperativeError } from "../../error";
+import { IImperativeErrorParms } from "../../error/src/doc/IImperativeErrorParms";
 
 /**
  * This class is the error exception mechanism for the ProfileInfo API.
@@ -63,20 +65,31 @@ export class ProfInfoErr extends ImperativeError {
     // _______________________________________________________________________
 
     /**
-     * This property is used when an error is returned that is related
-     * to a number of configuration items. For example, if a problem is
-     * identified that affects a subset of profiles, those affected
-     * profiles can be identified in mItemsInError. Our consuming can
-     * easily identify each affected profile by traversing mItemsInError.
+     * Construct the ProfInfoErr error object. It adds properties in
+     * IProfInfoErr to the existing properties of ImperativeError.
+     *
+     * @param impErrDetails
+     *        ImperativeError details and text (stack, messages, etc.)
+     *
+     * @param impErrParms
+     *        ImperativeError control parameters to indicate logging of node-report and more
      */
-    private mItemsInError: string[] = [];
-
-    public get itemsInError(): string[] {
-        return this.mItemsInError;
+    constructor(
+        impErrDetails: IImperativeError,
+        profErrProps?: IProfInfoErr,
+        impErrParms?: IImperativeErrorParms
+    ) {
+        super(impErrDetails, impErrParms);
+        this.name = "ProfInfoErr";
+        this.mProfErrProps = profErrProps;
     }
 
-    public set itemsInError(itemArray: string[]) {
-        // make a shallow copy of the supplied array
-        this.mItemsInError = [...itemArray];
+    /**
+     * Additional error properties, specific to ProfInfoErr.
+     */
+    private mProfErrProps: IProfInfoErr = {};
+
+    public get itemsInError(): string[] {
+        return this.mProfErrProps.itemsInError;
     }
 }
