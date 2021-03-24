@@ -38,7 +38,7 @@ export interface IProfMergedArg {
      * The list of arguments with secure values.
      * All of the attributes in IProfPropAttrs will be filled in where possible,
      * except for argValue since the values are sensitive data. Use the method
-     * ProfileInfo.credentials.loadSecureArg to load the value of a secure arg.
+     * ProfileInfo.loadSecureArg to load a secure argument's value.
      */
     secureArgs: IProfArgAttrs[];
 }

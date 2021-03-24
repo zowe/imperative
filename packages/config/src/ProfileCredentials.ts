@@ -15,7 +15,6 @@ import * as path from "path";
 import { ImperativeError } from "../../error";
 import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
 import { ImperativeConfig } from "../../utilities";
-import { IProfArgAttrs } from "./doc/IProfArgAttrs";
 import { ProfileInfo } from "./ProfileInfo";
 
 export class ProfileCredentials {
@@ -89,14 +88,6 @@ export class ProfileCredentials {
                 })
             });
         }
-    }
-
-    /**
-     * Load value of secure argument from the vault.
-     * @param arg Secure argument object
-     */
-    public async loadSecureArg(arg: IProfArgAttrs) {
-        // TODO Load secure argValue from vault
     }
 
     /**

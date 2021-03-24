@@ -17,6 +17,7 @@ import * as jsonfile from "jsonfile";
 import * as lodash from "lodash";
 
 // for ProfileInfo structures
+import { IProfArgAttrs } from "./doc/IProfArgAttrs";
 import { IProfAttrs } from "./doc/IProfAttrs";
 import { IProfLoc, ProfLocType } from "./doc/IProfLoc";
 import { IProfMergedArg } from "./doc/IProfMergedArg";
@@ -215,8 +216,7 @@ export class ProfileInfo {
                         isDefaultProfile: defaultProfile,
                         profLoc: {
                             locType: ProfLocType.OLD_PROFILE,
-                            osLoc: [nodeJsPath.resolve(this.mOldSchoolProfileRootDir + "/" + loadedProfile.type + "/" +
-                            loadedProfile.name + AbstractProfileManager.PROFILE_EXTENSION)],
+                            osLoc: [this.oldProfileFilePath(loadedProfile.type, loadedProfile.name)],
                             jsonLoc: undefined
                         }
                     });
@@ -308,8 +308,7 @@ export class ProfileInfo {
             defaultProfile.profName = loadedProfile.name;
             defaultProfile.profLoc = {
                 locType: ProfLocType.OLD_PROFILE,
-                osLoc: [nodeJsPath.join(this.mOldSchoolProfileRootDir, profileType,
-                    loadedProfile.name + AbstractProfileManager.PROFILE_EXTENSION)]
+                osLoc: [this.oldProfileFilePath(profileType, loadedProfile.name)]
             }
         }
         return defaultProfile;
@@ -365,7 +364,8 @@ export class ProfileInfo {
     public mergeArgsForProfile(profile: IProfAttrs): IProfMergedArg {
         const mergedArgs: IProfMergedArg = {
             knownArgs: [],
-            missingArgs: []
+            missingArgs: [],
+            secureArgs: []
         };
 
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
@@ -453,17 +453,23 @@ export class ProfileInfo {
 
             for (const [propName, propObj] of Object.entries(profSchema.properties || {})) {
                 // Check if property in schema is missing from known args
-                if (!mergedArgs.knownArgs.find((arg) => arg.argName === propName)) {
+                const knownArgIdx = mergedArgs.knownArgs.findIndex((arg) => arg.argName === propName);
+                if (knownArgIdx === -1) {
                     mergedArgs.missingArgs.push({
                         argName: propName,
                         dataType: this.argDataType(propObj.type),
                         argValue: (propObj as ICommandProfileProperty).optionDefinition?.defaultValue,
-                        argLoc: { locType: ProfLocType.DEFAULT }
+                        argLoc: { locType: ProfLocType.DEFAULT },
+                        isSecure: propObj.secure
                     });
 
                     if (profSchema.required?.includes(propName)) {
                         missingRequired.push(propName);
                     }
+                } else if (propObj.secure) {
+                    const knownArg = mergedArgs.knownArgs.splice(knownArgIdx, 1)[0];
+                    delete knownArg.argValue;
+                    mergedArgs.secureArgs.push({ ...knownArg, isSecure: true });
                 }
             }
 
@@ -473,8 +479,6 @@ export class ProfileInfo {
         } else {
             throw new ImperativeError({ msg: `Failed to load schema for profile type ${profile.profType}` });
         }
-
-        // TODO Populate mergedArgs.secureArgs array with secure arguments that have argValue undefined
 
         // overwrite with any values found in environment
         this.overrideWithEnv(mergedArgs);
@@ -518,6 +522,11 @@ export class ProfileInfo {
     public async readProfilesFromDisk(teamCfgOpts?: IConfigOpts) {
         this.mLoadedConfig = await Config.load(this.mAppName, teamCfgOpts);
         this.mUsingTeamConfig = this.mLoadedConfig.exists;
+
+        if (this.mCredentials.isSecured) {
+            await this.mCredentials.loadManager();
+        }
+
         if (!this.mUsingTeamConfig) {
             // Clear out the values
             this.mOldSchoolProfileCache = [];
@@ -551,10 +560,6 @@ export class ProfileInfo {
         }
 
         this.loadAllSchemas();
-
-        if (this.mCredentials.isSecured) {
-            await this.mCredentials.loadManager();
-        }
     }
 
     // _______________________________________________________________________
@@ -569,6 +574,32 @@ export class ProfileInfo {
     public get usingTeamConfig(): boolean {
         this.ensureReadFromDisk();
         return this.mUsingTeamConfig;
+    }
+
+    /**
+     * Load value of secure argument from the vault.
+     * @param arg Secure argument object
+     */
+    public loadSecureArg(arg: IProfArgAttrs): any {
+        if (arg.argLoc.locType === ProfLocType.TEAM_CONFIG) {
+            // TODO Throw error if json loc/os loc are missing
+            for (const layer of this.mLoadedConfig.layers) {
+                if (layer.path === arg.argLoc.osLoc[0]) {
+                    return lodash.get(layer.properties, arg.argLoc.jsonLoc);
+                }
+            }
+        } else if (arg.argLoc.locType === ProfLocType.OLD_PROFILE) {
+            // TODO Throw error if os loc is missing
+            // TODO Should we only support team config for secureArgs?
+            for (const loadedProfile of this.mOldSchoolProfileCache) {
+                const profilePath = this.oldProfileFilePath(loadedProfile.type, loadedProfile.name);
+                if (profilePath === arg.argLoc.osLoc[0]) {
+                    return loadedProfile.profile[arg.argName];
+                }
+            }
+        } else {
+            // TODO Handle missing arg - we can't load it
+        }
     }
 
     // _______________________________________________________________________
@@ -659,7 +690,7 @@ export class ProfileInfo {
         } else {
             // Load profile schemas from meta files in profile root dir
             for (const { type } of this.mOldSchoolProfileCache) {
-                const metaPath = nodeJsPath.join(this.mOldSchoolProfileRootDir, type, `${type}_meta.yaml`);
+                const metaPath = this.oldProfileFilePath(type, type + AbstractProfileManager.META_FILE_SUFFIX);
                 if (fs.existsSync(metaPath)) {
                     try {
                         const metaProfile = ProfileIO.readMetaFile(metaPath);
@@ -835,8 +866,18 @@ export class ProfileInfo {
     private argOldProfileLoc(profileName: string, profileType: string): IProfLoc {
         return {
             locType: ProfLocType.OLD_PROFILE,
-            osLoc: [nodeJsPath.join(this.mOldSchoolProfileRootDir, profileType, `${profileName}.yaml`)]
+            osLoc: [this.oldProfileFilePath(profileType, profileName)]
         }
+    }
+
+    /**
+     * Given a profile name and type, return the OS location of the associated
+     * YAML file.
+     * @param profileName Name of an old school profile (e.g., LPAR1)
+     * @param profileType Type of an old school profile (e.g., zosmf)
+     */
+    private oldProfileFilePath(profileType: string, profileName: string) {
+        return nodeJsPath.join(this.mOldSchoolProfileRootDir, profileType, profileName + AbstractProfileManager.PROFILE_EXTENSION);
     }
 
     /**
@@ -848,6 +889,7 @@ export class ProfileInfo {
         let schemaMapKey: string;
 
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
+            // TODO What if osLoc is null, then use top layer's schema
             schemaMapKey = `${profile.profLoc.osLoc}:${profile.profType}`;
         } else if (profile.profLoc.locType === ProfLocType.OLD_PROFILE) {
             schemaMapKey = profile.profType;
