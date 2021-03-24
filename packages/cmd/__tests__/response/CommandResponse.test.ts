@@ -228,7 +228,7 @@ describe("Command Response", () => {
         process.stderr.write = ORIGINAL_STDERR_WRITE;
 
         expect(stdoutMsg).toMatchSnapshot();
-        expect(stderrMsg).toMatchSnapshot();
+        expect(stderrMsg).toMatch(new RegExp(`^Message before progress bar$\n^.*Message during progress bar$\n^Message after progress bar`, 'm'));
         expect(response.buildJsonResponse().stdout.toString()).toEqual(beforeMessage + "\n" + duringMessage + "\n" + afterMessage + "\n");
         expect(response.buildJsonResponse().stderr.toString()).toEqual(beforeMessage + "\n" + duringMessage + "\n" + afterMessage + "\n");
     })
