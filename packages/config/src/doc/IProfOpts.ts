@@ -9,11 +9,19 @@
 *
 */
 
+import { Logger } from "../../../logger";
+
 /**
  * Options that will affect the behavior of the ProfileInfo class.
  * They are supplied on the ProfileInfo constructor.
  */
 export interface IProfOpts {
+    /**
+     * Specifies an already initialized Imperative logger that the ProfileInfo
+     * class should use. If omitted, a new logger will be instantiated.
+     */
+    imperativeLogger?: Logger;
+
     /**
      * TODO? Disable loading of secure properties in profiles.
      */

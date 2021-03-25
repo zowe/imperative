@@ -148,7 +148,7 @@ export class ProfileInfo {
         this.mCredentials = new ProfileCredentials(this, profInfoOpts.requireKeytar);
 
         // do enough Imperative stuff to let imperative utilities work
-        this.initImpUtils();
+        this.initImpUtils(profInfoOpts.imperativeLogger);
     }
 
     // _______________________________________________________________________
@@ -590,7 +590,6 @@ export class ProfileInfo {
             }
         } else if (arg.argLoc.locType === ProfLocType.OLD_PROFILE) {
             // TODO Throw error if os loc is missing
-            // TODO Should we only support team config for secureArgs?
             for (const loadedProfile of this.mOldSchoolProfileCache) {
                 const profilePath = this.oldProfileFilePath(loadedProfile.type, loadedProfile.name);
                 if (profilePath === arg.argLoc.osLoc[0]) {
@@ -620,7 +619,7 @@ export class ProfileInfo {
      * Perform a rudimentary initialization of some Imperative utilities.
      * We must do this because VSCode apps do not typically call imperative.init.
      */
-    private initImpUtils() {
+    private initImpUtils(impLogger?: Logger) {
         // create a rudimentary ImperativeConfig if it has not been initialized
         if (ImperativeConfig.instance.loadedConfig == null) {
             let homeDir: string = null;
@@ -642,11 +641,15 @@ export class ProfileInfo {
         }
 
         // initialize logging
-        const loggingConfig = LoggingConfigurer.configureLogger(
-            ImperativeConfig.instance.cliHome, ImperativeConfig.instance.loadedConfig
-        );
-        Logger.initLogger(loggingConfig);
-        this.mImpLogger = Logger.getImperativeLogger();
+        if (impLogger == null) {
+            const loggingConfig = LoggingConfigurer.configureLogger(
+                ImperativeConfig.instance.cliHome, ImperativeConfig.instance.loadedConfig
+            );
+            Logger.initLogger(loggingConfig);
+            this.mImpLogger = Logger.getImperativeLogger();
+        } else {
+            this.mImpLogger = impLogger;
+        }
     }
 
     /**
