@@ -889,8 +889,17 @@ export class ProfileInfo {
         let schemaMapKey: string;
 
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
-            // TODO What if osLoc is null, then use top layer's schema
-            schemaMapKey = `${profile.profLoc.osLoc}:${profile.profType}`;
+            if (profile.profLoc.osLoc != null) {
+                schemaMapKey = `${profile.profLoc.osLoc}:${profile.profType}`;
+            } else {
+                for (const layer of this.mLoadedConfig.layers) {
+                    const tempKey = `${layer.path}:${profile.profType}`;
+                    if (this.mProfileSchemaCache.has(tempKey)) {
+                        schemaMapKey = tempKey;
+                        break;
+                    }
+                }
+            }
         } else if (profile.profLoc.locType === ProfLocType.OLD_PROFILE) {
             schemaMapKey = profile.profType;
         }

@@ -72,7 +72,7 @@ export class ConfigSchema {
     private static parseJsonSchema(schema: any): IProfileSchema {
         const properties: { [key: string]: IProfileProperty } = {};
         for (const [k, v] of Object.entries(schema.properties as { [key: string]: any })) {
-            properties[k] = { type: v.type };
+            properties[k] = { type: v.type, secure: v.secure };
             if (v.description != null || v.default != null || v.enum != null) {
                 (properties[k] as ICommandProfileProperty).optionDefinition = {
                     name: k,
