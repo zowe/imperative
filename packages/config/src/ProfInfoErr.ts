@@ -79,7 +79,11 @@ export class ProfInfoErr extends ImperativeError {
     ) {
         super(impErrDetails, profErrParms);
         this.name = "ProfInfoErr";
-        this.mItemsInError = profErrParms?.itemsInError;
+
+        // make a shallow copy of the itemsInError array
+        if (profErrParms) {
+            this.mItemsInError = [...profErrParms.itemsInError];
+        }
     }
 
     /**
