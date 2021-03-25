@@ -156,18 +156,12 @@ export class TextUtils {
      */
     public static getTable(objects: any[], primaryHighlightColor: string,
                            maxColumnWidth?: number, includeHeader: boolean = true, includeBorders: boolean = false,
-                           hardWrap: boolean = false, headers: string[] = []): string {
+                           hardWrap: boolean = false, headers?: string[]): string {
         const Table = require("cli-table3");
-        // for every property of every object in the array,
-        // make a header for the table
-        if (headers.length === 0) {
-            for (const obj of objects) {
-                for (const key of Object.keys(obj)) {
-                    if (headers.indexOf(key) === -1) {
-                        headers.push(key);
-                    }
-                }
-            }
+
+        // if the user did not specify which headers to use, build them from the object array
+        if (!headers) {
+            headers = this.buildHeaders(objects);
         }
         if (isNullOrUndefined(maxColumnWidth)) {
             maxColumnWidth = this.getRecommendedWidth() / headers.length;
@@ -209,6 +203,25 @@ export class TextUtils {
             table.push(row);
         }
         return table.toString();
+    }
+
+    /**
+     *  Build table headers from an array of key-value objects
+     * @param {any[]} objects - the key-value objects from which to build headers
+     * @returns {string} the headers array
+     */
+    public static buildHeaders(objects: any[]): string[] {
+        const headers = [];
+        // for every property of every object in the array,
+        // make a header for the table
+        for (const obj of objects) {
+            for (const key of Object.keys(obj)) {
+                if (headers.indexOf(key) === -1) {
+                    headers.push(key);
+                }
+            }
+        }
+        return headers;
     }
 
     /**
