@@ -10,9 +10,8 @@
 */
 
 // for imperative operations
-import { IProfInfoErr } from "./doc/IProfInfoErr";
+import { IProfInfoErrParms } from "./doc/IProfInfoErrParms";
 import { ImperativeError, IImperativeError } from "../../error";
-import { IImperativeErrorParms } from "../../error/src/doc/IImperativeErrorParms";
 
 /**
  * This class is the error exception mechanism for the ProfileInfo API.
@@ -66,30 +65,29 @@ export class ProfInfoErr extends ImperativeError {
 
     /**
      * Construct the ProfInfoErr error object. It adds properties in
-     * IProfInfoErr to the existing properties of ImperativeError.
+     * IProfInfoErrParms to the existing properties of ImperativeError.
      *
      * @param impErrDetails
      *        ImperativeError details and text (stack, messages, etc.)
      *
-     * @param impErrParms
-     *        ImperativeError control parameters to indicate logging of node-report and more
+     * @param profErrParms
+     *        ProfInfoErr parms and ImperativeError control parameters.
      */
     constructor(
         impErrDetails: IImperativeError,
-        profErrProps?: IProfInfoErr,
-        impErrParms?: IImperativeErrorParms
+        profErrParms?: IProfInfoErrParms
     ) {
-        super(impErrDetails, impErrParms);
+        super(impErrDetails, profErrParms);
         this.name = "ProfInfoErr";
-        this.mProfErrProps = profErrProps;
+        this.mItemsInError = profErrParms?.itemsInError;
     }
 
     /**
      * Additional error properties, specific to ProfInfoErr.
      */
-    private mProfErrProps: IProfInfoErr = {};
+    private mItemsInError: string[] = [];
 
     public get itemsInError(): string[] {
-        return this.mProfErrProps.itemsInError;
+        return this.mItemsInError;
     }
 }

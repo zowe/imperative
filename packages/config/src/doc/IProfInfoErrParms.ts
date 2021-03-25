@@ -9,11 +9,13 @@
 *
 */
 
+import { IImperativeErrorParms } from "../../../error/src/doc/IImperativeErrorParms";
+
 /**
  * Options that will affect the behavior of the ProfileInfo class.
  * They are supplied on the ProfileInfo constructor.
  */
-export interface IProfInfoErr {
+export interface IProfInfoErrParms extends IImperativeErrorParms {
 
     /**
      * This property is used when an error is returned that is related

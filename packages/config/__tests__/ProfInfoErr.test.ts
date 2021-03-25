@@ -17,7 +17,7 @@ describe("ProfInfoErr tests", () => {
         try {
             throw new ProfInfoErr({
                 errorCode: ProfInfoErr.CANT_GET_SCHEMA_URL,
-                msg: myMessage,
+                msg: myMessage
             });
         } catch (error) {
             expect(error instanceof ProfInfoErr).toEqual(true);
@@ -27,14 +27,14 @@ describe("ProfInfoErr tests", () => {
         }
     });
 
-    it("should throw error with impErrDetails and profErrProps", async () => {
-        const myMessage = "impErrDetails and profErrProps";
+    it("should throw error with impErrDetails and profErrParms", async () => {
+        const myMessage = "impErrDetails and profErrParms";
         const badStuff = ["bad item 1", "bad item 2", "bad item 3"];
         try {
             throw new ProfInfoErr(
                 {
                     errorCode: ProfInfoErr.INVALID_PROF_LOC_TYPE,
-                    msg: myMessage,
+                    msg: myMessage
                 },
                 {
                     itemsInError: badStuff
@@ -52,20 +52,18 @@ describe("ProfInfoErr tests", () => {
         }
     });
 
-    it("should throw error with impErrDetails, profErrProps, and impErrParms", async () => {
-        const myMessage = "impErrDetails, profErrProps, and impErrParms";
+    it("should throw error with impErrDetails, profErrParms, and impErrParms", async () => {
+        const myMessage = "impErrDetails, profErrParms, and impErrParms";
         const prependErrText = "Stuff before error message";
         const badStuff = ["bad item 1", "bad item 2", "bad item 3"];
         try {
             throw new ProfInfoErr(
                 {
                     errorCode: ProfInfoErr.INVALID_PROF_LOC_TYPE,
-                    msg: myMessage,
+                    msg: myMessage
                 },
                 {
-                    itemsInError: badStuff
-                },
-                {
+                    itemsInError: badStuff,
                     tag:prependErrText
                 }
             );
