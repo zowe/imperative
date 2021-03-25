@@ -15,6 +15,7 @@ import * as lodash from "lodash";
 import { ProfileInfo } from "../src/ProfileInfo";
 import { ProfInfoErr } from "../src/ProfInfoErr";
 import { Config } from "../src/Config";
+import { IConfigOpts } from "../src/doc/IConfigOpts";
 import { ProfLocType } from "../src/doc/IProfLoc";
 import { IProfileSchema, ProfileIO } from "../../profiles";
 
@@ -85,7 +86,20 @@ describe("ProfileInfo tests", () => {
                 const teamConfig: Config = profInfo.getTeamConfig();
                 expect(teamConfig).not.toBeNull();
                 expect(teamConfig.exists).toBe(true);
+            });
 
+            it("should successfully read a team config from a starting directory", async () => {
+                // ensure that we are not in the team project directory
+                process.chdir(origDir);
+                const profInfo = new ProfileInfo(testAppNm);
+
+                const teamCfgOpts:IConfigOpts = { projectDir: teamProjDir };
+                await profInfo.readProfilesFromDisk(teamCfgOpts);
+
+                expect(profInfo.usingTeamConfig).toBe(true);
+                const teamConfig: Config = profInfo.getTeamConfig();
+                expect(teamConfig).not.toBeNull();
+                expect(teamConfig.exists).toBe(true);
             });
         });
 
