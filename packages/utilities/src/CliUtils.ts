@@ -237,20 +237,7 @@ export class CliUtils {
 
                     // convert to an array of strings if the type is array
                     case "array":
-                        const regex = /(["'])(?:(?=(\\?))\2.)*?\1/g;
-                        let arr = [];
-                        let match = regex.exec(envValue);
-                        let removed = envValue;
-                        while (match != null) {
-                            removed = removed.replace(match[0], "");
-                            const replace = match[0].replace("\\'", "'");
-                            const trimmed = replace.replace(/(^')|('$)/g, "");
-                            arr.push(trimmed);
-                            match = regex.exec(envValue);
-                        }
-                        removed = removed.trim();
-                        arr = arr.concat(removed.split(/[\s\n]+/g));
-                        envValue = arr;
+                        envValue = this.extractArrayFromEnvValue(envValue);
                         break;
 
                     // Do nothing for other option types
@@ -266,6 +253,29 @@ export class CliUtils {
             }
         });
         return args;
+    }
+
+    /**
+     * Convert an array of strings provided as an environment variable
+     *
+     * @param envValue String form of the array
+     * @returns String[] based on environment variable
+     */
+    public static extractArrayFromEnvValue(envValue: string): string[] {
+        const regex = /(["'])(?:(?=(\\?))\2.)*?\1/g;
+        let arr = [];
+        let match = regex.exec(envValue);
+        let removed = envValue;
+        while (match != null) {
+            removed = removed.replace(match[0], "");
+            const replace = match[0].replace("\\'", "'");
+            const trimmed = replace.replace(/(^')|('$)/g, "");
+            arr.push(trimmed);
+            match = regex.exec(envValue);
+        }
+        removed = removed.trim();
+        arr = arr.concat(removed.split(/[\s\n]+/g));
+        return arr;
     }
 
     /**

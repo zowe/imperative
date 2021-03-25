@@ -39,6 +39,7 @@ import { CliUtils, ImperativeConfig } from "../../utilities";
 import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
 import { Logger } from "../../logger";
+import { IProfArgAttrs } from "./doc/IProfArgAttrs";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -444,6 +445,10 @@ export class ProfileInfo {
 
         // perform validation with profile schema if available
         const profSchema = this.loadSchema(profile);
+
+        // overwrite with any values found in environment
+        this.overrideWithEnv(mergedArgs, profSchema);
+
         if (profSchema != null) {
             const missingRequired: string[] = [];
 
@@ -462,16 +467,12 @@ export class ProfileInfo {
                     }
                 }
             }
-
             if (missingRequired.length > 0) {
                 throw new ImperativeError({ msg: "Missing required properties: " + missingRequired.join(", ") });
             }
         } else {
             throw new ImperativeError({ msg: `Failed to load schema for profile type ${profile.profType}` });
         }
-
-        // overwrite with any values found in environment
-        this.overrideWithEnv(mergedArgs);
 
         return mergedArgs;
     }
@@ -863,7 +864,61 @@ export class ProfileInfo {
      *      into mergedArgs.knownArgs if a value is found in an environment
      *      variable for any missingArgs.
      */
-    private overrideWithEnv(mergedArgs: IProfMergedArg) {
+    private overrideWithEnv(mergedArgs: IProfMergedArg, profSchema?: IProfileSchema) {
+        // populate any missing options
+        const envPrefix = ImperativeConfig.instance.loadedConfig.envVariablePrefix;
+        const envStart = envPrefix + "_OPT_";
+        for (const key in process.env) {
+            if (key.startsWith(envStart)) {
+                const value: string = process.env[key];
+                let argValue: any = value;
+                let dataType: any = typeof argValue;
+                let argName: string = CliUtils.getOptionFormat(key.substring(envStart.length).replace(/_/g, "-").toLowerCase()).camelCase;
+
+                if (profSchema != null) {
+                    for (const [propName, propObj] of Object.entries(profSchema.properties || {})) {
+                        if (argName === propName) {
+                            dataType = this.argDataType(propObj.type);
+                        }
+                    }
+                } else {
+                    if (value.toUpperCase() === "TRUE" || value.toUpperCase() === "FALSE") {
+                        dataType = "boolean";
+                    } else if (!isNaN(+(value))) {
+                        dataType = "number";
+                    } else if (/(^"{)(}"$)/g.exec(value)) {
+                        dataType = "object";
+                    } else if (/(^"\[)(\]"$)/g.exec(value)) {
+                        dataType = "array";
+                    }
+                }
+
+                if (dataType === "boolean") {
+                    argValue = value.toUpperCase() === "TRUE";
+                } else if (dataType === "number") {
+                    argValue = +(value);
+                } else if (dataType === "array") {
+
+                } else if (dataType === "object") {
+
+                }
+
+                const tempArg: IProfArgAttrs = {
+                    argName,
+                    argValue,
+                    dataType,
+                    argLoc: { locType: ProfLocType.ENV }
+                };
+
+                const argIndex = mergedArgs.knownArgs.findIndex((arg) => arg.argName === argName)
+                if (argIndex < 0) {
+                    mergedArgs.knownArgs.push(tempArg);
+                } else if (this.mOverrideWithEnv) {
+                    mergedArgs.knownArgs[argIndex] = tempArg;
+                }
+            }
+        }
+
         if (this.mOverrideWithEnv === false) {
             return;
         }
