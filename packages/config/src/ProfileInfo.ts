@@ -771,11 +771,12 @@ export class ProfileInfo {
      * union of types, their type will be represented simply as object.
      * @param propType The type of a profile property
      */
-    private argDataType(propType: string | string[]): "string" | "number" | "boolean" | "object" {
+    private argDataType(propType: string | string[]): "string" | "number" | "boolean" | "array" | "object" {
         switch (propType) {
             case "string":
             case "number":
             case "boolean":
+            case "array":
                 return propType;
             default:
                 return "object";
@@ -872,15 +873,19 @@ export class ProfileInfo {
             if (key.startsWith(envStart)) {
                 let argValue: any = process.env[key];
                 let dataType: any = typeof argValue;
-                let argName: string = CliUtils.getOptionFormat(key.substring(envStart.length).replace(/_/g, "-").toLowerCase()).camelCase;
+                const argName: string = CliUtils.getOptionFormat(key.substring(envStart.length).replace(/_/g, "-").toLowerCase()).camelCase;
 
+                let argNameFound = false;
                 if (profSchema != null) {
                     for (const [propName, propObj] of Object.entries(profSchema.properties || {})) {
                         if (argName === propName) {
                             dataType = this.argDataType(propObj.type);
+                            argNameFound = true;
                         }
                     }
-                } else {
+                }
+
+                if (profSchema == null || !argNameFound) {
                     if (argValue.toUpperCase() === "TRUE" || argValue.toUpperCase() === "FALSE") {
                         dataType = "boolean";
                     } else if (!isNaN(+(argValue))) {

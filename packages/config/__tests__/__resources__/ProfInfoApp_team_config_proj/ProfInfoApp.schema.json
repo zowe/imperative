@@ -204,6 +204,40 @@
                             "if": {
                                 "properties": {
                                     "type": {
+                                        "const": "dummy"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "properties": {
+                                    "properties": {
+                                        "type": "object",
+                                        "title": "dummy profile",
+                                        "description": "dummy profile",
+                                        "properties": {
+                                            "host": {
+                                                "type": "string",
+                                                "description": "The dummy host name."
+                                            },
+                                            "port": {
+                                                "type": "number",
+                                                "description": "The dummy port.",
+                                                "default": 22
+                                            },
+                                            "list": {
+                                                "type": "array",
+                                                "description": "The dummy list."
+                                            }
+                                        },
+                                        "required": []
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
                                         "const": "base"
                                     }
                                 }

@@ -20,7 +20,7 @@ import { IProfileSchema, ProfileIO } from "../../profiles";
 
 const testAppNm = "ProfInfoApp";
 const testEnvPrefix = testAppNm.toUpperCase();
-const profileTypes = ["zosmf", "tso", "base"];
+const profileTypes = ["zosmf", "tso", "base", "dummy"];
 
 function createNewProfInfo(newDir: string, opts?: IProfOpts): ProfileInfo {
     // create a new ProfileInfo in the desired directory
@@ -44,7 +44,7 @@ describe("ProfileInfo tests", () => {
     const envHost = testEnvPrefix + "_OPT_HOST";
     const envPort = testEnvPrefix + "_OPT_PORT";
     const envRFH = testEnvPrefix + "_OPT_RESPONSE_FORMAT_HEADER";
-    const envArray = testEnvPrefix + "_OPT_FAKE_ARRAY";
+    const envArray = testEnvPrefix + "_OPT_LIST";
 
     beforeAll(() => {
         // remember our original directory
@@ -124,13 +124,14 @@ describe("ProfileInfo tests", () => {
 
         describe("getAllProfiles", () => {
             it("should return all profiles if no type is specified: TeamConfig", async () => {
-                const length = 6;
-                const expectedDefaultProfiles = 3;
+                const length = 7;
+                const expectedDefaultProfiles = 4;
                 const expectedDefaultProfileNameZosmf = "LPAR1";
                 const expectedDefaultProfileNameTso = "LPAR1.tsoProfName";
                 const expectedDefaultProfileNameBase = "base_glob";
+                const expectedDefaultProfileNameDummy = "LPAR4";
                 let actualDefaultProfiles = 0;
-                let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3", "LPAR1.tsoProfName", "LPAR1.tsoProfName.tsoSubProfName", "base_glob"];
+                let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3", "LPAR1.tsoProfName", "LPAR1.tsoProfName.tsoSubProfName", "base_glob", "LPAR4"];
 
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
@@ -144,6 +145,7 @@ describe("ProfileInfo tests", () => {
                             case "zosmf": expectedName = expectedDefaultProfileNameZosmf; break;
                             case "tso": expectedName = expectedDefaultProfileNameTso; break;
                             case "base": expectedName = expectedDefaultProfileNameBase; break;
+                            case "dummy": expectedName = expectedDefaultProfileNameDummy; break;
                         }
                         expect(prof.profName).toEqual(expectedName);
                         actualDefaultProfiles += 1;
@@ -202,6 +204,13 @@ describe("ProfileInfo tests", () => {
         });
 
         describe("mergeArgsForProfile", () => {
+            afterEach(() => {
+                delete process.env[envHost];
+                delete process.env[envPort];
+                delete process.env[envRFH];
+                delete process.env[envArray];
+            });
+
             const profSchema: Partial<IProfileSchema> = {
                 properties: {
                     host: { type: "string" },
@@ -303,31 +312,36 @@ describe("ProfileInfo tests", () => {
             });
 
             it("should override known args in service and base profile with environment variables: TeamConfig", async () => {
+                const fakePort = 12345;
                 process.env[envHost] = envHost;
-                process.env[envPort] = "12345";
+                process.env[envPort] = "" + fakePort;
                 process.env[envRFH] = "true";
-                process.env[envArray] = "val1 'val 2' 'val \\' 3' val4"; // ["val1", "val 2", "val ' 3", "val4"]
+                process.env[envArray] = "val1 'val 2' 'val \\' 3'"; // ["val1", "val 2", "val ' 3"]
 
                 const profInfo = createNewProfInfo(teamProjDir, {overrideWithEnv: true});
                 await profInfo.readProfilesFromDisk();
-                const profAttrs = profInfo.getDefaultProfile("zosmf");
+                const profAttrs = profInfo.getDefaultProfile("dummy");
                 delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
                 const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
                 const expectedArgs = [
                     { argName: "host", dataType: "string" },
                     { argName: "port", dataType: "number" },
-                    { argName: "responseFormatHeader", dataType: "boolean" }
+                    { argName: "responseFormatHeader", dataType: "boolean" }, // Not found in schema provided
+                    { argName: "list", dataType: "array" }
                 ];
+                const expectedValues = [envHost, fakePort, true, ["val1", "val 2", "val ' 3"]];
 
-                expect(mergedArgs.knownArgs[0].argValue).toEqual(envHost);
-                expect(mergedArgs.knownArgs[1].argValue).toEqual(12345);
-                expect(mergedArgs.knownArgs[2].argValue).toEqual(true);
-
-                delete process.env[envHost];
-                delete process.env[envPort];
-                delete process.env[envRFH];
-                delete process.env[envArray];
+                expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
+                for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
+                    expect(arg).toMatchObject(expectedArgs[idx]);
+                    if (arg.dataType === "array") {
+                        expect((arg.argValue as string[]).sort()).toEqual((expectedValues[idx] as string[]).sort());
+                    } else {
+                        expect(arg.argValue).toEqual(expectedValues[idx]);
+                    }
+                    expect(arg.argLoc.locType).toBe(ProfLocType.ENV);
+                }
             });
 
             it("should find known args defined with kebab case names: TeamConfig", async () => {
