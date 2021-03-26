@@ -870,8 +870,7 @@ export class ProfileInfo {
         const envStart = envPrefix + "_OPT_";
         for (const key in process.env) {
             if (key.startsWith(envStart)) {
-                const value: string = process.env[key];
-                let argValue: any = value;
+                let argValue: any = process.env[key];
                 let dataType: any = typeof argValue;
                 let argName: string = CliUtils.getOptionFormat(key.substring(envStart.length).replace(/_/g, "-").toLowerCase()).camelCase;
 
@@ -882,25 +881,20 @@ export class ProfileInfo {
                         }
                     }
                 } else {
-                    if (value.toUpperCase() === "TRUE" || value.toUpperCase() === "FALSE") {
+                    if (argValue.toUpperCase() === "TRUE" || argValue.toUpperCase() === "FALSE") {
                         dataType = "boolean";
-                    } else if (!isNaN(+(value))) {
+                    } else if (!isNaN(+(argValue))) {
                         dataType = "number";
-                    } else if (/(^"{)(}"$)/g.exec(value)) {
-                        dataType = "object";
-                    } else if (/(^"\[)(\]"$)/g.exec(value)) {
-                        dataType = "array";
                     }
+                    // TODO: Look for option definition for argName to check if it's an array
                 }
 
                 if (dataType === "boolean") {
-                    argValue = value.toUpperCase() === "TRUE";
+                    argValue = argValue.toUpperCase() === "TRUE";
                 } else if (dataType === "number") {
-                    argValue = +(value);
+                    argValue = +(argValue);
                 } else if (dataType === "array") {
-
-                } else if (dataType === "object") {
-
+                    argValue = CliUtils.extractArrayFromEnvValue(argValue);
                 }
 
                 const tempArg: IProfArgAttrs = {
@@ -918,11 +912,5 @@ export class ProfileInfo {
                 }
             }
         }
-
-        if (this.mOverrideWithEnv === false) {
-            return;
-        }
-
-        // todo: get values from environment variables
     }
 }
