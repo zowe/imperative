@@ -13,18 +13,19 @@ import * as path from "path";
 import * as jsonfile from "jsonfile";
 import * as lodash from "lodash";
 import { ProfileInfo } from "../src/ProfileInfo";
-import { ImperativeError } from "../..";
+import { ImperativeError, IProfOpts } from "../..";
 import { Config } from "../src/Config";
 import { ProfLocType } from "../src/doc/IProfLoc";
 import { IProfileSchema, ProfileIO } from "../../profiles";
 
 const testAppNm = "ProfInfoApp";
+const testEnvPrefix = testAppNm.toUpperCase();
 const profileTypes = ["zosmf", "tso", "base"];
 
-function createNewProfInfo(newDir: string): ProfileInfo {
+function createNewProfInfo(newDir: string, opts?: IProfOpts): ProfileInfo {
     // create a new ProfileInfo in the desired directory
     process.chdir(newDir);
-    return new ProfileInfo(testAppNm);
+    return new ProfileInfo(testAppNm, opts);
 }
 
 describe("ProfileInfo tests", () => {
@@ -40,6 +41,11 @@ describe("ProfileInfo tests", () => {
     const four = 4;
     let origDir: string;
 
+    const envHost = testEnvPrefix + "_OPT_HOST";
+    const envPort = testEnvPrefix + "_OPT_PORT";
+    const envRFH = testEnvPrefix + "_OPT_RESPONSE_FORMAT_HEADER";
+    const envArray = testEnvPrefix + "_OPT_FAKE_ARRAY";
+
     beforeAll(() => {
         // remember our original directory
         origDir = process.cwd();
@@ -47,7 +53,7 @@ describe("ProfileInfo tests", () => {
 
     beforeEach(() => {
         // set our desired app home directory into the environment
-        process.env[testAppNm.toUpperCase() + "_CLI_HOME"] = homeDirPath;
+        process.env[testEnvPrefix + "_CLI_HOME"] = homeDirPath;
     });
 
     afterAll(() => {
@@ -296,6 +302,34 @@ describe("ProfileInfo tests", () => {
                 }
             });
 
+            it("should override known args in service and base profile with environment variables: TeamConfig", async () => {
+                process.env[envHost] = envHost;
+                process.env[envPort] = "12345";
+                process.env[envRFH] = "true";
+                process.env[envArray] = "val1 'val 2' 'val \\' 3' val4"; // ["val1", "val 2", "val ' 3", "val4"]
+
+                const profInfo = createNewProfInfo(teamProjDir, {overrideWithEnv: true});
+                await profInfo.readProfilesFromDisk();
+                const profAttrs = profInfo.getDefaultProfile("zosmf");
+                delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
+                const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
+
+                const expectedArgs = [
+                    { argName: "host", dataType: "string" },
+                    { argName: "port", dataType: "number" },
+                    { argName: "responseFormatHeader", dataType: "boolean" }
+                ];
+
+                expect(mergedArgs.knownArgs[0].argValue).toEqual(envHost);
+                expect(mergedArgs.knownArgs[1].argValue).toEqual(12345);
+                expect(mergedArgs.knownArgs[2].argValue).toEqual(true);
+
+                delete process.env[envHost];
+                delete process.env[envPort];
+                delete process.env[envRFH];
+                delete process.env[envArray];
+            });
+
             it("should find known args defined with kebab case names: TeamConfig", async () => {
                 const fakeBasePath = "api/v1";
                 const profInfo = createNewProfInfo(teamProjDir);
@@ -481,7 +515,7 @@ describe("ProfileInfo tests", () => {
                 expect(caughtError.message).toContain("Failed to load schema for config file");
                 expect(caughtError.message).toContain("invalid schema file");
             });
-        })
+        });
     });
 
     describe("Old-school Profile Tests", () => {
@@ -503,7 +537,7 @@ describe("ProfileInfo tests", () => {
             });
 
             it("should return null if no default for that type exists 2: oldSchool", async () => {
-                process.env[testAppNm.toUpperCase() + "_CLI_HOME"] = homeDirPathTwo;
+                process.env[testEnvPrefix + "_CLI_HOME"] = homeDirPathTwo;
                 const profInfo = createNewProfInfo(homeDirPathTwo);
                 const warnSpy = jest.spyOn((profInfo as any).mImpLogger, "warn");
                 await profInfo.readProfilesFromDisk();
@@ -514,7 +548,7 @@ describe("ProfileInfo tests", () => {
             });
 
             it("should return null if no default for that type exists 3: oldSchool", async () => {
-                process.env[testAppNm.toUpperCase() + "_CLI_HOME"] = homeDirPathThree;
+                process.env[testEnvPrefix + "_CLI_HOME"] = homeDirPathThree;
                 const profInfo = createNewProfInfo(homeDirPathThree);
                 const warnSpy = jest.spyOn((profInfo as any).mImpLogger, "warn");
                 await profInfo.readProfilesFromDisk();
