@@ -866,7 +866,9 @@ export class ProfileInfo {
      *      variable for any missingArgs.
      */
     private overrideWithEnv(mergedArgs: IProfMergedArg, profSchema?: IProfileSchema) {
-        // populate any missing options
+        if (!this.mOverrideWithEnv) return; // Don't do anything
+
+        // Populate any missing options
         const envPrefix = ImperativeConfig.instance.loadedConfig.envVariablePrefix;
         const envStart = envPrefix + "_OPT_";
         for (const key in process.env) {
@@ -912,7 +914,7 @@ export class ProfileInfo {
                 const argIndex = mergedArgs.knownArgs.findIndex((arg) => arg.argName === argName)
                 if (argIndex < 0) {
                     mergedArgs.knownArgs.push(tempArg);
-                } else if (this.mOverrideWithEnv) {
+                } else {
                     mergedArgs.knownArgs[argIndex] = tempArg;
                 }
             }
