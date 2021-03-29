@@ -28,5 +28,5 @@ export interface IProfArgAttrs {
     argLoc: IProfLoc;
 
     /** Whether the argument value is stored securely */
-    isSecure?: boolean;
+    secure?: boolean;
 }

@@ -41,6 +41,7 @@ import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
 import { Logger } from "../../logger";
 import { ProfileCredentials } from "./ProfileCredentials";
+import { LoggerManager } from "../../logger/src/LoggerManager";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -148,7 +149,7 @@ export class ProfileInfo {
         this.mCredentials = new ProfileCredentials(this, profInfoOpts?.requireKeytar);
 
         // do enough Imperative stuff to let imperative utilities work
-        this.initImpUtils(profInfoOpts?.imperativeLogger);
+        this.initImpUtils();
     }
 
     // _______________________________________________________________________
@@ -364,8 +365,7 @@ export class ProfileInfo {
     public mergeArgsForProfile(profile: IProfAttrs): IProfMergedArg {
         const mergedArgs: IProfMergedArg = {
             knownArgs: [],
-            missingArgs: [],
-            secureArgs: []
+            missingArgs: []
         };
 
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
@@ -453,23 +453,24 @@ export class ProfileInfo {
 
             for (const [propName, propObj] of Object.entries(profSchema.properties || {})) {
                 // Check if property in schema is missing from known args
-                const knownArgIdx = mergedArgs.knownArgs.findIndex((arg) => arg.argName === propName);
-                if (knownArgIdx === -1) {
+                const knownArg = mergedArgs.knownArgs.find((arg) => arg.argName === propName);
+                if (knownArg == null) {
                     mergedArgs.missingArgs.push({
                         argName: propName,
                         dataType: this.argDataType(propObj.type),
                         argValue: (propObj as ICommandProfileProperty).optionDefinition?.defaultValue,
                         argLoc: { locType: ProfLocType.DEFAULT },
-                        isSecure: propObj.secure
+                        secure: propObj.secure
                     });
 
                     if (profSchema.required?.includes(propName)) {
                         missingRequired.push(propName);
                     }
-                } else if (propObj.secure) {
-                    const knownArg = mergedArgs.knownArgs.splice(knownArgIdx, 1)[0];
-                    delete knownArg.argValue;
-                    mergedArgs.secureArgs.push({ ...knownArg, isSecure: true });
+                } else {
+                    knownArg.secure = propObj.secure;
+                    if (knownArg.secure) {
+                        delete knownArg.argValue;
+                    }
                 }
             }
 
@@ -619,7 +620,7 @@ export class ProfileInfo {
      * Perform a rudimentary initialization of some Imperative utilities.
      * We must do this because VSCode apps do not typically call imperative.init.
      */
-    private initImpUtils(impLogger?: Logger) {
+    private initImpUtils() {
         // create a rudimentary ImperativeConfig if it has not been initialized
         if (ImperativeConfig.instance.loadedConfig == null) {
             let homeDir: string = null;
@@ -641,15 +642,13 @@ export class ProfileInfo {
         }
 
         // initialize logging
-        if (impLogger == null) {
+        if (LoggerManager.instance.isLoggerInit === false) {
             const loggingConfig = LoggingConfigurer.configureLogger(
                 ImperativeConfig.instance.cliHome, ImperativeConfig.instance.loadedConfig
             );
             Logger.initLogger(loggingConfig);
-            this.mImpLogger = Logger.getImperativeLogger();
-        } else {
-            this.mImpLogger = impLogger;
         }
+        this.mImpLogger = Logger.getImperativeLogger();
     }
 
     /**
