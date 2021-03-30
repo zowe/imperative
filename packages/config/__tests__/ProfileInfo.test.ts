@@ -25,7 +25,9 @@ const profileTypes = ["zosmf", "tso", "base"];
 function createNewProfInfo(newDir: string): ProfileInfo {
     // create a new ProfileInfo in the desired directory
     process.chdir(newDir);
-    return new ProfileInfo(testAppNm);
+    const profInfo = new ProfileInfo(testAppNm);
+    jest.spyOn((profInfo as any).mCredentials, "isSecured", "get").mockReturnValue(false);
+    return profInfo;
 }
 
 describe("ProfileInfo tests", () => {
@@ -90,8 +92,7 @@ describe("ProfileInfo tests", () => {
 
             it("should successfully read a team config from a starting directory", async () => {
                 // ensure that we are not in the team project directory
-                process.chdir(origDir);
-                const profInfo = new ProfileInfo(testAppNm);
+                const profInfo = createNewProfInfo(origDir);
 
                 const teamCfgOpts:IConfigOpts = { projectDir: teamProjDir };
                 await profInfo.readProfilesFromDisk(teamCfgOpts);
@@ -305,7 +306,7 @@ describe("ProfileInfo tests", () => {
                 expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
                 for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
                     expect(arg).toMatchObject(expectedArgs[idx]);
-                    expect(arg.argValue).toBeDefined();
+                    expect(arg.secure || arg.argValue).toBeDefined();
                     expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
                     expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.(base_glob|LPAR1)\.properties\./);
                     expect(arg.argLoc.osLoc[0]).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
@@ -683,7 +684,7 @@ describe("ProfileInfo tests", () => {
                 expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
                 for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
                     expect(arg).toMatchObject(expectedArgs[idx]);
-                    expect(arg.argValue).toBeDefined();
+                    expect(arg.secure || arg.argValue).toBeDefined();
                     expect(arg.argLoc.locType).toBe(ProfLocType.OLD_PROFILE);
                     expect(arg.argLoc.osLoc[0]).toMatch(/lpar1_zosmf\.yaml$/);
                 }
@@ -709,7 +710,7 @@ describe("ProfileInfo tests", () => {
                 expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
                 for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
                     expect(arg).toMatchObject(expectedArgs[idx]);
-                    expect(arg.argValue).toBeDefined();
+                    expect(arg.secure || arg.argValue).toBeDefined();
                     expect(arg.argLoc.locType).toBe(ProfLocType.OLD_PROFILE);
                     expect(arg.argLoc.osLoc[0]).toMatch(/(base_apiml|lpar1_zosmf)\.yaml$/);
                 }
@@ -733,7 +734,7 @@ describe("ProfileInfo tests", () => {
                 expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
                 for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
                     expect(arg).toMatchObject(expectedArgs[idx]);
-                    expect(arg.argValue).toBeDefined();
+                    expect(arg.secure || arg.argValue).toBeDefined();
                     expect(arg.argLoc.locType).toBe(ProfLocType.OLD_PROFILE);
                     expect(arg.argLoc.osLoc[0]).toMatch(/lpar2_zosmf\.yaml$/);
                 }
