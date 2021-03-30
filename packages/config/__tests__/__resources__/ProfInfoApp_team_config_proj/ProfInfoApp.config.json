@@ -58,9 +58,7 @@
             "type": "dummy",
             "properties": {
                 "host": "LPAR4.your.domain.net",
-                "port": 234,
-                "responseFormatHeader": true,
-                "list": ["test1", "test 2", "test ' 3"]
+                "responseFormatHeader": true
             }
         }
     },

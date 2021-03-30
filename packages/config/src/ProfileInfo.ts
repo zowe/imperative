@@ -464,7 +464,7 @@ export class ProfileInfo {
             // overwrite with any values found in environment
             this.overrideWithEnv(mergedArgs, profSchema);
 
-            for (const tempArg of mergedArgs.missingArgs) {
+            for (const tempArg of mergedArgs.missingArgs || []) {
                 // Check if missing property is required
                 if (profSchema.required?.includes(tempArg.argName)) {
                     missingRequired.push(tempArg.argName);
@@ -920,10 +920,8 @@ export class ProfileInfo {
                 if (argNameFound || missingArgsIndex >= 0) {
                     if (knownArgsIndex < 0) {
                         mergedArgs.knownArgs.push(tempArg);
-                    } else {
-                        mergedArgs.knownArgs[knownArgsIndex] = tempArg;
                     }
-                    if (missingArgsIndex >= 0) delete mergedArgs.missingArgs[missingArgsIndex];
+                    if (missingArgsIndex >= 0) mergedArgs.missingArgs = mergedArgs.missingArgs.splice(missingArgsIndex, 1);
                 }
             }
         }

@@ -313,9 +313,11 @@ describe("ProfileInfo tests", () => {
 
             it("should override known args in service and base profile with environment variables: TeamConfig", async () => {
                 const fakePort = 12345;
-                process.env[envHost] = envHost;
-                process.env[envPort] = "" + fakePort;
-                process.env[envRFH] = "true";
+                const teamConfigHost = "LPAR4.your.domain.net";
+                const teamConfigPort = 234;
+                process.env[envHost] = envHost; // already in known arguments
+                process.env[envPort] = "" + fakePort; // arlready in known arguments
+                process.env[envRFH] = "false";
                 process.env[envArray] = "val1 'val 2' 'val \\' 3'"; // ["val1", "val 2", "val ' 3"]
 
                 const profInfo = createNewProfInfo(teamProjDir, {overrideWithEnv: true});
@@ -325,25 +327,26 @@ describe("ProfileInfo tests", () => {
                 const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
                 const expectedArgs = [
-                    { argName: "host", dataType: "string" },
-                    { argName: "port", dataType: "number" },
-                    { argName: "responseFormatHeader", dataType: "boolean" }, // Not found in schema provided && not in `missingArgs`
-                    { argName: "list", dataType: "array" }
+                    { argName: "host", dataType: "string" }, // Not updated ; Already in known arguments
+                    { argName: "responseFormatHeader", dataType: "boolean" }, // Not Updated - Not found in schema provided && not in `missingArgs`
+                    { argName: "port", dataType: "number" }, // Updated ; Property in missingArgs with default Value
+                    { argName: "list", dataType: "array" } // Added/Updated - Property in missing arguments
                 ];
-                const expectedValues = [envHost, fakePort, true, ["val1", "val 2", "val ' 3"]];
+                const expectedValues = [teamConfigHost, true, fakePort, ["val1", "val 2", "val ' 3"]];
 
                 expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
                 for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
                     expect(arg).toMatchObject(expectedArgs[idx]);
-                    if (arg.dataType === "array")
+                    if (arg.dataType === "array") {
                         expect((arg.argValue as string[]).sort()).toEqual((expectedValues[idx] as string[]).sort());
-                    else
-                        expect(arg.argValue).toEqual(expectedValues[idx]);
-
-                    if (arg.argName === "responseFormatHeader")
-                        expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
-                    else
                         expect(arg.argLoc.locType).toBe(ProfLocType.ENV);
+                    } else if (arg.argName === "port") {
+                        expect(arg.argValue).toEqual(expectedValues[idx]);
+                        expect(arg.argLoc.locType).toBe(ProfLocType.ENV);
+                    } else {
+                        expect(arg.argValue).toEqual(expectedValues[idx]);
+                        expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
+                    }
                 }
             });
 
