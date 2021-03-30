@@ -466,6 +466,26 @@ describe("ProfileInfo tests", () => {
                     expect(arg.argLoc.osLoc[0]).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
                 }
             });
+
+            it("should find missing args when schema is found: TeamConfig", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                const mergedArgs = profInfo.mergeArgsForProfileType("ssh");
+
+                const expectedArgs = [
+                    { argName: "host", dataType: "string" },
+                    { argName: "port", dataType: "number", argValue: 22 },
+                    { argName: "privateKey", dataType: "string" },
+                    { argName: "keyPassphrase", dataType: "string" },
+                    { argName: "handshakeTimeout", dataType: "number" }
+                ];
+
+                expect(mergedArgs.missingArgs.length).toBe(expectedArgs.length);
+                for (const [idx, arg] of mergedArgs.missingArgs.entries()) {
+                    expect(arg).toMatchObject(expectedArgs[idx]);
+                    expect(arg.argLoc.locType).toBe(ProfLocType.DEFAULT);
+                }
+            });
         });
 
         describe("loadAllSchemas", () => {
@@ -868,8 +888,8 @@ describe("ProfileInfo tests", () => {
         })
     });
 
-    describe("mergeArgsForProfile", () => {
-        it("should throw if profile location type is invalid", () => {
+    describe("failure cases", () => {
+        it("mergeArgsForProfile should throw if profile location type is invalid", () => {
             const profInfo = createNewProfInfo(teamProjDir);
             let caughtError;
 
@@ -888,6 +908,26 @@ describe("ProfileInfo tests", () => {
             expect(caughtError).toBeDefined();
             expect(caughtError.errorCode).toBe(ProfInfoErr.INVALID_PROF_LOC_TYPE);
             expect(caughtError.message).toContain("Invalid profile location type: DEFAULT");
+        });
+
+        it("loadSchema should return null if schema is not found", () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            let schema: IProfileSchema;
+            let caughtError;
+
+            try {
+                schema = (profInfo as any).loadSchema({
+                    profName: "fake",
+                    profType: "test",
+                    isDefaultProfile: false,
+                    profLoc: { locType: ProfLocType.DEFAULT }
+                });
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeUndefined();
+            expect(schema).toBeNull();
         });
     });
 });

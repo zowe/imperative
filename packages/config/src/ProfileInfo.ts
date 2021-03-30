@@ -22,6 +22,7 @@ import { IProfAttrs } from "./doc/IProfAttrs";
 import { IProfLoc, ProfLocType } from "./doc/IProfLoc";
 import { IProfMergedArg } from "./doc/IProfMergedArg";
 import { IProfOpts } from "./doc/IProfOpts";
+import { ProfileCredentials } from "./ProfileCredentials";
 import { ProfInfoErr } from "./ProfInfoErr";
 
 // for team config functions
@@ -40,7 +41,6 @@ import { LoggingConfigurer } from "../../imperative/src/LoggingConfigurer";
 import { CliUtils, ImperativeConfig } from "../../utilities";
 import { ImperativeExpect } from "../../expect";
 import { Logger } from "../../logger";
-import { ProfileCredentials } from "./ProfileCredentials";
 import { LoggerManager } from "../../logger/src/LoggerManager";
 
 /**
@@ -58,7 +58,7 @@ import { LoggerManager } from "../../logger/src/LoggerManager";
  *    // below, but it applies to any ProfileInfo function.
  *    profInfo = new ProfileInfo("zowe");
  *    try {
- *        profInfo.readProfilesFromDisk();
+ *        await profInfo.readProfilesFromDisk();
  *    } catch(err) {
  *        if (err instanceof ProfInfoErr) {
  *            if (err.errcode == ProfInfoErr.CANT_GET_SCHEMA_URL) {
@@ -121,7 +121,7 @@ import { LoggerManager } from "../../logger/src/LoggerManager";
  *            configObj, yourZosmfArgsToWrite
  *        );
  *    } else {
- *      youWriteOldSchoolProfiles(yourZosmfArgsToWrite);
+ *        youWriteOldSchoolProfiles(yourZosmfArgsToWrite);
  *    }
  * </pre>
  */
@@ -607,27 +607,37 @@ export class ProfileInfo {
      * @param arg Secure argument object
      */
     public loadSecureArg(arg: IProfArgAttrs): any {
+        let argValue;
+
         if (arg.argLoc.osLoc != null && arg.argLoc.osLoc.length > 0) {
             if (arg.argLoc.locType === ProfLocType.TEAM_CONFIG && arg.argLoc.jsonLoc != null) {
                 for (const layer of this.mLoadedConfig.layers) {
                     if (layer.path === arg.argLoc.osLoc[0]) {
-                        return lodash.get(layer.properties, arg.argLoc.jsonLoc);
+                        // we found the config layer matching arg.osLoc
+                        argValue = lodash.get(layer.properties, arg.argLoc.jsonLoc);
+                        break;
                     }
                 }
             } else if (arg.argLoc.locType === ProfLocType.OLD_PROFILE) {
                 for (const loadedProfile of this.mOldSchoolProfileCache) {
                     const profilePath = this.oldProfileFilePath(loadedProfile.type, loadedProfile.name);
                     if (profilePath === arg.argLoc.osLoc[0]) {
-                        return loadedProfile.profile[arg.argName];
+                        // we found the loaded profile matching arg.osLoc
+                        argValue = loadedProfile.profile[arg.argName];
+                        break;
                     }
                 }
             }
         }
 
-        throw new ProfInfoErr({
-            errorCode: ProfInfoErr.UNKNOWN_PROP_LOCATION,
-            msg: `Failed to locate the property ${arg.argName}`
-        });
+        if (argValue === undefined) {
+            throw new ProfInfoErr({
+                errorCode: ProfInfoErr.UNKNOWN_PROP_LOCATION,
+                msg: `Failed to locate the property ${arg.argName}`
+            });
+        }
+
+        return argValue;
     }
 
     // _______________________________________________________________________
@@ -929,8 +939,10 @@ export class ProfileInfo {
 
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
             if (profile.profLoc.osLoc != null) {
+                // the profile exists, so use schema associated with its config JSON file
                 schemaMapKey = `${profile.profLoc.osLoc}:${profile.profType}`;
             } else {
+                // no profile exists, so loop through layers and use the first schema found
                 for (const layer of this.mLoadedConfig.layers) {
                     const tempKey = `${layer.path}:${profile.profType}`;
                     if (this.mProfileSchemaCache.has(tempKey)) {
@@ -940,6 +952,7 @@ export class ProfileInfo {
                 }
             }
         } else if (profile.profLoc.locType === ProfLocType.OLD_PROFILE) {
+            // for old school profiles, there is only one schema per profile type
             schemaMapKey = profile.profType;
         }
 
