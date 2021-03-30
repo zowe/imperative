@@ -13,8 +13,10 @@ import * as path from "path";
 import * as jsonfile from "jsonfile";
 import * as lodash from "lodash";
 import { ProfileInfo } from "../src/ProfileInfo";
-import { ImperativeError, IProfOpts } from "../..";
+import { IProfOpts } from "../src/doc/IProfOpts";
+import { ProfInfoErr } from "../src/ProfInfoErr";
 import { Config } from "../src/Config";
+import { IConfigOpts } from "../src/doc/IConfigOpts";
 import { ProfLocType } from "../src/doc/IProfLoc";
 import { IProfileSchema, ProfileIO } from "../../profiles";
 
@@ -69,14 +71,16 @@ describe("ProfileInfo tests", () => {
         describe("readProfilesFromDisk", () => {
 
             it("should throw exception if readProfilesFromDisk not called: TeamConfig", async () => {
-                let impErr: ImperativeError;
+                let caughtErr: ProfInfoErr;
                 const profInfo = createNewProfInfo(teamProjDir);
                 try {
                     profInfo.getDefaultProfile("zosmf");
                 } catch (err) {
-                    impErr = err;
+                    expect(err instanceof ProfInfoErr).toBe(true);
+                    caughtErr = err;
                 }
-                expect(impErr.message).toContain(
+                expect(caughtErr.errorCode).toBe(ProfInfoErr.MUST_READ_FROM_DISK);
+                expect(caughtErr.message).toContain(
                     "You must first call ProfileInfo.readProfilesFromDisk()."
                 );
             });
@@ -89,7 +93,20 @@ describe("ProfileInfo tests", () => {
                 const teamConfig: Config = profInfo.getTeamConfig();
                 expect(teamConfig).not.toBeNull();
                 expect(teamConfig.exists).toBe(true);
+            });
 
+            it("should successfully read a team config from a starting directory", async () => {
+                // ensure that we are not in the team project directory
+                process.chdir(origDir);
+                const profInfo = new ProfileInfo(testAppNm);
+
+                const teamCfgOpts:IConfigOpts = { projectDir: teamProjDir };
+                await profInfo.readProfilesFromDisk(teamCfgOpts);
+
+                expect(profInfo.usingTeamConfig).toBe(true);
+                const teamConfig: Config = profInfo.getTeamConfig();
+                expect(teamConfig).not.toBeNull();
+                expect(teamConfig.exists).toBe(true);
             });
         });
 
@@ -394,10 +411,12 @@ describe("ProfileInfo tests", () => {
                 try {
                     (profInfo as any).argTeamConfigLoc("doesNotExist", "fake");
                 } catch (error) {
+                    expect(error instanceof ProfInfoErr).toBe(true);
                     caughtError = error;
                 }
 
                 expect(caughtError).toBeDefined();
+                expect(caughtError.errorCode).toBe(ProfInfoErr.PROP_NOT_IN_PROFILE);
                 expect(caughtError.message).toContain("Failed to find property fake in the profile doesNotExist");
             });
 
@@ -433,10 +452,12 @@ describe("ProfileInfo tests", () => {
                 try {
                     profInfo.mergeArgsForProfile(profAttrs);
                 } catch (error) {
+                    expect(error instanceof ProfInfoErr).toBe(true);
                     caughtError = error;
                 }
 
                 expect(caughtError).toBeDefined();
+                expect(caughtError.errorCode).toBe(ProfInfoErr.MISSING_REQ_PROP);
                 expect(caughtError.message).toContain("Missing required properties: protocol");
             });
 
@@ -476,10 +497,12 @@ describe("ProfileInfo tests", () => {
                 try {
                     profInfo.mergeArgsForProfile(profAttrs);
                 } catch (error) {
+                    expect(error instanceof ProfInfoErr).toBe(true);
                     caughtError = error;
                 }
 
                 expect(caughtError).toBeDefined();
+                expect(caughtError.errorCode).toBe(ProfInfoErr.LOAD_SCHEMA_FAILED);
                 expect(caughtError.message).toContain("Failed to load schema for profile type zosmf");
             });
         });
@@ -519,10 +542,12 @@ describe("ProfileInfo tests", () => {
                 try {
                     (profInfo as any).loadAllSchemas();
                 } catch (error) {
+                    expect(error instanceof ProfInfoErr).toBe(true);
                     caughtError = error;
                 }
 
                 expect(caughtError).toBeDefined();
+                expect(caughtError.errorCode).toBe(ProfInfoErr.CANT_GET_SCHEMA_URL);
                 expect(caughtError.message).toContain("Failed to load schema for config file");
                 expect(caughtError.message).toContain("web URLs are not supported by ProfileInfo API");
             });
@@ -538,10 +563,12 @@ describe("ProfileInfo tests", () => {
                 try {
                     (profInfo as any).loadAllSchemas();
                 } catch (error) {
+                    expect(error instanceof ProfInfoErr).toBe(true);
                     caughtError = error;
                 }
 
                 expect(caughtError).toBeDefined();
+                expect(caughtError.errorCode).toBe(ProfInfoErr.LOAD_SCHEMA_FAILED);
                 expect(caughtError.message).toContain("Failed to load schema for config file");
                 expect(caughtError.message).toContain("invalid schema file");
             });
@@ -808,10 +835,12 @@ describe("ProfileInfo tests", () => {
                 try {
                     profInfo.mergeArgsForProfile(profAttrs);
                 } catch (error) {
+                    expect(error instanceof ProfInfoErr).toBe(true);
                     caughtError = error;
                 }
 
                 expect(caughtError).toBeDefined();
+                expect(caughtError.errorCode).toBe(ProfInfoErr.MISSING_REQ_PROP);
                 expect(caughtError.message).toContain("Missing required properties: protocol");
             });
 
@@ -846,10 +875,12 @@ describe("ProfileInfo tests", () => {
                 try {
                     profInfo.mergeArgsForProfile(profAttrs);
                 } catch (error) {
+                    expect(error instanceof ProfInfoErr).toBe(true);
                     caughtError = error;
                 }
 
                 expect(caughtError).toBeDefined();
+                expect(caughtError.errorCode).toBe(ProfInfoErr.LOAD_SCHEMA_FAILED);
                 expect(caughtError.message).toContain("Failed to load schema for profile type zosmf");
             });
         });
@@ -889,10 +920,12 @@ describe("ProfileInfo tests", () => {
                 try {
                     (profInfo as any).loadAllSchemas();
                 } catch (error) {
+                    expect(error instanceof ProfInfoErr).toBe(true);
                     caughtError = error;
                 }
 
                 expect(caughtError).toBeDefined();
+                expect(caughtError.errorCode).toBe(ProfInfoErr.LOAD_SCHEMA_FAILED);
                 expect(caughtError.message).toContain("Failed to load schema for profile type");
                 expect(caughtError.message).toContain("invalid meta file");
             });
@@ -912,10 +945,12 @@ describe("ProfileInfo tests", () => {
                     profLoc: { locType: ProfLocType.DEFAULT }
                 });
             } catch (error) {
+                expect(error instanceof ProfInfoErr).toBe(true);
                 caughtError = error;
             }
 
             expect(caughtError).toBeDefined();
+            expect(caughtError.errorCode).toBe(ProfInfoErr.INVALID_PROF_LOC_TYPE);
             expect(caughtError.message).toContain("Invalid profile location type: DEFAULT");
         });
     });
