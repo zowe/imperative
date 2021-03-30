@@ -921,7 +921,7 @@ export class ProfileInfo {
                     if (knownArgsIndex < 0) {
                         mergedArgs.knownArgs.push(tempArg);
                     }
-                    if (missingArgsIndex >= 0) mergedArgs.missingArgs = mergedArgs.missingArgs.splice(missingArgsIndex, 1);
+                    if (missingArgsIndex >= 0) mergedArgs.missingArgs.splice(missingArgsIndex, 1);
                 }
             }
         }

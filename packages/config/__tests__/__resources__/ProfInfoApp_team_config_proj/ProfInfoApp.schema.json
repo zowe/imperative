@@ -227,6 +227,21 @@
                                             "list": {
                                                 "type": "array",
                                                 "description": "The dummy list."
+                                            },
+                                            "user": {
+                                                "type": "string",
+                                                "description": "User name to authenticate to service on the mainframe.",
+                                                "secure": true
+                                            },
+                                            "password": {
+                                                "type": "string",
+                                                "description": "Password to authenticate to service on the mainframe.",
+                                                "secure": true
+                                            },
+                                            "rejectUnauthorized": {
+                                                "type": "boolean",
+                                                "description": "Reject self-signed certificates.",
+                                                "default": true
                                             }
                                         },
                                         "required": []

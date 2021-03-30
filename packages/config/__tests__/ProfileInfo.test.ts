@@ -311,7 +311,7 @@ describe("ProfileInfo tests", () => {
                 }
             });
 
-            it("should override known args in service and base profile with environment variables: TeamConfig", async () => {
+            it("should override not known args in service and base profile with environment variables: TeamConfig", async () => {
                 const fakePort = 12345;
                 const teamConfigHost = "LPAR4.your.domain.net";
                 const teamConfigPort = 234;
@@ -347,6 +347,16 @@ describe("ProfileInfo tests", () => {
                         expect(arg.argValue).toEqual(expectedValues[idx]);
                         expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
                     }
+                }
+
+                const expectedMissingArgs = [
+                    { argName: "user", dataType: "string" },
+                    { argName: "password", dataType: "string" },
+                    { argName: "rejectUnauthorized", dataType: "boolean", argValue: true }
+                ]
+                expect(mergedArgs.missingArgs.length).toBe(expectedMissingArgs.length);
+                for (const [idx, arg] of mergedArgs.missingArgs.entries()) {
+                    expect(arg).toMatchObject(expectedMissingArgs[idx]);
                 }
             });
 
