@@ -446,9 +446,6 @@ export class ProfileInfo {
         // perform validation with profile schema if available
         const profSchema = this.loadSchema(profile);
 
-        // overwrite with any values found in environment
-        this.overrideWithEnv(mergedArgs, profSchema);
-
         if (profSchema != null) {
             const missingRequired: string[] = [];
 
@@ -461,12 +458,19 @@ export class ProfileInfo {
                         argValue: (propObj as ICommandProfileProperty).optionDefinition?.defaultValue,
                         argLoc: { locType: ProfLocType.DEFAULT }
                     });
-
-                    if (profSchema.required?.includes(propName)) {
-                        missingRequired.push(propName);
-                    }
                 }
             }
+
+            // overwrite with any values found in environment
+            this.overrideWithEnv(mergedArgs, profSchema);
+
+            for (const tempArg of mergedArgs.missingArgs) {
+                // Check if missing property is required
+                if (profSchema.required?.includes(tempArg.argName)) {
+                    missingRequired.push(tempArg.argName);
+                }
+            }
+
             if (missingRequired.length > 0) {
                 throw new ImperativeError({ msg: "Missing required properties: " + missingRequired.join(", ") });
             }
@@ -911,11 +915,21 @@ export class ProfileInfo {
                     argLoc: { locType: ProfLocType.ENV }
                 };
 
-                const argIndex = mergedArgs.knownArgs.findIndex((arg) => arg.argName === argName)
-                if (argIndex < 0) {
-                    mergedArgs.knownArgs.push(tempArg);
+                const missingArgsIndex = mergedArgs.missingArgs.findIndex((arg) => arg.argName === argName);
+                const knownArgsIndex = mergedArgs.knownArgs.findIndex((arg) => arg.argName === argName);
+                if (missingArgsIndex < 0 && argNameFound) {
+                    if (knownArgsIndex < 0) {
+                        mergedArgs.knownArgs.push(tempArg);
+                    } else {
+                        mergedArgs.knownArgs[knownArgsIndex] = tempArg;
+                    }
                 } else {
-                    mergedArgs.knownArgs[argIndex] = tempArg;
+                    if (knownArgsIndex < 0) {
+                        mergedArgs.knownArgs.push(tempArg);
+                    } else {
+                        mergedArgs.knownArgs[knownArgsIndex] = tempArg;
+                    }
+                    delete mergedArgs.missingArgs[missingArgsIndex];
                 }
             }
         }
