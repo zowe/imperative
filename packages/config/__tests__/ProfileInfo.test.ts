@@ -327,7 +327,7 @@ describe("ProfileInfo tests", () => {
                 const expectedArgs = [
                     { argName: "host", dataType: "string" },
                     { argName: "port", dataType: "number" },
-                    { argName: "responseFormatHeader", dataType: "boolean" }, // Not found in schema provided
+                    { argName: "responseFormatHeader", dataType: "boolean" }, // Not found in schema provided && not in `missingArgs`
                     { argName: "list", dataType: "array" }
                 ];
                 const expectedValues = [envHost, fakePort, true, ["val1", "val 2", "val ' 3"]];
@@ -335,12 +335,15 @@ describe("ProfileInfo tests", () => {
                 expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
                 for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
                     expect(arg).toMatchObject(expectedArgs[idx]);
-                    if (arg.dataType === "array") {
+                    if (arg.dataType === "array")
                         expect((arg.argValue as string[]).sort()).toEqual((expectedValues[idx] as string[]).sort());
-                    } else {
+                    else
                         expect(arg.argValue).toEqual(expectedValues[idx]);
-                    }
-                    expect(arg.argLoc.locType).toBe(ProfLocType.ENV);
+
+                    if (arg.argName === "responseFormatHeader")
+                        expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
+                    else
+                        expect(arg.argLoc.locType).toBe(ProfLocType.ENV);
                 }
             });
 

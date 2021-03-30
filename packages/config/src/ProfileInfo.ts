@@ -917,19 +917,13 @@ export class ProfileInfo {
 
                 const missingArgsIndex = mergedArgs.missingArgs.findIndex((arg) => arg.argName === argName);
                 const knownArgsIndex = mergedArgs.knownArgs.findIndex((arg) => arg.argName === argName);
-                if (missingArgsIndex < 0 || argNameFound) {
+                if (argNameFound || missingArgsIndex >= 0) {
                     if (knownArgsIndex < 0) {
                         mergedArgs.knownArgs.push(tempArg);
                     } else {
                         mergedArgs.knownArgs[knownArgsIndex] = tempArg;
                     }
-                } else {
-                    if (knownArgsIndex < 0) {
-                        mergedArgs.knownArgs.push(tempArg);
-                    } else {
-                        mergedArgs.knownArgs[knownArgsIndex] = tempArg;
-                    }
-                    delete mergedArgs.missingArgs[missingArgsIndex];
+                    if (missingArgsIndex >= 0) delete mergedArgs.missingArgs[missingArgsIndex];
                 }
             }
         }
