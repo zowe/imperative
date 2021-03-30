@@ -917,7 +917,7 @@ export class ProfileInfo {
 
                 const missingArgsIndex = mergedArgs.missingArgs.findIndex((arg) => arg.argName === argName);
                 const knownArgsIndex = mergedArgs.knownArgs.findIndex((arg) => arg.argName === argName);
-                if (missingArgsIndex < 0 && argNameFound) {
+                if (missingArgsIndex < 0 || argNameFound) {
                     if (knownArgsIndex < 0) {
                         mergedArgs.knownArgs.push(tempArg);
                     } else {
