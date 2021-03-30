@@ -607,24 +607,27 @@ export class ProfileInfo {
      * @param arg Secure argument object
      */
     public loadSecureArg(arg: IProfArgAttrs): any {
-        if (arg.argLoc.locType === ProfLocType.TEAM_CONFIG) {
-            // TODO Throw error if json loc/os loc are missing
-            for (const layer of this.mLoadedConfig.layers) {
-                if (layer.path === arg.argLoc.osLoc[0]) {
-                    return lodash.get(layer.properties, arg.argLoc.jsonLoc);
+        if (arg.argLoc.osLoc != null && arg.argLoc.osLoc.length > 0) {
+            if (arg.argLoc.locType === ProfLocType.TEAM_CONFIG && arg.argLoc.jsonLoc != null) {
+                for (const layer of this.mLoadedConfig.layers) {
+                    if (layer.path === arg.argLoc.osLoc[0]) {
+                        return lodash.get(layer.properties, arg.argLoc.jsonLoc);
+                    }
+                }
+            } else if (arg.argLoc.locType === ProfLocType.OLD_PROFILE) {
+                for (const loadedProfile of this.mOldSchoolProfileCache) {
+                    const profilePath = this.oldProfileFilePath(loadedProfile.type, loadedProfile.name);
+                    if (profilePath === arg.argLoc.osLoc[0]) {
+                        return loadedProfile.profile[arg.argName];
+                    }
                 }
             }
-        } else if (arg.argLoc.locType === ProfLocType.OLD_PROFILE) {
-            // TODO Throw error if os loc is missing
-            for (const loadedProfile of this.mOldSchoolProfileCache) {
-                const profilePath = this.oldProfileFilePath(loadedProfile.type, loadedProfile.name);
-                if (profilePath === arg.argLoc.osLoc[0]) {
-                    return loadedProfile.profile[arg.argName];
-                }
-            }
-        } else {
-            // TODO Handle missing arg - we can't load it
         }
+
+        throw new ProfInfoErr({
+            errorCode: ProfInfoErr.UNKNOWN_PROP_LOCATION,
+            msg: `Failed to locate the property ${arg.argName}`
+        });
     }
 
     // _______________________________________________________________________

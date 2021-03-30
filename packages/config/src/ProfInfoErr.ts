@@ -61,6 +61,12 @@ export class ProfInfoErr extends ImperativeError {
      */
     public static readonly PROP_NOT_IN_PROFILE: string = "PropNotInProfile";
 
+    /**
+     * A specified property that is expected to exist in a specified profile
+     * does not have OS and JSON locations defined.
+     */
+    public static readonly UNKNOWN_PROP_LOCATION: string = "UnknownPropLocation";
+
     // _______________________________________________________________________
 
     /**

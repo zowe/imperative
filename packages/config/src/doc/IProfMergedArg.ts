@@ -20,9 +20,9 @@ export interface IProfMergedArg {
      * All of the attributes in IProfArgAttrs will be filled in except
      * when knownArgs[i].argLoc.osLoc (and/or jsonLoc) are not
      * relevant for the type of location (locType).
-     * Additionally, the missingArgs[i].argValue attribute will not exist for
-     * arguments with secure = true since their values are sensitive data. Use
-     * ProfileInfo.loadSecureArg to load a secure argument's value.
+     * Additionally, the missingArgs[i].argValue attribute will be undefined
+     * for arguments with secure = true since their values are sensitive data.
+     * Use ProfileInfo.loadSecureArg to load a secure argument's value.
      */
     knownArgs: IProfArgAttrs[];
 
