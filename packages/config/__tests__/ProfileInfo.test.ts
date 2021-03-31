@@ -888,7 +888,76 @@ describe("ProfileInfo tests", () => {
         })
     });
 
+    describe("loadSecureArg", () => {
+        it("should load secure args from team config", async () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk();
+            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
+
+            const userArg = mergedArgs.knownArgs.find((arg) => arg.argName === "user");
+            expect(userArg.argValue).toBeUndefined();
+            expect(profInfo.loadSecureArg(userArg)).toBe("userNameBase");
+
+            const passwordArg = mergedArgs.knownArgs.find((arg) => arg.argName === "password");
+            expect(passwordArg.argValue).toBeUndefined();
+            expect(profInfo.loadSecureArg(passwordArg)).toBe("passwordBase");
+        });
+
+        it("should load secure args from old school profiles", async () => {
+            const profInfo = createNewProfInfo(homeDirPath);
+            await profInfo.readProfilesFromDisk();
+            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
+
+            const userArg = mergedArgs.knownArgs.find((arg) => arg.argName === "user");
+            expect(userArg.argValue).toBeUndefined();
+            expect(profInfo.loadSecureArg(userArg)).toBe("someUser");
+
+            const passwordArg = mergedArgs.knownArgs.find((arg) => arg.argName === "password");
+            expect(passwordArg.argValue).toBeUndefined();
+            expect(profInfo.loadSecureArg(passwordArg)).toBe("somePassword");
+        });
+
+        it("should fail to load secure arg when not found", async () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            let caughtError;
+
+            try {
+                profInfo.loadSecureArg({
+                    argName: "test",
+                    dataType: "string",
+                    argValue: undefined,
+                    argLoc: { locType: ProfLocType.DEFAULT }
+                });
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeDefined();
+            expect(caughtError.message).toBe("Failed to locate the property test");
+        });
+    });
+
     describe("failure cases", () => {
+        it("readProfilesFromDisk should throw if secure credentials fail to load", async () => {
+            const profInfo = new ProfileInfo(testAppNm);
+            jest.spyOn((profInfo as any).mCredentials, "isSecured", "get").mockReturnValue(true);
+            jest.spyOn((profInfo as any).mCredentials, "loadManager").mockImplementationOnce(async () => {
+                throw new Error("bad credential manager");
+            });
+            let caughtError;
+
+            try {
+                await profInfo.readProfilesFromDisk();
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeDefined();
+            expect(caughtError.message).toBe("Failed to initialize secure credential manager");
+        });
+
         it("mergeArgsForProfile should throw if profile location type is invalid", () => {
             const profInfo = createNewProfInfo(teamProjDir);
             let caughtError;

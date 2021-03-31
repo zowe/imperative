@@ -549,8 +549,16 @@ export class ProfileInfo {
         this.mLoadedConfig = await Config.load(this.mAppName, teamCfgOpts);
         this.mUsingTeamConfig = this.mLoadedConfig.exists;
 
-        if (this.mCredentials.isSecured) {
-            await this.mCredentials.loadManager();
+        try {
+            if (this.mCredentials.isSecured) {
+                await this.mCredentials.loadManager();
+            }
+        } catch (error) {
+            throw new ProfInfoErr({
+                errorCode: ProfInfoErr.LOAD_CRED_MGR_FAILED,
+                msg: "Failed to initialize secure credential manager",
+                causeErrors: error
+            });
         }
 
         if (!this.mUsingTeamConfig) {

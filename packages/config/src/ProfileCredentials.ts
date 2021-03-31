@@ -30,11 +30,7 @@ export class ProfileCredentials {
      */
     public get isSecured(): boolean {
         if (this.mSecured == null) {
-            if (this.mProfileInfo.usingTeamConfig) {
-                this.mSecured = true;
-            } else {
-                this.mSecured = this.isCredentialManagerInAppSettings();
-            }
+            this.mSecured = this.mProfileInfo.usingTeamConfig || this.isCredentialManagerInAppSettings();
         }
 
         return this.mSecured;
@@ -71,7 +67,7 @@ export class ProfileCredentials {
                 // see https://github.com/zowe/imperative/issues/545
                 await CredentialManagerFactory.initialize({ service: null });
             } catch (error) {
-                throw new ImperativeError({
+                throw (error instanceof ImperativeError) ? error : new ImperativeError({
                     msg: "Failed to load CredentialManager class",
                     causeErrors: error
                 });

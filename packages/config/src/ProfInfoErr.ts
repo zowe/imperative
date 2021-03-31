@@ -40,6 +40,11 @@ export class ProfInfoErr extends ImperativeError {
     public static readonly INVALID_PROF_LOC_TYPE: string = "InvalidProfLocType";
 
     /**
+     * Failed to initialize ProfileCredentials and load the credential manager.
+     */
+    public static readonly LOAD_CRED_MGR_FAILED: string = "LoadCredMgrFailed";
+
+    /**
      * Failed to load the schema for a specified type of profile.
      */
     public static readonly LOAD_SCHEMA_FAILED: string = "LoadSchemaFailed";

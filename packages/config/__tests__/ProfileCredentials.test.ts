@@ -9,10 +9,13 @@
 *
 */
 
-import { CredentialManagerFactory } from "../../security";
+import * as fs from "fs";
+import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
 import { ProfileCredentials } from "../src/ProfileCredentials";
 
 jest.mock("../../security/src/CredentialManagerFactory");
+jest.mock("../../security/src/DefaultCredentialManager");
+jest.mock("../../utilities/src/ImperativeConfig");
 
 describe("ProfileCredentials tests", () => {
     describe("isSecured", () => {
@@ -90,7 +93,6 @@ describe("ProfileCredentials tests", () => {
                 caughtError = error;
             }
 
-            console.log(caughtError);
             expect(caughtError).toBeUndefined();
             expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
         });
@@ -114,6 +116,134 @@ describe("ProfileCredentials tests", () => {
             expect(caughtError).toBeDefined();
             expect(caughtError.message).toBe("Failed to load CredentialManager class");
             expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
+        });
+
+        it("should load Keytar using custom require method", async () => {
+            const requireKeytar = jest.fn(() => "fakeModule");
+            const profCreds = new ProfileCredentials({
+                usingTeamConfig: false
+            } as any, requireKeytar as any);
+            jest.spyOn(profCreds, "isSecured", "get").mockReturnValue(true);
+            jest.spyOn(CredentialManagerFactory, "initialize").mockImplementation(async () => {
+                await new DefaultCredentialManager(null).initialize();
+            });
+            let caughtError;
+
+            try {
+                await profCreds.loadManager();
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeUndefined();
+            expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
+            expect(requireKeytar).toHaveBeenCalledTimes(1);
+        });
+
+        it("should fail to load Keytar if custom require method throws", async () => {
+            const requireKeytar = jest.fn(() => {
+                throw new Error("keytar not found");
+            });
+            const profCreds = new ProfileCredentials({
+                usingTeamConfig: false
+            } as any, requireKeytar as any);
+            jest.spyOn(profCreds, "isSecured", "get").mockReturnValue(true);
+            jest.spyOn(CredentialManagerFactory, "initialize").mockImplementation(async () => {
+                await new DefaultCredentialManager(null).initialize();
+            });
+            let caughtError;
+
+            try {
+                await profCreds.loadManager();
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeDefined();
+            expect(caughtError.message).toBe("Failed to load Keytar module");
+            expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
+            expect(requireKeytar).toHaveBeenCalledTimes(1);
+        });
+
+        it("should call Config secure load API when team config enabled", async () => {
+            const mockSecureLoad = jest.fn();
+            const profCreds = new ProfileCredentials({
+                getTeamConfig: () => ({
+                    api: {
+                        secure: {
+                            load: mockSecureLoad
+                        }
+                    }
+                }),
+                usingTeamConfig: true
+            } as any);
+            jest.spyOn(profCreds, "isSecured", "get").mockReturnValue(true);
+            jest.spyOn(CredentialManagerFactory, "initialize").mockRestore();
+            let caughtError;
+
+            try {
+                await profCreds.loadManager();
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeUndefined();
+            expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
+            expect(mockSecureLoad).toHaveBeenCalledTimes(1);
+            expect(mockSecureLoad.mock.calls[0][0].load).toBeDefined();
+            expect(mockSecureLoad.mock.calls[0][0].save).toBeDefined();
+        });
+    });
+
+    describe("isCredentialManagerInAppSettings", () => {
+        const isCredMgrInAppSettings = (ProfileCredentials.prototype as any).isCredentialManagerInAppSettings;
+
+        it("should return true if CredentialManager found in app settings", () => {
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
+            jest.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify({
+                overrides: {
+                    CredentialManager: "vault"
+                }
+            }));
+            expect(isCredMgrInAppSettings()).toBe(true);
+        });
+
+        it("should return true if credential-manager found in app settings", () => {
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
+            jest.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify({
+                overrides: {
+                    "credential-manager": "vault"
+                }
+            }));
+            expect(isCredMgrInAppSettings()).toBe(true);
+        });
+
+        it("should return false if CredentialManager not found in app settings", () => {
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
+            jest.spyOn(fs, "readFileSync").mockReturnValueOnce(null);
+            expect(isCredMgrInAppSettings()).toBe(false);
+        });
+
+        it("should return false if app settings file not found", () => {
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(false);
+            expect(isCredMgrInAppSettings()).toBe(false);
+        });
+
+        it("should fail when unexpected error encountered", () => {
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
+            jest.spyOn(fs, "readFileSync").mockImplementationOnce(() => {
+                throw new Error("unexpected EOF");
+            });
+            let caughtError;
+
+            try {
+                isCredMgrInAppSettings();
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeDefined();
+            expect(caughtError.message).toBe("Unable to read Imperative settings file");
         });
     });
 });
