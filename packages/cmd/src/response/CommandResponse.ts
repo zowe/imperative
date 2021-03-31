@@ -667,6 +667,8 @@ export class CommandResponse implements ICommandResponseApi {
                 private mProgressBarTemplate: string = " " + TextUtils.chalk[outer.mPrimaryTextColor](":bar|") + " :current%  " +
                     TextUtils.chalk[outer.mPrimaryTextColor](":spin") + " | :statusMessage";
                 private mProgressBarInterval: any;
+                private mProgressBarStdoutStartIndex: number;
+                private mProgressBarStderrStartIndex: number;
                 /**
                  * TODO: get from config - default value is below
                  */
@@ -680,12 +682,14 @@ export class CommandResponse implements ICommandResponseApi {
                     if (outer.mProgressBar != null) {
                         throw new ImperativeError({
                             msg: `${CommandResponse.RESPONSE_ERR_TAG} A progress bar has already been started. ` +
-                                `Please call progress.finishBar() before starting a new one.`
+                                `Please call progress.endBar() before starting a new one.`
                         });
                     }
                     if (!outer.silent && outer.mResponseFormat !== "json") {
 
                         // Persist the task specifications and determine the stream to use for the progress bar
+                        this.mProgressBarStdoutStartIndex = outer.mStdout.length;
+                        this.mProgressBarStderrStartIndex = outer.mStderr.length;
                         this.mProgressTask = params.task;
                         const stream: WriteStream = (params.stream == null) ?
                             process.stderr : params.stream;
@@ -720,8 +724,8 @@ export class CommandResponse implements ICommandResponseApi {
                             spin: " "
                         });
                         outer.mProgressBar.terminate();
-                        process.stdout.write(outer.mStdout);
-                        process.stderr.write(outer.mStderr);
+                        process.stdout.write(outer.mStdout.subarray(this.mProgressBarStdoutStartIndex));
+                        process.stderr.write(outer.mStderr.subarray(this.mProgressBarStderrStartIndex));
                         this.mProgressTask = undefined;
 
                         // clear the progress bar field

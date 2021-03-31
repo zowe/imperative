@@ -150,21 +150,18 @@ export class TextUtils {
      * @param {boolean}  includeHeader - should the table include a header of the field names of the objects
      * @param includeBorders -  should the table have borders between the cells?
      * @param hardWrap - hard wrap the text within the width of the table cells (defaults to false)
+     * @param headers - specify which headers in which order to display. if omitted, loops through the rows
+     *        and adds object properties as headers in their enumeration order
      * @returns {string} the rendered table
      */
     public static getTable(objects: any[], primaryHighlightColor: string,
                            maxColumnWidth?: number, includeHeader: boolean = true, includeBorders: boolean = false,
-                           hardWrap: boolean = false): string {
+                           hardWrap: boolean = false, headers?: string[]): string {
         const Table = require("cli-table3");
-        const headers = [];
-        // for every property of every object in the array,
-        // make a header for the table
-        for (const obj of objects) {
-            for (const key of Object.keys(obj)) {
-                if (headers.indexOf(key) === -1) {
-                    headers.push(key);
-                }
-            }
+
+        // if the user did not specify which headers to use, build them from the object array
+        if (!headers) {
+            headers = this.buildHeaders(objects);
         }
         if (isNullOrUndefined(maxColumnWidth)) {
             maxColumnWidth = this.getRecommendedWidth() / headers.length;
@@ -206,6 +203,25 @@ export class TextUtils {
             table.push(row);
         }
         return table.toString();
+    }
+
+    /**
+     *  Build table headers from an array of key-value objects
+     * @param {any[]} objects - the key-value objects from which to build headers
+     * @returns {string} the headers array
+     */
+    public static buildHeaders(objects: any[]): string[] {
+        const headers = [];
+        // for every property of every object in the array,
+        // make a header for the table
+        for (const obj of objects) {
+            for (const key of Object.keys(obj)) {
+                if (headers.indexOf(key) === -1) {
+                    headers.push(key);
+                }
+            }
+        }
+        return headers;
     }
 
     /**
