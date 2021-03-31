@@ -13,6 +13,7 @@ import * as path from "path";
 import * as jsonfile from "jsonfile";
 import * as lodash from "lodash";
 import { ProfileInfo } from "../src/ProfileInfo";
+import { IProfOpts } from "../src/doc/IProfOpts";
 import { ProfInfoErr } from "../src/ProfInfoErr";
 import { Config } from "../src/Config";
 import { IConfigOpts } from "../src/doc/IConfigOpts";
@@ -20,12 +21,13 @@ import { ProfLocType } from "../src/doc/IProfLoc";
 import { IProfileSchema, ProfileIO } from "../../profiles";
 
 const testAppNm = "ProfInfoApp";
-const profileTypes = ["zosmf", "tso", "base"];
+const testEnvPrefix = testAppNm.toUpperCase();
+const profileTypes = ["zosmf", "tso", "base", "dummy"];
 
-function createNewProfInfo(newDir: string): ProfileInfo {
+function createNewProfInfo(newDir: string, opts?: IProfOpts): ProfileInfo {
     // create a new ProfileInfo in the desired directory
     process.chdir(newDir);
-    return new ProfileInfo(testAppNm);
+    return new ProfileInfo(testAppNm, opts);
 }
 
 describe("ProfileInfo tests", () => {
@@ -41,6 +43,11 @@ describe("ProfileInfo tests", () => {
     const four = 4;
     let origDir: string;
 
+    const envHost = testEnvPrefix + "_OPT_HOST";
+    const envPort = testEnvPrefix + "_OPT_PORT";
+    const envRFH = testEnvPrefix + "_OPT_RESPONSE_FORMAT_HEADER";
+    const envArray = testEnvPrefix + "_OPT_LIST";
+
     beforeAll(() => {
         // remember our original directory
         origDir = process.cwd();
@@ -48,7 +55,7 @@ describe("ProfileInfo tests", () => {
 
     beforeEach(() => {
         // set our desired app home directory into the environment
-        process.env[testAppNm.toUpperCase() + "_CLI_HOME"] = homeDirPath;
+        process.env[testEnvPrefix + "_CLI_HOME"] = homeDirPath;
     });
 
     afterAll(() => {
@@ -134,13 +141,14 @@ describe("ProfileInfo tests", () => {
 
         describe("getAllProfiles", () => {
             it("should return all profiles if no type is specified: TeamConfig", async () => {
-                const length = 6;
-                const expectedDefaultProfiles = 3;
+                const length = 7;
+                const expectedDefaultProfiles = 4;
                 const expectedDefaultProfileNameZosmf = "LPAR1";
                 const expectedDefaultProfileNameTso = "LPAR1.tsoProfName";
                 const expectedDefaultProfileNameBase = "base_glob";
+                const expectedDefaultProfileNameDummy = "LPAR4";
                 let actualDefaultProfiles = 0;
-                let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3", "LPAR1.tsoProfName", "LPAR1.tsoProfName.tsoSubProfName", "base_glob"];
+                let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3", "LPAR1.tsoProfName", "LPAR1.tsoProfName.tsoSubProfName", "base_glob", "LPAR4"];
 
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
@@ -154,6 +162,7 @@ describe("ProfileInfo tests", () => {
                             case "zosmf": expectedName = expectedDefaultProfileNameZosmf; break;
                             case "tso": expectedName = expectedDefaultProfileNameTso; break;
                             case "base": expectedName = expectedDefaultProfileNameBase; break;
+                            case "dummy": expectedName = expectedDefaultProfileNameDummy; break;
                         }
                         expect(prof.profName).toEqual(expectedName);
                         actualDefaultProfiles += 1;
@@ -212,6 +221,13 @@ describe("ProfileInfo tests", () => {
         });
 
         describe("mergeArgsForProfile", () => {
+            afterEach(() => {
+                delete process.env[envHost];
+                delete process.env[envPort];
+                delete process.env[envRFH];
+                delete process.env[envArray];
+            });
+
             const profSchema: Partial<IProfileSchema> = {
                 properties: {
                     host: { type: "string" },
@@ -309,6 +325,55 @@ describe("ProfileInfo tests", () => {
                     expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
                     expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.(base_glob|LPAR1)\.properties\./);
                     expect(arg.argLoc.osLoc[0]).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                }
+            });
+
+            it("should override not known args in service and base profile with environment variables: TeamConfig", async () => {
+                const fakePort = 12345;
+                const teamConfigHost = "LPAR4.your.domain.net";
+                const teamConfigPort = 234;
+                process.env[envHost] = envHost; // already in known arguments
+                process.env[envPort] = "" + fakePort; // arlready in known arguments
+                process.env[envRFH] = "false";
+                process.env[envArray] = "val1 'val 2' 'val \\' 3'"; // ["val1", "val 2", "val ' 3"]
+
+                const profInfo = createNewProfInfo(teamProjDir, {overrideWithEnv: true});
+                await profInfo.readProfilesFromDisk();
+                const profAttrs = profInfo.getDefaultProfile("dummy");
+                delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
+                const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
+
+                const expectedArgs = [
+                    { argName: "host", dataType: "string" }, // Not updated ; Already in known arguments
+                    { argName: "responseFormatHeader", dataType: "boolean" }, // Not Updated - Not found in schema provided && not in `missingArgs`
+                    { argName: "port", dataType: "number" }, // Updated ; Property in missingArgs with default Value
+                    { argName: "list", dataType: "array" } // Added/Updated - Property in missing arguments
+                ];
+                const expectedValues = [teamConfigHost, true, fakePort, ["val1", "val 2", "val ' 3"]];
+
+                expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
+                for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
+                    expect(arg).toMatchObject(expectedArgs[idx]);
+                    if (arg.dataType === "array") {
+                        expect((arg.argValue as string[]).sort()).toEqual((expectedValues[idx] as string[]).sort());
+                        expect(arg.argLoc.locType).toBe(ProfLocType.ENV);
+                    } else if (arg.argName === "port") {
+                        expect(arg.argValue).toEqual(expectedValues[idx]);
+                        expect(arg.argLoc.locType).toBe(ProfLocType.ENV);
+                    } else {
+                        expect(arg.argValue).toEqual(expectedValues[idx]);
+                        expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
+                    }
+                }
+
+                const expectedMissingArgs = [
+                    { argName: "user", dataType: "string" },
+                    { argName: "password", dataType: "string" },
+                    { argName: "rejectUnauthorized", dataType: "boolean", argValue: true }
+                ]
+                expect(mergedArgs.missingArgs.length).toBe(expectedMissingArgs.length);
+                for (const [idx, arg] of mergedArgs.missingArgs.entries()) {
+                    expect(arg).toMatchObject(expectedMissingArgs[idx]);
                 }
             });
 
@@ -507,7 +572,7 @@ describe("ProfileInfo tests", () => {
                 expect(caughtError.message).toContain("Failed to load schema for config file");
                 expect(caughtError.message).toContain("invalid schema file");
             });
-        })
+        });
     });
 
     describe("Old-school Profile Tests", () => {
@@ -529,7 +594,7 @@ describe("ProfileInfo tests", () => {
             });
 
             it("should return null if no default for that type exists 2: oldSchool", async () => {
-                process.env[testAppNm.toUpperCase() + "_CLI_HOME"] = homeDirPathTwo;
+                process.env[testEnvPrefix + "_CLI_HOME"] = homeDirPathTwo;
                 const profInfo = createNewProfInfo(homeDirPathTwo);
                 const warnSpy = jest.spyOn((profInfo as any).mImpLogger, "warn");
                 await profInfo.readProfilesFromDisk();
@@ -540,7 +605,7 @@ describe("ProfileInfo tests", () => {
             });
 
             it("should return null if no default for that type exists 3: oldSchool", async () => {
-                process.env[testAppNm.toUpperCase() + "_CLI_HOME"] = homeDirPathThree;
+                process.env[testEnvPrefix + "_CLI_HOME"] = homeDirPathThree;
                 const profInfo = createNewProfInfo(homeDirPathThree);
                 const warnSpy = jest.spyOn((profInfo as any).mImpLogger, "warn");
                 await profInfo.readProfilesFromDisk();

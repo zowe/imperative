@@ -39,6 +39,7 @@ import { LoggingConfigurer } from "../../imperative/src/LoggingConfigurer";
 import { CliUtils, ImperativeConfig } from "../../utilities";
 import { ImperativeExpect } from "../../expect";
 import { Logger } from "../../logger";
+import { IProfArgAttrs } from "./doc/IProfArgAttrs";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -463,6 +464,7 @@ export class ProfileInfo {
 
         // perform validation with profile schema if available
         const profSchema = this.loadSchema(profile);
+
         if (profSchema != null) {
             const missingRequired: string[] = [];
 
@@ -475,10 +477,16 @@ export class ProfileInfo {
                         argValue: (propObj as ICommandProfileProperty).optionDefinition?.defaultValue,
                         argLoc: { locType: ProfLocType.DEFAULT }
                     });
+                }
+            }
 
-                    if (profSchema.required?.includes(propName)) {
-                        missingRequired.push(propName);
-                    }
+            // overwrite with any values found in environment
+            this.overrideWithEnv(mergedArgs, profSchema);
+
+            for (const tempArg of mergedArgs.missingArgs || []) {
+                // Check if missing property is required
+                if (profSchema.required?.includes(tempArg.argName)) {
+                    missingRequired.push(tempArg.argName);
                 }
             }
 
@@ -494,9 +502,6 @@ export class ProfileInfo {
                 msg: `Failed to load schema for profile type ${profile.profType}`
             });
         }
-
-        // overwrite with any values found in environment
-        this.overrideWithEnv(mergedArgs);
 
         return mergedArgs;
     }
@@ -801,11 +806,12 @@ export class ProfileInfo {
      * union of types, their type will be represented simply as object.
      * @param propType The type of a profile property
      */
-    private argDataType(propType: string | string[]): "string" | "number" | "boolean" | "object" {
+    private argDataType(propType: string | string[]): "string" | "number" | "boolean" | "array" | "object" {
         switch (propType) {
             case "string":
             case "number":
             case "boolean":
+            case "array":
                 return propType;
             default:
                 return "object";
@@ -897,11 +903,61 @@ export class ProfileInfo {
      *      into mergedArgs.knownArgs if a value is found in an environment
      *      variable for any missingArgs.
      */
-    private overrideWithEnv(mergedArgs: IProfMergedArg) {
-        if (this.mOverrideWithEnv === false) {
-            return;
-        }
+    private overrideWithEnv(mergedArgs: IProfMergedArg, profSchema?: IProfileSchema) {
+        if (!this.mOverrideWithEnv) return; // Don't do anything
 
-        // todo: get values from environment variables
+        // Populate any missing options
+        const envPrefix = ImperativeConfig.instance.loadedConfig.envVariablePrefix;
+        const envStart = envPrefix + "_OPT_";
+        for (const key in process.env) {
+            if (key.startsWith(envStart)) {
+                let argValue: any = process.env[key];
+                let dataType: any = typeof argValue;
+                const argName: string = CliUtils.getOptionFormat(key.substring(envStart.length).replace(/_/g, "-").toLowerCase()).camelCase;
+
+                let argNameFound = false;
+                if (profSchema != null) {
+                    for (const [propName, propObj] of Object.entries(profSchema.properties || {})) {
+                        if (argName === propName) {
+                            dataType = this.argDataType(propObj.type);
+                            argNameFound = true;
+                        }
+                    }
+                }
+
+                if (profSchema == null || !argNameFound) {
+                    if (argValue.toUpperCase() === "TRUE" || argValue.toUpperCase() === "FALSE") {
+                        dataType = "boolean";
+                    } else if (!isNaN(+(argValue))) {
+                        dataType = "number";
+                    }
+                    // TODO: Look for option definition for argName to check if it's an array
+                }
+
+                if (dataType === "boolean") {
+                    argValue = argValue.toUpperCase() === "TRUE";
+                } else if (dataType === "number") {
+                    argValue = +(argValue);
+                } else if (dataType === "array") {
+                    argValue = CliUtils.extractArrayFromEnvValue(argValue);
+                }
+
+                const tempArg: IProfArgAttrs = {
+                    argName,
+                    argValue,
+                    dataType,
+                    argLoc: { locType: ProfLocType.ENV }
+                };
+
+                const missingArgsIndex = mergedArgs.missingArgs.findIndex((arg) => arg.argName === argName);
+                const knownArgsIndex = mergedArgs.knownArgs.findIndex((arg) => arg.argName === argName);
+                if (argNameFound || missingArgsIndex >= 0) {
+                    if (knownArgsIndex < 0) {
+                        mergedArgs.knownArgs.push(tempArg);
+                    }
+                    if (missingArgsIndex >= 0) mergedArgs.missingArgs.splice(missingArgsIndex, 1);
+                }
+            }
+        }
     }
 }
