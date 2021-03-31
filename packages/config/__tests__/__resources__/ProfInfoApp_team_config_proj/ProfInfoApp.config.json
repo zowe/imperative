@@ -53,12 +53,20 @@
                 "host": "LPAR1.your.domain.net",
                 "port": 456
             }
+        },
+        "LPAR4": {
+            "type": "dummy",
+            "properties": {
+                "host": "LPAR4.your.domain.net",
+                "responseFormatHeader": true
+            }
         }
     },
     "defaults": {
         "zosmf": "LPAR1",
         "tso": "LPAR1.tsoProfName",
-        "base": "base_glob"
+        "base": "base_glob",
+        "dummy": "LPAR4"
     },
     "plugins": [],
     "secure": []
