@@ -18,6 +18,10 @@ jest.mock("../../security/src/DefaultCredentialManager");
 jest.mock("../../utilities/src/ImperativeConfig");
 
 describe("ProfileCredentials tests", () => {
+    afterAll(() => {
+        jest.restoreAllMocks();
+    });
+
     describe("isSecured", () => {
         it("should always be true for team config", () => {
             const profCreds = new ProfileCredentials({
@@ -178,7 +182,7 @@ describe("ProfileCredentials tests", () => {
                 usingTeamConfig: true
             } as any);
             jest.spyOn(profCreds, "isSecured", "get").mockReturnValue(true);
-            jest.spyOn(CredentialManagerFactory, "initialize").mockRestore();
+            jest.spyOn(CredentialManagerFactory, "initialize").mockImplementation();
             let caughtError;
 
             try {

@@ -1006,8 +1006,8 @@ describe("ProfileInfo tests", () => {
 
     describe("failure cases", () => {
         it("readProfilesFromDisk should throw if secure credentials fail to load", async () => {
-            const profInfo = new ProfileInfo(testAppNm);
-            jest.spyOn((profInfo as any).mCredentials, "isSecured", "get").mockReturnValue(true);
+            const profInfo = createNewProfInfo(teamProjDir);
+            jest.spyOn((profInfo as any).mCredentials, "isSecured", "get").mockReturnValueOnce(true);
             jest.spyOn((profInfo as any).mCredentials, "loadManager").mockImplementationOnce(async () => {
                 throw new Error("bad credential manager");
             });
