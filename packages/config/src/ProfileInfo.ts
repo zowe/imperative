@@ -42,7 +42,6 @@ import { CliUtils, ImperativeConfig } from "../../utilities";
 import { ImperativeExpect } from "../../expect";
 import { Logger } from "../../logger";
 import { LoggerManager } from "../../logger/src/LoggerManager";
-import { IProfArgAttrs } from "./doc/IProfArgAttrs";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -95,6 +94,13 @@ import { IProfArgAttrs } from "./doc/IProfArgAttrs";
  *        // Merge any required arg values for the zosmf profile type
  *        let zosmfMergedArgs =
  *            profInfo.mergeArgsForProfileType("zosmf");
+ *
+ *        // Values of secure arguments must be loaded separately. You can
+ *        // freely log the contents of zosmfMergedArgs without leaking secure
+ *        // argument values, until they are loaded with the lines below.
+ *        zosmfMergedArgs.knownArgs.forEach((arg) => {
+ *            if (arg.secure) arg.argValue = profInfo.loadSecureArg(arg);
+ *        });
  *
  *        let finalZosmfArgs =
  *            youPromptForMissingArgsAndCombineWithKnownArgs(
@@ -483,17 +489,14 @@ export class ProfileInfo {
                         argLoc: { locType: ProfLocType.DEFAULT },
                         secure: propObj.secure
                     });
+                } else {
+                    knownArg.secure = propObj.secure;
+                    if (knownArg.secure) {
+                        delete knownArg.argValue;
+                    }
                 }
             }
 
-                //     if (profSchema.required?.includes(propName)) {
-                //         missingRequired.push(propName);
-                //     }
-                // } else {
-                //     knownArg.secure = propObj.secure;
-                //     if (knownArg.secure) {
-                //         delete knownArg.argValue;
-                //     }
             // overwrite with any values found in environment
             this.overrideWithEnv(mergedArgs, profSchema);
 
