@@ -9,6 +9,12 @@
 *
 */
 
+const tableObjects = [
+    { header1: "value1", 2: "value2", header3: "value3" },
+    { header1: "value1", 2: "value2", header3: "value3" },
+    { header1: "value1", 2: "value2", header3: "value3" },
+]
+
 import { TextUtils } from "../../../../packages/utilities";
 
 describe("TextUtils", () => {
@@ -26,4 +32,18 @@ describe("TextUtils", () => {
         expect(text).toMatchSnapshot();
     });
 
+    it("should grab headers from object properties", () => {
+        TextUtils.chalk.level = 0; // turn off color
+        const color = "yellow"; // any color
+        const table = TextUtils.getTable(tableObjects, color);
+        expect(table).toMatchSnapshot();
+    });
+
+    it("should accept headers from user", () => {
+        TextUtils.chalk.level = 0; // turn off color
+        const color = "yellow"; // any color
+        const headers = ["header1", "2", "header3"];
+        const table = TextUtils.getTable(tableObjects, color, Infinity, true, false, false, headers);
+        expect(table).toMatchSnapshot();
+    });
 });
