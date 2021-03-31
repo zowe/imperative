@@ -204,7 +204,7 @@ export class ImperativeConfig {
             return require(file);
         } catch (e) {
             e.message = "Could not locate the specified module through requiring directly, nor through " +
-                "searching the directories above " + this.callerLocation +
+                "searching the directories above " + ImperativeConfig.instance.callerLocation +
                 ". 'require()' error message: " + e.message +
                 " \n 'find-up' (directory search) error message:" + findupErr.message;
             throw new ImperativeError({msg: e.message});
