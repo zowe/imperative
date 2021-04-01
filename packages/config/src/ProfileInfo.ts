@@ -628,25 +628,32 @@ export class ProfileInfo {
     public loadSecureArg(arg: IProfArgAttrs): any {
         let argValue;
 
-        if (arg.argLoc.osLoc != null && arg.argLoc.osLoc.length > 0) {
-            if (arg.argLoc.locType === ProfLocType.TEAM_CONFIG && arg.argLoc.jsonLoc != null) {
-                for (const layer of this.mLoadedConfig.layers) {
-                    if (layer.path === arg.argLoc.osLoc[0]) {
-                        // we found the config layer matching arg.osLoc
-                        argValue = lodash.get(layer.properties, arg.argLoc.jsonLoc);
-                        break;
+        switch (arg.argLoc.locType) {
+            case ProfLocType.TEAM_CONFIG:
+                if (arg.argLoc.osLoc?.length > 0 && arg.argLoc.jsonLoc != null) {
+                    for (const layer of this.mLoadedConfig.layers) {
+                        if (layer.path === arg.argLoc.osLoc[0]) {
+                            // we found the config layer matching arg.osLoc
+                            argValue = lodash.get(layer.properties, arg.argLoc.jsonLoc);
+                            break;
+                        }
                     }
                 }
-            } else if (arg.argLoc.locType === ProfLocType.OLD_PROFILE) {
-                for (const loadedProfile of this.mOldSchoolProfileCache) {
-                    const profilePath = this.oldProfileFilePath(loadedProfile.type, loadedProfile.name);
-                    if (profilePath === arg.argLoc.osLoc[0]) {
-                        // we found the loaded profile matching arg.osLoc
-                        argValue = loadedProfile.profile[arg.argName];
-                        break;
+                break;
+            case ProfLocType.OLD_PROFILE:
+                if (arg.argLoc.osLoc?.length > 0) {
+                    for (const loadedProfile of this.mOldSchoolProfileCache) {
+                        const profilePath = this.oldProfileFilePath(loadedProfile.type, loadedProfile.name);
+                        if (profilePath === arg.argLoc.osLoc[0]) {
+                            // we found the loaded profile matching arg.osLoc
+                            argValue = loadedProfile.profile[arg.argName];
+                            break;
+                        }
                     }
                 }
-            }
+                break;
+            default:  // not stored securely if location is ENV or DEFAULT
+                argValue = arg.argValue;
         }
 
         if (argValue === undefined) {

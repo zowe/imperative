@@ -984,6 +984,19 @@ describe("ProfileInfo tests", () => {
             expect(profInfo.loadSecureArg(passwordArg)).toBe("somePassword");
         });
 
+        it("should treat secure arg as plain text if loaded from environment variable", async () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            const expectedValue = "insecure";
+            const actualValue = profInfo.loadSecureArg({
+                argName: "test",
+                dataType: "string",
+                argValue: expectedValue,
+                argLoc: { locType: ProfLocType.ENV }
+            });
+
+            expect(actualValue).toEqual(expectedValue);
+        });
+
         it("should fail to load secure arg when not found", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
             let caughtError;
