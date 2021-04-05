@@ -73,6 +73,9 @@ export class ConfigSchema {
         const properties: { [key: string]: IProfileProperty } = {};
         for (const [k, v] of Object.entries(schema.properties as { [key: string]: any })) {
             properties[k] = { type: v.type };
+            if (v.secure) {
+                properties[k].secure = true;
+            }
             if (v.description != null || v.default != null || v.enum != null) {
                 (properties[k] as ICommandProfileProperty).optionDefinition = {
                     name: k,

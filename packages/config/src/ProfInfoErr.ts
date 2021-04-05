@@ -40,6 +40,11 @@ export class ProfInfoErr extends ImperativeError {
     public static readonly INVALID_PROF_LOC_TYPE: string = "InvalidProfLocType";
 
     /**
+     * Failed to initialize ProfileCredentials and load the credential manager.
+     */
+    public static readonly LOAD_CRED_MGR_FAILED: string = "LoadCredMgrFailed";
+
+    /**
      * Failed to load the schema for a specified type of profile.
      */
     public static readonly LOAD_SCHEMA_FAILED: string = "LoadSchemaFailed";
@@ -60,6 +65,12 @@ export class ProfInfoErr extends ImperativeError {
      * does not exist in that profile.
      */
     public static readonly PROP_NOT_IN_PROFILE: string = "PropNotInProfile";
+
+    /**
+     * A specified property that is expected to exist in a specified profile
+     * does not have OS and JSON locations defined.
+     */
+    public static readonly UNKNOWN_PROP_LOCATION: string = "UnknownPropLocation";
 
     // _______________________________________________________________________
 

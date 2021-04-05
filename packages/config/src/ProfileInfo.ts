@@ -17,10 +17,12 @@ import * as jsonfile from "jsonfile";
 import * as lodash from "lodash";
 
 // for ProfileInfo structures
+import { IProfArgAttrs } from "./doc/IProfArgAttrs";
 import { IProfAttrs } from "./doc/IProfAttrs";
 import { IProfLoc, ProfLocType } from "./doc/IProfLoc";
 import { IProfMergedArg } from "./doc/IProfMergedArg";
 import { IProfOpts } from "./doc/IProfOpts";
+import { ProfileCredentials } from "./ProfileCredentials";
 import { ProfInfoErr } from "./ProfInfoErr";
 
 // for team config functions
@@ -39,7 +41,7 @@ import { LoggingConfigurer } from "../../imperative/src/LoggingConfigurer";
 import { CliUtils, ImperativeConfig } from "../../utilities";
 import { ImperativeExpect } from "../../expect";
 import { Logger } from "../../logger";
-import { IProfArgAttrs } from "./doc/IProfArgAttrs";
+import { LoggerManager } from "../../logger/src/LoggerManager";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -56,7 +58,7 @@ import { IProfArgAttrs } from "./doc/IProfArgAttrs";
  *    // below, but it applies to any ProfileInfo function.
  *    profInfo = new ProfileInfo("zowe");
  *    try {
- *        profInfo.readProfilesFromDisk();
+ *        await profInfo.readProfilesFromDisk();
  *    } catch(err) {
  *        if (err instanceof ProfInfoErr) {
  *            if (err.errcode == ProfInfoErr.CANT_GET_SCHEMA_URL) {
@@ -93,6 +95,13 @@ import { IProfArgAttrs } from "./doc/IProfArgAttrs";
  *        let zosmfMergedArgs =
  *            profInfo.mergeArgsForProfileType("zosmf");
  *
+ *        // Values of secure arguments must be loaded separately. You can
+ *        // freely log the contents of zosmfMergedArgs without leaking secure
+ *        // argument values, until they are loaded with the lines below.
+ *        zosmfMergedArgs.knownArgs.forEach((arg) => {
+ *            if (arg.secure) arg.argValue = profInfo.loadSecureArg(arg);
+ *        });
+ *
  *        let finalZosmfArgs =
  *            youPromptForMissingArgsAndCombineWithKnownArgs(
  *                zosmfMergedArgs.knownArgs,
@@ -119,7 +128,7 @@ import { IProfArgAttrs } from "./doc/IProfArgAttrs";
  *            configObj, yourZosmfArgsToWrite
  *        );
  *    } else {
- *      youWriteOldSchoolProfiles(yourZosmfArgsToWrite);
+ *        youWriteOldSchoolProfiles(yourZosmfArgsToWrite);
  *    }
  * </pre>
  */
@@ -139,6 +148,7 @@ export class ProfileInfo {
      *  - For old profiles: "zosmf"
      */
     private mProfileSchemaCache: Map<string, IProfileSchema>;
+    private mCredentials: ProfileCredentials;
 
     // _______________________________________________________________________
     /**
@@ -158,6 +168,8 @@ export class ProfileInfo {
         if (profInfoOpts?.overrideWithEnv) {
             this.mOverrideWithEnv = profInfoOpts.overrideWithEnv;
         }
+
+        this.mCredentials = new ProfileCredentials(this, profInfoOpts?.requireKeytar);
 
         // do enough Imperative stuff to let imperative utilities work
         this.initImpUtils();
@@ -228,8 +240,7 @@ export class ProfileInfo {
                         isDefaultProfile: defaultProfile,
                         profLoc: {
                             locType: ProfLocType.OLD_PROFILE,
-                            osLoc: [nodeJsPath.resolve(this.mOldSchoolProfileRootDir + "/" + loadedProfile.type + "/" +
-                            loadedProfile.name + AbstractProfileManager.PROFILE_EXTENSION)],
+                            osLoc: [this.oldProfileFilePath(loadedProfile.type, loadedProfile.name)],
                             jsonLoc: undefined
                         }
                     });
@@ -321,8 +332,7 @@ export class ProfileInfo {
             defaultProfile.profName = loadedProfile.name;
             defaultProfile.profLoc = {
                 locType: ProfLocType.OLD_PROFILE,
-                osLoc: [nodeJsPath.join(this.mOldSchoolProfileRootDir, profileType,
-                    loadedProfile.name + AbstractProfileManager.PROFILE_EXTENSION)]
+                osLoc: [this.oldProfileFilePath(profileType, loadedProfile.name)]
             }
         }
         return defaultProfile;
@@ -470,13 +480,20 @@ export class ProfileInfo {
 
             for (const [propName, propObj] of Object.entries(profSchema.properties || {})) {
                 // Check if property in schema is missing from known args
-                if (!mergedArgs.knownArgs.find((arg) => arg.argName === propName)) {
+                const knownArg = mergedArgs.knownArgs.find((arg) => arg.argName === propName);
+                if (knownArg == null) {
                     mergedArgs.missingArgs.push({
                         argName: propName,
                         dataType: this.argDataType(propObj.type),
                         argValue: (propObj as ICommandProfileProperty).optionDefinition?.defaultValue,
-                        argLoc: { locType: ProfLocType.DEFAULT }
+                        argLoc: { locType: ProfLocType.DEFAULT },
+                        secure: propObj.secure
                     });
+                } else {
+                    knownArg.secure = propObj.secure;
+                    if (knownArg.secure) {
+                        delete knownArg.argValue;
+                    }
                 }
             }
 
@@ -542,6 +559,19 @@ export class ProfileInfo {
     public async readProfilesFromDisk(teamCfgOpts?: IConfigOpts) {
         this.mLoadedConfig = await Config.load(this.mAppName, teamCfgOpts);
         this.mUsingTeamConfig = this.mLoadedConfig.exists;
+
+        try {
+            if (this.mCredentials.isSecured) {
+                await this.mCredentials.loadManager();
+            }
+        } catch (error) {
+            throw new ProfInfoErr({
+                errorCode: ProfInfoErr.LOAD_CRED_MGR_FAILED,
+                msg: "Failed to initialize secure credential manager",
+                causeErrors: error
+            });
+        }
+
         if (!this.mUsingTeamConfig) {
             // Clear out the values
             this.mOldSchoolProfileCache = [];
@@ -573,6 +603,7 @@ export class ProfileInfo {
                 }
             }
         }
+
         this.loadAllSchemas();
     }
 
@@ -588,6 +619,51 @@ export class ProfileInfo {
     public get usingTeamConfig(): boolean {
         this.ensureReadFromDisk();
         return this.mUsingTeamConfig;
+    }
+
+    /**
+     * Load value of secure argument from the vault.
+     * @param arg Secure argument object
+     */
+    public loadSecureArg(arg: IProfArgAttrs): any {
+        let argValue;
+
+        switch (arg.argLoc.locType) {
+            case ProfLocType.TEAM_CONFIG:
+                if (arg.argLoc.osLoc?.length > 0 && arg.argLoc.jsonLoc != null) {
+                    for (const layer of this.mLoadedConfig.layers) {
+                        if (layer.path === arg.argLoc.osLoc[0]) {
+                            // we found the config layer matching arg.osLoc
+                            argValue = lodash.get(layer.properties, arg.argLoc.jsonLoc);
+                            break;
+                        }
+                    }
+                }
+                break;
+            case ProfLocType.OLD_PROFILE:
+                if (arg.argLoc.osLoc?.length > 0) {
+                    for (const loadedProfile of this.mOldSchoolProfileCache) {
+                        const profilePath = this.oldProfileFilePath(loadedProfile.type, loadedProfile.name);
+                        if (profilePath === arg.argLoc.osLoc[0]) {
+                            // we found the loaded profile matching arg.osLoc
+                            argValue = loadedProfile.profile[arg.argName];
+                            break;
+                        }
+                    }
+                }
+                break;
+            default:  // not stored securely if location is ENV or DEFAULT
+                argValue = arg.argValue;
+        }
+
+        if (argValue === undefined) {
+            throw new ProfInfoErr({
+                errorCode: ProfInfoErr.UNKNOWN_PROP_LOCATION,
+                msg: `Failed to locate the property ${arg.argName}`
+            });
+        }
+
+        return argValue;
     }
 
     // _______________________________________________________________________
@@ -631,10 +707,12 @@ export class ProfileInfo {
         }
 
         // initialize logging
-        const loggingConfig = LoggingConfigurer.configureLogger(
-            ImperativeConfig.instance.cliHome, ImperativeConfig.instance.loadedConfig
-        );
-        Logger.initLogger(loggingConfig);
+        if (LoggerManager.instance.isLoggerInit === false) {
+            const loggingConfig = LoggingConfigurer.configureLogger(
+                ImperativeConfig.instance.cliHome, ImperativeConfig.instance.loadedConfig
+            );
+            Logger.initLogger(loggingConfig);
+        }
         this.mImpLogger = Logger.getImperativeLogger();
     }
 
@@ -683,7 +761,7 @@ export class ProfileInfo {
         } else {
             // Load profile schemas from meta files in profile root dir
             for (const { type } of this.mOldSchoolProfileCache) {
-                const metaPath = nodeJsPath.join(this.mOldSchoolProfileRootDir, type, `${type}_meta.yaml`);
+                const metaPath = this.oldProfileFilePath(type, type + AbstractProfileManager.META_FILE_SUFFIX);
                 if (fs.existsSync(metaPath)) {
                     try {
                         const metaProfile = ProfileIO.readMetaFile(metaPath);
@@ -864,8 +942,18 @@ export class ProfileInfo {
     private argOldProfileLoc(profileName: string, profileType: string): IProfLoc {
         return {
             locType: ProfLocType.OLD_PROFILE,
-            osLoc: [nodeJsPath.join(this.mOldSchoolProfileRootDir, profileType, `${profileName}.yaml`)]
+            osLoc: [this.oldProfileFilePath(profileType, profileName)]
         }
+    }
+
+    /**
+     * Given a profile name and type, return the OS location of the associated
+     * YAML file.
+     * @param profileName Name of an old school profile (e.g., LPAR1)
+     * @param profileType Type of an old school profile (e.g., zosmf)
+     */
+    private oldProfileFilePath(profileType: string, profileName: string) {
+        return nodeJsPath.join(this.mOldSchoolProfileRootDir, profileType, profileName + AbstractProfileManager.PROFILE_EXTENSION);
     }
 
     /**
@@ -877,8 +965,21 @@ export class ProfileInfo {
         let schemaMapKey: string;
 
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
-            schemaMapKey = `${profile.profLoc.osLoc}:${profile.profType}`;
+            if (profile.profLoc.osLoc != null) {
+                // the profile exists, so use schema associated with its config JSON file
+                schemaMapKey = `${profile.profLoc.osLoc}:${profile.profType}`;
+            } else {
+                // no profile exists, so loop through layers and use the first schema found
+                for (const layer of this.mLoadedConfig.layers) {
+                    const tempKey = `${layer.path}:${profile.profType}`;
+                    if (this.mProfileSchemaCache.has(tempKey)) {
+                        schemaMapKey = tempKey;
+                        break;
+                    }
+                }
+            }
         } else if (profile.profLoc.locType === ProfLocType.OLD_PROFILE) {
+            // for old school profiles, there is only one schema per profile type
             schemaMapKey = profile.profType;
         }
 
