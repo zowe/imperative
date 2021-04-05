@@ -2,6 +2,18 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Add the ProfileInfo API to provide the following functionality:
+    - Read configuration from disk.
+    - Transparently read either a new team configuration or old style profiles.
+    - Resolve order of precedence for profile argument values.
+    - Provide information to enable callers to prompt for missing profile arguments.
+    - Retain the location in which a profile or argument was found.
+    - Automatically initialize CredentialManager, including an option to specify a custom keytar module.
+    - Provide a means to postpone the loading of secure arguments until specifically requested by the calling app to delay loading sensitive data until it is needed.
+    - Provide access to the lower-level Config API to fully manipulate the team configuration file.
+
 ## `5.0.0-next.202103111923`
 
 - Enhancement: Allow custom directory to be specified for project config in `Config.load` method. [#544](https://github.com/zowe/imperative/issues/544)
