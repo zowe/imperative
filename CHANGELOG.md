@@ -43,6 +43,12 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
 
+## `4.13.0`
+
+- Enhancement: Added headers[] option to TextUtils.getTable(). [#369](https://github.com/zowe/imperative/issues/369)
+- BugFix: Print a subset of the `stdout` and `stderr` buffers when calling `mProgressApi`'s `endBar()` to prevent duplication of output.
+- Bugfix: Replaced `this` with `ImperativeConfig.instance` in `ImperativeConfig.getCallerFile()`. [#5](https://github.com/zowe/imperative/issues/5)
+
 ## `4.12.0`
 
 - Enhancement: Added decompression support for REST responses with Content-Encoding `gzip`, `deflate`, or `br`. [#318](https://github.com/zowe/imperative/issues/318)

@@ -716,6 +716,8 @@ export class CommandResponse implements ICommandResponseApi {
                 private mProgressBarInterval: any;
                 private mIsSocket = false;
 
+                private mProgressBarStdoutStartIndex: number;
+                private mProgressBarStderrStartIndex: number;
                 /**
                  * TODO: get from config - default value is below
                  */
@@ -730,12 +732,14 @@ export class CommandResponse implements ICommandResponseApi {
                     if (outer.mProgressBar != null) {
                         throw new ImperativeError({
                             msg: `${CommandResponse.RESPONSE_ERR_TAG} A progress bar has already been started. ` +
-                                `Please call progress.finishBar() before starting a new one.`
+                                `Please call progress.endBar() before starting a new one.`
                         });
                     }
                     if (!outer.silent && outer.mResponseFormat !== "json") {
 
                         // Persist the task specifications and determine the stream to use for the progress bar
+                        this.mProgressBarStdoutStartIndex = outer.mStdout.length;
+                        this.mProgressBarStderrStartIndex = outer.mStderr.length;
                         this.mProgressTask = params.task;
                         let stream: any = (params.stream == null) ? process.stderr : params.stream;
                         const arbitraryColumnSize = 80;
@@ -800,8 +804,8 @@ export class CommandResponse implements ICommandResponseApi {
                         outer.writeStream(daemonHeaders);
 
                         outer.mProgressBar.terminate();
-                        outer.writeStdout(outer.mStdout);
-                        outer.writeStderr(outer.mStderr);
+                        outer.writeStdout(outer.mStdout.subarray(this.mProgressBarStdoutStartIndex));
+                        outer.writeStderr(outer.mStderr.subarray(this.mProgressBarStderrStartIndex));
                         this.mProgressTask = undefined;
 
                         // clear the progress bar field
