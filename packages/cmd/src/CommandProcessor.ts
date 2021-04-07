@@ -42,7 +42,7 @@ import { ICommandArguments } from "./doc/args/ICommandArguments";
 import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "./help/WebHelpManager";
 import { ICommandProfile } from "./doc/profiles/definition/ICommandProfile";
-import { Config } from "../../config";
+import { Config } from "../../config/src/Config";
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
  * response object and validates syntax, loads profiles, instantiates handlers, & invokes the handlers.

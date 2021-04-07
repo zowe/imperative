@@ -98,13 +98,13 @@ export class ConfigProfiles extends ConfigApi {
 
     // _______________________________________________________________________
     /**
-     * Get the default value for the specified type of profile within
-     * the currently active layer.
+     * Get the profile contents for the default profile of the specified type
+     * of profile within the currently active layer.
      *
      * @param profileType The name of the desired type of profile (like zosmf).
      *
-     * @returns An object containing the desired default profile,
-     *          for example {"zosmf": "ca32.zosmf"}
+     * @returns An object containing the desired profile,
+     *          for example {"host": "lpar.your.domain.net", port: 1234}
      */
     public defaultGet(profileType: string): { [key: string]: string } {
         const dflt = this.mConfig.properties.defaults[profileType];
@@ -119,7 +119,7 @@ export class ConfigProfiles extends ConfigApi {
      *
      * @param shortPath The short path.
      *
-     * @returns The expande path.
+     * @returns The expanded path.
      *
      */
     public expandPath(shortPath: string): string {

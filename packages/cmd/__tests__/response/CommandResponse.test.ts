@@ -226,6 +226,44 @@ describe("Command Response", () => {
             expect((response as any).progressBarInterval).toBeUndefined();
         });
 
+
+    it("should not duplicate output when calling endBar", () => {
+        let stdoutMsg: string = "";
+        let stderrMsg: string = "";
+        const response = new CommandResponse({responseFormat: "default"});
+        process.stdout.write = jest.fn((data) => {
+            stdoutMsg += data;
+        });
+        process.stderr.write = jest.fn((data) => {
+            stderrMsg += data;
+        });
+        const task = {
+            percentComplete: 0,
+            statusMessage: "Test Task",
+            stageName: TaskStage.IN_PROGRESS
+        }
+        const beforeMessage = "Message before progress bar";
+        const duringMessage = "Message during progress bar";
+        const afterMessage = "Message after progress bar";
+
+        response.console.log(beforeMessage);
+        response.console.error(beforeMessage);
+        response.progress.startBar({task});
+        response.console.log(duringMessage);
+        response.console.error(duringMessage);
+        response.progress.endBar();
+        response.console.log(afterMessage);
+        response.console.error(afterMessage);
+
+        process.stdout.write = ORIGINAL_STDOUT_WRITE;
+        process.stderr.write = ORIGINAL_STDERR_WRITE;
+
+        expect(stdoutMsg).toMatchSnapshot();
+        expect(stderrMsg).toMatch(new RegExp(`^Message before progress bar$\n^.*Message during progress bar$\n^Message after progress bar`, 'm'));
+        expect(response.buildJsonResponse().stdout.toString()).toEqual(beforeMessage + "\n" + duringMessage + "\n" + afterMessage + "\n");
+        expect(response.buildJsonResponse().stderr.toString()).toEqual(beforeMessage + "\n" + duringMessage + "\n" + afterMessage + "\n");
+    })
+
     it("should allow us to create an instance", () => {
         const response = new CommandResponse();
     });

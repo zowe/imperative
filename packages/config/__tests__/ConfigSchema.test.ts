@@ -23,7 +23,7 @@ describe("Config Schema", () => {
         schema: {
             title: "zosmf",
             description: "A fake zosmf profile",
-            type: "zosmf",
+            type: "object",
             required: [],
             properties: {
                 host: {
@@ -38,7 +38,7 @@ describe("Config Schema", () => {
         schema: {
             title: "base",
             description: "A fake base profile",
-            type: "base",
+            type: "object",
             required: [],
             properties: {
                 port: {
@@ -54,7 +54,7 @@ describe("Config Schema", () => {
         schema: {
             title: "zosmf",
             description: "A fake zosmf profile",
-            type: "zosmf",
+            type: "object",
             required: [],
             properties: {
                 host: {
@@ -70,7 +70,7 @@ describe("Config Schema", () => {
             schema: {
                 title: "zosmf",
                 description: "A fake zosmf profile",
-                type: "zosmf",
+                type: "object",
                 required: [],
                 properties: {
                     host: {
@@ -121,7 +121,7 @@ describe("Config Schema", () => {
                         },
                         required: [],
                         title: "zosmf",
-                        type: "zosmf"
+                        type: "object"
                     }
                 }
             }
@@ -153,7 +153,7 @@ describe("Config Schema", () => {
                             },
                             required: [],
                             title: "zosmf",
-                            type: "zosmf"
+                            type: "object"
                         }
                     }
                 }
@@ -177,7 +177,7 @@ describe("Config Schema", () => {
                             },
                             required: [],
                             title: "base",
-                            type: "base"
+                            type: "object"
                         }
                     }
                 }
@@ -210,7 +210,7 @@ describe("Config Schema", () => {
                         },
                         required: [],
                         title: "zosmf",
-                        type: "zosmf"
+                        type: "object"
                     }
                 }
             }
@@ -244,12 +244,32 @@ describe("Config Schema", () => {
                         },
                         required: [],
                         title: "zosmf",
-                        type: "zosmf"
+                        type: "object"
                     }
                 }
             }
         }];
         expect(returnedSchema).toMatchSnapshot();
         expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
+    });
+
+    it("should be able to regenerate profile schemas from a schema object", () => {
+        const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfiguration);
+        const returnedSchema = schema.buildSchema(testConfig);
+        const origSchemas = schema.loadProfileSchemas(returnedSchema);
+        expect(origSchemas.length).toBe(2);
+        expect(testConfig[0].type).toBe(origSchemas[0].type);
+        expect(testConfig[0].schema).toMatchObject(origSchemas[0].schema);
+        expect(testConfig[1].type).toBe(origSchemas[1].type);
+        expect(testConfig[1].schema).toMatchObject(origSchemas[1].schema);
+    });
+
+    it("should be able to regenerate profile schemas with option definitions from a schema object", () => {
+        const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfigurationOptionDefinition);
+        const returnedSchema = schema.buildSchema(testConfig);
+        const origSchemas = schema.loadProfileSchemas(returnedSchema);
+        expect(origSchemas.length).toBe(1);
+        expect(testConfig[0].type).toBe(origSchemas[0].type);
+        expect(testConfig[0].schema).toMatchObject(origSchemas[0].schema);
     });
 });
