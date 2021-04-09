@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Allow SCS to load new securely stored credentials. [#984](https://github.com/zowe/zowe-cli/issues/984)
+
 ## `5.0.0-next.202104071400`
 
 - Enhancement: Add the ProfileInfo API to provide the following functionality:
