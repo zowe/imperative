@@ -10,7 +10,7 @@
 */
 
 import { IImperativeOverrides } from "./doc/IImperativeOverrides";
-import { CredentialManagerFactory } from "../../security";
+import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import { isAbsolute, resolve } from "path";
 import { AppSettings } from "../../settings";
@@ -106,8 +106,9 @@ export class OverridesLoader {
         Manager,
         // The display name will be the plugin name that introduced the override OR it will default to the CLI name
         displayName,
-        // The service is always the CLI name (Keytar and other plugins can use this to uniquely identify the service)
-        service: config.name,
+
+        service: DefaultCredentialManager.SVC_NAME,
+
         // If the default is to be used, we won't implant the invalid credential manager
         invalidOnFailure: !(Manager == null)
       });
