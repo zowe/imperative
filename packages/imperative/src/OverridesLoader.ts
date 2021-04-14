@@ -10,7 +10,7 @@
 */
 
 import { IImperativeOverrides } from "./doc/IImperativeOverrides";
-import { CredentialManagerFactory } from "../../security";
+import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import { isAbsolute, resolve } from "path";
 import { AppSettings } from "../../settings";
@@ -80,6 +80,8 @@ export class OverridesLoader {
   ): Promise<void> {
     const overrides: IImperativeOverrides = config.overrides;
 
+    const ZOWE_CLI_PACKAGE_NAME = `@zowe/cli`;
+
     // The manager display name used to populate the "managed by" fields in profiles
     const displayName: string = (
         overrides.CredentialManager != null
@@ -95,7 +97,7 @@ export class OverridesLoader {
         config.productDisplayName || config.name;
 
     // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
-    if (overrides.CredentialManager != null || packageJson.dependencies?.keytar != null) {
+    if (overrides.CredentialManager != null || packageJson.dependencies?.keytar != null || packageJson.optionalDependencies?.keytar != null) {
       let Manager = overrides.CredentialManager;
       if (typeof overrides.CredentialManager === "string" && !isAbsolute(overrides.CredentialManager)) {
         Manager = resolve(process.mainModule.filename, "../", overrides.CredentialManager);
@@ -106,8 +108,10 @@ export class OverridesLoader {
         Manager,
         // The display name will be the plugin name that introduced the override OR it will default to the CLI name
         displayName,
-        // The service is always the CLI name (Keytar and other plugins can use this to uniquely identify the service)
-        service: config.name,
+
+        // zowe cli will always add `Zowe` to it's list of service names
+        service: config?.name === ZOWE_CLI_PACKAGE_NAME ? DefaultCredentialManager.SVC_NAME : config?.name,
+
         // If the default is to be used, we won't implant the invalid credential manager
         invalidOnFailure: !(Manager == null)
       });
