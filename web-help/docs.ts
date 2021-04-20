@@ -56,23 +56,31 @@ const clipboard = new (require("clipboard"))(".btn-copy");
 clipboard.on("success", (e: any) => setTooltip(e.trigger, "Copied!"));
 clipboard.on("error", (e: any) => setTooltip(e.trigger, "Failed!"));
 
+/**
+ * Find the currently scrolled to command anchor in iframe
+ * @returns Element with <a> tag
+ */
+function findCurrentCmdAnchor() {
+    const anchors = arrayFrom(document.getElementsByClassName("cmd-anchor"));
+    let lastAnchor: any;
+    for (const anchor of anchors) {
+        const headerBounds = (anchor.nextElementSibling as any).getBoundingClientRect();
+        if (headerBounds.top > window.innerHeight) {
+            break;
+        }
+        lastAnchor = anchor;
+    }
+    return lastAnchor;
+}
+
 // If in flat view, select currently scrolled to command in tree
 if (isInIframe && (window.location.href.indexOf("/all.html") !== -1)) {
     let currentCmdName: string;
     window.onscroll = (_: any) => {
-        const anchors = arrayFrom(document.getElementsByClassName("cmd-anchor"));
-        for (const anchor of anchors) {
-            const headerBounds = (anchor.nextElementSibling as any).getBoundingClientRect();
-            if (0 < headerBounds.bottom) {
-                if (headerBounds.top < window.innerHeight) {
-                    const cmdName = anchor.getAttribute("name");
-                    if (cmdName && (cmdName !== currentCmdName)) {
-                        window.parent.postMessage(cmdName + ".html", "*");
-                        currentCmdName = cmdName;
-                    }
-                }
-                break;
-            }
+        const cmdName = findCurrentCmdAnchor().getAttribute("name");
+        if (cmdName != null && cmdName !== currentCmdName) {
+            window.parent.postMessage(cmdName + ".html", "*");
+            currentCmdName = cmdName;
         }
     };
 }
