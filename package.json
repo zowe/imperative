@@ -44,7 +44,8 @@
     "build:webHelp": "cd web-help && tsc",
     "watch:webHelp": "cd web-help && tsc -w",
     "browserify": "gulp browserify",
-    "typedoc": "typedoc --options ./typedoc.json ./packages/"
+    "typedoc": "typedoc --options ./typedoc.json ./packages/",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@types/lodash-deep": "2.0.0",
@@ -120,6 +121,7 @@
     "gulp-plumber": "^1.2.1",
     "gulp-replace": "^0.6.1",
     "gulp-typedoc": "^2.2.3",
+    "husky": "^6.0.0",
     "jest": "^24.9.0",
     "jest-html-reporter": "^3.3.0",
     "jest-junit": "^6.3.0",
