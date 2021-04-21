@@ -74,7 +74,7 @@ function findCurrentCmdAnchor() {
 }
 
 // If in flat view, select currently scrolled to command in tree
-if (isInIframe && (window.location.href.indexOf("/all.html") !== -1)) {
+if (isInIframe && window.location.href.indexOf("/all.html") !== -1) {
     let currentCmdName: string;
     window.onscroll = (_: any) => {
         const cmdName = findCurrentCmdAnchor().getAttribute("name");
