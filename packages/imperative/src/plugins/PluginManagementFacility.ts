@@ -840,12 +840,6 @@ export class PluginManagementFacility {
             if (pkgJsonData[peerDepPropNm].hasOwnProperty(pluginCfgProps.cliDependency.peerDepName)) {
                 pluginCfgProps.cliDependency.peerDepVer =
                     pkgJsonData[peerDepPropNm][pluginCfgProps.cliDependency.peerDepName];
-            } else {
-                this.pluginIssues.recordIssue(pluginName, IssueSeverity.WARNING,
-                    "The property '" + pluginCfgProps.cliDependency.peerDepName +
-                    "' does not exist within the '" + peerDepPropNm +
-                    "' property in the file '" + pluginPkgJsonPathNm + "'."
-                );
             }
 
             // get the version of the imperative dependency for this plugin
