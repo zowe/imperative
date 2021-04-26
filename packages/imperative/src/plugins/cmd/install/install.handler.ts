@@ -96,9 +96,7 @@ export default class InstallHandler implements ICommandHandler {
           "Plug-ins within the Imperative CLI Framework can legitimately gain\n" +
           `control of the ${ImperativeConfig.instance.rootCommandName} CLI application ` +
           "during the execution of every command.\n" +
-          "Install 3rd party plug-ins at your own risk.\n\n" +
-          "Imperative's plugin installation program handles @zowe peer dependencies.\n" +
-          "You can safely ignore NPM warnings about missing @zowe peer dependencies.\n"
+          "Install 3rd party plug-ins at your own risk.\n"
         );
 
         params.response.console.log("Registry = " + installRegistry);

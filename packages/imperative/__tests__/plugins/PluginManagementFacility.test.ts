@@ -130,7 +130,7 @@ describe("Plugin Management Facility", () => {
         npmPackageName: "PluginHasNoNpmPkgName",
         impConfig: basePluginConfig,
         cliDependency: {
-            peerDepName: "@zowe/core",
+            peerDepName: "@zowe/cli",
             peerDepVer: "-1"
         },
         impDependency: {
@@ -1168,11 +1168,10 @@ describe("Plugin Management Facility", () => {
             expect(pluginCfgProps).toEqual(null);
         });
 
-        it("should record warning when defined CLI package name does not exist in 'peerDependencies'", () => {
+        it("should record warning when Imperative package name does not exist in 'peerDependencies'", () => {
             // alter basePluginCfgProps to reflect the imperative version in the plugin's package.json
             const expectedCfgProps = JSON.parse(JSON.stringify(basePluginCfgProps));
             expectedCfgProps.npmPackageName = pluginName;
-            expectedCfgProps.impDependency.peerDepVer = "1.x";
 
             // mock reading the package.json file of the plugin
             mocks.existsSync.mockReturnValue(true);
@@ -1182,13 +1181,12 @@ describe("Plugin Management Facility", () => {
                 description: "Some description",
                 imperative: expectedCfgProps.impConfig,
                 peerDependencies: {
-                    "@zowe/coreIsNotInPkgJson": "1.x",
-                    "@zowe/imperative": "1.x"
+                    "@zowe/notImperative": "1.x"
                 }
             });
 
             // utility functions mocked to return good values
-            mockGetCliPkgName.mockReturnValue("@zowe/core");
+            mockGetCliPkgName.mockReturnValue("@zowe/cli");
             mockCfgLoad.mockReturnValue(expectedCfgProps.impConfig);
 
             // this is what we are really testing
@@ -1202,14 +1200,13 @@ describe("Plugin Management Facility", () => {
             expect(pluginIssues.getIssueListForPlugin(pluginName).length).toBe(1);
             const recordedIssue = pluginIssues.getIssueListForPlugin(pluginName)[0];
             expect(recordedIssue.issueSev).toBe(IssueSeverity.WARNING);
-            expect(recordedIssue.issueText).toContain("The property '@zowe/core' does not exist within the 'peerDependencies' property");
+            expect(recordedIssue.issueText).toContain("The property '@zowe/imperative' does not exist within the 'peerDependencies' property");
         });
 
         it("should return a plugin config when there are no errors", () => {
             // alter basePluginCfgProps to reflect the imperative version in the plugin's package.json
             const expectedCfgProps = JSON.parse(JSON.stringify(basePluginCfgProps));
             expectedCfgProps.npmPackageName = pluginName;
-            expectedCfgProps.cliDependency.peerDepVer = "1.x";
             expectedCfgProps.impDependency.peerDepVer = "1.x";
 
             // mock reading the package.json file of the plugin
@@ -1220,13 +1217,12 @@ describe("Plugin Management Facility", () => {
                 description: "Some description",
                 imperative: expectedCfgProps.impConfig,
                 peerDependencies: {
-                    "@zowe/core": "1.x",
                     "@zowe/imperative": "1.x"
                 }
             });
 
             // utility functions mocked to return good values
-            mockGetCliPkgName.mockReturnValue("@zowe/core");
+            mockGetCliPkgName.mockReturnValue("@zowe/cli");
             mockCfgLoad.mockReturnValue(expectedCfgProps.impConfig);
 
             // this is what we are really testing
