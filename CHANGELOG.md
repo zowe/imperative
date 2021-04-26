@@ -2,6 +2,11 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Remove message about NPM peer dep warnings that no longer applies to npm@7.
+- **Breaking:** Imperative no longer requires plug-ins to include CLI package as a peer dependency. It is recommended that CLI plug-ins remove their peer dependency on @zowe/cli for improved compatibility with npm@7. This is a breaking change for plug-ins, as older versions of Imperative will fail to install a plug-in that lacks the CLI peer dependency.
+
 ## `5.0.0-next.202104140156`
 
 - BugFix: Allow SCS to load new securely stored credentials. [#984](https://github.com/zowe/zowe-cli/issues/984)
