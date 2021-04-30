@@ -74,6 +74,10 @@ describe("WebHelpManager", () => {
             await Imperative.init(configForHelp);
         });
 
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
+
         afterAll( async () => {
             rimraf.sync(mockCliHome);
         });
@@ -159,8 +163,25 @@ describe("WebHelpManager", () => {
 
                 expect(mockBuildHelp).not.toHaveBeenCalled();
 
-                expect(opener).toHaveBeenCalledTimes(2);
+                expect(opener).toHaveBeenCalledTimes(1);
                 expect(opener).toHaveBeenLastCalledWith(`file:///${webHelpDirNm}/index.html`);
+
+                // restore real function
+                WebHelpGenerator.prototype.buildHelp = realBuildHelp;
+            });
+
+            it("should display existing help for a specific command", async () => {
+                const realBuildHelp = WebHelpGenerator.prototype.buildHelp;
+                const mockBuildHelp = jest.fn();
+                WebHelpGenerator.prototype.buildHelp = mockBuildHelp;
+
+                ProcessUtils.isGuiAvailable = jest.fn(() => GuiResult.GUI_AVAILABLE);
+                WebHelpManager.instance.openHelp("fakeCmd", cmdReponse);
+
+                expect(mockBuildHelp).not.toHaveBeenCalled();
+
+                expect(opener).toHaveBeenCalledTimes(1);
+                expect(opener).toHaveBeenLastCalledWith(`file:///${webHelpDirNm}/launcher.html`);
 
                 // restore real function
                 WebHelpGenerator.prototype.buildHelp = realBuildHelp;

@@ -108,20 +108,21 @@ export class WebHelpManager implements IWebHelpManager {
 
         cmdResponse.console.log("Launching web help in browser...");
 
-        /* Update cmdToLoad value in tree-data.js to jump to desired command.
+        /* Create launcher file in web help folder to jump to desired command.
         * This is kind of a hack, necessitated by the fact that unfortunately
         * Windows does not natively support passing URL search params to
         * file:/// links. Therefore the `p` parameter supported by the docs
         * site to load a page in-context cannot be used here.
         */
-        const treeDataPath = path.join(this.webHelpDir, "tree-data.js");
-        const treeDataContent = fs.readFileSync(treeDataPath).toString();
-        const cmdToLoad = inContext ? `"${inContext}"` : "null";
-        fs.writeFileSync(treeDataPath,
-            treeDataContent.replace(/(const cmdToLoad)[^;]*;/, `$1 = ${cmdToLoad};`));
+        if (inContext != null) {
+            const launcherPath = path.join(this.webHelpDir, "launcher.html");
+            fs.writeFileSync(launcherPath,
+                `<html><head><meta http-equiv="refresh" content="0; url=index.html?p=${inContext}" /></head></html>`);
+        }
 
         try {
-            const openerProc = require("opener")("file:///" + this.webHelpDir + "/index.html");
+            const htmlFile = (inContext != null) ? "launcher.html" : "index.html";
+            const openerProc = require("opener")(`file:///${this.webHelpDir}/${htmlFile}`);
 
             if (process.platform !== "win32") {
                 /* On linux, without the following statements, the zowe
