@@ -28,7 +28,6 @@ declare const headerStr: string;
 declare const footerStr: string;
 declare const treeNodes: ITreeNode[];
 declare const aliasList: { [key: string]: string[] };
-declare const cmdToLoad: string;
 
 // Define global variables
 const urlParams = new URLSearchParams(window.location.search);
@@ -44,7 +43,7 @@ let searchTimeout: number = 0;
 function flattenNodes(nestedNodes: ITreeNode[]): ITreeNode[] {
     const flattenedNodes: ITreeNode[] = [];
     nestedNodes.forEach((node: ITreeNode) => {
-        if (node.children && (node.children.length > 0)) {
+        if (node.children && node.children.length > 0) {
             flattenedNodes.push(...flattenNodes(node.children));
         } else {
             flattenedNodes.push({
@@ -91,7 +90,7 @@ function permuteSearchStr(searchStr: string): string {
  */
 function updateCurrentNode(newNodeId: string, goto: boolean, expand: boolean, force: boolean = false) {
     if (!force) {
-        if ((newNodeId === currentNodeId) || !$("#cmd-tree").jstree(true).get_node(newNodeId)) {
+        if (newNodeId === currentNodeId || !$("#cmd-tree").jstree(true).get_node(newNodeId)) {
             // Ignore if node already selected or does not exist
             return;
         }
@@ -174,7 +173,7 @@ function onTreeContextMenu(node: ITreeNode) {
  * @returns True if the node matches
  */
 function onTreeSearch(permutedSearchStr: string, node: any): boolean {
-    if ((node.parent === "#") && (currentView === 0)) {
+    if (node.parent === "#" && currentView === 0) {
         return false;  // Don't match root node
     }
 
@@ -187,7 +186,7 @@ function onTreeSearch(permutedSearchStr: string, node: any): boolean {
         for (const needle of searchStrList) {
             const matchIndex: number = haystack.lastIndexOf(needle);
             if (matchIndex !== -1) {  // A search string was matched
-                if ((currentView === 1) || (haystack.indexOf(" ", matchIndex + needle.length) === -1)) {
+                if (currentView === 1 || haystack.indexOf(" ", matchIndex + needle.length) === -1) {
                     // Don't match node if text that matches is only in label of parent node
                     return true;
                 }
@@ -204,8 +203,8 @@ function onTreeSearch(permutedSearchStr: string, node: any): boolean {
 function onTreeLoaded() {
     let tempNodeId: string = currentNodeId;
     if (!tempNodeId) {
-        const tempCmdToLoad = cmdToLoad || urlParams.get("p");
-        tempNodeId = tempCmdToLoad ? `${tempCmdToLoad}.html` : treeNodes[0].id;
+        const cmdToLoad = urlParams.get("p");
+        tempNodeId = (cmdToLoad != null) ? `${cmdToLoad}.html` : treeNodes[0].id;
     }
     updateCurrentNode(tempNodeId, true, true, true);
 

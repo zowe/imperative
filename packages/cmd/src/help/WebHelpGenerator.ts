@@ -396,7 +396,6 @@ export class WebHelpGenerator {
             `const headerStr = "${this.mConfig.loadedConfig.productDisplayName}";\n` +
             `const footerStr = "${this.mConfig.callerPackageJson.name} ${this.mConfig.callerPackageJson.version}";\n` +
             "const treeNodes = " + JSON.stringify(this.treeNodes) + ";\n" +
-            "const aliasList = " + JSON.stringify(this.aliasList) + ";\n" +
-            "const cmdToLoad = null;");
+            "const aliasList = " + JSON.stringify(this.aliasList) + ";");
     }
 }
