@@ -548,6 +548,65 @@ export class ProfileInfo {
 
     // _______________________________________________________________________
     /**
+     * Convert an IProfAttrs object into an IProfileLoaded objects
+     * This is a convenience function. IProfileLoaded was frequently passed
+     * among functions. This conversion function allows existing code to
+     * acquire values in the IProfAttrs structure but pass those values
+     * around in the older IProfileLoaded structure. The IProfAttrs
+     * properties will be copied as follows:
+     *
+     *      IProfileLoaded.name    <-- IProfAttrs.profName
+     *      IProfileLoaded.type    <-- IProfAttrs.profType
+     *      IProfileLoaded.profile <-- profAttrs
+     *
+     * @param profAttrs
+     *      A profile attributes object.
+     *
+     * @param dfltProfLoadedVals
+     *      A JSON object containing additional names from IProfileLoaded for
+     *      which a value should be supplied. IProfileLoaded contains more
+     *      properties than IProfAttrs. The items in this object will be
+     *      placed into the resulting IProfileLoaded object.
+     *      We use type "any" because all of the required properties of
+     *      IProfileLoaded will not be supplied by dfltProfLoadedVals.
+     *      If dfltProfLoadedVals is not supplied, only the following minimal
+     *      set if hard-coded properties will be added to the IProfileLoaded object.
+     *
+     *      IProfileLoaded.message      <-- "" (an empty string)
+     *      IProfileLoaded.failNotFound <-- false
+     *
+     * @returns An IProfileLoaded object;
+     */
+    public static profAttrsToProfLoaded(
+        profAttrs: IProfAttrs,
+        dfltProfLoadedVals?: any
+    ): IProfileLoaded {
+        const emptyProfLoaded: any = {};
+        let profLoaded: IProfileLoaded = emptyProfLoaded;
+
+        // set any supplied defaults
+        if (dfltProfLoadedVals !== undefined) {
+            profLoaded = lodash.cloneDeep(dfltProfLoadedVals);
+        }
+
+        // copy items from profAttrs
+        profLoaded.name = profAttrs.profName;
+        profLoaded.type = profAttrs.profType;
+        profLoaded.profile = lodash.cloneDeep(profAttrs);
+
+        // set hard-coded defaults
+        if (!profLoaded.hasOwnProperty("message")) {
+            profLoaded.message = "";
+        }
+        if (!profLoaded.hasOwnProperty("failNotFound")) {
+            profLoaded.failNotFound = false;
+        }
+
+        return lodash.cloneDeep(profLoaded);
+    }
+
+    // _______________________________________________________________________
+    /**
      * Read either the new team configuration files (if any exist) or
      * read the old-school profile files.
      *

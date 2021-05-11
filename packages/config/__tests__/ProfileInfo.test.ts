@@ -13,6 +13,7 @@ import * as path from "path";
 import * as jsonfile from "jsonfile";
 import * as lodash from "lodash";
 import { ProfileInfo } from "../src/ProfileInfo";
+import { IProfAttrs } from "../src/doc/IProfAttrs";
 import { IProfOpts } from "../src/doc/IProfOpts";
 import { ProfInfoErr } from "../src/ProfInfoErr";
 import { Config } from "../src/Config";
@@ -67,6 +68,61 @@ describe("ProfileInfo tests", () => {
 
     afterEach(() => {
         jest.restoreAllMocks();
+    });
+
+    describe("Utility function Tests", () => {
+        describe("profAttrsToProfLoaded", () => {
+            const profAttrs: IProfAttrs = {
+                profName: "profName1",
+                profType: "profType1",
+                profLoc: {
+                    locType: ProfLocType.TEAM_CONFIG,
+                    osLoc: ["somewhere in the OS 1", "somewhere in the OS 2"],
+                    jsonLoc: "somewhere in the JSON file"
+                },
+                isDefaultProfile: true
+            };
+
+            it("should copy with no dfltProfLoadedVals", async () => {
+                const profLoaded = ProfileInfo.profAttrsToProfLoaded(profAttrs);
+                expect(profLoaded.name).toBe(profAttrs.profName);
+                expect(profLoaded.type).toBe(profAttrs.profType);
+                expect(profLoaded.message).toBe("");
+                expect(profLoaded.failNotFound).toBe(false);
+
+                expect(profLoaded.profile.profName).toBe(profAttrs.profName);
+                expect(profLoaded.profile.profType).toBe(profAttrs.profType);
+                expect(profLoaded.profile.profLoc.locType).toBe(profAttrs.profLoc.locType);
+                expect(profLoaded.profile.profLoc.osLoc[0]).toBe(profAttrs.profLoc.osLoc[0]);
+                expect(profLoaded.profile.profLoc.osLoc[1]).toBe(profAttrs.profLoc.osLoc[1]);
+                expect(profLoaded.profile.profLoc.jsonLoc).toBe(profAttrs.profLoc.jsonLoc);
+                expect(profLoaded.profile.isDefaultProfile).toBe(profAttrs.isDefaultProfile);
+            });
+
+            it("should copy using dfltProfLoadedVals", async () => {
+                const dfltProfLoadedVals: any = {
+                    message: "default message",
+                    failNotFound: true,
+                    referencedBy: "default referencedBy",
+                    dependenciesLoaded: false
+                }
+                const profLoaded = ProfileInfo.profAttrsToProfLoaded(profAttrs, dfltProfLoadedVals);
+                expect(profLoaded.name).toBe(profAttrs.profName);
+                expect(profLoaded.type).toBe(profAttrs.profType);
+                expect(profLoaded.message).toBe(dfltProfLoadedVals.message);
+                expect(profLoaded.failNotFound).toBe(dfltProfLoadedVals.failNotFound);
+                expect(profLoaded.referencedBy).toBe(dfltProfLoadedVals.referencedBy);
+                expect(profLoaded.dependenciesLoaded).toBe(dfltProfLoadedVals.dependenciesLoaded);
+
+                expect(profLoaded.profile.profName).toBe(profAttrs.profName);
+                expect(profLoaded.profile.profType).toBe(profAttrs.profType);
+                expect(profLoaded.profile.profLoc.locType).toBe(profAttrs.profLoc.locType);
+                expect(profLoaded.profile.profLoc.osLoc[0]).toBe(profAttrs.profLoc.osLoc[0]);
+                expect(profLoaded.profile.profLoc.osLoc[1]).toBe(profAttrs.profLoc.osLoc[1]);
+                expect(profLoaded.profile.profLoc.jsonLoc).toBe(profAttrs.profLoc.jsonLoc);
+                expect(profLoaded.profile.isDefaultProfile).toBe(profAttrs.isDefaultProfile);
+            });
+        });
     });
 
     describe("TeamConfig Tests", () => {
