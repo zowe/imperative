@@ -57,7 +57,6 @@ export class ConfigLayers extends ConfigApi {
         layer.properties.defaults = layer.properties.defaults || {};
         layer.properties.profiles = layer.properties.profiles || {};
         layer.properties.plugins = layer.properties.plugins || [];
-        layer.properties.secure = layer.properties.secure || [];
     }
 
     // _______________________________________________________________________
@@ -73,20 +72,18 @@ export class ConfigLayers extends ConfigApi {
 
         // If fields are marked as secure
         const layer = JSONC.parse(JSONC.stringify(opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive()));
-        if (layer.properties.secure != null) {
-            for (const path of layer.properties.secure) {
-                const segments = path.split(".");
-                let obj: any = layer.properties;
-                for (let x = 0; x < segments.length; x++) {
-                    const segment = segments[x];
-                    const v = obj[segment];
-                    if (v == null) break;
-                    if (x === segments.length - 1) {
-                        delete obj[segment];
-                        break;
-                    }
-                    obj = obj[segment];
+        for (const path of this.mConfig.api.secure.secureFields(layer)) {
+            const segments = path.split(".");
+            let obj: any = layer.properties;
+            for (let x = 0; x < segments.length; x++) {
+                const segment = segments[x];
+                const v = obj[segment];
+                if (v == null) break;
+                if (x === segments.length - 1) {
+                    delete obj[segment];
+                    break;
                 }
+                obj = obj[segment];
             }
         }
 
@@ -145,7 +142,6 @@ export class ConfigLayers extends ConfigApi {
                 this.mConfig.mLayers[i].properties.defaults = this.mConfig.mLayers[i].properties.defaults || {};
                 this.mConfig.mLayers[i].properties.profiles = this.mConfig.mLayers[i].properties.profiles || {};
                 this.mConfig.mLayers[i].properties.plugins = this.mConfig.mLayers[i].properties.plugins || [];
-                this.mConfig.mLayers[i].properties.secure = this.mConfig.mLayers[i].properties.secure || [];
             }
         }
     }
@@ -163,11 +159,6 @@ export class ConfigLayers extends ConfigApi {
         for (const pluginName of cnfg.plugins) {
             if (!layer.properties.plugins.includes(pluginName)) {
                 layer.properties.plugins.push(pluginName);
-            }
-        }
-        for (const propPath of cnfg.secure) {
-            if (!layer.properties.secure.includes(propPath)) {
-                layer.properties.secure.push(propPath);
             }
         }
     }

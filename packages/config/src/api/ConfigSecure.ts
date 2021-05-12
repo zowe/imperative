@@ -14,6 +14,7 @@ import { ConfigApi } from "./ConfigApi";
 import { IConfigVault } from "../doc/IConfigVault";
 import { IConfigSecureProperties } from "../doc/IConfigSecure";
 import { ConfigConstants } from "../ConfigConstants";
+import { IConfigProfile } from "../doc/IConfigProfile";
 
 /**
  * API Class for manipulating config layers.
@@ -47,7 +48,7 @@ export class ConfigSecure extends ConfigApi {
                 if (filePath === layer.path) {
 
                     // Only set those indicated by the config
-                    for (const p of layer.properties.secure) {
+                    for (const p of this.secureFields(layer)) {
 
                         // Extract and set secure properties
                         for (const [sPath, sValue] of Object.entries(secureProps)) {
@@ -91,7 +92,7 @@ export class ConfigSecure extends ConfigApi {
 
             // Create all the secure property entries
             const sp: IConfigSecureProperties = {};
-            for (const path of layer.properties.secure) {
+            for (const path of this.secureFields(layer)) {
                 const segments = path.split(".");
                 let obj: any = layer.properties;
                 for (let x = 0; x < segments.length; x++) {
@@ -131,9 +132,31 @@ export class ConfigSecure extends ConfigApi {
      * @returns true -> we have secure fields.
      *          false -> no secure fields.
      */
-    // private secureFields(): boolean {
-    //     for (const l of this.mConfig.layers)
-    //         if (l.properties.secure.length > 0) return true;
-    //     return false;
-    // }
+    public secureFields(opts?: { user: boolean; global: boolean }): string[] {
+        const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
+        return this.findSecure(layer.properties.profiles, "profiles");
+    }
+
+    private findSecure(profiles: { [key: string]: IConfigProfile }, path: string): string[] {
+        const secureProps = [];
+        for (const profName of Object.keys(profiles)) {
+            for (const propName of (profiles[profName].secure || [])) {
+                secureProps.push(`${path}.${profName}.properties.${propName}`);
+            }
+            if (profiles[profName].profiles != null) {
+                secureProps.push(...this.findSecure(profiles[profName].profiles, `${path}.${profName}.profiles`));
+            }
+        }
+        return secureProps;
+    }
+
+    public secureInfoForProp(propertyPath: string): { path: string, prop: string } {
+        if (!propertyPath.includes(".properties.")) {
+            return null;
+        }
+        return {
+            path: propertyPath.replace(/\.properties.+/, ".secure"),
+            prop: propertyPath.split(".").pop()
+        }
+    }
 }

@@ -152,7 +152,7 @@ export class ConfigProfiles extends ConfigApi {
                     if (lodash.get(layer.properties, propertyPath) != null) {
                         const property: IConfigLoadedProperty = {
                             value,
-                            secure: layer.properties.secure.includes(propertyPath),
+                            secure: this.mConfig.api.secure.secureFields(layer).includes(propertyPath),
                             user: layer.user,
                             global: layer.global
                         };
@@ -164,7 +164,7 @@ export class ConfigProfiles extends ConfigApi {
         });
 
         for (const layer of this.mConfig.mLayers) {
-            for (const secureProp of layer.properties.secure) {
+            for (const secureProp of this.mConfig.api.secure.secureFields(layer)) {
                 if (secureProp.startsWith(`${path}.`)) {
                     const subpath = secureProp.slice(path.length + 1);
                     if (lodash.get(loadedProfile, subpath) == null) {

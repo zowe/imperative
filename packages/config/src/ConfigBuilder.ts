@@ -42,12 +42,11 @@ export class ConfigBuilder {
             }
 
             const properties: { [key: string]: any } = {};
+            const secureProps: string[] = [];
             for (const [k, v] of Object.entries(profile.schema.properties)) {
                 if (opts.populateProperties && v.includeInTemplate) {
                     if (v.secure) {
-                        const propPath = `${profileLongPath}.properties.${k}`;
-                        config.secure.push(propPath);
-
+                        secureProps.push(k);
                         const propValue = opts.getSecureValue ? await opts.getSecureValue(k, v) : null;
                         if (propValue != null) {
                             // Save this value to be stored securely after profile is built
@@ -67,10 +66,14 @@ export class ConfigBuilder {
             }
 
             // Add the profile to config and set it as default
-            lodash.set(config, profileLongPath, {
+            const profileJson: IConfigProfile = {
                 type: profile.type,
                 properties
-            });
+            };
+            if (secureProps.length > 0) {
+                profileJson.secure = secureProps;
+            }
+            lodash.set(config, profileLongPath, profileJson);
 
             if (opts.populateProperties) {
                 config.defaults[profile.type] = profileShortPath;
