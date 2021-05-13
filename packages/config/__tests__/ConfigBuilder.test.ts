@@ -23,11 +23,11 @@ const expectedConfigObject: IConfig = {
             profiles: {
                 secured: {
                     properties: {},
+                    secure: [],
                     type: "secured"
                 }
             },
-            properties: {},
-            secure: []
+            properties: {}
         }
     }
 };
@@ -79,6 +79,7 @@ describe("Config Builder tests", () => {
 
         it("should build a config without populating properties", async () => {
             const builtConfig = await ConfigBuilder.build(testConfig);
+            delete expectedConfig.profiles.my_profiles.profiles.secured.secure;
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(0); // Not populating any properties
             expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1);
@@ -88,7 +89,7 @@ describe("Config Builder tests", () => {
         it("should build a config and populate properties", async () => {
             const builtConfig = await ConfigBuilder.build(testConfig, {populateProperties: true});
             expectedConfig.profiles.my_profiles.profiles.secured.properties.info = "";
-            expectedConfig.secure.push("profiles.my_profiles.profiles.secured.properties.secret");
+            expectedConfig.profiles.my_profiles.profiles.secured.secure.push("secret");
             expectedConfig.defaults.secured = "my_profiles.secured";
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(1); // Populating default value for info
@@ -106,7 +107,7 @@ describe("Config Builder tests", () => {
             }
             expectedConfig.profiles.my_profiles.profiles.secured.properties.info = "";
             expectedConfig.profiles.my_profiles.profiles.secured.properties.secret = "fake value";
-            expectedConfig.secure.push("profiles.my_profiles.profiles.secured.properties.secret");
+            expectedConfig.profiles.my_profiles.profiles.secured.secure.push("secret");
             expectedConfig.defaults.secured = "my_profiles.secured";
             expect(caughtError).toBeUndefined();
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
@@ -120,7 +121,7 @@ describe("Config Builder tests", () => {
             const builtConfig = await ConfigBuilder.build(testConfig, {populateProperties: true});
             expectedConfig.profiles.my_profiles.profiles.secured.properties.info = "";
             expectedConfig.profiles.my_profiles.profiles.secured.properties.fakestr = "";
-            expectedConfig.secure.push("profiles.my_profiles.profiles.secured.properties.secret");
+            expectedConfig.profiles.my_profiles.profiles.secured.secure.push("secret");
             expectedConfig.defaults.secured = "my_profiles.secured";
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(2); // Populating default value for info, fakestr
@@ -144,7 +145,7 @@ describe("Config Builder tests", () => {
             expectedConfig.profiles.my_profiles.profiles.secured.properties.fakearr = [];
             expectedConfig.profiles.my_profiles.profiles.secured.properties.fakebool = false;
             expectedConfig.profiles.my_profiles.profiles.secured.properties.fakedflt = null;
-            expectedConfig.secure.push("profiles.my_profiles.profiles.secured.properties.secret");
+            expectedConfig.profiles.my_profiles.profiles.secured.secure.push("secret");
             expectedConfig.defaults.secured = "my_profiles.secured";
 
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
@@ -161,7 +162,7 @@ describe("Config Builder tests", () => {
             expectedConfig.profiles.my_profiles.profiles.secured.properties.info = "";
             expectedConfig.profiles.my_profiles.profiles.secured.properties.fakestr = "";
             expectedConfig.profiles.my_profiles.properties = {};
-            expectedConfig.secure.push("profiles.my_profiles.profiles.secured.properties.secret");
+            expectedConfig.profiles.my_profiles.profiles.secured.secure.push("secret");
             expectedConfig.defaults.secured = "my_profiles.secured";
 
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
@@ -183,9 +184,9 @@ describe("Config Builder tests", () => {
             };
             const builtConfig = await ConfigBuilder.build(testConfig, {populateProperties: true});
             delete expectedConfig.profiles.my_profiles.profiles.secured;
-            expectedConfig.profiles.my_profiles = {properties: {}, profiles: {secured: {type: "secured", properties: {}}}};
+            expectedConfig.profiles.my_profiles = {properties: {}, profiles: {secured: {type: "secured", properties: {}, secure: []}}};
             expectedConfig.profiles.my_profiles.profiles.secured.properties.info = "";
-            expectedConfig.secure.push("profiles.my_profiles.profiles.secured.properties.secret");
+            expectedConfig.profiles.my_profiles.profiles.secured.secure.push("secret");
             expectedConfig.defaults.secured = "my_profiles.secured";
 
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
@@ -209,11 +210,25 @@ describe("Config Builder tests", () => {
             testConfig.profiles[1].type = "securedClone";
             const builtConfig = await ConfigBuilder.build(testConfig, {populateProperties: true});
             delete expectedConfig.profiles.my_profiles.profiles.secured;
-            expectedConfig.profiles.my_profiles = {properties: {host: "", info: ""}, profiles: {secured: {type: "secured", properties: {}},
-                                                                                                securedClone: {type: "securedClone", properties: {}}
+            expectedConfig.profiles.my_profiles = {
+                properties: {
+                    host: "",
+                    info: ""
+                },
+                profiles: {
+                    secured: {
+                        type: "secured",
+                        properties: {},
+                        secure: []
+                    },
+                    securedClone: {
+                        type: "securedClone",
+                        properties: {},
+                        secure: []
+                    }
             }};
-            expectedConfig.secure.push("profiles.my_profiles.profiles.secured.properties.secret");
-            expectedConfig.secure.push("profiles.my_profiles.profiles.securedClone.properties.secret");
+            expectedConfig.profiles.my_profiles.profiles.secured.secure.push("secret");
+            expectedConfig.profiles.my_profiles.profiles.securedClone.secure.push("secret");
             expectedConfig.defaults.secured = "my_profiles.secured";
             expectedConfig.defaults.securedClone = "my_profiles.securedClone";
 
