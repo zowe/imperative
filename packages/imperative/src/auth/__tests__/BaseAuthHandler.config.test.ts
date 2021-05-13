@@ -53,8 +53,7 @@ describe("BaseAuthHandler config", () => {
         const configPath = __dirname + `/__resources__/no_auth.config.json`;
         const fakeVault = {
             load: jest.fn(),
-            save: jest.fn(),
-            name: "fake"
+            save: jest.fn()
         };
 
         const mockSetObj = jest.fn();
@@ -202,7 +201,7 @@ describe("BaseAuthHandler config", () => {
                 expect(layer.user).toBe(false);
                 expect(layer.global).toBe(false);
                 expect(layer.properties.defaults.fruit).toBe("my_fruit_creds");
-                expect(layer.properties.secure).toContain("profiles.my_fruit_creds.properties.authToken");
+                expect(layer.properties.profiles.my_fruit_creds.secure).toContain("authToken");
             });
 
             it("should create new profile if existing base profile contains user/password", async () => {
@@ -236,14 +235,14 @@ describe("BaseAuthHandler config", () => {
                 expect(layer.user).toBe(false);
                 expect(layer.global).toBe(false);
                 expect(layer.properties.defaults.fruit).toBe("my_fruit_creds");
-                expect(layer.properties.secure).toContain("profiles.my_fruit_creds.properties.authToken");
+                expect(layer.properties.profiles.my_fruit_creds.secure).toContain("authToken");
             });
 
             it("should update existing base profile if it doesn't contain user/password", async () => {
                 const handler = new FakeAuthHandler();
                 const params = lodash.cloneDeep(loginParams);
                 fakeConfig.api.profiles.defaultSet("fruit", "my_fruit");
-                (fakeConfig as any).layerActive().properties.secure = [];
+                (fakeConfig as any).layerActive().properties.profiles.my_fruit.secure = [];
 
                 const doLoginSpy = jest.spyOn(handler as any, "doLogin");
                 const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
@@ -268,7 +267,7 @@ describe("BaseAuthHandler config", () => {
                 const layer = (fakeConfig as any).layerActive();
                 expect(layer.user).toBe(false);
                 expect(layer.global).toBe(false);
-                expect(layer.properties.secure).toContain("profiles.my_fruit.properties.authToken");
+                expect(layer.properties.profiles.my_fruit.secure).toContain("authToken");
             });
         });
 
@@ -287,7 +286,7 @@ describe("BaseAuthHandler config", () => {
                 const handler = new FakeAuthHandler();
                 const params = lodash.cloneDeep(loginParams);
                 fakeConfig.api.profiles.defaultSet("fruit", "my_fruit");
-                (fakeConfig as any).layerActive().properties.secure = [];
+                (fakeConfig as any).layerActive().properties.profiles.my_fruit.secure = [];
 
                 const doLoginSpy = jest.spyOn(handler as any, "doLogin");
                 const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
@@ -312,7 +311,7 @@ describe("BaseAuthHandler config", () => {
                 const layer = (fakeConfig as any).layerActive();
                 expect(layer.user).toBe(true);
                 expect(layer.global).toBe(false);
-                expect(layer.properties.secure).toContain("profiles.my_fruit.properties.authToken");
+                expect(layer.properties.profiles.my_fruit.secure).toContain("authToken");
             });
         });
 
@@ -332,7 +331,7 @@ describe("BaseAuthHandler config", () => {
                 const handler = new FakeAuthHandler();
                 const params = lodash.cloneDeep(loginParams);
                 fakeConfig.api.profiles.defaultSet("fruit", "my_fruit");
-                (fakeConfig as any).layerActive().properties.secure = [];
+                (fakeConfig as any).layerActive().properties.profiles.my_fruit.secure = [];
 
                 const doLoginSpy = jest.spyOn(handler as any, "doLogin");
                 const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
@@ -357,7 +356,7 @@ describe("BaseAuthHandler config", () => {
                 const layer = (fakeConfig as any).layerActive();
                 expect(layer.user).toBe(false);
                 expect(layer.global).toBe(true);
-                expect(layer.properties.secure).toContain("profiles.my_fruit.properties.authToken");
+                expect(layer.properties.profiles.my_fruit.secure).toContain("authToken");
             });
         });
 
@@ -377,7 +376,7 @@ describe("BaseAuthHandler config", () => {
                 const handler = new FakeAuthHandler();
                 const params = lodash.cloneDeep(loginParams);
                 fakeConfig.api.profiles.defaultSet("fruit", "my_fruit");
-                (fakeConfig as any).layerActive().properties.secure = [];
+                (fakeConfig as any).layerActive().properties.profiles.my_fruit.secure = [];
 
                 const doLoginSpy = jest.spyOn(handler as any, "doLogin");
                 const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
@@ -402,7 +401,7 @@ describe("BaseAuthHandler config", () => {
                 const layer = (fakeConfig as any).layerActive();
                 expect(layer.user).toBe(true);
                 expect(layer.global).toBe(true);
-                expect(layer.properties.secure).toContain("profiles.my_fruit.properties.authToken");
+                expect(layer.properties.profiles.my_fruit.secure).toContain("authToken");
             });
         });
     });
