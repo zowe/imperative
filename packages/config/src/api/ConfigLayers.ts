@@ -154,7 +154,13 @@ export class ConfigLayers extends ConfigApi {
      */
     public merge(cnfg: IConfig) {
         const layer = this.mConfig.layerActive();
-        layer.properties.profiles = deepmerge(cnfg.profiles, layer.properties.profiles);
+        layer.properties.profiles = deepmerge(cnfg.profiles, layer.properties.profiles, {
+            customMerge: (key: string) => {
+                if (key === "secure") {
+                    return (secureProps: string[]) => [...new Set(secureProps)]
+                }
+            }
+        });
         layer.properties.defaults = deepmerge(cnfg.defaults, layer.properties.defaults);
         for (const pluginName of cnfg.plugins) {
             if (!layer.properties.plugins.includes(pluginName)) {
