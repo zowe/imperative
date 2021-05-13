@@ -38,7 +38,10 @@ const mergeConfig: IConfig = {
                         color: "red"
                     }
                 }
-            }
+            },
+            secure: [
+                "secret"
+            ]
         }
     },
     defaults: {
@@ -46,9 +49,6 @@ const mergeConfig: IConfig = {
     },
     plugins: [
         "@zowe/vegetable-for-imperative"
-    ],
-    secure: [
-        "profiles.fruit.properties.secret"
     ]
 };
 
@@ -302,7 +302,6 @@ describe("Config API tests", () => {
                 expect(properties.properties.defaults).toEqual(JSON.parse(fileContents).defaults);
                 expect(properties.properties.plugins).toEqual(JSON.parse(fileContents).plugins);
                 expect(properties.properties.profiles).toEqual(JSON.parse(fileContents).profiles);
-                expect(properties.properties.secure).toEqual(JSON.parse(fileContents).secure);
             });
             it("should activate the project user configuration", async () => {
                 const config = await Config.load(MY_APP);
@@ -331,7 +330,6 @@ describe("Config API tests", () => {
                 expect(properties.properties.defaults).toEqual(JSON.parse(fileContents).defaults);
                 expect(properties.properties.plugins).toEqual(JSON.parse(fileContents).plugins);
                 expect(properties.properties.profiles).toEqual(JSON.parse(fileContents).profiles);
-                expect(properties.properties.secure).toEqual(JSON.parse(fileContents).secure);
             });
             it("should activate the global user configuration", async () => {
                 const config = await Config.load(MY_APP);
@@ -346,7 +344,6 @@ describe("Config API tests", () => {
                 expect(properties.properties.defaults).toEqual(JSON.parse(fileContents).defaults);
                 expect(properties.properties.plugins).toEqual(JSON.parse(fileContents).plugins);
                 expect(properties.properties.profiles).toEqual(JSON.parse(fileContents).profiles);
-                expect(properties.properties.secure).toEqual(JSON.parse(fileContents).secure);
             });
         });
         describe("get", () => {
@@ -365,7 +362,6 @@ describe("Config API tests", () => {
                     $schema: "fake",
                     defaults: {},
                     plugins: [],
-                    secure: [],
                     profiles: {
                         vegetable: {
                             properties: {
@@ -387,7 +383,6 @@ describe("Config API tests", () => {
                     $schema: undefined,
                     defaults: undefined,
                     plugins: undefined,
-                    secure: undefined,
                     profiles: undefined
                 };
                 config.api.layers.set(cnfg);
@@ -396,7 +391,6 @@ describe("Config API tests", () => {
                 expect(retrievedConfig.defaults).toEqual({});
                 expect(retrievedConfig.profiles).toEqual({});
                 expect(retrievedConfig.plugins).toEqual([]);
-                expect(retrievedConfig.secure).toEqual([]);
             });
         });
         describe("merge", () => {

@@ -116,10 +116,10 @@ describe("Config secure tests", () => {
 
         config.set(securePropPath, "notSecret", { secure: false });
         let layer = config.api.layers.get();
-        expect(layer.properties.secure.includes(securePropPath)).toBe(false);
+        expect(layer.properties.profiles.fruit.secure.includes("secret")).toBe(false);
 
         config.set(securePropPath, "area51", { secure: true });
         layer = config.api.layers.get();
-        expect(layer.properties.secure.includes(securePropPath)).toBe(true);
+        expect(layer.properties.profiles.fruit.secure.includes("secret")).toBe(true);
     });
 });

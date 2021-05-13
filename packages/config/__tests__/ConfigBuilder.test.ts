@@ -26,10 +26,10 @@ const expectedConfigObject: IConfig = {
                     type: "secured"
                 }
             },
-            properties: {}
+            properties: {},
+            secure: []
         }
-    },
-    secure: []
+    }
 };
 
 function promptForProp(propName: string, property: IProfileProperty): Promise<any> {

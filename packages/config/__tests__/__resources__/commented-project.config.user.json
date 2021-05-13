@@ -61,7 +61,13 @@
               "color": /* block-comment */ "orange" // line-comment
             }
         }
-      }
+      },
+      /* block-comment */
+      // line-comment
+      "secure": [
+        /* block-comment */
+        // line-comment
+      ]
     }
   },
   /* block-comment */
@@ -77,11 +83,5 @@
     /* block-comment */
     // line-comment
     /* block-comment */ "@zowe/fruit-for-imperative" // line-comment
-  ],
-  /* block-comment */
-  // line-comment
-  "secure": [
-    /* block-comment */
-    // line-comment
   ]
 }
