@@ -417,12 +417,11 @@ export class Config {
 
         if (opts.secure !== false) {
             const secureInfo = this.api.secure.secureInfoForProp(path);
-            if (secureInfo == null) {
-                throw new ImperativeError({ msg: "The secure option is only valid when deleting a single property" });
-            }
-            const secureProps: string[] = lodash.get(layer.properties, secureInfo.path);
-            if (secureProps != null && secureProps.includes(secureInfo.prop)) {
-                lodash.set(layer.properties, secureInfo.path, secureProps.filter((p) => p !== secureInfo.prop));
+            if (secureInfo != null) {
+                const secureProps: string[] = lodash.get(layer.properties, secureInfo.path);
+                if (secureProps != null && secureProps.includes(secureInfo.prop)) {
+                    lodash.set(layer.properties, secureInfo.path, secureProps.filter((p) => p !== secureInfo.prop));
+                }
             }
         }
     }
