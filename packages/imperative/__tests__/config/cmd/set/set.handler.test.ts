@@ -73,7 +73,7 @@ fakeSecureDataJson[fakeGblProjPath] = {"profiles.my_profiles.profiles.secured.pr
 
 const fakeSecureData = Buffer.from(JSON.stringify(fakeSecureDataJson)).toString("base64");
 
-describe("Configuration Secure command handler", () => {
+describe("Configuration Set command handler", () => {
     let readFileSyncSpy: any;
     let writeFileSyncSpy: any;
     let existsSyncSpy: any;
@@ -99,8 +99,7 @@ describe("Configuration Secure command handler", () => {
                 }),
                 save: ((k: string, v: any): Promise<void> => {
                     return CredentialManagerFactory.manager.save(k, v);
-                }),
-                name: CredentialManagerFactory.manager.name
+                })
             }
         };
 
@@ -193,8 +192,7 @@ describe("Configuration Secure command handler", () => {
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
         delete compObj.profiles.my_profiles.profiles.secured.properties.testProperty; // Delete the new secret
-        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret",
-                          "profiles.my_profiles.profiles.secured.properties.testProperty"]; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = ["secret", "testProperty"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -264,7 +262,7 @@ describe("Configuration Secure command handler", () => {
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
         delete compObj.profiles.my_profiles.profiles.secured.properties.testProperty; // Delete the new secret
-        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.testProperty"]; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = ["testProperty"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -337,8 +335,7 @@ describe("Configuration Secure command handler", () => {
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
         delete compObj.profiles.my_profiles.profiles.secured.properties.testProperty; // Delete the new secret
-        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret",
-                          "profiles.my_profiles.profiles.secured.properties.testProperty"]; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = ["secret", "testProperty"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -409,7 +406,7 @@ describe("Configuration Secure command handler", () => {
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
         delete compObj.profiles.my_profiles.profiles.secured.properties.testProperty; // Delete the new secret
-        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.testProperty"]; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = ["testProperty"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -475,7 +472,7 @@ describe("Configuration Secure command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.secure = []; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -540,7 +537,7 @@ describe("Configuration Secure command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.secure = []; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -607,7 +604,7 @@ describe("Configuration Secure command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.secure = []; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -673,7 +670,7 @@ describe("Configuration Secure command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.secure = []; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -745,7 +742,7 @@ describe("Configuration Secure command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.secure = []; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -819,7 +816,7 @@ describe("Configuration Secure command handler", () => {
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret;
-        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -891,7 +888,7 @@ describe("Configuration Secure command handler", () => {
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret;
-        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -962,7 +959,7 @@ describe("Configuration Secure command handler", () => {
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret;
-        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = ["secret",]; // Add the secret field to the secrets
 
         // tslint:disable-next-line: no-magic-numbers
         if (process.platform === "win32") {
@@ -1035,7 +1032,7 @@ describe("Configuration Secure command handler", () => {
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret;
-        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -1104,7 +1101,7 @@ describe("Configuration Secure command handler", () => {
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret;
-        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         expect(error).toBeDefined();
         expect(error.message).toContain("could not parse JSON value");

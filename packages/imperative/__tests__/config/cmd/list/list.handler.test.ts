@@ -11,7 +11,8 @@
 
 jest.mock("../../../../../utilities/src/ImperativeConfig");
 
-import { IConfig, IConfigLayer } from "../../../../../config";
+import { config } from "yargs";
+import { Config, IConfig, IConfigLayer } from "../../../../../config";
 import { ImperativeConfig } from "../../../../../utilities";
 import ListHandler from "../../../../src/config/cmd/list/list.handler";
 
@@ -25,12 +26,12 @@ const handlerParms: any = {
     response: {
         data: {
             setObj: jest.fn((jsonObj) => {
-                dataObj = jsonObj;
+                dataObj = JSON.parse(JSON.stringify(jsonObj));
             })
         },
         format: {
             output: jest.fn((formatArgs) => {
-                formatObj = formatArgs.output;
+                formatObj = JSON.parse(JSON.stringify(formatArgs.output));
             })
         },
         console: {
@@ -58,17 +59,22 @@ const configLayers: IConfigLayer[] = [
                         port: 25,
                         user: "admin",
                         password: "123456"
-                    }
+                    },
+                    secure: [
+                        "user",
+                        "password"
+                    ]
                 }
             },
             defaults: {},
-            plugins: [],
-            secure: [
-                "profiles.email.properties.user",
-                "profiles.email.properties.password"
+            plugins: [
+                "fakePlugin"
             ]
         }
-    }
+    },
+    { exists: false, properties: Config.empty() } as any,
+    { exists: false, properties: Config.empty() } as any,
+    { exists: false, properties: Config.empty() } as any
 ];
 
 const configMaskedProps: IConfig = configLayers[0].properties;
@@ -76,11 +82,12 @@ configMaskedProps.profiles.email.properties.user = "(secure value)";
 configMaskedProps.profiles.email.properties.password = "(secure value)";
 
 describe("Configuration List command handler", () => {
-    const configMock = jest.fn();
+    const fakeConfig: Config = new (Config as any)();
 
     beforeAll(() => {
+        (fakeConfig as any).mActive = { user: false, global: false };
         Object.defineProperty(ImperativeConfig.instance, "config", {
-            get: configMock
+            get: jest.fn(() => fakeConfig)
         });
     });
 
@@ -92,9 +99,7 @@ describe("Configuration List command handler", () => {
     })
 
     it("should output empty object when there is no config", async () => {
-        configMock.mockReturnValueOnce({
-            exists: false
-        });
+        jest.spyOn(fakeConfig, "exists", "get").mockReturnValueOnce(false);
         handlerParms.arguments = {};
 
         await (new ListHandler()).process(handlerParms);
@@ -104,66 +109,51 @@ describe("Configuration List command handler", () => {
     });
 
     it("should output entire config", async () => {
-        configMock.mockReturnValueOnce({
-            exists: true,
-            maskedProperties: configMaskedProps
-        });
+        (fakeConfig as any).mLayers = configLayers;
         handlerParms.arguments = {};
 
         await (new ListHandler()).process(handlerParms);
         expect(errorText).toBeNull();
-        expect(dataObj).toEqual(configLayers[0].properties);
+        expect(dataObj).toEqual(configMaskedProps);
         expect(dataObj.profiles.email.properties.user).toBe("(secure value)");
         expect(dataObj.profiles.email.properties.password).toBe("(secure value)");
         expect(formatObj).toEqual(dataObj);
     });
 
     it("should output config property", async () => {
-        configMock.mockReturnValueOnce({
-            exists: true,
-            maskedProperties: configMaskedProps
-        });
-        handlerParms.arguments = { property: "secure" };
+        (fakeConfig as any).mLayers = configLayers;
+        handlerParms.arguments = { property: "plugins" };
 
         await (new ListHandler()).process(handlerParms);
         expect(errorText).toBeNull();
-        expect(dataObj).toEqual(configLayers[0].properties.secure);
+        expect(dataObj).toEqual(["fakePlugin"]);
         expect(formatObj).toEqual(dataObj);
     });
 
     it("should output entire config listed by location", async () => {
-        configMock.mockReturnValueOnce({
-            exists: true,
-            layers: configLayers
-        });
+        (fakeConfig as any).mLayers = configLayers;
         handlerParms.arguments = { locations: true };
 
         await (new ListHandler()).process(handlerParms);
         expect(errorText).toBeNull();
-        expect(dataObj.fakePath).toEqual(configLayers[0].properties);
+        expect(dataObj.fakePath).toEqual(configMaskedProps);
         expect(dataObj.fakePath.profiles.email.properties.user).toBe("(secure value)");
         expect(dataObj.fakePath.profiles.email.properties.password).toBe("(secure value)");
         expect(formatObj).toEqual(dataObj);
     });
 
     it("should output config property listed by location", async () => {
-        configMock.mockReturnValueOnce({
-            exists: true,
-            layers: configLayers
-        });
-        handlerParms.arguments = { locations: true, property: "secure" };
+        (fakeConfig as any).mLayers = configLayers;
+        handlerParms.arguments = { locations: true, property: "plugins" };
 
         await (new ListHandler()).process(handlerParms);
         expect(errorText).toBeNull();
-        expect(dataObj.fakePath).toEqual(configLayers[0].properties.secure);
+        expect(dataObj.fakePath).toEqual(["fakePlugin"]);
         expect(formatObj).toEqual(dataObj);
     });
 
     it("should output entire config at root level", async () => {
-        configMock.mockReturnValueOnce({
-            exists: true,
-            maskedProperties: configMaskedProps
-        });
+        (fakeConfig as any).mLayers = configLayers;
         handlerParms.arguments = { root: true };
 
         await (new ListHandler()).process(handlerParms);
