@@ -97,11 +97,11 @@ export class ConfigSchema {
         }
 
         return {
-            title: schema.title,
-            description: schema.description,
-            type: schema.type,
+            title: schema.properties.title,
+            description: schema.properties.description,
+            type: schema.properties.type,
             properties,
-            required: schema.required
+            required: schema.properties.required
         };
     }
 

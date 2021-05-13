@@ -14,7 +14,6 @@ import { ConfigSchema } from "../src/ConfigSchema";
 import { cloneDeep } from "lodash";
 import { ICommandProfileTypeConfiguration } from "../..";
 
-
 describe("Config Schema", () => {
     const schema = ConfigSchema;
     const testProfileConfiguration: IProfileTypeConfiguration[] = [
@@ -122,6 +121,11 @@ describe("Config Schema", () => {
                         required: [],
                         title: "zosmf",
                         type: "object"
+                    },
+                    secure: {
+                        items: {
+                            enum: []
+                        }
                     }
                 }
             }
@@ -154,6 +158,11 @@ describe("Config Schema", () => {
                             required: [],
                             title: "zosmf",
                             type: "object"
+                        },
+                        secure: {
+                            items: {
+                                enum: []
+                            }
                         }
                     }
                 }
@@ -178,6 +187,11 @@ describe("Config Schema", () => {
                             required: [],
                             title: "base",
                             type: "object"
+                        },
+                        secure: {
+                            items: {
+                                enum: []
+                            }
                         }
                     }
                 }
@@ -204,13 +218,19 @@ describe("Config Schema", () => {
                         description: "A fake zosmf profile",
                         properties: {
                             host: {
-                                type: "string",
-                                secure: true
+                                type: "string"
                             },
                         },
                         required: [],
                         title: "zosmf",
                         type: "object"
+                    },
+                    secure: {
+                        items: {
+                            enum: [
+                                "host"
+                            ]
+                        }
                     }
                 }
             }
@@ -245,6 +265,11 @@ describe("Config Schema", () => {
                         required: [],
                         title: "zosmf",
                         type: "object"
+                    },
+                    secure: {
+                        items: {
+                            enum: []
+                        }
                     }
                 }
             }
