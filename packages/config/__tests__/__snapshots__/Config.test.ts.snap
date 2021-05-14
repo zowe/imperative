@@ -112,9 +112,9 @@ Object {
       "properties": Object {
         "origin": "California",
       },
+      "secure": Array [],
     },
   },
-  "secure": Array [],
 }
 `;
 
@@ -235,6 +235,7 @@ Object {
     "properties": Object {
       "origin": "California",
     },
+    "secure": Array [],
   },
 }
 `;
