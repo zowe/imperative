@@ -31,9 +31,9 @@ Object {
         "properties": Object {
           "origin": "California",
         },
+        "secure": CommentArray [],
       },
     },
-    "secure": CommentArray [],
   },
   "user": true,
 }
@@ -74,11 +74,11 @@ Object {
         "origin": "California",
         "shipDate": "2000-01-01",
       },
+      "secure": Array [
+        "secret",
+      ],
     },
   },
-  "secure": CommentArray [
-    "profiles.fruit.properties.secret",
-  ],
 }
 `;
 
@@ -95,7 +95,6 @@ Object {
       },
     },
   },
-  "secure": CommentArray [],
 }
 `;
 
@@ -104,7 +103,6 @@ Object {
   "defaults": Object {},
   "plugins": CommentArray [],
   "profiles": Object {},
-  "secure": CommentArray [],
 }
 `;
 
@@ -128,7 +126,8 @@ exports[`Config API tests layers write should save the active config layer 1`] =
                         \\"color\\": \\"orange\\"
                     }
                 }
-            }
+            },
+            \\"secure\\": []
         }
     },
     \\"defaults\\": {
@@ -136,8 +135,7 @@ exports[`Config API tests layers write should save the active config layer 1`] =
     },
     \\"plugins\\": [
         \\"@zowe/fruit-for-imperative\\"
-    ],
-    \\"secure\\": []
+    ]
 }"
 `;
 
@@ -201,6 +199,7 @@ Object {
       "value": "California",
     },
   },
+  "secure": Array [],
 }
 `;
 

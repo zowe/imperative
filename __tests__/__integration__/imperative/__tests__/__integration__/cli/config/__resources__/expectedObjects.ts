@@ -13,7 +13,7 @@ import { IConfig } from "../../../../../../../../packages/config";
 
 export const expectedSchemaObject = {
     $schema: "https://json-schema.org/draft/2019-09/schema#",
-    $version: 1,
+    $version: 2,
     type: "object",
     description: "config",
     properties: {
@@ -37,6 +37,14 @@ export const expectedSchemaObject = {
                             description: "additional sub-profiles",
                             type: "object",
                             $ref: "#/properties/profiles"
+                        },
+                        secure: {
+                            description: "secure properties",
+                            type: "array",
+                            items: {
+                                type: "string"
+                            },
+                            uniqueItems: true
                         }
                     },
                     allOf: [
@@ -61,9 +69,15 @@ export const expectedSchemaObject = {
                                             },
                                             secret: {
                                                 type: "string",
-                                                description: "The secret info the keep in the profile.",
-                                                secure: true
+                                                description: "The secret info the keep in the profile."
                                             }
+                                        }
+                                    },
+                                    secure: {
+                                        items: {
+                                            enum: [
+                                                "secret"
+                                            ]
                                         }
                                     }
                                 }
@@ -90,8 +104,7 @@ export const expectedSchemaObject = {
                                             },
                                             secret: {
                                                 type: "string",
-                                                description: "The secret info the keep in the profile.",
-                                                secure: true
+                                                description: "The secret info the keep in the profile."
                                             },
                                             host: {
                                                 type: "string",
@@ -103,13 +116,11 @@ export const expectedSchemaObject = {
                                             },
                                             user: {
                                                 type: "string",
-                                                description: "Fruit username",
-                                                secure: true
+                                                description: "Fruit username"
                                             },
                                             password: {
                                                 type: "string",
-                                                description: "Fruit password",
-                                                secure: true
+                                                description: "Fruit password"
                                             },
                                             tokenType: {
                                                 type: "string",
@@ -117,14 +128,23 @@ export const expectedSchemaObject = {
                                             },
                                             tokenValue: {
                                                 type: "string",
-                                                description: "Fruit token value",
-                                                secure: true
+                                                description: "Fruit token value"
                                             },
                                             authToken: {
                                                 type: "string",
-                                                description: "Fruit auth token value",
-                                                secure: true
+                                                description: "Fruit auth token value"
                                             }
+                                        }
+                                    },
+                                    secure: {
+                                        items: {
+                                            enum: [
+                                                "secret",
+                                                "user",
+                                                "password",
+                                                "tokenValue",
+                                                "authToken"
+                                            ]
                                         }
                                     }
                                 }
@@ -137,19 +157,13 @@ export const expectedSchemaObject = {
         defaults: {
             type: "object",
             description: "default profiles config",
-            patternProperties: {
-                "^\\S*$": {
-                    type: "string",
-                    description: "the type"
+            properties: {
+                secured: {
+                    type: "string"
+                },
+                base: {
+                    type: "string"
                 }
-            }
-        },
-        secure: {
-            type: "array",
-            description: "secure properties",
-            items: {
-                type: "string",
-                description: "path to a property"
             }
         }
     }
@@ -157,7 +171,7 @@ export const expectedSchemaObject = {
 
 export const expectedSchemaObjectNoBase = {
     $schema: "https://json-schema.org/draft/2019-09/schema#",
-    $version: 1,
+    $version: 2,
     type: "object",
     description: "config",
     properties: {
@@ -181,6 +195,14 @@ export const expectedSchemaObjectNoBase = {
                             description: "additional sub-profiles",
                             type: "object",
                             $ref: "#/properties/profiles"
+                        },
+                        secure: {
+                            description: "secure properties",
+                            type: "array",
+                            items: {
+                                type: "string"
+                            },
+                            uniqueItems: true
                         }
                     },
                     allOf: [
@@ -205,9 +227,15 @@ export const expectedSchemaObjectNoBase = {
                                             },
                                             secret: {
                                                 type: "string",
-                                                description: "The secret info the keep in the profile.",
-                                                secure: true
+                                                description: "The secret info the keep in the profile."
                                             }
+                                        }
+                                    },
+                                    secure: {
+                                        items: {
+                                            enum: [
+                                                "secret"
+                                            ]
                                         }
                                     }
                                 }
@@ -220,19 +248,10 @@ export const expectedSchemaObjectNoBase = {
         defaults: {
             type: "object",
             description: "default profiles config",
-            patternProperties: {
-                "^\\S*$": {
-                    type: "string",
-                    description: "the type"
+            properties: {
+                secured: {
+                    type: "string"
                 }
-            }
-        },
-        secure: {
-            type: "array",
-            description: "secure properties",
-            items: {
-                type: "string",
-                description: "path to a property"
             }
         }
     }
@@ -251,7 +270,10 @@ export const expectedConfigObject: IConfig = {
                     type: "secured",
                     properties: {
                         info: ""
-                    }
+                    },
+                    secure: [
+                        "secret"
+                    ]
                 }
             },
             properties: {}
@@ -261,8 +283,7 @@ export const expectedConfigObject: IConfig = {
         secured: "my_profiles.secured",
         base: "my_base"
     },
-    plugins: [],
-    secure: ["profiles.my_profiles.profiles.secured.properties.secret"]
+    plugins: []
 };
 
 export const expectedUserConfigObject: IConfig = {
@@ -276,13 +297,13 @@ export const expectedUserConfigObject: IConfig = {
             profiles: {
                 secured: {
                     type: "secured",
-                    properties: {}
+                    properties: {},
+                    secure: []
                 }
             },
             properties: {}
         }
     },
     defaults: {},
-    plugins: [],
-    secure: []
+    plugins: []
 };

@@ -17,12 +17,12 @@
             "properties": {
                 "host": "fruitoftheloom.com",
                 "port": 1337
-            }
+            },
+            "secure": [
+                "authToken"
+            ]
         }
     },
     "defaults": {},
-    "plugins": [],
-    "secure": [
-        "profiles.my_fruit.properties.authToken"
-    ]
+    "plugins": []
 }

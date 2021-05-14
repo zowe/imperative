@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2019-09/schema#",
-    "$version": 1,
+    "$version": 2,
     "type": "object",
     "description": "config",
     "properties": {
@@ -24,6 +24,14 @@
                             "description": "additional sub-profiles",
                             "type": "object",
                             "$ref": "#/properties/profiles"
+                        },
+                        "secure": {
+                            "description": "secure properties",
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "uniqueItems": true
                         }
                     },
                     "allOf": [
@@ -53,13 +61,11 @@
                                             },
                                             "user": {
                                                 "type": "string",
-                                                "description": "Mainframe (z/OSMF) user name, which can be the same as your TSO login.",
-                                                "secure": true
+                                                "description": "Mainframe (z/OSMF) user name, which can be the same as your TSO login."
                                             },
                                             "password": {
                                                 "type": "string",
-                                                "description": "Mainframe (z/OSMF) password, which can be the same as your TSO password.",
-                                                "secure": true
+                                                "description": "Mainframe (z/OSMF) password, which can be the same as your TSO password."
                                             },
                                             "rejectUnauthorized": {
                                                 "type": "boolean",
@@ -89,6 +95,14 @@
                                             }
                                         },
                                         "required": []
+                                    },
+                                    "secure": {
+                                        "items": {
+                                            "enum": [
+                                                "user",
+                                                "password"
+                                            ]
+                                        }
                                     }
                                 }
                             }
@@ -144,6 +158,11 @@
                                             }
                                         },
                                         "required": []
+                                    },
+                                    "secure": {
+                                        "items": {
+                                            "enum": []
+                                        }
                                     }
                                 }
                             }
@@ -178,8 +197,7 @@
                                             },
                                             "password": {
                                                 "type": "string",
-                                                "description": "Mainframe password, which can be the same as your TSO password.",
-                                                "secure": true
+                                                "description": "Mainframe password, which can be the same as your TSO password."
                                             },
                                             "privateKey": {
                                                 "type": "string",
@@ -187,8 +205,7 @@
                                             },
                                             "keyPassphrase": {
                                                 "type": "string",
-                                                "description": "Private key passphrase, which unlocks the private key.",
-                                                "secure": true
+                                                "description": "Private key passphrase, which unlocks the private key."
                                             },
                                             "handshakeTimeout": {
                                                 "type": "number",
@@ -196,6 +213,14 @@
                                             }
                                         },
                                         "required": []
+                                    },
+                                    "secure": {
+                                        "items": {
+                                            "enum": [
+                                                "password",
+                                                "keyPassphrase"
+                                            ]
+                                        }
                                     }
                                 }
                             }
@@ -230,13 +255,11 @@
                                             },
                                             "user": {
                                                 "type": "string",
-                                                "description": "User name to authenticate to service on the mainframe.",
-                                                "secure": true
+                                                "description": "User name to authenticate to service on the mainframe."
                                             },
                                             "password": {
                                                 "type": "string",
-                                                "description": "Password to authenticate to service on the mainframe.",
-                                                "secure": true
+                                                "description": "Password to authenticate to service on the mainframe."
                                             },
                                             "rejectUnauthorized": {
                                                 "type": "boolean",
@@ -245,6 +268,14 @@
                                             }
                                         },
                                         "required": []
+                                    },
+                                    "secure": {
+                                        "items": {
+                                            "enum": [
+                                                "user",
+                                                "password"
+                                            ]
+                                        }
                                     }
                                 }
                             }
@@ -274,13 +305,11 @@
                                             },
                                             "user": {
                                                 "type": "string",
-                                                "description": "User name to authenticate to service on the mainframe.",
-                                                "secure": true
+                                                "description": "User name to authenticate to service on the mainframe."
                                             },
                                             "password": {
                                                 "type": "string",
-                                                "description": "Password to authenticate to service on the mainframe.",
-                                                "secure": true
+                                                "description": "Password to authenticate to service on the mainframe."
                                             },
                                             "rejectUnauthorized": {
                                                 "type": "boolean",
@@ -293,11 +322,19 @@
                                             },
                                             "tokenValue": {
                                                 "type": "string",
-                                                "description": "The value of the token to pass to the API.",
-                                                "secure": true
+                                                "description": "The value of the token to pass to the API."
                                             }
                                         },
                                         "required": []
+                                    },
+                                    "secure": {
+                                        "items": {
+                                            "enum": [
+                                                "user",
+                                                "password",
+                                                "tokenValue"
+                                            ]
+                                        }
                                     }
                                 }
                             }
@@ -309,19 +346,25 @@
         "defaults": {
             "type": "object",
             "description": "default profiles config",
-            "patternProperties": {
-                "^\\S*$": {
-                    "type": "string",
-                    "description": "the type"
+            "properties": {
+                "zosmf": {
+                    "type": "string"
+                },
+                "tso": {
+                    "type": "string"
+                },
+                "ssh": {
+                    "type": "string"
+                },
+                "cics": {
+                    "type": "string"
+                },
+                "dummy": {
+                    "type": "string"
+                },
+                "base": {
+                    "type": "string"
                 }
-            }
-        },
-        "secure": {
-            "type": "array",
-            "description": "secure properties",
-            "items": {
-                "type": "string",
-                "description": "path to a property"
             }
         }
     }
