@@ -409,7 +409,7 @@ describe("Config tests", () => {
             expect(layer.properties.profiles.fruit.secure).toContain("secret");
         });
 
-        fit("should remove profile from config and all its properties from secure array", async () => {
+        it("should remove profile from config and all its properties from secure array", async () => {
             const config = await Config.load(MY_APP);
             const layer = (config as any).layerActive();
             config.set("profiles.fruit.properties.secret", "area51", { secure: true });

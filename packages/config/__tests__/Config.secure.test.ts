@@ -61,7 +61,7 @@ describe("Config secure tests", () => {
         const config = new (Config as any)();
         config.mLayers = [
             {
-                properties: { secure: [] }
+                properties: { profiles: { fake: { secure: [] } } }
             }
         ];
         config.mVault = mockVault;
@@ -76,7 +76,7 @@ describe("Config secure tests", () => {
         config.mLayers = [
             {
                 path: "fake fakety fake",
-                properties: { secure: ["profiles.fake.properties.fake"], profiles: {fake: { properties: {fake: "fake"}}}}
+                properties: { profiles: {fake: { secure: ["fake"], properties: {fake: "fake"}}}}
             }
         ];
         config.mVault = mockVault;
