@@ -66,14 +66,11 @@ export class ConfigBuilder {
             }
 
             // Add the profile to config and set it as default
-            const profileJson: IConfigProfile = {
+            lodash.set(config, profileLongPath, {
                 type: profile.type,
-                properties
-            };
-            if (secureProps.length > 0) {
-                profileJson.secure = secureProps;
-            }
-            lodash.set(config, profileLongPath, profileJson);
+                properties,
+                secure: secureProps
+            });
 
             if (opts.populateProperties) {
                 config.defaults[profile.type] = profileShortPath;
