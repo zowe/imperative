@@ -30,7 +30,7 @@ describe("Config tests", () => {
             jest.spyOn(ConfigSecure.prototype, "load").mockResolvedValue(undefined);
         });
 
-        fit("should load project user config", async () => {
+        it("should load project user config", async () => {
             jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/project.config.user.json");
             jest.spyOn(fs, "existsSync")
                 .mockReturnValueOnce(true)      // Project user layer
@@ -264,8 +264,8 @@ describe("Config tests", () => {
             const layer = (config as any).layerActive();
             config.set("profiles.fruit.profiles.apple.properties.secret", "@ppl3", { secure: true });
             expect(config.properties.profiles.fruit.profiles.apple.properties.secret).toBe("@ppl3");
-            expect(layer.properties.profiles.fruit.secure.length).toBe(1);
-            expect(layer.properties.profiles.fruit.secure[0]).toBe("profiles.fruit.profiles.apple.properties.secret");
+            expect(layer.properties.profiles.fruit.profiles.apple.secure.length).toBe(1);
+            expect(layer.properties.profiles.fruit.profiles.apple.secure[0]).toBe("secret");
         });
 
         it("should set schema URI at top of config", async () => {
@@ -359,8 +359,8 @@ describe("Config tests", () => {
             config.set("profiles.fruit.profiles.apple.properties.secret", "@ppl3", { secure: true });
 
             expect(config.properties.profiles.fruit.profiles.apple.properties.secret).toBe("@ppl3");
-            expect(layer.properties.profiles.fruit.secure.length).toBe(1);
-            expect(layer.properties.profiles.fruit.secure[0]).toBe("profiles.fruit.profiles.apple.properties.secret");
+            expect(layer.properties.profiles.fruit.profiles.apple.secure.length).toBe(1);
+            expect(layer.properties.profiles.fruit.profiles.apple.secure[0]).toBe("secret");
 
             expect(JSONC.stringify(layer.properties.profiles.fruit.secure, null, ConfigConstants.INDENT)).toContain(blockComment);
             expect(JSONC.stringify(layer.properties.profiles.fruit.secure, null, ConfigConstants.INDENT)).toContain(lineComment);
@@ -392,10 +392,10 @@ describe("Config tests", () => {
             const layer = (config as any).layerActive();
             config.set("profiles.fruit.properties.secret", "area51", { secure: true });
             expect(config.properties.profiles.fruit.properties.secret).toBe("area51");
-            expect(layer.properties.profiles.fruit.secure).toContain("profiles.fruit.properties.secret");
+            expect(layer.properties.profiles.fruit.secure).toContain("secret");
             config.delete("profiles.fruit.properties.secret");
             expect(config.properties.profiles.fruit.properties.secret).toBeUndefined();
-            expect(layer.properties.profiles.fruit.secure).not.toContain("profiles.fruit.properties.secret");
+            expect(layer.properties.profiles.fruit.secure).not.toContain("secret");
         });
 
         it("should remove insecure property from profile only", async () => {
@@ -403,21 +403,21 @@ describe("Config tests", () => {
             const layer = (config as any).layerActive();
             config.set("profiles.fruit.properties.secret", "area51", { secure: true });
             expect(config.properties.profiles.fruit.properties.secret).toBe("area51");
-            expect(layer.properties.profiles.fruit.secure).toContain("profiles.fruit.properties.secret");
+            expect(layer.properties.profiles.fruit.secure).toContain("secret");
             config.delete("profiles.fruit.properties.secret", { secure: false });
             expect(config.properties.profiles.fruit.properties.secret).toBeUndefined();
-            expect(layer.properties.profiles.fruit.secure).toContain("profiles.fruit.properties.secret");
+            expect(layer.properties.profiles.fruit.secure).toContain("secret");
         });
 
-        it("should remove profile from config and all its properties from secure array", async () => {
+        fit("should remove profile from config and all its properties from secure array", async () => {
             const config = await Config.load(MY_APP);
             const layer = (config as any).layerActive();
             config.set("profiles.fruit.properties.secret", "area51", { secure: true });
             expect(config.properties.profiles.fruit.properties.secret).toBe("area51");
-            expect(layer.properties.profiles.fruit.secure).toContain("profiles.fruit.properties.secret");
+            expect(layer.properties.profiles.fruit.secure).toContain("secret");
             config.delete("profiles.fruit");
             expect(config.properties.profiles.fruit).toBeUndefined();
-            expect(layer.properties.profiles.fruit.secure).not.toContain("profiles.fruit.properties.secret");
+            expect(layer.properties.profiles.fruit).toBeUndefined();
         });
     });
 

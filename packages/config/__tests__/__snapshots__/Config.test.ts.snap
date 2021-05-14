@@ -5,7 +5,6 @@ Object {
   "defaults": Object {},
   "plugins": Array [],
   "profiles": Object {},
-  "secure": Array [],
 }
 `;
 
@@ -35,6 +34,7 @@ Object {
       "properties": Object {
         "origin": "California",
       },
+      "secure": Array [],
     },
     "vegetable": Object {
       "profiles": Object {
@@ -50,7 +50,6 @@ Object {
       },
     },
   },
-  "secure": Array [],
 }
 `;
 
@@ -79,9 +78,11 @@ Object {
       "properties": Object {
         "origin": "California",
       },
+      "secure": Array [
+        "secret",
+      ],
     },
   },
-  "secure": Array [],
 }
 `;
 
@@ -144,6 +145,7 @@ Object {
       "properties": Object {
         "origin": "California",
       },
+      "secure": Array [],
     },
     "vegetable": Object {
       "profiles": Object {
@@ -159,7 +161,6 @@ Object {
       },
     },
   },
-  "secure": Array [],
 }
 `;
 
@@ -191,6 +192,9 @@ Object {
       "properties": Object {
         "origin": "California",
       },
+      "secure": CommentArray [
+        "secret",
+      ],
     },
     "vegetable": Object {
       "profiles": Object {
@@ -206,7 +210,6 @@ Object {
       },
     },
   },
-  "secure": Array [],
 }
 `;
 
