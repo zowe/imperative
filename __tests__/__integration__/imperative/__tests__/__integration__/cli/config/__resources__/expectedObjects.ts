@@ -297,8 +297,7 @@ export const expectedUserConfigObject: IConfig = {
             profiles: {
                 secured: {
                     type: "secured",
-                    properties: {},
-                    secure: []
+                    properties: {}
                 }
             },
             properties: {}

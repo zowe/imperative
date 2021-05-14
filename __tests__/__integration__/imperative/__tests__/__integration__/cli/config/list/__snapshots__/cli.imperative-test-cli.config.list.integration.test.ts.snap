@@ -10,6 +10,8 @@ exports[`imperative-test-cli config list should list the configuration 1`] = `
         properties: 
           info:   
           secret: (secure value)
+        secure: 
+          - secret
   my_base: 
     type:       base
     properties: 
@@ -17,8 +19,6 @@ defaults:
   secured: my_profiles.secured
   base:    my_base
 plugins: 
-  (empty array)
-secure: 
   (empty array)
 "
 `;
@@ -38,6 +38,8 @@ exports[`imperative-test-cli config list should list the profiles configuration 
       properties: 
         info:   
         secret: (secure value)
+      secure: 
+        - secret
 my_base: 
   type:       base
   properties: 
@@ -48,8 +50,5 @@ exports[`imperative-test-cli config list should list the root level property nam
 "profiles
 defaults
 plugins
-secure
 "
 `;
-
-exports[`imperative-test-cli config list should not list the secure configuration property 1`] = `""`;

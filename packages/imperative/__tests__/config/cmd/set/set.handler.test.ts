@@ -423,7 +423,7 @@ describe("Configuration Set command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config
     });
 
-    it("should allow you to define an insecure a property and add it to the project configuration", async () => {
+    it("should allow you to define an insecure property and add it to the project configuration", async () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
@@ -489,7 +489,7 @@ describe("Configuration Set command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
     });
 
-    it("should allow you to define an insecure a property and add it to the user configuration", async () => {
+    it("should allow you to define an insecure property and add it to the user configuration", async () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
@@ -537,7 +537,7 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
+        // compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -554,7 +554,7 @@ describe("Configuration Set command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjUserPath, JSON.stringify(compObj, null, 4)); // Config
     });
 
-    it("should allow you to define an insecure a property and add it to the global project configuration", async () => {
+    it("should allow you to define an insecure property and add it to the global project configuration", async () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
@@ -621,7 +621,7 @@ describe("Configuration Set command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblProjPath, JSON.stringify(compObj, null, 4)); // Config
     });
 
-    it("should allow you to define an insecure a property and add it to the global user configuration", async () => {
+    it("should allow you to define an insecure property and add it to the global user configuration", async () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
@@ -670,7 +670,7 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
+        // compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -687,7 +687,7 @@ describe("Configuration Set command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config
     });
 
-    it("should allow you to define an insecure a property and add it to the project configuration while keeping other secure props", async () => {
+    it("should allow you to define an insecure property and add it to the project configuration while keeping other secure props", async () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
