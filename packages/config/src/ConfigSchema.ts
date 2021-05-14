@@ -58,19 +58,24 @@ export class ConfigSchema {
             type: schema.type,
             title: schema.title,
             description: schema.description,
-            properties
+            properties,
+            additionalProperties: false
         };
+        if (schema.required) {
+            propertiesSchema.required = schema.required;
+        }
+
         const secureSchema: any = {
             items: {
                 enum: secureProps
             }
         };
 
-        if (schema.required) propertiesSchema.required = schema.required;
-        return {
-            properties: propertiesSchema,
-            secure: secureSchema
-        };
+        if (secureProps.length > 0) {
+            return { properties: propertiesSchema, secure: secureSchema };
+        } else {
+            return { properties: propertiesSchema };
+        }
     }
 
     /**
@@ -82,7 +87,7 @@ export class ConfigSchema {
         const properties: { [key: string]: IProfileProperty } = {};
         for (const [k, v] of Object.entries(schema.properties.properties as { [key: string]: any })) {
             properties[k] = { type: v.type };
-            if (schema.secure.items.enum.includes(k)) {
+            if (schema.secure?.items.enum.includes(k)) {
                 properties[k].secure = true;
             }
             if (v.description != null || v.default != null || v.enum != null) {
@@ -116,7 +121,7 @@ export class ConfigSchema {
         profiles.forEach((profile: { type: string, schema: IProfileSchema }) => {
             entries.push({
                 if: { properties: { type: { const: profile.type } } },
-                then: { properties: this.generateJsonSchema(profile.schema) },
+                then: { properties: this.generateJsonSchema(profile.schema) }
             });
             defaultProperties[profile.type] = { type: "string" };
         });
@@ -148,7 +153,7 @@ export class ConfigSchema {
                                     $ref: "#/properties/profiles"
                                 },
                                 secure: {
-                                    description: "secure properties",
+                                    description: "secure property names",
                                     type: "array",
                                     items: {
                                         type: "string"
@@ -156,7 +161,11 @@ export class ConfigSchema {
                                     uniqueItems: true
                                 }
                             },
-                            allOf: entries
+                            dependentSchemas: {
+                                type: {
+                                    allOf: entries
+                                }
+                            }
                         }
                     }
 
@@ -177,7 +186,7 @@ export class ConfigSchema {
     public static loadProfileSchemas(schemaJson: IConfigSchema): IProfileTypeConfiguration[] {
         const patternName = Object.keys(schemaJson.properties.profiles.patternProperties)[0];
         const profileSchemas: IProfileTypeConfiguration[] = [];
-        for (const obj of schemaJson.properties.profiles.patternProperties[patternName].allOf) {
+        for (const obj of schemaJson.properties.profiles.patternProperties[patternName].dependentSchemas.type.allOf) {
             profileSchemas.push({
                 type: obj.if.properties.type.const,
                 schema: this.parseJsonSchema(obj.then.properties)

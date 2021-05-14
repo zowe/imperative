@@ -19,43 +19,43 @@ Object {
       "description": "named profiles config",
       "patternProperties": Object {
         "^\\\\S*$": Object {
-          "allOf": Array [
-            Object {
-              "if": Object {
-                "properties": Object {
-                  "type": Object {
-                    "const": "zosmf",
-                  },
-                },
-              },
-              "then": Object {
-                "properties": Object {
-                  "properties": Object {
-                    "description": "A fake zosmf profile",
+          "dependentSchemas": Object {
+            "type": Object {
+              "allOf": Array [
+                Object {
+                  "if": Object {
                     "properties": Object {
-                      "host": Object {
-                        "default": "fake",
-                        "description": "The fake host to connect to",
-                        "enum": Array [
-                          "fake",
-                          "real",
-                        ],
-                        "type": "string",
+                      "type": Object {
+                        "const": "zosmf",
                       },
                     },
-                    "required": Array [],
-                    "title": "zosmf",
-                    "type": "object",
                   },
-                  "secure": Object {
-                    "items": Object {
-                      "enum": Array [],
+                  "then": Object {
+                    "properties": Object {
+                      "properties": Object {
+                        "additionalProperties": false,
+                        "description": "A fake zosmf profile",
+                        "properties": Object {
+                          "host": Object {
+                            "default": "fake",
+                            "description": "The fake host to connect to",
+                            "enum": Array [
+                              "fake",
+                              "real",
+                            ],
+                            "type": "string",
+                          },
+                        },
+                        "required": Array [],
+                        "title": "zosmf",
+                        "type": "object",
+                      },
                     },
                   },
                 },
-              },
+              ],
             },
-          ],
+          },
           "description": "a profile",
           "properties": Object {
             "profiles": Object {
@@ -68,7 +68,7 @@ Object {
               "type": "object",
             },
             "secure": Object {
-              "description": "secure properties",
+              "description": "secure property names",
               "items": Object {
                 "type": "string",
               },
@@ -109,39 +109,44 @@ Object {
       "description": "named profiles config",
       "patternProperties": Object {
         "^\\\\S*$": Object {
-          "allOf": Array [
-            Object {
-              "if": Object {
-                "properties": Object {
-                  "type": Object {
-                    "const": "zosmf",
-                  },
-                },
-              },
-              "then": Object {
-                "properties": Object {
-                  "properties": Object {
-                    "description": "A fake zosmf profile",
+          "dependentSchemas": Object {
+            "type": Object {
+              "allOf": Array [
+                Object {
+                  "if": Object {
                     "properties": Object {
-                      "host": Object {
-                        "type": "string",
+                      "type": Object {
+                        "const": "zosmf",
                       },
                     },
-                    "required": Array [],
-                    "title": "zosmf",
-                    "type": "object",
                   },
-                  "secure": Object {
-                    "items": Object {
-                      "enum": Array [
-                        "host",
-                      ],
+                  "then": Object {
+                    "properties": Object {
+                      "properties": Object {
+                        "additionalProperties": false,
+                        "description": "A fake zosmf profile",
+                        "properties": Object {
+                          "host": Object {
+                            "type": "string",
+                          },
+                        },
+                        "required": Array [],
+                        "title": "zosmf",
+                        "type": "object",
+                      },
+                      "secure": Object {
+                        "items": Object {
+                          "enum": Array [
+                            "host",
+                          ],
+                        },
+                      },
                     },
                   },
                 },
-              },
+              ],
             },
-          ],
+          },
           "description": "a profile",
           "properties": Object {
             "profiles": Object {
@@ -154,7 +159,7 @@ Object {
               "type": "object",
             },
             "secure": Object {
-              "description": "secure properties",
+              "description": "secure property names",
               "items": Object {
                 "type": "string",
               },
@@ -195,37 +200,37 @@ Object {
       "description": "named profiles config",
       "patternProperties": Object {
         "^\\\\S*$": Object {
-          "allOf": Array [
-            Object {
-              "if": Object {
-                "properties": Object {
-                  "type": Object {
-                    "const": "zosmf",
-                  },
-                },
-              },
-              "then": Object {
-                "properties": Object {
-                  "properties": Object {
-                    "description": "A fake zosmf profile",
+          "dependentSchemas": Object {
+            "type": Object {
+              "allOf": Array [
+                Object {
+                  "if": Object {
                     "properties": Object {
-                      "host": Object {
-                        "type": "string",
+                      "type": Object {
+                        "const": "zosmf",
                       },
                     },
-                    "required": Array [],
-                    "title": "zosmf",
-                    "type": "object",
                   },
-                  "secure": Object {
-                    "items": Object {
-                      "enum": Array [],
+                  "then": Object {
+                    "properties": Object {
+                      "properties": Object {
+                        "additionalProperties": false,
+                        "description": "A fake zosmf profile",
+                        "properties": Object {
+                          "host": Object {
+                            "type": "string",
+                          },
+                        },
+                        "required": Array [],
+                        "title": "zosmf",
+                        "type": "object",
+                      },
                     },
                   },
                 },
-              },
+              ],
             },
-          ],
+          },
           "description": "a profile",
           "properties": Object {
             "profiles": Object {
@@ -238,7 +243,7 @@ Object {
               "type": "object",
             },
             "secure": Object {
-              "description": "secure properties",
+              "description": "secure property names",
               "items": Object {
                 "type": "string",
               },
@@ -275,7 +280,11 @@ Object {
       "description": "named profiles config",
       "patternProperties": Object {
         "^\\\\S*$": Object {
-          "allOf": Array [],
+          "dependentSchemas": Object {
+            "type": Object {
+              "allOf": Array [],
+            },
+          },
           "description": "a profile",
           "properties": Object {
             "profiles": Object {
@@ -288,7 +297,7 @@ Object {
               "type": "object",
             },
             "secure": Object {
-              "description": "secure properties",
+              "description": "secure property names",
               "items": Object {
                 "type": "string",
               },
@@ -332,66 +341,62 @@ Object {
       "description": "named profiles config",
       "patternProperties": Object {
         "^\\\\S*$": Object {
-          "allOf": Array [
-            Object {
-              "if": Object {
-                "properties": Object {
-                  "type": Object {
-                    "const": "zosmf",
-                  },
-                },
-              },
-              "then": Object {
-                "properties": Object {
-                  "properties": Object {
-                    "description": "A fake zosmf profile",
+          "dependentSchemas": Object {
+            "type": Object {
+              "allOf": Array [
+                Object {
+                  "if": Object {
                     "properties": Object {
-                      "host": Object {
-                        "type": "string",
+                      "type": Object {
+                        "const": "zosmf",
                       },
                     },
-                    "required": Array [],
-                    "title": "zosmf",
-                    "type": "object",
                   },
-                  "secure": Object {
-                    "items": Object {
-                      "enum": Array [],
-                    },
-                  },
-                },
-              },
-            },
-            Object {
-              "if": Object {
-                "properties": Object {
-                  "type": Object {
-                    "const": "base",
-                  },
-                },
-              },
-              "then": Object {
-                "properties": Object {
-                  "properties": Object {
-                    "description": "A fake base profile",
+                  "then": Object {
                     "properties": Object {
-                      "port": Object {
-                        "type": "number",
+                      "properties": Object {
+                        "additionalProperties": false,
+                        "description": "A fake zosmf profile",
+                        "properties": Object {
+                          "host": Object {
+                            "type": "string",
+                          },
+                        },
+                        "required": Array [],
+                        "title": "zosmf",
+                        "type": "object",
                       },
                     },
-                    "required": Array [],
-                    "title": "base",
-                    "type": "object",
                   },
-                  "secure": Object {
-                    "items": Object {
-                      "enum": Array [],
+                },
+                Object {
+                  "if": Object {
+                    "properties": Object {
+                      "type": Object {
+                        "const": "base",
+                      },
+                    },
+                  },
+                  "then": Object {
+                    "properties": Object {
+                      "properties": Object {
+                        "additionalProperties": false,
+                        "description": "A fake base profile",
+                        "properties": Object {
+                          "port": Object {
+                            "type": "number",
+                          },
+                        },
+                        "required": Array [],
+                        "title": "base",
+                        "type": "object",
+                      },
                     },
                   },
                 },
-              },
+              ],
             },
-          ],
+          },
           "description": "a profile",
           "properties": Object {
             "profiles": Object {
@@ -404,7 +409,7 @@ Object {
               "type": "object",
             },
             "secure": Object {
-              "description": "secure properties",
+              "description": "secure property names",
               "items": Object {
                 "type": "string",
               },

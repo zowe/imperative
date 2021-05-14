@@ -94,7 +94,7 @@ describe("Config Schema", () => {
         const returnedSchema = schema.buildSchema(testConfig);
         const expectedAllOf: any = [];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].dependentSchemas.type.allOf).toEqual(expectedAllOf)
     });
 
     it("should be able to successfully build with a single profile type configuration", () => {
@@ -112,6 +112,7 @@ describe("Config Schema", () => {
             then: {
                 properties: {
                     properties: {
+                        additionalProperties: false,
                         description: "A fake zosmf profile",
                         properties: {
                             host: {
@@ -121,17 +122,12 @@ describe("Config Schema", () => {
                         required: [],
                         title: "zosmf",
                         type: "object"
-                    },
-                    secure: {
-                        items: {
-                            enum: []
-                        }
                     }
                 }
             }
         }];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].dependentSchemas.type.allOf).toEqual(expectedAllOf)
     });
 
     it("should be able to successfully build with two profile type configurations", () => {
@@ -149,6 +145,7 @@ describe("Config Schema", () => {
                 then: {
                     properties: {
                         properties: {
+                            additionalProperties: false,
                             description: "A fake zosmf profile",
                             properties: {
                                 host: {
@@ -158,11 +155,6 @@ describe("Config Schema", () => {
                             required: [],
                             title: "zosmf",
                             type: "object"
-                        },
-                        secure: {
-                            items: {
-                                enum: []
-                            }
                         }
                     }
                 }
@@ -178,6 +170,7 @@ describe("Config Schema", () => {
                 then: {
                     properties: {
                         properties: {
+                            additionalProperties: false,
                             description: "A fake base profile",
                             properties: {
                                 port: {
@@ -187,18 +180,13 @@ describe("Config Schema", () => {
                             required: [],
                             title: "base",
                             type: "object"
-                        },
-                        secure: {
-                            items: {
-                                enum: []
-                            }
                         }
                     }
                 }
             }
         ];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].dependentSchemas.type.allOf).toEqual(expectedAllOf)
     });
 
     it("should be able to successfully build with a secure single profile type configuration", () => {
@@ -215,6 +203,7 @@ describe("Config Schema", () => {
             then: {
                 properties: {
                     properties: {
+                        additionalProperties: false,
                         description: "A fake zosmf profile",
                         properties: {
                             host: {
@@ -236,7 +225,7 @@ describe("Config Schema", () => {
             }
         }];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].dependentSchemas.type.allOf).toEqual(expectedAllOf)
     });
 
     it("should be able to successfully build with a complex single profile type configuration", () => {
@@ -253,6 +242,7 @@ describe("Config Schema", () => {
             then: {
                 properties: {
                     properties: {
+                        additionalProperties: false,
                         description: "A fake zosmf profile",
                         properties: {
                             host: {
@@ -265,17 +255,12 @@ describe("Config Schema", () => {
                         required: [],
                         title: "zosmf",
                         type: "object"
-                    },
-                    secure: {
-                        items: {
-                            enum: []
-                        }
                     }
                 }
             }
         }];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].dependentSchemas.type.allOf).toEqual(expectedAllOf)
     });
 
     it("should be able to regenerate profile schemas from a schema object", () => {
