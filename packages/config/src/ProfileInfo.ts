@@ -32,7 +32,7 @@ import { IConfigOpts } from "./doc/IConfigOpts";
 
 // for old-school profile operations
 import { AbstractProfileManager } from "../../profiles/src/abstract/AbstractProfileManager";
-import { CliProfileManager, ICommandProfileProperty } from "../../cmd";
+import { CliProfileManager, ICommandProfileProperty, ICommandArguments } from "../../cmd";
 import { IProfileLoaded, IProfileSchema, ProfileIO } from "../../profiles";
 
 // for imperative operations
@@ -42,6 +42,9 @@ import { CliUtils, ImperativeConfig } from "../../utilities";
 import { ImperativeExpect } from "../../expect";
 import { Logger } from "../../logger";
 import { LoggerManager } from "../../logger/src/LoggerManager";
+import {
+    IOptionsForAddConnProps, ISession, Session, SessConstants, ConnectionPropsForSessCfg
+} from "../../rest";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -359,6 +362,41 @@ export class ProfileInfo {
         this.ensureReadFromDisk();
         return this.mLoadedConfig;
     }
+
+    // _______________________________________________________________________
+    /**
+     * Create a zosmf session from profile arguments retrieved from
+     * ProfileInfo functions.
+     *
+     * @param profArgs
+     *      An array of profile arguments.
+     *
+     * @param connOpts
+     *      Options that alter our actions. See IOptionsForAddConnProps.
+     *      The connOpts parameter need not be supplied.
+     *      Default properties may added to any supplied connOpts.
+     *      The only option values used by this function are:
+     *          connOpts.requestToken
+     *          connOpts.defaultTokenType
+     *
+     * @returns A session that can be used to connect to zosmf;
+     */
+    public static createZosmfSession(
+        profArgs: IProfArgAttrs[],
+        connOpts: IOptionsForAddConnProps = {}
+    ): Session {
+        // initialize a session config with arguments from profile arguments
+        const sessCfg : ISession = ProfileInfo.initZosmfSessCfg(profArgs);
+
+        // we have no command arguments, so just supply an empty object
+        const cmdArgs: ICommandArguments = {$0: "", _: []};
+
+        // resolve the choices among various session config properties
+        ConnectionPropsForSessCfg.resolveSessCfgProps(sessCfg, cmdArgs, connOpts);
+
+        return new Session(sessCfg);
+    }
+
     // _______________________________________________________________________
     /**
      * Merge all of the available values for arguments defined for the
@@ -581,7 +619,7 @@ export class ProfileInfo {
         profAttrs: IProfAttrs,
         dfltProfLoadedVals?: any
     ): IProfileLoaded {
-        const emptyProfLoaded: any = {};
+        const emptyProfLoaded: any = {};    // used to avoid lint complaints
         let profLoaded: IProfileLoaded = emptyProfLoaded;
 
         // set any supplied defaults
@@ -723,6 +761,49 @@ export class ProfileInfo {
         }
 
         return argValue;
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Initialize a zosmf session configuration object with the arguments
+     * from profArgs
+     *
+     * @param profArgs
+     *      An array of profile argument attributes.
+     *
+     * @returns A session that can be used to connect to zosmf;
+     */
+    private static initZosmfSessCfg(profArgs: IProfArgAttrs[]): ISession {
+        const sessCfg: any = {};
+
+        // the set of names of arguments in IProfArgAttrs used in ISession
+        const profArgNames = [
+            "host", "port", "user", "password", "rejectUnauthorized",
+            "protocol","basePath", "tokenType", "tokenValue", "authtoken"
+        ];
+
+        for(const profArgNm of profArgNames) {
+            // map profile argument name into a sess config property name
+            let sessCfgNm: string;
+            if (profArgNm === "host") {
+                sessCfgNm = "hostname";
+            } else {
+                sessCfgNm = profArgNm;
+            }
+
+            // for each profile argument found, place its value into sessCfg
+            const profArg = lodash.find(profArgs, {"argName": profArgNm});
+            if (profArg === undefined) {
+                // we have a default for protocol
+                if (sessCfgNm === "protocol") {
+                    sessCfg[sessCfgNm] = SessConstants.HTTPS_PROTOCOL;
+                }
+            } else {
+                sessCfg[sessCfgNm] = profArg.argValue;
+            }
+        }
+
+        return sessCfg;
     }
 
     // _______________________________________________________________________
