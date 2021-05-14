@@ -71,7 +71,7 @@ describe("imperative-test-cli config set", () => {
         expect(response.stderr.toString()).toEqual("");
         expect(response.status).toEqual(0);
         // Should contain human readable credentials
-        expect(fileContents.profiles.my_profiles.profiles.secured.secure).toBeUndefined();
+        expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual([]);
         expect(fileContents.profiles.my_profiles.profiles.secured.properties).toEqual({info: "some_fake_information"});
         expect(securedValue).toEqual(Buffer.from("{}").toString("base64"));
     });

@@ -262,7 +262,8 @@ export const expectedConfigObject: IConfig = {
     profiles: {
         my_base: {
             type: "base",
-            properties: {}
+            properties: {},
+            secure: []
         },
         my_profiles: {
             profiles: {
@@ -291,13 +292,15 @@ export const expectedUserConfigObject: IConfig = {
     profiles: {
         my_base: {
             properties: {},
-            type: "base"
+            type: "base",
+            secure: []
         },
         my_profiles: {
             profiles: {
                 secured: {
                     type: "secured",
-                    properties: {}
+                    properties: {},
+                    secure: []
                 }
             },
             properties: {}

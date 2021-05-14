@@ -71,7 +71,8 @@ describe("imperative-test-cli config list", () => {
                 profiles: {
                     my_base: {
                         properties: {},
-                        type: "base"
+                        type: "base",
+                        secure: []
                     },
                     my_profiles: {
                         profiles: {
@@ -123,13 +124,15 @@ describe("imperative-test-cli config list", () => {
             profiles: {
                 my_base: {
                     properties: {},
-                    type: "base"
+                    type: "base",
+                    secure: []
                 },
                 my_profiles: {
                     profiles: {
                         secured: {
                             properties: {},
-                            type: "secured"
+                            type: "secured",
+                            secure: []
                         }
                     },
                     properties: {}
