@@ -245,7 +245,7 @@ describe("Config API tests", () => {
             });
             it("should include secure properties with no value defined", async () => {
                 const config = await Config.load(MY_APP);
-                (config as any).layerActive().properties.secure.push("profiles.fruit.properties.secret");
+                (config as any).layerActive().properties.profiles.fruit.secure.push("secret");
                 const profile = config.api.profiles.load("fruit");
                 expect(profile.properties.origin.value).toEqual("California");
                 expect(profile.properties.secret.secure).toBe(true);
@@ -404,7 +404,7 @@ describe("Config API tests", () => {
                 expect(retrievedConfig.plugins.length).toBe(2);
                 expect(retrievedConfig.profiles.fruit.profiles.grape).toBeDefined();
                 expect(retrievedConfig.profiles.fruit.properties.shipDate).toBeDefined();
-                expect(retrievedConfig.secure.length).toBe(1);
+                expect(retrievedConfig.profiles.fruit.secure.length).toBe(1);
 
                 // Check that old config had priority
                 expect(retrievedConfig.defaults.fruit).toBe("fruit.apple");
