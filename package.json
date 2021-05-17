@@ -63,7 +63,7 @@
     "jsonfile": "4.0.0",
     "jsonschema": "1.1.1",
     "levenshtein": "1.0.5",
-    "lodash": "4.17.20",
+    "lodash": "^4.17.21",
     "lodash-deep": "2.0.0",
     "log4js": "6.3.0",
     "markdown-it": "12.0.4",
