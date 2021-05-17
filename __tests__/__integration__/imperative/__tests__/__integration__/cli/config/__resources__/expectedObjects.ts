@@ -39,7 +39,7 @@ export const expectedSchemaObject = {
                             $ref: "#/properties/profiles"
                         },
                         secure: {
-                            description: "secure properties",
+                            description: "secure property names",
                             type: "array",
                             items: {
                                 type: "string"
@@ -47,110 +47,116 @@ export const expectedSchemaObject = {
                             uniqueItems: true
                         }
                     },
-                    allOf: [
-                        {
-                            if: {
-                                properties: {
-                                    type: {
-                                        const: "secured"
-                                    }
-                                }
-                            },
-                            then: {
-                                properties: {
-                                    properties: {
-                                        type: "object",
-                                        title: "Test Secured Fields",
-                                        description: "Test Secured Fields",
+                    dependentSchemas: {
+                        type: {
+                            allOf: [
+                                {
+                                    if: {
                                         properties: {
-                                            info: {
-                                                type: "string",
-                                                description: "The info the keep in the profile."
-                                            },
-                                            secret: {
-                                                type: "string",
-                                                description: "The secret info the keep in the profile."
+                                            type: {
+                                                const: "secured"
                                             }
                                         }
                                     },
-                                    secure: {
-                                        items: {
-                                            enum: [
-                                                "secret"
-                                            ]
+                                    then: {
+                                        properties: {
+                                            properties: {
+                                                type: "object",
+                                                title: "Test Secured Fields",
+                                                description: "Test Secured Fields",
+                                                properties: {
+                                                    info: {
+                                                        type: "string",
+                                                        description: "The info the keep in the profile."
+                                                    },
+                                                    secret: {
+                                                        type: "string",
+                                                        description: "The secret info the keep in the profile."
+                                                    }
+                                                },
+                                                additionalProperties: false
+                                            },
+                                            secure: {
+                                                items: {
+                                                    enum: [
+                                                        "secret"
+                                                    ]
+                                                }
+                                            }
                                         }
                                     }
-                                }
-                            }
-                        },
-                        {
-                            if: {
-                                properties: {
-                                    type: {
-                                        const: "base"
-                                    }
-                                }
-                            },
-                            then: {
-                                properties: {
-                                    properties: {
-                                        type: "object",
-                                        title: "Secure Profile",
-                                        description: "Secure Profile",
+                                },
+                                {
+                                    if: {
                                         properties: {
-                                            info: {
-                                                type: "string",
-                                                description: "The info the keep in the profile."
-                                            },
-                                            secret: {
-                                                type: "string",
-                                                description: "The secret info the keep in the profile."
-                                            },
-                                            host: {
-                                                type: "string",
-                                                description: "Fruit host"
-                                            },
-                                            port: {
-                                                type: "number",
-                                                description: "Fruit port"
-                                            },
-                                            user: {
-                                                type: "string",
-                                                description: "Fruit username"
-                                            },
-                                            password: {
-                                                type: "string",
-                                                description: "Fruit password"
-                                            },
-                                            tokenType: {
-                                                type: "string",
-                                                description: "Fruit token type"
-                                            },
-                                            tokenValue: {
-                                                type: "string",
-                                                description: "Fruit token value"
-                                            },
-                                            authToken: {
-                                                type: "string",
-                                                description: "Fruit auth token value"
+                                            type: {
+                                                const: "base"
                                             }
                                         }
                                     },
-                                    secure: {
-                                        items: {
-                                            enum: [
-                                                "secret",
-                                                "user",
-                                                "password",
-                                                "tokenValue",
-                                                "authToken"
-                                            ]
+                                    then: {
+                                        properties: {
+                                            properties: {
+                                                type: "object",
+                                                title: "Secure Profile",
+                                                description: "Secure Profile",
+                                                properties: {
+                                                    info: {
+                                                        type: "string",
+                                                        description: "The info the keep in the profile."
+                                                    },
+                                                    secret: {
+                                                        type: "string",
+                                                        description: "The secret info the keep in the profile."
+                                                    },
+                                                    host: {
+                                                        type: "string",
+                                                        description: "Fruit host"
+                                                    },
+                                                    port: {
+                                                        type: "number",
+                                                        description: "Fruit port"
+                                                    },
+                                                    user: {
+                                                        type: "string",
+                                                        description: "Fruit username"
+                                                    },
+                                                    password: {
+                                                        type: "string",
+                                                        description: "Fruit password"
+                                                    },
+                                                    tokenType: {
+                                                        type: "string",
+                                                        description: "Fruit token type"
+                                                    },
+                                                    tokenValue: {
+                                                        type: "string",
+                                                        description: "Fruit token value"
+                                                    },
+                                                    authToken: {
+                                                        type: "string",
+                                                        description: "Fruit auth token value"
+                                                    }
+                                                },
+                                                additionalProperties: false
+                                            },
+                                            secure: {
+                                                items: {
+                                                    enum: [
+                                                        "secret",
+                                                        "user",
+                                                        "password",
+                                                        "tokenValue",
+                                                        "authToken"
+                                                    ]
+                                                }
+                                            }
                                         }
                                     }
                                 }
-                            }
+                            ]
                         }
-                    ]
+                    }
                 }
             }
         },
@@ -197,7 +203,7 @@ export const expectedSchemaObjectNoBase = {
                             $ref: "#/properties/profiles"
                         },
                         secure: {
-                            description: "secure properties",
+                            description: "secure property names",
                             type: "array",
                             items: {
                                 type: "string"
@@ -205,43 +211,48 @@ export const expectedSchemaObjectNoBase = {
                             uniqueItems: true
                         }
                     },
-                    allOf: [
-                        {
-                            if: {
-                                properties: {
-                                    type: {
-                                        const: "secured"
-                                    }
-                                }
-                            },
-                            then: {
-                                properties: {
-                                    properties: {
-                                        type: "object",
-                                        title: "Test Secured Fields",
-                                        description: "Test Secured Fields",
+                    dependentSchemas: {
+                        type: {
+                            allOf: [
+                                {
+                                    if: {
                                         properties: {
-                                            info: {
-                                                type: "string",
-                                                description: "The info the keep in the profile."
-                                            },
-                                            secret: {
-                                                type: "string",
-                                                description: "The secret info the keep in the profile."
+                                            type: {
+                                                const: "secured"
                                             }
                                         }
                                     },
-                                    secure: {
-                                        items: {
-                                            enum: [
-                                                "secret"
-                                            ]
+                                    then: {
+                                        properties: {
+                                            properties: {
+                                                type: "object",
+                                                title: "Test Secured Fields",
+                                                description: "Test Secured Fields",
+                                                properties: {
+                                                    info: {
+                                                        type: "string",
+                                                        description: "The info the keep in the profile."
+                                                    },
+                                                    secret: {
+                                                        type: "string",
+                                                        description: "The secret info the keep in the profile."
+                                                    }
+                                                },
+                                                additionalProperties: false
+                                            },
+                                            secure: {
+                                                items: {
+                                                    enum: [
+                                                        "secret"
+                                                    ]
+                                                }
+                                            }
                                         }
                                     }
                                 }
-                            }
+                            ]
                         }
-                    ]
+                    }
                 }
             }
         },

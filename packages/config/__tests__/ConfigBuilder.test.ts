@@ -79,7 +79,6 @@ describe("Config Builder tests", () => {
 
         it("should build a config without populating properties", async () => {
             const builtConfig = await ConfigBuilder.build(testConfig);
-            delete expectedConfig.profiles.my_profiles.profiles.secured.secure;
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(0); // Not populating any properties
             expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1);
