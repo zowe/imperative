@@ -398,6 +398,8 @@ export class Config {
                 } else if (!opts.secure && secureProps.includes(secureInfo.prop)) {
                     lodash.set(layer.properties, secureInfo.path, secureProps.filter((p) => p !== secureInfo.prop));
                 }
+            } else if (opts.secure === true) {
+                throw new ImperativeError({ msg: "The secure option is only valid when setting a single property" });
             }
         }
     }
