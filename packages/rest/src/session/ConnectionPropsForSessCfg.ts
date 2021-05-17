@@ -17,7 +17,7 @@ import { IOptionsForAddConnProps } from "./doc/IOptionsForAddConnProps";
 import { Logger } from "../../../logger";
 import * as SessConstants from "./SessConstants";
 import { IPromptOptions } from "../../../cmd/src/doc/response/api/handler/IPromptOptions";
-import { ISession } from "../../../rest/src/session/doc/Isession";
+import { ISession } from "./doc/Isession";
 
 
 /**
