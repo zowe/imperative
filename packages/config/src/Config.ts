@@ -391,14 +391,13 @@ export class Config {
 
         if (opts.secure != null) {
             const secureInfo = this.api.secure.secureInfoForProp(path);
-            if (secureInfo == null) {
-                throw new ImperativeError({ msg: "The secure option is only valid when setting a single property" });
-            }
-            const secureProps: string[] = lodash.get(layer.properties, secureInfo.path, []);
-            if (opts.secure && !secureProps.includes(secureInfo.prop)) {
-                lodash.set(layer.properties, secureInfo.path, [...secureProps, secureInfo.prop]);
-            } else if (!opts.secure && secureProps.includes(secureInfo.prop)) {
-                lodash.set(layer.properties, secureInfo.path, secureProps.filter((p) => p !== secureInfo.prop));
+            if (secureInfo != null) {
+                const secureProps: string[] = lodash.get(layer.properties, secureInfo.path, []);
+                if (opts.secure && !secureProps.includes(secureInfo.prop)) {
+                    lodash.set(layer.properties, secureInfo.path, [...secureProps, secureInfo.prop]);
+                } else if (!opts.secure && secureProps.includes(secureInfo.prop)) {
+                    lodash.set(layer.properties, secureInfo.path, secureProps.filter((p) => p !== secureInfo.prop));
+                }
             }
         }
     }
