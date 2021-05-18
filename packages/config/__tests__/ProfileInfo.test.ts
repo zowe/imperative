@@ -223,7 +223,7 @@ describe("ProfileInfo tests", () => {
             });
 
             it("should successfully read a team config", async () => {
-                const profInfo = createNewProfInfo(teamProjDir)
+                const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
 
                 expect(profInfo.usingTeamConfig).toBe(true);

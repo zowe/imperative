@@ -33,10 +33,11 @@ describe("imperative-test-cli config set", () => {
     delete expectedJson.$schema;
     expectedJson.profiles.my_profiles.profiles.secured.properties.info = "(secure value)";
     expectedJson.profiles.my_profiles.profiles.secured.properties.secret = "(secure value)";
-    expectedJson.secure = [];
+    expectedJson.profiles.my_profiles.profiles.secured.secure = ["secret", "info"];
 
     const expectedUserJson = lodash.cloneDeep(expectedJson);
     delete expectedUserJson.profiles.my_profiles.profiles.secured.properties.secret;
+    expectedUserJson.profiles.my_profiles.profiles.secured.secure = ["info"];
     expectedUserJson.defaults = {};
 
     // Create the test environment
@@ -70,7 +71,7 @@ describe("imperative-test-cli config set", () => {
         expect(response.stderr.toString()).toEqual("");
         expect(response.status).toEqual(0);
         // Should contain human readable credentials
-        expect(fileContents.secure.length).toBe(0);
+        expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual([]);
         expect(fileContents.profiles.my_profiles.profiles.secured.properties).toEqual({info: "some_fake_information"});
         expect(securedValue).toEqual(Buffer.from("{}").toString("base64"));
     });
@@ -85,7 +86,7 @@ describe("imperative-test-cli config set", () => {
         expect(response.stdout.toString()).toContain("profiles.my_secured.properties.info");
         expect(response.status).toEqual(0);
         // Should contain human readable credentials
-        expect(fileContents.secure.length).toBe(0);
+        expect(fileContents.profiles.my_secured.secure).toBeUndefined();
         expect(fileContents.profiles.my_secured.properties).toEqual({info: "some_fake_information_prompted"});
         expect(securedValue).toEqual(Buffer.from("{}").toString("base64"));
     });
@@ -112,8 +113,7 @@ describe("imperative-test-cli config set", () => {
             expect(response.status).toEqual(0);
             expect(configJson.data).toEqual(expectedJson);
             // Should not contain human readable credentials
-            expect(fileContents.secure).toEqual(["profiles.my_profiles.profiles.secured.properties.secret",
-                                                 "profiles.my_profiles.profiles.secured.properties.info"]);
+            expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual(["secret", "info"]);
             expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
             // Check the securely stored JSON
             expect(securedValueJson).toEqual(expectedSecuredValueJson);
@@ -136,7 +136,7 @@ describe("imperative-test-cli config set", () => {
             expect(response.status).toEqual(0);
             expect(configJson.data).toEqual(expectedUserJson);
             // Should not contain human readable credentials
-            expect(fileContents.secure).toEqual(["profiles.my_profiles.profiles.secured.properties.info"]);
+            expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual(["info"]);
             expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
             // Check the securely stored JSON
             expect(securedValueJson).toEqual(expectedSecuredValueJson);
@@ -160,8 +160,7 @@ describe("imperative-test-cli config set", () => {
             expect(response.status).toEqual(0);
             expect(configJson.data).toEqual(expectedJson);
             // Should not contain human readable credentials
-            expect(fileContents.secure).toEqual(["profiles.my_profiles.profiles.secured.properties.secret",
-                                                 "profiles.my_profiles.profiles.secured.properties.info"]);
+            expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual(["secret", "info"]);
             expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
             // Check the securely stored JSON
             expect(securedValueJson).toEqual(expectedSecuredValueJson);
@@ -184,7 +183,7 @@ describe("imperative-test-cli config set", () => {
             expect(response.status).toEqual(0);
             expect(configJson.data).toEqual(expectedUserJson);
             // Should not contain human readable credentials
-            expect(fileContents.secure).toEqual(["profiles.my_profiles.profiles.secured.properties.info"]);
+            expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual(["info"]);
             expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
             // Check the securely stored JSON
             expect(securedValueJson).toEqual(expectedSecuredValueJson);
@@ -207,7 +206,7 @@ describe("imperative-test-cli config set", () => {
             expect(response.status).toEqual(0);
             expect(configJson.data).toEqual(expectedUserJson);
             // Should not contain human readable credentials
-            expect(fileContents.secure).toEqual(["profiles.my_profiles.profiles.secured.properties.info"]);
+            expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual(["info"]);
             expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({info: {data: "fake"}});
             // Check the securely stored JSON
             expect(securedValueJson).toEqual(expectedSecuredValueJson);
@@ -235,7 +234,7 @@ describe("imperative-test-cli config set", () => {
             expect(response.stderr.toString()).toEqual("");
             expect(response.status).toEqual(0);
             // Should not contain human readable credentials
-            expect(fileContents.secure).toEqual(["profiles.my_profiles.profiles.secured.properties.secret"]);
+            expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual(["secret"]);
             expect(fileContents.profiles.my_profiles.profiles.secured.properties).toEqual({"info": ""});
             // Check the securely stored JSON
             expect(securedValueJson).toEqual(expectedSecuredValueJson);
@@ -256,7 +255,7 @@ describe("imperative-test-cli config set", () => {
 
             expect(response.stderr.toString()).toEqual("");
             expect(response.status).toEqual(0);
-            expect(fileContents.secure).toEqual(["profiles.my_profiles.profiles.secured.properties.info"]);
+            expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual(["info"]);
             expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
             expect(securedValueJson).toEqual(expectedSecuredValueJson);
 
@@ -269,7 +268,7 @@ describe("imperative-test-cli config set", () => {
 
             expect(response.stderr.toString()).toEqual("");
             expect(response.status).toEqual(0);
-            expect(fileContents.secure.length).toBe(0);
+            expect(fileContents.profiles.my_profiles.profiles.secured.secure.length).toBe(0);
             expect(fileContents.profiles.my_profiles.profiles.secured.properties).toEqual({info: "some_fake_information"});
             expect(securedValueJson).toEqual({});
 
@@ -282,7 +281,7 @@ describe("imperative-test-cli config set", () => {
 
             expect(response.stderr.toString()).toEqual("");
             expect(response.status).toEqual(0);
-            expect(fileContents.secure).toEqual(["profiles.my_profiles.profiles.secured.properties.info"]);
+            expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual(["info"]);
             expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
             expect(securedValueJson).toEqual(expectedSecuredValueJson);
         });

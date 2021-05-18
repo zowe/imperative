@@ -16,13 +16,13 @@
             "type": "fruit",
             "properties": {
                 "protocol": "ftp"
-            }
+            },
+            "secure": [
+                "user",
+                "password"
+            ]
         }
     },
     "defaults": {},
-    "plugins": [],
-    "secure": [
-        "profiles.my_fruit.properties.user",
-        "profiles.my_fruit.properties.password"
-    ]
+    "plugins": []
 }

@@ -14,6 +14,7 @@ import { ConfigApi } from "./ConfigApi";
 import { IConfigVault } from "../doc/IConfigVault";
 import { IConfigSecureProperties } from "../doc/IConfigSecure";
 import { ConfigConstants } from "../ConfigConstants";
+import { IConfigProfile } from "../doc/IConfigProfile";
 
 /**
  * API Class for manipulating config layers.
@@ -47,7 +48,7 @@ export class ConfigSecure extends ConfigApi {
                 if (filePath === layer.path) {
 
                     // Only set those indicated by the config
-                    for (const p of layer.properties.secure) {
+                    for (const p of this.secureFields(layer)) {
 
                         // Extract and set secure properties
                         for (const [sPath, sValue] of Object.entries(secureProps)) {
@@ -91,7 +92,7 @@ export class ConfigSecure extends ConfigApi {
 
             // Create all the secure property entries
             const sp: IConfigSecureProperties = {};
-            for (const path of layer.properties.secure) {
+            for (const path of this.secureFields(layer)) {
                 const segments = path.split(".");
                 let obj: any = layer.properties;
                 for (let x = 0; x < segments.length; x++) {
@@ -123,17 +124,60 @@ export class ConfigSecure extends ConfigApi {
 
     // _______________________________________________________________________
     /**
-     * Do we have secure fields in any layer of our Config object?
+     * List full paths of all secure properties found in a team config file.
      *
-     * This function is never called. To avoid skewing code coverage of tests,
-     * this function is commented out. If you ever need it, you know what to do.
-     *
-     * @returns true -> we have secure fields.
-     *          false -> no secure fields.
+     * @param opts The user and global flags that specify one of the four
+     *             config files (aka layers).
+     * @returns Array of secure property paths
+     *          (e.g., "profiles.lpar1.properties.password")
      */
-    // private secureFields(): boolean {
-    //     for (const l of this.mConfig.layers)
-    //         if (l.properties.secure.length > 0) return true;
-    //     return false;
-    // }
+    public secureFields(opts?: { user: boolean; global: boolean }): string[] {
+        const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
+        return this.findSecure(layer.properties.profiles, "profiles");
+    }
+
+    /**
+     * Recursively find secure property paths inside a team config
+     * "profiles" object.
+     *
+     * @param profiles The "profiles" object that is present at the top level
+     *                 of team config files, and may also be present at lower
+     *                 levels.
+     * @param path The JSON path to the "profiles" object
+     * @returns Array of secure property paths
+     */
+    private findSecure(profiles: { [key: string]: IConfigProfile }, path: string): string[] {
+        const secureProps = [];
+        for (const profName of Object.keys(profiles)) {
+            for (const propName of (profiles[profName].secure || [])) {
+                secureProps.push(`${path}.${profName}.properties.${propName}`);
+            }
+            if (profiles[profName].profiles != null) {
+                secureProps.push(...this.findSecure(profiles[profName].profiles, `${path}.${profName}.profiles`));
+            }
+        }
+        return secureProps;
+    }
+
+    /**
+     * Retrieve info that can be used to store a profile property securely.
+     *
+     * For example, to securely store "profiles.lpar1.properties.password", the
+     * name "password" would be stored in "profiles.lpar1.secure".
+     *
+     * @internal
+     * @param propertyPath The full path of the profile property
+     * @returns Object with the following attributes:
+     *  - `path` The JSON path of the secure array
+     *  - `prop` The name of the property
+     */
+    public secureInfoForProp(propertyPath: string): { path: string, prop: string } {
+        if (!propertyPath.includes(".properties.")) {
+            return null;
+        }
+        return {
+            path: propertyPath.replace(/\.properties.+/, ".secure"),
+            prop: propertyPath.split(".").pop()
+        }
+    }
 }

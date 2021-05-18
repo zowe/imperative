@@ -17,14 +17,14 @@
                         "color": "orange"
                     }
                 }
-            }
+            },
+            "secure": [
+                "secret"
+            ]
         }
     },
     "defaults": {
         "fruit": "fruit.orange"
     },
-    "plugins": [],
-    "secure": [
-        "profiles.fruit.properties.secret"
-    ]
+    "plugins": []
 }

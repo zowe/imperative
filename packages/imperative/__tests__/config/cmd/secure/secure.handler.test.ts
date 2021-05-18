@@ -100,8 +100,7 @@ describe("Configuration Secure command handler", () => {
                 }),
                 save: ((k: string, v: any): Promise<void> => {
                     return CredentialManagerFactory.manager.save(k, v);
-                }),
-                name: CredentialManagerFactory.manager.name
+                })
             }
         };
 
@@ -191,7 +190,7 @@ describe("Configuration Secure command handler", () => {
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -260,7 +259,7 @@ describe("Configuration Secure command handler", () => {
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -329,7 +328,7 @@ describe("Configuration Secure command handler", () => {
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -399,7 +398,7 @@ describe("Configuration Secure command handler", () => {
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -467,7 +466,7 @@ describe("Configuration Secure command handler", () => {
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.secure = ["profiles.my_profiles.profiles.secured.properties.secret"]; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         // tslint:disable-next-line: no-magic-numbers
         expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(0);
@@ -475,6 +474,6 @@ describe("Configuration Secure command handler", () => {
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(0);
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(0);
-        expect(ImperativeConfig.instance.config.api.layers.get().properties.secure.length).toEqual(0);
+        expect(ImperativeConfig.instance.config.api.secure.secureFields().length).toEqual(0);
     });
 });

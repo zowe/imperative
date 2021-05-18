@@ -60,7 +60,7 @@ export default class InitHandler implements ICommandHandler {
 
         await this.initWithSchema(config, params.arguments.user);
 
-        if (params.arguments.prompt !== false && !CredentialManagerFactory.initialized && config.api.layers.get().properties.secure.length > 0) {
+        if (params.arguments.prompt !== false && !CredentialManagerFactory.initialized && config.api.secure.secureFields().length > 0) {
             const warning = secureSaveError();
             params.response.console.log(TextUtils.chalk.yellow("Warning:\n") +
                 `${warning.message} Skipped prompting for credentials.\n\n${warning.additionalDetails}\n`);
