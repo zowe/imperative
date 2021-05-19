@@ -20,6 +20,7 @@ import * as lodash from "lodash";
 import { IProfArgAttrs } from "./doc/IProfArgAttrs";
 import { IProfAttrs } from "./doc/IProfAttrs";
 import { IProfLoc, ProfLocType } from "./doc/IProfLoc";
+import { IProfMergeArgOpts } from "./doc/IProfMergeArgOpts";
 import { IProfMergedArg } from "./doc/IProfMergedArg";
 import { IProfOpts } from "./doc/IProfOpts";
 import { ProfileCredentials } from "./ProfileCredentials";
@@ -414,6 +415,10 @@ export class ProfileInfo {
      * @param profile
      *        The profile whose arguments are to be merged.
      *
+     * @param mergeOpts
+     *        Options to use when merging arguments.
+     *        This parameter is not required. Defaults will be used.
+     *
      * @returns An object that contains an array of known profile argument
      *          values and an array of required profile arguments which
      *          have no value assigned. Either of the two arrays could be
@@ -423,7 +428,10 @@ export class ProfileInfo {
      *          We will return null if the profile does not exist
      *          in the current Zowe configuration.
      */
-    public mergeArgsForProfile(profile: IProfAttrs): IProfMergedArg {
+    public mergeArgsForProfile(
+        profile: IProfAttrs,
+        mergeOpts: IProfMergeArgOpts = {getSecureVals: false}
+    ): IProfMergedArg {
         const mergedArgs: IProfMergedArg = {
             knownArgs: [],
             missingArgs: []
@@ -558,6 +566,13 @@ export class ProfileInfo {
             });
         }
 
+        // did our caller request the actual values of secure arguments?
+        if (mergeOpts.getSecureVals) {
+            mergedArgs.knownArgs.forEach((nextArg) => {
+                if (nextArg.secure) nextArg.argValue = this.loadSecureArg(nextArg);
+            });
+        }
+
         return mergedArgs;
     }
 
@@ -573,15 +588,25 @@ export class ProfileInfo {
      * @param profileType
      *        The type of profile of interest.
      *
+     * @param mergeOpts
+     *        Options to use when merging arguments.
+     *        This parameter is not required. Defaults will be used.
+     *
      * @returns The complete set of required properties;
      */
-    public mergeArgsForProfileType(profileType: string): IProfMergedArg {
-        return this.mergeArgsForProfile({
-            profName: null,
-            profType: profileType,
-            isDefaultProfile: false,
-            profLoc: { locType: this.mUsingTeamConfig ? ProfLocType.TEAM_CONFIG : ProfLocType.OLD_PROFILE }
-        });
+    public mergeArgsForProfileType(
+        profileType: string,
+        mergeOpts: IProfMergeArgOpts = {getSecureVals: false}
+    ): IProfMergedArg {
+        return this.mergeArgsForProfile(
+            {
+                profName: null,
+                profType: profileType,
+                isDefaultProfile: false,
+                profLoc: { locType: this.mUsingTeamConfig ? ProfLocType.TEAM_CONFIG : ProfLocType.OLD_PROFILE }
+            },
+            mergeOpts
+        );
     }
 
     // _______________________________________________________________________

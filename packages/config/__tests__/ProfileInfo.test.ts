@@ -1104,6 +1104,19 @@ describe("ProfileInfo tests", () => {
             expect(profInfo.loadSecureArg(passwordArg)).toBe("passwordBase");
         });
 
+        it("should get secure values with mergeArgsForProfile:getSecureVals for team config", async () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk();
+            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs, {getSecureVals: true});
+
+            const userArg = mergedArgs.knownArgs.find((arg) => arg.argName === "user");
+            expect(userArg.argValue).toBe("userNameBase");
+
+            const passwordArg = mergedArgs.knownArgs.find((arg) => arg.argName === "password");
+            expect(passwordArg.argValue).toBe("passwordBase");
+        });
+
         it("should load secure args from old school profiles", async () => {
             const profInfo = createNewProfInfo(homeDirPath);
             await profInfo.readProfilesFromDisk();
@@ -1117,6 +1130,19 @@ describe("ProfileInfo tests", () => {
             const passwordArg = mergedArgs.knownArgs.find((arg) => arg.argName === "password");
             expect(passwordArg.argValue).toBeUndefined();
             expect(profInfo.loadSecureArg(passwordArg)).toBe("somePassword");
+        });
+
+        it("should get secure values with mergeArgsForProfile:getSecureVals for old school profiles", async () => {
+            const profInfo = createNewProfInfo(homeDirPath);
+            await profInfo.readProfilesFromDisk();
+            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs, {getSecureVals: true});
+
+            const userArg = mergedArgs.knownArgs.find((arg) => arg.argName === "user");
+            expect(userArg.argValue).toBe("someUser");
+
+            const passwordArg = mergedArgs.knownArgs.find((arg) => arg.argName === "password");
+            expect(passwordArg.argValue).toBe("somePassword");
         });
 
         it("should treat secure arg as plain text if loaded from environment variable", async () => {
