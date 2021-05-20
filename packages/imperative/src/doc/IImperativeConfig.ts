@@ -223,26 +223,6 @@ export interface IImperativeConfig {
     overrides?: IImperativeOverrides;
 
     /**
-     * @deprecated since version 1.0.1
-     * Imperative now finds the desired version of the base CLI from
-     * the version specified in peerDependencies of the plugin's package.json.
-     *
-     * This property contains an NPM semantic versioning comparator string that
-     * identifies the version(s) of the base CLI with which this configured plugin
-     * is compatible. For a description of this string see:
-     *     https://www.npmjs.com/package/semver
-     *
-     * This property is recommended for a plugin. The plugin's compatibility
-     * will be verified when the plugin is validated by the Imperative framework.
-     * Its absence will generate a warning.
-     *
-     * This property is unused for a base CLI.
-     * @type {string}
-     * @memberof IImperativeConfig
-     */
-    pluginBaseCliVersion?: string;
-
-    /**
      * A path to a module (javascript file) that will perform a health check for a plugin.
      * The health check should verify the health of the plugin.
      * The implementor of a plugin determines what actions
