@@ -26,7 +26,7 @@ export class ConfigSchema {
      * @readonly
      * @memberof ConfigSchema
      */
-    private static readonly SCHEMA_VERSION = 1;
+    private static readonly SCHEMA_VERSION = 2;
 
     /**
      * Transform an Imperative profile schema to a JSON schema. Removes any
@@ -36,6 +36,7 @@ export class ConfigSchema {
      */
     private static generateJsonSchema(schema: IProfileSchema): any {
         const properties: { [key: string]: any } = {};
+        const secureProps: string[] = [];
         for (const [k, v] of Object.entries(schema.properties)) {
             properties[k] = { type: v.type };
             const cmdProp = v as ICommandProfileProperty;
@@ -49,19 +50,32 @@ export class ConfigSchema {
                 }
             }
             if (v.secure) {
-                properties[k].secure = true;
+                secureProps.push(k);
             }
         }
 
-        const obj: any = {
+        const propertiesSchema: any = {
             type: schema.type,
             title: schema.title,
             description: schema.description,
-            properties
+            properties,
+            additionalProperties: false
+        };
+        if (schema.required) {
+            propertiesSchema.required = schema.required;
         }
 
-        if (schema.required) obj.required = schema.required;
-        return obj;
+        const secureSchema: any = {
+            items: {
+                enum: secureProps
+            }
+        };
+
+        if (secureProps.length > 0) {
+            return { properties: propertiesSchema, secure: secureSchema };
+        } else {
+            return { properties: propertiesSchema };
+        }
     }
 
     /**
@@ -71,9 +85,9 @@ export class ConfigSchema {
      */
     private static parseJsonSchema(schema: any): IProfileSchema {
         const properties: { [key: string]: IProfileProperty } = {};
-        for (const [k, v] of Object.entries(schema.properties as { [key: string]: any })) {
+        for (const [k, v] of Object.entries(schema.properties.properties as { [key: string]: any })) {
             properties[k] = { type: v.type };
-            if (v.secure) {
+            if (schema.secure?.items.enum.includes(k)) {
                 properties[k].secure = true;
             }
             if (v.description != null || v.default != null || v.enum != null) {
@@ -88,11 +102,11 @@ export class ConfigSchema {
         }
 
         return {
-            title: schema.title,
-            description: schema.description,
-            type: schema.type,
+            title: schema.properties.title,
+            description: schema.properties.description,
+            type: schema.properties.type,
             properties,
-            required: schema.required
+            required: schema.properties.required
         };
     }
 
@@ -103,11 +117,13 @@ export class ConfigSchema {
      */
     public static buildSchema(profiles: IProfileTypeConfiguration[]): IConfigSchema {
         const entries: any[] = [];
+        const defaultProperties: { [key: string]: any } = {};
         profiles.forEach((profile: { type: string, schema: IProfileSchema }) => {
             entries.push({
                 if: { properties: { type: { const: profile.type } } },
-                then: { properties: { properties: this.generateJsonSchema(profile.schema) } },
+                then: { properties: this.generateJsonSchema(profile.schema) }
             });
+            defaultProperties[profile.type] = { type: "string" };
         });
         return {
             $schema: ConfigSchema.JSON_SCHEMA,
@@ -135,30 +151,28 @@ export class ConfigSchema {
                                     description: "additional sub-profiles",
                                     type: "object",
                                     $ref: "#/properties/profiles"
+                                },
+                                secure: {
+                                    description: "secure property names",
+                                    type: "array",
+                                    items: {
+                                        type: "string"
+                                    },
+                                    uniqueItems: true
                                 }
                             },
-                            allOf: entries
+                            dependentSchemas: {
+                                type: {
+                                    allOf: entries
+                                }
+                            }
                         }
                     }
-
                 },
                 defaults: {
                     type: "object",
                     description: "default profiles config",
-                    patternProperties: {
-                        "^\\S*$": {
-                            type: "string",
-                            description: "the type"
-                        }
-                    }
-                },
-                secure: {
-                    type: "array",
-                    description: "secure properties",
-                    items: {
-                        type: "string",
-                        description: "path to a property"
-                    }
+                    properties: defaultProperties
                 }
             }
         };
@@ -171,10 +185,10 @@ export class ConfigSchema {
     public static loadProfileSchemas(schemaJson: IConfigSchema): IProfileTypeConfiguration[] {
         const patternName = Object.keys(schemaJson.properties.profiles.patternProperties)[0];
         const profileSchemas: IProfileTypeConfiguration[] = [];
-        for (const obj of schemaJson.properties.profiles.patternProperties[patternName].allOf) {
+        for (const obj of schemaJson.properties.profiles.patternProperties[patternName].dependentSchemas.type.allOf) {
             profileSchemas.push({
                 type: obj.if.properties.type.const,
-                schema: this.parseJsonSchema(obj.then.properties.properties)
+                schema: this.parseJsonSchema(obj.then.properties)
             });
         }
         return profileSchemas;

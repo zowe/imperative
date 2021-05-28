@@ -31,9 +31,9 @@ Object {
         "properties": Object {
           "origin": "California",
         },
+        "secure": CommentArray [],
       },
     },
-    "secure": CommentArray [],
   },
   "user": true,
 }
@@ -74,11 +74,11 @@ Object {
         "origin": "California",
         "shipDate": "2000-01-01",
       },
+      "secure": Array [
+        "secret",
+      ],
     },
   },
-  "secure": CommentArray [
-    "profiles.fruit.properties.secret",
-  ],
 }
 `;
 
@@ -95,7 +95,6 @@ Object {
       },
     },
   },
-  "secure": CommentArray [],
 }
 `;
 
@@ -104,7 +103,6 @@ Object {
   "defaults": Object {},
   "plugins": CommentArray [],
   "profiles": Object {},
-  "secure": CommentArray [],
 }
 `;
 
@@ -128,7 +126,8 @@ exports[`Config API tests layers write should save the active config layer 1`] =
                         \\"color\\": \\"orange\\"
                     }
                 }
-            }
+            },
+            \\"secure\\": []
         }
     },
     \\"defaults\\": {
@@ -136,8 +135,98 @@ exports[`Config API tests layers write should save the active config layer 1`] =
     },
     \\"plugins\\": [
         \\"@zowe/fruit-for-imperative\\"
-    ],
-    \\"secure\\": []
+    ]
+}"
+`;
+
+exports[`Config API tests layers write should save the active config layer with comments 1`] = `
+"{
+    /* block-comment */
+    // line-comment
+    \\"$schema\\": /* block-comment */ null, // line-comment
+    /* block-comment */
+    // line-comment
+    \\"profiles\\": {
+        /* block-comment */
+        // line-comment
+        \\"fruit\\": {
+            /* block-comment */
+            // line-comment
+            \\"properties\\": {
+                /* block-comment */
+                // line-comment
+                \\"origin\\": /* block-comment */ \\"California\\", // line-comment
+                /* block-comment */
+                // line-comment
+                \\"tags\\": [
+                    /* block-comment */
+                    // line-comment
+                ]
+            },
+            /* block-comment */
+            // line-comment
+            \\"profiles\\": {
+                /* block-comment */
+                // line-comment
+                \\"apple\\": {
+                    /* block-comment */
+                    // line-comment
+                    \\"type\\": /* block-comment */ \\"fruit\\", // line-comment
+                    /* block-comment */
+                    // line-comment
+                    \\"properties\\": {
+                        /* block-comment */
+                        // line-comment
+                        \\"color\\": /* block-comment */ \\"red\\", // line-comment
+                        /* block-comment */
+                        // line-comment
+                        \\"ripe\\": /* block-comment */ null, // line-comment
+                        /* block-comment */
+                        // line-comment
+                        \\"price\\": /* block-comment */ null, // line-comment
+                        /* block-comment */
+                        // line-comment
+                        \\"secret\\": /* block-comment */ null // line-comment
+                    }
+                },
+                /* block-comment */
+                // line-comment
+                \\"orange\\": {
+                    /* block-comment */
+                    // line-comment
+                    \\"type\\": /* block-comment */ \\"fruit\\", // line-comment
+                    /* block-comment */
+                    // line-comment
+                    \\"properties\\": {
+                        /* block-comment */
+                        // line-comment
+                        \\"color\\": /* block-comment */ \\"orange\\" // line-comment
+                    }
+                }
+            },
+            /* block-comment */
+            // line-comment
+            \\"secure\\": [
+                /* block-comment */
+                // line-comment
+            ]
+        }
+    },
+    /* block-comment */
+    // line-comment
+    \\"defaults\\": {
+        /* block-comment */
+        // line-comment
+        \\"fruit\\": /* block-comment */ \\"fruit.apple\\" // line-comment
+    },
+    /* block-comment */
+    // line-comment
+    \\"plugins\\": [
+        /* block-comment */
+        // line-comment
+        /* block-comment */
+        \\"@zowe/fruit-for-imperative\\" // line-comment
+    ]
 }"
 `;
 
@@ -201,6 +290,7 @@ Object {
       "value": "California",
     },
   },
+  "secure": Array [],
 }
 `;
 

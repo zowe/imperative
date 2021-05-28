@@ -117,8 +117,7 @@ export class Config {
         return {
             profiles: {},
             defaults: {},
-            plugins: [],
-            secure: []
+            plugins: []
         };
     }
 
@@ -172,7 +171,6 @@ export class Config {
                 currLayer.properties.defaults = currLayer.properties.defaults || {};
                 currLayer.properties.profiles = currLayer.properties.profiles || {};
                 currLayer.properties.plugins = currLayer.properties.plugins || [];
-                currLayer.properties.secure = currLayer.properties.secure || [];
             }
         } catch (e) {
             if (e instanceof ImperativeError) {
@@ -391,13 +389,17 @@ export class Config {
             }
         });
 
-        if (opts.secure) {
-            if (!layer.properties.secure.includes(path))
-                layer.properties.secure.push(path);
-        } else if (opts.secure != null) {
-            const propIndex = layer.properties.secure.indexOf(path);
-            if (propIndex !== -1) {
-                layer.properties.secure.splice(propIndex, 1);
+        if (opts.secure != null) {
+            const secureInfo = this.api.secure.secureInfoForProp(path);
+            if (secureInfo != null) {
+                const secureProps: string[] = lodash.get(layer.properties, secureInfo.path, []);
+                if (opts.secure && !secureProps.includes(secureInfo.prop)) {
+                    lodash.set(layer.properties, secureInfo.path, [...secureProps, secureInfo.prop]);
+                } else if (!opts.secure && secureProps.includes(secureInfo.prop)) {
+                    lodash.set(layer.properties, secureInfo.path, secureProps.filter((p) => p !== secureInfo.prop));
+                }
+            } else if (opts.secure === true) {
+                throw new ImperativeError({ msg: "The secure option is only valid when setting a single property" });
             }
         }
     }
@@ -415,9 +417,13 @@ export class Config {
         lodash.unset(layer.properties, path);
 
         if (opts.secure !== false) {
-            layer.properties.secure = layer.properties.secure.filter((secureProp: string) => {
-                return secureProp !== path && !secureProp.startsWith(`${path}.`);
-            });
+            const secureInfo = this.api.secure.secureInfoForProp(path);
+            if (secureInfo != null) {
+                const secureProps: string[] = lodash.get(layer.properties, secureInfo.path);
+                if (secureProps != null && secureProps.includes(secureInfo.prop)) {
+                    lodash.set(layer.properties, secureInfo.path, secureProps.filter((p) => p !== secureInfo.prop));
+                }
+            }
         }
     }
 
@@ -500,8 +506,10 @@ export class Config {
     public layerProfiles(layer: IConfigLayer, maskSecure?: boolean): { [key: string]: IConfigProfile } {
         const properties = JSONC.parse(JSONC.stringify(layer.properties));
         if (maskSecure) {
-            for (const secureProp of properties.secure) {
-                lodash.set(properties, secureProp, ConfigConstants.SECURE_VALUE);
+            for (const secureProp of this.api.secure.secureFields(layer)) {
+                if (lodash.has(properties, secureProp)) {
+                    lodash.set(properties, secureProp, ConfigConstants.SECURE_VALUE);
+                }
             }
         }
         return properties.profiles;

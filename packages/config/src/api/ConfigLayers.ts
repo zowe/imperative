@@ -57,7 +57,6 @@ export class ConfigLayers extends ConfigApi {
         layer.properties.defaults = layer.properties.defaults || {};
         layer.properties.profiles = layer.properties.profiles || {};
         layer.properties.plugins = layer.properties.plugins || [];
-        layer.properties.secure = layer.properties.secure || [];
     }
 
     // _______________________________________________________________________
@@ -72,27 +71,26 @@ export class ConfigLayers extends ConfigApi {
         // TODO: specified and there are secure fields??
 
         // If fields are marked as secure
-        const layer = JSONC.parse(JSONC.stringify(opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive()));
-        if (layer.properties.secure != null) {
-            for (const path of layer.properties.secure) {
-                const segments = path.split(".");
-                let obj: any = layer.properties;
-                for (let x = 0; x < segments.length; x++) {
-                    const segment = segments[x];
-                    const v = obj[segment];
-                    if (v == null) break;
-                    if (x === segments.length - 1) {
-                        delete obj[segment];
-                        break;
-                    }
-                    obj = obj[segment];
+        const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
+        const layerCloned = JSONC.parse(JSONC.stringify(layer, null, ConfigConstants.INDENT));
+        for (const path of this.mConfig.api.secure.secureFields(layer)) {
+            const segments = path.split(".");
+            let obj: any = layerCloned.properties;
+            for (let x = 0; x < segments.length; x++) {
+                const segment = segments[x];
+                const v = obj[segment];
+                if (v == null) break;
+                if (x === segments.length - 1) {
+                    delete obj[segment];
+                    break;
                 }
+                obj = obj[segment];
             }
         }
 
         // Write the layer
         try {
-            fs.writeFileSync(layer.path, JSONC.stringify(layer.properties, null, ConfigConstants.INDENT));
+            fs.writeFileSync(layer.path, JSONC.stringify(layerCloned.properties, null, ConfigConstants.INDENT));
         } catch (e) {
             throw new ImperativeError({ msg: `error writing "${layer.path}": ${e.message}` });
         }
@@ -145,7 +143,6 @@ export class ConfigLayers extends ConfigApi {
                 this.mConfig.mLayers[i].properties.defaults = this.mConfig.mLayers[i].properties.defaults || {};
                 this.mConfig.mLayers[i].properties.profiles = this.mConfig.mLayers[i].properties.profiles || {};
                 this.mConfig.mLayers[i].properties.plugins = this.mConfig.mLayers[i].properties.plugins || [];
-                this.mConfig.mLayers[i].properties.secure = this.mConfig.mLayers[i].properties.secure || [];
             }
         }
     }
@@ -158,16 +155,17 @@ export class ConfigLayers extends ConfigApi {
      */
     public merge(cnfg: IConfig) {
         const layer = this.mConfig.layerActive();
-        layer.properties.profiles = deepmerge(cnfg.profiles, layer.properties.profiles);
+        layer.properties.profiles = deepmerge(cnfg.profiles, layer.properties.profiles, {
+            customMerge: (key: string) => {
+                if (key === "secure") {
+                    return (secureProps: string[]) => [...new Set(secureProps)]
+                }
+            }
+        });
         layer.properties.defaults = deepmerge(cnfg.defaults, layer.properties.defaults);
         for (const pluginName of cnfg.plugins) {
             if (!layer.properties.plugins.includes(pluginName)) {
                 layer.properties.plugins.push(pluginName);
-            }
-        }
-        for (const propPath of cnfg.secure) {
-            if (!layer.properties.secure.includes(propPath)) {
-                layer.properties.secure.push(propPath);
             }
         }
     }

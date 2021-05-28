@@ -17,7 +17,8 @@
                         "color": "yellow"
                     }
                 }
-            }
+            },
+            "secure": []
         },
         "vegetable": {
             "properties": {
@@ -37,6 +38,5 @@
         "fruit": "fruit.apple",
         "vegetable": "vegetable.artichoke"
     },
-    "plugins": [],
-    "secure": []
+    "plugins": []
 }

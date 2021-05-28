@@ -34,7 +34,7 @@ export default class SetHandler implements ICommandHandler {
         // Store the value securely if --secure was passed or the property name is in secure array
         let secure = params.arguments.secure;
         if (secure == null) {
-            secure = config.api.layers.get().properties.secure.includes(params.arguments.property);
+            secure = config.api.secure.secureFields().includes(params.arguments.property);
         }
 
         // Setup the credential vault API for the config

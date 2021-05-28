@@ -38,7 +38,10 @@ const mergeConfig: IConfig = {
                         color: "red"
                     }
                 }
-            }
+            },
+            secure: [
+                "secret"
+            ]
         }
     },
     defaults: {
@@ -46,9 +49,6 @@ const mergeConfig: IConfig = {
     },
     plugins: [
         "@zowe/vegetable-for-imperative"
-    ],
-    secure: [
-        "profiles.fruit.properties.secret"
     ]
 };
 
@@ -245,7 +245,7 @@ describe("Config API tests", () => {
             });
             it("should include secure properties with no value defined", async () => {
                 const config = await Config.load(MY_APP);
-                (config as any).layerActive().properties.secure.push("profiles.fruit.properties.secret");
+                (config as any).layerActive().properties.profiles.fruit.secure.push("secret");
                 const profile = config.api.profiles.load("fruit");
                 expect(profile.properties.origin.value).toEqual("California");
                 expect(profile.properties.secret.secure).toBe(true);
@@ -272,6 +272,18 @@ describe("Config API tests", () => {
                 await config.api.layers.write();
                 expect(writeFileSpy).toHaveBeenCalled();
                 expect(writeFileSpy.mock.calls[0][1]).toMatchSnapshot();
+            });
+
+            it("should save the active config layer with comments", async () => {
+                jest.spyOn(Config, "search").mockReturnValueOnce(__dirname + "/__resources__/commented-project.config.user.json");
+                jest.spyOn(ConfigSecure.prototype, "save").mockResolvedValueOnce(undefined);
+                const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
+                const config = await Config.load(MY_APP);
+                await config.api.layers.write();
+                expect(writeFileSpy).toHaveBeenCalled();
+                expect(writeFileSpy.mock.calls[0][1]).toMatchSnapshot();
+                expect(writeFileSpy.mock.calls[0][1]).toContain("/* block-comment */");
+                expect(writeFileSpy.mock.calls[0][1]).toContain("// line-comment");
             });
         });
         describe("activate", () => {
@@ -302,7 +314,6 @@ describe("Config API tests", () => {
                 expect(properties.properties.defaults).toEqual(JSON.parse(fileContents).defaults);
                 expect(properties.properties.plugins).toEqual(JSON.parse(fileContents).plugins);
                 expect(properties.properties.profiles).toEqual(JSON.parse(fileContents).profiles);
-                expect(properties.properties.secure).toEqual(JSON.parse(fileContents).secure);
             });
             it("should activate the project user configuration", async () => {
                 const config = await Config.load(MY_APP);
@@ -331,7 +342,6 @@ describe("Config API tests", () => {
                 expect(properties.properties.defaults).toEqual(JSON.parse(fileContents).defaults);
                 expect(properties.properties.plugins).toEqual(JSON.parse(fileContents).plugins);
                 expect(properties.properties.profiles).toEqual(JSON.parse(fileContents).profiles);
-                expect(properties.properties.secure).toEqual(JSON.parse(fileContents).secure);
             });
             it("should activate the global user configuration", async () => {
                 const config = await Config.load(MY_APP);
@@ -346,7 +356,6 @@ describe("Config API tests", () => {
                 expect(properties.properties.defaults).toEqual(JSON.parse(fileContents).defaults);
                 expect(properties.properties.plugins).toEqual(JSON.parse(fileContents).plugins);
                 expect(properties.properties.profiles).toEqual(JSON.parse(fileContents).profiles);
-                expect(properties.properties.secure).toEqual(JSON.parse(fileContents).secure);
             });
         });
         describe("get", () => {
@@ -365,7 +374,6 @@ describe("Config API tests", () => {
                     $schema: "fake",
                     defaults: {},
                     plugins: [],
-                    secure: [],
                     profiles: {
                         vegetable: {
                             properties: {
@@ -387,7 +395,6 @@ describe("Config API tests", () => {
                     $schema: undefined,
                     defaults: undefined,
                     plugins: undefined,
-                    secure: undefined,
                     profiles: undefined
                 };
                 config.api.layers.set(cnfg);
@@ -396,7 +403,6 @@ describe("Config API tests", () => {
                 expect(retrievedConfig.defaults).toEqual({});
                 expect(retrievedConfig.profiles).toEqual({});
                 expect(retrievedConfig.plugins).toEqual([]);
-                expect(retrievedConfig.secure).toEqual([]);
             });
         });
         describe("merge", () => {
@@ -410,7 +416,7 @@ describe("Config API tests", () => {
                 expect(retrievedConfig.plugins.length).toBe(2);
                 expect(retrievedConfig.profiles.fruit.profiles.grape).toBeDefined();
                 expect(retrievedConfig.profiles.fruit.properties.shipDate).toBeDefined();
-                expect(retrievedConfig.secure.length).toBe(1);
+                expect(retrievedConfig.profiles.fruit.secure.length).toBe(1);
 
                 // Check that old config had priority
                 expect(retrievedConfig.defaults.fruit).toBe("fruit.apple");
