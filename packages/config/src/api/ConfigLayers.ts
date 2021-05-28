@@ -71,10 +71,11 @@ export class ConfigLayers extends ConfigApi {
         // TODO: specified and there are secure fields??
 
         // If fields are marked as secure
-        const layer = JSONC.parse(JSONC.stringify(opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive()));
+        const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
+        const layerCloned = JSONC.parse(JSONC.stringify(layer, null, ConfigConstants.INDENT));
         for (const path of this.mConfig.api.secure.secureFields(layer)) {
             const segments = path.split(".");
-            let obj: any = layer.properties;
+            let obj: any = layerCloned.properties;
             for (let x = 0; x < segments.length; x++) {
                 const segment = segments[x];
                 const v = obj[segment];
@@ -89,7 +90,7 @@ export class ConfigLayers extends ConfigApi {
 
         // Write the layer
         try {
-            fs.writeFileSync(layer.path, JSONC.stringify(layer.properties, null, ConfigConstants.INDENT));
+            fs.writeFileSync(layer.path, JSONC.stringify(layerCloned.properties, null, ConfigConstants.INDENT));
         } catch (e) {
             throw new ImperativeError({ msg: `error writing "${layer.path}": ${e.message}` });
         }

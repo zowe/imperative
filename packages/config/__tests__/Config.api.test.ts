@@ -273,6 +273,18 @@ describe("Config API tests", () => {
                 expect(writeFileSpy).toHaveBeenCalled();
                 expect(writeFileSpy.mock.calls[0][1]).toMatchSnapshot();
             });
+
+            it("should save the active config layer with comments", async () => {
+                jest.spyOn(Config, "search").mockReturnValueOnce(__dirname + "/__resources__/commented-project.config.user.json");
+                jest.spyOn(ConfigSecure.prototype, "save").mockResolvedValueOnce(undefined);
+                const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
+                const config = await Config.load(MY_APP);
+                await config.api.layers.write();
+                expect(writeFileSpy).toHaveBeenCalled();
+                expect(writeFileSpy.mock.calls[0][1]).toMatchSnapshot();
+                expect(writeFileSpy.mock.calls[0][1]).toContain("/* block-comment */");
+                expect(writeFileSpy.mock.calls[0][1]).toContain("// line-comment");
+            });
         });
         describe("activate", () => {
             const filePathProjectConfig = path.join(__dirname, "__resources__", "project.config.json");

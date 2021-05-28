@@ -37,7 +37,9 @@ export default class ListHandler implements ICommandHandler {
                             obj[layer.path] = (layer.properties as any)[property];
                         if (obj[layer.path] != null) {
                             for (const secureProp of config.api.secure.secureFields(layer)) {
-                                lodash.set(obj[layer.path], secureProp, ConfigConstants.SECURE_VALUE);
+                                if (lodash.has(obj[layer.path], secureProp)) {
+                                    lodash.set(obj[layer.path], secureProp, ConfigConstants.SECURE_VALUE);
+                                }
                             }
                         }
                     }

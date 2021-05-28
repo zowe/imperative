@@ -507,7 +507,9 @@ export class Config {
         const properties = JSONC.parse(JSONC.stringify(layer.properties));
         if (maskSecure) {
             for (const secureProp of this.api.secure.secureFields(layer)) {
-                lodash.set(properties, secureProp, ConfigConstants.SECURE_VALUE);
+                if (lodash.has(properties, secureProp)) {
+                    lodash.set(properties, secureProp, ConfigConstants.SECURE_VALUE);
+                }
             }
         }
         return properties.profiles;
