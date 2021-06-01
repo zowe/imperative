@@ -126,7 +126,7 @@ describe("ProfileInfo tests", () => {
             });
         });
 
-        describe("createZosmfSession", () => {
+        describe("createSession", () => {
             const profAttrs: IProfAttrs = {
                 profName: "profName",
                 profType: "zosmf",
@@ -187,7 +187,7 @@ describe("ProfileInfo tests", () => {
             ];
 
             it("should create a session", async () => {
-                const newSess = ProfileInfo.createZosmfSession(profArgs);
+                const newSess = ProfileInfo.createSession(profArgs);
                 expect(newSess.ISession.hostname).toBe(profArgs[hostInx].argValue);
                 expect(newSess.ISession.port).toBe(profArgs[portInx].argValue);
                 expect(newSess.ISession.user).toBe(profArgs[userInx].argValue);
