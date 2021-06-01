@@ -537,7 +537,7 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        // compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -670,7 +670,7 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        // compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
+        compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers

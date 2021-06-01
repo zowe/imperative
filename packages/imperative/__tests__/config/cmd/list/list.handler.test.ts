@@ -57,8 +57,7 @@ const configLayers: IConfigLayer[] = [
                     properties: {
                         host: "fakeHost",
                         port: 25,
-                        user: "admin",
-                        password: "123456"
+                        user: "admin"
                     },
                     secure: [
                         "user",
@@ -79,7 +78,6 @@ const configLayers: IConfigLayer[] = [
 
 const configMaskedProps: IConfig = configLayers[0].properties;
 configMaskedProps.profiles.email.properties.user = "(secure value)";
-configMaskedProps.profiles.email.properties.password = "(secure value)";
 
 describe("Configuration List command handler", () => {
     const fakeConfig: Config = new (Config as any)();
@@ -116,7 +114,7 @@ describe("Configuration List command handler", () => {
         expect(errorText).toBeNull();
         expect(dataObj).toEqual(configMaskedProps);
         expect(dataObj.profiles.email.properties.user).toBe("(secure value)");
-        expect(dataObj.profiles.email.properties.password).toBe("(secure value)");
+        expect(dataObj.profiles.email.properties.password).toBeUndefined();
         expect(formatObj).toEqual(dataObj);
     });
 
@@ -138,7 +136,7 @@ describe("Configuration List command handler", () => {
         expect(errorText).toBeNull();
         expect(dataObj.fakePath).toEqual(configMaskedProps);
         expect(dataObj.fakePath.profiles.email.properties.user).toBe("(secure value)");
-        expect(dataObj.fakePath.profiles.email.properties.password).toBe("(secure value)");
+        expect(dataObj.fakePath.profiles.email.properties.password).toBeUndefined();
         expect(formatObj).toEqual(dataObj);
     });
 

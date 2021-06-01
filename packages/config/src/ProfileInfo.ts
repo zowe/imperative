@@ -366,7 +366,7 @@ export class ProfileInfo {
 
     // _______________________________________________________________________
     /**
-     * Create a zosmf session from profile arguments retrieved from
+     * Create a session from profile arguments that have been retrieved from
      * ProfileInfo functions.
      *
      * @param profArgs
@@ -375,19 +375,19 @@ export class ProfileInfo {
      * @param connOpts
      *      Options that alter our actions. See IOptionsForAddConnProps.
      *      The connOpts parameter need not be supplied.
-     *      Default properties may added to any supplied connOpts.
+     *      Default properties may be added to any supplied connOpts.
      *      The only option values used by this function are:
      *          connOpts.requestToken
      *          connOpts.defaultTokenType
      *
-     * @returns A session that can be used to connect to zosmf;
+     * @returns A session that can be used to connect to a remote host.
      */
-    public static createZosmfSession(
+    public static createSession(
         profArgs: IProfArgAttrs[],
         connOpts: IOptionsForAddConnProps = {}
     ): Session {
         // initialize a session config with arguments from profile arguments
-        const sessCfg : ISession = ProfileInfo.initZosmfSessCfg(profArgs);
+        const sessCfg : ISession = ProfileInfo.initSessCfg(profArgs);
 
         // we have no command arguments, so just supply an empty object
         const cmdArgs: ICommandArguments = {$0: "", _: []};
@@ -790,21 +790,22 @@ export class ProfileInfo {
 
     // _______________________________________________________________________
     /**
-     * Initialize a zosmf session configuration object with the arguments
+     * Initialize a session configuration object with the arguments
      * from profArgs
      *
      * @param profArgs
      *      An array of profile argument attributes.
      *
-     * @returns A session that can be used to connect to zosmf;
+     * @returns A session containing all of the supplied profile argument
+     *          attributes that are relevant to a session.
      */
-    private static initZosmfSessCfg(profArgs: IProfArgAttrs[]): ISession {
+    private static initSessCfg(profArgs: IProfArgAttrs[]): ISession {
         const sessCfg: any = {};
 
         // the set of names of arguments in IProfArgAttrs used in ISession
         const profArgNames = [
             "host", "port", "user", "password", "rejectUnauthorized",
-            "protocol","basePath", "tokenType", "tokenValue", "authtoken"
+            "protocol", "basePath", "tokenType", "tokenValue", "authToken"
         ];
 
         for(const profArgNm of profArgNames) {

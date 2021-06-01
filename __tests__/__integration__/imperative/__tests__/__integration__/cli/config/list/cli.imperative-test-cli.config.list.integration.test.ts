@@ -39,6 +39,10 @@ describe("imperative-test-cli config list", () => {
         expectedUserConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.user.json");
         expectedProjectConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json");
     });
+    afterAll(() => {
+        runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
+            ["-rf imperative-test-cli.config.user.json imperative-test-cli.config.json test imperative-test-cli.schema.json"]);
+    });
     it("should display the help", () => {
         const response = runCliScript(__dirname + "/../__scripts__/get_help.sh",
             TEST_ENVIRONMENT.workingDir, ["list"]);
@@ -79,8 +83,7 @@ describe("imperative-test-cli config list", () => {
                             secured: {
                                 type: "secured",
                                 properties: {
-                                    info: "",
-                                    secret: "(secure value)"
+                                    info: ""
                                 },
                                 secure: [
                                     "secret"
@@ -142,7 +145,6 @@ describe("imperative-test-cli config list", () => {
             plugins: []
         };
         const expectedProjectConfig = lodash.cloneDeep(expectedConfigObject);
-        expectedProjectConfig.profiles.my_profiles.profiles.secured.properties.secret = "(secure value)";
         const expectedResponse = {
             data: {}
         };
@@ -187,6 +189,21 @@ describe("imperative-test-cli config list", () => {
         const response = runCliScript(__dirname + "/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["defaults"]);
         expect(response.stdout.toString()).toMatchSnapshot();
         expect(response.stdout.toString()).toContain("secured: my_profiles.secured");
+        expect(response.stderr.toString()).toEqual("");
+        expect(response.error).not.toBeDefined();
+    });
+    it("should list the configuration without showing secure values", () => {
+        runCliScript(__dirname + "/../set/__scripts__/set_secure.sh", TEST_ENVIRONMENT.workingDir, ["profiles.my_profiles.profiles.secured.properties.secret", "area51"]);
+        const response = runCliScript(__dirname + "/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, [""]);
+        expect(response.stdout.toString()).toMatchSnapshot();
+        expect(response.stdout.toString()).toContain("secured: my_profiles.secured");
+        expect(response.stdout.toString()).toContain("type:       secured");
+        expect(response.stdout.toString()).toContain("defaults:");
+        expect(response.stdout.toString()).toContain("profiles:");
+        expect(response.stdout.toString()).toContain("plugins:");
+        expect(response.stdout.toString()).toContain("secure:");
+        expect(response.stdout.toString()).toContain("(empty array)");
+        expect(response.stdout.toString()).toContain("secret: (secure value)");
         expect(response.stderr.toString()).toEqual("");
         expect(response.error).not.toBeDefined();
     });
