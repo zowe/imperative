@@ -375,7 +375,7 @@ export class ProfileInfo {
      * @param connOpts
      *      Options that alter our actions. See IOptionsForAddConnProps.
      *      The connOpts parameter need not be supplied.
-     *      Default properties may added to any supplied connOpts.
+     *      Default properties may be added to any supplied connOpts.
      *      The only option values used by this function are:
      *          connOpts.requestToken
      *          connOpts.defaultTokenType
@@ -804,7 +804,7 @@ export class ProfileInfo {
         // the set of names of arguments in IProfArgAttrs used in ISession
         const profArgNames = [
             "host", "port", "user", "password", "rejectUnauthorized",
-            "protocol","basePath", "tokenType", "tokenValue", "authtoken"
+            "protocol", "basePath", "tokenType", "tokenValue", "authToken"
         ];
 
         for(const profArgNm of profArgNames) {
