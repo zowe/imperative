@@ -611,9 +611,9 @@ export abstract class AbstractRestClient {
         }
         if (this.requestFailure) {
             // Reject the promise with an error
-            const errorCode = this.response == null ? undefined : this.response.statusCode;
+            const httpStatus = this.response == null ? undefined : this.response.statusCode;
             this.mReject(this.populateError({
-                msg: "Rest API failure with HTTP(S) status " + errorCode,
+                msg: "Rest API failure with HTTP(S) status " + httpStatus,
                 causeErrors: this.dataString,
                 source: "http"
             }));
@@ -643,8 +643,8 @@ export abstract class AbstractRestClient {
         // Final error object parameters
         let finalError: IRestClientError = error;
 
-        // @deprecated - extract the status code - now moved to HTTP status.
-        const errorCode = this.response == null ? undefined : this.response.statusCode;
+        // extract the status code
+        const httpStatus = this.response == null ? undefined : this.response.statusCode;
 
         // start off by coercing the request details to string in case an error is encountered trying
         // to stringify / inspect them
@@ -659,12 +659,14 @@ export abstract class AbstractRestClient {
 
         // Populate the "relevant" fields - caller will have the session, so
         // no need to duplicate "everything" here, just host/port for easy diagnosis
-        finalError.errorCode = errorCode;
+        // Since IRestClientError inherits an errorCode from IImperativeError,
+        // also put the httpStatus in the errorCode.
+        finalError.errorCode = httpStatus;
         finalError.protocol = this.mSession.ISession.protocol;
         finalError.port = this.mSession.ISession.port;
         finalError.host = this.mSession.ISession.hostname;
         finalError.basePath = this.mSession.ISession.basePath;
-        finalError.httpStatus = errorCode;
+        finalError.httpStatus = httpStatus;
         finalError.errno = (nodeClientError != null) ? nodeClientError.errno : undefined;
         finalError.syscall = (nodeClientError != null) ? nodeClientError.syscall : undefined;
         finalError.payload = this.mWriteData;

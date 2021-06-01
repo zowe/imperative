@@ -148,9 +148,9 @@ describe("AbstractRestClient tests", () => {
             error = thrownError;
         }
         expect(error instanceof ImperativeError).toBe(true);
-        expect(error.message).toMatchSnapshot();
-        expect(error.errorCode).toMatchSnapshot();
-        expect(error.causeErrors).toMatchSnapshot();
+        expect(error.message).toBe("Rest API failure with HTTP(S) status 400");
+        expect(error.errorCode).toBe("400");
+        expect(error.causeErrors).toBe("{\"newData\":\"response data\"}");
         for (const header of headers) {
             // make sure the error contains the headers that were appended to the request
             for (const key of Object.keys(header)) {
@@ -158,7 +158,7 @@ describe("AbstractRestClient tests", () => {
                 expect(error.additionalDetails).toContain(header[key]);
             }
         }
-        expect(error.additionalDetails).toMatchSnapshot();
+        expect(error.additionalDetails).toContain("HTTP(S) error status \"400\" received.");
     });
 
     it("should error when chunking JSON data that does not parse", async () => {
