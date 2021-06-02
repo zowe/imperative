@@ -13,12 +13,15 @@ import * as path from "path";
 import * as jsonfile from "jsonfile";
 import * as lodash from "lodash";
 import { ProfileInfo } from "../src/ProfileInfo";
+import { IProfAttrs } from "../src/doc/IProfAttrs";
+import { IProfArgAttrs } from "../src/doc/IProfArgAttrs";
 import { IProfOpts } from "../src/doc/IProfOpts";
 import { ProfInfoErr } from "../src/ProfInfoErr";
 import { Config } from "../src/Config";
 import { IConfigOpts } from "../src/doc/IConfigOpts";
 import { ProfLocType } from "../src/doc/IProfLoc";
 import { IProfileSchema, ProfileIO } from "../../profiles";
+import { AbstractSession, SessConstants } from "../../rest";
 
 const testAppNm = "ProfInfoApp";
 const testEnvPrefix = testAppNm.toUpperCase();
@@ -67,6 +70,138 @@ describe("ProfileInfo tests", () => {
 
     afterEach(() => {
         jest.restoreAllMocks();
+    });
+
+    describe("Test Utility functions", () => {
+        describe("profAttrsToProfLoaded", () => {
+            const profAttrs: IProfAttrs = {
+                profName: "profName1",
+                profType: "profType1",
+                profLoc: {
+                    locType: ProfLocType.TEAM_CONFIG,
+                    osLoc: ["somewhere in the OS 1", "somewhere in the OS 2"],
+                    jsonLoc: "somewhere in the JSON file"
+                },
+                isDefaultProfile: true
+            };
+
+            it("should copy with no dfltProfLoadedVals", async () => {
+                const profLoaded = ProfileInfo.profAttrsToProfLoaded(profAttrs);
+                expect(profLoaded.name).toBe(profAttrs.profName);
+                expect(profLoaded.type).toBe(profAttrs.profType);
+                expect(profLoaded.message).toBe("");
+                expect(profLoaded.failNotFound).toBe(false);
+
+                expect(profLoaded.profile.profName).toBe(profAttrs.profName);
+                expect(profLoaded.profile.profType).toBe(profAttrs.profType);
+                expect(profLoaded.profile.profLoc.locType).toBe(profAttrs.profLoc.locType);
+                expect(profLoaded.profile.profLoc.osLoc[0]).toBe(profAttrs.profLoc.osLoc[0]);
+                expect(profLoaded.profile.profLoc.osLoc[1]).toBe(profAttrs.profLoc.osLoc[1]);
+                expect(profLoaded.profile.profLoc.jsonLoc).toBe(profAttrs.profLoc.jsonLoc);
+                expect(profLoaded.profile.isDefaultProfile).toBe(profAttrs.isDefaultProfile);
+            });
+
+            it("should copy using dfltProfLoadedVals", async () => {
+                const dfltProfLoadedVals: any = {
+                    message: "default message",
+                    failNotFound: true,
+                    referencedBy: "default referencedBy",
+                    dependenciesLoaded: false
+                }
+                const profLoaded = ProfileInfo.profAttrsToProfLoaded(profAttrs, dfltProfLoadedVals);
+                expect(profLoaded.name).toBe(profAttrs.profName);
+                expect(profLoaded.type).toBe(profAttrs.profType);
+                expect(profLoaded.message).toBe(dfltProfLoadedVals.message);
+                expect(profLoaded.failNotFound).toBe(dfltProfLoadedVals.failNotFound);
+                expect(profLoaded.referencedBy).toBe(dfltProfLoadedVals.referencedBy);
+                expect(profLoaded.dependenciesLoaded).toBe(dfltProfLoadedVals.dependenciesLoaded);
+
+                expect(profLoaded.profile.profName).toBe(profAttrs.profName);
+                expect(profLoaded.profile.profType).toBe(profAttrs.profType);
+                expect(profLoaded.profile.profLoc.locType).toBe(profAttrs.profLoc.locType);
+                expect(profLoaded.profile.profLoc.osLoc[0]).toBe(profAttrs.profLoc.osLoc[0]);
+                expect(profLoaded.profile.profLoc.osLoc[1]).toBe(profAttrs.profLoc.osLoc[1]);
+                expect(profLoaded.profile.profLoc.jsonLoc).toBe(profAttrs.profLoc.jsonLoc);
+                expect(profLoaded.profile.isDefaultProfile).toBe(profAttrs.isDefaultProfile);
+            });
+        });
+
+        describe("createSession", () => {
+            const profAttrs: IProfAttrs = {
+                profName: "profName",
+                profType: "zosmf",
+                profLoc: {
+                    locType: ProfLocType.TEAM_CONFIG,
+                    osLoc: ["somewhere in the OS 1", "somewhere in the OS 1A"],
+                    jsonLoc: "somewhere in the JSON file 1"
+                },
+                isDefaultProfile: true
+            };
+
+            // encoding for testUserName:testPassword
+            const b64TestAuth = "dGVzdFVzZXJOYW1lOnRlc3RQYXNzd29yZA==";
+
+            const hostInx = 0;
+            const portInx = 1;
+            const userInx = 2;
+            const passInx = 3;
+            const rejectInx = 4;
+
+            const profArgs: IProfArgAttrs[] = [
+                {
+                    argName: "host", dataType: "string", argValue: "testHostName",
+                    argLoc: {
+                        locType: ProfLocType.TEAM_CONFIG,
+                        osLoc: ["somewhere in the OS 2", "somewhere in the OS 2A"],
+                        jsonLoc: "somewhere in the JSON file 2"
+                    },
+                    secure: false
+                },
+                {
+                    argName: "port", dataType: "number", argValue: 12345,
+                    argLoc: {
+                        locType: ProfLocType.TEAM_CONFIG,
+                        osLoc: ["somewhere in the OS 3", "somewhere in the OS 3A"],
+                        jsonLoc: "somewhere in the JSON file 3"
+                    },
+                    secure: false
+                },
+                {
+                    argName: "user", dataType: "string", argValue: "testUserName",
+                    argLoc: {
+                        locType: ProfLocType.TEAM_CONFIG
+                    },
+                },
+                {
+                    argName: "password", dataType: "string", argValue: "testPassword",
+                    argLoc: {
+                        locType: ProfLocType.TEAM_CONFIG
+                    },
+                },
+                {
+                    argName: "rejectUnauthorized", dataType: "boolean", argValue: false,
+                    argLoc: {
+                        locType: ProfLocType.TEAM_CONFIG
+                    },
+                },
+            ];
+
+            it("should create a session", async () => {
+                const newSess = ProfileInfo.createSession(profArgs);
+                expect(newSess.ISession.hostname).toBe(profArgs[hostInx].argValue);
+                expect(newSess.ISession.port).toBe(profArgs[portInx].argValue);
+                expect(newSess.ISession.user).toBe(profArgs[userInx].argValue);
+                expect(newSess.ISession.password).toBe(profArgs[passInx].argValue);
+                expect(newSess.ISession.rejectUnauthorized).toBe(profArgs[rejectInx].argValue);
+                expect(newSess.ISession.type).toBe(SessConstants.AUTH_TYPE_BASIC);
+                expect(newSess.ISession.protocol).toBe(SessConstants.HTTPS_PROTOCOL);
+                expect(newSess.ISession.secureProtocol).toBe(AbstractSession.DEFAULT_SECURE_PROTOCOL);
+                expect(newSess.ISession.basePath).toBe(AbstractSession.DEFAULT_BASE_PATH);
+                expect(newSess.ISession.base64EncodedAuth).toBe(b64TestAuth);
+                expect(newSess.ISession.tokenType).toBeUndefined();
+                expect(newSess.ISession.tokenValue).toBeUndefined();
+            });
+        });
     });
 
     describe("TeamConfig Tests", () => {
@@ -969,6 +1104,19 @@ describe("ProfileInfo tests", () => {
             expect(profInfo.loadSecureArg(passwordArg)).toBe("passwordBase");
         });
 
+        it("should get secure values with mergeArgsForProfile:getSecureVals for team config", async () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk();
+            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs, {getSecureVals: true});
+
+            const userArg = mergedArgs.knownArgs.find((arg) => arg.argName === "user");
+            expect(userArg.argValue).toBe("userNameBase");
+
+            const passwordArg = mergedArgs.knownArgs.find((arg) => arg.argName === "password");
+            expect(passwordArg.argValue).toBe("passwordBase");
+        });
+
         it("should load secure args from old school profiles", async () => {
             const profInfo = createNewProfInfo(homeDirPath);
             await profInfo.readProfilesFromDisk();
@@ -982,6 +1130,19 @@ describe("ProfileInfo tests", () => {
             const passwordArg = mergedArgs.knownArgs.find((arg) => arg.argName === "password");
             expect(passwordArg.argValue).toBeUndefined();
             expect(profInfo.loadSecureArg(passwordArg)).toBe("somePassword");
+        });
+
+        it("should get secure values with mergeArgsForProfile:getSecureVals for old school profiles", async () => {
+            const profInfo = createNewProfInfo(homeDirPath);
+            await profInfo.readProfilesFromDisk();
+            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs, {getSecureVals: true});
+
+            const userArg = mergedArgs.knownArgs.find((arg) => arg.argName === "user");
+            expect(userArg.argValue).toBe("someUser");
+
+            const passwordArg = mergedArgs.knownArgs.find((arg) => arg.argName === "password");
+            expect(passwordArg.argValue).toBe("somePassword");
         });
 
         it("should treat secure arg as plain text if loaded from environment variable", async () => {

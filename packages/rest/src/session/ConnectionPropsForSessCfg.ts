@@ -9,6 +9,7 @@
 *
 */
 
+import * as lodash from "lodash";
 import { CliUtils } from "../../../utilities";
 import { ICommandArguments, IHandlerParameters } from "../../../cmd";
 import { ImperativeError } from "../../../error";
@@ -16,6 +17,7 @@ import { IOptionsForAddConnProps } from "./doc/IOptionsForAddConnProps";
 import { Logger } from "../../../logger";
 import * as SessConstants from "./SessConstants";
 import { IPromptOptions } from "../../../cmd/src/doc/response/api/handler/IPromptOptions";
+import { ISession } from "./doc/ISession";
 
 
 /**
@@ -68,11 +70,12 @@ export class ConnectionPropsForSessCfg {
      *
      * @param cmdArgs
      *        The arguments specified by the user on the command line
-     *        (or in environment, or in profile)
+     *        (or in environment, or in profile). The contents of the
+     *        supplied cmdArgs will be modified.
      *
-     * @param options
-     *        Options that alter our actions. See IOptionsForAddConnProps.
-     *        The options parameter need not be supplied.
+     * @param connOpts
+     *        Options that alter our connection actions. See IOptionsForAddConnProps.
+     *        The connOpts parameter need not be supplied.
      *
      * @example
      *      // Within the process() function of a command handler,
@@ -90,121 +93,88 @@ export class ConnectionPropsForSessCfg {
      *          added to the initialSessCfg. Its intended use is for our
      *          caller to create a session for a REST Client.
      */
-    public static async addPropsOrPrompt<T>(
-        initialSessCfg: T,
+    public static async addPropsOrPrompt<SessCfgType extends ISession>(
+        initialSessCfg: SessCfgType,
         cmdArgs: ICommandArguments,
-        options: IOptionsForAddConnProps = {},
-    ): Promise<T> {
+        connOpts: IOptionsForAddConnProps = {},
+    ): Promise<SessCfgType> {
         const impLogger = Logger.getImperativeLogger();
 
-        // split authToken into tokenType and tokenValue
-        // TODO Evaluate if we want to keep this for new config
-        ConnectionPropsForSessCfg.processAuthToken(cmdArgs);
-
-        const optionDefaults: IOptionsForAddConnProps = {
-            requestToken: false,
-            doPrompting: true,
-            defaultTokenType: SessConstants.TOKEN_TYPE_JWT
-        };
-
-        // override our defaults with what our caller wants.
-        const optsToUse = {...optionDefaults, ...options};
-
-        // initialize session config object with what our caller supplied
-        const finalSessCfg: any = initialSessCfg;
-
-        const promptForValues = [];
-
-        /* Override properties from our caller's initialSessCfg
-         * with any values from the command line.
+        /* Create copies of our initialSessCfg and connOpts so that
+         * we can modifify them without changing the caller's copy.
          */
-        if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.host)) {
-            finalSessCfg.hostname = cmdArgs.host;
-        }
-        if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.port)) {
-            finalSessCfg.port = cmdArgs.port;
-        }
-        if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.user)) {
-            finalSessCfg.user = cmdArgs.user;
-        }
-        if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.password)) {
-            finalSessCfg.password = cmdArgs.password;
-        }
+        const sessCfgToUse  = lodash.cloneDeep(initialSessCfg);
+        const connOptsToUse = lodash.cloneDeep(connOpts);
 
-        if (optsToUse.requestToken) {
-            // deleting any tokenValue, ensures that basic creds are used to authenticate and get token
-            delete finalSessCfg.tokenValue;
-        } else if (!ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) &&
-            !ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) &&
-            ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenValue))
-        {
-            // only set tokenValue if user and password were not supplied
-            finalSessCfg.tokenValue = cmdArgs.tokenValue;
-        }
+        // resolve all values between sessCfg and cmdArgs using option choices
+        ConnectionPropsForSessCfg.resolveSessCfgProps(
+            sessCfgToUse, cmdArgs, connOptsToUse
+        );
 
         // This function will provide all the needed properties in one array
-        if (optsToUse.getValuesBack) {
+        const promptForValues = [];
+        if (connOptsToUse.getValuesBack) {
 
             // set doPrompting to false if there's a value in getValuesBack
-            optionDefaults.doPrompting = false;
+            connOptsToUse.doPrompting = false;
 
             // check what properties are needed to be prompted
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.hostname)=== false) {
+            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.hostname) === false) {
                 promptForValues.push("hostname");
             }
 
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.port)=== false) {
+            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.port) === false) {
                 promptForValues.push("port");
             }
 
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.tokenValue)=== false) {
-                if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user)=== false) {
+            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.tokenValue) === false) {
+                if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.user) === false) {
                     promptForValues.push("user");
                 }
 
-                if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password)=== false) {
+                if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.password) === false) {
                     promptForValues.push("password");
                 }
             }
 
             // put all the needed properties in an array and call the external function
-            const answer = await optsToUse.getValuesBack(promptForValues);
+            const answer = await connOptsToUse.getValuesBack(promptForValues);
 
-            // validate what values are given back and move it to finalSessCfg
+            // validate what values are given back and move it to sessCfgToUse
             if (ConnectionPropsForSessCfg.propHasValue(answer.hostname)) {
-                finalSessCfg.hostname = answer.hostname;
+                sessCfgToUse.hostname = answer.hostname;
             }
             if (ConnectionPropsForSessCfg.propHasValue(answer.port)) {
-                finalSessCfg.port = answer.port;
+                sessCfgToUse.port = answer.port;
             }
             if (ConnectionPropsForSessCfg.propHasValue(answer.user)) {
-                finalSessCfg.user = answer.user;
+                sessCfgToUse.user = answer.user;
             }
             if (ConnectionPropsForSessCfg.propHasValue(answer.password)) {
-                finalSessCfg.password = answer.password;
+                sessCfgToUse.password = answer.password;
             }
         }
 
         // if our caller permits, prompt for host and port as needed
-        if (optsToUse.doPrompting) {
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.hostname) === false) {
+        if (connOptsToUse.doPrompting) {
+            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.hostname) === false) {
                 let answer = "";
                 while (answer === "") {
                     answer = await this.clientPrompt("Enter the host name of your service: ", {
-                        parms: optsToUse.parms
+                        parms: connOptsToUse.parms
                     });
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for host name."});
                     }
                 }
-                finalSessCfg.hostname = answer;
+                sessCfgToUse.hostname = answer;
             }
 
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.port) === false) {
+            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.port) === false) {
                 let answer: any;
                 while (answer === undefined) {
                     answer = await this.clientPrompt("Enter the port number for your service: ", {
-                        parms: optsToUse.parms
+                        parms: connOptsToUse.parms
                     });
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for port number."});
@@ -215,64 +185,162 @@ export class ConnectionPropsForSessCfg {
                         }
                     }
                 }
-                finalSessCfg.port = answer;
+                sessCfgToUse.port = answer;
             }
         }
 
-        /* If tokenValue is set, we have already checked that user and password
-         * are not, so it's safe to proceed with using the token.
+        /* If we do not have a token, we must use user name and password.
+         * If our caller permit, we prompt for any missing user name or password.
          */
-        if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.tokenValue) === true)
+        if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.tokenValue) === false &&
+            connOptsToUse.doPrompting)
         {
-            impLogger.debug("Using token authentication");
-            if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenType)) {
-                finalSessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
-                finalSessCfg.tokenType = cmdArgs.tokenType;
-            } else {
-                // When no tokenType supplied, user wants bearer
-                finalSessCfg.type = SessConstants.AUTH_TYPE_BEARER;
-            }
-            ConnectionPropsForSessCfg.logSessCfg(finalSessCfg);
-            return finalSessCfg;
-        }
-
-        /* At this point we ruled out token, so we use user and password. If our
-         * caller permits, we prompt for any missing user name and password.
-         */
-        if (optsToUse.doPrompting) {
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) === false) {
+            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.user) === false) {
                 let answer = "";
                 while (answer === "") {
                     answer = await this.clientPrompt("Enter user name: ", {
-                        parms: optsToUse.parms
+                        parms: connOptsToUse.parms
                     });
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for user name."});
                     }
                 }
-                finalSessCfg.user = answer;
+                sessCfgToUse.user = answer;
             }
 
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) === false) {
+            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.password) === false) {
                 let answer = "";
                 while (answer === "") {
 
                     answer = await this.clientPrompt("Enter password : ", {
                         hideText: true,
-                        parms: optsToUse.parms
+                        parms: connOptsToUse.parms
                     });
 
                     if (answer === null) {
                         throw new ImperativeError({msg: "Timed out waiting for password."});
                     }
                 }
-                finalSessCfg.password = answer;
+                sessCfgToUse.password = answer;
             }
         }
 
-        ConnectionPropsForSessCfg.setTypeForBasicCreds(finalSessCfg, optsToUse, cmdArgs.tokenType);
-        ConnectionPropsForSessCfg.logSessCfg(finalSessCfg);
-        return finalSessCfg;
+        impLogger.debug("Session config after any prompting for missing values:");
+        ConnectionPropsForSessCfg.logSessCfg(sessCfgToUse);
+        return sessCfgToUse;
+    }
+
+    // ***********************************************************************
+    /**
+     * Resolve the overlapping or mutually exclusive properties that can
+     * occur. Ensure that the resulting session configuration object contains
+     * only the applicable properties. The contents of the supplied sessCfg,
+     * cmdArgs, and connOpts will be modified.
+     *
+     * @param sessCfg
+     *      An initial session configuration that contains your desired
+     *      session configuration properties.
+     *
+     * @param cmdArgs
+     *      The arguments specified by the user on the command line
+     *      (or in environment, or in profile)
+     *
+     * @param connOpts
+     *      Options that alter our actions. See IOptionsForAddConnProps.
+     *      The connOpts parameter need not be supplied.
+     *      The only option values used by this function are:
+     *          connOpts.requestToken
+     *          connOpts.defaultTokenType
+     *
+     * @example
+     *      let sessCfg = YouCollectAllProfilePropertiesRelatedToSession();
+     *      let cmdArgs = YouSetPropertiesRequiredInCmdArgs();
+     *      ConnectionPropsForSessCfg.resolveSessCfgProps(sessCfg, cmdArgs);
+     *      sessionToUse = new Session(sessCfg);
+     */
+    public static resolveSessCfgProps<SessCfgType extends ISession>(
+        sessCfg: SessCfgType,
+        cmdArgs: ICommandArguments = {$0: "", _: []},
+        connOpts: IOptionsForAddConnProps = {}
+     ) {
+        const impLogger = Logger.getImperativeLogger();
+
+        // use defaults if caller has not specified these properties.
+        if (!connOpts.hasOwnProperty("requestToken")) {
+            connOpts.requestToken = false;
+        }
+        if (!connOpts.hasOwnProperty("doPrompting")) {
+            connOpts.doPrompting = true;
+        }
+        if (!connOpts.hasOwnProperty("defaultTokenType")) {
+            connOpts.defaultTokenType = SessConstants.TOKEN_TYPE_JWT;
+        }
+
+        /* Override properties from our caller's sessCfg
+         * with any values from the command line.
+         */
+        if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.host)) {
+            sessCfg.hostname = cmdArgs.host;
+        }
+        if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.port)) {
+            sessCfg.port = cmdArgs.port;
+        }
+        if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.user)) {
+            sessCfg.user = cmdArgs.user;
+        }
+        if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.password)) {
+            sessCfg.password = cmdArgs.password;
+        }
+
+        if (connOpts.requestToken) {
+            // deleting any tokenValue, ensures that basic creds are used to authenticate and get token
+            delete sessCfg.tokenValue;
+        } else if (ConnectionPropsForSessCfg.propHasValue(sessCfg.user) ||
+                 ConnectionPropsForSessCfg.propHasValue(sessCfg.password))
+        {
+            /* When user or password is supplied, we use user/password instead of token.
+             * Deleting any tokenValue, ensures that basic creds are used to authenticate.
+             */
+            delete sessCfg.tokenValue;
+        } else {
+            /* Only set tokenValue if user and password were not supplied.
+             * If authToken exists in sessCfg split it into tokenType and tokenValue
+             * TODO: Evaluate if we want to keep this for new config
+             */
+            ConnectionPropsForSessCfg.processAuthToken(sessCfg);
+
+            // if authToken exists in cmdArgs split it into tokenType and tokenValue
+            ConnectionPropsForSessCfg.processAuthToken(cmdArgs);
+
+            // override sessCfg token value with one from cmdArgs
+            if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenValue)) {
+                sessCfg.tokenValue = cmdArgs.tokenValue;
+            }
+        }
+
+        // If sessCfg tokenValue is set at this point, we are definitely using the token.
+        if (ConnectionPropsForSessCfg.propHasValue(sessCfg.tokenValue) === true) {
+            impLogger.debug("Using token authentication");
+
+            // override any token type in sessCfg with cmdArgs value
+            if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenType)) {
+                sessCfg.tokenType = cmdArgs.tokenType;
+            }
+
+            // set the auth type based on token type
+            if (ConnectionPropsForSessCfg.propHasValue(sessCfg.tokenType)) {
+                sessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
+            } else {
+                // When no tokenType supplied, user wants bearer
+                sessCfg.type = SessConstants.AUTH_TYPE_BEARER;
+            }
+            ConnectionPropsForSessCfg.logSessCfg(sessCfg);
+        } else {
+            ConnectionPropsForSessCfg.setTypeForBasicCreds(sessCfg, connOpts, cmdArgs.tokenType);
+            ConnectionPropsForSessCfg.logSessCfg(sessCfg);
+        }
+
+        return;
     }
 
     /**
@@ -325,7 +393,7 @@ export class ConnectionPropsForSessCfg {
             // Set our type to token to get a token from user and pass
             logMsgtext += "to get token";
             sessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
-            sessCfg.tokenType = tokenType || options.defaultTokenType;
+            sessCfg.tokenType = tokenType || sessCfg.tokenType || options.defaultTokenType;
         } else {
             logMsgtext += "with no request for token";
             sessCfg.type = SessConstants.AUTH_TYPE_BASIC;
@@ -365,7 +433,7 @@ export class ConnectionPropsForSessCfg {
      *
      * @returns true is the property exists and has a value. false otherwise.
      */
-    private static propHasValue(propToTest: string) {
+    private static propHasValue(propToTest: any) {
         if ((propToTest === undefined || propToTest === null) || ((typeof propToTest) === "string" && propToTest.length === 0)) {
             return false;
         }
@@ -374,14 +442,14 @@ export class ConnectionPropsForSessCfg {
 
     /**
      * Split authToken loaded from config into tokenType and tokenValue args.
-     * @param cmdArgs Arguments specified by the user
+     * @param objWithTokens A Javascript object that contains token properties
      */
-    private static processAuthToken(cmdArgs: ICommandArguments) {
-        if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.authToken)) {
-            const [tokenType, tokenValue] = cmdArgs.authToken.split("=", 2);
-            delete cmdArgs.authToken;
-            cmdArgs.tokenType = tokenType;
-            cmdArgs.tokenValue = tokenValue;
+    private static processAuthToken(objWithTokens: any) {
+        if (ConnectionPropsForSessCfg.propHasValue(objWithTokens.authToken)) {
+            const [tokenType, tokenValue] = objWithTokens.authToken.split("=", 2);
+            delete objWithTokens.authToken;
+            objWithTokens.tokenType = tokenType;
+            objWithTokens.tokenValue = tokenValue;
         }
     }
 }

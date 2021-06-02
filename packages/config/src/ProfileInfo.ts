@@ -20,6 +20,7 @@ import * as lodash from "lodash";
 import { IProfArgAttrs } from "./doc/IProfArgAttrs";
 import { IProfAttrs } from "./doc/IProfAttrs";
 import { IProfLoc, ProfLocType } from "./doc/IProfLoc";
+import { IProfMergeArgOpts } from "./doc/IProfMergeArgOpts";
 import { IProfMergedArg } from "./doc/IProfMergedArg";
 import { IProfOpts } from "./doc/IProfOpts";
 import { ProfileCredentials } from "./ProfileCredentials";
@@ -32,7 +33,7 @@ import { IConfigOpts } from "./doc/IConfigOpts";
 
 // for old-school profile operations
 import { AbstractProfileManager } from "../../profiles/src/abstract/AbstractProfileManager";
-import { CliProfileManager, ICommandProfileProperty } from "../../cmd";
+import { CliProfileManager, ICommandProfileProperty, ICommandArguments } from "../../cmd";
 import { IProfileLoaded, IProfileSchema, ProfileIO } from "../../profiles";
 
 // for imperative operations
@@ -42,6 +43,9 @@ import { CliUtils, ImperativeConfig } from "../../utilities";
 import { ImperativeExpect } from "../../expect";
 import { Logger } from "../../logger";
 import { LoggerManager } from "../../logger/src/LoggerManager";
+import {
+    IOptionsForAddConnProps, ISession, Session, SessConstants, ConnectionPropsForSessCfg
+} from "../../rest";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -359,6 +363,41 @@ export class ProfileInfo {
         this.ensureReadFromDisk();
         return this.mLoadedConfig;
     }
+
+    // _______________________________________________________________________
+    /**
+     * Create a session from profile arguments that have been retrieved from
+     * ProfileInfo functions.
+     *
+     * @param profArgs
+     *      An array of profile arguments.
+     *
+     * @param connOpts
+     *      Options that alter our actions. See IOptionsForAddConnProps.
+     *      The connOpts parameter need not be supplied.
+     *      Default properties may be added to any supplied connOpts.
+     *      The only option values used by this function are:
+     *          connOpts.requestToken
+     *          connOpts.defaultTokenType
+     *
+     * @returns A session that can be used to connect to a remote host.
+     */
+    public static createSession(
+        profArgs: IProfArgAttrs[],
+        connOpts: IOptionsForAddConnProps = {}
+    ): Session {
+        // initialize a session config with arguments from profile arguments
+        const sessCfg : ISession = ProfileInfo.initSessCfg(profArgs);
+
+        // we have no command arguments, so just supply an empty object
+        const cmdArgs: ICommandArguments = {$0: "", _: []};
+
+        // resolve the choices among various session config properties
+        ConnectionPropsForSessCfg.resolveSessCfgProps(sessCfg, cmdArgs, connOpts);
+
+        return new Session(sessCfg);
+    }
+
     // _______________________________________________________________________
     /**
      * Merge all of the available values for arguments defined for the
@@ -376,6 +415,10 @@ export class ProfileInfo {
      * @param profile
      *        The profile whose arguments are to be merged.
      *
+     * @param mergeOpts
+     *        Options to use when merging arguments.
+     *        This parameter is not required. Defaults will be used.
+     *
      * @returns An object that contains an array of known profile argument
      *          values and an array of required profile arguments which
      *          have no value assigned. Either of the two arrays could be
@@ -385,7 +428,10 @@ export class ProfileInfo {
      *          We will return null if the profile does not exist
      *          in the current Zowe configuration.
      */
-    public mergeArgsForProfile(profile: IProfAttrs): IProfMergedArg {
+    public mergeArgsForProfile(
+        profile: IProfAttrs,
+        mergeOpts: IProfMergeArgOpts = {getSecureVals: false}
+    ): IProfMergedArg {
         const mergedArgs: IProfMergedArg = {
             knownArgs: [],
             missingArgs: []
@@ -520,6 +566,13 @@ export class ProfileInfo {
             });
         }
 
+        // did our caller request the actual values of secure arguments?
+        if (mergeOpts.getSecureVals) {
+            mergedArgs.knownArgs.forEach((nextArg) => {
+                if (nextArg.secure) nextArg.argValue = this.loadSecureArg(nextArg);
+            });
+        }
+
         return mergedArgs;
     }
 
@@ -535,15 +588,84 @@ export class ProfileInfo {
      * @param profileType
      *        The type of profile of interest.
      *
+     * @param mergeOpts
+     *        Options to use when merging arguments.
+     *        This parameter is not required. Defaults will be used.
+     *
      * @returns The complete set of required properties;
      */
-    public mergeArgsForProfileType(profileType: string): IProfMergedArg {
-        return this.mergeArgsForProfile({
-            profName: null,
-            profType: profileType,
-            isDefaultProfile: false,
-            profLoc: { locType: this.mUsingTeamConfig ? ProfLocType.TEAM_CONFIG : ProfLocType.OLD_PROFILE }
-        });
+    public mergeArgsForProfileType(
+        profileType: string,
+        mergeOpts: IProfMergeArgOpts = {getSecureVals: false}
+    ): IProfMergedArg {
+        return this.mergeArgsForProfile(
+            {
+                profName: null,
+                profType: profileType,
+                isDefaultProfile: false,
+                profLoc: { locType: this.mUsingTeamConfig ? ProfLocType.TEAM_CONFIG : ProfLocType.OLD_PROFILE }
+            },
+            mergeOpts
+        );
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Convert an IProfAttrs object into an IProfileLoaded objects
+     * This is a convenience function. IProfileLoaded was frequently passed
+     * among functions. This conversion function allows existing code to
+     * acquire values in the IProfAttrs structure but pass those values
+     * around in the older IProfileLoaded structure. The IProfAttrs
+     * properties will be copied as follows:
+     *
+     *      IProfileLoaded.name    <-- IProfAttrs.profName
+     *      IProfileLoaded.type    <-- IProfAttrs.profType
+     *      IProfileLoaded.profile <-- profAttrs
+     *
+     * @param profAttrs
+     *      A profile attributes object.
+     *
+     * @param dfltProfLoadedVals
+     *      A JSON object containing additional names from IProfileLoaded for
+     *      which a value should be supplied. IProfileLoaded contains more
+     *      properties than IProfAttrs. The items in this object will be
+     *      placed into the resulting IProfileLoaded object.
+     *      We use type "any" because all of the required properties of
+     *      IProfileLoaded will not be supplied by dfltProfLoadedVals.
+     *      If dfltProfLoadedVals is not supplied, only the following minimal
+     *      set if hard-coded properties will be added to the IProfileLoaded object.
+     *
+     *      IProfileLoaded.message      <-- "" (an empty string)
+     *      IProfileLoaded.failNotFound <-- false
+     *
+     * @returns An IProfileLoaded object;
+     */
+    public static profAttrsToProfLoaded(
+        profAttrs: IProfAttrs,
+        dfltProfLoadedVals?: any
+    ): IProfileLoaded {
+        const emptyProfLoaded: any = {};    // used to avoid lint complaints
+        let profLoaded: IProfileLoaded = emptyProfLoaded;
+
+        // set any supplied defaults
+        if (dfltProfLoadedVals !== undefined) {
+            profLoaded = lodash.cloneDeep(dfltProfLoadedVals);
+        }
+
+        // copy items from profAttrs
+        profLoaded.name = profAttrs.profName;
+        profLoaded.type = profAttrs.profType;
+        profLoaded.profile = lodash.cloneDeep(profAttrs);
+
+        // set hard-coded defaults
+        if (!profLoaded.hasOwnProperty("message")) {
+            profLoaded.message = "";
+        }
+        if (!profLoaded.hasOwnProperty("failNotFound")) {
+            profLoaded.failNotFound = false;
+        }
+
+        return lodash.cloneDeep(profLoaded);
     }
 
     // _______________________________________________________________________
@@ -664,6 +786,50 @@ export class ProfileInfo {
         }
 
         return argValue;
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Initialize a session configuration object with the arguments
+     * from profArgs
+     *
+     * @param profArgs
+     *      An array of profile argument attributes.
+     *
+     * @returns A session containing all of the supplied profile argument
+     *          attributes that are relevant to a session.
+     */
+    private static initSessCfg(profArgs: IProfArgAttrs[]): ISession {
+        const sessCfg: any = {};
+
+        // the set of names of arguments in IProfArgAttrs used in ISession
+        const profArgNames = [
+            "host", "port", "user", "password", "rejectUnauthorized",
+            "protocol", "basePath", "tokenType", "tokenValue", "authToken"
+        ];
+
+        for(const profArgNm of profArgNames) {
+            // map profile argument name into a sess config property name
+            let sessCfgNm: string;
+            if (profArgNm === "host") {
+                sessCfgNm = "hostname";
+            } else {
+                sessCfgNm = profArgNm;
+            }
+
+            // for each profile argument found, place its value into sessCfg
+            const profArg = lodash.find(profArgs, {"argName": profArgNm});
+            if (profArg === undefined) {
+                // we have a default for protocol
+                if (sessCfgNm === "protocol") {
+                    sessCfg[sessCfgNm] = SessConstants.HTTPS_PROTOCOL;
+                }
+            } else {
+                sessCfg[sessCfgNm] = profArg.argValue;
+            }
+        }
+
+        return sessCfg;
     }
 
     // _______________________________________________________________________
