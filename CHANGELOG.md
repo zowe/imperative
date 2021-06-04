@@ -2,6 +2,20 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- **Breaking**: Removed the following previously deprecated items:
+    - ICliLoadProfile.ICliILoadProfile -- use ICliLoadProfile.ICliLoadProfile
+    - IImperativeErrorParms.suppressReport -- has not been used since 10/17/2018
+    - IImperativeConfig.pluginBaseCliVersion -- has not been used since version 1.0.1
+    - AbstractRestClient.performRest -- use AbstractRestClient.request
+    - AbstractSession.HTTP_PROTOCOL -- use SessConstants.HTTP_PROTOCOL
+    - AbstractSession.HTTPS_PROTOCOL -- use SessConstants.HTTPS_PROTOCOL
+    - AbstractSession.TYPE_NONE -- use SessConstants.AUTH_TYPE_NONE
+    - AbstractSession.TYPE_BASIC -- use SessConstants.AUTH_TYPE_BASIC
+    - AbstractSession.TYPE_BEARER -- use SessConstants.AUTH_TYPE_BEARER
+    - AbstractSession.TYPE_TOKEN -- use SessConstants.AUTH_TYPE_TOKEN
+
 ## `5.0.0-next.202104262004`
 
 - Enhancement: Remove message about NPM peer dep warnings that no longer applies to npm@7.

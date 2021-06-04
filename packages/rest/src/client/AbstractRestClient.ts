@@ -335,44 +335,9 @@ export abstract class AbstractRestClient {
             if (PerfTiming.isEnabled) {
                 // Marks point END
                 timingApi.mark("END_PERFORM_REST");
-                timingApi.measure("performRest: $resource", "START_PERFORM_REST", "END_PERFORM_REST");
+                timingApi.measure("request: $resource", "START_PERFORM_REST", "END_PERFORM_REST");
             }
 
-        });
-    }
-
-    /**
-     * Perform the actual http REST call with appropriate user input
-     * @deprecated - since version 4.4.9. Changed to wrapper for request(). Please use request() directly.
-     *               It will be removed in version 5.0.0
-     * @param {string} resource - URI for this request
-     * @param {string} request - REST request type GET|PUT|POST|DELETE
-     * @param {any[]} reqHeaders - option headers to include with request
-     * @param {any} writeData - data to write on this REST request
-     * @param responseStream - stream for incoming response data from the server. If specified, response data will not be buffered
-     * @param requestStream - stream for outgoing request data to the server
-     * @param normalizeResponseNewLines - streaming only - true if you want newlines to be \r\n on windows
-     *                                    when receiving data from the server to responseStream. Don't set this for binary responses
-     * @param normalizeRequestNewLines -  streaming only - true if you want \r\n to be replaced with \n when sending
-     *                                    data to the server from requestStream. Don't set this for binary requests
-     * @param task - task that will automatically be updated to report progress of upload or download to user
-     * @throws  if the request gets a status code outside of the 200 range
-     *          or other connection problems occur (e.g. connection refused)
-     */
-    public performRest(resource: string, request: HTTP_VERB, reqHeaders?: any[], writeData?: any,
-                       responseStream?: Writable, requestStream?: Readable,
-                       normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
-                       task?: ITaskWithStatus): Promise<string> {
-        return this.request({
-            resource,
-            request,
-            reqHeaders,
-            writeData,
-            responseStream,
-            requestStream,
-            normalizeResponseNewLines,
-            normalizeRequestNewLines,
-            task
         });
     }
 
@@ -646,9 +611,9 @@ export abstract class AbstractRestClient {
         }
         if (this.requestFailure) {
             // Reject the promise with an error
-            const errorCode = this.response == null ? undefined : this.response.statusCode;
+            const httpStatus = this.response == null ? undefined : this.response.statusCode;
             this.mReject(this.populateError({
-                msg: "Rest API failure with HTTP(S) status " + errorCode,
+                msg: "Rest API failure with HTTP(S) status " + httpStatus,
                 causeErrors: this.dataString,
                 source: "http"
             }));
@@ -678,8 +643,8 @@ export abstract class AbstractRestClient {
         // Final error object parameters
         let finalError: IRestClientError = error;
 
-        // @deprecated - extract the status code - now moved to HTTP status.
-        const errorCode = this.response == null ? undefined : this.response.statusCode;
+        // extract the status code
+        const httpStatus = this.response == null ? undefined : this.response.statusCode;
 
         // start off by coercing the request details to string in case an error is encountered trying
         // to stringify / inspect them
@@ -694,12 +659,14 @@ export abstract class AbstractRestClient {
 
         // Populate the "relevant" fields - caller will have the session, so
         // no need to duplicate "everything" here, just host/port for easy diagnosis
-        finalError.errorCode = errorCode;
+        // Since IRestClientError inherits an errorCode from IImperativeError,
+        // also put the httpStatus in the errorCode.
+        finalError.errorCode = httpStatus;
         finalError.protocol = this.mSession.ISession.protocol;
         finalError.port = this.mSession.ISession.port;
         finalError.host = this.mSession.ISession.hostname;
         finalError.basePath = this.mSession.ISession.basePath;
-        finalError.httpStatus = errorCode;
+        finalError.httpStatus = httpStatus;
         finalError.errno = (nodeClientError != null) ? nodeClientError.errno : undefined;
         finalError.syscall = (nodeClientError != null) ? nodeClientError.syscall : undefined;
         finalError.payload = this.mWriteData;

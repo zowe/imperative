@@ -86,7 +86,6 @@ describe("Plugin Management Facility", () => {
         pluginAliases: goodPluginAliases,
         pluginSummary: goodPluginSummary,
         rootCommandDescription: "imperative sample plugin",
-        pluginBaseCliVersion: "^1.0.0",
         pluginHealthCheck: "./lib/sample-plugin/healthCheck.handler",
         definitions: [
             {

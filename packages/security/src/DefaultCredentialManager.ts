@@ -242,8 +242,6 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
           if (this.loadError == null) {
               throw new ImperativeError({
                   msg: "Keytar was not properly loaded due to an unknown cause."
-              }, {
-                  suppressReport: true
               });
           } else {
               throw this.loadError;

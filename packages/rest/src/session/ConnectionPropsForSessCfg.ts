@@ -339,8 +339,6 @@ export class ConnectionPropsForSessCfg {
             ConnectionPropsForSessCfg.setTypeForBasicCreds(sessCfg, connOpts, cmdArgs.tokenType);
             ConnectionPropsForSessCfg.logSessCfg(sessCfg);
         }
-
-        return;
     }
 
     /**
