@@ -59,7 +59,7 @@ describe("OverridesLoader", () => {
 
     it("should load the default when not passed any configuration and keytar is present in dependencies.", async () => {
       const config: IImperativeConfig = {
-        credentialServiceName: "ABCD",
+        name: "ABCD",
         overrides: {},
         productDisplayName: "a fake CLI"
       };
@@ -78,14 +78,14 @@ describe("OverridesLoader", () => {
         Manager: undefined,
         displayName: config.productDisplayName,
         invalidOnFailure: false,
-        service: config.credentialServiceName
+        service: config.name
       });
     });
 
     describe("should load a credential manager specified by the user", () => {
       it("was passed a class", async () => {
         const config: IImperativeConfig = {
-          credentialServiceName: "EFGH",
+          name: "EFGH",
           overrides: {
             CredentialManager: class extends AbstractCredentialManager {
               constructor(service: string) {
@@ -116,13 +116,13 @@ describe("OverridesLoader", () => {
           Manager: config.overrides.CredentialManager,
           displayName: config.name,
           invalidOnFailure: true,
-          service: config.credentialServiceName
+          service: config.name
         });
       });
 
       it("was passed an absolute path", async () => {
         const config: IImperativeConfig = {
-          credentialServiceName: "EFGH",
+          name: "EFGH",
           overrides: {
             CredentialManager: path.join(__dirname, "DummyFile.ts")
           }
@@ -140,13 +140,13 @@ describe("OverridesLoader", () => {
           Manager: config.overrides.CredentialManager,
           displayName: config.name,
           invalidOnFailure: true,
-          service: config.credentialServiceName
+          service: config.name
         });
       });
 
       it("was passed a relative path and app settings were not initialized", async () => {
         const config: IImperativeConfig = {
-          credentialServiceName: "IJKL",
+          name: "IJKL",
           overrides: {
             CredentialManager: "DummyFile.ts"
           }
@@ -171,7 +171,7 @@ describe("OverridesLoader", () => {
           Manager: expectedLocation,
           displayName: config.name,
           invalidOnFailure: true,
-          service: config.credentialServiceName
+          service: config.name
         });
       });
     });
