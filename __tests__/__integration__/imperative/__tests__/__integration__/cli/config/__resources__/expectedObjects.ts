@@ -295,7 +295,8 @@ export const expectedConfigObject: IConfig = {
         secured: "my_profiles.secured",
         base: "my_base"
     },
-    plugins: []
+    plugins: [],
+    overrides: {}
 };
 
 export const expectedUserConfigObject: IConfig = {
@@ -318,5 +319,6 @@ export const expectedUserConfigObject: IConfig = {
         }
     },
     defaults: {},
-    plugins: []
+    plugins: [],
+    overrides: {}
 };

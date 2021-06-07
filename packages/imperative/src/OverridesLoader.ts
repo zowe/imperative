@@ -50,6 +50,8 @@ export class OverridesLoader {
   ): Promise<void> {
     const overrides: IImperativeOverrides = config.overrides || {};
 
+    const ZOWE_CLI_PACKAGE_NAME = `@zowe/cli`;
+
     // The manager display name used to populate the "managed by" fields in profiles
     // App settings is not configured - use the CLI display name OR the package name as the manager name
     let displayName: string = config.productDisplayName || config.name;
@@ -81,7 +83,7 @@ export class OverridesLoader {
         displayName,
 
         // zowe cli will always add `Zowe` to it's list of service names
-        service: config?.credentialServiceName || null,
+        service: config?.credentialServiceName || (config.name !== ZOWE_CLI_PACKAGE_NAME ? config.name : null),
 
         // If the default is to be used, we won't implant the invalid credential manager
         invalidOnFailure: !(Manager == null)
