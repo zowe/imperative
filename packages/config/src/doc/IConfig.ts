@@ -9,6 +9,7 @@
 *
 */
 
+import { IImperativeOverrides } from "../../../imperative/src/doc/IImperativeOverrides";
 import { IConfigProfile } from "./IConfigProfile";
 
 export interface IConfig {
@@ -16,4 +17,5 @@ export interface IConfig {
     defaults: { [key: string]: string };
     profiles: { [key: string]: IConfigProfile };
     plugins: string[];
+    overrides: IImperativeOverrides;
 }

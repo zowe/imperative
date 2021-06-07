@@ -271,18 +271,10 @@ export class PluginManagementFacility {
         // from app settings
         let overrideSettings: any = {};
         if (this.pmfConst.PLUGIN_USING_CONFIG) {
-            for (const plugin of this.pmfConst.PLUGIN_CONFIG.api.plugins.get()) {
-                if (loadedOverrides[plugin] != null) {
-                    for (const [key, _] of Object.entries(loadedOverrides[plugin])) {
-                        if (overrideSettings[key] == null) {
-                            overrideSettings[key] = plugin;
-                        }
-                    }
-                }
-            }
+            overrideSettings = ImperativeConfig.instance.config.properties.overrides;
+        } else {
+            overrideSettings = AppSettings.instance.getNamespace("overrides");
         }
-
-        overrideSettings = { ...AppSettings.instance.getNamespace("overrides"), ...overrideSettings };
 
         // Loop through each overrides setting here. Setting is an override that we are modifying while
         // plugin is the pluginName from which to get the setting. This is probably the ugliest piece
