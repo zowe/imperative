@@ -57,6 +57,7 @@ export class ConfigLayers extends ConfigApi {
         layer.properties.defaults = layer.properties.defaults || {};
         layer.properties.profiles = layer.properties.profiles || {};
         layer.properties.plugins = layer.properties.plugins || [];
+        layer.properties.overrides = layer.properties.overrides || {};
     }
 
     // _______________________________________________________________________
@@ -143,6 +144,7 @@ export class ConfigLayers extends ConfigApi {
                 this.mConfig.mLayers[i].properties.defaults = this.mConfig.mLayers[i].properties.defaults || {};
                 this.mConfig.mLayers[i].properties.profiles = this.mConfig.mLayers[i].properties.profiles || {};
                 this.mConfig.mLayers[i].properties.plugins = this.mConfig.mLayers[i].properties.plugins || [];
+                this.mConfig.mLayers[i].properties.overrides = this.mConfig.mLayers[i].properties.overrides || {};
             }
         }
     }
@@ -168,5 +170,6 @@ export class ConfigLayers extends ConfigApi {
                 layer.properties.plugins.push(pluginName);
             }
         }
+        layer.properties.overrides = deepmerge(cnfg.overrides, layer.properties.overrides);
     }
 }

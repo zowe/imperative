@@ -93,7 +93,8 @@ describe("imperative-test-cli config list", () => {
                         properties: {}
                     }
                 },
-                plugins: []
+                plugins: [],
+                overrides: {}
             }
         };
         expect(parsedResponse.success).toEqual(true);
@@ -112,10 +113,10 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain("plugins:");
         expect(response.stdout.toString()).toContain("secure:");
         expect(response.stdout.toString()).toContain("my_profiles:");
-        expect(response.stdout.toString()).toContain("type:       secured");
+        expect(response.stdout.toString()).toMatch(/type:\s+secured/);
         expect(response.stdout.toString()).toContain("properties:");
-        expect(response.stdout.toString()).toContain("secured: my_profiles.secured");
-        expect(response.stdout.toString()).toContain("$schema:  ./imperative-test-cli.schema.json");
+        expect(response.stdout.toString()).toMatch(/secured:\s+my_profiles\.secured/);
+        expect(response.stdout.toString()).toMatch(/\$schema:\s+\.\/imperative-test-cli\.schema\.json/);
         expect(response.stderr.toString()).toEqual("");
         expect(response.error).not.toBeDefined();
     });
@@ -142,7 +143,8 @@ describe("imperative-test-cli config list", () => {
                 }
             },
             defaults: {},
-            plugins: []
+            plugins: [],
+            overrides: {}
         };
         const expectedProjectConfig = lodash.cloneDeep(expectedConfigObject);
         const expectedResponse = {

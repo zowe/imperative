@@ -21,6 +21,7 @@ defaults:
   base:    my_base
 plugins: 
   (empty array)
+overrides: 
 "
 `;
 
@@ -46,6 +47,7 @@ defaults:
   base:    my_base
 plugins: 
   (empty array)
+overrides: 
 "
 `;
 
@@ -77,5 +79,6 @@ exports[`imperative-test-cli config list should list the root level property nam
 "profiles
 defaults
 plugins
+overrides
 "
 `;

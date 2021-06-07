@@ -49,7 +49,8 @@ const mergeConfig: IConfig = {
     },
     plugins: [
         "@zowe/vegetable-for-imperative"
-    ]
+    ],
+    overrides: {}
 };
 
 describe("Config API tests", () => {
@@ -373,6 +374,7 @@ describe("Config API tests", () => {
                 const cnfg: IConfig = {
                     $schema: "fake",
                     defaults: {},
+                    overrides: {},
                     plugins: [],
                     profiles: {
                         vegetable: {
@@ -394,6 +396,7 @@ describe("Config API tests", () => {
                 const cnfg: IConfig = {
                     $schema: undefined,
                     defaults: undefined,
+                    overrides: undefined,
                     plugins: undefined,
                     profiles: undefined
                 };

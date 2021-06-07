@@ -221,7 +221,7 @@ describe("OverridesLoader", () => {
           Manager: undefined,
           displayName: config.name,
           invalidOnFailure: false,
-          service: null
+          service: config.name
         });
       });
 
@@ -245,7 +245,7 @@ describe("OverridesLoader", () => {
           Manager: undefined,
           displayName: config.name,
           invalidOnFailure: false,
-          service: null
+          service: config.name
         });
       });
 

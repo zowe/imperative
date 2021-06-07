@@ -117,7 +117,8 @@ export class Config {
         return {
             profiles: {},
             defaults: {},
-            plugins: []
+            plugins: [],
+            overrides: {}
         };
     }
 
@@ -171,6 +172,7 @@ export class Config {
                 currLayer.properties.defaults = currLayer.properties.defaults || {};
                 currLayer.properties.profiles = currLayer.properties.profiles || {};
                 currLayer.properties.plugins = currLayer.properties.plugins || [];
+                currLayer.properties.overrides = currLayer.properties.overrides || {};
             }
         } catch (e) {
             if (e instanceof ImperativeError) {
@@ -471,6 +473,10 @@ export class Config {
             // Merge "defaults" - only add new properties from this layer
             for (const [name, value] of Object.entries(layer.properties.defaults))
                 c.defaults[name] = c.defaults[name] || value;
+
+            // Merge "overrides" - only add new properties from this layer
+            for (const [name, value] of Object.entries(layer.properties.overrides))
+                c.overrides[name] = c.overrides[name] || value;
         });
 
         // Merge the project layer profiles
