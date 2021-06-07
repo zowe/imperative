@@ -12,7 +12,7 @@
 import { IHandlerParameters } from "../../../../..";
 import { Config } from "../../../../../config/src/Config";
 import { ConfigConstants } from "../../../../../config/src/ConfigConstants";
-import { CliUtils, ImperativeConfig } from "../../../../../utilities";
+import { ImperativeConfig } from "../../../../../utilities";
 import { IImperativeConfig } from "../../../../src/doc/IImperativeConfig";
 import { expectedSchemaObjectNoBase } from
     "../../../../../../__tests__/__integration__/imperative/__tests__/__integration__/cli/config/__resources__/expectedObjects"

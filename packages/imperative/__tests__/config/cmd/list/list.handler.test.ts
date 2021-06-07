@@ -11,7 +11,6 @@
 
 jest.mock("../../../../../utilities/src/ImperativeConfig");
 
-import { config } from "yargs";
 import { Config, IConfig, IConfigLayer } from "../../../../../config";
 import { ImperativeConfig } from "../../../../../utilities";
 import ListHandler from "../../../../src/config/cmd/list/list.handler";
@@ -68,7 +67,8 @@ const configLayers: IConfigLayer[] = [
             defaults: {},
             plugins: [
                 "fakePlugin"
-            ]
+            ],
+            overrides: {}
         }
     },
     { exists: false, properties: Config.empty() } as any,
