@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Added documentation relating to usage of `values` parameter for setMessage. [#663](https://github.com/zowe/zowe-cli/issues/663)
+
 ## `4.13.1`
 
 - BugFix: Fixed active command tree item not updating in web help when scrolling. [#425](https://github.com/zowe/imperative/issues/425)
