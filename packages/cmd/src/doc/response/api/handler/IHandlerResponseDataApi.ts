@@ -32,7 +32,7 @@ export interface IHandlerResponseDataApi {
      * Sets the JSON response API "message" property. Can optionally be logged. The intent is to provide a short
      * summary on the response JSON object (for display and other purposes).
      * @param {string} message
-     * @param {...any[]} values
+     * @param {...any[]} values - Two possible formats: List of values ("printf" style) to be inserted into the string message or object containing key-value pairs to be rendered in the Mustache template string message
      * @returns {string}
      * @memberof IHandlerResponseDataApi
      */
@@ -41,8 +41,8 @@ export interface IHandlerResponseDataApi {
     /**
      * Sets the JSON response API "exitCode" property.
      * Desired exit code for the command process
-     * @param {number} code - the desired exit code
-     * @returns {number} the code you've set
+     * @param {number} code - The desired exit code
+     * @returns {number} - The code you've set
      * @memberof IHandlerResponseDataApi
      */
     setExitCode(code: number): number;
