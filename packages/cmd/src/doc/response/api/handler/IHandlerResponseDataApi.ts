@@ -32,7 +32,11 @@ export interface IHandlerResponseDataApi {
      * Sets the JSON response API "message" property. Can optionally be logged. The intent is to provide a short
      * summary on the response JSON object (for display and other purposes).
      * @param {string} message
-     * @param {...any[]} values - Two possible formats: List of values ("printf" style) to be inserted into the string message or object containing key-value pairs to be rendered in the Mustache template string message
+     * @param {...any[]} values
+     * Values gets passed to the method TextUtils.formatMessage.
+     * Two possible formats:
+     * - List of values to be inserted into the string message ("printf" style)
+     * - Object containing key-value pairs to be rendered in the Mustache template string message
      * @returns {string}
      * @memberof IHandlerResponseDataApi
      */
