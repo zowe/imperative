@@ -27,7 +27,7 @@ Object {
     },
     Object {
       "aliases": Array [],
-      "description": "Display examples for all the commands in a the group",
+      "description": "Display examples for all the commands in a group",
       "group": "Global options",
       "name": "help-examples",
       "type": "boolean",
@@ -142,7 +142,7 @@ Object {
     },
     Object {
       "aliases": Array [],
-      "description": "Display examples for all the commands in a the group",
+      "description": "Display examples for all the commands in a group",
       "group": "Global options",
       "name": "help-examples",
       "type": "boolean",
@@ -213,7 +213,7 @@ Object {
     },
     Object {
       "aliases": Array [],
-      "description": "Display examples for all the commands in a the group",
+      "description": "Display examples for all the commands in a group",
       "group": "Global options",
       "name": "help-examples",
       "type": "boolean",
@@ -284,7 +284,7 @@ Object {
     },
     Object {
       "aliases": Array [],
-      "description": "Display examples for all the commands in a the group",
+      "description": "Display examples for all the commands in a group",
       "group": "Global options",
       "name": "help-examples",
       "type": "boolean",
@@ -385,7 +385,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -450,7 +450,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -516,7 +516,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -585,7 +585,7 @@ Object {
         },
         Object {
           "aliases": Array [],
-          "description": "Display examples for all the commands in a the group",
+          "description": "Display examples for all the commands in a group",
           "group": "Global options",
           "name": "help-examples",
           "type": "boolean",
@@ -628,7 +628,7 @@ Object {
     },
     Object {
       "aliases": Array [],
-      "description": "Display examples for all the commands in a the group",
+      "description": "Display examples for all the commands in a group",
       "group": "Global options",
       "name": "help-examples",
       "type": "boolean",
@@ -696,7 +696,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -761,7 +761,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -827,7 +827,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -890,7 +890,7 @@ Object {
         },
         Object {
           "aliases": Array [],
-          "description": "Display examples for all the commands in a the group",
+          "description": "Display examples for all the commands in a group",
           "group": "Global options",
           "name": "help-examples",
           "type": "boolean",
@@ -940,7 +940,7 @@ Object {
     },
     Object {
       "aliases": Array [],
-      "description": "Display examples for all the commands in a the group",
+      "description": "Display examples for all the commands in a group",
       "group": "Global options",
       "name": "help-examples",
       "type": "boolean",
@@ -1026,7 +1026,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -1101,7 +1101,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -1176,7 +1176,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -1249,7 +1249,7 @@ Object {
         },
         Object {
           "aliases": Array [],
-          "description": "Display examples for all the commands in a the group",
+          "description": "Display examples for all the commands in a group",
           "group": "Global options",
           "name": "help-examples",
           "type": "boolean",
@@ -1308,7 +1308,7 @@ Object {
     },
     Object {
       "aliases": Array [],
-      "description": "Display examples for all the commands in a the group",
+      "description": "Display examples for all the commands in a group",
       "group": "Global options",
       "name": "help-examples",
       "type": "boolean",
@@ -1381,7 +1381,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -1460,7 +1460,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -1540,7 +1540,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -1603,7 +1603,7 @@ Object {
         },
         Object {
           "aliases": Array [],
-          "description": "Display examples for all the commands in a the group",
+          "description": "Display examples for all the commands in a group",
           "group": "Global options",
           "name": "help-examples",
           "type": "boolean",
@@ -1667,7 +1667,7 @@ Object {
     },
     Object {
       "aliases": Array [],
-      "description": "Display examples for all the commands in a the group",
+      "description": "Display examples for all the commands in a group",
       "group": "Global options",
       "name": "help-examples",
       "type": "boolean",
@@ -1744,7 +1744,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -1823,7 +1823,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -1903,7 +1903,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -1966,7 +1966,7 @@ Object {
         },
         Object {
           "aliases": Array [],
-          "description": "Display examples for all the commands in a the group",
+          "description": "Display examples for all the commands in a group",
           "group": "Global options",
           "name": "help-examples",
           "type": "boolean",
@@ -2016,7 +2016,7 @@ Object {
     },
     Object {
       "aliases": Array [],
-      "description": "Display examples for all the commands in a the group",
+      "description": "Display examples for all the commands in a group",
       "group": "Global options",
       "name": "help-examples",
       "type": "boolean",
@@ -2098,7 +2098,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -2177,7 +2177,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -2257,7 +2257,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -2320,7 +2320,7 @@ Object {
         },
         Object {
           "aliases": Array [],
-          "description": "Display examples for all the commands in a the group",
+          "description": "Display examples for all the commands in a group",
           "group": "Global options",
           "name": "help-examples",
           "type": "boolean",
@@ -2384,7 +2384,7 @@ Object {
     },
     Object {
       "aliases": Array [],
-      "description": "Display examples for all the commands in a the group",
+      "description": "Display examples for all the commands in a group",
       "group": "Global options",
       "name": "help-examples",
       "type": "boolean",
@@ -2474,7 +2474,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -2546,7 +2546,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -2619,7 +2619,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -2689,7 +2689,7 @@ Object {
         },
         Object {
           "aliases": Array [],
-          "description": "Display examples for all the commands in a the group",
+          "description": "Display examples for all the commands in a group",
           "group": "Global options",
           "name": "help-examples",
           "type": "boolean",
@@ -2739,7 +2739,7 @@ Object {
     },
     Object {
       "aliases": Array [],
-      "description": "Display examples for all the commands in a the group",
+      "description": "Display examples for all the commands in a group",
       "group": "Global options",
       "name": "help-examples",
       "type": "boolean",
@@ -2826,7 +2826,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -2898,7 +2898,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -2971,7 +2971,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -3034,7 +3034,7 @@ Object {
         },
         Object {
           "aliases": Array [],
-          "description": "Display examples for all the commands in a the group",
+          "description": "Display examples for all the commands in a group",
           "group": "Global options",
           "name": "help-examples",
           "type": "boolean",
@@ -3084,7 +3084,7 @@ Object {
     },
     Object {
       "aliases": Array [],
-      "description": "Display examples for all the commands in a the group",
+      "description": "Display examples for all the commands in a group",
       "group": "Global options",
       "name": "help-examples",
       "type": "boolean",
@@ -3176,7 +3176,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -3248,7 +3248,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -3321,7 +3321,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -3391,7 +3391,7 @@ Object {
         },
         Object {
           "aliases": Array [],
-          "description": "Display examples for all the commands in a the group",
+          "description": "Display examples for all the commands in a group",
           "group": "Global options",
           "name": "help-examples",
           "type": "boolean",
@@ -3441,7 +3441,7 @@ Object {
     },
     Object {
       "aliases": Array [],
-      "description": "Display examples for all the commands in a the group",
+      "description": "Display examples for all the commands in a group",
       "group": "Global options",
       "name": "help-examples",
       "type": "boolean",
@@ -3521,7 +3521,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -3600,7 +3600,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -3680,7 +3680,7 @@ Object {
             },
             Object {
               "aliases": Array [],
-              "description": "Display examples for all the commands in a the group",
+              "description": "Display examples for all the commands in a group",
               "group": "Global options",
               "name": "help-examples",
               "type": "boolean",
@@ -3743,7 +3743,7 @@ Object {
         },
         Object {
           "aliases": Array [],
-          "description": "Display examples for all the commands in a the group",
+          "description": "Display examples for all the commands in a group",
           "group": "Global options",
           "name": "help-examples",
           "type": "boolean",
@@ -3807,7 +3807,7 @@ Object {
     },
     Object {
       "aliases": Array [],
-      "description": "Display examples for all the commands in a the group",
+      "description": "Display examples for all the commands in a group",
       "group": "Global options",
       "name": "help-examples",
       "type": "boolean",
@@ -3869,7 +3869,7 @@ Object {
     },
     Object {
       "aliases": Array [],
-      "description": "Display examples for all the commands in a the group",
+      "description": "Display examples for all the commands in a group",
       "group": "Global options",
       "name": "help-examples",
       "type": "boolean",
@@ -3947,7 +3947,7 @@ Object {
         },
         Object {
           "aliases": Array [],
-          "description": "Display examples for all the commands in a the group",
+          "description": "Display examples for all the commands in a group",
           "group": "Global options",
           "name": "help-examples",
           "type": "boolean",
@@ -4005,7 +4005,7 @@ Object {
     },
     Object {
       "aliases": Array [],
-      "description": "Display examples for all the commands in a the group",
+      "description": "Display examples for all the commands in a group",
       "group": "Global options",
       "name": "help-examples",
       "type": "boolean",
