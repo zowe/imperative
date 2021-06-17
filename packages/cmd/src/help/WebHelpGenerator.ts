@@ -59,7 +59,7 @@ export class WebHelpGenerator {
      * @private
      * @memberof WebHelpGenerator
      */
-    private marked: any;
+    private markdownIt: any;
 
     /**
      * List of nodes in command tree
@@ -106,7 +106,7 @@ export class WebHelpGenerator {
         cmdResponse.console.log(Buffer.from("Generating web help"));
 
         // Load additional dependencies
-        this.marked = require("markdown-it")({html: true});
+        this.markdownIt = require("markdown-it")({ html: true, linkify: true });
         const fsExtra = require("fs-extra");
         const sanitizeHtml = require("sanitize-html");
 
@@ -159,10 +159,10 @@ export class WebHelpGenerator {
 
         let rootHelpContent: string = this.genDocsHeader(rootCommandName);
         rootHelpContent += `<h2><a href="${rootCommandName}.html" name="${rootCommandName}">${rootCommandName}</a>${this.genPrintButton()}</h2>\n`;
-        rootHelpContent += this.marked.render(sanitizeHtml(this.mConfig.loadedConfig.rootCommandDescription)) + "\n";
+        rootHelpContent += this.markdownIt.render(sanitizeHtml(this.mConfig.loadedConfig.rootCommandDescription)) + "\n";
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
             { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions });
-        rootHelpContent += this.marked.render(sanitizeHtml("<h4>Groups</h4>\n" +
+        rootHelpContent += this.markdownIt.render(sanitizeHtml("<h4>Groups</h4>\n" +
             this.buildChildrenSummaryTables(helpGen, rootCommandName) + "\n\n" +
             helpGen.buildGlobalOptionsSection().replace(/Global options/, "Global Options")));
         this.singlePageHtml = rootHelpContent.replace(/<h4>Groups.+?<\/ul>/s, "");
@@ -320,7 +320,7 @@ export class WebHelpGenerator {
         markdownContent = markdownContent.replace(/^(\s+Default value:.+$)(\s+Allowed values:.+$)/gm, "$1\n$2");
 
         let htmlContent = "<h2>" + this.genBreadcrumb(rootCommandName, fullCommandName) + this.genPrintButton() + "</h2>\n";
-        htmlContent += this.marked.render(sanitizeHtml(markdownContent));
+        htmlContent += this.markdownIt.render(sanitizeHtml(markdownContent));
 
         // Remove backslash escapes from URLs
         htmlContent = htmlContent.replace(/(%5C|\\)(?=.+?<\/a>)/g, "");
