@@ -346,7 +346,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         let description = this.mCommandDefinition.description
             || this.mCommandDefinition.summary;
         if (this.mProduceMarkdown) {
-            description = description.replace(/([\*\#\-\`\_\[\]\+\.\!])/g, "\\$1");  // escape Markdown special characters
+            description = this.escapeMarkdown(description);  // escape Markdown special characters
         }
         descriptionForHelp += TextUtils.wordWrap(description,
             undefined,
@@ -368,7 +368,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
                 const positionalString = "{{codeBegin}}" +
                     positional.name + "{{codeEnd}}\t\t " +
                     this.dimGrey("{{italic}}(" + this.explainType(positional.type) + "){{italic}}");
-                let fullDescription = positional.description;
+                let fullDescription = this.mProduceMarkdown ? this.escapeMarkdown(positional.description) : positional.description;
                 if (positional.regex) {
                     fullDescription += (DefaultHelpGenerator.HELP_INDENT +
                         DefaultHelpGenerator.HELP_INDENT + "Must match regular expression: {{codeBegin}}"
@@ -428,7 +428,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
      */
     public buildOptionText(optionString: string, description: string): string {
         if (this.mProduceMarkdown) {
-            description = description.replace(/([\*\#\-\`\_\[\]\+\.\!])/g, "\\$1");  // escape Markdown special characters
+            description = this.escapeMarkdown(description);  // escape Markdown special characters
         }
         description = TextUtils.wordWrap(description.trim(),
             undefined,
@@ -475,7 +475,8 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
                 const prefix = example.prefix != null ? example.prefix + "{{space}} " : "";
                 const exampleHyphen = this.mProduceMarkdown ? "" : "-";
                 const options = (example.options.length > 0) ? ` ${example.options}` : "";
-                let exampleText = TextUtils.wordWrap("{{bullet}}" + exampleHyphen + " {{space}}" + example.description + ":\n\n",
+                const description = this.mProduceMarkdown ? this.escapeMarkdown(example.description) : example.description;
+                let exampleText = TextUtils.wordWrap("{{bullet}}" + exampleHyphen + " {{space}}" + description + ":\n\n",
                     undefined,
                     this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT);
                 exampleText += "      {{bullet}}{{space}}{{codeBegin}}\$ {{space}}" +
@@ -517,5 +518,14 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
     private wordWrapHelp(text: string): string {
         return TextUtils.wordWrap(text, undefined,
             this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT);
+    }
+
+    /**
+     * Utility function to escape Markdown special characters.
+     * @param {string} text - The text to escape
+     * @return {string} - The escaped string
+     */
+    private escapeMarkdown(text: string): string {
+        return text.replace(/([\*\#\-\`\_\[\]\+\.\!])/g, "\\$1");
     }
 }
