@@ -4,7 +4,7 @@ baseUser=$1
 basePass=$2
 
 # First create a base profile
-imperative-test-cli config init --prompt false --global
+imperative-test-cli config init --prompt false --global-config
 CMDRC=$?
 if [ $CMDRC -gt 0 ]
 then
@@ -12,14 +12,14 @@ then
     exit $CMDRC
 fi
 
-imperative-test-cli config set "profiles.my_base.properties.user" "$baseUser" --global
+imperative-test-cli config set "profiles.my_base.properties.user" "$baseUser" --global-config
 if [ $CMDRC -gt 0 ]
 then
     echo "Setting user of config failed!" 1>&2
     exit $CMDRC
 fi
 
-imperative-test-cli config set "profiles.my_base.properties.password" "$basePass" --global
+imperative-test-cli config set "profiles.my_base.properties.password" "$basePass" --global-config
 if [ $CMDRC -gt 0 ]
 then
     echo "Setting password of config failed!" 1>&2

@@ -89,8 +89,8 @@ describe("imperative-test-cli config secure", () => {
     });
 
     it("should secure the user config", async () => {
-        runCliScript(__dirname + "/../init/__scripts__/init_config_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--user"]);
-        const response = runCliScript(__dirname + "/__scripts__/secure_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--user"]);
+        runCliScript(__dirname + "/../init/__scripts__/init_config_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--user-config"]);
+        const response = runCliScript(__dirname + "/__scripts__/secure_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--user-config"]);
         const fileContents = JSON.parse(fs.readFileSync(expectedUserConfigLocation).toString());
         const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
         const configJson = JSON.parse(config);
@@ -109,8 +109,8 @@ describe("imperative-test-cli config secure", () => {
     });
 
     it("should secure the global project config", async () => {
-        runCliScript(__dirname + "/../init/__scripts__/init_config_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--global"]);
-        const response = runCliScript(__dirname + "/__scripts__/secure_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--global"]);
+        runCliScript(__dirname + "/../init/__scripts__/init_config_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--global-config"]);
+        const response = runCliScript(__dirname + "/__scripts__/secure_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--global-config"]);
         const fileContents = JSON.parse(fs.readFileSync(expectedGlobalProjectConfigLocation).toString());
         const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
         const configJson = JSON.parse(config);
@@ -132,8 +132,8 @@ describe("imperative-test-cli config secure", () => {
     });
 
     it("should secure the global user config", async () => {
-        runCliScript(__dirname + "/../init/__scripts__/init_config_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--global --user"]);
-        const response = runCliScript(__dirname + "/__scripts__/secure_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--global --user"]);
+        runCliScript(__dirname + "/../init/__scripts__/init_config_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--global-config --user-config"]);
+        const response = runCliScript(__dirname + "/__scripts__/secure_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--global-config --user-config"]);
         const fileContents = JSON.parse(fs.readFileSync(expectedGlobalUserConfigLocation).toString());
         const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
         const configJson = JSON.parse(config);
