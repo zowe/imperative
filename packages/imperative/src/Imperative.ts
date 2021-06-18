@@ -61,6 +61,8 @@ import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition
 import { ImperativeExpect } from "../../expect";
 import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
 import { Config } from "../../config";
+import { CompleteAutoInitCommandBuilder } from "./config/cmd/auto-init/builders/CompleteAutoInitActionBuilder";
+import { ICommandProfileAutoInitConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAutoInitConfig";
 
 // Bootstrap the performance tools
 if (PerfTiming.isEnabled) {
@@ -724,6 +726,23 @@ export class Imperative {
         if (Object.keys(authConfigs).length > 0) {
             rootCommand.children.push(CompleteAuthGroupBuilder.getAuthGroup(authConfigs, this.log, loadedConfig.authGroupConfig));
         }
+
+        // TODO add autoinit here
+        // if (loadedConfig.configAutoInitCommandConfig) {
+        // }
+
+        // tslint:disable-next-line:no-console
+        const autoInit: ICommandProfileAutoInitConfig = undefined;
+        if (autoInit) {
+            for (const child of rootCommand.children){
+                if (child.name === 'config') {
+                    child.children.push(CompleteAutoInitCommandBuilder.getAutoInitCommand(autoInit,
+                                                                                          this.log,
+                                                                                          loadedConfig.configAutoInitCommandConfig));
+                }
+            }
+        }
+
         return rootCommand;
     }
 
