@@ -23,20 +23,21 @@ export const initDefinition: ICommandDefinition = {
     handler: join(__dirname, "init.handler"),
     summary: "init config files",
     description: `Initialize config files. Defaults to initializing "${ImperativeConfig.instance.rootCommandName}.config.json" in the current ` +
-        `working directory unless otherwise specified.\n\nUse "--user" to init "${ImperativeConfig.instance.rootCommandName}.config.user.json". ` +
-        `Use "--global" to initialize the configuration files in your home "~/.zowe" directory.\n\nUse "--no-prompt" to skip prompting for values ` +
+        `working directory unless otherwise specified.\n\nUse "--user-config" to init "${ImperativeConfig.instance.rootCommandName}.config.user.json". ` +
+        `Use "--global-config" to initialize the configuration files in your home "~/.zowe" directory.\n\nUse "--no-prompt" to skip prompting for values ` +
         `in a CI environment.`,
     options: [
         {
-            name: "global",
+            name: "global-config",
             description: "Target the global config files.",
-            aliases: ["g"],
+            aliases: ["gc"],
             type: "boolean",
             defaultValue: false
         },
         {
-            name: "user",
+            name: "user-config",
             description: "Target the user config files.",
+            aliases: ["uc"],
             type: "boolean",
             defaultValue: false
         },
