@@ -257,7 +257,7 @@ export class WebHelpGenerator {
             .slice(1)  // Delete header line
             .map((line: string) => {
                 // Wrap group/command names inside links
-                const match = line.match(/^\s{0,4}([a-z0-9-]+(?:\s\|\s[a-z0-9-]+)*)\s+[a-z]/i);
+                const match = line.match(/^\s{0,4}([a-z0-9-]+(?:\s\|\s[a-z0-9-]+)*)\s+\S/i);
                 if (match) {
                     const href = `${hrefPrefix}${match[1].split(" ")[0]}.html`;
                     return `\n* <a href="${href}">${match[1]}</a> -` + line.slice(match[0].length - 2);
