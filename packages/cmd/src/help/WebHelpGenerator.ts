@@ -162,7 +162,7 @@ export class WebHelpGenerator {
         rootHelpContent += this.markdownIt.render(sanitizeHtml(this.mConfig.loadedConfig.rootCommandDescription)) + "\n";
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
             { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions });
-        rootHelpContent += this.markdownIt.render(sanitizeHtml("<h4>Groups</h4>\n" +
+        rootHelpContent += this.markdownIt.render(sanitizeHtml(
             this.buildChildrenSummaryTables(helpGen, rootCommandName) + "\n\n" +
             helpGen.buildGlobalOptionsSection().replace(/Global options/, "Global Options")));
         this.singlePageHtml = rootHelpContent.replace(/<h4>Groups.+?<\/ul>/s, "");
@@ -254,13 +254,16 @@ export class WebHelpGenerator {
     private buildChildrenSummaryTables(helpGen: DefaultHelpGenerator, fullCommandName: string): string {
         const hrefPrefix = fullCommandName + "_";
         return helpGen.buildChildrenSummaryTables().split(/\r?\n/g)
-            .slice(1)  // Delete header line
-            .map((line: string) => {
+            .map((line: string, index: number) => {
                 // Wrap group/command names inside links
                 const match = line.match(/^\s{0,4}([a-z0-9-]+(?:\s\|\s[a-z0-9-]+)*)\s+\S/i);
                 if (match) {
                     const href = `${hrefPrefix}${match[1].split(" ")[0]}.html`;
                     return `\n* <a href="${href}">${match[1]}</a> -` + line.slice(match[0].length - 2);
+                } else if (/^\s*#{4}\s*COMMANDS\s*$/i.test(line)) {
+                    return `${(index > 0) ? "\n" : ""}<h4>Commands</h4>\n`;
+                } else if (/^\s*#{4}\s*GROUPS\s*$/i.test(line)) {
+                    return `${(index > 0) ? "\n" : ""}<h4>Groups</h4>\n`;
                 }
                 return " " + line.trim();
             }).join("");
@@ -313,7 +316,7 @@ export class WebHelpGenerator {
             // this is disabled for the CLIReadme.md but we want to show children here
             // so we'll call the help generator's children summary function even though
             // it's usually skipped when producing markdown
-            markdownContent += "<h4>Commands</h4>\n" + this.buildChildrenSummaryTables(helpGen, rootCommandName + "_" + fullCommandName);
+            markdownContent += this.buildChildrenSummaryTables(helpGen, rootCommandName + "_" + fullCommandName);
         }
 
         // Prevent line breaks from being lost during Markdown to HTML conversion
