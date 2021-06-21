@@ -77,7 +77,7 @@ exports[`cmd-cli gen-help allowable-options should display the help with allowab
 
    --help-examples  (boolean)
 
-      Display examples for all the commands in a the group
+      Display examples for all the commands in a group
 
    --help-web  | --hw (boolean)
 
