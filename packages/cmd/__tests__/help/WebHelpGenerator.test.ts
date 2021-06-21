@@ -19,6 +19,7 @@ import { CommandResponse } from "../../src/response/CommandResponse";
 import { IImperativeConfig } from "../../../imperative/src/doc/IImperativeConfig";
 import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
 import { IO } from "../../../io";
+import { ICommandDefinition } from "../../../cmd/src/doc/ICommandDefinition";
 
 describe("WebHelpGenerator", () => {
     describe("buildHelp", () => {
@@ -36,13 +37,29 @@ describe("WebHelpGenerator", () => {
             cliHome = "packages/__tests__/fakeCliHome";
             webHelpDirNm = path.join(cliHome, "web-help");
 
+            const exampleCommand: ICommandDefinition = {
+                name: "world",
+                type: "command",
+                options: [],
+                description: "my command"
+            };
             configForHelp = {
                 definitions: [
                     {
                         name: "hello",
-                        type: "command",
+                        type: "group",
                         options: [],
-                        description: "my command"
+                        description: "my group",
+                        children: [
+                            exampleCommand,
+                            {
+                                name: "universe",
+                                type: "group",
+                                options: [],
+                                description: "my subgroup",
+                                children: [exampleCommand]
+                            }
+                        ]
                     }
                 ],
                 name: moduleFileNm,
@@ -102,10 +119,16 @@ describe("WebHelpGenerator", () => {
             fileText = fs.readFileSync(fileNmToTest, "utf8");
             expect(fileText).toContain('"id":"' + moduleFileNm + '.html"');
 
+            fileNmToTest = webHelpDocsDirNm + "/" + moduleFileNm + "_hello.html";
+            fileText = fs.readFileSync(fileNmToTest, "utf8");
+            expect(fileText).toContain("<h4>Commands</h4>");
+            expect(fileText).toContain("<h4>Groups</h4>");
+
             // do a reasonable set of generated files exist?
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + ".html")).toBe(true);
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_config.html")).toBe(true);
-            expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello.html")).toBe(true);
+            expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello_universe.html")).toBe(true);
+            expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello_world.html")).toBe(true);
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_install.html")).toBe(true);
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_uninstall.html")).toBe(true);
         });
