@@ -2,6 +2,12 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- **Next Breaking**
+    - Replaced --user with --user-config on all config command groups due to conflict with --user option during config auto-initialization
+    - Replaced --global with --global-config on all config command groups for consistency
+
 ## `5.0.0-next.202106041929`
 
 - **Breaking**: Removed the following previously deprecated items:
