@@ -13,6 +13,7 @@ import { ICommandDefinition, ICommandProfileTypeConfiguration } from "../../../c
 import { IImperativeLogsConfig } from "./IImperativeLogsConfig";
 import { IImperativeOverrides } from "./IImperativeOverrides";
 import { IImperativeAuthGroupConfig } from "./IImperativeAuthGroupConfig";
+import { IApimlSvcAttrs } from "./IApimlSvcAttrs";
 
 /**
  * All of the configuration required to set up your Imperative CLI app
@@ -314,4 +315,14 @@ export interface IImperativeConfig {
      * @memberof IImperativeConfig
      */
     credentialServiceName?: string;
+
+    /**
+     * The set of attributes used to lookup (within the API Mediation Layer)
+     * the connection properties for the REST service associated with this
+     * command group. We use an array of such attributes in case the command
+     * group is compatible with multiple versions of the associated REST service.
+     * @type {IApimlSvcAttrs[]}
+     * @memberof IImperativeConfig
+     */
+    apimlConnLookup?: IApimlSvcAttrs[];
 }
