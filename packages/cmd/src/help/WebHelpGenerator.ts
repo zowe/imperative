@@ -59,7 +59,7 @@ export class WebHelpGenerator {
      * @private
      * @memberof WebHelpGenerator
      */
-    private marked: any;
+    private markdownIt: any;
 
     /**
      * List of nodes in command tree
@@ -106,7 +106,7 @@ export class WebHelpGenerator {
         cmdResponse.console.log(Buffer.from("Generating web help"));
 
         // Load additional dependencies
-        this.marked = require("markdown-it")({html: true});
+        this.markdownIt = require("markdown-it")({ html: true, linkify: true });
         const fsExtra = require("fs-extra");
         const sanitizeHtml = require("sanitize-html");
 
@@ -159,10 +159,10 @@ export class WebHelpGenerator {
 
         let rootHelpContent: string = this.genDocsHeader(rootCommandName);
         rootHelpContent += `<h2><a href="${rootCommandName}.html" name="${rootCommandName}">${rootCommandName}</a>${this.genPrintButton()}</h2>\n`;
-        rootHelpContent += this.marked.render(sanitizeHtml(this.mConfig.loadedConfig.rootCommandDescription)) + "\n";
+        rootHelpContent += this.markdownIt.render(sanitizeHtml(this.mConfig.loadedConfig.rootCommandDescription)) + "\n";
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
             { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions });
-        rootHelpContent += this.marked.render(sanitizeHtml("<h4>Groups</h4>\n" +
+        rootHelpContent += this.markdownIt.render(sanitizeHtml(
             this.buildChildrenSummaryTables(helpGen, rootCommandName) + "\n\n" +
             helpGen.buildGlobalOptionsSection().replace(/Global options/, "Global Options")));
         this.singlePageHtml = rootHelpContent.replace(/<h4>Groups.+?<\/ul>/s, "");
@@ -254,13 +254,16 @@ export class WebHelpGenerator {
     private buildChildrenSummaryTables(helpGen: DefaultHelpGenerator, fullCommandName: string): string {
         const hrefPrefix = fullCommandName + "_";
         return helpGen.buildChildrenSummaryTables().split(/\r?\n/g)
-            .slice(1)  // Delete header line
-            .map((line: string) => {
+            .map((line: string, index: number) => {
                 // Wrap group/command names inside links
-                const match = line.match(/^\s{0,4}([a-z0-9-]+(?:\s\|\s[a-z0-9-]+)*)\s+[a-z]/i);
+                const match = line.match(/^\s{0,4}([a-z0-9-]+(?:\s\|\s[a-z0-9-]+)*)\s+\S/i);
                 if (match) {
                     const href = `${hrefPrefix}${match[1].split(" ")[0]}.html`;
                     return `\n* <a href="${href}">${match[1]}</a> -` + line.slice(match[0].length - 2);
+                } else if (/^\s*#{4}\s*COMMANDS\s*$/i.test(line)) {
+                    return `${(index > 0) ? "\n" : ""}<h4>Commands</h4>\n`;
+                } else if (/^\s*#{4}\s*GROUPS\s*$/i.test(line)) {
+                    return `${(index > 0) ? "\n" : ""}<h4>Groups</h4>\n`;
                 }
                 return " " + line.trim();
             }).join("");
@@ -313,14 +316,14 @@ export class WebHelpGenerator {
             // this is disabled for the CLIReadme.md but we want to show children here
             // so we'll call the help generator's children summary function even though
             // it's usually skipped when producing markdown
-            markdownContent += "<h4>Commands</h4>\n" + this.buildChildrenSummaryTables(helpGen, rootCommandName + "_" + fullCommandName);
+            markdownContent += this.buildChildrenSummaryTables(helpGen, rootCommandName + "_" + fullCommandName);
         }
 
         // Prevent line breaks from being lost during Markdown to HTML conversion
         markdownContent = markdownContent.replace(/^(\s+Default value:.+$)(\s+Allowed values:.+$)/gm, "$1\n$2");
 
         let htmlContent = "<h2>" + this.genBreadcrumb(rootCommandName, fullCommandName) + this.genPrintButton() + "</h2>\n";
-        htmlContent += this.marked.render(sanitizeHtml(markdownContent));
+        htmlContent += this.markdownIt.render(sanitizeHtml(markdownContent));
 
         // Remove backslash escapes from URLs
         htmlContent = htmlContent.replace(/(%5C|\\)(?=.+?<\/a>)/g, "");
