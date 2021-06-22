@@ -437,7 +437,7 @@ export class CommandPreparer {
             name: Constants.HELP_EXAMPLES,
             group: Constants.GLOBAL_GROUP,
             description: !(definition.name === "") ?
-                "Display examples for all the commands in a the group" : "Not available for top tier Zowe group",
+                "Display examples for all the commands in a group" : "Not available for top tier Zowe group",
             type: "boolean"
         });
 

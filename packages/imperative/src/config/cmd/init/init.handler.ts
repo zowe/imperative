@@ -40,8 +40,8 @@ export default class InitHandler implements ICommandHandler {
         // Load the config and set the active layer according to user options
         await this.ensureCredentialManagerLoaded();
         const config = ImperativeConfig.instance.config;
-        const configDir = params.arguments.global ? null : process.cwd();
-        config.api.layers.activate(params.arguments.user, params.arguments.global, configDir);
+        const configDir = params.arguments.globalConfig ? null : process.cwd();
+        config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig, configDir);
         const layer = config.api.layers.get();
 
         // // Protect against overwrite of the config
@@ -58,7 +58,7 @@ export default class InitHandler implements ICommandHandler {
         //     await this.initWithSchema(config);
         // }
 
-        await this.initWithSchema(config, params.arguments.user);
+        await this.initWithSchema(config, params.arguments.userConfig);
 
         if (params.arguments.prompt !== false && !CredentialManagerFactory.initialized && config.api.secure.secureFields().length > 0) {
             const warning = secureSaveError();

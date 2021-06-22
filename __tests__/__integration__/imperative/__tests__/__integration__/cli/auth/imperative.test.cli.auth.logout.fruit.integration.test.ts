@@ -12,7 +12,6 @@
 import { runCliScript } from "../../../../../../src/TestUtil";
 import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
-import { join } from "path";
 import * as fs from "fs";
 import * as keytar from "keytar";
 

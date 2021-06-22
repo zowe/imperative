@@ -141,8 +141,8 @@ describe("Configuration Set command handler", () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
         params.arguments.secure = true;
         params.arguments.property = "profiles.my_profiles.profiles.secured.properties.testProperty";
         params.arguments.value = "aSecuredTestProperty";
@@ -213,8 +213,8 @@ describe("Configuration Set command handler", () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = true;
-        params.arguments.global = false;
+        params.arguments.userConfig = true;
+        params.arguments.globalConfig = false;
         params.arguments.secure = true;
         params.arguments.property = "profiles.my_profiles.profiles.secured.properties.testProperty";
         params.arguments.value = "aSecuredTestProperty";
@@ -283,8 +283,8 @@ describe("Configuration Set command handler", () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = false;
-        params.arguments.global = true;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = true;
         params.arguments.secure = true;
         params.arguments.property = "profiles.my_profiles.profiles.secured.properties.testProperty";
         params.arguments.value = "aSecuredTestProperty";
@@ -356,8 +356,8 @@ describe("Configuration Set command handler", () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = true;
-        params.arguments.global = true;
+        params.arguments.userConfig = true;
+        params.arguments.globalConfig = true;
         params.arguments.secure = true;
         params.arguments.property = "profiles.my_profiles.profiles.secured.properties.testProperty";
         params.arguments.value = "aSecuredTestProperty";
@@ -427,8 +427,8 @@ describe("Configuration Set command handler", () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
         params.arguments.secure = false;
         params.arguments.property = "profiles.my_profiles.profiles.secured.properties.secret";
         params.arguments.value = "anUnsecuredTestProperty";
@@ -493,8 +493,8 @@ describe("Configuration Set command handler", () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = true;
-        params.arguments.global = false;
+        params.arguments.userConfig = true;
+        params.arguments.globalConfig = false;
         params.arguments.secure = false;
         params.arguments.property = "profiles.my_profiles.profiles.secured.properties.secret";
         params.arguments.value = "anUnsecuredTestProperty";
@@ -558,8 +558,8 @@ describe("Configuration Set command handler", () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = false;
-        params.arguments.global = true;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = true;
         params.arguments.secure = false;
         params.arguments.property = "profiles.my_profiles.profiles.secured.properties.secret";
         params.arguments.value = "anUnsecuredTestProperty";
@@ -625,8 +625,8 @@ describe("Configuration Set command handler", () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = true;
-        params.arguments.global = true;
+        params.arguments.userConfig = true;
+        params.arguments.globalConfig = true;
         params.arguments.secure = false;
         params.arguments.property = "profiles.my_profiles.profiles.secured.properties.secret";
         params.arguments.value = "anUnsecuredTestProperty";
@@ -691,8 +691,8 @@ describe("Configuration Set command handler", () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
         params.arguments.secure = false;
         params.arguments.property = "profiles.my_profiles.profiles.secured.properties.secret";
         params.arguments.value = "anUnsecuredTestProperty";
@@ -763,8 +763,8 @@ describe("Configuration Set command handler", () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
         params.arguments.secure = false;
         params.arguments.property = "profiles.my_profiles.profiles.secured.properties.info";
 
@@ -839,8 +839,8 @@ describe("Configuration Set command handler", () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
         params.arguments.secure = null;
         params.arguments.property = "profiles.my_profiles.profiles.secured.properties.secret";
         params.arguments.value = "aSecuredTestProperty";
@@ -909,8 +909,8 @@ describe("Configuration Set command handler", () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
         params.arguments.secure = null;
         params.arguments.property = "profiles.my_profiles.profiles.secured.properties.info";
         params.arguments.value = "anUnsecuredTestProperty";
@@ -981,8 +981,8 @@ describe("Configuration Set command handler", () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
         params.arguments.secure = true;
         params.arguments.json = true;
         params.arguments.property = "profiles.my_profiles.profiles.secured.properties.secret";
@@ -1053,8 +1053,8 @@ describe("Configuration Set command handler", () => {
         const handler = new SetHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
         params.arguments.secure = true;
         params.arguments.json = true;
         params.arguments.property = "profiles.my_profiles.profiles.secured.properties.secret";

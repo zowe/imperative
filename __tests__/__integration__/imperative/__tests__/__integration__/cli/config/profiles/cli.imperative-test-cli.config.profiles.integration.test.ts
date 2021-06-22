@@ -12,7 +12,6 @@
 import { ITestEnvironment } from "../../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../../src/TestUtil";
-import * as fs from "fs";
 
 
 // Test Environment populated in the beforeAll();
@@ -26,9 +25,10 @@ describe("imperative-test-cli config profiles", () => {
             testName: "imperative_test_cli_test_config_profiles_command"
         });
         runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--prompt false"]);
-        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--user --prompt false"]);
-        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--global --prompt false"]);
-        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--user --global --prompt false"]);
+        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--user-config --prompt false"]);
+        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--global-config --prompt false"]);
+        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir,
+            ["--user-config --global-config --prompt false"]);
     });
     it("should display the help", () => {
         const response = runCliScript(__dirname + "/../__scripts__/get_help.sh",
