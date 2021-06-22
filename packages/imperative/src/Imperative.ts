@@ -732,7 +732,7 @@ export class Imperative {
         // }
 
         // tslint:disable-next-line:no-console
-        const autoInit: ICommandProfileAutoInitConfig = undefined;
+        const autoInit: ICommandProfileAutoInitConfig = loadedConfig.configAutoInitCommandConfig.autoInitConfig;
         if (autoInit) {
             for (const child of rootCommand.children){
                 if (child.name === 'config') {
