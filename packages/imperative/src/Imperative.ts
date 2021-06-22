@@ -728,12 +728,8 @@ export class Imperative {
         }
 
         // TODO add autoinit here
-        // if (loadedConfig.configAutoInitCommandConfig) {
-        // }
-
-        // tslint:disable-next-line:no-console
-        const autoInit: ICommandProfileAutoInitConfig = loadedConfig.configAutoInitCommandConfig.autoInitConfig;
-        if (autoInit) {
+        if (loadedConfig.configAutoInitCommandConfig && loadedConfig.configAutoInitCommandConfig.autoInitConfig) {
+            const autoInit: ICommandProfileAutoInitConfig = loadedConfig.configAutoInitCommandConfig.autoInitConfig;
             for (const child of rootCommand.children){
                 if (child.name === 'config') {
                     child.children.push(CompleteAutoInitCommandBuilder.getAutoInitCommand(autoInit,
