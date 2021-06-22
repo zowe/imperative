@@ -77,6 +77,11 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
      * @param {IHandlerParameters} params Command parameters sent by imperative.
      */
     private async processAutoInit(params: IHandlerParameters) {
+        const sessCfg = this.createSessCfgFromArgs(params.arguments);
+        const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+            sessCfg, params.arguments,{ parms: params },
+        );
+        this.mSession = new Session(sessCfgWithCreds);
         await this.doAutoInit(this.mSession, params);
     }
 }
