@@ -18,6 +18,7 @@ import { schemaDefinition } from "./cmd/schema/schema.definition";
 import { profilesDefinition } from "./cmd/profiles/profiles.definition";
 import { secureDefinition } from "./cmd/secure/secure.definition";
 import { setDefinition } from "./cmd/set/set.definition";
+import { editDefinition } from "./cmd/edit/edit.definition";
 
 export class ConfigManagementFacility {
     private static mInstance: ConfigManagementFacility;
@@ -72,7 +73,8 @@ export class ConfigManagementFacility {
                 setDefinition,
                 initDefinition,
                 schemaDefinition,
-                profilesDefinition
+                profilesDefinition,
+                editDefinition
             ]
         });
 

@@ -274,10 +274,19 @@ export class IO {
     /**
      * Get default text editor for a given operating system
      * @static
+     * @param {string} envPrefix - Optional environment variable prefix. If
+     *  specified, the editor set in <envPrefix>_EDITOR will be used.
      * @returns {string} - text editor launch string
      * @memberof IO
      */
-    public static getDefaultTextEditor(): string {
+    public static getDefaultTextEditor(envPrefix?: string): string {
+        if (envPrefix != null) {
+            const editorEnvVar = `${envPrefix}_EDITOR`;
+            if (process.env[editorEnvVar] != null) {
+                return process.env[editorEnvVar];
+            }
+        }
+
         const platform = os.platform();
         if (platform === IO.OS_WIN32) {
             return "notepad";
