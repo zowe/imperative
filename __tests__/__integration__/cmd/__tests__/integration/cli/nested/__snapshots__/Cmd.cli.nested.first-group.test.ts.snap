@@ -39,7 +39,7 @@ exports[`cmd-cli nested first-group should display both groups and commands in t
 
    --help-examples  (boolean)
 
-      Display examples for all the commands in a the group
+      Display examples for all the commands in a group
 
    --help-web  | --hw (boolean)
 
