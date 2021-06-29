@@ -13,6 +13,7 @@ import * as fs from "fs";
 import * as node_path from "path";
 import * as deepmerge from "deepmerge";
 import * as JSONC from "comment-json";
+import * as lodash from "lodash";
 import { ImperativeError } from "../../../error";
 import { ConfigConstants } from "../ConfigConstants";
 import { IConfigLayer } from "../doc/IConfigLayer";
@@ -158,7 +159,7 @@ export class ConfigLayers extends ConfigApi {
         layer.properties.profiles = deepmerge(cnfg.profiles, layer.properties.profiles, {
             customMerge: (key: string) => {
                 if (key === "secure") {
-                    return (secureProps: string[]) => [...new Set(secureProps)]
+                    return (securePropsOne: string[], securePropsTwo: string[]) => [...new Set(securePropsOne.concat(securePropsTwo))]
                 }
             }
         });
@@ -168,5 +169,29 @@ export class ConfigLayers extends ConfigApi {
                 layer.properties.plugins.push(pluginName);
             }
         }
+    }
+
+    /**
+     * Merge properties from the supplied Config object into a copy of the active layer.
+     *
+     * @param cnfg The Config object to merge.
+     * @returns The merged config layer.
+     */
+    public dryRunMerge(cnfg: IConfig) {
+        const layer = lodash.cloneDeep(this.mConfig.layerActive());
+        layer.properties.profiles = deepmerge(cnfg.profiles, layer.properties.profiles, {
+            customMerge: (key: string) => {
+                if (key === "secure") {
+                    return (securePropsOne: string[], securePropsTwo: string[]) => [...new Set(securePropsOne.concat(securePropsTwo))]
+                }
+            }
+        });
+        layer.properties.defaults = deepmerge(cnfg.defaults, layer.properties.defaults);
+        for (const pluginName of cnfg.plugins) {
+            if (!layer.properties.plugins.includes(pluginName)) {
+                layer.properties.plugins.push(pluginName);
+            }
+        }
+        return layer;
     }
 }
