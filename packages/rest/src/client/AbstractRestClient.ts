@@ -46,7 +46,15 @@ export type RestClientResolve = (data: string) => void;
 export abstract class AbstractRestClient {
 
     /**
-     * Contains buffered data from REST chucks
+     * Contains REST chucks
+     * @private
+     * @type {Buffer[]}
+     * @memberof AbstractRestClient
+     */
+    protected mChunks: Buffer[] = [];
+
+    /**
+     * Contains buffered data after all REST chucks are received
      * @private
      * @type {Buffer}
      * @memberof AbstractRestClient
@@ -592,7 +600,7 @@ export abstract class AbstractRestClient {
             // buffer the data if we are not streaming
             // or if we encountered an error, since the rest client
             // relies on any JSON error to be in the this.dataString field
-            this.mData = Buffer.concat([this.mData, respData]);
+            this.mChunks.push(respData);
         } else {
             this.log.debug("Streaming data chunk of length " + respData.length + " to response stream");
             if (this.mNormalizeResponseNewlines && this.mContentEncoding == null) {
@@ -629,6 +637,11 @@ export abstract class AbstractRestClient {
      */
     private onEnd(): void {
         this.log.debug("onEnd() called for rest client %s", this.constructor.name);
+
+        // Concatenate the chunks, then toss the pieces
+        this.mData = Buffer.concat(this.mChunks);
+        this.mChunks = [];
+
         if (this.mTask != null) {
             this.mTask.percentComplete = TaskProgress.ONE_HUNDRED_PERCENT;
             this.mTask.stageName = TaskStage.COMPLETE;
