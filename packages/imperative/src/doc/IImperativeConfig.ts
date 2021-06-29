@@ -171,7 +171,7 @@ export interface IImperativeConfig {
 
     /**
      * Use this property to customize the command definitions for the auth command group.
-     * @type {ICommandProfileAutoInitCon}
+     * @type {IImperativeAuthGroupConfig}
      * @memberof IImperativeConfig
      */
     authGroupConfig?: IImperativeAuthGroupConfig;
