@@ -425,5 +425,24 @@ describe("Config API tests", () => {
                 expect(retrievedConfig.profiles.fruit.properties.origin).toBe("California");
             });
         });
+        describe("dryRunMerge", () => {
+            it("should merge config layers with correct priority", async () => {
+                const config = await Config.load(MY_APP);
+                const retrievedConfig = config.api.layers.dryRunMerge(mergeConfig).properties;
+                expect(retrievedConfig).toMatchSnapshot();
+
+                // Check that new config was added
+                expect(retrievedConfig.plugins.length).toBe(2);
+                expect(retrievedConfig.profiles.fruit.profiles.grape).toBeDefined();
+                expect(retrievedConfig.profiles.fruit.properties.shipDate).toBeDefined();
+                expect(retrievedConfig.profiles.fruit.secure.length).toBe(1);
+
+                // Check that old config had priority
+                expect(retrievedConfig.defaults.fruit).toBe("fruit.apple");
+                expect(retrievedConfig.profiles.fruit.profiles.apple.properties.color).toBe("red");
+                expect(retrievedConfig.profiles.fruit.profiles.orange).toBeDefined();
+                expect(retrievedConfig.profiles.fruit.properties.origin).toBe("California");
+            });
+        });
     });
 });
