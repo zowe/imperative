@@ -97,39 +97,4 @@ describe("BaseAutoInitHandler", () => {
         expect(createSessCfgFromArgsSpy).toBeCalledTimes(1);
         expect(params.response.console.prompt).toHaveBeenCalledTimes(1);
     });
-
-    it("should fail to login with invalid token value", async () => {
-        const handler = new FakeAuthHandler();
-        const params: IHandlerParameters = {
-            response: {
-                console: {
-                    log: jest.fn(),
-                    prompt: jest.fn()
-                }
-            },
-            arguments: {
-                user: "fakeUser",
-                password: "fakePass"
-            },
-            positionals: ["auth", "login"],
-            profiles: {
-                getMeta: jest.fn(() => ({
-                    name: "fakeName"
-                }))
-            }
-        } as any;
-
-        const doLoginSpy = jest.spyOn(handler as any, "doLogin").mockResolvedValue(null);
-        let caughtError;
-
-        try {
-            await handler.process(params);
-        } catch (error) {
-            caughtError = error;
-        }
-
-        expect(caughtError).toBeDefined();
-        expect(caughtError.message).toContain("token value");
-        expect(doLoginSpy).toBeCalledTimes(1);
-    });
 });
