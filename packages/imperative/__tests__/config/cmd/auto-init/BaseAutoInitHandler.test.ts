@@ -21,7 +21,7 @@ describe("BaseAutoInitHandler", () => {
         jest.clearAllMocks();
     });
 
-    it("should call init", async () => {
+    it("should call init with basic authentication", async () => {
         const handler = new FakeAutoInitHandler();
         const params: IHandlerParameters = {
             response: {
@@ -32,6 +32,43 @@ describe("BaseAutoInitHandler", () => {
             arguments: {
                 user: "fakeUser",
                 password: "fakePass"
+            },
+            positionals: ["config", "auto-init"],
+            profiles: {
+                getMeta: jest.fn(() => ({
+                    name: "fakeName"
+                }))
+            }
+        } as any;
+
+        const doInitSpy = jest.spyOn(handler as any, "doAutoInit");
+        const processAutoInitSpy = jest.spyOn(handler as any, "processAutoInit");
+        const createSessCfgFromArgsSpy = jest.spyOn(handler as any, "createSessCfgFromArgs");
+        let caughtError;
+
+        try {
+            await handler.process(params);
+        } catch (error) {
+            caughtError = error;
+        }
+
+        expect(caughtError).toBeUndefined();
+        expect(doInitSpy).toBeCalledTimes(1);
+        expect(processAutoInitSpy).toBeCalledTimes(1);
+        expect(createSessCfgFromArgsSpy).toBeCalledTimes(1);
+    });
+
+    it("should call init with token", async () => {
+        const handler = new FakeAutoInitHandler();
+        const params: IHandlerParameters = {
+            response: {
+                console: {
+                    log: jest.fn()
+                }
+            },
+            arguments: {
+                tokenType: "fake",
+                tokenValue: "fake"
             },
             positionals: ["config", "auto-init"],
             profiles: {
