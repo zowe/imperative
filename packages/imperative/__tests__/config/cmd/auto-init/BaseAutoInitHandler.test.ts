@@ -60,15 +60,17 @@ describe("BaseAutoInitHandler", () => {
 
     it("should process login successfully without creating profile on timeout", async () => {
         const handler = new FakeAutoInitHandler();
+        const promptFunction = jest.fn();
+        promptFunction.mockReturnValue("fake");
+
         const params: IHandlerParameters = {
             response: {
                 console: {
                     log: jest.fn(),
-                    prompt: jest.fn()
+                    prompt: promptFunction
                 }
             },
             arguments: {
-                password: "fakePass"
             },
             positionals: ["config", "auto-init"],
             profiles: {
@@ -83,8 +85,6 @@ describe("BaseAutoInitHandler", () => {
         const createSessCfgFromArgsSpy = jest.spyOn(handler as any, "createSessCfgFromArgs");
         let caughtError;
 
-        await handler.process(params);
-
         try {
             await handler.process(params);
         } catch (error) {
@@ -95,6 +95,6 @@ describe("BaseAutoInitHandler", () => {
         expect(doInitSpy).toBeCalledTimes(1);
         expect(processAutoInitSpy).toBeCalledTimes(1);
         expect(createSessCfgFromArgsSpy).toBeCalledTimes(1);
-        expect(params.response.console.prompt).toHaveBeenCalledTimes(1);
+        expect(promptFunction).toHaveBeenCalledTimes(2);
     });
 });
