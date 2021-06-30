@@ -176,7 +176,6 @@ export interface IImperativeConfig {
      */
     authGroupConfig?: IImperativeAuthGroupConfig;
 
-
     /**
      * Use this property to customize the command definition for the config init command.
      * @type {IImperativeAutoInitCommandConfig}

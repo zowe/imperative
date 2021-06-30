@@ -15,11 +15,9 @@ import {
     authLoginGroupDesc, authLoginGroupSummary,
     authLogoutGroupDesc, authLogoutGroupSummary
 } from "../../../../../../messages";
-import { Constants } from "../../../../../../constants";
 import { AutoInitCommandBuilder } from "./AutoInitCommandBuilder";
 import { Logger } from "../../../../../../logger/index";
 import { ICommandProfileAutoInitConfig } from "../../../../../../cmd/src/doc/profiles/definition/ICommandProfileAutoInitConfig";
-import { IImperativeAutoInitCommandConfig } from "../../../../doc/IImperativeAutoInitCommandConfig";
 
 /**
  * Generate a complete command for automatic initialization of a user configuration
@@ -33,11 +31,10 @@ export class CompleteAutoInitCommandBuilder {
      * @returns {ICommandDefinition} - the complete profile group of commands
      */
     public static getAutoInitCommand(autoInitConfig: ICommandProfileAutoInitConfig,
-                                     logger: Logger,
-                                     autoInitCommandConfig: IImperativeAutoInitCommandConfig = {}): ICommandDefinition {
+                                     logger: Logger): ICommandDefinition {
         const autoInitCommandAction = new AutoInitCommandBuilder(logger, autoInitConfig, autoInitConfig.profileType);
         const autoInitCommandActionBuilt = autoInitCommandAction.build();
-        const autoInitCommand: ICommandDefinition = {...autoInitCommandActionBuilt, ...autoInitCommandConfig.autoInitConfig.autoInit};
+        const autoInitCommand: ICommandDefinition = {...autoInitCommandActionBuilt, ...autoInitConfig.autoInit};
         return autoInitCommand;
     }
 }

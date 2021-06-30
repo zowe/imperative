@@ -732,9 +732,7 @@ export class Imperative {
             const autoInit: ICommandProfileAutoInitConfig = loadedConfig.configAutoInitCommandConfig.autoInitConfig;
             for (const child of rootCommand.children){
                 if (child.name === 'config') {
-                    child.children.push(CompleteAutoInitCommandBuilder.getAutoInitCommand(autoInit,
-                                                                                          this.log,
-                                                                                          loadedConfig.configAutoInitCommandConfig));
+                    child.children.push(CompleteAutoInitCommandBuilder.getAutoInitCommand(autoInit, this.log));
                 }
             }
         }

@@ -45,11 +45,11 @@ export class AutoInitCommandBuilder implements AbstractCommandBuilder {
     }
 
     /**
-     * Build the full command - includes action group and object command.
+     * Build the command
      * @return {ICommandDefinition}: The command definition.
      */
     public buildFull(): ICommandDefinition {
-        return this.buildAutoInitSegmentFromConfig();
+        return this.build();
     }
 
     /**
@@ -61,19 +61,19 @@ export class AutoInitCommandBuilder implements AbstractCommandBuilder {
     }
 
     /**
-     * Only constructs the "group" command segment for the document. Use this if the command definition
-     * document already includes an auth verb.
+     * Build the command
      * @return {ICommandDefinition}
      */
     public build(): ICommandDefinition {
         return this.buildAutoInitSegmentFromConfig();
     }
+
     /**
      * Builds only the "auto-init" segment from the auto-init config.
      * @return {ICommandDefinition}
      */
     protected buildAutoInitSegmentFromConfig(): ICommandDefinition {
-        const authCommand: ICommandDefinition = {
+        const autoInitCommand: ICommandDefinition = {
             name: "auto-init",
             type: "command",
             summary: this.mConfig.autoInit?.summary,
@@ -83,18 +83,19 @@ export class AutoInitCommandBuilder implements AbstractCommandBuilder {
                 ...(this.mConfig.autoInit?.options || [])
             ],
             examples: this.mConfig.autoInit?.examples,
-            profile: {
-                optional: [this.mProfileType]
-            },
             customize: {}
         };
 
-        if (authCommand.summary == null) {
-            authCommand.summary = TextUtils.formatMessage(autoInitCommandDesc.message, {source: this.mConfig.provider});
+        if (autoInitCommand.summary == null) {
+            autoInitCommand.summary = TextUtils.formatMessage(autoInitCommandDesc.message, {source: this.mConfig.provider});
         }
-        if (authCommand.description == null) {
-            authCommand.description = authCommand.summary;
+        if (autoInitCommand.description == null) {
+            autoInitCommand.description = autoInitCommand.summary;
         }
-        return authCommand;
+        if (this.mProfileType != null) {
+            autoInitCommand.profile = {};
+            autoInitCommand.profile.optional = [this.mProfileType];
+        }
+        return autoInitCommand;
     }
 }
