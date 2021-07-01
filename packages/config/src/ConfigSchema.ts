@@ -19,7 +19,7 @@ export class ConfigSchema {
      * @readonly
      * @memberof ConfigSchema
      */
-    private static readonly JSON_SCHEMA = "https://json-schema.org/draft/2019-09/schema#";
+    private static readonly JSON_SCHEMA = "https://json-schema.org/draft/2020-12/schema";
 
     /**
      * Version number stored in $version property of the schema
@@ -66,7 +66,7 @@ export class ConfigSchema {
         }
 
         const secureSchema: any = {
-            items: {
+            prefixItems: {
                 enum: secureProps
             }
         };
@@ -87,7 +87,7 @@ export class ConfigSchema {
         const properties: { [key: string]: IProfileProperty } = {};
         for (const [k, v] of Object.entries(schema.properties.properties as { [key: string]: any })) {
             properties[k] = { type: v.type };
-            if (schema.secure?.items.enum.includes(k)) {
+            if (schema.secure?.prefixItems.enum.includes(k)) {
                 properties[k].secure = true;
             }
             if (v.description != null || v.default != null || v.enum != null) {
@@ -116,7 +116,14 @@ export class ConfigSchema {
      * @returns JSON schema for all supported profile types
      */
     public static buildSchema(profiles: IProfileTypeConfiguration[]): IConfigSchema {
-        const entries: any[] = [];
+        const entries: any[] = [{
+            if: { properties: { type: { const: null } } },
+            then: { properties: { properties: {
+                type: "object",
+                title: "a generic profile",
+                additionalProperties: true // same as { "type": ["string","array","object","number","null"] }
+            } } }
+        }];
         const defaultProperties: { [key: string]: any } = {};
         profiles.forEach((profile: { type: string, schema: IProfileSchema }) => {
             entries.push({
@@ -155,17 +162,13 @@ export class ConfigSchema {
                                 secure: {
                                     description: "secure property names",
                                     type: "array",
-                                    items: {
+                                    prefixItems: {
                                         type: "string"
                                     },
                                     uniqueItems: true
                                 }
                             },
-                            dependentSchemas: {
-                                type: {
-                                    allOf: entries
-                                }
-                            }
+                            anyOf: entries
                         }
                     }
                 },
