@@ -37,7 +37,7 @@ export class ConfigSchema {
     private static generateJsonSchema(schema: IProfileSchema): any {
         const properties: { [key: string]: any } = {};
         const secureProps: string[] = [];
-        for (const [k, v] of Object.entries(schema.properties)) {
+        for (const [k, v] of Object.entries(schema.properties || {})) {
             properties[k] = { type: v.type };
             const cmdProp = v as ICommandProfileProperty;
             if (cmdProp.optionDefinition != null) {
@@ -85,7 +85,7 @@ export class ConfigSchema {
      */
     private static parseJsonSchema(schema: any): IProfileSchema {
         const properties: { [key: string]: IProfileProperty } = {};
-        for (const [k, v] of Object.entries(schema.properties.properties as { [key: string]: any })) {
+        for (const [k, v] of Object.entries((schema.properties.properties || {}) as { [key: string]: any })) {
             properties[k] = { type: v.type };
             if (schema.secure?.prefixItems.enum.includes(k)) {
                 properties[k].secure = true;
@@ -119,9 +119,9 @@ export class ConfigSchema {
         const entries: any[] = [{
             if: { properties: { type: { const: null } } },
             then: { properties: { properties: {
-                type: "object",
+                additionalProperties: true, // same as { "type": ["string","array","object","number","null"] }
                 title: "a generic profile",
-                additionalProperties: true // same as { "type": ["string","array","object","number","null"] }
+                type: "object"
             } } }
         }];
         const defaultProperties: { [key: string]: any } = {};
@@ -188,7 +188,7 @@ export class ConfigSchema {
     public static loadProfileSchemas(schemaJson: IConfigSchema): IProfileTypeConfiguration[] {
         const patternName = Object.keys(schemaJson.properties.profiles.patternProperties)[0];
         const profileSchemas: IProfileTypeConfiguration[] = [];
-        for (const obj of schemaJson.properties.profiles.patternProperties[patternName].dependentSchemas.type.allOf) {
+        for (const obj of schemaJson.properties.profiles.patternProperties[patternName].anyOf) {
             profileSchemas.push({
                 type: obj.if.properties.type.const,
                 schema: this.parseJsonSchema(obj.then.properties)
