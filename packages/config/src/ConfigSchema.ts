@@ -26,7 +26,7 @@ export class ConfigSchema {
      * @readonly
      * @memberof ConfigSchema
      */
-    private static readonly SCHEMA_VERSION = 2;
+    private static readonly SCHEMA_VERSION = 3;
 
     /**
      * Transform an Imperative profile schema to a JSON schema. Removes any

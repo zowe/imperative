@@ -288,6 +288,7 @@ describe("Config Schema", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfiguration);
         const returnedSchema = schema.buildSchema(testConfig);
         const origSchemas = schema.loadProfileSchemas(returnedSchema);
+        // tslint:disable-next-line: no-magic-numbers
         expect(origSchemas.length).toBe(3);
         expect(origSchemas[0].type).toBe(null);
         expect(origSchemas[0].schema.title).toEqual("a generic profile");
