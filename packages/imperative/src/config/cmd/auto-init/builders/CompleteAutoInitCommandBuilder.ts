@@ -33,8 +33,6 @@ export class CompleteAutoInitCommandBuilder {
     public static getAutoInitCommand(autoInitConfig: ICommandProfileAutoInitConfig,
                                      logger: Logger): ICommandDefinition {
         const autoInitCommandAction = new AutoInitCommandBuilder(logger, autoInitConfig, autoInitConfig.profileType);
-        const autoInitCommandActionBuilt = autoInitCommandAction.build();
-        const autoInitCommand: ICommandDefinition = {...autoInitCommandActionBuilt, ...autoInitConfig.autoInit};
-        return autoInitCommand;
+        return autoInitCommandAction.build();
     }
 }

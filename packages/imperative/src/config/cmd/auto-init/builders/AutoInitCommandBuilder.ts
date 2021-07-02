@@ -17,6 +17,7 @@ import { ImperativeError } from "../../../../../../error";
 import { TextUtils } from "../../../../../../utilities";
 import { autoInitCommandDesc } from "../../../../../../messages";
 import { Constants } from "../../../../../../constants";
+import { AutoInitConstants } from "../AutoInitConstants";
 
 /**
  * Class for generating auth-related commands
@@ -80,6 +81,12 @@ export class AutoInitCommandBuilder implements AbstractCommandBuilder {
             description: this.mConfig.autoInit?.description,
             handler: this.mConfig.handler,
             options: [
+                AutoInitConstants.AUTO_INIT_OPTION_USER_CONFIG,
+                AutoInitConstants.AUTO_INIT_OPTION_GLOBAL_CONFIG,
+                AutoInitConstants.AUTO_INIT_OPTION_DRY_RUN,
+                AutoInitConstants.AUTO_INIT_OPTION_EDIT,
+                AutoInitConstants.AUTO_INIT_OPTION_OVERWRITE,
+                AutoInitConstants.AUTO_INIT_OPTION_FOR_SURE,
                 ...(this.mConfig.autoInit?.options || [])
             ],
             examples: this.mConfig.autoInit?.examples,
