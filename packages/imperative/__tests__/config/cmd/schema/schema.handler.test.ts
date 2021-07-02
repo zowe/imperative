@@ -73,7 +73,7 @@ const testProfileConfiguration: IProfileTypeConfiguration[] = [
 
 const expectedSchemaObj: any = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$version": 2,
+    "$version": 3,
     "type": "object",
     "description": "config",
     "properties": {

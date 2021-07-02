@@ -3,7 +3,7 @@
 exports[`Config Schema should be able to successfully build with a complex single profile type configuration 1`] = `
 Object {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$version": 2,
+  "$version": 3,
   "description": "config",
   "properties": Object {
     "defaults": Object {
@@ -107,7 +107,7 @@ Object {
 exports[`Config Schema should be able to successfully build with a secure single profile type configuration 1`] = `
 Object {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$version": 2,
+  "$version": 3,
   "description": "config",
   "properties": Object {
     "defaults": Object {
@@ -212,7 +212,7 @@ Object {
 exports[`Config Schema should be able to successfully build with a single profile type configuration 1`] = `
 Object {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$version": 2,
+  "$version": 3,
   "description": "config",
   "properties": Object {
     "defaults": Object {
@@ -310,7 +310,7 @@ Object {
 exports[`Config Schema should be able to successfully build with no profile type configuration 1`] = `
 Object {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$version": 2,
+  "$version": 3,
   "description": "config",
   "properties": Object {
     "defaults": Object {
@@ -379,7 +379,7 @@ Object {
 exports[`Config Schema should be able to successfully build with two profile type configurations 1`] = `
 Object {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$version": 2,
+  "$version": 3,
   "description": "config",
   "properties": Object {
     "defaults": Object {
