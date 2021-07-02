@@ -34,7 +34,7 @@ describe("AutoInitCommandBuilder", () => {
         expect(cmdDef.name).toBe("auto-init");
     });
 
-    it("should fail to initialize if missing auth config", () => {
+    it("should fail to initialize if missing auto init config", () => {
         let caughtError;
         try {
             const builder = new AutoInitCommandBuilder(Logger.getImperativeLogger(), null, "base");

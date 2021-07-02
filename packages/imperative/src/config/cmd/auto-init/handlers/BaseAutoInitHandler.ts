@@ -156,7 +156,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             if (params.arguments.forSure && params.arguments.forSure === true) {
                 // Clear layer, merge, and save
                 ImperativeConfig.instance.config.api.layers.set(profileConfig);
-                await ImperativeConfig.instance.config.api.layers.write({user, global});
+                await ImperativeConfig.instance.config.save(false);
             }
         } else {
             // Merge and save
