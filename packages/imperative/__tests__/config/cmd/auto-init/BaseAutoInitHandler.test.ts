@@ -17,6 +17,7 @@ import { ConnectionPropsForSessCfg } from "../../../../../rest";
 import * as jestdiff from "jest-diff";
 import * as stripAnsi from "strip-ansi";
 import * as open from "open";
+import { ConfigSchema } from "../../../../../config";
 
 describe("BaseAutoInitHandler", () => {
 
@@ -51,17 +52,28 @@ describe("BaseAutoInitHandler", () => {
         const mockMerge = jest.fn();
         const mockWrite = jest.fn();
         const mockSave = jest.fn();
+        const mockGet = jest.fn().mockReturnValue({
+            exists: true,
+            properties: {}
+        });
         const mockImperativeConfigApi = {
             layers: {
                 activate: mockActivate,
                 merge: mockMerge,
-                write: mockWrite
+                write: mockWrite,
+                get: mockGet
             }
         }
+        const mockSetSchema = jest.fn();
+        const buildSchemaSpy = jest.spyOn(ConfigSchema, 'buildSchema').mockImplementation();
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
             config: {
                 api: mockImperativeConfigApi,
-                save: mockSave
+                save: mockSave,
+                setSchema: mockSetSchema
+            },
+            loadedConfig: {
+                profiles: []
             }
         });
 
@@ -80,7 +92,10 @@ describe("BaseAutoInitHandler", () => {
         expect(mockActivate).toHaveBeenCalledTimes(1);
         expect(mockMerge).toHaveBeenCalledTimes(1);
         expect(mockWrite).toHaveBeenCalledTimes(0);
+        expect(mockGet).toHaveBeenCalledTimes(1);
         expect(mockSave).toHaveBeenCalledTimes(1);
+        expect(buildSchemaSpy).toHaveBeenCalledTimes(1);
+        expect(mockSetSchema).toHaveBeenCalledTimes(1);
     });
 
     it("should call init with token", async () => {
@@ -110,17 +125,29 @@ describe("BaseAutoInitHandler", () => {
         const mockMerge = jest.fn();
         const mockWrite = jest.fn();
         const mockSave = jest.fn();
+        const mockGet = jest.fn().mockReturnValue({
+            exists: true,
+            properties: {}
+        });
         const mockImperativeConfigApi = {
             layers: {
                 activate: mockActivate,
                 merge: mockMerge,
-                write: mockWrite
+                write: mockWrite,
+                get: mockGet
             }
         }
+        const buildSchemaSpy = jest.spyOn(ConfigSchema, 'buildSchema').mockImplementation();
+        const mockSetSchema = jest.fn();
+
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
             config: {
                 api: mockImperativeConfigApi,
-                save: mockSave
+                save: mockSave,
+                setSchema: mockSetSchema
+            },
+            loadedConfig: {
+                profiles: []
             }
         });
         let caughtError;
@@ -138,7 +165,10 @@ describe("BaseAutoInitHandler", () => {
         expect(mockActivate).toHaveBeenCalledTimes(1);
         expect(mockMerge).toHaveBeenCalledTimes(1);
         expect(mockWrite).toHaveBeenCalledTimes(0);
+        expect(mockGet).toHaveBeenCalledTimes(1);
         expect(mockSave).toHaveBeenCalledTimes(1);
+        expect(buildSchemaSpy).toHaveBeenCalledTimes(1);
+        expect(mockSetSchema).toHaveBeenCalledTimes(1);
     });
 
     it("should process login successfully without creating profile on timeout", async () => {
@@ -170,19 +200,32 @@ describe("BaseAutoInitHandler", () => {
         const mockMerge = jest.fn();
         const mockWrite = jest.fn();
         const mockSave = jest.fn();
+        const mockGet = jest.fn().mockReturnValue({
+            exists: true,
+            properties: {}
+        });
         const mockImperativeConfigApi = {
             layers: {
                 activate: mockActivate,
                 merge: mockMerge,
-                write: mockWrite
+                write: mockWrite,
+                get: mockGet
             }
         }
+        const buildSchemaSpy = jest.spyOn(ConfigSchema, 'buildSchema').mockImplementation();
+        const mockSetSchema = jest.fn();
+
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
             config: {
                 api: mockImperativeConfigApi,
-                save: mockSave
+                save: mockSave,
+                setSchema: mockSetSchema
+            },
+            loadedConfig: {
+                profiles: []
             }
         });
+
         let caughtError;
 
         try {
@@ -199,7 +242,10 @@ describe("BaseAutoInitHandler", () => {
         expect(mockActivate).toHaveBeenCalledTimes(1);
         expect(mockMerge).toHaveBeenCalledTimes(1);
         expect(mockWrite).toHaveBeenCalledTimes(0);
+        expect(mockGet).toHaveBeenCalledTimes(1);
         expect(mockSave).toHaveBeenCalledTimes(1);
+        expect(buildSchemaSpy).toHaveBeenCalledTimes(1);
+        expect(mockSetSchema).toHaveBeenCalledTimes(1);
     });
 
     it("should call init and do a dry run", async () => {
