@@ -9,7 +9,8 @@
 *
 */
 
-import { AbstractSession, BaseAutoInitHandler, ICommandArguments, IConfig, IHandlerParameters, ISession, SessConstants } from "../../../../../../lib";
+import { AbstractSession, BaseAutoInitHandler, ICommandArguments, IConfig, IHandlerParameters,
+         ISession, SessConstants } from "../../../../../../lib";
 
 /**
  * This class is used by the auto-init command handlers as the base class for their implementation.
@@ -46,8 +47,8 @@ export default class FruitAutoInitHandler extends BaseAutoInitHandler {
     protected async doAutoInit(session: AbstractSession, params: IHandlerParameters): Promise<IConfig> {
         return {
             profiles: {
-                my_base: {
-                    type: "base",
+                my_base_fruit: {
+                    type: this.mProfileType,
                     properties: {
                         host: session.ISession.hostname,
                         port: session.ISession.port,
@@ -59,7 +60,7 @@ export default class FruitAutoInitHandler extends BaseAutoInitHandler {
                 }
             },
             defaults: {
-                base: "my_base"
+                [this.mProfileType]: "my_base_fruit"
             },
             plugins: []
         };
