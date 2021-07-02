@@ -71,52 +71,19 @@ describe("cmd-cli config auto-init", () => {
         await keytar.deletePassword("imperative-test-cli", "secure_config_props");
     });
 
-    it("should initialize global config", async () => {
-        const response = runCliScript(__dirname + "/__scripts__/auto-init_config.sh",
-            TEST_ENVIRONMENT.workingDir + "/testDir", ["--global-config", "--host example.com", "--port 443", "--user admin", "--password 123456"]);
-        expect(response.stderr.toString()).toBe("");
-        expect(response.status).toBe(0);
-
-        // the output of the command should include token value
-        expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir }))
-            .toEqual(["imperative-test-cli.config.json", "imperative-test-cli.schema.json"]);
-        const configJson: IConfig = jsonfile.readFileSync(TEST_ENVIRONMENT.workingDir + "/imperative-test-cli.config.json");
-        expect(configJson.profiles.my_base).toBeDefined();
-        expect(configJson.profiles.my_base.properties.authToken).toBeUndefined();
-        expect(configJson.profiles.my_base.secure).toEqual(["authToken"]);
-        expect(await loadSecureProp("my_base")).toBe("jwtToken=admin:123456@fakeToken");
-    });
-
-    it("should initialize global user config", async () => {
-        const response = runCliScript(__dirname + "/__scripts__/auto-init_config.sh",
-            TEST_ENVIRONMENT.workingDir + "/testDir", ["--global-config", "--user-config", "--host example.com", "--port 443", "--user admin", "--password 123456"]);
-        expect(response.stderr.toString()).toBe("");
-        expect(response.status).toBe(0);
-
-        // the output of the command should include token value
-        expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir }))
-            .toEqual(["imperative-test-cli.config.user.json", "imperative-test-cli.schema.json"]);
-        const configJson: IConfig = jsonfile.readFileSync(TEST_ENVIRONMENT.workingDir + "/imperative-test-cli.config.user.json");
-        expect(configJson.profiles.my_base).toBeDefined();
-        expect(configJson.profiles.my_base.properties.authToken).toBeUndefined();
-        expect(configJson.profiles.my_base.secure).toEqual(["authToken"]);
-        expect(await loadSecureProp("my_base")).toBe("jwtToken=admin:123456@fakeToken");
-    });
-
     it("should initialize project config", async () => {
         const response = runCliScript(__dirname + "/__scripts__/auto-init_config.sh",
             TEST_ENVIRONMENT.workingDir + "/testDir", ["--host example.com", "--port 443", "--user admin", "--password 123456"]);
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
 
-        // the output of the command should include token value
         expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir + "/testDir" }))
             .toEqual(["imperative-test-cli.config.json", "imperative-test-cli.schema.json"]);
         const configJson: IConfig = jsonfile.readFileSync(TEST_ENVIRONMENT.workingDir + "/testDir/imperative-test-cli.config.json");
-        expect(configJson.profiles.my_base).toBeDefined();
-        expect(configJson.profiles.my_base.properties.authToken).toBeUndefined();
-        expect(configJson.profiles.my_base.secure).toEqual(["authToken"]);
-        expect(await loadSecureProp("my_base")).toBe("jwtToken=admin:123456@fakeToken");
+        expect(configJson.profiles.my_base_fruit).toBeDefined();
+        expect(configJson.profiles.my_base_fruit.properties.authToken).toBeUndefined();
+        expect(configJson.profiles.my_base_fruit.secure).toEqual(["authToken"]);
+        expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=admin:123456@fakeToken");
     });
 
     it("should initialize project user config", async () => {
@@ -125,25 +92,127 @@ describe("cmd-cli config auto-init", () => {
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
 
-        // the output of the command should include token value
         expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir + "/testDir" }))
             .toEqual(["imperative-test-cli.config.user.json", "imperative-test-cli.schema.json"]);
         const configJson: IConfig = jsonfile.readFileSync(TEST_ENVIRONMENT.workingDir + "/testDir/imperative-test-cli.config.user.json");
+        expect(configJson.profiles.my_base_fruit).toBeDefined();
+        expect(configJson.profiles.my_base_fruit.properties.authToken).toBeUndefined();
+        expect(configJson.profiles.my_base_fruit.secure).toEqual(["authToken"]);
+        expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=admin:123456@fakeToken");
+    });
+
+    it("should initialize global config", async () => {
+        const response = runCliScript(__dirname + "/__scripts__/auto-init_config.sh",
+            TEST_ENVIRONMENT.workingDir + "/testDir", ["--global-config", "--host example.com", "--port 443", "--user admin", "--password 123456"]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir }))
+            .toEqual(["imperative-test-cli.config.json", "imperative-test-cli.schema.json"]);
+        const configJson: IConfig = jsonfile.readFileSync(TEST_ENVIRONMENT.workingDir + "/imperative-test-cli.config.json");
+        expect(configJson.profiles.my_base_fruit).toBeDefined();
+        expect(configJson.profiles.my_base_fruit.properties.authToken).toBeUndefined();
+        expect(configJson.profiles.my_base_fruit.secure).toEqual(["authToken"]);
+        expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=admin:123456@fakeToken");
+    });
+
+    it("should initialize global user config", async () => {
+        const response = runCliScript(__dirname + "/__scripts__/auto-init_config.sh",
+            TEST_ENVIRONMENT.workingDir + "/testDir", ["--global-config", "--user-config", "--host example.com", "--port 443", "--user admin", "--password 123456"]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir }))
+            .toEqual(["imperative-test-cli.config.user.json", "imperative-test-cli.schema.json"]);
+        const configJson: IConfig = jsonfile.readFileSync(TEST_ENVIRONMENT.workingDir + "/imperative-test-cli.config.user.json");
+        expect(configJson.profiles.my_base_fruit).toBeDefined();
+        expect(configJson.profiles.my_base_fruit.properties.authToken).toBeUndefined();
+        expect(configJson.profiles.my_base_fruit.secure).toEqual(["authToken"]);
+        expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=admin:123456@fakeToken");
+    });
+
+    it("should prompt for missing host", async () => {
+        const response = runCliScript(__dirname + "/__scripts__/auto-init_config_prompt.sh",
+            TEST_ENVIRONMENT.workingDir + "/testDir", ["--port 443", "--user admin", "--password 123456"]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir + "/testDir" }))
+            .toEqual(["imperative-test-cli.config.json", "imperative-test-cli.schema.json"]);
+        const configJson: IConfig = jsonfile.readFileSync(TEST_ENVIRONMENT.workingDir + "/testDir/imperative-test-cli.config.json");
+        expect(configJson.profiles.my_base_fruit).toBeDefined();
+        expect(configJson.profiles.my_base_fruit.properties.host).toBe("fakeInput");
+    });
+
+    it("should prompt for missing user", async () => {
+        const response = runCliScript(__dirname + "/__scripts__/auto-init_config_prompt.sh",
+            TEST_ENVIRONMENT.workingDir + "/testDir", ["--host example.com", "--port 443", "--password 123456"]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir + "/testDir" }))
+            .toEqual(["imperative-test-cli.config.json", "imperative-test-cli.schema.json"]);
+        const configJson: IConfig = jsonfile.readFileSync(TEST_ENVIRONMENT.workingDir + "/testDir/imperative-test-cli.config.json");
+        expect(configJson.profiles.my_base_fruit).toBeDefined();
+        expect(configJson.profiles.my_base_fruit.properties.authToken).toBeUndefined();
+        expect(configJson.profiles.my_base_fruit.secure).toEqual(["authToken"]);
+        expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=fakeInput:123456@fakeToken");
+    });
+
+    it("should not update file on disk in dry-run mode", async () => {
+        const response = runCliScript(__dirname + "/__scripts__/auto-init_config.sh",
+            TEST_ENVIRONMENT.workingDir + "/testDir", ["--dry-run", "--host example.com", "--port 443", "--user admin", "--password 123456"]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir + "/testDir" })).toEqual([]);
+        expect(await keytar.getPassword("imperative-test-cli", "secure_config_props")).toBeNull();
+    });
+
+    it("should merge with existing config", async () => {
+        const response = runCliScript(__dirname + "/__scripts__/auto-init_config_merge.sh",
+            TEST_ENVIRONMENT.workingDir + "/testDir", ["--host example.com", "--port 443", "--user admin", "--password 123456"]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir + "/testDir" }))
+            .toEqual(["imperative-test-cli.config.json", "imperative-test-cli.schema.json"]);
+        const configJson: IConfig = jsonfile.readFileSync(TEST_ENVIRONMENT.workingDir + "/testDir/imperative-test-cli.config.json");
         expect(configJson.profiles.my_base).toBeDefined();
-        expect(configJson.profiles.my_base.properties.authToken).toBeUndefined();
-        expect(configJson.profiles.my_base.secure).toEqual(["authToken"]);
-        expect(await loadSecureProp("my_base")).toBe("jwtToken=admin:123456@fakeToken");
+        expect(configJson.profiles.my_base.properties.info).toBe("origConfig");
+        expect(configJson.profiles.my_base_fruit).toBeDefined();
+        expect(configJson.profiles.my_base_fruit.properties.authToken).toBeUndefined();
+        expect(configJson.profiles.my_base_fruit.secure).toEqual(["authToken"]);
+        expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=admin:123456@fakeToken");
     });
 
-    xit("should prompt for missing host", async () => {
-        // TODO
+    it("should not overwrite file without confirmation", async () => {
+        const response = runCliScript(__dirname + "/__scripts__/auto-init_config_merge.sh",
+            TEST_ENVIRONMENT.workingDir + "/testDir", ["--overwrite", "--host example.com", "--port 443", "--user admin", "--password 123456"]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir + "/testDir" }))
+            .toEqual(["imperative-test-cli.config.json", "imperative-test-cli.schema.json"]);
+        const configJson: IConfig = jsonfile.readFileSync(TEST_ENVIRONMENT.workingDir + "/testDir/imperative-test-cli.config.json");
+        expect(configJson.profiles.my_base).toBeDefined();
+        expect(configJson.profiles.my_base.properties.info).toBe("origConfig");
+        expect(configJson.profiles.my_base_fruit).toBeUndefined();
     });
 
-    xit("should prompt for missing user", async () => {
-        // TODO
-    });
+    it("should overwrite file when confirmation is given", async () => {
+        const response = runCliScript(__dirname + "/__scripts__/auto-init_config_merge.sh",
+            TEST_ENVIRONMENT.workingDir + "/testDir", ["--overwrite", "--for-sure", "--host example.com", "--port 443", "--user admin", "--password 123456"]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
 
-    xit("should not change file on disk in dry-run mode", async () => {
-        // TODO
+        expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir + "/testDir" }))
+            .toEqual(["imperative-test-cli.config.json", "imperative-test-cli.schema.json"]);
+        const configJson: IConfig = jsonfile.readFileSync(TEST_ENVIRONMENT.workingDir + "/testDir/imperative-test-cli.config.json");
+        expect(configJson.profiles.my_base).toBeUndefined();
+        expect(configJson.profiles.my_base_fruit).toBeDefined();
+        expect(configJson.profiles.my_base_fruit.properties.authToken).toBeUndefined();
+        expect(configJson.profiles.my_base_fruit.secure).toEqual(["authToken"]);
+        expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=admin:123456@fakeToken");
     });
 });
