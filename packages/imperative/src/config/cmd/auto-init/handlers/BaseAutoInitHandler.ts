@@ -17,7 +17,7 @@ import { ImperativeExpect } from "../../../../../../expect";
 import { ImperativeError } from "../../../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../../../profiles";
 import { ImperativeConfig, TextUtils } from "../../../../../../utilities";
-import { Config, ConfigConstants, IConfig } from "../../../../../../config";
+import { Config, ConfigConstants, ConfigSchema, IConfig } from "../../../../../../config";
 import { CredentialManagerFactory } from "../../../../../../security";
 import { diff } from "jest-diff";
 import stripAnsi from "strip-ansi";
@@ -154,13 +154,20 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
         } else if (params.arguments.overwrite && params.arguments.overwrite ===
              true) {
             if (params.arguments.forSure && params.arguments.forSure === true) {
-                // Clear layer, merge, and save
+                // Clear layer, merge, generate schema, and save
                 ImperativeConfig.instance.config.api.layers.set(profileConfig);
-                await ImperativeConfig.instance.config.api.layers.write({user, global});
+                const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
+                ImperativeConfig.instance.config.setSchema(schema);
+                await ImperativeConfig.instance.config.save(false);
             }
         } else {
-            // Merge and save
+            // Merge, generate schema, and save
             ImperativeConfig.instance.config.api.layers.merge(profileConfig);
+            if (ImperativeConfig.instance.config.api.layers.get().properties.$schema == null) {
+                // TODO What condition should we use to decide whether to (re)generate schema?
+                const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
+                ImperativeConfig.instance.config.setSchema(schema);
+            }
             await ImperativeConfig.instance.config.save(false);
         }
     }
