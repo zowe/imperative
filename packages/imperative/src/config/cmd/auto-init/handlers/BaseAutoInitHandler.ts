@@ -16,10 +16,14 @@ import { Imperative } from "../../../../Imperative";
 import { ImperativeExpect } from "../../../../../../expect";
 import { ImperativeError } from "../../../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../../../profiles";
-import { ImperativeConfig } from "../../../../../../utilities";
-import { Config } from "../../../../../../config";
+import { ImperativeConfig, TextUtils } from "../../../../../../utilities";
+import { Config, ConfigConstants, IConfig } from "../../../../../../config";
 import { CredentialManagerFactory } from "../../../../../../security";
-import { secureSaveError } from "../../../../../../config/src/ConfigUtils";
+import { diff } from "jest-diff";
+import stripAnsi from "strip-ansi";
+import * as open from "open";
+import * as JSONC from "comment-json";
+import * as lodash from "lodash";
 
 /**
  * This class is used by the auto init command handler as the base class for its implementation.
@@ -67,7 +71,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
      * @param {AbstractSession} session The session object to use to connect to the auth service
      * @returns {Promise<string>} The response from the auth service containing a token
      */
-    protected abstract doAutoInit(session: AbstractSession, params: IHandlerParameters): Promise<void>;
+    protected abstract doAutoInit(session: AbstractSession, params: IHandlerParameters): Promise<IConfig>;
 
     // TODO update
     /**
@@ -82,6 +86,82 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             sessCfg, params.arguments, { parms: params, doPrompting: true },
         );
         this.mSession = new Session(sessCfgWithCreds);
-        await this.doAutoInit(this.mSession, params);
+        const profileConfig = await this.doAutoInit(this.mSession, params);
+        let global = false;
+        let user = false;
+
+        // Use params to set which config layer to apply to
+        if (params.arguments.globalConfig && params.arguments.globalConfig === true) {
+            global = true;
+        }
+        if (params.arguments.userConfig && params.arguments.userConfig === true) {
+            user = true
+        }
+        ImperativeConfig.instance.config.api.layers.activate(user, global);
+
+        if (params.arguments.dryRun && params.arguments.dryRun === true) {
+            // Merge and display, do not save
+            // TODO preserve comments
+
+            // Handle if the file doesn't actually exist
+            let original: any = ImperativeConfig.instance.config.api.layers.get();
+            let originalProperties: any;
+            if (original.exists === false) {
+                originalProperties = {};
+            } else {
+                originalProperties = JSONC.parse(JSONC.stringify(original.properties));
+
+                // Hide secure stuff
+                for (const secureProp of ImperativeConfig.instance.config.api.secure.secureFields(original)) {
+                    if (lodash.has(originalProperties, secureProp)) {
+                        lodash.unset(originalProperties, secureProp);
+                    }
+                }
+            }
+
+            let dryRun: any = ImperativeConfig.instance.config.api.layers.dryRunMerge(profileConfig);
+            const dryRunProperties = JSONC.parse(JSONC.stringify(dryRun.properties));
+
+            // Hide secure stuff
+            for (const secureProp of ImperativeConfig.instance.config.api.secure.findSecure(dryRun.properties.profiles, "profiles")) {
+                if (lodash.has(dryRunProperties, secureProp)) {
+                    lodash.unset(dryRunProperties, secureProp);
+                }
+            }
+
+            original = JSONC.stringify(originalProperties,
+                                      null,
+                                      ConfigConstants.INDENT);
+            dryRun = JSONC.stringify(dryRunProperties,
+                                     null,
+                                     ConfigConstants.INDENT);
+
+            let jsonDiff = diff(original, dryRun, {aAnnotation: "Removed",
+                                                   bAnnotation: "Added",
+                                                   aColor: TextUtils.chalk.red,
+                                                   bColor: TextUtils.chalk.green});
+
+            if (stripAnsi(jsonDiff) === "Compared values have no visual difference.") {
+                jsonDiff = dryRun;
+            }
+
+            params.response.console.log(jsonDiff);
+            params.response.data.setObj(jsonDiff);
+        } else if (params.arguments.edit && params.arguments.edit === true) {
+            // Open in the default editor
+            // TODO make this work in an environment without a GUI
+            await open(ImperativeConfig.instance.config.api.layers.get().path, {wait: true});
+        } else if (params.arguments.overwrite && params.arguments.overwrite ===
+             true) {
+            if (params.arguments.forSure && params.arguments.forSure === true) {
+                // Clear layer, merge, and save
+                ImperativeConfig.instance.config.api.layers.set(profileConfig);
+                await ImperativeConfig.instance.config.api.layers.write({user, global});
+            }
+        } else {
+            // Merge and save
+            ImperativeConfig.instance.config.api.layers.merge(profileConfig);
+            await ImperativeConfig.instance.config.save(false);
+        }
     }
 }
