@@ -19,7 +19,7 @@ Object {
       "description": "named profiles config",
       "patternProperties": Object {
         "^\\\\S*$": Object {
-          "anyOf": Array [
+          "allOf": Array [
             Object {
               "if": Object {
                 "properties": Object {
@@ -49,7 +49,6 @@ Object {
               "then": Object {
                 "properties": Object {
                   "properties": Object {
-                    "additionalProperties": false,
                     "description": "A fake zosmf profile",
                     "properties": Object {
                       "host": Object {
@@ -123,7 +122,7 @@ Object {
       "description": "named profiles config",
       "patternProperties": Object {
         "^\\\\S*$": Object {
-          "anyOf": Array [
+          "allOf": Array [
             Object {
               "if": Object {
                 "properties": Object {
@@ -153,7 +152,6 @@ Object {
               "then": Object {
                 "properties": Object {
                   "properties": Object {
-                    "additionalProperties": false,
                     "description": "A fake zosmf profile",
                     "properties": Object {
                       "host": Object {
@@ -228,7 +226,7 @@ Object {
       "description": "named profiles config",
       "patternProperties": Object {
         "^\\\\S*$": Object {
-          "anyOf": Array [
+          "allOf": Array [
             Object {
               "if": Object {
                 "properties": Object {
@@ -258,7 +256,6 @@ Object {
               "then": Object {
                 "properties": Object {
                   "properties": Object {
-                    "additionalProperties": false,
                     "description": "A fake zosmf profile",
                     "properties": Object {
                       "host": Object {
@@ -322,7 +319,7 @@ Object {
       "description": "named profiles config",
       "patternProperties": Object {
         "^\\\\S*$": Object {
-          "anyOf": Array [
+          "allOf": Array [
             Object {
               "if": Object {
                 "properties": Object {
@@ -398,7 +395,7 @@ Object {
       "description": "named profiles config",
       "patternProperties": Object {
         "^\\\\S*$": Object {
-          "anyOf": Array [
+          "allOf": Array [
             Object {
               "if": Object {
                 "properties": Object {
@@ -428,7 +425,6 @@ Object {
               "then": Object {
                 "properties": Object {
                   "properties": Object {
-                    "additionalProperties": false,
                     "description": "A fake zosmf profile",
                     "properties": Object {
                       "host": Object {
@@ -453,7 +449,6 @@ Object {
               "then": Object {
                 "properties": Object {
                   "properties": Object {
-                    "additionalProperties": false,
                     "description": "A fake base profile",
                     "properties": Object {
                       "port": Object {

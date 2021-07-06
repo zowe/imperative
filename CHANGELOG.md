@@ -4,7 +4,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
-- Bugfix: Allow IntelliSense when editing zowe.config.json files
+- Bugfix: Revert schema changes related to additionalProperties. Re-enable IntelliSense when editing zowe.config.json files
 - **Next Breaking**
     - Changed the schema paths and updated schema version
 

@@ -95,7 +95,7 @@ describe("Config Schema", () => {
     it("should be able to successfully build with no profile type configuration", () => {
         const testConfig: IProfileTypeConfiguration[] = [];
         const returnedSchema = schema.buildSchema(testConfig);
-        const expectedAnyOf: any = [
+        const expectedAllOf: any = [
           {
             if: {
                 properties: {
@@ -115,14 +115,14 @@ describe("Config Schema", () => {
             }
         }];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].anyOf).toEqual(expectedAnyOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
     });
 
     it("should be able to successfully build with a single profile type configuration", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfiguration);
         testConfig.pop();
         const returnedSchema = schema.buildSchema(testConfig);
-        const expectedAnyOf: any[] = [{
+        const expectedAllOf: any[] = [{
             if: {
                 properties: {
                     type: {
@@ -148,13 +148,13 @@ describe("Config Schema", () => {
             }
         }];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].anyOf.slice(1)).toEqual(expectedAnyOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf.slice(1)).toEqual(expectedAllOf)
     });
 
     it("should be able to successfully build with two profile type configurations", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfiguration);
         const returnedSchema = schema.buildSchema(testConfig);
-        const expectedAnyOf: any[] = [
+        const expectedAllOf: any[] = [
             {
                 if: {
                     properties: {
@@ -207,13 +207,13 @@ describe("Config Schema", () => {
             }
         ];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].anyOf.slice(1)).toEqual(expectedAnyOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf.slice(1)).toEqual(expectedAllOf)
     });
 
     it("should be able to successfully build with a secure single profile type configuration", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfigurationSecure);
         const returnedSchema = schema.buildSchema(testConfig);
-        const expectedAnyOf: any[] = [{
+        const expectedAllOf: any[] = [{
             if: {
                 properties: {
                     type: {
@@ -246,13 +246,13 @@ describe("Config Schema", () => {
             }
         }];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].anyOf.slice(1)).toEqual(expectedAnyOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf.slice(1)).toEqual(expectedAllOf)
     });
 
     it("should be able to successfully build with a complex single profile type configuration", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfigurationOptionDefinition);
         const returnedSchema = schema.buildSchema(testConfig);
-        const expectedAnyOf: any[] = [{
+        const expectedAllOf: any[] = [{
             if: {
                 properties: {
                     type: {
@@ -281,7 +281,7 @@ describe("Config Schema", () => {
             }
         }];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].anyOf.slice(1)).toEqual(expectedAnyOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf.slice(1)).toEqual(expectedAllOf)
     });
 
     it("should be able to regenerate profile schemas from a schema object", () => {

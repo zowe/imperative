@@ -58,8 +58,7 @@ export class ConfigSchema {
             type: schema.type,
             title: schema.title,
             description: schema.description,
-            properties,
-            additionalProperties: false
+            properties
         };
         if (schema.required) {
             propertiesSchema.required = schema.required;
@@ -168,7 +167,7 @@ export class ConfigSchema {
                                     uniqueItems: true
                                 }
                             },
-                            anyOf: entries
+                            allOf: entries
                         }
                     }
                 },
@@ -188,7 +187,7 @@ export class ConfigSchema {
     public static loadProfileSchemas(schemaJson: IConfigSchema): IProfileTypeConfiguration[] {
         const patternName = Object.keys(schemaJson.properties.profiles.patternProperties)[0];
         const profileSchemas: IProfileTypeConfiguration[] = [];
-        for (const obj of schemaJson.properties.profiles.patternProperties[patternName].anyOf) {
+        for (const obj of schemaJson.properties.profiles.patternProperties[patternName].allOf) {
             profileSchemas.push({
                 type: obj.if.properties.type.const,
                 schema: this.parseJsonSchema(obj.then.properties)
