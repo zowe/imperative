@@ -61,5 +61,11 @@ export interface IOptionsForAddConnProps {
      * @type {IHandlerParameters}
      * @memberof IOptionsForAddConnProps
      */
-    parms?: IHandlerParameters
+    parms?: IHandlerParameters;
+
+    /**
+     * Specifies the description of your service to be used in CLI prompt
+     * messages. If undefined, the default value is "your service".
+     */
+    serviceDescription?: string;
 }
