@@ -36,6 +36,11 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
     protected abstract mProfileType: string;
 
     /**
+     * The description of your service to be used in CLI prompt messages
+     */
+    protected abstract mServiceDescription: string;
+
+    /**
      * The session being created from the command line arguments / profile
      */
     protected mSession: AbstractSession;
@@ -83,7 +88,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
     private async processAutoInit(params: IHandlerParameters) {
         const sessCfg = this.createSessCfgFromArgs(params.arguments);
         const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
-            sessCfg, params.arguments, { parms: params, doPrompting: true },
+            sessCfg, params.arguments, { parms: params, doPrompting: true, serviceDescription: this.mServiceDescription },
         );
         this.mSession = new Session(sessCfgWithCreds);
         const profileConfig = await this.doAutoInit(this.mSession, params);
