@@ -156,8 +156,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             // Open in the default editor
             // TODO make this work in an environment without a GUI
             await open(ImperativeConfig.instance.config.api.layers.get().path, {wait: true});
-        } else if (params.arguments.overwrite && params.arguments.overwrite ===
-             true) {
+        } else if (params.arguments.overwrite && params.arguments.overwrite === true) {
             if (params.arguments.forSure && params.arguments.forSure === true) {
                 // Clear layer, merge, generate schema, and save
                 ImperativeConfig.instance.config.api.layers.set(profileConfig);
