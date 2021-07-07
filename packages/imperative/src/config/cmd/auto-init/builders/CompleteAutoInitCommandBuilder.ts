@@ -10,11 +10,6 @@
 */
 
 import { ICommandDefinition } from "../../../../../../cmd";
-import {
-    authCategoryDesc,
-    authLoginGroupDesc, authLoginGroupSummary,
-    authLogoutGroupDesc, authLogoutGroupSummary
-} from "../../../../../../messages";
 import { AutoInitCommandBuilder } from "./AutoInitCommandBuilder";
 import { Logger } from "../../../../../../logger/index";
 import { ICommandProfileAutoInitConfig } from "../../../../../../cmd/src/doc/profiles/definition/ICommandProfileAutoInitConfig";

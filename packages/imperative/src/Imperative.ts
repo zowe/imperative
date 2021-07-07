@@ -727,7 +727,6 @@ export class Imperative {
             rootCommand.children.push(CompleteAuthGroupBuilder.getAuthGroup(authConfigs, this.log, loadedConfig.authGroupConfig));
         }
 
-        // TODO add autoinit here
         if (loadedConfig.configAutoInitCommandConfig && loadedConfig.configAutoInitCommandConfig.autoInitConfig) {
             const autoInit: ICommandProfileAutoInitConfig = loadedConfig.configAutoInitCommandConfig.autoInitConfig;
             for (const child of rootCommand.children){

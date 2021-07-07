@@ -16,4 +16,4 @@ export interface IImperativeAutoInitCommandConfig {
      * Command definition for "config auto-init" command
      */
     autoInitConfig?: ICommandProfileAutoInitConfig;
-};
+}

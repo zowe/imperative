@@ -9,21 +9,15 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerResponseApi } from "../../../../../../cmd";
-import { Constants } from "../../../../../../constants";
-import { ISession, ConnectionPropsForSessCfg, Session, SessConstants, AbstractSession } from "../../../../../../rest";
-import { Imperative } from "../../../../Imperative";
-import { ImperativeExpect } from "../../../../../../expect";
-import { ImperativeError } from "../../../../../../error";
-import { ISaveProfileFromCliArgs } from "../../../../../../profiles";
-import { ImperativeConfig, TextUtils } from "../../../../../../utilities";
-import { Config, ConfigConstants, ConfigSchema, IConfig } from "../../../../../../config";
-import { CredentialManagerFactory } from "../../../../../../security";
+import { ICommandHandler, IHandlerParameters, ICommandArguments } from "../../../../../../cmd";
+import { ISession, ConnectionPropsForSessCfg, Session, AbstractSession } from "../../../../../../rest";
+import { ConfigConstants, ConfigSchema, IConfig } from "../../../../../../config";
 import { diff } from "jest-diff";
 import stripAnsi from "strip-ansi";
 import * as open from "open";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
+import { ImperativeConfig, TextUtils } from "../../../../../../utilities";
 
 /**
  * This class is used by the auto init command handler as the base class for its implementation.
@@ -68,7 +62,6 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
         await this.processAutoInit(commandParameters);
     }
 
-    // TODO update
     /**
      * This is called by the "auto-init" command after it creates a session, to
      * obtain information that can be used to automatically create a config
@@ -78,11 +71,10 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
      */
     protected abstract doAutoInit(session: AbstractSession, params: IHandlerParameters): Promise<IConfig>;
 
-    // TODO update
     /**
-     * Performs the login operation. Builds a session to connect to the auth
-     * service, sends a login request to it to obtain a token, and stores the
-     * resulting token in the profile of type `mProfileType`.
+     * Processes the auto init command to the auto init service.
+     * Applies the changes to whichever config layer is specified by IHandlerParameters.
+     * Can also perform a dry run and display the changes, or open the config for editing.
      * @param {IHandlerParameters} params Command parameters sent by imperative.
      */
     private async processAutoInit(params: IHandlerParameters) {
