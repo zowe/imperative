@@ -124,7 +124,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
                 }
             }
 
-            let dryRun: any = ImperativeConfig.instance.config.api.layers.dryRunMerge(profileConfig);
+            let dryRun: any = ImperativeConfig.instance.config.api.layers.merge(profileConfig, true);
             const dryRunProperties = JSONC.parse(JSONC.stringify(dryRun.properties));
 
             // Hide secure stuff

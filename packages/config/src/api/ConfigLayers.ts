@@ -151,34 +151,20 @@ export class ConfigLayers extends ConfigApi {
     // _______________________________________________________________________
     /**
      * Merge properties from the supplied Config object into the active layer.
+     * If dryRun is specified, merge is applied to a copy of the layer and returned.
+     * If dryRun is not specified, merge is applied directly to the layer and nothing is returned.
      *
      * @param cnfg The Config object to merge.
+     * @returns The merged config layer or void
      */
-    public merge(cnfg: IConfig) {
-        const layer = this.mConfig.layerActive();
-        layer.properties.profiles = deepmerge(cnfg.profiles, layer.properties.profiles, {
-            customMerge: (key: string) => {
-                if (key === "secure") {
-                    return (securePropsOne: string[], securePropsTwo: string[]) => [...new Set(securePropsOne.concat(securePropsTwo))]
-                }
-            }
-        });
-        layer.properties.defaults = deepmerge(cnfg.defaults, layer.properties.defaults);
-        for (const pluginName of cnfg.plugins) {
-            if (!layer.properties.plugins.includes(pluginName)) {
-                layer.properties.plugins.push(pluginName);
-            }
+    public merge(cnfg: IConfig, dryRun: boolean = false): void | IConfigLayer {
+        let layer: IConfigLayer;
+        if (dryRun) {
+            layer = lodash.cloneDeep(this.mConfig.layerActive());
+        } else {
+            layer = this.mConfig.layerActive();
         }
-    }
 
-    /**
-     * Merge properties from the supplied Config object into a copy of the active layer.
-     *
-     * @param cnfg The Config object to merge.
-     * @returns The merged config layer.
-     */
-    public dryRunMerge(cnfg: IConfig) {
-        const layer = lodash.cloneDeep(this.mConfig.layerActive());
         layer.properties.profiles = deepmerge(cnfg.profiles, layer.properties.profiles, {
             customMerge: (key: string) => {
                 if (key === "secure") {
@@ -192,6 +178,7 @@ export class ConfigLayers extends ConfigApi {
                 layer.properties.plugins.push(pluginName);
             }
         }
-        return layer;
+
+        if (dryRun) { return layer; }
     }
 }

@@ -14,6 +14,7 @@ import * as path from "path";
 import { ConfigSecure } from "../src/api";
 import { Config } from "../src/Config";
 import { IConfig } from "../src/doc/IConfig";
+import { IConfigLayer } from "../src/doc/IConfigLayer";
 import { IConfigProfile } from "../src/doc/IConfigProfile";
 
 const MY_APP = "my_app";
@@ -425,10 +426,10 @@ describe("Config API tests", () => {
                 expect(retrievedConfig.profiles.fruit.properties.origin).toBe("California");
             });
         });
-        describe("dryRunMerge", () => {
+        describe("merge - dry run", () => {
             it("should merge config layers with correct priority", async () => {
                 const config = await Config.load(MY_APP);
-                const retrievedConfig = config.api.layers.dryRunMerge(mergeConfig).properties;
+                const retrievedConfig = (config.api.layers.merge(mergeConfig, true) as IConfigLayer).properties;
                 expect(retrievedConfig).toMatchSnapshot();
 
                 // Check that new config was added

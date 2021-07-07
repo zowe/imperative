@@ -97,6 +97,7 @@ describe("BaseAutoInitHandler", () => {
         expect(mockSave).toHaveBeenCalledTimes(1);
         expect(buildSchemaSpy).toHaveBeenCalledTimes(1);
         expect(mockSetSchema).toHaveBeenCalledTimes(1);
+        expect(mockMerge).toHaveBeenCalledWith(undefined);
     });
 
     it("should call init with token", async () => {
@@ -170,6 +171,7 @@ describe("BaseAutoInitHandler", () => {
         expect(mockSave).toHaveBeenCalledTimes(1);
         expect(buildSchemaSpy).toHaveBeenCalledTimes(1);
         expect(mockSetSchema).toHaveBeenCalledTimes(1);
+        expect(mockMerge).toHaveBeenCalledWith(undefined);
     });
 
     it("should process login successfully without creating profile on timeout", async () => {
@@ -247,6 +249,7 @@ describe("BaseAutoInitHandler", () => {
         expect(mockSave).toHaveBeenCalledTimes(1);
         expect(buildSchemaSpy).toHaveBeenCalledTimes(1);
         expect(mockSetSchema).toHaveBeenCalledTimes(1);
+        expect(mockMerge).toHaveBeenCalledWith(undefined);
     });
 
     it("should call init and do a dry run", async () => {
@@ -277,8 +280,7 @@ describe("BaseAutoInitHandler", () => {
         const processAutoInitSpy = jest.spyOn(handler as any, "processAutoInit");
         const createSessCfgFromArgsSpy = jest.spyOn(handler as any, "createSessCfgFromArgs");
         const mockActivate = jest.fn();
-        const mockMerge = jest.fn();
-        const mockDryRunMerge = jest.fn().mockReturnValue({
+        const mockMerge = jest.fn().mockReturnValue({
             exists: true,
             properties: {}
         });
@@ -294,7 +296,6 @@ describe("BaseAutoInitHandler", () => {
             layers: {
                 activate: mockActivate,
                 merge: mockMerge,
-                dryRunMerge: mockDryRunMerge,
                 write: mockWrite,
                 get: mockGet
             },
@@ -325,14 +326,14 @@ describe("BaseAutoInitHandler", () => {
         expect(processAutoInitSpy).toBeCalledTimes(1);
         expect(createSessCfgFromArgsSpy).toBeCalledTimes(1);
         expect(mockActivate).toHaveBeenCalledTimes(1);
-        expect(mockMerge).toHaveBeenCalledTimes(0);
+        expect(mockMerge).toHaveBeenCalledTimes(1);
         expect(mockWrite).toHaveBeenCalledTimes(0);
         expect(mockSave).toHaveBeenCalledTimes(0);
         expect(mockSecureFields).toHaveBeenCalledTimes(1);
         expect(mockFindSecure).toHaveBeenCalledTimes(1);
-        expect(mockDryRunMerge).toHaveBeenCalledTimes(1);
         expect(diffSpy).toHaveBeenCalledTimes(1);
         expect(stripAnsiSpy).toHaveBeenCalledTimes(1);
+        expect(mockMerge).toHaveBeenCalledWith(undefined, true);
     });
 
     it("should call init and do edit", async () => {
@@ -510,8 +511,7 @@ describe("BaseAutoInitHandler", () => {
         const processAutoInitSpy = jest.spyOn(handler as any, "processAutoInit");
         const createSessCfgFromArgsSpy = jest.spyOn(handler as any, "createSessCfgFromArgs");
         const mockActivate = jest.fn();
-        const mockMerge = jest.fn();
-        const mockDryRunMerge = jest.fn().mockReturnValue({
+        const mockMerge = jest.fn().mockReturnValue({
             exists: true,
             properties: {}
         });
@@ -536,7 +536,6 @@ describe("BaseAutoInitHandler", () => {
             layers: {
                 activate: mockActivate,
                 merge: mockMerge,
-                dryRunMerge: mockDryRunMerge,
                 write: mockWrite,
                 get: mockGet
             },
@@ -568,14 +567,14 @@ describe("BaseAutoInitHandler", () => {
         expect(processAutoInitSpy).toBeCalledTimes(1);
         expect(createSessCfgFromArgsSpy).toBeCalledTimes(1);
         expect(mockActivate).toHaveBeenCalledTimes(1);
-        expect(mockMerge).toHaveBeenCalledTimes(0);
+        expect(mockMerge).toHaveBeenCalledTimes(1);
         expect(mockWrite).toHaveBeenCalledTimes(0);
         expect(mockSave).toHaveBeenCalledTimes(0);
         expect(mockSecureFields).toHaveBeenCalledTimes(1);
         expect(mockFindSecure).toHaveBeenCalledTimes(1);
-        expect(mockDryRunMerge).toHaveBeenCalledTimes(1);
         expect(diffSpy).toHaveBeenCalledTimes(1);
         expect(stripAnsiSpy).toHaveBeenCalledTimes(1);
         expect(unsetSpy).toHaveBeenCalledTimes(1);
+        expect(mockMerge).toHaveBeenCalledWith(undefined, true);
     });
 });

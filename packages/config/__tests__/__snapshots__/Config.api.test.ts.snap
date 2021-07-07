@@ -82,6 +82,49 @@ Object {
 }
 `;
 
+exports[`Config API tests layers merge - dry run should merge config layers with correct priority 1`] = `
+Object {
+  "defaults": Object {
+    "fruit": "fruit.apple",
+  },
+  "plugins": CommentArray [
+    "@zowe/fruit-for-imperative",
+    "@zowe/vegetable-for-imperative",
+  ],
+  "profiles": Object {
+    "fruit": Object {
+      "profiles": Object {
+        "apple": Object {
+          "properties": Object {
+            "color": "red",
+          },
+          "type": "fruit",
+        },
+        "grape": Object {
+          "properties": Object {
+            "color": "red",
+          },
+          "type": "fruit",
+        },
+        "orange": Object {
+          "properties": Object {
+            "color": "orange",
+          },
+          "type": "fruit",
+        },
+      },
+      "properties": Object {
+        "origin": "California",
+        "shipDate": "2000-01-01",
+      },
+      "secure": Array [
+        "secret",
+      ],
+    },
+  },
+}
+`;
+
 exports[`Config API tests layers merge should merge config layers with correct priority 1`] = `
 Object {
   "defaults": Object {
