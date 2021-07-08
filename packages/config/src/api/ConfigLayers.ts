@@ -167,7 +167,6 @@ export class ConfigLayers extends ConfigApi {
         layer.properties.profiles = lodash.mergeWith(cnfg.profiles, layer.properties.profiles, (obj, src) =>
             {
                 if (lodash.isArray(obj) && lodash.isArray(src)) {
-
                     const temp = JSONC.parse(JSONC.stringify(obj, null, ConfigConstants.INDENT));
                     src.forEach((val, idx) => {
                         if (!temp.includes(val)) {
