@@ -11,8 +11,10 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import * as JSONC from "comment-json";
 import { ConfigSecure } from "../src/api";
 import { Config } from "../src/Config";
+import { ConfigConstants } from "../src/ConfigConstants";
 import { IConfig } from "../src/doc/IConfig";
 import { IConfigLayer } from "../src/doc/IConfigLayer";
 import { IConfigProfile } from "../src/doc/IConfigProfile";
@@ -429,6 +431,7 @@ describe("Config API tests", () => {
         describe("merge - dry run", () => {
             it("should merge config layers with correct priority", async () => {
                 const config = await Config.load(MY_APP);
+                const existingConfig = JSONC.parse(JSONC.stringify(config.layerActive(), null, ConfigConstants.INDENT));
                 const retrievedConfig = (config.api.layers.merge(mergeConfig, true) as IConfigLayer).properties;
                 expect(retrievedConfig).toMatchSnapshot();
 
@@ -443,6 +446,9 @@ describe("Config API tests", () => {
                 expect(retrievedConfig.profiles.fruit.profiles.apple.properties.color).toBe("red");
                 expect(retrievedConfig.profiles.fruit.profiles.orange).toBeDefined();
                 expect(retrievedConfig.profiles.fruit.properties.origin).toBe("California");
+
+                // Check that the original was not modified
+                expect(config.layerActive()).toEqual(existingConfig);
             });
         });
     });
