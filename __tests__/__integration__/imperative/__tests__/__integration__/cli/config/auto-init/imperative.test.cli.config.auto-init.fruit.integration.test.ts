@@ -159,6 +159,21 @@ describe("cmd-cli config auto-init", () => {
         expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=fakeInput:123456@fakeToken");
     });
 
+    it("should authenticate with token if provided", async () => {
+        const response = runCliScript(__dirname + "/__scripts__/auto-init_config.sh",
+            TEST_ENVIRONMENT.workingDir + "/testDir", ["--host example.com", "--port 443", "--tokenType apimlAuthenticationToken", "--tokenValue null"]);
+        expect(response.stderr.toString()).toBe("");
+        expect(response.status).toBe(0);
+
+        expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir + "/testDir" }))
+            .toEqual(["imperative-test-cli.config.json", "imperative-test-cli.schema.json"]);
+        const configJson: IConfig = jsonfile.readFileSync(TEST_ENVIRONMENT.workingDir + "/testDir/imperative-test-cli.config.json");
+        expect(configJson.profiles.my_base_fruit).toBeDefined();
+        expect(configJson.profiles.my_base_fruit.properties.authToken).toBeUndefined();
+        expect(configJson.profiles.my_base_fruit.secure).toEqual(["authToken"]);
+        expect(await loadSecureProp("my_base_fruit")).toBe("apimlAuthenticationToken=null");
+    });
+
     it("should not update file on disk in dry-run mode", async () => {
         const response = runCliScript(__dirname + "/__scripts__/auto-init_config.sh",
             TEST_ENVIRONMENT.workingDir + "/testDir", ["--dry-run", "--host example.com", "--port 443", "--user admin", "--password 123456"]);

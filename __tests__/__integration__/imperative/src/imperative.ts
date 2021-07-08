@@ -83,7 +83,9 @@ export const config: IImperativeConfig = {
                 hostOption,
                 portOption,
                 userOption,
-                passwordOption
+                passwordOption,
+                tokenTypeOption,
+                tokenValueOption
             ]
         },
         profileType: "base"
