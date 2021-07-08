@@ -14,7 +14,7 @@ import { IImperativeLogsConfig } from "./IImperativeLogsConfig";
 import { IImperativeOverrides } from "./IImperativeOverrides";
 import { IImperativeAuthGroupConfig } from "./IImperativeAuthGroupConfig";
 import { IApimlSvcAttrs } from "./IApimlSvcAttrs";
-import { IImperativeAutoInitCommandConfig } from "./IImperativeAutoInitCommandConfig";
+import { ICommandProfileAutoInitConfig } from "../../../cmd/src/doc/profiles/definition/ICommandProfileAutoInitConfig";
 
 /**
  * All of the configuration required to set up your Imperative CLI app
@@ -178,10 +178,10 @@ export interface IImperativeConfig {
 
     /**
      * Use this property to customize the command definition for the config init command.
-     * @type {IImperativeAutoInitCommandConfig}
+     * @type {ICommandProfileAutoInitConfig}
      * @memberof IImperativeConfig
      */
-    configAutoInitCommandConfig?: IImperativeAutoInitCommandConfig;
+    configAutoInitCommandConfig?: ICommandProfileAutoInitConfig;
 
     /**
      * Specify the name to use in the config template for the root profile that contains all supported profiles.

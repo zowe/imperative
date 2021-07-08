@@ -727,8 +727,8 @@ export class Imperative {
             rootCommand.children.push(CompleteAuthGroupBuilder.getAuthGroup(authConfigs, this.log, loadedConfig.authGroupConfig));
         }
 
-        if (loadedConfig.configAutoInitCommandConfig && loadedConfig.configAutoInitCommandConfig.autoInitConfig) {
-            const autoInit: ICommandProfileAutoInitConfig = loadedConfig.configAutoInitCommandConfig.autoInitConfig;
+        if (loadedConfig.configAutoInitCommandConfig) {
+            const autoInit: ICommandProfileAutoInitConfig = loadedConfig.configAutoInitCommandConfig;
             for (const child of rootCommand.children){
                 if (child.name === 'config') {
                     child.children.push(CompleteAutoInitCommandBuilder.getAutoInitCommand(autoInit, this.log));
