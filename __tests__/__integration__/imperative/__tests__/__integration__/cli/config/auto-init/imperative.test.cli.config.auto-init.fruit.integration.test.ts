@@ -103,7 +103,8 @@ describe("cmd-cli config auto-init", () => {
 
     it("should initialize global config", async () => {
         const response = runCliScript(__dirname + "/__scripts__/auto-init_config.sh",
-            TEST_ENVIRONMENT.workingDir + "/testDir", ["--global-config", "--host example.com", "--port 443", "--user admin", "--password 123456"]);
+            TEST_ENVIRONMENT.workingDir + "/testDir", ["--global-config",
+            "--host example.com", "--port 443", "--user admin", "--password 123456"]);
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
 
@@ -118,7 +119,8 @@ describe("cmd-cli config auto-init", () => {
 
     it("should initialize global user config", async () => {
         const response = runCliScript(__dirname + "/__scripts__/auto-init_config.sh",
-            TEST_ENVIRONMENT.workingDir + "/testDir", ["--global-config", "--user-config", "--host example.com", "--port 443", "--user admin", "--password 123456"]);
+            TEST_ENVIRONMENT.workingDir + "/testDir", ["--global-config", "--user-config",
+            "--host example.com", "--port 443", "--user admin", "--password 123456"]);
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
 
@@ -161,7 +163,8 @@ describe("cmd-cli config auto-init", () => {
 
     it("should authenticate with token if provided", async () => {
         const response = runCliScript(__dirname + "/__scripts__/auto-init_config.sh",
-            TEST_ENVIRONMENT.workingDir + "/testDir", ["--host example.com", "--port 443", "--tokenType apimlAuthenticationToken", "--tokenValue null"]);
+            TEST_ENVIRONMENT.workingDir + "/testDir", ["--host example.com", "--port 443",
+            "--tokenType apimlAuthenticationToken", "--tokenValue null"]);
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
 
@@ -176,7 +179,8 @@ describe("cmd-cli config auto-init", () => {
 
     it("should not update file on disk in dry-run mode", async () => {
         const response = runCliScript(__dirname + "/__scripts__/auto-init_config.sh",
-            TEST_ENVIRONMENT.workingDir + "/testDir", ["--dry-run", "--host example.com", "--port 443", "--user admin", "--password 123456"]);
+            TEST_ENVIRONMENT.workingDir + "/testDir", ["--dry-run",
+            "--host example.com", "--port 443", "--user admin", "--password 123456"]);
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
 
@@ -203,7 +207,8 @@ describe("cmd-cli config auto-init", () => {
 
     it("should not overwrite file without confirmation", async () => {
         const response = runCliScript(__dirname + "/__scripts__/auto-init_config_merge.sh",
-            TEST_ENVIRONMENT.workingDir + "/testDir", ["--overwrite", "--host example.com", "--port 443", "--user admin", "--password 123456"]);
+            TEST_ENVIRONMENT.workingDir + "/testDir", ["--overwrite",
+            "--host example.com", "--port 443", "--user admin", "--password 123456"]);
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
 
@@ -217,7 +222,8 @@ describe("cmd-cli config auto-init", () => {
 
     it("should overwrite file when confirmation is given", async () => {
         const response = runCliScript(__dirname + "/__scripts__/auto-init_config_merge.sh",
-            TEST_ENVIRONMENT.workingDir + "/testDir", ["--overwrite", "--for-sure", "--host example.com", "--port 443", "--user admin", "--password 123456"]);
+            TEST_ENVIRONMENT.workingDir + "/testDir", ["--overwrite", "--for-sure",
+            "--host example.com", "--port 443", "--user admin", "--password 123456"]);
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
 
