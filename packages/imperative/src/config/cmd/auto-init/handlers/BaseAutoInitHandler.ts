@@ -106,7 +106,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             if (original.exists === false) {
                 originalProperties = {};
             } else {
-                originalProperties = JSONC.parse(JSONC.stringify(original.properties));
+                originalProperties = JSONC.parse(JSONC.stringify(original.properties, null, ConfigConstants.INDENT));
 
                 // Hide secure stuff
                 for (const secureProp of ImperativeConfig.instance.config.api.secure.secureFields(original)) {
@@ -117,7 +117,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             }
 
             let dryRun: any = ImperativeConfig.instance.config.api.layers.merge(profileConfig, true);
-            const dryRunProperties = JSONC.parse(JSONC.stringify(dryRun.properties));
+            const dryRunProperties = JSONC.parse(JSONC.stringify(dryRun.properties, null, ConfigConstants.INDENT));
 
             // Hide secure stuff
             for (const secureProp of ImperativeConfig.instance.config.api.secure.findSecure(dryRun.properties.profiles, "profiles")) {

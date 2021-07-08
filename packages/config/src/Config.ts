@@ -275,7 +275,7 @@ export class Config {
      * Returns a clone to prevent accidental edits of the original object.
      */
     public get layers(): IConfigLayer[] {
-        return JSONC.parse(JSONC.stringify(this.mLayers));
+        return JSONC.parse(JSONC.stringify(this.mLayers, null, ConfigConstants.INDENT));
     }
 
     // _______________________________________________________________________
@@ -504,7 +504,7 @@ export class Config {
      * @returns The resulting profile object
      */
     public layerProfiles(layer: IConfigLayer, maskSecure?: boolean): { [key: string]: IConfigProfile } {
-        const properties = JSONC.parse(JSONC.stringify(layer.properties));
+        const properties = JSONC.parse(JSONC.stringify(layer.properties, null, ConfigConstants.INDENT));
         if (maskSecure) {
             for (const secureProp of this.api.secure.secureFields(layer)) {
                 if (lodash.has(properties, secureProp)) {

@@ -11,7 +11,6 @@
 
 import * as fs from "fs";
 import * as node_path from "path";
-import * as deepmerge from "deepmerge";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 import { ImperativeError } from "../../../error";
@@ -127,7 +126,7 @@ export class ConfigLayers extends ConfigApi {
     public get(): IConfigLayer {
         // Note: Add indentation to allow comments to be accessed via config.api.layers.get(), otherwise use layerActive()
         // return JSONC.parse(JSONC.stringify(this.mConfig.layerActive(), null, ConfigConstants.INDENT));
-        return JSONC.parse(JSONC.stringify(this.mConfig.layerActive()));
+        return JSONC.parse(JSONC.stringify(this.mConfig.layerActive(), null, ConfigConstants.INDENT));
     }
 
     // _______________________________________________________________________
@@ -160,19 +159,27 @@ export class ConfigLayers extends ConfigApi {
     public merge(cnfg: IConfig, dryRun: boolean = false): void | IConfigLayer {
         let layer: IConfigLayer;
         if (dryRun) {
-            layer = lodash.cloneDeep(this.mConfig.layerActive());
+            layer = JSONC.parse(JSONC.stringify(this.mConfig.layerActive(), null, ConfigConstants.INDENT));
         } else {
             layer = this.mConfig.layerActive();
         }
 
-        layer.properties.profiles = deepmerge(cnfg.profiles, layer.properties.profiles, {
-            customMerge: (key: string) => {
-                if (key === "secure") {
-                    return (securePropsOne: string[], securePropsTwo: string[]) => [...new Set(securePropsOne.concat(securePropsTwo))]
+        layer.properties.profiles = lodash.mergeWith(cnfg.profiles, layer.properties.profiles, (obj, src) => 
+            {
+                if (lodash.isArray(obj) && lodash.isArray(src)) {
+
+                    const temp = JSONC.parse(JSONC.stringify(obj, null, ConfigConstants.INDENT));
+                    src.forEach((val, idx) => {
+                        if (!temp.includes(val)) {
+                            temp.splice(idx, 0, val);
+                        }
+                    });
+                    return temp;
                 }
-            }
-        });
-        layer.properties.defaults = deepmerge(cnfg.defaults, layer.properties.defaults);
+            });
+
+        layer.properties.defaults = lodash.merge(cnfg.defaults, layer.properties.defaults);
+
         for (const pluginName of cnfg.plugins) {
             if (!layer.properties.plugins.includes(pluginName)) {
                 layer.properties.plugins.push(pluginName);
