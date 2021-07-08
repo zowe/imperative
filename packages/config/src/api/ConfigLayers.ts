@@ -164,7 +164,7 @@ export class ConfigLayers extends ConfigApi {
             layer = this.mConfig.layerActive();
         }
 
-        layer.properties.profiles = lodash.mergeWith(cnfg.profiles, layer.properties.profiles, (obj, src) => 
+        layer.properties.profiles = lodash.mergeWith(cnfg.profiles, layer.properties.profiles, (obj, src) =>
             {
                 if (lodash.isArray(obj) && lodash.isArray(src)) {
 
