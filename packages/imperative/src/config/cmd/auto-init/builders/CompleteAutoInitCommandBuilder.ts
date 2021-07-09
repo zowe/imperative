@@ -22,7 +22,6 @@ export class CompleteAutoInitCommandBuilder {
      * Get the complete auth group of commands
      * @param {ICommandProfileAutoInitConfig} autoInitConfig - mapping of profile types to auto init configs
      * @param {Logger} logger - logger to use in the builder classes
-     * @param {IImperativeAutoInitCommandConfig} autoInitCommandConfig - config that allows command definitions to be overridden
      * @returns {ICommandDefinition} - the complete profile group of commands
      */
     public static getAutoInitCommand(autoInitConfig: ICommandProfileAutoInitConfig,

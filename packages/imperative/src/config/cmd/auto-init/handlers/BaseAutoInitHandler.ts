@@ -50,9 +50,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
     protected abstract createSessCfgFromArgs(args: ICommandArguments): ISession;
 
     /**
-     * This handler is used for both "auth login" and "auth logout" commands.
-     * It determines the correct action to take and calls either `processLogin`
-     * or `processLogout` accordingly.
+     * This handler is used for the "auto-init" command, and calls processAutoInit
      *
      * @param {IHandlerParameters} commandParameters Command parameters sent by imperative.
      *
