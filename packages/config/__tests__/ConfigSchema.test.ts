@@ -17,52 +17,54 @@ import { ICommandProfileTypeConfiguration } from "../..";
 describe("Config Schema", () => {
     const schema = ConfigSchema;
     const testProfileConfiguration: IProfileTypeConfiguration[] = [
-    {
-        type: "zosmf",
-        schema: {
-            title: "zosmf",
-            description: "A fake zosmf profile",
-            type: "object",
-            required: [],
-            properties: {
-                host: {
-                    type: "string",
-                    secure: false
+        {
+            type: "zosmf",
+            schema: {
+                title: "zosmf",
+                description: "A fake zosmf profile",
+                type: "object",
+                required: [],
+                properties: {
+                    host: {
+                        type: "string",
+                        secure: false
+                    }
+                }
+            }
+        },
+        {
+            type: "base",
+            schema: {
+                title: "base",
+                description: "A fake base profile",
+                type: "object",
+                required: [],
+                properties: {
+                    port: {
+                        type: "number",
+                        secure: false
+                    }
                 }
             }
         }
-    },
-    {
-        type: "base",
-        schema: {
-            title: "base",
-            description: "A fake base profile",
-            type: "object",
-            required: [],
-            properties: {
-                port: {
-                    type: "number",
-                    secure: false
-                }
-            }
-        }
-    }];
+    ];
     const testProfileConfigurationSecure: IProfileTypeConfiguration[] = [
-    {
-        type: "zosmf",
-        schema: {
-            title: "zosmf",
-            description: "A fake zosmf profile",
-            type: "object",
-            required: [],
-            properties: {
-                host: {
-                    type: "string",
-                    secure: true
+        {
+            type: "zosmf",
+            schema: {
+                title: "zosmf",
+                description: "A fake zosmf profile",
+                type: "object",
+                required: [],
+                properties: {
+                    host: {
+                        type: "string",
+                        secure: true
+                    }
                 }
             }
         }
-    }];
+    ];
     const testProfileConfigurationOptionDefinition: ICommandProfileTypeConfiguration[] = [
         {
             type: "zosmf",
@@ -87,14 +89,15 @@ describe("Config Schema", () => {
                     }
                 }
             }
-        }];
+        }
+    ];
 
     it("should be able to successfully build with no profile type configuration", () => {
         const testConfig: IProfileTypeConfiguration[] = [];
         const returnedSchema = schema.buildSchema(testConfig);
         const expectedAllOf: any = [];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].dependentSchemas.type.allOf).toEqual(expectedAllOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
     });
 
     it("should be able to successfully build with a single profile type configuration", () => {
@@ -112,7 +115,6 @@ describe("Config Schema", () => {
             then: {
                 properties: {
                     properties: {
-                        additionalProperties: false,
                         description: "A fake zosmf profile",
                         properties: {
                             host: {
@@ -127,7 +129,7 @@ describe("Config Schema", () => {
             }
         }];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].dependentSchemas.type.allOf).toEqual(expectedAllOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
     });
 
     it("should be able to successfully build with two profile type configurations", () => {
@@ -145,7 +147,6 @@ describe("Config Schema", () => {
                 then: {
                     properties: {
                         properties: {
-                            additionalProperties: false,
                             description: "A fake zosmf profile",
                             properties: {
                                 host: {
@@ -170,7 +171,6 @@ describe("Config Schema", () => {
                 then: {
                     properties: {
                         properties: {
-                            additionalProperties: false,
                             description: "A fake base profile",
                             properties: {
                                 port: {
@@ -186,7 +186,7 @@ describe("Config Schema", () => {
             }
         ];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].dependentSchemas.type.allOf).toEqual(expectedAllOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
     });
 
     it("should be able to successfully build with a secure single profile type configuration", () => {
@@ -203,7 +203,6 @@ describe("Config Schema", () => {
             then: {
                 properties: {
                     properties: {
-                        additionalProperties: false,
                         description: "A fake zosmf profile",
                         properties: {
                             host: {
@@ -215,7 +214,7 @@ describe("Config Schema", () => {
                         type: "object"
                     },
                     secure: {
-                        items: {
+                        prefixItems: {
                             enum: [
                                 "host"
                             ]
@@ -225,7 +224,7 @@ describe("Config Schema", () => {
             }
         }];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].dependentSchemas.type.allOf).toEqual(expectedAllOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
     });
 
     it("should be able to successfully build with a complex single profile type configuration", () => {
@@ -242,7 +241,6 @@ describe("Config Schema", () => {
             then: {
                 properties: {
                     properties: {
-                        additionalProperties: false,
                         description: "A fake zosmf profile",
                         properties: {
                             host: {
@@ -260,7 +258,7 @@ describe("Config Schema", () => {
             }
         }];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].dependentSchemas.type.allOf).toEqual(expectedAllOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
     });
 
     it("should be able to regenerate profile schemas from a schema object", () => {
@@ -268,9 +266,10 @@ describe("Config Schema", () => {
         const returnedSchema = schema.buildSchema(testConfig);
         const origSchemas = schema.loadProfileSchemas(returnedSchema);
         expect(origSchemas.length).toBe(2);
-        expect(testConfig[0].type).toBe(origSchemas[0].type);
+        expect(origSchemas[0].type).toBe(testConfig[0].type);
+        expect(origSchemas[1].type).toBe(testConfig[1].type);
+        // The comparison below needs to be done in this order since we only want to check the structure of the object
         expect(testConfig[0].schema).toMatchObject(origSchemas[0].schema);
-        expect(testConfig[1].type).toBe(origSchemas[1].type);
         expect(testConfig[1].schema).toMatchObject(origSchemas[1].schema);
     });
 
@@ -279,7 +278,8 @@ describe("Config Schema", () => {
         const returnedSchema = schema.buildSchema(testConfig);
         const origSchemas = schema.loadProfileSchemas(returnedSchema);
         expect(origSchemas.length).toBe(1);
-        expect(testConfig[0].type).toBe(origSchemas[0].type);
+        expect(origSchemas[0].type).toBe(testConfig[0].type);
+        // The comparison below needs to be done in this order since we only want to check the structure of the object
         expect(testConfig[0].schema).toMatchObject(origSchemas[0].schema);
     });
 });

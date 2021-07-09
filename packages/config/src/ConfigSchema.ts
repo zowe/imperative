@@ -19,14 +19,14 @@ export class ConfigSchema {
      * @readonly
      * @memberof ConfigSchema
      */
-    private static readonly JSON_SCHEMA = "https://json-schema.org/draft/2019-09/schema#";
+    private static readonly JSON_SCHEMA = "https://json-schema.org/draft/2020-12/schema";
 
     /**
      * Version number stored in $version property of the schema
      * @readonly
      * @memberof ConfigSchema
      */
-    private static readonly SCHEMA_VERSION = 2;
+    private static readonly SCHEMA_VERSION = 3;
 
     /**
      * Transform an Imperative profile schema to a JSON schema. Removes any
@@ -37,7 +37,7 @@ export class ConfigSchema {
     private static generateJsonSchema(schema: IProfileSchema): any {
         const properties: { [key: string]: any } = {};
         const secureProps: string[] = [];
-        for (const [k, v] of Object.entries(schema.properties)) {
+        for (const [k, v] of Object.entries(schema.properties || {})) {
             properties[k] = { type: v.type };
             const cmdProp = v as ICommandProfileProperty;
             if (cmdProp.optionDefinition != null) {
@@ -58,15 +58,14 @@ export class ConfigSchema {
             type: schema.type,
             title: schema.title,
             description: schema.description,
-            properties,
-            additionalProperties: false
+            properties
         };
         if (schema.required) {
             propertiesSchema.required = schema.required;
         }
 
         const secureSchema: any = {
-            items: {
+            prefixItems: {
                 enum: secureProps
             }
         };
@@ -85,9 +84,9 @@ export class ConfigSchema {
      */
     private static parseJsonSchema(schema: any): IProfileSchema {
         const properties: { [key: string]: IProfileProperty } = {};
-        for (const [k, v] of Object.entries(schema.properties.properties as { [key: string]: any })) {
+        for (const [k, v] of Object.entries((schema.properties.properties || {}) as { [key: string]: any })) {
             properties[k] = { type: v.type };
-            if (schema.secure?.items.enum.includes(k)) {
+            if (schema.secure?.prefixItems.enum.includes(k)) {
                 properties[k].secure = true;
             }
             if (v.description != null || v.default != null || v.enum != null) {
@@ -155,17 +154,13 @@ export class ConfigSchema {
                                 secure: {
                                     description: "secure property names",
                                     type: "array",
-                                    items: {
+                                    prefixItems: {
                                         type: "string"
                                     },
                                     uniqueItems: true
                                 }
                             },
-                            dependentSchemas: {
-                                type: {
-                                    allOf: entries
-                                }
-                            }
+                            allOf: entries
                         }
                     }
                 },
@@ -185,7 +180,7 @@ export class ConfigSchema {
     public static loadProfileSchemas(schemaJson: IConfigSchema): IProfileTypeConfiguration[] {
         const patternName = Object.keys(schemaJson.properties.profiles.patternProperties)[0];
         const profileSchemas: IProfileTypeConfiguration[] = [];
-        for (const obj of schemaJson.properties.profiles.patternProperties[patternName].dependentSchemas.type.allOf) {
+        for (const obj of schemaJson.properties.profiles.patternProperties[patternName].allOf) {
             profileSchemas.push({
                 type: obj.if.properties.type.const,
                 schema: this.parseJsonSchema(obj.then.properties)
