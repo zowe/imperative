@@ -11,8 +11,8 @@
 
 import * as fs from "fs";
 import * as node_path from "path";
-import * as deepmerge from "deepmerge";
 import * as JSONC from "comment-json";
+import * as lodash from "lodash";
 import { ImperativeError } from "../../../error";
 import { ConfigConstants } from "../ConfigConstants";
 import { IConfigLayer } from "../doc/IConfigLayer";
@@ -126,7 +126,7 @@ export class ConfigLayers extends ConfigApi {
     public get(): IConfigLayer {
         // Note: Add indentation to allow comments to be accessed via config.api.layers.get(), otherwise use layerActive()
         // return JSONC.parse(JSONC.stringify(this.mConfig.layerActive(), null, ConfigConstants.INDENT));
-        return JSONC.parse(JSONC.stringify(this.mConfig.layerActive()));
+        return JSONC.parse(JSONC.stringify(this.mConfig.layerActive(), null, ConfigConstants.INDENT));
     }
 
     // _______________________________________________________________________
@@ -150,23 +150,41 @@ export class ConfigLayers extends ConfigApi {
     // _______________________________________________________________________
     /**
      * Merge properties from the supplied Config object into the active layer.
+     * If dryRun is specified, merge is applied to a copy of the layer and returned.
+     * If dryRun is not specified, merge is applied directly to the layer and nothing is returned.
      *
      * @param cnfg The Config object to merge.
+     * @returns The merged config layer or void
      */
-    public merge(cnfg: IConfig) {
-        const layer = this.mConfig.layerActive();
-        layer.properties.profiles = deepmerge(cnfg.profiles, layer.properties.profiles, {
-            customMerge: (key: string) => {
-                if (key === "secure") {
-                    return (secureProps: string[]) => [...new Set(secureProps)]
+    public merge(cnfg: IConfig, dryRun: boolean = false): void | IConfigLayer {
+        let layer: IConfigLayer;
+        if (dryRun) {
+            layer = JSONC.parse(JSONC.stringify(this.mConfig.layerActive(), null, ConfigConstants.INDENT));
+        } else {
+            layer = this.mConfig.layerActive();
+        }
+
+        layer.properties.profiles = lodash.mergeWith(cnfg.profiles, layer.properties.profiles, (obj, src) =>
+            {
+                if (lodash.isArray(obj) && lodash.isArray(src)) {
+                    const temp = JSONC.parse(JSONC.stringify(obj, null, ConfigConstants.INDENT));
+                    src.forEach((val, idx) => {
+                        if (!temp.includes(val)) {
+                            temp.splice(idx, 0, val);
+                        }
+                    });
+                    return temp;
                 }
-            }
-        });
-        layer.properties.defaults = deepmerge(cnfg.defaults, layer.properties.defaults);
+            });
+
+        layer.properties.defaults = lodash.merge(cnfg.defaults, layer.properties.defaults);
+
         for (const pluginName of cnfg.plugins) {
             if (!layer.properties.plugins.includes(pluginName)) {
                 layer.properties.plugins.push(pluginName);
             }
         }
+
+        if (dryRun) { return layer; }
     }
 }

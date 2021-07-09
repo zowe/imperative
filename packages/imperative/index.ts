@@ -23,3 +23,4 @@ export * from "./src/Imperative";
 export * from "./src/LoggingConfigurer";
 export * from "./src/plugins/PluginManagementFacility";
 export * from "./src/auth/handlers/BaseAuthHandler";
+export * from "./src/config/cmd/auto-init/handlers/BaseAutoInitHandler";

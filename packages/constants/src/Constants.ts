@@ -111,4 +111,9 @@ export class Constants {
     public static readonly AUTH_GROUP = "auth";
     public static readonly LOGIN_ACTION = "login";
     public static readonly LOGOUT_ACTION = "logout";
+
+    /**
+     * Auto Init constants
+     */
+    public static readonly AUTO_INIT_ACTION = "auto-init";
 }

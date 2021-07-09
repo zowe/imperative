@@ -105,6 +105,7 @@ export class ConnectionPropsForSessCfg {
          */
         const sessCfgToUse  = lodash.cloneDeep(initialSessCfg);
         const connOptsToUse = lodash.cloneDeep(connOpts);
+        const serviceDescription = connOptsToUse.serviceDescription || "your service";
 
         // resolve all values between sessCfg and cmdArgs using option choices
         ConnectionPropsForSessCfg.resolveSessCfgProps(
@@ -160,7 +161,7 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.hostname) === false) {
                 let answer = "";
                 while (answer === "") {
-                    answer = await this.clientPrompt("Enter the host name of your service: ", {
+                    answer = await this.clientPrompt(`Enter the host name of ${serviceDescription}: `, {
                         parms: connOptsToUse.parms
                     });
                     if (answer === null) {
@@ -173,7 +174,7 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.port) === false) {
                 let answer: any;
                 while (answer === undefined) {
-                    answer = await this.clientPrompt("Enter the port number for your service: ", {
+                    answer = await this.clientPrompt(`Enter the port number for ${serviceDescription}: `, {
                         parms: connOptsToUse.parms
                     });
                     if (answer === null) {

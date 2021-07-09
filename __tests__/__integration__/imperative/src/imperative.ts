@@ -75,6 +75,21 @@ export const config: IImperativeConfig = {
     credentialServiceName: "imperative-test-cli",
     envVariablePrefix: "IMPERATIVE_TEST_CLI",
     allowPlugins: false,
+    configAutoInitCommandConfig: {
+        handler: __dirname + "/cli/config/FruitAutoInitHandler",
+        provider: "Fruit Manager",
+        autoInit: {
+            options: [
+                hostOption,
+                portOption,
+                userOption,
+                passwordOption,
+                tokenTypeOption,
+                tokenValueOption
+            ]
+        },
+        profileType: "base"
+    },
     profiles: [
         {
             type: "secured",

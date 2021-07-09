@@ -403,6 +403,91 @@ describe("ConnectionPropsForSessCfg tests", () => {
         expect(sessCfgWithConnProps.tokenValue).toBeUndefined();
     });
 
+    it("get host name from prompt with custom service description", async() => {
+        const hostFromPrompt = "FakeHost";
+        const portFromArgs = 11;
+        const userFromArgs = "FakeUser";
+        const passFromArgs = "FakePassword";
+        let questionText: string;
+
+        const sleepReal = CliUtils.sleep;
+        CliUtils.sleep = jest.fn();
+        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
+        CliUtils.promptWithTimeout = jest.fn((text: string) => {
+            questionText = text;
+            return Promise.resolve(hostFromPrompt);
+        });
+
+        const initialSessCfg = {
+            rejectUnauthorized: true,
+        };
+        const args = {
+            $0: "zowe",
+            _: [""],
+            port: portFromArgs,
+            user: userFromArgs,
+            password: passFromArgs
+        };
+
+        let sessCfgWithConnProps: ISession;
+        sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+            initialSessCfg, args, { serviceDescription: "my cool service" }
+        );
+        CliUtils.sleep = sleepReal;
+        CliUtils.promptWithTimeout = promptWithTimeoutReal;
+
+        expect(questionText).toContain("my cool service");
+        expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
+        expect(sessCfgWithConnProps.user).toBe(userFromArgs);
+        expect(sessCfgWithConnProps.password).toBe(passFromArgs);
+        expect(sessCfgWithConnProps.hostname).toBe(hostFromPrompt);
+        expect(sessCfgWithConnProps.tokenType).toBeUndefined();
+        expect(sessCfgWithConnProps.tokenValue).toBeUndefined();
+    });
+
+    it("get port from prompt with custom service description", async() => {
+        const hostFromArgs = "FakeHost";
+        const portFromPrompt = 11;
+        const userFromArgs = "FakeUser";
+        const passFromArgs = "FakePassword";
+        let questionText: string;
+
+        const sleepReal = CliUtils.sleep;
+        CliUtils.sleep = jest.fn();
+        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
+        CliUtils.promptWithTimeout = jest.fn((text) => {
+            questionText = text;
+            return Promise.resolve(portFromPrompt);
+        });
+
+        const initialSessCfg = {
+            rejectUnauthorized: true
+        };
+        const args = {
+            $0: "zowe",
+            _: [""],
+            host: hostFromArgs,
+            user: userFromArgs,
+            password: passFromArgs
+        };
+
+        let sessCfgWithConnProps: ISession;
+        sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+            initialSessCfg, args, { serviceDescription: "my cool service" }
+        );
+        CliUtils.sleep = sleepReal;
+        CliUtils.promptWithTimeout = promptWithTimeoutReal;
+
+        expect(questionText).toContain("my cool service");
+        expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
+        expect(sessCfgWithConnProps.user).toBe(userFromArgs);
+        expect(sessCfgWithConnProps.password).toBe(passFromArgs);
+        expect(sessCfgWithConnProps.hostname).toBe(hostFromArgs);
+        expect(sessCfgWithConnProps.port).toBe(portFromPrompt);
+        expect(sessCfgWithConnProps.tokenType).toBeUndefined();
+        expect(sessCfgWithConnProps.tokenValue).toBeUndefined();
+    });
+
     it("throws an error if user doesn't enter port as a number", async() => {
         const hostFromArgs = "FakeHost";
         const portFromPrompt = "abcd";

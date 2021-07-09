@@ -4,6 +4,9 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
+- Enhancement: Adds the `config auto-init` base handler and command builder, allowing a CLI to build a configuration auto-initialization command and handler
+- Enhancement: Adds the optional `configAutoInitCommandConfig` interface to the IImperativeConfig interface, allowing for an auto-init command to be generated if a CLI supports it
+- Enhancement: Better support for comments in JSON
 - Bugfix: Revert schema changes related to additionalProperties. Re-enable IntelliSense when editing zowe.config.json files
 - **Next Breaking**
     - Changed the schema paths and updated schema version
