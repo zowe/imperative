@@ -34,25 +34,7 @@
                             "uniqueItems": true
                         }
                     },
-                    "anyOf": [
-                        {
-                            "if": {
-                                "properties": {
-                                    "type": {
-                                        "const": null
-                                    }
-                                }
-                            },
-                            "then": {
-                                "properties": {
-                                    "properties": {
-                                        "additionalProperties": true,
-                                        "title": "a generic profile",
-                                        "type": "object"
-                                    }
-                                }
-                            }
-                        },
+                    "allOf": [
                         {
                             "if": {
                                 "properties": {
@@ -112,7 +94,6 @@
                                                 "description": "The maximum amount of time in seconds the z/OSMF Files TSO servlet should run before returning a response. Any request exceeding this amount of time will be terminated and return an error. Allowed values: 5 - 600"
                                             }
                                         },
-                                        "additionalProperties": false,
                                         "required": []
                                     },
                                     "secure": {
@@ -176,7 +157,6 @@
                                                 "default": 24
                                             }
                                         },
-                                        "additionalProperties": false,
                                         "required": []
                                     }
                                 }
@@ -227,7 +207,6 @@
                                                 "description": "How long in milliseconds to wait for the SSH handshake to complete."
                                             }
                                         },
-                                        "additionalProperties": false,
                                         "required": []
                                     },
                                     "secure": {
@@ -283,7 +262,6 @@
                                                 "default": true
                                             }
                                         },
-                                        "additionalProperties": false,
                                         "required": []
                                     },
                                     "secure": {
@@ -342,7 +320,6 @@
                                                 "description": "The value of the token to pass to the API."
                                             }
                                         },
-                                        "additionalProperties": false,
                                         "required": []
                                     },
                                     "secure": {

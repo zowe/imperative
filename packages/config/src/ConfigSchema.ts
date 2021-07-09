@@ -115,14 +115,7 @@ export class ConfigSchema {
      * @returns JSON schema for all supported profile types
      */
     public static buildSchema(profiles: IProfileTypeConfiguration[]): IConfigSchema {
-        const entries: any[] = [{
-            if: { properties: { type: { const: null } } },
-            then: { properties: { properties: {
-                additionalProperties: true, // same as { "type": ["string","array","object","number","null"] }
-                title: "a generic profile",
-                type: "object"
-            } } }
-        }];
+        const entries: any[] = [];
         const defaultProperties: { [key: string]: any } = {};
         profiles.forEach((profile: { type: string, schema: IProfileSchema }) => {
             entries.push({

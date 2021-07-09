@@ -24,24 +24,6 @@ Object {
               "if": Object {
                 "properties": Object {
                   "type": Object {
-                    "const": null,
-                  },
-                },
-              },
-              "then": Object {
-                "properties": Object {
-                  "properties": Object {
-                    "additionalProperties": true,
-                    "title": "a generic profile",
-                    "type": "object",
-                  },
-                },
-              },
-            },
-            Object {
-              "if": Object {
-                "properties": Object {
-                  "type": Object {
                     "const": "zosmf",
                   },
                 },
@@ -123,24 +105,6 @@ Object {
       "patternProperties": Object {
         "^\\\\S*$": Object {
           "allOf": Array [
-            Object {
-              "if": Object {
-                "properties": Object {
-                  "type": Object {
-                    "const": null,
-                  },
-                },
-              },
-              "then": Object {
-                "properties": Object {
-                  "properties": Object {
-                    "additionalProperties": true,
-                    "title": "a generic profile",
-                    "type": "object",
-                  },
-                },
-              },
-            },
             Object {
               "if": Object {
                 "properties": Object {
@@ -231,24 +195,6 @@ Object {
               "if": Object {
                 "properties": Object {
                   "type": Object {
-                    "const": null,
-                  },
-                },
-              },
-              "then": Object {
-                "properties": Object {
-                  "properties": Object {
-                    "additionalProperties": true,
-                    "title": "a generic profile",
-                    "type": "object",
-                  },
-                },
-              },
-            },
-            Object {
-              "if": Object {
-                "properties": Object {
-                  "type": Object {
                     "const": "zosmf",
                   },
                 },
@@ -319,26 +265,7 @@ Object {
       "description": "named profiles config",
       "patternProperties": Object {
         "^\\\\S*$": Object {
-          "allOf": Array [
-            Object {
-              "if": Object {
-                "properties": Object {
-                  "type": Object {
-                    "const": null,
-                  },
-                },
-              },
-              "then": Object {
-                "properties": Object {
-                  "properties": Object {
-                    "additionalProperties": true,
-                    "title": "a generic profile",
-                    "type": "object",
-                  },
-                },
-              },
-            },
-          ],
+          "allOf": Array [],
           "description": "a profile",
           "properties": Object {
             "profiles": Object {
@@ -396,24 +323,6 @@ Object {
       "patternProperties": Object {
         "^\\\\S*$": Object {
           "allOf": Array [
-            Object {
-              "if": Object {
-                "properties": Object {
-                  "type": Object {
-                    "const": null,
-                  },
-                },
-              },
-              "then": Object {
-                "properties": Object {
-                  "properties": Object {
-                    "additionalProperties": true,
-                    "title": "a generic profile",
-                    "type": "object",
-                  },
-                },
-              },
-            },
             Object {
               "if": Object {
                 "properties": Object {

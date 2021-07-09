@@ -47,25 +47,7 @@ export const expectedSchemaObject = {
                             uniqueItems: true
                         }
                     },
-                    anyOf: [
-                        {
-                            if: {
-                                properties: {
-                                    type: {
-                                        const: null
-                                    }
-                                }
-                            },
-                            then: {
-                                properties: {
-                                    properties: {
-                                        additionalProperties: true,
-                                        title: "a generic profile",
-                                        type: "object"
-                                    }
-                                }
-                            }
-                        },
+                    allOf: [
                         {
                             if: {
                                 properties: {
@@ -89,8 +71,7 @@ export const expectedSchemaObject = {
                                                 type: "string",
                                                 description: "The secret info the keep in the profile."
                                             }
-                                        },
-                                        additionalProperties: false
+                                        }
                                     },
                                     secure: {
                                         prefixItems: {
@@ -153,8 +134,7 @@ export const expectedSchemaObject = {
                                                 type: "string",
                                                 description: "Fruit auth token value"
                                             }
-                                        },
-                                        additionalProperties: false
+                                        }
                                     },
                                     secure: {
                                         prefixItems: {
@@ -225,25 +205,7 @@ export const expectedSchemaObjectNoBase = {
                             uniqueItems: true
                         }
                     },
-                    anyOf: [
-                        {
-                            if: {
-                                properties: {
-                                    type: {
-                                        const: null
-                                    }
-                                }
-                            },
-                            then: {
-                                properties: {
-                                    properties: {
-                                        additionalProperties: true,
-                                        title: "a generic profile",
-                                        type: "object"
-                                    }
-                                }
-                            }
-                        },
+                    allOf: [
                         {
                             if: {
                                 properties: {
@@ -267,8 +229,7 @@ export const expectedSchemaObjectNoBase = {
                                                 type: "string",
                                                 description: "The secret info the keep in the profile."
                                             }
-                                        },
-                                        additionalProperties: false
+                                        }
                                     },
                                     secure: {
                                         prefixItems: {
