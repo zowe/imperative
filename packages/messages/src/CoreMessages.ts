@@ -168,7 +168,7 @@ export const listProfileCommandSummary: IMessageDefinition = {
 };
 
 export const listProfileCommandDesc: IMessageDefinition = {
-    message: `List profiles of the type {{type}}`,
+    message: `List profiles of the type {{type}}.`,
 };
 
 export const listProfilesFoundMessage: IMessageDefinition = {
