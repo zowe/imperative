@@ -18,6 +18,8 @@ import * as open from "open";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 import { ImperativeConfig, TextUtils } from "../../../../../../utilities";
+import { CredentialManagerFactory } from "../../../../../../security";
+import { OverridesLoader } from "../../../../OverridesLoader";
 
 /**
  * This class is used by the auto init command handler as the base class for its implementation.
@@ -86,6 +88,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
         let user = false;
 
         // Use params to set which config layer to apply to
+        await this.ensureCredentialManagerLoaded();
         if (params.arguments.globalConfig && params.arguments.globalConfig === true) {
             global = true;
         }
@@ -163,6 +166,17 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
                 ImperativeConfig.instance.config.setSchema(schema);
             }
             await ImperativeConfig.instance.config.save(false);
+        }
+    }
+
+    /**
+     * If CredentialManager was not already loaded by Imperative.init, load it
+     * now before performing config operations in the auto-init handler.
+     */
+    private async ensureCredentialManagerLoaded() {
+        if (!CredentialManagerFactory.initialized) {
+            await OverridesLoader.loadCredentialManager(ImperativeConfig.instance.loadedConfig,
+                ImperativeConfig.instance.callerPackageJson);
         }
     }
 }
