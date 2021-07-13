@@ -175,7 +175,7 @@ export class PluginManagementFacility {
         UpdateImpConfig.addCmdGrp({
             name: "plugins",
             type: "group",
-            description: "Install and manage plug-ins",
+            description: "Install and manage plug-ins.",
             children: [
                 // Done dynamically so that PMFConstants can be initialized
                 require("./cmd/install/install.definition").installDefinition,

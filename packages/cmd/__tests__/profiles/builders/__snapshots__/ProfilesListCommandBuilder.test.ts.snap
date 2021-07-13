@@ -32,7 +32,7 @@ Object {
       "type": "boolean",
     },
   ],
-  "summary": "List profiles of the type type-a",
+  "summary": "List profiles of the type type-a.",
   "type": "command",
 }
 `;
