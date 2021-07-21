@@ -139,6 +139,7 @@ describe("Validate plugin", () => {
                     expect(result.stderr).toMatch(/npm.*WARN/);
                     expect(result.stderr).toContain("requires a peer of @zowe/imperative");
                     expect(result.stderr).toContain("You must install peer dependencies yourself");
+                    expect(result.stderr).not.toContain("Install Failed");
                 } else {
                     expect(result.stderr).toEqual("");
                 }
