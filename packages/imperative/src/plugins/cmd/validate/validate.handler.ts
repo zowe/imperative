@@ -46,6 +46,9 @@ export default class ValidateHandler implements ICommandHandler {
    */
   public async process(params: IHandlerParameters): Promise<void> {
     let pluginName: string = null;
+    let err: boolean = false;
+    let localerr: boolean = null;
+    const failOnWarning: boolean = params.arguments.failOnWarning || false;
     const installedPlugins: IPluginJson = this.pluginIssues.getInstalledPlugins();
 
     if (params.arguments.plugin == null ||
@@ -59,7 +62,8 @@ export default class ValidateHandler implements ICommandHandler {
         // loop through each plugin installed in our plugins file
         for (pluginName in installedPlugins) {
           if (this.pluginIssues.getInstalledPlugins().hasOwnProperty(pluginName)) {
-            this.displayPluginIssues(pluginName, params.response);
+            localerr = this.displayPluginIssues(pluginName, params.response, failOnWarning);
+            if (localerr === true) { err = localerr; }
           }
         }
       }
@@ -71,9 +75,15 @@ export default class ValidateHandler implements ICommandHandler {
           "The specified plugin '" + pluginName +
           "' has not been installed into your CLI application."
         ));
+        err = true;
       } else {
-        this.displayPluginIssues(pluginName, params.response);
+        err = this.displayPluginIssues(pluginName, params.response, failOnWarning);
       }
+    }
+
+    if (err === true) {
+      params.response.console.log("\n");
+      throw new ImperativeError({msg: "Problems detected during plugin validation. Please check above for more information."});
     }
   }
 
@@ -85,10 +95,11 @@ export default class ValidateHandler implements ICommandHandler {
    *
    * @param {IHandlerResponseApi} cmdResponse - Used to supply the response from the command.
    */
-  private displayPluginIssues(pluginName: string, cmdResponse: IHandlerResponseApi): void {
+  private displayPluginIssues(pluginName: string, cmdResponse: IHandlerResponseApi, failOnWarning: boolean = false): boolean {
     // display any plugin issues
     let valResultsMsg: string = "\n_____ " + "Validation results for plugin '" +
         pluginName + "' _____\n";
+    let err = false;
     const issueListForPlugin = this.pluginIssues.getIssueListForPlugin(pluginName);
     if (issueListForPlugin.length === 0) {
       valResultsMsg += "This plugin was successfully validated. Enjoy the plugin.";
@@ -107,23 +118,28 @@ export default class ValidateHandler implements ICommandHandler {
       if (setOfIssueSevs.includes(IssueSeverity.CFG_ERROR)) {
         msgColor = "red";
         valResultsMsg += "This plugin has configuration errors. No component of the plugin will be available.";
+        err = true;
       } else {
         if (setOfIssueSevs.includes(IssueSeverity.CMD_ERROR)) {
           msgColor = "red";
           valResultsMsg += "This plugin has command errors. No plugin commands will be available.\n";
+          err = true;
         }
         if (setOfIssueSevs.includes(IssueSeverity.OVER_ERROR)) {
           msgColor = "red";
           valResultsMsg += "This plugin has override errors. This plugin will not override a framework component.";
+          err = true;
         }
       }
 
       // if we had no errors, only warnings are left
       if (msgColor === "yellow") {
-          valResultsMsg += "This plugin has warnings, but its commands and framework overrides will still be available.";
+        valResultsMsg += "This plugin has warnings, but its commands and framework overrides will still be available.";
+        if (failOnWarning) { err = true; }
       }
 
       cmdResponse.console.log(TextUtils.chalk[msgColor](valResultsMsg));
+      return err;
     }
   }
 }

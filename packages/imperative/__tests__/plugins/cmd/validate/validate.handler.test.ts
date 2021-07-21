@@ -98,26 +98,32 @@ describe("Plugin validate command handler", () => {
 
       for (testPlugin in pluginIssues.getInstalledPlugins()){
         if (pluginIssues.getInstalledPlugins().hasOwnProperty(testPlugin)){
-          expect(mockDisplayPluginIssues).toBeCalledWith(testPlugin, params.response);
+          expect(mockDisplayPluginIssues).toBeCalledWith(testPlugin, params.response, false);
         }
       }
     });
 
-    it("should validate with non-existent plugin name", async () => {
+    it("should validate with non-existent plugin name and error", async () => {
       params.arguments.plugin = ["NonExistentPluginName"];
-
-      await valHandler.process(params as IHandlerParameters);
+      let error;
+      try {
+        await valHandler.process(params as IHandlerParameters);
+      } catch (err) {
+        error = err;
+      }
       expect(params.response.console.log).toHaveBeenCalledWith(
         TextUtils.chalk.red(
         "The specified plugin 'NonExistentPluginName' has not been installed into your CLI application."
       ));
+      expect(error).toBeDefined();
+      expect(error.message).toContain("Problems detected during plugin validation.");
     });
 
     it("should validate the specific plugin requested by user", async () => {
       params.arguments.plugin = ["imperative-sample-plugin"];
 
       await valHandler.process(params as IHandlerParameters);
-      expect(mockDisplayPluginIssues).toHaveBeenCalledWith(params.arguments.plugin, params.response);
+      expect(mockDisplayPluginIssues).toHaveBeenCalledWith(params.arguments.plugin, params.response, false);
     });
   });
 
@@ -140,27 +146,45 @@ describe("Plugin validate command handler", () => {
 
     it("should call CommandResponse.console.log with proper warning parameter", () => {
       const testErrorText = "test warning text";
+      let error: boolean = null;
 
       pluginIssues.recordIssue(testPlugin, IssueSeverity.WARNING, testErrorText);
-      validateHandler.displayPluginIssues(testPlugin, params.response);
+      error = validateHandler.displayPluginIssues(testPlugin, params.response);
 
       expect(params.response.console.log).toHaveBeenCalled();
       const errorMsg = (params.response.console.log as Mock).mock.calls[0][0];
       expect(errorMsg).toContain(testPlugin);
       expect(errorMsg).toContain(`${IssueSeverity.WARNING}: ${testErrorText}`);
+      expect(error).toEqual(false);
+    });
+
+    it("should call CommandResponse.console.log with proper warning parameter and error", () => {
+      const testErrorText = "test warning text";
+      let error: boolean = null;
+
+      pluginIssues.recordIssue(testPlugin, IssueSeverity.WARNING, testErrorText);
+      error = validateHandler.displayPluginIssues(testPlugin, params.response, true);
+
+      expect(params.response.console.log).toHaveBeenCalled();
+      const errorMsg = (params.response.console.log as Mock).mock.calls[0][0];
+      expect(errorMsg).toContain(testPlugin);
+      expect(errorMsg).toContain(`${IssueSeverity.WARNING}: ${testErrorText}`);
+      expect(error).toEqual(true);
     });
 
     it("should call CommandResponse.console.log with proper error parameter", () => {
       const testErrorText = "test error text";
+      let error: boolean = null;
 
       pluginIssues.recordIssue(testPlugin, IssueSeverity.CMD_ERROR, testErrorText);
-      validateHandler.displayPluginIssues(testPlugin, params.response);
+      error = validateHandler.displayPluginIssues(testPlugin, params.response);
 
       expect(params.response.console.log).toHaveBeenCalled();
       const errorMsg = (params.response.console.log as Mock).mock.calls[0][0];
       expect(errorMsg).toContain(testPlugin);
       expect(errorMsg).toContain(`${IssueSeverity.CMD_ERROR}: ${testErrorText}`);
       expect(errorMsg).toContain("This plugin has command errors. No plugin commands will be available.");
+      expect(error).toEqual(true);
     });
   });
 

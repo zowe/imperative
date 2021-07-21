@@ -35,6 +35,15 @@ export const validateDefinition: ICommandDefinition = {
       required: false
     }
   ],
+  options: [
+    {
+        name: "fail-on-warning",
+        aliases: ["fow"],
+        type: "boolean",
+        description: "Treat validation warnings as errors.",
+        required: false,
+    }
+  ],
   examples: [
     {
       description: `Validate a plug-in named my-plugin`,
@@ -44,5 +53,9 @@ export const validateDefinition: ICommandDefinition = {
       description: "Validate all installed plug-ins",
       options    : ""
     },
+    {
+      description: "Validate a plug-in named my-plugin, and treat warnings as errors",
+      options    : "my-plugin --fow"
+    }
   ]
 };
