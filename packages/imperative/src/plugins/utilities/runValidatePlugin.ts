@@ -39,9 +39,14 @@ export function runValidatePlugin(pluginName: string): string {
 
     const impLogger = Logger.getImperativeLogger();
     impLogger.debug(`Running plugin validation command = ${cmdToRun} plugins validate "${pluginName}" --response-format-json`);
-    const valOutputJsonTxt = execSync(`${cmdToRun} plugins validate "${pluginName}" --response-format-json`, {
-        cwd: PMFConstants.instance.PMF_ROOT
-    }).toString();
+    let valOutputJsonTxt: string;
+    try {
+        valOutputJsonTxt = execSync(`${cmdToRun} plugins validate "${pluginName}" --response-format-json`, {
+            cwd: PMFConstants.instance.PMF_ROOT
+        }).toString();
+    } catch (err) {
+        valOutputJsonTxt = err.stdout.toString();
+    }
 
     // Debug trace information
     impLogger.trace(`Command Output: ${valOutputJsonTxt}`);

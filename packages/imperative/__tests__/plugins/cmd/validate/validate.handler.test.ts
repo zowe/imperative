@@ -46,6 +46,7 @@ describe("Plugin validate command handler", () => {
     });
   });
 
+  const setExitCodeFunction = jest.fn();
   /**
    * Create object to be passed to process function
    *
@@ -103,7 +104,7 @@ describe("Plugin validate command handler", () => {
       }
     });
 
-    it("should validate with non-existent plugin name and error", async () => {
+    it("should validate with non-existent plugin name and not error", async () => {
       params.arguments.plugin = ["NonExistentPluginName"];
       let error;
       try {
@@ -115,8 +116,21 @@ describe("Plugin validate command handler", () => {
         TextUtils.chalk.red(
         "The specified plugin 'NonExistentPluginName' has not been installed into your CLI application."
       ));
-      expect(error).toBeDefined();
-      expect(error.message).toContain("Problems detected during plugin validation.");
+      expect(error).not.toBeDefined();
+    });
+
+    it("should validate with non-existent plugin name and error", async () => {
+      params.arguments.plugin = ["NonExistentPluginName"];
+      params.arguments.failOnError = true;
+      params.response.data = {setExitCode: setExitCodeFunction, setObj: jest.fn(), setMessage: jest.fn()};
+      await valHandler.process(params as IHandlerParameters);
+      expect(params.response.console.log).toHaveBeenCalledWith(
+        TextUtils.chalk.red(
+        "The specified plugin 'NonExistentPluginName' has not been installed into your CLI application."
+      ));
+      expect(params.response.console.error).toHaveBeenCalledWith("Problems detected during plugin validation. Please check above for more information.");
+      expect(setExitCodeFunction).toHaveBeenCalledTimes(1);
+      expect(setExitCodeFunction).toHaveBeenCalledWith(1);
     });
 
     it("should validate the specific plugin requested by user", async () => {

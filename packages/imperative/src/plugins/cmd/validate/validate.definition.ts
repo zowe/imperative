@@ -37,11 +37,20 @@ export const validateDefinition: ICommandDefinition = {
   ],
   options: [
     {
-        name: "fail-on-warning",
-        aliases: ["fow"],
-        type: "boolean",
-        description: "Treat validation warnings as errors.",
-        required: false,
+      name: "fail-on-error",
+      aliases: ["foe"],
+      type: "boolean",
+      description: "Enables throwing an error and setting an error code if plugin validation detects an error",
+      required: false,
+      defaultValue: true
+    },
+    {
+      name: "fail-on-warning",
+      aliases: ["fow"],
+      type: "boolean",
+      description: "Treat validation warnings as errors. Requires fail-on-error.",
+      required: false,
+      implies: ["fail-on-error"]
     }
   ],
   examples: [
