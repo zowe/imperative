@@ -128,7 +128,10 @@ describe("Plugin validate command handler", () => {
         TextUtils.chalk.red(
         "The specified plugin 'NonExistentPluginName' has not been installed into your CLI application."
       ));
-      expect(params.response.console.error).toHaveBeenCalledWith("Problems detected during plugin validation. Please check above for more information.");
+      expect(params.response.console.error).toHaveBeenCalledWith(
+        TextUtils.chalk.red(
+        "Problems detected during plugin validation. Please check above for more information."
+      ));
       expect(setExitCodeFunction).toHaveBeenCalledTimes(1);
       expect(setExitCodeFunction).toHaveBeenCalledWith(1);
     });

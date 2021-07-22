@@ -83,7 +83,7 @@ export default class ValidateHandler implements ICommandHandler {
 
     if (err === true && params.arguments.failOnError) {
       params.response.console.log("\n");
-      params.response.console.error("Problems detected during plugin validation. Please check above for more information.");
+      params.response.console.error(TextUtils.chalk.red("Problems detected during plugin validation. Please check above for more information."));
       params.response.data.setExitCode(1);
     }
   }

@@ -53,19 +53,4 @@ describe("runValidatePlugin", () => {
         expect(resultMsg).toContain(cmdOutputJson.stdout);
         expect(resultMsg).toContain(cmdOutputJson.stderr);
     });
-
-    it("should display both the stdout and stderr of a failed validate command", () => {
-        // mock the output of executing the validatePlugin command
-        cmdOutputJson.stdout = "The validate commands's standard output";
-        cmdOutputJson.stderr = "The validate commands's standard error";
-        mocks.execSync.mockImplementation(() => {
-            const err = new Error("Error!");
-            Object.assign(err, {message: err.message, status: 1, stdout: JSON.stringify(cmdOutputJson)});
-            throw err;
-        });
-        (Imperative as any).mRootCommandName = "dummy";
-        const resultMsg = runValidatePlugin(pluginName);
-        expect(resultMsg).toContain(cmdOutputJson.stdout);
-        expect(resultMsg).toContain(cmdOutputJson.stderr);
-    });
 });
