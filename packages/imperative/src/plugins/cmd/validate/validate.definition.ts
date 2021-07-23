@@ -64,7 +64,7 @@ export const validateDefinition: ICommandDefinition = {
     },
     {
       description: "Validate a plug-in named my-plugin, and treat warnings as errors",
-      options    : "my-plugin --fow"
+      options    : "my-plugin --fail-on-warning"
     }
   ]
 };
