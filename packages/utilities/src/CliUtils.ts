@@ -463,7 +463,9 @@ export class CliUtils {
      *                 False = display text. Default = false.
      *
      * @param secToWait The number of seconds that we will wait for an answer.
-     *                  If not supplied, the default is 30 seconds.
+     *                  If not supplied, the default is 10 minutes.
+     *                  If 0 is specified, we will never timeout.
+     *                  Numbers larger than 3600 (1 hour) are not allowed.
      *
      * @return A string containing the user's answer, or null if we timeout.
      *
@@ -528,9 +530,11 @@ export class CliUtils {
         }
 
         // Ensure that we use a reasonable timeout
-        const maxSecToWait = 900; // 15 minute max
-        if (secToWait > maxSecToWait || secToWait <= 0) {
+        const maxSecToWait = 3600; // 1 hour max
+        if (secToWait > maxSecToWait || secToWait < 0) {
             secToWait = maxSecToWait;
+        } else if (secToWait === 0) {
+            secToWait = Number.MAX_VALUE;
         }
 
         // loop until timeout, to give our earlier asynch read a chance to work
