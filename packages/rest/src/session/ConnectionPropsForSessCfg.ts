@@ -9,7 +9,6 @@
 *
 */
 
-import * as lodash from "lodash";
 import { CliUtils } from "../../../utilities";
 import { ICommandArguments, IHandlerParameters } from "../../../cmd";
 import { ImperativeError } from "../../../error";
@@ -101,10 +100,10 @@ export class ConnectionPropsForSessCfg {
         const impLogger = Logger.getImperativeLogger();
 
         /* Create copies of our initialSessCfg and connOpts so that
-         * we can modifify them without changing the caller's copy.
+         * we can modify them without changing the caller's copy.
          */
-        const sessCfgToUse  = lodash.cloneDeep(initialSessCfg);
-        const connOptsToUse = lodash.cloneDeep(connOpts);
+        const sessCfgToUse = { ...initialSessCfg };
+        const connOptsToUse = { ...connOpts };
         const serviceDescription = connOptsToUse.serviceDescription || "your service";
 
         // resolve all values between sessCfg and cmdArgs using option choices
