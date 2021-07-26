@@ -214,6 +214,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         CliUtils.promptWithTimeout = jest.fn(() => {
             return Promise.resolve(userFromPrompt);
         });
+        const mockClientPrompt = jest.spyOn(ConnectionPropsForSessCfg as any, "clientPrompt");
 
         const initialSessCfg = {
             hostname: "SomeHost",
@@ -250,6 +251,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         CliUtils.promptWithTimeout = promptWithTimeoutReal;
 
         expect(commandHandlerPrompt).toBeCalled(); // we are only testing that we call an already tested prompt method if in CLI mode
+        expect((mockClientPrompt.mock.calls[0][1] as any).parms).toBe(parms);  // toBe is important here, parms object must be same as original
     });
 
     it("get user name from prompt", async() => {
