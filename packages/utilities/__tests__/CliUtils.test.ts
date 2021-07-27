@@ -146,7 +146,7 @@ describe("CliUtils", () => {
         });
     });
 
-    describe("promptWithTimeout", () => {
+    describe("readPrompt", () => {
         let readline = require("readline");
         let readlineReal: any;
         const mockedAnswer = "User answer";
@@ -158,6 +158,7 @@ describe("CliUtils", () => {
                     prompt: jest.fn(() => {
                         // do nothing
                     }),
+                    setPrompt: jest.fn(),
                     on: jest.fn((eventName: string, callback: any) => {
                         if (eventName === "line") {
                             callback(mockedAnswer);
@@ -187,31 +188,36 @@ describe("CliUtils", () => {
         });
 
         it("should return the user's answer", async() => {
-            const answer = await CliUtils.promptWithTimeout("Question to be asked: ");
+            const answer = await CliUtils.readPrompt("Question to be asked: ");
             expect(answer).toEqual(mockedAnswer);
         });
 
         it("should accept a hideText parameter", async() => {
-            const answer = await CliUtils.promptWithTimeout("Should we hide your answer: ", true);
+            const answer = await CliUtils.readPrompt("Should we hide your answer: ", { hideText: true });
             expect(answer).toEqual(mockedAnswer);
         });
 
         it("should accept a secToWait parameter", async() => {
             const secToWait = 15;
-            const answer = await CliUtils.promptWithTimeout("Should wait your amount of time: ",
-                false, secToWait
+            const answer = await CliUtils.readPrompt("Should wait your amount of time: ",
+                { hideText: false, secToWait }
             );
             expect(answer).toEqual(mockedAnswer);
         });
 
         it("should limit to a max secToWait", async() => {
             const tooLong = 1000;
-            const answer = await CliUtils.promptWithTimeout("Should wait your amount of time: ",
-                false, tooLong
+            const answer = await CliUtils.readPrompt("Should wait your amount of time: ",
+                { hideText: false, secToWait: tooLong }
             );
             expect(answer).toEqual(mockedAnswer);
         });
 
+        it("should accept a maskChar parameter", async() => {
+            const answer = await CliUtils.readPrompt("Should we hide your answer: ",
+                { hideText: true, maskChar: null });
+            expect(answer).toEqual(mockedAnswer);
+        });
     });
 
     describe("showMsgWhenDeprecated", () => {

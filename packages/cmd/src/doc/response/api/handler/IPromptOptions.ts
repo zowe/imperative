@@ -29,4 +29,11 @@ export interface IPromptOptions {
      * @memberof IPromptOptions
      */
     secToWait?: number;
+
+    /**
+     * Character to use for masking hidden text
+     * @type {string}
+     * @memberof IPromptOptions
+     */
+    maskChar?: string | null;
 }

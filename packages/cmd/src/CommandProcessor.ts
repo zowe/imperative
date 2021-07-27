@@ -441,7 +441,7 @@ export class CommandProcessor {
                                 prepared.args[positionalName] =
                                     await response.console.prompt(`"${positionalName}" Description: ` +
                                         `${positional.description}\nPlease enter "${positionalName}":`,
-                                        { hideText: true, secToWait: 0 });
+                                        { hideText: true, secToWait: 0, maskChar: null });
                             }
                             // array processing
                             else {
@@ -456,7 +456,7 @@ export class CommandProcessor {
                                     prepared.args[positionalName][0] =
                                         await response.console.prompt(`"${positionalName}" Description: ` +
                                             `${positional.description}\nPlease enter "${positionalName}":`,
-                                            { hideText: true, secToWait: 0 });
+                                            { hideText: true, secToWait: 0, maskChar: null });
                                     // prompting enters as string but need to place it in array
 
                                     const array = prepared.args[positionalName][0].split(" ");
@@ -480,7 +480,7 @@ export class CommandProcessor {
                                 prepared.args[option.name] =
                                     await response.console.prompt(`"${option.name}" Description: ` +
                                         `${option.description}\nPlease enter "${option.name}":`,
-                                        { hideText: true, secToWait: 0 });
+                                        { hideText: true, secToWait: 0, maskChar: null });
                                 const camelCase = CliUtils.getOptionFormat(option.name).camelCase;
                                 prepared.args[camelCase] = prepared.args[option.name];
                                 if (option.aliases != null) {
@@ -502,7 +502,7 @@ export class CommandProcessor {
                                     prepared.args[option.name][0] =
                                         await response.console.prompt(`"${option.name}" Description: ` +
                                             `${option.description}\nPlease enter "${option.name}":`,
-                                            { hideText: true, secToWait: 0 });
+                                            { hideText: true, secToWait: 0, maskChar: null });
 
                                     const array = prepared.args[option.name][0].split(" ");
                                     prepared.args[option.name] = array;
