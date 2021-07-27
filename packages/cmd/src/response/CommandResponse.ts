@@ -622,7 +622,7 @@ export class CommandResponse implements ICommandResponseApi {
                             });
                         });
                     } else {
-                        return CliUtils.stdinPrompt(questionText, opts);
+                        return CliUtils.readPrompt(questionText, opts);
                     }
                 }
             }();
