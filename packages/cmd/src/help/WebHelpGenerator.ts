@@ -194,7 +194,7 @@ export class WebHelpGenerator {
      * @param markdownContent String containing Markdown content
      * @returns String containing HTML content
      */
-     private renderMarkdown(markdownContent: string): string {
+    private renderMarkdown(markdownContent: string): string {
         if (this.markdownIt == null) {
             this.markdownIt = require("markdown-it")({ html: true, linkify: true });
         }
