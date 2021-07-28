@@ -345,7 +345,7 @@ describe("Validate plugin", () => {
                 expect(result.stdout).toContain("The plugin's configuration does not contain an 'imperative.rootCommandDescription' property.");
             });
 
-            it("missing rootCommandDescription property - warning", () => {
+            it("missing rootCommandDescription property - error", () => {
                 const testPlugin = "missing_rootCommandDescription";
                 const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
 
@@ -353,7 +353,7 @@ describe("Validate plugin", () => {
                 let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
 
-                cmd = `plugins validate ${testPlugin} --fail-on-error --fail-on-warning`;
+                cmd = `plugins validate ${testPlugin} --fail-on-error`;
                 result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 result.stderr = removeNewline(result.stderr);
                 expect(result.stdout).toContain(testPlugin);
