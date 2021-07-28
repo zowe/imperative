@@ -107,6 +107,19 @@ describe("Validate plugin", () => {
             result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
             expect(result.stdout).toContain(pluginName);
             expect(result.stdout).toContain("has not been installed");
+        });
+
+        it("when the provided plugin is not installed - error", () => {
+            const testPlugin = join(testPluginDir, "normal_plugin");
+            const pluginName: string = "imperative-sample-plugin";
+            let cmd = `plugins install ${testPlugin}`;
+            let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+            expect(result.stdout).toContain(`Installed plugin name = 'normal-plugin'`);
+
+            cmd = `plugins validate ${pluginName} --fail-on-error`;
+            result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+            expect(result.stdout).toContain(pluginName);
+            expect(result.stdout).toContain("has not been installed");
             expect(result.stderr).toContain("Problems detected during plugin validation.");
             expect(result.status).toEqual(1);
         });
@@ -121,6 +134,23 @@ describe("Validate plugin", () => {
                 expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
 
                 cmd = `plugins validate ${testPlugin}`;
+                result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                result.stderr = removeNewline(result.stderr);
+                expect(result.stdout).toContain(testPlugin);
+                expect(result.stdout).toContain("Error");
+                expect(result.stdout).toContain("Your base application already contains a group with the name");
+                expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
+            });
+
+            it("duplicated command name with base CLI commands - error", () => {
+                const testPlugin = "duplicated_base_cli_command";
+                const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                let cmd = `plugins install ${fullPluginPath}`;
+                let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                cmd = `plugins validate ${testPlugin} --fail-on-error`;
                 result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 result.stderr = removeNewline(result.stderr);
                 expect(result.stdout).toContain(testPlugin);
@@ -150,6 +180,33 @@ describe("Validate plugin", () => {
                 expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
 
                 cmd = `plugins validate ${testPlugin}`;
+                result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                result.stderr = removeNewline(result.stderr);
+                expect(result.stdout).toContain(testPlugin);
+                expect(result.stdout).toContain("Error");
+                expect(result.stdout).toContain("Your base application already contains a group with the name");
+                expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
+            });
+
+            it("duplicated command name with installed plugin - error", () => {
+                const testPlugin = "duplicated_installed_plugin_command";
+                const fullPluginPath = join(testPluginDir, "error_plugins", "duplicated_installed_plugin_command");
+                const normalPlugin = join(testPluginDir, "normal_plugin");
+
+                let cmd = `plugins install ${normalPlugin} ${fullPluginPath}`;
+                let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+
+                if (peerDepWarning) {
+                    expect(result.stderr).toMatch(/npm.*WARN/);
+                    expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+                    expect(result.stderr).toContain("You must install peer dependencies yourself");
+                } else {
+                    expect(result.stderr).toEqual("");
+                }
+
+                expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                cmd = `plugins validate ${testPlugin} --fail-on-error`;
                 result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 result.stderr = removeNewline(result.stderr);
                 expect(result.stdout).toContain(testPlugin);
@@ -186,7 +243,7 @@ describe("Validate plugin", () => {
                 let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
 
-                cmd = `plugins validate ${testPlugin} --fow`;
+                cmd = `plugins validate ${testPlugin} --fail-on-error --fail-on-warning`;
                 result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 result.stderr = removeNewline(result.stderr);
                 expect(result.stdout).toContain(testPlugin);
@@ -205,6 +262,23 @@ describe("Validate plugin", () => {
                 expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
 
                 cmd = `plugins validate ${testPlugin}`;
+                result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                result.stderr = removeNewline(result.stderr);
+                expect(result.stdout).toContain(testPlugin);
+                expect(result.stdout).toContain("Error");
+                expect(result.stdout).toContain(`The program for the 'imperative.pluginHealthCheck' property does not exist:`);
+                expect(result.stdout).toContain("This plugin has configuration errors. No component of the plugin will be available");
+            });
+
+            it("missing pluginHealthCheck handler - error", () => {
+                const testPlugin = "missing_healthcheck_handler";
+                const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                let cmd = `plugins install ${fullPluginPath}`;
+                let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                cmd = `plugins validate ${testPlugin} --fail-on-error`;
                 result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 result.stderr = removeNewline(result.stderr);
                 expect(result.stdout).toContain(testPlugin);
@@ -243,7 +317,7 @@ describe("Validate plugin", () => {
                 let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
 
-                cmd = `plugins validate ${testPlugin} --fow`;
+                cmd = `plugins validate ${testPlugin} --fail-on-error --fail-on-warning`;
                 result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 result.stderr = removeNewline(result.stderr);
                 expect(result.stdout).toContain(testPlugin);
@@ -269,6 +343,22 @@ describe("Validate plugin", () => {
                 expect(result.stdout).toContain(testPlugin);
                 expect(result.stdout).toContain("Error");
                 expect(result.stdout).toContain("The plugin's configuration does not contain an 'imperative.rootCommandDescription' property.");
+            });
+
+            it("missing rootCommandDescription property - warning", () => {
+                const testPlugin = "missing_rootCommandDescription";
+                const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                let cmd = `plugins install ${fullPluginPath}`;
+                let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                cmd = `plugins validate ${testPlugin} --fail-on-error --fail-on-warning`;
+                result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                result.stderr = removeNewline(result.stderr);
+                expect(result.stdout).toContain(testPlugin);
+                expect(result.stdout).toContain("Error");
+                expect(result.stdout).toContain("The plugin's configuration does not contain an 'imperative.rootCommandDescription' property.");
                 expect(result.stderr).toContain("Problems detected during plugin validation.");
                 expect(result.status).toEqual(1);
             });
@@ -283,6 +373,22 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
 
                     cmd = `plugins validate ${testPlugin}`;
+                    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    result.stderr = removeNewline(result.stderr);
+                    expect(result.stdout).toContain(testPlugin);
+                    expect(result.stdout).toContain("Error");
+                    expect(result.stdout).toContain("The plugin defines no commands and overrides no framework components");
+                });
+
+                it("is missing - error", () => {
+                    const testPlugin = "missing_definitions";
+                    const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                    let cmd = `plugins install ${fullPluginPath}`;
+                    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                    cmd = `plugins validate ${testPlugin} --fail-on-error`;
                     result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                     result.stderr = removeNewline(result.stderr);
                     expect(result.stdout).toContain(testPlugin);
@@ -307,6 +413,23 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain("Error");
                     expect(result.stdout).toContain("The plugin defines no commands and overrides no framework components");
                     expect(result.stdout).toContain("This plugin has configuration errors. No component of the plugin will be available");
+                });
+
+                it("is defined with empty array - error", () => {
+                    const testPlugin = "definition_empty_array";
+                    const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                    let cmd = `plugins install ${fullPluginPath}`;
+                    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                    cmd = `plugins validate ${testPlugin} --fail-on-error`;
+                    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    result.stderr = removeNewline(result.stderr);
+                    expect(result.stdout).toContain(testPlugin);
+                    expect(result.stdout).toContain("Error");
+                    expect(result.stdout).toContain("The plugin defines no commands and overrides no framework components");
+                    expect(result.stdout).toContain("This plugin has configuration errors. No component of the plugin will be available");
                     expect(result.stderr).toContain("Problems detected during plugin validation.");
                     expect(result.status).toEqual(1);
                 });
@@ -320,6 +443,22 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
 
                     cmd = `plugins validate ${testPlugin}`;
+                    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(testPlugin);
+                    expect(result.stdout).toContain("Error: Command definition");
+                    expect(result.stdout).toContain("no 'name' property");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
+                });
+
+                it("is defined with definition which does not contain name property - error", () => {
+                    const testPlugin = "definition_missing_name";
+                    const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                    let cmd = `plugins install ${fullPluginPath}`;
+                    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                    cmd = `plugins validate ${testPlugin} --fail-on-error`;
                     result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                     expect(result.stdout).toContain(testPlugin);
                     expect(result.stdout).toContain("Error: Command definition");
@@ -343,6 +482,22 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain("Error");
                     expect(result.stdout).toContain("has no 'description' property");
                     expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
+                });
+
+                it("is defined with definition which does not contain description property - error", () => {
+                    const testPlugin = "definition_missing_description";
+                    const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                    let cmd = `plugins install ${fullPluginPath}`;
+                    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                    cmd = `plugins validate ${testPlugin} --fail-on-error`;
+                    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(testPlugin);
+                    expect(result.stdout).toContain("Error");
+                    expect(result.stdout).toContain("has no 'description' property");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
                     expect(result.stderr).toContain("Problems detected during plugin validation.");
                     expect(result.status).toEqual(1);
                 });
@@ -356,6 +511,22 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
 
                     cmd = `plugins validate ${testPlugin}`;
+                    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(testPlugin);
+                    expect(result.stdout).toContain("Error");
+                    expect(result.stdout).toContain("has no 'type' property");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
+                });
+
+                it("is defined with definition which does not contain type property - error", () => {
+                    const testPlugin = "definition_missing_type";
+                    const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                    let cmd = `plugins install ${fullPluginPath}`;
+                    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                    cmd = `plugins validate ${testPlugin} --fail-on-error`;
                     result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                     expect(result.stdout).toContain(testPlugin);
                     expect(result.stdout).toContain("Error");
@@ -379,6 +550,22 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain("Error");
                     expect(result.stdout).toContain("has no 'handler' property");
                     expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
+                });
+
+                it("is defined with definition which does not contain handler property - error", () => {
+                    const testPlugin = "definition_missing_handler";
+                    const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                    let cmd = `plugins install ${fullPluginPath}`;
+                    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                    cmd = `plugins validate ${testPlugin} --fail-on-error`;
+                    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(testPlugin);
+                    expect(result.stdout).toContain("Error");
+                    expect(result.stdout).toContain("has no 'handler' property");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
                     expect(result.stderr).toContain("Problems detected during plugin validation.");
                     expect(result.status).toEqual(1);
                 });
@@ -397,6 +584,22 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain("Error: Group name");
                     expect(result.stdout).toContain("has no 'children' property");
                     expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
+                });
+
+                it("is defined with definition which contains group type and missing children - error", () => {
+                    const testPlugin = "definition_type_group_without_children";
+                    const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                    let cmd = `plugins install ${fullPluginPath}`;
+                    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                    cmd = `plugins validate ${testPlugin} --fail-on-error`;
+                    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(testPlugin);
+                    expect(result.stdout).toContain("Error: Group name");
+                    expect(result.stdout).toContain("has no 'children' property");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
                     expect(result.stderr).toContain("Problems detected during plugin validation.");
                     expect(result.status).toEqual(1);
                 });
@@ -410,6 +613,22 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
 
                     cmd = `plugins validate ${testPlugin}`;
+                    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(testPlugin);
+                    expect(result.stdout).toContain("Error: The handler for command");
+                    expect(result.stdout).toContain("does not exist:");
+                    expect(result.stdout).toContain("This plugin has command errors. No plugin commands will be available");
+                });
+
+                it("is defined with definition which contains invalid handler - error", () => {
+                    const testPlugin = "missing_command_handler";
+                    const fullPluginPath = join(testPluginDir, "error_plugins", testPlugin);
+
+                    let cmd = `plugins install ${fullPluginPath}`;
+                    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(`Installed plugin name = '${testPlugin}'`);
+
+                    cmd = `plugins validate ${testPlugin} --fail-on-error`;
                     result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                     expect(result.stdout).toContain(testPlugin);
                     expect(result.stdout).toContain("Error: The handler for command");
@@ -435,6 +654,22 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain(pluginName);
                     expect(result.stdout).toContain(
                         "Error: The plugin's profiles at indexes = '0' and '1' have the same 'type' property = 'DupProfile'.");
+                });
+
+                it("should fail with duplicate profiles within a plugin - error", () => {
+                    const pluginName = "profile_dup_in_plugin";
+                    const pluginDir = join(testPluginDir, "error_plugins", pluginName);
+
+                    let cmd = `plugins install ${pluginDir}`;
+                    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(`Installed plugin name = '${pluginName}'`);
+
+                    cmd = `plugins validate ${pluginName} --fail-on-error`;
+                    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain("");
+                    expect(result.stdout).toContain(pluginName);
+                    expect(result.stdout).toContain(
+                        "Error: The plugin's profiles at indexes = '0' and '1' have the same 'type' property = 'DupProfile'.");
                     expect(result.stderr).toContain("Problems detected during plugin validation.");
                     expect(result.status).toEqual(1);
                 });
@@ -448,6 +683,22 @@ describe("Validate plugin", () => {
                     expect(result.stdout).toContain(`Installed plugin name = '${pluginName}'`);
 
                     cmd = `plugins validate ${pluginName}`;
+                    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain("");
+                    expect(result.stdout).toContain(pluginName);
+                    expect(result.stdout).toContain(
+                        "Error: The plugin's profile type = 'TestProfile1' already exists within existing profiles.");
+                });
+
+                it("should fail when a plugin contains a profile with the same name as the CLI - error", () => {
+                    const pluginName = "profile_dup_with_cli";
+                    const pluginDir = join(testPluginDir, "error_plugins", pluginName);
+
+                    let cmd = `plugins install ${pluginDir}`;
+                    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+                    expect(result.stdout).toContain(`Installed plugin name = '${pluginName}'`);
+
+                    cmd = `plugins validate ${pluginName} --fail-on-error`;
                     result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                     expect(result.stdout).toContain("");
                     expect(result.stdout).toContain(pluginName);
