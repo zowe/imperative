@@ -50,6 +50,7 @@ export const validateDefinition: ICommandDefinition = {
       type: "boolean",
       description: "Treat validation warnings as errors. Requires fail-on-error.",
       required: false,
+      defaultValue: false,
       implies: ["fail-on-error"]
     }
   ],
