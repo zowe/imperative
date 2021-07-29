@@ -12,23 +12,27 @@
 import * as fs from "fs";
 import * as path from "path";
 import { ICommandHandler, IHandlerParameters } from "../../../../cmd";
-import { Config, ConfigSchema } from "../../../../config";
+import { Config, ConfigSchema, IConfig } from "../../../../config";
 import { ProfileIO, ProfilesConstants, ProfileUtils } from "../../../../profiles";
 import { ImperativeConfig } from "../../../../utilities";
 import { CredentialManagerFactory } from "../../../../security";
 import { AppSettings } from "../../../../settings";
 import { PluginIssues } from "../../plugins/utilities/PluginIssues";
 import { uninstall as uninstallPlugin } from "../../plugins/utilities/npm-interface";
+import { OverridesLoader } from "../../OverridesLoader";
 
 /**
  * Handler for the auto-generated migrate profiles command.
  */
 export default class MigrateProfilesHandler implements ICommandHandler {
+    private commandParameters: IHandlerParameters;
+
     /**
      * The process command handler for the "profiles migrate" command.
      * @return {Promise<ICommandResponse>}: The promise to fulfill when complete.
      */
     public async process(params: IHandlerParameters): Promise<void> {
+        this.commandParameters = params;
         const profilesRootDir = ProfileUtils.constructProfilesRootDirectory(ImperativeConfig.instance.cliHome);
         const listOfProfileTypes = ProfileIO.getAllProfileDirectories(profilesRootDir);
         const oldProfiles: { name: string; type: string }[] = [];
@@ -48,30 +52,79 @@ export default class MigrateProfilesHandler implements ICommandHandler {
         if (answer == null || !(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
             return;
         }
+
+        params.response.console.log("");
+        const credMgrName = this.disableCredentialManager();
+        this.uninstallCredentialManager(credMgrName);
+        await this.ensureCredentialManagerLoaded();
+        const newConfig = await this.generateTeamConfig(profilesRootDir, listOfProfileTypes, oldProfiles);
         params.response.console.log("");
 
-        const credMgrSetting = ImperativeConfig.instance.loadedConfig.overrides?.CredentialManager;
-        if (credMgrSetting != null) {
-            params.response.console.log(`Disabling credential manager: ${credMgrSetting}`);
+        const teamConfig = ImperativeConfig.instance.config;
+        teamConfig.api.layers.activate(false, true);
+        teamConfig.api.layers.set(newConfig);
+        teamConfig.setSchema(ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles));
+        teamConfig.save(false);
+        // params.response.console.log(JSON.stringify(newConfig, null, 2));
+
+        const oldProfilesDir = `${profilesRootDir.replace(/[\\\/]$/, "")}-old`;
+        fs.renameSync(profilesRootDir, oldProfilesDir);
+
+        const cliBin = ImperativeConfig.instance.rootCommandName;
+        // TODO Implement config edit command
+        params.response.console.log(`Your profiles have been saved to ${teamConfig.layerActive().path}.\n` +
+            `Run "${cliBin} config edit --global-config" to open this file in your default editor.\n\n` +
+            `The old profiles have been moved to ${oldProfilesDir}.\n` +
+            `Run "${cliBin} config migrate --delete" if you want to completely remove them.`);
+    }
+
+    private disableCredentialManager(): string {
+        const credMgrSetting = AppSettings.instance.get("overrides", "CredentialManager");
+        if (credMgrSetting) {
+            this.commandParameters.response.console.log(`Disabling credential manager: ${credMgrSetting}`);
             AppSettings.instance.set("overrides", "CredentialManager", false);
         }
-
         // TODO Fix hardcoded plugin name which doesn't belong in Imperative
-        const oldCredMgr = (typeof credMgrSetting === "string") ? credMgrSetting : "@zowe/secure-credential-store-for-zowe-cli";
-        if (Object.keys(PluginIssues.instance.getInstalledPlugins()).includes(oldCredMgr)) {
-            params.response.console.log(`Uninstalling credential manager: ${oldCredMgr}`);
-            // TODO Figure out how to handle if plug-in uninstall fails
-            uninstallPlugin(oldCredMgr);
-        }
+        return (typeof credMgrSetting === "string") ? credMgrSetting : "@zowe/secure-credential-store-for-zowe-cli";
+    }
 
+    private uninstallCredentialManager(credMgrName: string): void {
+        if (Object.keys(PluginIssues.instance.getInstalledPlugins()).includes(credMgrName)) {
+            this.commandParameters.response.console.log(`Uninstalling credential manager: ${credMgrName}`);
+            // TODO Handle plug-in uninstall failure
+            // TODO Add timeout and retry a 2nd time because Windows hangs
+            uninstallPlugin(credMgrName);
+        }
+    }
+
+    /**
+     * If CredentialManager was not already loaded by Imperative.init, load it
+     * now before performing config operations in the migrate handler.
+     */
+    private async ensureCredentialManagerLoaded() {
+        if (!CredentialManagerFactory.initialized) {
+            const packageJson = {
+                ...ImperativeConfig.instance.callerPackageJson,
+                dependencies: {
+                    ...ImperativeConfig.instance.callerPackageJson.dependencies,
+                    "keytar": "*"
+                }
+            };
+            await OverridesLoader.loadCredentialManager(ImperativeConfig.instance.loadedConfig, packageJson);
+        }
+    }
+
+    private async generateTeamConfig(profilesRootDir: string, listOfProfileTypes: string[],
+                                     oldProfiles: { name: string, type: string }[]): Promise<IConfig> {
         const newConfig = Config.empty();
+
         for (const profileType of listOfProfileTypes) {
             // TODO Thoroughly handle error cases for invalid folders/profile YAMLs/meta YAMLs
             const oldProfilesByType = oldProfiles.filter(({ type }) => type === profileType);
             if (oldProfilesByType.length === 0) {
                 continue;
             }
-            params.response.console.log(`Migrating ${profileType} profiles: ${oldProfilesByType.map(p => p.name).join(", ")}`);
+            this.commandParameters.response.console.log(`Migrating ${profileType} profiles: ${oldProfilesByType.map(p => p.name).join(", ")}`);
 
             const profileTypeDir = path.join(profilesRootDir, profileType);
             for (const { name } of oldProfilesByType) {
@@ -84,7 +137,7 @@ export default class MigrateProfilesHandler implements ICommandHandler {
                         const secureValue = await CredentialManagerFactory.manager.load(
                             ProfileUtils.getProfilePropertyKey(profileType, name, key), true);
                         if (secureValue != null) {
-                            profileProps[key] = secureValue;
+                            profileProps[key] = JSON.parse(secureValue);
                             secureProps.push(key);
                         } else {
                             delete profileProps[key];
@@ -104,22 +157,7 @@ export default class MigrateProfilesHandler implements ICommandHandler {
                 newConfig.defaults[profileType] = ProfileUtils.getProfileMapKey(profileType, profileMetaFile.defaultProfile);
             }
         }
-        params.response.console.log("");
 
-        ImperativeConfig.instance.config.api.layers.activate(false, true);
-        ImperativeConfig.instance.config.api.layers.set(newConfig);
-        ImperativeConfig.instance.config.setSchema(ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles));
-        ImperativeConfig.instance.config.save(false);
-        // params.response.console.log(JSON.stringify(newConfig, null, 2));
-
-        const oldProfilesDir = `${profilesRootDir.replace(/[\\\/]$/, "")}-old`;
-        fs.renameSync(profilesRootDir, oldProfilesDir);
-
-        const cliBin = ImperativeConfig.instance.rootCommandName;
-        // TODO Implement config edit command
-        params.response.console.log(`Your profiles have been saved to ${ImperativeConfig.instance.config.layerActive().path}.\n` +
-            `Run "${cliBin} config edit --global-config" to open this file in your default editor.\n\n` +
-            `The old profiles have been moved to ${oldProfilesDir}.\n` +
-            `Run "${cliBin} config migrate --delete" if you want to completely remove them.`);
+        return newConfig;
     }
 }
