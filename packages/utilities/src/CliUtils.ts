@@ -589,9 +589,8 @@ export class CliUtils {
                 terminal: true,
                 prompt: message,
                 silent: opts?.hideText,
-                replace: (opts?.maskChar !== undefined) ? opts.maskChar : "*",
-                // tslint:disable-next-line no-magic-numbers
-                timeout: secToWait ? (secToWait * 1000) : null
+                replace: opts?.maskChar,
+                timeout: secToWait ? (secToWait * 1000) : null  // tslint:disable-line no-magic-numbers
             }, (error: any, result: string) => {
                 if (error == null) {
                     resolve(result);
