@@ -11,6 +11,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { spawn } from "child_process";
 import { ICommandHandler, IHandlerParameters } from "../../../../cmd";
 import { Config, ConfigSchema, IConfig } from "../../../../config";
 import { ProfileIO, ProfilesConstants, ProfileUtils } from "../../../../profiles";
@@ -54,15 +55,15 @@ export default class MigrateProfilesHandler implements ICommandHandler {
         }
 
         params.response.console.log("");
+        // await this.ensureCredentialManagerLoaded();
+        const newConfig = await this.generateTeamConfig(profilesRootDir, listOfProfileTypes, oldProfiles);
         const credMgrName = this.disableCredentialManager();
         this.uninstallCredentialManager(credMgrName);
-        await this.ensureCredentialManagerLoaded();
-        const newConfig = await this.generateTeamConfig(profilesRootDir, listOfProfileTypes, oldProfiles);
         params.response.console.log("");
 
         const teamConfig = ImperativeConfig.instance.config;
         teamConfig.api.layers.activate(false, true);
-        teamConfig.api.layers.set(newConfig);
+        teamConfig.api.layers.merge(newConfig);
         teamConfig.setSchema(ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles));
         teamConfig.save(false);
         // params.response.console.log(JSON.stringify(newConfig, null, 2));
@@ -93,7 +94,8 @@ export default class MigrateProfilesHandler implements ICommandHandler {
             this.commandParameters.response.console.log(`Uninstalling credential manager: ${credMgrName}`);
             // TODO Handle plug-in uninstall failure
             // TODO Add timeout and retry a 2nd time because Windows hangs
-            uninstallPlugin(credMgrName);
+            // uninstallPlugin(credMgrName);
+            spawn(ImperativeConfig.instance.rootCommandName, ["plugins", "uninstall", credMgrName], { detached: true }).unref();
         }
     }
 
