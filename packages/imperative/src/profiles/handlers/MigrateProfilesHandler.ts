@@ -13,7 +13,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { ICommandHandler, IHandlerParameters } from "../../../../cmd";
 import { Config, ConfigSchema, IConfig } from "../../../../config";
-import { ProfileIO, ProfilesConstants, ProfileUtils } from "../../../../profiles";
+import { IProfile, ProfileIO, ProfilesConstants, ProfileUtils } from "../../../../profiles";
 import { ImperativeConfig } from "../../../../utilities";
 import { CredentialManagerFactory } from "../../../../security";
 import { AppSettings } from "../../../../settings";
@@ -48,6 +48,7 @@ export default class MigrateProfilesHandler implements ICommandHandler {
         }
 
         params.response.console.log(`Detected ${oldProfiles.length} profile(s) to be migrated from Zowe v1 to v2.\n`);
+        // TODO Add no-prompt flag
         const answer = await params.response.console.prompt("Are you sure you want to continue? [y/N]: ");
         if (answer == null || !(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
             return;
@@ -90,9 +91,11 @@ export default class MigrateProfilesHandler implements ICommandHandler {
     private uninstallCredentialManager(credMgrName: string): void {
         if (Object.keys(PluginIssues.instance.getInstalledPlugins()).includes(credMgrName)) {
             this.commandParameters.response.console.log(`Uninstalling credential manager: ${credMgrName}`);
-            // TODO Handle plug-in uninstall failure
-            // TODO Add timeout and retry a 2nd time because Windows hangs
-            uninstallPlugin(credMgrName);
+            try {
+                uninstallPlugin(credMgrName);
+            } catch (error) {
+                this.commandParameters.response.console.error(`Failed to uninstall credential manager: ${error}`);
+            }
         }
     }
 
@@ -121,12 +124,19 @@ export default class MigrateProfilesHandler implements ICommandHandler {
 
             const profileTypeDir = path.join(profilesRootDir, profileType);
             for (const { name } of oldProfilesByType) {
-                const profileProps = ProfileIO.readProfileFile(path.join(profileTypeDir, `${name}.yaml`), profileType);
+                const profileFilePath = path.join(profileTypeDir, `${name}.yaml`);
+                let profileProps: IProfile;
                 const secureProps = [];
+
+                try {
+                    profileProps = ProfileIO.readProfileFile(profileFilePath, profileType);
+                } catch (error) {
+                    this.commandParameters.response.console.error(`Failed to read profile YAML file: ${profileFilePath}`);
+                    continue;
+                }
 
                 for (const [key, value] of Object.entries(profileProps)) {
                     if (value.toString().startsWith(ProfilesConstants.PROFILES_OPTION_SECURELY_STORED)) {
-                        // TODO Is it safe to assume credential manager is loaded?
                         const secureValue = await CredentialManagerFactory.manager.load(
                             ProfileUtils.getProfilePropertyKey(profileType, name, key), true);
                         if (secureValue != null) {
@@ -145,9 +155,14 @@ export default class MigrateProfilesHandler implements ICommandHandler {
                 };
             }
 
-            const profileMetaFile = ProfileIO.readMetaFile(path.join(profileTypeDir, `${profileType}_meta.yaml`));
-            if (profileMetaFile.defaultProfile != null) {
-                newConfig.defaults[profileType] = ProfileUtils.getProfileMapKey(profileType, profileMetaFile.defaultProfile);
+            const metaFilePath = path.join(profileTypeDir, `${profileType}_meta.yaml`);
+            try {
+                const profileMetaFile = ProfileIO.readMetaFile(metaFilePath);
+                if (profileMetaFile.defaultProfile != null) {
+                    newConfig.defaults[profileType] = ProfileUtils.getProfileMapKey(profileType, profileMetaFile.defaultProfile);
+                }
+            } catch (error) {
+                this.commandParameters.response.console.error(`Failed to read profile meta YAML file: ${metaFilePath}`);
             }
         }
 
