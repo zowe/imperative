@@ -44,7 +44,7 @@ Object {
   "defaults": Object {
     "fruit": "fruit.apple",
   },
-  "plugins": CommentArray [
+  "plugins": Array [
     "@zowe/fruit-for-imperative",
     "@zowe/vegetable-for-imperative",
   ],
@@ -87,7 +87,7 @@ Object {
   "defaults": Object {
     "fruit": "fruit.apple",
   },
-  "plugins": CommentArray [
+  "plugins": Array [
     "@zowe/fruit-for-imperative",
     "@zowe/vegetable-for-imperative",
   ],
@@ -129,7 +129,6 @@ exports[`Config API tests layers set should set the current layer 1`] = `
 Object {
   "$schema": "fake",
   "defaults": Object {},
-  "plugins": CommentArray [],
   "profiles": Object {
     "vegetable": Object {
       "properties": Object {
@@ -144,7 +143,6 @@ Object {
 exports[`Config API tests layers set should set the current layer when nothing is provided 1`] = `
 Object {
   "defaults": Object {},
-  "plugins": CommentArray [],
   "profiles": Object {},
 }
 `;

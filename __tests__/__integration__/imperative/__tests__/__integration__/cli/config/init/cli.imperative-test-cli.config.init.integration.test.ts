@@ -168,7 +168,6 @@ describe("imperative-test-cli config init", () => {
     //             }
     //         },
     //         defaults: {},
-    //         plugins: [],
     //         secure: []
     //     };
     //     expect(response.output.toString()).toContain(`Saved config template to`);

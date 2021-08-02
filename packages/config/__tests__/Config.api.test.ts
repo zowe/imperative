@@ -376,7 +376,6 @@ describe("Config API tests", () => {
                 const cnfg: IConfig = {
                     $schema: "fake",
                     defaults: {},
-                    plugins: [],
                     profiles: {
                         vegetable: {
                             properties: {
@@ -405,7 +404,6 @@ describe("Config API tests", () => {
                 expect(retrievedConfig).toMatchSnapshot();
                 expect(retrievedConfig.defaults).toEqual({});
                 expect(retrievedConfig.profiles).toEqual({});
-                expect(retrievedConfig.plugins).toEqual([]);
             });
         });
         describe("merge", () => {
