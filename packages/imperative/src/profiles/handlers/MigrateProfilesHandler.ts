@@ -11,7 +11,6 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import { spawn } from "child_process";
 import { ICommandHandler, IHandlerParameters } from "../../../../cmd";
 import { Config, ConfigSchema, IConfig } from "../../../../config";
 import { ProfileIO, ProfilesConstants, ProfileUtils } from "../../../../profiles";
@@ -55,18 +54,17 @@ export default class MigrateProfilesHandler implements ICommandHandler {
         }
 
         params.response.console.log("");
-        // await this.ensureCredentialManagerLoaded();
-        const newConfig = await this.generateTeamConfig(profilesRootDir, listOfProfileTypes, oldProfiles);
         const credMgrName = this.disableCredentialManager();
         this.uninstallCredentialManager(credMgrName);
+        await this.ensureCredentialManagerLoaded();
+        const newConfig = await this.generateTeamConfig(profilesRootDir, listOfProfileTypes, oldProfiles);
         params.response.console.log("");
 
         const teamConfig = ImperativeConfig.instance.config;
         teamConfig.api.layers.activate(false, true);
         teamConfig.api.layers.merge(newConfig);
         teamConfig.setSchema(ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles));
-        teamConfig.save(false);
-        // params.response.console.log(JSON.stringify(newConfig, null, 2));
+        await teamConfig.save(false);
 
         const oldProfilesDir = `${profilesRootDir.replace(/[\\\/]$/, "")}-old`;
         fs.renameSync(profilesRootDir, oldProfilesDir);
@@ -94,8 +92,7 @@ export default class MigrateProfilesHandler implements ICommandHandler {
             this.commandParameters.response.console.log(`Uninstalling credential manager: ${credMgrName}`);
             // TODO Handle plug-in uninstall failure
             // TODO Add timeout and retry a 2nd time because Windows hangs
-            // uninstallPlugin(credMgrName);
-            spawn(ImperativeConfig.instance.rootCommandName, ["plugins", "uninstall", credMgrName], { detached: true }).unref();
+            uninstallPlugin(credMgrName);
         }
     }
 
@@ -105,14 +102,8 @@ export default class MigrateProfilesHandler implements ICommandHandler {
      */
     private async ensureCredentialManagerLoaded() {
         if (!CredentialManagerFactory.initialized) {
-            const packageJson = {
-                ...ImperativeConfig.instance.callerPackageJson,
-                dependencies: {
-                    ...ImperativeConfig.instance.callerPackageJson.dependencies,
-                    "keytar": "*"
-                }
-            };
-            await OverridesLoader.loadCredentialManager(ImperativeConfig.instance.loadedConfig, packageJson);
+            await OverridesLoader.loadCredentialManager(ImperativeConfig.instance.loadedConfig,
+                ImperativeConfig.instance.callerPackageJson);
         }
     }
 

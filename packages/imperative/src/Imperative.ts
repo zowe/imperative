@@ -222,8 +222,10 @@ export class Imperative {
                  * Now we should apply any overrides to default Imperative functionality. This is where CLI
                  * developers are able to really start customizing Imperative and how it operates internally.
                  */
-                await OverridesLoader.load(ImperativeConfig.instance.loadedConfig,
-                    ImperativeConfig.instance.callerPackageJson);
+                if (!process.argv.join(" ").includes("profiles migrate")) {  // TODO Fix this terrible hack
+                    await OverridesLoader.load(ImperativeConfig.instance.loadedConfig,
+                        ImperativeConfig.instance.callerPackageJson);
+                }
 
                 /**
                  * Build API object
