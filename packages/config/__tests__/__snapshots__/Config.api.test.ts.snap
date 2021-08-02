@@ -44,7 +44,7 @@ Object {
   "defaults": Object {
     "fruit": "fruit.apple",
   },
-  "plugins": Array [
+  "plugins": CommentArray [
     "@zowe/fruit-for-imperative",
     "@zowe/vegetable-for-imperative",
   ],
@@ -87,7 +87,7 @@ Object {
   "defaults": Object {
     "fruit": "fruit.apple",
   },
-  "plugins": Array [
+  "plugins": CommentArray [
     "@zowe/fruit-for-imperative",
     "@zowe/vegetable-for-imperative",
   ],
