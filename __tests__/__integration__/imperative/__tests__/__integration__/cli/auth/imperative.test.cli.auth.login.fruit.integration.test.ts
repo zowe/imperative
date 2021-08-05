@@ -78,7 +78,7 @@ describe("imperative-test-cli auth login", () => {
             // the output of the command should include token value
             expect(response.stdout.toString()).toContain("user:     fakeUser");
             expect(response.stdout.toString()).toContain("password: fakePass");
-            expect(response.stdout.toString()).toContain("tokenType: jwtToken");
+            expect(response.stdout.toString()).toContain("tokenType:  jwtToken");
             expect(response.stdout.toString()).toContain("tokenValue: (secure value)");
             expect(await loadSecureProp("my_base_fruit")).toBe("fakeUser:fakePass@fakeToken");
         });
@@ -92,7 +92,7 @@ describe("imperative-test-cli auth login", () => {
             // the output of the command should include token value
             expect(response.stdout.toString()).toContain("user:     fakeUser");
             expect(response.stdout.toString()).toContain("password: fakePass");
-            expect(response.stdout.toString()).toContain("tokenType: jwtToken");
+            expect(response.stdout.toString()).toContain("tokenType:  jwtToken");
             expect(response.stdout.toString()).toContain("tokenValue: (secure value)");
             expect(await loadSecureProp("my_base_fruit")).toBe("fakeUser:fakePass@fakeToken");
         });
@@ -106,7 +106,7 @@ describe("imperative-test-cli auth login", () => {
             // the output of the command should include token value
             expect(response.stdout.toString()).toContain("user:     fakeUser");
             expect(response.stdout.toString()).toContain("password: fakePass");
-            expect(response.stdout.toString()).toContain("tokenType: jwtToken");
+            expect(response.stdout.toString()).toContain("tokenType:  jwtToken");
             expect(response.stdout.toString()).toContain("tokenValue: (secure value)");
             expect(await loadSecureProp("my_base_fruit")).toBe("fakeUser:fakePass@fakeToken");
         });
@@ -120,7 +120,7 @@ describe("imperative-test-cli auth login", () => {
             // the output of the command should include token value
             expect(response.stdout.toString()).toContain("user:     fakeUser");
             expect(response.stdout.toString()).toContain("password: fakePass");
-            expect(response.stdout.toString()).toContain("tokenType: jwtToken");
+            expect(response.stdout.toString()).toContain("tokenType:  jwtToken");
             expect(response.stdout.toString()).toContain("tokenValue: (secure value)");
             expect(await loadSecureProp("my_base_fruit")).toBe("fakeUser:fakePass@fakeToken");
         });
@@ -176,9 +176,9 @@ describe("imperative-test-cli auth login", () => {
 
             expect(response.stderr.toString()).toBe("");
             expect(response.status).toBe(0);
-            expect(response.stdout.toString()).toContain("host:      fakeHost");
-            expect(response.stdout.toString()).toContain("port:      3000");
-            expect(response.stdout.toString()).toContain("tokenType: jwtToken");
+            expect(response.stdout.toString()).toContain("host:       fakeHost");
+            expect(response.stdout.toString()).toContain("port:       3000");
+            expect(response.stdout.toString()).toContain("tokenType:  jwtToken");
             expect(response.stdout.toString()).toContain("tokenValue: (secure value)");
             expect(await loadSecureProp("my_base")).toBe("fakeUser:fakePass@fakeToken");
             expect(response.stdout.toString()).not.toContain("user:");
@@ -197,9 +197,9 @@ describe("imperative-test-cli auth login", () => {
 
             expect(response.stderr.toString()).toBe("");
             expect(response.status).toBe(0);
-            expect(response.stdout.toString()).toContain("host:      fakeHost");
-            expect(response.stdout.toString()).toContain("port:      3000");
-            expect(response.stdout.toString()).toContain("tokenType: jwtToken");
+            expect(response.stdout.toString()).toContain("host:       fakeHost");
+            expect(response.stdout.toString()).toContain("port:       3000");
+            expect(response.stdout.toString()).toContain("tokenType:  jwtToken");
             expect(response.stdout.toString()).toContain("tokenValue: (secure value)");
             expect(await loadSecureProp("my_base")).toBe("fakeUser:fakePass@fakeToken");
             expect(response.stdout.toString()).not.toContain("user:");
