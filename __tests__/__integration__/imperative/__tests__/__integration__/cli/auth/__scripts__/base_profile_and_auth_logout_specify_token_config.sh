@@ -3,7 +3,7 @@
 tokenValue=$1
 
 # Next logout of fruit auth
-imperative-test-cli auth logout fruit --auth-token "$tokenValue"
+imperative-test-cli auth logout fruit --token-value "$tokenValue"
 CMDRC=$?
 if [ $CMDRC -gt 0 ]
 then
