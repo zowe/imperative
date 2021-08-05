@@ -659,7 +659,7 @@ export class CommandProcessor {
         // Display the first example on error
         if (this.mDefinition.examples && this.mDefinition.examples.length > 0) {
             let exampleText = TextUtils.wordWrap(`- ${this.mDefinition.examples[0].description}:\n\n`, undefined, " ");
-            exampleText += `      \$ ${
+            exampleText += `      $ ${
                 this.rootCommand
                 } ${
                 CommandUtils.getFullCommandName(this.mDefinition, this.mFullDefinition)

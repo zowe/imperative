@@ -1091,7 +1091,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
       if (key === "type" || key === "name") {
         continue;
       }
-      if (profile.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(profile, key)) {
         return false;
       }
     }

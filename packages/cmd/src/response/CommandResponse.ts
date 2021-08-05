@@ -217,7 +217,7 @@ export class CommandResponse implements ICommandResponseApi {
 
     get format(): IHandlerFormatOutputApi {
         // Access to "this" from the inner class
-        // tslint:disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const outer: CommandResponse = this;
 
         if (this.mFormatApi == null) {
@@ -519,7 +519,7 @@ export class CommandResponse implements ICommandResponseApi {
      */
     get console(): IHandlerResponseConsoleApi {
         // Access to "this" from the inner class
-        // tslint:disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const outer: CommandResponse = this;
 
         // Create only a single instance of the console API
@@ -594,7 +594,7 @@ export class CommandResponse implements ICommandResponseApi {
      */
     get data(): IHandlerResponseDataApi {
         // Access to "this" from the inner class.
-        // tslint:disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const outer: CommandResponse = this;
 
         // Only create a single instance
@@ -652,7 +652,7 @@ export class CommandResponse implements ICommandResponseApi {
      */
     get progress(): IHandlerProgressApi {
         // Remember "this" for the inner classes usage and ensure that progress bar has not been started.
-        // tslint:disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const outer: CommandResponse = this;
 
         // Ensure there is only a single instance created of the progress API class

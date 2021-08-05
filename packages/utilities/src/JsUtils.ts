@@ -24,7 +24,7 @@ export class JsUtils {
       return true;
     }
     for (const prop in objToTest) {
-      if (objToTest.hasOwnProperty(prop)) {
+      if (Object.prototype.hasOwnProperty.call(objToTest, prop)) {
         return false;
       }
     }

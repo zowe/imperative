@@ -50,7 +50,7 @@ export default class ListHandler implements ICommandHandler {
         let firstTime = true;
 
         for (const pluginName in installedPlugins) {
-            if (installedPlugins.hasOwnProperty(pluginName)) {
+            if (Object.prototype.hasOwnProperty.call(installedPlugins, pluginName)) {
                 // Build the console output
                 if (firstTime) {
                   listOutput = `\n${chalk.yellow.bold("Installed plugins:")} \n\n`;

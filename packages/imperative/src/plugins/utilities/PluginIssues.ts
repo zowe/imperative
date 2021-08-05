@@ -107,7 +107,7 @@ export class PluginIssues {
    *                      False otherwise.
    */
   public doesPluginHaveIssueSev(pluginName: string, issueSevs: IssueSeverity[]): boolean {
-    if (this.pluginIssues.hasOwnProperty(pluginName)) {
+    if (Object.prototype.hasOwnProperty.call(this.pluginIssues, pluginName)) {
       for (const nextSev of issueSevs) {
         for (const nextIssue of this.pluginIssues[pluginName].issueList) {
           if (nextIssue.issueSev === nextSev) {
@@ -159,7 +159,7 @@ export class PluginIssues {
    *                             If no issues, an empty array is returned.
    */
   public getIssueListForPlugin(pluginName: string): IPluginIssue[] {
-    if (this.pluginIssues.hasOwnProperty(pluginName)) {
+    if (Object.prototype.hasOwnProperty.call(this.pluginIssues, pluginName)) {
       return this.pluginIssues[pluginName].issueList;
     }
     return [];
@@ -171,7 +171,7 @@ export class PluginIssues {
    * @param {string} pluginName - The name of the plugin to remove
    */
   public removeIssuesForPlugin(pluginName: string): void {
-    if (this.pluginIssues.hasOwnProperty(pluginName)) {
+    if (Object.prototype.hasOwnProperty.call(this.pluginIssues, pluginName)) {
       delete this.pluginIssues[pluginName];
     }
   }
@@ -190,7 +190,7 @@ export class PluginIssues {
       issueSev,
       issueText
     };
-    if (this.pluginIssues.hasOwnProperty(pluginName)) {
+    if (Object.prototype.hasOwnProperty.call(this.pluginIssues, pluginName)) {
       // add to an existing issue list for this plugin
       this.pluginIssues[pluginName].issueList.push(issue);
     } else {

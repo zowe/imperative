@@ -61,7 +61,7 @@ export default class ValidateHandler implements ICommandHandler {
       } else {
         // loop through each plugin installed in our plugins file
         for (pluginName in installedPlugins) {
-          if (this.pluginIssues.getInstalledPlugins().hasOwnProperty(pluginName)) {
+          if (Object.prototype.hasOwnProperty.call(this.pluginIssues.getInstalledPlugins(), pluginName)) {
             localerr = this.displayPluginIssues(pluginName, params.response, failOnWarning);
             if (localerr === true) { err = localerr; }
           }
@@ -70,7 +70,7 @@ export default class ValidateHandler implements ICommandHandler {
     } else {
       // is the specified plugin installed?
       pluginName = params.arguments.plugin;
-      if (!installedPlugins.hasOwnProperty(pluginName)) {
+      if (!Object.prototype.hasOwnProperty.call(installedPlugins, pluginName)) {
         params.response.console.log(TextUtils.chalk.red(
           "The specified plugin '" + pluginName +
           "' has not been installed into your CLI application."

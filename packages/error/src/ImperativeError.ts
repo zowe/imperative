@@ -44,7 +44,7 @@ export class ImperativeError extends Error {
         if (parms) {
             // @DEPRECATED - Log a nice message instead of breaking plugins that might be doing stuff
             // @TODO - REMOVE THIS BEFORE THE NEXT RELEASE
-            if (parms.hasOwnProperty("suppressReport")) {
+            if (Object.prototype.hasOwnProperty.call(parms, "suppressReport")) {
                 // tslint:disable-next-line
                 console.warn(chalk.yellow.bold( // I can't import console because of circular dependencies
                     "[DEPRECATED] suppressReport property of ImperativeError has been deprecated. " +

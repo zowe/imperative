@@ -122,7 +122,7 @@ export default class InstallHandler implements ICommandHandler {
           }
 
           for (const packageName in packageJson) {
-            if (packageJson.hasOwnProperty(packageName)) {
+            if (Object.prototype.hasOwnProperty.call(packageJson, packageName)) {
               const packageInfo: IPluginJsonObject = packageJson[packageName];
 
               // Registry is typed as optional in the doc but the function expects it

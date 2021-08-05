@@ -38,7 +38,7 @@ export function uninstall(packageName: string): void {
 
   const updatedInstalledPlugins: IPluginJson = {};
 
-  if (installedPlugins.hasOwnProperty(packageName)) {
+  if (Object.prototype.hasOwnProperty.call(installedPlugins, packageName)) {
     // Loop through the plugins and remove the uninstalled package
     for (const pluginName in installedPlugins) {
       // Only retain the plugins that aren't being uninstalled
