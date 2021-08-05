@@ -39,7 +39,7 @@
     "posttest:integration": "gulp test:uninstallSampleClis",
     "lint": "npm run lint:packages && npm run lint:tests",
     "lint:packages": "eslint \"**/packages/**/*.ts\" --ignore-pattern \"**/__tests__/**/*.ts\"",
-    "lint:tests": "eslint \"**/__tests__/**/*.ts\" --ignore-pattern \"**/*.d.ts\"",
+    "lint:tests": "eslint \"**/__tests__/**/*.ts\"",
     "watch": "gulp watch",
     "build:webHelp": "cd web-help && tsc",
     "watch:webHelp": "cd web-help && tsc -w",

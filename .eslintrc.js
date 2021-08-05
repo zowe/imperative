@@ -7,13 +7,31 @@ module.exports = {
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended"
     ],
+    "ignorePatterns": [
+        "**/*.d.ts"
+    ],
+    "overrides": [
+        {
+            "extends": [
+                "plugin:jest/recommended"
+            ],
+            "files": [
+                "**/__tests__/**/*.ts"
+            ],
+            "rules": {
+                "@typescript-eslint/no-unused-vars": "off",
+                "jest/no-conditional-expect": "off"
+            }
+        }
+    ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": 12,
         "sourceType": "module"
     },
     "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "jest"
     ],
     "rules": {
         "@typescript-eslint/ban-types": "off",
