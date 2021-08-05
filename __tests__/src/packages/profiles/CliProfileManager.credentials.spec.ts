@@ -9,7 +9,7 @@
 *
 */
 
-import * as T from "../../..//src/TestUtil";
+import * as T from "../../../src/TestUtil";
 import * as path from "path";
 import * as fs from "fs";
 import { IImperativeConfig } from "../../../../packages/imperative";
@@ -195,7 +195,7 @@ describe("Cli Profile Manager", () => {
         cmd = `profiles delete ${testProfileName}-profile ${createdName}`;
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
 
-        expect(T.stripNewLines(result.stderr)).toContain(`Profile \"${createdName}\" of type \"${testProfileName}\" does not exist.`);
+        expect(T.stripNewLines(result.stderr)).toContain(`Profile "${createdName}" of type "${testProfileName}" does not exist.`);
         expect(result.stderr).toMatchSnapshot();
 
         // Now put it back for cleanup

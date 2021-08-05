@@ -98,7 +98,7 @@ describe("Plugin validate command handler", () => {
       await valHandler.process(params as IHandlerParameters);
 
       for (testPlugin in pluginIssues.getInstalledPlugins()){
-        if (pluginIssues.getInstalledPlugins().hasOwnProperty(testPlugin)){
+        if (Object.prototype.hasOwnProperty.call(pluginIssues.getInstalledPlugins(), testPlugin)){
           expect(mockDisplayPluginIssues).toBeCalledWith(testPlugin, params.response, false);
         }
       }

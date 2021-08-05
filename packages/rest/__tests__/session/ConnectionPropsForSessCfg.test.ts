@@ -170,8 +170,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             _: [""]
         };
 
-        let sessCfgWithConnProps: ISession;
-        sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+        const sessCfgWithConnProps: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             initialSessCfg, args, {doPrompting: false}
         );
         expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
@@ -203,8 +202,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             password: passFromArgs
         };
 
-        let sessCfgWithConnProps: ISession;
-        sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+        const sessCfgWithConnProps: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             initialSessCfg, args
         );
         CliUtils.sleep = sleepReal;
@@ -239,8 +237,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             user: userFromArgs
         };
 
-        let sessCfgWithConnProps: ISession;
-        sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+        const sessCfgWithConnProps: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             initialSessCfg, args
         );
         CliUtils.sleep = sleepReal;
@@ -277,8 +274,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             password: passFromArgs
         };
 
-        let sessCfgWithConnProps: ISession;
-        sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+        const sessCfgWithConnProps: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             initialSessCfg, args
         );
         CliUtils.sleep = sleepReal;
@@ -316,8 +312,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             password: passFromArgs
         };
 
-        let sessCfgWithConnProps: ISession;
-        sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+        const sessCfgWithConnProps: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             initialSessCfg, args
         );
         CliUtils.sleep = sleepReal;

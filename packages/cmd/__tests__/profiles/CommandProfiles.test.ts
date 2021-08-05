@@ -36,9 +36,8 @@ describe("Command Profiles", () => {
   it("should detect that the parameters are not a map", () => {
     let error;
     try {
-      let map: any;
-      map = { not: "a-map" };
-      const profs = new CommandProfiles(map);
+      const map = { not: "a-map" };
+      new CommandProfiles(map as any);
     } catch (e) {
       error = e;
     }

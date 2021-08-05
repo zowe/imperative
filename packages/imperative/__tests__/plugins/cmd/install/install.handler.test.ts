@@ -143,8 +143,7 @@ describe("Plugin Management Facility install handler", () => {
    */
   const wasInstallSuccessful = (params: IHandlerParameters) => {
     // get the text of the last message that was displayed
-    const outputMsg = (params.response.console.log as Mock).mock.calls
-                      [(params.response.console.log as Mock).mock.calls.length - 1][0];
+    const outputMsg = (params.response.console.log as Mock).mock.calls[(params.response.console.log as Mock).mock.calls.length - 1][0];
     expect(outputMsg).toContain(finalValidationMsg);
   };
 
