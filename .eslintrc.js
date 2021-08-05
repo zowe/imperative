@@ -20,6 +20,7 @@ module.exports = {
             ],
             "rules": {
                 "@typescript-eslint/no-unused-vars": "off",
+                "jest/expect-expect": ["warn", { "assertFunctionNames": ["expect*"] }],
                 "jest/no-conditional-expect": "off"
             }
         }
