@@ -53,39 +53,39 @@ export class GroupCommandYargs extends AbstractCommandYargs {
                      * Otherwise, define the "child" command.
                      */
                     switch (child.type) {
-                        // case "provider":
-                        case "group":
-                            new GroupCommandYargs({
-                                yargsInstance: this.yargs,
-                                commandDefinition: child,
-                                yargsParent: this,
-                                commandResponseParms: this.responseParms,
-                                helpGeneratorFactory: this.helpGeneratorFactory,
-                                profileManagerFactory: this.profileManagerFactory,
-                                experimentalCommandDescription: this.yargsParms.experimentalCommandDescription,
-                                rootCommandName: this.rootCommandName,
-                                commandLine: this.commandLine,
-                                envVariablePrefix: this.envVariablePrefix,
-                                promptPhrase: this.promptPhrase
-                            }).defineCommandToYargs(commandExecuted);
-                            break;
-                        case "command":
-                            new CommandYargs({
-                                yargsInstance: this.yargs,
-                                commandDefinition: child,
-                                yargsParent: this,
-                                commandResponseParms: this.responseParms,
-                                helpGeneratorFactory: this.helpGeneratorFactory,
-                                profileManagerFactory: this.profileManagerFactory,
-                                experimentalCommandDescription: this.yargsParms.experimentalCommandDescription,
-                                rootCommandName: this.rootCommandName,
-                                commandLine: this.commandLine,
-                                envVariablePrefix: this.envVariablePrefix,
-                                promptPhrase: this.promptPhrase
-                            }).defineCommandToYargs(commandExecuted);
-                            break;
-                        default:
-                            throw new Error(`Bright Yargs Define Error: Bright command definition type ` +
+                    // case "provider":
+                    case "group":
+                        new GroupCommandYargs({
+                            yargsInstance: this.yargs,
+                            commandDefinition: child,
+                            yargsParent: this,
+                            commandResponseParms: this.responseParms,
+                            helpGeneratorFactory: this.helpGeneratorFactory,
+                            profileManagerFactory: this.profileManagerFactory,
+                            experimentalCommandDescription: this.yargsParms.experimentalCommandDescription,
+                            rootCommandName: this.rootCommandName,
+                            commandLine: this.commandLine,
+                            envVariablePrefix: this.envVariablePrefix,
+                            promptPhrase: this.promptPhrase
+                        }).defineCommandToYargs(commandExecuted);
+                        break;
+                    case "command":
+                        new CommandYargs({
+                            yargsInstance: this.yargs,
+                            commandDefinition: child,
+                            yargsParent: this,
+                            commandResponseParms: this.responseParms,
+                            helpGeneratorFactory: this.helpGeneratorFactory,
+                            profileManagerFactory: this.profileManagerFactory,
+                            experimentalCommandDescription: this.yargsParms.experimentalCommandDescription,
+                            rootCommandName: this.rootCommandName,
+                            commandLine: this.commandLine,
+                            envVariablePrefix: this.envVariablePrefix,
+                            promptPhrase: this.promptPhrase
+                        }).defineCommandToYargs(commandExecuted);
+                        break;
+                    default:
+                        throw new Error(`Bright Yargs Define Error: Bright command definition type ` +
                                 `${child.type} invalid.`);
                     }
                 }

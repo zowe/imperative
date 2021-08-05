@@ -29,8 +29,8 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
     });
     const displayName = "dummy";
     afterAll(() => {
-            process.env.FORCE_COLOR = oldForceColorOption;
-        }
+        process.env.FORCE_COLOR = oldForceColorOption;
+    }
     );
     const dummyProfile: IProfile = {name: "dummy", type: "dummy"};
 
@@ -257,7 +257,7 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
             ]
         }]
     };
-    it("If we have a mock plan with all passing tests, the result should be a successful validation ", () => {
+    it("If we have a mock plan with all passing tests, the result should be a successful validation", () => {
 
 
         return ProfileValidator.validate(dummyProfile, goodPlan, displayName).then((report: IProfileValidationReport) => {
@@ -359,7 +359,7 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
         });
     });
 
-    it("If we validate a profile with a result description that is too long, it should be truncated ",
+    it("If we validate a profile with a result description that is too long, it should be truncated",
         (done: any) => {
             const thirtyTimes = 30;
             const longDescription = Array(thirtyTimes)
@@ -391,7 +391,7 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
             });
         });
 
-    it("a failed profile validation report should include specified failure suggestions ",
+    it("a failed profile validation report should include specified failure suggestions",
         (done: any) => {
             const failureSuggestion = "Try fixing whatever is wrong";
             const plan: IProfileValidationPlan = {
@@ -408,16 +408,16 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
                 failureSuggestions: failureSuggestion
             };
             ProfileValidator.validate(dummyProfile, plan, displayName).then((report: IProfileValidationReport) => {
-                    const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow",
-                        "dummy", "dummy");
-                    const tenChars = 10;
-                    // each word of the failure suggestions should appear (tabular format
-                    // so the characters don't appear together)
-                    for (const word of failureSuggestion.split(" ")) {
-                        expect(textReport).toContain(word);
-                    }
-                    done();
+                const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow",
+                    "dummy", "dummy");
+                const tenChars = 10;
+                // each word of the failure suggestions should appear (tabular format
+                // so the characters don't appear together)
+                for (const word of failureSuggestion.split(" ")) {
+                    expect(textReport).toContain(word);
                 }
+                done();
+            }
             ).catch((error) => {
                 TestLogger.info("Got an error during unexpected validation: " + inspect(error));
                 throw error;

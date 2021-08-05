@@ -34,10 +34,10 @@ describe("Config management list handler", () => {
      */
     const getIHandlerParametersObject = (values: boolean): IHandlerParameters => {
         const x: any = {
-        response: new (CommandResponse as any)(),
-        arguments: {
-            values
-        },
+            response: new (CommandResponse as any)(),
+            arguments: {
+                values
+            },
         };
         return x as IHandlerParameters;
     };

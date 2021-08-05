@@ -55,14 +55,14 @@ export class YargsDefiner {
      *                                         propagate to yargs services
      */
     constructor(yargsInstance: Argv,
-                primaryHighlightColor: string,
-                rootCommandName: string,
-                commandLine: string,
-                envVariablePrefix: string,
-                profileManagerFactory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
-                helpGeneratorFactory: IHelpGeneratorFactory,
-                experimentalCommandDescription: string,
-                promptPhrase: string) {
+        primaryHighlightColor: string,
+        rootCommandName: string,
+        commandLine: string,
+        envVariablePrefix: string,
+        profileManagerFactory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
+        helpGeneratorFactory: IHelpGeneratorFactory,
+        experimentalCommandDescription: string,
+        promptPhrase: string) {
         this.mYargsInstance = yargsInstance;
         this.mPrimaryHighlightColor = primaryHighlightColor;
         this.mRootCommandName = rootCommandName;
@@ -89,37 +89,37 @@ export class YargsDefiner {
         this.log.trace("Defining a new definition to Yargs:");
         this.log.trace(inspect(definition));
         switch (definition.type) {
-            // case "provider":
-            case "group":
-                new GroupCommandYargs({
-                    yargsInstance: this.mYargsInstance,
-                    commandDefinition: definition,
-                    commandResponseParms: responseParms,
-                    helpGeneratorFactory: this.mHelpFactory,
-                    profileManagerFactory: this.mProfileManagerFactory,
-                    experimentalCommandDescription: this.mExperimentalCommandDescription,
-                    rootCommandName: this.mRootCommandName,
-                    commandLine: this.mCommandLine,
-                    envVariablePrefix: this.mEnvVariablePrefix,
-                    promptPhrase: this.mPromptPhrase
-                }).defineCommandToYargs(commandExecuted);
-                break;
-            case "command":
-                new CommandYargs({
-                    yargsInstance: this.mYargsInstance,
-                    commandDefinition: definition,
-                    commandResponseParms: responseParms,
-                    helpGeneratorFactory: this.mHelpFactory,
-                    profileManagerFactory: this.mProfileManagerFactory,
-                    experimentalCommandDescription: this.mExperimentalCommandDescription,
-                    rootCommandName: this.mRootCommandName,
-                    commandLine: this.mCommandLine,
-                    envVariablePrefix: this.mEnvVariablePrefix,
-                    promptPhrase: this.mPromptPhrase
-                }).defineCommandToYargs(commandExecuted);
-                break;
-            default:
-                throw new Error(`Imperative Yargs Definer Internal Error: Invalid command definition type: ` +
+        // case "provider":
+        case "group":
+            new GroupCommandYargs({
+                yargsInstance: this.mYargsInstance,
+                commandDefinition: definition,
+                commandResponseParms: responseParms,
+                helpGeneratorFactory: this.mHelpFactory,
+                profileManagerFactory: this.mProfileManagerFactory,
+                experimentalCommandDescription: this.mExperimentalCommandDescription,
+                rootCommandName: this.mRootCommandName,
+                commandLine: this.mCommandLine,
+                envVariablePrefix: this.mEnvVariablePrefix,
+                promptPhrase: this.mPromptPhrase
+            }).defineCommandToYargs(commandExecuted);
+            break;
+        case "command":
+            new CommandYargs({
+                yargsInstance: this.mYargsInstance,
+                commandDefinition: definition,
+                commandResponseParms: responseParms,
+                helpGeneratorFactory: this.mHelpFactory,
+                profileManagerFactory: this.mProfileManagerFactory,
+                experimentalCommandDescription: this.mExperimentalCommandDescription,
+                rootCommandName: this.mRootCommandName,
+                commandLine: this.mCommandLine,
+                envVariablePrefix: this.mEnvVariablePrefix,
+                promptPhrase: this.mPromptPhrase
+            }).defineCommandToYargs(commandExecuted);
+            break;
+        default:
+            throw new Error(`Imperative Yargs Definer Internal Error: Invalid command definition type: ` +
                     `${definition.type}`);
         }
     }

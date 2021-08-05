@@ -18,7 +18,7 @@ import * as fs from "fs";
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
 
-describe("imperative-test-cli config get CredentialManager ", () => {
+describe("imperative-test-cli config get CredentialManager", () => {
     // Create the test environment
     beforeAll(async () => {
         TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({

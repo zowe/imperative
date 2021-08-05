@@ -35,12 +35,12 @@ export class DefinitionTreeResolver {
      * @returns {ICommandDefinition} - the complete command tree
      */
     public static resolve(rootCommandDescription: string,
-                          displayName: string,
-                          callerDir: string,
-                          errorLogger: Logger,
-                          childrenDefinitions?: ICommandDefinition[],
-                          childrenModuleGlobs?: string[],
-                          addBaseProfile?: boolean): ICommandDefinition {
+        displayName: string,
+        callerDir: string,
+        errorLogger: Logger,
+        childrenDefinitions?: ICommandDefinition[],
+        childrenModuleGlobs?: string[],
+        addBaseProfile?: boolean): ICommandDefinition {
         if (isNullOrUndefined(childrenDefinitions) && isNullOrUndefined(childrenModuleGlobs)) {
             throw new ImperativeError({
                 msg: "No command definitions have been provided " +

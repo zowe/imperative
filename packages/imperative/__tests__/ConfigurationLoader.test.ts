@@ -13,34 +13,34 @@ import { ConfigurationLoader } from "..";
 import { IImperativeOverrides } from "../src/doc/IImperativeOverrides";
 
 describe("ConfigurationLoader", () => {
-  describe("overrides", () => {
-    it("should return a config with an empty overrides", () => {
-      const result = ConfigurationLoader.load(
-        {
-          name: "some-name"
-        },
-        {},
-        () => undefined
-      );
+    describe("overrides", () => {
+        it("should return a config with an empty overrides", () => {
+            const result = ConfigurationLoader.load(
+                {
+                    name: "some-name"
+                },
+                {},
+                () => undefined
+            );
 
-      expect(result.overrides).toEqual({});
+            expect(result.overrides).toEqual({});
+        });
+
+        it("should return a config with the passed overrides", () => {
+            const overrides: IImperativeOverrides = {
+                CredentialManager: "./ABCD.ts"
+            };
+
+            const result = ConfigurationLoader.load(
+                {
+                    name: "some-name",
+                    overrides
+                },
+                {},
+                () => undefined
+            );
+
+            expect(result.overrides).toEqual(overrides);
+        });
     });
-
-    it("should return a config with the passed overrides", () => {
-      const overrides: IImperativeOverrides = {
-        CredentialManager: "./ABCD.ts"
-      };
-
-      const result = ConfigurationLoader.load(
-        {
-          name: "some-name",
-          overrides
-        },
-        {},
-        () => undefined
-      );
-
-      expect(result.overrides).toEqual(overrides);
-    });
-  });
 });

@@ -35,8 +35,8 @@ export class CompleteAuthGroupBuilder {
      * @returns {ICommandDefinition} - the complete profile group of commands
      */
     public static getAuthGroup(authConfigs: {[key: string]: ICommandProfileAuthConfig[]},
-                               logger: Logger,
-                               authGroupConfig: IImperativeAuthGroupConfig = {}): ICommandDefinition {
+        logger: Logger,
+        authGroupConfig: IImperativeAuthGroupConfig = {}): ICommandDefinition {
         const authGroup: ICommandDefinition = {...this.defaultAuthGroup, ...authGroupConfig.authGroup};
         const loginGroup: ICommandDefinition = {...this.defaultLoginGroup, ...authGroupConfig.loginGroup};
         const logoutGroup: ICommandDefinition = {...this.defaultLogoutGroup, ...authGroupConfig.logoutGroup};

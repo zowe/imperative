@@ -182,7 +182,7 @@ export class LoggingConfigurer {
      * @memberof LoggingConfigurer
      */
     private static configureLoggerByKeyHelper(home: string, impLogConfig: IImperativeLoggingConfig,
-                                              loggingConfig: IConfigLogging, entryKey: string, configKey: string) {
+        loggingConfig: IConfigLogging, entryKey: string, configKey: string) {
         if (!isNullOrUndefined(impLogConfig.logFile)) {
             const fullLogFilePath = home +
                 LoggingConfigurer.normalizeDir(impLogConfig.logFile);

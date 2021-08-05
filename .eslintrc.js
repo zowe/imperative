@@ -34,6 +34,8 @@ module.exports = {
         "jest"
     ],
     "rules": {
+        "indent": ["error", 4],
+        "max-len": ["error", 150],
         "@typescript-eslint/ban-types": "off",
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/no-explicit-any": "off",

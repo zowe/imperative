@@ -54,31 +54,31 @@ describe("Installing Plugins", () => {
   }
 
   const plugins: ITestPluginStructure = {
-    normal: {
-      location: join(__dirname, "../", "test_plugins", "normal_plugin"),
-      name    : "normal-plugin",
-      usage   : "normal-plugin"
-    },
-    normal2: {
-      location: join(__dirname, "../", "test_plugins", "normal_plugin_2"),
-      name    : "normal-plugin-2",
-      usage   : "normal-plugin-2"
-    },
-    normal3: {
-      location: join(__dirname, "../", "test_plugins", "normal_plugin_3"),
-      name    : "normal-plugin-3",
-      usage   : "normal-plugin-3"
-    },
-    space_in_path: {
-      location: join(__dirname, "../", "test_plugins", "space in path plugin"),
-      name    : "space-in-path-plugin",
-      usage   : "space-in-path-plugin"
-    },
-    registry: {
-      location: "imperative-sample-plugin",
-      name    : "imperative-sample-plugin",
-      usage   : "sample-plugin"
-    }
+      normal: {
+          location: join(__dirname, "../", "test_plugins", "normal_plugin"),
+          name    : "normal-plugin",
+          usage   : "normal-plugin"
+      },
+      normal2: {
+          location: join(__dirname, "../", "test_plugins", "normal_plugin_2"),
+          name    : "normal-plugin-2",
+          usage   : "normal-plugin-2"
+      },
+      normal3: {
+          location: join(__dirname, "../", "test_plugins", "normal_plugin_3"),
+          name    : "normal-plugin-3",
+          usage   : "normal-plugin-3"
+      },
+      space_in_path: {
+          location: join(__dirname, "../", "test_plugins", "space in path plugin"),
+          name    : "space-in-path-plugin",
+          usage   : "space-in-path-plugin"
+      },
+      registry: {
+          location: "imperative-sample-plugin",
+          name    : "imperative-sample-plugin",
+          usage   : "sample-plugin"
+      }
   };
 
   /**
@@ -95,7 +95,7 @@ describe("Installing Plugins", () => {
    * @returns {SpawnSyncReturns<string>} The result of the command execution
    */
   const executeCommandString = (context: any, cmd: string): SpawnSyncReturns<string> =>
-    T.executeTestCLICommand(cliBin, context, cmd.split(" "));
+      T.executeTestCLICommand(cliBin, context, cmd.split(" "));
 
   /**
    * The registry from the user's environment, which is used when an explicit registry is not supplied.
@@ -112,14 +112,14 @@ describe("Installing Plugins", () => {
   let peerDepWarning: boolean = true;
 
   beforeAll(() => {
-    envNpmRegistry = execSync("npm config get registry").toString().trim();
-    // tslint:disable-next-line no-magic-numbers
-    peerDepWarning = parseInt(execSync("npm --version").toString().trim().split(".")[0], 10) < 7;
+      envNpmRegistry = execSync("npm config get registry").toString().trim();
+      // tslint:disable-next-line no-magic-numbers
+      peerDepWarning = parseInt(execSync("npm --version").toString().trim().split(".")[0], 10) < 7;
   });
 
   beforeEach(() => {
-    // ensure that each test starts with no installed plugins
-    T.rimraf(pluginJsonLocation);
+      // ensure that each test starts with no installed plugins
+      T.rimraf(pluginJsonLocation);
   });
 
   /* This test was purposely commented out. The CICD pipeline cannot synchronize two different
@@ -143,136 +143,136 @@ describe("Installing Plugins", () => {
 
   it("should install a plugin from a file location", function(){
 
-    let result = executeCommandString(this, "--help");
+      let result = executeCommandString(this, "--help");
 
-    // Verify that the sample plugin isn't there
-    expect(result.stderr).toEqual("");
-    expect(result.stdout).not.toContain(plugins.normal.usage);
-
-    // Now go ahead and install the sample
-    result = executeCommandString(this, `${pluginGroup} install ${plugins.normal.location}`);
-    if (peerDepWarning) {
-      expect(result.stderr).toMatch(/npm.*WARN/);
-      expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-      expect(result.stderr).toContain("You must install peer dependencies yourself");
-    } else {
+      // Verify that the sample plugin isn't there
       expect(result.stderr).toEqual("");
-    }
+      expect(result.stdout).not.toContain(plugins.normal.usage);
 
-    const strippedOutput = T.stripNewLines(result.stdout);
-    expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
-    expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal.name}'`);
+      // Now go ahead and install the sample
+      result = executeCommandString(this, `${pluginGroup} install ${plugins.normal.location}`);
+      if (peerDepWarning) {
+          expect(result.stderr).toMatch(/npm.*WARN/);
+          expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+          expect(result.stderr).toContain("You must install peer dependencies yourself");
+      } else {
+          expect(result.stderr).toEqual("");
+      }
 
-    // Now verify that it got added to the tree
-    result = executeCommandString(this, "--help");
+      const strippedOutput = T.stripNewLines(result.stdout);
+      expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
+      expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal.name}'`);
 
-    expect(result.stderr).toEqual("");
-    expect(result.stdout).toContain(plugins.normal.usage);
+      // Now verify that it got added to the tree
+      result = executeCommandString(this, "--help");
+
+      expect(result.stderr).toEqual("");
+      expect(result.stdout).toContain(plugins.normal.usage);
   });
 
   it("should install multiple plugins at the same time", function(){
 
-    // Verify that nothing currently exists
-    let result = executeCommandString(this, "--help");
+      // Verify that nothing currently exists
+      let result = executeCommandString(this, "--help");
 
-    expect(result.stderr).toEqual("");
-    expect(result.stdout).not.toContain(plugins.normal.usage);
-    expect(result.stdout).not.toContain(plugins.normal2.usage);
-
-    // Now check that they install
-    result = executeCommandString(this, `${pluginGroup} install ${plugins.normal.location} ${plugins.normal2.location} --registry ${TEST_REGISTRY}`);
-    if (peerDepWarning) {
-      expect(result.stderr).toMatch(/npm.*WARN/);
-      expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-      expect(result.stderr).toContain("You must install peer dependencies yourself");
-    } else {
       expect(result.stderr).toEqual("");
-    }
+      expect(result.stdout).not.toContain(plugins.normal.usage);
+      expect(result.stdout).not.toContain(plugins.normal2.usage);
 
-    const strippedOutput = T.stripNewLines(result.stdout);
-    expect(strippedOutput).toContain("Registry = " + TEST_REGISTRY);
-    expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal.name}'`);
-    expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal2.name}'`);
+      // Now check that they install
+      result = executeCommandString(this, `${pluginGroup} install ${plugins.normal.location} ${plugins.normal2.location} --registry ${TEST_REGISTRY}`);
+      if (peerDepWarning) {
+          expect(result.stderr).toMatch(/npm.*WARN/);
+          expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+          expect(result.stderr).toContain("You must install peer dependencies yourself");
+      } else {
+          expect(result.stderr).toEqual("");
+      }
 
-    // Check that the commands were added to the tree
-    result = executeCommandString(this, "--help");
+      const strippedOutput = T.stripNewLines(result.stdout);
+      expect(strippedOutput).toContain("Registry = " + TEST_REGISTRY);
+      expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal.name}'`);
+      expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal2.name}'`);
 
-    expect(result.stderr).toEqual("");
-    expect(result.stdout).toContain(plugins.normal.usage);
-    expect(result.stdout).toContain(plugins.normal2.usage);
+      // Check that the commands were added to the tree
+      result = executeCommandString(this, "--help");
+
+      expect(result.stderr).toEqual("");
+      expect(result.stdout).toContain(plugins.normal.usage);
+      expect(result.stdout).toContain(plugins.normal2.usage);
   });
 
   it("should re-install plugins using files in the cli home directory", function(){
 
-    // check before install, and after
-    const beforeInstall = executeCommandString(this, "--help");
-    let result = executeCommandString(this, `${pluginGroup} install ${plugins.normal.location}`);
-    if (peerDepWarning) {
-      expect(result.stderr).toMatch(/npm.*WARN/);
-      expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-      expect(result.stderr).toContain("You must install peer dependencies yourself");
-    } else {
-      expect(result.stderr).toEqual("");
-    }
+      // check before install, and after
+      const beforeInstall = executeCommandString(this, "--help");
+      let result = executeCommandString(this, `${pluginGroup} install ${plugins.normal.location}`);
+      if (peerDepWarning) {
+          expect(result.stderr).toMatch(/npm.*WARN/);
+          expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+          expect(result.stderr).toContain("You must install peer dependencies yourself");
+      } else {
+          expect(result.stderr).toEqual("");
+      }
 
-    let strippedOutput = T.stripNewLines(result.stdout);
-    expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
-    expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal.name}'`);
+      let strippedOutput = T.stripNewLines(result.stdout);
+      expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
+      expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal.name}'`);
 
-    const afterInstall = executeCommandString(this, "--help");
-    expect(afterInstall.stdout).toContain(plugins.normal.usage);
+      const afterInstall = executeCommandString(this, "--help");
+      expect(afterInstall.stdout).toContain(plugins.normal.usage);
 
-    // Remove the installed plugins for testing
-    T.rimraf(join(config.defaultHome, "plugins", "installed"));
+      // Remove the installed plugins for testing
+      T.rimraf(join(config.defaultHome, "plugins", "installed"));
 
-    result = executeCommandString(this, "--help");
-    expect(result.stdout).toEqual(beforeInstall.stdout);
+      result = executeCommandString(this, "--help");
+      expect(result.stdout).toEqual(beforeInstall.stdout);
 
-    // Try to install it back by using the plugins.json file that should still exist
-    result = executeCommandString(this, `${pluginGroup} install`);
-    if (peerDepWarning) {
-      expect(result.stderr).toMatch(/npm.*WARN/);
-      expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-      expect(result.stderr).toContain("You must install peer dependencies yourself");
-    } else {
-      expect(result.stderr).toEqual("");
-    }
+      // Try to install it back by using the plugins.json file that should still exist
+      result = executeCommandString(this, `${pluginGroup} install`);
+      if (peerDepWarning) {
+          expect(result.stderr).toMatch(/npm.*WARN/);
+          expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+          expect(result.stderr).toContain("You must install peer dependencies yourself");
+      } else {
+          expect(result.stderr).toEqual("");
+      }
 
-    strippedOutput = T.stripNewLines(result.stdout);
-    expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
-    expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal.name}'`);
+      strippedOutput = T.stripNewLines(result.stdout);
+      expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
+      expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal.name}'`);
 
-    result = executeCommandString(this, "--help");
-    expect(result.stdout).toEqual(afterInstall.stdout);
+      result = executeCommandString(this, "--help");
+      expect(result.stdout).toEqual(afterInstall.stdout);
   });
 
   it("should install a plugin from a file location that contain space in it path", function(){
 
-    let result = executeCommandString(this, "--help");
+      let result = executeCommandString(this, "--help");
 
-    // Verify that the sample plugin isn't there
-    expect(result.stderr).toEqual("");
-    expect(result.stdout).not.toContain(plugins.normal.usage);
-
-    // Now go ahead and install the sample
-    result = T.executeTestCLICommand(cliBin, this, [pluginGroup, "install", plugins.space_in_path.location]);
-    if (peerDepWarning) {
-      expect(result.stderr).toMatch(/npm.*WARN/);
-      expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-      expect(result.stderr).toContain("You must install peer dependencies yourself");
-    } else {
+      // Verify that the sample plugin isn't there
       expect(result.stderr).toEqual("");
-    }
+      expect(result.stdout).not.toContain(plugins.normal.usage);
 
-    const strippedOutput = T.stripNewLines(result.stdout);
-    expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
-    expect(strippedOutput).toContain(`Installed plugin name = '${plugins.space_in_path.name}'`);
+      // Now go ahead and install the sample
+      result = T.executeTestCLICommand(cliBin, this, [pluginGroup, "install", plugins.space_in_path.location]);
+      if (peerDepWarning) {
+          expect(result.stderr).toMatch(/npm.*WARN/);
+          expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+          expect(result.stderr).toContain("You must install peer dependencies yourself");
+      } else {
+          expect(result.stderr).toEqual("");
+      }
 
-    // Now verify that it got added to the tree
-    result = executeCommandString(this, "--help");
+      const strippedOutput = T.stripNewLines(result.stdout);
+      expect(strippedOutput).toContain("Registry = " + envNpmRegistry);
+      expect(strippedOutput).toContain(`Installed plugin name = '${plugins.space_in_path.name}'`);
 
-    expect(result.stderr).toEqual("");
-    expect(result.stdout).toContain(plugins.space_in_path.usage);
+      // Now verify that it got added to the tree
+      result = executeCommandString(this, "--help");
+
+      expect(result.stderr).toEqual("");
+      expect(result.stdout).toContain(plugins.space_in_path.usage);
   });
 
   /* Again we purposely commented out this test because versioning uses a registry,
@@ -347,163 +347,163 @@ describe("Installing Plugins", () => {
   */
 
   describe("providing a plugin json", () => {
-    let testFile: string;
-    let fileContent: object;
+      let testFile: string;
+      let fileContent: object;
 
-    // Create a plugin.json file before each test
-    beforeEach(() => {
-      testFile = join(__dirname, "sample-plugin.json");
-      fileContent = {
-        [plugins.normal.name]: {
-          package: plugins.normal.location,
-          version: "1.0.1"
-        },
-        [plugins.normal2.name]: {
-          package : plugins.normal2.location,
-          registry: TEST_REGISTRY,
-          version : "1.0.2"
-        },
-      };
+      // Create a plugin.json file before each test
+      beforeEach(() => {
+          testFile = join(__dirname, "sample-plugin.json");
+          fileContent = {
+              [plugins.normal.name]: {
+                  package: plugins.normal.location,
+                  version: "1.0.1"
+              },
+              [plugins.normal2.name]: {
+                  package : plugins.normal2.location,
+                  registry: TEST_REGISTRY,
+                  version : "1.0.2"
+              },
+          };
 
-      writeFileSync(testFile, fileContent, {
-        spaces: 2
+          writeFileSync(testFile, fileContent, {
+              spaces: 2
+          });
       });
-    });
 
-    // Remove the file after each test is complete
-    afterEach(() => {
-      T.rimraf(testFile);
-    });
+      // Remove the file after each test is complete
+      afterEach(() => {
+          T.rimraf(testFile);
+      });
 
-    it("should install using the created plugin json file", function(){
+      it("should install using the created plugin json file", function(){
 
-      // Check that the plugins aren't there
-      let result = executeCommandString(this, "--help");
+          // Check that the plugins aren't there
+          let result = executeCommandString(this, "--help");
 
-      expect(result.stderr).toEqual("");
-      expect(result.stdout).not.toContain(plugins.normal.usage);
-      expect(result.stdout).not.toContain(plugins.normal2.usage);
+          expect(result.stderr).toEqual("");
+          expect(result.stdout).not.toContain(plugins.normal.usage);
+          expect(result.stdout).not.toContain(plugins.normal2.usage);
 
-      // Check that the plugins got installed
-      result = executeCommandString(this, `${pluginGroup} install --file ${testFile}`);
-      const strippedOutput = T.stripNewLines(result.stdout);
+          // Check that the plugins got installed
+          result = executeCommandString(this, `${pluginGroup} install --file ${testFile}`);
+          const strippedOutput = T.stripNewLines(result.stdout);
 
-      if (peerDepWarning) {
-        expect(result.stderr).toMatch(/npm.*WARN/);
-        expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-        expect(result.stderr).toContain("You must install peer dependencies yourself");
-      } else {
-        expect(result.stderr).toEqual("");
-      }
+          if (peerDepWarning) {
+              expect(result.stderr).toMatch(/npm.*WARN/);
+              expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+              expect(result.stderr).toContain("You must install peer dependencies yourself");
+          } else {
+              expect(result.stderr).toEqual("");
+          }
 
-      expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal.name}'`);
-      expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal2.name}'`);
+          expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal.name}'`);
+          expect(strippedOutput).toContain(`Installed plugin name = '${plugins.normal2.name}'`);
 
-      // Check that the plugins are now there
-      result = executeCommandString(this, "--help");
-      expect(result.stderr).toEqual("");
-      expect(result.stdout).toContain(plugins.normal.usage);
-      expect(result.stdout).toContain(plugins.normal2.usage);
+          // Check that the plugins are now there
+          result = executeCommandString(this, "--help");
+          expect(result.stderr).toEqual("");
+          expect(result.stdout).toContain(plugins.normal.usage);
+          expect(result.stdout).toContain(plugins.normal2.usage);
 
-      // Check that the file in the home directory is of the proper format
-      const savedPluginJson = readFileSync(pluginJsonLocation);
-      const expectedContent: IPluginJson = fileContent as IPluginJson;
+          // Check that the file in the home directory is of the proper format
+          const savedPluginJson = readFileSync(pluginJsonLocation);
+          const expectedContent: IPluginJson = fileContent as IPluginJson;
 
-      expectedContent[plugins.normal.name].registry = envNpmRegistry;
+          expectedContent[plugins.normal.name].registry = envNpmRegistry;
 
-      expect(savedPluginJson).toEqual(expectedContent);
-    });
+          expect(savedPluginJson).toEqual(expectedContent);
+      });
 
-    it("should merge a plugins.json provided with one that is already managed", function(){
+      it("should merge a plugins.json provided with one that is already managed", function(){
 
-      const initialVersion = "1.0.2";
+          const initialVersion = "1.0.2";
 
-      let result = executeCommandString(this, "--help");
+          let result = executeCommandString(this, "--help");
 
-      expect(result.stderr).toEqual("");
-      expect(result.stdout).not.toContain(plugins.normal.usage);
-      expect(result.stdout).not.toContain(plugins.normal2.usage);
-      expect(result.stdout).not.toContain(plugins.normal3.usage);
+          expect(result.stderr).toEqual("");
+          expect(result.stdout).not.toContain(plugins.normal.usage);
+          expect(result.stdout).not.toContain(plugins.normal2.usage);
+          expect(result.stdout).not.toContain(plugins.normal3.usage);
 
-      // Now seed the install with normal and normal3
-      result = executeCommandString(
-        this,
-        `${pluginGroup} install ${plugins.normal.location} ${plugins.normal3.location} --registry ${TEST_REGISTRY}`
-      );
+          // Now seed the install with normal and normal3
+          result = executeCommandString(
+              this,
+              `${pluginGroup} install ${plugins.normal.location} ${plugins.normal3.location} --registry ${TEST_REGISTRY}`
+          );
 
-      if (peerDepWarning) {
-        expect(result.stderr).toMatch(/npm.*WARN/);
-        expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-        expect(result.stderr).toContain("You must install peer dependencies yourself");
-      } else {
-        expect(result.stderr).toEqual("");
-      }
+          if (peerDepWarning) {
+              expect(result.stderr).toMatch(/npm.*WARN/);
+              expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+              expect(result.stderr).toContain("You must install peer dependencies yourself");
+          } else {
+              expect(result.stderr).toEqual("");
+          }
 
-      expect(result.stdout).toContain(plugins.normal.name);
-      expect(result.stdout).toContain(plugins.normal3.name);
-      expect(result.stdout).toContain("Installed plugin name =");
+          expect(result.stdout).toContain(plugins.normal.name);
+          expect(result.stdout).toContain(plugins.normal3.name);
+          expect(result.stdout).toContain("Installed plugin name =");
 
-      // verify that they were added to the top level
-      result = executeCommandString(this, "--help");
+          // verify that they were added to the top level
+          result = executeCommandString(this, "--help");
 
-      expect(result.stderr).toEqual("");
-      expect(result.stdout).toContain(plugins.normal.usage);
-      expect(result.stdout).toContain(plugins.normal3.usage);
+          expect(result.stderr).toEqual("");
+          expect(result.stdout).toContain(plugins.normal.usage);
+          expect(result.stdout).toContain(plugins.normal3.usage);
 
-      // Now install from the file and verify that everything exists
-      result = executeCommandString(this, `${pluginGroup} install --file ${testFile}`);
+          // Now install from the file and verify that everything exists
+          result = executeCommandString(this, `${pluginGroup} install --file ${testFile}`);
 
-      if (peerDepWarning) {
-        expect(result.stderr).toMatch(/npm.*WARN/);
-        expect(result.stderr).toContain("requires a peer of @zowe/imperative");
-        expect(result.stderr).toContain("You must install peer dependencies yourself");
-      } else {
-        expect(result.stderr).toEqual("");
-      }
+          if (peerDepWarning) {
+              expect(result.stderr).toMatch(/npm.*WARN/);
+              expect(result.stderr).toContain("requires a peer of @zowe/imperative");
+              expect(result.stderr).toContain("You must install peer dependencies yourself");
+          } else {
+              expect(result.stderr).toEqual("");
+          }
 
-      expect(result.stdout).toContain(plugins.normal.name);
-      expect(result.stdout).toContain(plugins.normal2.name);
-      expect(result.stdout).not.toContain(plugins.normal3.name);
+          expect(result.stdout).toContain(plugins.normal.name);
+          expect(result.stdout).toContain(plugins.normal2.name);
+          expect(result.stdout).not.toContain(plugins.normal3.name);
 
-      result = executeCommandString(this, "--help");
+          result = executeCommandString(this, "--help");
 
-      expect(result.stderr).toEqual("");
-      expect(result.stdout).toContain(plugins.normal.usage);
-      expect(result.stdout).toContain(plugins.normal2.usage);
-      expect(result.stdout).toContain(plugins.normal3.usage);
+          expect(result.stderr).toEqual("");
+          expect(result.stdout).toContain(plugins.normal.usage);
+          expect(result.stdout).toContain(plugins.normal2.usage);
+          expect(result.stdout).toContain(plugins.normal3.usage);
 
-      // Now compare that the files are correct
-      const expectedJson: IPluginJson = fileContent as IPluginJson;
-      const actualJson = readFileSync(pluginJsonLocation);
+          // Now compare that the files are correct
+          const expectedJson: IPluginJson = fileContent as IPluginJson;
+          const actualJson = readFileSync(pluginJsonLocation);
 
-      // Add missing registry to expected
-      expectedJson[plugins.normal.name].registry = envNpmRegistry;
+          // Add missing registry to expected
+          expectedJson[plugins.normal.name].registry = envNpmRegistry;
 
-      // Add missing normal2 plugin not present in before each
-      expectedJson[plugins.normal3.name] = {
-        package: plugins.normal3.location,
-        registry: TEST_REGISTRY,
-        version: "1.0.3"
-      };
+          // Add missing normal2 plugin not present in before each
+          expectedJson[plugins.normal3.name] = {
+              package: plugins.normal3.location,
+              registry: TEST_REGISTRY,
+              version: "1.0.3"
+          };
 
-      // Now compare the objects
-      expect(actualJson).toEqual(expectedJson);
-    });
+          // Now compare the objects
+          expect(actualJson).toEqual(expectedJson);
+      });
 
-    it("should error when a package and --file is specified", function(){
-      expect(
-        T.stripNewLines(
-          executeCommandString(this, `${pluginGroup} install ${plugins.registry.location} --file ${testFile}`).stderr
-        )
-      ).toContain("Option --file can not be specified if positional package... is as well. They are mutually exclusive.");
-    });
+      it("should error when a package and --file is specified", function(){
+          expect(
+              T.stripNewLines(
+                  executeCommandString(this, `${pluginGroup} install ${plugins.registry.location} --file ${testFile}`).stderr
+              )
+          ).toContain("Option --file can not be specified if positional package... is as well. They are mutually exclusive.");
+      });
 
-    it("should error when --file and --registry are specified", function(){
-      expect(
-        T.stripNewLines(
-          executeCommandString(this, `${pluginGroup} install ${plugins.registry.location} --file ${testFile} --registry ${TEST_REGISTRY}`).stderr
-        )
-      ).toContain("The following options conflict (mutually exclusive)");
-    });
+      it("should error when --file and --registry are specified", function(){
+          expect(
+              T.stripNewLines(
+                  executeCommandString(this, `${pluginGroup} install ${plugins.registry.location} --file ${testFile} --registry ${TEST_REGISTRY}`).stderr
+              )
+          ).toContain("The following options conflict (mutually exclusive)");
+      });
   });
 });

@@ -34,11 +34,11 @@ describe("Config management set handler", () => {
      */
     const getIHandlerParametersObject = (): IHandlerParameters => {
         const x: any = {
-        response: new (CommandResponse as any)(),
-        arguments: {
-            configName: "CredentialManager",
-            configValue: "test123"
-        },
+            response: new (CommandResponse as any)(),
+            arguments: {
+                configName: "CredentialManager",
+                configValue: "test123"
+            },
         };
         return x as IHandlerParameters;
     };

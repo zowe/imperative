@@ -166,18 +166,18 @@ export const syntaxTestCommand: ICommandDefinition = {
             },
         ],
     examples: [
-            {
-                description: "example 1",
-                options: `"position1" "testposition"`
-            },
-            {
-                description: "example 2",
-                options: `"file.txt" "ibmuser.pds(mem)"`
-            },
-            {
-                description: "example 3",
-                options: `"file.txt" "ibmuser.ps" --mr wait`
-            },
-        ],
+        {
+            description: "example 1",
+            options: `"position1" "testposition"`
+        },
+        {
+            description: "example 2",
+            options: `"file.txt" "ibmuser.pds(mem)"`
+        },
+        {
+            description: "example 3",
+            options: `"file.txt" "ibmuser.ps" --mr wait`
+        },
+    ],
     mustSpecifyOne: ["option-to-specify-1", "option-to-specify-2", "option-to-specify-3", "option-to-specify-4"]
 };

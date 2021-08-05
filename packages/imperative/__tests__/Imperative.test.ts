@@ -115,7 +115,7 @@ describe("Imperative", () => {
             filename: __filename
         };
 
-        jest.resetModuleRegistry();
+        jest.resetModules();
 
         // Refresh the imperative load every time
         mocks = reloadExternalMocks();

@@ -17,9 +17,9 @@ describe("Profile Set Command Builder", () => {
     const logger = TestLogger.getTestLogger();
     it("should provide a valid command definition for the " +
         "profile set command based on our test profile type", () => {
-            const firstProfileType = testBuilderProfiles[0];
-            let commands = new ProfilesSetCommandBuilder(firstProfileType.type, logger, firstProfileType).buildFull();
-            commands = deleteHandlerPaths(commands);
-            expect(commands).toMatchSnapshot();
-        });
+        const firstProfileType = testBuilderProfiles[0];
+        let commands = new ProfilesSetCommandBuilder(firstProfileType.type, logger, firstProfileType).buildFull();
+        commands = deleteHandlerPaths(commands);
+        expect(commands).toMatchSnapshot();
+    });
 });

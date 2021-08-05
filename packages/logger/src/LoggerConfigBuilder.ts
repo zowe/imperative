@@ -83,8 +83,8 @@ export class LoggerConfigBuilder {
      * @return {IConfigLogging} - default object built
      */
     public static addFileAppender(config: IConfigLogging, key: string, categoryName = key,
-                                  filename = LoggerConfigBuilder.buildFullLogFile(LoggerConfigBuilder.getDefaultFileName(key)),
-                                  logLevel?: string): IConfigLogging {
+        filename = LoggerConfigBuilder.buildFullLogFile(LoggerConfigBuilder.getDefaultFileName(key)),
+        logLevel?: string): IConfigLogging {
         config.log4jsConfig.appenders[key] = {
             filename,
             type: LoggerConfigBuilder.DEFAULT_LOG_TYPE_FILE_SYNC,

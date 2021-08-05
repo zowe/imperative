@@ -119,7 +119,7 @@ describe("Imperative should allow CLI implementations to configure their own pro
             });
     }
 
-    it("We should be able to issue a command and have a profile be automatically loaded ", function () {
+    it("We should be able to issue a command and have a profile be automatically loaded", function () {
         // return issueCommand.bind(this, ["profile"], true)();
     });
 });

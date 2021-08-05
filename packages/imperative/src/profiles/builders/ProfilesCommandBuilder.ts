@@ -76,7 +76,7 @@ export abstract class ProfilesCommandBuilder implements AbstractCommandBuilder {
      * @return {ICommandOptionDefinition[]}: The set of returned option definitions
      */
     protected buildOptionsFromProfileSchema(properties: any,
-                                            options: ICommandOptionDefinition[]): ICommandOptionDefinition[] {
+        options: ICommandOptionDefinition[]): ICommandOptionDefinition[] {
         for (const propName of Object.keys(properties)) {
             // helper to recursively add any nested option definitions
             const findAndAddOptions = (propertiesObject: any, propertyName: string) => {

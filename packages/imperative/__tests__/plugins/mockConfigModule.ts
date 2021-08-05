@@ -12,27 +12,27 @@
 import { IImperativeConfig } from "../../src/doc/IImperativeConfig";
 
 const config: IImperativeConfig = {
-  definitions: [
-    {
-      name: "mock group name",
-      description: "mock group description",
-      type: "group",
-      children: [
+    definitions: [
         {
-          name: "mock command name",
-          description: "mock command description",
-          type: "command",
-          handler: __dirname + "/../commands/pick/PickPineappleHandler"
+            name: "mock group name",
+            description: "mock group description",
+            type: "group",
+            children: [
+                {
+                    name: "mock command name",
+                    description: "mock command description",
+                    type: "command",
+                    handler: __dirname + "/../commands/pick/PickPineappleHandler"
+                }
+            ]
         }
-      ]
-    }
-  ],
-  commandModuleGlobs: ["**/Definition.js"],
-  rootCommandDescription: "mock root description",
-  defaultHome: "~/.sample-cli",
-  productDisplayName: "Sample CLI",
-  primaryTextColor: "blue",
-  name: "mock config name",
+    ],
+    commandModuleGlobs: ["**/Definition.js"],
+    rootCommandDescription: "mock root description",
+    defaultHome: "~/.sample-cli",
+    productDisplayName: "Sample CLI",
+    primaryTextColor: "blue",
+    name: "mock config name",
 };
 
 export = config;

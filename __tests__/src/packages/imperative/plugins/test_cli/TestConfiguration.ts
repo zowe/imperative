@@ -15,13 +15,13 @@ import { TestProfileConfig1 } from "./TestProfileConfig1";
 import { TestProfileConfig2 } from "./TestProfileConfig2";
 
 const config: IImperativeConfig = {
-  definitions: [],
-  rootCommandDescription: "Sample command line interface",
-  defaultHome: join(__dirname, "../../../../../__results__/.pluginstest"),
-  // defaultHome: createUniqueTestDataDir(),
-  productDisplayName: "Test CLI for Plugins",
-  name: "plugins_test",
-  profiles: [TestProfileConfig1, TestProfileConfig2]
+    definitions: [],
+    rootCommandDescription: "Sample command line interface",
+    defaultHome: join(__dirname, "../../../../../__results__/.pluginstest"),
+    // defaultHome: createUniqueTestDataDir(),
+    productDisplayName: "Test CLI for Plugins",
+    name: "plugins_test",
+    profiles: [TestProfileConfig1, TestProfileConfig2]
 };
 
 export = config;

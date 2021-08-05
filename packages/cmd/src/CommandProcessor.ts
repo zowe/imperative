@@ -661,11 +661,11 @@ export class CommandProcessor {
             let exampleText = TextUtils.wordWrap(`- ${this.mDefinition.examples[0].description}:\n\n`, undefined, " ");
             exampleText += `      $ ${
                 this.rootCommand
-                } ${
+            } ${
                 CommandUtils.getFullCommandName(this.mDefinition, this.mFullDefinition)
-                } ${
+            } ${
                 this.mDefinition.examples[0].options
-                }\n`;
+            }\n`;
 
             finalHelp += `\nExample:\n\n${exampleText}`;
         }
@@ -795,8 +795,8 @@ export class CommandProcessor {
             this.log.error("Diagnostic information:\n" +
                 "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
                 "Environmental variables: '%s'",
-                os.platform(), os.arch(), process.argv.join(" "),
-                JSON.stringify(process.env, null, 2));
+            os.platform(), os.arch(), process.argv.join(" "),
+            JSON.stringify(process.env, null, 2));
             const errorMessage: string = TextUtils.formatMessage(couldNotInstantiateCommandHandler.message, {
                 commandHandler: nodePath.normalize(handlerPath) || "\"undefined or not specified\"",
                 definitionName: this.definition.name
@@ -827,17 +827,17 @@ export class CommandProcessor {
         const json: ICommandResponse = response.buildJsonResponse();
         if (!response.silent) {
             switch (response.responseFormat) {
-                case "json":
-                    response.writeJsonResponse();
-                    break;
-                case "default":
-                    // Do nothing - already written along the way
-                    break;
-                default:
-                    throw new ImperativeError({
-                        msg: `${CommandProcessor.ERROR_TAG} ` +
+            case "json":
+                response.writeJsonResponse();
+                break;
+            case "default":
+                // Do nothing - already written along the way
+                break;
+            default:
+                throw new ImperativeError({
+                    msg: `${CommandProcessor.ERROR_TAG} ` +
                             `The response format specified ("${response.responseFormat}") is not valid.`
-                    });
+                });
             }
         }
         this.log.info(`Command "${this.definition.name}" completed with success flag: "${json.success}"`);
@@ -863,9 +863,9 @@ export class CommandProcessor {
             "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
             "Node versions: '%s'" +
             "Environmental variables: '%s'",
-            os.platform(), os.arch(), process.argv.join(" "),
-            JSON.stringify(process.versions, null, 2),
-            JSON.stringify(process.env, null, 2));
+        os.platform(), os.arch(), process.argv.join(" "),
+        JSON.stringify(process.versions, null, 2),
+        JSON.stringify(process.env, null, 2));
 
         // If this is an instance of an imperative error, then we are good to go and can formulate the response.
         // If it is an Error object, then something truly unexpected occurred in the handler.

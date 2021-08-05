@@ -45,7 +45,7 @@ export class CommandUtils {
      * @returns {string} - The reconstructed command (as would have been issued on the console).
      */
     public static reconstructCommand(commandArguments: Arguments,
-                                     commandDefinition: ICommandDefinition): string {
+        commandDefinition: ICommandDefinition): string {
         let command = "";
         command += "maincommand"; // todo: get main bin name
         command += " " + commandArguments._.join(" ");
@@ -103,7 +103,7 @@ export class CommandUtils {
      *                                             the definition of the option, otherwise undefined
      */
     public static getOptionDefinitionFromName(optionName: string,
-                                              commandDefinition: ICommandDefinition) {
+        commandDefinition: ICommandDefinition) {
         let optionDef: ICommandOptionDefinition;
         if (!isNullOrUndefined(commandDefinition.options)) {
             for (const option of commandDefinition.options) {
@@ -155,7 +155,7 @@ export class CommandUtils {
      * @memberof CommandUtils
      */
     public static getFullCommandName(commandDef: ICommandDefinition,
-                                     commandTree: ICommandDefinition): string {
+        commandTree: ICommandDefinition): string {
         for (const treeEntry of CommandUtils.flattenCommandTree(commandTree)) {
             const def = treeEntry.command;
             if (def.name === commandDef.name &&

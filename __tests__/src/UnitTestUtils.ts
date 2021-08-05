@@ -51,25 +51,25 @@ export class UnitTestUtils {
    * @throws {Error} When the function or promise didn't throw an error.
    */
   public static catchError(callFcn: any): Error | Promise<Error> {
-    if (callFcn instanceof Promise) {
-      return new Promise((resolve, reject) => {
-        callFcn
-          .then(() => {
-            reject(new Error("Expected function to throw an error but it didn't!"));
-          })
-          .catch((error: Error) => {
-            resolve(error);
+      if (callFcn instanceof Promise) {
+          return new Promise((resolve, reject) => {
+              callFcn
+                  .then(() => {
+                      reject(new Error("Expected function to throw an error but it didn't!"));
+                  })
+                  .catch((error: Error) => {
+                      resolve(error);
+                  });
           });
-      });
-    } else {
-      try {
-        callFcn();
-      } catch (error) {
-        return error;
+      } else {
+          try {
+              callFcn();
+          } catch (error) {
+              return error;
+          }
       }
-    }
 
-    throw new Error("Expected function to throw an error but it didn't!");
+      throw new Error("Expected function to throw an error but it didn't!");
   }
 
   /**
@@ -83,31 +83,31 @@ export class UnitTestUtils {
    * @memberof UnitTestUtils
    */
   public static replaceIt(testDetailHandler?: (details: any) => void): any {
-    (it as any) = function (description: string, testFunc: (done?: any) => void) {
-      const log = TestLogger.getTestLogger();
-      if (isNullOrUndefined(testDetailHandler)) {
-        testDetailHandler = function (details: any) {
-          log.info("\n" + cowsay.say({
-            text: (details as any).description,
-            e: "oO",
-            T: "U ",
-            wrap: true,
-            wrapLength: 80
-          }));
-        };
-      }
+      (it as any) = function (description: string, testFunc: (done?: any) => void) {
+          const log = TestLogger.getTestLogger();
+          if (isNullOrUndefined(testDetailHandler)) {
+              testDetailHandler = function (details: any) {
+                  log.info("\n" + cowsay.say({
+                      text: (details as any).description,
+                      e: "oO",
+                      T: "U ",
+                      wrap: true,
+                      wrapLength: 80
+                  }));
+              };
+          }
 
-      if (fnArgs(testFunc).length > 0) {
-        const testDetails = UnitTestUtils.oldIt(description, (done: any) => {
-          testDetailHandler(testDetails);
-          testFunc(done);
-        });
-      } else {
-        const testDetails = UnitTestUtils.oldIt(description, () => {
-          testDetailHandler(testDetails);
-          testFunc();
-        });
-      }
-    };
+          if (fnArgs(testFunc).length > 0) {
+              const testDetails = UnitTestUtils.oldIt(description, (done: any) => {
+                  testDetailHandler(testDetails);
+                  testFunc(done);
+              });
+          } else {
+              const testDetails = UnitTestUtils.oldIt(description, () => {
+                  testDetailHandler(testDetails);
+                  testFunc();
+              });
+          }
+      };
   }
 }

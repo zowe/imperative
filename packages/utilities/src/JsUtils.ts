@@ -11,23 +11,23 @@
 
 export class JsUtils {
 
-  // __________________________________________________________________________
-  /**
+    // __________________________________________________________________________
+    /**
    * Is the supplied object empty.
    *
    * @param {object} objToTest - The object to test.
    *
    * @returns {boolean} - True if empty. False otherwise.
    */
-  public static isObjEmpty(objToTest: object): boolean {
-    if (!objToTest) {
-      return true;
+    public static isObjEmpty(objToTest: object): boolean {
+        if (!objToTest) {
+            return true;
+        }
+        for (const prop in objToTest) {
+            if (Object.prototype.hasOwnProperty.call(objToTest, prop)) {
+                return false;
+            }
+        }
+        return true;
     }
-    for (const prop in objToTest) {
-      if (Object.prototype.hasOwnProperty.call(objToTest, prop)) {
-        return false;
-      }
-    }
-    return true;
-  }
 }

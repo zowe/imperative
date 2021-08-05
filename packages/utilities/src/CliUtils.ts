@@ -114,7 +114,7 @@ export class CliUtils {
      * @memberof CliUtils
      */
     public static getOptValueFromProfiles(profiles: CommandProfiles, definitions: ICommandProfile,
-                                          options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): any {
+        options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): any {
         let args: any = {};
 
         // Construct the precedence order to iterate through the profiles
@@ -201,7 +201,7 @@ export class CliUtils {
      *
      */
     public static extractEnvForOptions(envPrefix: string,
-                                       options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): ICommandArguments["args"] {
+        options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): ICommandArguments["args"] {
         let args: ICommandArguments["args"] = {};
         options.forEach((opt) => {
             let envValue: any = CliUtils.getEnvValForOption(envPrefix, opt.name);
@@ -211,48 +211,48 @@ export class CliUtils {
                 // ENV vars are extracted as strings
                 switch (opt.type) {
 
-                    // convert strings to booleans if the option is boolean type
-                    case "boolean":
-                        if (envValue.toUpperCase() === "TRUE") {
-                            envValue = true;
-                        } else if (envValue.toUpperCase() === "FALSE") {
-                            envValue = false;
-                        }
-                        break;
+                // convert strings to booleans if the option is boolean type
+                case "boolean":
+                    if (envValue.toUpperCase() === "TRUE") {
+                        envValue = true;
+                    } else if (envValue.toUpperCase() === "FALSE") {
+                        envValue = false;
+                    }
+                    break;
 
                     // convert strings to numbers if the option is number type
-                    case "number":
-                        const BASE_TEN = 10;
-                        const oldEnvValue = envValue;
-                        envValue = parseInt(envValue, BASE_TEN);
-                        // if parsing fails, we'll re-insert the original value so that the
-                        // syntax failure message is clearer
-                        if (isNaN(envValue)) {
-                            envValue = oldEnvValue;
-                        }
-                        break;
+                case "number":
+                    const BASE_TEN = 10;
+                    const oldEnvValue = envValue;
+                    envValue = parseInt(envValue, BASE_TEN);
+                    // if parsing fails, we'll re-insert the original value so that the
+                    // syntax failure message is clearer
+                    if (isNaN(envValue)) {
+                        envValue = oldEnvValue;
+                    }
+                    break;
 
                     // convert to an array of strings if the type is array
-                    case "array":
-                        const regex = /(["'])(?:(?=(\\?))\2.)*?\1/g;
-                        let arr = [];
-                        let match = regex.exec(envValue);
-                        let removed = envValue;
-                        while (match != null) {
-                            removed = removed.replace(match[0], "");
-                            const replace = match[0].replace("\\'", "'");
-                            const trimmed = replace.replace(/(^')|('$)/g, "");
-                            arr.push(trimmed);
-                            match = regex.exec(envValue);
-                        }
-                        removed = removed.trim();
-                        arr = arr.concat(removed.split(/[\s\n]+/g));
-                        envValue = arr;
-                        break;
+                case "array":
+                    const regex = /(["'])(?:(?=(\\?))\2.)*?\1/g;
+                    let arr = [];
+                    let match = regex.exec(envValue);
+                    let removed = envValue;
+                    while (match != null) {
+                        removed = removed.replace(match[0], "");
+                        const replace = match[0].replace("\\'", "'");
+                        const trimmed = replace.replace(/(^')|('$)/g, "");
+                        arr.push(trimmed);
+                        match = regex.exec(envValue);
+                    }
+                    removed = removed.trim();
+                    arr = arr.concat(removed.split(/[\s\n]+/g));
+                    envValue = arr;
+                    break;
 
                     // Do nothing for other option types
-                    default:
-                        break;
+                default:
+                    break;
                 }
 
                 const keys = CliUtils.setOptionValue(opt.name,

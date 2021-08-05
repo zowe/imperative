@@ -232,9 +232,9 @@ describe("PluginRequireProvider", () => {
         });
 
         it("should guard against destroying hooks that haven't been created", () => {
-           expect(() => {
-               PluginRequireProvider.destroyPluginHooks();
-           }).toThrow(PluginRequireNotCreatedError);
+            expect(() => {
+                PluginRequireProvider.destroyPluginHooks();
+            }).toThrow(PluginRequireNotCreatedError);
         });
     });
 

@@ -63,7 +63,7 @@ export interface AbstractCredentialManager {
  *
  */
 export abstract class AbstractCredentialManager {
-  /**
+    /**
    * This class can not be directly instantiated so the constructor is protected. All extending classes must make a call
    * to `super(...)` with the expected parameters.
    *
@@ -71,28 +71,28 @@ export abstract class AbstractCredentialManager {
    *                         cliName
    * @param {string} displayName The display name of this manager. Used in messaging/logging.
    */
-  protected constructor(protected readonly service: string, private displayName: string) {
-  }
+    protected constructor(protected readonly service: string, private displayName: string) {
+    }
 
-  /**
+    /**
    * @returns {string} - the display name of this manager. Use in logging/messaging.
    */
-  public get name(): string {
-    return this.displayName;
-  }
+    public get name(): string {
+        return this.displayName;
+    }
 
-  /**
+    /**
    * Delete credentials for an account managed by the credential manager.
    *
    * @param {string} account The account (or profile identifier) associated with credentials
    *
    * @returns {Promise<void>}
    */
-  public async delete(account: string): Promise<void> {
-    await this.deleteCredentials(account);
-  }
+    public async delete(account: string): Promise<void> {
+        await this.deleteCredentials(account);
+    }
 
-  /**
+    /**
    * Load credentials for an account managed by the credential manager.
    *
    * @param {string} account The account (or profile identifier) associated with credentials
@@ -100,17 +100,17 @@ export abstract class AbstractCredentialManager {
    *
    * @returns {Promise<string>} The username and password associated with the account.
    */
-  public async load(account: string, optional?: boolean): Promise<string> {
-    const encodedString = await this.loadCredentials(account, optional);
+    public async load(account: string, optional?: boolean): Promise<string> {
+        const encodedString = await this.loadCredentials(account, optional);
 
-    if (optional && encodedString == null) {
-      return null;
+        if (optional && encodedString == null) {
+            return null;
+        }
+
+        return Buffer.from(encodedString, "base64").toString();
     }
 
-    return Buffer.from(encodedString, "base64").toString();
-  }
-
-  /**
+    /**
    * Save credentials for an account managed by the credential manager.
    *
    * @param {string} account The account (or profile identifier) associated with credentials
@@ -120,17 +120,17 @@ export abstract class AbstractCredentialManager {
    *
    * @throws {@link ImperativeError} - when the secure field is missing.
    */
-  public async save(account: string, secureValue: string): Promise<void> {
+    public async save(account: string, secureValue: string): Promise<void> {
     // Check both username and password are set and are not empty strings. Ah, the magic of JavaScript
-    if (!isNullOrUndefined(secureValue) && secureValue !== "") {
-      const encodedString = Buffer.from(`${secureValue}`).toString("base64");
-      await this.saveCredentials(account, encodedString);
-    } else {
-      throw new ImperativeError({
-        msg: "Missing Secure Field"
-      });
+        if (!isNullOrUndefined(secureValue) && secureValue !== "") {
+            const encodedString = Buffer.from(`${secureValue}`).toString("base64");
+            await this.saveCredentials(account, encodedString);
+        } else {
+            throw new ImperativeError({
+                msg: "Missing Secure Field"
+            });
+        }
     }
-  }
 
   /**
    * Called by Imperative to delete the credentials of a profile.

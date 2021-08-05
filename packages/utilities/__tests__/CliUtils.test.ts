@@ -122,7 +122,7 @@ describe("CliUtils", () => {
     });
 
     describe("promptForInput", () => {
-        it("should return the mocked value ", () => {
+        it("should return the mocked value", () => {
             const mockedPromptValue = "My value is here ";
             jest.mock("readline-sync");
             require("readline-sync").question= jest.fn(()=>{

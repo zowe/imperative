@@ -18,8 +18,8 @@ describe("Complete Profiles Group Builder", () => {
     it("should provide a valid command definition for the " +
         "complete auto generated profile group if passed a valid " +
         "profile configuration document", () => {
-            let commands = CompleteProfilesGroupBuilder.getProfileGroup(testBuilderProfiles, logger);
-            commands = deleteHandlerPaths(commands);
-            expect(commands).toMatchSnapshot();
-        });
+        let commands = CompleteProfilesGroupBuilder.getProfileGroup(testBuilderProfiles, logger);
+        commands = deleteHandlerPaths(commands);
+        expect(commands).toMatchSnapshot();
+    });
 });

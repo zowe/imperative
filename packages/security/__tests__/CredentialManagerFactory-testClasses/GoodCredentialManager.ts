@@ -21,18 +21,18 @@ export = class NoInitializeCredentialManager extends AbstractCredentialManager {
   public readonly credentials = "username:password";
 
   constructor(service: string, displayname: string) {
-    super(NoInitializeCredentialManager.hardcodeService, displayname);
+      super(NoInitializeCredentialManager.hardcodeService, displayname);
   }
 
   protected async deleteCredentials(account: string): Promise<void> {
-    return;
+      return;
   }
 
   protected async loadCredentials(account: string): Promise<SecureCredential> {
-    return this.credentials;
+      return this.credentials;
   }
 
   protected async saveCredentials(account: string, credentials: SecureCredential): Promise<void> {
-    return;
+      return;
   }
 };

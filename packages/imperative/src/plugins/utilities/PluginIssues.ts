@@ -87,11 +87,11 @@ export class PluginIssues {
    * @returns {PluginIssues} The newly initialized PMF object.
    */
   public static get instance(): PluginIssues {
-    if (this.mInstance == null) {
-      this.mInstance = new PluginIssues();
-    }
+      if (this.mInstance == null) {
+          this.mInstance = new PluginIssues();
+      }
 
-    return this.mInstance;
+      return this.mInstance;
   }
 
   // ___________________________________________________________________________
@@ -107,16 +107,16 @@ export class PluginIssues {
    *                      False otherwise.
    */
   public doesPluginHaveIssueSev(pluginName: string, issueSevs: IssueSeverity[]): boolean {
-    if (Object.prototype.hasOwnProperty.call(this.pluginIssues, pluginName)) {
-      for (const nextSev of issueSevs) {
-        for (const nextIssue of this.pluginIssues[pluginName].issueList) {
-          if (nextIssue.issueSev === nextSev) {
-            return true;
+      if (Object.prototype.hasOwnProperty.call(this.pluginIssues, pluginName)) {
+          for (const nextSev of issueSevs) {
+              for (const nextIssue of this.pluginIssues[pluginName].issueList) {
+                  if (nextIssue.issueSev === nextSev) {
+                      return true;
+                  }
+              }
           }
-        }
       }
-    }
-    return false;
+      return false;
   }
 
   // ___________________________________________________________________________
@@ -125,7 +125,7 @@ export class PluginIssues {
    * @returns {IPluginIssues} - Map of plugin names to their array of issues.
    */
   public getAllIssues(): IPluginIssues {
-    return this.pluginIssues;
+      return this.pluginIssues;
   }
 
   // __________________________________________________________________________
@@ -136,19 +136,19 @@ export class PluginIssues {
    * @returns {IPluginJson} - The set of installed plugins.
    */
   public getInstalledPlugins(): IPluginJson {
-    if (this.installedPlugins == null) {
-      try {
-        this.installedPlugins = readFileSync(PMFConstants.instance.PLUGIN_JSON);
-      }
-      catch (ioErr) {
-        throw new ImperativeError({
-          msg:  "Cannot read '" + PMFConstants.instance.PLUGIN_JSON +
+      if (this.installedPlugins == null) {
+          try {
+              this.installedPlugins = readFileSync(PMFConstants.instance.PLUGIN_JSON);
+          }
+          catch (ioErr) {
+              throw new ImperativeError({
+                  msg:  "Cannot read '" + PMFConstants.instance.PLUGIN_JSON +
           "' Reason = " + ioErr.message,
-          causeErrors: ioErr
-        });
+                  causeErrors: ioErr
+              });
+          }
       }
-    }
-    return this.installedPlugins;
+      return this.installedPlugins;
   }
 
   // ___________________________________________________________________________
@@ -159,10 +159,10 @@ export class PluginIssues {
    *                             If no issues, an empty array is returned.
    */
   public getIssueListForPlugin(pluginName: string): IPluginIssue[] {
-    if (Object.prototype.hasOwnProperty.call(this.pluginIssues, pluginName)) {
-      return this.pluginIssues[pluginName].issueList;
-    }
-    return [];
+      if (Object.prototype.hasOwnProperty.call(this.pluginIssues, pluginName)) {
+          return this.pluginIssues[pluginName].issueList;
+      }
+      return [];
   }
 
   // ___________________________________________________________________________
@@ -171,9 +171,9 @@ export class PluginIssues {
    * @param {string} pluginName - The name of the plugin to remove
    */
   public removeIssuesForPlugin(pluginName: string): void {
-    if (Object.prototype.hasOwnProperty.call(this.pluginIssues, pluginName)) {
-      delete this.pluginIssues[pluginName];
-    }
+      if (Object.prototype.hasOwnProperty.call(this.pluginIssues, pluginName)) {
+          delete this.pluginIssues[pluginName];
+      }
   }
 
   // ___________________________________________________________________________
@@ -186,18 +186,18 @@ export class PluginIssues {
    * @param {string} issueText - The issue message text to record.
    */
   public recordIssue(pluginName: string, issueSev: IssueSeverity, issueText: string): void {
-    const issue: IPluginIssue = {
-      issueSev,
-      issueText
-    };
-    if (Object.prototype.hasOwnProperty.call(this.pluginIssues, pluginName)) {
-      // add to an existing issue list for this plugin
-      this.pluginIssues[pluginName].issueList.push(issue);
-    } else {
-      // create an new issue object for this plugin
-      this.pluginIssues[pluginName] = {
-        issueList: [issue]
+      const issue: IPluginIssue = {
+          issueSev,
+          issueText
       };
-    }
+      if (Object.prototype.hasOwnProperty.call(this.pluginIssues, pluginName)) {
+      // add to an existing issue list for this plugin
+          this.pluginIssues[pluginName].issueList.push(issue);
+      } else {
+      // create an new issue object for this plugin
+          this.pluginIssues[pluginName] = {
+              issueList: [issue]
+          };
+      }
   }
 }

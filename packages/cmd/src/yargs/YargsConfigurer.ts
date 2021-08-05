@@ -148,8 +148,8 @@ export class YargsConfigurer {
                         .then((failedCommandResponse) => {
                             logger.debug("Finished invoking the 'FailedCommand' handler");
                         }).catch((err) => {
-                        logger.error("%s", err.msg);
-                    });
+                            logger.error("%s", err.msg);
+                        });
                 }
             }
         });
@@ -193,8 +193,8 @@ export class YargsConfigurer {
                 .then((failedCommandResponse) => {
                     logger.debug("Finished invoking the 'FailedCommand' handler");
                 }).catch((err) => {
-                logger.error("%s", err.msg);
-            });
+                    logger.error("%s", err.msg);
+                });
         });
         process.on("uncaughtException", (error: Error) => {
             process.exitCode = Constants.ERROR_EXIT_CODE;
@@ -236,8 +236,8 @@ export class YargsConfigurer {
                 .then((failedCommandResponse) => {
                     logger.debug("Finished invoking the 'FailedCommand' handler");
                 }).catch((err) => {
-                logger.error("%s", err.msg);
-            });
+                    logger.error("%s", err.msg);
+                });
         });
     }
 

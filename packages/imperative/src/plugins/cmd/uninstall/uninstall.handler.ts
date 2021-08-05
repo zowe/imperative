@@ -42,25 +42,25 @@ export default class UninstallHandler implements ICommandHandler {
    * @throws {ImperativeError}
    */
   public async process(params: IHandlerParameters): Promise<void> {
-    const chalk = TextUtils.chalk;
-    this.console.debug(`Root Directory: ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION}`);
+      const chalk = TextUtils.chalk;
+      this.console.debug(`Root Directory: ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION}`);
 
-    if (params.arguments.plugin == null || params.arguments.plugin.length === 0) {
-      throw new ImperativeError({
-        msg: `${chalk.yellow.bold("Package name")} is required.`
-      });
-    } else {
-      try {
-        uninstall(params.arguments.plugin);
-        params.response.console.log("Removal of the npm package(s) was successful.\n"
-        );
-      } catch (e) {
-        throw new ImperativeError({
-          msg: "Uninstall Failed",
-          causeErrors: [e],
-          additionalDetails: e.message
-        });
+      if (params.arguments.plugin == null || params.arguments.plugin.length === 0) {
+          throw new ImperativeError({
+              msg: `${chalk.yellow.bold("Package name")} is required.`
+          });
+      } else {
+          try {
+              uninstall(params.arguments.plugin);
+              params.response.console.log("Removal of the npm package(s) was successful.\n"
+              );
+          } catch (e) {
+              throw new ImperativeError({
+                  msg: "Uninstall Failed",
+                  causeErrors: [e],
+                  additionalDetails: e.message
+              });
+          }
       }
-    }
   }
 }

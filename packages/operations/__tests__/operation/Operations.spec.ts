@@ -269,7 +269,7 @@ export class OperationTestConstants {
 }
 
 describe("Operation Infrastructure", () => {
-    it("Operations: Test a simple set of operations ",
+    it("Operations: Test a simple set of operations",
         (done: any) => {
             logger.debug("Starting simple operations test.");
             const testOperation: Operations<any> = new TestOperations1();
@@ -280,7 +280,7 @@ describe("Operation Infrastructure", () => {
                 checkResults(operationResults, OperationTestConstants.OPER_TEST1_RESULTS, done, true);
             });
         });
-    it("Operations: Test for complex set of operations  ",
+    it("Operations: Test for complex set of operations",
         (done: any) => {
             logger.debug("Starting complex operations tests.");
             const testOperation: Operations<any> = new TestOperations3();
@@ -291,7 +291,7 @@ describe("Operation Infrastructure", () => {
                 checkResults(operationResults, OperationTestConstants.OPER_TEST3_RESULTS, done, true);
             });
         });
-    it("Operations: Test for complex set of undo operations  ",
+    it("Operations: Test for complex set of undo operations",
         (done: any) => {
             logger.debug("Starting simple undo test");
             const testOperation: Operations<any> = new TestOperations4();
@@ -305,8 +305,8 @@ describe("Operation Infrastructure", () => {
 });
 
 function checkResults(operationActualResults: IOperationResult<any>,
-                      operationExpectedResults: Array<IOperationResult<any>>,
-                      done: any, callDone: boolean) {
+    operationExpectedResults: Array<IOperationResult<any>>,
+    done: any, callDone: boolean) {
 
     if (isNullOrUndefined(operationActualResults)) {
         // The operations failed to return any results

@@ -368,9 +368,9 @@ export abstract class AbstractRestClient {
      *          or other connection problems occur (e.g. connection refused)
      */
     public performRest(resource: string, request: HTTP_VERB, reqHeaders?: any[], writeData?: any,
-                       responseStream?: Writable, requestStream?: Readable,
-                       normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
-                       task?: ITaskWithStatus): Promise<string> {
+        responseStream?: Writable, requestStream?: Readable,
+        normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
+        task?: ITaskWithStatus): Promise<string> {
         return this.request({
             resource,
             request,
