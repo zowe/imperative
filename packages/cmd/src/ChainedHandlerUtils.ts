@@ -50,7 +50,6 @@ export class ChainedHandlerService {
                     handlerIndex)
             });
         }
-        let argumentIndex = 0;
         // we will loop through the chained handler configurations and skip any
         // mappings that are not relevant to the current handler's arguments
         for (let configIndex = 0; configIndex <= handlerIndex; configIndex++) {
@@ -118,7 +117,6 @@ export class ChainedHandlerService {
                     }
                 }
             }
-            argumentIndex++;
         }
         return args;
     }

@@ -12,8 +12,7 @@
 import { ImperativeError } from "../../../error";
 import { IProfile, IProfileLoaded } from "../../../profiles";
 import { ImperativeExpect } from "../../../expect";
-import { isNullOrUndefined } from "util";
-import { Imperative } from "../../../index";
+
 /**
  * Profiles map created by the command profile loader and passed to the handler via parameters. Handlers can
  * retreive loaded profiles from the map via the profile type.

@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, ICommandResponse, IHandlerParameters } from "../../../../../cmd";
+import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { Logger } from "../../../../../logger";
 import { PMFConstants } from "../../utilities/PMFConstants";
 import { update } from "../../utilities/npm-interface";

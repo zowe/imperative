@@ -854,7 +854,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
    * @returns {Promise<IProfileLoaded[]>} - The list of profiles when the promise is fulfilled or rejected with an ImperativeError.
    * @memberof AbstractProfileManager
    */
-  public abstract async loadAll(parms?: ILoadAllProfiles): Promise<IProfileLoaded[]>;
+  public abstract loadAll(parms?: ILoadAllProfiles): Promise<IProfileLoaded[]>;
 
   /**
    * Save profile - performs the profile save according to the implementation - invoked when all parameters are valid
@@ -1001,23 +1001,23 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     // they specify the dependencies on their profile config object,
     // and the profile manager will construct them there
     const schemaWithDependencies = JSON.parse(JSON.stringify(this.profileTypeSchema)); // copy the schema without modifying
-    const dependencyProperty: IProfileProperty = {
-      type: "array",
-      items: {
-        description: "The dependencies",
-        type: "object",
-        properties: {
-          type: {
-            description: "The type of dependent profile.",
-            type: "string"
-          },
-          name: {
-            description: "The name of the dependent profile.",
-            type: "string"
-          },
-        }
-      }
-    };
+    // const dependencyProperty: IProfileProperty = {
+    //   type: "array",
+    //   items: {
+    //     description: "The dependencies",
+    //     type: "object",
+    //     properties: {
+    //       type: {
+    //         description: "The type of dependent profile.",
+    //         type: "string"
+    //       },
+    //       name: {
+    //         description: "The name of the dependent profile.",
+    //         type: "string"
+    //       },
+    //     }
+    //   }
+    // };
 
     // If strict mode is requested, then we will remove name and type (because they are inserted by the manager) and
     // set the additional properties flag false, which, according to the JSON schema specification, indicates that
@@ -1126,9 +1126,8 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
 
     // Insert the name and type - not persisted on disk
 
-    let validateResponse;
     try {
-      validateResponse = await this.validate({name, profile: profileContents});
+      await this.validate({name, profile: profileContents});
     } catch (e) {
       throw new ImperativeError({
         msg: `Profile validation error during load of profile "${name}" ` +

@@ -9,12 +9,11 @@
 *
 */
 
-import { ICommandHandler, ICommandResponse, IHandlerParameters, CommandResponse } from "../../../../../cmd";
+import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { Logger } from "../../../../../logger/";
 import { readFileSync } from "jsonfile";
 import { IPluginJson } from "../../doc/IPluginJson";
 import { TextUtils } from "../../../../../utilities";
-import { ImperativeError } from "../../../../../error";
 import { PMFConstants } from "../../utilities/PMFConstants";
 
 /**

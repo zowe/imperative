@@ -235,7 +235,6 @@ export class TextUtils {
      */
     public static wordWrap(text: string, width?: number,
                            indent: string = "", hardWrap: boolean = false, trim: boolean = true): string {
-        const yargs = require("yargs");
         const wrappedText = require("wrap-ansi")(text, this.getRecommendedWidth(width), {hard: hardWrap, trim});
         return wrappedText.split(/\n/g).map((line: string) => {
             if (line.length === 0) {

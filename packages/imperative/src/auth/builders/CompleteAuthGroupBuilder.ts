@@ -41,7 +41,6 @@ export class CompleteAuthGroupBuilder {
         const loginGroup: ICommandDefinition = {...this.defaultLoginGroup, ...authGroupConfig.loginGroup};
         const logoutGroup: ICommandDefinition = {...this.defaultLogoutGroup, ...authGroupConfig.logoutGroup};
 
-        const cmdGroups: ICommandDefinition[] = [];
         for (const profileType of Object.keys(authConfigs)) {
             for (const authConfig of authConfigs[profileType]) {
                 const loginCommandAction = new AuthLoginCommandBuilder(profileType, logger, authConfig);
