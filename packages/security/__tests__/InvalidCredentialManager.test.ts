@@ -38,9 +38,9 @@ describe("InvalidCredentialMangager", () => {
 
                 // Check to see if this method fails the test.
                 if (caughtError == null || !(caughtError instanceof BadCredentialManagerError)) {
-                    fail(`InvalidCredentialManager.${method} does not properly throw a valid BadCredentialError.`);
+                    throw new Error(`InvalidCredentialManager.${method} does not properly throw a valid BadCredentialError.`);
                 } else if (caughtError.causeErrors !== error) {
-                    fail(`InvalidCredentialManager.${method} does not preserve the error set in the constructor.`);
+                    throw new Error(`InvalidCredentialManager.${method} does not preserve the error set in the constructor.`);
                 }
             }
         }

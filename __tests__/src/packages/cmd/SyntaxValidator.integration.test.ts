@@ -62,6 +62,7 @@ describe("Imperative should provide advanced syntax validation rules", function 
         rimraf(home);
     });
     describe("Advanced syntax validation for commands using a test command", function () {
+        /* eslint-disable jest/expect-expect */
         const yargs = require("yargs");
         const alwaysRequired = "--always-required-boolean --always-required-string blah ";
         const minValidOptions = "--option-to-specify-1 --implied-by-absence " +
@@ -614,5 +615,6 @@ describe("Imperative should provide advanced syntax validation rules", function 
                     });
             });
         });
+        /* eslint-disable jest/expect-expect */
     });
 });
