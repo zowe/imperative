@@ -260,29 +260,24 @@ export const expectedSchemaObjectNoBase = {
 export const expectedConfigObject: IConfig = {
     $schema: "./imperative-test-cli.schema.json",
     profiles: {
-        my_base: {
+        secured: {
+            type: "secured",
+            properties: {
+                info: ""
+            },
+            secure: [
+                "secret"
+            ]
+        },
+        base: {
             type: "base",
             properties: {},
             secure: []
         },
-        my_profiles: {
-            profiles: {
-                secured: {
-                    type: "secured",
-                    properties: {
-                        info: ""
-                    },
-                    secure: [
-                        "secret"
-                    ]
-                }
-            },
-            properties: {}
-        }
     },
     defaults: {
-        secured: "my_profiles.secured",
-        base: "my_base"
+        secured: "secured",
+        base: "base"
     },
     plugins: []
 };
@@ -290,20 +285,15 @@ export const expectedConfigObject: IConfig = {
 export const expectedUserConfigObject: IConfig = {
     $schema: "./imperative-test-cli.schema.json",
     profiles: {
-        my_base: {
+        secured: {
+            type: "secured",
             properties: {},
-            type: "base",
             secure: []
         },
-        my_profiles: {
-            profiles: {
-                secured: {
-                    type: "secured",
-                    properties: {},
-                    secure: []
-                }
-            },
-            properties: {}
+        base: {
+            type: "base",
+            properties: {},
+            secure: []
         }
     },
     defaults: {},

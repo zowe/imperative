@@ -181,7 +181,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
     private getBaseProfileName(params: IHandlerParameters, config: Config): string {
         let profileName = params.arguments[`${this.mProfileType}-profile`] || config.properties.defaults[this.mProfileType];
         if (profileName == null || !config.api.profiles.exists(profileName)) {
-            profileName = `my_${this.mProfileType}_${params.positionals[2]}`;
+            profileName = `${this.mProfileType}_${params.positionals[2]}`;
         }
         return profileName;
     }

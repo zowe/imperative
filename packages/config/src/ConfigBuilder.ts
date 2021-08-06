@@ -17,8 +17,6 @@ import { IConfigBuilderOpts } from "./doc/IConfigBuilderOpts";
 import { IConfigProfile } from "./doc/IConfigProfile";
 
 export class ConfigBuilder {
-    private static readonly DEFAULT_ROOT_PROFILE_NAME = "my_profiles";
-
     /**
      * Build a new Config object from an Imperative CLI app configuration.
      * @param impConfig The Imperative CLI app configuration.

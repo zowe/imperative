@@ -55,7 +55,7 @@ export default class FruitAutoInitHandler extends BaseAutoInitHandler {
             `${session.ISession.tokenType}=${session.ISession.tokenValue}`;
         return {
             profiles: {
-                my_base_fruit: {
+                base_fruit: {
                     type: this.mProfileType,
                     properties: {
                         host: session.ISession.hostname,
@@ -68,7 +68,7 @@ export default class FruitAutoInitHandler extends BaseAutoInitHandler {
                 }
             },
             defaults: {
-                [this.mProfileType]: "my_base_fruit"
+                [this.mProfileType]: "base_fruit"
             },
             plugins: []
         };

@@ -68,8 +68,8 @@ const fakeGblProjUserPath = path.join(__dirname, ".fakeapp", "fakeapp.config.use
 const fakeUnrelatedPath = path.join(__dirname, "anotherapp.config.json");
 
 const fakeSecureDataJson = {};
-fakeSecureDataJson[fakeProjPath] = {"profiles.my_profiles.profiles.secured.properties.secret": "fakeSecureValue"};
-fakeSecureDataJson[fakeGblProjPath] = {"profiles.my_profiles.profiles.secured.properties.secret": "fakeSecureValue"};
+fakeSecureDataJson[fakeProjPath] = {"profiles.secured.properties.secret": "fakeSecureValue"};
+fakeSecureDataJson[fakeGblProjPath] = {"profiles.secured.properties.secret": "fakeSecureValue"};
 
 const fakeSecureData = Buffer.from(JSON.stringify(fakeSecureDataJson)).toString("base64");
 
@@ -144,7 +144,7 @@ describe("Configuration Set command handler", () => {
         params.arguments.userConfig = false;
         params.arguments.globalConfig = false;
         params.arguments.secure = true;
-        params.arguments.property = "profiles.my_profiles.profiles.secured.properties.testProperty";
+        params.arguments.property = "profiles.secured.properties.testProperty";
         params.arguments.value = "aSecuredTestProperty";
 
         // Start doing fs mocks
@@ -181,8 +181,8 @@ describe("Configuration Set command handler", () => {
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         delete fakeSecureDataExpectedJson[fakeProjPath];
         fakeSecureDataExpectedJson[fakeProjPath] = {
-            "profiles.my_profiles.profiles.secured.properties.secret": "fakeSecureValue",
-            "profiles.my_profiles.profiles.secured.properties.testProperty": "aSecuredTestProperty"
+            "profiles.secured.properties.secret": "fakeSecureValue",
+            "profiles.secured.properties.testProperty": "aSecuredTestProperty"
         };
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -190,9 +190,9 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        delete compObj.profiles.my_profiles.profiles.secured.properties.testProperty; // Delete the new secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret", "testProperty"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        delete compObj.profiles.secured.properties.testProperty; // Delete the new secret
+        compObj.profiles.secured.secure = ["secret", "testProperty"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -216,7 +216,7 @@ describe("Configuration Set command handler", () => {
         params.arguments.userConfig = true;
         params.arguments.globalConfig = false;
         params.arguments.secure = true;
-        params.arguments.property = "profiles.my_profiles.profiles.secured.properties.testProperty";
+        params.arguments.property = "profiles.secured.properties.testProperty";
         params.arguments.value = "aSecuredTestProperty";
 
         // Start doing fs mocks
@@ -252,7 +252,7 @@ describe("Configuration Set command handler", () => {
 
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         fakeSecureDataExpectedJson[fakeProjUserPath] = {
-            "profiles.my_profiles.profiles.secured.properties.testProperty": "aSecuredTestProperty"
+            "profiles.secured.properties.testProperty": "aSecuredTestProperty"
         };
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -260,9 +260,9 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        delete compObj.profiles.my_profiles.profiles.secured.properties.testProperty; // Delete the new secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["testProperty"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        delete compObj.profiles.secured.properties.testProperty; // Delete the new secret
+        compObj.profiles.secured.secure = ["testProperty"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -286,7 +286,7 @@ describe("Configuration Set command handler", () => {
         params.arguments.userConfig = false;
         params.arguments.globalConfig = true;
         params.arguments.secure = true;
-        params.arguments.property = "profiles.my_profiles.profiles.secured.properties.testProperty";
+        params.arguments.property = "profiles.secured.properties.testProperty";
         params.arguments.value = "aSecuredTestProperty";
 
         // Start doing fs mocks
@@ -324,8 +324,8 @@ describe("Configuration Set command handler", () => {
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         delete fakeSecureDataExpectedJson[fakeGblProjPath];
         fakeSecureDataExpectedJson[fakeGblProjPath] = {
-            "profiles.my_profiles.profiles.secured.properties.secret": "fakeSecureValue",
-            "profiles.my_profiles.profiles.secured.properties.testProperty": "aSecuredTestProperty"
+            "profiles.secured.properties.secret": "fakeSecureValue",
+            "profiles.secured.properties.testProperty": "aSecuredTestProperty"
         };
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -333,9 +333,9 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        delete compObj.profiles.my_profiles.profiles.secured.properties.testProperty; // Delete the new secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret", "testProperty"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        delete compObj.profiles.secured.properties.testProperty; // Delete the new secret
+        compObj.profiles.secured.secure = ["secret", "testProperty"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -359,7 +359,7 @@ describe("Configuration Set command handler", () => {
         params.arguments.userConfig = true;
         params.arguments.globalConfig = true;
         params.arguments.secure = true;
-        params.arguments.property = "profiles.my_profiles.profiles.secured.properties.testProperty";
+        params.arguments.property = "profiles.secured.properties.testProperty";
         params.arguments.value = "aSecuredTestProperty";
 
         // Start doing fs mocks
@@ -396,7 +396,7 @@ describe("Configuration Set command handler", () => {
 
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         fakeSecureDataExpectedJson[fakeGblProjUserPath] = {
-            "profiles.my_profiles.profiles.secured.properties.testProperty": "aSecuredTestProperty"
+            "profiles.secured.properties.testProperty": "aSecuredTestProperty"
         };
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -404,9 +404,9 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        delete compObj.profiles.my_profiles.profiles.secured.properties.testProperty; // Delete the new secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["testProperty"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        delete compObj.profiles.secured.properties.testProperty; // Delete the new secret
+        compObj.profiles.secured.secure = ["testProperty"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -430,7 +430,7 @@ describe("Configuration Set command handler", () => {
         params.arguments.userConfig = false;
         params.arguments.globalConfig = false;
         params.arguments.secure = false;
-        params.arguments.property = "profiles.my_profiles.profiles.secured.properties.secret";
+        params.arguments.property = "profiles.secured.properties.secret";
         params.arguments.value = "anUnsecuredTestProperty";
 
         // Start doing fs mocks
@@ -472,7 +472,7 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
+        compObj.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -496,7 +496,7 @@ describe("Configuration Set command handler", () => {
         params.arguments.userConfig = true;
         params.arguments.globalConfig = false;
         params.arguments.secure = false;
-        params.arguments.property = "profiles.my_profiles.profiles.secured.properties.secret";
+        params.arguments.property = "profiles.secured.properties.secret";
         params.arguments.value = "anUnsecuredTestProperty";
 
         // Start doing fs mocks
@@ -537,7 +537,7 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
+        compObj.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -561,7 +561,7 @@ describe("Configuration Set command handler", () => {
         params.arguments.userConfig = false;
         params.arguments.globalConfig = true;
         params.arguments.secure = false;
-        params.arguments.property = "profiles.my_profiles.profiles.secured.properties.secret";
+        params.arguments.property = "profiles.secured.properties.secret";
         params.arguments.value = "anUnsecuredTestProperty";
 
         // Start doing fs mocks
@@ -604,7 +604,7 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
+        compObj.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -628,7 +628,7 @@ describe("Configuration Set command handler", () => {
         params.arguments.userConfig = true;
         params.arguments.globalConfig = true;
         params.arguments.secure = false;
-        params.arguments.property = "profiles.my_profiles.profiles.secured.properties.secret";
+        params.arguments.property = "profiles.secured.properties.secret";
         params.arguments.value = "anUnsecuredTestProperty";
 
         // Start doing fs mocks
@@ -670,7 +670,7 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
+        compObj.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -694,11 +694,11 @@ describe("Configuration Set command handler", () => {
         params.arguments.userConfig = false;
         params.arguments.globalConfig = false;
         params.arguments.secure = false;
-        params.arguments.property = "profiles.my_profiles.profiles.secured.properties.secret";
+        params.arguments.property = "profiles.secured.properties.secret";
         params.arguments.value = "anUnsecuredTestProperty";
 
         const testKeystoreJson = lodash.cloneDeep(fakeSecureDataJson);
-        testKeystoreJson[fakeUnrelatedPath] = {"profiles.my_profiles.profiles.secured.properties.secret": "anotherFakeSecureValue"};
+        testKeystoreJson[fakeUnrelatedPath] = {"profiles.secured.properties.secret": "anotherFakeSecureValue"};
         const testKeystore = Buffer.from(JSON.stringify(testKeystoreJson)).toString("base64");
 
 
@@ -735,14 +735,14 @@ describe("Configuration Set command handler", () => {
 
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         delete fakeSecureDataExpectedJson[fakeProjPath];
-        fakeSecureDataExpectedJson[fakeUnrelatedPath] = {"profiles.my_profiles.profiles.secured.properties.secret": "anotherFakeSecureValue"};
+        fakeSecureDataExpectedJson[fakeUnrelatedPath] = {"profiles.secured.properties.secret": "anotherFakeSecureValue"};
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.profiles.my_profiles.profiles.secured.secure = []; // Add the secret field to the secrets
+        compObj.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -766,7 +766,7 @@ describe("Configuration Set command handler", () => {
         params.arguments.userConfig = false;
         params.arguments.globalConfig = false;
         params.arguments.secure = false;
-        params.arguments.property = "profiles.my_profiles.profiles.secured.properties.info";
+        params.arguments.property = "profiles.secured.properties.info";
 
 
         const promptSpy = jest.fn(() => "anUnsecuredTestProperty");
@@ -807,7 +807,7 @@ describe("Configuration Set command handler", () => {
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         delete fakeSecureDataExpectedJson[fakeProjPath];
         fakeSecureDataExpectedJson[fakeProjPath] = {
-            "profiles.my_profiles.profiles.secured.properties.secret": "fakeSecureValue"
+            "profiles.secured.properties.secret": "fakeSecureValue"
         };
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -815,8 +815,8 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret;
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret;
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -832,7 +832,7 @@ describe("Configuration Set command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
         // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
-        expect(compObj.profiles.my_profiles.profiles.secured.properties.info).toEqual("anUnsecuredTestProperty");
+        expect(compObj.profiles.secured.properties.info).toEqual("anUnsecuredTestProperty");
     });
 
     it("should allow you to define a property and add it to the project configuration with secure equal to null and secure it", async () => {
@@ -842,7 +842,7 @@ describe("Configuration Set command handler", () => {
         params.arguments.userConfig = false;
         params.arguments.globalConfig = false;
         params.arguments.secure = null;
-        params.arguments.property = "profiles.my_profiles.profiles.secured.properties.secret";
+        params.arguments.property = "profiles.secured.properties.secret";
         params.arguments.value = "aSecuredTestProperty";
 
         // Start doing fs mocks
@@ -879,7 +879,7 @@ describe("Configuration Set command handler", () => {
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         delete fakeSecureDataExpectedJson[fakeProjPath];
         fakeSecureDataExpectedJson[fakeProjPath] = {
-            "profiles.my_profiles.profiles.secured.properties.secret": "aSecuredTestProperty"
+            "profiles.secured.properties.secret": "aSecuredTestProperty"
         };
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -887,8 +887,8 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret;
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret;
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -912,7 +912,7 @@ describe("Configuration Set command handler", () => {
         params.arguments.userConfig = false;
         params.arguments.globalConfig = false;
         params.arguments.secure = null;
-        params.arguments.property = "profiles.my_profiles.profiles.secured.properties.info";
+        params.arguments.property = "profiles.secured.properties.info";
         params.arguments.value = "anUnsecuredTestProperty";
 
         // Start doing fs mocks
@@ -950,7 +950,7 @@ describe("Configuration Set command handler", () => {
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         delete fakeSecureDataExpectedJson[fakeProjPath];
         fakeSecureDataExpectedJson[fakeProjPath] = {
-            "profiles.my_profiles.profiles.secured.properties.secret": "fakeSecureValue"
+            "profiles.secured.properties.secret": "fakeSecureValue"
         };
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -958,8 +958,8 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret;
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret",]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret;
+        compObj.profiles.secured.secure = ["secret",]; // Add the secret field to the secrets
 
         // tslint:disable-next-line: no-magic-numbers
         if (process.platform === "win32") {
@@ -985,7 +985,7 @@ describe("Configuration Set command handler", () => {
         params.arguments.globalConfig = false;
         params.arguments.secure = true;
         params.arguments.json = true;
-        params.arguments.property = "profiles.my_profiles.profiles.secured.properties.secret";
+        params.arguments.property = "profiles.secured.properties.secret";
         params.arguments.value = '{"fakeProp":"fakeVal"}';
 
         // Start doing fs mocks
@@ -1022,7 +1022,7 @@ describe("Configuration Set command handler", () => {
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         delete fakeSecureDataExpectedJson[fakeProjPath];
         fakeSecureDataExpectedJson[fakeProjPath] = {
-            "profiles.my_profiles.profiles.secured.properties.secret": {"fakeProp": "fakeVal"}
+            "profiles.secured.properties.secret": {"fakeProp": "fakeVal"}
         };
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -1031,8 +1031,8 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret;
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret;
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -1057,7 +1057,7 @@ describe("Configuration Set command handler", () => {
         params.arguments.globalConfig = false;
         params.arguments.secure = true;
         params.arguments.json = true;
-        params.arguments.property = "profiles.my_profiles.profiles.secured.properties.secret";
+        params.arguments.property = "profiles.secured.properties.secret";
         params.arguments.value = '{"fakeProp"::"fakeVal"}';
 
         // Start doing fs mocks
@@ -1100,8 +1100,8 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret;
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret;
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         expect(error).toBeDefined();
         expect(error.message).toContain("could not parse JSON value");

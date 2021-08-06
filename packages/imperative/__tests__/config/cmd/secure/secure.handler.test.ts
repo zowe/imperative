@@ -68,9 +68,9 @@ const fakeGblProjUserPath = path.join(__dirname, ".fakeapp", "fakeapp.config.use
 const fakeUnrelatedPath = path.join(__dirname, "fakeapp.unrelated.config.json");
 
 const fakeSecureDataJson = {};
-fakeSecureDataJson[fakeProjPath] = {"profiles.my_profiles.profiles.secured.properties.secure": "fakeSecureValue"};
-fakeSecureDataJson[fakeGblProjPath] = {"profiles.my_profiles.profiles.secured.properties.secure": "fakeSecureValue"};
-fakeSecureDataJson[fakeUnrelatedPath] = {"profiles.my_profiles.profiles.secured.properties.secure": "anotherFakeSecureValue"};
+fakeSecureDataJson[fakeProjPath] = {"profiles.secured.properties.secure": "fakeSecureValue"};
+fakeSecureDataJson[fakeGblProjPath] = {"profiles.secured.properties.secure": "fakeSecureValue"};
+fakeSecureDataJson[fakeUnrelatedPath] = {"profiles.secured.properties.secure": "anotherFakeSecureValue"};
 
 const fakeSecureData = Buffer.from(JSON.stringify(fakeSecureDataJson)).toString("base64");
 
@@ -181,7 +181,7 @@ describe("Configuration Secure command handler", () => {
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         delete fakeSecureDataExpectedJson[fakeProjPath];
         fakeSecureDataExpectedJson[fakeProjPath] = {
-            "profiles.my_profiles.profiles.secured.properties.secret": "fakePromptingData"
+            "profiles.secured.properties.secret": "fakePromptingData"
         };
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -189,8 +189,8 @@ describe("Configuration Secure command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -250,7 +250,7 @@ describe("Configuration Secure command handler", () => {
 
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         fakeSecureDataExpectedJson[fakeProjUserPath] = {
-            "profiles.my_profiles.profiles.secured.properties.secret": "fakePromptingData"
+            "profiles.secured.properties.secret": "fakePromptingData"
         };
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -258,8 +258,8 @@ describe("Configuration Secure command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -320,15 +320,15 @@ describe("Configuration Secure command handler", () => {
 
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         delete fakeSecureDataExpectedJson[fakeGblProjPath];
-        fakeSecureDataExpectedJson[fakeGblProjPath] = {"profiles.my_profiles.profiles.secured.properties.secret": "fakePromptingData"};
+        fakeSecureDataExpectedJson[fakeGblProjPath] = {"profiles.secured.properties.secret": "fakePromptingData"};
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -390,15 +390,15 @@ describe("Configuration Secure command handler", () => {
 
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         delete fakeSecureDataExpectedJson[fakeGblProjUserPath];
-        fakeSecureDataExpectedJson[fakeGblProjUserPath] = {"profiles.my_profiles.profiles.secured.properties.secret": "fakePromptingData"};
+        fakeSecureDataExpectedJson[fakeGblProjUserPath] = {"profiles.secured.properties.secret": "fakePromptingData"};
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             // tslint:disable-next-line: no-magic-numbers
@@ -458,15 +458,15 @@ describe("Configuration Secure command handler", () => {
         await handler.process(params);
 
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
-        fakeSecureDataExpectedJson[fakeGblProjUserPath] = {"profiles.my_profiles.profiles.secured.properties.secret": "fakePromptingData"};
+        fakeSecureDataExpectedJson[fakeGblProjUserPath] = {"profiles.secured.properties.secret": "fakePromptingData"};
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         // tslint:disable-next-line: no-magic-numbers
         expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(0);

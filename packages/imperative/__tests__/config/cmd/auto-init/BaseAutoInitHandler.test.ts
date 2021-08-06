@@ -536,7 +536,7 @@ describe("BaseAutoInitHandler", () => {
             exists: true,
             properties: {
                 profiles: {
-                    "my_base": {
+                    "base": {
                         properties: {
                             authToken: "fake"
                         },
@@ -545,7 +545,7 @@ describe("BaseAutoInitHandler", () => {
                 }
             }
         });
-        const mockSecureFields = jest.fn().mockReturnValue(["profiles.my_base.properties.authToken"]);
+        const mockSecureFields = jest.fn().mockReturnValue(["profiles.base.properties.authToken"]);
         const mockFindSecure = jest.fn().mockReturnValue([]);
         const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
         const mockImperativeConfigApi = {
