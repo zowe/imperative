@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Export all Config related interfaces.
+
 ## `5.0.0-next.202107122104`
 
 - BugFix: Fixed secure credentials not being stored by the `config auto-init` command.
