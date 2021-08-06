@@ -146,9 +146,10 @@ exports[`cmd-cli should flag an invalid group and give a close suggestion 1`] = 
 exports[`cmd-cli should flag an invalid group and give a close suggestion 2`] = `
 "Command Error:
 Command failed due to improper syntax
-Command entered: \\"cmd-cli NOT_REAL\\"
 Unknown group: NOT_REAL
+
 Did you mean:  auth?
+Command entered: \\"NOT_REAL\\"
 Use \\"cmd-cli --help\\" to view groups, commands, and options.
 "
 `;
