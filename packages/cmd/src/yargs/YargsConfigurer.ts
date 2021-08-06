@@ -9,8 +9,8 @@
 *
 */
 
-import { format, inspect, isNullOrUndefined } from "util";
-import { Arguments, Argv, command } from "yargs";
+import { format, inspect } from "util";
+import { Arguments } from "yargs";
 import { Logger } from "../../../logger";
 import { Constants } from "../../../constants";
 import { AbstractCommandYargs } from "./AbstractCommandYargs";
@@ -310,7 +310,6 @@ export class YargsConfigurer {
             }
             commands.push(commandEntry.fullName);
         }
-        const closestCommand = closest(attemptedCommand, commands);
-        return closestCommand;
+        return closest(attemptedCommand, commands);
     }
 }
