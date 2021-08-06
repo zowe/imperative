@@ -23,7 +23,6 @@ import {
     IProfileDependency,
     IProfileLoaded,
     IProfileManager,
-    IProfileProperty,
     IProfileSaved,
     IProfileSchema,
     IProfileTypeConfiguration,

@@ -154,7 +154,8 @@ describe("Plugin validate command handler", () => {
         });
 
         it("should call CommandResponse.console.log with proper parameter", () => {
-            const expectedMsg = `\n_____ Validation results for plugin '${testPlugin}' _____\nThis plugin was successfully validated. Enjoy the plugin.`;
+            const expectedMsg = `\n_____ Validation results for plugin '${testPlugin}' _____\n` +
+                `This plugin was successfully validated. Enjoy the plugin.`;
 
             validateHandler.displayPluginIssues(testPlugin, params.response);
 

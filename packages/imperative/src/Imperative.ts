@@ -687,7 +687,8 @@ export class Imperative {
             loadedConfig.profiles.forEach((profile) => {
                 if (profile.authConfig != null) {
                     for (const requiredOption of ["host", "port", "user", "password", "tokenType", "tokenValue"]) {
-                        ImperativeExpect.toNotBeNullOrUndefined(profile.schema.properties[requiredOption], `Profile of type ${profile.type} with authConfig property must have ${requiredOption} option defined`);
+                        ImperativeExpect.toNotBeNullOrUndefined(profile.schema.properties[requiredOption],
+                            `Profile of type ${profile.type} with authConfig property must have ${requiredOption} option defined`);
                     }
                     authConfigs[profile.type] = profile.authConfig;
                 }

@@ -9,14 +9,13 @@
 *
 */
 
-import { IImperativeConfig } from "../../../../../packages/imperative";
-/**
- * Parameters used to setup your isolated test directory. Jest allows parallel test execution and many of the
- * CLI and API tests need a working directory & test scratch area. The test environment setup creates that
- * area and sets the cli home environment variable to the test area.
- * @export
- * @interface ISetupEnvironmentParms
- */
+
+
+
+
+
+
+
 export interface ISetupEnvironmentParms {
     /**
      * The home environment variable for your CLI - sets it to the working directory create for your test.

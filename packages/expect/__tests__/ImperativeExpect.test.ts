@@ -11,7 +11,6 @@
 
 import { ImperativeExpect } from "../../expect";
 import { ImperativeError } from "../../error";
-import { inspect } from "util";
 import { TestLogger } from "../../../__tests__/TestLogger";
 import { UnitTestUtils } from "../../../__tests__/src/UnitTestUtils";
 UnitTestUtils.replaceIt();

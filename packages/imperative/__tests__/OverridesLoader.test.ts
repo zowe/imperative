@@ -14,7 +14,7 @@ import { IImperativeConfig } from "..";
 jest.mock("../../security");
 
 import { OverridesLoader } from "../src/OverridesLoader";
-import { CredentialManagerFactory, DefaultCredentialManager, AbstractCredentialManager } from "../../security";
+import { CredentialManagerFactory, AbstractCredentialManager } from "../../security";
 
 import * as path from "path";
 

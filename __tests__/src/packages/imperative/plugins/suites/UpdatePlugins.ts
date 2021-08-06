@@ -10,7 +10,7 @@
 */
 
 import * as T from "../../../../../src/TestUtil";
-import { config, cliBin } from "../PluginManagementFacility.spec";
+import { cliBin } from "../PluginManagementFacility.spec";
 import { join } from "path";
 
 describe("Update plugin", () => {
