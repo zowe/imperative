@@ -10,7 +10,7 @@
 */
 
 import { format, inspect, isNullOrUndefined } from "util";
-import { Arguments, Argv } from "yargs";
+import { Arguments, Argv, command } from "yargs";
 import { Logger } from "../../../logger";
 import { Constants } from "../../../constants";
 import { AbstractCommandYargs } from "./AbstractCommandYargs";
@@ -108,17 +108,7 @@ export class YargsConfigurer {
                 } else {
                     // unknown command, not successful
                     process.exitCode = Constants.ERROR_EXIT_CODE;
-
-                    const commandTree = CommandUtils.flattenCommandTreeWithAliases(this.rootCommand);
-                    const commands: string[] = [];
-
-                    for (const command of commandTree) {
-                        if (command.fullName.trim().length === 0) {
-                            continue;
-                        }
-                        commands.push(command.fullName);
-                    }
-                    const closestCommand = closest(attemptedCommand, commands);
+                    const closestCommand = this.getClosestCommand(attemptedCommand);
 
                     argv.failureMessage = this.buildFailureMessage(closestCommand);
 
@@ -249,6 +239,8 @@ export class YargsConfigurer {
         let commands: string = "";
         let groups: string = " "; // default to " " for proper spacing in message
         let delimiter: string = ""; // used to delimit between possible 'command' values
+        const commandToCheck: string = `${this.rootCommandName} ${this.commandLine}`;
+        const nearestCommand: string = this.getClosestCommand(commandToCheck);
 
         let failureMessage = "Command failed due to improper syntax";
         failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
@@ -277,9 +269,12 @@ export class YargsConfigurer {
             }
         }
 
-        if (!isNullOrUndefined(closestCommand)) {
+        if (closestCommand != null) {
             failureMessage += format("\nUnknown group: %s\n", groupValues[0]);
-            failureMessage += format("Did you mean: %s?", closestCommand);
+        }
+
+        if (closestCommand != null || !commandToCheck.includes(nearestCommand)) {
+            failureMessage += format("\nDid you mean: %s?", nearestCommand);
         }
 
         if (commands.length > 0) {
@@ -305,4 +300,18 @@ export class YargsConfigurer {
     //         progressBarPollFrequency: this.commandRespParms.progressBarPollFrequency
     //     });
     // }
+
+    private getClosestCommand(attemptedCommand: string) {
+        const commandTree = CommandUtils.flattenCommandTreeWithAliases(this.rootCommand);
+        const commands: string[] = [];
+
+        for (const commandEntry of commandTree) {
+            if (commandEntry.fullName.trim().length === 0) {
+                continue;
+            }
+            commands.push(commandEntry.fullName);
+        }
+        const closestCommand = closest(attemptedCommand, commands);
+        return closestCommand;
+    }
 }
