@@ -210,7 +210,7 @@ describe("Command Response", () => {
             percentComplete: 0,
             statusMessage: "Test Task",
             stageName: TaskStage.IN_PROGRESS
-        }
+        };
         const beforeMessage = "Message before progress bar";
         const duringMessage = "Message during progress bar";
         const afterMessage = "Message after progress bar";
@@ -231,7 +231,7 @@ describe("Command Response", () => {
         expect(stderrMsg).toMatch(new RegExp(`^Message before progress bar$\n^.*Message during progress bar$\n^Message after progress bar`, 'm'));
         expect(response.buildJsonResponse().stdout.toString()).toEqual(beforeMessage + "\n" + duringMessage + "\n" + afterMessage + "\n");
         expect(response.buildJsonResponse().stderr.toString()).toEqual(beforeMessage + "\n" + duringMessage + "\n" + afterMessage + "\n");
-    })
+    });
 
     it("should allow us to create an instance", () => {
         const response = new CommandResponse();
