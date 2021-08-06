@@ -239,13 +239,20 @@ export class YargsConfigurer {
         let commands: string = "";
         let groups: string = " "; // default to " " for proper spacing in message
         let delimiter: string = ""; // used to delimit between possible 'command' values
-        const commandToCheck: string = `${this.rootCommandName} ${this.commandLine}`;
+        const groupValues = this.commandLine.split(" ", three);
+        const commandToCheck = groupValues.join(" ");
         const nearestCommand: string = this.getClosestCommand(commandToCheck);
 
         let failureMessage = "Command failed due to improper syntax";
-        failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
+        if (closestCommand != null) {
+            failureMessage += format("\nUnknown group: %s\n", groupValues[0]);
+        }
+
+        if (closestCommand != null || !commandToCheck.includes(nearestCommand)) {
+            failureMessage += format("\nDid you mean: %s?", nearestCommand);
+        }
+        failureMessage += `\nCommand entered: "${this.commandLine}"`;
         // limit to three to include two levels of group and command value, if present
-        const groupValues = this.commandLine.split(" ", three);
 
         // loop through the top level groups
         for (const group of this.rootCommand.children) {
@@ -267,14 +274,6 @@ export class YargsConfigurer {
                 }
                 break;
             }
-        }
-
-        if (closestCommand != null) {
-            failureMessage += format("\nUnknown group: %s\n", groupValues[0]);
-        }
-
-        if (closestCommand != null || !commandToCheck.includes(nearestCommand)) {
-            failureMessage += format("\nDid you mean: %s?", nearestCommand);
         }
 
         if (commands.length > 0) {
