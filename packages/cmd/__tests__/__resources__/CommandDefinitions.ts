@@ -46,6 +46,43 @@ export const COMPLEX_COMMAND: ICommandDefinition = {
     ]
 };
 
+export const COMPLEX_COMMAND_WITH_ALIASES: ICommandDefinition = {
+    name: "test-group",
+    description: "my group",
+    type: "group",
+    aliases: ["tg"],
+    children: [
+        {
+            name: "test-command",
+            description: "my command",
+            type: "command",
+            aliases: ["tc"],
+            options: [
+                {
+                    name: "test-option",
+                    description: "the option",
+                    type: "string",
+                    aliases: ["to"]
+                },
+                {
+                    name: "test-boolean",
+                    description: "the boolean option",
+                    type: "boolean",
+                    aliases: ["tb"]
+                }
+            ],
+            positionals: [
+                {
+                    name: "positional1",
+                    description: "the positional option",
+                    type: "string",
+                    required: false
+                }
+            ]
+        }
+    ]
+};
+
 export const MULTIPLE_GROUPS: ICommandDefinition = {
     name: "test-outer-group",
     description: "test group",

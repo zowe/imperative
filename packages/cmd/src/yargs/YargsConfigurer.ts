@@ -22,6 +22,7 @@ import { IProfileManagerFactory } from "../../../profiles";
 import { ICommandProfileTypeConfiguration } from "../doc/profiles/definition/ICommandProfileTypeConfiguration";
 import { IHelpGeneratorFactory } from "../help/doc/IHelpGeneratorFactory";
 import { CliUtils } from "../../../utilities/src/CliUtils";
+import { closest } from "fastest-levenshtein";
 
 /**
  * Before invoking commands, this class configures some settings and callbacks in Yargs,
@@ -107,22 +108,17 @@ export class YargsConfigurer {
                 } else {
                     // unknown command, not successful
                     process.exitCode = Constants.ERROR_EXIT_CODE;
-                    const lev = require("levenshtein");
-                    let minimumLevDistance: number = 999999;
-                    let closestCommand: string;
 
-                    const commandTree = CommandUtils.flattenCommandTree(this.rootCommand);
+                    const commandTree = CommandUtils.flattenCommandTreeWithAliases(this.rootCommand);
+                    const commands: string[] = [];
 
                     for (const command of commandTree) {
                         if (command.fullName.trim().length === 0) {
                             continue;
                         }
-                        const compare = new lev(attemptedCommand, command.fullName);
-                        if (compare.distance < minimumLevDistance) {
-                            minimumLevDistance = compare.distance;
-                            closestCommand = command.fullName;
-                        }
+                        commands.push(command.fullName);
                     }
+                    const closestCommand = closest(attemptedCommand, commands);
 
                     argv.failureMessage = this.buildFailureMessage(closestCommand);
 
