@@ -415,13 +415,13 @@ describe("Command Response", () => {
         });
         process.stdout.write = write;
 
-        const normalPrompt = jest.fn((test, hide, wait) => {
+        const normalPrompt = jest.fn((test, opts) => {
             return new Promise<string>((resolve) => {
                 resolve(responseMessage);
             });
         });
 
-        (CliUtils as any).promptWithTimeout = normalPrompt;
+        (CliUtils as any).readPrompt = normalPrompt;
 
         // prompt the user
         const msg: string = "please give me a message";
