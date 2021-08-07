@@ -348,9 +348,9 @@ export class ConnectionPropsForSessCfg {
      */
     private static async clientPrompt(promptText: string, opts: IHandlePromptOptions): Promise<string> {
         if (opts.parms) {
-            return opts.parms.response.console.prompt(promptText, {hideText: opts.hideText, secToWait: opts.secToWait});
+            return opts.parms.response.console.prompt(promptText, opts);
         } else {
-            return CliUtils.promptWithTimeout(promptText, opts.hideText, opts.secToWait);
+            return CliUtils.readPrompt(promptText, opts);
         }
     }
 
