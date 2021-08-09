@@ -9,13 +9,6 @@
 *
 */
 
-
-
-
-
-
-
-
 export interface ISetupEnvironmentParms {
     /**
      * The home environment variable for your CLI - sets it to the working directory create for your test.

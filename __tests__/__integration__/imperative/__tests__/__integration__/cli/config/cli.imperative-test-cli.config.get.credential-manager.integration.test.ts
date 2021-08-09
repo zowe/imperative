@@ -13,8 +13,6 @@ import { ITestEnvironment } from "../../../../../../__src__/environment/doc/resp
 import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../src/TestUtil";
 
-
-
 let TEST_ENVIRONMENT: ITestEnvironment;
 
 describe("imperative-test-cli config get CredentialManager", () => {
