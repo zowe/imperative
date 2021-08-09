@@ -69,8 +69,7 @@ export default class FruitAutoInitHandler extends BaseAutoInitHandler {
             },
             defaults: {
                 [this.mProfileType]: "my_base_fruit"
-            },
-            plugins: []
+            }
         };
     }
 }

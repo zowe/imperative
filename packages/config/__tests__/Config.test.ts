@@ -139,7 +139,6 @@ describe("Config tests", () => {
             expect(config.properties).toMatchSnapshot();
             expect(config.properties.defaults).toEqual({});
             expect(config.properties.profiles).toEqual({});
-            expect(config.properties.plugins).toEqual([]);
         });
 
         it("should fail to load config that is not JSON", async () => {

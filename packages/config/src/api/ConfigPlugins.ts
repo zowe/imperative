@@ -16,6 +16,6 @@ import { ConfigApi } from "./ConfigApi";
  */
 export class ConfigPlugins extends ConfigApi {
     public get(): string[] {
-        return this.mConfig.properties.plugins;
+        return this.mConfig.properties.plugins || [];
     }
 }
