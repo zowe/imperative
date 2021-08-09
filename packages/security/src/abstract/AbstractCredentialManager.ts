@@ -29,7 +29,7 @@ export type SecureCredential = string;
  * @see https://www.typescriptlang.org/docs/handbook/declaration-merging.html
  */
 export interface AbstractCredentialManager {
-  /**
+    /**
    * This is an optional method that your Credential Manager may choose to implement. If present, it
    * will be called by the {@link CredentialManagerFactory.initialize} function to allow your
    * manager to do more initialization after the class has become instantiated.
@@ -40,7 +40,7 @@ export interface AbstractCredentialManager {
    *
    * @returns {Promise<void>} A promise of the completion of your initialize function.
    */
-  initialize?(): Promise<void>;
+    initialize?(): Promise<void>;
 }
 
 /**
@@ -131,7 +131,7 @@ export abstract class AbstractCredentialManager {
         }
     }
 
-  /**
+    /**
    * Called by Imperative to delete the credentials of a profile.
    *
    * @param {string} account - A user account (or profile identifier)
@@ -140,9 +140,9 @@ export abstract class AbstractCredentialManager {
    *
    * @throws {ImperativeError} - when the delete operation failed. The error object should have details about what failed.
    */
-  protected abstract async deleteCredentials(account: string): Promise<void>;
+    protected abstract async deleteCredentials(account: string): Promise<void>;
 
-  /**
+    /**
    * Called by Imperative to load the credentials of a profile.
    *
    * @param {string} account - A user account (or profile identifier)
@@ -152,9 +152,9 @@ export abstract class AbstractCredentialManager {
    *
    * @throws {ImperativeError} - when the get operation failed. The error object should have details about what failed.
    */
-  protected abstract async loadCredentials(account: string, optional?: boolean): Promise<SecureCredential>;
+    protected abstract async loadCredentials(account: string, optional?: boolean): Promise<SecureCredential>;
 
-  /**
+    /**
    * Called by Imperative to save the credentials for a profile.
    *
    * @param {string} account - A user account (or profile identifier)
@@ -164,5 +164,5 @@ export abstract class AbstractCredentialManager {
    *
    * @throws {ImperativeError} - when the set operation failed. The error object should have details about what failed.
    */
-  protected abstract async saveCredentials(account: string, credentials: SecureCredential): Promise<void>;
+    protected abstract async saveCredentials(account: string, credentials: SecureCredential): Promise<void>;
 }

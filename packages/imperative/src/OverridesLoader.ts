@@ -56,7 +56,7 @@ export class OverridesLoader {
         && AppSettings.instance.get("overrides", "CredentialManager") !== false
         ) ?
         // App settings is configured - use the plugin name for the manager name
-        AppSettings.instance.get("overrides", "CredentialManager") as string
+            AppSettings.instance.get("overrides", "CredentialManager") as string
             :
         // App settings is not configured - use the CLI display name OR the package name as the manager name
             config.productDisplayName || config.name;

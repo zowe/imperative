@@ -18,7 +18,7 @@ export type VALIDATION_OUTCOME = "Failed" | "OK" | "Warning";
  * profile validation
  */
 export type IProfileValidationTaskFunction = (profile: any,
-                                              done: (result: IProfileValidationTaskResult) => void) => void;
+    done: (result: IProfileValidationTaskResult) => void) => void;
 
 /**
  * Criterion/task used for testing the validity of a profile

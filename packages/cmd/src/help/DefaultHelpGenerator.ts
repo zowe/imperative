@@ -64,16 +64,16 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
     public buildHelp(): string {
         let helpText: string = "";
         switch (this.mCommandDefinition.type) {
-        case "group":
-            helpText = this.buildFullGroupHelpText();
-            break;
-        case "command":
-            helpText = this.buildFullCommandHelpText();
-            break;
-        default:
-            throw new ImperativeError({
-                msg: `${DefaultHelpGenerator.ERROR_TAG} Unknown command definition type specified: "${this.mCommandDefinition.type}"`
-            });
+            case "group":
+                helpText = this.buildFullGroupHelpText();
+                break;
+            case "command":
+                helpText = this.buildFullCommandHelpText();
+                break;
+            default:
+                throw new ImperativeError({
+                    msg: `${DefaultHelpGenerator.ERROR_TAG} Unknown command definition type specified: "${this.mCommandDefinition.type}"`
+                });
         }
         return helpText;
     }

@@ -827,17 +827,17 @@ export class CommandProcessor {
         const json: ICommandResponse = response.buildJsonResponse();
         if (!response.silent) {
             switch (response.responseFormat) {
-            case "json":
-                response.writeJsonResponse();
-                break;
-            case "default":
+                case "json":
+                    response.writeJsonResponse();
+                    break;
+                case "default":
                 // Do nothing - already written along the way
-                break;
-            default:
-                throw new ImperativeError({
-                    msg: `${CommandProcessor.ERROR_TAG} ` +
+                    break;
+                default:
+                    throw new ImperativeError({
+                        msg: `${CommandProcessor.ERROR_TAG} ` +
                             `The response format specified ("${response.responseFormat}") is not valid.`
-                });
+                    });
             }
         }
         this.log.info(`Command "${this.definition.name}" completed with success flag: "${json.success}"`);

@@ -16,23 +16,23 @@ import { AbstractCredentialManager, SecureCredential } from "../..";
  * for a class that does not have an init method.
  */
 export = class NoInitializeCredentialManager extends AbstractCredentialManager {
-  public static readonly hardcodeService = "send-the-service-in";
+    public static readonly hardcodeService = "send-the-service-in";
 
-  public readonly credentials = "username:password";
+    public readonly credentials = "username:password";
 
-  constructor(service: string, displayname: string) {
-      super(NoInitializeCredentialManager.hardcodeService, displayname);
-  }
+    constructor(service: string, displayname: string) {
+        super(NoInitializeCredentialManager.hardcodeService, displayname);
+    }
 
-  protected async deleteCredentials(account: string): Promise<void> {
-      return;
-  }
+    protected async deleteCredentials(account: string): Promise<void> {
+        return;
+    }
 
-  protected async loadCredentials(account: string): Promise<SecureCredential> {
-      return this.credentials;
-  }
+    protected async loadCredentials(account: string): Promise<SecureCredential> {
+        return this.credentials;
+    }
 
-  protected async saveCredentials(account: string, credentials: SecureCredential): Promise<void> {
-      return;
-  }
+    protected async saveCredentials(account: string, credentials: SecureCredential): Promise<void> {
+        return;
+    }
 };

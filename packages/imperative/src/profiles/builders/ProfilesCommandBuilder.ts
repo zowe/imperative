@@ -33,8 +33,8 @@ export abstract class ProfilesCommandBuilder implements AbstractCommandBuilder {
      * @param {IProfileSchema} mProfileConfig: The schema that describes the profile
      */
     constructor(protected mProfileType: string,
-                protected mLogger: Logger,
-                protected mProfileConfig: ICommandProfileTypeConfiguration) {
+        protected mLogger: Logger,
+        protected mProfileConfig: ICommandProfileTypeConfiguration) {
 
         this.mSchema = mProfileConfig.schema;
         if (isNullOrUndefined(this.mSchema)) {

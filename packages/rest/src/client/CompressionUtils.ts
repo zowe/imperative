@@ -29,9 +29,9 @@ export class CompressionUtils {
 
         try {
             switch (encoding) {
-            case "br":      return zlib.brotliDecompressSync(data);
-            case "deflate": return zlib.inflateSync(data);
-            case "gzip":    return zlib.gunzipSync(data);
+                case "br":      return zlib.brotliDecompressSync(data);
+                case "deflate": return zlib.inflateSync(data);
+                case "gzip":    return zlib.gunzipSync(data);
             }
         } catch (err) {
             throw this.decompressError(err, "buffer", encoding);
@@ -107,9 +107,9 @@ export class CompressionUtils {
      */
     private static zlibTransform(encoding: ContentEncoding): Transform {
         switch (encoding) {
-        case "br":      return zlib.createBrotliDecompress();
-        case "deflate": return zlib.createInflate();
-        case "gzip":    return zlib.createGunzip();
+            case "br":      return zlib.createBrotliDecompress();
+            case "deflate": return zlib.createInflate();
+            case "gzip":    return zlib.createGunzip();
         }
     }
 }

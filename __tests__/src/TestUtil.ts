@@ -230,9 +230,9 @@ export function findExpectedOutputInCommand(cliBinModule: string,
     testContext: any,
     variationsToRun: CMD_TYPE = CMD_TYPE.ALL,
     compareOptions: {
-                                                ignoreCase?: boolean,
-                                                ignoreSpaces?: boolean
-                                            } = {ignoreCase: false, ignoreSpaces: false},
+        ignoreCase?: boolean,
+        ignoreSpaces?: boolean
+    } = {ignoreCase: false, ignoreSpaces: false},
     pipeContent?: string | Buffer,
     env: { [key: string]: string } = process.env): ICommandResponse {
 

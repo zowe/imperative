@@ -35,21 +35,21 @@ describe("Installing Plugins", () => {
          * The location (or path to install) of a plugin. For anything on a registry, this should be the same as the name
          * stored in the registry.
          */
-        location: string,
+            location: string,
 
-        /**
+            /**
          * This is the name of the package.
          *
          * For local files we don't get this automatically from the file path.
          * For registry plugins, this is the same as the plugin location.
          */
-        name: string,
+            name: string,
 
-        /**
+            /**
          * This is ultimately how the plugin is added to the cli. IE the top level
          * name that gets invoked
          */
-        usage: string
+            usage: string
         };
     }
 

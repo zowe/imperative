@@ -293,20 +293,20 @@ export class ProfileValidator {
         }
         let outcomeMessage = "";
         switch (report.overallResult) {
-        case "OK":
-            outcomeMessage = "is valid and ready for use with " + productDisplayName + ".\n All profile validation tests " +
+            case "OK":
+                outcomeMessage = "is valid and ready for use with " + productDisplayName + ".\n All profile validation tests " +
                     "succeeded.";
-            break;
-        case "Failed":
-            outcomeMessage = "will not function fully with " + productDisplayName + ".\nAt least one of the above " +
+                break;
+            case "Failed":
+                outcomeMessage = "will not function fully with " + productDisplayName + ".\nAt least one of the above " +
                     "tests failed. " + (plan.failureSuggestions ? "\n" + plan.failureSuggestions : "");
-            break;
-        case "Warning":
-            outcomeMessage = "might not function properly with " + productDisplayName + ".\nAt least one of the above " +
+                break;
+            case "Warning":
+                outcomeMessage = "might not function properly with " + productDisplayName + ".\nAt least one of the above " +
                     "tests got ambiguous results. " + (plan.failureSuggestions ? "\n" + plan.failureSuggestions : "");
-            break;
-        default:
-            log.warn("Unknown validation outcome in report for %s profile %s", profileType, profileName);
+                break;
+            default:
+                log.warn("Unknown validation outcome in report for %s profile %s", profileType, profileName);
         }
 
         text += TextUtils.wordWrap(TextUtils.formatMessage("The %s profile named \"%s\" %s\n",
@@ -395,17 +395,17 @@ export class ProfileValidator {
         const result = {succeeded: 0, undetermined: 0, failed: 0};
         for (const task of report.taskResults) {
             switch (task.outcome) {
-            case "OK":
-                result.succeeded++;
-                break;
-            case "Warning":
-                result.undetermined++;
-                break;
-            case "Failed":
-                result.failed++;
-                break;
-            default:
-                log.warn("Unknown validation outcome for %s profile %s", report.profile.type, report.profile.name);
+                case "OK":
+                    result.succeeded++;
+                    break;
+                case "Warning":
+                    result.undetermined++;
+                    break;
+                case "Failed":
+                    result.failed++;
+                    break;
+                default:
+                    log.warn("Unknown validation outcome for %s profile %s", report.profile.type, report.profile.name);
             }
         }
         return result;

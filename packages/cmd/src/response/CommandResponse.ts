@@ -297,102 +297,102 @@ export class CommandResponse implements ICommandResponseApi {
                     // Process each type according to the data presented from the handler
                     switch (params.format) {
 
-                    // Output the data as a string
-                    case "string":
+                        // Output the data as a string
+                        case "string":
                         // Stringify if not a string
-                        if (typeof params.output !== "string") {
-                            params.output = JSON.stringify(params.output);
-                        }
+                            if (typeof params.output !== "string") {
+                                params.output = JSON.stringify(params.output);
+                            }
 
-                        // Log the string data
-                        response.console.log(params.output);
-                        break;
-                        // Output the data as a list of strings
-                    case "list":
-                        if (Array.isArray(params.output)) {
-
-                            // Filter the properties by request and stringify if needed
-                            const list: string[] = [];
-                            params.output.forEach((entry) => {
-                                if (typeof entry === "object") {
-                                    list.push(JSON.stringify(entry));
-                                } else {
-                                    list.push(entry);
-                                }
-                            });
-
-                            // Join each array entry on a newline
-                            params.output = list.join("\n");
+                            // Log the string data
                             response.console.log(params.output);
-                        } else {
-                            throw new ImperativeError({
-                                msg: this.errorDetails(params, "Arrays", extractedFrom)
-                            });
-                        }
-                        break;
+                            break;
+                        // Output the data as a list of strings
+                        case "list":
+                            if (Array.isArray(params.output)) {
+
+                                // Filter the properties by request and stringify if needed
+                                const list: string[] = [];
+                                params.output.forEach((entry) => {
+                                    if (typeof entry === "object") {
+                                        list.push(JSON.stringify(entry));
+                                    } else {
+                                        list.push(entry);
+                                    }
+                                });
+
+                                // Join each array entry on a newline
+                                params.output = list.join("\n");
+                                response.console.log(params.output);
+                            } else {
+                                throw new ImperativeError({
+                                    msg: this.errorDetails(params, "Arrays", extractedFrom)
+                                });
+                            }
+                            break;
 
                         // Output the data as an object or list of objects (prettified)
-                    case "object":
-                        if (Array.isArray(params.output) || typeof params.output === "object") {
+                        case "object":
+                            if (Array.isArray(params.output) || typeof params.output === "object") {
 
-                            // Build the table and catch any errors that may occur from the packages
-                            let pretty;
-                            try {
+                                // Build the table and catch any errors that may occur from the packages
+                                let pretty;
+                                try {
                                 // Prettify the data
-                                pretty = TextUtils.prettyJson(params.output, undefined, undefined, "");
-                            } catch (prettyErr) {
-                                throw new ImperativeError({
-                                    msg: `Error formulating pretty JSON for command response. Details: ` +
+                                    pretty = TextUtils.prettyJson(params.output, undefined, undefined, "");
+                                } catch (prettyErr) {
+                                    throw new ImperativeError({
+                                        msg: `Error formulating pretty JSON for command response. Details: ` +
                                             `${prettyErr.message}`,
-                                    additionalDetails: prettyErr
-                                });
-                            }
-
-                            // Print the output
-                            response.console.log(pretty);
-                        } else {
-                            throw new ImperativeError({
-                                msg: this.errorDetails(params, "JSON objects or Arrays", extractedFrom)
-                            });
-                        }
-                        break;
-
-                        // Output the data as a table
-                    case "table":
-                        if (typeof params.output === "object" || Array.isArray(params.output)) {
-
-                            // Build the table and catch any errors that may occur from the packages
-                            let table;
-                            try {
-                                // Adjust if required
-                                if (!Array.isArray(params.output)) {
-                                    params.output = [params.output];
+                                        additionalDetails: prettyErr
+                                    });
                                 }
 
-                                // Build the table
-                                table = TextUtils.getTable(params.output, "yellow", CommandResponse.MAX_COLUMN_WIDTH,
-                                    (params.header != null) ? params.header : false);
-                            } catch (tableErr) {
+                                // Print the output
+                                response.console.log(pretty);
+                            } else {
                                 throw new ImperativeError({
-                                    msg: `Error formulating table for command response. ` +
-                                            `Details: ${tableErr.message}`,
-                                    additionalDetails: tableErr
+                                    msg: this.errorDetails(params, "JSON objects or Arrays", extractedFrom)
                                 });
                             }
+                            break;
 
-                            // Print the table
-                            response.console.log(table);
-                        } else {
+                        // Output the data as a table
+                        case "table":
+                            if (typeof params.output === "object" || Array.isArray(params.output)) {
+
+                                // Build the table and catch any errors that may occur from the packages
+                                let table;
+                                try {
+                                // Adjust if required
+                                    if (!Array.isArray(params.output)) {
+                                        params.output = [params.output];
+                                    }
+
+                                    // Build the table
+                                    table = TextUtils.getTable(params.output, "yellow", CommandResponse.MAX_COLUMN_WIDTH,
+                                        (params.header != null) ? params.header : false);
+                                } catch (tableErr) {
+                                    throw new ImperativeError({
+                                        msg: `Error formulating table for command response. ` +
+                                            `Details: ${tableErr.message}`,
+                                        additionalDetails: tableErr
+                                    });
+                                }
+
+                                // Print the table
+                                response.console.log(table);
+                            } else {
+                                throw new ImperativeError({
+                                    msg: this.errorDetails(params, "JSON objects or Arrays", extractedFrom)
+                                });
+                            }
+                            break;
+                        default:
                             throw new ImperativeError({
-                                msg: this.errorDetails(params, "JSON objects or Arrays", extractedFrom)
-                            });
-                        }
-                        break;
-                    default:
-                        throw new ImperativeError({
-                            msg: `Invalid output format of "${params.format}" supplied. ` +
+                                msg: `Invalid output format of "${params.format}" supplied. ` +
                                     `Contact the command handler creators for support.`
-                        });
+                            });
                     }
                 }
 
