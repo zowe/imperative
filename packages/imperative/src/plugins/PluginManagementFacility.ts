@@ -293,13 +293,11 @@ export class PluginManagementFacility {
                      * credentials. Finally since lint complains about more than one
                      * class in a file, we have to temporarily turn off that lint error.
                      */
-                    /* tslint:disable:max-classes-per-file */
                     (this.mPluginOverrides as any)[setting] = class {
                         constructor() {
                             throw overrideErrMsg;
                         }
                     };
-                    /* tslint:enable:max-classes-per-file */
                     continue;
                 }
 
@@ -335,13 +333,11 @@ export class PluginManagementFacility {
                         PluginIssues.instance.recordIssue(pluginName, IssueSeverity.OVER_ERROR, overrideErrMsg);
 
                         // See the big block comment above about using an anonymous class.
-                        /* tslint:disable:max-classes-per-file */
                         (this.mPluginOverrides as any)[setting] = class {
                             constructor() {
                                 throw overrideErrMsg;
                             }
                         };
-                        /* tslint:enable:max-classes-per-file */
                         continue;
                     }
                 }

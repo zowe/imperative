@@ -34,7 +34,6 @@ describe("ConnectionPropsForSessCfg tests", () => {
             initialSessCfg, args
         );
         expect(sessCfgWithConnProps.hostname).toBe("SomeHost");
-        // tslint:disable-next-line: no-magic-numbers
         expect(sessCfgWithConnProps.port).toBe(11);
         expect(sessCfgWithConnProps.user).toBe("FakeUser");
         expect(sessCfgWithConnProps.password).toBe("FakePassword");
@@ -555,7 +554,6 @@ describe("ConnectionPropsForSessCfg tests", () => {
             initialSessCfg, args, {getValuesBack: fakeFunction}
         );
         expect(sessCfgWithConnProps.hostname).toBe("SomeHost");
-        // tslint:disable-next-line: no-magic-numbers
         expect(sessCfgWithConnProps.port).toBe(11);
         expect(sessCfgWithConnProps.user).toBe("FakeUser");
         expect(sessCfgWithConnProps.password).toBe("FakePassword");
@@ -606,7 +604,6 @@ describe("ConnectionPropsForSessCfg tests", () => {
             initialSessCfg, args, {getValuesBack: fakeFunction}
         );
         expect(sessCfgWithConnProps.hostname).toBe("SomeHost");
-        // tslint:disable-next-line: no-magic-numbers
         expect(sessCfgWithConnProps.port).toBe(11);
         expect(sessCfgWithConnProps.user).toBe("FakeUser");
         expect(sessCfgWithConnProps.password).toBe("FakePassword");

@@ -19,7 +19,7 @@ import * as AppSettingsModule from "../AppSettings";
 
 // Define the constructor of the mock app settings class
 function MockAppSettings() {
-    this.settings = { // tslint:disable-line
+    this.settings = {
         overrides: {
             CredentialManager: false
         }

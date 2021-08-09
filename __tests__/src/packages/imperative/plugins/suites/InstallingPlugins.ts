@@ -113,7 +113,6 @@ describe("Installing Plugins", () => {
 
     beforeAll(() => {
         envNpmRegistry = execSync("npm config get registry").toString().trim();
-        // tslint:disable-next-line no-magic-numbers
         peerDepWarning = parseInt(execSync("npm --version").toString().trim().split(".")[0], 10) < 7;
     });
 

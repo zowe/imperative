@@ -342,9 +342,9 @@ describe("PluginRequireProvider", () => {
                     modules: randomModuleMaxLength,
                     shouldRequireDirectly: [
                         "./anything/goes/here",
-                        randomModuleMaxLength[0].substr(15),  //tslint:disable-line
-                        randomModuleMaxLength[1].substr(200), //tslint:disable-line
-                        randomModuleMaxLength[2].substr(59)   //tslint:disable-line
+                        randomModuleMaxLength[0].substr(15),
+                        randomModuleMaxLength[1].substr(200),
+                        randomModuleMaxLength[2].substr(59)
                     ]
                 },
                 "1 module with periods": {

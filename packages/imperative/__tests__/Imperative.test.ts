@@ -220,7 +220,7 @@ describe("Imperative", () => {
             // @FUTURE When there are more overrides we should think about making this function dynamic
             it("should allow a plugin to override modules", async () => {
                 const testOverrides: IImperativeOverrides = {
-                    CredentialManager: generateRandomAlphaNumericString(16) //tslint:disable-line
+                    CredentialManager: generateRandomAlphaNumericString(16)
                 };
 
                 // Formulate a deep copy of the expected overrides. Ensures that we are comparing values

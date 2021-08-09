@@ -221,7 +221,6 @@ export class CommandResponse implements ICommandResponseApi {
         const outer: CommandResponse = this;
 
         if (this.mFormatApi == null) {
-            // tslint:disable-next-line
             this.mFormatApi = new class implements IHandlerFormatOutputApi {
                 /**
                  * Format output data from the command based on the defaults specified OR the parameters specified by
@@ -524,7 +523,6 @@ export class CommandResponse implements ICommandResponseApi {
 
         // Create only a single instance of the console API
         if (this.mConsoleApi == null) {
-            // tslint:disable-next-line
             this.mConsoleApi = new class implements IHandlerResponseConsoleApi {
 
                 /**
@@ -599,7 +597,6 @@ export class CommandResponse implements ICommandResponseApi {
 
         // Only create a single instance
         if (this.mDataApi == null) {
-            // tslint:disable-next-line
             this.mDataApi = new class {
 
                 /**
@@ -659,7 +656,6 @@ export class CommandResponse implements ICommandResponseApi {
         if (this.mProgressApi == null) {
 
             // Create an instance of the class
-            // tslint:disable-next-line
             this.mProgressApi = new class {
                 private mProgressBarSpinnerIndex = 0;
                 private mProgressTask: ITaskWithStatus;
