@@ -121,24 +121,26 @@ describe("Installing Plugins", () => {
         T.rimraf(pluginJsonLocation);
     });
 
-    /* This test was purposely commented out. The CICD pipeline cannot synchronize two different
-    * repos: imperative and imperative-plugins in master, since plugins is used to perform the
-    * tests that permit cli to be merged into master.
-    *
-    * If you want to do a quick manual test using an npm registry, you can uncomment
-    * this block. Just be sure to re-comment it before committing this file.
-    *
-    it("should install the sample plugin from the registry", function(){
-        const result = executeCommandString(this, `${pluginGroup} install ${plugins.registry.location} --registry ${TEST_REGISTRY}`);
-        console.log(result);
-        expect(result.stderr).toEqual("");
 
-        const strippedOutput = T.stripNewLines(result.stdout);
-        expect(strippedOutput).toContain("Registry = " + TEST_REGISTRY);
-        expect(strippedOutput).toContain(`Installed plugin = '${plugins.registry.name}'`);
-        expect(strippedOutput).toContain("Installation of the npm package(s) was successful.");
-    });
-    */
+    /**
+     * This test was purposely commented out. The CICD pipeline cannot synchronize two different
+     * repos: imperative and imperative-plugins in master, since plugins is used to perform the
+     * tests that permit cli to be merged into master.
+     *
+     * If you want to do a quick manual test using an npm registry, you can uncomment
+     * this block. Just be sure to re-comment it before committing this file.
+     */
+    // eslint-disable-next-line jest/no-commented-out-tests
+    // it("should install the sample plugin from the registry", function(){
+    //     const result = executeCommandString(this, `${pluginGroup} install ${plugins.registry.location} --registry ${TEST_REGISTRY}`);
+    //     console.log(result);
+    //     expect(result.stderr).toEqual("");
+
+    //     const strippedOutput = T.stripNewLines(result.stdout);
+    //     expect(strippedOutput).toContain("Registry = " + TEST_REGISTRY);
+    //     expect(strippedOutput).toContain(`Installed plugin = '${plugins.registry.name}'`);
+    //     expect(strippedOutput).toContain("Installation of the npm package(s) was successful.");
+    // });
 
     it("should install a plugin from a file location", function(){
 
@@ -275,76 +277,78 @@ describe("Installing Plugins", () => {
         expect(result.stdout).toContain(plugins.space_in_path.usage);
     });
 
-    /* Again we purposely commented out this test because versioning uses a registry,
-    * which is problematic for a CICD pipeline.
-    *
-    * If you want to do a quick manual test using an npm registry, you can uncomment
-    * this block. Just be sure to re-comment it before committing this file.
-    *
-    describe("versioning", () => {
-        it("should install a strict version", function(){
-        const version = "1.0.2";
+    /**
+     * Again we purposely commented out this test because versioning uses a registry,
+     * which is problematic for a CICD pipeline.
+     *
+     * If you want to do a quick manual test using an npm registry, you can uncomment
+     * this block. Just be sure to re-comment it before committing this file.
+     */
+    /* eslint-disable jest/no-commented-out-tests */
+    // describe("versioning", () => {
+    //     it("should install a strict version", function(){
+    //     const version = "1.0.2";
 
-        let result = executeCommandString(this, "--help");
+    //     let result = executeCommandString(this, "--help");
 
-        expect(result.stderr).toEqual("");
-        expect(result.stdout).not.toContain(plugins.registry.usage);
+    //     expect(result.stderr).toEqual("");
+    //     expect(result.stdout).not.toContain(plugins.registry.usage);
 
-        // Install the plugin with a version
-        result = executeCommandString(this, `${pluginGroup} install ${plugins.registry.location}@${version} --registry ${TEST_REGISTRY}`);
+    //     // Install the plugin with a version
+    //     result = executeCommandString(this, `${pluginGroup} install ${plugins.registry.location}@${version} --registry ${TEST_REGISTRY}`);
 
-        expect(result.stderr).toEqual("");
-        expect(result.stdout).toContain("successful");
+    //     expect(result.stderr).toEqual("");
+    //     expect(result.stdout).toContain("successful");
 
-        result = executeCommandString(this, "--help");
+    //     result = executeCommandString(this, "--help");
 
-        expect(result.stderr).toEqual("");
-        expect(result.stdout).toContain(plugins.registry.usage);
+    //     expect(result.stderr).toEqual("");
+    //     expect(result.stdout).toContain(plugins.registry.usage);
 
-        const actualJson = readFileSync(pluginJsonLocation);
-        const expectedJson: IPluginJson = {
-            [plugins.registry.name]: {
-            package: plugins.registry.location,
-            registry: TEST_REGISTRY,
-            version
-            }
-        };
+    //     const actualJson = readFileSync(pluginJsonLocation);
+    //     const expectedJson: IPluginJson = {
+    //         [plugins.registry.name]: {
+    //         package: plugins.registry.location,
+    //         registry: TEST_REGISTRY,
+    //         version
+    //         }
+    //     };
 
-        expect(actualJson).toEqual(expectedJson);
-        });
+    //     expect(actualJson).toEqual(expectedJson);
+    //     });
 
-        it("should install preserving semver", function(){
-        const version = "^1.0.0";
+    //     it("should install preserving semver", function(){
+    //     const version = "^1.0.0";
 
-        let result = executeCommandString(this, "--help");
+    //     let result = executeCommandString(this, "--help");
 
-        expect(result.stderr).toEqual("");
-        expect(result.stdout).not.toContain(plugins.registry.usage);
+    //     expect(result.stderr).toEqual("");
+    //     expect(result.stdout).not.toContain(plugins.registry.usage);
 
-        // Install the plugin with a version
-        result = executeCommandString(this, `${pluginGroup} install ${plugins.registry.location}@${version} --registry ${TEST_REGISTRY}`);
+    //     // Install the plugin with a version
+    //     result = executeCommandString(this, `${pluginGroup} install ${plugins.registry.location}@${version} --registry ${TEST_REGISTRY}`);
 
-        expect(result.stderr).toEqual("");
-        expect(result.stdout).toContain("successful");
+    //     expect(result.stderr).toEqual("");
+    //     expect(result.stdout).toContain("successful");
 
-        result = executeCommandString(this, "--help");
+    //     result = executeCommandString(this, "--help");
 
-        expect(result.stderr).toEqual("");
-        expect(result.stdout).toContain(plugins.registry.usage);
+    //     expect(result.stderr).toEqual("");
+    //     expect(result.stdout).toContain(plugins.registry.usage);
 
-        const actualJson = readFileSync(pluginJsonLocation);
-        const expectedJson: IPluginJson = {
-            [plugins.registry.name]: {
-            package: plugins.registry.location,
-            registry: TEST_REGISTRY,
-            version
-            }
-        };
+    //     const actualJson = readFileSync(pluginJsonLocation);
+    //     const expectedJson: IPluginJson = {
+    //         [plugins.registry.name]: {
+    //         package: plugins.registry.location,
+    //         registry: TEST_REGISTRY,
+    //         version
+    //         }
+    //     };
 
-        expect(actualJson).toEqual(expectedJson);
-        });
-    });
-    */
+    //     expect(actualJson).toEqual(expectedJson);
+    //     });
+    // });
+    /* eslint-enable jest/no-commented-out-tests */
 
     describe("providing a plugin json", () => {
         let testFile: string;

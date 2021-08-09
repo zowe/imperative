@@ -146,6 +146,7 @@ describe("cmd-cli invoke test-handler", () => {
 
     // TODO - Not fulfilling the promise causes the process to end, but the command processor does not get control
     // TODO - and therefore cannot produce the response format?
+    // eslint-disable-next-line jest/no-commented-out-tests
     // it("should invoke the handler and print a message if no options are specified and produce a JSON response", async () => {
     //     const response = runCliScript(__dirname + "/__scripts__/test-handler/test_handler_rfj.sh", TEST_ENVIRONMENT.workingDir);
     //     console.log(response.stdout.toString());

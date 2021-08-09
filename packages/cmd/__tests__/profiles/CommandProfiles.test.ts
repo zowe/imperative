@@ -18,7 +18,13 @@ const STRAWBERRY_PROFILE_TYPE: string = "strawberry";
 
 describe("Command Profiles", () => {
     it("should should allow us to create an instance", () => {
-        const profiles = new CommandProfiles(new Map<string, IProfile[]>());
+        let caughtError;
+        try {
+            const profiles = new CommandProfiles(new Map<string, IProfile[]>());
+        } catch (error) {
+            caughtError = error;
+        }
+        expect(caughtError).toBeUndefined();
     });
 
     it("should detect missing parameters", () => {

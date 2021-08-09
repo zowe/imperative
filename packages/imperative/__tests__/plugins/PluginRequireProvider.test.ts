@@ -165,11 +165,11 @@ describe("PluginRequireProvider", () => {
          * the tests to still function correctly without us mucking up node with
          * bogus test requires.
          */
-        return Module.prototype.require = jest.fn(function(request: string, testCheck?: typeof testRequireIndicator | any) {
-            if (arguments[1] === testRequireIndicator) {
+        return Module.prototype.require = jest.fn(function(...args: any[]) {
+            if (args[1] === testRequireIndicator) {
                 return this;
             } else {
-                return originalRequire.apply(this, arguments);
+                return originalRequire.apply(this, args);
             }
         });
     };

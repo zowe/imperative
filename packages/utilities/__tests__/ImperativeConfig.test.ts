@@ -34,7 +34,13 @@ describe("ImperativeConfig", () => {
         });
 
         it("should getCallerFile", async () => {
-            ImperativeConfig.instance.getCallerFile("package.json");
+            let caughtError;
+            try {
+                ImperativeConfig.instance.getCallerFile("package.json");
+            } catch (error) {
+                caughtError = error;
+            }
+            expect(caughtError).toBeUndefined();
         });
 
         it("should set and get callerLocation", async () => {

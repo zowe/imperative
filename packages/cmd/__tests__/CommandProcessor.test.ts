@@ -247,15 +247,23 @@ describe("Command Processor", () => {
     });
 
     it("should allow us to create an instance", () => {
-        const processor: CommandProcessor = new CommandProcessor({
-            envVariablePrefix: ENV_VAR_PREFIX,
-            definition: SAMPLE_COMMAND_DEFINITION,
-            helpGenerator: FAKE_HELP_GENERATOR,
-            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: "",
-            promptPhrase: "dummydummy"
-        });
+        let caughtError;
+
+        try {
+            const processor: CommandProcessor = new CommandProcessor({
+                envVariablePrefix: ENV_VAR_PREFIX,
+                definition: SAMPLE_COMMAND_DEFINITION,
+                helpGenerator: FAKE_HELP_GENERATOR,
+                profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+                rootCommandName: SAMPLE_ROOT_COMMAND,
+                commandLine: "",
+                promptPhrase: "dummydummy"
+            });
+        } catch (error) {
+            caughtError = error;
+        }
+
+        expect(caughtError).toBeUndefined();
     });
 
     it("should detect that no parameters have been supplied", () => {

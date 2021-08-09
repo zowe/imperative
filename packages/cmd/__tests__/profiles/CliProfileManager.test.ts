@@ -273,13 +273,19 @@ describe("Cli Profile Manager", () => {
             typeConfigurations: configs
         });
         const profileName = "myprofile";
+        let caughtError;
 
-        await manager.save({
-            name: profileName, type: profileTypeOne,
-            profile: {sum: 55},
-            overwrite: true
-        });
-        // validation should pass
+        try {
+            await manager.save({
+                name: profileName, type: profileTypeOne,
+                profile: {sum: 55},
+                overwrite: true
+            });
+        } catch (error) {
+            caughtError = error;
+        }
+
+        expect(caughtError).toBeUndefined();
     });
 
     it("should still update a profile properly without providing args", async () => {

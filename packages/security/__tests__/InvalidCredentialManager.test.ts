@@ -37,11 +37,9 @@ describe("InvalidCredentialMangager", () => {
                 }
 
                 // Check to see if this method fails the test.
-                if (caughtError == null || !(caughtError instanceof BadCredentialManagerError)) {
-                    throw new Error(`InvalidCredentialManager.${method} does not properly throw a valid BadCredentialError.`);
-                } else if (caughtError.causeErrors !== error) {
-                    throw new Error(`InvalidCredentialManager.${method} does not preserve the error set in the constructor.`);
-                }
+                expect(caughtError).toBeDefined();
+                expect(caughtError instanceof BadCredentialManagerError).toBe(true);
+                expect((caughtError as any).causeErrors).toBe(error);
             }
         }
     });
