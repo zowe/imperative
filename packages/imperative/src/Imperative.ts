@@ -71,8 +71,8 @@ if (PerfTiming.isEnabled) {
 
     // Timerify a wrapper named function so we can be sure that not just
     // any anonymous function gets checked.
-    Module.prototype.require = PerfTiming.api.watch(function NodeModuleLoader() {
-        return originalRequire.apply(this, arguments);
+    Module.prototype.require = PerfTiming.api.watch(function NodeModuleLoader(...args: any[]) {
+        return originalRequire.apply(this, args);
     });
 }
 
@@ -123,6 +123,7 @@ export class Imperative {
      * @returns {Promise<void>} A promise indicating that we are done here.
      */
     public static init(config?: IImperativeConfig): Promise<void> {
+        // eslint-disable-next-line no-async-promise-executor
         return new Promise<void>(async (initializationComplete: () => void, initializationFailed: ImperativeReject) => {
             try {
 
