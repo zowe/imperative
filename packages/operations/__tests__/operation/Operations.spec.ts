@@ -9,6 +9,7 @@
 *
 */
 
+/* eslint-disable jest/expect-expect */
 import { TestOperations1 } from "./mockops/TestOperations1";
 import { TestOperations4 } from "./mockops/TestOperations4";
 
@@ -20,7 +21,7 @@ import { TestLogger } from "../../../../__tests__/TestLogger";
 
 const logger = TestLogger.getTestLogger();
 
-export class OperationTestConstants {
+class OperationTestConstants {
     public static OPER_TEST1_RESULTS: Array<IOperationResult<any>> = [{
         operationName: "Initialize Test Sub Op 1",
         resultMessage: "",

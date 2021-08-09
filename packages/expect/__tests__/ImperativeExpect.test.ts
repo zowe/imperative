@@ -169,17 +169,6 @@ describe("ImperativeExpect tests", () => {
         expect(error).toBeUndefined();
     });
 
-    it("should not throw error if the type is correct", () => {
-        let error: ImperativeError;
-        try {
-            ImperativeExpect.keysToBeOfType(obj, "string", ["data"]);
-        } catch (thrownError) {
-            error = thrownError;
-            expect(0).toBe(1);
-        }
-        expect(error).toBeUndefined();
-    });
-
     it("should throw an error if the type is incorrect", () => {
         let error: ImperativeError;
         try {

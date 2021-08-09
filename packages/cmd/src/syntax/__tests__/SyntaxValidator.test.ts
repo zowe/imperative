@@ -9,6 +9,7 @@
 *
 */
 
+/* eslint-disable jest/expect-expect */
 import { TextUtils } from "../../../../utilities";
 
 jest.mock("../../../../imperative/src/Imperative");
@@ -24,7 +25,6 @@ describe("Imperative should provide advanced syntax validation rules", () => {
     const logger = TestLogger.getTestLogger();
 
     describe("Advanced syntax validation for commands using a test command", () => {
-        /* eslint-disable jest/expect-expect */
         const yargsParser = require("yargs-parser");
         const alwaysRequired = "--always-required-boolean --always-required-string blah ";
         const minValidOptions = "--option-to-specify-1 --implied-by-absence " +
@@ -475,6 +475,5 @@ describe("Imperative should provide advanced syntax validation rules", () => {
                 );
             });
         });
-        /* eslint-enable jest/expect-expect */
     });
 });

@@ -9,6 +9,7 @@
 *
 */
 
+/* eslint-disable jest/expect-expect */
 import Mock = jest.Mock;
 
 jest.mock("child_process");

@@ -321,7 +321,7 @@ describe("Imperative", () => {
                     expect(mocks.Logger.initLogger).toHaveBeenCalledWith(loggingConfig);
                 });
 
-                it("should handle an invalid imperative log level", async () => {
+                it("should handle an invalid app log level", async () => {
                     envConfig.appLogLevel.value = badLevel;
 
                     mocks.EnvironmentalVariableSettings.read.mockReturnValue(envConfig);
