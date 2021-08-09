@@ -221,7 +221,7 @@ export class CliUtils {
                         break;
 
                     // convert strings to numbers if the option is number type
-                    case "number":
+                    case "number": {
                         const BASE_TEN = 10;
                         const oldEnvValue = envValue;
                         envValue = parseInt(envValue, BASE_TEN);
@@ -231,9 +231,9 @@ export class CliUtils {
                             envValue = oldEnvValue;
                         }
                         break;
-
+                    }
                     // convert to an array of strings if the type is array
-                    case "array":
+                    case "array": {
                         const regex = /(["'])(?:(?=(\\?))\2.)*?\1/g;
                         let arr = [];
                         let match = regex.exec(envValue);
@@ -249,7 +249,7 @@ export class CliUtils {
                         arr = arr.concat(removed.split(/[\s\n]+/g));
                         envValue = arr;
                         break;
-
+                    }
                     // Do nothing for other option types
                     default:
                         break;

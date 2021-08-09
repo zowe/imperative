@@ -659,7 +659,7 @@ export class CommandResponse implements ICommandResponseApi {
             this.mProgressApi = new class {
                 private mProgressBarSpinnerIndex = 0;
                 private mProgressTask: ITaskWithStatus;
-                private mProgressBarPollFrequency = 65;
+                private mProgressBarPollFrequency = 65;  // eslint-disable-line @typescript-eslint/no-magic-numbers
                 private mProgressBarTemplate: string = " " + TextUtils.chalk[outer.mPrimaryTextColor](":bar|") + " :current%  " +
                     TextUtils.chalk[outer.mPrimaryTextColor](":spin") + " | :statusMessage";
                 private mProgressBarInterval: any;
