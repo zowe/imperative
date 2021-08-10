@@ -975,7 +975,6 @@ export class CommandResponse implements ICommandResponseApi {
 
     /**
      * Explicitly end a stream
-     * @private
      * @memberof CommandResponse
      */
     public endStream() {
@@ -983,6 +982,14 @@ export class CommandResponse implements ICommandResponseApi {
             this.sendHeaders();
             this.mStream.end();
         }
+    }
+
+    /**
+     * Check if console is running in daemon mode
+     * @memberof CommandResponse
+     */
+    public get isDaemon() {
+        return this.mStream != null;
     }
 
     /**

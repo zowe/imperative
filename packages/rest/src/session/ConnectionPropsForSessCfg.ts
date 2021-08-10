@@ -10,7 +10,7 @@
 */
 
 import { CliUtils } from "../../../utilities";
-import { ICommandArguments, IHandlerParameters } from "../../../cmd";
+import { CommandResponse, ICommandArguments, IHandlerParameters } from "../../../cmd";
 import { ImperativeError } from "../../../error";
 import { IOptionsForAddConnProps } from "./doc/IOptionsForAddConnProps";
 import { Logger } from "../../../logger";
@@ -189,6 +189,20 @@ export class ConnectionPropsForSessCfg {
             }
         }
 
+        /**
+         * If we are running in daemon mode, check if a cached session exists
+         * that matches the hostname and port number.
+         */
+        const commandResponse = connOptsToUse.parms?.response as CommandResponse;
+        if (commandResponse?.isDaemon && connOptsToUse.doPrompting) {
+            let cachedSession = this.mSessionCache.find(({ hostname, port }) => hostname === sessCfgToUse.hostname && port === sessCfgToUse.port);
+            if (cachedSession != null) {
+                sessCfgToUse.type = cachedSession.type || sessCfgToUse.type;
+                cachedSession = { ...cachedSession, ...sessCfgToUse };
+                return cachedSession as SessCfgType;
+            }
+        }
+
         /* If we do not have a token, we must use user name and password.
          * If our caller permit, we prompt for any missing user name or password.
          */
@@ -227,6 +241,15 @@ export class ConnectionPropsForSessCfg {
 
         impLogger.debug("Session config after any prompting for missing values:");
         ConnectionPropsForSessCfg.logSessCfg(sessCfgToUse);
+
+        /**
+         * If we are running in daemon mode and prompted for credentials, cache
+         * the session for future commands to use.
+         */
+        if (commandResponse?.isDaemon && connOptsToUse.doPrompting) {
+            this.mSessionCache.push({ ...sessCfgToUse, base64EncodedAuth: undefined });
+        }
+
         return sessCfgToUse;
     }
 
@@ -346,6 +369,11 @@ export class ConnectionPropsForSessCfg {
      * may not appear in Imperative log files.
      */
     private static readonly secureSessCfgProps: string[] = ["user", "password", "tokenValue"];
+
+    /**
+     * Session cache used to store credentials in daemon mode
+     */
+    private static mSessionCache: ISession[] = [];
 
     /**
      * Handle prompting for clients.  If in a CLI environment, use the IHandlerParameters.response
