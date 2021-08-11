@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Flattened the default profiles structure created by the `config init` command.
+
 ## `5.0.0-next.202108062025`
 
 - BugFix: Export all Config related interfaces.
