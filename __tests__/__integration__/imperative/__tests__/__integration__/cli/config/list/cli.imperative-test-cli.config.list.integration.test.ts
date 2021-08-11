@@ -58,7 +58,6 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain("type:       secured");
         expect(response.stdout.toString()).toContain("defaults:");
         expect(response.stdout.toString()).toContain("profiles:");
-        expect(response.stdout.toString()).toContain("plugins:");
         expect(response.stdout.toString()).toContain("secure:");
         expect(response.stdout.toString()).toContain("(empty array)");
         expect(response.stderr.toString()).toEqual("");
@@ -88,8 +87,7 @@ describe("imperative-test-cli config list", () => {
                             "secret"
                         ]
                     }
-                },
-                plugins: []
+                }
             }
         };
         expect(parsedResponse.success).toEqual(true);
@@ -105,7 +103,6 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain(expectedGlobalUserConfigLocation);
         expect(response.stdout.toString()).toContain("defaults:");
         expect(response.stdout.toString()).toContain("profiles:");
-        expect(response.stdout.toString()).toContain("plugins:");
         expect(response.stdout.toString()).toContain("secure:");
         expect(response.stdout.toString()).toContain("type:       secured");
         expect(response.stdout.toString()).toContain("properties:");
@@ -131,8 +128,7 @@ describe("imperative-test-cli config list", () => {
                     secure: []
                 }
             },
-            defaults: {},
-            plugins: []
+            defaults: {}
         };
         const expectedProjectConfig = lodash.cloneDeep(expectedConfigObject);
         const expectedResponse = {
@@ -152,7 +148,6 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toMatchSnapshot();
         expect(response.stdout.toString()).toContain("defaults");
         expect(response.stdout.toString()).toContain("profiles");
-        expect(response.stdout.toString()).toContain("plugins");
         expect(response.stderr.toString()).toEqual("");
         expect(response.error).not.toBeDefined();
     });
@@ -193,7 +188,6 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain("type:       secured");
         expect(response.stdout.toString()).toContain("defaults:");
         expect(response.stdout.toString()).toContain("profiles:");
-        expect(response.stdout.toString()).toContain("plugins:");
         expect(response.stdout.toString()).toContain("secure:");
         expect(response.stdout.toString()).toContain("(empty array)");
         expect(response.stdout.toString()).toContain("secret: (secure value)");

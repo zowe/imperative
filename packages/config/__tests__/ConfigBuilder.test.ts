@@ -17,7 +17,6 @@ import * as lodash from "lodash";
 
 const expectedConfigObject: IConfig = {
     defaults: {},
-    plugins: [],
     profiles: {
         secured: {
             properties: {},

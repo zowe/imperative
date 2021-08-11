@@ -21,6 +21,7 @@ import { ICommandArguments } from "../../cmd/src/doc/args/ICommandArguments";
 import { IProfile } from "../../profiles";
 import * as prompt from "readline-sync";
 import * as os from "os";
+import { IPromptOptions } from "../../cmd/src/doc/response/api/handler/IPromptOptions";
 
 /**
  * Cli Utils contains a set of static methods/helpers that are CLI related (forming options, censoring args, etc.)
@@ -431,6 +432,7 @@ export class CliUtils {
      * DOES NOT WORK WITH COMMANDS THAT ALSO READ STDIN
      * Useful for prompting the user for sensitive info such as passwords
      * Synchronous
+     * @deprecated Use the asynchronous method `readPrompt` instead
      * @param message - The message to display to the user e.g. "Please enter password:"
      * @returns value - the value entered by the user
      */
@@ -457,13 +459,14 @@ export class CliUtils {
      * Prompt the user with a question and wait for an answer,
      * but only up to the specified timeout.
      *
+     * @deprecated Use `readPrompt` instead which supports more options
      * @param questionText The text with which we will prompt the user.
      *
      * @param hideText Should we hide the text. True = display stars.
      *                 False = display text. Default = false.
      *
      * @param secToWait The number of seconds that we will wait for an answer.
-     *                  If not supplied, the default is 30 seconds.
+     *                  If not supplied, the default is 600 seconds.
      *
      * @return A string containing the user's answer, or null if we timeout.
      *
@@ -542,6 +545,62 @@ export class CliUtils {
         // terminate our use of the ttyIo object
         ttyIo.close();
         return answerToReturn;
+    }
+
+    /**
+     * Prompt the user with a question and wait for an answer,
+     * but only up to the specified timeout.
+     *
+     * @param message The text with which we will prompt the user.
+     *
+     * @param opts.hideText Should we hide the text. True = display stars.
+     *        False = display text. Default = false.
+     *
+     * @param opts.secToWait The number of seconds that we will wait for an answer.
+     *        If not supplied, the default is 10 minutes.
+     *        If 0 is specified, we will never timeout.
+     *        Numbers larger than 3600 (1 hour) are not allowed.
+     *
+     * @param opts.maskChar The character that should be used to mask hidden text.
+     *        If null is specified, then no characters will be echoed back.
+     *
+     * @return A string containing the user's answer, or null if we timeout.
+     *
+     * @example
+     *      const answer = await CliUtils.readPrompt("Type your answer here: ");
+     *      if (answer === null) {
+     *          // abort the operation that you wanted to perform
+     *      } else {
+     *          // use answer in some operation
+     *      }
+     */
+    public static async readPrompt(message: string, opts?: IPromptOptions): Promise<string> {
+        // Ensure that we use a reasonable timeout
+        let secToWait = opts?.secToWait || 600;  // tslint:disable-line no-magic-numbers
+        const maxSecToWait = 3600; // 1 hour max
+        if (secToWait > maxSecToWait || secToWait < 0) {
+            secToWait = maxSecToWait;
+        }
+
+        return new Promise((resolve, reject) => {
+            require("read")({
+                input: process.stdin,
+                output: process.stdout,
+                terminal: true,
+                prompt: message,
+                silent: opts?.hideText,
+                replace: opts?.maskChar,
+                timeout: secToWait ? (secToWait * 1000) : null  // tslint:disable-line no-magic-numbers
+            }, (error: any, result: string) => {
+                if (error == null) {
+                    resolve(result);
+                } else if (error.message === "timed out") {
+                    resolve(null);
+                } else {
+                    reject(error);
+                }
+            });
+        });
     }
 
     /**

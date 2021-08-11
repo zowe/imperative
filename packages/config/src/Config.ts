@@ -116,8 +116,7 @@ export class Config {
     public static empty(): IConfig {
         return {
             profiles: {},
-            defaults: {},
-            plugins: []
+            defaults: {}
         };
     }
 
@@ -170,7 +169,6 @@ export class Config {
                 // Populate any undefined defaults
                 currLayer.properties.defaults = currLayer.properties.defaults || {};
                 currLayer.properties.profiles = currLayer.properties.profiles || {};
-                currLayer.properties.plugins = currLayer.properties.plugins || [];
             }
         } catch (e) {
             if (e instanceof ImperativeError) {
@@ -466,7 +464,10 @@ export class Config {
         this.mLayers.forEach((layer: IConfigLayer) => {
 
             // Merge "plugins" - create a unique set from all entries
-            c.plugins = Array.from(new Set(layer.properties.plugins.concat(c.plugins)));
+            const allPlugins = Array.from(new Set((layer.properties.plugins || []).concat(c.plugins || [])));
+            if (allPlugins.length > 0) {
+                c.plugins = allPlugins;
+            }
 
             // Merge "defaults" - only add new properties from this layer
             for (const [name, value] of Object.entries(layer.properties.defaults))

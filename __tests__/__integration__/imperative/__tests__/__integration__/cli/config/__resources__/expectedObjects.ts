@@ -278,8 +278,7 @@ export const expectedConfigObject: IConfig = {
     defaults: {
         secured: "secured",
         base: "base"
-    },
-    plugins: []
+    }
 };
 
 export const expectedUserConfigObject: IConfig = {
@@ -296,6 +295,5 @@ export const expectedUserConfigObject: IConfig = {
             secure: []
         }
     },
-    defaults: {},
-    plugins: []
+    defaults: {}
 };
