@@ -42,15 +42,10 @@ genBundleJs.displayName = "generate bundle.js";
 
 const genBundleCss = () => {
     // Bundle JSTree images inline in the CSS
-    const plugins = [
-        require("postcss-url")({
-            basePath: __dirname + "/../node_modules/jstree/dist/themes/default",
-            url: "inline"
-        })
-    ];
+    const postcssUrl = require("postcss-url")({ url: "inline" });
     return gulp.src(bundleCssFiles.map(relPath => __dirname + "/" + relPath))
+        .pipe(require("gulp-postcss")([postcssUrl]))
         .pipe(require("gulp-concat")("bundle.css"))
-        .pipe(require("gulp-postcss")(plugins))
         .pipe(gulp.dest(__dirname + "/../web-help/dist/css"));
 };
 genBundleCss.displayName = "generate bundle.css";
