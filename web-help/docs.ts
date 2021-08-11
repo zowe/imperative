@@ -9,8 +9,18 @@
 *
 */
 
-// Load polyfill for IE11 support
-const arrayFrom = require("array-from");
+declare const ClipboardJS: any;
+
+function arrayFrom(items: any): any[] {
+    if (typeof Array.from === "function") {
+        return Array.from(items);
+    }
+    const tempArray = [];
+    for (let i = 0; i < items.length; i++) {
+        tempArray.push(items[i]);
+    }
+    return tempArray;
+}
 
 const isInIframe: boolean = window.location !== window.parent.location;
 const links: any = arrayFrom(document.getElementsByTagName("a"));
@@ -52,7 +62,7 @@ function setTooltip(btn: any, message: string) {
 }
 
 // Enable clipboard access for copy buttons
-const clipboard = new (require("clipboard"))(".btn-copy");
+const clipboard = new ClipboardJS(".btn-copy");
 clipboard.on("success", (e: any) => setTooltip(e.trigger, "Copied!"));
 clipboard.on("error", (e: any) => setTooltip(e.trigger, "Failed!"));
 
