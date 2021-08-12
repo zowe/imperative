@@ -11,6 +11,7 @@
 
 declare const ClipboardJS: any;
 
+// Array.from polyfill for IE11 support
 function arrayFrom(items: any): any[] {
     if (typeof Array.from === "function") {
         return Array.from(items);
