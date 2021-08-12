@@ -72,6 +72,5 @@ my_base:
 exports[`imperative-test-cli config list should list the root level property names only 1`] = `
 "profiles
 defaults
-overrides
 "
 `;
