@@ -49,7 +49,7 @@ describe("cmd-cli auth logout", () => {
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
-        expect(await loadSecureProp("my_base_fruit")).toBe("fakeUser:fakePass@fakeToken");
+        expect(await loadSecureProp("base_fruit")).toBe("fakeUser:fakePass@fakeToken");
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_logout_config.sh",
             TEST_ENVIRONMENT.workingDir + "/testDir");
@@ -68,7 +68,7 @@ describe("cmd-cli auth logout", () => {
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
-        expect(await loadSecureProp("my_base_fruit")).toBe("fakeUser:fakePass@fakeToken");
+        expect(await loadSecureProp("base_fruit")).toBe("fakeUser:fakePass@fakeToken");
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_logout_config.sh",
             TEST_ENVIRONMENT.workingDir + "/testDir");
@@ -87,7 +87,7 @@ describe("cmd-cli auth logout", () => {
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
-        expect(await loadSecureProp("my_base_fruit")).toBe("fakeUser:fakePass@fakeToken");
+        expect(await loadSecureProp("base_fruit")).toBe("fakeUser:fakePass@fakeToken");
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_logout_config.sh",
             TEST_ENVIRONMENT.workingDir + "/testDir");
@@ -106,7 +106,7 @@ describe("cmd-cli auth logout", () => {
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
-        expect(await loadSecureProp("my_base_fruit")).toBe("fakeUser:fakePass@fakeToken");
+        expect(await loadSecureProp("base_fruit")).toBe("fakeUser:fakePass@fakeToken");
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_logout_config.sh",
             TEST_ENVIRONMENT.workingDir + "/testDir");
@@ -125,7 +125,7 @@ describe("cmd-cli auth logout", () => {
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
-        expect(await loadSecureProp("my_base_fruit")).toBe("fakeUser:fakePass@fakeToken");
+        expect(await loadSecureProp("base_fruit")).toBe("fakeUser:fakePass@fakeToken");
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_logout_specify_token_config.sh",
             TEST_ENVIRONMENT.workingDir + "/testDir", ["fakeToken:fakeToken@fakeToken"]);
@@ -133,6 +133,6 @@ describe("cmd-cli auth logout", () => {
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
-        expect(await loadSecureProp("my_base_fruit")).toBe("fakeUser:fakePass@fakeToken");
+        expect(await loadSecureProp("base_fruit")).toBe("fakeUser:fakePass@fakeToken");
     });
 });

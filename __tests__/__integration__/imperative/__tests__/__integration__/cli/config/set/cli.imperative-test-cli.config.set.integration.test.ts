@@ -31,13 +31,13 @@ describe("imperative-test-cli config set", () => {
 
     const expectedJson = lodash.cloneDeep(expectedConfigObject);
     delete expectedJson.$schema;
-    expectedJson.profiles.my_profiles.profiles.secured.properties.info = "(secure value)";
-    expectedJson.profiles.my_profiles.profiles.secured.properties.secret = "(secure value)";
-    expectedJson.profiles.my_profiles.profiles.secured.secure = ["secret", "info"];
+    expectedJson.profiles.secured.properties.info = "(secure value)";
+    expectedJson.profiles.secured.properties.secret = "(secure value)";
+    expectedJson.profiles.secured.secure = ["secret", "info"];
 
     const expectedUserJson = lodash.cloneDeep(expectedJson);
-    delete expectedUserJson.profiles.my_profiles.profiles.secured.properties.secret;
-    expectedUserJson.profiles.my_profiles.profiles.secured.secure = ["info"];
+    delete expectedUserJson.profiles.secured.properties.secret;
+    expectedUserJson.profiles.secured.secure = ["info"];
     expectedUserJson.defaults = {};
 
     // Create the test environment
@@ -64,30 +64,30 @@ describe("imperative-test-cli config set", () => {
     it("should store a property in plain text", async () => {
         runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--user-config"]);
         const response = runCliScript(__dirname + "/__scripts__/set.sh", TEST_ENVIRONMENT.workingDir,
-            ["profiles.my_profiles.profiles.secured.properties.info", "some_fake_information", "--user-config"]);
+            ["profiles.secured.properties.info", "some_fake_information", "--user-config"]);
         const fileContents = JSON.parse(fs.readFileSync(expectedUserConfigLocation).toString());
         const securedValue = await keytar.getPassword(service, "secure_config_props");
 
         expect(response.stderr.toString()).toEqual("");
         expect(response.status).toEqual(0);
         // Should contain human readable credentials
-        expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual([]);
-        expect(fileContents.profiles.my_profiles.profiles.secured.properties).toEqual({info: "some_fake_information"});
+        expect(fileContents.profiles.secured.secure).toEqual([]);
+        expect(fileContents.profiles.secured.properties).toEqual({info: "some_fake_information"});
         expect(securedValue).toEqual(Buffer.from("{}").toString("base64"));
     });
     it("should prompt for and store a property in plain text", async () => {
         runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--user-config"]);
         const response = runCliScript(__dirname + "/__scripts__/set_prompt.sh", TEST_ENVIRONMENT.workingDir,
-            ["profiles.my_secured.properties.info", "--user-config"]);
+            ["profiles.secured.properties.info", "--user-config"]);
         const fileContents = JSON.parse(fs.readFileSync(expectedUserConfigLocation).toString());
         const securedValue = await keytar.getPassword(service, "secure_config_props");
 
         expect(response.stderr.toString()).toEqual("");
-        expect(response.stdout.toString()).toContain("profiles.my_secured.properties.info");
+        expect(response.stdout.toString()).toContain("profiles.secured.properties.info");
         expect(response.status).toEqual(0);
         // Should contain human readable credentials
-        expect(fileContents.profiles.my_secured.secure).toBeUndefined();
-        expect(fileContents.profiles.my_secured.properties).toEqual({info: "some_fake_information_prompted"});
+        expect(fileContents.profiles.secured.secure).toEqual([]);
+        expect(fileContents.profiles.secured.properties).toEqual({info: "some_fake_information_prompted"});
         expect(securedValue).toEqual(Buffer.from("{}").toString("base64"));
     });
     describe("secure", () => {
@@ -97,7 +97,7 @@ describe("imperative-test-cli config set", () => {
         it("should make the info property secure in the project config", async () => {
             runCliScript(__dirname + "/../init/__scripts__/init_config_prompt.sh", TEST_ENVIRONMENT.workingDir, [""]);
             const response = runCliScript(__dirname + "/__scripts__/set_secure.sh", TEST_ENVIRONMENT.workingDir,
-                ["profiles.my_profiles.profiles.secured.properties.info", "some_fake_information", ""]);
+                ["profiles.secured.properties.info", "some_fake_information", ""]);
             const fileContents = JSON.parse(fs.readFileSync(expectedProjectConfigLocation).toString());
             const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
             const configJson = JSON.parse(config);
@@ -105,23 +105,23 @@ describe("imperative-test-cli config set", () => {
             const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
             const expectedSecuredValueJson = {};
             expectedSecuredValueJson[expectedProjectConfigLocation] = {
-                "profiles.my_profiles.profiles.secured.properties.secret": "fakeValue",
-                "profiles.my_profiles.profiles.secured.properties.info": "some_fake_information"
+                "profiles.secured.properties.secret": "fakeValue",
+                "profiles.secured.properties.info": "some_fake_information"
             };
 
             expect(response.stderr.toString()).toEqual("");
             expect(response.status).toEqual(0);
             expect(configJson.data).toEqual(expectedJson);
             // Should not contain human readable credentials
-            expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual(["secret", "info"]);
-            expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
+            expect(fileContents.profiles.secured.secure).toEqual(["secret", "info"]);
+            expect(fileContents.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
             // Check the securely stored JSON
             expect(securedValueJson).toEqual(expectedSecuredValueJson);
         });
         it("should make the info property secure in the user config", async () => {
             runCliScript(__dirname + "/../init/__scripts__/init_config_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--user-config"]);
             const response = runCliScript(__dirname + "/__scripts__/set_secure.sh", TEST_ENVIRONMENT.workingDir,
-                ["profiles.my_profiles.profiles.secured.properties.info", "some_fake_information", "--user-config"]);
+                ["profiles.secured.properties.info", "some_fake_information", "--user-config"]);
             const fileContents = JSON.parse(fs.readFileSync(expectedUserConfigLocation).toString());
             const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
             const configJson = JSON.parse(config);
@@ -129,22 +129,22 @@ describe("imperative-test-cli config set", () => {
             const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
             const expectedSecuredValueJson = {};
             expectedSecuredValueJson[expectedUserConfigLocation] = {
-                "profiles.my_profiles.profiles.secured.properties.info": "some_fake_information"
+                "profiles.secured.properties.info": "some_fake_information"
             };
 
             expect(response.stderr.toString()).toEqual("");
             expect(response.status).toEqual(0);
             expect(configJson.data).toEqual(expectedUserJson);
             // Should not contain human readable credentials
-            expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual(["info"]);
-            expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
+            expect(fileContents.profiles.secured.secure).toEqual(["info"]);
+            expect(fileContents.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
             // Check the securely stored JSON
             expect(securedValueJson).toEqual(expectedSecuredValueJson);
         });
         it("should make the info property secure in the global project config", async () => {
             runCliScript(__dirname + "/../init/__scripts__/init_config_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--global-config"]);
             const response = runCliScript(__dirname + "/__scripts__/set_secure.sh", TEST_ENVIRONMENT.workingDir,
-                ["profiles.my_profiles.profiles.secured.properties.info", "some_fake_information", "--global-config"]);
+                ["profiles.secured.properties.info", "some_fake_information", "--global-config"]);
             const fileContents = JSON.parse(fs.readFileSync(expectedGlobalProjectConfigLocation).toString());
             const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
             const configJson = JSON.parse(config);
@@ -152,23 +152,23 @@ describe("imperative-test-cli config set", () => {
             const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
             const expectedSecuredValueJson = {};
             expectedSecuredValueJson[expectedGlobalProjectConfigLocation] = {
-                "profiles.my_profiles.profiles.secured.properties.secret": "fakeValue",
-                "profiles.my_profiles.profiles.secured.properties.info": "some_fake_information"
+                "profiles.secured.properties.secret": "fakeValue",
+                "profiles.secured.properties.info": "some_fake_information"
             };
 
             expect(response.stderr.toString()).toEqual("");
             expect(response.status).toEqual(0);
             expect(configJson.data).toEqual(expectedJson);
             // Should not contain human readable credentials
-            expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual(["secret", "info"]);
-            expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
+            expect(fileContents.profiles.secured.secure).toEqual(["secret", "info"]);
+            expect(fileContents.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
             // Check the securely stored JSON
             expect(securedValueJson).toEqual(expectedSecuredValueJson);
         });
         it("should make the info property secure in the global user config", async () => {
             runCliScript(__dirname + "/../init/__scripts__/init_config_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--global-config --user-config"]);
             const response = runCliScript(__dirname + "/__scripts__/set_secure.sh", TEST_ENVIRONMENT.workingDir,
-                ["profiles.my_profiles.profiles.secured.properties.info", "some_fake_information", "--global-config --user-config"]);
+                ["profiles.secured.properties.info", "some_fake_information", "--global-config --user-config"]);
             const fileContents = JSON.parse(fs.readFileSync(expectedGlobalUserConfigLocation).toString());
             const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
             const configJson = JSON.parse(config);
@@ -176,22 +176,22 @@ describe("imperative-test-cli config set", () => {
             const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
             const expectedSecuredValueJson = {};
             expectedSecuredValueJson[expectedGlobalUserConfigLocation] = {
-                "profiles.my_profiles.profiles.secured.properties.info": "some_fake_information"
+                "profiles.secured.properties.info": "some_fake_information"
             };
 
             expect(response.stderr.toString()).toEqual("");
             expect(response.status).toEqual(0);
             expect(configJson.data).toEqual(expectedUserJson);
             // Should not contain human readable credentials
-            expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual(["info"]);
-            expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
+            expect(fileContents.profiles.secured.secure).toEqual(["info"]);
+            expect(fileContents.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
             // Check the securely stored JSON
             expect(securedValueJson).toEqual(expectedSecuredValueJson);
         });
         it("should supply secured JSON to the info property in the global user config", async () => {
             runCliScript(__dirname + "/../init/__scripts__/init_config_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--global-config --user-config"]);
             const response = runCliScript(__dirname + "/__scripts__/set_secure.sh", TEST_ENVIRONMENT.workingDir,
-                ["profiles.my_profiles.profiles.secured.properties.info", '{"data":"fake"}', "--global-config --user-config --json"]);
+                ["profiles.secured.properties.info", '{"data":"fake"}', "--global-config --user-config --json"]);
             const fileContents = JSON.parse(fs.readFileSync(expectedGlobalUserConfigLocation).toString());
             const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
             const configJson = JSON.parse(config);
@@ -199,22 +199,22 @@ describe("imperative-test-cli config set", () => {
             const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
             const expectedSecuredValueJson = {};
             expectedSecuredValueJson[expectedGlobalUserConfigLocation] = {
-                "profiles.my_profiles.profiles.secured.properties.info": {data: "fake"}
+                "profiles.secured.properties.info": {data: "fake"}
             };
 
             expect(response.stderr.toString()).toEqual("");
             expect(response.status).toEqual(0);
             expect(configJson.data).toEqual(expectedUserJson);
             // Should not contain human readable credentials
-            expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual(["info"]);
-            expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({info: {data: "fake"}});
+            expect(fileContents.profiles.secured.secure).toEqual(["info"]);
+            expect(fileContents.profiles.secured.properties).not.toEqual({info: {data: "fake"}});
             // Check the securely stored JSON
             expect(securedValueJson).toEqual(expectedSecuredValueJson);
         });
         it("should fail to parse improperly formatted JSON objects", async () => {
             runCliScript(__dirname + "/../init/__scripts__/init_config_prompt.sh", TEST_ENVIRONMENT.workingDir, ["--global-config --user-config"]);
             const response = runCliScript(__dirname + "/__scripts__/set_secure.sh", TEST_ENVIRONMENT.workingDir,
-                ["profiles.my_profiles.profiles.secured.properties.info", "{'data':'fake'}", "--global-config --user-config --json"]);
+                ["profiles.secured.properties.info", "{'data':'fake'}", "--global-config --user-config --json"]);
 
             expect(response.stderr.toString()).toContain("could not parse JSON value: ");
             expect(response.status).not.toEqual(0);
@@ -222,20 +222,20 @@ describe("imperative-test-cli config set", () => {
         it("should store property securely without --secure flag if found in secure array", async () => {
             runCliScript(__dirname + "/../init/__scripts__/init_config_prompt.sh", TEST_ENVIRONMENT.workingDir, [""]);
             const response = runCliScript(__dirname + "/__scripts__/set.sh", TEST_ENVIRONMENT.workingDir,
-                ["profiles.my_profiles.profiles.secured.properties.secret", "area51", ""]);
+                ["profiles.secured.properties.secret", "area51", ""]);
             const fileContents = JSON.parse(fs.readFileSync(expectedProjectConfigLocation).toString());
             const securedValue = await keytar.getPassword(service, "secure_config_props");
             const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
             const expectedSecuredValueJson = {};
             expectedSecuredValueJson[expectedProjectConfigLocation] = {
-                "profiles.my_profiles.profiles.secured.properties.secret": "area51"
+                "profiles.secured.properties.secret": "area51"
             };
 
             expect(response.stderr.toString()).toEqual("");
             expect(response.status).toEqual(0);
             // Should not contain human readable credentials
-            expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual(["secret"]);
-            expect(fileContents.profiles.my_profiles.profiles.secured.properties).toEqual({"info": ""});
+            expect(fileContents.profiles.secured.secure).toEqual(["secret"]);
+            expect(fileContents.profiles.secured.properties).toEqual({"info": ""});
             // Check the securely stored JSON
             expect(securedValueJson).toEqual(expectedSecuredValueJson);
         });
@@ -243,46 +243,46 @@ describe("imperative-test-cli config set", () => {
             runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--user-config"]);
             const expectedSecuredValueJson = {};
             expectedSecuredValueJson[expectedUserConfigLocation] = {
-                "profiles.my_profiles.profiles.secured.properties.info": "some_fake_information"
+                "profiles.secured.properties.info": "some_fake_information"
             };
 
             // First store property securely
             let response = runCliScript(__dirname + "/__scripts__/set.sh", TEST_ENVIRONMENT.workingDir,
-                ["profiles.my_profiles.profiles.secured.properties.info", "some_fake_information", "--user-config --secure"]);
+                ["profiles.secured.properties.info", "some_fake_information", "--user-config --secure"]);
             let fileContents = JSON.parse(fs.readFileSync(expectedUserConfigLocation).toString());
             let securedValue = await keytar.getPassword(service, "secure_config_props");
             let securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
 
             expect(response.stderr.toString()).toEqual("");
             expect(response.status).toEqual(0);
-            expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual(["info"]);
-            expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
+            expect(fileContents.profiles.secured.secure).toEqual(["info"]);
+            expect(fileContents.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
             expect(securedValueJson).toEqual(expectedSecuredValueJson);
 
             // Now store property in plain text
             response = runCliScript(__dirname + "/__scripts__/set.sh", TEST_ENVIRONMENT.workingDir,
-                ["profiles.my_profiles.profiles.secured.properties.info", "some_fake_information", "--user-config --secure false"]);
+                ["profiles.secured.properties.info", "some_fake_information", "--user-config --secure false"]);
             fileContents = JSON.parse(fs.readFileSync(expectedUserConfigLocation).toString());
             securedValue = await keytar.getPassword(service, "secure_config_props");
             securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
 
             expect(response.stderr.toString()).toEqual("");
             expect(response.status).toEqual(0);
-            expect(fileContents.profiles.my_profiles.profiles.secured.secure.length).toBe(0);
-            expect(fileContents.profiles.my_profiles.profiles.secured.properties).toEqual({info: "some_fake_information"});
+            expect(fileContents.profiles.secured.secure.length).toBe(0);
+            expect(fileContents.profiles.secured.properties).toEqual({info: "some_fake_information"});
             expect(securedValueJson).toEqual({});
 
             // Finally store property securely again
             response = runCliScript(__dirname + "/__scripts__/set.sh", TEST_ENVIRONMENT.workingDir,
-                ["profiles.my_profiles.profiles.secured.properties.info", "some_fake_information", "--user-config --secure"]);
+                ["profiles.secured.properties.info", "some_fake_information", "--user-config --secure"]);
             fileContents = JSON.parse(fs.readFileSync(expectedUserConfigLocation).toString());
             securedValue = await keytar.getPassword(service, "secure_config_props");
             securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
 
             expect(response.stderr.toString()).toEqual("");
             expect(response.status).toEqual(0);
-            expect(fileContents.profiles.my_profiles.profiles.secured.secure).toEqual(["info"]);
-            expect(fileContents.profiles.my_profiles.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
+            expect(fileContents.profiles.secured.secure).toEqual(["info"]);
+            expect(fileContents.profiles.secured.properties).not.toEqual({info: "some_fake_information"});
             expect(securedValueJson).toEqual(expectedSecuredValueJson);
         });
     });

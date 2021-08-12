@@ -12,21 +12,21 @@ then
     exit $CMDRC
 fi
 
-imperative-test-cli config set "profiles.my_base.properties.user" "$baseUser" --user-config
+imperative-test-cli config set "profiles.base.properties.user" "$baseUser" --user-config
 if [ $CMDRC -gt 0 ]
 then
     echo "Setting user of config failed!" 1>&2
     exit $CMDRC
 fi
 
-imperative-test-cli config set "profiles.my_base.properties.password" "$basePass" --user-config
+imperative-test-cli config set "profiles.base.properties.password" "$basePass" --user-config
 if [ $CMDRC -gt 0 ]
 then
     echo "Setting password of config failed!" 1>&2
     exit $CMDRC
 fi
 
-imperative-test-cli config set "defaults.base" "my_base" --global-config --user-config
+imperative-test-cli config set "defaults.base" "base" --global-config --user-config
 if [ $CMDRC -gt 0 ]
 then
     echo "Setting default base profile in config failed!" 1>&2
