@@ -116,8 +116,7 @@ export class Config {
     public static empty(): IConfig {
         return {
             profiles: {},
-            defaults: {},
-            overrides: {}
+            defaults: {}
         };
     }
 
@@ -170,7 +169,6 @@ export class Config {
                 // Populate any undefined defaults
                 currLayer.properties.defaults = currLayer.properties.defaults || {};
                 currLayer.properties.profiles = currLayer.properties.profiles || {};
-                currLayer.properties.overrides = currLayer.properties.overrides || {};
             }
         } catch (e) {
             if (e instanceof ImperativeError) {
@@ -476,8 +474,11 @@ export class Config {
                 c.defaults[name] = c.defaults[name] || value;
 
             // Merge "overrides" - only add new properties from this layer
-            for (const [name, value] of Object.entries(layer.properties.overrides))
-                c.overrides[name] = c.overrides[name] || value;
+            if (layer.properties.overrides != null) {
+                c.overrides = c.overrides || {};
+                for (const [name, value] of Object.entries(layer.properties.overrides))
+                    c.overrides[name] = c.overrides[name] || value;
+            }
         });
 
         // Merge the project layer profiles

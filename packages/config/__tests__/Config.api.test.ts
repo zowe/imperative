@@ -377,7 +377,6 @@ describe("Config API tests", () => {
                 const cnfg: IConfig = {
                     $schema: "fake",
                     defaults: {},
-                    overrides: {},
                     profiles: {
                         vegetable: {
                             properties: {

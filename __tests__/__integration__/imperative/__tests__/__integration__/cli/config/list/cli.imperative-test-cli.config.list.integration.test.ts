@@ -92,8 +92,7 @@ describe("imperative-test-cli config list", () => {
                         },
                         properties: {}
                     }
-                },
-                overrides: {}
+                }
             }
         };
         expect(parsedResponse.success).toEqual(true);
@@ -140,8 +139,7 @@ describe("imperative-test-cli config list", () => {
                     properties: {}
                 }
             },
-            defaults: {},
-            overrides: {}
+            defaults: {}
         };
         const expectedProjectConfig = lodash.cloneDeep(expectedConfigObject);
         const expectedResponse = {

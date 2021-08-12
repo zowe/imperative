@@ -19,7 +19,6 @@ exports[`imperative-test-cli config list should list the configuration 1`] = `
 defaults: 
   secured: my_profiles.secured
   base:    my_base
-overrides: 
 "
 `;
 
@@ -43,7 +42,6 @@ exports[`imperative-test-cli config list should list the configuration without s
 defaults: 
   secured: my_profiles.secured
   base:    my_base
-overrides: 
 "
 `;
 

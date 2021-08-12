@@ -9,7 +9,6 @@ Object {
     "defaults": Object {
       "fruit": "fruit.apple",
     },
-    "overrides": Object {},
     "plugins": CommentArray [
       "@zowe/fruit-for-imperative",
     ],
@@ -45,6 +44,7 @@ Object {
   "defaults": Object {
     "fruit": "fruit.apple",
   },
+  "overrides": Object {},
   "plugins": CommentArray [
     "@zowe/fruit-for-imperative",
     "@zowe/vegetable-for-imperative",
@@ -131,7 +131,6 @@ exports[`Config API tests layers set should set the current layer 1`] = `
 Object {
   "$schema": "fake",
   "defaults": Object {},
-  "overrides": Object {},
   "profiles": Object {
     "vegetable": Object {
       "properties": Object {
@@ -146,9 +145,10 @@ Object {
 exports[`Config API tests layers set should set the current layer when nothing is provided 1`] = `
 Object {
   "defaults": Object {},
-  "overrides": Object {},
   "profiles": Object {},
 }
+`;
+
 exports[`Config API tests layers write should save the active config layer 1`] = `
 "{
     \\"profiles\\": {
@@ -178,8 +178,7 @@ exports[`Config API tests layers write should save the active config layer 1`] =
     },
     \\"plugins\\": [
         \\"@zowe/fruit-for-imperative\\"
-    ],
-    \\"overrides\\": {}
+    ]
 }"
 `;
 
@@ -270,8 +269,7 @@ exports[`Config API tests layers write should save the active config layer with 
         // line-comment
         /* block-comment */
         \\"@zowe/fruit-for-imperative\\" // line-comment
-    ],
-    \\"overrides\\": {}
+    ]
 }"
 `;
 

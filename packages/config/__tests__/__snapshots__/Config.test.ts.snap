@@ -3,7 +3,6 @@
 exports[`Config tests load should load a config and populate missing defaults 1`] = `
 Object {
   "defaults": Object {},
-  "overrides": Object {},
   "profiles": Object {},
 }
 `;
@@ -14,7 +13,6 @@ Object {
     "fruit": "fruit.banana",
     "vegetable": "vegetable.artichoke",
   },
-  "overrides": Object {},
   "profiles": Object {
     "fruit": Object {
       "profiles": Object {
@@ -58,7 +56,6 @@ Object {
   "defaults": Object {
     "fruit": "fruit.orange",
   },
-  "overrides": Object {},
   "profiles": Object {
     "fruit": Object {
       "profiles": Object {
@@ -91,7 +88,6 @@ Object {
   "defaults": Object {
     "fruit": "fruit.apple",
   },
-  "overrides": Object {},
   "plugins": Array [
     "@zowe/fruit-for-imperative",
   ],
@@ -126,7 +122,6 @@ Object {
     "fruit": "fruit.apple",
     "vegetable": "vegetable.artichoke",
   },
-  "overrides": Object {},
   "profiles": Object {
     "fruit": Object {
       "profiles": Object {
@@ -171,7 +166,6 @@ Object {
     "fruit": "fruit.apple",
     "vegetable": "vegetable.artichoke",
   },
-  "overrides": Object {},
   "plugins": Array [
     "@zowe/fruit-for-imperative",
   ],

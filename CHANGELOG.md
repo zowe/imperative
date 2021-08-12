@@ -4,7 +4,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
-- Added "overrides" array in team config that makes it possible to override CredentialManager but is empty by default.
+- Added "overrides" array in team config that makes it possible to override CredentialManager but is omitted by default.
 
 ## `5.0.0-next.202108062025`
 
