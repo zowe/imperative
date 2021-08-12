@@ -2,6 +2,11 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `5.0.0-next.202108121732`
+
+- Enhancement: Flattened the default profiles structure created by the `config init` command.
+- Breaking: Split up authToken property in team config into tokenType and tokenValue properties to be consistent with Zowe v1 profiles.
+
 ## `5.0.0-next.202108062025`
 
 - BugFix: Export all Config related interfaces.

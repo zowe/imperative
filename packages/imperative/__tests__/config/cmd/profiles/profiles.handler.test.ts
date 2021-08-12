@@ -53,22 +53,22 @@ const configProps: IConfig = {
                     properties: {
                         host: "fakeHost",
                         port: 143
-                    }
+                    },
+                    secure: []
                 },
                 outgoing: {
                     type: "smtp",
                     properties: {
                         host: "fakeHost",
                         port: 25
-                    }
+                    },
+                    secure: []
                 }
             },
             properties: {}
         }
     },
-    defaults: {},
-    plugins: [],
-    secure: []
+    defaults: {}
 };
 
 describe("Configuration Profiles command handler", () => {

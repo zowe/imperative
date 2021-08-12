@@ -12,7 +12,7 @@
                 "color": "orange"
             }
         },
-        "my_fruit": {
+        "fruit": {
             "type": "fruit",
             "properties": {
                 "protocol": "ftp"

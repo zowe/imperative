@@ -17,8 +17,6 @@ import { IConfigBuilderOpts } from "./doc/IConfigBuilderOpts";
 import { IConfigProfile } from "./doc/IConfigProfile";
 
 export class ConfigBuilder {
-    private static readonly DEFAULT_ROOT_PROFILE_NAME = "my_profiles";
-
     /**
      * Build a new Config object from an Imperative CLI app configuration.
      * @param impConfig The Imperative CLI app configuration.
@@ -28,19 +26,7 @@ export class ConfigBuilder {
         opts = opts || {};
         const config: IConfig = Config.empty();
 
-        const baseProfileType: string = impConfig.baseProfile?.type;
-        const rootProfileName: string = impConfig.templateProfileName || ConfigBuilder.DEFAULT_ROOT_PROFILE_NAME;
-
         for (const profile of impConfig.profiles) {
-            let profileShortPath = `my_${profile.type}`;
-            let profileLongPath = `profiles.${profileShortPath}`;
-            if (baseProfileType && profile.type !== baseProfileType) {
-                // Path should have two levels for non-base profiles
-                profileShortPath = `${rootProfileName}.${profile.type}`;
-                profileLongPath = `profiles.${rootProfileName}.profiles.${profile.type}`;
-                lodash.set(config.profiles, `${rootProfileName}.properties`, {});
-            }
-
             const properties: { [key: string]: any } = {};
             const secureProps: string[] = [];
             for (const [k, v] of Object.entries(profile.schema.properties)) {
@@ -66,20 +52,20 @@ export class ConfigBuilder {
             }
 
             // Add the profile to config and set it as default
-            lodash.set(config, profileLongPath, {
+            lodash.set(config, `profiles.${profile.type}`, {
                 type: profile.type,
                 properties,
                 secure: secureProps
             });
 
             if (opts.populateProperties) {
-                config.defaults[profile.type] = profileShortPath;
+                config.defaults[profile.type] = profile.type;
             }
         }
 
         // Hoist duplicate default properties
-        if (config.profiles != null && config.profiles[rootProfileName] != null) {
-            config.profiles[rootProfileName] = this.hoistTemplateProperties(config.profiles[rootProfileName]);
+        if (config.profiles != null && impConfig.baseProfile != null) {
+            this.hoistTemplateProperties(config.profiles, impConfig.baseProfile.type);
         }
 
         return config;
@@ -106,15 +92,15 @@ export class ConfigBuilder {
     }
 
     /**
-     * Moves duplicate default properties across child profiles up to root
+     * Moves duplicate default properties across child profiles into a base
      * profile.
-     * @param rootProfile The root profile object of the config JSON
-     * @returns The root profile with duplicate properties hoisted
+     * @param profiles The profiles object of the config JSON
+     * @param baseProfileType The type of the base profile
      */
-    private static hoistTemplateProperties(rootProfile: IConfigProfile): IConfigProfile {
+    private static hoistTemplateProperties(profiles: { [key: string]: IConfigProfile }, baseProfileType: string): void {
         // Flatten properties into object that maps property name to list of values
         const flattenedProps: { [key: string]: any[] } = {};
-        for (const childProfile of Object.values(rootProfile.profiles)) {
+        for (const childProfile of Object.values(profiles).filter(({ type }) => type !== baseProfileType)) {
             for (const [k, v] of Object.entries(childProfile.properties)) {
                 flattenedProps[k] = [...(flattenedProps[k] || []), v];
             }
@@ -128,11 +114,13 @@ export class ConfigBuilder {
         }
         // Remove duplicate properties from child profiles and store them in root profile
         for (const propName of duplicateProps) {
-            rootProfile.properties[propName] = flattenedProps[propName][0];
-            for (const childProfile of Object.values(rootProfile.profiles)) {
+            profiles[baseProfileType].properties = {
+                [propName]: flattenedProps[propName][0],
+                ...profiles[baseProfileType].properties
+            };
+            for (const childProfile of Object.values(profiles).filter(({ type }) => type !== baseProfileType)) {
                 delete childProfile.properties[propName];
             }
         }
-        return rootProfile;
     }
 }

@@ -2,70 +2,57 @@
 
 exports[`imperative-test-cli config list should list the configuration 1`] = `
 "profiles: 
-  my_profiles: 
+  secured: 
+    type:       secured
     properties: 
-    profiles: 
-      secured: 
-        type:       secured
-        properties: 
-          info: 
-        secure: 
-          - secret
-  my_base: 
+      info: 
+    secure: 
+      - secret
+  base: 
     type:       base
     properties: 
     secure: 
       (empty array)
 defaults: 
-  secured: my_profiles.secured
-  base:    my_base
-plugins: 
-  (empty array)
+  secured: secured
+  base:    base
 "
 `;
 
 exports[`imperative-test-cli config list should list the configuration without showing secure values 1`] = `
 "profiles: 
-  my_profiles: 
+  secured: 
+    type:       secured
     properties: 
-    profiles: 
-      secured: 
-        type:       secured
-        properties: 
-          info:   
-          secret: (secure value)
-        secure: 
-          - secret
-  my_base: 
+      info:   
+      secret: (secure value)
+    secure: 
+      - secret
+  base: 
     type:       base
     properties: 
     secure: 
       (empty array)
 defaults: 
-  secured: my_profiles.secured
-  base:    my_base
-plugins: 
-  (empty array)
+  secured: secured
+  base:    base
 "
 `;
 
 exports[`imperative-test-cli config list should list the defaults configuration property 1`] = `
-"secured: my_profiles.secured
-base:    my_base
+"secured: secured
+base:    base
 "
 `;
 
 exports[`imperative-test-cli config list should list the profiles configuration property 1`] = `
-"my_profiles: 
+"secured: 
+  type:       secured
   properties: 
-  profiles: 
-    secured: 
-      type:       secured
-      properties: 
-        info: 
-      secure: 
-        - secret
-my_base: 
+    info: 
+  secure: 
+    - secret
+base: 
   type:       base
   properties: 
   secure: 
@@ -76,6 +63,5 @@ my_base:
 exports[`imperative-test-cli config list should list the root level property names only 1`] = `
 "profiles
 defaults
-plugins
 "
 `;

@@ -184,13 +184,6 @@ export interface IImperativeConfig {
     configAutoInitCommandConfig?: ICommandProfileAutoInitConfig;
 
     /**
-     * Specify the name to use in the config template for the root profile that contains all supported profiles.
-     * @type {string}
-     * @memberof IImperativeConfig
-     */
-    templateProfileName?: string;
-
-    /**
      * If you specify a list of profile configurations, you can set this to true to
      * automatically add a set of commands to your CLI to create, update, delete, and otherwise
      * manage user profiles.

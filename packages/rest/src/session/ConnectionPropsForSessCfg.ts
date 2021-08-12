@@ -325,20 +325,9 @@ export class ConnectionPropsForSessCfg {
              * Deleting any tokenValue, ensures that basic creds are used to authenticate.
              */
             delete sessCfg.tokenValue;
-        } else {
-            /* Only set tokenValue if user and password were not supplied.
-             * If authToken exists in sessCfg split it into tokenType and tokenValue
-             * TODO: Evaluate if we want to keep this for new config
-             */
-            ConnectionPropsForSessCfg.processAuthToken(sessCfg);
-
-            // if authToken exists in cmdArgs split it into tokenType and tokenValue
-            ConnectionPropsForSessCfg.processAuthToken(cmdArgs);
-
-            // override sessCfg token value with one from cmdArgs
-            if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenValue)) {
-                sessCfg.tokenValue = cmdArgs.tokenValue;
-            }
+        } else if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenValue)) {
+            // Only set tokenValue if user and password were not supplied.
+            sessCfg.tokenValue = cmdArgs.tokenValue;
         }
 
         // If sessCfg tokenValue is set at this point, we are definitely using the token.
@@ -464,18 +453,5 @@ export class ConnectionPropsForSessCfg {
             return false;
         }
         return true;
-    }
-
-    /**
-     * Split authToken loaded from config into tokenType and tokenValue args.
-     * @param objWithTokens A Javascript object that contains token properties
-     */
-    private static processAuthToken(objWithTokens: any) {
-        if (ConnectionPropsForSessCfg.propHasValue(objWithTokens.authToken)) {
-            const [tokenType, tokenValue] = objWithTokens.authToken.split("=", 2);
-            delete objWithTokens.authToken;
-            objWithTokens.tokenType = tokenType;
-            objWithTokens.tokenValue = tokenValue;
-        }
     }
 }

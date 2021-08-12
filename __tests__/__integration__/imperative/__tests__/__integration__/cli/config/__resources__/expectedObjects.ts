@@ -129,10 +129,6 @@ export const expectedSchemaObject = {
                                             tokenValue: {
                                                 type: "string",
                                                 description: "Fruit token value"
-                                            },
-                                            authToken: {
-                                                type: "string",
-                                                description: "Fruit auth token value"
                                             }
                                         }
                                     },
@@ -142,8 +138,7 @@ export const expectedSchemaObject = {
                                                 "secret",
                                                 "user",
                                                 "password",
-                                                "tokenValue",
-                                                "authToken"
+                                                "tokenValue"
                                             ]
                                         }
                                     }
@@ -260,52 +255,40 @@ export const expectedSchemaObjectNoBase = {
 export const expectedConfigObject: IConfig = {
     $schema: "./imperative-test-cli.schema.json",
     profiles: {
-        my_base: {
+        secured: {
+            type: "secured",
+            properties: {
+                info: ""
+            },
+            secure: [
+                "secret"
+            ]
+        },
+        base: {
             type: "base",
             properties: {},
             secure: []
         },
-        my_profiles: {
-            profiles: {
-                secured: {
-                    type: "secured",
-                    properties: {
-                        info: ""
-                    },
-                    secure: [
-                        "secret"
-                    ]
-                }
-            },
-            properties: {}
-        }
     },
     defaults: {
-        secured: "my_profiles.secured",
-        base: "my_base"
-    },
-    plugins: []
+        secured: "secured",
+        base: "base"
+    }
 };
 
 export const expectedUserConfigObject: IConfig = {
     $schema: "./imperative-test-cli.schema.json",
     profiles: {
-        my_base: {
+        secured: {
+            type: "secured",
             properties: {},
-            type: "base",
             secure: []
         },
-        my_profiles: {
-            profiles: {
-                secured: {
-                    type: "secured",
-                    properties: {},
-                    secure: []
-                }
-            },
-            properties: {}
+        base: {
+            type: "base",
+            properties: {},
+            secure: []
         }
     },
-    defaults: {},
-    plugins: []
+    defaults: {}
 };
