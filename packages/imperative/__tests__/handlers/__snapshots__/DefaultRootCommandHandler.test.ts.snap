@@ -211,7 +211,7 @@ exports[`Default Root Command Handler should display the help if no options are 
 
    --help-examples  (boolean)
 
-      Display examples for all the commands in a the group
+      Display examples for all the commands in a group
 
    --help-web  | --hw (boolean)
 

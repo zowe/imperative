@@ -9,7 +9,6 @@
 *
 */
 
-import * as lodash from "lodash";
 import { CliUtils } from "../../../utilities";
 import { ICommandArguments, IHandlerParameters } from "../../../cmd";
 import { ImperativeError } from "../../../error";
@@ -101,10 +100,11 @@ export class ConnectionPropsForSessCfg {
         const impLogger = Logger.getImperativeLogger();
 
         /* Create copies of our initialSessCfg and connOpts so that
-         * we can modifify them without changing the caller's copy.
+         * we can modify them without changing the caller's copy.
          */
-        const sessCfgToUse  = lodash.cloneDeep(initialSessCfg);
-        const connOptsToUse = lodash.cloneDeep(connOpts);
+        const sessCfgToUse = { ...initialSessCfg };
+        const connOptsToUse = { ...connOpts };
+        const serviceDescription = connOptsToUse.serviceDescription || "your service";
 
         // resolve all values between sessCfg and cmdArgs using option choices
         ConnectionPropsForSessCfg.resolveSessCfgProps(
@@ -160,7 +160,7 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.hostname) === false) {
                 let answer = "";
                 while (answer === "") {
-                    answer = await this.clientPrompt("Enter the host name of your service: ", {
+                    answer = await this.clientPrompt(`Enter the host name of ${serviceDescription}: `, {
                         parms: connOptsToUse.parms
                     });
                     if (answer === null) {
@@ -173,7 +173,7 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.port) === false) {
                 let answer: any;
                 while (answer === undefined) {
-                    answer = await this.clientPrompt("Enter the port number for your service: ", {
+                    answer = await this.clientPrompt(`Enter the port number for ${serviceDescription}: `, {
                         parms: connOptsToUse.parms
                     });
                     if (answer === null) {
@@ -359,9 +359,9 @@ export class ConnectionPropsForSessCfg {
      */
     private static async clientPrompt(promptText: string, opts: IHandlePromptOptions): Promise<string> {
         if (opts.parms) {
-            return opts.parms.response.console.prompt(promptText, {hideText: opts.hideText, secToWait: opts.secToWait});
+            return opts.parms.response.console.prompt(promptText, opts);
         } else {
-            return CliUtils.promptWithTimeout(promptText, opts.hideText, opts.secToWait);
+            return CliUtils.readPrompt(promptText, opts);
         }
     }
 

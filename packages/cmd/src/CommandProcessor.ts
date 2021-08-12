@@ -439,8 +439,9 @@ export class CommandProcessor {
                                 this.log.debug("Prompting for positional %s which was requested by passing the value %s",
                                     positionalName, this.promptPhrase);
                                 prepared.args[positionalName] =
-                                    CliUtils.promptForInput(`"${positionalName}" Description: ` +
-                                        `${positional.description}\nPlease enter "${positionalName}":`);
+                                    await response.console.prompt(`"${positionalName}" Description: ` +
+                                        `${positional.description}\nPlease enter "${positionalName}":`,
+                                        { hideText: true, secToWait: 0 });
                             }
                             // array processing
                             else {
@@ -453,8 +454,9 @@ export class CommandProcessor {
                                     this.log.debug("Prompting for positional %s which was requested by passing the value %s",
                                         prepared.args[positionalName][0], this.promptPhrase);
                                     prepared.args[positionalName][0] =
-                                        CliUtils.promptForInput(`"${positionalName}" Description: ` +
-                                            `${positional.description}\nPlease enter "${positionalName}":`);
+                                        await response.console.prompt(`"${positionalName}" Description: ` +
+                                            `${positional.description}\nPlease enter "${positionalName}":`,
+                                            { hideText: true, secToWait: 0 });
                                     // prompting enters as string but need to place it in array
 
                                     const array = prepared.args[positionalName][0].split(" ");
@@ -476,7 +478,9 @@ export class CommandProcessor {
                                 this.log.debug("Prompting for option %s which was requested by passing the value %s",
                                     option.name, this.promptPhrase);
                                 prepared.args[option.name] =
-                                    CliUtils.promptForInput(`"${option.name}" Description: ${option.description}\nPlease enter "${option.name}":`);
+                                    await response.console.prompt(`"${option.name}" Description: ` +
+                                        `${option.description}\nPlease enter "${option.name}":`,
+                                        { hideText: true, secToWait: 0 });
                                 const camelCase = CliUtils.getOptionFormat(option.name).camelCase;
                                 prepared.args[camelCase] = prepared.args[option.name];
                                 if (option.aliases != null) {
@@ -496,8 +500,9 @@ export class CommandProcessor {
                                     this.log.debug("Prompting for option %s which was requested by passing the value %s",
                                         option.name, this.promptPhrase);
                                     prepared.args[option.name][0] =
-                                        CliUtils.promptForInput(
-                                            `"${option.name}" Description: ${option.description}\nPlease enter "${option.name}":`);
+                                        await response.console.prompt(`"${option.name}" Description: ` +
+                                            `${option.description}\nPlease enter "${option.name}":`,
+                                            { hideText: true, secToWait: 0 });
 
                                     const array = prepared.args[option.name][0].split(" ");
                                     prepared.args[option.name] = array;

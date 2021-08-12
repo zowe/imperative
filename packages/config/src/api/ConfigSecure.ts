@@ -139,14 +139,14 @@ export class ConfigSecure extends ConfigApi {
     /**
      * Recursively find secure property paths inside a team config
      * "profiles" object.
-     *
+     * @internal
      * @param profiles The "profiles" object that is present at the top level
      *                 of team config files, and may also be present at lower
      *                 levels.
      * @param path The JSON path to the "profiles" object
      * @returns Array of secure property paths
      */
-    private findSecure(profiles: { [key: string]: IConfigProfile }, path: string): string[] {
+    public findSecure(profiles: { [key: string]: IConfigProfile }, path: string): string[] {
         const secureProps = [];
         for (const profName of Object.keys(profiles)) {
             for (const propName of (profiles[profName].secure || [])) {

@@ -18,7 +18,6 @@ import * as lodash from "lodash";
 const expectedConfigObject: IConfig = {
     defaults: {},
     overrides: {},
-    plugins: [],
     profiles: {
         my_profiles: {
             profiles: {

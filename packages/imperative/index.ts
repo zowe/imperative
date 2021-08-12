@@ -10,6 +10,7 @@
 */
 
 export * from "./src/env/EnvironmentalVariableSettings";
+export * from "./src/doc/IApimlSvcAttrs";
 export * from "./src/doc/IImperativeEnvironmentalVariableSetting";
 export * from "./src/doc/IImperativeEnvironmentalVariableSettings";
 export * from "./src/doc/IImperativeConfig";
@@ -22,3 +23,4 @@ export * from "./src/Imperative";
 export * from "./src/LoggingConfigurer";
 export * from "./src/plugins/PluginManagementFacility";
 export * from "./src/auth/handlers/BaseAuthHandler";
+export * from "./src/config/cmd/auto-init/handlers/BaseAutoInitHandler";

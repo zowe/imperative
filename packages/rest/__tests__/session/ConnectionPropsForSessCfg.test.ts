@@ -210,10 +210,11 @@ describe("ConnectionPropsForSessCfg tests", () => {
 
         const sleepReal = CliUtils.sleep;
         CliUtils.sleep = jest.fn();
-        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
-        CliUtils.promptWithTimeout = jest.fn(() => {
+        const readPromptReal = CliUtils.readPrompt;
+        CliUtils.readPrompt = jest.fn(() => {
             return Promise.resolve(userFromPrompt);
         });
+        const mockClientPrompt = jest.spyOn(ConnectionPropsForSessCfg as any, "clientPrompt");
 
         const initialSessCfg = {
             hostname: "SomeHost",
@@ -247,9 +248,10 @@ describe("ConnectionPropsForSessCfg tests", () => {
             }
         );
         CliUtils.sleep = sleepReal;
-        CliUtils.promptWithTimeout = promptWithTimeoutReal;
+        CliUtils.readPrompt = readPromptReal;
 
         expect(commandHandlerPrompt).toBeCalled(); // we are only testing that we call an already tested prompt method if in CLI mode
+        expect((mockClientPrompt.mock.calls[0][1] as any).parms).toBe(parms);  // toBe is important here, parms object must be same as original
     });
 
     it("get user name from prompt", async() => {
@@ -258,8 +260,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
 
         const sleepReal = CliUtils.sleep;
         CliUtils.sleep = jest.fn();
-        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
-        CliUtils.promptWithTimeout = jest.fn(() => {
+        const readPromptReal = CliUtils.readPrompt;
+        CliUtils.readPrompt = jest.fn(() => {
             return Promise.resolve(userFromPrompt);
         });
 
@@ -279,7 +281,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             initialSessCfg, args
         );
         CliUtils.sleep = sleepReal;
-        CliUtils.promptWithTimeout = promptWithTimeoutReal;
+        CliUtils.readPrompt = readPromptReal;
 
         expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
         expect(sessCfgWithConnProps.user).toBe(userFromPrompt);
@@ -294,8 +296,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
 
         const sleepReal = CliUtils.sleep;
         CliUtils.sleep = jest.fn();
-        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
-        CliUtils.promptWithTimeout = jest.fn(() => {
+        const readPromptReal = CliUtils.readPrompt;
+        CliUtils.readPrompt = jest.fn(() => {
             return Promise.resolve(passFromPrompt);
         });
 
@@ -315,7 +317,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             initialSessCfg, args
         );
         CliUtils.sleep = sleepReal;
-        CliUtils.promptWithTimeout = promptWithTimeoutReal;
+        CliUtils.readPrompt = readPromptReal;
 
         expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
         expect(sessCfgWithConnProps.user).toBe(userFromArgs);
@@ -332,8 +334,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
 
         const sleepReal = CliUtils.sleep;
         CliUtils.sleep = jest.fn();
-        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
-        CliUtils.promptWithTimeout = jest.fn(() => {
+        const readPromptReal = CliUtils.readPrompt;
+        CliUtils.readPrompt = jest.fn(() => {
             return Promise.resolve(hostFromPrompt);
         });
 
@@ -353,7 +355,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             initialSessCfg, args
         );
         CliUtils.sleep = sleepReal;
-        CliUtils.promptWithTimeout = promptWithTimeoutReal;
+        CliUtils.readPrompt = readPromptReal;
 
         expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
         expect(sessCfgWithConnProps.user).toBe(userFromArgs);
@@ -371,9 +373,9 @@ describe("ConnectionPropsForSessCfg tests", () => {
 
         const sleepReal = CliUtils.sleep;
         CliUtils.sleep = jest.fn();
-        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
-        CliUtils.promptWithTimeout = jest.fn(() => {
-            return Promise.resolve(portFromPrompt);
+        const readPromptReal = CliUtils.readPrompt;
+        CliUtils.readPrompt = jest.fn(() => {
+            return Promise.resolve(portFromPrompt.toString());
         });
 
         const initialSessCfg = {
@@ -392,8 +394,93 @@ describe("ConnectionPropsForSessCfg tests", () => {
             initialSessCfg, args
         );
         CliUtils.sleep = sleepReal;
-        CliUtils.promptWithTimeout = promptWithTimeoutReal;
+        CliUtils.readPrompt = readPromptReal;
 
+        expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
+        expect(sessCfgWithConnProps.user).toBe(userFromArgs);
+        expect(sessCfgWithConnProps.password).toBe(passFromArgs);
+        expect(sessCfgWithConnProps.hostname).toBe(hostFromArgs);
+        expect(sessCfgWithConnProps.port).toBe(portFromPrompt);
+        expect(sessCfgWithConnProps.tokenType).toBeUndefined();
+        expect(sessCfgWithConnProps.tokenValue).toBeUndefined();
+    });
+
+    it("get host name from prompt with custom service description", async() => {
+        const hostFromPrompt = "FakeHost";
+        const portFromArgs = 11;
+        const userFromArgs = "FakeUser";
+        const passFromArgs = "FakePassword";
+        let questionText: string;
+
+        const sleepReal = CliUtils.sleep;
+        CliUtils.sleep = jest.fn();
+        const readPromptReal = CliUtils.readPrompt;
+        CliUtils.readPrompt = jest.fn((text: string) => {
+            questionText = text;
+            return Promise.resolve(hostFromPrompt);
+        });
+
+        const initialSessCfg = {
+            rejectUnauthorized: true,
+        };
+        const args = {
+            $0: "zowe",
+            _: [""],
+            port: portFromArgs,
+            user: userFromArgs,
+            password: passFromArgs
+        };
+
+        let sessCfgWithConnProps: ISession;
+        sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+            initialSessCfg, args, { serviceDescription: "my cool service" }
+        );
+        CliUtils.sleep = sleepReal;
+        CliUtils.readPrompt = readPromptReal;
+
+        expect(questionText).toContain("my cool service");
+        expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
+        expect(sessCfgWithConnProps.user).toBe(userFromArgs);
+        expect(sessCfgWithConnProps.password).toBe(passFromArgs);
+        expect(sessCfgWithConnProps.hostname).toBe(hostFromPrompt);
+        expect(sessCfgWithConnProps.tokenType).toBeUndefined();
+        expect(sessCfgWithConnProps.tokenValue).toBeUndefined();
+    });
+
+    it("get port from prompt with custom service description", async() => {
+        const hostFromArgs = "FakeHost";
+        const portFromPrompt = 11;
+        const userFromArgs = "FakeUser";
+        const passFromArgs = "FakePassword";
+        let questionText: string;
+
+        const sleepReal = CliUtils.sleep;
+        CliUtils.sleep = jest.fn();
+        const readPromptReal = CliUtils.readPrompt;
+        CliUtils.readPrompt = jest.fn((text) => {
+            questionText = text;
+            return Promise.resolve(portFromPrompt.toString());
+        });
+
+        const initialSessCfg = {
+            rejectUnauthorized: true
+        };
+        const args = {
+            $0: "zowe",
+            _: [""],
+            host: hostFromArgs,
+            user: userFromArgs,
+            password: passFromArgs
+        };
+
+        let sessCfgWithConnProps: ISession;
+        sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+            initialSessCfg, args, { serviceDescription: "my cool service" }
+        );
+        CliUtils.sleep = sleepReal;
+        CliUtils.readPrompt = readPromptReal;
+
+        expect(questionText).toContain("my cool service");
         expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
         expect(sessCfgWithConnProps.user).toBe(userFromArgs);
         expect(sessCfgWithConnProps.password).toBe(passFromArgs);
@@ -411,8 +498,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
 
         const sleepReal = CliUtils.sleep;
         CliUtils.sleep = jest.fn();
-        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
-        CliUtils.promptWithTimeout = jest.fn(() => {
+        const readPromptReal = CliUtils.readPrompt;
+        CliUtils.readPrompt = jest.fn(() => {
             return Promise.resolve(portFromPrompt);
         });
 
@@ -434,7 +521,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             theError = err;
         }
         CliUtils.sleep = sleepReal;
-        CliUtils.promptWithTimeout = promptWithTimeoutReal;
+        CliUtils.readPrompt = readPromptReal;
 
         expect(theError.message).toBe("Specified port was not a number.");
     });
@@ -442,8 +529,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
     it("timeout waiting for user name", async() => {
         const sleepReal = CliUtils.sleep;
         CliUtils.sleep = jest.fn();
-        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
-        CliUtils.promptWithTimeout = jest.fn(() => null);
+        const readPromptReal = CliUtils.readPrompt;
+        CliUtils.readPrompt = jest.fn(() => null);
 
         const initialSessCfg = {
             hostname: "SomeHost",
@@ -466,7 +553,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             caughtError = thrownError;
         }
         CliUtils.sleep = sleepReal;
-        CliUtils.promptWithTimeout = promptWithTimeoutReal;
+        CliUtils.readPrompt = readPromptReal;
         expect(caughtError instanceof ImperativeError).toBe(true);
         expect(caughtError.message).toBe("Timed out waiting for user name.");
     });
@@ -474,8 +561,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
     it("timeout waiting for password", async() => {
         const sleepReal = CliUtils.sleep;
         CliUtils.sleep = jest.fn();
-        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
-        CliUtils.promptWithTimeout = jest.fn(() => null);
+        const readPromptReal = CliUtils.readPrompt;
+        CliUtils.readPrompt = jest.fn(() => null);
 
         const initialSessCfg = {
             hostname: "SomeHost",
@@ -498,7 +585,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             caughtError = thrownError;
         }
         CliUtils.sleep = sleepReal;
-        CliUtils.promptWithTimeout = promptWithTimeoutReal;
+        CliUtils.readPrompt = readPromptReal;
         expect(caughtError instanceof ImperativeError).toBe(true);
         expect(caughtError.message).toBe("Timed out waiting for password.");
     });
@@ -506,8 +593,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
     it("timeout waiting for host name", async() => {
         const sleepReal = CliUtils.sleep;
         CliUtils.sleep = jest.fn();
-        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
-        CliUtils.promptWithTimeout = jest.fn(() => null);
+        const readPromptReal = CliUtils.readPrompt;
+        CliUtils.readPrompt = jest.fn(() => null);
 
         const initialSessCfg = {
             rejectUnauthorized: true,
@@ -530,7 +617,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             caughtError = thrownError;
         }
         CliUtils.sleep = sleepReal;
-        CliUtils.promptWithTimeout = promptWithTimeoutReal;
+        CliUtils.readPrompt = readPromptReal;
         expect(caughtError instanceof ImperativeError).toBe(true);
         expect(caughtError.message).toBe("Timed out waiting for host name.");
     });
@@ -538,8 +625,8 @@ describe("ConnectionPropsForSessCfg tests", () => {
     it("timeout waiting for port number", async() => {
         const sleepReal = CliUtils.sleep;
         CliUtils.sleep = jest.fn();
-        const promptWithTimeoutReal = CliUtils.promptWithTimeout;
-        CliUtils.promptWithTimeout = jest.fn(() => null);
+        const readPromptReal = CliUtils.readPrompt;
+        CliUtils.readPrompt = jest.fn(() => null);
 
         const initialSessCfg = {
             rejectUnauthorized: true,
@@ -562,7 +649,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             caughtError = thrownError;
         }
         CliUtils.sleep = sleepReal;
-        CliUtils.promptWithTimeout = promptWithTimeoutReal;
+        CliUtils.readPrompt = readPromptReal;
         expect(caughtError instanceof ImperativeError).toBe(true);
         expect(caughtError.message).toBe("Timed out waiting for port number.");
     });

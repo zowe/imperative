@@ -376,3 +376,7 @@ export const authLogoutGroupDesc: IMessageDefinition = {
 export const authLogoutCommandDesc: IMessageDefinition = {
     message: `Log out of {{type}} authentication service`
 };
+
+export const autoInitCommandDesc: IMessageDefinition = {
+    message: `Automatically generate a config from {{source}}`
+};

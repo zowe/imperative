@@ -97,8 +97,8 @@ describe("Configuration Initialization command handler", () => {
     it("should attempt to initialize the project configuration", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
         params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
@@ -148,8 +148,8 @@ describe("Configuration Initialization command handler", () => {
     it("should attempt to initialize the project user configuration", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
-        params.arguments.user = true;
-        params.arguments.global = false;
+        params.arguments.userConfig = true;
+        params.arguments.globalConfig = false;
         params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
@@ -194,8 +194,8 @@ describe("Configuration Initialization command handler", () => {
     it("should attempt to initialize the global project configuration", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
-        params.arguments.user = false;
-        params.arguments.global = true;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = true;
         params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
@@ -247,8 +247,8 @@ describe("Configuration Initialization command handler", () => {
     it("should attempt to initialize the global project user configuration", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
-        params.arguments.user = true;
-        params.arguments.global = true;
+        params.arguments.userConfig = true;
+        params.arguments.globalConfig = true;
         params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
@@ -295,8 +295,8 @@ describe("Configuration Initialization command handler", () => {
     it("should attempt to initialize the project configuration with prompt flag false", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
         params.arguments.prompt = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
@@ -339,8 +339,8 @@ describe("Configuration Initialization command handler", () => {
     it("should attempt to initialize the project user configuration with prompting disabled", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
-        params.arguments.user = true;
-        params.arguments.global = false;
+        params.arguments.userConfig = true;
+        params.arguments.globalConfig = false;
         params.arguments.prompt = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
@@ -383,8 +383,8 @@ describe("Configuration Initialization command handler", () => {
     it("should attempt to initialize the global project configuration with prompt flag false", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
-        params.arguments.user = false;
-        params.arguments.global = true;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = true;
         params.arguments.prompt = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
@@ -429,8 +429,8 @@ describe("Configuration Initialization command handler", () => {
     it("should attempt to initialize the global project user configuration with prompting disabled", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
-        params.arguments.user = true;
-        params.arguments.global = true;
+        params.arguments.userConfig = true;
+        params.arguments.globalConfig = true;
         params.arguments.prompt = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
@@ -477,8 +477,8 @@ describe("Configuration Initialization command handler", () => {
     it("should attempt to initialize the project configuration and use boolean true for the prompt", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
         params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
@@ -526,8 +526,8 @@ describe("Configuration Initialization command handler", () => {
     it("should attempt to initialize the project configuration and use boolean false for the prompt", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
         params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
@@ -575,8 +575,8 @@ describe("Configuration Initialization command handler", () => {
     it("should attempt to initialize the project configuration and use a number for the prompt", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
         params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
@@ -626,8 +626,8 @@ describe("Configuration Initialization command handler", () => {
     it("should attempt to initialize the project configuration and handle getting nothing from the prompt", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
         params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
@@ -675,8 +675,8 @@ describe("Configuration Initialization command handler", () => {
     it("should display warning if unable to securely save credentials", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
         params.arguments.prompt = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist

@@ -4,7 +4,6 @@ exports[`Config tests load should load a config and populate missing defaults 1`
 Object {
   "defaults": Object {},
   "overrides": Object {},
-  "plugins": Array [],
   "profiles": Object {},
 }
 `;
@@ -16,7 +15,6 @@ Object {
     "vegetable": "vegetable.artichoke",
   },
   "overrides": Object {},
-  "plugins": Array [],
   "profiles": Object {
     "fruit": Object {
       "profiles": Object {
@@ -61,7 +59,6 @@ Object {
     "fruit": "fruit.orange",
   },
   "overrides": Object {},
-  "plugins": Array [],
   "profiles": Object {
     "fruit": Object {
       "profiles": Object {
@@ -130,7 +127,6 @@ Object {
     "vegetable": "vegetable.artichoke",
   },
   "overrides": Object {},
-  "plugins": Array [],
   "profiles": Object {
     "fruit": Object {
       "profiles": Object {

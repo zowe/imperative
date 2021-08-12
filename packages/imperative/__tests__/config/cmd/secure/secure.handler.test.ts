@@ -142,8 +142,8 @@ describe("Configuration Secure command handler", () => {
         const handler = new SecureHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
 
         // Start doing fs mocks
         // And the prompting of the secure handler
@@ -212,8 +212,8 @@ describe("Configuration Secure command handler", () => {
         const handler = new SecureHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = true;
-        params.arguments.global = false;
+        params.arguments.userConfig = true;
+        params.arguments.globalConfig = false;
 
         // Start doing fs mocks
         // And the prompting of the secure handler
@@ -281,8 +281,8 @@ describe("Configuration Secure command handler", () => {
         const handler = new SecureHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = false;
-        params.arguments.global = true;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = true;
 
         // Start doing fs mocks
         // And the prompting of the secure handler
@@ -350,8 +350,8 @@ describe("Configuration Secure command handler", () => {
         const handler = new SecureHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = true;
-        params.arguments.global = true;
+        params.arguments.userConfig = true;
+        params.arguments.globalConfig = true;
 
         // Start doing fs mocks
         // And the prompting of the secure handler
@@ -420,8 +420,8 @@ describe("Configuration Secure command handler", () => {
         const handler = new SecureHandler();
         const params = getIHandlerParametersObject();
 
-        params.arguments.user = false;
-        params.arguments.global = false;
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
 
         // Start doing fs mocks
         // And the prompting of the secure handler

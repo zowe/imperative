@@ -20,15 +20,16 @@ export const secureDefinition: ICommandDefinition = {
     description: "prompt for secure configuration properties",
     options: [
         {
-            name: "global",
+            name: "global-config",
             description: "Secure properties in global config.",
-            aliases: ["g"],
+            aliases: ["gc"],
             type: "boolean",
             defaultValue: false
         },
         {
-            name: "user",
+            name: "user-config",
             description: "Secure properties in user config.",
+            aliases: ["uc"],
             type: "boolean",
             defaultValue: false
         }

@@ -31,9 +31,10 @@ describe("imperative-test-cli config list", () => {
             testName: "imperative_test_cli_test_config_list_command"
         });
         runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--prompt false"]);
-        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--user --prompt false"]);
-        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--global --prompt false"]);
-        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--user --global --prompt false"]);
+        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--user-config --prompt false"]);
+        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir, ["--global-config --prompt false"]);
+        runCliScript(__dirname + "/../init/__scripts__/init_config.sh", TEST_ENVIRONMENT.workingDir,
+            ["--user-config --global-config --prompt false"]);
         expectedGlobalUserConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.user.json");
         expectedGlobalProjectConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "imperative-test-cli.config.json");
         expectedUserConfigLocation = path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.user.json");
@@ -57,7 +58,6 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain("type:       secured");
         expect(response.stdout.toString()).toContain("defaults:");
         expect(response.stdout.toString()).toContain("profiles:");
-        expect(response.stdout.toString()).toContain("plugins:");
         expect(response.stdout.toString()).toContain("secure:");
         expect(response.stdout.toString()).toContain("(empty array)");
         expect(response.stderr.toString()).toEqual("");
@@ -93,7 +93,6 @@ describe("imperative-test-cli config list", () => {
                         properties: {}
                     }
                 },
-                plugins: [],
                 overrides: {}
             }
         };
@@ -110,7 +109,6 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain(expectedGlobalUserConfigLocation);
         expect(response.stdout.toString()).toContain("defaults:");
         expect(response.stdout.toString()).toContain("profiles:");
-        expect(response.stdout.toString()).toContain("plugins:");
         expect(response.stdout.toString()).toContain("secure:");
         expect(response.stdout.toString()).toContain("my_profiles:");
         expect(response.stdout.toString()).toMatch(/type:\s+secured/);
@@ -143,7 +141,6 @@ describe("imperative-test-cli config list", () => {
                 }
             },
             defaults: {},
-            plugins: [],
             overrides: {}
         };
         const expectedProjectConfig = lodash.cloneDeep(expectedConfigObject);
@@ -164,7 +161,6 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toMatchSnapshot();
         expect(response.stdout.toString()).toContain("defaults");
         expect(response.stdout.toString()).toContain("profiles");
-        expect(response.stdout.toString()).toContain("plugins");
         expect(response.stderr.toString()).toEqual("");
         expect(response.error).not.toBeDefined();
     });
@@ -202,7 +198,6 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain("type:       secured");
         expect(response.stdout.toString()).toContain("defaults:");
         expect(response.stdout.toString()).toContain("profiles:");
-        expect(response.stdout.toString()).toContain("plugins:");
         expect(response.stdout.toString()).toContain("secure:");
         expect(response.stdout.toString()).toContain("(empty array)");
         expect(response.stdout.toString()).toContain("secret: (secure value)");

@@ -12,6 +12,7 @@
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 import * as lodashDeep from "lodash-deep";
+import { ConfigConstants } from "../ConfigConstants";
 import { IConfigLoadedProfile, IConfigLoadedProperty } from "../doc/IConfigLoadedProfile";
 import { IConfigProfile } from "../doc/IConfigProfile";
 import { ConfigApi } from "./ConfigApi";
@@ -56,7 +57,7 @@ export class ConfigProfiles extends ConfigApi {
      * @param path The dotted path of the location at which to set the profile.
      */
     public get(path: string): { [key: string]: string } {
-        return this.buildProfile(path, JSONC.parse(JSONC.stringify(this.mConfig.properties.profiles)));
+        return this.buildProfile(path, JSONC.parse(JSONC.stringify(this.mConfig.properties.profiles, null, ConfigConstants.INDENT)));
     }
 
     // _______________________________________________________________________

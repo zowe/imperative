@@ -6,6 +6,33 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Added "overrides" array in team config that makes it possible to override CredentialManager but is empty by default.
 
+## `5.0.0-next.202108062025`
+
+- BugFix: Export all Config related interfaces.
+
+## `5.0.0-next.202107122104`
+
+- BugFix: Fixed secure credentials not being stored by the `config auto-init` command.
+
+## `5.0.0-next.202107092101`
+
+- Enhancement: Adds the `config auto-init` base handler and command builder, allowing a CLI to build a configuration auto-initialization command and handler
+- Enhancement: Adds the optional `configAutoInitCommandConfig` interface to the IImperativeConfig interface, allowing for an auto-init command to be generated if a CLI supports it
+- Enhancement: Better support for comments in JSON
+- Bugfix: Revert schema changes related to additionalProperties. Re-enable IntelliSense when editing zowe.config.json files
+- **Next Breaking**
+    - Changed the schema paths and updated schema version
+
+## `5.0.0-next.202106221817`
+
+- **Next Breaking**
+    - Replaced --user with --user-config on all config command groups due to conflict with --user option during config auto-initialization
+    - Replaced --global with --global-config on all config command groups for consistency
+
+## `5.0.0-next.202106212048`
+
+- Enhancement: A new interface (IApimlSvcAttrs) was added. A property (apimlConnLookup) of that interface type was added to IImerpativeConfig to enable plugins to tie themselves to an APIML service. Zowe-CLI can then ask APIML for the configuration data for the plugin to connect to that service.
+
 ## `5.0.0-next.202106041929`
 
 - **Breaking**: Removed the following previously deprecated items:
@@ -69,6 +96,12 @@ All notable changes to the Imperative package will be documented in this file.
 ## `5.0.0-next.202009251501`
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
+
+## `4.13.2`
+
+- BugFix: Fixed web help examples description typo at line 440 in `packages/cmd/src/CommandPreparer.ts`. [#612](https://github.com/zowe/imperative/issues/612)
+- BugFix: Fixed Markdown special characters not being escaped in web help for descriptions of positional options and examples. [#620](https://github.com/zowe/imperative/issues/620)
+- BugFix: Fixed subgroups not being displayed under their own heading in web help. [#323](https://github.com/zowe/imperative/issues/323)
 
 ## `4.13.1`
 

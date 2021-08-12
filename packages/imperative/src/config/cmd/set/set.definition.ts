@@ -33,15 +33,16 @@ export const setDefinition: ICommandDefinition = {
     ],
     options: [
         {
-            name: "global",
+            name: "global-config",
             description: "Set the property in global config.",
-            aliases: ["g"],
+            aliases: ["gc"],
             type: "boolean",
             defaultValue: false
         },
         {
-            name: "user",
+            name: "user-config",
             description: "Set the property in user config.",
+            aliases: ["uc"],
             type: "boolean",
             defaultValue: false
         },

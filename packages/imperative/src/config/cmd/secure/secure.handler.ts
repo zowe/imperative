@@ -32,7 +32,7 @@ export default class SecureHandler implements ICommandHandler {
 
         // Create the config, load the secure values, and activate the desired layer
         const config = ImperativeConfig.instance.config;
-        config.api.layers.activate(params.arguments.user, params.arguments.global);
+        config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig);
         const secureProps: string[] = config.api.secure.secureFields();
 
         if (secureProps.length === 0) {

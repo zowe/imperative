@@ -117,7 +117,6 @@ export class Config {
         return {
             profiles: {},
             defaults: {},
-            plugins: [],
             overrides: {}
         };
     }
@@ -171,7 +170,6 @@ export class Config {
                 // Populate any undefined defaults
                 currLayer.properties.defaults = currLayer.properties.defaults || {};
                 currLayer.properties.profiles = currLayer.properties.profiles || {};
-                currLayer.properties.plugins = currLayer.properties.plugins || [];
                 currLayer.properties.overrides = currLayer.properties.overrides || {};
             }
         } catch (e) {
@@ -277,7 +275,7 @@ export class Config {
      * Returns a clone to prevent accidental edits of the original object.
      */
     public get layers(): IConfigLayer[] {
-        return JSONC.parse(JSONC.stringify(this.mLayers));
+        return JSONC.parse(JSONC.stringify(this.mLayers, null, ConfigConstants.INDENT));
     }
 
     // _______________________________________________________________________
@@ -468,7 +466,10 @@ export class Config {
         this.mLayers.forEach((layer: IConfigLayer) => {
 
             // Merge "plugins" - create a unique set from all entries
-            c.plugins = Array.from(new Set(layer.properties.plugins.concat(c.plugins)));
+            const allPlugins = Array.from(new Set((layer.properties.plugins || []).concat(c.plugins || [])));
+            if (allPlugins.length > 0) {
+                c.plugins = allPlugins;
+            }
 
             // Merge "defaults" - only add new properties from this layer
             for (const [name, value] of Object.entries(layer.properties.defaults))
@@ -510,7 +511,7 @@ export class Config {
      * @returns The resulting profile object
      */
     public layerProfiles(layer: IConfigLayer, maskSecure?: boolean): { [key: string]: IConfigProfile } {
-        const properties = JSONC.parse(JSONC.stringify(layer.properties));
+        const properties = JSONC.parse(JSONC.stringify(layer.properties, null, ConfigConstants.INDENT));
         if (maskSecure) {
             for (const secureProp of this.api.secure.secureFields(layer)) {
                 if (lodash.has(properties, secureProp)) {
