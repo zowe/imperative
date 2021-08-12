@@ -241,7 +241,7 @@ export class YargsConfigurer {
         let delimiter: string = ""; // used to delimit between possible 'command' values
         const groupValues = this.commandLine.split(" ", three);
         const commandToCheck = groupValues.join(" ");
-        const nearestCommand: string = this.getClosestCommand(commandToCheck);
+        const nearestCommand: string = closestCommand || this.getClosestCommand(commandToCheck);
 
         let failureMessage = "Command failed due to improper syntax";
         if (closestCommand != null) {
