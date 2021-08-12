@@ -129,10 +129,6 @@ export const expectedSchemaObject = {
                                             tokenValue: {
                                                 type: "string",
                                                 description: "Fruit token value"
-                                            },
-                                            authToken: {
-                                                type: "string",
-                                                description: "Fruit auth token value"
                                             }
                                         }
                                     },
@@ -142,8 +138,7 @@ export const expectedSchemaObject = {
                                                 "secret",
                                                 "user",
                                                 "password",
-                                                "tokenValue",
-                                                "authToken"
+                                                "tokenValue"
                                             ]
                                         }
                                     }

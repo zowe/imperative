@@ -805,7 +805,7 @@ export class ProfileInfo {
         // the set of names of arguments in IProfArgAttrs used in ISession
         const profArgNames = [
             "host", "port", "user", "password", "rejectUnauthorized",
-            "protocol", "basePath", "tokenType", "tokenValue", "authToken"
+            "protocol", "basePath", "tokenType", "tokenValue"
         ];
 
         for(const profArgNm of profArgNames) {
