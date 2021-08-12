@@ -59,12 +59,6 @@ const tokenValueOption: ICommandOptionDefinition = {
     type: "string"
 };
 
-const authTokenOption: ICommandOptionDefinition = {
-    name: "auth-token",
-    description: "Fruit auth token value",
-    type: "string"
-};
-
 // Example to use with tsnode: */*CommandDefinitions!(.d).*s
 export const config: IImperativeConfig = {
     commandModuleGlobs: ["**/cli/*/*definition!(.d).*s"],
@@ -155,11 +149,6 @@ export const config: IImperativeConfig = {
                     type: "string",
                     optionDefinition: tokenValueOption,
                     secure: true
-                },
-                authToken: {
-                    type: "string",
-                    optionDefinition: authTokenOption,
-                    secure: true
                 }
             },
         },
@@ -174,8 +163,7 @@ export const config: IImperativeConfig = {
                         hostOption,
                         portOption,
                         userOption,
-                        passwordOption,
-                        authTokenOption
+                        passwordOption
                     ]
                 },
                 logout: {
@@ -185,8 +173,7 @@ export const config: IImperativeConfig = {
                         hostOption,
                         portOption,
                         tokenTypeOption,
-                        tokenValueOption,
-                        authTokenOption
+                        tokenValueOption
                     ]
                 }
             }

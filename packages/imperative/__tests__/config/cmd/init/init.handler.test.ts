@@ -125,8 +125,8 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
@@ -142,7 +142,7 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
-        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual("fakeValue");
+        expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual("fakeValue");
     });
 
     it("should attempt to initialize the project user configuration", async () => {
@@ -176,8 +176,8 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        delete compObj.profiles.my_profiles.profiles.secured.properties.info; // Delete info as well
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        delete compObj.profiles.secured.properties.info; // Delete info as well
 
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
@@ -222,8 +222,8 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
@@ -241,7 +241,7 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
-        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual("fakeValue");
+        expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual("fakeValue");
     });
 
     it("should attempt to initialize the global project user configuration", async () => {
@@ -275,8 +275,8 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        delete compObj.profiles.my_profiles.profiles.secured.properties.info; // Delete info as well
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        delete compObj.profiles.secured.properties.info; // Delete info as well
 
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
@@ -322,8 +322,8 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
@@ -366,8 +366,8 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        delete compObj.profiles.my_profiles.profiles.secured.properties.info; // Delete info as well
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        delete compObj.profiles.secured.properties.info; // Delete info as well
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
@@ -410,8 +410,8 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
@@ -456,8 +456,8 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        delete compObj.profiles.my_profiles.profiles.secured.properties.info; // Delete info as well
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        delete compObj.profiles.secured.properties.info; // Delete info as well
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
@@ -504,8 +504,8 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
@@ -520,7 +520,7 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
-        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(true);
+        expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(true);
     });
 
     it("should attempt to initialize the project configuration and use boolean false for the prompt", async () => {
@@ -553,8 +553,8 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
@@ -569,7 +569,7 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
-        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(false);
+        expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(false);
     });
 
     it("should attempt to initialize the project configuration and use a number for the prompt", async () => {
@@ -604,8 +604,8 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
@@ -620,7 +620,7 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
-        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(randomValueNumber);
+        expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(randomValueNumber);
     });
 
     it("should attempt to initialize the project configuration and handle getting nothing from the prompt", async () => {
@@ -653,8 +653,8 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
@@ -669,7 +669,7 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
-        expect(ImperativeConfig.instance.config.properties.profiles.my_profiles.profiles.secured.properties.secret).toEqual(undefined);
+        expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(undefined);
     });
 
     it("should display warning if unable to securely save credentials", async () => {
@@ -703,8 +703,8 @@ describe("Configuration Initialization command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.my_profiles.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.my_profiles.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.secured.properties.secret; // Delete the secret
+        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);

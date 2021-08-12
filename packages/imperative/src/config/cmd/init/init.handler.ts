@@ -23,8 +23,6 @@ import { OverridesLoader } from "../../../OverridesLoader";
  * Init config
  */
 export default class InitHandler implements ICommandHandler {
-    private static readonly DEFAULT_ROOT_PROFILE_NAME = "my_profiles";
-
     private params: IHandlerParameters;
 
     /**

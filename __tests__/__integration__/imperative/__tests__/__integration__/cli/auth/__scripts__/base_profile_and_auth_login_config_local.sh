@@ -12,7 +12,7 @@ then
     exit $CMDRC
 fi
 
-imperative-test-cli config set "profiles.my_base.properties.user" "$baseUser"
+imperative-test-cli config set "profiles.base.properties.user" "$baseUser"
 CMDRC=$?
 if [ $CMDRC -gt 0 ]
 then
@@ -20,7 +20,7 @@ then
     exit $CMDRC
 fi
 
-imperative-test-cli config set "profiles.my_base.properties.password" "$basePass"
+imperative-test-cli config set "profiles.base.properties.password" "$basePass"
 CMDRC=$?
 if [ $CMDRC -gt 0 ]
 then
