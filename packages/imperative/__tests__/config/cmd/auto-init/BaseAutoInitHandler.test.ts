@@ -18,6 +18,7 @@ import * as stripAnsi from "strip-ansi";
 import * as open from "open";
 import { ConfigSchema } from "../../../../../config";
 import { CredentialManagerFactory } from "../../../../../security";
+import { SessConstants } from "../../../../../rest";
 
 describe("BaseAutoInitHandler", () => {
     beforeEach( async () => {
@@ -538,14 +539,15 @@ describe("BaseAutoInitHandler", () => {
                 profiles: {
                     "my_base": {
                         properties: {
-                            authToken: "fake"
+                            tokenType: SessConstants.TOKEN_TYPE_JWT,
+                            tokenValue: "fakeToken"
                         },
-                        secure: ["authToken"]
+                        secure: ["tokenValue"]
                     }
                 }
             }
         });
-        const mockSecureFields = jest.fn().mockReturnValue(["profiles.my_base.properties.authToken"]);
+        const mockSecureFields = jest.fn().mockReturnValue(["profiles.my_base.properties.tokenValue"]);
         const mockFindSecure = jest.fn().mockReturnValue([]);
         const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
         const mockImperativeConfigApi = {

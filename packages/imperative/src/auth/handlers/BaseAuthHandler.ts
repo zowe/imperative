@@ -164,8 +164,8 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             }
 
             const profilePath = config.api.profiles.expandPath(profileName);
-            config.set(`${profilePath}.properties.authToken`,
-                `${this.mSession.ISession.tokenType}=${tokenValue}`, { secure: true });
+            config.set(`${profilePath}.properties.tokenType`, this.mSession.ISession.tokenType);
+            config.set(`${profilePath}.properties.tokenValue`, tokenValue, { secure: true });
 
             await config.save(false);
             // Restore original active layer
@@ -210,8 +210,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * @param {IHandlerParameters} params Command parameters sent by imperative.
      */
     private async processLogout(params: IHandlerParameters) {
-        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue || params.arguments.authToken,
-            "Token value not supplied, but is required for logout.");
+        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue, "Token value not supplied, but is required for logout.");
 
         // Force to use of token value, in case user and/or password also on base profile, make user undefined.
         if (params.arguments.user != null) {
@@ -242,13 +241,15 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             let profileWithToken: string = null;
 
             // If you specified a token on the command line, then don't delete the one in the profile if it doesn't match
-            if (loadedProfile?.properties.authToken != null &&
-                loadedProfile.properties.authToken.value === `${params.arguments.tokenType}=${params.arguments.tokenValue}`) {
+            if (loadedProfile != null && loadedProfile?.properties.tokenType != null && loadedProfile?.properties.tokenValue != null &&
+                loadedProfile.properties.tokenType.value === params.arguments.tokenType &&
+                loadedProfile.properties.tokenValue.value === params.arguments.tokenValue) {
                 const beforeLayer = config.api.layers.get();
-                config.api.layers.activate(loadedProfile.properties.authToken.user, loadedProfile.properties.authToken.global);
+                config.api.layers.activate(loadedProfile.properties.tokenValue.user, loadedProfile.properties.tokenValue.global);
 
                 const profilePath = config.api.profiles.expandPath(profileName);
-                config.delete(`${profilePath}.properties.authToken`);
+                config.delete(`${profilePath}.properties.tokenType`);
+                config.delete(`${profilePath}.properties.tokenValue`);
 
                 await config.save(false);
                 config.api.layers.activate(beforeLayer.user, beforeLayer.global);
