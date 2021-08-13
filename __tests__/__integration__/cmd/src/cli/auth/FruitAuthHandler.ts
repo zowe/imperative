@@ -9,7 +9,7 @@
 *
 */
 
-import { BaseAuthHandler, AbstractSession, ICommandArguments, ISession, SessConstants } from "../../../../../../packages";
+import { BaseAuthHandler, AbstractSession, ICommandArguments, ISession, SessConstants } from "../../../../../../lib";
 
 /**
  * This class is used by the auth command handlers as the base class for their implementation.

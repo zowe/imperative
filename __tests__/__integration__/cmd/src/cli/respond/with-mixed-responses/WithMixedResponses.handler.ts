@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters } from "../../../../../../../packages/index";
+import { ICommandHandler, IHandlerParameters } from "../../../../../../../lib/index";
 
 export default class WithMixedResponses implements ICommandHandler {
     public async process(commandParameters: IHandlerParameters): Promise<void> {

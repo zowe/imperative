@@ -18,7 +18,9 @@
     "removeComments": false,
     "pretty": true,
     "sourceMap": true,
-    "newLine": "lf"
+    "newLine": "lf",
+    "rootDir": "packages",
+    "composite": true
   },
   "typeRoots": [
     "./node_modules/@types"
