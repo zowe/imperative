@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../packages/index";
+import { ICommandDefinition } from "../../../../../../lib/index";
 import { AllowableOptionsDefinition } from "./allowable-options/AllowableOptions.definition";
 import { ExampleTestDefinition } from "./example-test/ExampleTest.definition";
 

@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters } from "../../../../../../../../../../packages";
+import { ICommandHandler, IHandlerParameters } from "../../../../../../../../../../lib";
 
 export default class ThirdGroupCommandOneHandler implements ICommandHandler {
     public async process(params: IHandlerParameters): Promise<void> {

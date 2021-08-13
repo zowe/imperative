@@ -9,6 +9,7 @@ CCS141/
 .vscode/launch.json
 imperative.iml
 npm-shrinkwrap.json
+tsconfig.tsbuildinfo
 __tests__/__integration__/*/package-lock.json
 __tests__/__integration__/imperative/jest-stare
 

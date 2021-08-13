@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../packages/index";
+import { ICommandDefinition } from "../../../../../../lib/index";
 import { NoHandlerDefinition } from "./no-handler/NoHandler.definition";
 import { InvalidHandlerDefinition } from "./invalid-handler/InvalidHandler.definition";
 import { ProfileSpecDefinition } from "./profile-spec/ProfileSpec.definition";

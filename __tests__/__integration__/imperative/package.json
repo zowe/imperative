@@ -5,7 +5,7 @@
   "license": "EPL 2.0",
   "repository": "",
   "bin": {
-    "imperative-test-cli": "./lib/__tests__/__integration__/imperative/src/main.js"
+    "imperative-test-cli": "./lib/main.js"
   },
   "author": {
     "name": "",
@@ -21,13 +21,13 @@
   "main": "lib/main.js",
   "typings": "lib/main.d.ts",
   "imperative": {
-    "configurationModule": "lib/__tests__/__integration__/imperative/src/imperative.js"
+    "configurationModule": "lib/imperative.js"
   },
   "scripts": {
     "clean": "rimraf lib && rimraf coverage",
     "lint": "tslint --force --format verbose \"src/**/*.ts\"",
     "prebuild": "npm run clean && npm run lint && echo Using TypeScript && tsc --version",
-    "build": "tsc --pretty",
+    "build": "tsc -b --pretty",
     "pretest": "npm install -g",
     "test": "jest",
     "posttest": "npm uninstall -g",

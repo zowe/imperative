@@ -9,12 +9,7 @@
 *
 */
 
-// Imports to help Browserify find dependencies
-import $ from "jquery";
-require("bootstrap");
-require("jstree");
-require("url-search-params-polyfill");
-const scrollIntoView = require("scroll-into-view-if-needed");
+declare const scrollIntoView: any;
 
 // Recursive object used for command tree node
 interface ITreeNode {

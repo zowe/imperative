@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../packages/index";
+import { ICommandDefinition } from "../../../../../../lib/index";
 import { withDataArray } from "./with-data-array/WithDataArray.definition";
 import { withDataObject } from "./with-data-object/WithDataObject.definition";
 import { withLogMessagesDefinition } from "./with-log-messages/WithLogMessages.definition";
