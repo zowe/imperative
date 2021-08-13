@@ -10,7 +10,7 @@
 */
 
 import { CliUtils } from "../../../utilities";
-import { CommandResponse, ICommandArguments, IHandlerParameters } from "../../../cmd";
+import { ICommandArguments, IHandlerParameters } from "../../../cmd";
 import { ImperativeError } from "../../../error";
 import { IOptionsForAddConnProps } from "./doc/IOptionsForAddConnProps";
 import { Logger } from "../../../logger";
@@ -193,12 +193,11 @@ export class ConnectionPropsForSessCfg {
          * If we are running in daemon mode, check if a cached session exists
          * that matches the hostname and port number.
          */
-        const commandResponse = connOptsToUse.parms?.response as CommandResponse;
-        if (commandResponse?.isDaemon && connOptsToUse.doPrompting) {
+        if (connOptsToUse.parms?.cacheCredentials) {
             const cachedSession = this.mSessionCache.find(({ hostname, port }) => hostname === sessCfgToUse.hostname && port === sessCfgToUse.port);
             if (cachedSession != null) {
                 const mergedSession = { ...cachedSession, ...sessCfgToUse, type: cachedSession.type };
-                this.saveSessionToCache(mergedSession);
+                this.cacheSession(mergedSession);
                 return mergedSession as SessCfgType;
             }
         }
@@ -246,8 +245,8 @@ export class ConnectionPropsForSessCfg {
          * If we are running in daemon mode and prompted for credentials, cache
          * the session for future commands to use.
          */
-        if (commandResponse?.isDaemon && connOptsToUse.doPrompting) {
-            this.saveSessionToCache(sessCfgToUse);
+        if (connOptsToUse.parms?.cacheCredentials) {
+            this.cacheSession(sessCfgToUse);
         }
 
         return sessCfgToUse;
@@ -354,15 +353,10 @@ export class ConnectionPropsForSessCfg {
     }
 
     /**
-     * If daemon mode is enabled, cache a session for future commands to use.
-     * @param sessCfg Session config to be cached
-     * @param commandResponse Command response to check for daemon mode
+     * Cache a session for future commands to use its credentials.
+     * @param sessCfg Session config with hostname, port, and credentials to be cached
      */
-    public static saveSessionToCache(sessCfg: ISession, commandResponse?: CommandResponse) {
-        if (commandResponse != null && !commandResponse.isDaemon) {
-            return;
-        }
-
+    public static cacheSession(sessCfg: ISession) {
         const cachedSessionIdx = this.mSessionCache.findIndex(({ hostname, port }) => hostname === sessCfg.hostname && port === sessCfg.port);
         const sessCfgProps = ["hostname", "port", "type"];
         if (sessCfg.type === null) {
@@ -379,6 +373,14 @@ export class ConnectionPropsForSessCfg {
         } else {
             this.mSessionCache[cachedSessionIdx] = sessCfgWithCreds;
         }
+    }
+
+    /**
+     * Uncache a session so future commands cannot use its credentials.
+     * @param sessCfg Session config with hostname and port to be uncached
+     */
+    public static uncacheSession(sessCfg: ISession) {
+        this.mSessionCache = this.mSessionCache.filter(({ hostname, port }) => !(hostname === sessCfg.hostname && port === sessCfg.port));
     }
 
     /**

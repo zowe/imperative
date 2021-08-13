@@ -985,14 +985,6 @@ export class CommandResponse implements ICommandResponseApi {
     }
 
     /**
-     * Check if console is running in daemon mode
-     * @memberof CommandResponse
-     */
-    public get isDaemon() {
-        return this.mStream != null;
-    }
-
-    /**
      * Send headers to daemon client
      * @private
      * @param {string} headers

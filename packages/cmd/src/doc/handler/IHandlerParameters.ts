@@ -80,4 +80,9 @@ export interface IHandlerParameters {
      *  You can use this to influence the behavior of your command (e.g. not printing certain messages from within a chained command)
      */
     isChained?: boolean;
+
+    /**
+     * Should credentials be cached in memory for daemon mode?
+     */
+    cacheCredentials?: boolean;
 }

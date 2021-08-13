@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerResponseApi, CommandResponse } from "../../../../cmd";
+import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerResponseApi } from "../../../../cmd";
 import { Constants } from "../../../../constants";
 import { ISession, ConnectionPropsForSessCfg, Session, SessConstants, AbstractSession } from "../../../../rest";
 import { Imperative } from "../../Imperative";
@@ -114,8 +114,8 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         // validate a token was returned
         if (tokenValue == null) {
             throw new ImperativeError({msg: "A token value was not returned from the login handler."});
-        } else {
-            ConnectionPropsForSessCfg.saveSessionToCache(this.mSession.ISession, params.response as CommandResponse);
+        } else if (params.cacheCredentials) {
+            ConnectionPropsForSessCfg.cacheSession(this.mSession.ISession);
         }
 
         if (params.arguments.showToken) {
@@ -212,8 +212,6 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * @param {IHandlerParameters} params Command parameters sent by imperative.
      */
     private async processLogout(params: IHandlerParameters) {
-        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue, "Token value not supplied, but is required for logout.");
-
         // Force to use of token value, in case user and/or password also on base profile, make user undefined.
         if (params.arguments.user != null) {
             params.arguments.user = undefined;
@@ -230,9 +228,13 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             { requestToken: false, parms: params },
         );
 
+        ImperativeExpect.toNotBeNullOrUndefined(sessCfgWithCreds.tokenValue, "Token value not supplied, but is required for logout.");
         this.mSession = new Session(sessCfgWithCreds);
 
         await this.doLogout(this.mSession);
+        if (params.cacheCredentials) {
+            ConnectionPropsForSessCfg.uncacheSession(this.mSession.ISession);
+        }
 
         if (!ImperativeConfig.instance.config.exists) {
             await this.processLogoutOld(params);
