@@ -245,11 +245,11 @@ export class YargsConfigurer {
 
         let failureMessage = "Command failed due to improper syntax";
         if (closestCommand != null) {
-            failureMessage += format("\nUnknown group: %s\n", groupValues[0]);
+            failureMessage += format("\nUnknown group: %s", groupValues[0]);
         }
 
         if (closestCommand != null || !commandToCheck.includes(nearestCommand)) {
-            failureMessage += format("\nDid you mean: %s?", nearestCommand);
+            failureMessage += format("\nDid you mean: %s?\n", nearestCommand);
         }
         failureMessage += `\nCommand entered: "${this.commandLine}"`;
         // limit to three to include two levels of group and command value, if present
