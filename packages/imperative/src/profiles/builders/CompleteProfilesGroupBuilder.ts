@@ -47,7 +47,7 @@ export class CompleteProfilesGroupBuilder {
 
         const profileGroup: ICommandDefinition = {
             name: Constants.PROFILE_GROUP,
-            description: "Create and manage configuration profiles",
+            description: "Create and manage configuration profiles.",
             type: "group",
             deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_INIT,
             children: []
