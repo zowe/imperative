@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters, ICommandArguments } from "../../../../../../cmd";
+import { ICommandHandler, IHandlerParameters, ICommandArguments, CommandResponse } from "../../../../../../cmd";
 import { ISession, ConnectionPropsForSessCfg, Session, AbstractSession } from "../../../../../../rest";
 import { ConfigConstants, ConfigSchema, IConfig } from "../../../../../../config";
 import { diff } from "jest-diff";
@@ -84,6 +84,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
         );
         this.mSession = new Session(sessCfgWithCreds);
         const profileConfig = await this.doAutoInit(this.mSession, params);
+        ConnectionPropsForSessCfg.saveSessionToCache(this.mSession.ISession, params.response as CommandResponse);
         let global = false;
         let user = false;
 

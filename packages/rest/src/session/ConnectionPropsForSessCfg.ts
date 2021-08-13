@@ -17,7 +17,7 @@ import { Logger } from "../../../logger";
 import * as SessConstants from "./SessConstants";
 import { IPromptOptions } from "../../../cmd/src/doc/response/api/handler/IPromptOptions";
 import { ISession } from "./doc/ISession";
-
+import * as lodash from "lodash";
 
 /**
  * Extend options for IPromptOptions for internal wrapper method
@@ -195,11 +195,11 @@ export class ConnectionPropsForSessCfg {
          */
         const commandResponse = connOptsToUse.parms?.response as CommandResponse;
         if (commandResponse?.isDaemon && connOptsToUse.doPrompting) {
-            let cachedSession = this.mSessionCache.find(({ hostname, port }) => hostname === sessCfgToUse.hostname && port === sessCfgToUse.port);
+            const cachedSession = this.mSessionCache.find(({ hostname, port }) => hostname === sessCfgToUse.hostname && port === sessCfgToUse.port);
             if (cachedSession != null) {
-                sessCfgToUse.type = cachedSession.type || sessCfgToUse.type;
-                cachedSession = { ...cachedSession, ...sessCfgToUse };
-                return cachedSession as SessCfgType;
+                const mergedSession = { ...cachedSession, ...sessCfgToUse, type: cachedSession.type };
+                this.saveSessionToCache(mergedSession);
+                return mergedSession as SessCfgType;
             }
         }
 
@@ -247,7 +247,7 @@ export class ConnectionPropsForSessCfg {
          * the session for future commands to use.
          */
         if (commandResponse?.isDaemon && connOptsToUse.doPrompting) {
-            this.mSessionCache.push({ ...sessCfgToUse, base64EncodedAuth: undefined });
+            this.saveSessionToCache(sessCfgToUse);
         }
 
         return sessCfgToUse;
@@ -350,6 +350,34 @@ export class ConnectionPropsForSessCfg {
         } else {
             ConnectionPropsForSessCfg.setTypeForBasicCreds(sessCfg, connOpts, cmdArgs.tokenType);
             ConnectionPropsForSessCfg.logSessCfg(sessCfg);
+        }
+    }
+
+    /**
+     * If daemon mode is enabled, cache a session for future commands to use.
+     * @param sessCfg Session config to be cached
+     * @param commandResponse Command response to check for daemon mode
+     */
+    public static saveSessionToCache(sessCfg: ISession, commandResponse?: CommandResponse) {
+        if (commandResponse != null && !commandResponse.isDaemon) {
+            return;
+        }
+
+        const cachedSessionIdx = this.mSessionCache.findIndex(({ hostname, port }) => hostname === sessCfg.hostname && port === sessCfg.port);
+        const sessCfgProps = ["hostname", "port", "type"];
+        if (sessCfg.type === null) {
+            throw new Error("Cannot cache session with undefined type");
+        } else if (sessCfg.type === "basic") {
+            sessCfgProps.push("user", "password");
+        } else {
+            sessCfgProps.push("tokenType", "tokenValue");
+        }
+        const sessCfgWithCreds: ISession = lodash.pick(sessCfg, sessCfgProps);
+
+        if (cachedSessionIdx === -1) {
+            this.mSessionCache.push(sessCfgWithCreds);
+        } else {
+            this.mSessionCache[cachedSessionIdx] = sessCfgWithCreds;
         }
     }
 

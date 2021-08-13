@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerResponseApi } from "../../../../cmd";
+import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerResponseApi, CommandResponse } from "../../../../cmd";
 import { Constants } from "../../../../constants";
 import { ISession, ConnectionPropsForSessCfg, Session, SessConstants, AbstractSession } from "../../../../rest";
 import { Imperative } from "../../Imperative";
@@ -114,6 +114,8 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         // validate a token was returned
         if (tokenValue == null) {
             throw new ImperativeError({msg: "A token value was not returned from the login handler."});
+        } else {
+            ConnectionPropsForSessCfg.saveSessionToCache(this.mSession.ISession, params.response as CommandResponse);
         }
 
         if (params.arguments.showToken) {
