@@ -69,8 +69,13 @@ export class OverridesLoader {
       displayName = AppSettings.instance.get("overrides", "CredentialManager") as string;
     }
 
+    let cliHasKeytar: boolean = packageJson.dependencies?.keytar != null;
+    if (ImperativeConfig.instance.config?.exists) {
+      cliHasKeytar = cliHasKeytar || packageJson.optionalDependencies?.keytar != null;
+    }
+
     // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
-    if (overrides.CredentialManager != null || packageJson.dependencies?.keytar != null || packageJson.optionalDependencies?.keytar != null) {
+    if (overrides.CredentialManager != null || cliHasKeytar) {
       let Manager = overrides.CredentialManager;
       if (typeof overrides.CredentialManager === "string" && !isAbsolute(overrides.CredentialManager)) {
         Manager = resolve(process.mainModule.filename, "../", overrides.CredentialManager);
