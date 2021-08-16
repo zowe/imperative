@@ -193,10 +193,13 @@ export class ConnectionPropsForSessCfg {
          * If we are running in daemon mode, check if a cached session exists
          * that matches the hostname and port number.
          */
-        if (connOptsToUse.parms?.cacheCredentials) {
+        if (process.env.ZOWE_DAEMON_CREDENTIAL_CACHE === "1") {
             const cachedSession = this.mSessionCache.find(({ hostname, port }) => hostname === sessCfgToUse.hostname && port === sessCfgToUse.port);
             if (cachedSession != null) {
-                const mergedSession = { ...cachedSession, ...sessCfgToUse, type: cachedSession.type };
+                const mergedSession = { ...cachedSession, ...sessCfgToUse };
+                if (mergedSession.type === "basic" && cachedSession.type !== "basic") {
+                    mergedSession.type = cachedSession.type;
+                }
                 this.cacheSession(mergedSession);
                 return mergedSession as SessCfgType;
             }
@@ -245,7 +248,7 @@ export class ConnectionPropsForSessCfg {
          * If we are running in daemon mode and prompted for credentials, cache
          * the session for future commands to use.
          */
-        if (connOptsToUse.parms?.cacheCredentials) {
+        if (process.env.ZOWE_DAEMON_CREDENTIAL_CACHE === "1") {
             this.cacheSession(sessCfgToUse);
         }
 

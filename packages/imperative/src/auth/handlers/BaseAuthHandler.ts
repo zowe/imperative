@@ -114,7 +114,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         // validate a token was returned
         if (tokenValue == null) {
             throw new ImperativeError({msg: "A token value was not returned from the login handler."});
-        } else if (params.cacheCredentials) {
+        } else if (process.env.ZOWE_DAEMON_CREDENTIAL_CACHE === "1") {
             ConnectionPropsForSessCfg.cacheSession(this.mSession.ISession);
         }
 
@@ -232,7 +232,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         this.mSession = new Session(sessCfgWithCreds);
 
         await this.doLogout(this.mSession);
-        if (params.cacheCredentials) {
+        if (process.env.ZOWE_DAEMON_CREDENTIAL_CACHE === "1") {
             ConnectionPropsForSessCfg.uncacheSession(this.mSession.ISession);
         }
 

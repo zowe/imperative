@@ -84,7 +84,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
         );
         this.mSession = new Session(sessCfgWithCreds);
         const profileConfig = await this.doAutoInit(this.mSession, params);
-        if (params.cacheCredentials) {
+        if (process.env.ZOWE_DAEMON_CREDENTIAL_CACHE === "1") {
             ConnectionPropsForSessCfg.cacheSession(this.mSession.ISession);
         }
         let global = false;
