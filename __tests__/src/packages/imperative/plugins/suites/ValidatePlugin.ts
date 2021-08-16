@@ -119,7 +119,6 @@ describe("Validate plugin", () => {
             expect(result.stdout).toContain("has not been installed");
             expect(result.stderr).not.toContain("Problems detected during plugin validation.");
             expect(result.status).not.toEqual(1);
-            
         });
 
         it("when the provided plugin is not installed - error", () => {
