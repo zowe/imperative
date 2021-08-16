@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Breaking: Make `fail-on-error` option true by default on `zowe plugins validate` command.
+
 ## `5.0.0-next.202108121732`
 
 - Enhancement: Flattened the default profiles structure created by the `config init` command.
