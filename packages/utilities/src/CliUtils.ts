@@ -15,7 +15,7 @@ import { Arguments } from "yargs";
 import { TextUtils } from "./TextUtils";
 import { IOptionFormat } from "./doc/IOptionFormat";
 import { CommandProfiles, ICommandOptionDefinition, ICommandPositionalDefinition,
-         ICommandProfile, IHandlerParameters
+    ICommandProfile, IHandlerParameters
 } from "../../cmd";
 import { ICommandArguments } from "../../cmd/src/doc/args/ICommandArguments";
 import { IProfile } from "../../profiles";
@@ -119,7 +119,7 @@ export class CliUtils {
      * @memberof CliUtils
      */
     public static getOptValueFromProfiles(profiles: CommandProfiles, definitions: ICommandProfile,
-                                          options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): any {
+        options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): any {
         let args: any = {};
 
         // Construct the precedence order to iterate through the profiles
@@ -205,7 +205,7 @@ export class CliUtils {
      *
      */
     public static extractEnvForOptions(envPrefix: string,
-                                       options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): ICommandArguments["args"] {
+        options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): ICommandArguments["args"] {
         let args: ICommandArguments["args"] = {};
         options.forEach((opt) => {
             let envValue: any = CliUtils.getEnvValForOption(envPrefix, opt.name);

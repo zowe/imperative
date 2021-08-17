@@ -58,8 +58,8 @@ describe("cmd-cli chained handlers", () => {
                             applyToHandlers: [THREE_AHEAD]
                         }]
                     },
-                        {handler: "dummy"},
-                        {handler: "dummy"}]
+                    {handler: "dummy"},
+                    {handler: "dummy"}]
                 }],
                 name: "hi",
                 defaultHome: TEST_ENVIRONMENT.workingDir
@@ -115,7 +115,7 @@ describe("cmd-cli chained handlers", () => {
         const response = runCliScript(__dirname + "/__scripts__/access-mapping-notexist.sh", TEST_ENVIRONMENT.workingDir);
         expect(response.status).toBe(1);
         expect(response.stdout.toString()).toContain("argument_does_not_exist: %s");
-            // the way TextUtils work, accessing a null or undefined value in a log message just prints nothing out - no error or "undefined" added
+        // the way TextUtils work, accessing a null or undefined value in a log message just prints nothing out - no error or "undefined" added
     });
 
     it("should throw an error if a handler throws an error, and future handlers are not invoked", () => {

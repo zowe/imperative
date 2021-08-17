@@ -666,7 +666,7 @@ export class PluginManagementFacility {
             const conflictMessage = this.impLogger.error("The plugin named '%s' attempted to add a group of commands" +
                 " with the name '%s'" +
                 ". Your base application already contains a group with the name '%s'.", pluginGroupNm, pluginGroupDefinition.name,
-                cmdTreeDef.name);
+            cmdTreeDef.name);
             return { hasConflict: true, message: conflictMessage };
         }
 
@@ -676,7 +676,7 @@ export class PluginManagementFacility {
                     const conflictMessage = this.impLogger.error("The plugin named '%s' attempted to add a group of commands" +
                         " with the alias '%s' " +
                         ". Your base application already contains a group with the name '%s'.", pluginGroupNm, pluginAlias,
-                        cmdTreeDef.name);
+                    cmdTreeDef.name);
                     return { hasConflict: true, message: conflictMessage };
                 }
             }
@@ -690,7 +690,7 @@ export class PluginManagementFacility {
                 if (pluginGroupNm.toLowerCase() === nextAliasToTest.toLowerCase()) {
                     const conflictMessage = this.impLogger.error("The plugin attempted to add a group of commands with the name '%s' " +
                         ". Your base application already contains a group with an alias '%s'.", pluginGroupNm, nextAliasToTest,
-                        cmdTreeDef.name);
+                    cmdTreeDef.name);
                     return { hasConflict: true, message: conflictMessage };
                 }
                 if (pluginGroupDefinition.aliases != null) {
@@ -700,7 +700,7 @@ export class PluginManagementFacility {
                             const conflictMessage = this.impLogger.error("The plugin named '%s' attempted to add a " +
                                 "group of command with the alias '%s', which conflicts with " +
                                 "another alias of the same name for group '%s'.", pluginGroupDefinition.name, pluginAlias,
-                                cmdTreeDef.name);
+                            cmdTreeDef.name);
                             return { hasConflict: true, message: conflictMessage };
                         }
                     }

@@ -46,7 +46,7 @@ const getIHandlerParametersObject = (): IHandlerParameters => {
             }
         },
         arguments: {},
-        };
+    };
     return x as IHandlerParameters;
 };
 

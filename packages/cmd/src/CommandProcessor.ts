@@ -441,7 +441,7 @@ export class CommandProcessor {
                                 prepared.args[positionalName] =
                                     await response.console.prompt(`"${positionalName}" Description: ` +
                                         `${positional.description}\nPlease enter "${positionalName}":`,
-                                        { hideText: true, secToWait: 0 });
+                                    { hideText: true, secToWait: 0 });
                             }
                             // array processing
                             else {
@@ -456,7 +456,7 @@ export class CommandProcessor {
                                     prepared.args[positionalName][0] =
                                         await response.console.prompt(`"${positionalName}" Description: ` +
                                             `${positional.description}\nPlease enter "${positionalName}":`,
-                                            { hideText: true, secToWait: 0 });
+                                        { hideText: true, secToWait: 0 });
                                     // prompting enters as string but need to place it in array
 
                                     const array = prepared.args[positionalName][0].split(" ");
@@ -480,7 +480,7 @@ export class CommandProcessor {
                                 prepared.args[option.name] =
                                     await response.console.prompt(`"${option.name}" Description: ` +
                                         `${option.description}\nPlease enter "${option.name}":`,
-                                        { hideText: true, secToWait: 0 });
+                                    { hideText: true, secToWait: 0 });
                                 const camelCase = CliUtils.getOptionFormat(option.name).camelCase;
                                 prepared.args[camelCase] = prepared.args[option.name];
                                 if (option.aliases != null) {
@@ -502,7 +502,7 @@ export class CommandProcessor {
                                     prepared.args[option.name][0] =
                                         await response.console.prompt(`"${option.name}" Description: ` +
                                             `${option.description}\nPlease enter "${option.name}":`,
-                                            { hideText: true, secToWait: 0 });
+                                        { hideText: true, secToWait: 0 });
 
                                     const array = prepared.args[option.name][0].split(" ");
                                     prepared.args[option.name] = array;
@@ -701,9 +701,9 @@ export class CommandProcessor {
         if (this.mDefinition.examples && this.mDefinition.examples.length > 0) {
             let exampleText = TextUtils.wordWrap(`- ${this.mDefinition.examples[0].description}:\n\n`, undefined, " ");
             exampleText += `      \$ ${this.rootCommand
-                } ${CommandUtils.getFullCommandName(this.mDefinition, this.mFullDefinition)
-                } ${this.mDefinition.examples[0].options
-                }\n`;
+            } ${CommandUtils.getFullCommandName(this.mDefinition, this.mFullDefinition)
+            } ${this.mDefinition.examples[0].options
+            }\n`;
 
             finalHelp += `\nExample:\n\n${exampleText}`;
         }
@@ -908,8 +908,8 @@ export class CommandProcessor {
             this.log.error("Diagnostic information:\n" +
                 "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
                 "Environmental variables: '%s'",
-                os.platform(), os.arch(), process.argv.join(" "),
-                JSON.stringify(process.env, null, 2));
+            os.platform(), os.arch(), process.argv.join(" "),
+            JSON.stringify(process.env, null, 2));
             const errorMessage: string = TextUtils.formatMessage(couldNotInstantiateCommandHandler.message, {
                 commandHandler: nodePath.normalize(handlerPath) || "\"undefined or not specified\"",
                 definitionName: this.definition.name
@@ -976,9 +976,9 @@ export class CommandProcessor {
             "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
             "Node versions: '%s'" +
             "Environmental variables: '%s'",
-            os.platform(), os.arch(), process.argv.join(" "),
-            JSON.stringify(process.versions, null, 2),
-            JSON.stringify(process.env, null, 2));
+        os.platform(), os.arch(), process.argv.join(" "),
+        JSON.stringify(process.versions, null, 2),
+        JSON.stringify(process.env, null, 2));
 
         // If this is an instance of an imperative error, then we are good to go and can formulate the response.
         // If it is an Error object, then something truly unexpected occurred in the handler.

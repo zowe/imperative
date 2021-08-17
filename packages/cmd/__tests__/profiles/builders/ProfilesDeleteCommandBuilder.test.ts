@@ -29,9 +29,9 @@ describe("Profile Delete Command Builder", () => {
 
     it("should provide a valid command definition for the " +
         "profile delete command based on our test profile type", () => {
-            const firstProfileType = testBuilderProfiles[0];
-            let commands = new ProfilesDeleteCommandBuilder(firstProfileType.type, logger, firstProfileType).buildFull();
-            commands = deleteHandlerPaths(commands);
-            expect(commands).toMatchSnapshot();
-        });
+        const firstProfileType = testBuilderProfiles[0];
+        let commands = new ProfilesDeleteCommandBuilder(firstProfileType.type, logger, firstProfileType).buildFull();
+        commands = deleteHandlerPaths(commands);
+        expect(commands).toMatchSnapshot();
+    });
 });

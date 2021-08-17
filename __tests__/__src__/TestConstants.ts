@@ -20,32 +20,32 @@ const PROJECTS_HOME = join(__dirname, "../../");
  * @type {object}
  */
 export const PROJECTS = {
-  /**
+    /**
    * This is a reference to the parent project folder. This is the folder that should
    * contain the imperative, imperative-sample, and imperative-plugins source
    * folders.
    * @type {string}
    */
-  HOME: PROJECTS_HOME,
+    HOME: PROJECTS_HOME,
 
-  /**
+    /**
    * The resolved directory of the imperative source
    * @type {string}
    */
-  IMPERATIVE_CLI: join(PROJECTS_HOME, "imperative"),
+    IMPERATIVE_CLI: join(PROJECTS_HOME, "imperative"),
 
-  /**
+    /**
    * The resolved directory of the imperative-sample source
    * @type {string}
    */
-  IMPERATIVE_SAMPLE: join(PROJECTS_HOME, "imperative-sample"),
+    IMPERATIVE_SAMPLE: join(PROJECTS_HOME, "imperative-sample"),
 
-  /**
+    /**
    * The resolved directory of the imperative-plugins source
    *
    * @type {string}
    */
-  IMPERATIVE_PLUGINS: join(PROJECTS_HOME, "imperative-plugins")
+    IMPERATIVE_PLUGINS: join(PROJECTS_HOME, "imperative-plugins")
 };
 
 const SAMPLE_CLI_HOME = join(homedir(), ".sample-cli");
@@ -58,39 +58,39 @@ const SAMPLE_CLI_PLUGIN_INSTALL = join(SAMPLE_CLI_PLUGIN_HOME, "installed");
  * @type {object}
  */
 export const SAMPLE_CLI = {
-  /**
+    /**
    * The home folder for the Sample CLI
    *
    * @type {string}
    */
-  HOME: SAMPLE_CLI_HOME,
+    HOME: SAMPLE_CLI_HOME,
 
-  /**
+    /**
    * Locations used by the PMF
    * @type {object}
    */
-  PLUGINS: {
+    PLUGINS: {
     /**
      * The plugins folder used by the PMF
      *
      * @type {string}
      */
-    HOME: SAMPLE_CLI_PLUGIN_HOME,
+        HOME: SAMPLE_CLI_PLUGIN_HOME,
 
-    /**
+        /**
      * The install directory of plugins
      *
      * @type {string}
      */
-    INSTALL_LOCATION: SAMPLE_CLI_PLUGIN_INSTALL,
+        INSTALL_LOCATION: SAMPLE_CLI_PLUGIN_INSTALL,
 
-    /**
+        /**
      * The plugins.json file config location
      *
      * @type {string}
      */
-    JSON: SAMPLE_CLI_PLUGIN_JSON
-  }
+        JSON: SAMPLE_CLI_PLUGIN_JSON
+    }
 };
 
 /**

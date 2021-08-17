@@ -801,7 +801,7 @@ describe("ProfileInfo tests", () => {
                 const expectedDefaultProfileNameBase = "base_for_userNm";
                 const expectedDefaultProfiles = 3;
                 let expectedProfileNames = ["lpar1_zosmf", "lpar2_zosmf", "lpar3_zosmf", "lpar4_zosmf", "lpar5_zosmf", "tsoProfName",
-                                              "base_for_userNm", "base_apiml"];
+                    "base_for_userNm", "base_apiml"];
                 let actualDefaultProfiles = 0;
 
                 const profInfo = createNewProfInfo(homeDirPath);

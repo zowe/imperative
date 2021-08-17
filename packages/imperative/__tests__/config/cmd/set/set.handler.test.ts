@@ -48,7 +48,7 @@ const getIHandlerParametersObject = (): IHandlerParameters => {
             }
         },
         arguments: {},
-        };
+    };
     return x as IHandlerParameters;
 };
 
@@ -303,7 +303,7 @@ describe("Configuration Set command handler", () => {
 
         readFileSyncSpy.mockReturnValueOnce(JSON.stringify(eco));
         existsSyncSpy.mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false)
-                     .mockReturnValueOnce(true).mockReturnValue(false); // Only the global project config exists
+            .mockReturnValueOnce(true).mockReturnValue(false); // Only the global project config exists
         writeFileSyncSpy.mockImplementation();
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
 
@@ -376,7 +376,7 @@ describe("Configuration Set command handler", () => {
 
         readFileSyncSpy.mockReturnValueOnce(JSON.stringify(eco));
         existsSyncSpy.mockReturnValueOnce(false).mockReturnValueOnce(false)
-                     .mockReturnValueOnce(true).mockReturnValue(false); // Only the global user project config exists
+            .mockReturnValueOnce(true).mockReturnValue(false); // Only the global user project config exists
         writeFileSyncSpy.mockImplementation();
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
 
@@ -578,7 +578,7 @@ describe("Configuration Set command handler", () => {
 
         readFileSyncSpy.mockReturnValueOnce(JSON.stringify(eco));
         existsSyncSpy.mockReturnValueOnce(false).mockReturnValueOnce(false).mockReturnValueOnce(false)
-                     .mockReturnValueOnce(true).mockReturnValue(false); // Only the global project config exists
+            .mockReturnValueOnce(true).mockReturnValue(false); // Only the global project config exists
         writeFileSyncSpy.mockImplementation();
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
 
@@ -645,7 +645,7 @@ describe("Configuration Set command handler", () => {
 
         readFileSyncSpy.mockReturnValueOnce(JSON.stringify(eco));
         existsSyncSpy.mockReturnValueOnce(false).mockReturnValueOnce(false)
-                     .mockReturnValueOnce(true).mockReturnValue(false); // Only the global user project config exists
+            .mockReturnValueOnce(true).mockReturnValue(false); // Only the global user project config exists
         writeFileSyncSpy.mockImplementation();
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
 

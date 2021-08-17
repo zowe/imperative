@@ -20,215 +20,215 @@ import { IProfileTypeConfiguration } from "../src/doc/config/IProfileTypeConfigu
 UnitTestUtils.replaceIt();
 
 describe("Basic Profile Manager Constructor", () => {
-  it("should detect no parms when instantiating", () => {
-    let error;
-    try {
-      const prof = new BasicProfileManager(undefined);
-    } catch (e) {
-      error = e;
-      TestLogger.info(error);
-    }
-    expect(error instanceof ImperativeError).toBe(true);
-    expect(error.message).toMatchSnapshot();
-  });
-
-  it("should detect that the profile directory is undefined", () => {
-    let error;
-    try {
-      const prof = new BasicProfileManager({
-        profileRootDirectory: undefined,
-        typeConfigurations: ONLY_APPLE,
-        type: APPLE_PROFILE_TYPE,
-        logger: TestLogger.getTestLogger()
-      });
-    } catch (e) {
-      error = e;
-      TestLogger.info(error);
-    }
-    expect(error instanceof ImperativeError).toBe(true);
-    expect(error.message).toMatchSnapshot();
-  });
-
-  it("should detect that the profile directory is blank", () => {
-    let error;
-    try {
-      const prof = new BasicProfileManager({
-        profileRootDirectory: " ",
-        typeConfigurations: ONLY_APPLE,
-        type: APPLE_PROFILE_TYPE,
-        logger: TestLogger.getTestLogger()
-      });
-    } catch (e) {
-      error = e;
-      TestLogger.info(error);
-    }
-    expect(error instanceof ImperativeError).toBe(true);
-    expect(error.message).toMatchSnapshot();
-  });
-
-  it("should detect that no type configuration is supplied", () => {
-    let error;
-    try {
-      const prof = new BasicProfileManager({
-        profileRootDirectory: TEST_PROFILE_ROOT_DIR,
-        typeConfigurations: undefined,
-        type: APPLE_PROFILE_TYPE,
-        logger: TestLogger.getTestLogger()
-      });
-    } catch (e) {
-      error = e;
-      TestLogger.info(error);
-    }
-    expect(error instanceof ImperativeError).toBe(true);
-    expect(error.message).toContain("An error occurred collecting all configurations from the profile root directory");
-  });
-
-  it("should detect that the type configuration is an empty array", () => {
-    let error;
-    try {
-      const prof = new BasicProfileManager({
-        profileRootDirectory: TEST_PROFILE_ROOT_DIR,
-        typeConfigurations: [],
-        type: APPLE_PROFILE_TYPE,
-        logger: TestLogger.getTestLogger()
-      });
-    } catch (e) {
-      error = e;
-      TestLogger.info(error);
-    }
-    expect(error instanceof ImperativeError).toBe(true);
-    expect(error.message).toContain("An error occurred collecting all configurations from the profile root directory");
-  });
-
-  it("should detect if the type is undefined", () => {
-    let error;
-    try {
-      const prof = new BasicProfileManager({
-        profileRootDirectory: TEST_PROFILE_ROOT_DIR,
-        typeConfigurations: ONLY_APPLE,
-        type: undefined,
-        logger: TestLogger.getTestLogger()
-      });
-    } catch (e) {
-      error = e;
-      TestLogger.info(error);
-    }
-    expect(error instanceof ImperativeError).toBe(true);
-    expect(error.message).toMatchSnapshot();
-  });
-
-  it("should detect if the type is blank", () => {
-    let error;
-    try {
-      const prof = new BasicProfileManager({
-        profileRootDirectory: TEST_PROFILE_ROOT_DIR,
-        typeConfigurations: ONLY_APPLE,
-        type: " ",
-        logger: TestLogger.getTestLogger()
-      });
-    } catch (e) {
-      error = e;
-      TestLogger.info(error);
-    }
-    expect(error instanceof ImperativeError).toBe(true);
-    expect(error.message).toMatchSnapshot();
-  });
-
-  it("should detect that a type not found within the configurations", () => {
-    let error;
-    try {
-      const prof = new BasicProfileManager({
-        profileRootDirectory: TEST_PROFILE_ROOT_DIR,
-        typeConfigurations: ONLY_APPLE,
-        type: "bad_apple",
-        logger: TestLogger.getTestLogger()
-      });
-    } catch (e) {
-      error = e;
-      TestLogger.info(error);
-    }
-    expect(error instanceof ImperativeError).toBe(true);
-    expect(error.message).toContain(
-      "Expect Error: Could not locate the profile type configuration for \"bad_apple\" within the input configuration list passed."
-    );
-  });
-
-  it("should allow us to instantiate the cli profile manager", () => {
-    let error;
-    try {
-      const prof = new BasicProfileManager({
-        profileRootDirectory: TEST_PROFILE_ROOT_DIR,
-        typeConfigurations: ONLY_APPLE,
-        type: APPLE_PROFILE_TYPE,
-        logger: TestLogger.getTestLogger()
-      });
-      TestLogger.info("Profile Manager Created");
-    } catch (e) {
-      error = e;
-      TestLogger.error(e);
-    }
-    expect(error).toBeUndefined();
-  });
-
-  it("should detect that a schema definition document is attempting to overload 'type'", () => {
-    const copy: IProfileTypeConfiguration[] = JSON.parse(JSON.stringify(ONLY_APPLE));
-    copy[0].schema.properties.type = {type: "boolean"};
-    const prof = new BasicProfileManager({
-      profileRootDirectory: TEST_PROFILE_ROOT_DIR,
-      typeConfigurations: ONLY_APPLE,
-      type: APPLE_PROFILE_TYPE,
-      logger: TestLogger.getTestLogger()
+    it("should detect no parms when instantiating", () => {
+        let error;
+        try {
+            const prof = new BasicProfileManager(undefined);
+        } catch (e) {
+            error = e;
+            TestLogger.info(error);
+        }
+        expect(error instanceof ImperativeError).toBe(true);
+        expect(error.message).toMatchSnapshot();
     });
-  });
 
-  it("should detect that a schema definition document is attempting to overload 'name'", () => {
-    const copy: IProfileTypeConfiguration[] = JSON.parse(JSON.stringify(ONLY_APPLE));
-    copy[0].schema.properties.name = {type: "boolean"};
-    const prof = new BasicProfileManager({
-      profileRootDirectory: TEST_PROFILE_ROOT_DIR,
-      typeConfigurations: ONLY_APPLE,
-      type: APPLE_PROFILE_TYPE,
-      logger: TestLogger.getTestLogger()
+    it("should detect that the profile directory is undefined", () => {
+        let error;
+        try {
+            const prof = new BasicProfileManager({
+                profileRootDirectory: undefined,
+                typeConfigurations: ONLY_APPLE,
+                type: APPLE_PROFILE_TYPE,
+                logger: TestLogger.getTestLogger()
+            });
+        } catch (e) {
+            error = e;
+            TestLogger.info(error);
+        }
+        expect(error instanceof ImperativeError).toBe(true);
+        expect(error.message).toMatchSnapshot();
     });
-  });
 
-  it("should detect that a schema definition document is attempting to overload 'dependencies'", () => {
-    const copy: IProfileTypeConfiguration[] = JSON.parse(JSON.stringify(ONLY_APPLE));
-    copy[0].schema.properties.dependencies = {type: "boolean"};
-    const prof = new BasicProfileManager({
-      profileRootDirectory: TEST_PROFILE_ROOT_DIR,
-      typeConfigurations: ONLY_APPLE,
-      type: APPLE_PROFILE_TYPE,
-      logger: TestLogger.getTestLogger()
+    it("should detect that the profile directory is blank", () => {
+        let error;
+        try {
+            const prof = new BasicProfileManager({
+                profileRootDirectory: " ",
+                typeConfigurations: ONLY_APPLE,
+                type: APPLE_PROFILE_TYPE,
+                logger: TestLogger.getTestLogger()
+            });
+        } catch (e) {
+            error = e;
+            TestLogger.info(error);
+        }
+        expect(error instanceof ImperativeError).toBe(true);
+        expect(error.message).toMatchSnapshot();
     });
-  });
 
-  it("should allow instantiation if the meta doesn't have a default", () => {
-    let error;
-    try {
-      const prof = new BasicProfileManager({
-        profileRootDirectory: TEST_PROFILE_ROOT_DIR + FRUIT_BASKET_WORSE,
-        type: MANGO_PROFILE_TYPE,
-        logger: TestLogger.getTestLogger()
-      });
-    } catch (e) {
-      error = e;
-    }
-    expect(error).toBeUndefined();
-  });
+    it("should detect that no type configuration is supplied", () => {
+        let error;
+        try {
+            const prof = new BasicProfileManager({
+                profileRootDirectory: TEST_PROFILE_ROOT_DIR,
+                typeConfigurations: undefined,
+                type: APPLE_PROFILE_TYPE,
+                logger: TestLogger.getTestLogger()
+            });
+        } catch (e) {
+            error = e;
+            TestLogger.info(error);
+        }
+        expect(error instanceof ImperativeError).toBe(true);
+        expect(error.message).toContain("An error occurred collecting all configurations from the profile root directory");
+    });
 
-  it("should detect ill-formed meta profile configurations", () => {
-    let error;
-    try {
-      const prof = new BasicProfileManager({
-        profileRootDirectory: TEST_PROFILE_ROOT_DIR + FRUIT_BASKET_BAD_DIR,
-        type: MANGO_PROFILE_TYPE,
-        logger: TestLogger.getTestLogger()
-      });
-    } catch (e) {
-      error = e;
-    }
-    expect(error instanceof ImperativeError).toBe(true);
-    expect(error.message).toMatchSnapshot();
-  });
+    it("should detect that the type configuration is an empty array", () => {
+        let error;
+        try {
+            const prof = new BasicProfileManager({
+                profileRootDirectory: TEST_PROFILE_ROOT_DIR,
+                typeConfigurations: [],
+                type: APPLE_PROFILE_TYPE,
+                logger: TestLogger.getTestLogger()
+            });
+        } catch (e) {
+            error = e;
+            TestLogger.info(error);
+        }
+        expect(error instanceof ImperativeError).toBe(true);
+        expect(error.message).toContain("An error occurred collecting all configurations from the profile root directory");
+    });
+
+    it("should detect if the type is undefined", () => {
+        let error;
+        try {
+            const prof = new BasicProfileManager({
+                profileRootDirectory: TEST_PROFILE_ROOT_DIR,
+                typeConfigurations: ONLY_APPLE,
+                type: undefined,
+                logger: TestLogger.getTestLogger()
+            });
+        } catch (e) {
+            error = e;
+            TestLogger.info(error);
+        }
+        expect(error instanceof ImperativeError).toBe(true);
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should detect if the type is blank", () => {
+        let error;
+        try {
+            const prof = new BasicProfileManager({
+                profileRootDirectory: TEST_PROFILE_ROOT_DIR,
+                typeConfigurations: ONLY_APPLE,
+                type: " ",
+                logger: TestLogger.getTestLogger()
+            });
+        } catch (e) {
+            error = e;
+            TestLogger.info(error);
+        }
+        expect(error instanceof ImperativeError).toBe(true);
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should detect that a type not found within the configurations", () => {
+        let error;
+        try {
+            const prof = new BasicProfileManager({
+                profileRootDirectory: TEST_PROFILE_ROOT_DIR,
+                typeConfigurations: ONLY_APPLE,
+                type: "bad_apple",
+                logger: TestLogger.getTestLogger()
+            });
+        } catch (e) {
+            error = e;
+            TestLogger.info(error);
+        }
+        expect(error instanceof ImperativeError).toBe(true);
+        expect(error.message).toContain(
+            "Expect Error: Could not locate the profile type configuration for \"bad_apple\" within the input configuration list passed."
+        );
+    });
+
+    it("should allow us to instantiate the cli profile manager", () => {
+        let error;
+        try {
+            const prof = new BasicProfileManager({
+                profileRootDirectory: TEST_PROFILE_ROOT_DIR,
+                typeConfigurations: ONLY_APPLE,
+                type: APPLE_PROFILE_TYPE,
+                logger: TestLogger.getTestLogger()
+            });
+            TestLogger.info("Profile Manager Created");
+        } catch (e) {
+            error = e;
+            TestLogger.error(e);
+        }
+        expect(error).toBeUndefined();
+    });
+
+    it("should detect that a schema definition document is attempting to overload 'type'", () => {
+        const copy: IProfileTypeConfiguration[] = JSON.parse(JSON.stringify(ONLY_APPLE));
+        copy[0].schema.properties.type = {type: "boolean"};
+        const prof = new BasicProfileManager({
+            profileRootDirectory: TEST_PROFILE_ROOT_DIR,
+            typeConfigurations: ONLY_APPLE,
+            type: APPLE_PROFILE_TYPE,
+            logger: TestLogger.getTestLogger()
+        });
+    });
+
+    it("should detect that a schema definition document is attempting to overload 'name'", () => {
+        const copy: IProfileTypeConfiguration[] = JSON.parse(JSON.stringify(ONLY_APPLE));
+        copy[0].schema.properties.name = {type: "boolean"};
+        const prof = new BasicProfileManager({
+            profileRootDirectory: TEST_PROFILE_ROOT_DIR,
+            typeConfigurations: ONLY_APPLE,
+            type: APPLE_PROFILE_TYPE,
+            logger: TestLogger.getTestLogger()
+        });
+    });
+
+    it("should detect that a schema definition document is attempting to overload 'dependencies'", () => {
+        const copy: IProfileTypeConfiguration[] = JSON.parse(JSON.stringify(ONLY_APPLE));
+        copy[0].schema.properties.dependencies = {type: "boolean"};
+        const prof = new BasicProfileManager({
+            profileRootDirectory: TEST_PROFILE_ROOT_DIR,
+            typeConfigurations: ONLY_APPLE,
+            type: APPLE_PROFILE_TYPE,
+            logger: TestLogger.getTestLogger()
+        });
+    });
+
+    it("should allow instantiation if the meta doesn't have a default", () => {
+        let error;
+        try {
+            const prof = new BasicProfileManager({
+                profileRootDirectory: TEST_PROFILE_ROOT_DIR + FRUIT_BASKET_WORSE,
+                type: MANGO_PROFILE_TYPE,
+                logger: TestLogger.getTestLogger()
+            });
+        } catch (e) {
+            error = e;
+        }
+        expect(error).toBeUndefined();
+    });
+
+    it("should detect ill-formed meta profile configurations", () => {
+        let error;
+        try {
+            const prof = new BasicProfileManager({
+                profileRootDirectory: TEST_PROFILE_ROOT_DIR + FRUIT_BASKET_BAD_DIR,
+                type: MANGO_PROFILE_TYPE,
+                logger: TestLogger.getTestLogger()
+            });
+        } catch (e) {
+            error = e;
+        }
+        expect(error instanceof ImperativeError).toBe(true);
+        expect(error.message).toMatchSnapshot();
+    });
 });

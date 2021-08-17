@@ -12,8 +12,8 @@
 import { Imperative } from "../../../../packages/imperative";
 
 Imperative.init({configurationModule: __dirname + "/ProfileBinExampleConfiguration.ts"}).then(() => {
-  Imperative.parse();
+    Imperative.parse();
 }).catch((error) => {
-  process.stderr.write(`An error occurred parsing or initing: ${error.message}`);
+    process.stderr.write(`An error occurred parsing or initing: ${error.message}`);
 });
 

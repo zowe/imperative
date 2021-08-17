@@ -46,7 +46,7 @@ describe("Imperative should validate config provided by the consumer", function 
         return Imperative.init().then(() => {
             // "Display name should have matched our config"
             expect(ImperativeConfig.instance.loadedConfig.productDisplayName)
-              .toEqual(config.productDisplayName);
+                .toEqual(config.productDisplayName);
         });
     });
 });

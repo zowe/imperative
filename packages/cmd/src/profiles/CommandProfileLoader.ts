@@ -78,7 +78,7 @@ export class CommandProfileLoader {
      * @memberof CommandProfileLoader
      */
     constructor(commandDefinition: ICommandDefinition, factory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
-                logger = Logger.getImperativeLogger()) {
+        logger = Logger.getImperativeLogger()) {
         const err: string = "Could not construct the profile loader.";
         ImperativeExpect.toNotBeNullOrUndefined(commandDefinition, `${err} No command definition supplied.`);
         ImperativeExpect.toNotBeNullOrUndefined(factory, `${err} No profile factory supplied.`);

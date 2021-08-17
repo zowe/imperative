@@ -31,15 +31,15 @@ import { closest } from "fastest-levenshtein";
  */
 export class YargsConfigurer {
     constructor(private rootCommand: ICommandDefinition,
-                private yargs: any,
-                private commandRespParms: ICommandResponseParms,
-                private profileManagerFactory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
-                private helpGeneratorFactory: IHelpGeneratorFactory,
-                private experimentalCommandDescription: string,
-                private rootCommandName: string,
-                private commandLine: string,
-                private envVariablePrefix: string,
-                private promptPhrase: string
+        private yargs: any,
+        private commandRespParms: ICommandResponseParms,
+        private profileManagerFactory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
+        private helpGeneratorFactory: IHelpGeneratorFactory,
+        private experimentalCommandDescription: string,
+        private rootCommandName: string,
+        private commandLine: string,
+        private envVariablePrefix: string,
+        private promptPhrase: string
     ) {
     }
 
@@ -137,8 +137,8 @@ export class YargsConfigurer {
                         .then((failedCommandResponse) => {
                             logger.debug("Finished invoking the 'FailedCommand' handler");
                         }).catch((err) => {
-                        logger.error("%s", err.msg);
-                    });
+                            logger.error("%s", err.msg);
+                        });
                 }
             }
         });
@@ -183,8 +183,8 @@ export class YargsConfigurer {
                 .then((failedCommandResponse) => {
                     logger.debug("Finished invoking the 'FailedCommand' handler");
                 }).catch((err) => {
-                logger.error("%s", err.msg);
-            });
+                    logger.error("%s", err.msg);
+                });
         });
         process.on("uncaughtException", (error: Error) => {
             process.exitCode = Constants.ERROR_EXIT_CODE;
@@ -226,8 +226,8 @@ export class YargsConfigurer {
                 .then((failedCommandResponse) => {
                     logger.debug("Finished invoking the 'FailedCommand' handler");
                 }).catch((err) => {
-                logger.error("%s", err.msg);
-            });
+                    logger.error("%s", err.msg);
+                });
         });
     }
 

@@ -15,7 +15,7 @@ describe("YargsConfigurer tests", () => {
     it("should build a failure message", () => {
 
         const config = new YargsConfigurer({ name: "any", description: "any", type: "command", children: []},
-        undefined, undefined, undefined, undefined, undefined, "fake", "fake", "ZOWE", "fake");
+            undefined, undefined, undefined, undefined, undefined, "fake", "fake", "ZOWE", "fake");
 
         ImperativeConfig.instance.commandLine = "some-command";
 

@@ -51,7 +51,7 @@ export default class ListHandler implements ICommandHandler {
             if (installedPlugins.hasOwnProperty(pluginName)) {
                 // Build the console output
                 if (firstTime) {
-                  listOutput = `\n${chalk.yellow.bold("Installed plugins:")} \n\n`;
+                    listOutput = `\n${chalk.yellow.bold("Installed plugins:")} \n\n`;
                 }
 
                 listOutput = listOutput + `${chalk.yellow.bold(" -- pluginName: ")}` +
@@ -79,7 +79,7 @@ export default class ListHandler implements ICommandHandler {
         }
 
         if (listOutput === "") {
-          listOutput = "No plugins have been installed into your CLI application.";
+            listOutput = "No plugins have been installed into your CLI application.";
         }
 
         // Write to the results of the list command to console

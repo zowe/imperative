@@ -20,105 +20,105 @@ import { ICommandProfileTypeConfiguration } from "../../../../../../packages/cmd
  * @returns
  */
 export function getConfig(home: string) {
-  const copy = JSON.parse(JSON.stringify(SAMPLE_IMPERATIVE_CONFIG_WITH_PROFILES));
-  copy.defaultHome = home;
-  return copy;
+    const copy = JSON.parse(JSON.stringify(SAMPLE_IMPERATIVE_CONFIG_WITH_PROFILES));
+    copy.defaultHome = home;
+    return copy;
 }
 
 export const PROFILE_TYPE = {
-  BANANA: "banana",
-  SECURE_ORANGE: "secure_orange",
-  STRAWBERRY: "strawberry"
+    BANANA: "banana",
+    SECURE_ORANGE: "secure_orange",
+    STRAWBERRY: "strawberry"
 };
 
 const bananaProfile: ICommandProfileTypeConfiguration = {
-  type: PROFILE_TYPE.BANANA,
-  schema: {
-    type: "object",
-    title: "The Banana command profile schema",
-    description: "The Banana command profile schema",
-    properties: {
-      age: {
-        optionDefinition: {
-          description: "The age of the Banana",
-          type: "number",
-          name: "age", aliases: ["a"],
-          required: true
+    type: PROFILE_TYPE.BANANA,
+    schema: {
+        type: "object",
+        title: "The Banana command profile schema",
+        description: "The Banana command profile schema",
+        properties: {
+            age: {
+                optionDefinition: {
+                    description: "The age of the Banana",
+                    type: "number",
+                    name: "age", aliases: ["a"],
+                    required: true
+                },
+                type: "number",
+            },
         },
-        type: "number",
-      },
-    },
-    required: ["age"]
-  }
+        required: ["age"]
+    }
 };
 
 const secureOrangeProfile: ICommandProfileTypeConfiguration = {
-  type: PROFILE_TYPE.SECURE_ORANGE,
-  schema: {
-    type: "object",
-    title: "The secure_orange command profile schema",
-    description: "The secure_orange command profile schema",
-    properties: {
-      username: {
-        optionDefinition: {
-          description: "The username of the secure_orange",
-          type: "string",
-          name: "username",
+    type: PROFILE_TYPE.SECURE_ORANGE,
+    schema: {
+        type: "object",
+        title: "The secure_orange command profile schema",
+        description: "The secure_orange command profile schema",
+        properties: {
+            username: {
+                optionDefinition: {
+                    description: "The username of the secure_orange",
+                    type: "string",
+                    name: "username",
+                },
+                type: "string",
+            },
+            password: {
+                optionDefinition: {
+                    description: "The password of the secure_orange",
+                    type: "string",
+                    name: "password",
+                },
+                type: "string",
+            },
         },
-        type: "string",
-      },
-      password: {
-        optionDefinition: {
-          description: "The password of the secure_orange",
-          type: "string",
-          name: "password",
-        },
-        type: "string",
-      },
-    },
-    required: []
-  }
+        required: []
+    }
 };
 
 const strawberryProfile: ICommandProfileTypeConfiguration = {
-  type: PROFILE_TYPE.STRAWBERRY,
-  schema: {
-    type: "object",
-    title: "The strawberry command profile schema",
-    description: "The strawberry command profile schema",
-    properties: {
-      age: {
-        optionDefinition: {
-          description: "The age of the strawberry",
-          type: "number",
-          name: "age", aliases: ["a"],
-          required: true
+    type: PROFILE_TYPE.STRAWBERRY,
+    schema: {
+        type: "object",
+        title: "The strawberry command profile schema",
+        description: "The strawberry command profile schema",
+        properties: {
+            age: {
+                optionDefinition: {
+                    description: "The age of the strawberry",
+                    type: "number",
+                    name: "age", aliases: ["a"],
+                    required: true
+                },
+                type: "number",
+            },
         },
-        type: "number",
-      },
-    },
-    required: ["age"]
-  }
+        required: ["age"]
+    }
 };
 
 export const PROFILE_TYPE_CONFIGURATION: ICommandProfileTypeConfiguration[] = [
-  bananaProfile,
-  secureOrangeProfile,
-  strawberryProfile
+    bananaProfile,
+    secureOrangeProfile,
+    strawberryProfile
 ];
 
 export const BANANA_AGE: number = 1000;
 export const SAMPLE_IMPERATIVE_CONFIG_WITH_PROFILES: IImperativeConfig = {
-  definitions: [
-    {
-      name: "hello",
-      type: "command",
-      options: [],
-      description: "my command"
-    }
-  ],
-  productDisplayName: "My product (packagejson)",
-  defaultHome: TestUtils.TEST_HOME,
-  rootCommandDescription: "My Product CLI",
-  profiles: PROFILE_TYPE_CONFIGURATION
+    definitions: [
+        {
+            name: "hello",
+            type: "command",
+            options: [],
+            description: "my command"
+        }
+    ],
+    productDisplayName: "My product (packagejson)",
+    defaultHome: TestUtils.TEST_HOME,
+    rootCommandDescription: "My Product CLI",
+    profiles: PROFILE_TYPE_CONFIGURATION
 };

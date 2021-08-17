@@ -243,8 +243,8 @@ export abstract class AbstractCommandYargs {
      * @return {IYargsResponse}
      */
     protected getBrightYargsResponse(successful: boolean, responseMessage: string,
-                                     action: ImperativeYargsCommandAction,
-                                     responses?: ICommandResponse[]): IYargsResponse {
+        action: ImperativeYargsCommandAction,
+        responses?: ICommandResponse[]): IYargsResponse {
         let exitCode: number;
         if (responses != null && responses.length > 0) {
             for (const response of responses) {

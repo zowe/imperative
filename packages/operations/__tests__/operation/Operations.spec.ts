@@ -305,8 +305,8 @@ describe("Operation Infrastructure", () => {
 });
 
 function checkResults(operationActualResults: IOperationResult<any>,
-                      operationExpectedResults: Array<IOperationResult<any>>,
-                      done: any, callDone: boolean) {
+    operationExpectedResults: Array<IOperationResult<any>>,
+    done: any, callDone: boolean) {
 
     if (isNullOrUndefined(operationActualResults)) {
         // The operations failed to return any results

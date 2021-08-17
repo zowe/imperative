@@ -671,23 +671,23 @@ describe("ConnectionPropsForSessCfg tests", () => {
         const fakeFunction = jest.fn((neededProps) => {
             for (const value of neededProps) {
                 switch (value) {
-                case "hostname" :
-                    neededProps[value] = fakeFunctionSessCfg.hostname
-                    break;
-                case "port" :
-                    neededProps[value] = fakeFunctionSessCfg.port
-                    break;
-                case "user" :
-                    neededProps[value] = fakeFunctionSessCfg.user
-                    break;
-                case "password" :
-                    neededProps[value] = fakeFunctionSessCfg.password
-                    break;
-                case "rejectUnauthorized" :
-                    neededProps[value] = initialSessCfg.rejectUnauthorized
-                    break;
-                default:
-                    return;
+                    case "hostname" :
+                        neededProps[value] = fakeFunctionSessCfg.hostname
+                        break;
+                    case "port" :
+                        neededProps[value] = fakeFunctionSessCfg.port
+                        break;
+                    case "user" :
+                        neededProps[value] = fakeFunctionSessCfg.user
+                        break;
+                    case "password" :
+                        neededProps[value] = fakeFunctionSessCfg.password
+                        break;
+                    case "rejectUnauthorized" :
+                        neededProps[value] = initialSessCfg.rejectUnauthorized
+                        break;
+                    default:
+                        return;
                 }
             }
             return neededProps;
@@ -722,23 +722,23 @@ describe("ConnectionPropsForSessCfg tests", () => {
         const fakeFunction = jest.fn((neededProps) => {
             for (const value of neededProps) {
                 switch (value) {
-                case "hostname" :
-                    neededProps[value] = fakeFunctionSessCfg.hostname
-                    break;
-                case "port" :
-                    neededProps[value] = fakeFunctionSessCfg.port
-                    break;
-                case "user" :
-                    neededProps[value] = args.user
-                    break;
-                case "password" :
-                    neededProps[value] = initialSessCfg.password
-                    break;
-                case "rejectUnauthorized" :
-                    neededProps[value] = initialSessCfg.rejectUnauthorized
-                    break;
-                default:
-                    return;
+                    case "hostname" :
+                        neededProps[value] = fakeFunctionSessCfg.hostname
+                        break;
+                    case "port" :
+                        neededProps[value] = fakeFunctionSessCfg.port
+                        break;
+                    case "user" :
+                        neededProps[value] = args.user
+                        break;
+                    case "password" :
+                        neededProps[value] = initialSessCfg.password
+                        break;
+                    case "rejectUnauthorized" :
+                        neededProps[value] = initialSessCfg.rejectUnauthorized
+                        break;
+                    default:
+                        return;
                 }
             }
             return neededProps;

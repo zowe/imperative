@@ -273,7 +273,7 @@ export class ProfileInfo {
             isDefaultProfile: true,
             profLoc: {
                 locType: null
-           }
+            }
         };
 
         if (this.usingTeamConfig) {

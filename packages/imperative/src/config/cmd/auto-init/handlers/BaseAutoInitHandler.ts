@@ -128,16 +128,16 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             }
 
             original = JSONC.stringify(originalProperties,
-                                      null,
-                                      ConfigConstants.INDENT);
+                null,
+                ConfigConstants.INDENT);
             dryRun = JSONC.stringify(dryRunProperties,
-                                     null,
-                                     ConfigConstants.INDENT);
+                null,
+                ConfigConstants.INDENT);
 
             let jsonDiff = diff(original, dryRun, {aAnnotation: "Removed",
-                                                   bAnnotation: "Added",
-                                                   aColor: TextUtils.chalk.red,
-                                                   bColor: TextUtils.chalk.green});
+                bAnnotation: "Added",
+                aColor: TextUtils.chalk.red,
+                bColor: TextUtils.chalk.green});
 
             if (stripAnsi(jsonDiff) === "Compared values have no visual difference.") {
                 jsonDiff = dryRun;

@@ -36,8 +36,8 @@ export class AutoInitCommandBuilder implements AbstractCommandBuilder {
      * @param {IImperativeAuthConfig} mAuthConfig - the config for the auth type
      */
     constructor(protected mLogger: Logger,
-                protected mAutoInitConfig: ICommandProfileAutoInitConfig,
-                protected mProfileType?: string) {
+        protected mAutoInitConfig: ICommandProfileAutoInitConfig,
+        protected mProfileType?: string) {
 
         this.mConfig = mAutoInitConfig;
         if (this.mConfig == null) {

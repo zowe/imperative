@@ -115,116 +115,116 @@ describe("Command Response", () => {
     it("If we create a progress bar, an interval should be set to update the bar. " +
         "If we finish the bar, the interval should be stopped and no longer stored" +
         "in the command response. ", (done) => {
-            const response = new CommandResponse({ silent: false, responseFormat: "default" });
-            const status: ITaskWithStatus = {
-                statusMessage: "Making a bar",
-                percentComplete: 10,
-                stageName: TaskStage.IN_PROGRESS
-            };
-            response.progress.startBar(
-                {
-                    task: status,
-                    stream
-                });
-            expect((response as any).mProgressBar).toBeDefined(); // access private fields
-            expect((response.progress as any).mProgressBarInterval).toBeDefined();
-            TestLogger.debug("Progress bar was created. Details:\n{{progressBar}}\nInterval identifier:\n{{interval}}",
-                {
-                    progressBar: inspect((response as any).progressBar),
-                    interval: inspect((response.progress as any).mProgressBarInterval)
-                });
-            const oneSecond = 1;
-            setTimeout(() => {
-                // turn off the progress bar - t he details should be set
-                response.progress.endBar();
-                expect((response as any).mProgressBar).toBeUndefined();
-                expect((response.progress as any).mProgressBarInterval).toBeUndefined();
-                done();
-            }, oneSecond);
-        });
+        const response = new CommandResponse({ silent: false, responseFormat: "default" });
+        const status: ITaskWithStatus = {
+            statusMessage: "Making a bar",
+            percentComplete: 10,
+            stageName: TaskStage.IN_PROGRESS
+        };
+        response.progress.startBar(
+            {
+                task: status,
+                stream
+            });
+        expect((response as any).mProgressBar).toBeDefined(); // access private fields
+        expect((response.progress as any).mProgressBarInterval).toBeDefined();
+        TestLogger.debug("Progress bar was created. Details:\n{{progressBar}}\nInterval identifier:\n{{interval}}",
+            {
+                progressBar: inspect((response as any).progressBar),
+                interval: inspect((response.progress as any).mProgressBarInterval)
+            });
+        const oneSecond = 1;
+        setTimeout(() => {
+            // turn off the progress bar - t he details should be set
+            response.progress.endBar();
+            expect((response as any).mProgressBar).toBeUndefined();
+            expect((response.progress as any).mProgressBarInterval).toBeUndefined();
+            done();
+        }, oneSecond);
+    });
 
 
     it("should work if the progress bar is directed to a socket stream", (done) => {
-            const response = new CommandResponse({ silent: false, responseFormat: "default", stream });
-            const status: ITaskWithStatus = {
-                statusMessage: "Making a bar",
-                percentComplete: 10,
-                stageName: TaskStage.IN_PROGRESS
-            };
-            response.progress.startBar(
-                {
-                    task: status,
-                    stream
-                });
-            expect((response as any).mProgressBar).toBeDefined(); // access private fields
-            expect((response.progress as any).mProgressBarInterval).toBeDefined();
-            TestLogger.debug("Progress bar was created. Details:\n{{progressBar}}\nInterval identifier:\n{{interval}}",
-                {
-                    progressBar: inspect((response as any).progressBar),
-                    interval: inspect((response.progress as any).mProgressBarInterval)
-                });
-            const oneSecond = 1;
-            setTimeout(() => {
-                // turn off the progress bar - t he details should be set
-                response.progress.endBar();
-                expect((response as any).mProgressBar).toBeUndefined();
-                expect((response.progress as any).mProgressBarInterval).toBeUndefined();
-                done();
-            }, oneSecond);
-        });
+        const response = new CommandResponse({ silent: false, responseFormat: "default", stream });
+        const status: ITaskWithStatus = {
+            statusMessage: "Making a bar",
+            percentComplete: 10,
+            stageName: TaskStage.IN_PROGRESS
+        };
+        response.progress.startBar(
+            {
+                task: status,
+                stream
+            });
+        expect((response as any).mProgressBar).toBeDefined(); // access private fields
+        expect((response.progress as any).mProgressBarInterval).toBeDefined();
+        TestLogger.debug("Progress bar was created. Details:\n{{progressBar}}\nInterval identifier:\n{{interval}}",
+            {
+                progressBar: inspect((response as any).progressBar),
+                interval: inspect((response.progress as any).mProgressBarInterval)
+            });
+        const oneSecond = 1;
+        setTimeout(() => {
+            // turn off the progress bar - t he details should be set
+            response.progress.endBar();
+            expect((response as any).mProgressBar).toBeUndefined();
+            expect((response.progress as any).mProgressBarInterval).toBeUndefined();
+            done();
+        }, oneSecond);
+    });
 
     it("If we create a progress bar, then set the bar to be complete, " +
         "the progress bar should automatically end ", (done) => {
-            const response = new CommandResponse({ silent: false, responseFormat: "default" });
-            const status: ITaskWithStatus = {
-                statusMessage: "Making a bar",
-                percentComplete: 10,
-                stageName: TaskStage.IN_PROGRESS
-            };
-            response.progress.startBar(
-                {
-                    task: status,
-                    stream
-                });
-            expect((response as any).mProgressBar).toBeDefined(); // access private fields
-            expect((response.progress as any).mProgressBarInterval).toBeDefined();
-            TestLogger.debug("Progress bar was created. Details:\n{{progressBar}}\nInterval identifier:\n{{interval}}",
-                {
-                    progressBar: inspect((response as any).progressBar),
-                    interval: inspect((response.progress as any).mProgressBarInterval)
-                });
-            status.stageName = TaskStage.COMPLETE;
-            // make sure the private method is called -- could  be skipped in this test
-            // due to async scheduling
-            (response.progress as any).updateProgressBar();
-            const oneSecond = 1;
-            setTimeout(() => {
-                // the progress bar should already be turned off now
-                expect((response as any).mProgressBar).toBeUndefined();
-                expect((response.progress as any).mProgressBarInterval).toBeUndefined();
-                done();
-            }, oneSecond);
-        });
+        const response = new CommandResponse({ silent: false, responseFormat: "default" });
+        const status: ITaskWithStatus = {
+            statusMessage: "Making a bar",
+            percentComplete: 10,
+            stageName: TaskStage.IN_PROGRESS
+        };
+        response.progress.startBar(
+            {
+                task: status,
+                stream
+            });
+        expect((response as any).mProgressBar).toBeDefined(); // access private fields
+        expect((response.progress as any).mProgressBarInterval).toBeDefined();
+        TestLogger.debug("Progress bar was created. Details:\n{{progressBar}}\nInterval identifier:\n{{interval}}",
+            {
+                progressBar: inspect((response as any).progressBar),
+                interval: inspect((response.progress as any).mProgressBarInterval)
+            });
+        status.stageName = TaskStage.COMPLETE;
+        // make sure the private method is called -- could  be skipped in this test
+        // due to async scheduling
+        (response.progress as any).updateProgressBar();
+        const oneSecond = 1;
+        setTimeout(() => {
+            // the progress bar should already be turned off now
+            expect((response as any).mProgressBar).toBeUndefined();
+            expect((response.progress as any).mProgressBarInterval).toBeUndefined();
+            done();
+        }, oneSecond);
+    });
 
 
     it("If our response object is in silent mode, which is caused for example by " +
         "the user specifying that they want a JSON response, a progress bar should" +
         " not be created", () => {
-            const response = new CommandResponse({ silent: true, responseFormat: "json" });
-            const status: ITaskWithStatus = {
-                statusMessage: "No bar should be made",
-                percentComplete: 10,
-                stageName: TaskStage.IN_PROGRESS
-            };
+        const response = new CommandResponse({ silent: true, responseFormat: "json" });
+        const status: ITaskWithStatus = {
+            statusMessage: "No bar should be made",
+            percentComplete: 10,
+            stageName: TaskStage.IN_PROGRESS
+        };
 
-            response.progress.startBar(
-                {
-                    task: status,
-                    stream
-                });
-            expect((response as any).progressBar).toBeUndefined();
-            expect((response as any).progressBarInterval).toBeUndefined();
-        });
+        response.progress.startBar(
+            {
+                task: status,
+                stream
+            });
+        expect((response as any).progressBar).toBeUndefined();
+        expect((response as any).progressBarInterval).toBeUndefined();
+    });
 
 
     it("should not duplicate output when calling endBar", () => {

@@ -19,6 +19,6 @@ process.on("unhandledRejection", (err) => {
 
 Imperative.init({configurationModule: join(__dirname, "/TestConfiguration.ts")})
     .then(() => {
-            Imperative.parse();
-        }
+        Imperative.parse();
+    }
     );

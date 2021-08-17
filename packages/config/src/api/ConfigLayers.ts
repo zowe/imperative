@@ -41,7 +41,7 @@ export class ConfigLayers extends ConfigApi {
             } catch (e) {
                 throw new ImperativeError({ msg: `An error was encountered while trying to read the file '${layer.path}'.` +
                     `\nError details: ${e.message}`,
-                                            suppressDump: true });
+                suppressDump: true });
             }
             try {
                 layer.properties = JSONC.parse(fileContents.toString());
@@ -49,7 +49,7 @@ export class ConfigLayers extends ConfigApi {
             } catch (e) {
                 throw new ImperativeError({ msg: `Error parsing JSON in the file '${layer.path}'.\n` +
                     `Please check this configuration file for errors.\nError details: ${e.message}\nLine ${e.line}, Column ${e.column}`,
-                                            suppressDump: true});
+                suppressDump: true});
             }
         }
 
@@ -163,17 +163,17 @@ export class ConfigLayers extends ConfigApi {
         }
 
         layer.properties.profiles = lodash.mergeWith(cnfg.profiles, layer.properties.profiles, (obj, src) =>
-            {
-                if (lodash.isArray(obj) && lodash.isArray(src)) {
-                    const temp = JSONC.parse(JSONC.stringify(obj, null, ConfigConstants.INDENT));
-                    src.forEach((val, idx) => {
-                        if (!temp.includes(val)) {
-                            temp.splice(idx, 0, val);
-                        }
-                    });
-                    return temp;
-                }
-            });
+        {
+            if (lodash.isArray(obj) && lodash.isArray(src)) {
+                const temp = JSONC.parse(JSONC.stringify(obj, null, ConfigConstants.INDENT));
+                src.forEach((val, idx) => {
+                    if (!temp.includes(val)) {
+                        temp.splice(idx, 0, val);
+                    }
+                });
+                return temp;
+            }
+        });
 
         layer.properties.defaults = lodash.merge(cnfg.defaults, layer.properties.defaults);
 

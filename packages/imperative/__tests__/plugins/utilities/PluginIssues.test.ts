@@ -33,10 +33,10 @@ describe("PluginIssues", () => {
 
             it("should return false when no error", () => {
                 expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
-                        IssueSeverity.CFG_ERROR,
-                        IssueSeverity.CMD_ERROR,
-                        IssueSeverity.OVER_ERROR
-                    ])).toBeFalsy();
+                    IssueSeverity.CFG_ERROR,
+                    IssueSeverity.CMD_ERROR,
+                    IssueSeverity.OVER_ERROR
+                ])).toBeFalsy();
             });
         });
 

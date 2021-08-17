@@ -262,7 +262,7 @@ export class ConnectionPropsForSessCfg {
         sessCfg: SessCfgType,
         cmdArgs: ICommandArguments = {$0: "", _: []},
         connOpts: IOptionsForAddConnProps = {}
-     ) {
+    ) {
         const impLogger = Logger.getImperativeLogger();
 
         // use defaults if caller has not specified these properties.

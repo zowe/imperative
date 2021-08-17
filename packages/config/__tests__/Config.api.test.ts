@@ -297,11 +297,11 @@ describe("Config API tests", () => {
             beforeEach(() => {
                 jest.restoreAllMocks();
                 jest.spyOn(Config, "search").mockReturnValueOnce(filePathProjectUserConfig)
-                                            .mockReturnValueOnce(filePathProjectConfig);
+                    .mockReturnValueOnce(filePathProjectConfig);
                 jest.spyOn(path, "join").mockReturnValueOnce(filePathAppUserConfig)
-                                        .mockReturnValueOnce(filePathAppUserConfig)
-                                        .mockReturnValueOnce(filePathAppConfig)
-                                        .mockReturnValueOnce(filePathAppConfig);
+                    .mockReturnValueOnce(filePathAppUserConfig)
+                    .mockReturnValueOnce(filePathAppConfig)
+                    .mockReturnValueOnce(filePathAppConfig);
                 jest.spyOn(ConfigSecure.prototype, "load").mockResolvedValue(undefined);
             });
             it("should activate the project configuration", async () => {

@@ -23,7 +23,7 @@ const autoInitCommandConfig: IImperativeAutoInitCommandConfig = {
 describe("CompleteAutoInitCommandBuilder", () => {
     it("should create complete auth group given only an auto init config object", () => {
         const cmdDef: ICommandDefinition = CompleteAutoInitCommandBuilder.getAutoInitCommand(autoInitCommandConfig.autoInitConfig,
-                                                                                             Logger.getImperativeLogger());
+            Logger.getImperativeLogger());
         expect(cmdDef).toMatchSnapshot();
     });
 });

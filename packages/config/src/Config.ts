@@ -542,9 +542,9 @@ export class Config {
      * @returns The active layer object
      */
     public layerActive(): IConfigLayer {
-            const layer = this.findLayer(this.mActive.user, this.mActive.global);
-            if (layer != null) return layer;
-            throw new ImperativeError({ msg: `internal error: no active layer found` });
+        const layer = this.findLayer(this.mActive.user, this.mActive.global);
+        if (layer != null) return layer;
+        throw new ImperativeError({ msg: `internal error: no active layer found` });
     }
 
     // _______________________________________________________________________

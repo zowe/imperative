@@ -42,225 +42,225 @@ export const SECURE_ORANGE_PROFILE_TYPE: string = "secure-orange";
  *******************************************************************************/
 
 export const ORANGE_TYPE_SCHEMA = {
-  title: "The simple orange configuration",
-  description: "The simple orange configuration",
-  type: "object",
-  properties: {
-    large: {
-      type: "boolean"
-    }
-  },
-  required: ["large"]
+    title: "The simple orange configuration",
+    description: "The simple orange configuration",
+    type: "object",
+    properties: {
+        large: {
+            type: "boolean"
+        }
+    },
+    required: ["large"]
 };
 
 export const ORANGE_TYPE_SCHEMA_WITH_CREDENTIALS = {
-  title: "The simple orange configuration with a box",
-  description: "The simple orange configuration with a box",
-  type: "object",
-  properties: {
-    username: {
-      optionDefinition: {
-        description: "The username to associate to this profile",
-        type: "string",
-        name: "user"
-      },
-      secure: false,
-      type: "string"
-    },
-    password: {
-      optionDefinition: {
-        description: "The password to associate to this profile",
-        type: "string",
-        name: "pass"
-      },
-      secure: true,
-      type: "string"
-    },
-    secureBox: {
-      type: "object",
-      properties: {
-        myPhone: {
-          optionDefinition: {
-            description: "My phone",
-            type: "json",
-            name: "phone"
-          },
-          secure: true,
-          type: "json"
-        },
-        myCode: {
-          optionDefinition: {
-            description: "My code",
-            type: "number",
-            name: "code"
-          },
-          secure: true,
-          type: "number"
-        },
-        myPhrase: {
-          optionDefinition: {
-            description: "My phrase",
-            type: "string",
-            name: "phrase"
-          },
-          secure: true,
-          type: "string"
-        },
-        mySet: {
-          optionDefinition: {
-            description: "My set",
-            type: "array",
-            name: "set"
-          },
-          secure: true,
-          type: "array"
-        },
-        myFlag: {
-          optionDefinition: {
-            description: "My flag",
-            type: "boolean",
-            name: "flag"
-          },
-          secure: true,
-          type: "boolean"
-        },
-        myMiniBox: {
-          type: "object",
-          secure: true,
-          properties: {
-            miniMe: {
-              optionDefinition: {
-                description: "Mini-Me",
+    title: "The simple orange configuration with a box",
+    description: "The simple orange configuration with a box",
+    type: "object",
+    properties: {
+        username: {
+            optionDefinition: {
+                description: "The username to associate to this profile",
                 type: "string",
-                name: "minime"
-              },
-              type: "string"
-            }
-          }
+                name: "user"
+            },
+            secure: false,
+            type: "string"
         },
-        myEmptyMiniBox: {
-          type: "object",
-          secure: true,
-          properties: {
-            emptyMe: {
-              optionDefinition: {
-                description: "Please never provide me as a value",
+        password: {
+            optionDefinition: {
+                description: "The password to associate to this profile",
                 type: "string",
-                name: "dontUseMe"
-              },
-              type: "string"
+                name: "pass"
+            },
+            secure: true,
+            type: "string"
+        },
+        secureBox: {
+            type: "object",
+            properties: {
+                myPhone: {
+                    optionDefinition: {
+                        description: "My phone",
+                        type: "json",
+                        name: "phone"
+                    },
+                    secure: true,
+                    type: "json"
+                },
+                myCode: {
+                    optionDefinition: {
+                        description: "My code",
+                        type: "number",
+                        name: "code"
+                    },
+                    secure: true,
+                    type: "number"
+                },
+                myPhrase: {
+                    optionDefinition: {
+                        description: "My phrase",
+                        type: "string",
+                        name: "phrase"
+                    },
+                    secure: true,
+                    type: "string"
+                },
+                mySet: {
+                    optionDefinition: {
+                        description: "My set",
+                        type: "array",
+                        name: "set"
+                    },
+                    secure: true,
+                    type: "array"
+                },
+                myFlag: {
+                    optionDefinition: {
+                        description: "My flag",
+                        type: "boolean",
+                        name: "flag"
+                    },
+                    secure: true,
+                    type: "boolean"
+                },
+                myMiniBox: {
+                    type: "object",
+                    secure: true,
+                    properties: {
+                        miniMe: {
+                            optionDefinition: {
+                                description: "Mini-Me",
+                                type: "string",
+                                name: "minime"
+                            },
+                            type: "string"
+                        }
+                    }
+                },
+                myEmptyMiniBox: {
+                    type: "object",
+                    secure: true,
+                    properties: {
+                        emptyMe: {
+                            optionDefinition: {
+                                description: "Please never provide me as a value",
+                                type: "string",
+                                name: "dontUseMe"
+                            },
+                            type: "string"
+                        }
+                    }
+                }
             }
-          }
         }
-      }
     }
-  }
 };
 
 export const BLUEBERRY_TYPE_SCHEMA = {
-  title: "The simple blueberry configuration",
-  description: "The simple blueberry configuration",
-  type: "object",
-  properties: {
-    tart: {
-      type: "boolean"
-    }
-  },
-  required: ["tart"]
+    title: "The simple blueberry configuration",
+    description: "The simple blueberry configuration",
+    type: "object",
+    properties: {
+        tart: {
+            type: "boolean"
+        }
+    },
+    required: ["tart"]
 };
 
 export const MANGO_TYPE_SCHEMA = {
-  title: "The simple mango configuration",
-  description: "The simple mango configuration",
-  type: "object",
-  properties: {
-    peeled: {
-      type: "boolean"
-    }
-  },
-  required: ["peeled"]
+    title: "The simple mango configuration",
+    description: "The simple mango configuration",
+    type: "object",
+    properties: {
+        peeled: {
+            type: "boolean"
+        }
+    },
+    required: ["peeled"]
 };
 
 export const APPLE_TYPE_SCHEMA = {
-  title: "The simple apple configuration",
-  description: "The simple apple configuration",
-  type: "object",
-  properties: {
-    description: {
-      type: "string"
+    title: "The simple apple configuration",
+    description: "The simple apple configuration",
+    type: "object",
+    properties: {
+        description: {
+            type: "string"
+        },
+        rotten: {
+            type: "boolean"
+        },
+        age: {
+            type: "number"
+        }
     },
-    rotten: {
-      type: "boolean"
-    },
-    age: {
-      type: "number"
-    }
-  },
-  required: ["description", "rotten", "age"]
+    required: ["description", "rotten", "age"]
 };
 
 export const APPLE_TYPE_SCHEMA_BAN_UNKNOWN = {
-  title: "The simple apple configuration",
-  description: "The simple apple configuration",
-  type: "object",
-  properties: {
-    description: {
-      type: "string"
+    title: "The simple apple configuration",
+    description: "The simple apple configuration",
+    type: "object",
+    properties: {
+        description: {
+            type: "string"
+        },
+        rotten: {
+            type: "boolean"
+        },
+        age: {
+            type: "number"
+        }
     },
-    rotten: {
-      type: "boolean"
-    },
-    age: {
-      type: "number"
-    }
-  },
-  additionalProperties: false,
-  required: ["description", "rotten", "age"]
+    additionalProperties: false,
+    required: ["description", "rotten", "age"]
 };
 
 export const STRAWBERRY_TYPE_SCHEMA = {
-  title: "The simple strawberry configuration",
-  description: "The simple strawberry configuration",
-  type: "object",
-  properties: {
-    description: {
-      type: "string"
+    title: "The simple strawberry configuration",
+    description: "The simple strawberry configuration",
+    type: "object",
+    properties: {
+        description: {
+            type: "string"
+        },
+        amount: {
+            type: "number"
+        }
     },
-    amount: {
-      type: "number"
-    }
-  },
-  required: ["description", "amount"]
+    required: ["description", "amount"]
 };
 
 export const BANANA_TYPE_SCHEMA = {
-  title: "The simple banana configuration",
-  description: "The simple banana configuration",
-  type: "object",
-  properties: {
-    description: {
-      type: "string"
+    title: "The simple banana configuration",
+    description: "The simple banana configuration",
+    type: "object",
+    properties: {
+        description: {
+            type: "string"
+        },
+        bundle: {
+            type: "boolean"
+        }
     },
-    bundle: {
-      type: "boolean"
-    }
-  },
-  required: ["bundle"]
+    required: ["bundle"]
 };
 
 export const GRAPE_TYPE_SCHEMA = {
-  title: "The simple banana configuration",
-  description: "The simple banana configuration",
-  type: "object",
-  properties: {
-    description: {
-      type: "string"
+    title: "The simple banana configuration",
+    description: "The simple banana configuration",
+    type: "object",
+    properties: {
+        description: {
+            type: "string"
+        },
+        color: {
+            type: "string"
+        }
     },
-    color: {
-      type: "string"
-    }
-  },
-  required: ["description", "color"]
+    required: ["description", "color"]
 };
 
 /*******************************************************************************
@@ -272,19 +272,19 @@ export const GRAPE_TYPE_SCHEMA = {
  * has a required dependency on an apple.
  */
 export const STRAWBERRY_WITH_REQUIRED_APPLE_DEPENDENCY: IProfileTypeConfiguration[] = [
-  {
-    type: APPLE_PROFILE_TYPE,
-    schema: APPLE_TYPE_SCHEMA
-  }, {
-    type: STRAWBERRY_PROFILE_TYPE,
-    schema: STRAWBERRY_TYPE_SCHEMA,
-    dependencies: [
-      {
+    {
         type: APPLE_PROFILE_TYPE,
-        required: true
-      }
-    ]
-  }
+        schema: APPLE_TYPE_SCHEMA
+    }, {
+        type: STRAWBERRY_PROFILE_TYPE,
+        schema: STRAWBERRY_TYPE_SCHEMA,
+        dependencies: [
+            {
+                type: APPLE_PROFILE_TYPE,
+                required: true
+            }
+        ]
+    }
 ];
 
 /**
@@ -292,93 +292,93 @@ export const STRAWBERRY_WITH_REQUIRED_APPLE_DEPENDENCY: IProfileTypeConfiguratio
  * has a required dependency on an apple.
  */
 export const STRAWBERRY_WITH_OPTIONAL_APPLE_DEPENDENCY: IProfileTypeConfiguration[] = [
-  {
-    type: APPLE_PROFILE_TYPE,
-    schema: APPLE_TYPE_SCHEMA
-  }, {
-    type: STRAWBERRY_PROFILE_TYPE,
-    schema: STRAWBERRY_TYPE_SCHEMA,
-    dependencies: [
-      {
+    {
         type: APPLE_PROFILE_TYPE,
-        required: false
-      }
-    ]
-  }
+        schema: APPLE_TYPE_SCHEMA
+    }, {
+        type: STRAWBERRY_PROFILE_TYPE,
+        schema: STRAWBERRY_TYPE_SCHEMA,
+        dependencies: [
+            {
+                type: APPLE_PROFILE_TYPE,
+                required: false
+            }
+        ]
+    }
 ];
 
 /**
  * Only a simple mango type - used to test failure to load the default
  */
 export const ONLY_ORANGE: IProfileTypeConfiguration[] = [
-  {
-    type: ORANGE_PROFILE_TYPE,
-    schema: ORANGE_TYPE_SCHEMA
-  }
+    {
+        type: ORANGE_PROFILE_TYPE,
+        schema: ORANGE_TYPE_SCHEMA
+    }
 ];
 
 /**
  * Only a simple mango type - used to test failure to load the default
  */
 export const ONLY_ORANGE_WITH_CREDENTIALS: IProfileTypeConfiguration[] = [
-  {
-    type: SECURE_ORANGE_PROFILE_TYPE,
-    schema: ORANGE_TYPE_SCHEMA_WITH_CREDENTIALS
-  }
+    {
+        type: SECURE_ORANGE_PROFILE_TYPE,
+        schema: ORANGE_TYPE_SCHEMA_WITH_CREDENTIALS
+    }
 ];
 
 /**
  * Only a simple mango type - used for testing the meta file
  */
 export const ONLY_MANGO: IProfileTypeConfiguration[] = [
-  {
-    type: MANGO_PROFILE_TYPE,
-    schema: MANGO_TYPE_SCHEMA
-  }
+    {
+        type: MANGO_PROFILE_TYPE,
+        schema: MANGO_TYPE_SCHEMA
+    }
 ];
 
 /**
  * Only a simple apple type
  */
 export const ONLY_APPLE: IProfileTypeConfiguration[] = [
-  {
-    type: APPLE_PROFILE_TYPE,
-    schema: APPLE_TYPE_SCHEMA
-  }
+    {
+        type: APPLE_PROFILE_TYPE,
+        schema: APPLE_TYPE_SCHEMA
+    }
 ];
 
 /**
  * Only a simple apple type
  */
 export const APPLE_BAN_UNKNOWN: IProfileTypeConfiguration[] = [
-  {
-    type: APPLE_PROFILE_TYPE,
-    schema: APPLE_TYPE_SCHEMA_BAN_UNKNOWN
-  }
+    {
+        type: APPLE_PROFILE_TYPE,
+        schema: APPLE_TYPE_SCHEMA_BAN_UNKNOWN
+    }
 ];
 
 /**
  * Only a simple blueberry type - used for testing load default
  */
 export const ONLY_BLUEBERRY: IProfileTypeConfiguration[] = [
-  {
-    type: BLUEBERRY_PROFILE_TYPE,
-    schema: BLUEBERRY_TYPE_SCHEMA
-  }
+    {
+        type: BLUEBERRY_PROFILE_TYPE,
+        schema: BLUEBERRY_TYPE_SCHEMA
+    }
 ];
 
 /**
  * Both apple and strawberry profiles - no dependencies
  */
 export const STRAWBERRY_AND_APPLE_NO_DEP: IProfileTypeConfiguration[] = [
-  {
-    type: APPLE_PROFILE_TYPE,
-    schema: APPLE_TYPE_SCHEMA
-  },
-  {
-    type: STRAWBERRY_PROFILE_TYPE,
-    schema: STRAWBERRY_TYPE_SCHEMA
-  }
+    {
+        type: APPLE_PROFILE_TYPE,
+        schema: APPLE_TYPE_SCHEMA
+    },
+    {
+        type: STRAWBERRY_PROFILE_TYPE,
+        schema: STRAWBERRY_TYPE_SCHEMA
+    }
 ];
 
 /**
@@ -389,43 +389,43 @@ export const STRAWBERRY_AND_APPLE_NO_DEP: IProfileTypeConfiguration[] = [
  * This is normally used to test circular dependencies.
  */
 export const APPLE_TWO_REQ_DEP_BANANA_ONE_REQ_DEP_GRAPE_ONE_REQ_DEP: IProfileTypeConfiguration[] = [
-  {
-    type: APPLE_PROFILE_TYPE,
-    schema: APPLE_TYPE_SCHEMA,
-    dependencies: [
-      {
+    {
+        type: APPLE_PROFILE_TYPE,
+        schema: APPLE_TYPE_SCHEMA,
+        dependencies: [
+            {
+                type: STRAWBERRY_PROFILE_TYPE,
+                required: true
+            },
+            {
+                type: BANANA_PROFILE_TYPE,
+                required: true
+            }
+        ]
+    }, {
         type: STRAWBERRY_PROFILE_TYPE,
-        required: true
-      },
-      {
+        schema: STRAWBERRY_TYPE_SCHEMA
+    },
+    {
         type: BANANA_PROFILE_TYPE,
-        required: true
-      }
-    ]
-  }, {
-    type: STRAWBERRY_PROFILE_TYPE,
-    schema: STRAWBERRY_TYPE_SCHEMA
-  },
-  {
-    type: BANANA_PROFILE_TYPE,
-    schema: BANANA_TYPE_SCHEMA,
-    dependencies: [
-      {
+        schema: BANANA_TYPE_SCHEMA,
+        dependencies: [
+            {
+                type: GRAPE_PROFILE_TYPE,
+                required: true
+            }
+        ]
+    },
+    {
         type: GRAPE_PROFILE_TYPE,
-        required: true
-      }
-    ]
-  },
-  {
-    type: GRAPE_PROFILE_TYPE,
-    schema: GRAPE_TYPE_SCHEMA,
-    dependencies: [
-      {
-        type: BANANA_PROFILE_TYPE,
-        required: true
-      }
-    ]
-  }
+        schema: GRAPE_TYPE_SCHEMA,
+        dependencies: [
+            {
+                type: BANANA_PROFILE_TYPE,
+                required: true
+            }
+        ]
+    }
 ];
 
 /**
@@ -434,63 +434,63 @@ export const APPLE_TWO_REQ_DEP_BANANA_ONE_REQ_DEP_GRAPE_ONE_REQ_DEP: IProfileTyp
  * The banana profiles require grape type
  */
 export const APPLE_TWO_REQ_DEP_BANANA_ONE_REQ_DEP_GRAPE: IProfileTypeConfiguration[] = [
-  {
-    type: APPLE_PROFILE_TYPE,
-    schema: APPLE_TYPE_SCHEMA,
-    dependencies: [
-      {
+    {
+        type: APPLE_PROFILE_TYPE,
+        schema: APPLE_TYPE_SCHEMA,
+        dependencies: [
+            {
+                type: STRAWBERRY_PROFILE_TYPE,
+                required: true
+            },
+            {
+                type: BANANA_PROFILE_TYPE,
+                required: true
+            }
+        ]
+    }, {
         type: STRAWBERRY_PROFILE_TYPE,
-        required: true
-      },
-      {
+        schema: STRAWBERRY_TYPE_SCHEMA
+    },
+    {
         type: BANANA_PROFILE_TYPE,
-        required: true
-      }
-    ]
-  }, {
-    type: STRAWBERRY_PROFILE_TYPE,
-    schema: STRAWBERRY_TYPE_SCHEMA
-  },
-  {
-    type: BANANA_PROFILE_TYPE,
-    schema: BANANA_TYPE_SCHEMA,
-    dependencies: [
-      {
+        schema: BANANA_TYPE_SCHEMA,
+        dependencies: [
+            {
+                type: GRAPE_PROFILE_TYPE,
+                required: true
+            }
+        ]
+    },
+    {
         type: GRAPE_PROFILE_TYPE,
-        required: true
-      }
-    ]
-  },
-  {
-    type: GRAPE_PROFILE_TYPE,
-    schema: GRAPE_TYPE_SCHEMA,
-  }
+        schema: GRAPE_TYPE_SCHEMA,
+    }
 ];
 
 /**
  * Apple configuration which also requires bananas and strawberries
  */
 export const APPLE_TWO_REQ_DEP_BANANA_AND_STRAWBERRIES: IProfileTypeConfiguration[] = [
-  {
-    type: APPLE_PROFILE_TYPE,
-    schema: APPLE_TYPE_SCHEMA,
-    dependencies: [
-      {
+    {
+        type: APPLE_PROFILE_TYPE,
+        schema: APPLE_TYPE_SCHEMA,
+        dependencies: [
+            {
+                type: STRAWBERRY_PROFILE_TYPE,
+                required: true
+            },
+            {
+                type: BANANA_PROFILE_TYPE,
+                required: true
+            }
+        ]
+    }, {
         type: STRAWBERRY_PROFILE_TYPE,
-        required: true
-      },
-      {
+        schema: STRAWBERRY_TYPE_SCHEMA
+    },
+    {
         type: BANANA_PROFILE_TYPE,
-        required: true
-      }
-    ]
-  }, {
-    type: STRAWBERRY_PROFILE_TYPE,
-    schema: STRAWBERRY_TYPE_SCHEMA
-  },
-  {
-    type: BANANA_PROFILE_TYPE,
-    schema: BANANA_TYPE_SCHEMA,
-  }
+        schema: BANANA_TYPE_SCHEMA,
+    }
 ];
 

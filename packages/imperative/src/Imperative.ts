@@ -292,9 +292,9 @@ export class Imperative {
                         "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
                         "Node versions: '%s'" +
                         "Environmental variables: '%s'",
-                        os.platform(), os.arch(), process.argv.join(" "),
-                        JSON.stringify(process.versions, null, 2),
-                        JSON.stringify(process.env, null, 2));
+                    os.platform(), os.arch(), process.argv.join(" "),
+                    JSON.stringify(process.versions, null, 2),
+                    JSON.stringify(process.env, null, 2));
                     Logger.writeInMemoryMessages(Imperative.DEFAULT_DEBUG_FILE);
                     if (error.report) {
                         const {writeFileSync} = require("fs");

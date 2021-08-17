@@ -188,10 +188,10 @@ describe("Chained Handler Service", () => {
                 {from: "test.should.not.work", to: "argument", applyToHandlers: [1]},
             ]
         },
-            {
-                handler: "dummy1",
-                mapping: []
-            }];
+        {
+            handler: "dummy1",
+            mapping: []
+        }];
         try {
             const args = ChainedHandlerService.getArguments(binName,
                 config,
@@ -270,10 +270,10 @@ describe("Chained Handler Service", () => {
                 {from: "test.should.not.work", to: "argument", mapFromArguments: true, applyToHandlers: [1]},
             ]
         },
-            {
-                handler: "dummy1",
-                mapping: []
-            }];
+        {
+            handler: "dummy1",
+            mapping: []
+        }];
         try {
             const args = ChainedHandlerService.getArguments(binName,
                 config,

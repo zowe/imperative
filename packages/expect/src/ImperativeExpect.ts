@@ -114,10 +114,10 @@ export class ImperativeExpect {
         }
         if (isNullOrUndefined(foundEntry)) {
             throw new ImperativeError({
-                    msg: msg || "The required entry was NOT found within the input array: " +
+                msg: msg || "The required entry was NOT found within the input array: " +
                     arr.map((entry) => inspect(entry))
-                },
-                {tag: ImperativeExpect.ERROR_TAG});
+            },
+            {tag: ImperativeExpect.ERROR_TAG});
         }
 
         return foundEntry;
@@ -163,7 +163,7 @@ export class ImperativeExpect {
      * @param {string} [msg] - The message to throw - overrides the default message
      */
     public static keysToBeAnArray(obj: { [key: string]: any } | any, nonZeroLength: boolean, keys: string[],
-                                  msg?: string) {
+        msg?: string) {
         ImperativeExpect.toNotBeNullOrUndefined(obj, msg);
         const objParser = new DataObjectParser(obj);
         keys.forEach((key) => {

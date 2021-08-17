@@ -498,7 +498,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
      * @returns {Promise<IProfile>} - promise which provides the finished profile on fulfill
      */
     private async updateProfileFieldsFromCommandArguments(oldProfile: IProfile, newProfile: IProfile, newArguments: Arguments,
-                                                          merge: boolean): Promise<IProfile> {
+        merge: boolean): Promise<IProfile> {
         const profileConfig = this.profileTypeConfiguration;
         if (!isNullOrUndefined(profileConfig.updateProfileFromArgumentsHandler)) {
             // if there is a custom update profile handler, they can call mergeProfile

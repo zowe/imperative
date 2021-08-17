@@ -29,8 +29,8 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
     });
     const displayName = "dummy";
     afterAll(() => {
-            process.env.FORCE_COLOR = oldForceColorOption;
-        }
+        process.env.FORCE_COLOR = oldForceColorOption;
+    }
     );
     const dummyProfile: IProfile = {name: "dummy", type: "dummy"};
 
@@ -408,16 +408,16 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
                 failureSuggestions: failureSuggestion
             };
             ProfileValidator.validate(dummyProfile, plan, displayName).then((report: IProfileValidationReport) => {
-                    const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow",
-                        "dummy", "dummy");
-                    const tenChars = 10;
-                    // each word of the failure suggestions should appear (tabular format
-                    // so the characters don't appear together)
-                    for (const word of failureSuggestion.split(" ")) {
-                        expect(textReport).toContain(word);
-                    }
-                    done();
+                const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow",
+                    "dummy", "dummy");
+                const tenChars = 10;
+                // each word of the failure suggestions should appear (tabular format
+                // so the characters don't appear together)
+                for (const word of failureSuggestion.split(" ")) {
+                    expect(textReport).toContain(word);
                 }
+                done();
+            }
             ).catch((error) => {
                 TestLogger.info("Got an error during unexpected validation: " + inspect(error));
                 throw error;

@@ -44,7 +44,7 @@ describe("ProcessUtils tests", () => {
 
     describe("isGuiAvailable", () => {
         (process.platform === "win32" || process.platform === "darwin" ? it : it.skip)
-            ("should report a GUI on Windows or Mac", async () =>
+        ("should report a GUI on Windows or Mac", async () =>
         {
             expect(ProcessUtils.isGuiAvailable()).toBe(GuiResult.GUI_AVAILABLE);
         });
@@ -57,7 +57,7 @@ describe("ProcessUtils tests", () => {
         it("should report a GUI if DISPLAY is set on Linux", async () => {
             const realPlatform = process.platform;
             Object.defineProperty(process, "platform", {
-              value: "linux"
+                value: "linux"
             });
 
             const realEnv = process.env;
@@ -81,7 +81,7 @@ describe("ProcessUtils tests", () => {
         it("should report no GUI if DISPLAY is not set on Linux", async () => {
             const realPlatform = process.platform;
             Object.defineProperty(process, "platform", {
-              value: "linux"
+                value: "linux"
             });
 
             const realEnv = process.env;
