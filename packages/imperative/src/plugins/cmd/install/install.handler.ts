@@ -9,10 +9,10 @@
 *
 */
 
-import { ICommandHandler, ICommandResponse, IHandlerParameters } from "../../../../../cmd";
+import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { Logger } from "../../../../../logger/";
 import { PMFConstants } from "../../utilities/PMFConstants";
-import { resolve, join } from "path";
+import { resolve } from "path";
 import { install } from "../../utilities/npm-interface";
 import { IPluginJson } from "../../doc/IPluginJson";
 import { IPluginJsonObject } from "../../doc/IPluginJsonObject";
@@ -120,7 +120,7 @@ export default class InstallHandler implements ICommandHandler {
                     }
 
                     for (const packageName in packageJson) {
-                        if (packageJson.hasOwnProperty(packageName)) {
+                        if (Object.prototype.hasOwnProperty.call(packageJson, packageName)) {
                             const packageInfo: IPluginJsonObject = packageJson[packageName];
 
                             // Registry is typed as optional in the doc but the function expects it

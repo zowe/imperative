@@ -9,9 +9,8 @@
 *
 */
 
-import { ICommandHandler, ICommandResponse, IHandlerParameters, IHandlerResponseApi } from "../../../../../cmd";
+import { ICommandHandler, IHandlerParameters, IHandlerResponseApi } from "../../../../../cmd";
 import { TextUtils } from "../../../../../utilities";
-import { ImperativeError } from "../../../../../error";
 import { IssueSeverity, PluginIssues } from "../../utilities/PluginIssues";
 import { IPluginJson } from "../../doc/IPluginJson";
 
@@ -61,7 +60,7 @@ export default class ValidateHandler implements ICommandHandler {
             } else {
                 // loop through each plugin installed in our plugins file
                 for (pluginName in installedPlugins) {
-                    if (this.pluginIssues.getInstalledPlugins().hasOwnProperty(pluginName)) {
+                    if (Object.prototype.hasOwnProperty.call(this.pluginIssues.getInstalledPlugins(), pluginName)) {
                         localerr = this.displayPluginIssues(pluginName, params.response, failOnWarning);
                         if (localerr === true) { err = localerr; }
                     }
@@ -70,7 +69,7 @@ export default class ValidateHandler implements ICommandHandler {
         } else {
             // is the specified plugin installed?
             pluginName = params.arguments.plugin;
-            if (!installedPlugins.hasOwnProperty(pluginName)) {
+            if (!Object.prototype.hasOwnProperty.call(installedPlugins, pluginName)) {
                 params.response.console.log(TextUtils.chalk.red(
                     "The specified plugin '" + pluginName +
           "' has not been installed into your CLI application."
@@ -83,7 +82,8 @@ export default class ValidateHandler implements ICommandHandler {
 
         if (err === true && params.arguments.failOnError) {
             params.response.console.log("\n");
-            params.response.console.error(TextUtils.chalk.red("Problems detected during plugin validation. Please check above for more information."));
+            params.response.console.error(TextUtils.chalk.red(
+                "Problems detected during plugin validation. Please check above for more information."));
             params.response.data.setExitCode(1);
         }
     }
@@ -97,7 +97,7 @@ export default class ValidateHandler implements ICommandHandler {
    * @param {IHandlerResponseApi} cmdResponse - Used to supply the response from the command.
    */
     private displayPluginIssues(pluginName: string, cmdResponse: IHandlerResponseApi, failOnWarning: boolean = false): boolean {
-    // display any plugin issues
+        // display any plugin issues
         let valResultsMsg: string = "\n_____ " + "Validation results for plugin '" +
         pluginName + "' _____\n";
         let err = false;

@@ -15,16 +15,22 @@ import { IHandlerResponseApi } from "../../src/response/doc/api/handler/IHandler
 
 describe("Handler Response", () => {
     it("Handler Response", () => {
-        const response: IHandlerResponseApi = new HandlerResponse(new CommandResponse({
-            silent: false,
-            responseFormat: "default"
-        }));
+        let caughtError;
+        try {
+            const response: IHandlerResponseApi = new HandlerResponse(new CommandResponse({
+                silent: false,
+                responseFormat: "default"
+            }));
 
-        response.console.log("Hello from handler");
-        response.console.errorHeader("Problem");
-        response.console.error("A problem occurred!");
+            response.console.log("Hello from handler");
+            response.console.errorHeader("Problem");
+            response.console.error("A problem occurred!");
 
-        response.data.setMessage("The command has produced the required data.");
-        response.data.setObj({command: "data"});
+            response.data.setMessage("The command has produced the required data.");
+            response.data.setObj({command: "data"});
+        } catch (error) {
+            caughtError = error;
+        }
+        expect(caughtError).toBeUndefined();
     });
 });

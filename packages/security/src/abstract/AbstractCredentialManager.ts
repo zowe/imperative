@@ -9,7 +9,6 @@
 *
 */
 
-// tslint:disable interface-name
 import { ImperativeError } from "../../../error";
 import { isNullOrUndefined } from "util";
 

@@ -12,8 +12,7 @@
 import { ImperativeError } from "../../../error";
 import { IProfile, IProfileLoaded } from "../../../profiles";
 import { ImperativeExpect } from "../../../expect";
-import { isNullOrUndefined } from "util";
-import { Imperative } from "../../../index";
+
 /**
  * Profiles map created by the command profile loader and passed to the handler via parameters. Handlers can
  * retreive loaded profiles from the map via the profile type.
@@ -73,8 +72,8 @@ export class CommandProfiles {
      * @returns {T} - The first profile in the map (or the one located by name)
      * @memberof CommandProfiles
      */
-    public getMeta<T extends IProfileLoaded>(type: string, failNotFound = true, name = ""): IProfileLoaded {
-        let profile;
+    public getMeta<T extends IProfileLoaded>(type: string, failNotFound = true, name = ""): T {
+        let profile: IProfileLoaded;
         // If a profile is returned for the type, then we'll check if a profile of a specific name was requseted
         // if not, just return the first profile found (first loaded)
         if (this.metaMap.get(type) != null) {
@@ -92,7 +91,7 @@ export class CommandProfiles {
         } else if (failNotFound) {
             this.fail(type);
         }
-        return profile;
+        return profile as T;
     }
 
 
@@ -107,8 +106,8 @@ export class CommandProfiles {
      * @returns {T} - The first profile in the map (or the one located by name)
      * @memberof CommandProfiles
      */
-    public get<T extends IProfile>(type: string, failNotFound = true, name = ""): IProfile {
-        let profile;
+    public get<T extends IProfile>(type: string, failNotFound = true, name = ""): T {
+        let profile: IProfile;
         // If a profile is returned for the type, then we'll check if a profile of a specific name was requseted
         // if not, just return the first profile found (first loaded)
         if (this.map.get(type) != null) {
@@ -126,7 +125,7 @@ export class CommandProfiles {
         } else if (failNotFound) {
             this.fail(type);
         }
-        return profile;
+        return profile as T;
     }
 
     /**
@@ -139,12 +138,12 @@ export class CommandProfiles {
      * normally be the result of a command configuration problem.
      * @memberof CommandProfiles
      */
-    public getAll<T extends IProfile>(type: string, failNotFound = true): IProfile[] {
-        const profiles = this.map.get(type);
+    public getAll<T extends IProfile>(type: string, failNotFound = true): T[] {
+        const profiles: IProfile[] = this.map.get(type);
         if (profiles == null && failNotFound) {
             this.fail(type);
         }
-        return profiles;
+        return profiles as T[];
     }
 
     /**

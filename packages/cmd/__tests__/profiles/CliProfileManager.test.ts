@@ -273,13 +273,19 @@ describe("Cli Profile Manager", () => {
             typeConfigurations: configs
         });
         const profileName = "myprofile";
+        let caughtError;
 
-        await manager.save({
-            name: profileName, type: profileTypeOne,
-            profile: {sum: 55},
-            overwrite: true
-        });
-        // validation should pass
+        try {
+            await manager.save({
+                name: profileName, type: profileTypeOne,
+                profile: {sum: 55},
+                overwrite: true
+            });
+        } catch (error) {
+            caughtError = error;
+        }
+
+        expect(caughtError).toBeUndefined();
     });
 
     it("should still update a profile properly without providing args", async () => {
@@ -310,7 +316,7 @@ describe("Cli Profile Manager", () => {
         expect(processSecurePropertiesSpy).toHaveBeenCalledTimes(1);
     });
 
-    it("should still fail profile validation on creation if no args are provided ", async () => {
+    it("should still fail profile validation on creation if no args are provided", async () => {
         const configs = getTypeConfigurations();
 
         (ProfileIO.exists as any) = jest.fn(() => {
@@ -339,7 +345,7 @@ describe("Cli Profile Manager", () => {
         }
     });
 
-    it("should still fail profile validation on update if no args are provided ", async () => {
+    it("should still fail profile validation on update if no args are provided", async () => {
         const configs = getTypeConfigurations();
 
         (ProfileIO.exists as any) = jest.fn(() => {

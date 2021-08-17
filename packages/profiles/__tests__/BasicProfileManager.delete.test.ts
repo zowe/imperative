@@ -9,7 +9,6 @@
 *
 */
 
-import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
 
 jest.mock("../src/utils/ProfileIO");
 import { BasicProfileManager } from "../src/BasicProfileManager";
@@ -18,8 +17,7 @@ import { IProfileDeleted } from "../src/doc/response/IProfileDeleted";
 import { inspect } from "util";
 import {
     APPLE_PROFILE_TYPE,
-    ONLY_APPLE, ONLY_ORANGE_WITH_CREDENTIALS,
-    SECURE_ORANGE_PROFILE_TYPE,
+    ONLY_APPLE,
     STRAWBERRY_WITH_REQUIRED_APPLE_DEPENDENCY,
     TEST_PROFILE_ROOT_DIR
 } from "./TestConstants";

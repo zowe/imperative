@@ -18,7 +18,13 @@ const STRAWBERRY_PROFILE_TYPE: string = "strawberry";
 
 describe("Command Profiles", () => {
     it("should should allow us to create an instance", () => {
-        const profiles = new CommandProfiles(new Map<string, IProfile[]>());
+        let caughtError;
+        try {
+            const profiles = new CommandProfiles(new Map<string, IProfile[]>());
+        } catch (error) {
+            caughtError = error;
+        }
+        expect(caughtError).toBeUndefined();
     });
 
     it("should detect missing parameters", () => {
@@ -36,9 +42,8 @@ describe("Command Profiles", () => {
     it("should detect that the parameters are not a map", () => {
         let error;
         try {
-            let map: any;
-            map = { not: "a-map" };
-            const profs = new CommandProfiles(map);
+            const map = { not: "a-map" };
+            new CommandProfiles(map as any);
         } catch (e) {
             error = e;
         }

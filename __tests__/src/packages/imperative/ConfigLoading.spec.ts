@@ -28,7 +28,7 @@ describe("Imperative should validate config provided by the consumer", function 
         T.unlinkSync(packageJsonPath);
     });
 
-    it("We should be able to load our configuration from our package.json ", function () {
+    it("We should be able to load our configuration from our package.json", function () {
         const config: IImperativeConfig = {
             definitions: [
                 {

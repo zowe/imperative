@@ -9,7 +9,6 @@
 *
 */
 
-import { IHandlerResponseApi } from "../../../src/doc/response/api/handler/IHandlerResponseApi";
 import { IHandlerResponseConsoleApi } from "../../doc/response/api/handler/IHandlerResponseConsoleApi";
 import { IHandlerResponseDataApi } from "../../doc/response/api/handler/IHandlerResponseDataApi";
 import { IHandlerProgressApi } from "../../doc/response/api/handler/IHandlerProgressApi";

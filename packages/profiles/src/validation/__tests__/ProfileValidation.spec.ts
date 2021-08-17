@@ -51,7 +51,7 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
                     {
                         name: "Task one",
                         description: "First task which should not run",
-                        taskFunction: (profile: any, done: (result: IProfileValidationTaskResult) => void) => {
+                        taskFunction: async (profile: any, done: (result: IProfileValidationTaskResult) => void) => {
                             anyTaskRun = true; // shouldn't happen!
                             done({
                                 outcome: "Warning",
@@ -257,7 +257,7 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
             ]
         }]
     };
-    it("If we have a mock plan with all passing tests, the result should be a successful validation ", () => {
+    it("If we have a mock plan with all passing tests, the result should be a successful validation", () => {
 
 
         return ProfileValidator.validate(dummyProfile, goodPlan, displayName).then((report: IProfileValidationReport) => {
@@ -348,50 +348,52 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
     });
 
     it("If we try to validate with a plan with no tasks in it, an error should be thrown to let " +
-        "profile/module contributors know that their plan is invalid ", (done: any) => {
+        "profile/module contributors know that their plan is invalid ", async () => {
         const plan: IProfileValidationPlan = {tasks: []};
-        ProfileValidator.validate(dummyProfile, plan, displayName).then((report: IProfileValidationReport) => {
-            expect(false).toBeTruthy(); // fail the test
-        }).catch((error) => {
+        let caughtError;
+        try {
+            await ProfileValidator.validate(dummyProfile, plan, displayName);
+        } catch (error) {
+            caughtError = error;
             TestLogger.info("Got an error during validation as expected: " + inspect(error));
-            expect(error.message).toContain("tasks");
-            done();
-        });
+        }
+        expect(caughtError).toBeDefined();
+        expect(caughtError.message).toContain("tasks");
     });
 
-    it("If we validate a profile with a result description that is too long, it should be truncated ",
-        (done: any) => {
-            const thirtyTimes = 30;
-            const longDescription = Array(thirtyTimes)
-                .join("ABCDEFGHIJKLMNOPQRSTUVABCDEFGHIJKLMNOPQRSTUVABCDEFGHIJKLMNOPQRSTUV");
-            const plan: IProfileValidationPlan = {
-                tasks: [{
-                    name: "Task one",
-                    description: "Task which has a long result description",
-                    taskFunction: (profile: any, taskDone: (result: IProfileValidationTaskResult) => void) => {
-                        taskDone({
-                            outcome: "Warning",
-                            resultDescription: longDescription
-                        });
-                    }
-                }]
-            };
-            ProfileValidator.validate(dummyProfile, plan, displayName).then((report: IProfileValidationReport) => {
-                const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow",
-                    "dummy", "dummy");
-                const tenChars = 10;
-                expect(textReport).toContain(longDescription.substring(0, tenChars)); // expect the report to have
-                // at least ten characters in a row of the description (Could test more but it's in a tabular format
-                // so the characters don't appear together
-                expect(textReport).toContain("..."); // expect it to be truncated
-                done();
-            }).catch((error) => {
-                TestLogger.info("Got an error during unexpected validation: " + inspect(error));
-                throw error;
-            });
-        });
+    it("If we validate a profile with a result description that is too long, it should be truncated", async () => {
+        const thirtyTimes = 30;
+        const longDescription = Array(thirtyTimes)
+            .join("ABCDEFGHIJKLMNOPQRSTUVABCDEFGHIJKLMNOPQRSTUVABCDEFGHIJKLMNOPQRSTUV");
+        const plan: IProfileValidationPlan = {
+            tasks: [{
+                name: "Task one",
+                description: "Task which has a long result description",
+                taskFunction: (profile: any, taskDone: (result: IProfileValidationTaskResult) => void) => {
+                    taskDone({
+                        outcome: "Warning",
+                        resultDescription: longDescription
+                    });
+                }
+            }]
+        };
+        let textReport: string;
+        let caughtError;
+        try {
+            const report = await ProfileValidator.validate(dummyProfile, plan, displayName);
+            textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow", "dummy", "dummy");
+        } catch (error) {
+            caughtError = error;
+            TestLogger.info("Got an error during unexpected validation: " + inspect(error));
+        }
+        expect(caughtError).toBeUndefined();
+        expect(textReport).toContain(longDescription.substring(0, 10)); // expect the report to have
+        // at least ten characters in a row of the description (Could test more but it's in a tabular format
+        // so the characters don't appear together
+        expect(textReport).toContain("..."); // expect it to be truncated
+    });
 
-    it("a failed profile validation report should include specified failure suggestions ",
+    it("a failed profile validation report should include specified failure suggestions",
         (done: any) => {
             const failureSuggestion = "Try fixing whatever is wrong";
             const plan: IProfileValidationPlan = {

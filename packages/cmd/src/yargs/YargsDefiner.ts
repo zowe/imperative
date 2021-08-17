@@ -89,7 +89,7 @@ export class YargsDefiner {
         this.log.trace("Defining a new definition to Yargs:");
         this.log.trace(inspect(definition));
         switch (definition.type) {
-            // case "provider":
+        // case "provider":
             case "group":
                 new GroupCommandYargs({
                     yargsInstance: this.mYargsInstance,

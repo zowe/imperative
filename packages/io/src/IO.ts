@@ -397,7 +397,7 @@ export class IO {
                 }
 
                 // read all of the children of this directory
-                fs.readdirSync(pathToTreeToDelete).forEach((nextChild, index) => {
+                fs.readdirSync(pathToTreeToDelete).forEach((nextChild) => {
                     // recursively delete the child
                     IO.deleteDirTree(pathToTreeToDelete + path.sep + nextChild);
                 });

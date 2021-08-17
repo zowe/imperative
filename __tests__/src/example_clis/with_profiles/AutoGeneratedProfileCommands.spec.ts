@@ -243,7 +243,7 @@ describe("We should provide auto-generated profile commands for convenience, " +
         expect(output.stderr).toEqual("");
     });
 
-    it("If we update an existing profile, the contents of the old profile should be merged with teh ", () => {
+    it("If we update an existing profile, the contents of the old profile should be merged with teh", () => {
         const profileName = "merge_me";
         const oldTea = "earl_grey";
         const oldSoda = "diet_coke";
@@ -271,7 +271,7 @@ describe("We should provide auto-generated profile commands for convenience, " +
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
     });
 
-    it("should be able to validate a many-field-profile with an auto generated validate command ", () => {
+    it("should be able to validate a many-field-profile with an auto generated validate command", () => {
         const profileName = "validate_me";
         const tea = "earl_grey";
         const soda = "diet_coke";
@@ -307,7 +307,7 @@ describe("We should provide auto-generated profile commands for convenience, " +
         //
     });
 
-    it("should be fail to validate an invalid many-fields-profile ", () => {
+    it("should be fail to validate an invalid many-fields-profile", () => {
         const profileName = "validate_me";
         const tea = "not_earl_grey";
         const soda = "diet_coke";

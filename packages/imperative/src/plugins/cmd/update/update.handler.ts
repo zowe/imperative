@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, ICommandResponse, IHandlerParameters } from "../../../../../cmd";
+import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { Logger } from "../../../../../logger";
 import { PMFConstants } from "../../utilities/PMFConstants";
 import { update } from "../../utilities/npm-interface";
@@ -67,7 +67,7 @@ export default class UpdateHandler implements ICommandHandler {
             npmLogin(registry);
         }
 
-        if (installedPlugins.hasOwnProperty(plugin)) {
+        if (Object.prototype.hasOwnProperty.call(installedPlugins, plugin)) {
             // Loop through the plugins and remove the uninstalled package
             for (const pluginName in installedPlugins) {
                 // Only retain the plugins that aren't being uninstalled

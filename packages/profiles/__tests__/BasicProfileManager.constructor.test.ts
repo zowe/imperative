@@ -173,34 +173,52 @@ describe("Basic Profile Manager Constructor", () => {
     it("should detect that a schema definition document is attempting to overload 'type'", () => {
         const copy: IProfileTypeConfiguration[] = JSON.parse(JSON.stringify(ONLY_APPLE));
         copy[0].schema.properties.type = {type: "boolean"};
-        const prof = new BasicProfileManager({
-            profileRootDirectory: TEST_PROFILE_ROOT_DIR,
-            typeConfigurations: ONLY_APPLE,
-            type: APPLE_PROFILE_TYPE,
-            logger: TestLogger.getTestLogger()
-        });
+        let caughtError;
+        try {
+            const prof = new BasicProfileManager({
+                profileRootDirectory: TEST_PROFILE_ROOT_DIR,
+                typeConfigurations: ONLY_APPLE,
+                type: APPLE_PROFILE_TYPE,
+                logger: TestLogger.getTestLogger()
+            });
+        } catch (error) {
+            caughtError = error;
+        }
+        expect(caughtError).toBeUndefined();
     });
 
     it("should detect that a schema definition document is attempting to overload 'name'", () => {
         const copy: IProfileTypeConfiguration[] = JSON.parse(JSON.stringify(ONLY_APPLE));
         copy[0].schema.properties.name = {type: "boolean"};
-        const prof = new BasicProfileManager({
-            profileRootDirectory: TEST_PROFILE_ROOT_DIR,
-            typeConfigurations: ONLY_APPLE,
-            type: APPLE_PROFILE_TYPE,
-            logger: TestLogger.getTestLogger()
-        });
+        let caughtError;
+        try {
+            const prof = new BasicProfileManager({
+                profileRootDirectory: TEST_PROFILE_ROOT_DIR,
+                typeConfigurations: ONLY_APPLE,
+                type: APPLE_PROFILE_TYPE,
+                logger: TestLogger.getTestLogger()
+            });
+        } catch (error) {
+            caughtError = error;
+        }
+        expect(caughtError).toBeUndefined();
     });
 
     it("should detect that a schema definition document is attempting to overload 'dependencies'", () => {
         const copy: IProfileTypeConfiguration[] = JSON.parse(JSON.stringify(ONLY_APPLE));
         copy[0].schema.properties.dependencies = {type: "boolean"};
-        const prof = new BasicProfileManager({
-            profileRootDirectory: TEST_PROFILE_ROOT_DIR,
-            typeConfigurations: ONLY_APPLE,
-            type: APPLE_PROFILE_TYPE,
-            logger: TestLogger.getTestLogger()
-        });
+        let caughtError;
+        try {
+            const prof = new BasicProfileManager({
+                profileRootDirectory: TEST_PROFILE_ROOT_DIR,
+                typeConfigurations: ONLY_APPLE,
+                type: APPLE_PROFILE_TYPE,
+                logger: TestLogger.getTestLogger()
+            });
+        } catch (error) {
+            caughtError = error;
+        }
+        expect(caughtError).toBeUndefined();
     });
 
     it("should allow instantiation if the meta doesn't have a default", () => {

@@ -166,7 +166,7 @@ export class CommandUtils {
                         tree,
                         command: child
                     }
-                )
+                );
             }
             if (child.children != null) {
                 for (const descendant of child.children) {

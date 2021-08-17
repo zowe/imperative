@@ -230,11 +230,10 @@ export class CommandResponse implements ICommandResponseApi {
 
     get format(): IHandlerFormatOutputApi {
         // Access to "this" from the inner class
-        // tslint:disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const outer: CommandResponse = this;
 
         if (this.mFormatApi == null) {
-            // tslint:disable-next-line
             this.mFormatApi = new class implements IHandlerFormatOutputApi {
                 /**
                  * Format output data from the command based on the defaults specified OR the parameters specified by
@@ -313,7 +312,7 @@ export class CommandResponse implements ICommandResponseApi {
 
                         // Output the data as a string
                         case "string":
-                            // Stringify if not a string
+                        // Stringify if not a string
                             if (typeof params.output !== "string") {
                                 params.output = JSON.stringify(params.output);
                             }
@@ -352,7 +351,7 @@ export class CommandResponse implements ICommandResponseApi {
                                 // Build the table and catch any errors that may occur from the packages
                                 let pretty;
                                 try {
-                                    // Prettify the data
+                                // Prettify the data
                                     pretty = TextUtils.prettyJson(params.output, undefined, undefined, "");
                                 } catch (prettyErr) {
                                     throw new ImperativeError({
@@ -378,7 +377,7 @@ export class CommandResponse implements ICommandResponseApi {
                                 // Build the table and catch any errors that may occur from the packages
                                 let table;
                                 try {
-                                    // Adjust if required
+                                // Adjust if required
                                     if (!Array.isArray(params.output)) {
                                         params.output = [params.output];
                                     }
@@ -532,12 +531,11 @@ export class CommandResponse implements ICommandResponseApi {
      */
     get console(): IHandlerResponseConsoleApi {
         // Access to "this" from the inner class
-        // tslint:disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const outer: CommandResponse = this;
 
         // Create only a single instance of the console API
         if (this.mConsoleApi == null) {
-            // tslint:disable-next-line
             this.mConsoleApi = new class implements IHandlerResponseConsoleApi {
 
                 /**
@@ -641,12 +639,11 @@ export class CommandResponse implements ICommandResponseApi {
      */
     get data(): IHandlerResponseDataApi {
         // Access to "this" from the inner class.
-        // tslint:disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const outer: CommandResponse = this;
 
         // Only create a single instance
         if (this.mDataApi == null) {
-            // tslint:disable-next-line
             this.mDataApi = new class {
 
                 /**
@@ -699,18 +696,17 @@ export class CommandResponse implements ICommandResponseApi {
      */
     get progress(): IHandlerProgressApi {
         // Remember "this" for the inner classes usage and ensure that progress bar has not been started.
-        // tslint:disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const outer: CommandResponse = this;
 
         // Ensure there is only a single instance created of the progress API class
         if (this.mProgressApi == null) {
 
             // Create an instance of the class
-            // tslint:disable-next-line
             this.mProgressApi = new class {
                 private mProgressBarSpinnerIndex = 0;
                 private mProgressTask: ITaskWithStatus;
-                private mProgressBarPollFrequency = 65;
+                private mProgressBarPollFrequency = 65;  // eslint-disable-line @typescript-eslint/no-magic-numbers
                 private mProgressBarTemplate: string = " " + TextUtils.chalk[outer.mPrimaryTextColor](":bar|") + " :current%  " +
                     TextUtils.chalk[outer.mPrimaryTextColor](":spin") + " | :statusMessage";
                 private mProgressBarInterval: any;

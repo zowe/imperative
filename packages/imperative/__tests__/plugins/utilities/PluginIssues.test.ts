@@ -46,8 +46,8 @@ describe("PluginIssues", () => {
                 pluginIssues.recordIssue("test2", IssueSeverity.CMD_ERROR, "test2");
 
                 const issues = pluginIssues.getAllIssues();
-                expect(issues.hasOwnProperty("test1")).toBeTruthy();
-                expect(issues.hasOwnProperty("test2")).toBeTruthy();
+                expect(Object.prototype.hasOwnProperty.call(issues, "test1")).toBeTruthy();
+                expect(Object.prototype.hasOwnProperty.call(issues, "test2")).toBeTruthy();
 
                 pluginIssues.removeIssuesForPlugin("test1");
                 pluginIssues.removeIssuesForPlugin("test2");

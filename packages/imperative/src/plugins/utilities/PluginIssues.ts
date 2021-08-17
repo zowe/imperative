@@ -96,18 +96,18 @@ export class PluginIssues {
 
     // ___________________________________________________________________________
     /**
-   * Reports whether or not a plugin has any issues with any of the specified
-   * severities.
-   *
-   * @param {string} pluginName - The name of the plugin
-   *
-   * @param {string} issueSevs - An array of issue severities.
-   *
-   * @returns {boolean} - True if any plugin issues have any of the severities.
-   *                      False otherwise.
-   */
+     * Reports whether or not a plugin has any issues with any of the specified
+     * severities.
+     *
+     * @param {string} pluginName - The name of the plugin
+     *
+     * @param {string} issueSevs - An array of issue severities.
+     *
+     * @returns {boolean} - True if any plugin issues have any of the severities.
+     *                      False otherwise.
+     */
     public doesPluginHaveIssueSev(pluginName: string, issueSevs: IssueSeverity[]): boolean {
-        if (this.pluginIssues.hasOwnProperty(pluginName)) {
+        if (Object.prototype.hasOwnProperty.call(this.pluginIssues, pluginName)) {
             for (const nextSev of issueSevs) {
                 for (const nextIssue of this.pluginIssues[pluginName].issueList) {
                     if (nextIssue.issueSev === nextSev) {
@@ -121,20 +121,20 @@ export class PluginIssues {
 
     // ___________________________________________________________________________
     /**
-   * Get the issues recorded for all plugins.
-   * @returns {IPluginIssues} - Map of plugin names to their array of issues.
-   */
+     * Get the issues recorded for all plugins.
+     * @returns {IPluginIssues} - Map of plugin names to their array of issues.
+     */
     public getAllIssues(): IPluginIssues {
         return this.pluginIssues;
     }
 
     // __________________________________________________________________________
     /**
-   * Get the set of installed plugins. This function should be the only means
-   * used to access our installedPlugins class variable.
-   *
-   * @returns {IPluginJson} - The set of installed plugins.
-   */
+     * Get the set of installed plugins. This function should be the only means
+     * used to access our installedPlugins class variable.
+     *
+     * @returns {IPluginJson} - The set of installed plugins.
+     */
     public getInstalledPlugins(): IPluginJson {
         if (this.installedPlugins == null) {
             try {
@@ -162,13 +162,13 @@ export class PluginIssues {
 
     // ___________________________________________________________________________
     /**
-   * Get the array of issues for the specified plugin.
-   * @param {string} pluginName - The name of the plugin
-   * @returns {IPluginIssue[]} - Array of issues for the plugin.
-   *                             If no issues, an empty array is returned.
-   */
+     * Get the array of issues for the specified plugin.
+     * @param {string} pluginName - The name of the plugin
+     * @returns {IPluginIssue[]} - Array of issues for the plugin.
+     *                             If no issues, an empty array is returned.
+     */
     public getIssueListForPlugin(pluginName: string): IPluginIssue[] {
-        if (this.pluginIssues.hasOwnProperty(pluginName)) {
+        if (Object.prototype.hasOwnProperty.call(this.pluginIssues, pluginName)) {
             return this.pluginIssues[pluginName].issueList;
         }
         return [];
@@ -176,30 +176,30 @@ export class PluginIssues {
 
     // ___________________________________________________________________________
     /**
-   * Remove the specified plugin from the collection of plugin issues.
-   * @param {string} pluginName - The name of the plugin to remove
-   */
+     * Remove the specified plugin from the collection of plugin issues.
+     * @param {string} pluginName - The name of the plugin to remove
+     */
     public removeIssuesForPlugin(pluginName: string): void {
-        if (this.pluginIssues.hasOwnProperty(pluginName)) {
+        if (Object.prototype.hasOwnProperty.call(this.pluginIssues, pluginName)) {
             delete this.pluginIssues[pluginName];
         }
     }
 
     // ___________________________________________________________________________
     /**
-   * Record an issue that was discovered in a plugin into an in-memory structure.
-   * The plugin issues can later be accessed to report the health of a plugin.
-   * @param {string} pluginName - The name of the plugin
-   * @param {IssueSeverity} issueSev - The severity of the issue.
-   *                            Use PluginIssues.ERROR or PluginIssues.WARNING
-   * @param {string} issueText - The issue message text to record.
-   */
+     * Record an issue that was discovered in a plugin into an in-memory structure.
+     * The plugin issues can later be accessed to report the health of a plugin.
+     * @param {string} pluginName - The name of the plugin
+     * @param {IssueSeverity} issueSev - The severity of the issue.
+     *                            Use PluginIssues.ERROR or PluginIssues.WARNING
+     * @param {string} issueText - The issue message text to record.
+     */
     public recordIssue(pluginName: string, issueSev: IssueSeverity, issueText: string): void {
         const issue: IPluginIssue = {
             issueSev,
             issueText
         };
-        if (this.pluginIssues.hasOwnProperty(pluginName)) {
+        if (Object.prototype.hasOwnProperty.call(this.pluginIssues, pluginName)) {
             // add to an existing issue list for this plugin
             this.pluginIssues[pluginName].issueList.push(issue);
         } else {

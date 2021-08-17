@@ -216,7 +216,7 @@ describe("DefaultCredentialManager", () => {
                     let result;
                     let caughtError: ImperativeError;
 
-                    (keytar.getPassword as jest.Mock).mockReturnValue(null);
+                    (keytar.getPassword as jest.Mock).mockReturnValueOnce(null);
 
                     try {
                         result = await privateManager.loadCredentials(values.account, true);

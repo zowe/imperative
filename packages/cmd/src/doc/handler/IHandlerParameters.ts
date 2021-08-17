@@ -9,7 +9,6 @@
 *
 */
 
-import { Arguments } from "yargs";
 import { ICommandDefinition } from "../ICommandDefinition";
 import { CommandProfiles } from "../../profiles/CommandProfiles";
 import { IHandlerResponseApi } from "../../doc/response/api/handler/IHandlerResponseApi";

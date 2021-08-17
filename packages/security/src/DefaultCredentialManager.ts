@@ -13,15 +13,7 @@ import { AbstractCredentialManager, SecureCredential } from "./abstract/Abstract
 import { ImperativeError } from "../../error";
 import { Logger } from "../../logger";
 
-
-/* tslint rule for missing dependency has been added to this file because it is up to
- * the host package to specify keytar as a dependency in order for this credential
- * manager to be used.
- *
- * This import is used for typing purposes only
- */
-// tslint:disable-next-line:no-implicit-dependencies
-import * as keytar from "keytar";
+import * as keytar from "keytar"; // Used for typing purposes only
 
 /**
  * Default Credential Manager is our implementation of the Imperative Credential Manager. This manager invokes methods
@@ -124,15 +116,14 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
    */
     public async initialize(): Promise<void> {
         try {
-        // Imperative overrides the value of process.mainModule.filename to point to
-        // our calling CLI. Since our caller must supply keytar, we search for keytar
-        // within our caller's path.
+            // Imperative overrides the value of process.mainModule.filename to point to
+            // our calling CLI. Since our caller must supply keytar, we search for keytar
+            // within our caller's path.
             const requireOpts: any = {};
             if (process.mainModule?.filename != null) {
-                requireOpts.paths = [ process.mainModule.filename ];
+                requireOpts.paths = [process.mainModule.filename];
             }
             const keytarPath = require.resolve("keytar", requireOpts);
-            // tslint:disable-next-line:no-implicit-dependencies
             this.keytar = await import(keytarPath);
         } catch (error) {
             this.loadError = new ImperativeError({

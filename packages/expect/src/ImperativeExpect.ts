@@ -274,7 +274,6 @@ export class ImperativeExpect {
      */
     public static keysToBeUndefined(obj: { [key: string]: any }, keys: string[], msg?: string) {
         ImperativeExpect.toNotBeNullOrUndefined(obj, msg);
-        const objParser = new DataObjectParser(obj);
         keys.forEach((key) => {
             if (!isNullOrUndefined(obj[key])) {
                 throw new ImperativeError({msg: "Required parameter '" + key + "' must be undefined"},

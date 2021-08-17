@@ -24,31 +24,31 @@ import { IPluginJson } from "../../../../../../packages/imperative/src/plugins/d
 
 describe("Installing Plugins", () => {
     /**
-   * This object describes the format of the plugins variable
-   */
-    interface ITestPluginStructure {
-    /**
-     * The keys represent the type of plugin, so for now we have a registry and normal plugin
+     * This object describes the format of the plugins variable
      */
+    interface ITestPluginStructure {
+        /**
+         * This object describes the format of the plugins variable
+         */
         [key: string]: {
             /**
-       * The location (or path to install) of a plugin. For anything on a registry, this should be the same as the name
-       * stored in the registry.
-       */
+             * The location (or path to install) of a plugin. For anything on a registry, this should be the same as the name
+             * stored in the registry.
+             */
             location: string,
 
             /**
-       * This is the name of the package.
-       *
-       * For local files we don't get this automatically from the file path.
-       * For registry plugins, this is the same as the plugin location.
-       */
+             * This is the name of the package.
+             *
+             * For local files we don't get this automatically from the file path.
+             * For registry plugins, this is the same as the plugin location.
+             */
             name: string,
 
             /**
-       * This is ultimately how the plugin is added to the cli. IE the top level
-       * name that gets invoked
-       */
+             * This is ultimately how the plugin is added to the cli. IE the top level
+             * name that gets invoked
+             */
             usage: string
         };
     }
@@ -82,33 +82,33 @@ describe("Installing Plugins", () => {
     };
 
     /**
-   * Location of the saved plugins.json file for test purposes
-   * @type {string}
-   */
+     * Location of the saved plugins.json file for test purposes
+     * @type {string}
+     */
     const pluginJsonLocation = join(config.defaultHome, "plugins", "plugins.json");
 
     /**
-   * Takes a string and splits it into an array on spaces before sending to the test cli function.
-   *
-   * @param {*}      context The test context (this of test instance)
-   * @param {string} cmd     The command to execute on the Test CLI
-   * @returns {SpawnSyncReturns<string>} The result of the command execution
-   */
+     * Takes a string and splits it into an array on spaces before sending to the test cli function.
+     *
+     * @param {*}      context The test context (this of test instance)
+     * @param {string} cmd     The command to execute on the Test CLI
+     * @returns {SpawnSyncReturns<string>} The result of the command execution
+     */
     const executeCommandString = (context: any, cmd: string): SpawnSyncReturns<string> =>
         T.executeTestCLICommand(cliBin, context, cmd.split(" "));
 
     /**
-   * The registry from the user's environment, which is used when an explicit registry is not supplied.
-   * @type {string}
-   */
+     * The registry from the user's environment, which is used when an explicit registry is not supplied.
+     * @type {string}
+     */
     let envNpmRegistry: string = "";
 
     /**
-   * Specifies whether warnings about missing peer dependencies should be
-   * expected in stderr output of `npm install`. This defaults to true and is
-   * set to false if version 7 or newer of NPM is detected.
-   * @type {boolean}
-   */
+     * Specifies whether warnings about missing peer dependencies should be
+     * expected in stderr output of `npm install`. This defaults to true and is
+     * set to false if version 7 or newer of NPM is detected.
+     * @type {boolean}
+     */
     let peerDepWarning: boolean = true;
 
     beforeAll(() => {
@@ -118,28 +118,28 @@ describe("Installing Plugins", () => {
     });
 
     beforeEach(() => {
-    // ensure that each test starts with no installed plugins
+        // ensure that each test starts with no installed plugins
         T.rimraf(pluginJsonLocation);
     });
 
     /* This test was purposely commented out. The CICD pipeline cannot synchronize two different
-   * repos: imperative and imperative-plugins in master, since plugins is used to perform the
-   * tests that permit cli to be merged into master.
-   *
-   * If you want to do a quick manual test using an npm registry, you can uncomment
-   * this block. Just be sure to re-comment it before committing this file.
-   *
-  it("should install the sample plugin from the registry", function(){
-    const result = executeCommandString(this, `${pluginGroup} install ${plugins.registry.location} --registry ${TEST_REGISTRY}`);
-    console.log(result);
-    expect(result.stderr).toEqual("");
+    * repos: imperative and imperative-plugins in master, since plugins is used to perform the
+    * tests that permit cli to be merged into master.
+    *
+    * If you want to do a quick manual test using an npm registry, you can uncomment
+    * this block. Just be sure to re-comment it before committing this file.
+    *
+    it("should install the sample plugin from the registry", function(){
+        const result = executeCommandString(this, `${pluginGroup} install ${plugins.registry.location} --registry ${TEST_REGISTRY}`);
+        console.log(result);
+        expect(result.stderr).toEqual("");
 
-    const strippedOutput = T.stripNewLines(result.stdout);
-    expect(strippedOutput).toContain("Registry = " + TEST_REGISTRY);
-    expect(strippedOutput).toContain(`Installed plugin = '${plugins.registry.name}'`);
-    expect(strippedOutput).toContain("Installation of the npm package(s) was successful.");
-  });
-  */
+        const strippedOutput = T.stripNewLines(result.stdout);
+        expect(strippedOutput).toContain("Registry = " + TEST_REGISTRY);
+        expect(strippedOutput).toContain(`Installed plugin = '${plugins.registry.name}'`);
+        expect(strippedOutput).toContain("Installation of the npm package(s) was successful.");
+    });
+    */
 
     it("should install a plugin from a file location", function(){
 
@@ -276,75 +276,62 @@ describe("Installing Plugins", () => {
     });
 
     /* Again we purposely commented out this test because versioning uses a registry,
-   * which is problematic for a CICD pipeline.
-   *
-   * If you want to do a quick manual test using an npm registry, you can uncomment
-   * this block. Just be sure to re-comment it before committing this file.
-   *
-  describe("versioning", () => {
-    it("should install a strict version", function(){
-      const version = "1.0.2";
+     * which is problematic for a CICD pipeline.
+     *
+     * If you want to do a quick manual test using an npm registry, you can uncomment
+     * this block. Just be sure to re-comment it before committing this file.
+     */
+    /* eslint-disable jest/no-commented-out-tests */
+    // describe("versioning", () => {
+    //     it("should install a strict version", function(){
+    //     const version = "1.0.2";
 
-      let result = executeCommandString(this, "--help");
+    //     let result = executeCommandString(this, "--help");
 
-      expect(result.stderr).toEqual("");
-      expect(result.stdout).not.toContain(plugins.registry.usage);
+    //     expect(result.stderr).toEqual("");
+    //     expect(result.stdout).not.toContain(plugins.registry.usage);
 
-      // Install the plugin with a version
-      result = executeCommandString(this, `${pluginGroup} install ${plugins.registry.location}@${version} --registry ${TEST_REGISTRY}`);
+    //     // Install the plugin with a version
+    //     result = executeCommandString(this, `${pluginGroup} install ${plugins.registry.location}@${version} --registry ${TEST_REGISTRY}`);
 
-      expect(result.stderr).toEqual("");
-      expect(result.stdout).toContain("successful");
-
-      result = executeCommandString(this, "--help");
-
-      expect(result.stderr).toEqual("");
-      expect(result.stdout).toContain(plugins.registry.usage);
-
-      const actualJson = readFileSync(pluginJsonLocation);
-      const expectedJson: IPluginJson = {
-        [plugins.registry.name]: {
-          package: plugins.registry.location,
-          registry: TEST_REGISTRY,
-          version
-        }
-      };
-
-      expect(actualJson).toEqual(expectedJson);
-    });
-
-    it("should install preserving semver", function(){
-      const version = "^1.0.0";
-
-      let result = executeCommandString(this, "--help");
-
-      expect(result.stderr).toEqual("");
-      expect(result.stdout).not.toContain(plugins.registry.usage);
-
-      // Install the plugin with a version
-      result = executeCommandString(this, `${pluginGroup} install ${plugins.registry.location}@${version} --registry ${TEST_REGISTRY}`);
-
-      expect(result.stderr).toEqual("");
-      expect(result.stdout).toContain("successful");
-
-      result = executeCommandString(this, "--help");
-
-      expect(result.stderr).toEqual("");
-      expect(result.stdout).toContain(plugins.registry.usage);
-
-      const actualJson = readFileSync(pluginJsonLocation);
-      const expectedJson: IPluginJson = {
-        [plugins.registry.name]: {
-          package: plugins.registry.location,
-          registry: TEST_REGISTRY,
-          version
-        }
-      };
-
-      expect(actualJson).toEqual(expectedJson);
-    });
-  });
-  */
+    //     expect(result.stderr).toEqual("");
+    //     expect(result.stdout).toContain("successful");
+    //     result = executeCommandString(this, "--help");
+    //     expect(result.stderr).toEqual("");
+    //     expect(result.stdout).toContain(plugins.registry.usage);
+    //     const actualJson = readFileSync(pluginJsonLocation);
+    //     const expectedJson: IPluginJson = {
+    //         [plugins.registry.name]: {
+    //         package: plugins.registry.location,
+    //         registry: TEST_REGISTRY,
+    //         version
+    //         }
+    //     };
+    //     expect(actualJson).toEqual(expectedJson);
+    //     });
+    //     it("should install preserving semver", function(){
+    //     const version = "^1.0.0";
+    //     let result = executeCommandString(this, "--help");
+    //     expect(result.stderr).toEqual("");
+    //     expect(result.stdout).not.toContain(plugins.registry.usage);
+    //     // Install the plugin with a version
+    //     result = executeCommandString(this, `${pluginGroup} install ${plugins.registry.location}@${version} --registry ${TEST_REGISTRY}`);
+    //     expect(result.stderr).toEqual("");
+    //     expect(result.stdout).toContain("successful");
+    //     result = executeCommandString(this, "--help");
+    //     expect(result.stderr).toEqual("");
+    //     expect(result.stdout).toContain(plugins.registry.usage);
+    //     const actualJson = readFileSync(pluginJsonLocation);
+    //     const expectedJson: IPluginJson = {
+    //         [plugins.registry.name]: {
+    //         package: plugins.registry.location,
+    //         registry: TEST_REGISTRY,
+    //         version
+    //         }
+    //     };
+    //     expect(actualJson).toEqual(expectedJson);
+    //     });
+    // });
 
     describe("providing a plugin json", () => {
         let testFile: string;

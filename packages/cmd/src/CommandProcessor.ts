@@ -700,9 +700,12 @@ export class CommandProcessor {
         // Display the first example on error
         if (this.mDefinition.examples && this.mDefinition.examples.length > 0) {
             let exampleText = TextUtils.wordWrap(`- ${this.mDefinition.examples[0].description}:\n\n`, undefined, " ");
-            exampleText += `      \$ ${this.rootCommand
-            } ${CommandUtils.getFullCommandName(this.mDefinition, this.mFullDefinition)
-            } ${this.mDefinition.examples[0].options
+            exampleText += `      $ ${
+                this.rootCommand
+            } ${
+                CommandUtils.getFullCommandName(this.mDefinition, this.mFullDefinition)
+            } ${
+                this.mDefinition.examples[0].options
             }\n`;
 
             finalHelp += `\nExample:\n\n${exampleText}`;
@@ -944,7 +947,7 @@ export class CommandProcessor {
                     response.writeJsonResponse();
                     break;
                 case "default":
-                    // Do nothing - already written along the way
+                // Do nothing - already written along the way
                     break;
                 default:
                     throw new ImperativeError({

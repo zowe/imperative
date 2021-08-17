@@ -248,15 +248,23 @@ describe("Command Processor", () => {
     });
 
     it("should allow us to create an instance", () => {
-        const processor: CommandProcessor = new CommandProcessor({
-            envVariablePrefix: ENV_VAR_PREFIX,
-            definition: SAMPLE_COMMAND_DEFINITION,
-            helpGenerator: FAKE_HELP_GENERATOR,
-            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: "",
-            promptPhrase: "dummydummy"
-        });
+        let caughtError;
+
+        try {
+            const processor: CommandProcessor = new CommandProcessor({
+                envVariablePrefix: ENV_VAR_PREFIX,
+                definition: SAMPLE_COMMAND_DEFINITION,
+                helpGenerator: FAKE_HELP_GENERATOR,
+                profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+                rootCommandName: SAMPLE_ROOT_COMMAND,
+                commandLine: "",
+                promptPhrase: "dummydummy"
+            });
+        } catch (error) {
+            caughtError = error;
+        }
+
+        expect(caughtError).toBeUndefined();
     });
 
     it("should detect that no parameters have been supplied", () => {
@@ -591,7 +599,7 @@ describe("Command Processor", () => {
         expect(validateResponse).toMatchSnapshot();
     });
 
-    it("should detect missing command parameters to validate", async () => {
+    it("should detect missing command arguments to validate", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
             envVariablePrefix: ENV_VAR_PREFIX,
@@ -614,7 +622,7 @@ describe("Command Processor", () => {
         expect(error.message).toMatchSnapshot();
     });
 
-    it("should detect missing command parameters to validate", async () => {
+    it("should detect missing command response to validate", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
             envVariablePrefix: ENV_VAR_PREFIX,
@@ -1638,46 +1646,6 @@ describe("Command Processor", () => {
         const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(CliUtils.getOptValueFromProfiles).toHaveBeenCalledTimes(1);
         expect(commandResponse.stdout.toString()).toMatchSnapshot();
-        expect(commandResponse).toBeDefined();
-        expect(commandResponse).toMatchSnapshot();
-    });
-
-    it("should invoke the handler and return success=true if the handler was successful", async () => {
-        // Allocate the command processor
-        const processor: CommandProcessor = new CommandProcessor({
-            envVariablePrefix: ENV_VAR_PREFIX,
-            fullDefinition: SAMPLE_COMPLEX_COMMAND,
-            definition: SAMPLE_COMMAND_REAL_HANDLER,
-            helpGenerator: FAKE_HELP_GENERATOR,
-            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: "",
-            promptPhrase: "dummydummy"
-        });
-
-        // Mock read stdin
-        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
-            // Nothing to do
-        });
-
-        // Mock the profile loader
-        (CommandProfileLoader.loader as any) = jest.fn((args) => {
-            return {
-                loadProfiles: (profArgs: any) => {
-                    // Nothing to do
-                }
-            };
-        });
-
-        const parms: any = {
-            arguments: {
-                _: ["check", "for", "banana"],
-                $0: "",
-                valid: true,
-            },
-            silent: true
-        };
-        const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(commandResponse).toBeDefined();
         expect(commandResponse).toMatchSnapshot();
     });

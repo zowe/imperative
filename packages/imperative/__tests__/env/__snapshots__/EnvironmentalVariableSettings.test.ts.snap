@@ -94,26 +94,26 @@ Object {
 }
 `;
 
-exports[`EnvironmentalVariableSettings tests should use my prefix even if its bad for linux 1`] = `"_(){}[]$*+-/\\"#',;.@!?a1234567890_IMPERATIVE_LOG_LEVEL"`;
+exports[`EnvironmentalVariableSettings tests should use my prefix even if its bad for linux 1`] = `"_(){}[]$*+-\\\\/\\"#',;.@!?a1234567890_IMPERATIVE_LOG_LEVEL"`;
 
-exports[`EnvironmentalVariableSettings tests should use my prefix even if its bad for linux 2`] = `"_(){}[]$*+-/\\"#',;.@!?a1234567890_APP_LOG_LEVEL"`;
+exports[`EnvironmentalVariableSettings tests should use my prefix even if its bad for linux 2`] = `"_(){}[]$*+-\\\\/\\"#',;.@!?a1234567890_APP_LOG_LEVEL"`;
 
 exports[`EnvironmentalVariableSettings tests should use my prefix even if its bad for linux 3`] = `
 Object {
   "appLogLevel": Object {
-    "key": "_(){}[]$*+-/\\"#',;.@!?a1234567890_APP_LOG_LEVEL",
+    "key": "_(){}[]$*+-\\\\/\\"#',;.@!?a1234567890_APP_LOG_LEVEL",
     "value": undefined,
   },
   "cliHome": Object {
-    "key": "_(){}[]$*+-/\\"#',;.@!?a1234567890_CLI_HOME",
+    "key": "_(){}[]$*+-\\\\/\\"#',;.@!?a1234567890_CLI_HOME",
     "value": undefined,
   },
   "imperativeLogLevel": Object {
-    "key": "_(){}[]$*+-/\\"#',;.@!?a1234567890_IMPERATIVE_LOG_LEVEL",
+    "key": "_(){}[]$*+-\\\\/\\"#',;.@!?a1234567890_IMPERATIVE_LOG_LEVEL",
     "value": undefined,
   },
   "promptPhrase": Object {
-    "key": "_(){}[]$*+-/\\"#',;.@!?a1234567890_PROMPT_PHRASE",
+    "key": "_(){}[]$*+-\\\\/\\"#',;.@!?a1234567890_PROMPT_PHRASE",
     "value": undefined,
   },
 }

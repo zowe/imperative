@@ -70,128 +70,128 @@ const SchemaValidator = require("jsonschema").Validator;
  */
 export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration> {
     /**
-   * The default profile file extension (YAML format) - all profiles are stored in YAML format including
-   * the meta profile file.
-   * @static
-   * @type {string}
-   * @memberof ProfileManager
-   */
+     * The default profile file extension (YAML format) - all profiles are stored in YAML format including
+     * the meta profile file.
+     * @static
+     * @type {string}
+     * @memberof ProfileManager
+     */
     public static readonly PROFILE_EXTENSION: string = ".yaml";
 
     /**
-   * The meta file suffix - always appended to the meta file to distinguish from other profiles. Users then cannot
-   * supply a profile name that would conflict with the meta file.
-   * @static
-   * @type {string}
-   * @memberof AbstractProfileManager
-   */
+     * The meta file suffix - always appended to the meta file to distinguish from other profiles. Users then cannot
+     * supply a profile name that would conflict with the meta file.
+     * @static
+     * @type {string}
+     * @memberof AbstractProfileManager
+     */
     public static readonly META_FILE_SUFFIX: string = "_meta";
 
     /**
-   * Load counter for this instance of the imperative profile manager. The load counter ensures that we are not
-   * attempting to load circular dependencies by checking if a load (with dependencies) is attempting a load of
-   * the same profile twice. The counts are reset when the loads complete, so state should be preserved correctly.
-   * @private
-   * @static
-   * @type {Map<string, number>}
-   * @memberof AbstractProfileManager
-   */
+     * Load counter for this instance of the imperative profile manager. The load counter ensures that we are not
+     * attempting to load circular dependencies by checking if a load (with dependencies) is attempting a load of
+     * the same profile twice. The counts are reset when the loads complete, so state should be preserved correctly.
+     * @private
+     * @static
+     * @type {Map<string, number>}
+     * @memberof AbstractProfileManager
+     */
     private mLoadCounter: Map<string, number> = new Map<string, number>();
 
     /**
-   * Parameters passed on the constructor (normally used to create additional instances of profile manager objects)
-   * @private
-   * @type {IProfileManager}
-   * @memberof AbstractProfileManager
-   */
+     * Parameters passed on the constructor (normally used to create additional instances of profile manager objects)
+     * @private
+     * @type {IProfileManager}
+     * @memberof AbstractProfileManager
+     */
     private mConstructorParms: IProfileManager<T>;
 
     /**
-   * The profile root directory is normally supplied on an Imperative configuration document, but it is the
-   * location where all profile type directories are stored.
-   * @private
-   * @type {string}
-   * @memberof AbstractProfileManager
-   */
+     * The profile root directory is normally supplied on an Imperative configuration document, but it is the
+     * location where all profile type directories are stored.
+     * @private
+     * @type {string}
+     * @memberof AbstractProfileManager
+     */
     private mProfileRootDirectory: string;
 
     /**
-   * The full set of profile type configurations. The manager needs to ensure that A) the profile type configuration
-   * is among the set (because it contains schema and dependency specifications) and B) That other type configurations
-   * are available to verify/load dependencies, etc.
-   * @private
-   * @type {T[]}
-   * @memberof AbstractProfileManager
-   */
+     * The full set of profile type configurations. The manager needs to ensure that A) the profile type configuration
+     * is among the set (because it contains schema and dependency specifications) and B) That other type configurations
+     * are available to verify/load dependencies, etc.
+     * @private
+     * @type {T[]}
+     * @memberof AbstractProfileManager
+     */
     private mProfileTypeConfigurations: T[];
 
     /**
-   * The profile "type" for this manager - indicating the profile/schema that this manager is working directly with.
-   * @private
-   * @type {string}
-   * @memberof AbstractProfileManager
-   */
+     * The profile "type" for this manager - indicating the profile/schema that this manager is working directly with.
+     * @private
+     * @type {string}
+     * @memberof AbstractProfileManager
+     */
     private mProfileType: string;
 
     /**
-   * The profile configuration document for the "type" defined to this manager. Contains the schema and dependency
-   * specifications for the profile type.
-   * @private
-   * @type {T}
-   * @memberof AbstractProfileManager
-   */
+     * The profile configuration document for the "type" defined to this manager. Contains the schema and dependency
+     * specifications for the profile type.
+     * @private
+     * @type {T}
+     * @memberof AbstractProfileManager
+     */
     private mProfileTypeConfiguration: T;
 
     /**
-   * The profile schema for the "type". The JSON schema is used to validate any profiles loaded or saved by this
-   * profile manager for the type.
-   * @private
-   * @type {IProfileSchema}
-   * @memberof AbstractProfileManager
-   */
+     * The profile schema for the "type". The JSON schema is used to validate any profiles loaded or saved by this
+     * profile manager for the type.
+     * @private
+     * @type {IProfileSchema}
+     * @memberof AbstractProfileManager
+     */
     private mProfileTypeSchema: IProfileSchema;
 
     /**
-   * The root directory for the type (contained within the profile root directory).
-   * @private
-   * @type {string}
-   * @memberof AbstractProfileManager
-   */
+     * The root directory for the type (contained within the profile root directory).
+     * @private
+     * @type {string}
+     * @memberof AbstractProfileManager
+     */
     private mProfileTypeRootDirectory: string;
 
     /**
-   * The meta file name for this profile type. Of the form "<type>_meta".
-   * @private
-   * @type {string}
-   * @memberof AbstractProfileManager
-   */
+     * The meta file name for this profile type. Of the form "<type>_meta".
+     * @private
+     * @type {string}
+     * @memberof AbstractProfileManager
+     */
     private mProfileTypeMetaFileName: string;
 
     /**
-   * Product display name of the CLI.
-   * @private
-   * @type {string}
-   * @memberof AbstractProfileManager
-   */
+     * Product display name of the CLI.
+     * @private
+     * @type {string}
+     * @memberof AbstractProfileManager
+     */
     private mProductDisplayName: string;
 
     /**
-   * Logger instance - must be log4js compatible. Can be the Imperative logger (normally), but is required for
-   * profile manager operation.
-   * @private
-   * @type {Logger}
-   * @memberof AbstractProfileManager
-   */
+     * Logger instance - must be log4js compatible. Can be the Imperative logger (normally), but is required for
+     * profile manager operation.
+     * @private
+     * @type {Logger}
+     * @memberof AbstractProfileManager
+     */
     private mLogger: Logger = Logger.getImperativeLogger();
 
     /**
-   * Creates an instance of ProfileManager - Performs basic parameter validation and will create the required
-   * profile root directory (if it does not exist) and will attempt to load type configurations from the
-   * existing profile root directory (unless the type definitions are passed on the constructor parameters).
-   *
-   * @param {IProfileManager} parms - See the interface for details.
-   * @memberof ProfileManager
-   */
+     * Creates an instance of ProfileManager - Performs basic parameter validation and will create the required
+     * profile root directory (if it does not exist) and will attempt to load type configurations from the
+     * existing profile root directory (unless the type definitions are passed on the constructor parameters).
+     *
+     * @param {IProfileManager} parms - See the interface for details.
+     * @memberof ProfileManager
+     */
     constructor(parms: IProfileManager<T>) {
         ImperativeExpect.toNotBeNullOrUndefined(parms, "Profile Manager input parms not supplied.");
         ImperativeExpect.keysToBeDefinedAndNonBlank(parms, ["type"],
@@ -239,160 +239,160 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Accessor for the load counter (protects against circular loading)
-   * @readonly
-   * @protected
-   * @type {Map<string, number>}
-   * @memberof AbstractProfileManager
-   */
+     * Accessor for the load counter (protects against circular loading)
+     * @readonly
+     * @protected
+     * @type {Map<string, number>}
+     * @memberof AbstractProfileManager
+     */
     protected get loadCounter(): Map<string, number> {
         return this.mLoadCounter;
     }
 
     /**
-   * Accessor for the logger instance - passed on the constructor
-   * @readonly
-   * @protected
-   * @type {Logger}
-   * @memberof AbstractProfileManager
-   */
+     * Accessor for the logger instance - passed on the constructor
+     * @readonly
+     * @protected
+     * @type {Logger}
+     * @memberof AbstractProfileManager
+     */
     protected get log(): Logger {
         return this.mLogger;
     }
 
     /**
-   * Accessor the input parameters to the constructor - used sometimes to create other instances of profile managers.
-   * @readonly
-   * @protected
-   * @type {IProfileManager}
-   * @memberof AbstractProfileManager
-   */
+     * Accessor the input parameters to the constructor - used sometimes to create other instances of profile managers.
+     * @readonly
+     * @protected
+     * @type {IProfileManager}
+     * @memberof AbstractProfileManager
+     */
     protected get managerParameters(): IProfileManager<T> {
         return this.mConstructorParms;
     }
 
     /**
-   * Accessor for the profile type specified on the constructor.
-   * @readonly
-   * @protected
-   * @type {string}
-   * @memberof AbstractProfileManager
-   */
+     * Accessor for the profile type specified on the constructor.
+     * @readonly
+     * @protected
+     * @type {string}
+     * @memberof AbstractProfileManager
+     */
     protected get profileType(): string {
         return this.mProfileType;
     }
 
     /**
-   * Accesor for the product display name.
-   * @readonly
-   * @protected
-   * @type {string}
-   * @memberof AbstractProfileManager
-   */
+     * Accesor for the product display name.
+     * @readonly
+     * @protected
+     * @type {string}
+     * @memberof AbstractProfileManager
+     */
     protected get productDisplayName(): string {
         return this.mProductDisplayName;
     }
 
     /**
-   * Accessor for the profile type configuration for this manager.
-   * @readonly
-   * @protected
-   * @type {T}
-   * @memberof AbstractProfileManager
-   */
+     * Accessor for the profile type configuration for this manager.
+     * @readonly
+     * @protected
+     * @type {T}
+     * @memberof AbstractProfileManager
+     */
     protected get profileTypeConfiguration(): T {
         return this.mProfileTypeConfiguration;
     }
 
     /**
-   * Accessor for the full set of type configurations - passed on the constructor or obtained from reading
-   * the profile root directories and meta files.
-   * @readonly
-   * @protected
-   * @type {T[]}
-   * @memberof AbstractProfileManager
-   */
+     * Accessor for the full set of type configurations - passed on the constructor or obtained from reading
+     * the profile root directories and meta files.
+     * @readonly
+     * @protected
+     * @type {T[]}
+     * @memberof AbstractProfileManager
+     */
     protected get profileTypeConfigurations(): T[] {
         return this.mProfileTypeConfigurations;
     }
 
     /**
-   * Accessor for the schema of this type - JSON schema standard
-   * @readonly
-   * @protected
-   * @type {IProfileSchema}
-   * @memberof AbstractProfileManager
-   */
+     * Accessor for the schema of this type - JSON schema standard
+     * @readonly
+     * @protected
+     * @type {IProfileSchema}
+     * @memberof AbstractProfileManager
+     */
     protected get profileTypeSchema(): IProfileSchema {
         return this.mProfileTypeSchema;
     }
 
     /**
-   * Accessor for the profile type root directory (contained within the profile root directory and named by the type itself)
-   * @readonly
-   * @protected
-   * @type {string}
-   * @memberof AbstractProfileManager
-   */
+     * Accessor for the profile type root directory (contained within the profile root directory and named by the type itself)
+     * @readonly
+     * @protected
+     * @type {string}
+     * @memberof AbstractProfileManager
+     */
     protected get profileTypeRootDirectory(): string {
         return this.mProfileTypeRootDirectory;
     }
 
     /**
-   * Accessor for the profile meta file name - constructed as "<type>_meta"
-   * @readonly
-   * @protected
-   * @type {string}
-   * @memberof AbstractProfileManager
-   */
+     * Accessor for the profile meta file name - constructed as "<type>_meta"
+     * @readonly
+     * @protected
+     * @type {string}
+     * @memberof AbstractProfileManager
+     */
     protected get profileTypeMetaFileName(): string {
         return this.mProfileTypeMetaFileName;
     }
 
     /**
-   * Accessor for the profile root directory - supplied on the constructor - used to construct the profile type
-   * directory.
-   * @readonly
-   * @protected
-   * @type {string}
-   * @memberof AbstractProfileManager
-   */
+     * Accessor for the profile root directory - supplied on the constructor - used to construct the profile type
+     * directory.
+     * @readonly
+     * @protected
+     * @type {string}
+     * @memberof AbstractProfileManager
+     */
     protected get profileRootDirectory(): string {
         return this.mProfileRootDirectory;
     }
 
     /**
-   * Obtains all profile names for the profile "type" specified on the manager. The names are obtained from the
-   * filesystem (in the profile type directory) and the meta file is NOT returned in the list.
-   * @returns {string[]} - The list of profile names (obtained from disk).
-   * @memberof AbstractProfileManager
-   */
+     * Obtains all profile names for the profile "type" specified on the manager. The names are obtained from the
+     * filesystem (in the profile type directory) and the meta file is NOT returned in the list.
+     * @returns {string[]} - The list of profile names (obtained from disk).
+     * @memberof AbstractProfileManager
+     */
     public getAllProfileNames(): string[] {
         return ProfileIO.getAllProfileNames(this.profileTypeRootDirectory,
             AbstractProfileManager.PROFILE_EXTENSION, this.constructMetaName());
     }
 
     /**
-   * Accessor that returns a copy of of the profile configuration document.
-   * @readonly
-   * @type {IProfileTypeConfiguration[]}
-   * @memberof AbstractProfileManager
-   */
+     * Accessor that returns a copy of of the profile configuration document.
+     * @readonly
+     * @type {IProfileTypeConfiguration[]}
+     * @memberof AbstractProfileManager
+     */
     public get configurations(): IProfileTypeConfiguration[] {
         return JSON.parse(JSON.stringify(isNullOrUndefined(this.profileTypeConfigurations) ? [] : this.profileTypeConfigurations));
     }
 
     /**
-   * Save a profile to disk. Ensures that the profile specified is valid (basic and schema validation) and invokes the implementations
-   * "saveProfile" method to perform the save and formulate the response.
-   * @template S
-   * @param {ISaveProfile} parms - See interface for details
-   * @returns {Promise<IProfileSaved>} - The promise that is fulfilled with the response object (see interface for details) or rejected
-   * with an Imperative Error.
-   * @memberof AbstractProfileManager
-   */
+     * Save a profile to disk. Ensures that the profile specified is valid (basic and schema validation) and invokes the implementations
+     * "saveProfile" method to perform the save and formulate the response.
+     * @template S
+     * @param {ISaveProfile} parms - See interface for details
+     * @returns {Promise<IProfileSaved>} - The promise that is fulfilled with the response object (see interface for details) or rejected
+     * with an Imperative Error.
+     * @memberof AbstractProfileManager
+     */
     public async save<S extends ISaveProfile>(parms: S): Promise<IProfileSaved> {
-    // Validate the input parameters
+        // Validate the input parameters
         ImperativeExpect.toNotBeNullOrUndefined(parms,
             `A request was made to save a profile of type "${this.profileType}", but no parameters were supplied.`);
         ImperativeExpect.keysToBeDefined(parms, ["profile"],
@@ -443,16 +443,16 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Load a profile from disk. Ensures that the parameters are valid and loads the profile specified by name OR the default profile if
-   * requested. If load default is requested, any name supplied is ignored.
-   * @template L
-   * @param {ILoadProfile} parms - See the interface for details.
-   * @returns {Promise<IProfileLoaded>} - The promise that is fulfilled with the response object (see interface for details) or rejected
-   * with an Imperative Error.
-   * @memberof AbstractProfileManager
-   */
+     * Load a profile from disk. Ensures that the parameters are valid and loads the profile specified by name OR the default profile if
+     * requested. If load default is requested, any name supplied is ignored.
+     * @template L
+     * @param {ILoadProfile} parms - See the interface for details.
+     * @returns {Promise<IProfileLoaded>} - The promise that is fulfilled with the response object (see interface for details) or rejected
+     * with an Imperative Error.
+     * @memberof AbstractProfileManager
+     */
     public async load<L extends ILoadProfile>(parms: L): Promise<IProfileLoaded> {
-    // Ensure the correct parameters were supplied
+        // Ensure the correct parameters were supplied
         ImperativeExpect.toNotBeNullOrUndefined(parms, `Profile load requested for type "${this.profileType}", but no parameters supplied.`);
 
         // Set defaults if not present
@@ -466,7 +466,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         // If load default is true, avoid the name check - if loading the default, we ignore the name
         if (!parms.loadDefault) {
             ImperativeExpect.keysToBeDefined(parms, ["name"], `A profile load was requested for type "${this.profileType}", ` +
-        `but no profile name was specified.`);
+                `but no profile name was specified.`);
         } else {
             parms.name = this.getDefaultProfileName();
             this.log.debug(`The default profile for type "${this.profileType}" is "${parms.name}".`);
@@ -483,8 +483,8 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
                 this.log.error(`Default profile "${parms.name}" does not exist for type "${this.profileType}".`);
                 throw new ImperativeError({
                     msg: `Your default profile named ${parms.name} does not exist for type ${this.profileType}.\n` +
-            `To change your default profile, run "${ImperativeConfig.instance.rootCommandName} profiles set-default ${this.profileType} ` +
-            `<profileName>".`
+                        `To change your default profile, run "${ImperativeConfig.instance.rootCommandName} profiles set-default ` +
+                        `${this.profileType} <profileName>".`
                 });
             }
         }
@@ -504,7 +504,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
             this.log.error(`Circular dependencies detected in profile "${parms.name}" of type "${this.profileType}".`);
             throw new ImperativeError({
                 msg: `A circular profile dependency was detected. Profile "${parms.name}" of type "${this.profileType}" ` +
-          `either points directly to itself OR a dependency of this profile points to this profile.`
+                    `either points directly to itself OR a dependency of this profile points to this profile.`
             });
         }
 
@@ -527,18 +527,18 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Validate a profile. Includes basic and schema validation. Can be called explicitly, but is also called during
-   * loads and saves to protect the integrity of the profiles against the type definitions.
-   * @template V
-   * @param {IValidateProfile} parms - See the interface for details
-   * @returns {Promise<IProfileValidated>} - The promise that is fulfilled with the response object (see interface for details) or rejected
-   * with an Imperative Error.
-   * @memberof AbstractProfileManager
-   */
+     * Validate a profile. Includes basic and schema validation. Can be called explicitly, but is also called during
+     * loads and saves to protect the integrity of the profiles against the type definitions.
+     * @template V
+     * @param {IValidateProfile} parms - See the interface for details
+     * @returns {Promise<IProfileValidated>} - The promise that is fulfilled with the response object (see interface for details) or rejected
+     * with an Imperative Error.
+     * @memberof AbstractProfileManager
+     */
     public async validate<V extends IValidateProfile>(parms: V): Promise<IProfileValidated> {
-    // Ensure that parms are passed
+        // Ensure that parms are passed
         ImperativeExpect.toNotBeNullOrUndefined(parms, `A request was made to validate a profile ` +
-      `(of type "${this.profileType}"), but no parameters were specified.`);
+            `(of type "${this.profileType}"), but no parameters were specified.`);
 
         // Ensure defaults are set
         parms.strict = (parms.strict == null) ? false : parms.strict;
@@ -566,12 +566,12 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Merge two profiles together. Useful when updating existing profiles with a few new
-   * fields, for example.
-   * @param {IProfile} oldProfile - the old profile, fields on this will have lower precedence
-   * @param {IProfile} newProfile - the new profile, fields on this will have higher precedence
-   * @returns {IProfile} - the merged profile
-   */
+     * Merge two profiles together. Useful when updating existing profiles with a few new
+     * fields, for example.
+     * @param {IProfile} oldProfile - the old profile, fields on this will have lower precedence
+     * @param {IProfile} newProfile - the new profile, fields on this will have higher precedence
+     * @returns {IProfile} - the merged profile
+     */
     public mergeProfiles(oldProfile: IProfile, newProfile: IProfile): IProfile {
         const DeepMerge = require("deepmerge");
         // clone both profiles while merging so that the originals are not modified
@@ -583,14 +583,14 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         // so we will allow merging of the dependencies field
         // but will double check that no duplicates have been created
         if (!isNullOrUndefined(mergedProfile.dependencies) && !isNullOrUndefined(newProfile.dependencies)
-      && newProfile.dependencies.length > 0) {
+                && newProfile.dependencies.length > 0) {
             const markForDeletionKey = "markedForDelete";
             for (const newDependency of newProfile.dependencies) {
                 for (const mergedDependency of mergedProfile.dependencies) {
                     if (mergedDependency.type === newDependency.type &&
-            mergedDependency.name !== newDependency.name) {
+                            mergedDependency.name !== newDependency.name) {
                         this.log.debug("Deleting dependency from old profile which was overridden " +
-              "by the new dependency of name %s",
+                            "by the new dependency of name %s",
                         newDependency.name);
                         mergedDependency[markForDeletionKey] = true;
                     }
@@ -639,16 +639,16 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Deletes a profile from disk. Ensures that the parameters are correct and removes the profile. If the profile is listed as a dependency of
-   * other profiles it will NOT delete the profile unless "rejectIfDependency" is set to false.
-   * @template D
-   * @param {IDeleteProfile} parms - See the interface for details
-   * @returns {Promise<IProfileDeleted>} - The promise that is fulfilled with the response object (see interface for details) or rejected
-   * with an Imperative Error.
-   * @memberof AbstractProfileManager
-   */
+     * Deletes a profile from disk. Ensures that the parameters are correct and removes the profile. If the profile is listed as a dependency of
+     * other profiles it will NOT delete the profile unless "rejectIfDependency" is set to false.
+     * @template D
+     * @param {IDeleteProfile} parms - See the interface for details
+     * @returns {Promise<IProfileDeleted>} - The promise that is fulfilled with the response object (see interface for details) or rejected
+     * with an Imperative Error.
+     * @memberof AbstractProfileManager
+     */
     public async delete<D extends IDeleteProfile>(parms: D): Promise<IProfileDeleted> {
-    // Validate that the delete parms are valid
+        // Validate that the delete parms are valid
         ImperativeExpect.toNotBeNullOrUndefined(parms,
             `A delete was requested for profile type "${this.profileType}", but no parameters were specified.`);
         ImperativeExpect.keysToBeDefinedAndNonBlank(parms, ["name"],
@@ -716,7 +716,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
    * @memberof AbstractProfileManager
    */
     public async update<U extends IUpdateProfile>(parms: U): Promise<IProfileUpdated> {
-    // Validate the input parameters are correct
+        // Validate the input parameters are correct
         ImperativeExpect.toNotBeNullOrUndefined(parms,
             `An update for a profile of type "${this.profileType}" was requested, but no parameters were specified.`);
         ImperativeExpect.keysToBeDefinedAndNonBlank(parms, ["name"],
@@ -743,7 +743,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
    * @memberof AbstractProfileManager
    */
     public setDefault(name: string): string {
-    // Log the API call
+        // Log the API call
         this.log.info(`Set default API invoked. Setting "${name}" as default for type "${this.profileType}".`);
 
         // Construct the path to the profile that we are to set as the default for this type
@@ -791,7 +791,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
    * @memberof AbstractProfileManager
    */
     public clearDefault(): string {
-    // Log the API call
+        // Log the API call
         this.log.info(`Clear default API invoked for type "${this.profileType}".`);
 
         // Find the meta profile - it may NOT exists - this is OK - will be created
@@ -854,7 +854,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
    * @returns {Promise<IProfileLoaded[]>} - The list of profiles when the promise is fulfilled or rejected with an ImperativeError.
    * @memberof AbstractProfileManager
    */
-    public abstract async loadAll(parms?: ILoadAllProfiles): Promise<IProfileLoaded[]>;
+    public abstract loadAll(parms?: ILoadAllProfiles): Promise<IProfileLoaded[]>;
 
     /**
    * Save profile - performs the profile save according to the implementation - invoked when all parameters are valid
@@ -945,52 +945,52 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
    * @memberof AbstractProfileManager
    */
     protected validateProfileObject(name: string, type: string, profile: IProfile) {
-    // Throw an error on type mismatch - if the profile manager type does not match the input profile
+        // Throw an error on type mismatch - if the profile manager type does not match the input profile
         ImperativeExpect.toBeEqual(type, this.profileType,
             `The profile passed on the create indicates a type ("${type}") that differs from ` +
-      `the type specified on this instance of the profile manager ("${this.profileType}").`);
+            `the type specified on this instance of the profile manager ("${this.profileType}").`);
 
         // Ensure that the profile name is specified and non-blank
         ImperativeExpect.toBeDefinedAndNonBlank(name, "name",
             `The profile passed does not contain a name (type: "${this.profileType}") OR the name property specified is ` +
-      `not of type "string".`);
+            `not of type "string".`);
 
         // Ensure that the profile name passed does NOT match the meta profile name
         ImperativeExpect.toNotBeEqual(name, this.profileTypeMetaFileName,
             `You cannot specify "${name}" as a profile name. ` +
-      `This profile name is reserved for internal Imperative usage.`);
+            `This profile name is reserved for internal Imperative usage.`);
 
 
         // Validate the dependencies specification
         if (!isNullOrUndefined(profile.dependencies)) {
             ImperativeExpect.keysToBeAnArray(profile, false, ["dependencies"], `The profile passed ` +
-        `(name "${name}" of type "${type}") has dependencies as a property, ` +
-        `but it is NOT an array (ill-formed)`);
+                `(name "${name}" of type "${type}") has dependencies as a property, ` +
+                `but it is NOT an array (ill-formed)`);
 
             for (const dep of profile.dependencies) {
 
                 // check for name on the dependency
                 ImperativeExpect.keysToBeDefinedAndNonBlank(dep, ["name"], `The profile passed ` +
-          `(name "${name}" of type "${type}") has dependencies as a property, ` +
-          `but an entry does not contain "name".`);
+                    `(name "${name}" of type "${type}") has dependencies as a property, ` +
+                    `but an entry does not contain "name".`);
 
                 // check for name on the dependency
                 ImperativeExpect.keysToBeDefinedAndNonBlank(dep, ["type"], `The profile passed ` +
-          `(name "${name}" of type "${type}") has dependencies as a property, ` +
-          `but an entry does not contain "type".`);
+                    `(name "${name}" of type "${type}") has dependencies as a property, ` +
+                    `but an entry does not contain "type".`);
             }
         }
     }
 
     /**
-   * Validates the profile against the schema for its type and reports and errors located.
-   * @protected
-   * @param name - the name of the profile to validate
-   * @param {IProfile} profile - The profile to validate.
-   * @param {boolean} [strict=false] - Set to true to enable the "ban unknown properties" specification of the JSON schema spec. In other words,
-   * prevents profiles with "unknown" or "not defined" proeprties according to the schema document.
-   * @memberof AbstractProfileManager
-   */
+     * Validates the profile against the schema for its type and reports and errors located.
+     * @protected
+     * @param name - the name of the profile to validate
+     * @param {IProfile} profile - The profile to validate.
+     * @param {boolean} [strict=false] - Set to true to enable the "ban unknown properties" specification of the JSON schema spec. In other words,
+     * prevents profiles with "unknown" or "not defined" proeprties according to the schema document.
+     * @memberof AbstractProfileManager
+     */
     protected validateProfileAgainstSchema(name: string, profile: IProfile, strict = false) {
 
 
@@ -1001,23 +1001,23 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         // they specify the dependencies on their profile config object,
         // and the profile manager will construct them there
         const schemaWithDependencies = JSON.parse(JSON.stringify(this.profileTypeSchema)); // copy the schema without modifying
-        const dependencyProperty: IProfileProperty = {
-            type: "array",
-            items: {
-                description: "The dependencies",
-                type: "object",
-                properties: {
-                    type: {
-                        description: "The type of dependent profile.",
-                        type: "string"
-                    },
-                    name: {
-                        description: "The name of the dependent profile.",
-                        type: "string"
-                    },
-                }
-            }
-        };
+        // const dependencyProperty: IProfileProperty = {
+        //   type: "array",
+        //   items: {
+        //     description: "The dependencies",
+        //     type: "object",
+        //     properties: {
+        //       type: {
+        //         description: "The type of dependent profile.",
+        //         type: "string"
+        //       },
+        //       name: {
+        //         description: "The name of the dependent profile.",
+        //         type: "string"
+        //       },
+        //     }
+        //   }
+        // };
 
         // If strict mode is requested, then we will remove name and type (because they are inserted by the manager) and
         // set the additional properties flag false, which, according to the JSON schema specification, indicates that
@@ -1030,8 +1030,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         // schemaWithDependencies.dependencies = dependencyProperty;
         const results = validator.validate(profile, schemaWithDependencies, {verbose: true});
         if (results.errors.length > 0) {
-            let validationErrorMsg: string
-        = `Errors located in profile "${name}" of type "${this.profileType}":\n`;
+            let validationErrorMsg: string = `Errors located in profile "${name}" of type "${this.profileType}":\n`;
             for (const validationError of results.errors) {
                 // make the error messages more human readable
                 const property = validationError.property.replace("instance.", "")
@@ -1043,35 +1042,35 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Constructs the full path to the profile of the managers "type".
-   * @protected
-   * @param {string} name - The profile name to construct the path
-   * @param {any} [type=this.profileType] - The type - normally the type specified in the manager.
-   * @returns {string} - The full profile directory.
-   * @memberof AbstractProfileManager
-   */
+     * Constructs the full path to the profile of the managers "type".
+     * @protected
+     * @param {string} name - The profile name to construct the path
+     * @param {any} [type=this.profileType] - The type - normally the type specified in the manager.
+     * @returns {string} - The full profile directory.
+     * @memberof AbstractProfileManager
+     */
     protected constructFullProfilePath(name: string, type = this.profileType): string {
         return nodePath.resolve(this.profileRootDirectory + "/" + type + "/" + name + AbstractProfileManager.PROFILE_EXTENSION);
     }
 
     /**
-   * Locate the existing profile for the name specified.
-   * @protected
-   * @param {string} name - The profile to locate
-   * @returns {string} - The fully qualified path or undefined if not found.
-   * @memberof AbstractProfileManager
-   */
+     * Locate the existing profile for the name specified.
+     * @protected
+     * @param {string} name - The profile to locate
+     * @returns {string} - The fully qualified path or undefined if not found.
+     * @memberof AbstractProfileManager
+     */
     protected locateExistingProfile(name: string): string {
         const path: string = this.constructFullProfilePath(name);
         return ProfileIO.exists(path);
     }
 
     /**
-   * Standard load failed error message and Imperative Error.
-   * @protected
-   * @param {string} name - The name of the profile for which the load failed.
-   * @memberof AbstractProfileManager
-   */
+     * Standard load failed error message and Imperative Error.
+     * @protected
+     * @param {string} name - The name of the profile for which the load failed.
+     * @memberof AbstractProfileManager
+     */
     protected loadFailed(name: string) {
         throw new ImperativeError({
             msg: `Profile "${name}" of type "${this.profileType}" does not exist.`
@@ -1079,19 +1078,19 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Checks if the profile object passed is "empty" - meaning it has no contents other than that type or name.
-   * A profile can only specify "dependencies", in the event that it is just acting as a "pointer" to another profile.
-   * @protected
-   * @param {IProfile} profile - The profile to check for "emptiness".
-   * @returns {boolean} True if the profile object is empty.
-   * @memberof AbstractProfileManager
-   */
+     * Checks if the profile object passed is "empty" - meaning it has no contents other than that type or name.
+     * A profile can only specify "dependencies", in the event that it is just acting as a "pointer" to another profile.
+     * @protected
+     * @param {IProfile} profile - The profile to check for "emptiness".
+     * @returns {boolean} True if the profile object is empty.
+     * @memberof AbstractProfileManager
+     */
     protected isProfileEmpty(profile: IProfile): boolean {
         for (const key in profile) {
             if (key === "type" || key === "name") {
                 continue;
             }
-            if (profile.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(profile, key)) {
                 return false;
             }
         }
@@ -1099,16 +1098,16 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Loads a specific profile (by name).
-   * @protected
-   * @param {string} name - The name of the profile to load.
-   * @param {boolean} [failNotFound=true] - Specify false to ignore "not found" errors.
-   * @param {boolean} [loadDependencies=true] - Specify false to NOT load dependencies.
-   * @returns {Promise<IProfileLoaded>} - The promise to fulfill with the response OR reject with an ImperativeError
-   * @memberof AbstractProfileManager
-   */
+     * Loads a specific profile (by name).
+     * @protected
+     * @param {string} name - The name of the profile to load.
+     * @param {boolean} [failNotFound=true] - Specify false to ignore "not found" errors.
+     * @param {boolean} [loadDependencies=true] - Specify false to NOT load dependencies.
+     * @returns {Promise<IProfileLoaded>} - The promise to fulfill with the response OR reject with an ImperativeError
+     * @memberof AbstractProfileManager
+     */
     protected async loadSpecificProfile(name: string, failNotFound: boolean = true, loadDependencies: boolean = true): Promise<IProfileLoaded> {
-    // Ensure that the profile actually exists
+        // Ensure that the profile actually exists
         const profileFilePath: string = this.locateExistingProfile(name);
 
         // If it doesn't exist and fail not found is false
@@ -1126,9 +1125,8 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
 
         // Insert the name and type - not persisted on disk
 
-        let validateResponse;
         try {
-            validateResponse = await this.validate({name, profile: profileContents});
+            await this.validate({name, profile: profileContents});
         } catch (e) {
             throw new ImperativeError({
                 msg: `Profile validation error during load of profile "${name}" ` +
@@ -1162,12 +1160,12 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Validates a profiles contents against the required dependencies specified on the profile configuration type document. If the document
-   * indicates that a dependency is required and that dependency is missing from the input profile, an error is thrown.
-   * @private
-   * @param {IProfile} profile - The profile to validate dependency specs
-   * @memberof AbstractProfileManager
-   */
+     * Validates a profiles contents against the required dependencies specified on the profile configuration type document. If the document
+     * indicates that a dependency is required and that dependency is missing from the input profile, an error is thrown.
+     * @private
+     * @param {IProfile} profile - The profile to validate dependency specs
+     * @memberof AbstractProfileManager
+     */
     protected validateRequiredDependenciesAreSpecified(profile: IProfile) {
         if (!isNullOrUndefined(this.profileTypeConfiguration.dependencies) && this.profileTypeConfiguration.dependencies.length > 0) {
             const specifiedDependencies = profile.dependencies || [];
@@ -1194,14 +1192,14 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
 
 
     /**
-   * Checks if the profile (by name) is listed as a dependency of any other profile passed. The type of the profiled named is
-   * the type of the current manager object.
-   * @private
-   * @param {IProfileLoaded[]} profilesToSearch - The list of profiles to search for the dependency.
-   * @param {string} name
-   * @returns {IProfile[]}
-   * @memberof AbstractProfileManager
-   */
+     * Checks if the profile (by name) is listed as a dependency of any other profile passed. The type of the profiled named is
+     * the type of the current manager object.
+     * @private
+     * @param {IProfileLoaded[]} profilesToSearch - The list of profiles to search for the dependency.
+     * @param {string} name
+     * @returns {IProfile[]}
+     * @memberof AbstractProfileManager
+     */
     private isDependencyOf(profilesToSearch: IProfileLoaded[], name: string): IProfile[] {
         const foundAsDependencyIn: IProfile[] = [];
         for (const prof of profilesToSearch) {
@@ -1217,12 +1215,12 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Protects a against an overwrite on a profile save (if requested).
-   * @private
-   * @param {string} name - The name of the profile to check for existance.
-   * @param {boolean} overwrite - False to protect against overwrite.
-   * @memberof AbstractProfileManager
-   */
+     * Protects a against an overwrite on a profile save (if requested).
+     * @private
+     * @param {string} name - The name of the profile to check for existance.
+     * @param {boolean} overwrite - False to protect against overwrite.
+     * @memberof AbstractProfileManager
+     */
     private protectAgainstOverwrite(name: string, overwrite: boolean) {
         const file: string = this.locateExistingProfile(name);
         if (!isNullOrUndefined(file)) {
@@ -1237,22 +1235,22 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Builds the meta profile name for this type. Normally of the form "<type>_meta". This method does NOT include the extension
-   * @private
-   * @param {any} [type=this.profileType] - The profile type - defaults to this manager's type.
-   * @returns {string}
-   * @memberof AbstractProfileManager
-   */
+     * Builds the meta profile name for this type. Normally of the form "<type>_meta". This method does NOT include the extension
+     * @private
+     * @param {any} [type=this.profileType] - The profile type - defaults to this manager's type.
+     * @returns {string}
+     * @memberof AbstractProfileManager
+     */
     private constructMetaName(type = this.profileType): string {
         return type + AbstractProfileManager.META_FILE_SUFFIX;
     }
 
     /**
-   * Create's the directory for this profile manager's type.
-   * @private
-   * @returns {string} - The directory created
-   * @memberof AbstractProfileManager
-   */
+     * Create's the directory for this profile manager's type.
+     * @private
+     * @returns {string} - The directory created
+     * @memberof AbstractProfileManager
+     */
     private createProfileTypeDirectory(): string {
         const profilePath: string = this.profileRootDirectory + "/" + this.profileType;
         if (!ProfileIO.exists(profilePath)) {
@@ -1262,28 +1260,28 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Set the default profile name in the meta profile for this type.
-   * @private
-   * @param {IMetaProfile<T>} meta - The meta profile contents.
-   * @param {string} defaultProfileName - The name to set as default.
-   * @memberof AbstractProfileManager
-   */
+     * Set the default profile name in the meta profile for this type.
+     * @private
+     * @param {IMetaProfile<T>} meta - The meta profile contents.
+     * @param {string} defaultProfileName - The name to set as default.
+     * @memberof AbstractProfileManager
+     */
     private setDefaultInMetaObject(meta: IMetaProfile<T>, defaultProfileName: string) {
         meta.defaultProfile = defaultProfileName;
     }
 
     /**
-   * Construct the default response for the situation when a profile is not found (on a load/save/update/etc), but ignore not found is true.
-   * @private
-   * @param {string} name - The name of the profile that was not found
-   * @returns {IProfileLoaded} - The default response.
-   * @memberof AbstractProfileManager
-   */
+     * Construct the default response for the situation when a profile is not found (on a load/save/update/etc), but ignore not found is true.
+     * @private
+     * @param {string} name - The name of the profile that was not found
+     * @returns {IProfileLoaded} - The default response.
+     * @memberof AbstractProfileManager
+     */
     private failNotFoundDefaultResponse(name: string): IProfileLoaded {
         this.log.debug(`Profile "${name}" of type "${this.profileType}" was not found, but failNotFound=False`);
         return {
             message: `Profile "${name}" of type "${this.profileType}" was not found, but the request indicated to ignore "not found" errors. ` +
-        `The profile returned is undefined.`,
+                `The profile returned is undefined.`,
             type: this.profileType,
             name,
             failNotFound: false,
@@ -1293,11 +1291,11 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Reads all configuration documents from the meta and collects all type configuration documents.
-   * @private
-   * @returns {T[]}
-   * @memberof AbstractProfileManager
-   */
+     * Reads all configuration documents from the meta and collects all type configuration documents.
+     * @private
+     * @returns {T[]}
+     * @memberof AbstractProfileManager
+     */
     private collectAllConfigurations(): T[] {
         const configs: T[] = [];
         const types: string[] = ProfileIO.getAllProfileDirectories(this.profileRootDirectory);
@@ -1309,65 +1307,65 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Validate that the schema document passed is well formed for the profile manager usage. Ensures that the
-   * schema is not overloading reserved properties.
-   * @private
-   * @param {IProfileSchema} schema - The schema document to validate.
-   * @param type - the type of profile for the schema - defaults to the current type for this manager
-   * @memberof AbstractProfileManager
-   */
+     * Validate that the schema document passed is well formed for the profile manager usage. Ensures that the
+     * schema is not overloading reserved properties.
+     * @private
+     * @param {IProfileSchema} schema - The schema document to validate.
+     * @param type - the type of profile for the schema - defaults to the current type for this manager
+     * @memberof AbstractProfileManager
+     */
     private validateSchema(schema: IProfileSchema, type = this.profileType) {
         ImperativeExpect.keysToBeDefined(schema, ["properties"], `The schema document supplied for the profile type ` +
-      `("${type}") does NOT contain properties.`);
+            `("${type}") does NOT contain properties.`);
         ImperativeExpect.keysToBeUndefined(schema, ["properties.dependencies"], `The schema "properties" property ` +
-      `(on configuration document for type "${type}") contains "dependencies". ` +
-      `"dependencies" is must be supplied as part of the "type" configuration document (no need to formulate the dependencies ` +
-      `schema yourself).`);
+            `(on configuration document for type "${type}") contains "dependencies". ` +
+            `"dependencies" is must be supplied as part of the "type" configuration document (no need to formulate the dependencies ` +
+            `schema yourself).`);
     }
 
     /**
-   * Validates the basic configuration document to ensure it contains all the proper fields
-   * @private
-   * @param {T} typeConfiguration - The type configuration document
-   * @memberof AbstractProfileManager
-   */
+     * Validates the basic configuration document to ensure it contains all the proper fields
+     * @private
+     * @param {T} typeConfiguration - The type configuration document
+     * @memberof AbstractProfileManager
+     */
     private validateConfigurationDocument(typeConfiguration: T) {
         ImperativeExpect.keysToBeDefinedAndNonBlank(typeConfiguration, ["type"], `The profile type configuration document for ` +
-      `"${typeConfiguration.type}" does NOT contain a type.`);
+            `"${typeConfiguration.type}" does NOT contain a type.`);
         ImperativeExpect.keysToBeDefined(typeConfiguration, ["schema"], `The profile type configuration document for ` +
-      `"${typeConfiguration.type}" does NOT contain a schema.`);
+            `"${typeConfiguration.type}" does NOT contain a schema.`);
         this.validateSchema(typeConfiguration.schema, typeConfiguration.type);
         if (!isNullOrUndefined(typeConfiguration.dependencies)) {
             ImperativeExpect.toBeAnArray(typeConfiguration.dependencies,
                 `The profile type configuration for "${typeConfiguration.type}" contains a "dependencies" property, ` +
-        `but it is not an array (ill-formed)`);
+                `but it is not an array (ill-formed)`);
             for (const dep of typeConfiguration.dependencies) {
                 ImperativeExpect.keysToBeDefinedAndNonBlank(dep, ["type"], "A dependency specified for the " +
-          "profile definitions did not contain a type.");
+                    "profile definitions did not contain a type.");
             }
         }
     }
 
     /**
-   * Validate that a meta profile (one read from disk in particular) is valid.
-   * @private
-   * @param {IMetaProfile<T>} meta - The meta profile to validate
-   * @param {string} [type=this.profileType] - The profile type of this meta file.
-   * @memberof AbstractProfileManager
-   */
+     * Validate that a meta profile (one read from disk in particular) is valid.
+     * @private
+     * @param {IMetaProfile<T>} meta - The meta profile to validate
+     * @param {string} [type=this.profileType] - The profile type of this meta file.
+     * @memberof AbstractProfileManager
+     */
     private validateMetaProfile(meta: IMetaProfile<T>, type = this.profileType) {
         ImperativeExpect.keysToBeDefined(meta, ["configuration"], `A meta profile of type "${type}", does NOT supply a configuration.`);
-    // ImperativeExpect.keysToBeDefined(meta, ["defaultProfile"], `A meta profile of type "${type}", does NOT supply a default profile.`);
+        // ImperativeExpect.keysToBeDefined(meta, ["defaultProfile"], `A meta profile of type "${type}", does NOT supply a default profile.`);
     }
 
     /**
-   * Read the meta profile and validate the contents.
-   * @private
-   * @param {string} path - path to the meta profile
-   * @param {string} [type=this.profileType] - The profile type
-   * @returns {IMetaProfile<T>} - The meta profile read from disk.
-   * @memberof AbstractProfileManager
-   */
+     * Read the meta profile and validate the contents.
+     * @private
+     * @param {string} path - path to the meta profile
+     * @param {string} [type=this.profileType] - The profile type
+     * @returns {IMetaProfile<T>} - The meta profile read from disk.
+     * @memberof AbstractProfileManager
+     */
     private readMeta(path: string, type = this.profileType): IMetaProfile<T> {
         const meta = ProfileIO.readMetaFile<T>(path);
         this.validateMetaProfile(meta);

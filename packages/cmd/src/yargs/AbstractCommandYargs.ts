@@ -340,7 +340,7 @@ export abstract class AbstractCommandYargs {
 
         lodashDeep.deepMapValues(this.definition.children, ((value: any, path: any) => {
             if(path.endsWith("name") && (path.includes("options") || path.includes("positionals"))) {
-                const doNothing = "doNothing";
+                /* Do nothing */
             } else if(path.endsWith("name") && path.includes("children")) {
                 completeName = `${topLevelName} ${value}`;
             } else if(path.endsWith("name")) {

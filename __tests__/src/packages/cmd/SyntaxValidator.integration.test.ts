@@ -9,6 +9,7 @@
 *
 */
 
+/* eslint-disable jest/expect-expect */
 import { isNullOrUndefined } from "util";
 import { CommandProcessor, ICommandDefinition, ICommandResponse } from "../../../../packages/cmd/index";
 import { ValidationTestCommand } from "./ValidationTestCommand";
@@ -114,35 +115,35 @@ describe("Imperative should provide advanced syntax validation rules", function 
                     });
         }
 
-        it("We should be able to correctly specify the options for our test command without an error ",
+        it("We should be able to correctly specify the options for our test command without an error",
             function () {
                 return tryOptions.bind(this, minValidOptions, true, ["passed"])();
             });
-        it("If we specify an unknown positional, the command should fail ",
+        it("If we specify an unknown positional, the command should fail",
             function () {
                 return tryOptions.bind(this, minValidOptions + "blah1", false, ["blah1"])();
             });
-        it("If we specify multiple unknown positionals, the command should fail ",
+        it("If we specify multiple unknown positionals, the command should fail",
             function () {
                 return tryOptions.bind(this, minValidOptions + "blah1 blah2 blah3", false,
                     ["blah1", "blah2", "blah3"])();
             });
-        it("If we omit a required boolean option, the command should fail ",
+        it("If we omit a required boolean option, the command should fail",
             function () {
                 return tryOptions.bind(this, "--option-to-specify-1 --implied-by-absence --always-required-string blah",
                     false, undefined, ["--always-required-boolean", "must specify"])();
             });
-        it("If we omit a required string option, the command should fail ",
+        it("If we omit a required string option, the command should fail",
             function () {
                 return tryOptions.bind(this, "--option-to-specify-1 --implied-by-absence --always-required-boolean",
                     false, ["--always-required-string", "missing required option"])();
             });
-        it("If we specify the --name of a required string option, but no value, the command should fail ",
+        it("If we specify the --name of a required string option, but no value, the command should fail",
             function () {
                 return tryOptions.bind(this, "--option-to-specify-1 --always-required-string --implied-by-absence --always-required-boolean ",
                     false, ["--always-required-string", "no value specified for option"])();
             });
-        it("If we specify a conflicting option, the command should fail. ",
+        it("If we specify a conflicting option, the command should fail.",
             function () {
                 return tryOptions.bind(this, "--option-to-specify-1 --conflicts-with-1 --absence-implies "
                     + alwaysRequired, false, ["--conflicts-with-1", "mutually exclusive"])();

@@ -98,7 +98,7 @@ describe("Plugin validate command handler", () => {
             await valHandler.process(params as IHandlerParameters);
 
             for (testPlugin in pluginIssues.getInstalledPlugins()){
-                if (pluginIssues.getInstalledPlugins().hasOwnProperty(testPlugin)){
+                if (Object.prototype.hasOwnProperty.call(pluginIssues.getInstalledPlugins(), testPlugin)){
                     expect(mockDisplayPluginIssues).toBeCalledWith(testPlugin, params.response, false);
                 }
             }
@@ -154,7 +154,8 @@ describe("Plugin validate command handler", () => {
         });
 
         it("should call CommandResponse.console.log with proper parameter", () => {
-            const expectedMsg = `\n_____ Validation results for plugin '${testPlugin}' _____\nThis plugin was successfully validated. Enjoy the plugin.`;
+            const expectedMsg = `\n_____ Validation results for plugin '${testPlugin}' _____\n` +
+                `This plugin was successfully validated. Enjoy the plugin.`;
 
             validateHandler.displayPluginIssues(testPlugin, params.response);
 

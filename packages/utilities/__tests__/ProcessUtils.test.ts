@@ -43,9 +43,7 @@ describe("ProcessUtils tests", () => {
     });
 
     describe("isGuiAvailable", () => {
-        (process.platform === "win32" || process.platform === "darwin" ? it : it.skip)
-        ("should report a GUI on Windows or Mac", async () =>
-        {
+        (process.platform !== "linux" ? it : it.skip)("should report a GUI on Windows or Mac", async () => {
             expect(ProcessUtils.isGuiAvailable()).toBe(GuiResult.GUI_AVAILABLE);
         });
 

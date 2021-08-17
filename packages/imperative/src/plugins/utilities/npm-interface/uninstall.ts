@@ -38,8 +38,8 @@ export function uninstall(packageName: string): void {
 
     const updatedInstalledPlugins: IPluginJson = {};
 
-    if (installedPlugins.hasOwnProperty(packageName)) {
-    // Loop through the plugins and remove the uninstalled package
+    if (Object.prototype.hasOwnProperty.call(installedPlugins, packageName)) {
+        // Loop through the plugins and remove the uninstalled package
         for (const pluginName in installedPlugins) {
             // Only retain the plugins that aren't being uninstalled
             if (packageName.toString() !== pluginName.toString()) {
@@ -53,8 +53,8 @@ export function uninstall(packageName: string): void {
     }
 
     try {
-    // We need to capture stdout but apparently stderr also gives us a progress
-    // bar from the npm install.
+        // We need to capture stdout but apparently stderr also gives us a progress
+        // bar from the npm install.
         const pipe: StdioOptions = ["pipe", "pipe", process.stderr];
 
         // Perform the npm uninstall, somehow piping stdout and inheriting stderr gives
@@ -62,8 +62,8 @@ export function uninstall(packageName: string): void {
         // formatting or colors but at least I can get the output of stdout right. (comment from install handler)
         iConsole.info("Uninstalling package...this may take some time.");
 
-        const execOutput = execSync(`${npmCmd} uninstall "${npmPackage}" ` +
-      `--prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g`, {
+        execSync(`${npmCmd} uninstall "${npmPackage}" ` +
+                `--prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g`, {
             cwd: PMFConstants.instance.PMF_ROOT,
             // We need to capture stdout but apparently stderr also gives us a progress
             // bar from the npm install.

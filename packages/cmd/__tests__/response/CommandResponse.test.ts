@@ -114,7 +114,7 @@ describe("Command Response", () => {
 
     it("If we create a progress bar, an interval should be set to update the bar. " +
         "If we finish the bar, the interval should be stopped and no longer stored" +
-        "in the command response. ", (done) => {
+        "in the command response. ", (done) => {  // eslint-disable-line jest/no-done-callback
         const response = new CommandResponse({ silent: false, responseFormat: "default" });
         const status: ITaskWithStatus = {
             statusMessage: "Making a bar",
@@ -142,7 +142,6 @@ describe("Command Response", () => {
             done();
         }, oneSecond);
     });
-
 
     it("should work if the progress bar is directed to a socket stream", (done) => {
         const response = new CommandResponse({ silent: false, responseFormat: "default", stream });
@@ -241,7 +240,7 @@ describe("Command Response", () => {
             percentComplete: 0,
             statusMessage: "Test Task",
             stageName: TaskStage.IN_PROGRESS
-        }
+        };
         const beforeMessage = "Message before progress bar";
         const duringMessage = "Message during progress bar";
         const afterMessage = "Message after progress bar";
@@ -262,10 +261,16 @@ describe("Command Response", () => {
         expect(stderrMsg).toMatch(new RegExp(`^Message before progress bar$\n^.*Message during progress bar$\n^Message after progress bar`, 'm'));
         expect(response.buildJsonResponse().stdout.toString()).toEqual(beforeMessage + "\n" + duringMessage + "\n" + afterMessage + "\n");
         expect(response.buildJsonResponse().stderr.toString()).toEqual(beforeMessage + "\n" + duringMessage + "\n" + afterMessage + "\n");
-    })
+    });
 
     it("should allow us to create an instance", () => {
-        const response = new CommandResponse();
+        let caughtError;
+        try {
+            const response = new CommandResponse();
+        } catch (error) {
+            caughtError = error;
+        }
+        expect(caughtError).toBeUndefined();
     });
 
     it("should detect invalid primary color", () => {

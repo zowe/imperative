@@ -9,7 +9,6 @@
 *
 */
 
-import { CommandPreparer, ICommandDefinition } from "../../../cmd";
 import { IImperativeConfig } from "../../../imperative/src/doc/IImperativeConfig";
 
 export class ImperativeConfig {

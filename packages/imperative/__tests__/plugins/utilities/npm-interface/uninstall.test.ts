@@ -9,6 +9,7 @@
 *
 */
 
+/* eslint-disable jest/expect-expect */
 import Mock = jest.Mock;
 
 jest.mock("child_process");
@@ -29,7 +30,6 @@ import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { cmdToRun } from "../../../../src/plugins/utilities/NpmFunctions";
 import { uninstall } from "../../../../src/plugins/utilities/npm-interface";
-import * as path from "path";
 
 
 describe("PMF: Uninstall Interface", () => {

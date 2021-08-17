@@ -23,7 +23,7 @@ describe("DefinitionTreeResolver tests", () => {
         } catch (thrownError) {
             error = thrownError;
         }
-        expect(error instanceof ImperativeError);
+        expect(error instanceof ImperativeError).toBe(true);
         expect(error.message).toMatchSnapshot();
     });
 
@@ -34,7 +34,7 @@ describe("DefinitionTreeResolver tests", () => {
         } catch (thrownError) {
             error = thrownError;
         }
-        expect(error instanceof ImperativeError);
+        expect(error instanceof ImperativeError).toBe(true);
         expect(error.message).toMatchSnapshot();
     });
 

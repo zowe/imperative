@@ -10,17 +10,14 @@
 */
 
 import { ImperativeError } from "../src/ImperativeError";
-import * as chalk from "chalk";
 
 describe("ImperativeError", () => {
     it("should not throw any deprecation warnings", () => {
         jest.spyOn(console, "warn").mockImplementation(() => { return; });
 
-        /* tslint:disable:no-console */
-        // tslint:disable-next-line
+        /* eslint-disable no-console */
         new ImperativeError({msg: "test"});
 
-        // tslint:disable-next-line
         new ImperativeError({msg: "test"}, {
             tag: "test"
         });
@@ -28,6 +25,6 @@ describe("ImperativeError", () => {
         expect(console.warn).not.toHaveBeenCalled();
 
         (console.warn as any).mockRestore();
-        /* tslint:enable:no-console */
+        /* eslint-enable no-console */
     });
 });

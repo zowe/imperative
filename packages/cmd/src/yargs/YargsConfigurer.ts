@@ -59,7 +59,6 @@ export class YargsConfigurer {
             const jsonOptionName: string = Constants.JSON_OPTION;
             jsonArg[jsonOptionName] = true;
         }
-        const preferredTerminalWidth = 100;
         const failedCommandHandler = __dirname + "/../handlers/FailedCommandHandler";
         const failedCommandDefinition: ICommandDefinition = {
             name: this.rootCommandName + " " + ImperativeConfig.instance.commandLine,
@@ -80,7 +79,6 @@ export class YargsConfigurer {
                     if (argv.V) {
                         argv.version = true;
                     }
-                    const isJson = argv[Constants.JSON_OPTION] || argv[Constants.JSON_OPTION_ALIAS];
 
                     // Allocate a help generator from the factory
                     const rootHelpGenerator = this.helpGeneratorFactory.getHelpGenerator({

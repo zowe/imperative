@@ -28,7 +28,7 @@ describe("Imperative should allow CLI implementations to configure their own pro
 
     // Initialize imperative before each test
     beforeEach(() => {
-        jest.resetModuleRegistry();
+        jest.resetModules();
         ({Imperative, ImperativeError, ImperativeConfig} = loadChangingDependencies());
     });
 

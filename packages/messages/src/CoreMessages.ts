@@ -231,8 +231,8 @@ export const listGroupWithOnlyProfileCommandSummary: IMessageDefinition = {
 };
 
 export const listGroupWithOnlyProfileSetDesc: IMessageDefinition = {
-    message: `To set the default profiles, use the \" ` +
-        `{{type}} ${Constants.DEFAULT_SET_GROUP} ${Constants.DEFAULT_SET_PROFILE_OBJECT}\" command.`
+    message: `To set the default profiles, use the " ` +
+        `{{type}} ${Constants.DEFAULT_SET_GROUP} ${Constants.DEFAULT_SET_PROFILE_OBJECT}" command.`
 };
 
 export const setProfileActionSummary: IMessageDefinition = {
@@ -267,8 +267,8 @@ export const setProfileExample: IMessageDefinition = {
 };
 
 export const setGroupWithOnlyProfilesListDesc: IMessageDefinition = {
-    message: `To view the default profiles, use the \" ` +
-        `{{type}} ${Constants.DEFAULT_LIST_GROUP} ${Constants.DEFAULT_LIST_PROFILE_OBJECT}\" command.`
+    message: `To view the default profiles, use the " ` +
+        `{{type}} ${Constants.DEFAULT_LIST_GROUP} ${Constants.DEFAULT_LIST_PROFILE_OBJECT}" command.`
 };
 
 
