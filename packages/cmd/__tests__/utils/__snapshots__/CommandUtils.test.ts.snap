@@ -134,7 +134,7 @@ Array [
 ]
 `;
 
-exports[`Command Utils We should be able to flatten a nested command tree for display and searching purposes 2`] = `
+exports[`Command Utils We should be able to flatten a nested command tree with aliases for display and searching purposes 1`] = `
 Array [
   Object {
     "command": Object {
