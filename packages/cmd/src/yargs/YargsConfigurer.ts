@@ -9,7 +9,7 @@
 *
 */
 
-import { format, inspect, isNullOrUndefined } from "util";
+import { format, inspect } from "util";
 import { Arguments } from "yargs";
 import { Logger } from "../../../logger";
 import { Constants } from "../../../constants";
@@ -22,6 +22,7 @@ import { IProfileManagerFactory } from "../../../profiles";
 import { ICommandProfileTypeConfiguration } from "../doc/profiles/definition/ICommandProfileTypeConfiguration";
 import { IHelpGeneratorFactory } from "../help/doc/IHelpGeneratorFactory";
 import { CliUtils } from "../../../utilities/src/CliUtils";
+import { closest } from "fastest-levenshtein";
 
 /**
  * Before invoking commands, this class configures some settings and callbacks in Yargs,
@@ -105,22 +106,7 @@ export class YargsConfigurer {
                 } else {
                     // unknown command, not successful
                     process.exitCode = Constants.ERROR_EXIT_CODE;
-                    const lev = require("levenshtein");
-                    let minimumLevDistance: number = 999999;
-                    let closestCommand: string;
-
-                    const commandTree = CommandUtils.flattenCommandTree(this.rootCommand);
-
-                    for (const command of commandTree) {
-                        if (command.fullName.trim().length === 0) {
-                            continue;
-                        }
-                        const compare = new lev(attemptedCommand, command.fullName);
-                        if (compare.distance < minimumLevDistance) {
-                            minimumLevDistance = compare.distance;
-                            closestCommand = command.fullName;
-                        }
-                    }
+                    const closestCommand = this.getClosestCommand(attemptedCommand);
 
                     argv.failureMessage = this.buildFailureMessage(closestCommand);
 
@@ -251,11 +237,20 @@ export class YargsConfigurer {
         let commands: string = "";
         let groups: string = " "; // default to " " for proper spacing in message
         let delimiter: string = ""; // used to delimit between possible 'command' values
+        const groupValues = this.commandLine.split(" ", three);
+        const commandToCheck = groupValues.join(" ");
+        const nearestCommand: string = closestCommand || this.getClosestCommand(commandToCheck);
 
         let failureMessage = "Command failed due to improper syntax";
-        failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
+        if (closestCommand != null) {
+            failureMessage += format("\nUnknown group: %s", groupValues[0]);
+        }
+
+        if (closestCommand != null || !commandToCheck.includes(nearestCommand)) {
+            failureMessage += format("\nDid you mean: %s?\n", nearestCommand);
+        }
+        failureMessage += `\nCommand entered: "${this.commandLine}"`;
         // limit to three to include two levels of group and command value, if present
-        const groupValues = this.commandLine.split(" ", three);
 
         // loop through the top level groups
         for (const group of this.rootCommand.children) {
@@ -277,11 +272,6 @@ export class YargsConfigurer {
                 }
                 break;
             }
-        }
-
-        if (!isNullOrUndefined(closestCommand)) {
-            failureMessage += format("\nUnknown group: %s\n", groupValues[0]);
-            failureMessage += format("Did you mean: %s?", closestCommand);
         }
 
         if (commands.length > 0) {
@@ -307,4 +297,17 @@ export class YargsConfigurer {
     //         progressBarPollFrequency: this.commandRespParms.progressBarPollFrequency
     //     });
     // }
+
+    private getClosestCommand(attemptedCommand: string) {
+        const commandTree = CommandUtils.flattenCommandTreeWithAliases(this.rootCommand);
+        const commands: string[] = [];
+
+        for (const commandEntry of commandTree) {
+            if (commandEntry.fullName.trim().length === 0) {
+                continue;
+            }
+            commands.push(commandEntry.fullName);
+        }
+        return closest(attemptedCommand, commands);
+    }
 }

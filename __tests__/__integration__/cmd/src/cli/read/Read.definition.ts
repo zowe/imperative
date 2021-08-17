@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../packages";
+import { ICommandDefinition } from "../../../../../../lib";
 import { ProfileCommand } from "./profile/Profile.definition";
 
 export const definition: ICommandDefinition = {

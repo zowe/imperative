@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../../packages/index";
+import { ICommandDefinition } from "../../../../../../../lib/index";
 
 export const TestAsyncHandlerDefinition: ICommandDefinition = {
     name: "test-async-handler",

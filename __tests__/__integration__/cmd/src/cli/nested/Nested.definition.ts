@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../packages/index";
+import { ICommandDefinition } from "../../../../../../lib/index";
 import { FirstGroupDefinition } from "./first-group/FirstGroup.definition";
 import { NestedGroupCommandDefinition } from "./nested-group-command/NestedGroupCommand.definition";
 

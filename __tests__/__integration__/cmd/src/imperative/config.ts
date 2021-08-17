@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandOptionDefinition, IImperativeConfig } from "../../../../../packages/index";
+import { ICommandOptionDefinition, IImperativeConfig } from "../../../../../lib/index";
 
 const amountOption: ICommandOptionDefinition = {
     name: "amount",

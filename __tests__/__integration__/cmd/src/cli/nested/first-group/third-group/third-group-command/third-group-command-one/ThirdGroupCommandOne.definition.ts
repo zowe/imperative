@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../../../../../packages/index";
+import { ICommandDefinition } from "../../../../../../../../../../lib/index";
 
 export const ThirdGroupCommandOneDefinition: ICommandDefinition = {
     name: "third-group-command-one",

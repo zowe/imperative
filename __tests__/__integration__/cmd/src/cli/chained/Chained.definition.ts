@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../../packages/cmd";
+import { ICommandDefinition } from "../../../../../../lib/cmd";
 
 const THREE_AHEAD = 3;
 const FIVE_AHEAD = 5;

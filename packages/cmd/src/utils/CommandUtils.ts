@@ -145,6 +145,46 @@ export class CommandUtils {
     }
 
     /**
+     * Accepts the command definition document tree and flattens to a single level, including aliases. This is used to make searching
+     * commands and others easily.
+     * @param {ICommandDefinition} tree - The command document tree
+     * @return {ICommandTreeEntry[]} - The flattened document tree
+     */
+    public static flattenCommandTreeWithAliases(tree: ICommandDefinition): ICommandTreeEntry[] {
+        const result: ICommandTreeEntry[] = [];
+        const addChildAndDescendantsToSearch = (prefix: string, child: ICommandDefinition) => {
+            result.push(
+                {
+                    fullName: prefix + child.name,
+                    tree,
+                    command: child
+                });
+            for (const alias of (child.aliases || [])) {
+                result.push(
+                    {
+                        fullName: prefix + alias,
+                        tree,
+                        command: child
+                    }
+                )
+            }
+            if (child.children != null) {
+                for (const descendant of child.children) {
+                    addChildAndDescendantsToSearch(prefix + child.name + " ", descendant);
+                    for (const alias of (child.aliases || [])) {
+                        addChildAndDescendantsToSearch(prefix + alias + " ", descendant);
+                    }
+                }
+            }
+        };
+        addChildAndDescendantsToSearch("", tree);
+        result.sort((a, b) => {
+            return a.fullName.localeCompare(b.fullName);
+        });
+        return result;
+    }
+
+    /**
      * TODO - This needs to be well tested
      * TODO - There is a situation where two groups could have the same child command
      * TODO - It appears to choose the last in the list

@@ -2,9 +2,9 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `4.15.0`
 
-- Migrated from TSLint (now deprecated) to ESLint for static code analysis.
+- Enhancement: Improved command suggestions for mistyped commands, add aliases to command suggestions
 
 ## `4.14.0`
 

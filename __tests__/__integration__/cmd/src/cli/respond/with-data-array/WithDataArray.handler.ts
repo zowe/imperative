@@ -9,7 +9,8 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters } from "../../../../../../../packages/index";
+import { ICommandHandler, IHandlerParameters } from "../../../../../../../lib/index";
+
 /**
  * Builds the response object with a message and an array.
  * @export
