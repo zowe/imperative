@@ -157,8 +157,8 @@ export class CommandPreparer {
         if (definition.chainedHandlers != null) {
 
             for (let chainedHandlerIndex = 0;
-                 chainedHandlerIndex < definition.chainedHandlers.length;
-                 chainedHandlerIndex++) {
+                chainedHandlerIndex < definition.chainedHandlers.length;
+                chainedHandlerIndex++) {
                 const chainedHandler = definition.chainedHandlers[chainedHandlerIndex];
                 const mappings = chainedHandler.mapping == null ? [] : chainedHandler.mapping;
                 for (const mapping of mappings) {
@@ -185,7 +185,7 @@ export class CommandPreparer {
                                 additionalDetails:
                                     TextUtils.formatMessage("The mapping refers to a relative index %s that when added to its " +
                                         "absolute index (%s) is greater than the total number of handlers (%s).",
-                                        indexAhead, chainedHandlerIndex, definition.chainedHandlers.length)
+                                    indexAhead, chainedHandlerIndex, definition.chainedHandlers.length)
                             });
                         }
                     }

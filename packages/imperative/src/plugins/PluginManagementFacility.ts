@@ -272,7 +272,7 @@ export class PluginManagementFacility {
                 Logger.getImperativeLogger().debug(
                     `PluginOverride: Attempting to overwrite "${setting}" with value provided by plugin "${pluginName}"`
                 );
-                if (!loadedOverrides.hasOwnProperty(pluginName)) {
+                if (!Object.prototype.hasOwnProperty.call(loadedOverrides, pluginName)) {
                     // the plugin name specified in our settings is not available
                     const overrideErrMsg = `You attempted to override the "${setting}" setting ` +
                         `with a plugin named "${pluginName}" that is not installed and loadable.` +
@@ -293,13 +293,11 @@ export class PluginManagementFacility {
                      * credentials. Finally since lint complains about more than one
                      * class in a file, we have to temporarily turn off that lint error.
                      */
-                    /* tslint:disable:max-classes-per-file */
                     (this.mPluginOverrides as any)[setting] = class {
                         constructor() {
                             throw overrideErrMsg;
                         }
                     };
-                    /* tslint:enable:max-classes-per-file */
                     continue;
                 }
 
@@ -335,13 +333,11 @@ export class PluginManagementFacility {
                         PluginIssues.instance.recordIssue(pluginName, IssueSeverity.OVER_ERROR, overrideErrMsg);
 
                         // See the big block comment above about using an anonymous class.
-                        /* tslint:disable:max-classes-per-file */
                         (this.mPluginOverrides as any)[setting] = class {
                             constructor() {
                                 throw overrideErrMsg;
                             }
                         };
-                        /* tslint:enable:max-classes-per-file */
                         continue;
                     }
                 }
@@ -585,7 +581,7 @@ export class PluginManagementFacility {
      */
     private getCliPkgName(): string {
         const cliPackageJson: any = ImperativeConfig.instance.callerPackageJson;
-        if (!cliPackageJson.hasOwnProperty(this.npmPkgNmProp)) {
+        if (!Object.prototype.hasOwnProperty.call(cliPackageJson, this.npmPkgNmProp)) {
             return "NoNameInCliPkgJson";
         }
         return cliPackageJson[this.npmPkgNmProp];
@@ -646,7 +642,7 @@ export class PluginManagementFacility {
             const conflictMessage = this.impLogger.error("The plugin named '%s' attempted to add a group of commands" +
                 " with the name '%s'" +
                 ". Your base application already contains a group with the name '%s'.", pluginGroupNm, pluginGroupDefinition.name,
-                cmdTreeDef.name);
+            cmdTreeDef.name);
             return {hasConflict: true, message: conflictMessage};
         }
 
@@ -656,7 +652,7 @@ export class PluginManagementFacility {
                     const conflictMessage = this.impLogger.error("The plugin named '%s' attempted to add a group of commands" +
                         " with the alias '%s' " +
                         ". Your base application already contains a group with the name '%s'.", pluginGroupNm, pluginAlias,
-                        cmdTreeDef.name);
+                    cmdTreeDef.name);
                     return {hasConflict: true, message: conflictMessage};
                 }
             }
@@ -664,13 +660,13 @@ export class PluginManagementFacility {
         /* Confirm that pluginGroupNm is not an existing top-level
          * alias in the command tree definition.
          */
-        if (cmdTreeDef.hasOwnProperty("aliases")) {
+        if (Object.prototype.hasOwnProperty.call(cmdTreeDef, "aliases")) {
             for (const nextAliasToTest of cmdTreeDef.aliases) {
                 // if the plugin name matches an alias of the definition tree
                 if (pluginGroupNm.toLowerCase() === nextAliasToTest.toLowerCase()) {
                     const conflictMessage = this.impLogger.error("The plugin attempted to add a group of commands with the name '%s' " +
                         ". Your base application already contains a group with an alias '%s'.", pluginGroupNm, nextAliasToTest,
-                        cmdTreeDef.name);
+                    cmdTreeDef.name);
                     return {hasConflict: true, message: conflictMessage};
                 }
                 if (pluginGroupDefinition.aliases != null) {
@@ -680,7 +676,7 @@ export class PluginManagementFacility {
                             const conflictMessage = this.impLogger.error("The plugin named '%s' attempted to add a " +
                                 "group of command with the alias '%s', which conflicts with " +
                                 "another alias of the same name for group '%s'.", pluginGroupDefinition.name, pluginAlias,
-                                cmdTreeDef.name);
+                            cmdTreeDef.name);
                             return {hasConflict: true, message: conflictMessage};
                         }
                     }
@@ -788,7 +784,7 @@ export class PluginManagementFacility {
         }
 
         // extract the plugin npm package name property for later use in class
-        if (pkgJsonData.hasOwnProperty(this.npmPkgNmProp)) {
+        if (Object.prototype.hasOwnProperty.call(pkgJsonData, this.npmPkgNmProp)) {
             pluginCfgProps.npmPackageName = pkgJsonData[this.npmPkgNmProp];
         }
 
@@ -808,9 +804,9 @@ export class PluginManagementFacility {
 
         // confirm that the peerDependencies property exists in plugin's package.json
         const peerDepPropNm = "peerDependencies";
-        if (pkgJsonData.hasOwnProperty(peerDepPropNm)) {
+        if (Object.prototype.hasOwnProperty.call(pkgJsonData, peerDepPropNm)) {
             // get the version of the host CLI dependency for this plugin
-            if (pkgJsonData[peerDepPropNm].hasOwnProperty(pluginCfgProps.cliDependency.peerDepName)) {
+            if (Object.prototype.hasOwnProperty.call(pkgJsonData[peerDepPropNm], pluginCfgProps.cliDependency.peerDepName)) {
                 pluginCfgProps.cliDependency.peerDepVer =
                     pkgJsonData[peerDepPropNm][pluginCfgProps.cliDependency.peerDepName];
             } else {
@@ -822,7 +818,7 @@ export class PluginManagementFacility {
             }
 
             // get the version of the imperative dependency for this plugin
-            if (pkgJsonData[peerDepPropNm].hasOwnProperty(pluginCfgProps.impDependency.peerDepName)) {
+            if (Object.prototype.hasOwnProperty.call(pkgJsonData[peerDepPropNm], pluginCfgProps.impDependency.peerDepName)) {
                 pluginCfgProps.impDependency.peerDepVer =
                     pkgJsonData[peerDepPropNm][pluginCfgProps.impDependency.peerDepName];
             } else {
@@ -842,7 +838,7 @@ export class PluginManagementFacility {
         }
 
         // extract the imperative property
-        if (!pkgJsonData.hasOwnProperty(this.impConfigPropNm)) {
+        if (!Object.prototype.hasOwnProperty.call(pkgJsonData, this.impConfigPropNm)) {
             this.pluginIssues.recordIssue(pluginName, IssueSeverity.CFG_ERROR,
                 "The required property '" + this.impConfigPropNm +
                 "' does not exist in file '" + pluginPkgJsonPathNm + "'.");
@@ -909,7 +905,7 @@ export class PluginManagementFacility {
 
         // compare the plugin's requested CLI version with the CLI's actual version
         if ( pluginCfgProps.cliDependency.peerDepVer !== this.noPeerDependency) {
-            if (cliPackageJson.hasOwnProperty(cliVerPropName)) {
+            if (Object.prototype.hasOwnProperty.call(cliPackageJson, cliVerPropName)) {
                 this.comparePluginVersionToCli(
                     pluginCfgProps.pluginName,
                     pluginCfgProps.cliDependency.peerDepName,
@@ -933,8 +929,8 @@ export class PluginManagementFacility {
              */
             const cliDepPropName = "dependencies";
             cliVerPropName = pluginCfgProps.impDependency.peerDepName;
-            if (cliPackageJson.hasOwnProperty(cliDepPropName)) {
-                if (cliPackageJson[cliDepPropName].hasOwnProperty(cliVerPropName)) {
+            if (Object.prototype.hasOwnProperty.call(cliPackageJson, cliDepPropName)) {
+                if (Object.prototype.hasOwnProperty.call(cliPackageJson[cliDepPropName], cliVerPropName)) {
                     this.comparePluginVersionToCli(
                         pluginCfgProps.pluginName,
                         pluginCfgProps.impDependency.peerDepName,
@@ -992,7 +988,7 @@ export class PluginManagementFacility {
         );
 
         // is there an imperative.name property?
-        if (!pluginCfgProps.impConfig.hasOwnProperty("name")) {
+        if (!Object.prototype.hasOwnProperty.call(pluginCfgProps.impConfig, "name")) {
             // can we default to the npm package name?
             if (pluginCfgProps.npmPackageName === "PluginHasNoNpmPkgName" ||
                 pluginCfgProps.npmPackageName.length === 0)
@@ -1008,7 +1004,7 @@ export class PluginManagementFacility {
         /* Confirm that the plugin group name does not conflict with another
          * top-level item in the imperative command tree.
          */
-        if (pluginCfgProps.impConfig.hasOwnProperty("name")) {
+        if (Object.prototype.hasOwnProperty.call(pluginCfgProps.impConfig, "name")) {
             for (const nextImpCmdDef of this.resolvedCliCmdTree.children) {
                 const conflictAndMessage = this.conflictingNameOrAlias(pluginCfgProps.pluginName,
                     pluginCmdGroup, nextImpCmdDef);
@@ -1020,7 +1016,7 @@ export class PluginManagementFacility {
             }
         }
 
-        if (!pluginCfgProps.impConfig.hasOwnProperty("rootCommandDescription")) {
+        if (!Object.prototype.hasOwnProperty.call(pluginCfgProps.impConfig, "rootCommandDescription")) {
             this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.CMD_ERROR,
                 "The plugin's configuration does not contain an '" +
                 this.impConfigPropNm + ".rootCommandDescription' property.");
@@ -1032,7 +1028,7 @@ export class PluginManagementFacility {
         this.validatePeerDepVersions(pluginCfgProps);
 
         // check if the plugin has a healthCheck() function
-        if (!pluginCfgProps.impConfig.hasOwnProperty("pluginHealthCheck")) {
+        if (!Object.prototype.hasOwnProperty.call(pluginCfgProps.impConfig, "pluginHealthCheck")) {
             this.pluginIssues.recordIssue(pluginCfgProps.pluginName, IssueSeverity.WARNING,
                 "The plugin's configuration does not contain an '" +
                 this.impConfigPropNm + ".pluginHealthCheck' property.");
@@ -1082,10 +1078,10 @@ export class PluginManagementFacility {
          * We place this check last, since it finds one error and throws an exception.
          */
         const pluginConfigToValidate: IImperativeConfig = {...pluginCfgProps.impConfig};
-        if (!pluginConfigToValidate.hasOwnProperty("defaultHome")) {
+        if (!Object.prototype.hasOwnProperty.call(pluginConfigToValidate, "defaultHome")) {
             pluginConfigToValidate.defaultHome = "defaultHome-ForValidation";
         }
-        if (!pluginConfigToValidate.hasOwnProperty("productDisplayName")) {
+        if (!Object.prototype.hasOwnProperty.call(pluginConfigToValidate, "productDisplayName")) {
             pluginConfigToValidate.productDisplayName = "productDisplayName-ForValidation";
         }
 
@@ -1125,7 +1121,7 @@ export class PluginManagementFacility {
         for (const pluginCmdDef of pluginCmdDefs) {
             // check for name property
             let pluginCmdName: string = "NotYetAssigned";
-            if (pluginCmdDef.hasOwnProperty("name")) {
+            if (Object.prototype.hasOwnProperty.call(pluginCmdDef, "name")) {
                 pluginCmdName = pluginCmdDef.name + " (at depth = " + cmdTreeDepth + ")";
             } else {
                 this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
@@ -1134,20 +1130,20 @@ export class PluginManagementFacility {
             }
 
             // check for description property
-            if (!pluginCmdDef.hasOwnProperty("description")) {
+            if (!Object.prototype.hasOwnProperty.call(pluginCmdDef, "description")) {
                 this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
                     "Name = '" + pluginCmdName + "' has no 'description' property");
             }
 
             // check for type property
-            if (!pluginCmdDef.hasOwnProperty("type")) {
+            if (!Object.prototype.hasOwnProperty.call(pluginCmdDef, "type")) {
                 this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
                     "Name = '" + pluginCmdName + "' has no 'type' property");
             } else {
                 // is this entry a command?
                 if (pluginCmdDef.type.toLowerCase() === "command") {
                     // a command must have a handler
-                    if (!pluginCmdDef.hasOwnProperty("handler")) {
+                    if (!Object.prototype.hasOwnProperty.call(pluginCmdDef, "handler")) {
                         this.pluginIssues.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
                             "Command name = '" + pluginCmdName + "' has no 'handler' property");
                     } else {
@@ -1165,7 +1161,7 @@ export class PluginManagementFacility {
                         }
                     }
                 } else if (pluginCmdDef.type.toLowerCase() === "group") {
-                    if (pluginCmdDef.hasOwnProperty("children")) {
+                    if (Object.prototype.hasOwnProperty.call(pluginCmdDef, "children")) {
                         if (pluginCmdDef.children.length > 0) {
                             // validate children at the next level down in the plugin command tree
                             this.validatePluginCmdDefs(pluginName, pluginCmdDef.children, cmdTreeDepth + 1);

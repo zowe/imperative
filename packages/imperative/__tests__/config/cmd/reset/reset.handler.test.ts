@@ -34,10 +34,10 @@ describe("Config management reset handler", () => {
      */
     const getIHandlerParametersObject = (): IHandlerParameters => {
         const x: any = {
-        response: new (CommandResponse as any)(),
-        arguments: {
-            configName: "CredentialManager"
-        },
+            response: new (CommandResponse as any)(),
+            arguments: {
+                configName: "CredentialManager"
+            },
         };
         return x as IHandlerParameters;
     };

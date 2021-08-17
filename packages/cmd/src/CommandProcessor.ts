@@ -659,13 +659,13 @@ export class CommandProcessor {
         // Display the first example on error
         if (this.mDefinition.examples && this.mDefinition.examples.length > 0) {
             let exampleText = TextUtils.wordWrap(`- ${this.mDefinition.examples[0].description}:\n\n`, undefined, " ");
-            exampleText += `      \$ ${
+            exampleText += `      $ ${
                 this.rootCommand
-                } ${
+            } ${
                 CommandUtils.getFullCommandName(this.mDefinition, this.mFullDefinition)
-                } ${
+            } ${
                 this.mDefinition.examples[0].options
-                }\n`;
+            }\n`;
 
             finalHelp += `\nExample:\n\n${exampleText}`;
         }
@@ -795,8 +795,8 @@ export class CommandProcessor {
             this.log.error("Diagnostic information:\n" +
                 "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
                 "Environmental variables: '%s'",
-                os.platform(), os.arch(), process.argv.join(" "),
-                JSON.stringify(process.env, null, 2));
+            os.platform(), os.arch(), process.argv.join(" "),
+            JSON.stringify(process.env, null, 2));
             const errorMessage: string = TextUtils.formatMessage(couldNotInstantiateCommandHandler.message, {
                 commandHandler: nodePath.normalize(handlerPath) || "\"undefined or not specified\"",
                 definitionName: this.definition.name
@@ -831,7 +831,7 @@ export class CommandProcessor {
                     response.writeJsonResponse();
                     break;
                 case "default":
-                    // Do nothing - already written along the way
+                // Do nothing - already written along the way
                     break;
                 default:
                     throw new ImperativeError({
@@ -863,9 +863,9 @@ export class CommandProcessor {
             "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
             "Node versions: '%s'" +
             "Environmental variables: '%s'",
-            os.platform(), os.arch(), process.argv.join(" "),
-            JSON.stringify(process.versions, null, 2),
-            JSON.stringify(process.env, null, 2));
+        os.platform(), os.arch(), process.argv.join(" "),
+        JSON.stringify(process.versions, null, 2),
+        JSON.stringify(process.env, null, 2));
 
         // If this is an instance of an imperative error, then we are good to go and can formulate the response.
         // If it is an Error object, then something truly unexpected occurred in the handler.

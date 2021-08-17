@@ -32,7 +32,7 @@ export class SharedOptions {
      * @memberof SharedOptions
      */
     public static readStdinIfRequested(args: Arguments, response: CommandResponse, commandType: ICommandNodeType,
-                                       stream = process.stdin): Promise<boolean> {
+        stream = process.stdin): Promise<boolean> {
         return new Promise<boolean>((complete, error) => {
             SharedOptions.readStdin(args, response, commandType, stream, (readErr, attemptedStdinRead) => {
                 if (readErr) {
@@ -57,7 +57,7 @@ export class SharedOptions {
      *                            based on the arguments and command definition
      */
     private static readStdin(args: Arguments, response: CommandResponse, commandType: ICommandNodeType, stream = process.stdin,
-                             done: (readErr: IImperativeError, attemptedStdinRead: boolean) => void): void {
+        done: (readErr: IImperativeError, attemptedStdinRead: boolean) => void): void {
 
         /**
          * If this is a module

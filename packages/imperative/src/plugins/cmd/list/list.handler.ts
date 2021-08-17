@@ -9,12 +9,11 @@
 *
 */
 
-import { ICommandHandler, ICommandResponse, IHandlerParameters, CommandResponse } from "../../../../../cmd";
+import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { Logger } from "../../../../../logger/";
 import { readFileSync } from "jsonfile";
 import { IPluginJson } from "../../doc/IPluginJson";
 import { TextUtils } from "../../../../../utilities";
-import { ImperativeError } from "../../../../../error";
 import { PMFConstants } from "../../utilities/PMFConstants";
 
 /**
@@ -50,10 +49,10 @@ export default class ListHandler implements ICommandHandler {
         let firstTime = true;
 
         for (const pluginName in installedPlugins) {
-            if (installedPlugins.hasOwnProperty(pluginName)) {
+            if (Object.prototype.hasOwnProperty.call(installedPlugins, pluginName)) {
                 // Build the console output
                 if (firstTime) {
-                  listOutput = `\n${chalk.yellow.bold("Installed plugins:")} \n\n`;
+                    listOutput = `\n${chalk.yellow.bold("Installed plugins:")} \n\n`;
                 }
 
                 listOutput = listOutput + `${chalk.yellow.bold(" -- pluginName: ")}` +
@@ -81,7 +80,7 @@ export default class ListHandler implements ICommandHandler {
         }
 
         if (listOutput === "") {
-          listOutput = "No plugins have been installed into your CLI application.";
+            listOutput = "No plugins have been installed into your CLI application.";
         }
 
         // Write to the results of the list command to console

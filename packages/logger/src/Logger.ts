@@ -128,12 +128,10 @@ export class Logger {
         let logger: log4js.Logger;
 
         try {
-            let logFile: string;
             for (const appenderName of Object.keys(loggingConfig.log4jsConfig.appenders)) {
                 const appender = loggingConfig.log4jsConfig.appenders[appenderName];
                 if (appender.type === "file" || appender.type === "fileSync") {
                     IO.createDirsSyncFromFilePath(appender.filename);
-                    logFile = appender.filename;
                 }
             }
             log4js.configure(loggingConfig.log4jsConfig as any);
@@ -157,7 +155,7 @@ export class Logger {
     constructor(private mJsLogger: log4js.Logger | Console, private category?: string) {
 
         if (LoggerManager.instance.isLoggerInit && LoggerManager.instance.QueuedMessages.length > 0) {
-            LoggerManager.instance.QueuedMessages.slice().reverse().forEach((value, index) => {
+            LoggerManager.instance.QueuedMessages.slice().reverse().forEach((value) => {
                 if (this.category === value.category) {
                     (mJsLogger as any)[value.method](value.message);
                     LoggerManager.instance.QueuedMessages.splice(LoggerManager.instance.QueuedMessages.indexOf(value), 1);

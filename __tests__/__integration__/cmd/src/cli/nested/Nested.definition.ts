@@ -11,7 +11,6 @@
 
 import { ICommandDefinition } from "../../../../../../lib/index";
 import { FirstGroupDefinition } from "./first-group/FirstGroup.definition";
-import { SecondGroupDefinition } from "./first-group/second-group/SecondGroup.definition";
 import { NestedGroupCommandDefinition } from "./nested-group-command/NestedGroupCommand.definition";
 
 export const definition: ICommandDefinition = {

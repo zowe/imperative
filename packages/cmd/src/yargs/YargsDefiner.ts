@@ -55,14 +55,14 @@ export class YargsDefiner {
      *                                         propagate to yargs services
      */
     constructor(yargsInstance: Argv,
-                primaryHighlightColor: string,
-                rootCommandName: string,
-                commandLine: string,
-                envVariablePrefix: string,
-                profileManagerFactory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
-                helpGeneratorFactory: IHelpGeneratorFactory,
-                experimentalCommandDescription: string,
-                promptPhrase: string) {
+        primaryHighlightColor: string,
+        rootCommandName: string,
+        commandLine: string,
+        envVariablePrefix: string,
+        profileManagerFactory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
+        helpGeneratorFactory: IHelpGeneratorFactory,
+        experimentalCommandDescription: string,
+        promptPhrase: string) {
         this.mYargsInstance = yargsInstance;
         this.mPrimaryHighlightColor = primaryHighlightColor;
         this.mRootCommandName = rootCommandName;
@@ -89,7 +89,7 @@ export class YargsDefiner {
         this.log.trace("Defining a new definition to Yargs:");
         this.log.trace(inspect(definition));
         switch (definition.type) {
-            // case "provider":
+        // case "provider":
             case "group":
                 new GroupCommandYargs({
                     yargsInstance: this.mYargsInstance,

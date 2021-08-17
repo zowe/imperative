@@ -54,12 +54,12 @@ describe("We should provide the ability to set commands as experimental", functi
 
     it("should show the default experimental command help text under an experimental command " +
         "if no custom text is configured",
-        function () {
-            T.findExpectedOutputInCommand(cliBinNoCustomHelp,
-                ["is-experimental", "--help"],
-                [Constants.DEFAULT_EXPERIMENTAL_COMMAND_EXPLANATION],
-                "stdout", true, this,
-                undefined, {ignoreSpaces: true});
-        });
+    function () {
+        T.findExpectedOutputInCommand(cliBinNoCustomHelp,
+            ["is-experimental", "--help"],
+            [Constants.DEFAULT_EXPERIMENTAL_COMMAND_EXPLANATION],
+            "stdout", true, this,
+            undefined, {ignoreSpaces: true});
+    });
 
 });

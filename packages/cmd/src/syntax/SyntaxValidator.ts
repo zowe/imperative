@@ -458,7 +458,7 @@ export class SyntaxValidator {
      * @return {boolean}: True if the options are valid, false if there is a syntax error
      */
     private invalidJsonString(error: Error, optionDefinition: ICommandOptionDefinition,
-                              responseObject: CommandResponse, valueSpecified: any) {
+        responseObject: CommandResponse, valueSpecified: any) {
         responseObject.console.errorHeader(syntaxErrorHeader.message);
         // TODO - check if JSON can be positional
         const msg: string = responseObject.console.error(
@@ -477,15 +477,15 @@ export class SyntaxValidator {
      * @param isPositional - is the option a positional option? defaults to false
      */
     private fileOptionError(optionDefinition: ICommandOptionDefinition | ICommandPositionalDefinition,
-                            commandArguments: ICommandArguments, responseObject: CommandResponse,
-                            isPositional: boolean = false): void {
+        commandArguments: ICommandArguments, responseObject: CommandResponse,
+        isPositional: boolean = false): void {
         const mustacheSummary: any = this.getMustacheSummaryForOption(optionDefinition, isPositional);
         mustacheSummary.value = commandArguments[optionDefinition.name];
         responseObject.console.errorHeader(syntaxErrorHeader.message);
         const msg: string = responseObject
             .console.error("Invalid file path specified for option:\n{{long}} {{aliases}}\n" +
                 "\nYou specified:\n\"{{&value}}\"\n\nThe file does not exist",
-                mustacheSummary);
+            mustacheSummary);
         this.appendValidatorError(responseObject,
             {message: msg, optionInError: optionDefinition.name, definition: optionDefinition});
     }
@@ -499,7 +499,7 @@ export class SyntaxValidator {
      *              an object used to replace {{variables}} with mustache
      */
     private getMustacheSummaryForOption(optionDefinition: ICommandOptionDefinition | ICommandPositionalDefinition,
-                                        isPositional: boolean = false): any {
+        isPositional: boolean = false): any {
         let aliasString;
 
         if (!isPositional) {
@@ -572,7 +572,7 @@ export class SyntaxValidator {
      * @param {CommandResponse} responseObject: The response object for producing messages.
      */
     private missingOptionError(optionDefinition: ICommandOptionDefinition,
-                               responseObject: CommandResponse): void {
+        responseObject: CommandResponse): void {
         responseObject.console.errorHeader(syntaxErrorHeader.message);
         const msg: string = responseObject.console.error(
             "Missing Required Option:\n{{long}} {{aliases}}\n\n" +
@@ -589,15 +589,15 @@ export class SyntaxValidator {
      * @param {CommandResponse} responseObject: The response object for producing messages.
      */
     private positionalParameterInvalid(positionalDefinition: ICommandPositionalDefinition, specified: string,
-                                       responseObject: CommandResponse) {
+        responseObject: CommandResponse) {
         responseObject.console.errorHeader(syntaxErrorHeader.message);
         const msg: string =
             responseObject.console.error("Invalid format specified for positional option:\n{{parameter}}\n\n" +
                 "You specified:\n{{spec}}\n\nOption must match the following regular expression:\n{{format}}",
-                {
-                    parameter: positionalDefinition.name, format: positionalDefinition.regex,
-                    spec: specified, desc: TextUtils.wordWrap(positionalDefinition.description)
-                });
+            {
+                parameter: positionalDefinition.name, format: positionalDefinition.regex,
+                spec: specified, desc: TextUtils.wordWrap(positionalDefinition.description)
+            });
         this.appendValidatorError(responseObject,
             {message: msg, optionInError: positionalDefinition.name, definition: positionalDefinition});
     }
@@ -611,7 +611,7 @@ export class SyntaxValidator {
      * @return {boolean}: false if the option's value is not valid.
      */
     private validateOptionValueRange(optionDefinition: ICommandOptionDefinition, optionValue: number,
-                                     responseObject: CommandResponse): boolean {
+        responseObject: CommandResponse): boolean {
         let valid: boolean = true;
         const min = optionDefinition.numericValueRange[0];
         const max = optionDefinition.numericValueRange[1];
@@ -645,7 +645,7 @@ export class SyntaxValidator {
      * @return {boolean}: false if the value is not valid.
      */
     private validateOptionValueLength(optionDefinition: ICommandOptionDefinition | ICommandPositionalDefinition, optionValue: string,
-                                      responseObject: CommandResponse, isPositional: boolean = false): boolean {
+        responseObject: CommandResponse, isPositional: boolean = false): boolean {
         let valid: boolean = true;
         const min = optionDefinition.stringLengthRange[0];
         const max = optionDefinition.stringLengthRange[1];
@@ -678,8 +678,8 @@ export class SyntaxValidator {
      * @return {boolean}: false if the value is not valid.
      */
     private validateArrayDuplicate(optionDefinition: ICommandOptionDefinition,
-                                   optionValue: string[],
-                                   responseObject: CommandResponse): boolean {
+        optionValue: string[],
+        responseObject: CommandResponse): boolean {
         const existingValuesSet = new Set<string>();
         const duplicateValuesSet = new Set<string>();
 
@@ -717,8 +717,8 @@ export class SyntaxValidator {
      * @param {CommandResponse} responseObject: The response object for producing messages.
      */
     private optionDependencyError(optionDef1: ICommandOptionDefinition,
-                                  optionDef2: ICommandOptionDefinition,
-                                  responseObject: CommandResponse) {
+        optionDef2: ICommandOptionDefinition,
+        responseObject: CommandResponse) {
         responseObject.console.errorHeader(syntaxErrorHeader.message);
         const msg: string =
             responseObject.console.error("If you specify the following option:\n{{option}}\n\nYou must also specify:\n{{dependsOn}}", {
@@ -737,7 +737,7 @@ export class SyntaxValidator {
      * @param {CommandResponse} responseObject: The response object for producing messages.
      */
     private implicationAlternativeError(optionDef: ICommandOptionDefinition,
-                                        responseObject: CommandResponse) {
+        responseObject: CommandResponse) {
         const implications = "[" + optionDef.impliesOneOf.map((implication) => {
             return this.getDashFormOfOption(this.getOptionDefinitionFromName(implication).name);
         }).join(",") + "]";
@@ -758,7 +758,7 @@ export class SyntaxValidator {
      * @param {CommandResponse} responseObject: The response object for producing messages.
      */
     private absenceImplicationError(optionDef: ICommandOptionDefinition,
-                                    responseObject: CommandResponse) {
+        responseObject: CommandResponse) {
         responseObject.console.errorHeader(syntaxErrorHeader.message);
         const msg: string = responseObject.console.error("If you do not specify the following option:\n{{option}}\n" +
             "\nYou must specify one of these options:\n[{{dependsOn}}]", {
@@ -778,14 +778,14 @@ export class SyntaxValidator {
      * @param {CommandResponse} responseObject: The response object for producing messages.
      */
     private optionCombinationInvalidError(optionDef1: ICommandOptionDefinition,
-                                          optionDef2: ICommandOptionDefinition,
-                                          responseObject: CommandResponse) {
+        optionDef2: ICommandOptionDefinition,
+        responseObject: CommandResponse) {
         responseObject.console.errorHeader(syntaxErrorHeader.message);
         const msg: string
             = responseObject.console.error("The following options conflict (mutually exclusive):\n{{a}}\n{{b}}", {
-            a: this.getDashFormOfOption(optionDef1.name),
-            b: this.getDashFormOfOption(optionDef2.name)
-        });
+                a: this.getDashFormOfOption(optionDef1.name),
+                b: this.getDashFormOfOption(optionDef2.name)
+            });
         this.appendValidatorError(responseObject,
             {message: msg, optionInError: optionDef1.name, definition: optionDef1});
         this.appendValidatorError(responseObject,
@@ -798,7 +798,7 @@ export class SyntaxValidator {
      * @param {ICommandOptionDefinition} failingOption: The option with the non-allowable value
      */
     private specifiedMultipleTimesError(failingOption: ICommandOptionDefinition,
-                                        responseObject: CommandResponse) {
+        responseObject: CommandResponse) {
         const mustacheSummary = this.getMustacheSummaryForOption(failingOption);
         responseObject.console.errorHeader(syntaxErrorHeader.message);
         const msg: string = responseObject.console.error(
@@ -815,7 +815,7 @@ export class SyntaxValidator {
      * @param {any} value - the value specified by the user which was not an array
      */
     private notAnArrayError(failingOption: ICommandOptionDefinition,
-                            responseObject: CommandResponse, value: any) {
+        responseObject: CommandResponse, value: any) {
         const mustacheSummary = this.getMustacheSummaryForOption(failingOption);
         responseObject.console.errorHeader(syntaxErrorHeader.message);
         const msg: string = responseObject.console.error(
@@ -836,7 +836,7 @@ export class SyntaxValidator {
      * @param value - the value that was specified by the user
      */
     private invalidOptionError(failingOption: ICommandOptionDefinition,
-                               responseObject: CommandResponse, value: any) {
+        responseObject: CommandResponse, value: any) {
         const mustacheSummary = this.getMustacheSummaryForOption(failingOption);
         mustacheSummary.allowed = inspect(failingOption.allowableValues.values);
         mustacheSummary.optionVal = value;
@@ -862,8 +862,8 @@ export class SyntaxValidator {
      * @param {CommandResponse} responseObject: The response object for producing messages.
      */
     private valueRequiresAdditionalOption(optionDef: ICommandOptionDefinition, value: string,
-                                          requires: ICommandOptionDefinition,
-                                          responseObject: CommandResponse) {
+        requires: ICommandOptionDefinition,
+        responseObject: CommandResponse) {
         const aMustache = this.getMustacheSummaryForOption(optionDef);
         const bMustache = this.getMustacheSummaryForOption(requires);
         responseObject.console.errorHeader(syntaxErrorHeader.message);
@@ -891,9 +891,9 @@ export class SyntaxValidator {
      * @param isPositional - is the option a positional option? defaults to false
      */
     private validateBoolean(value: any,
-                            optionDefinition: ICommandOptionDefinition,
-                            responseObject: CommandResponse,
-                            isPositional: boolean = false): boolean {
+        optionDefinition: ICommandOptionDefinition,
+        responseObject: CommandResponse,
+        isPositional: boolean = false): boolean {
         const mustacheSummary: any = this.getMustacheSummaryForOption(optionDefinition, isPositional);
         mustacheSummary.value = value;
 
@@ -903,7 +903,7 @@ export class SyntaxValidator {
                 .console.error("Invalid value specified for option:\n{{long}} {{aliases}}\n\n" +
                     "You specified:\n{{value}}\n\n" +
                     "The value must be a boolean (true or false).",
-                    mustacheSummary);
+                mustacheSummary);
             this.appendValidatorError(responseObject,
                 {message: msg, optionInError: optionDefinition.name, definition: optionDefinition});
             return false;
@@ -920,9 +920,9 @@ export class SyntaxValidator {
      * @param isPositional - is the option a positional option? defaults to false
      */
     private validateNumeric(value: any,
-                            optionDefinition: ICommandOptionDefinition | ICommandPositionalDefinition,
-                            responseObject: CommandResponse,
-                            isPositional: boolean = false): boolean {
+        optionDefinition: ICommandOptionDefinition | ICommandPositionalDefinition,
+        responseObject: CommandResponse,
+        isPositional: boolean = false): boolean {
         const mustacheSummary: any = this.getMustacheSummaryForOption(optionDefinition, isPositional);
         mustacheSummary.value = value;
         if (isNaN(value)) {
@@ -931,7 +931,7 @@ export class SyntaxValidator {
                 .console.error("Invalid value specified for option:\n{{long}} {{aliases}}\n\n" +
                     "You specified:\n{{value}}\n\n" +
                     "The value must be a number",
-                    mustacheSummary);
+                mustacheSummary);
             this.appendValidatorError(responseObject,
                 {message: msg, optionInError: optionDefinition.name, definition: optionDefinition});
             return false;
@@ -994,7 +994,7 @@ export class SyntaxValidator {
      * If the user specifies an extra positional option
      */
     private unknownPositionalError(responseObject: CommandResponse, commandArguments: ICommandArguments,
-                                   expectedUnderscoreLength: number) {
+        expectedUnderscoreLength: number) {
         responseObject.console.errorHeader(syntaxErrorHeader.message);
 
         const badOptionsSummary = commandArguments._.slice(expectedUnderscoreLength)
@@ -1017,7 +1017,7 @@ export class SyntaxValidator {
      * @param {CommandResponse} responseObject: The response object for producing messages.
      */
     private missingPositionalParameter(missingPositionals: ICommandPositionalDefinition[],
-                                       responseObject: CommandResponse) {
+        responseObject: CommandResponse) {
         for (const missing of missingPositionals) {
             responseObject.console.errorHeader(syntaxErrorHeader.message);
             const message: string

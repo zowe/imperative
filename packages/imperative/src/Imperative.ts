@@ -71,8 +71,8 @@ if (PerfTiming.isEnabled) {
 
     // Timerify a wrapper named function so we can be sure that not just
     // any anonymous function gets checked.
-    Module.prototype.require = PerfTiming.api.watch(function NodeModuleLoader() {
-        return originalRequire.apply(this, arguments);
+    Module.prototype.require = PerfTiming.api.watch(function NodeModuleLoader(...args: any[]) {
+        return originalRequire.apply(this, args);
     });
 }
 
@@ -123,6 +123,7 @@ export class Imperative {
      * @returns {Promise<void>} A promise indicating that we are done here.
      */
     public static init(config?: IImperativeConfig): Promise<void> {
+        // eslint-disable-next-line no-async-promise-executor
         return new Promise<void>(async (initializationComplete: () => void, initializationFailed: ImperativeReject) => {
             try {
 
@@ -267,9 +268,9 @@ export class Imperative {
                     "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
                     "Node versions: '%s'" +
                     "Environmental variables: '%s'",
-                    os.platform(), os.arch(), process.argv.join(" "),
-                    JSON.stringify(process.versions, null, 2),
-                    JSON.stringify(process.env, null, 2));
+                os.platform(), os.arch(), process.argv.join(" "),
+                JSON.stringify(process.versions, null, 2),
+                JSON.stringify(process.env, null, 2));
                 Logger.writeInMemoryMessages(Imperative.DEFAULT_DEBUG_FILE);
                 if (error.report) {
                     const {writeFileSync} = require("fs");
@@ -687,7 +688,8 @@ export class Imperative {
             loadedConfig.profiles.forEach((profile) => {
                 if (profile.authConfig != null) {
                     for (const requiredOption of ["host", "port", "user", "password", "tokenType", "tokenValue"]) {
-                        ImperativeExpect.toNotBeNullOrUndefined(profile.schema.properties[requiredOption], `Profile of type ${profile.type} with authConfig property must have ${requiredOption} option defined`);
+                        ImperativeExpect.toNotBeNullOrUndefined(profile.schema.properties[requiredOption],
+                            `Profile of type ${profile.type} with authConfig property must have ${requiredOption} option defined`);
                     }
                     authConfigs[profile.type] = profile.authConfig;
                 }

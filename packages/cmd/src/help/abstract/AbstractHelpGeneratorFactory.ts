@@ -9,7 +9,6 @@
 *
 */
 
-import { AbstractHelpGenerator } from "./AbstractHelpGenerator";
 import { IHelpGeneratorFactoryParms } from "../doc/IHelpGeneratorFactoryParms";
 import { IHelpGeneratorFactory } from "../doc/IHelpGeneratorFactory";
 import { isNullOrUndefined } from "util";

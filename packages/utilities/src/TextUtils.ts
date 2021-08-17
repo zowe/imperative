@@ -18,7 +18,7 @@ export interface IExplanationMap {
     explainedParentKey: string;              // parent key name in case this is map for nested child JSON object
     ignoredKeys: string;                     // comma separated list of keys whose value will be ignored
     [key: string]: string | IExplanationMap; // all explained keys of JSON object at this level and 'link' to all nested JSON objects
-                                             // which will be explained by their explanation maps
+    // which will be explained by their explanation maps
 }
 
 /**
@@ -63,7 +63,7 @@ export class TextUtils {
      * @returns {any} - the explained object
      */
     public static explainObject(original: any, explanationMap: IExplanationMap,
-                                includeUnexplainedKeys: boolean = true): any {
+        includeUnexplainedKeys: boolean = true): any {
 
         // no object to explain, return null
         if (isNullOrUndefined(original)) {
@@ -155,8 +155,8 @@ export class TextUtils {
      * @returns {string} the rendered table
      */
     public static getTable(objects: any[], primaryHighlightColor: string,
-                           maxColumnWidth?: number, includeHeader: boolean = true, includeBorders: boolean = false,
-                           hardWrap: boolean = false, headers?: string[]): string {
+        maxColumnWidth?: number, includeHeader: boolean = true, includeBorders: boolean = false,
+        hardWrap: boolean = false, headers?: string[]): string {
         const Table = require("cli-table3");
 
         // if the user did not specify which headers to use, build them from the object array
@@ -234,8 +234,7 @@ export class TextUtils {
      * @returns {string}
      */
     public static wordWrap(text: string, width?: number,
-                           indent: string = "", hardWrap: boolean = false, trim: boolean = true): string {
-        const yargs = require("yargs");
+        indent: string = "", hardWrap: boolean = false, trim: boolean = true): string {
         const wrappedText = require("wrap-ansi")(text, this.getRecommendedWidth(width), {hard: hardWrap, trim});
         return wrappedText.split(/\n/g).map((line: string) => {
             if (line.length === 0) {

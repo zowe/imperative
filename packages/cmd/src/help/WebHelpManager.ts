@@ -102,7 +102,7 @@ export class WebHelpManager implements IWebHelpManager {
         const newMetadata: MaybePackageMetadata = this.checkIfMetadataChanged();
         if (newMetadata !== null) {
             (new WebHelpGenerator(this.mFullCommandTree, ImperativeConfig.instance, this.webHelpDir)).
-                 buildHelp(cmdResponse);
+                buildHelp(cmdResponse);
             this.writePackageMetadata(newMetadata);
         }
 

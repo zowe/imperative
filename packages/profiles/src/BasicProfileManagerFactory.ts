@@ -11,8 +11,8 @@
 
 import { AbstractProfileManagerFactory } from "./abstract/AbstractProfileManagerFactory";
 import { IProfileTypeConfiguration } from "./doc/config/IProfileTypeConfiguration";
-import { AbstractProfileManager } from "./abstract/AbstractProfileManager";
 import { BasicProfileManager } from "./BasicProfileManager";
+
 /**
  * A basic profile mananger factory - returns instances of profile managers depending on the types passed.
  * @export

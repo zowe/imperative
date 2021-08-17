@@ -35,169 +35,169 @@ import { npmLogin } from "../../../../src/plugins/utilities/NpmFunctions";
 
 describe("Plugin Management Facility update handler", () => {
 
-  const resolveVal = "Users/SWAWI03/IdeaProjects/imperative-plugins";
+    const resolveVal = "Users/SWAWI03/IdeaProjects/imperative-plugins";
 
-  // Objects created so types are correct.
-  const mocks = {
-    npmLogin: npmLogin as Mock<typeof  npmLogin>,
-    execSync: execSync as Mock<typeof execSync>,
-    readFileSync: readFileSync as Mock<typeof readFileSync>,
-    writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
-    update: update as Mock<typeof update>,
-    resolve: resolve as Mock<typeof resolve>
-  };
+    // Objects created so types are correct.
+    const mocks = {
+        npmLogin: npmLogin as Mock<typeof  npmLogin>,
+        execSync: execSync as Mock<typeof execSync>,
+        readFileSync: readFileSync as Mock<typeof readFileSync>,
+        writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
+        update: update as Mock<typeof update>,
+        resolve: resolve as Mock<typeof resolve>
+    };
 
-  // two plugin set of values
-  const packageName = resolveVal;
-  const packageVersion = "1.0.5";
-  const packageRegistry = "https://registry.npmjs.org/";
+    // two plugin set of values
+    const packageName = resolveVal;
+    const packageVersion = "1.0.5";
+    const packageRegistry = "https://registry.npmjs.org/";
 
-  const packageName2 = "plugin1";
-  const packageVersion2 = "2.0.3";
-  const packageRegistry2 = "http://imperative-npm-registry:4873/";
+    const packageName2 = "plugin1";
+    const packageVersion2 = "2.0.3";
+    const packageRegistry2 = "http://imperative-npm-registry:4873/";
 
-  const pluginName = "imperative-sample-plugin";
+    const pluginName = "imperative-sample-plugin";
 
-  beforeEach(() => {
+    beforeEach(() => {
     // Mocks need cleared after every test for clean test runs
-    jest.resetAllMocks();
+        jest.resetAllMocks();
 
-    // This needs to be mocked before running process function of update handler
-    (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
-  });
+        // This needs to be mocked before running process function of update handler
+        (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
+    });
 
-  /**
+    /**
    *  Create object to be passed to process function
    *
    * @returns {IHandlerParameters}
    */
-  const getIHandlerParametersObject = (): IHandlerParameters => {
-    const x: any = {
-      response: new (CommandResponse as any)(),
-      arguments: {
-        plugin: undefined
-      },
+    const getIHandlerParametersObject = (): IHandlerParameters => {
+        const x: any = {
+            response: new (CommandResponse as any)(),
+            arguments: {
+                plugin: undefined
+            },
+        };
+        return x as IHandlerParameters;
     };
-    return x as IHandlerParameters;
-  };
 
-  beforeEach(() => {
-    mocks.execSync.mockReturnValue(packageRegistry);
-    mocks.readFileSync.mockReturnValue({});
-    npmLogin(packageRegistry);
-  });
+    beforeEach(() => {
+        mocks.execSync.mockReturnValue(packageRegistry);
+        mocks.readFileSync.mockReturnValue({});
+        npmLogin(packageRegistry);
+    });
 
-  /**
+    /**
    * Validates that an update call was valid based on the parameters passed.
    *
    * @param {string}   packageNameParm        expected package location that install was called with.
    * @param {string}   registry               expected registry that install was called with.
    */
-  const wasUpdateCallValid = (
-    packageNameParm: string,
-    registry: string
-  ) => {
-      expect(mocks.update).toHaveBeenCalledWith(
-        packageNameParm, registry
-      );
-  };
+    const wasUpdateCallValid = (
+        packageNameParm: string,
+        registry: string
+    ) => {
+        expect(mocks.update).toHaveBeenCalledWith(
+            packageNameParm, registry
+        );
+    };
 
-  /**
+    /**
    * Checks that the successful message was written.
    *
    * @param {IHandlerParameters} params The parameters that were passed to the
    *                                    process function.
    */
-  const wasUpdateSuccessful = (params: IHandlerParameters) => {
-    expect(params.response.console.log).toHaveBeenCalledWith(`Update of the npm package(${params.arguments.plugin}) was successful.\n`);
-  };
+    const wasUpdateSuccessful = (params: IHandlerParameters) => {
+        expect(params.response.console.log).toHaveBeenCalledWith(`Update of the npm package(${params.arguments.plugin}) was successful.\n`);
+    };
 
-  /**
+    /**
    * Validates that an npmLogin was called
    * when login needed based on the parameters passed.
    */
-  const wasNpmLoginCallValid = (registry: string) => {
-      expect(mocks.npmLogin).toHaveBeenCalledWith(registry);
-  };
+    const wasNpmLoginCallValid = (registry: string) => {
+        expect(mocks.npmLogin).toHaveBeenCalledWith(registry);
+    };
 
-  /**
+    /**
    * Checks that writeFileSync call was correct.
    *
    * @param {string} location The location of the plugins.json file
    *
    * @param (IPluginJson) fileJson The contents to be written to the file
    */
-  const wasWriteFileSyncValid = (location: string, fileJson: IPluginJson) => {
-    expect(mocks.writeFileSync).toHaveBeenCalledWith(
-      location, fileJson, {spaces: 2}
-    );
-  };
-
-  test("update specified plugin", async () => {
-
-    // plugin definitions mocking file contents
-    const fileJson: IPluginJson = {
-      "imperative-sample-plugin": {
-        package: packageName,
-        registry: packageRegistry,
-        version: packageVersion
-      },
-      "plugin1": {
-        package: packageName2,
-        registry: packageRegistry2,
-        version: packageVersion2
-      }
+    const wasWriteFileSyncValid = (location: string, fileJson: IPluginJson) => {
+        expect(mocks.writeFileSync).toHaveBeenCalledWith(
+            location, fileJson, {spaces: 2}
+        );
     };
 
-    // Override the return value for this test only
-    mocks.readFileSync.mockReturnValueOnce(fileJson);
+    test("update specified plugin", async () => {
 
-    const handler = new UpdateHandler();
+        // plugin definitions mocking file contents
+        const fileJson: IPluginJson = {
+            "imperative-sample-plugin": {
+                package: packageName,
+                registry: packageRegistry,
+                version: packageVersion
+            },
+            "plugin1": {
+                package: packageName2,
+                registry: packageRegistry2,
+                version: packageVersion2
+            }
+        };
 
-    mocks.resolve.mockReturnValue(resolveVal);
+        // Override the return value for this test only
+        mocks.readFileSync.mockReturnValueOnce(fileJson);
 
-    const params = getIHandlerParametersObject();
-    params.arguments.plugin = pluginName;
-    params.arguments.registry = packageRegistry;
+        const handler = new UpdateHandler();
 
-    await handler.process(params as IHandlerParameters);
+        mocks.resolve.mockReturnValue(resolveVal);
 
-    // Validate the call to login
-    wasNpmLoginCallValid(packageRegistry);
-    wasWriteFileSyncValid(PMFConstants.instance.PLUGIN_JSON, fileJson);
-    wasUpdateCallValid(packageName, packageRegistry);
+        const params = getIHandlerParametersObject();
+        params.arguments.plugin = pluginName;
+        params.arguments.registry = packageRegistry;
 
-    expect(params.response.console.log).toHaveBeenCalledWith(
-      `Update of the npm package(${resolveVal}) was successful.\n`);
-  });
+        await handler.process(params as IHandlerParameters);
 
-  test("update imperative-sample-plugin", async () => {
+        // Validate the call to login
+        wasNpmLoginCallValid(packageRegistry);
+        wasWriteFileSyncValid(PMFConstants.instance.PLUGIN_JSON, fileJson);
+        wasUpdateCallValid(packageName, packageRegistry);
 
-    // plugin definitions mocking file contents
-    const fileJson: IPluginJson = {
-      "imperative-sample-plugin": {
-        package: resolveVal,
-        registry: packageRegistry,
-        version: "1.0.1"
-      }
-    };
+        expect(params.response.console.log).toHaveBeenCalledWith(
+            `Update of the npm package(${resolveVal}) was successful.\n`);
+    });
 
-    // Override the return value for this test only
-    mocks.readFileSync.mockReturnValueOnce(fileJson);
+    test("update imperative-sample-plugin", async () => {
 
-    const handler = new UpdateHandler();
+        // plugin definitions mocking file contents
+        const fileJson: IPluginJson = {
+            "imperative-sample-plugin": {
+                package: resolveVal,
+                registry: packageRegistry,
+                version: "1.0.1"
+            }
+        };
 
-    const params = getIHandlerParametersObject();
-    params.arguments.plugin = "imperative-sample-plugin";
+        // Override the return value for this test only
+        mocks.readFileSync.mockReturnValueOnce(fileJson);
 
-    await handler.process(params as IHandlerParameters);
+        const handler = new UpdateHandler();
 
-    // Validate the call to login
-    wasNpmLoginCallValid(packageRegistry);
-    wasWriteFileSyncValid(PMFConstants.instance.PLUGIN_JSON, fileJson);
-    wasUpdateCallValid(resolveVal, packageRegistry);
-    expect(params.response.console.log).toHaveBeenCalledWith(
-      `Update of the npm package(${resolveVal}) was successful.\n`);
-  });
+        const params = getIHandlerParametersObject();
+        params.arguments.plugin = "imperative-sample-plugin";
+
+        await handler.process(params as IHandlerParameters);
+
+        // Validate the call to login
+        wasNpmLoginCallValid(packageRegistry);
+        wasWriteFileSyncValid(PMFConstants.instance.PLUGIN_JSON, fileJson);
+        wasUpdateCallValid(resolveVal, packageRegistry);
+        expect(params.response.console.log).toHaveBeenCalledWith(
+            `Update of the npm package(${resolveVal}) was successful.\n`);
+    });
 });
 

@@ -25,18 +25,18 @@ export const setDefinition: ICommandDefinition = {
     description: "Set a configuration setting.",
     positionals: [
         {
-        name: "configName",
-        type: "string",
-        description: "Setting name. Possible values:\n" +
+            name: "configName",
+            type: "string",
+            description: "Setting name. Possible values:\n" +
             "CredentialManager - The package name of a plugin that will override the default " +
             "credential manager to allow for different credential storage methods.",
-        required: true
+            required: true
         },
         {
-        name: "configValue",
-        type: "string",
-        description: "Value to set",
-        required: true
+            name: "configValue",
+            type: "string",
+            description: "Value to set",
+            required: true
         },
     ],
     examples: [

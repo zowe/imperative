@@ -12,13 +12,10 @@
 import { ITestEnvironment } from "../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../src/TestUtil";
-import * as fs from "fs";
 
-
-// Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
 
-describe("imperative-test-cli config get CredentialManager ", () => {
+describe("imperative-test-cli config get CredentialManager", () => {
     // Create the test environment
     beforeAll(async () => {
         TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({

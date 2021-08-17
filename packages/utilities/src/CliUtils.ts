@@ -114,7 +114,7 @@ export class CliUtils {
      * @memberof CliUtils
      */
     public static getOptValueFromProfiles(profiles: CommandProfiles, definitions: ICommandProfile,
-                                          options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): any {
+        options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): any {
         let args: any = {};
 
         // Construct the precedence order to iterate through the profiles
@@ -151,7 +151,8 @@ export class CliUtils {
                     // If the profile has either type (or both specified) we'll add it to args if the args object
                     // does NOT already contain the value in any case
                     if ((profileCamel !== undefined || profileKebab !== undefined) &&
-                        (!args.hasOwnProperty(cases.kebabCase) && !args.hasOwnProperty(cases.camelCase))) {
+                        (!Object.prototype.hasOwnProperty.call(args, cases.kebabCase) &&
+                         !Object.prototype.hasOwnProperty.call(args, cases.camelCase))) {
 
                         // If both case properties are present in the profile, use the one that matches
                         // the option name explicitly
@@ -200,7 +201,7 @@ export class CliUtils {
      *
      */
     public static extractEnvForOptions(envPrefix: string,
-                                       options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): ICommandArguments["args"] {
+        options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): ICommandArguments["args"] {
         let args: ICommandArguments["args"] = {};
         options.forEach((opt) => {
             let envValue: any = CliUtils.getEnvValForOption(envPrefix, opt.name);
@@ -220,7 +221,7 @@ export class CliUtils {
                         break;
 
                     // convert strings to numbers if the option is number type
-                    case "number":
+                    case "number": {
                         const BASE_TEN = 10;
                         const oldEnvValue = envValue;
                         envValue = parseInt(envValue, BASE_TEN);
@@ -230,9 +231,9 @@ export class CliUtils {
                             envValue = oldEnvValue;
                         }
                         break;
-
+                    }
                     // convert to an array of strings if the type is array
-                    case "array":
+                    case "array": {
                         const regex = /(["'])(?:(?=(\\?))\2.)*?\1/g;
                         let arr = [];
                         let match = regex.exec(envValue);
@@ -248,7 +249,7 @@ export class CliUtils {
                         arr = arr.concat(removed.split(/[\s\n]+/g));
                         envValue = arr;
                         break;
-
+                    }
                     // Do nothing for other option types
                     default:
                         break;
@@ -301,7 +302,7 @@ export class CliUtils {
             envVarName.toUpperCase().replace(/-/g, envDelim);
 
         // Get the value of the environment variable
-        if (process.env.hasOwnProperty(envVarName)) {
+        if (Object.prototype.hasOwnProperty.call(process.env, envVarName)) {
             return process.env[envVarName];
         }
 

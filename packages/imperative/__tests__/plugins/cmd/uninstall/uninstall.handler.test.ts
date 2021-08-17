@@ -9,6 +9,7 @@
 *
 */
 
+/* eslint-disable jest/expect-expect */
 import Mock = jest.Mock;
 
 jest.mock("child_process");
@@ -34,120 +35,120 @@ import UninstallHandler from "../../../../src/plugins/cmd/uninstall/uninstall.ha
 
 describe("Plugin Management Facility uninstall handler", () => {
 
-  // Objects created so types are correct.
-  const mocks = {
-    execSync: execSync as Mock<typeof execSync>,
-    readFileSync: readFileSync as Mock<typeof readFileSync>,
-    writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
-    uninstall: uninstall as Mock<typeof uninstall>,
-    resolve: resolve as Mock<typeof resolve>
-  };
+    // Objects created so types are correct.
+    const mocks = {
+        execSync: execSync as Mock<typeof execSync>,
+        readFileSync: readFileSync as Mock<typeof readFileSync>,
+        writeFileSync: writeFileSync as Mock<typeof writeFileSync>,
+        uninstall: uninstall as Mock<typeof uninstall>,
+        resolve: resolve as Mock<typeof resolve>
+    };
 
-  // two plugin set of values
-  const packageName = "a";
-  const packageVersion = "22.1.0";
-  const packageRegistry = "http://imperative-npm-registry:4873/";
+    // two plugin set of values
+    const packageName = "a";
+    const packageVersion = "22.1.0";
+    const packageRegistry = "http://imperative-npm-registry:4873/";
 
-  const packageName2 = "plugin1";
-  const packageVersion2 = "2.0.3";
-  const packageRegistry2 = "http://imperative-npm-registry:4873/";
+    const packageName2 = "plugin1";
+    const packageVersion2 = "2.0.3";
+    const packageRegistry2 = "http://imperative-npm-registry:4873/";
 
-  beforeEach(() => {
+    beforeEach(() => {
     // Mocks need cleared after every test for clean test runs
-    jest.resetAllMocks();
+        jest.resetAllMocks();
 
-    // This needs to be mocked before running process function of uninstall handler
-    (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
-  });
+        // This needs to be mocked before running process function of uninstall handler
+        (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
+    });
 
-  /**
+    /**
    *  Create object to be passed to process function
    *
    * @returns {IHandlerParameters}
    */
-  const getIHandlerParametersObject = (): IHandlerParameters => {
-    const x: any = {
-      response: new (CommandResponse as any)(),
-      arguments: {
-        package: undefined
-      },
+    const getIHandlerParametersObject = (): IHandlerParameters => {
+        const x: any = {
+            response: new (CommandResponse as any)(),
+            arguments: {
+                package: undefined
+            },
+        };
+        return x as IHandlerParameters;
     };
-    return x as IHandlerParameters;
-  };
 
-  beforeEach(() => {
-    mocks.execSync.mockReturnValue(packageRegistry);
-    mocks.readFileSync.mockReturnValue({});
-  });
+    beforeEach(() => {
+        mocks.execSync.mockReturnValue(packageRegistry);
+        mocks.readFileSync.mockReturnValue({});
+    });
 
-  /**
+    /**
    * Validates that an uninstall call was valid based on the parameters passed.
    *
    * @param {string}   packageNameParm  expected package location that uninstall was called with.
    */
-  const wasUninstallCallValid = (
-    packageNameParm: string
-  ) => {
-      expect(mocks.uninstall).toHaveBeenCalledWith(
-        packageNameParm
-      );
-  };
+    const wasUninstallCallValid = (
+        packageNameParm: string
+    ) => {
+        expect(mocks.uninstall).toHaveBeenCalledWith(
+            packageNameParm
+        );
+    };
 
-  /**
+    /**
    * Checks that the successful message was written.
    *
    * @param {IHandlerParameters} params The parameters that were passed to the
    *                                    process function.
    */
-  const wasUninstallSuccessful = (params: IHandlerParameters) => {
-    expect(params.response.console.log).toHaveBeenCalledWith("Removal of the npm package(s) was successful.\n");
-  };
-
-  test("uninstall specified package", async () => {
-    // plugin definitions mocking file contents
-    const fileJson: IPluginJson = {
-      a: {
-        package: packageName,
-        registry: undefined,
-        version: packageVersion
-      },
-      plugin1: {
-        package: packageName2,
-        registry: packageRegistry2,
-        version: packageVersion2
-      }
+    const wasUninstallSuccessful = (params: IHandlerParameters) => {
+        expect(params.response.console.log).toHaveBeenCalledWith("Removal of the npm package(s) was successful.\n");
     };
 
-    // Override the return value for this test only
-    mocks.readFileSync.mockReturnValueOnce(fileJson);
+    test("uninstall specified package", async () => {
+    // plugin definitions mocking file contents
+        const fileJson: IPluginJson = {
+            a: {
+                package: packageName,
+                registry: undefined,
+                version: packageVersion
+            },
+            plugin1: {
+                package: packageName2,
+                registry: packageRegistry2,
+                version: packageVersion2
+            }
+        };
 
-    const handler = new UninstallHandler();
+        // Override the return value for this test only
+        mocks.readFileSync.mockReturnValueOnce(fileJson);
 
-    const params = getIHandlerParametersObject();
-    params.arguments.plugin = "a";
+        const handler = new UninstallHandler();
 
-    await handler.process(params as IHandlerParameters);
+        const params = getIHandlerParametersObject();
+        params.arguments.plugin = "a";
 
-    wasUninstallCallValid(`${fileJson.a.package}`);
+        await handler.process(params as IHandlerParameters);
 
-    wasUninstallSuccessful(params);
-  });
+        wasUninstallCallValid(`${fileJson.a.package}`);
 
-  it("should handle an error during the uninstall", async () => {
-    const chalk = TextUtils.chalk;
+        wasUninstallSuccessful(params);
+    });
 
-    const handler = new UninstallHandler();
-    let expectedError: ImperativeError;
-    const params = getIHandlerParametersObject();
-    params.arguments.plugin = "";
+    it("should handle an error during the uninstall", async () => {
+        const chalk = TextUtils.chalk;
 
-    try {
-      await handler.process(params as IHandlerParameters);
-    } catch (e) {
-      expectedError = e;
-    }
+        const handler = new UninstallHandler();
+        let expectedError: ImperativeError;
+        const params = getIHandlerParametersObject();
+        params.arguments.plugin = "";
 
-    expect(expectedError.message).toBe(`${chalk.yellow.bold("Package name")} is required.`);
+        try {
+            await handler.process(params as IHandlerParameters);
+        } catch (e) {
+            expectedError = e;
+        }
+
+        expect(expectedError.message).toBe(`${chalk.yellow.bold("Package name")} is required.`);
 
     // const installError = new Error("This is a test");
     // let expectedError: ImperativeError;
@@ -163,7 +164,7 @@ describe("Plugin Management Facility uninstall handler", () => {
     // }
     //
     // expect(expectedError.message).toBe("Install Failed");
-  });
+    });
 
 
 });

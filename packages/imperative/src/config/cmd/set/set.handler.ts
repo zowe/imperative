@@ -10,7 +10,6 @@
 */
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { ImperativeError } from "../../../../../error";
 import { AppSettings } from "../../../../../settings";
 
 

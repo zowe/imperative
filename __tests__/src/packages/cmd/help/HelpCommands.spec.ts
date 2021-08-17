@@ -29,7 +29,7 @@ describe("Imperative help should be available for a range of definitions", funct
     const config: IImperativeConfig = require(__dirname + "/../../../example_clis/with_profiles/ProfileExampleConfiguration");
     const binConfig: IImperativeConfig = require(__dirname + "/../../../example_clis/with_bin_package/ProfileBinExampleConfiguration");
 
-    it("We should be able to get --help for our example CLI - no bin specified in package ", function () {
+    it("We should be able to get --help for our example CLI - no bin specified in package", function () {
         T.findExpectedOutputInCommand(profileCliBin, ["--help"],
             [config.productDisplayName, "log"], "stdout", true,
             this, T.CMD_TYPE.INTERACTIVE);
@@ -41,13 +41,13 @@ describe("Imperative help should be available for a range of definitions", funct
             this, T.CMD_TYPE.INTERACTIVE);
     });
 
-    it("should display --version in the root help ", function () {
+    it("should display --version in the root help", function () {
         T.findExpectedOutputInCommand(withBinPackageCliBin, ["--help"],
             [binConfig.productDisplayName, "--version"], "stdout", true,
             this, T.CMD_TYPE.INTERACTIVE);
     });
 
-    it("We should be able to get --help for our example CLI - with bin in package ", function () {
+    it("We should be able to get --help for our example CLI - with bin in package", function () {
         T.findExpectedOutputInCommand(withBinPackageCliBin, ["--help"],
             [binConfig.productDisplayName, "ape", "bat", "cat"], "stdout", true,
             this, T.CMD_TYPE.INTERACTIVE);

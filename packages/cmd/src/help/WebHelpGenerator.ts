@@ -173,7 +173,7 @@ export class WebHelpGenerator {
 
         // Generate single HTML file for all CLI commands
         this.singlePageHtml += this.genDocsFooter();
-        this.singlePageHtml = this.singlePageHtml.replace(new RegExp(`<a href="(${rootCommandName}.*?)\.html"`, "g"), "<a href=\"#$1\"");
+        this.singlePageHtml = this.singlePageHtml.replace(new RegExp(`<a href="(${rootCommandName}.*?)\\.html"`, "g"), "<a href=\"#$1\"");
         let cmdTreeHtml: string = "<ul>";
         this.treeNodes[0].children.forEach((node: IWebHelpTreeNode) => {
             cmdTreeHtml += this.buildCmdTreeHtml(node);

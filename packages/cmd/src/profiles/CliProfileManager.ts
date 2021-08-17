@@ -55,7 +55,6 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
         this.log.trace(`Loading all profiles for type "${this.profileType}"...`);
         // Load all the other profiles for other types
         const loadAllProfiles: any[] = [];
-        let loadList: string = "";
 
         // Load only the profiles for the type if requested
         if (params != null && params.typeOnly) {
@@ -90,7 +89,6 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                         loadDependencies: false,
                         noSecure: (params != null) ? params.noSecure : undefined
                     }));
-                    loadList += `\nLoading "${name}" of type "${typeConfig.type}"`;
                 }
             }
         }
@@ -496,7 +494,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
      * @returns {Promise<IProfile>} - promise which provides the finished profile on fulfill
      */
     private async updateProfileFieldsFromCommandArguments(oldProfile: IProfile, newProfile: IProfile, newArguments: Arguments,
-                                                          merge: boolean): Promise<IProfile> {
+        merge: boolean): Promise<IProfile> {
         const profileConfig = this.profileTypeConfiguration;
         if (!isNullOrUndefined(profileConfig.updateProfileFromArgumentsHandler)) {
             // if there is a custom update profile handler, they can call mergeProfile

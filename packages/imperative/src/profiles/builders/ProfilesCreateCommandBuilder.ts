@@ -11,7 +11,8 @@
 
 import { ProfilesCommandBuilder } from "./ProfilesCommandBuilder";
 import { ICommandDefinition, ICommandProfileTypeConfiguration } from "../../../../cmd";
-import { createProfileCommandDesc, createProfileOptionDesc, createProfileOptionOverwriteDesc, createProfileDisableDefaultsDesc } from "../../../../messages";
+import { createProfileCommandDesc, createProfileOptionDesc, createProfileOptionOverwriteDesc,
+    createProfileDisableDefaultsDesc } from "../../../../messages";
 import { Constants } from "../../../../constants";
 import { TextUtils } from "../../../../utilities";
 import { Logger } from "../../../../logger/index";

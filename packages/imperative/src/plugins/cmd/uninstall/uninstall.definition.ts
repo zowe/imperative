@@ -21,23 +21,23 @@ const pluginDescription =
  * @type {ICommandDefinition}
  */
 export const uninstallDefinition: ICommandDefinition = {
-  name: "uninstall",
-  type: "command",
-  summary: "Uninstall a plug-in",
-  description: "Uninstall plug-ins.",
-  handler: join(__dirname, "uninstall.handler"),
-  positionals: [
-    {
-      name: "plugin...",
-      type: "string",
-      description: pluginDescription,
-      required: false
-    }
-  ],
-  examples: [
-    {
-      description: "Uninstall a plug-in",
-      options    : "my-plugin"
-    },
-  ]
+    name: "uninstall",
+    type: "command",
+    summary: "Uninstall a plug-in",
+    description: "Uninstall plug-ins.",
+    handler: join(__dirname, "uninstall.handler"),
+    positionals: [
+        {
+            name: "plugin...",
+            type: "string",
+            description: pluginDescription,
+            required: false
+        }
+    ],
+    examples: [
+        {
+            description: "Uninstall a plug-in",
+            options    : "my-plugin"
+        },
+    ]
 };

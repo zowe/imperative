@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, ICommandResponse, IHandlerParameters } from "../../../../../packages/cmd";
+import { ICommandHandler, IHandlerParameters } from "../../../../../packages/cmd";
 import { Imperative } from "../../../../../packages/imperative";
 
 

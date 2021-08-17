@@ -11,7 +11,6 @@
 
 import { ImperativeExpect } from "../../expect";
 import { ImperativeError } from "../../error";
-import { inspect } from "util";
 import { TestLogger } from "../../../__tests__/TestLogger";
 import { UnitTestUtils } from "../../../__tests__/src/UnitTestUtils";
 UnitTestUtils.replaceIt();
@@ -157,17 +156,6 @@ describe("ImperativeExpect tests", () => {
         }
         TestLogger.info(error.message);
         expect(error.message).toMatchSnapshot();
-    });
-
-    it("should not throw error if the type is correct", () => {
-        let error: ImperativeError;
-        try {
-            ImperativeExpect.keysToBeOfType(obj, "string", ["data"]);
-        } catch (thrownError) {
-            error = thrownError;
-            expect(0).toBe(1);
-        }
-        expect(error).toBeUndefined();
     });
 
     it("should not throw error if the type is correct", () => {

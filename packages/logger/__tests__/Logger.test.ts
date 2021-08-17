@@ -52,18 +52,18 @@ describe("Logger tests", () => {
         }
 
         (log4js.getLogger as any) = jest.fn((category: string) => {
-                let configuredLevel = "debug";
-                if (category !== null) {
-                    for (const configuredCategory of Object.keys(configuration.categories)) {
-                        if (configuredCategory === category) {
-                            configuredLevel = configuration.categories[configuredCategory].level;
-                        }
+            let configuredLevel = "debug";
+            if (category !== null) {
+                for (const configuredCategory of Object.keys(configuration.categories)) {
+                    if (configuredCategory === category) {
+                        configuredLevel = configuration.categories[configuredCategory].level;
                     }
                 }
-                const newLogger = new MockedLoggerInstance();
-                newLogger.level = configuredLevel;
-                return newLogger;
             }
+            const newLogger = new MockedLoggerInstance();
+            newLogger.level = configuredLevel;
+            return newLogger;
+        }
         );
 
         (os.homedir as any) = jest.fn(() => "./someHome");

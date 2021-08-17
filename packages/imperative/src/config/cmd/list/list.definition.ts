@@ -25,9 +25,9 @@ export const listDefinition: ICommandDefinition = {
     description: "List all configuration setting options.",
     options: [
         {
-        name: "values",
-        type: "boolean",
-        description: "Show values for every option",
+            name: "values",
+            type: "boolean",
+            description: "Show values for every option",
         },
     ],
     examples: [

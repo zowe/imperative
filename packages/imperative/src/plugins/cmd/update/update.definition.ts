@@ -36,43 +36,43 @@ const loginDescription =
  * @type {ICommandDefinition}
  */
 export const updateDefinition: ICommandDefinition = {
-  name: "update",
-  type: "command",
-  summary: "Update a plug-in",
-  description: "Update plug-ins.",
-  handler: join(__dirname, "update.handler"),
-  positionals: [
-    {
-      name: "plugin...",
-      type: "string",
-      description: pluginDescription,
-      required: false
-    }
-  ],
-  options: [
-    {
-      name: "registry",
-      type: "string",
-      description: registryDescription,
-      required: false
-    },
-    {
-      name: "login",
-      type: "boolean",
-      description: loginDescription,
-      required: false,
-      implies: ["registry"]
-    }
-  ],
-  examples: [
-    {
-      description: "Update a plug-in",
-      options    : "my-plugin"
-    },
-    {
-      description: "Update a remote plug-in from the registry which requires authorization" +
+    name: "update",
+    type: "command",
+    summary: "Update a plug-in",
+    description: "Update plug-ins.",
+    handler: join(__dirname, "update.handler"),
+    positionals: [
+        {
+            name: "plugin...",
+            type: "string",
+            description: pluginDescription,
+            required: false
+        }
+    ],
+    options: [
+        {
+            name: "registry",
+            type: "string",
+            description: registryDescription,
+            required: false
+        },
+        {
+            name: "login",
+            type: "boolean",
+            description: loginDescription,
+            required: false,
+            implies: ["registry"]
+        }
+    ],
+    examples: [
+        {
+            description: "Update a plug-in",
+            options    : "my-plugin"
+        },
+        {
+            description: "Update a remote plug-in from the registry which requires authorization" +
       "(don't need to use this flag if you have already logged in before)",
-      options: "my-plugin --registry https://registry.npmjs.org/ --login"
-    }
-  ]
+            options: "my-plugin --registry https://registry.npmjs.org/ --login"
+        }
+    ]
 };

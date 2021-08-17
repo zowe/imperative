@@ -101,9 +101,9 @@ describe("We should provide auto-generated profile commands for convenience, " +
         const goodDependency = "good";
         const mainProfileName = "big_profile";
         T.findExpectedOutputInCommand(cliBin, ["profiles", "create", profileTypeA, goodDependency, "--animal", "doggy",
-            ],
-            ["doggy", "success", "numberWithDefault", "8080"], // expect default number value to be filled in
-            "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
+        ],
+        ["doggy", "success", "numberWithDefault", "8080"], // expect default number value to be filled in
+        "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
 
         T.findExpectedOutputInCommand(cliBin,
             ["profiles", "create", "profile-with-dependency",
@@ -130,9 +130,9 @@ describe("We should provide auto-generated profile commands for convenience, " +
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
 
         T.findExpectedOutputInCommand(cliBin, ["profiles", "create", profileTypeA, goodDependency, "--animal", "doggy",
-            ],
-            ["doggy", "success"],
-            "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
+        ],
+        ["doggy", "success"],
+        "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
 
         T.findExpectedOutputInCommand(cliBin,
             ["profiles", "create", "profile-with-dependency",
@@ -167,9 +167,9 @@ describe("We should provide auto-generated profile commands for convenience, " +
             ["doggy", "success"],
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
         T.findExpectedOutputInCommand(cliBin, ["profiles", "create",
-                profileTypeA, secondProfile, "--animal", "sloth"],
-            ["sloth", "success"],
-            "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
+            profileTypeA, secondProfile, "--animal", "sloth"],
+        ["sloth", "success"],
+        "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
 
         // Create two B profiles
         T.findExpectedOutputInCommand(cliBin, ["profiles", "create", profileTypeB, firstProfile, "--bumblebee", "dumbledore"],
@@ -243,22 +243,22 @@ describe("We should provide auto-generated profile commands for convenience, " +
         expect(output.stderr).toEqual("");
     });
 
-    it("If we update an existing profile, the contents of the old profile should be merged with teh ", () => {
+    it("If we update an existing profile, the contents of the old profile should be merged with teh", () => {
         const profileName = "merge_me";
         const oldTea = "earl_grey";
         const oldSoda = "diet_coke";
         const oldWater = "dirty";
 
         T.findExpectedOutputInCommand(cliBin, ["profiles", "create", manyFieldProfile, profileName,
-                "--tea", oldTea, "--soda", oldSoda, "--water", oldWater],
-            [oldSoda, oldWater, oldTea],
-            "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
+            "--tea", oldTea, "--soda", oldSoda, "--water", oldWater],
+        [oldSoda, oldWater, oldTea],
+        "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
 
         const newWater = "clean";
         T.findExpectedOutputInCommand(cliBin, ["profiles", "update", manyFieldProfile, profileName,
-                "--water", newWater],
-            [oldSoda, newWater, oldTea],
-            "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
+            "--water", newWater],
+        [oldSoda, newWater, oldTea],
+        "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
 
         T.findExpectedOutputInCommand(cliBin, ["profiles", "list", manyFieldProfile, "--show-contents"],
             [oldSoda, newWater, oldTea],
@@ -271,16 +271,16 @@ describe("We should provide auto-generated profile commands for convenience, " +
             "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
     });
 
-    it("should be able to validate a many-field-profile with an auto generated validate command ", () => {
+    it("should be able to validate a many-field-profile with an auto generated validate command", () => {
         const profileName = "validate_me";
         const tea = "earl_grey";
         const soda = "diet_coke";
         const water = "dirty";
 
         T.findExpectedOutputInCommand(cliBin, ["profiles", "create", manyFieldProfile, profileName,
-                "--tea", tea, "--soda", soda, "--water", water],
-            [soda, water, tea],
-            "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
+            "--tea", tea, "--soda", soda, "--water", water],
+        [soda, water, tea],
+        "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
 
         T.findExpectedOutputInCommand(cliBin, ["profiles", "validate", manyFieldProfile, profileName],
             ["perfect", profileName, "many-field-profile"],
@@ -295,9 +295,9 @@ describe("We should provide auto-generated profile commands for convenience, " +
         const water = "dirty";
 
         T.findExpectedOutputInCommand(cliBin, ["profiles", "create", manyFieldProfile, profileName,
-                "--tea", tea, "--soda", soda, "--water", water],
-            [soda, water, tea],
-            "stdout", true, this, T.CMD_TYPE.INTERACTIVE, {ignoreCase: true});
+            "--tea", tea, "--soda", soda, "--water", water],
+        [soda, water, tea],
+        "stdout", true, this, T.CMD_TYPE.INTERACTIVE, {ignoreCase: true});
 
         const output = T.executeTestCLICommand(cliBin, this, ["profiles", "validate", manyFieldProfile, profileName]);
         expect(output.status).toEqual(0);
@@ -307,16 +307,16 @@ describe("We should provide auto-generated profile commands for convenience, " +
         //
     });
 
-    it("should be fail to validate an invalid many-fields-profile ", () => {
+    it("should be fail to validate an invalid many-fields-profile", () => {
         const profileName = "validate_me";
         const tea = "not_earl_grey";
         const soda = "diet_coke";
         const water = "dirty";
 
         T.findExpectedOutputInCommand(cliBin, ["profiles", "create", manyFieldProfile, profileName,
-                "--tea", tea, "--soda", soda, "--water", water],
-            [soda, water, tea],
-            "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
+            "--tea", tea, "--soda", soda, "--water", water],
+        [soda, water, tea],
+        "stdout", true, this, T.CMD_TYPE.JSON, {ignoreCase: true});
 
         T.findExpectedOutputInCommand(cliBin, ["profiles", "validate", manyFieldProfile, profileName],
             ["failed"],

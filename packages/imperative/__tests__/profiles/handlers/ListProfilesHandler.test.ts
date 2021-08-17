@@ -10,8 +10,7 @@
 */
 
 jest.mock("../../../src/Imperative");
-import { IProfile, IProfileLoaded } from "../../../../profiles";
-import { CommandProfiles, IHandlerParameters, ICommandDefinition } from "../../../../cmd";
+import { IProfileLoaded } from "../../../../profiles";
 import { Imperative } from "../../../src/Imperative";
 
 // "Mocked" profiles

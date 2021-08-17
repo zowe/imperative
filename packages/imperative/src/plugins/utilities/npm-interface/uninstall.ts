@@ -27,60 +27,60 @@ const npmCmd = cmdToRun();
  *
  */
 export function uninstall(packageName: string): void {
-  const iConsole = Logger.getImperativeLogger();
-  const chalk = TextUtils.chalk;
-  const npmPackage = packageName;
+    const iConsole = Logger.getImperativeLogger();
+    const chalk = TextUtils.chalk;
+    const npmPackage = packageName;
 
-  iConsole.debug(`Uninstalling package: ${packageName}`);
+    iConsole.debug(`Uninstalling package: ${packageName}`);
 
-  iConsole.debug("Reading in the current configuration.");
-  const installedPlugins: IPluginJson = readFileSync(PMFConstants.instance.PLUGIN_JSON);
+    iConsole.debug("Reading in the current configuration.");
+    const installedPlugins: IPluginJson = readFileSync(PMFConstants.instance.PLUGIN_JSON);
 
-  const updatedInstalledPlugins: IPluginJson = {};
+    const updatedInstalledPlugins: IPluginJson = {};
 
-  if (installedPlugins.hasOwnProperty(packageName)) {
+    if (Object.prototype.hasOwnProperty.call(installedPlugins, packageName)) {
     // Loop through the plugins and remove the uninstalled package
-    for (const pluginName in installedPlugins) {
-      // Only retain the plugins that aren't being uninstalled
-      if (packageName.toString() !== pluginName.toString()) {
-        updatedInstalledPlugins[pluginName] = installedPlugins[pluginName];
-      }
+        for (const pluginName in installedPlugins) {
+            // Only retain the plugins that aren't being uninstalled
+            if (packageName.toString() !== pluginName.toString()) {
+                updatedInstalledPlugins[pluginName] = installedPlugins[pluginName];
+            }
+        }
+    } else {
+        throw new ImperativeError({
+            msg: `${chalk.yellow.bold("Plugin name '")} ${chalk.red.bold(packageName)}' is not installed.`
+        });
     }
-  } else {
-    throw new ImperativeError({
-      msg: `${chalk.yellow.bold("Plugin name '")} ${chalk.red.bold(packageName)}' is not installed.`
-    });
-  }
 
-  try {
+    try {
     // We need to capture stdout but apparently stderr also gives us a progress
     // bar from the npm install.
-    const pipe: StdioOptions = ["pipe", "pipe", process.stderr];
+        const pipe: StdioOptions = ["pipe", "pipe", process.stderr];
 
-    // Perform the npm uninstall, somehow piping stdout and inheriting stderr gives
-    // some form of a half-assed progress bar. This progress bar doesn't have any
-    // formatting or colors but at least I can get the output of stdout right. (comment from install handler)
-    iConsole.info("Uninstalling package...this may take some time.");
+        // Perform the npm uninstall, somehow piping stdout and inheriting stderr gives
+        // some form of a half-assed progress bar. This progress bar doesn't have any
+        // formatting or colors but at least I can get the output of stdout right. (comment from install handler)
+        iConsole.info("Uninstalling package...this may take some time.");
 
-    const execOutput = execSync(`${npmCmd} uninstall "${npmPackage}" ` +
+        execSync(`${npmCmd} uninstall "${npmPackage}" ` +
       `--prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g`, {
-      cwd: PMFConstants.instance.PMF_ROOT,
-      // We need to capture stdout but apparently stderr also gives us a progress
-      // bar from the npm install.
-      stdio: pipe
-    });
+            cwd: PMFConstants.instance.PMF_ROOT,
+            // We need to capture stdout but apparently stderr also gives us a progress
+            // bar from the npm install.
+            stdio: pipe
+        });
 
-    iConsole.info("Uninstall complete");
+        iConsole.info("Uninstall complete");
 
-    writeFileSync(PMFConstants.instance.PLUGIN_JSON, updatedInstalledPlugins, {
-      spaces: 2
-    });
+        writeFileSync(PMFConstants.instance.PLUGIN_JSON, updatedInstalledPlugins, {
+            spaces: 2
+        });
 
-    iConsole.info("Plugin successfully uninstalled.");
-  } catch (e) {
-    throw new ImperativeError({
-      msg: e.message,
-      causeErrors: [e]
-    });
-  }
+        iConsole.info("Plugin successfully uninstalled.");
+    } catch (e) {
+        throw new ImperativeError({
+            msg: e.message,
+            causeErrors: [e]
+        });
+    }
 }

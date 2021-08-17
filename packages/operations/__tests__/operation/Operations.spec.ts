@@ -9,6 +9,7 @@
 *
 */
 
+/* eslint-disable jest/expect-expect */
 import { TestOperations1 } from "./mockops/TestOperations1";
 import { TestOperations4 } from "./mockops/TestOperations4";
 
@@ -20,7 +21,7 @@ import { TestLogger } from "../../../../__tests__/TestLogger";
 
 const logger = TestLogger.getTestLogger();
 
-export class OperationTestConstants {
+class OperationTestConstants {
     public static OPER_TEST1_RESULTS: Array<IOperationResult<any>> = [{
         operationName: "Initialize Test Sub Op 1",
         resultMessage: "",
@@ -269,44 +270,40 @@ export class OperationTestConstants {
 }
 
 describe("Operation Infrastructure", () => {
-    it("Operations: Test a simple set of operations ",
-        (done: any) => {
-            logger.debug("Starting simple operations test.");
-            const testOperation: Operations<any> = new TestOperations1();
-            let operationResults: IOperationResult<any> = null;
-            testOperation.executeOperation(Operation.NO_PARMS, (output: any, opResults: IOperationResult<any>) => {
-                logger.debug("All operations have completed");
-                operationResults = opResults;
-                checkResults(operationResults, OperationTestConstants.OPER_TEST1_RESULTS, done, true);
-            });
+    it("Operations: Test a simple set of operations", () => {
+        logger.debug("Starting simple operations test.");
+        const testOperation: Operations<any> = new TestOperations1();
+        let operationResults: IOperationResult<any> = null;
+        testOperation.executeOperation(Operation.NO_PARMS, (output: any, opResults: IOperationResult<any>) => {
+            logger.debug("All operations have completed");
+            operationResults = opResults;
+            checkResults(operationResults, OperationTestConstants.OPER_TEST1_RESULTS);
         });
-    it("Operations: Test for complex set of operations  ",
-        (done: any) => {
-            logger.debug("Starting complex operations tests.");
-            const testOperation: Operations<any> = new TestOperations3();
-            let operationResults: IOperationResult<any> = null;
-            testOperation.executeOperation(Operation.NO_PARMS, (output: any, opResults: IOperationResult<any>) => {
-                logger.debug("All operations have completed");
-                operationResults = opResults;
-                checkResults(operationResults, OperationTestConstants.OPER_TEST3_RESULTS, done, true);
-            });
+    });
+    it("Operations: Test for complex set of operations", () => {
+        logger.debug("Starting complex operations tests.");
+        const testOperation: Operations<any> = new TestOperations3();
+        let operationResults: IOperationResult<any> = null;
+        testOperation.executeOperation(Operation.NO_PARMS, (output: any, opResults: IOperationResult<any>) => {
+            logger.debug("All operations have completed");
+            operationResults = opResults;
+            checkResults(operationResults, OperationTestConstants.OPER_TEST3_RESULTS);
         });
-    it("Operations: Test for complex set of undo operations  ",
-        (done: any) => {
-            logger.debug("Starting simple undo test");
-            const testOperation: Operations<any> = new TestOperations4();
-            let operationResults: IOperationResult<any> = null;
-            testOperation.executeOperation(Operation.NO_PARMS, (output: any, opResults: IOperationResult<any>) => {
-                logger.debug("All operations have completed");
-                operationResults = opResults;
-                checkResults(operationResults, OperationTestConstants.OPER_TEST2_RESULTS, done, true);
-            });
+    });
+    it("Operations: Test for complex set of undo operations", () => {
+        logger.debug("Starting simple undo test");
+        const testOperation: Operations<any> = new TestOperations4();
+        let operationResults: IOperationResult<any> = null;
+        testOperation.executeOperation(Operation.NO_PARMS, (output: any, opResults: IOperationResult<any>) => {
+            logger.debug("All operations have completed");
+            operationResults = opResults;
+            checkResults(operationResults, OperationTestConstants.OPER_TEST2_RESULTS);
         });
+    });
 });
 
 function checkResults(operationActualResults: IOperationResult<any>,
-                      operationExpectedResults: Array<IOperationResult<any>>,
-                      done: any, callDone: boolean) {
+    operationExpectedResults: Array<IOperationResult<any>>) {
 
     if (isNullOrUndefined(operationActualResults)) {
         // The operations failed to return any results
@@ -335,10 +332,6 @@ function checkResults(operationActualResults: IOperationResult<any>,
         if (!isNullOrUndefined(currentOperationResults)) {
             // more results than expected - fail
             expect(0).toEqual(1);
-        }
-
-        if (callDone) {
-            done();
         }
     }
 }

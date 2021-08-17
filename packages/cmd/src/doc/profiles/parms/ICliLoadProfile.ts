@@ -19,7 +19,7 @@ import { ILoadProfile } from "../../../../../profiles";
  * @interface ICliILoadProfile
  * @extends ILoadProfile
  */
-// tslint:disable-next-line:no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ICliILoadProfile extends ILoadProfile {}
 
 /**
@@ -29,5 +29,5 @@ export interface ICliILoadProfile extends ILoadProfile {}
  * @interface ICliLoadProfile
  * @extends ILoadProfile
  */
-// tslint:disable-next-line:no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ICliLoadProfile extends ILoadProfile {}

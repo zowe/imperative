@@ -25,10 +25,10 @@ export const resetDefinition: ICommandDefinition = {
     description: "Reset a configuration setting to default value.",
     positionals: [
         {
-        name: "configName",
-        type: "string",
-        description: "Setting name to reset",
-        required: true
+            name: "configName",
+            type: "string",
+            description: "Setting name to reset",
+            required: true
         },
     ],
     examples: [
