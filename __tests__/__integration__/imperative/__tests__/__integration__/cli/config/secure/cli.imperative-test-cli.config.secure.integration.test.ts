@@ -57,7 +57,7 @@ describe("imperative-test-cli config secure", () => {
 
     afterAll(() => {
         jest.restoreAllMocks();
-    })
+    });
 
     it("should display the help", () => {
         const response = runCliScript(__dirname + "/../__scripts__/get_help.sh",

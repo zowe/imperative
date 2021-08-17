@@ -457,7 +457,7 @@ describe("Command Response", () => {
         const fakeStream = {
             write: jest.fn(),
             end: jest.fn()
-        }
+        };
         const response = new CommandResponse({
             stream: fakeStream
         });
@@ -477,7 +477,7 @@ describe("Command Response", () => {
         const fakeStream = {
             write: jest.fn(),
             end: jest.fn()
-        }
+        };
         const response = new CommandResponse({
             stream: fakeStream
         });

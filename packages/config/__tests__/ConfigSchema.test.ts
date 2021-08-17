@@ -97,7 +97,7 @@ describe("Config Schema", () => {
         const returnedSchema = schema.buildSchema(testConfig);
         const expectedAllOf: any = [];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf);
     });
 
     it("should be able to successfully build with a single profile type configuration", () => {
@@ -129,7 +129,7 @@ describe("Config Schema", () => {
             }
         }];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf);
     });
 
     it("should be able to successfully build with two profile type configurations", () => {
@@ -186,7 +186,7 @@ describe("Config Schema", () => {
             }
         ];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf);
     });
 
     it("should be able to successfully build with a secure single profile type configuration", () => {
@@ -224,7 +224,7 @@ describe("Config Schema", () => {
             }
         }];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf);
     });
 
     it("should be able to successfully build with a complex single profile type configuration", () => {
@@ -258,7 +258,7 @@ describe("Config Schema", () => {
             }
         }];
         expect(returnedSchema).toMatchSnapshot();
-        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf)
+        expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf);
     });
 
     it("should be able to regenerate profile schemas from a schema object", () => {

@@ -17,7 +17,7 @@ import { ICommandDefinition } from "../../src/doc/ICommandDefinition";
 import { DefaultHelpGenerator } from "../../src/help/DefaultHelpGenerator";
 import { ICommandOptionDefinition } from "../..";
 import { ImperativeError } from "../../..";
-import { ImperativeConfig } from "../../../utilities"
+import { ImperativeConfig } from "../../../utilities";
 
 const chalkColor: string = "blue";
 const oldForceColorOption = process.env.FORCE_COLOR;

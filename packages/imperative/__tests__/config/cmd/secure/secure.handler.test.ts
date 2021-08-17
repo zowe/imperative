@@ -12,12 +12,12 @@
 import { IHandlerParameters } from "../../../../..";
 import { Config } from "../../../../../config/src/Config";
 import { IConfigOpts } from "../../../../../config";
-import { CliUtils, ImperativeConfig } from "../../../../../utilities";
+import { ImperativeConfig } from "../../../../../utilities";
 import { IImperativeConfig } from "../../../../src/doc/IImperativeConfig";
 import { ICredentialManagerInit } from "../../../../../security/src/doc/ICredentialManagerInit";
 import { CredentialManagerFactory } from "../../../../../security";
 import { expectedConfigObject } from
-    "../../../../../../__tests__/__integration__/imperative/__tests__/__integration__/cli/config/__resources__/expectedObjects"
+    "../../../../../../__tests__/__integration__/imperative/__tests__/__integration__/cli/config/__resources__/expectedObjects";
 import SecureHandler from "../../../../src/config/cmd/secure/secure.handler";
 import * as config from "../../../../../../__tests__/__integration__/imperative/src/imperative";
 import * as keytar from "keytar";
@@ -96,7 +96,7 @@ describe("Configuration Secure command handler", () => {
         const opts: IConfigOpts = {
             vault: {
                 load: ((k: string): Promise<string> => {
-                    return CredentialManagerFactory.manager.load(k, true)
+                    return CredentialManagerFactory.manager.load(k, true);
                 }),
                 save: ((k: string, v: any): Promise<void> => {
                     return CredentialManagerFactory.manager.save(k, v);
@@ -187,7 +187,7 @@ describe("Configuration Secure command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
@@ -256,7 +256,7 @@ describe("Configuration Secure command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
@@ -325,7 +325,7 @@ describe("Configuration Secure command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
@@ -395,7 +395,7 @@ describe("Configuration Secure command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
@@ -463,7 +463,7 @@ describe("Configuration Secure command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets

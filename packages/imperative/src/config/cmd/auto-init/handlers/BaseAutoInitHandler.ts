@@ -93,7 +93,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             global = true;
         }
         if (params.arguments.userConfig && params.arguments.userConfig === true) {
-            user = true
+            user = true;
         }
         ImperativeConfig.instance.config.api.layers.activate(user, global);
 

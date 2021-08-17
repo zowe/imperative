@@ -215,7 +215,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
                     prompt: commandHandlerPrompt
                 }
             }
-        }
+        };
 
         let sessCfgWithConnProps: ISession;
         sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
@@ -666,19 +666,19 @@ describe("ConnectionPropsForSessCfg tests", () => {
             for (const value of neededProps) {
                 switch (value) {
                     case "hostname" :
-                        neededProps[value] = fakeFunctionSessCfg.hostname
+                        neededProps[value] = fakeFunctionSessCfg.hostname;
                         break;
                     case "port" :
-                        neededProps[value] = fakeFunctionSessCfg.port
+                        neededProps[value] = fakeFunctionSessCfg.port;
                         break;
                     case "user" :
-                        neededProps[value] = fakeFunctionSessCfg.user
+                        neededProps[value] = fakeFunctionSessCfg.user;
                         break;
                     case "password" :
-                        neededProps[value] = fakeFunctionSessCfg.password
+                        neededProps[value] = fakeFunctionSessCfg.password;
                         break;
                     case "rejectUnauthorized" :
-                        neededProps[value] = initialSessCfg.rejectUnauthorized
+                        neededProps[value] = initialSessCfg.rejectUnauthorized;
                         break;
                     default:
                         return;
@@ -716,19 +716,19 @@ describe("ConnectionPropsForSessCfg tests", () => {
             for (const value of neededProps) {
                 switch (value) {
                     case "hostname" :
-                        neededProps[value] = fakeFunctionSessCfg.hostname
+                        neededProps[value] = fakeFunctionSessCfg.hostname;
                         break;
                     case "port" :
-                        neededProps[value] = fakeFunctionSessCfg.port
+                        neededProps[value] = fakeFunctionSessCfg.port;
                         break;
                     case "user" :
-                        neededProps[value] = args.user
+                        neededProps[value] = args.user;
                         break;
                     case "password" :
-                        neededProps[value] = initialSessCfg.password
+                        neededProps[value] = initialSessCfg.password;
                         break;
                     case "rejectUnauthorized" :
-                        neededProps[value] = initialSessCfg.rejectUnauthorized
+                        neededProps[value] = initialSessCfg.rejectUnauthorized;
                         break;
                     default:
                         return;

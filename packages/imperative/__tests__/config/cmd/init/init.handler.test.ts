@@ -12,10 +12,10 @@
 import { IHandlerParameters } from "../../../../..";
 import { Config } from "../../../../../config/src/Config";
 import { ConfigConstants } from "../../../../../config/src/ConfigConstants";
-import { CliUtils, ImperativeConfig } from "../../../../../utilities";
+import { ImperativeConfig } from "../../../../../utilities";
 import { IImperativeConfig } from "../../../../src/doc/IImperativeConfig";
 import { expectedSchemaObjectNoBase } from
-    "../../../../../../__tests__/__integration__/imperative/__tests__/__integration__/cli/config/__resources__/expectedObjects"
+    "../../../../../../__tests__/__integration__/imperative/__tests__/__integration__/cli/config/__resources__/expectedObjects";
 import InitHandler from "../../../../src/config/cmd/init/init.handler";
 import * as config from "../../../../../../__tests__/__integration__/imperative/src/imperative";
 import * as path from "path";
@@ -123,7 +123,7 @@ describe("Configuration Initialization command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
@@ -174,7 +174,7 @@ describe("Configuration Initialization command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         delete compObj.profiles.secured.properties.info; // Delete info as well
@@ -220,7 +220,7 @@ describe("Configuration Initialization command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
@@ -273,7 +273,7 @@ describe("Configuration Initialization command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         delete compObj.profiles.secured.properties.info; // Delete info as well
@@ -320,7 +320,7 @@ describe("Configuration Initialization command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
@@ -364,7 +364,7 @@ describe("Configuration Initialization command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         delete compObj.profiles.secured.properties.info; // Delete info as well
@@ -408,7 +408,7 @@ describe("Configuration Initialization command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
@@ -454,7 +454,7 @@ describe("Configuration Initialization command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         delete compObj.profiles.secured.properties.info; // Delete info as well
@@ -502,7 +502,7 @@ describe("Configuration Initialization command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
@@ -551,7 +551,7 @@ describe("Configuration Initialization command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
@@ -602,7 +602,7 @@ describe("Configuration Initialization command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
@@ -651,7 +651,7 @@ describe("Configuration Initialization command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
@@ -701,7 +701,7 @@ describe("Configuration Initialization command handler", () => {
 
         const compObj: any = {};
         // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json" // Fill in the name of the schema file, and make it first
+        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets

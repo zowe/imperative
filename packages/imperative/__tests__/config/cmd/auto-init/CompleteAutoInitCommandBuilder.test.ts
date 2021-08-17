@@ -11,7 +11,6 @@
 
 import { CompleteAutoInitCommandBuilder } from "../../../../src/config/cmd/auto-init/builders/CompleteAutoInitCommandBuilder";
 import { Logger } from "../../../../../logger";
-import { ICommandProfileAutoInitConfig } from "../../../../../cmd/src/doc/profiles/definition/ICommandProfileAutoInitConfig";
 import { ICommandDefinition } from "../../../../../cmd";
 import { fakeAutoInitConfig } from "./__data__/SampleAutoInitConfig";
 import { IImperativeAutoInitCommandConfig } from "../../../../src/doc/IImperativeAutoInitCommandConfig";

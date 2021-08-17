@@ -276,7 +276,7 @@ describe("DefaultCredentialManager", () => {
                 });
 
                 it("should delete credentials that exceed max length", async () => {
-                    (keytar.deletePassword as jest.Mock).mockImplementation((svc, acct) => acct.endsWith("-1"))
+                    (keytar.deletePassword as jest.Mock).mockImplementation((svc, acct) => acct.endsWith("-1"));
 
                     await privateManager.deleteCredentials(values.account);
 

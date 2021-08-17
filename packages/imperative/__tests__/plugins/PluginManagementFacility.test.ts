@@ -175,7 +175,7 @@ describe("Plugin Management Facility", () => {
 
     afterAll(() => {
         jest.restoreAllMocks();
-    })
+    });
 
     it("should initialize properly", () => {
         mocks.existsSync.mockReturnValue(true);

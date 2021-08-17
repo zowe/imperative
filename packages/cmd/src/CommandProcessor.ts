@@ -368,7 +368,7 @@ export class CommandProcessor {
             // NOTE(Kelosky): we adjust `cwd` and do not restore it, so that multiple simultaneous requests from the same
             // directory will operate without unexpected chdir taking place.  Multiple simultaneous requests from different
             // directories may cause unpredictable results
-            process.chdir(params.arguments.dcd as string)
+            process.chdir(params.arguments.dcd as string);
 
             // reinit config for daemon client directory
             const newOpts = ImperativeConfig.instance.config?.opts || {};
@@ -753,9 +753,9 @@ export class CommandProcessor {
         let allTypes: string[] = [];
         if (this.definition.profile != null) {
             if (this.definition.profile.required != null)
-                allTypes = allTypes.concat(this.definition.profile.required)
+                allTypes = allTypes.concat(this.definition.profile.required);
             if (this.definition.profile.optional != null)
-                allTypes = allTypes.concat(this.definition.profile.optional)
+                allTypes = allTypes.concat(this.definition.profile.optional);
         }
 
         // Build an object that contains all the options loaded from config

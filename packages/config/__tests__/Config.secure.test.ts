@@ -35,7 +35,7 @@ describe("Config secure tests", () => {
     let mockVault: IConfigVault = {
         load: mockSecureLoad,
         save: mockSecureSave
-    }
+    };
 
     afterEach(() => {
         jest.restoreAllMocks();
@@ -47,7 +47,7 @@ describe("Config secure tests", () => {
         mockVault = {
             load: mockSecureLoad,
             save: mockSecureSave
-        }
+        };
     });
 
     it("should set vault if provided for secure load", async () => {

@@ -219,7 +219,7 @@ export class ProfileInfo {
                             osLoc: teamOsLocation,
                             jsonLoc: jsonLocation
                         }
-                    }
+                    };
                     profiles.push(profAttrs);
                 }
                 // Check for subprofiles
@@ -299,7 +299,7 @@ export class ProfileInfo {
                 locType: ProfLocType.TEAM_CONFIG,
                 osLoc: teamOsLocation,
                 jsonLoc: foundJson
-            }
+            };
         } else {
             // get default profile from the old-school profiles
             // first, some validation
@@ -322,7 +322,7 @@ export class ProfileInfo {
             }
 
             const loadedProfile = this.mOldSchoolProfileCache.find(obj => {
-                return obj.name === profName && obj.type === profileType
+                return obj.name === profName && obj.type === profileType;
             });
             if (!loadedProfile) {
                 // Something really weird happened
@@ -337,7 +337,7 @@ export class ProfileInfo {
             defaultProfile.profLoc = {
                 locType: ProfLocType.OLD_PROFILE,
                 osLoc: [this.oldProfileFilePath(profileType, loadedProfile.name)]
-            }
+            };
         }
         return defaultProfile;
     }
@@ -471,7 +471,7 @@ export class ProfileInfo {
         } else if (profile.profLoc.locType === ProfLocType.OLD_PROFILE) {
             if (profile.profName != null) {
                 const serviceProfile = this.mOldSchoolProfileCache.find(obj => {
-                    return obj.name === profile.profName && obj.type === profile.profType
+                    return obj.name === profile.profName && obj.type === profile.profType;
                 })?.profile;
                 if (serviceProfile != null) {
                     // Load args from service profile if one exists
@@ -492,7 +492,7 @@ export class ProfileInfo {
             if (baseProfileName != null) {
                 // Load args from default base profile if one exists
                 const baseProfile = this.mOldSchoolProfileCache.find(obj => {
-                    return obj.name === baseProfileName && obj.type === "base"
+                    return obj.name === baseProfileName && obj.type === "base";
                 })?.profile;
                 if (baseProfile != null) {
                     for (const [propName, propVal] of Object.entries(baseProfile)) {
@@ -984,7 +984,7 @@ export class ProfileInfo {
                         osLoc: this.findTeamOsLocation(newJsonPath),
                         jsonLoc: newJsonPath
                     }
-                }
+                };
                 profiles.push(profAttrs);
             }
             // Check for subprofiles
@@ -1074,7 +1074,7 @@ export class ProfileInfo {
         while (segments.length > 0 && lodash.get(this.mLoadedConfig.properties, buildPath(segments, propName)) === undefined) {
             // Drop segment from end of path if property not found
             segments.pop();
-        };
+        }
         const jsonPath = (segments.length > 0) ? buildPath(segments, propName) : undefined;
         if (jsonPath == null) {
             throw new ProfInfoErr({
@@ -1109,7 +1109,7 @@ export class ProfileInfo {
         return {
             locType: ProfLocType.OLD_PROFILE,
             osLoc: [this.oldProfileFilePath(profileType, profileName)]
-        }
+        };
     }
 
     /**

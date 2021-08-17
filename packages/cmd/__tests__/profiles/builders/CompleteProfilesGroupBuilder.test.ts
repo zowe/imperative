@@ -11,7 +11,7 @@
 
 jest.mock("../../../../utilities/src/ImperativeConfig");
 
-import { ImperativeConfig } from "../../../../utilities"
+import { ImperativeConfig } from "../../../../utilities";
 import { deleteHandlerPaths, testBuilderProfiles } from "./ProfileBuilderTestConstants";
 import { TestLogger } from "../../../../../__tests__/TestLogger";
 import { CompleteProfilesGroupBuilder } from "../../../../imperative/src/profiles/builders/CompleteProfilesGroupBuilder";

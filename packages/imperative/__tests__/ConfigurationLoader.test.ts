@@ -56,7 +56,7 @@ describe("ConfigurationLoader", () => {
                     gatewayUrl: "fake_gatewayUrl_2",
                     connProfType: "fake_connProfType_2"
                 }
-            ]
+            ];
 
             const result = ConfigurationLoader.load(
                 {

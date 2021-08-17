@@ -38,7 +38,7 @@ function buildProfileProperty(name: string, type: string | Array<string>, missin
             type,
             includeInTemplate: true,
             optionDefinition: null
-        }
+        };
     } else {
         return {
             type,
@@ -49,7 +49,7 @@ function buildProfileProperty(name: string, type: string | Array<string>, missin
                 type,
                 required: true,
             }
-        }
+        };
     }
 }
 
