@@ -763,7 +763,7 @@ export class CommandProcessor {
         let fromCnfg: any = {};
         if (this.mConfig != null) {
             for (const profileType of allTypes) {
-                const [opt, _] = ProfileUtils.getProfileOptionAndAlias(profileType);
+                const opt = ProfileUtils.getProfileOptionAndAlias(profileType)[0];
 
                 // If the config contains the requested profiles, then "remember"
                 // that this type has been fulfilled - so that we do NOT load from
@@ -790,7 +790,8 @@ export class CommandProcessor {
             const profileCamel = fromCnfg[cases.camelCase];
 
             if ((profileCamel !== undefined || profileKebab !== undefined) &&
-                (!args.hasOwnProperty(cases.kebabCase) && !args.hasOwnProperty(cases.camelCase))) {
+                (!Object.prototype.hasOwnProperty.call(args, cases.kebabCase) &&
+                 !Object.prototype.hasOwnProperty.call(args, cases.camelCase))) {
 
                 // If both case properties are present in the profile, use the one that matches
                 // the option name explicitly

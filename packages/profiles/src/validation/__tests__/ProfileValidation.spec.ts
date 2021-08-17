@@ -393,36 +393,35 @@ describe("We should provide the ability to validate Imperative CLI profiles by t
         expect(textReport).toContain("..."); // expect it to be truncated
     });
 
-    it("a failed profile validation report should include specified failure suggestions",
-        (done: any) => {
-            const failureSuggestion = "Try fixing whatever is wrong";
-            const plan: IProfileValidationPlan = {
-                tasks: [{
-                    name: "Task one",
-                    description: "Task which has a long result description",
-                    taskFunction: (profile: any, taskDone: (result: IProfileValidationTaskResult) => void) => {
-                        taskDone({
-                            outcome: "Failed",
-                            resultDescription: "The task failed"
-                        });
-                    }
-                }],
-                failureSuggestions: failureSuggestion
-            };
-            ProfileValidator.validate(dummyProfile, plan, displayName).then((report: IProfileValidationReport) => {
-                const textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow",
-                    "dummy", "dummy");
-                const tenChars = 10;
-                // each word of the failure suggestions should appear (tabular format
-                // so the characters don't appear together)
-                for (const word of failureSuggestion.split(" ")) {
-                    expect(textReport).toContain(word);
+    it("a failed profile validation report should include specified failure suggestions", async () => {
+        const failureSuggestion = "Try fixing whatever is wrong";
+        const plan: IProfileValidationPlan = {
+            tasks: [{
+                name: "Task one",
+                description: "Task which has a long result description",
+                taskFunction: (profile: any, taskDone: (result: IProfileValidationTaskResult) => void) => {
+                    taskDone({
+                        outcome: "Failed",
+                        resultDescription: "The task failed"
+                    });
                 }
-                done();
-            }
-            ).catch((error) => {
-                TestLogger.info("Got an error during unexpected validation: " + inspect(error));
-                throw error;
-            });
-        });
+            }],
+            failureSuggestions: failureSuggestion
+        };
+        let textReport: string;
+        let caughtError;
+        try {
+            const report = await ProfileValidator.validate(dummyProfile, plan, displayName);
+            textReport = ProfileValidator.getTextDisplayForReport(report, plan, displayName, "yellow", "dummy", "dummy");
+        } catch (error) {
+            caughtError = error;
+            TestLogger.info("Got an error during unexpected validation: " + inspect(error));
+        }
+        expect(caughtError).toBeUndefined();
+        // each word of the failure suggestions should appear (tabular format
+        // so the characters don't appear together)
+        for (const word of failureSuggestion.split(" ")) {
+            expect(textReport).toContain(word);
+        }
+    });
 });

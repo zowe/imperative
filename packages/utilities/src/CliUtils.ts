@@ -577,7 +577,7 @@ export class CliUtils {
      */
     public static async readPrompt(message: string, opts?: IPromptOptions): Promise<string> {
         // Ensure that we use a reasonable timeout
-        let secToWait = opts?.secToWait || 600;  // tslint:disable-line no-magic-numbers
+        let secToWait = opts?.secToWait || 600;  // eslint-disable-line @typescript-eslint/no-magic-numbers
         const maxSecToWait = 3600; // 1 hour max
         if (secToWait > maxSecToWait || secToWait < 0) {
             secToWait = maxSecToWait;
@@ -591,7 +591,7 @@ export class CliUtils {
                 prompt: message,
                 silent: opts?.hideText,
                 replace: opts?.maskChar,
-                timeout: secToWait ? (secToWait * 1000) : null  // tslint:disable-line no-magic-numbers
+                timeout: secToWait ? (secToWait * 1000) : null  // eslint-disable-line @typescript-eslint/no-magic-numbers
             }, (error: any, result: string) => {
                 if (error == null) {
                     resolve(result);

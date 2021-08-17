@@ -303,7 +303,7 @@ export class Imperative {
                     }
                     if (!(error instanceof ImperativeError)) {
                         const oldError = error;
-                        error = new ImperativeError({
+                        error = new ImperativeError({  // eslint-disable-line no-ex-assign
                             msg: "Unexpected Error Encountered",
                             causeErrors: error
                         });

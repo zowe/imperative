@@ -258,35 +258,6 @@ describe("Command Profile Loader", () => {
         expect(error.message).toMatchSnapshot();
     });
 
-    it("should percolate the load error to the caller", async () => {
-        const manager = new BasicProfileManagerFactory(TEST_PROFILES_DIR);
-        const profManager = new BasicProfileManager({
-            logger: TestLogger.getTestLogger(),
-            profileRootDirectory: sampleRoot,
-            type: PROFILE_BANANA_TYPE
-        });
-        manager.getManager = jest.fn((type) => {
-            return profManager;
-        });
-        profManager.load = jest.fn((parms) => {
-            throw new ImperativeError({msg: `An error occurred during the load.`});
-        });
-        let error;
-        try {
-            const response = await CommandProfileLoader.loader({
-                commandDefinition: SAMPLE_COMMAND_PROFILE,
-                profileManagerFactory: manager,
-                logger: TestLogger.getTestLogger()
-            })
-                .loadProfiles({_: undefined, $0: undefined});
-        } catch (e) {
-            error = e;
-        }
-        expect(error).toBeDefined();
-        expect(error instanceof ImperativeError).toBe(true);
-        expect(error.message).toMatchSnapshot();
-    });
-
     it("should react properly if the profile manager does not return an expected result for default", async () => {
         const manager = new BasicProfileManagerFactory(TEST_PROFILES_DIR);
         const profManager = new BasicProfileManager({

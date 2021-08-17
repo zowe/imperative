@@ -217,8 +217,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             }
         };
 
-        let sessCfgWithConnProps: ISession;
-        sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+        const sessCfgWithConnProps: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             initialSessCfg, args, {
                 parms: parms as any // treat this as a CLI-based prompt
             }
@@ -403,8 +402,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             password: passFromArgs
         };
 
-        let sessCfgWithConnProps: ISession;
-        sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+        const sessCfgWithConnProps: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             initialSessCfg, args, { serviceDescription: "my cool service" }
         );
         CliUtils.sleep = sleepReal;
@@ -445,8 +443,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
             password: passFromArgs
         };
 
-        let sessCfgWithConnProps: ISession;
-        sessCfgWithConnProps = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+        const sessCfgWithConnProps: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             initialSessCfg, args, { serviceDescription: "my cool service" }
         );
         CliUtils.sleep = sleepReal;

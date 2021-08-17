@@ -54,7 +54,8 @@ export const setDefinition: ICommandDefinition = {
         },
         {
             name: "secure",
-            description: "Store the property value securely. If omitted, any property named in the secure array of the config file will be saved securely.",
+            description: "Store the property value securely. " +
+                "If omitted, any property named in the secure array of the config file will be saved securely.",
             type: "boolean"
         }
     ]

@@ -183,7 +183,7 @@ describe("Cli Profile Manager", () => {
 
             it("should fail if the Credential Manager is unable to find the profile", () => {
                 let cmd = `profiles create ${testProfileName}-profile ${createdName} --username ${username} ` +
-          `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
+                    `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
                 let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
 
                 expect(result.stderr).toContain("command 'profiles create' is deprecated");
@@ -195,7 +195,7 @@ describe("Cli Profile Manager", () => {
                 cmd = `profiles delete ${testProfileName}-profile ${createdName}`;
                 result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
 
-                expect(T.stripNewLines(result.stderr)).toContain(`Profile \"${createdName}\" of type \"${testProfileName}\" does not exist.`);
+                expect(T.stripNewLines(result.stderr)).toContain(`Profile "${createdName}" of type "${testProfileName}" does not exist.`);
                 expect(result.stderr).toContain("Profile \"profile-name\" of type \"username-password\" does not exist");
                 expect(result.stderr).toContain("The command 'profiles delete' is deprecated");
 
@@ -211,7 +211,7 @@ describe("Cli Profile Manager", () => {
 
             it("should fail if the Credential Manager is unable to retrieve a password", () => {
                 let cmd = `profiles create ${testProfileName}-profile ${createdName} --username ${username} ` +
-          `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
+                    `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
                 let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
 
                 expect(result.stderr).toContain("command 'profiles create' is deprecated");
@@ -260,7 +260,7 @@ describe("Cli Profile Manager", () => {
                 renameKeyTar();
 
                 const cmd = `profiles create ${testProfileName}-profile ${profileName} --username ${username} ` +
-          `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
+                    `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
                 const result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 expect(result.stdout).toEqual("");
                 expect(result.stderr).toContain(profileName);
@@ -269,7 +269,7 @@ describe("Cli Profile Manager", () => {
 
             it("should fail if keytar is not loaded on using profile handler", () => {
                 let cmd = `profiles create ${testProfileName}-profile ${profileName} --username ${username} ` +
-          `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
+                    `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
                 let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 expect(result.stderr).toContain("command 'profiles create' is deprecated");
                 expect(result.stdout).toContain("Profile created successfully!");
@@ -284,7 +284,7 @@ describe("Cli Profile Manager", () => {
 
             it("should fail if keytar is not loaded on profiles delete", () => {
                 let cmd = `profiles create ${testProfileName}-profile ${profileName} --username ${username} ` +
-          `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
+                    `--password ${password} --account ${account} --sec1 ${secured} --insec1 ${insecured}`;
                 let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 expect(result.stderr).toContain("command 'profiles create' is deprecated");
                 expect(result.stdout).toContain("Profile created successfully!");

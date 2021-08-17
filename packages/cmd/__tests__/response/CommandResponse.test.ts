@@ -143,7 +143,7 @@ describe("Command Response", () => {
         }, oneSecond);
     });
 
-    it("should work if the progress bar is directed to a socket stream", (done) => {
+    it("should work if the progress bar is directed to a socket stream", (done) => {  // eslint-disable-line jest/no-done-callback
         const response = new CommandResponse({ silent: false, responseFormat: "default", stream });
         const status: ITaskWithStatus = {
             statusMessage: "Making a bar",
@@ -173,7 +173,7 @@ describe("Command Response", () => {
     });
 
     it("If we create a progress bar, then set the bar to be complete, " +
-        "the progress bar should automatically end ", (done) => {
+        "the progress bar should automatically end ", (done) => {  // eslint-disable-line jest/no-done-callback
         const response = new CommandResponse({ silent: false, responseFormat: "default" });
         const status: ITaskWithStatus = {
             statusMessage: "Making a bar",

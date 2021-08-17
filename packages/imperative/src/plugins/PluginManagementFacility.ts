@@ -273,7 +273,7 @@ export class PluginManagementFacility {
         if (this.pmfConst.PLUGIN_USING_CONFIG) {
             for (const plugin of this.pmfConst.PLUGIN_CONFIG.api.plugins.get()) {
                 if (loadedOverrides[plugin] != null) {
-                    for (const [key, _] of Object.entries(loadedOverrides[plugin])) {
+                    for (const key of Object.keys(loadedOverrides[plugin])) {
                         if (overrideSettings[key] == null) {
                             overrideSettings[key] = plugin;
                         }

@@ -149,6 +149,7 @@ describe("imperative-test-cli config init", () => {
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedUserConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
     });
+    // eslint-disable-next-line jest/no-commented-out-tests
     // it("should create a profile of a specified name", () => {
     //     const response = runCliScript(__dirname + "/__scripts__/init_config.sh",
     //         TEST_ENVIRONMENT.workingDir, ["--profile lpar.service --prompt false"]);

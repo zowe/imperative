@@ -303,6 +303,7 @@ describe("Operation Infrastructure", () => {
 });
 
 function checkResults(operationActualResults: IOperationResult<any>,
+    operationExpectedResults: Array<IOperationResult<any>>) {
 
     if (isNullOrUndefined(operationActualResults)) {
         expect(0).toEqual(1);

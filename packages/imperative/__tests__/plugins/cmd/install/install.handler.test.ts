@@ -64,7 +64,7 @@ describe("Plugin Management Facility install handler", () => {
     const finalValidationMsg = "The final message from runPluginValidation";
 
     beforeEach(() => {
-    // Mocks need cleared after every test for clean test runs
+        // Mocks need cleared after every test for clean test runs
         jest.resetAllMocks();
 
         // This needs to be mocked before running process function of uninstall handler
@@ -72,10 +72,10 @@ describe("Plugin Management Facility install handler", () => {
     });
 
     /**
-   *  Create object to be passed to process function
-   *
-   * @returns {IHandlerParameters}
-   */
+     *  Create object to be passed to process function
+     *
+     * @returns {IHandlerParameters}
+     */
     const getIHandlerParametersObject = (): IHandlerParameters => {
         const x: any = {
             response: new (CommandResponse as any)(),
@@ -96,30 +96,30 @@ describe("Plugin Management Facility install handler", () => {
     });
 
     /**
-   * Validates that an getRegistry was called
-   * when registry needed based on the parameters passed.
-   */
+     * Validates that an getRegistry was called
+     * when registry needed based on the parameters passed.
+     */
     const wasGetRegistryCalled = () => {
         expect(mocks.getRegistry).toHaveBeenCalled();
     };
 
     /**
-   * Validates that an npmLogin was called
-   * when login needed based on the parameters passed.
-   */
+     * Validates that an npmLogin was called
+     * when login needed based on the parameters passed.
+     */
     const wasNpmLoginCallValid = (registry: string) => {
         wasGetRegistryCalled();
         expect(mocks.npmLogin).toHaveBeenCalledWith(registry);
     };
 
     /**
-   * Validates that an install call was valid based on the parameters passed.
-   *
-   * @param {string}   packageLocation        expected package location that install was called with.
-   * @param {string}   registry               expected registry that install was called with.
-   * @param {boolean} [installFromFile=false] was the install expected to have been determined from
-   *                                          a file and not passed packages.
-   */
+     * Validates that an install call was valid based on the parameters passed.
+     *
+     * @param {string}   packageLocation        expected package location that install was called with.
+     * @param {string}   registry               expected registry that install was called with.
+     * @param {boolean} [installFromFile=false] was the install expected to have been determined from
+     *                                          a file and not passed packages.
+     */
     const wasInstallCallValid = (
         packageLocation: string,
         registry: string,
@@ -137,23 +137,22 @@ describe("Plugin Management Facility install handler", () => {
     };
 
     /**
-   * Checks that the install successful message was written.
-   *
-   * @param {IHandlerParameters} params The parameters that were passed to the
-   *                                    process function.
-   */
+     * Checks that the install successful message was written.
+     *
+     * @param {IHandlerParameters} params The parameters that were passed to the
+     *                                    process function.
+     */
     const wasInstallSuccessful = (params: IHandlerParameters) => {
-    // get the text of the last message that was displayed
-        const outputMsg = (params.response.console.log as Mock).mock.calls
-            [(params.response.console.log as Mock).mock.calls.length - 1][0];
+        // get the text of the last message that was displayed
+        const outputMsg = (params.response.console.log as Mock).mock.calls[(params.response.console.log as Mock).mock.calls.length - 1][0];
         expect(outputMsg).toContain(finalValidationMsg);
     };
 
     /**
-   * Validates that the readFileSync was called with the proper file name.
-   *
-   * @param {string} expectedFile The JSON file name
-   */
+     * Validates that the readFileSync was called with the proper file name.
+     *
+     * @param {string} expectedFile The JSON file name
+     */
     const wasReadFileSyncCallValid = (expectedFile: string) => {
         expect(mocks.readFileSync).toHaveBeenCalledWith(
             expectedFile
@@ -161,7 +160,7 @@ describe("Plugin Management Facility install handler", () => {
     };
 
     it("should install from specified JSON file", async () => {
-    // plugin definitions mocking file contents
+        // plugin definitions mocking file contents
         const fileJson: IPluginJson = {
             a: {
                 package: packageName,
@@ -230,7 +229,7 @@ describe("Plugin Management Facility install handler", () => {
 
         expect(expectedError).toEqual( new ImperativeError({
             msg: `Option ${chalk.yellow.bold("--file")} can not be specified if positional ${chalk.yellow.bold("package...")} is as well. ` +
-      `They are mutually exclusive.`
+                `They are mutually exclusive.`
         }));
 
     });
@@ -310,7 +309,7 @@ describe("Plugin Management Facility install handler", () => {
         wasReadFileSyncCallValid(PMFConstants.instance.PLUGIN_JSON);
 
         expect(params.response.console.log).toHaveBeenCalledWith("No packages were found in " +
-    PMFConstants.instance.PLUGIN_JSON + ", so no plugins were installed.");
+            PMFConstants.instance.PLUGIN_JSON + ", so no plugins were installed.");
     });
 
     it("should handle an error during the install", async () => {

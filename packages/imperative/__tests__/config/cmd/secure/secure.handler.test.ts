@@ -193,10 +193,8 @@ describe("Configuration Secure command handler", () => {
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
-            // tslint:disable-next-line: no-magic-numbers
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
         } else {
-            // tslint:disable-next-line: no-magic-numbers
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
         }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
@@ -204,7 +202,6 @@ describe("Configuration Secure command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
-        // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
     });
 
@@ -262,10 +259,8 @@ describe("Configuration Secure command handler", () => {
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
-            // tslint:disable-next-line: no-magic-numbers
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
         } else {
-            // tslint:disable-next-line: no-magic-numbers
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
         }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
@@ -273,7 +268,6 @@ describe("Configuration Secure command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
-        // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjUserPath, JSON.stringify(compObj, null, 4)); // Config
     });
 
@@ -331,10 +325,8 @@ describe("Configuration Secure command handler", () => {
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
-            // tslint:disable-next-line: no-magic-numbers
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
         } else {
-            // tslint:disable-next-line: no-magic-numbers
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
         }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
@@ -342,7 +334,6 @@ describe("Configuration Secure command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
-        // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblProjPath, JSON.stringify(compObj, null, 4)); // Config
     });
 
@@ -401,10 +392,8 @@ describe("Configuration Secure command handler", () => {
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
-            // tslint:disable-next-line: no-magic-numbers
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
         } else {
-            // tslint:disable-next-line: no-magic-numbers
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(3);
         }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
@@ -412,7 +401,6 @@ describe("Configuration Secure command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
-        // tslint:disable-next-line: no-magic-numbers
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config
     });
 
@@ -468,7 +456,6 @@ describe("Configuration Secure command handler", () => {
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
-        // tslint:disable-next-line: no-magic-numbers
         expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(0);
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(0);

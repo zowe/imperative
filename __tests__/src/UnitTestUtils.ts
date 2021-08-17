@@ -82,6 +82,7 @@ export class UnitTestUtils {
      * @memberof UnitTestUtils
      */
     public static replaceIt(testDetailHandler?: (details: any) => void): any {
+        // eslint-disable-next-line no-global-assign
         (it as any) = function (description: string, testFunc: (done?: any) => void) {
             const log = TestLogger.getTestLogger();
             if (isNullOrUndefined(testDetailHandler)) {

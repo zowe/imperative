@@ -113,7 +113,6 @@ describe("Installing Plugins", () => {
 
     beforeAll(() => {
         envNpmRegistry = execSync("npm config get registry").toString().trim();
-        // tslint:disable-next-line no-magic-numbers
         peerDepWarning = parseInt(execSync("npm --version").toString().trim().split(".")[0], 10) < 7;
     });
 
@@ -122,24 +121,25 @@ describe("Installing Plugins", () => {
         T.rimraf(pluginJsonLocation);
     });
 
-    /* This test was purposely commented out. The CICD pipeline cannot synchronize two different
-    * repos: imperative and imperative-plugins in master, since plugins is used to perform the
-    * tests that permit cli to be merged into master.
-    *
-    * If you want to do a quick manual test using an npm registry, you can uncomment
-    * this block. Just be sure to re-comment it before committing this file.
-    *
-    it("should install the sample plugin from the registry", function(){
-        const result = executeCommandString(this, `${pluginGroup} install ${plugins.registry.location} --registry ${TEST_REGISTRY}`);
-        console.log(result);
-        expect(result.stderr).toEqual("");
+    /**
+     * This test was purposely commented out. The CICD pipeline cannot synchronize two different
+     * repos: imperative and imperative-plugins in master, since plugins is used to perform the
+     * tests that permit cli to be merged into master.
+     *
+     * If you want to do a quick manual test using an npm registry, you can uncomment
+     * this block. Just be sure to re-comment it before committing this file.
+     */
+    // eslint-disable-next-line jest/no-commented-out-tests
+    // it("should install the sample plugin from the registry", function(){
+    //     const result = executeCommandString(this, `${pluginGroup} install ${plugins.registry.location} --registry ${TEST_REGISTRY}`);
+    //     console.log(result);
+    //     expect(result.stderr).toEqual("");
 
-        const strippedOutput = T.stripNewLines(result.stdout);
-        expect(strippedOutput).toContain("Registry = " + TEST_REGISTRY);
-        expect(strippedOutput).toContain(`Installed plugin = '${plugins.registry.name}'`);
-        expect(strippedOutput).toContain("Installation of the npm package(s) was successful.");
-    });
-    */
+    //     const strippedOutput = T.stripNewLines(result.stdout);
+    //     expect(strippedOutput).toContain("Registry = " + TEST_REGISTRY);
+    //     expect(strippedOutput).toContain(`Installed plugin = '${plugins.registry.name}'`);
+    //     expect(strippedOutput).toContain("Installation of the npm package(s) was successful.");
+    // });
 
     it("should install a plugin from a file location", function(){
 
@@ -180,7 +180,8 @@ describe("Installing Plugins", () => {
         expect(result.stdout).not.toContain(plugins.normal2.usage);
 
         // Now check that they install
-        result = executeCommandString(this, `${pluginGroup} install ${plugins.normal.location} ${plugins.normal2.location} --registry ${TEST_REGISTRY}`);
+        result = executeCommandString(this,
+            `${pluginGroup} install ${plugins.normal.location} ${plugins.normal2.location} --registry ${TEST_REGISTRY}`);
         if (peerDepWarning) {
             expect(result.stderr).toMatch(/npm.*WARN/);
             expect(result.stderr).toContain("requires a peer of @zowe/imperative");
@@ -488,7 +489,8 @@ describe("Installing Plugins", () => {
         it("should error when --file and --registry are specified", function(){
             expect(
                 T.stripNewLines(
-                    executeCommandString(this, `${pluginGroup} install ${plugins.registry.location} --file ${testFile} --registry ${TEST_REGISTRY}`).stderr
+                    executeCommandString(this,
+                        `${pluginGroup} install ${plugins.registry.location} --file ${testFile} --registry ${TEST_REGISTRY}`).stderr
                 )
             ).toContain("The following options conflict (mutually exclusive)");
         });

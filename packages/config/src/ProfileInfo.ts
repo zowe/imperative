@@ -204,7 +204,6 @@ export class ProfileInfo {
         if (this.mUsingTeamConfig) {
             const teamConfigProfs = this.mLoadedConfig.maskedProperties.profiles;
             // Iterate over them
-            // tslint:disable-next-line: forin
             for (const prof in teamConfigProfs) {
                 // Check if the profile has a type
                 if (teamConfigProfs[prof].type && (profileType == null || teamConfigProfs[prof].type === profileType)) {
@@ -278,7 +277,7 @@ export class ProfileInfo {
 
         if (this.usingTeamConfig) {
             // get default profile name from the team config
-            if (!this.mLoadedConfig.maskedProperties.defaults.hasOwnProperty(profileType)) {
+            if (!Object.prototype.hasOwnProperty.call(this.mLoadedConfig.maskedProperties.defaults, profileType)) {
                 // no default exists for the requested type
                 this.mImpLogger.warn("Found no profile of type '" +
                     profileType + "' in team config."
@@ -326,7 +325,8 @@ export class ProfileInfo {
             });
             if (!loadedProfile) {
                 // Something really weird happened
-                this.mImpLogger.warn("Profile with name '" + profName + "' was defined as the default profile for type '" + profileType + "' but was missing from the cache.");
+                this.mImpLogger.warn(`Profile with name '${profName}' was defined as the default profile for type '${profileType}' but was missing ` +
+                    `from the cache.`);
                 return null;
             }
 
@@ -658,10 +658,10 @@ export class ProfileInfo {
         profLoaded.profile = lodash.cloneDeep(profAttrs);
 
         // set hard-coded defaults
-        if (!profLoaded.hasOwnProperty("message")) {
+        if (!Object.prototype.hasOwnProperty.call(profLoaded, "message")) {
             profLoaded.message = "";
         }
-        if (!profLoaded.hasOwnProperty("failNotFound")) {
+        if (!Object.prototype.hasOwnProperty.call(profLoaded, "failNotFound")) {
             profLoaded.failNotFound = false;
         }
 
@@ -970,7 +970,6 @@ export class ProfileInfo {
      */
     private getTeamSubProfiles(path: string, jsonPath: string, profObj: { [key: string]: any }, profileType?: string): IProfAttrs[] {
         const profiles: IProfAttrs[] = [];
-        // tslint:disable-next-line: forin
         for (const prof in profObj) {
             const newJsonPath = jsonPath + ".profiles." + prof;
             const newProfName = path + "." + prof;
