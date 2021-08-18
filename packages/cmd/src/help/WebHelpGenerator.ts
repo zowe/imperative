@@ -105,12 +105,8 @@ export class WebHelpGenerator {
         // This allows printing dot characters on the same line to show progress
         cmdResponse.console.log(Buffer.from("Generating web help"));
 
-        // Load additional dependencies
-        this.markdownIt = require("markdown-it")({ html: true, linkify: true });
-        const fsExtra = require("fs-extra");
-        const sanitizeHtml = require("sanitize-html");
-
         // Ensure web-help/docs folder exists and is empty
+        const fsExtra = require("fs-extra");
         fsExtra.emptyDirSync(this.mDocsDir);
         const webHelpDir: string = path.join(this.mDocsDir, "..");
 
@@ -159,12 +155,11 @@ export class WebHelpGenerator {
 
         let rootHelpContent: string = this.genDocsHeader(rootCommandName);
         rootHelpContent += `<h2><a href="${rootCommandName}.html" name="${rootCommandName}">${rootCommandName}</a>${this.genPrintButton()}</h2>\n`;
-        rootHelpContent += this.markdownIt.render(sanitizeHtml(this.mConfig.loadedConfig.rootCommandDescription)) + "\n";
+        rootHelpContent += this.renderMarkdown(this.mConfig.loadedConfig.rootCommandDescription) + "\n";
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
             { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions });
-        rootHelpContent += this.markdownIt.render(sanitizeHtml(
-            this.buildChildrenSummaryTables(helpGen, rootCommandName) + "\n\n" +
-            helpGen.buildGlobalOptionsSection().replace(/Global options/, "Global Options")));
+        rootHelpContent += this.renderMarkdown(this.buildChildrenSummaryTables(helpGen, rootCommandName) + "\n\n" +
+            helpGen.buildGlobalOptionsSection().replace(/Global options/, "Global Options"));
         this.singlePageHtml = rootHelpContent.replace(/<h4>Groups.+?<\/ul>/s, "");
         rootHelpContent += this.genDocsFooter();
         fs.writeFileSync(rootHelpHtmlPath, rootHelpContent);
@@ -191,6 +186,21 @@ export class WebHelpGenerator {
 
         this.writeTreeData();
         cmdResponse.console.log("done!");
+    }
+
+    /**
+     * Converts Markdown string to HTML string. Any HTML contained in the
+     * input Markdown string will be sanitized.
+     * @param markdownContent String containing Markdown content
+     * @returns String containing HTML content
+     */
+    private renderMarkdown(markdownContent: string): string {
+        if (this.markdownIt == null) {
+            this.markdownIt = require("markdown-it")({ html: true, linkify: true });
+        }
+
+        const sanitizeHtml = require("sanitize-html");
+        return this.markdownIt.render(sanitizeHtml(markdownContent));
     }
 
     /**
@@ -305,7 +315,6 @@ export class WebHelpGenerator {
      * @param {ITreeNode} parentNode
      */
     private genCommandHelpPage(definition: ICommandDefinition, fullCommandName: string, docsDir: string, parentNode: IWebHelpTreeNode) {
-        const sanitizeHtml = require("sanitize-html");
         const rootCommandName: string = this.treeNodes[0].text;
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
             { commandDefinition: definition, fullCommandTree: this.mFullCommandTree });
@@ -323,14 +332,11 @@ export class WebHelpGenerator {
         markdownContent = markdownContent.replace(/^(\s+Default value:.+$)(\s+Allowed values:.+$)/gm, "$1\n$2");
 
         let htmlContent = "<h2>" + this.genBreadcrumb(rootCommandName, fullCommandName) + this.genPrintButton() + "</h2>\n";
-        htmlContent += this.markdownIt.render(sanitizeHtml(markdownContent));
-
-        // Remove backslash escapes from URLs
-        htmlContent = htmlContent.replace(/(%5C|\\)(?=.+?<\/a>)/g, "");
+        htmlContent += this.renderMarkdown(markdownContent);
 
         // Add Copy buttons after command line examples
         htmlContent = htmlContent.replace(/<code>\$\s*(.*?)<\/code>/g,
-        `<code>$1</code> <button class="btn-copy no-print" data-balloon-pos="right" data-clipboard-text="$1">Copy</button>`);
+            `<code>$1</code> <button class="btn-copy no-print" data-balloon-pos="right" data-clipboard-text="$1">Copy</button>`);
 
         // Sanitize references to user's home directory
         if (this.sanitizeHomeDir) {

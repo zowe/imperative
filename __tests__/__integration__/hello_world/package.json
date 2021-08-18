@@ -5,7 +5,7 @@
   "license": "EPL 2.0",
   "repository": "",
   "bin": {
-    "hello-world-cli": "lib/index.js"
+    "hello-world-cli": "./lib/index.js"
   },
   "author": {
     "name": "",

@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Breaking: Make `fail-on-error` option true by default on `zowe plugins validate` command.
+
 ## `5.0.0-next.202108121732`
 
 - Enhancement: Flattened the default profiles structure created by the `config init` command.
@@ -97,6 +101,23 @@ All notable changes to the Imperative package will be documented in this file.
 ## `5.0.0-next.202009251501`
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
+
+## `4.15.0`
+
+- Enhancement: Improved command suggestions for mistyped commands, add aliases to command suggestions
+
+## `4.14.0`
+
+- Enhancement: The `plugins validate` command will return an error code when plugins have errors if the new `--fail-on-error` option is specified. Also adds `--fail-on-warning` option to return with an error code when plugins have warnings. [#463](https://github.com/zowe/imperative/issues/463)
+- BugFix: Fixed regression where characters are not correctly escaped in web help causing extra slashes ("\") to appear. [#644](https://github.com/zowe/imperative/issues/644)
+
+## `4.13.4`
+
+- BugFix: Added missing periods at the end of command group descriptions for consistency. [#55](https://github.com/zowe/imperative/issues/55)
+
+## `4.13.3`
+
+- Performance: Improved the way that HTTP response chunks are saved, reducing time complexity from O(n<sup>2</sup>) to O(n). This dramatically improves performance for larger requests. [#618](https://github.com/zowe/imperative/pull/618)
 
 ## `4.13.2`
 

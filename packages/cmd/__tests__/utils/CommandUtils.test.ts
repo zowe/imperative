@@ -12,7 +12,7 @@
 import { ICommandDefinition } from "../../src/doc/ICommandDefinition";
 import { CommandPreparer } from "../../src/CommandPreparer";
 import { ICommandOptionDefinition } from "../../src/doc/option/ICommandOptionDefinition";
-import { COMPLEX_COMMAND, MULTIPLE_GROUPS } from "../__resources__/CommandDefinitions";
+import { COMPLEX_COMMAND, COMPLEX_COMMAND_WITH_ALIASES, MULTIPLE_GROUPS } from "../__resources__/CommandDefinitions";
 import { TestLogger } from "../../../../__tests__/TestLogger";
 import { inspect } from "util";
 import { UnitTestUtils } from "../../../../__tests__/src/UnitTestUtils";
@@ -72,5 +72,11 @@ describe("Command Utils", () => {
     it("We should be able get the full command name from the flattened tree", () => {
         const fullCommand: string = CommandUtils.getFullCommandName(COMPLEX_COMMAND.children[0], MULTIPLE_GROUPS);
         expect(fullCommand).toMatchSnapshot();
+    });
+
+    it("We should be able to flatten a nested command tree for display and searching purposes", () => {
+        const flatten: ICommandTreeEntry[] = CommandUtils.flattenCommandTreeWithAliases(COMPLEX_COMMAND_WITH_ALIASES);
+        TestLogger.info("Flattened Command Tree:\n" + inspect(flatten));
+        expect(flatten).toMatchSnapshot();
     });
 });
