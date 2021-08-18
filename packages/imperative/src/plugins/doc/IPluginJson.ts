@@ -16,10 +16,10 @@ import { IPluginJsonObject } from "./IPluginJsonObject";
  */
 export interface IPluginJson {
     /**
-   * Each object key is the name of a plugin and the value is information about
-   * said plugin.
-   *
-   * @type {IPluginJsonObject}
-   */
+     * Each object key is the name of a plugin and the value is information about
+     * said plugin.
+     *
+     * @type {IPluginJsonObject}
+     */
     [key: string]: IPluginJsonObject;
 }

@@ -44,26 +44,26 @@ describe("PMF: update Interface", () => {
     const packageRegistry = "https://registry.npmjs.org/";
 
     beforeEach(() => {
-    // Mocks need cleared after every test for clean test runs
+        // Mocks need cleared after every test for clean test runs
         jest.resetAllMocks();
 
         // This needs to be mocked before running update
         (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
 
         /* Since update() adds new plugins into the value returned from
-     * readFileSyc(plugins.json), we must reset readFileSync to return an empty set before each test.
-     */
+        * readFileSyc(plugins.json), we must reset readFileSync to return an empty set before each test.
+        */
         mocks.readFileSync.mockReturnValue({});
     });
 
     /**
-   * Validates that an execSync npm install call was valid based on the parameters passed.
-   *
-   * @param {string} expectedPackage The package that should be sent to npm update
-   * @param {string} expectedRegistry The registry that should be sent to npm update
-   * @param {boolean} [updateFromFile=false] was the update from a file. This affects
-   *                                          the pipe sent to execSync stdio option.
-   */
+     * Validates that an execSync npm install call was valid based on the parameters passed.
+     *
+     * @param {string} expectedPackage The package that should be sent to npm update
+     * @param {string} expectedRegistry The registry that should be sent to npm update
+     * @param {boolean} [updateFromFile=false] was the update from a file. This affects
+     *                                          the pipe sent to execSync stdio option.
+     */
     const wasNpmInstallCallValid = (expectedPackage: string, expectedRegistry: string) => {
         expect(mocks.installPackages).toHaveBeenCalledWith(PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
             expectedRegistry, expectedPackage);

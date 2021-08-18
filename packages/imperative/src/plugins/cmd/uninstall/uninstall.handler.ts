@@ -23,24 +23,24 @@ import { TextUtils } from "../../../../../utilities";
  */
 export default class UninstallHandler implements ICommandHandler {
     /**
-   * A logger for this class
-   *
-   * @private
-   * @type {Logger}
-   */
+     * A logger for this class
+     *
+     * @private
+     * @type {Logger}
+     */
     private console: Logger = Logger.getImperativeLogger();
 
     /**
-   * Process the command and input.
-   *
-   * @param {IHandlerParameters} params Parameters supplied by yargs
-   *
-   * @param {string[]} [params.arguments.plugin] This is the plugin to uninstall.
-   *
-   * @returns {Promise<ICommandResponse>} The command response
-   *
-   * @throws {ImperativeError}
-   */
+     * Process the command and input.
+     *
+     * @param {IHandlerParameters} params Parameters supplied by yargs
+     *
+     * @param {string[]} [params.arguments.plugin] This is the plugin to uninstall.
+     *
+     * @returns {Promise<ICommandResponse>} The command response
+     *
+     * @throws {ImperativeError}
+     */
     public async process(params: IHandlerParameters): Promise<void> {
         const chalk = TextUtils.chalk;
         this.console.debug(`Root Directory: ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION}`);

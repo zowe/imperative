@@ -27,14 +27,14 @@ describe("Plugin validate command handler", () => {
     const pluginIssues: PluginIssues = PluginIssues.instance;
 
     /* Put a base CLI config into ImperativeConfig. It is required by infrastructure
-   * that is called underneath the functions that we want to test.
-   */
+    * that is called underneath the functions that we want to test.
+    */
     const impCfg: ImperativeConfig = ImperativeConfig.instance;
     impCfg.loadedConfig = require("../../baseCliConfig.testData");
     impCfg.callerLocation = resolve("../../../../../../imperative-sample/lib/index.js");
 
     beforeEach(() => {
-    // Mocks need cleared after every test for clean test runs
+        // Mocks need cleared after every test for clean test runs
         jest.resetAllMocks();
 
         pluginIssues.getInstalledPlugins = jest.fn().mockReturnValue({
@@ -48,10 +48,10 @@ describe("Plugin validate command handler", () => {
 
     const setExitCodeFunction = jest.fn();
     /**
-   * Create object to be passed to process function
-   *
-   * @returns {IHandlerParameters}
-   */
+     * Create object to be passed to process function
+     *
+     * @returns {IHandlerParameters}
+     */
     const getIHandlerParametersObject = (): IHandlerParameters => {
         const x: any = {
             response: new (CommandResponse as any)(),

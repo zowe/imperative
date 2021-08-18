@@ -52,20 +52,20 @@ describe("Plugin Management Facility list handler", () => {
     });
 
     /**
-   * Checks that the "Install Successful" message was written.
-   *
-   * @param {IHandlerParameters} params The parameters that were passed to the
-   *                                    process function.
-   */
+     * Checks that the "Install Successful" message was written.
+     *
+     * @param {IHandlerParameters} params The parameters that were passed to the
+     *                                    process function.
+     */
     const wasListSuccessful = (params: IHandlerParameters) => {
         expect(params.response.console.log).toHaveBeenCalled();
     };
 
     /**
-   *  Create object to be passed to process function
-   *
-   * @returns {IHandlerParameters}
-   */
+     *  Create object to be passed to process function
+     *
+     * @returns {IHandlerParameters}
+     */
     const getIHandlerParametersObject = (): IHandlerParameters => {
         const x: any = {
             response: new (CommandResponse as any)(),

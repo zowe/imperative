@@ -20,28 +20,28 @@ import { readFileSync } from "jsonfile";
  */
 export enum IssueSeverity {
     /**
-   * Configuration errors. We cannot even properly define this plugin.
-   * The plugin cannot be used.
-   */
+     * Configuration errors. We cannot even properly define this plugin.
+     * The plugin cannot be used.
+     */
     CFG_ERROR = "CfgError",
 
     /**
-   * An error in a plugin's set of commands.
-   * The plugin's commands will not be loaded into the host CLI app.
-   * It's overrides may be used.
-   */
+     * An error in a plugin's set of commands.
+     * The plugin's commands will not be loaded into the host CLI app.
+     * It's overrides may be used.
+     */
     CMD_ERROR = "CmdError",
 
     /**
-   * An error in a plugin's override component.
-   * The plugin's overrides will not be used by imperative
-   * It's commands may be added to the host CLI app.
-   */
+     * An error in a plugin's override component.
+     * The plugin's overrides will not be used by imperative
+     * It's commands may be added to the host CLI app.
+     */
     OVER_ERROR = "OverrideError",
 
     /**
-   * Warnings identify optional items not implemented by a plugin.
-   */
+     * Warnings identify optional items not implemented by a plugin.
+     */
     WARNING = "Warning"
 }
 
@@ -51,41 +51,41 @@ export enum IssueSeverity {
  */
 export class PluginIssues {
     /**
-   * This is the variable that stores the specific instance of the PluginIssues.
-   * Defined as static so that it can be accessed from anywhere.
-   *
-   * @private
-   * @type {PluginIssues}
-   */
+     * This is the variable that stores the specific instance of the PluginIssues.
+     * Defined as static so that it can be accessed from anywhere.
+     *
+     * @private
+     * @type {PluginIssues}
+     */
     private static mInstance: PluginIssues;
 
     /**
-   * A map containing issues  for each plugin for which problems were detected.
-   *
-   * @private
-   * @type {IPluginIssues}
-   */
+     * A map containing issues  for each plugin for which problems were detected.
+     *
+     * @private
+     * @type {IPluginIssues}
+     */
     private pluginIssues: IPluginIssues = {};
 
     /**
-   * The set of installed plugins. We access this class property only
-   * through its accompanying function
-   * [getInstalledPlugins]{@link PluginIssues#getInstalledPlugins}
-   * to ensure that we only read the file once and reduce excessive I/O.
-   *
-   * @private
-   * @type {IPluginJson}
-   */
+     * The set of installed plugins. We access this class property only
+     * through its accompanying function
+     * [getInstalledPlugins]{@link PluginIssues#getInstalledPlugins}
+     * to ensure that we only read the file once and reduce excessive I/O.
+     *
+     * @private
+     * @type {IPluginJson}
+     */
     private installedPlugins: IPluginJson = null;
 
     // ___________________________________________________________________________
     /**
-   * Gets a single instance of the PluginIssues. On the first call of
-   * PluginIssues.instance, a new Plugin Issues object is initialized and returned.
-   * Every subsequent call will use the one that was first created.
-   *
-   * @returns {PluginIssues} The newly initialized PMF object.
-   */
+     * Gets a single instance of the PluginIssues. On the first call of
+     * PluginIssues.instance, a new Plugin Issues object is initialized and returned.
+     * Every subsequent call will use the one that was first created.
+     *
+     * @returns {PluginIssues} The newly initialized PMF object.
+     */
     public static get instance(): PluginIssues {
         if (this.mInstance == null) {
             this.mInstance = new PluginIssues();
@@ -152,7 +152,7 @@ export class PluginIssues {
             catch (ioErr) {
                 throw new ImperativeError({
                     msg:  "Cannot read '" + PMFConstants.instance.PLUGIN_JSON +
-          "' Reason = " + ioErr.message,
+                        "' Reason = " + ioErr.message,
                     causeErrors: ioErr
                 });
             }

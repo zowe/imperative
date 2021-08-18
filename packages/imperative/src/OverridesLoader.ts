@@ -24,29 +24,29 @@ import { Logger } from "../../logger";
  */
 export class OverridesLoader {
     /**
-   * Apply overrides to all applicable facilities and use our defaults where
-   * an override is not provided.
-   *
-   * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
-   * @param {any} packageJson - the current package.json
-   */
+     * Apply overrides to all applicable facilities and use our defaults where
+     * an override is not provided.
+     *
+     * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
+     * @param {any} packageJson - the current package.json
+     */
     public static async load(
         config: IImperativeConfig,
         packageJson: any
     ): Promise<void> {
-    // Initialize the Credential Manager
+        // Initialize the Credential Manager
         await (ImperativeConfig.instance.config?.exists ? this.loadCredentialManager : this.loadCredentialManagerOld)(config, packageJson);
     }
 
     /**
-   * Load the baked-in zowe CredentialManager and initialize it.
-   * If we need to reinstate 3rd party overrides, delete this function and
-   * rename loadCredentialManagerOld.
-   *
-   * @internal
-   * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
-   * @param {any} packageJson - the current package.json
-   */
+     * Load the baked-in zowe CredentialManager and initialize it.
+     * If we need to reinstate 3rd party overrides, delete this function and
+     * rename loadCredentialManagerOld.
+     *
+     * @internal
+     * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
+     * @param {any} packageJson - the current package.json
+     */
     public static async loadCredentialManager(
         config: IImperativeConfig,
         packageJson: any
@@ -69,11 +69,11 @@ export class OverridesLoader {
     }
 
     /**
-   * Initialize the Credential Manager using the supplied override when provided.
-   *
-   * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
-   * @param {any} packageJson - the current package.json
-   */
+     * Initialize the Credential Manager using the supplied override when provided.
+     *
+     * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
+     * @param {any} packageJson - the current package.json
+     */
     private static async loadCredentialManagerOld(
         config: IImperativeConfig,
         packageJson: any
@@ -85,15 +85,15 @@ export class OverridesLoader {
         // The manager display name used to populate the "managed by" fields in profiles
         const displayName: string = (
             overrides.CredentialManager != null
-        && AppSettings.initialized
-        && AppSettings.instance.getNamespace("overrides") != null
-        && AppSettings.instance.get("overrides", "CredentialManager") != null
-        && AppSettings.instance.get("overrides", "CredentialManager") !== false
+            && AppSettings.initialized
+            && AppSettings.instance.getNamespace("overrides") != null
+            && AppSettings.instance.get("overrides", "CredentialManager") != null
+            && AppSettings.instance.get("overrides", "CredentialManager") !== false
         ) ?
-        // App settings is configured - use the plugin name for the manager name
+            // App settings is configured - use the plugin name for the manager name
             AppSettings.instance.get("overrides", "CredentialManager") as string
             :
-        // App settings is not configured - use the CLI display name OR the package name as the manager name
+            // App settings is not configured - use the CLI display name OR the package name as the manager name
             config.productDisplayName || config.name;
 
         // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
@@ -121,9 +121,9 @@ export class OverridesLoader {
     }
 
     /**
-   * After the plugins and secure credentials are loaded, rebuild the configuration with the
-   * secure values
-   */
+     * After the plugins and secure credentials are loaded, rebuild the configuration with the
+     * secure values
+     */
     private static async loadSecureConfig() {
         if (!CredentialManagerFactory.initialized) return;
 

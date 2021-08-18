@@ -211,15 +211,15 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
                 if (this.mProfileTypeConfigurations.length === 0) {
                     throw new ImperativeError({
                         msg: `No profile configurations found. ` +
-              `Please initialize the profile manager OR supply the configurations to the profile manager.`
+                            `Please initialize the profile manager OR supply the configurations to the profile manager.`
                     });
                 }
             } catch (e) {
                 throw new ImperativeError({
                     msg: `An error occurred collecting all configurations ` +
-            `from the profile root directory "${this.profileRootDirectory}". ` +
-            `Please supply the configurations on the profile manager constructor parameters ` +
-            `OR initialize the profile manager environment. Details: ${e.message}`,
+                        `from the profile root directory "${this.profileRootDirectory}". ` +
+                        `Please supply the configurations on the profile manager constructor parameters ` +
+                        `OR initialize the profile manager environment. Details: ${e.message}`,
                     additionalDetails: e
                 });
             }
@@ -228,7 +228,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         this.mProfileTypeConfiguration = ImperativeExpect.arrayToContain(this.mProfileTypeConfigurations, (entry) => {
             return entry.type === this.mProfileType;
         }, `Could not locate the profile type configuration for "${this.profileType}" within the input configuration list passed.` +
-      `\n${inspect(this.profileTypeConfigurations, {depth: null})}`);
+            `\n${inspect(this.profileTypeConfigurations, {depth: null})}`);
         for (const config of this.profileTypeConfigurations) {
             this.validateConfigurationDocument(config);
         }
@@ -669,7 +669,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         // If specified, reject the delete if this profile is listed as dependency for another profile (of any type)
         if (parms.rejectIfDependency) {
             this.log.trace(`Reject if dependency was specified, loading all profiles to check if "${parms.name}" of type ` +
-        `"${this.profileType}" is a dependency.`);
+                `"${this.profileType}" is a dependency.`);
             const allProfiles = await this.loadAll({ noSecure: true });
             this.log.trace(`All profiles loaded (for dependency check).`);
             const flatten = ProfileUtils.flattenDependencies(allProfiles);
@@ -680,7 +680,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
                     depList += ("\n" + `Name: "${dep.name}" Type: "${dep.type}"`);
                 }
                 const msg: string = `The profile specified for deletion ("${parms.name}" of type ` +
-          `"${this.profileType}") is marked as a dependency for profiles:` + depList;
+                    `"${this.profileType}") is marked as a dependency for profiles:` + depList;
                 throw new ImperativeError({msg});
             }
         }
@@ -707,13 +707,13 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Update the profile - The action performed is dictacted by the implementation of the Abstract manager.
-   * @template U
-   * @param {IUpdateProfile} parms - See the interface for details
-   * @returns {Promise<IProfileUpdated>} - The promise that is fulfilled with the response object (see interface for details) or rejected
-   * with an Imperative Error.
-   * @memberof AbstractProfileManager
-   */
+     * Update the profile - The action performed is dictacted by the implementation of the Abstract manager.
+     * @template U
+     * @param {IUpdateProfile} parms - See the interface for details
+     * @returns {Promise<IProfileUpdated>} - The promise that is fulfilled with the response object (see interface for details) or rejected
+     * with an Imperative Error.
+     * @memberof AbstractProfileManager
+     */
     public async update<U extends IUpdateProfile>(parms: U): Promise<IProfileUpdated> {
         // Validate the input parameters are correct
         ImperativeExpect.toNotBeNullOrUndefined(parms,
@@ -736,11 +736,11 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Sets the default profile for the profile managers type.
-   * @param {string} name - The name of the new default
-   * @returns {string} - The response string (or an error is thrown if the request cannot be completed);
-   * @memberof AbstractProfileManager
-   */
+     * Sets the default profile for the profile managers type.
+     * @param {string} name - The name of the new default
+     * @returns {string} - The response string (or an error is thrown if the request cannot be completed);
+     * @memberof AbstractProfileManager
+     */
     public setDefault(name: string): string {
         // Log the API call
         this.log.info(`Set default API invoked. Setting "${name}" as default for type "${this.profileType}".`);
@@ -761,7 +761,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
                 this.setDefaultInMetaObject(meta, name);
             } else {
                 this.log.info(`The meta file does NOT exist for type "${this.profileType}", ` +
-          `writing the meta file and default profile ("${name}")`);
+                    `writing the meta file and default profile ("${name}")`);
                 metaFilePath = this.constructFullProfilePath(this.constructMetaName());
                 meta = {
                     defaultProfile: name,
@@ -774,8 +774,8 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
             ProfileIO.writeMetaFile(meta, metaFilePath);
         } else {
             const msg: string = `Cannot update default profile for type "${this.profileType}". ` +
-        `The profile name specified ("${name}") does not exist. ` +
-        `Please create before attempting to set the default.`;
+                `The profile name specified ("${name}") does not exist. ` +
+                `Please create before attempting to set the default.`;
             this.log.error(msg);
             // The profile name specified does NOT actually exist. This is an error.
             throw new ImperativeError({msg});
@@ -785,10 +785,10 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Clears the default profile for the profile managers type.
-   * @returns {string} - The response string (or an error is thrown if the request cannot be completed);
-   * @memberof AbstractProfileManager
-   */
+     * Clears the default profile for the profile managers type.
+     * @returns {string} - The response string (or an error is thrown if the request cannot be completed);
+     * @memberof AbstractProfileManager
+     */
     public clearDefault(): string {
         // Log the API call
         this.log.info(`Clear default API invoked for type "${this.profileType}".`);
@@ -805,7 +805,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
             this.setDefaultInMetaObject(meta, null);
         } else {
             this.log.info(`The meta file does NOT exist for type "${this.profileType}", ` +
-        `writing the meta file without a default profile`);
+                `writing the meta file without a default profile`);
             metaFilePath = this.constructFullProfilePath(this.constructMetaName());
             meta = {
                 defaultProfile: null,
@@ -821,10 +821,10 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Returns the default profile name for this "type" or "undefined" if no default is set.
-   * @returns {string} - The default profile name or undefined.
-   * @memberof AbstractProfileManager
-   */
+     * Returns the default profile name for this "type" or "undefined" if no default is set.
+     * @returns {string} - The default profile name or undefined.
+     * @memberof AbstractProfileManager
+     */
     public getDefaultProfileName(): string {
         const metaFile: string = this.locateExistingProfile(this.constructMetaName());
         let defaultName: string;
@@ -847,88 +847,88 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Load all profiles - the behavior is dictated by the implementation.
-   * @abstract
-   * @param {ILoadAllProfiles} [parms] - the load parameters - See interface for details
-   * @returns {Promise<IProfileLoaded[]>} - The list of profiles when the promise is fulfilled or rejected with an ImperativeError.
-   * @memberof AbstractProfileManager
-   */
+     * Load all profiles - the behavior is dictated by the implementation.
+     * @abstract
+     * @param {ILoadAllProfiles} [parms] - the load parameters - See interface for details
+     * @returns {Promise<IProfileLoaded[]>} - The list of profiles when the promise is fulfilled or rejected with an ImperativeError.
+     * @memberof AbstractProfileManager
+     */
     public abstract loadAll(parms?: ILoadAllProfiles): Promise<IProfileLoaded[]>;
 
     /**
-   * Save profile - performs the profile save according to the implementation - invoked when all parameters are valid
-   * (according the abstract manager).
-   * @protected
-   * @abstract
-   * @param {ISaveProfile} parms - See interface for details
-   * @returns {Promise<IProfileSaved>} - The promise fulfilled with response or rejected with an ImperativeError.
-   * @memberof AbstractProfileManager
-   */
+     * Save profile - performs the profile save according to the implementation - invoked when all parameters are valid
+     * (according the abstract manager).
+     * @protected
+     * @abstract
+     * @param {ISaveProfile} parms - See interface for details
+     * @returns {Promise<IProfileSaved>} - The promise fulfilled with response or rejected with an ImperativeError.
+     * @memberof AbstractProfileManager
+     */
     protected abstract saveProfile(parms: ISaveProfile): Promise<IProfileSaved>;
 
     /**
-   * Save profile - performs the profile load according to the implementation - invoked when all parameters are valid
-   * (according the abstract manager).
-   * @protected
-   * @abstract
-   * @param {ILoadProfile} parms - See interface for details
-   * @returns {Promise<IProfileLoaded>} - The promise fulfilled with response or rejected with an ImperativeError.
-   * @memberof AbstractProfileManager
-   */
+     * Save profile - performs the profile load according to the implementation - invoked when all parameters are valid
+     * (according the abstract manager).
+     * @protected
+     * @abstract
+     * @param {ILoadProfile} parms - See interface for details
+     * @returns {Promise<IProfileLoaded>} - The promise fulfilled with response or rejected with an ImperativeError.
+     * @memberof AbstractProfileManager
+     */
     protected abstract loadProfile(parms: ILoadProfile): Promise<IProfileLoaded>;
 
     /**
-   * Delete profile - performs the profile delete according to the implementation - invoked when all parameters are valid
-   * (according the abstract manager).
-   * @protected
-   * @abstract
-   * @param {IDeleteProfile} parms - See interface for details
-   * @returns {Promise<IProfileDeleted>} - The promise fulfilled with response or rejected with an ImperativeError.
-   * @memberof AbstractProfileManager
-   */
+     * Delete profile - performs the profile delete according to the implementation - invoked when all parameters are valid
+     * (according the abstract manager).
+     * @protected
+     * @abstract
+     * @param {IDeleteProfile} parms - See interface for details
+     * @returns {Promise<IProfileDeleted>} - The promise fulfilled with response or rejected with an ImperativeError.
+     * @memberof AbstractProfileManager
+     */
     protected abstract deleteProfile(parms: IDeleteProfile): Promise<IProfileDeleted>;
 
     /**
-   * Validate profile - performs the profile validation according to the implementation - invoked when all parameters are valid
-   * (according the abstract manager).
-   * @protected
-   * @abstract
-   * @param {IValidateProfileWithSchema} parms - See interface for details
-   * @returns {Promise<IProfileValidated>} - The promise fulfilled with response or rejected with an ImperativeError.
-   * @memberof AbstractProfileManager
-   */
+     * Validate profile - performs the profile validation according to the implementation - invoked when all parameters are valid
+     * (according the abstract manager).
+     * @protected
+     * @abstract
+     * @param {IValidateProfileWithSchema} parms - See interface for details
+     * @returns {Promise<IProfileValidated>} - The promise fulfilled with response or rejected with an ImperativeError.
+     * @memberof AbstractProfileManager
+     */
     protected abstract validateProfile(parms: IValidateProfileWithSchema): Promise<IProfileValidated>;
 
     /**
-   * Update profile - performs the profile update according to the implementation - invoked when all parameters are valid
-   * (according the abstract manager).
-   * @protected
-   * @abstract
-   * @param {IUpdateProfile} parms - See interface for details
-   * @returns {Promise<IProfileUpdated>} - The promise fulfilled with response or rejected with an ImperativeError.
-   * @memberof AbstractProfileManager
-   */
+     * Update profile - performs the profile update according to the implementation - invoked when all parameters are valid
+     * (according the abstract manager).
+     * @protected
+     * @abstract
+     * @param {IUpdateProfile} parms - See interface for details
+     * @returns {Promise<IProfileUpdated>} - The promise fulfilled with response or rejected with an ImperativeError.
+     * @memberof AbstractProfileManager
+     */
     protected abstract updateProfile(parms: IUpdateProfile): Promise<IProfileUpdated>;
 
     /**
-   * Load a profiles dependencies - dictacted by the implementation.
-   * @protected
-   * @abstract
-   * @param {string} name - the name of the profile to load dependencies for
-   * @param {IProfile} profile - The profile to load dependencies for.
-   * @param {boolean} failNotFound - True to fail "not found" errors
-   * @returns {Promise<IProfileLoaded[]>} - The promise fulfilled with response or rejected with an ImperativeError.
-   * @memberof AbstractProfileManager
-   */
+     * Load a profiles dependencies - dictacted by the implementation.
+     * @protected
+     * @abstract
+     * @param {string} name - the name of the profile to load dependencies for
+     * @param {IProfile} profile - The profile to load dependencies for.
+     * @param {boolean} failNotFound - True to fail "not found" errors
+     * @returns {Promise<IProfileLoaded[]>} - The promise fulfilled with response or rejected with an ImperativeError.
+     * @memberof AbstractProfileManager
+     */
     protected abstract loadDependencies(name: string, profile: IProfile, failNotFound: boolean): Promise<IProfileLoaded[]>;
 
     /**
-   * Invokes the profile IO method to delete the profile from disk.
-   * @protected
-   * @param {string} name - The name of the profile to delete.
-   * @returns {string} - The path where the profile was.
-   * @memberof AbstractProfileManager
-   */
+     * Invokes the profile IO method to delete the profile from disk.
+     * @protected
+     * @param {string} name - The name of the profile to delete.
+     * @returns {string} - The path where the profile was.
+     * @memberof AbstractProfileManager
+     */
     protected deleteProfileFromDisk(name: string): string {
         const profileFullPath: string = this.locateExistingProfile(name);
         ProfileIO.deleteProfile(name, profileFullPath);
@@ -936,13 +936,13 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
     }
 
     /**
-   * Performs basic validation of a profile object - ensures that all fields are present (if required).
-   * @protected
-   * @param name - the name of the profile to validate
-   * @param type - the type of profile to validate
-   * @param {IProfile} profile - The profile to validate.
-   * @memberof AbstractProfileManager
-   */
+     * Performs basic validation of a profile object - ensures that all fields are present (if required).
+     * @protected
+     * @param name - the name of the profile to validate
+     * @param type - the type of profile to validate
+     * @param {IProfile} profile - The profile to validate.
+     * @memberof AbstractProfileManager
+     */
     protected validateProfileObject(name: string, type: string, profile: IProfile) {
         // Throw an error on type mismatch - if the profile manager type does not match the input profile
         ImperativeExpect.toBeEqual(type, this.profileType,
@@ -1129,7 +1129,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         } catch (e) {
             throw new ImperativeError({
                 msg: `Profile validation error during load of profile "${name}" ` +
-          `of type "${this.profileType}". Error Details: ${e.message}`,
+                    `of type "${this.profileType}". Error Details: ${e.message}`,
                 additionalDetails: e
             });
         }
@@ -1180,8 +1180,8 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
                     if (!requiredDependencyFound) {
                         throw new ImperativeError({
                             msg: `Profile type "${this.profileType}" specifies a required dependency of type "${dependencyConfig.type}" ` +
-                `on the "${this.profileType}" profile type configuration document. A dependency of type "${dependencyConfig.type}" ` +
-                `was NOT listed on the input profile.`
+                                `on the "${this.profileType}" profile type configuration document. A dependency of type "${dependencyConfig.type}" ` +
+                                `was NOT listed on the input profile.`
                         });
                     }
                 }
@@ -1225,7 +1225,7 @@ export abstract class AbstractProfileManager<T extends IProfileTypeConfiguration
         if (!isNullOrUndefined(file)) {
             if (!overwrite) {
                 const errMsg: string = `Profile "${name}" of type "${this.profileType}" already ` +
-          `exists and overwrite was NOT specified.`;
+                    `exists and overwrite was NOT specified.`;
                 throw new ImperativeError({
                     msg: errMsg,
                 });

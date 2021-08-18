@@ -45,75 +45,75 @@ import * as keytar from "keytar"; // Used for typing purposes only
 export class DefaultCredentialManager extends AbstractCredentialManager {
 
     /**
-   * The service name for our built-in credential manager.
-   */
+     * The service name for our built-in credential manager.
+     */
     public static readonly SVC_NAME = "Zowe";
 
     /**
-   * Reference to the lazily loaded keytar module.
-   */
+     * Reference to the lazily loaded keytar module.
+     */
     private keytar: typeof keytar;
 
     /**
-   * Errors that occurred while loading keytar will be stored in here.
-   *
-   * Every method of this class should call the {@link checkForKeytar} method before proceeding. It
-   * is this method that will check for keytar and throw this error if it was detected that keytar
-   * wasn't loaded.
-   *
-   * @private
-   */
+     * Errors that occurred while loading keytar will be stored in here.
+     *
+     * Every method of this class should call the {@link checkForKeytar} method before proceeding. It
+     * is this method that will check for keytar and throw this error if it was detected that keytar
+     * wasn't loaded.
+     *
+     * @private
+     */
     private loadError: ImperativeError;
 
     /**
-   * Combined list of services that the plugin will go through
-   */
+     * Combined list of services that the plugin will go through
+     */
     private allServices: string[];
 
     /**
-   * Maximum credential length allowed by Windows 7 and newer.
-   *
-   * We don't support older versions of Windows where the limit is 512 bytes.
-   */
+     * Maximum credential length allowed by Windows 7 and newer.
+     *
+     * We don't support older versions of Windows where the limit is 512 bytes.
+     */
     private readonly WIN32_CRED_MAX_STRING_LENGTH = 2560;
 
     /**
-   * Pass-through to the superclass constructor.
-   *
-   * @param {string} service The service string to send to the superclass constructor.
-   * @param {string} displayName The display name for this credential manager to send to the superclass constructor
-   */
+     * Pass-through to the superclass constructor.
+     *
+     * @param {string} service The service string to send to the superclass constructor.
+     * @param {string} displayName The display name for this credential manager to send to the superclass constructor
+     */
     constructor(service: string, displayName: string = "default credential manager") {
-    // Always ensure that a manager instantiates the super class, even if the
-    // constructor doesn't do anything. Who knows what things might happen in
-    // the abstract class initialization in the future.
+        // Always ensure that a manager instantiates the super class, even if the
+        // constructor doesn't do anything. Who knows what things might happen in
+        // the abstract class initialization in the future.
         super(service, displayName);
 
         /* Gather all services. We will load secure properties for the first
-     * successful service found in the order that they are placed in this array.
-     */
+        * successful service found in the order that they are placed in this array.
+        */
         this.allServices = [service || DefaultCredentialManager.SVC_NAME];
 
         if (this.defaultService === DefaultCredentialManager.SVC_NAME) {
             /* Previous services under which we will look for credentials.
-       * We dropped @brightside/core because we no longer support the
-       * lts-incremental version of the product.
-       */
+            * We dropped @brightside/core because we no longer support the
+            * lts-incremental version of the product.
+            */
             this.allServices.push("@zowe/cli", "Zowe-Plugin", "Broadcom-Plugin");
         }
     }
 
     /**
-   * Called by {@link CredentialManagerFactory.initialize} before the freeze of the object. This
-   * gives us a chance to load keytar into the class before we are locked down. If a load failure
-   * occurs, we will store the error and throw it once a method of this class tries to execute. This
-   * prevents a missing keytar module from stopping all operation of the cli.
-   *
-   * In the future, we could go even further to have keytar load into a sub-object of this class so
-   * that the load doesn't hold up the main class execution.
-   *
-   * @returns {Promise<void>} A promise that the function has completed.
-   */
+     * Called by {@link CredentialManagerFactory.initialize} before the freeze of the object. This
+     * gives us a chance to load keytar into the class before we are locked down. If a load failure
+     * occurs, we will store the error and throw it once a method of this class tries to execute. This
+     * prevents a missing keytar module from stopping all operation of the cli.
+     *
+     * In the future, we could go even further to have keytar load into a sub-object of this class so
+     * that the load doesn't hold up the main class execution.
+     *
+     * @returns {Promise<void>} A promise that the function has completed.
+     */
     public async initialize(): Promise<void> {
         try {
             // Imperative overrides the value of process.mainModule.filename to point to
@@ -134,32 +134,32 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
     }
 
     /**
-   * Calls the keytar deletePassword service with {@link DefaultCredentialManager#service} and the
-   * account passed to the function by Imperative.
-   *
-   * @param {string} account The account for which to delete the password
-   *
-   * @returns {Promise<void>} A promise that the function has completed.
-   *
-   * @throws {@link ImperativeError} if keytar is not defined.
-   */
+     * Calls the keytar deletePassword service with {@link DefaultCredentialManager#service} and the
+     * account passed to the function by Imperative.
+     *
+     * @param {string} account The account for which to delete the password
+     *
+     * @returns {Promise<void>} A promise that the function has completed.
+     *
+     * @throws {@link ImperativeError} if keytar is not defined.
+     */
     protected async deleteCredentials(account: string): Promise<void> {
         this.checkForKeytar();
         await this.deleteCredentialsHelper(account);
     }
 
     /**
-   * Calls the keytar getPassword service with {@link DefaultCredentialManager#service} and the
-   * account passed to the function by Imperative.
-   *
-   * @param {string} account The account for which to get credentials
-   * @param {boolean} optional Set to true if failure to find credentials should be ignored
-   *
-   * @returns {Promise<SecureCredential>} A promise containing the credentials stored in keytar.
-   *
-   * @throws {@link ImperativeError} if keytar is not defined.
-   * @throws {@link ImperativeError} when keytar.getPassword returns null or undefined.
-   */
+     * Calls the keytar getPassword service with {@link DefaultCredentialManager#service} and the
+     * account passed to the function by Imperative.
+     *
+     * @param {string} account The account for which to get credentials
+     * @param {boolean} optional Set to true if failure to find credentials should be ignored
+     *
+     * @returns {Promise<SecureCredential>} A promise containing the credentials stored in keytar.
+     *
+     * @throws {@link ImperativeError} if keytar is not defined.
+     * @throws {@link ImperativeError} when keytar.getPassword returns null or undefined.
+     */
     protected async loadCredentials(account: string, optional?: boolean): Promise<SecureCredential> {
         this.checkForKeytar();
 
@@ -189,16 +189,16 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
     }
 
     /**
-   * Calls the keytar setPassword service with {@link DefaultCredentialManager#service} and the
-   * account and credentials passed to the function by Imperative.
-   *
-   * @param {string} account The account to set credentials
-   * @param {SecureCredential} credentials The credentials to store
-   *
-   * @returns {Promise<void>} A promise that the function has completed.
-   *
-   * @throws {@link ImperativeError} if keytar is not defined.
-   */
+     * Calls the keytar setPassword service with {@link DefaultCredentialManager#service} and the
+     * account and credentials passed to the function by Imperative.
+     *
+     * @param {string} account The account to set credentials
+     * @param {SecureCredential} credentials The credentials to store
+     *
+     * @returns {Promise<void>} A promise that the function has completed.
+     *
+     * @throws {@link ImperativeError} if keytar is not defined.
+     */
     protected async saveCredentials(account: string, credentials: SecureCredential): Promise<void> {
         this.checkForKeytar();
         await this.deleteCredentialsHelper(account, true);
@@ -206,28 +206,28 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
     }
 
     /**
-   * The default service name for storing credentials.
-   */
+     * The default service name for storing credentials.
+     */
     private get defaultService(): string {
         return this.allServices[0];
     }
 
     /**
-   * This function is called before the {@link deletePassword}, {@link getPassword}, and
-   * {@link setPassword} functions. It will check if keytar is not null and will throw an error
-   * if it is.
-   *
-   * The error thrown will be the contents of {@link loadError} or a new {@link ImperativeError}.
-   * The former error will be the most common one as we expect failures during the load since keytar
-   * is optional. The latter error will indicate that some unknown condition has happened so we will
-   * create a new ImperativeError with the report suppressed. The report is suppressed because it
-   * may be possible that a detailed report could capture a username and password, which would
-   * probably be a bad thing.
-   *
-   * @private
-   *
-   * @throws {@link ImperativeError} when keytar is null or undefined.
-   */
+     * This function is called before the {@link deletePassword}, {@link getPassword}, and
+     * {@link setPassword} functions. It will check if keytar is not null and will throw an error
+     * if it is.
+     *
+     * The error thrown will be the contents of {@link loadError} or a new {@link ImperativeError}.
+     * The former error will be the most common one as we expect failures during the load since keytar
+     * is optional. The latter error will indicate that some unknown condition has happened so we will
+     * create a new ImperativeError with the report suppressed. The report is suppressed because it
+     * may be possible that a detailed report could capture a username and password, which would
+     * probably be a bad thing.
+     *
+     * @private
+     *
+     * @throws {@link ImperativeError} when keytar is null or undefined.
+     */
     private checkForKeytar(): void {
         if (this.keytar == null) {
             if (this.loadError == null) {
@@ -241,13 +241,13 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
     }
 
     /**
-   * Helper to load credentials from vault that supports values longer than
-   * `DefaultCredentialManager.WIN32_CRED_MAX_STRING_LENGTH` on Windows.
-   * @private
-   * @param service The string service name.
-   * @param account The string account name.
-   * @returns A promise for the credential string.
-   */
+     * Helper to load credentials from vault that supports values longer than
+     * `DefaultCredentialManager.WIN32_CRED_MAX_STRING_LENGTH` on Windows.
+     * @private
+     * @param service The string service name.
+     * @param account The string account name.
+     * @returns A promise for the credential string.
+     */
     private async getCredentialsHelper(service: string, account: string): Promise<SecureCredential> {
     // Try to load single-field value from vault
         let value = await this.keytar.getPassword(service, account);
@@ -274,13 +274,13 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
     }
 
     /**
-   * Helper to save credentials to vault that supports values longer than
-   * `DefaultCredentialManager.WIN32_CRED_MAX_STRING_LENGTH` on Windows.
-   * @private
-   * @param service The string service name.
-   * @param account The string account name.
-   * @param value The string credential.
-   */
+     * Helper to save credentials to vault that supports values longer than
+     * `DefaultCredentialManager.WIN32_CRED_MAX_STRING_LENGTH` on Windows.
+     * @private
+     * @param service The string service name.
+     * @param account The string account name.
+     * @param value The string credential.
+     */
     private async setCredentialsHelper(service: string, account: string, value: SecureCredential): Promise<void> {
     // On Windows, save value across multiple fields if needed
         if (process.platform === "win32" && value.length > this.WIN32_CRED_MAX_STRING_LENGTH) {
@@ -332,10 +332,10 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
         listOfServices = listOfServices.slice(0, -1 * commaAndSpace) + `\n  Account = ${account}\n\n`;
 
         return "Could not find an entry in the credential vault for the following:\n" +
-        listOfServices +
-        "Possible Causes:\n" +
-        "  This could have been caused by any manual removal of credentials from your vault.\n\n" +
-        "Resolutions: \n" +
-        "  Recreate the credentials in the vault for the particular service in the vault.\n";
+            listOfServices +
+            "Possible Causes:\n" +
+            "  This could have been caused by any manual removal of credentials from your vault.\n\n" +
+            "Resolutions: \n" +
+            "  Recreate the credentials in the vault for the particular service in the vault.\n";
     }
 }

@@ -13,12 +13,12 @@ export class JsUtils {
 
     // __________________________________________________________________________
     /**
-   * Is the supplied object empty.
-   *
-   * @param {object} objToTest - The object to test.
-   *
-   * @returns {boolean} - True if empty. False otherwise.
-   */
+     * Is the supplied object empty.
+     *
+     * @param {object} objToTest - The object to test.
+     *
+     * @returns {boolean} - True if empty. False otherwise.
+     */
     public static isObjEmpty(objToTest: object): boolean {
         if (!objToTest) {
             return true;

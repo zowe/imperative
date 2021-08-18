@@ -62,10 +62,10 @@ describe("Plugin Management Facility uninstall handler", () => {
     });
 
     /**
-   *  Create object to be passed to process function
-   *
-   * @returns {IHandlerParameters}
-   */
+     *  Create object to be passed to process function
+     *
+     * @returns {IHandlerParameters}
+     */
     const getIHandlerParametersObject = (): IHandlerParameters => {
         const x: any = {
             response: new (CommandResponse as any)(),
@@ -82,10 +82,10 @@ describe("Plugin Management Facility uninstall handler", () => {
     });
 
     /**
-   * Validates that an uninstall call was valid based on the parameters passed.
-   *
-   * @param {string}   packageNameParm  expected package location that uninstall was called with.
-   */
+     * Validates that an uninstall call was valid based on the parameters passed.
+     *
+     * @param {string}   packageNameParm  expected package location that uninstall was called with.
+     */
     const wasUninstallCallValid = (
         packageNameParm: string
     ) => {
@@ -95,17 +95,17 @@ describe("Plugin Management Facility uninstall handler", () => {
     };
 
     /**
-   * Checks that the successful message was written.
-   *
-   * @param {IHandlerParameters} params The parameters that were passed to the
-   *                                    process function.
-   */
+     * Checks that the successful message was written.
+     *
+     * @param {IHandlerParameters} params The parameters that were passed to the
+     *                                    process function.
+     */
     const wasUninstallSuccessful = (params: IHandlerParameters) => {
         expect(params.response.console.log).toHaveBeenCalledWith("Removal of the npm package(s) was successful.\n");
     };
 
     test("uninstall specified package", async () => {
-    // plugin definitions mocking file contents
+        // plugin definitions mocking file contents
         const fileJson: IPluginJson = {
             a: {
                 package: packageName,
@@ -150,20 +150,20 @@ describe("Plugin Management Facility uninstall handler", () => {
 
         expect(expectedError.message).toBe(`${chalk.yellow.bold("Package name")} is required.`);
 
-    // const installError = new Error("This is a test");
-    // let expectedError: ImperativeError;
-    //
-    // mocks.install.mockImplementationOnce(() => {
-    //   throw installError;
-    // });
-    //
-    // try {
-    //   await handler.process(params);
-    // } catch (e) {
-    //   expectedError = e;
-    // }
-    //
-    // expect(expectedError.message).toBe("Install Failed");
+        // const installError = new Error("This is a test");
+        // let expectedError: ImperativeError;
+        //
+        // mocks.install.mockImplementationOnce(() => {
+        //   throw installError;
+        // });
+        //
+        // try {
+        //   await handler.process(params);
+        // } catch (e) {
+        //   expectedError = e;
+        // }
+        //
+        // expect(expectedError.message).toBe("Install Failed");
     });
 
 
