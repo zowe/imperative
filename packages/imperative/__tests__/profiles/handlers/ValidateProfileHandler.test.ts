@@ -158,7 +158,7 @@ describe("validate endevor profile handler", () => {
                 },
                 validationPlanModule: "../../../../../__tests__/src/packages/imperative/plugins/test_cli/TestProfileValidationPlan1"
             };
-            Imperative.getProfileConfiguration = jest.fn(() => {return profConfig; });
+            Imperative.getProfileConfiguration = jest.fn(() => profConfig);
 
             // print-plan-only forced printing the plan, not validating
             const printedPlanText = "Printed plan for profile validation";

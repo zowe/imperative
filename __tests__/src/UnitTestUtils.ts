@@ -9,7 +9,6 @@
 *
 */
 
-// we need non-arrow functions to override some jest code
 import { TestLogger } from "../TestLogger";
 import { isNullOrUndefined } from "util";
 
