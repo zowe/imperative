@@ -33,24 +33,26 @@ describe("AbstractRestClient system tests", () => {
     it("should get response when host is IPv4 address", async () => {
         const [ipv4] = await promisify(dns.resolve4)(exampleDomain);
         const session = new Session({ hostname: ipv4 });
-        let responseText;
+        let responseText, caughtError;
         try {
             responseText = await RestClient.getExpectString(session, "/", [{ "Host": exampleDomain }]);
         } catch (error) {
-            console.dir(error);
+            caughtError = error;
         }
+        expect(caughtError).toBeUndefined();
         expect(responseText).toBe(exampleHtml);
     });
 
     it("should get response when host is IPv6 address", async () => {
         const [ipv6] = await promisify(dns.resolve6)(exampleDomain);
         const session = new Session({ hostname: ipv6 });
-        let responseText;
+        let responseText, caughtError;
         try {
             responseText = await RestClient.getExpectString(session, "/", [{ "Host": exampleDomain }]);
         } catch (error) {
-            console.dir(error);
+            caughtError = error;
         }
+        expect(caughtError).toBeUndefined();
         expect(responseText).toBe(exampleHtml);
     });
 });
