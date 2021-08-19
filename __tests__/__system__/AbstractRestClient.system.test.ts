@@ -27,7 +27,7 @@ describe("AbstractRestClient system tests", () => {
             caughtError = error;
         }
         expect(caughtError).toBeUndefined();
-        expect(exampleHtml).toContain("<!DOCTYPE html>");
+        expect(exampleHtml).toContain("<!doctype html>");
     });
 
     it("should get response when host is IPv4 address", async () => {
@@ -50,6 +50,7 @@ describe("AbstractRestClient system tests", () => {
         try {
             responseText = await RestClient.getExpectString(session, "/", [{ "Host": exampleDomain }]);
         } catch (error) {
+            console.dir(error);  // eslint-disable-line
             caughtError = error;
         }
         expect(caughtError).toBeUndefined();
