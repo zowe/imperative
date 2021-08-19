@@ -115,10 +115,20 @@ export class ConnectionPropsForSessCfg {
             delete finalSessCfg.tokenValue;
         } else if (!ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) &&
             !ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) &&
-            ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenValue))
-        {
+            ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenValue)) {
             // only set tokenValue if user and password were not supplied
             finalSessCfg.tokenValue = cmdArgs.tokenValue;
+        } else if (!ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) &&
+        !ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) &&
+        !ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenValue) &&
+        ConnectionPropsForSessCfg.propHasValue(cmdArgs.certFile)) {
+            finalSessCfg.cert = cmdArgs.certFile;
+            if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.certKeyFile)) {
+                finalSessCfg.certKey = cmdArgs.certKeyFile;
+            } 
+            // else if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.certFilePassword)) {
+            //     finalSessCfg.passphrase = cmdArgs.certFilePassword;
+            // }
         }
 
         // This function will provide all the needed properties in one array
@@ -136,7 +146,10 @@ export class ConnectionPropsForSessCfg {
                 promptForValues.push("port");
             }
 
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.tokenValue)=== false) {
+            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.tokenValue)=== false &&
+                ConnectionPropsForSessCfg.propHasValue(finalSessCfg.cert)=== false && (
+                ConnectionPropsForSessCfg.propHasValue(finalSessCfg.certKey)=== false ||
+                ConnectionPropsForSessCfg.propHasValue(finalSessCfg.passphrase)=== false)) {
                 if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user)=== false) {
                     promptForValues.push("user");
                 }
@@ -216,6 +229,25 @@ export class ConnectionPropsForSessCfg {
             return finalSessCfg;
         }
 
+        if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.cert) === true) {
+            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.certKey) === true) {
+                impLogger.debug("Using PEM Certificate authentication");
+                finalSessCfg.cert = cmdArgs.certFile;
+                finalSessCfg.certKey = cmdArgs.certKeyFile;
+                finalSessCfg.type = SessConstants.AUTH_TYPE_CERT_PEM;
+                ConnectionPropsForSessCfg.logSessCfg(finalSessCfg);
+                return finalSessCfg;
+            } 
+            // else if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.passphrase) === true) {
+            //     impLogger.debug("Using PFX Certificate authentication");
+            //     finalSessCfg.cert = cmdArgs.certFile;
+            //     finalSessCfg.passphrase = cmdArgs.certFilePassword;
+            //     finalSessCfg.type = SessConstants.AUTH_TYPE_CERT_PFX;
+            //     ConnectionPropsForSessCfg.logSessCfg(finalSessCfg);
+            //     return finalSessCfg;
+            // }
+        }
+
         /* At this point we ruled out token, so we use user and password. If our
          * caller permits, we prompt for any missing user name and password.
          */
@@ -257,7 +289,7 @@ export class ConnectionPropsForSessCfg {
      * List of properties on `sessCfg` object that should be kept secret and
      * may not appear in Imperative log files.
      */
-    private static readonly secureSessCfgProps: string[] = ["user", "password", "tokenValue"];
+    private static readonly secureSessCfgProps: string[] = ["user", "password", "tokenValue", "passphrase", "certKey"];
 
     // ***********************************************************************
     /**

@@ -279,7 +279,8 @@ export abstract class AbstractSession {
         // populatedSession.type = populatedSession.type.toLocaleLowerCase();
         ImperativeExpect.keysToBeDefinedAndNonBlank(populatedSession, ["hostname"]);
         ImperativeExpect.toBeOneOf(populatedSession.type,
-            [SessConstants.AUTH_TYPE_NONE, SessConstants.AUTH_TYPE_BASIC, SessConstants.AUTH_TYPE_TOKEN, SessConstants.AUTH_TYPE_BEARER]);
+            [SessConstants.AUTH_TYPE_NONE, SessConstants.AUTH_TYPE_BASIC, SessConstants.AUTH_TYPE_TOKEN,
+                SessConstants.AUTH_TYPE_BEARER, SessConstants.AUTH_TYPE_CERT_PEM]); // , SessConstants.AUTH_TYPE_CERT_PFX]);
         ImperativeExpect.toBeOneOf(populatedSession.protocol, [SessConstants.HTTPS_PROTOCOL, SessConstants.HTTP_PROTOCOL]);
 
         // if basic auth, must have user and password OR base 64 encoded credentials
@@ -323,6 +324,18 @@ export abstract class AbstractSession {
                 }
             }
         }
+
+        if (session.type === SessConstants.AUTH_TYPE_CERT_PEM) {
+            ImperativeExpect.keysToBeDefinedAndNonBlank(populatedSession, ["cert", "certKey"]);
+            ImperativeExpect.toNotBeEqual(populatedSession.protocol, SessConstants.HTTP_PROTOCOL,
+                "Certificate based authentication cannot be used over HTTP. Please set protocol to HTTPS to use certificate authentication.");
+        }
+
+        // if (session.type === SessConstants.AUTH_TYPE_CERT_PFX) {
+        //     ImperativeExpect.keysToBeDefinedAndNonBlank(populatedSession, ["cert", "passphrase"]);
+        //     ImperativeExpect.toNotBeEqual(populatedSession.protocol, SessConstants.HTTP_PROTOCOL,
+        //         "Certificate based authentication cannot be used over HTTP. Please set protocol to HTTPS to use certificate authentication.");
+        // }
 
         // if basic auth
         if (populatedSession.type === SessConstants.AUTH_TYPE_BASIC || populatedSession.type === SessConstants.AUTH_TYPE_TOKEN) {

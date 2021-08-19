@@ -18,5 +18,9 @@ export interface IHTTPSOptions {
     path: string;
     port: string;
     rejectUnauthorized: boolean;
+    cert?: string;
+    key?: string;
+    // pfx?: string;
+    // passphrase?: string;
     hash?: string;
 }
