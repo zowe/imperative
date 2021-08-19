@@ -20,22 +20,34 @@ describe("AbstractRestClient system tests", () => {
 
     it("should get response when host is domain name", async () => {
         const session = new Session({ hostname: exampleDomain });
-        exampleHtml = await RestClient.getExpectString(session, "/", [{ "Host": exampleDomain }]);
-        expect(exampleHtml).toContain("<html>");
+        let caughtError;
+        try {
+            exampleHtml = await RestClient.getExpectString(session, "/");
+        } catch (error) {
+            caughtError = error;
+        }
+        expect(caughtError).toBeUndefined();
+        expect(exampleHtml).toContain("<!DOCTYPE html>");
     });
 
     it("should get response when host is IPv4 address", async () => {
         const [ipv4] = await promisify(dns.resolve4)(exampleDomain);
         const session = new Session({ hostname: ipv4 });
-        const responseText = await RestClient.getExpectString(session, "/", [{ "Host": exampleDomain }]);
+        let responseText;
+        try {
+            responseText = await RestClient.getExpectString(session, "/", [{ "Host": exampleDomain }]);
+        } catch (error) {
+            console.dir(error);
+        }
         expect(responseText).toBe(exampleHtml);
     });
 
     it("should get response when host is IPv6 address", async () => {
         const [ipv6] = await promisify(dns.resolve6)(exampleDomain);
         const session = new Session({ hostname: ipv6 });
+        let responseText;
         try {
-            const responseText = await RestClient.getExpectString(session, "/", [{ "Host": exampleDomain }]);
+            responseText = await RestClient.getExpectString(session, "/", [{ "Host": exampleDomain }]);
         } catch (error) {
             console.dir(error);
         }
