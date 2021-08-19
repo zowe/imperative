@@ -15,19 +15,20 @@ import { RestClient } from "../../packages/rest/src/client/RestClient";
 import { Session } from "../../packages/rest/src/session/Session";
 
 describe("AbstractRestClient system tests", () => {
-    const exampleDomain = "example.com";
+    const exampleDomain = "dns.google.com";
+    const removeHash = (html: string) => html.replace(/(?<=nonce)=".+"/g, "");
     let exampleHtml: string;
 
     it("should get response when host is domain name", async () => {
         const session = new Session({ hostname: exampleDomain });
         let caughtError;
         try {
-            exampleHtml = await RestClient.getExpectString(session, "/");
+            exampleHtml = removeHash(await RestClient.getExpectString(session, "/"));
         } catch (error) {
             caughtError = error;
         }
         expect(caughtError).toBeUndefined();
-        expect(exampleHtml).toContain("<!doctype html>");
+        expect(exampleHtml).toContain("<!DOCTYPE html>");
     });
 
     it("should get response when host is IPv4 address", async () => {
@@ -40,7 +41,7 @@ describe("AbstractRestClient system tests", () => {
             caughtError = error;
         }
         expect(caughtError).toBeUndefined();
-        expect(responseText).toBe(exampleHtml);
+        expect(removeHash(responseText)).toBe(exampleHtml);
     });
 
     it("should get response when host is IPv6 address", async () => {
@@ -50,10 +51,9 @@ describe("AbstractRestClient system tests", () => {
         try {
             responseText = await RestClient.getExpectString(session, "/", [{ "Host": exampleDomain }]);
         } catch (error) {
-            console.dir(error);  // eslint-disable-line
             caughtError = error;
         }
         expect(caughtError).toBeUndefined();
-        expect(responseText).toBe(exampleHtml);
+        expect(removeHash(responseText)).toBe(exampleHtml);
     });
 });
