@@ -8,7 +8,8 @@
     "testPathIgnorePatterns": [
         "/node_modules/",
         "<rootDir>/__tests__/__results__",
-        "unit"
+        "unit",
+        "__integration__"
     ],
     "testRegex": "__system__.*test\\.(ts|js)"
 }
