@@ -13,6 +13,7 @@ import * as dns from "dns";
 import { promisify } from "util";
 import { RestClient } from "../../packages/rest/src/client/RestClient";
 import { Session } from "../../packages/rest/src/session/Session";
+import { TestLogger } from "../TestLogger";
 
 describe("AbstractRestClient system tests", () => {
     const exampleDomain = "dns.google.com";
@@ -52,6 +53,7 @@ describe("AbstractRestClient system tests", () => {
             responseText = await RestClient.getExpectString(session, "/", [{ "Host": exampleDomain }]);
         } catch (error) {
             caughtError = error;
+            TestLogger.info("To run this test, your network must support connecting to external IPv6 addresses.");
         }
         expect(caughtError).toBeUndefined();
         expect(removeHash(responseText)).toBe(exampleHtml);

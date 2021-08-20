@@ -131,26 +131,6 @@ node('zowe-jenkins-agent-dind') {
         junitOutput: INTEGRATION_JUNIT_OUTPUT
     )
 
-    // Perform system tests and capture the results
-    def SYSTEM_TEST_ROOT = "$TEST_ROOT/system"
-    def SYSTEM_JUNIT_OUTPUT = "$SYSTEM_TEST_ROOT/junit.xml"
-
-    pipeline.test(
-        name: "System",
-        operation: {
-            sh "npm run test:system"
-        },
-        timeout: [time: 30, unit: 'MINUTES'],
-        shouldUnlockKeyring: true,
-        environment: [
-            JEST_JUNIT_OUTPUT: SYSTEM_JUNIT_OUTPUT,
-            JEST_STARE_RESULT_DIR: "${SYSTEM_TEST_ROOT}/jest-stare",
-            JEST_STARE_RESULT_HTML: "index.html"
-        ],
-        testResults: [dir: "$SYSTEM_TEST_ROOT/jest-stare", files: "index.html", name: 'Imperative - System Test Report'],
-        junitOutput: SYSTEM_JUNIT_OUTPUT
-    )
-
     //Upload Reports to Code Coverage
     pipeline.createStage(
         name: "Codecov",

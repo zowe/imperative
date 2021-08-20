@@ -37,7 +37,7 @@
     "pretest:integration": "gulp test:installSampleClis",
     "test:integration": "env-cmd ./__tests__/config/integration/.env.js --no-override jest -c ./__tests__/config/integration/jest.config.json --runInBand",
     "posttest:integration": "gulp test:uninstallSampleClis",
-    "test:system": "env-cmd ./__tests__/config/system/.env.js --no-override jest -c ./__tests__/config/system/jest.config.json",
+    "test:system": "env-cmd ./__tests__/config/system/.env.js --no-override jest -c ./__tests__/config/system/jest.config.json --runInBand",
     "lint": "eslint \"packages/**/*.ts\" \"**/__tests__/**/*.ts\"",
     "lint:packages": "eslint \"packages/**/*.ts\" --ignore-pattern \"**/__tests__/**/*.ts\"",
     "lint:tests": "eslint \"**/__tests__/**/*.ts\"",
