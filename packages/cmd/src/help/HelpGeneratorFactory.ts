@@ -11,7 +11,6 @@
 
 import { AbstractHelpGeneratorFactory } from "./abstract/AbstractHelpGeneratorFactory";
 import { DefaultHelpGenerator } from "./DefaultHelpGenerator";
-import { IHelpGeneratorFactoryParms } from "./doc/IHelpGeneratorFactoryParms";
 import { IHelpGeneratorParms } from "./doc/IHelpGeneratorParms";
 
 /**

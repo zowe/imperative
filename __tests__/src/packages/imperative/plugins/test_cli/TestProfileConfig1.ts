@@ -12,35 +12,35 @@
 import { ICommandProfileTypeConfiguration } from "@zowe/imperative";
 
 export const TestProfileConfig1: ICommandProfileTypeConfiguration = {
-  type: "TestProfile1",
-  schema: {
-    type: "object",
-    title: "The first test profile schema",
-    description: "The first test profile description",
-    properties: {
-      importance: {
-        optionDefinition: {
-          description: "The importance of something",
-          type: "string",
-          name: "importance",
-          aliases: ["i"],
-          required: true,
-          defaultValue: "desirable"
+    type: "TestProfile1",
+    schema: {
+        type: "object",
+        title: "The first test profile schema",
+        description: "The first test profile description",
+        properties: {
+            importance: {
+                optionDefinition: {
+                    description: "The importance of something",
+                    type: "string",
+                    name: "importance",
+                    aliases: ["i"],
+                    required: true,
+                    defaultValue: "desirable"
+                },
+                type: "string",
+            },
+            duration: {
+                optionDefinition: {
+                    description: "How many days will it last",
+                    type: "number",
+                    name: "duration",
+                    aliases: ["d"],
+                    required: false
+                },
+                type: "number",
+            },
         },
-        type: "string",
-      },
-      duration: {
-        optionDefinition: {
-          description: "How many days will it last",
-          type: "number",
-          name: "duration",
-          aliases: ["d"],
-          required: false
-        },
-        type: "number",
-      },
+        required: ["size", "duration"],
     },
-    required: ["size", "duration"],
-  },
-  validationPlanModule: __dirname + "/TestProfileValidationPlan1"
+    validationPlanModule: __dirname + "/TestProfileValidationPlan1"
 };

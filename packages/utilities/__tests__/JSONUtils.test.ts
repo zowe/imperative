@@ -24,8 +24,8 @@ describe("JSONUtils tests", () => {
     });
 
     it("should return null for input that has no content", () => {
-       expect(JSONUtils.parse<any>("")).toBeNull();
-       expect(JSONUtils.parse<any>("          ")).toBeNull();
+        expect(JSONUtils.parse<any>("")).toBeNull();
+        expect(JSONUtils.parse<any>("          ")).toBeNull();
     });
 
     it("should give a message for a failed JSON object", () => {

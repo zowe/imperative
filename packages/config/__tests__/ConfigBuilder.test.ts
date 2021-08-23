@@ -38,7 +38,7 @@ function buildProfileProperty(name: string, type: string | Array<string>, missin
             type,
             includeInTemplate: true,
             optionDefinition: null
-        }
+        };
     } else {
         return {
             type,
@@ -49,7 +49,7 @@ function buildProfileProperty(name: string, type: string | Array<string>, missin
                 type,
                 required: true,
             }
-        }
+        };
     }
 }
 
@@ -142,7 +142,6 @@ describe("Config Builder tests", () => {
             expectedConfig.defaults.secured = "secured";
 
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
-            // tslint:disable-next-line: no-magic-numbers
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(7); // Populating default value for info, fakestr, fakenum, fakeobj, fakearr, fakebool
             expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1);
             expect(builtConfig).toEqual(expectedConfig);
@@ -158,7 +157,6 @@ describe("Config Builder tests", () => {
             expectedConfig.defaults.secured = "secured";
 
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
-            // tslint:disable-next-line: no-magic-numbers
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(2); // Populating default value for info, fakestr
             expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1);
             expect(builtConfig).toEqual(expectedConfig);
@@ -241,7 +239,6 @@ describe("Config Builder tests", () => {
             expectedConfig.defaults.base = "base";
 
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
-            // tslint:disable-next-line: no-magic-numbers
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(5); // Populating default value for info and host of each profile
             expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1); // Hoisting host property from base profile
             expect(builtConfig).toEqual(expectedConfig);

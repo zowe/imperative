@@ -262,17 +262,17 @@ export class ConnectionPropsForSessCfg {
         sessCfg: SessCfgType,
         cmdArgs: ICommandArguments = {$0: "", _: []},
         connOpts: IOptionsForAddConnProps = {}
-     ) {
+    ) {
         const impLogger = Logger.getImperativeLogger();
 
         // use defaults if caller has not specified these properties.
-        if (!connOpts.hasOwnProperty("requestToken")) {
+        if (!Object.prototype.hasOwnProperty.call(connOpts, "requestToken")) {
             connOpts.requestToken = false;
         }
-        if (!connOpts.hasOwnProperty("doPrompting")) {
+        if (!Object.prototype.hasOwnProperty.call(connOpts, "doPrompting")) {
             connOpts.doPrompting = true;
         }
-        if (!connOpts.hasOwnProperty("defaultTokenType")) {
+        if (!Object.prototype.hasOwnProperty.call(connOpts, "defaultTokenType")) {
             connOpts.defaultTokenType = SessConstants.TOKEN_TYPE_JWT;
         }
 

@@ -95,7 +95,7 @@ describe("Configuration Schema command handler", () => {
         dataObj = null;
         errorText = null;
         logText = null;
-    })
+    });
 
     it("should print schema JSON", async () => {
         loadedConfigMock.mockReturnValueOnce({

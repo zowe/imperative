@@ -11,7 +11,7 @@
 
 jest.mock("../../../../utilities/src/ImperativeConfig");
 
-import { ImperativeConfig } from "../../../../utilities"
+import { ImperativeConfig } from "../../../../utilities";
 import { deleteHandlerPaths, testBuilderProfiles } from "./ProfileBuilderTestConstants";
 import { TestLogger } from "../../../../../__tests__/TestLogger";
 import { CompleteProfilesGroupBuilder } from "../../../../imperative/src/profiles/builders/CompleteProfilesGroupBuilder";
@@ -30,8 +30,8 @@ describe("Complete Profiles Group Builder", () => {
     it("should provide a valid command definition for the " +
         "complete auto generated profile group if passed a valid " +
         "profile configuration document", () => {
-            let commands = CompleteProfilesGroupBuilder.getProfileGroup(testBuilderProfiles, logger);
-            commands = deleteHandlerPaths(commands);
-            expect(commands).toMatchSnapshot();
-        });
+        let commands = CompleteProfilesGroupBuilder.getProfileGroup(testBuilderProfiles, logger);
+        commands = deleteHandlerPaths(commands);
+        expect(commands).toMatchSnapshot();
+    });
 });

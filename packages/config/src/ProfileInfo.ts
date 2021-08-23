@@ -204,7 +204,6 @@ export class ProfileInfo {
         if (this.mUsingTeamConfig) {
             const teamConfigProfs = this.mLoadedConfig.maskedProperties.profiles;
             // Iterate over them
-            // tslint:disable-next-line: forin
             for (const prof in teamConfigProfs) {
                 // Check if the profile has a type
                 if (teamConfigProfs[prof].type && (profileType == null || teamConfigProfs[prof].type === profileType)) {
@@ -219,7 +218,7 @@ export class ProfileInfo {
                             osLoc: teamOsLocation,
                             jsonLoc: jsonLocation
                         }
-                    }
+                    };
                     profiles.push(profAttrs);
                 }
                 // Check for subprofiles
@@ -273,12 +272,12 @@ export class ProfileInfo {
             isDefaultProfile: true,
             profLoc: {
                 locType: null
-           }
+            }
         };
 
         if (this.usingTeamConfig) {
             // get default profile name from the team config
-            if (!this.mLoadedConfig.maskedProperties.defaults.hasOwnProperty(profileType)) {
+            if (!Object.prototype.hasOwnProperty.call(this.mLoadedConfig.maskedProperties.defaults, profileType)) {
                 // no default exists for the requested type
                 this.mImpLogger.warn("Found no profile of type '" +
                     profileType + "' in team config."
@@ -299,7 +298,7 @@ export class ProfileInfo {
                 locType: ProfLocType.TEAM_CONFIG,
                 osLoc: teamOsLocation,
                 jsonLoc: foundJson
-            }
+            };
         } else {
             // get default profile from the old-school profiles
             // first, some validation
@@ -322,11 +321,12 @@ export class ProfileInfo {
             }
 
             const loadedProfile = this.mOldSchoolProfileCache.find(obj => {
-                return obj.name === profName && obj.type === profileType
+                return obj.name === profName && obj.type === profileType;
             });
             if (!loadedProfile) {
                 // Something really weird happened
-                this.mImpLogger.warn("Profile with name '" + profName + "' was defined as the default profile for type '" + profileType + "' but was missing from the cache.");
+                this.mImpLogger.warn(`Profile with name '${profName}' was defined as the default profile for type '${profileType}' but was missing ` +
+                    `from the cache.`);
                 return null;
             }
 
@@ -337,7 +337,7 @@ export class ProfileInfo {
             defaultProfile.profLoc = {
                 locType: ProfLocType.OLD_PROFILE,
                 osLoc: [this.oldProfileFilePath(profileType, loadedProfile.name)]
-            }
+            };
         }
         return defaultProfile;
     }
@@ -471,7 +471,7 @@ export class ProfileInfo {
         } else if (profile.profLoc.locType === ProfLocType.OLD_PROFILE) {
             if (profile.profName != null) {
                 const serviceProfile = this.mOldSchoolProfileCache.find(obj => {
-                    return obj.name === profile.profName && obj.type === profile.profType
+                    return obj.name === profile.profName && obj.type === profile.profType;
                 })?.profile;
                 if (serviceProfile != null) {
                     // Load args from service profile if one exists
@@ -492,7 +492,7 @@ export class ProfileInfo {
             if (baseProfileName != null) {
                 // Load args from default base profile if one exists
                 const baseProfile = this.mOldSchoolProfileCache.find(obj => {
-                    return obj.name === baseProfileName && obj.type === "base"
+                    return obj.name === baseProfileName && obj.type === "base";
                 })?.profile;
                 if (baseProfile != null) {
                     for (const [propName, propVal] of Object.entries(baseProfile)) {
@@ -658,10 +658,10 @@ export class ProfileInfo {
         profLoaded.profile = lodash.cloneDeep(profAttrs);
 
         // set hard-coded defaults
-        if (!profLoaded.hasOwnProperty("message")) {
+        if (!Object.prototype.hasOwnProperty.call(profLoaded, "message")) {
             profLoaded.message = "";
         }
-        if (!profLoaded.hasOwnProperty("failNotFound")) {
+        if (!Object.prototype.hasOwnProperty.call(profLoaded, "failNotFound")) {
             profLoaded.failNotFound = false;
         }
 
@@ -970,7 +970,6 @@ export class ProfileInfo {
      */
     private getTeamSubProfiles(path: string, jsonPath: string, profObj: { [key: string]: any }, profileType?: string): IProfAttrs[] {
         const profiles: IProfAttrs[] = [];
-        // tslint:disable-next-line: forin
         for (const prof in profObj) {
             const newJsonPath = jsonPath + ".profiles." + prof;
             const newProfName = path + "." + prof;
@@ -984,7 +983,7 @@ export class ProfileInfo {
                         osLoc: this.findTeamOsLocation(newJsonPath),
                         jsonLoc: newJsonPath
                     }
-                }
+                };
                 profiles.push(profAttrs);
             }
             // Check for subprofiles
@@ -1074,7 +1073,7 @@ export class ProfileInfo {
         while (segments.length > 0 && lodash.get(this.mLoadedConfig.properties, buildPath(segments, propName)) === undefined) {
             // Drop segment from end of path if property not found
             segments.pop();
-        };
+        }
         const jsonPath = (segments.length > 0) ? buildPath(segments, propName) : undefined;
         if (jsonPath == null) {
             throw new ProfInfoErr({
@@ -1109,7 +1108,7 @@ export class ProfileInfo {
         return {
             locType: ProfLocType.OLD_PROFILE,
             osLoc: [this.oldProfileFilePath(profileType, profileName)]
-        }
+        };
     }
 
     /**

@@ -9,7 +9,6 @@
 *
 */
 
-import * as http from "http";
 import { ISession } from "./doc/ISession";
 import { Logger } from "../../../logger";
 import { ImperativeError } from "../../../error";

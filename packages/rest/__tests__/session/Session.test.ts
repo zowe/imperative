@@ -111,7 +111,8 @@ describe("Session tests", () => {
     it("should not allow tokenType for 'bearer' type", () => {
         let error;
         try {
-            const session = new Session({hostname: "localhost", type: "bearer", tokenValue: "blahblahblah", user: "user", password: "pass", tokenType: "LtpaToken2"});
+            const session = new Session({hostname: "localhost", type: "bearer",
+                tokenValue: "blahblahblah", user: "user", password: "pass", tokenType: "LtpaToken2"});
         } catch (thrownError) {
             error = thrownError;
         }

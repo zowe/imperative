@@ -10,7 +10,7 @@
 */
 
 import { AbstractSession, BaseAutoInitHandler, ICommandArguments, IConfig, IHandlerParameters,
-         ISession, SessConstants } from "../../../../../../lib";
+    ISession, SessConstants } from "../../../../../../lib";
 
 /**
  * This class is used by the auto-init command handlers as the base class for their implementation.

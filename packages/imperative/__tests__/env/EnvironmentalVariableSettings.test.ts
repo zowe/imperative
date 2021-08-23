@@ -30,7 +30,7 @@ describe("EnvironmentalVariableSettings tests", () => {
 
 
     it("should use my prefix even if its bad for linux", () => {
-        const prefix = "_(){}[]$*+-\/\"#',;.@!?a1234567890";
+        const prefix = "_(){}[]$*+-\\/\"#',;.@!?a1234567890";
         const envSettings = EnvironmentalVariableSettings.read(prefix);
         expect(envSettings.imperativeLogLevel.key).toMatchSnapshot();
         expect(envSettings.imperativeLogLevel.value).toBeUndefined();

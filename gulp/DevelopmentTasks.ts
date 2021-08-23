@@ -37,8 +37,7 @@ function loadDependencies() {
     gulpReplace = require("gulp-replace");
 }
 
-// use the local versions of tslint and tsc so people don't have to globally install
-const tslintExecutable = "node_modules/tslint/bin/tslint";
+// use the local versions of tsc and madge so people don't have to globally install
 const tscExecutable = "node_modules/typescript/bin/tsc";
 const npmExecutable = "npm" + (require("os").platform() === "win32" ? ".cmd" : "");
 const madgeExecutable = "node_modules/madge/bin/cli.js";
@@ -54,7 +53,7 @@ const lint: ITaskFunction = (done) => {
         lintProcess = childProcess.spawnSync("npm", ["run", "lint"], {stdio: "inherit", shell: true});
 
     } catch (e) {
-        fancylog(ansiColors.red("Error encountered trying to run tslint"));
+        fancylog(ansiColors.red("Error encountered trying to run eslint"));
         done(e);
         return;
     }
@@ -76,7 +75,7 @@ const lint: ITaskFunction = (done) => {
         return;
     }
 };
-lint.description = "Runs tslint on the project to check for style";
+lint.description = "Runs eslint on the project to check for style";
 
 const prepForDirectInstall: ITaskFunction = (done) => {
     loadDependencies();

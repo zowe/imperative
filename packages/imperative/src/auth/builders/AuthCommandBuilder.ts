@@ -32,8 +32,8 @@ export abstract class AuthCommandBuilder implements AbstractCommandBuilder {
      * @param {IImperativeAuthConfig} mAuthConfig - the config for the auth type
      */
     constructor(protected mProfileType: string,
-                protected mLogger: Logger,
-                protected mAuthConfig: ICommandProfileAuthConfig) {
+        protected mLogger: Logger,
+        protected mAuthConfig: ICommandProfileAuthConfig) {
 
         this.mConfig = mAuthConfig;
         if (this.mConfig == null) {

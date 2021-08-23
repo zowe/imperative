@@ -11,7 +11,6 @@
 
 jest.mock("../../../../../utilities/src/ImperativeConfig");
 
-import { config } from "yargs";
 import { Config, IConfig, IConfigLayer } from "../../../../../config";
 import { ImperativeConfig } from "../../../../../utilities";
 import ListHandler from "../../../../src/config/cmd/list/list.handler";
@@ -94,7 +93,7 @@ describe("Configuration List command handler", () => {
         formatObj = null;
         errorText = null;
         logText = null;
-    })
+    });
 
     it("should output empty object when there is no config", async () => {
         jest.spyOn(fakeConfig, "exists", "get").mockReturnValueOnce(false);

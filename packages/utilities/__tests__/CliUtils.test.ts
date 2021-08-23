@@ -125,7 +125,7 @@ describe("CliUtils", () => {
     });
 
     describe("promptForInput", () => {
-        it("should return the mocked value ", () => {
+        it("should return the mocked value", () => {
             const mockedPromptValue = "My value is here ";
             (prompt as any).question= jest.fn(()=>{
                 return mockedPromptValue;

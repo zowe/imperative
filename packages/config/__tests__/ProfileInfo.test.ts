@@ -38,7 +38,7 @@ function createNewProfInfo(newDir: string, opts?: IProfOpts): ProfileInfo {
 describe("ProfileInfo tests", () => {
 
     const tsoName = "tsoProfName";
-    const tsoProfName = "LPAR1.tsoProfName"
+    const tsoProfName = "LPAR1.tsoProfName";
     const tsoJsonLoc = "profiles.LPAR1.profiles." + tsoName;
     const testDir = path.join(__dirname,  "__resources__");
     const teamProjDir = path.join(testDir, testAppNm + "_team_config_proj");
@@ -107,7 +107,7 @@ describe("ProfileInfo tests", () => {
                     failNotFound: true,
                     referencedBy: "default referencedBy",
                     dependenciesLoaded: false
-                }
+                };
                 const profLoaded = ProfileInfo.profAttrsToProfLoaded(profAttrs, dfltProfLoadedVals);
                 expect(profLoaded.name).toBe(profAttrs.profName);
                 expect(profLoaded.type).toBe(profAttrs.profType);
@@ -506,7 +506,7 @@ describe("ProfileInfo tests", () => {
                     { argName: "user", dataType: "string" },
                     { argName: "password", dataType: "string" },
                     { argName: "rejectUnauthorized", dataType: "boolean", argValue: true }
-                ]
+                ];
                 expect(mergedArgs.missingArgs.length).toBe(expectedMissingArgs.length);
                 for (const [idx, arg] of mergedArgs.missingArgs.entries()) {
                     expect(arg).toMatchObject(expectedMissingArgs[idx]);
@@ -712,7 +712,7 @@ describe("ProfileInfo tests", () => {
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
                 jest.spyOn(jsonfile, "readFileSync").mockImplementationOnce(() => {
-                    throw new Error("bad schema")
+                    throw new Error("bad schema");
                 });
                 let caughtError;
 
@@ -737,7 +737,7 @@ describe("ProfileInfo tests", () => {
 
             afterEach(() => {
                 jest.clearAllMocks();
-            })
+            });
 
             it("should return null if no default for that type exists 1: oldSchool", async () => {
                 const profInfo = createNewProfInfo(homeDirPath);
@@ -772,7 +772,7 @@ describe("ProfileInfo tests", () => {
             });
 
             it("should return a profile if one exists: oldSchool", async () => {
-                const profInfo = createNewProfInfo(homeDirPath)
+                const profInfo = createNewProfInfo(homeDirPath);
                 await profInfo.readProfilesFromDisk();
                 const desiredProfType = "tso";
                 const profAttrs = profInfo.getDefaultProfile(desiredProfType);
@@ -801,7 +801,7 @@ describe("ProfileInfo tests", () => {
                 const expectedDefaultProfileNameBase = "base_for_userNm";
                 const expectedDefaultProfiles = 3;
                 let expectedProfileNames = ["lpar1_zosmf", "lpar2_zosmf", "lpar3_zosmf", "lpar4_zosmf", "lpar5_zosmf", "tsoProfName",
-                                              "base_for_userNm", "base_apiml"];
+                    "base_for_userNm", "base_apiml"];
                 let actualDefaultProfiles = 0;
 
                 const profInfo = createNewProfInfo(homeDirPath);
@@ -1069,7 +1069,7 @@ describe("ProfileInfo tests", () => {
                 const profInfo = createNewProfInfo(homeDirPath);
                 await profInfo.readProfilesFromDisk();
                 jest.spyOn(ProfileIO, "readMetaFile").mockImplementationOnce(() => {
-                    throw new Error("bad meta")
+                    throw new Error("bad meta");
                 });
                 let caughtError;
 
@@ -1085,7 +1085,7 @@ describe("ProfileInfo tests", () => {
                 expect(caughtError.message).toContain("Failed to load schema for profile type");
                 expect(caughtError.message).toContain("invalid meta file");
             });
-        })
+        });
     });
 
     describe("loadSecureArg", () => {

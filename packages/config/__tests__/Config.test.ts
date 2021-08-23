@@ -170,7 +170,7 @@ describe("Config tests", () => {
                 .mockReturnValueOnce(true)      // Project layer
                 .mockReturnValueOnce(false)     // User layer
                 .mockReturnValueOnce(false);    // Global layer
-            jest.spyOn(fs, "readFileSync")
+            jest.spyOn(fs, "readFileSync");
             let error: any;
             try {
                 await Config.load(MY_APP);
@@ -506,6 +506,6 @@ describe("Config tests", () => {
                 const file = Config.search(configFile);
                 expect(file).toBeNull();
             });
-        })
+        });
     });
 });

@@ -492,7 +492,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
                 let exampleText = TextUtils.wordWrap("{{bullet}}" + exampleHyphen + " {{space}}" + description + ":\n\n",
                     undefined,
                     this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT);
-                exampleText += "      {{bullet}}{{space}}{{codeBegin}}\$ {{space}}" +
+                exampleText += "      {{bullet}}{{space}}{{codeBegin}}$ {{space}}" +
                     prefix +
                     this.mRootCommandName + " " +
                     CommandUtils.getFullCommandName(this.mCommandDefinition,
@@ -540,6 +540,6 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
      * @return {string} - The escaped string
      */
     private escapeMarkdown(text: string): string {
-        return text.replace(/([\*\#\-\`\_\[\]\+\.\!\\])/g, "\\$1");
+        return text.replace(/([*#\-`_[\]+.!\\])/g, "\\$1");
     }
 }

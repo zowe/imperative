@@ -85,7 +85,7 @@ describe("Configuration Profiles command handler", () => {
         formatObj = null;
         errorText = null;
         logText = null;
-    })
+    });
 
     it("should output list of nested profiles", async () => {
         configMock.mockReturnValueOnce({

@@ -31,7 +31,7 @@ export class ConfigurationLoader {
      * @returns {IImperativeConfig}
      */
     public static load(providedConfig: IImperativeConfig, packageJson: any,
-                       callerFileRequirer: (file: string) => any): IImperativeConfig {
+        callerFileRequirer: (file: string) => any): IImperativeConfig {
 
         let config: IImperativeConfig = providedConfig;
         // if the user has not specified a config,

@@ -13,17 +13,17 @@ import { JsUtils } from "../src/JsUtils";
 
 describe("JsUtils", () => {
 
-  describe("isObjEmpty", () => {
-    it("should return true when given null", () => {
-      expect(JsUtils.isObjEmpty(null)).toBe(true);
-    });
+    describe("isObjEmpty", () => {
+        it("should return true when given null", () => {
+            expect(JsUtils.isObjEmpty(null)).toBe(true);
+        });
 
-    it("should return true when given an empty object", () => {
-      expect(JsUtils.isObjEmpty({})).toBe(true);
-    });
+        it("should return true when given an empty object", () => {
+            expect(JsUtils.isObjEmpty({})).toBe(true);
+        });
 
-    it("should return false when given an object with a property", () => {
-      expect(JsUtils.isObjEmpty({ anyProperty: "value" })).toBe(false);
+        it("should return false when given an object with a property", () => {
+            expect(JsUtils.isObjEmpty({ anyProperty: "value" })).toBe(false);
+        });
     });
-  });
 });

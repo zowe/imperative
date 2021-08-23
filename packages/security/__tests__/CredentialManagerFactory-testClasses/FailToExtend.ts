@@ -13,7 +13,7 @@
  * This class failes to extend
  */
 export = class FailToExtend {
-  public async initialize() {
-    throw new Error("You shouldn't be here");
-  }
+    public async initialize() {
+        throw new Error("You shouldn't be here");
+    }
 };

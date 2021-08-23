@@ -7,7 +7,3 @@ exports[`Abstract Help Generator Factory should detect missing command definitio
 exports[`Abstract Help Generator Factory should detect missing parameters 1`] = `"Expect Error: Help Generator Factory Creation Error: No input parameters were supplied."`;
 
 exports[`Abstract Help Generator Factory should detect missing root command name 1`] = `"Expect Error: Help Generator Factory Creation Error: No root command name was supplied."`;
-
-exports[`Abstract Help Generator Factory should detect missing root command name 2`] = `"Expect Error: Help Generator Factory Creation Error: No root command name was supplied."`;
-
-exports[`Abstract Help Generator Factory should detect missing root command name 3`] = `"Expect Error: Help Generator Factory Creation Error: No root command name was supplied."`;

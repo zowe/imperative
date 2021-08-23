@@ -14,7 +14,7 @@ jest.mock("../../../../utilities/src/ImperativeConfig");
 import { deleteHandlerPaths, testBuilderProfiles } from "./ProfileBuilderTestConstants";
 import { TestLogger } from "../../../../../__tests__/TestLogger";
 import { ProfilesValidateCommandBuilder } from "../../../../imperative/src/profiles/builders/ProfilesValidateCommandBuilder";
-import { ImperativeConfig } from "../../../../utilities"
+import { ImperativeConfig } from "../../../../utilities";
 
 describe("Profile Validate Command Builder", () => {
     const logger = TestLogger.getTestLogger();

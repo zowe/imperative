@@ -13,7 +13,6 @@ import { ITestEnvironment } from "../../../../../../__src__/environment/doc/resp
 import { SetupTestEnvironment } from "../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../src/TestUtil";
 import { ICommandResponse } from "../../../../../../../packages/cmd";
-import { Imperative } from "../../../../../../../packages/imperative";
 import * as fs from "fs";
 
 // Test Environment populated in the beforeAll();

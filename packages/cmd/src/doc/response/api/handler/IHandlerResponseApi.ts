@@ -9,11 +9,11 @@
 *
 */
 
-import { Logger } from "../../../../../../logger";
 import { IHandlerResponseConsoleApi } from "./IHandlerResponseConsoleApi";
 import { IHandlerResponseDataApi } from "./IHandlerResponseDataApi";
 import { IHandlerProgressApi } from "./IHandlerProgressApi";
 import { IHandlerFormatOutputApi } from "./IHandlerFormatOutputApi";
+
 /**
  * The interface to the object passed to command handlers to formulate responses, print messages, etc. in their
  * command processing. Handlers should never write directly to stdout/stderr.

@@ -175,7 +175,7 @@ describe("Plugin Management Facility", () => {
 
     afterAll(() => {
         jest.restoreAllMocks();
-    })
+    });
 
     it("should initialize properly", () => {
         mocks.existsSync.mockReturnValue(true);
@@ -286,15 +286,27 @@ describe("Plugin Management Facility", () => {
         it("should not crash when loadPluginCfgProps returns null", () => {
             mocks.existsSync.mockReturnValue(true);  // both directory and file exists
             loadPluginCfgPropsMock.mockReturnValue(null);
-            AppSettings.initialize("test.json",defaultSettings);
-            PluginManagementFacility.instance.loadAllPluginCfgProps();
+            let caughtError;
+            try {
+                AppSettings.initialize("test.json",defaultSettings);
+                PluginManagementFacility.instance.loadAllPluginCfgProps();
+            } catch (error) {
+                caughtError = error;
+            }
+            expect(caughtError).toBeUndefined();
         });
 
         it("should not crash when loadPluginCfgProps has no overrides", () => {
             mocks.existsSync.mockReturnValue(true);  // both directory and file exists
             loadPluginCfgPropsMock.mockReturnValue(basePluginCfgProps);
-            AppSettings.initialize("test.json",defaultSettings);
-            PluginManagementFacility.instance.loadAllPluginCfgProps();
+            let caughtError;
+            try {
+                AppSettings.initialize("test.json",defaultSettings);
+                PluginManagementFacility.instance.loadAllPluginCfgProps();
+            } catch (error) {
+                caughtError = error;
+            }
+            expect(caughtError).toBeUndefined();
         });
 
         it("should store the CredentialManager override", () => {

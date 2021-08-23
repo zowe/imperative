@@ -31,15 +31,15 @@ import { closest } from "fastest-levenshtein";
  */
 export class YargsConfigurer {
     constructor(private rootCommand: ICommandDefinition,
-                private yargs: any,
-                private commandRespParms: ICommandResponseParms,
-                private profileManagerFactory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
-                private helpGeneratorFactory: IHelpGeneratorFactory,
-                private experimentalCommandDescription: string,
-                private rootCommandName: string,
-                private commandLine: string,
-                private envVariablePrefix: string,
-                private promptPhrase: string
+        private yargs: any,
+        private commandRespParms: ICommandResponseParms,
+        private profileManagerFactory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
+        private helpGeneratorFactory: IHelpGeneratorFactory,
+        private experimentalCommandDescription: string,
+        private rootCommandName: string,
+        private commandLine: string,
+        private envVariablePrefix: string,
+        private promptPhrase: string
     ) {
     }
 
@@ -59,7 +59,6 @@ export class YargsConfigurer {
             const jsonOptionName: string = Constants.JSON_OPTION;
             jsonArg[jsonOptionName] = true;
         }
-        const preferredTerminalWidth = 100;
         const failedCommandHandler = __dirname + "/../handlers/FailedCommandHandler";
         const failedCommandDefinition: ICommandDefinition = {
             name: this.rootCommandName + " " + ImperativeConfig.instance.commandLine,
@@ -80,7 +79,6 @@ export class YargsConfigurer {
                     if (argv.V) {
                         argv.version = true;
                     }
-                    const isJson = argv[Constants.JSON_OPTION] || argv[Constants.JSON_OPTION_ALIAS];
 
                     // Allocate a help generator from the factory
                     const rootHelpGenerator = this.helpGeneratorFactory.getHelpGenerator({
@@ -137,8 +135,8 @@ export class YargsConfigurer {
                         .then((failedCommandResponse) => {
                             logger.debug("Finished invoking the 'FailedCommand' handler");
                         }).catch((err) => {
-                        logger.error("%s", err.msg);
-                    });
+                            logger.error("%s", err.msg);
+                        });
                 }
             }
         });
@@ -183,8 +181,8 @@ export class YargsConfigurer {
                 .then((failedCommandResponse) => {
                     logger.debug("Finished invoking the 'FailedCommand' handler");
                 }).catch((err) => {
-                logger.error("%s", err.msg);
-            });
+                    logger.error("%s", err.msg);
+                });
         });
         process.on("uncaughtException", (error: Error) => {
             process.exitCode = Constants.ERROR_EXIT_CODE;
@@ -226,8 +224,8 @@ export class YargsConfigurer {
                 .then((failedCommandResponse) => {
                     logger.debug("Finished invoking the 'FailedCommand' handler");
                 }).catch((err) => {
-                logger.error("%s", err.msg);
-            });
+                    logger.error("%s", err.msg);
+                });
         });
     }
 

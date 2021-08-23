@@ -12,23 +12,23 @@
 import { ICommandProfileTypeConfiguration } from "@zowe/imperative";
 
 export const TestProfileConfig2: ICommandProfileTypeConfiguration = {
-  type: "TestProfile2",
-  schema: {
-    type: "object",
-    title: "The Second test profile schema",
-    description: "The Second test profile description",
-    properties: {
-      port: {
-        optionDefinition: {
-          description: "Some port number",
-          type: "number",
-          name: "port",
-          aliases: ["p"],
-          required: true
+    type: "TestProfile2",
+    schema: {
+        type: "object",
+        title: "The Second test profile schema",
+        description: "The Second test profile description",
+        properties: {
+            port: {
+                optionDefinition: {
+                    description: "Some port number",
+                    type: "number",
+                    name: "port",
+                    aliases: ["p"],
+                    required: true
+                },
+                type: "number",
+            }
         },
-        type: "number",
-      }
-    },
-    required: ["port"],
-  }
+        required: ["port"],
+    }
 };

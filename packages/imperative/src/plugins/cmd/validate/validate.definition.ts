@@ -22,50 +22,50 @@ const pluginDescription =
  * @type {ICommandDefinition}
  */
 export const validateDefinition: ICommandDefinition = {
-  name: "validate",
-  type: "command",
-  summary: "Validate a plug-in",
-  description: "Validate a plug-in that has been installed.",
-  handler: join(__dirname, "validate.handler"),
-  positionals: [
-    {
-      name: "plugin",
-      type: "string",
-      description: pluginDescription,
-      required: false
-    }
-  ],
-  options: [
-    {
-      name: "fail-on-error",
-      aliases: ["foe"],
-      type: "boolean",
-      description: "Enables throwing an error and setting an error code if plugin validation detects an error",
-      required: false,
-      defaultValue: true
-    },
-    {
-      name: "fail-on-warning",
-      aliases: ["fow"],
-      type: "boolean",
-      description: "Treat validation warnings as errors. Requires fail-on-error.",
-      required: false,
-      defaultValue: false,
-      implies: ["fail-on-error"]
-    }
-  ],
-  examples: [
-    {
-      description: `Validate a plug-in named my-plugin`,
-      options    : "my-plugin"
-    },
-    {
-      description: "Validate all installed plug-ins",
-      options    : ""
-    },
-    {
-      description: "Validate a plug-in named my-plugin, and treat warnings as errors",
-      options    : "my-plugin --fail-on-warning"
-    }
-  ]
+    name: "validate",
+    type: "command",
+    summary: "Validate a plug-in",
+    description: "Validate a plug-in that has been installed.",
+    handler: join(__dirname, "validate.handler"),
+    positionals: [
+        {
+            name: "plugin",
+            type: "string",
+            description: pluginDescription,
+            required: false
+        }
+    ],
+    options: [
+        {
+            name: "fail-on-error",
+            aliases: ["foe"],
+            type: "boolean",
+            description: "Enables throwing an error and setting an error code if plugin validation detects an error",
+            required: false,
+            defaultValue: true
+        },
+        {
+            name: "fail-on-warning",
+            aliases: ["fow"],
+            type: "boolean",
+            description: "Treat validation warnings as errors. Requires fail-on-error.",
+            required: false,
+            defaultValue: false,
+            implies: ["fail-on-error"]
+        }
+    ],
+    examples: [
+        {
+            description: `Validate a plug-in named my-plugin`,
+            options    : "my-plugin"
+        },
+        {
+            description: "Validate all installed plug-ins",
+            options    : ""
+        },
+        {
+            description: "Validate a plug-in named my-plugin, and treat warnings as errors",
+            options    : "my-plugin --fail-on-warning"
+        }
+    ]
 };

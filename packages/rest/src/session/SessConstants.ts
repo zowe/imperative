@@ -14,7 +14,7 @@
  * So we declared simple constants and types and exported them from this module.
  */
 
- /**
+/**
   * http protocol
   */
 export const HTTP_PROTOCOL = "http";

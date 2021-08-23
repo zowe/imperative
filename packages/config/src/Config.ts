@@ -223,12 +223,14 @@ export class Config {
      */
     private layerPath(layer: Layers): string {
         switch (layer) {
-            case Layers.ProjectUser:
+            case Layers.ProjectUser: {
                 const userConfigPath = Config.search(this.userConfigName, { ignoreDirs: [this.mHomeDir], startDir: this.mProjectDir });
                 return userConfigPath || node_path.join(this.mProjectDir, this.userConfigName);
-            case Layers.ProjectConfig:
+            }
+            case Layers.ProjectConfig: {
                 const configPath = Config.search(this.configName, { ignoreDirs: [this.mHomeDir], startDir: this.mProjectDir });
                 return configPath || node_path.join(this.mProjectDir, this.configName);
+            }
             case Layers.GlobalUser:
                 return node_path.join(this.mHomeDir, this.userConfigName);
             case Layers.GlobalConfig:
@@ -542,9 +544,9 @@ export class Config {
      * @returns The active layer object
      */
     public layerActive(): IConfigLayer {
-            const layer = this.findLayer(this.mActive.user, this.mActive.global);
-            if (layer != null) return layer;
-            throw new ImperativeError({ msg: `internal error: no active layer found` });
+        const layer = this.findLayer(this.mActive.user, this.mActive.global);
+        if (layer != null) return layer;
+        throw new ImperativeError({ msg: `internal error: no active layer found` });
     }
 
     // _______________________________________________________________________

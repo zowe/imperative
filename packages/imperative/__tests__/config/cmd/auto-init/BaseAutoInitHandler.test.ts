@@ -68,7 +68,7 @@ describe("BaseAutoInitHandler", () => {
                 write: mockWrite,
                 get: mockGet
             }
-        }
+        };
         const mockSetSchema = jest.fn();
         const buildSchemaSpy = jest.spyOn(ConfigSchema, 'buildSchema').mockImplementation();
         const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
@@ -144,7 +144,7 @@ describe("BaseAutoInitHandler", () => {
                 write: mockWrite,
                 get: mockGet
             }
-        }
+        };
         const buildSchemaSpy = jest.spyOn(ConfigSchema, 'buildSchema').mockImplementation();
         const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
         const mockSetSchema = jest.fn();
@@ -222,7 +222,7 @@ describe("BaseAutoInitHandler", () => {
                 write: mockWrite,
                 get: mockGet
             }
-        }
+        };
         const buildSchemaSpy = jest.spyOn(ConfigSchema, 'buildSchema').mockImplementation();
         const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
         const mockSetSchema = jest.fn();
@@ -314,7 +314,7 @@ describe("BaseAutoInitHandler", () => {
                 secureFields: mockSecureFields,
                 findSecure: mockFindSecure
             }
-        }
+        };
         const diffSpy = jest.spyOn(jestdiff, 'diff');
         const stripAnsiSpy = jest.spyOn(stripAnsi, 'default');
 
@@ -388,7 +388,7 @@ describe("BaseAutoInitHandler", () => {
                 write: mockWrite,
                 get: mockGet
             }
-        }
+        };
         jest.mock('open');
 
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
@@ -463,7 +463,7 @@ describe("BaseAutoInitHandler", () => {
                 get: mockGet,
                 set: mockSet
             }
-        }
+        };
         jest.mock('open');
 
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
@@ -561,7 +561,7 @@ describe("BaseAutoInitHandler", () => {
                 secureFields: mockSecureFields,
                 findSecure: mockFindSecure
             }
-        }
+        };
         const diffSpy = jest.spyOn(jestdiff, 'diff');
         const stripAnsiSpy = jest.spyOn(stripAnsi, 'default');
         const unsetSpy = jest.spyOn(lodash, "unset");

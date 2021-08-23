@@ -15,10 +15,10 @@
  * arguments sent to it.
  */
 export type SecureOperationFunction =
-  /**
-   * @param {string} propNamePath - The path to a child property
-   * @param {*} propValue - The value of said property
-   * @param {boolean} optional - Set to true if failure to find credentials should be ignored
-   * @return {Promise<any>} - The processed value after the secure operation function runs
-   */
-  (propNamePath: string, propValue?: any, optional?: boolean) => Promise<any>;
+    /**
+     * @param {string} propNamePath - The path to a child property
+     * @param {*} propValue - The value of said property
+     * @param {boolean} optional - Set to true if failure to find credentials should be ignored
+     * @return {Promise<any>} - The processed value after the secure operation function runs
+     */
+    (propNamePath: string, propValue?: any, optional?: boolean) => Promise<any>;
