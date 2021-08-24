@@ -41,45 +41,6 @@ export const initDefinition: ICommandDefinition = {
             type: "boolean",
             defaultValue: false
         },
-        // {
-        //     name: "url",
-        //     description: "Downloads the configuration file specified by the URL.",
-        //     type: "string"
-        // },
-        // {
-        //     name: "default",
-        //     description: "When creating a profile of a specified type (--type <type>), applies default values from the profile schema.",
-        //     type: "boolean",
-        //     defaultValue: false
-        // },
-        // {
-        //     name: "profile",
-        //     description: "Create a profile of the specified name. You may also specify a profile \"path\" (e.g. host1.service1.details1).",
-        //     type: "string",
-        // },
-        // {
-        //     name: "type",
-        //     description: "Create a profile of the specified type. You will be prompted for values based on the profile schema (definition).",
-        //     type: "string",
-        // },
-        // {
-        //     // TODO Should this be removed if it is unused?
-        //     name: "template",
-        //     description: "apply a type as a template to guide creation.",
-        //     type: "string"
-        // },
-        // {
-        //     name: "update",
-        //     description: "update the config if it already exists.",
-        //     type: "boolean",
-        //     defaultValue: false
-        // },
-        // {
-        //     name: "set-default",
-        //     description: "when profiles are created, set them as the default.",
-        //     type: "boolean",
-        //     defaultValue: false
-        // },
         {
             name: "prompt",
             description: "Prompt for secure values. Useful for disabling prompting in CI environments.",
