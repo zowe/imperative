@@ -38,7 +38,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
     /**
      * The description of your service to be used in CLI prompt messages
      */
-    protected abstract mServiceDescription?: string;
+    protected mServiceDescription?: string;
 
     /**
      * The session being created from the command line arguments / profile
