@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
+import { ICommandArguments, ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ICommandHandlerRequire } from "../../../../../cmd/src/doc/handler/ICommandHandlerRequire";
 import { ICommandProfileAuthConfig } from "../../../../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 import { Config } from "../../../../../config";
@@ -17,6 +17,7 @@ import { secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { ConnectionPropsForSessCfg, ISession, Session } from "../../../../../rest";
 import { CredentialManagerFactory } from "../../../../../security";
 import { ImperativeConfig } from "../../../../../utilities";
+import { BaseAuthHandler } from "../../../auth/handlers/BaseAuthHandler";
 
 export default class SecureHandler implements ICommandHandler {
     private params: IHandlerParameters;
@@ -47,13 +48,28 @@ export default class SecureHandler implements ICommandHandler {
         }
 
         // Prompt for values designated as secure
+        let authTokenProp: string;  // TODO Handle multiple auth tokens in one config file?
         for (const propName of secureProps) {
-            const propValue = await this.handlePromptForAuthToken(config, propName) ||
-                await params.response.console.prompt(`Please enter ${propName}: `, {hideText: true});
+            if (authTokenProp == null && propName.endsWith(".tokenValue")) {  // TODO Handle kebab case?
+                authTokenProp = propName;
+                continue;
+            }
+
+            const propValue = await params.response.console.prompt(`Please enter ${propName}: `, {hideText: true});
 
             // Save the value in the config securely
             if (propValue) {
                 config.set(propName, propValue, { secure: true });
+            }
+        }
+
+        if (authTokenProp != null) {
+            const propValue = await this.handlePromptForAuthToken(config, authTokenProp) ||
+                await params.response.console.prompt(`Please enter ${authTokenProp}: `, {hideText: true});
+
+            // Save the value in the config securely
+            if (propValue) {
+                config.set(authTokenProp, propValue, { secure: true });
             }
         }
 
@@ -62,11 +78,6 @@ export default class SecureHandler implements ICommandHandler {
     }
 
     private async handlePromptForAuthToken(config: Config, propPath: string): Promise<string | undefined> {
-        // TODO Handle more scenarios - what if tokenValue is kebab case, or first in secure array?
-        if (!propPath.endsWith(".tokenValue")) {
-            return;
-        }
-
         const profilePath = propPath.slice(0, propPath.indexOf(".properties"));
         const profile = config.api.profiles.get(profilePath.replace(/profiles\./g, ""));
         if (profile.tokenType == null) {
@@ -79,15 +90,19 @@ export default class SecureHandler implements ICommandHandler {
                 authConfigs.push(...profile.authConfig);
             }
         });
-        const authConfig = authConfigs.find(({ tokenType }) => tokenType === profile.tokenType);
-        if (authConfig == null) {
-            return;
-        }
 
-        // TODO Pass parms and service description
-        const sessCfg: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt({}, profile as any,
-            { parms: this.params, doPrompting: true, requestToken: true });
-        const authHandler: ICommandHandlerRequire = require(authConfig.handler);
-        return (new authHandler.default() as any).doLogin(new Session(sessCfg));
+        for (const authConfig of authConfigs) {
+            const authHandler: ICommandHandlerRequire = require(authConfig.handler);
+            const authHandlerClass = new authHandler.default();
+            if (authHandlerClass instanceof BaseAuthHandler) {
+                const [promptParams, loginHandler] = authHandlerClass.getPromptParams();
+                if (profile.tokenType === promptParams.defaultTokenType) {
+                    this.params.response.console.log(`Fetching ${profile.tokenType} for ${propPath}`);
+                    const sessCfg: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt({}, profile as ICommandArguments,
+                        { parms: this.params, doPrompting: true, requestToken: true, ...promptParams });
+                    return loginHandler(new Session(sessCfg));
+                }
+            }
+        }
     }
 }

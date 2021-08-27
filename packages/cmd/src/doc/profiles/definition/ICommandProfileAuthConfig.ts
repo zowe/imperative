@@ -9,7 +9,6 @@
 *
 */
 
-import { TOKEN_TYPE_CHOICES } from "../../../../../rest/src/session/SessConstants";
 import { IPartialCommandDefinition } from "../../IPartialCommandDefinition";
 
 export interface ICommandProfileAuthConfig {
@@ -23,11 +22,6 @@ export interface ICommandProfileAuthConfig {
      * The handler should inherit from Imperative BaseAuthHandler.
      */
     handler: string;
-
-    /**
-     * Type of token used by the authentication service
-     */
-    tokenType?: TOKEN_TYPE_CHOICES;
 
     /**
      * Command properties for `auth login <serviceName>`
