@@ -9,11 +9,14 @@
 *
 */
 
+import * as lodash from "lodash";
 import { ICommandArguments, ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ICommandHandlerRequire } from "../../../../../cmd/src/doc/handler/ICommandHandlerRequire";
 import { ICommandProfileAuthConfig } from "../../../../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 import { Config } from "../../../../../config";
 import { secureSaveError } from "../../../../../config/src/ConfigUtils";
+import { ImperativeError } from "../../../../../error";
+import { Logger } from "../../../../../logger";
 import { ConnectionPropsForSessCfg, ISession, Session } from "../../../../../rest";
 import { CredentialManagerFactory } from "../../../../../security";
 import { ImperativeConfig } from "../../../../../utilities";
@@ -79,15 +82,16 @@ export default class SecureHandler implements ICommandHandler {
 
     private async handlePromptForAuthToken(config: Config, propPath: string): Promise<string | undefined> {
         const profilePath = propPath.slice(0, propPath.indexOf(".properties"));
+        const profileType = lodash.get(config.properties, `${profilePath}.type`);
         const profile = config.api.profiles.get(profilePath.replace(/profiles\./g, ""));
-        if (profile.tokenType == null) {
+        if (profileType == null || profile.tokenType == null) {
             return;
         }
 
         const authConfigs: ICommandProfileAuthConfig[] = [];
-        ImperativeConfig.instance.loadedConfig.profiles.forEach((profile) => {
-            if (profile.authConfig != null) {
-                authConfigs.push(...profile.authConfig);
+        ImperativeConfig.instance.loadedConfig.profiles.forEach((profCfg) => {
+            if (profCfg.type === profileType && profCfg.authConfig != null) {
+                authConfigs.push(...profCfg.authConfig);
             }
         });
 
@@ -96,11 +100,24 @@ export default class SecureHandler implements ICommandHandler {
             const authHandlerClass = new authHandler.default();
             if (authHandlerClass instanceof BaseAuthHandler) {
                 const [promptParams, loginHandler] = authHandlerClass.getPromptParams();
+
                 if (profile.tokenType === promptParams.defaultTokenType) {
-                    this.params.response.console.log(`Fetching ${profile.tokenType} for ${propPath}`);
+                    if (promptParams.serviceDescription != null) {
+                        this.params.response.console.log(`Logging in to ${promptParams.serviceDescription}`);
+                    }
+
                     const sessCfg: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt({}, profile as ICommandArguments,
                         { parms: this.params, doPrompting: true, requestToken: true, ...promptParams });
-                    return loginHandler(new Session(sessCfg));
+                    Logger.getAppLogger().info(`Fetching ${profile.tokenType} for ${propPath}`);
+
+                    try {
+                        return await loginHandler(new Session(sessCfg));
+                    } catch (error) {
+                        throw new ImperativeError({
+                            msg: `Failed to fetch ${profile.tokenType} for ${propPath}`,
+                            causeErrors: error
+                        });
+                    }
                 }
             }
         }
