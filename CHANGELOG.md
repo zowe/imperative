@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Login to authentication service to obtain token value instead of prompting for it in `config secure` command.
+
 ## `5.0.0-next.202108181618`
 
 - Breaking: Make `fail-on-error` option true by default on `zowe plugins validate` command.
