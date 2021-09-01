@@ -23,6 +23,9 @@ import { ImperativeConfig } from "../../../../../utilities";
 import { BaseAuthHandler } from "../../../auth/handlers/BaseAuthHandler";
 
 export default class SecureHandler implements ICommandHandler {
+    /**
+     * The parameters object passed to the command handler.
+     */
     private params: IHandlerParameters;
 
     /**
@@ -51,9 +54,9 @@ export default class SecureHandler implements ICommandHandler {
         }
 
         // Prompt for values designated as secure
-        let authTokenProp: string;  // TODO Handle multiple auth tokens in one config file?
+        let authTokenProp: string;
         for (const propName of secureProps) {
-            if (authTokenProp == null && propName.endsWith(".tokenValue")) {  // TODO Handle kebab case?
+            if (authTokenProp == null && propName.endsWith(".tokenValue")) {
                 authTokenProp = propName;
                 continue;
             }
@@ -80,12 +83,20 @@ export default class SecureHandler implements ICommandHandler {
         await config.save(false);
     }
 
+    /**
+     * Checks if authentication service is associated with an auth token
+     * property. If an auth service is found, we log in to it obtain the token
+     * instead of prompting for the value.
+     * @param config Team config class from which the property was loaded
+     * @param propPath JSON property path of the auth token
+     * @returns Token value, or undefined if none was obtained
+     */
     private async handlePromptForAuthToken(config: Config, propPath: string): Promise<string | undefined> {
         const profilePath = propPath.slice(0, propPath.indexOf(".properties"));
         const profileType = lodash.get(config.properties, `${profilePath}.type`);
         const profile = config.api.profiles.get(profilePath.replace(/profiles\./g, ""));
         if (profileType == null || profile.tokenType == null) {
-            return;
+            return;  // Can't find auth service if profile type or token type are unknown
         }
 
         const authConfigs: ICommandProfileAuthConfig[] = [];
@@ -98,26 +109,27 @@ export default class SecureHandler implements ICommandHandler {
         for (const authConfig of authConfigs) {
             const authHandler: ICommandHandlerRequire = require(authConfig.handler);
             const authHandlerClass = new authHandler.default();
+
             if (authHandlerClass instanceof BaseAuthHandler) {
                 const [promptParams, loginHandler] = authHandlerClass.getPromptParams();
 
-                if (profile.tokenType === promptParams.defaultTokenType) {
-                    if (promptParams.serviceDescription != null) {
-                        this.params.response.console.log(`Logging in to ${promptParams.serviceDescription}`);
-                    }
+                if (profile.tokenType !== promptParams.defaultTokenType) {
+                    continue;  // Don't use auth service that has mismatched token type
+                } else if (promptParams.serviceDescription != null) {
+                    this.params.response.console.log(`Logging in to ${promptParams.serviceDescription}`);
+                }
 
-                    const sessCfg: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt({}, profile as ICommandArguments,
-                        { parms: this.params, doPrompting: true, requestToken: true, ...promptParams });
-                    Logger.getAppLogger().info(`Fetching ${profile.tokenType} for ${propPath}`);
+                const sessCfg: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt({}, profile as ICommandArguments,
+                    { parms: this.params, doPrompting: true, requestToken: true, ...promptParams });
+                Logger.getAppLogger().info(`Fetching ${profile.tokenType} for ${propPath}`);
 
-                    try {
-                        return await loginHandler(new Session(sessCfg));
-                    } catch (error) {
-                        throw new ImperativeError({
-                            msg: `Failed to fetch ${profile.tokenType} for ${propPath}`,
-                            causeErrors: error
-                        });
-                    }
+                try {
+                    return await loginHandler(new Session(sessCfg));
+                } catch (error) {
+                    throw new ImperativeError({
+                        msg: `Failed to fetch ${profile.tokenType} for ${propPath}`,
+                        causeErrors: error
+                    });
                 }
             }
         }
