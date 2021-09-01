@@ -755,8 +755,8 @@ describe("Configuration Secure command handler", () => {
                 caughtError = error;
             }
 
-            // expect(caughtError).toBeDefined();
-            // expect(caughtError.message).toContain("Failed to fetch jwtToken");
+            expect(caughtError).toBeDefined();
+            expect(caughtError.message).toContain("Failed to fetch jwtToken");
             expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(2);  // User and password
             expect(mockAuthLogin).toHaveBeenCalledTimes(1);
             expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(0);
