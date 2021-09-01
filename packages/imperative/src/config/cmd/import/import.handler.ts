@@ -11,12 +11,12 @@
 
 import * as fs from "fs";
 import * as https from "https";
+import * as path from "path";
+import { fileURLToPath, URL } from "url";
 import * as JSONC from "comment-json";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ImperativeConfig } from "../../../../../utilities";
 import { IConfig } from "../../../../../config";
-import { CredentialManagerFactory } from "../../../../../security";
-import { OverridesLoader } from "../../../OverridesLoader";
 import { ImperativeError } from "../../../../../error";
 
 /**
@@ -32,35 +32,36 @@ export default class ImportHandler implements ICommandHandler {
      */
     public async process(params: IHandlerParameters): Promise<void> {
         // Load the config and set the active layer according to user options
-        // await this.ensureCredentialManagerLoaded();
         const config = ImperativeConfig.instance.config;
         const configDir = params.arguments.globalConfig ? null : process.cwd();
         config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig, configDir);
         const layer = config.api.layers.get();
 
-        if (fs.existsSync(params.arguments.location)) {
-            const configJson: IConfig = JSONC.parse(fs.readFileSync(params.arguments.location, "utf-8"));
-            config.api.layers.merge(configJson);
-        } else {
-            const configJson: IConfig = await this.download(params.arguments.location);
-            config.api.layers.merge(configJson);
+        if (layer.exists && !params.arguments.overwrite) {
+            params.response.console.log(`Skipping import because ${layer.path} already exists.\n` +
+                `Rerun the command with the --overwrite flag to import anyway.`);
+            return;
+        }
+
+        const configJson: IConfig = fs.existsSync(params.arguments.location) ?
+            JSONC.parse(fs.readFileSync(params.arguments.location, "utf-8")) :
+            await this.download(params.arguments.location);
+        config.api.layers.set(configJson);
+
+        if (configJson.$schema?.startsWith("./")) {  // Only import schema if relative path
+            const schemaUri = new URL(configJson.$schema, params.arguments.location);
+            const schemaFilePath = path.resolve(path.dirname(layer.path), configJson.$schema);
+            try {
+                await this.downloadSchema(schemaUri, schemaFilePath);
+            } catch (error) {
+                params.response.console.error(`Failed to download schema from ${schemaUri}`);
+            }
         }
 
         // Write the active created/updated config layer
         await config.api.layers.write();
 
         params.response.console.log(`Imported config to ${layer.path}`);
-    }
-
-    /**
-     * If CredentialManager was not already loaded by Imperative.init, load it
-     * now before performing config operations in the init handler.
-     */
-    private async ensureCredentialManagerLoaded() {
-        if (!CredentialManagerFactory.initialized) {
-            await OverridesLoader.loadCredentialManager(ImperativeConfig.instance.loadedConfig,
-                ImperativeConfig.instance.callerPackageJson);
-        }
     }
 
     /**
@@ -88,5 +89,24 @@ export default class ImportHandler implements ICommandHandler {
                 });
             }).on("error", (err) => { reject(err); });
         });
+    }
+
+    /**
+     * Download the config schema from a URL to disk
+     * @param url
+     * @param path
+     */
+    private downloadSchema(url: URL, path: string): Promise<void> {
+        if (url.protocol === "file:") {
+            fs.copyFileSync(fileURLToPath(url), path);
+        } else {
+            const fileStream = fs.createWriteStream(path);
+            return new Promise((resolve, reject) => {
+                https.get(url, (resp) => {
+                    resp.pipe(fileStream);
+                    fileStream.on("finish", resolve);
+                }).on("error", reject);
+            });
+        }
     }
 }

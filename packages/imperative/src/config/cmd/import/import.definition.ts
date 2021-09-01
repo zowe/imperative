@@ -43,6 +43,13 @@ export const importDefinition: ICommandDefinition = {
             aliases: ["uc"],
             type: "boolean",
             defaultValue: false
+        },
+        {
+            name: "overwrite",
+            description: "Overwrite config file if one already exists.",
+            aliases: ["ow"],
+            type: "boolean",
+            defaultValue: false
         }
     ]
 };
