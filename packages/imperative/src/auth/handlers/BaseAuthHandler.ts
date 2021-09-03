@@ -11,7 +11,7 @@
 
 import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerResponseApi } from "../../../../cmd";
 import { Constants } from "../../../../constants";
-import { ISession, ConnectionPropsForSessCfg, Session, SessConstants, AbstractSession } from "../../../../rest";
+import { ISession, ConnectionPropsForSessCfg, Session, SessConstants, AbstractSession, IOptionsForAddConnProps } from "../../../../rest";
 import { Imperative } from "../../Imperative";
 import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
@@ -34,6 +34,11 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * The default token type to use if not specified as a command line option
      */
     protected abstract mDefaultTokenType: SessConstants.TOKEN_TYPE_CHOICES;
+
+    /**
+     * The description of your service to be used in CLI prompt messages
+     */
+    protected mServiceDescription?: string;
 
     /**
      * The session being created from the command line arguments / profile
@@ -62,6 +67,20 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                     msg: `The group name "${commandParameters.positionals[1]}" was passed to the BaseAuthHandler, but it is not valid.`
                 });
         }
+    }
+
+    /**
+     * This is called by the "config secure" handler when it needs to prompt
+     * for connection info to obtain an auth token.
+     * @returns A tuple containing:
+     *  - Options for adding connection properties
+     *  - The login handler
+     */
+    public getPromptParams(): [IOptionsForAddConnProps, (session: AbstractSession) => Promise<string>] {
+        return [{
+            defaultTokenType: this.mDefaultTokenType,
+            serviceDescription: this.mServiceDescription
+        }, this.doLogin];
     }
 
     /**

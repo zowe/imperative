@@ -17,6 +17,7 @@ import * as fs from "fs";
 import * as keytar from "keytar";
 import * as path from "path";
 import * as lodash from "lodash";
+import { IConfigProfile } from "../../../../../../../../packages";
 
 
 // Test Environment populated in the beforeAll();
@@ -147,6 +148,46 @@ describe("imperative-test-cli config secure", () => {
         // Should not contain human readable credentials
         expect(fileContents.profiles.secured.secure).not.toEqual(["secret"]);
         expect(fileContents.profiles.secured.properties).not.toEqual({secret: "anotherFakeValue"});
+        // Check the securely stored JSON
+        expect(securedValueJson).toEqual(expectedSecuredValueJson);
+    });
+
+    it("should prompt for user and password to obtain auth token", async () => {
+        runCliScript(__dirname + "/../init/__scripts__/init_config_prompt.sh", TEST_ENVIRONMENT.workingDir);
+        const baseProfile: IConfigProfile = {
+            type: "base",
+            properties: {
+                "host": "example.com",
+                "port": 443,
+                "user": "fakeUser",
+                "tokenType": "jwtToken"
+            },
+            secure: [
+                "tokenValue"
+            ]
+        };
+        runCliScript(__dirname + "/../set/__scripts__/set.sh", TEST_ENVIRONMENT.workingDir,
+            ["profiles", JSON.stringify({ base: baseProfile }), "--json"]);
+        const response = runCliScript(__dirname + "/__scripts__/secure_prompt.sh", TEST_ENVIRONMENT.workingDir);
+        const fileContents = JSON.parse(fs.readFileSync(expectedProjectConfigLocation).toString());
+        const config = runCliScript(__dirname + "/../list/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, ["--rfj"]).stdout.toString();
+        const configJson = JSON.parse(config);
+        const expectedJsonWithToken = lodash.cloneDeep(expectedJson);
+        expectedJsonWithToken.profiles = { base: baseProfile };
+        expectedJsonWithToken.profiles.base.properties.tokenValue = "(secure value)";
+        const securedValue = await keytar.getPassword(service, "secure_config_props");
+        const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
+        const expectedSecuredValueJson = {};
+        expectedSecuredValueJson[expectedProjectConfigLocation] = {
+            "profiles.base.properties.tokenValue": "fakeUser:anotherFakeValue@fakeToken"
+        };
+
+        expect(response.stderr.toString()).toEqual("");
+        expect(response.status).toEqual(0);
+        expect(configJson.data).toEqual(expectedJsonWithToken);
+        // Should not contain human readable credentials
+        expect(fileContents.profiles.base.secure).toEqual(["tokenValue"]);
+        expect(fileContents.profiles.base.properties.tokenValue).toBeUndefined();
         // Check the securely stored JSON
         expect(securedValueJson).toEqual(expectedSecuredValueJson);
     });
