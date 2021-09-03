@@ -10,14 +10,14 @@
 */
 
 import * as fs from "fs";
-import * as https from "https";
 import * as path from "path";
-import { fileURLToPath, URL } from "url";
+import { fileURLToPath, pathToFileURL, URL } from "url";
 import * as JSONC from "comment-json";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ImperativeConfig } from "../../../../../utilities";
 import { IConfig } from "../../../../../config";
 import { ImperativeError } from "../../../../../error";
+import { RestClient, Session } from "../../../../../rest";
 
 /**
  * Import config
@@ -43,13 +43,15 @@ export default class ImportHandler implements ICommandHandler {
             return;
         }
 
-        const configJson: IConfig = fs.existsSync(params.arguments.location) ?
-            JSONC.parse(fs.readFileSync(params.arguments.location, "utf-8")) :
-            await this.download(params.arguments.location);
+        const configFilePath = path.resolve(params.arguments.location);
+        const configJson: IConfig = fs.existsSync(configFilePath) ?
+            JSONC.parse(fs.readFileSync(configFilePath, "utf-8")) :
+            await this.fetchConfig(new URL(params.arguments.location));
         config.api.layers.set(configJson);
 
         if (configJson.$schema?.startsWith("./")) {  // Only import schema if relative path
-            const schemaUri = new URL(configJson.$schema, params.arguments.location);
+            const schemaUri = new URL(configJson.$schema,
+                fs.existsSync(configFilePath) ? pathToFileURL(configFilePath) : params.arguments.location);
             const schemaFilePath = path.resolve(path.dirname(layer.path), configJson.$schema);
             try {
                 await this.downloadSchema(schemaUri, schemaFilePath);
@@ -68,27 +70,14 @@ export default class ImportHandler implements ICommandHandler {
      * Download the config from a URL
      * @param url
      */
-    private download(url: string): Promise<IConfig> {
-        // TODO Do we want to use node-fetch here?
-        return new Promise<IConfig>((resolve, reject) => {
-            https.get(url, (resp) => {
-                let data = '';
-                resp.on('data', (chunk) => { data += chunk; });
-                resp.on('end', () => {
-                    let cnfg;
-                    let ok = false;
-                    try {
-                        cnfg = JSONC.parse(data);
-                        // TODO: additional validation?
-                        ok = true;
-                    } catch (e) {
-                        reject(new ImperativeError({ msg: `unable to parse config: ${e.message}` }));
-                    }
-                    if (ok)
-                        resolve(cnfg);
-                });
-            }).on("error", (err) => { reject(err); });
-        });
+    private async fetchConfig(url: URL): Promise<IConfig> {
+        const session = Session.createFromUrl(url, false);
+        const response = await RestClient.getExpectString(session, url.pathname);
+        try {
+            return JSONC.parse(response);
+        } catch (error) {
+            throw new ImperativeError({ msg: `unable to parse config: ${error.message}` });
+        }
     }
 
     /**
@@ -96,17 +85,13 @@ export default class ImportHandler implements ICommandHandler {
      * @param url
      * @param path
      */
-    private downloadSchema(url: URL, path: string): Promise<void> {
+    private async downloadSchema(url: URL, path: string): Promise<void> {
         if (url.protocol === "file:") {
             fs.copyFileSync(fileURLToPath(url), path);
         } else {
+            const session = Session.createFromUrl(url, false);
             const fileStream = fs.createWriteStream(path);
-            return new Promise((resolve, reject) => {
-                https.get(url, (resp) => {
-                    resp.pipe(fileStream);
-                    fileStream.on("finish", resolve);
-                }).on("error", reject);
-            });
+            await RestClient.getStreamed(session, url.pathname, [], fileStream);
         }
     }
 }

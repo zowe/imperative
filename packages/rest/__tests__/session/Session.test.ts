@@ -200,10 +200,10 @@ describe("Session tests", () => {
         expect(error.message).toMatchSnapshot();
     });
 
-    describe("should build from URL", () => {
+    describe("should create from URL", () => {
         it("builds an HTTP session", () => {
             const url = new URL("http://example.com");
-            const session = Session.buildFromUrl(url);
+            const session = Session.createFromUrl(url);
             expect(session.ISession).toMatchObject({
                 hostname: "example.com",
                 protocol: "http"
@@ -212,7 +212,7 @@ describe("Session tests", () => {
 
         it("builds an HTTPS session", () => {
             const url = new URL("https://example.com");
-            const session = Session.buildFromUrl(url);
+            const session = Session.createFromUrl(url);
             expect(session.ISession).toMatchObject({
                 hostname: "example.com",
                 protocol: "https"
@@ -221,7 +221,7 @@ describe("Session tests", () => {
 
         it("builds a session with port", () => {
             const url = new URL("http://example.com:1337");
-            const session = Session.buildFromUrl(url);
+            const session = Session.createFromUrl(url);
             expect(session.ISession).toMatchObject({
                 hostname: "example.com",
                 protocol: "http",
@@ -231,7 +231,7 @@ describe("Session tests", () => {
 
         it("builds a session with base path when includePath is true", () => {
             const url = new URL("http://example.com/index.php");
-            const session = Session.buildFromUrl(url);
+            const session = Session.createFromUrl(url);
             expect(session.ISession).toMatchObject({
                 hostname: "example.com",
                 protocol: "http",
@@ -241,7 +241,7 @@ describe("Session tests", () => {
 
         it("builds a session without base path when includePath is false", () => {
             const url = new URL("http://example.com/index.php");
-            const session = Session.buildFromUrl(url, false);
+            const session = Session.createFromUrl(url, false);
             expect(session.ISession).toMatchObject({
                 hostname: "example.com",
                 protocol: "http"
@@ -251,7 +251,7 @@ describe("Session tests", () => {
 
         it("builds a session with basic authentication", () => {
             const url = new URL("http://user:pass@example.com");
-            const session = Session.buildFromUrl(url);
+            const session = Session.createFromUrl(url);
             expect(session.ISession).toMatchObject({
                 hostname: "example.com",
                 protocol: "http",

@@ -31,7 +31,13 @@ export class Session extends AbstractSession {
         super(newSession);
     }
 
-    public static buildFromUrl(url: URL, includePath?: boolean): Session {
+    /**
+     * Creates an instance of Session from a URL object.
+     * @param {URL} url - URL object from the Node.js `url` library
+     * @param {boolean} includePath - Specifies whether session base path should be populated. Default value is true.
+     * @memberof Session
+     */
+    public static createFromUrl(url: URL, includePath?: boolean): Session {
         const sessCfg: ISession = {
             hostname: url.hostname,
             user: url.username,
