@@ -1,0 +1,86 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Configuration import command handler download schema should be able to download the schema file from a web address 1`] = `
+"{
+    \\"$schema\\": \\"https://json-schema.org/draft/2020-12/schema\\",
+    \\"$version\\": 3,
+    \\"type\\": \\"object\\",
+    \\"description\\": \\"config\\",
+    \\"properties\\": {
+        \\"profiles\\": {
+            \\"type\\": \\"object\\",
+            \\"description\\": \\"named profiles config\\",
+            \\"patternProperties\\": {
+                \\"^\\\\\\\\S*$\\": {
+                    \\"type\\": \\"object\\",
+                    \\"description\\": \\"a profile\\",
+                    \\"properties\\": {
+                        \\"type\\": {
+                            \\"description\\": \\"the profile type\\",
+                            \\"type\\": \\"string\\"
+                        },
+                        \\"properties\\": {
+                            \\"description\\": \\"the profile properties\\",
+                            \\"type\\": \\"object\\"
+                        },
+                        \\"profiles\\": {
+                            \\"description\\": \\"additional sub-profiles\\",
+                            \\"type\\": \\"object\\",
+                            \\"$ref\\": \\"#/properties/profiles\\"
+                        },
+                        \\"secure\\": {
+                            \\"description\\": \\"secure property names\\",
+                            \\"type\\": \\"array\\",
+                            \\"prefixItems\\": {
+                                \\"type\\": \\"string\\"
+                            },
+                            \\"uniqueItems\\": true
+                     "
+`;
+
+exports[`Configuration import command handler fetch config should be able to fetch the configuration file from a web address 1`] = `
+Object {
+  "$schema": "./zowe.schema.json",
+  "defaults": Object {
+    "base": "base",
+    "ssh": "ssh",
+    "tso": "tso",
+    "zosmf": "zosmf",
+  },
+  "profiles": Object {
+    "base": Object {
+      "properties": Object {
+        "host": "zowe.org",
+        "password": "zowe",
+        "rejectUnauthorized": true,
+        "user": "zowe",
+      },
+      "secure": CommentArray [],
+      "type": "base",
+    },
+    "ssh": Object {
+      "properties": Object {
+        "port": 22,
+      },
+      "secure": CommentArray [],
+      "type": "ssh",
+    },
+    "tso": Object {
+      "properties": Object {
+        "account": "IZUACCT",
+        "codePage": "1047",
+        "logonProcedure": "IZUFPROC",
+      },
+      "secure": CommentArray [],
+      "type": "tso",
+    },
+    "zosmf": Object {
+      "properties": Object {
+        "port": 443,
+      },
+      "secure": CommentArray [],
+      "type": "zosmf",
+    },
+  },
+}
+`;
