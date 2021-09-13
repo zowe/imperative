@@ -289,9 +289,14 @@ describe("Default Help Generator", () => {
         it("getGroupHelpText test", () => {
             const helpGen: DefaultHelpGenerator = new DefaultHelpGenerator(GENERATOR_PARMS,
                 { commandDefinition: definition, fullCommandTree: fakeParent });
-            expect(() => {
+            let error: any;
+            try {
                 helpGen.buildFullGroupHelpText();
-            }).toThrowErrorMatchingSnapshot();
+            } catch (err) {
+                error = err;
+            }
+            expect(error).toBeDefined();
+            expect(error.message).toMatch(/Cannot read (property 'sort' of undefined|properties of undefined \(reading 'sort'\))/);
             const rootGen: DefaultHelpGenerator = new DefaultHelpGenerator(GENERATOR_PARMS,
                 { commandDefinition: expParent, fullCommandTree: expParent });
             expect(rootGen.buildFullGroupHelpText()).toMatchSnapshot();
@@ -328,9 +333,14 @@ describe("Default Help Generator", () => {
         it("getPrintedActionsOrGroups test", () => {
             const helpGen: DefaultHelpGenerator = new DefaultHelpGenerator(GENERATOR_PARMS,
                 { commandDefinition: definition, fullCommandTree: fakeParent });
-            expect(() => {
+            let error: any;
+            try {
                 helpGen.buildChildrenSummaryTables();
-            }).toThrowErrorMatchingSnapshot();
+            } catch (err) {
+                error = err;
+            }
+            expect(error).toBeDefined();
+            expect(error.message).toMatch(/Cannot read (property 'sort' of undefined|properties of undefined \(reading 'sort'\))/);
             const rootGen: DefaultHelpGenerator = new DefaultHelpGenerator(GENERATOR_PARMS,
                 { commandDefinition: expParent, fullCommandTree: expParent });
             expect(rootGen.buildChildrenSummaryTables()).toMatchSnapshot();

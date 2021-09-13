@@ -1230,14 +1230,17 @@ describe("Command Processor", () => {
 
         expect(commandResponse).toBeDefined();
         expect(commandResponse.success).toBe(false);
-        expect(commandResponse.message).toMatchSnapshot();
-        expect(commandResponse.error.msg).toMatchSnapshot();
+        expect(commandResponse.message).toMatch(
+            /Unexpected Command Error: Cannot read (property 'doesnt' of undefined|properties of undefined \(reading 'doesnt'\))/
+        );
+        expect(commandResponse.error.msg).toMatch(/Cannot read (property 'doesnt' of undefined|properties of undefined \(reading 'doesnt'\))/);
         expect(commandResponse.stdout.toString().length).toBe(0);
         expect(commandResponse.stderr.toString()).toContain("Unexpected Command Error:");
         expect(commandResponse.stderr.toString()).toContain("Message:");
         expect(commandResponse.stderr.toString()).toContain("Stack:");
-        expect(commandResponse.error.msg).toMatchSnapshot();
-        expect(commandResponse.error.stack).toContain("TypeError: Cannot read property 'doesnt' of undefined");
+        expect(commandResponse.error.stack).toMatch(
+            /TypeError: Cannot read (property 'doesnt' of undefined|properties of undefined \(reading 'doesnt'\))/
+        );
     });
 
     it("should handle the handler rejecting with a message", async () => {

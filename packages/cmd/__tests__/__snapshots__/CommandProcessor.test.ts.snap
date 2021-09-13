@@ -243,12 +243,6 @@ Object {
 }
 `;
 
-exports[`Command Processor should handle an error thrown from the handler 1`] = `"Unexpected Command Error: Cannot read property 'doesnt' of undefined"`;
-
-exports[`Command Processor should handle an error thrown from the handler 2`] = `"Cannot read property 'doesnt' of undefined"`;
-
-exports[`Command Processor should handle an error thrown from the handler 3`] = `"Cannot read property 'doesnt' of undefined"`;
-
 exports[`Command Processor should handle an error thrown from the profile loader 1`] = `
 Object {
   "data": Object {},
