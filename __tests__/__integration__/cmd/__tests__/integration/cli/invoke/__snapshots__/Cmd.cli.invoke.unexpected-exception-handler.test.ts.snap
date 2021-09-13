@@ -39,7 +39,3 @@ exports[`cmd-cli invoke unexpected-exception-handler should display the help 1`]
 
 "
 `;
-
-exports[`cmd-cli invoke unexpected-exception-handler should fail because of an unexpected exception and produce a JSON response 1`] = `"Unexpected Command Error: Cannot read property 'split' of undefined"`;
-
-exports[`cmd-cli invoke unexpected-exception-handler should fail because of an unexpected exception and produce a JSON response 2`] = `"Cannot read property 'split' of undefined"`;
