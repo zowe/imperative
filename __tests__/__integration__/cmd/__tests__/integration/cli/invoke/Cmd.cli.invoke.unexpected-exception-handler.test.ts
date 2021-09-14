@@ -56,10 +56,14 @@ describe("cmd-cli invoke unexpected-exception-handler", () => {
         const respObj: ICommandResponse = JSON.parse(response.stdout.toString());
 
         // Ensure that the fields are correct
-        expect(respObj.message).toMatchSnapshot();
+        expect(respObj.message).toMatch(
+            /Unexpected Command Error: Cannot read (property 'split' of undefined|properties of undefined \(reading 'split'\))/
+        );
         expect(respObj.success).toBe(false);
-        expect(respObj.error.msg).toMatchSnapshot();
-        expect(respObj.error.stack).toContain("TypeError: Cannot read property");
+        expect(respObj.error.msg).toMatch(
+            /Cannot read (property 'split' of undefined|properties of undefined \(reading 'split'\))/
+        );
+        expect(respObj.error.stack).toContain("TypeError: Cannot read");
 
         // Ensure that the stderr field matches the expected regex - some non-deterministic data is contained within
         const regex = fs.readFileSync(__dirname + "/__regex__/unexpected-exception-handler/unexpected-exception-handler.regex").toString();

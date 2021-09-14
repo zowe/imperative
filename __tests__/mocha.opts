@@ -1,2 +1,0 @@
---timeout 150000
-./test/TestContext.ts
