@@ -20,7 +20,6 @@ import { CredentialManagerFactory } from "../../../../../security";
 import * as config from "../../../../../../__tests__/__integration__/imperative/src/imperative";
 import * as fs from "fs";
 import * as lodash from "lodash";
-import { Imperative } from "../../../../src/Imperative";
 
 
 const flushPromises = () => new Promise(setImmediate);
@@ -31,11 +30,13 @@ const localConfig: string = join(localSchemaDir, "zowe.config.json.original");
 const localDownloadedSchemaPath = join(localSchemaDir, "__data__", "downloaded.schema.json");
 const localSchemaUrl: URL = new URL("file://" + localSchema);
 
+/* eslint-disable max-len */
 const configAddress = "https://gist.githubusercontent.com/awharn/629aa52801a9a5f8b7f725b33572acf8/raw/79dafd7c98e53f10eb668a29ddeb08ae5412d609/zowe.config.json";
 const schemaAddress = "https://gist.githubusercontent.com/awharn/629aa52801a9a5f8b7f725b33572acf8/raw/79dafd7c98e53f10eb668a29ddeb08ae5412d609/zowe.schema.json";
 const badConfigAddress = "https://gist.githubusercontent.com/awharn/629aa52801a9a5f8b7f725b33572acf8/raw/79dafd7c98e53f10eb668a29ddeb08ae5412d609/zowe.config.json.bad";
 const badSchemaAddress = "https://gist.githubusercontent.com/awharn/629aa52801a9a5f8b7f725b33572acf8/raw/34cf180414061107ddb8b7f5a4e693b8fd7c2853/zowe.schema.json.bad";
 const badAddress = "https://gist.githubusercontent.com/awharn/629aa52801a9a5f8b7f725b33572acf8/raw/34cf180414061107ddb8b7f5a4e693b8fd7c2854/zowe.config.json.bad";
+/* eslint-enable max-len */
 
 const configUrl: URL = new URL(configAddress);
 const schemaUrl: URL = new URL(schemaAddress);
@@ -49,7 +50,6 @@ describe("Configuration import command handler", () => {
 
         const fakeConfig = config as IImperativeConfig;
 
-        
         let osHomedirSpy: any;
         let currentWorkingDirectorySpy: any;
         let fetchConfigSpy: any;
@@ -167,8 +167,8 @@ describe("Configuration import command handler", () => {
 
         afterEach(async () => {
             await cleanup();
-        })
-        
+        });
+
         it("should be able to copy the schema file from a local file", async () => {
             const downloadSchema = (ImportHandler.prototype as any).downloadSchema;
             await downloadSchema(localSchemaUrl, localDownloadedSchemaPath);
