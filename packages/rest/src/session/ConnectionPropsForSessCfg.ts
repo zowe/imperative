@@ -173,7 +173,7 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.port) === false) {
                 let answer: any;
                 while (answer === undefined) {
-                    answer = await this.clientPrompt(`Enter the port number for ${serviceDescription}: `, {
+                    answer = await this.clientPrompt(`Enter the port number of ${serviceDescription}: `, {
                         parms: connOptsToUse.parms
                     });
                     if (answer === null) {
@@ -198,7 +198,7 @@ export class ConnectionPropsForSessCfg {
             if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.user) === false) {
                 let answer = "";
                 while (answer === "") {
-                    answer = await this.clientPrompt("Enter user name: ", {
+                    answer = await this.clientPrompt(`Enter the user name for ${serviceDescription}: `, {
                         parms: connOptsToUse.parms
                     });
                     if (answer === null) {
@@ -212,7 +212,7 @@ export class ConnectionPropsForSessCfg {
                 let answer = "";
                 while (answer === "") {
 
-                    answer = await this.clientPrompt("Enter password : ", {
+                    answer = await this.clientPrompt(`Enter the password for ${serviceDescription}: `, {
                         hideText: true,
                         parms: connOptsToUse.parms
                     });
