@@ -86,5 +86,11 @@ export const initDefinition: ICommandDefinition = {
             type: "boolean",
             defaultValue: true
         }
+    ],
+    examples: [
+        {
+            description: `Initialize configuration files in your home "~/.zowe" directory.`,
+            options: "--global-config"
+        }
     ]
 };
