@@ -127,9 +127,7 @@ exports[`Default Help Generator help text builder getExperimentalCommandSection 
 "
 `;
 
-exports[`Default Help Generator help text builder getGroupHelpText test 1`] = `"Cannot read property 'sort' of undefined"`;
-
-exports[`Default Help Generator help text builder getGroupHelpText test 2`] = `
+exports[`Default Help Generator help text builder getGroupHelpText test 1`] = `
 "
  DESCRIPTION
  -----------
@@ -154,7 +152,7 @@ exports[`Default Help Generator help text builder getGroupHelpText test 2`] = `
 "
 `;
 
-exports[`Default Help Generator help text builder getGroupHelpText test 3`] = `
+exports[`Default Help Generator help text builder getGroupHelpText test 2`] = `
 "
  DESCRIPTION
  -----------
@@ -179,9 +177,7 @@ exports[`Default Help Generator help text builder getGroupHelpText test 3`] = `
 "
 `;
 
-exports[`Default Help Generator help text builder getPrintedActionsOrGroups test 1`] = `"Cannot read property 'sort' of undefined"`;
-
-exports[`Default Help Generator help text builder getPrintedActionsOrGroups test 2`] = `
+exports[`Default Help Generator help text builder getPrintedActionsOrGroups test 1`] = `
 " COMMANDS
  --------
 

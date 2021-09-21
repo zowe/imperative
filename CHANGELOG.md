@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `4.15.1`
+
+- Bugfix: Update js-yaml to resolve a potential security issue
+
 ## `4.15.0`
 
 - Enhancement: Improved command suggestions for mistyped commands, add aliases to command suggestions
