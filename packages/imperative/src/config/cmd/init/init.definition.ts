@@ -97,7 +97,7 @@ export const initDefinition: ICommandDefinition = {
             options: "--user-config"
         },
         {
-            description: `Initialize the user config files and do not prompt for secure values.`,
+            description: "Initialize the user config files and do not prompt for secure values.",
             options: "--user-config --prompt false"
         }
     ]

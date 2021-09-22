@@ -2,6 +2,9 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+- Enhancement: Added Help Doc examples for the `zowe config` group of commands. [#1061](https://github.com/zowe/zowe-cli/issues/1061)
+
 ## `5.0.0-next.202109031503`
 
 - Enhancement: Log in to authentication service to obtain token value instead of prompting for it in `config secure` command.
