@@ -42,6 +42,14 @@ export const listDefinition: ICommandDefinition = {
     ],
     examples: [
         {
+            description: "List property names for a specified config property.",
+            options: `"default"`
+        },
+        {
+            description: "List only root level property names for a specified config property.",
+            options: `"default" --root`
+        },
+        {
             description: "List config properties by separating them by their respective config file locations.",
             options: "--locations"
         },
@@ -50,7 +58,7 @@ export const listDefinition: ICommandDefinition = {
             options: "--root"
         },
         {
-            description: "List only the root level configuration properties by separating them by their respective config file locations..",
+            description: "List only the root level configuration properties by separating them by their respective config file locations.",
             options: "--locations --root"
         }
     ]
