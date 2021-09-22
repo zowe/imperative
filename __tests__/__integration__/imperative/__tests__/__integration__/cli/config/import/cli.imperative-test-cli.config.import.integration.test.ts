@@ -12,15 +12,15 @@
 import { ITestEnvironment } from "../../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../../src/TestUtil";
+import { spawn } from "child_process";
 import * as fs from "fs";
-import * as http from "http";
 import * as path from "path";
 
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
 
 describe("imperative-test-cli config import", () => {
-    let server: http.Server;
+    let pServer: any;
     let localhostUrl: string;
 
     // Create the test environment
@@ -30,19 +30,16 @@ describe("imperative-test-cli config import", () => {
             testName: "imperative_test_cli_test_config_init_command"
         });
 
-        server = http.createServer((request, response) => {
-            return require("serve-handler")(request, response, {
-                public: __dirname + "/__resources__"
-            });
-        });
+        pServer = spawn("node", [path.join(__dirname, "/__scripts__/serve_resources.js")]);
         localhostUrl = await new Promise((resolve, reject) => {
-            server.listen(0, () => {
-                resolve(`http://localhost:${(server.address() as any).port}`);
+            pServer.stdout.on("data", (data) => {
+                resolve(data.toString().trim());
             });
         });
     });
     afterAll(() => {
-        server.close();
+        pServer.kill('SIGTERM');
+        pServer.unref();
     });
     beforeEach(() => {
         runCliScript(__dirname + "/../__scripts__/create_directory.sh", TEST_ENVIRONMENT.workingDir, ["fakeHome"]);
@@ -113,7 +110,6 @@ describe("imperative-test-cli config import", () => {
                 const response = runCliScript(path.join(__dirname, "/__scripts__/import_config.sh"), TEST_ENVIRONMENT.workingDir, [
                     localhostUrl + "/test.config.good.with.schema.json", "--user-config false --global-config false"
                 ]);
-
                 expect(response.stderr.toString()).toEqual("");
                 expect(response.status).toEqual(0);
 
