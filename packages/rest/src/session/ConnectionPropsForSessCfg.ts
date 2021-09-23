@@ -128,9 +128,9 @@ export class ConnectionPropsForSessCfg {
                 finalSessCfg.cert = cmdArgs.certFile;
                 finalSessCfg.certKey = cmdArgs.certKeyFile;
             }
-            // else if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.certFilePassword)) {
+            // else if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.certFilePassphrase)) {
             //     finalSessCfg.cert = cmdArgs.certFile;
-            //     finalSessCfg.passphrase = cmdArgs.certFilePassword;
+            //     finalSessCfg.passphrase = cmdArgs.certFilePassphrase;
             // }
         }
 
@@ -241,7 +241,7 @@ export class ConnectionPropsForSessCfg {
             // else if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.passphrase) === true) {
             //     impLogger.debug("Using PFX Certificate authentication");
             //     finalSessCfg.cert = cmdArgs.certFile;
-            //     finalSessCfg.passphrase = cmdArgs.certFilePassword;
+            //     finalSessCfg.passphrase = cmdArgs.certFilePassphrase;
             //     finalSessCfg.type = SessConstants.AUTH_TYPE_CERT_PFX;
             //     ConnectionPropsForSessCfg.logSessCfg(finalSessCfg);
             //     return finalSessCfg;
