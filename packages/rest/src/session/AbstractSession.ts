@@ -14,7 +14,6 @@ import { Logger } from "../../../logger";
 import { ImperativeError } from "../../../error";
 import { ImperativeExpect } from "../../../expect";
 import * as SessConstants from "./SessConstants";
-import { SSL_OP_NETSCAPE_REUSE_CIPHER_CHANGE_BUG } from "constants";
 
 /**
  * The API session object, serves as the base for sessions and contains the fields that are required by
