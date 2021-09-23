@@ -507,11 +507,12 @@ export abstract class AbstractRestClient {
         } else if (this.session.ISession.type === SessConstants.AUTH_TYPE_CERT_PEM) {
             this.log.trace("Using PEM Certificate authentication");
             try {
+                // Doing this again for SDKs using certificates
                 options.cert = readFileSync(this.session.ISession.cert);
                 options.key = readFileSync(this.session.ISession.certKey);
             } catch (err) {
                 throw new ImperativeError({
-                    msg: "Certificate authentication failed when trying to read files.",
+                    msg: "Failed to open one or more PEM certificate files, the file(s) did not exist.",
                     causeErrors: err,
                     additionalDetails: err.message,
                 });
