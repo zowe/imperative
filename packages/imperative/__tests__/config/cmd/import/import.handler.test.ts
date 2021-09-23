@@ -179,7 +179,7 @@ describe("Configuration Import command handler", () => {
 
             expect(config).toBeUndefined();
             expect(error).toBeDefined();
-            expect(error.message).toContain("unable to parse config");
+            expect(error.message).toContain("Unexpected token");
         });
 
         it("should throw error when REST client fails to fetch config file", async () => {
