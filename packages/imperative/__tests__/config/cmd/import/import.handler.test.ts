@@ -62,7 +62,7 @@ describe("Configuration Import command handler", () => {
         const fetchConfigSpy = jest.spyOn(ImportHandler.prototype as any, "fetchConfig");
         let teamConfig: Config;
 
-        beforeAll(async () => {
+        beforeAll(() => {
             jest.spyOn(ImperativeConfig.instance, "config", "get").mockImplementation(() => teamConfig);
         });
 

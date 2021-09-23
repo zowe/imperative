@@ -142,7 +142,7 @@
     "postcss": "^8.3.6",
     "postcss-url": "^10.1.3",
     "scroll-into-view-if-needed": "^2.2.22",
-    "serve-handler": "^6.1.3",
+    "serve": "^12.0.1",
     "shebang-regex": "^2.0.0",
     "split.js": "^1.5.11",
     "stream-to-string": "^1.2.0",

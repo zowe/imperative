@@ -44,7 +44,7 @@ export default class ImportHandler implements ICommandHandler {
         }
 
         const configFilePath = path.resolve(params.arguments.location);
-        const isConfigLocal = fs.existsSync(configFilePath);
+        const isConfigLocal = fs.existsSync(configFilePath) || path.isAbsolute(params.arguments.location);
         const configJson: IConfig = isConfigLocal ?
             JSONC.parse(fs.readFileSync(configFilePath, "utf-8")) :
             await this.fetchConfig(new URL(params.arguments.location));
@@ -74,11 +74,7 @@ export default class ImportHandler implements ICommandHandler {
     private async fetchConfig(url: URL): Promise<IConfig> {
         const session = Session.createFromUrl(url, false);
         const response = await RestClient.getExpectString(session, url.pathname);
-        try {
-            return JSONC.parse(response);
-        } catch (error) {
-            throw new ImperativeError({ msg: `unable to parse config: ${error.message}` });
-        }
+        return JSONC.parse(response);
     }
 
     /**
