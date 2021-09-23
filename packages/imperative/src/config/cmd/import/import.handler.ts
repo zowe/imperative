@@ -16,7 +16,6 @@ import * as JSONC from "comment-json";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ImperativeConfig } from "../../../../../utilities";
 import { IConfig } from "../../../../../config";
-import { ImperativeError } from "../../../../../error";
 import { RestClient, Session } from "../../../../../rest";
 
 /**
@@ -69,7 +68,8 @@ export default class ImportHandler implements ICommandHandler {
 
     /**
      * Download the config from a URL
-     * @param url
+     * @param url Web URL of the config JSON file
+     * @returns Parsed config object
      */
     private async fetchConfig(url: URL): Promise<IConfig> {
         const session = Session.createFromUrl(url, false);
@@ -79,16 +79,16 @@ export default class ImportHandler implements ICommandHandler {
 
     /**
      * Download the config schema from a URL to disk
-     * @param url
-     * @param path
+     * @param url Web URL of the schema JSON file
+     * @param filePath Local path to download to
      */
-    private async downloadSchema(url: URL, path: string): Promise<void> {
+    private async downloadSchema(url: URL, filePath: string): Promise<void> {
         if (url.protocol === "file:") {
-            fs.copyFileSync(fileURLToPath(url), path);
+            fs.copyFileSync(fileURLToPath(url), filePath);
         } else {
             const session = Session.createFromUrl(url, false);
             const response = await RestClient.getExpectString(session, url.pathname);
-            fs.writeFileSync(path, response);
+            fs.writeFileSync(filePath, response);
         }
     }
 }
