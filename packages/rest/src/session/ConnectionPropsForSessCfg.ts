@@ -150,9 +150,7 @@ export class ConnectionPropsForSessCfg {
             }
 
             if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.tokenValue)=== false &&
-                ConnectionPropsForSessCfg.propHasValue(finalSessCfg.cert)=== false && (
-                ConnectionPropsForSessCfg.propHasValue(finalSessCfg.certKey)=== false ||
-                ConnectionPropsForSessCfg.propHasValue(finalSessCfg.passphrase)=== false)) {
+                ConnectionPropsForSessCfg.propHasValue(finalSessCfg.cert)=== false) {
                 if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user)=== false) {
                     promptForValues.push("user");
                 }
