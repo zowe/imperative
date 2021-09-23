@@ -44,14 +44,15 @@ export default class ImportHandler implements ICommandHandler {
         }
 
         const configFilePath = path.resolve(params.arguments.location);
-        const configJson: IConfig = fs.existsSync(configFilePath) ?
+        const isConfigLocal = fs.existsSync(configFilePath);
+        const configJson: IConfig = isConfigLocal ?
             JSONC.parse(fs.readFileSync(configFilePath, "utf-8")) :
             await this.fetchConfig(new URL(params.arguments.location));
         config.api.layers.set(configJson);
 
         if (configJson.$schema?.startsWith("./")) {  // Only import schema if relative path
             const schemaUri = new URL(configJson.$schema,
-                fs.existsSync(configFilePath) ? pathToFileURL(configFilePath) : params.arguments.location);
+                isConfigLocal ? pathToFileURL(configFilePath) : params.arguments.location);
             const schemaFilePath = path.resolve(path.dirname(layer.path), configJson.$schema);
             try {
                 await this.downloadSchema(schemaUri, schemaFilePath);
@@ -90,8 +91,8 @@ export default class ImportHandler implements ICommandHandler {
             fs.copyFileSync(fileURLToPath(url), path);
         } else {
             const session = Session.createFromUrl(url, false);
-            const fileStream = fs.createWriteStream(path);
-            await RestClient.getStreamed(session, url.pathname, [], fileStream);
+            const response = await RestClient.getExpectString(session, url.pathname);
+            fs.writeFileSync(path, response);
         }
     }
 }
