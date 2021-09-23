@@ -162,4 +162,12 @@ export interface ISession {
      * @memberof ISession
      */
     secureProtocol?: string;
+
+    /**
+     * Decide whether or not to store a returned cookie.
+     * Only applies to certificates for now.
+     * @type {boolean}
+     * @memberof ISession
+     */
+    storeCookie?: boolean;
 }

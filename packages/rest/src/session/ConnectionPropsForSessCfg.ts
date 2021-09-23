@@ -118,15 +118,18 @@ export class ConnectionPropsForSessCfg {
             ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenValue)) {
             // only set tokenValue if user and password were not supplied
             finalSessCfg.tokenValue = cmdArgs.tokenValue;
-        } else if (!ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) &&
+        }
+
+        if (!ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) &&
         !ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) &&
-        !ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenValue) &&
+        !ConnectionPropsForSessCfg.propHasValue(finalSessCfg.tokenValue) &&
         ConnectionPropsForSessCfg.propHasValue(cmdArgs.certFile)) {
-            finalSessCfg.cert = cmdArgs.certFile;
             if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.certKeyFile)) {
+                finalSessCfg.cert = cmdArgs.certFile;
                 finalSessCfg.certKey = cmdArgs.certKeyFile;
-            } 
+            }
             // else if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.certFilePassword)) {
+            //     finalSessCfg.cert = cmdArgs.certFile;
             //     finalSessCfg.passphrase = cmdArgs.certFilePassword;
             // }
         }
@@ -236,8 +239,7 @@ export class ConnectionPropsForSessCfg {
                 finalSessCfg.certKey = cmdArgs.certKeyFile;
                 finalSessCfg.type = SessConstants.AUTH_TYPE_CERT_PEM;
                 ConnectionPropsForSessCfg.logSessCfg(finalSessCfg);
-                return finalSessCfg;
-            } 
+            }
             // else if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.passphrase) === true) {
             //     impLogger.debug("Using PFX Certificate authentication");
             //     finalSessCfg.cert = cmdArgs.certFile;
@@ -248,11 +250,12 @@ export class ConnectionPropsForSessCfg {
             // }
         }
 
-        /* At this point we ruled out token, so we use user and password. If our
+        /* At this point we ruled out tokens and certificates, so we use user and password. If our
          * caller permits, we prompt for any missing user name and password.
          */
         if (optsToUse.doPrompting) {
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) === false) {
+            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) === false &&
+                ConnectionPropsForSessCfg.propHasValue(finalSessCfg.cert) === false) {
                 let answer = "";
                 while (answer === "") {
                     answer = await CliUtils.promptWithTimeout(
@@ -265,7 +268,8 @@ export class ConnectionPropsForSessCfg {
                 finalSessCfg.user = answer;
             }
 
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) === false) {
+            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) === false &&
+                ConnectionPropsForSessCfg.propHasValue(finalSessCfg.cert) === false) {
                 let answer = "";
                 while (answer === "") {
                     answer = await CliUtils.promptWithTimeout(
@@ -311,16 +315,28 @@ export class ConnectionPropsForSessCfg {
         tokenType: SessConstants.TOKEN_TYPE_CHOICES
     ) {
         const impLogger = Logger.getImperativeLogger();
-        let logMsgtext = "Using basic authentication ";
+        let logMsgtext;
+
+        if (sessCfg.cert && sessCfg.certKey) {
+            logMsgtext = "Using PEM certificate authentication ";
+            sessCfg.type = SessConstants.AUTH_TYPE_CERT_PEM;
+        // } else if (sessCfg.cert && sessCfg.passphrase) {
+        //      logMsgtext = "Using PFX certificate authentication ";
+        //      sessCfg.type = SessConstants.AUTH_TYPE_CERT_PFX;
+        } else {
+            logMsgtext = "Using basic authentication ";
+            sessCfg.type = SessConstants.AUTH_TYPE_BASIC;
+        }
 
         if (options.requestToken) {
             // Set our type to token to get a token from user and pass
             logMsgtext += "to get token";
-            sessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
+            if (!sessCfg.cert) {
+                sessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
+            }
             sessCfg.tokenType = tokenType || options.defaultTokenType;
         } else {
             logMsgtext += "with no request for token";
-            sessCfg.type = SessConstants.AUTH_TYPE_BASIC;
         }
         impLogger.debug(logMsgtext);
     }

@@ -557,7 +557,8 @@ export abstract class AbstractRestClient {
         this.mContentEncoding = null;
 
         if (this.requestSuccess) {
-            if (this.session.ISession.type === SessConstants.AUTH_TYPE_TOKEN) {
+            // This is not ideal, but is the only way to avoid introducing a breaking change.
+            if (this.session.ISession.type === SessConstants.AUTH_TYPE_TOKEN || this.session.ISession.storeCookie === true) {
                 if (RestConstants.PROP_COOKIE in this.response.headers) {
                     this.session.storeCookie(this.response.headers[RestConstants.PROP_COOKIE]);
                 }

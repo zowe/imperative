@@ -105,7 +105,7 @@ exports[`Session tests should require password for 'tokenType' type 1`] = `"Expe
 
 exports[`Session tests should require proper protocol 1`] = `"Expect Error: The required entry was NOT found within the input array: 'https','http'"`;
 
-exports[`Session tests should require proper type 1`] = `"Expect Error: The required entry was NOT found within the input array: 'none','basic','token','bearer','cert-pem','cert-pfs'"`;
+exports[`Session tests should require proper type 1`] = `"Expect Error: The required entry was NOT found within the input array: 'none','basic','token','bearer','cert-pem'"`;
 
 exports[`Session tests should require token for 'bearer' type 1`] = `"Expect Error: Required parameter 'tokenValue' must be defined"`;
 

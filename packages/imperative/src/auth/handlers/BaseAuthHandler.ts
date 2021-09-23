@@ -107,9 +107,11 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         );
 
         this.mSession = new Session(sessCfgWithCreds);
+        this.mSession.ISession.storeCookie = true;
 
         // login to obtain a token.
         const tokenValue = await this.doLogin(this.mSession);
+        this.mSession.ISession.storeCookie = false;
 
         // validate a token was returned
         if (tokenValue == null) {

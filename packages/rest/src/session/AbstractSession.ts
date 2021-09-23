@@ -14,6 +14,7 @@ import { Logger } from "../../../logger";
 import { ImperativeError } from "../../../error";
 import { ImperativeExpect } from "../../../expect";
 import * as SessConstants from "./SessConstants";
+import { SSL_OP_NETSCAPE_REUSE_CIPHER_CHANGE_BUG } from "constants";
 
 /**
  * The API session object, serves as the base for sessions and contains the fields that are required by
@@ -316,9 +317,14 @@ export abstract class AbstractSession {
                     // ok
                 } else if (session.base64EncodedAuth !== undefined && session.base64EncodedAuth !== null) {
                     // ok
+                } else if (session.cert !== undefined && session.cert !== null &&
+                           // (session.passphrase !== undefined && session.passphrase !== null ||
+                           session.certKey !== undefined && session.certKey !== null) {
+                    // ok
                 } else {
                     throw new ImperativeError({
-                        msg: "Must have user & password OR tokenType & tokenValue.",
+                        // msg: "Must have user & password OR tokenType & tokenValue OR cert & certKey OR cert & passphrase",
+                        msg: "Must have user & password OR tokenType & tokenValue OR cert & certKey.",
                         additionalDetails: "For CLI usage, see '<your-cli> auth login <service> --help'"
                     });
                 }
