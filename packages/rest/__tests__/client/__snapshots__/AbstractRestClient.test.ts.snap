@@ -4,19 +4,6 @@ exports[`AbstractRestClient tests content encoding should error when decompressi
 
 exports[`AbstractRestClient tests content encoding should error when decompressing invalid gzip stream 1`] = `"Failed to decompress response stream with content encoding type gzip"`;
 
-exports[`AbstractRestClient tests should create buildOptions according to input parameter options 1`] = `
-Object {
-  "headers": Object {
-    "Authorization": "Bearer someToken",
-  },
-  "hostname": "test",
-  "method": "GET",
-  "path": "/baseURL/resource",
-  "port": 8080,
-  "rejectUnauthorized": true,
-}
-`;
-
 exports[`AbstractRestClient tests should create buildOptions according to input parameter options 1 1`] = `
 Object {
   "headers": Object {
