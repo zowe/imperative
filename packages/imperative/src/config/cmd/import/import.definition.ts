@@ -52,5 +52,15 @@ export const importDefinition: ICommandDefinition = {
             type: "boolean",
             defaultValue: false
         }
+    ],
+    examples: [
+        {
+            description: "Import config from local file on disk",
+            options: "~/Downloads/zowe.config.json"
+        },
+        {
+            description: "Import global config from Internet URL",
+            options: "https://example.com/zowe.config.json --global-config"
+        }
     ]
 };
