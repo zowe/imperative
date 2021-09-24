@@ -49,12 +49,14 @@ export default class ImportHandler implements ICommandHandler {
             await this.fetchConfig(new URL(params.arguments.location));
         config.api.layers.set(configJson);
 
+        let schemaImported = false;
         if (configJson.$schema?.startsWith("./")) {  // Only import schema if relative path
             const schemaUri = new URL(configJson.$schema,
                 isConfigLocal ? pathToFileURL(configFilePath) : params.arguments.location);
             const schemaFilePath = path.resolve(path.dirname(layer.path), configJson.$schema);
             try {
                 await this.downloadSchema(schemaUri, schemaFilePath);
+                schemaImported = true;
             } catch (error) {
                 params.response.console.error(`Failed to download schema from ${schemaUri}`);
             }
@@ -63,7 +65,7 @@ export default class ImportHandler implements ICommandHandler {
         // Write the active created/updated config layer
         await config.api.layers.write();
 
-        params.response.console.log(`Imported config to ${layer.path}`);
+        params.response.console.log(`Imported config${schemaImported ? " and schema" : ""} to ${layer.path}`);
     }
 
     /**

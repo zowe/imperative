@@ -86,12 +86,13 @@ describe("imperative-test-cli config import", () => {
             expect(response.stderr.toString()).toEqual("");
         });
 
-        it("should successfully import and overwrite a schema and config", () => {
+        it("should successfully import and overwrite a config and schema", () => {
             let response = runCliScript(path.join(__dirname, "/__scripts__/import_config.sh"), TEST_ENVIRONMENT.workingDir, [
                 path.join(__dirname, "__resources__", "test.config.good.with.schema.json"), "--user-config false --global-config false"
             ]);
 
             expect(response.stderr.toString()).toEqual("");
+            expect(response.stdout.toString()).toContain("Imported config and schema");
             expect(response.status).toEqual(0);
 
             expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"),
@@ -126,6 +127,7 @@ describe("imperative-test-cli config import", () => {
                 ]);
 
                 expect(response.stderr.toString()).toEqual("");
+                expect(response.stdout.toString()).toContain("Imported config");
                 expect(response.status).toEqual(0);
 
                 expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"),
@@ -137,13 +139,29 @@ describe("imperative-test-cli config import", () => {
                 const response = runCliScript(path.join(__dirname, "/__scripts__/import_config.sh"), TEST_ENVIRONMENT.workingDir, [
                     localhostUrl + "/test.config.good.with.schema.json", "--user-config false --global-config false"
                 ]);
+
                 expect(response.stderr.toString()).toEqual("");
+                expect(response.stdout.toString()).toContain("Imported config and schema");
                 expect(response.status).toEqual(0);
 
                 expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"),
                     path.join(__dirname, "__resources__", "test.config.good.with.schema.json"));
                 expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json"),
                     path.join(__dirname, "__resources__", "test.schema.good.json"));
+            });
+
+            it("should successfully import a config without schema if it is defined with a URL", () => {
+                const response = runCliScript(path.join(__dirname, "/__scripts__/import_config.sh"), TEST_ENVIRONMENT.workingDir, [
+                    localhostUrl + "/test.config.good.with.http.schema.json", "--user-config false --global-config false"
+                ]);
+
+                expect(response.stderr.toString()).toEqual("");
+                expect(response.stdout.toString()).toContain("Imported config");
+                expect(response.status).toEqual(0);
+
+                expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"),
+                    path.join(__dirname, "__resources__", "test.config.good.with.http.schema.json"));
+                expect(fs.existsSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json"))).toEqual(false);
             });
         });
 
@@ -155,6 +173,7 @@ describe("imperative-test-cli config import", () => {
                 ]);
 
                 expect(response.stderr.toString()).toEqual("");
+                expect(response.stdout.toString()).toContain("Imported config");
                 expect(response.status).toEqual(0);
 
                 expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"),
@@ -168,12 +187,28 @@ describe("imperative-test-cli config import", () => {
                 ]);
 
                 expect(response.stderr.toString()).toEqual("");
+                expect(response.stdout.toString()).toContain("Imported config and schema");
                 expect(response.status).toEqual(0);
 
                 expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"),
                     path.join(__dirname, "__resources__", "test.config.good.with.schema.json"));
                 expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json"),
                     path.join(__dirname, "__resources__", "test.schema.good.json"));
+            });
+
+            it("should successfully import a config without schema if it is defined with an absolute path", () => {
+                const response = runCliScript(path.join(__dirname, "/__scripts__/import_config.sh"), TEST_ENVIRONMENT.workingDir, [
+                    path.join(__dirname, "__resources__", "test.config.good.with.file.schema.json"),
+                    "--user-config false --global-config false"
+                ]);
+
+                expect(response.stderr.toString()).toEqual("");
+                expect(response.stdout.toString()).toContain("Imported config");
+                expect(response.status).toEqual(0);
+
+                expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"),
+                    path.join(__dirname, "__resources__", "test.config.good.with.file.schema.json"));
+                expect(fs.existsSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json"))).toEqual(false);
             });
         });
     });
@@ -215,8 +250,8 @@ describe("imperative-test-cli config import", () => {
                     localhostUrl + "/test.config.does.not.exist.json", "--user-config false --global-config false"
                 ]);
 
-                expect(response.stdout.toString()).toEqual("");
                 expect(response.stderr.toString()).toContain("Rest API failure with HTTP(S) status");
+                expect(response.stdout.toString()).toEqual("");
                 expect(response.status).toEqual(1);
 
                 expect(fs.existsSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"))).toEqual(false);
@@ -241,24 +276,11 @@ describe("imperative-test-cli config import", () => {
                     localhostUrl + "/test.config.bad.json", "--user-config false --global-config false"
                 ]);
 
-                expect(response.stdout.toString()).toEqual("");
                 expect(response.stderr.toString()).toContain("Unexpected end of JSON input");
+                expect(response.stdout.toString()).toEqual("");
                 expect(response.status).toEqual(1);
 
                 expect(fs.existsSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"))).toEqual(false);
-                expect(fs.existsSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json"))).toEqual(false);
-            });
-
-            it("should fail to import a schema if it is defined with a URL", () => {
-                const response = runCliScript(path.join(__dirname, "/__scripts__/import_config.sh"), TEST_ENVIRONMENT.workingDir, [
-                    localhostUrl + "/test.config.good.with.http.schema.json", "--user-config false --global-config false"
-                ]);
-
-                expect(response.stderr.toString()).toEqual("");
-                expect(response.status).toEqual(0);
-
-                expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"),
-                    path.join(__dirname, "__resources__", "test.config.good.with.http.schema.json"));
                 expect(fs.existsSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json"))).toEqual(false);
             });
         });
@@ -270,8 +292,8 @@ describe("imperative-test-cli config import", () => {
                     "--user-config false --global-config false"
                 ]);
 
-                expect(response.stdout.toString()).toEqual("");
                 expect(response.stderr.toString()).toContain("no such file or directory");
+                expect(response.stdout.toString()).toEqual("");
                 expect(response.status).toEqual(1);
 
                 expect(fs.existsSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"))).toEqual(false);
@@ -285,6 +307,7 @@ describe("imperative-test-cli config import", () => {
                 ]);
 
                 expect(response.stderr.toString()).toContain("Failed to download schema");
+                expect(response.stdout.toString()).toContain("Imported config");
                 expect(response.status).toEqual(0);
 
                 expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"),
@@ -298,25 +321,11 @@ describe("imperative-test-cli config import", () => {
                     "--user-config false --global-config false"
                 ]);
 
-                expect(response.stdout.toString()).toEqual("");
                 expect(response.stderr.toString()).toContain("Unexpected end of JSON input");
+                expect(response.stdout.toString()).toEqual("");
                 expect(response.status).toEqual(1);
 
                 expect(fs.existsSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"))).toEqual(false);
-                expect(fs.existsSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json"))).toEqual(false);
-            });
-
-            it("should fail to import a schema if it is defined with an absolute path", () => {
-                const response = runCliScript(path.join(__dirname, "/__scripts__/import_config.sh"), TEST_ENVIRONMENT.workingDir, [
-                    path.join(__dirname, "__resources__", "test.config.good.with.file.schema.json"),
-                    "--user-config false --global-config false"
-                ]);
-
-                expect(response.stderr.toString()).toEqual("");
-                expect(response.status).toEqual(0);
-
-                expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"),
-                    path.join(__dirname, "__resources__", "test.config.good.with.file.schema.json"));
                 expect(fs.existsSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json"))).toEqual(false);
             });
         });
