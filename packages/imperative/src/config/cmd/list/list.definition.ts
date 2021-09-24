@@ -43,11 +43,11 @@ export const listDefinition: ICommandDefinition = {
     examples: [
         {
             description: "List property names for a specified config property.",
-            options: `"default"`
+            options: `"defaults"`
         },
         {
             description: "List only root level property names for a specified config property.",
-            options: `"default" --root`
+            options: `"defaults" --root`
         },
         {
             description: "List config properties by separating them by their respective config file locations.",
