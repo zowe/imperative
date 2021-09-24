@@ -17,6 +17,38 @@ Object {
 }
 `;
 
+exports[`AbstractRestClient tests should create buildOptions according to input parameter options 1 1`] = `
+Object {
+  "headers": Object {
+    "Authorization": "Bearer someToken",
+  },
+  "hostname": "test",
+  "method": "GET",
+  "path": "/baseURL/resource",
+  "port": 8080,
+  "rejectUnauthorized": true,
+}
+`;
+
+exports[`AbstractRestClient tests should create buildOptions according to input parameter options 2 1`] = `
+Object {
+  "cert": Object {
+    "data": Array [],
+    "type": "Buffer",
+  },
+  "headers": Object {},
+  "hostname": "test",
+  "key": Object {
+    "data": Array [],
+    "type": "Buffer",
+  },
+  "method": "GET",
+  "path": "/baseURL/resource",
+  "port": 8080,
+  "rejectUnauthorized": true,
+}
+`;
+
 exports[`AbstractRestClient tests should error when chunking JSON data that does not parse 1`] = `
 "The get request appeared to succeed, but the response was not in the expected format:
 Unexpected end of JSON input"

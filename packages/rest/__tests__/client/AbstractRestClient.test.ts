@@ -24,6 +24,7 @@ import { PassThrough } from "stream";
 import * as zlib from "zlib";
 import * as streamToString from "stream-to-string";
 import { AbstractRestClient } from "../../src/client/AbstractRestClient";
+import { join } from "path";
 
 
 /**
@@ -606,7 +607,7 @@ describe("AbstractRestClient tests", () => {
         listOfClientProperties.forEach((property) => expect(data[`${property}`]).not.toBeDefined());
     });
 
-    it("should create buildOptions according to input parameter options", async () => {
+    it("should create buildOptions according to input parameter options 1", async () => {
 
         const httpsRequestFnc = jest.fn((options, callback) => {
             expect(options).toMatchSnapshot();
@@ -638,6 +639,78 @@ describe("AbstractRestClient tests", () => {
             error = thrownError;
         }
         expect(httpsRequestFnc).toBeCalled();
+    });
+
+    it("should create buildOptions according to input parameter options 2", async () => {
+
+        const httpsRequestFnc = jest.fn((options, callback) => {
+            expect(options).toMatchSnapshot();
+            const emitter = new MockHttpRequestResponse();
+            ProcessUtils.nextTick(() => {
+                callback(new EventEmitter());
+                ProcessUtils.nextTick(() => {
+                    emitter.emit("error", "value");
+                });
+            });
+            return emitter;
+        });
+
+        (https.request as any) = httpsRequestFnc;
+
+        let error;
+        try {
+            await RestClient.getExpectString(
+                new Session({
+                    hostname: "test",
+                    port: 8080,
+                    protocol: "https",
+                    basePath: "baseURL",
+                    type: "cert-pem",
+                    cert: join(__dirname, "..", "..", "..", "..", "__tests__", "__integration__",
+                                "cmd", "__tests__", "integration", "cli", "auth", "__resources__", "fakeCert.cert"),
+                    certKey: join(__dirname, "..", "..", "..", "..", "__tests__", "__integration__",
+                                "cmd", "__tests__", "integration", "cli", "auth", "__resources__", "fakeKey.key"),
+                }),
+                "/resource");
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(httpsRequestFnc).toBeCalled();
+    });
+
+    it("Should error when trying to open an invalid certificate file path", async () => {
+        const httpsRequestFnc = jest.fn((options, callback) => {
+            expect(options).toMatchSnapshot();
+            const emitter = new MockHttpRequestResponse();
+            ProcessUtils.nextTick(() => {
+                callback(new EventEmitter());
+                ProcessUtils.nextTick(() => {
+                    emitter.emit("error", "value");
+                });
+            });
+            return emitter;
+        });
+
+        (https.request as any) = httpsRequestFnc;
+
+        let error;
+        try {
+            await RestClient.getExpectString(
+                new Session({
+                    hostname: "test",
+                    port: 8080,
+                    protocol: "https",
+                    basePath: "baseURL",
+                    type: "cert-pem",
+                    cert: join(__dirname, "fakeCert.cert"),
+                    certKey: join(__dirname, "fakeKey.key"),
+                }),
+                "/resource");
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(httpsRequestFnc).not.toBeCalled();
+        expect(error.message).toContain("Failed to open one or more PEM certificate files");
     });
 
     describe("content encoding", () => {
