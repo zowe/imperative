@@ -274,7 +274,7 @@ export abstract class AbstractRestClient {
                 // } catch (err) {
                 //     if (err.message === "mac verify failure") {
                 //         throw new ImperativeError({
-                //             msg: "Failed to decrypt PFX file - verify your certificate password is correct.",
+                //             msg: "Failed to decrypt PFX file - verify your certificate passphrase is correct.",
                 //             causeErrors: err,
                 //             additionalDetails: err.message,
                 //             stack: err.stack
