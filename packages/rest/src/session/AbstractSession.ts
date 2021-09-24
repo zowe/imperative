@@ -297,13 +297,13 @@ export abstract class AbstractSession {
                     additionalDetails: "For CLI usage, see '<your-cli> auth login <service> --help'"
                 });
             }
-            ImperativeExpect.keysToBeUndefined(populatedSession, ["tokenType", "tokenValue"]);
+            ImperativeExpect.keysToBeUndefined(populatedSession, ["tokenType", "tokenValue", "cert", "certKey"]);
         }
 
         // if bearer auth, must have token
         if (session.type === SessConstants.AUTH_TYPE_BEARER) {
             ImperativeExpect.keysToBeDefinedAndNonBlank(populatedSession, ["tokenValue"] );
-            ImperativeExpect.keysToBeUndefined(populatedSession, ["tokenType", "user", "password"] );
+            ImperativeExpect.keysToBeUndefined(populatedSession, ["tokenType", "user", "password", "cert", "certKey"] );
         }
 
         if (session.type === SessConstants.AUTH_TYPE_TOKEN) {
@@ -332,6 +332,7 @@ export abstract class AbstractSession {
 
         if (session.type === SessConstants.AUTH_TYPE_CERT_PEM) {
             ImperativeExpect.keysToBeDefinedAndNonBlank(populatedSession, ["cert", "certKey"]);
+            ImperativeExpect.keysToBeUndefined(populatedSession, ["tokenValue", "user", "password"] );
             ImperativeExpect.toNotBeEqual(populatedSession.protocol, SessConstants.HTTP_PROTOCOL,
                 "Certificate based authentication cannot be used over HTTP. Please set protocol to HTTPS to use certificate authentication.");
         }

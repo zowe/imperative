@@ -667,9 +667,9 @@ describe("AbstractRestClient tests", () => {
                     basePath: "baseURL",
                     type: "cert-pem",
                     cert: join(__dirname, "..", "..", "..", "..", "__tests__", "__integration__",
-                                "cmd", "__tests__", "integration", "cli", "auth", "__resources__", "fakeCert.cert"),
+                        "cmd", "__tests__", "integration", "cli", "auth", "__resources__", "fakeCert.cert"),
                     certKey: join(__dirname, "..", "..", "..", "..", "__tests__", "__integration__",
-                                "cmd", "__tests__", "integration", "cli", "auth", "__resources__", "fakeKey.key"),
+                        "cmd", "__tests__", "integration", "cli", "auth", "__resources__", "fakeKey.key"),
                 }),
                 "/resource");
         } catch (thrownError) {

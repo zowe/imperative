@@ -339,6 +339,13 @@ export class CommandProcessor {
             commandLine = commandLine.replace(regEx, "--$1 ****");
         }
 
+        // determine if the command has the cert file passphrase option and mask the value
+        regEx = /--(cert-file-passphrase|certFilePassphrase) ([^\s]+)/gi;
+
+        if (commandLine.search(regEx) >= 0) {
+            commandLine = commandLine.replace(regEx, "--$1 ****");
+        }
+
         // this.log.info(`post commandLine issued:\n\n${TextUtils.prettyJson(commandLine)}`);
         // Log the invoke
         this.log.info(`Invoking command "${this.definition.name}"...`);

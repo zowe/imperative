@@ -83,6 +83,26 @@ describe("Session tests", () => {
         expect(error.message).toMatchSnapshot();
     });
 
+    it("should not allow cert for 'basic' type", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "basic", user: "hey", password: "there", cert: "/fake/cert"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should not allow certKey for 'basic' type", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "basic", user: "hey", password: "there", certKey: "/fake/cert"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+
     it("should require password for 'basic' type", () => {
         let error;
         try {
@@ -139,6 +159,26 @@ describe("Session tests", () => {
         expect(error.message).toMatchSnapshot();
     });
 
+    it("should not allow cert for 'bearer' type", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "bearer", tokenValue: "blahblahblah", cert: "/fake/cert"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should not allow certKey for 'bearer' type", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "bearer", tokenValue: "blahblahblah", certKey: "/fake/cert/key"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+
     it("should require token for 'bearer' type", () => {
         let error;
         try {
@@ -152,6 +192,69 @@ describe("Session tests", () => {
     it("should not require user and password for 'bearer' type", () => {
         const session = new Session({hostname: "localhost", type: "bearer", tokenValue: "blahblahblah"});
         expect(session.ISession).toMatchSnapshot();
+    });
+
+    it("should require cert for 'cert-pem' type", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "cert-pem"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should require certKey for 'cert-pem' type", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "cert-pem", cert: "/fake/cert"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should allow tokenType for 'cert-pem' type for auth login", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "cert-pem",
+                cert: "/fake/cert", certKey: "/fake/cert/key", tokenType: "LtpaToken2"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error).toBeUndefined();
+    });
+
+    it("should not allow tokenValue for 'cert-pem' type for auth login", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "cert-pem",
+                cert: "/fake/cert", certKey: "/fake/cert/key", tokenType: "LtpaToken2",
+                tokenValue: "FakeTokenValue"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should not allow user for 'cert-pem' type", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "cert-pem", cert: "/fake/cert", certKey: "/fake/cert/key", user: "user"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
+    });
+
+    it("should not allow password for 'cert-pem' type", () => {
+        let error;
+        try {
+            const session = new Session({hostname: "localhost", type: "cert-pem", cert: "/fake/cert", certKey: "/fake/cert/key", password: "pass"});
+        } catch (thrownError) {
+            error = thrownError;
+        }
+        expect(error.message).toMatchSnapshot();
     });
 
     it("should not fail to initialize with minimum data", () => {

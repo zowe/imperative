@@ -15,7 +15,7 @@ import { CliUtils } from "../../utilities/src/CliUtils";
 export class LoggerUtils {
     public static readonly CENSOR_RESPONSE = "****";
     public static CENSORED_OPTIONS = ["auth", "p", "pass", "password", "passphrase", "credentials",
-        "authentication", "basic-auth", "basicAuth", "tv", "token-value", "tokenValue"];
+        "authentication", "basic-auth", "basicAuth", "tv", "token-value", "tokenValue", "cert-file-passphrase", "certFilePassphrase"];
 
     /**
      * Copy and censor any sensitive CLI arguments before logging/printing
