@@ -39,5 +39,27 @@ export const listDefinition: ICommandDefinition = {
                 "For example, specify in addition to '--locations' to get a list of config file paths only.",
             type: "boolean"
         }
+    ],
+    examples: [
+        {
+            description: "List property names for a specified config property.",
+            options: `"defaults"`
+        },
+        {
+            description: "List only root level property names for a specified config property.",
+            options: `"defaults" --root`
+        },
+        {
+            description: "List config properties by separating them by their respective config file locations.",
+            options: "--locations"
+        },
+        {
+            description: "List only the root level configuration property names.",
+            options: "--root"
+        },
+        {
+            description: "List only the root level configuration properties by separating them by their respective config file locations.",
+            options: "--locations --root"
+        }
     ]
 };

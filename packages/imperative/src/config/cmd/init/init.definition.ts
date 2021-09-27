@@ -86,5 +86,19 @@ export const initDefinition: ICommandDefinition = {
             type: "boolean",
             defaultValue: true
         }
+    ],
+    examples: [
+        {
+            description: `Initialize configuration files in your home "~/.zowe" directory.`,
+            options: "--global-config"
+        },
+        {
+            description: "Initialize the user config files.",
+            options: "--user-config"
+        },
+        {
+            description: "Initialize the user config files and do not prompt for secure values.",
+            options: "--user-config --prompt false"
+        }
     ]
 };

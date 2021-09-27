@@ -21,5 +21,11 @@ export const profilesDefinition: ICommandDefinition = {
     type: "command",
     handler: join(__dirname, "profiles.handler"),
     summary: "displays profile paths",
-    description: "Displays profile paths."
+    description: "Displays profile paths.",
+    examples: [
+        {
+            description: "Display profile paths.",
+            options: ""
+        }
+    ]
 };
