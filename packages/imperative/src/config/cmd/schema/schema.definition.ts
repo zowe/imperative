@@ -23,5 +23,11 @@ export const schemaDefinition: ICommandDefinition = {
     summary: "dumps the JSON schema for the config",
     description: "Dumps the JSON schema for the config. " +
         "The schema is dynamically created based on your available plugins. " +
-        "Direct the output of this command to a file and include in your config with '$schema' property to get editor completion."
+        "Direct the output of this command to a file and include in your config with '$schema' property to get editor completion.",
+    examples: [
+        {
+            description: "Display the JSON schema for the config.",
+            options: ""
+        }
+    ]
 };
