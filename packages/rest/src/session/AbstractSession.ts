@@ -316,10 +316,6 @@ export abstract class AbstractSession {
                     // ok
                 } else if (session.base64EncodedAuth !== undefined && session.base64EncodedAuth !== null) {
                     // ok
-                } else if (session.cert !== undefined && session.cert !== null &&
-                           // (session.passphrase !== undefined && session.passphrase !== null ||
-                           session.certKey !== undefined && session.certKey !== null) {
-                    // ok
                 } else {
                     throw new ImperativeError({
                         // msg: "Must have user & password OR tokenType & tokenValue OR cert & certKey OR cert & passphrase",
