@@ -844,7 +844,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: "--user fakeUser --password fakePass --token-value fakeToken",
+            commandLine: "--user fakeUser --password fakePass --token-value fakeToken " + 
+                "--cert-file-passphrase fakePassphrase --cert-key-file /fake/path",
             promptPhrase: "dummydummy"
         });
 
@@ -866,7 +867,7 @@ describe("Command Processor", () => {
         const commandResponse: ICommandResponse = await processor.invoke(parms);
 
         expect(mockLogInfo).toHaveBeenCalled();
-        expect(logOutput).toContain("--user **** --password **** --token-value ****");
+        expect(logOutput).toContain("--user **** --password **** --token-value **** --cert-file-passphrase **** --cert-key-file ****");
     });
 
     it("should handle an error thrown from the profile loader", async () => {
