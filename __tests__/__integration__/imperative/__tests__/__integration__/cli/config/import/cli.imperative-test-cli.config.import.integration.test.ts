@@ -99,8 +99,6 @@ describe("imperative-test-cli config import", () => {
                 path.join(__dirname, "__resources__", "test.config.good.with.schema.json"));
             expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json"),
                 path.join(__dirname, "__resources__", "test.schema.good.json"));
-            const lastMtimeConfig = fs.statSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json")).mtime;
-            const lastMtimeSchema = fs.statSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json")).mtime;
 
             response = runCliScript(path.join(__dirname, "/__scripts__/import_config_no_mkdir.sh"), TEST_ENVIRONMENT.workingDir, [
                 path.join(__dirname, "__resources__", "test.config.good.modified.with.schema.json"), "--user-config false --global-config false --ow"
@@ -113,10 +111,6 @@ describe("imperative-test-cli config import", () => {
                 path.join(__dirname, "__resources__", "test.config.good.modified.with.schema.json"));
             expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.modified.json"),
                 path.join(__dirname, "__resources__", "test.schema.good.modified.json"));
-            const mtimeConfig = fs.statSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json")).mtime;
-            expect(mtimeConfig.getTime()).toBeGreaterThan(lastMtimeConfig.getTime());
-            const mtimeSchema = fs.statSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.modified.json")).mtime;
-            expect(mtimeSchema.getTime()).toBeGreaterThan(lastMtimeSchema.getTime());
         });
 
         describe("from the web", () => {
@@ -226,8 +220,6 @@ describe("imperative-test-cli config import", () => {
                 path.join(__dirname, "__resources__", "test.config.good.with.schema.json"));
             expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json"),
                 path.join(__dirname, "__resources__", "test.schema.good.json"));
-            const lastMtimeConfig = fs.statSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json")).mtime;
-            const lastMtimeSchema = fs.statSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json")).mtime;
 
             response = runCliScript(path.join(__dirname, "/__scripts__/import_config_no_mkdir.sh"), TEST_ENVIRONMENT.workingDir, [
                 path.join(__dirname, "__resources__", "test.config.good.modified.with.schema.json"), "--user-config false --global-config false"
@@ -237,10 +229,10 @@ describe("imperative-test-cli config import", () => {
             expect(response.stdout.toString()).toContain("Skipping import");
             expect(response.status).toEqual(0);
 
-            const mtimeConfig = fs.statSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json")).mtime;
-            expect(mtimeConfig.getTime()).toBe(lastMtimeConfig.getTime());
-            const mtimeSchema = fs.statSync(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json")).mtime;
-            expect(mtimeSchema.getTime()).toBe(lastMtimeSchema.getTime());
+            expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "imperative-test-cli.config.json"),
+                path.join(__dirname, "__resources__", "test.config.good.with.schema.json"));
+            expectFilesAreEqual(path.join(TEST_ENVIRONMENT.workingDir, "test", "test.schema.good.json"),
+                path.join(__dirname, "__resources__", "test.schema.good.json"));
         });
 
         describe("from the web", () => {
