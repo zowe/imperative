@@ -676,6 +676,7 @@ describe("AbstractRestClient tests", () => {
             error = thrownError;
         }
         expect(httpsRequestFnc).toBeCalled();
+        expect(error).toBeUndefined();
     });
 
     it("Should error when trying to open an invalid certificate file path", async () => {
