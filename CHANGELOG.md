@@ -3,6 +3,8 @@
 All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
+
+- Enhancement: Added `config import` command that imports team config files from a local path or web URL. [#1083](https://github.com/zowe/zowe-cli/issues/1083)
 - Enhancement: Added Help Doc examples for the `zowe config` group of commands. [#1061](https://github.com/zowe/zowe-cli/issues/1061)
 
 ## `5.0.0-next.202109031503`
@@ -43,7 +45,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## `5.0.0-next.202106212048`
 
-- Enhancement: A new interface (IApimlSvcAttrs) was added. A property (apimlConnLookup) of that interface type was added to IImerpativeConfig to enable plugins to tie themselves to an APIML service. Zowe-CLI can then ask APIML for the configuration data for the plugin to connect to that service.
+- Enhancement: A new interface (IApimlSvcAttrs) was added. A property (apimlConnLookup) of that interface type was added to IImperativeConfig to enable plugins to tie themselves to an APIML service. Zowe-CLI can then ask APIML for the configuration data for the plugin to connect to that service.
 
 ## `5.0.0-next.202106041929`
 

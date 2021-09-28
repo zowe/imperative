@@ -9,6 +9,7 @@
 *
 */
 
+import { URL } from "url";
 import { Session } from "../../src/session/Session";
 
 describe("Session tests", () => {
@@ -197,5 +198,67 @@ describe("Session tests", () => {
             error = thrownError;
         }
         expect(error.message).toMatchSnapshot();
+    });
+
+    describe("should create from URL", () => {
+        it("builds an HTTP session", () => {
+            const url = new URL("http://example.com");
+            const session = Session.createFromUrl(url);
+            expect(session.ISession).toMatchObject({
+                hostname: "example.com",
+                protocol: "http"
+            });
+        });
+
+        it("builds an HTTPS session", () => {
+            const url = new URL("https://example.com");
+            const session = Session.createFromUrl(url);
+            expect(session.ISession).toMatchObject({
+                hostname: "example.com",
+                protocol: "https"
+            });
+        });
+
+        it("builds a session with port", () => {
+            const url = new URL("http://example.com:1337");
+            const session = Session.createFromUrl(url);
+            expect(session.ISession).toMatchObject({
+                hostname: "example.com",
+                protocol: "http",
+                port: 1337
+            });
+        });
+
+        it("builds a session with base path when includePath is true", () => {
+            const url = new URL("http://example.com/index.php");
+            const session = Session.createFromUrl(url);
+            expect(session.ISession).toMatchObject({
+                hostname: "example.com",
+                protocol: "http",
+                basePath: "/index.php"
+            });
+        });
+
+        it("builds a session without base path when includePath is false", () => {
+            const url = new URL("http://example.com/index.php");
+            const session = Session.createFromUrl(url, false);
+            expect(session.ISession).toMatchObject({
+                hostname: "example.com",
+                protocol: "http"
+            });
+            expect(session.ISession.basePath).toBe("");
+        });
+
+        it("builds a session with basic authentication", () => {
+            const url = new URL("http://user:pass@example.com");
+            const session = Session.createFromUrl(url);
+            expect(session.ISession).toMatchObject({
+                hostname: "example.com",
+                protocol: "http",
+                user: "user",
+                password: "pass",
+                type: "basic"
+            });
+        });
     });
 });
