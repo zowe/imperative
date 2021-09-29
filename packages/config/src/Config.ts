@@ -333,7 +333,7 @@ export class Config {
         const schemaFilePath = path.resolve(
             schemaUri.startsWith("file://") ? fileURLToPath(schemaUri) :
                 schemaUri.startsWith("./") ? path.join(path.dirname(layer.path), schemaUri) : schemaUri);
-        const isSchemaLocal = fs.existsSync(schemaFilePath) || path.isAbsolute(schemaUri);
+        const isSchemaLocal = fs.existsSync(schemaFilePath);
 
         return {
             original: schemaUri,

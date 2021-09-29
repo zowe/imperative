@@ -18,7 +18,6 @@ import { Logger } from "../../../../../logger";
 import { ImperativeError } from "../../../../../error";
 import { IPluginJsonObject } from "../../doc/IPluginJsonObject";
 import { getPackageInfo, installPackages } from "../NpmFunctions";
-import { ImperativeConfig } from "../../../../../utilities/src/ImperativeConfig";
 import { ConfigSchema } from "../../../../../config/src/ConfigSchema";
 
 
