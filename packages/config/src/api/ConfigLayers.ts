@@ -114,7 +114,7 @@ export class ConfigLayers extends ConfigApi {
 
         if (inDir != null) {
             const layer = this.mConfig.layerActive();
-            layer.path = path.join(fs.lstatSync(inDir).isDirectory() ? inDir : path.dirname(inDir), path.basename(layer.path));
+            layer.path = path.join(inDir, path.basename(layer.path));
             this.read();
         }
     }
@@ -132,7 +132,7 @@ export class ConfigLayers extends ConfigApi {
         const prevLayer = this.get();
         this.activate(user, global, inDir);
         found = this.mConfig.findLayer(user, global).exists;
-        this.activate(prevLayer.user, prevLayer.global, prevLayer.path);
+        this.activate(prevLayer.user, prevLayer.global, path.dirname(prevLayer.path));
         return found;
     }
 

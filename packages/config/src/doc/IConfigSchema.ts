@@ -23,8 +23,8 @@ export interface IConfigSchema {
 export interface IConfigUpdateSchemaPaths {
     [key: string]: {
         schema: string,
-        updated: boolean
-    }
+        updated: boolean,
+    };
 }
 
 export interface IConfigUpdateSchemaOptions {
@@ -34,9 +34,8 @@ export interface IConfigUpdateSchemaOptions {
 }
 
 export interface IConfigUpdateSchemaHelperOptions {
-    initialLayer: IConfigLayer,
-    config: Config,
-    schema: IConfigSchema,
-    updatedPaths: IConfigUpdateSchemaPaths,
-    updateOptions: IConfigUpdateSchemaOptions,
+    layer: IConfigLayer;
+    config: Config;
+    updatedPaths: IConfigUpdateSchemaPaths;
+    updateOptions: IConfigUpdateSchemaOptions;
 }

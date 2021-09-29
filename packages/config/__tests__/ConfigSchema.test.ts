@@ -282,4 +282,11 @@ describe("Config Schema", () => {
         // The comparison below needs to be done in this order since we only want to check the structure of the object
         expect(testConfig[0].schema).toMatchObject(origSchemas[0].schema);
     });
+
+    describe("Function: updateSchema", () => {
+        it("should update the schema", () => {
+            // TODO: just do it :)
+            expect(true).toBe(true);
+        });
+    });
 });
