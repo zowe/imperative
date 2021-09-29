@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters, ICommandArguments } from "../../../../../../cmd";
+import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerResponseApi } from "../../../../../../cmd";
 import { ISession, ConnectionPropsForSessCfg, Session, AbstractSession } from "../../../../../../rest";
 import { ConfigConstants, ConfigSchema, IConfig } from "../../../../../../config";
 import { diff } from "jest-diff";
@@ -70,6 +70,13 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
      * @returns {Promise<string>} The response from the auth service containing a token
      */
     protected abstract doAutoInit(session: AbstractSession, params: IHandlerParameters): Promise<IConfig>;
+
+    /**
+     * This is called by processAutoInit() to display the report of configuration updates.
+     * @abstract
+     * @param {IHandlerParameters} params The command line parameters.
+     */
+    protected abstract displayAutoInitChanges(response: IHandlerResponseApi): void;
 
     /**
      * Processes the auto init command to the auto init service.
@@ -167,6 +174,8 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             }
             await ImperativeConfig.instance.config.save(false);
         }
+
+        this.displayAutoInitChanges(params.response);
     }
 
     /**
