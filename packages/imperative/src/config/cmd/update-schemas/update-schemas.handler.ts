@@ -9,9 +9,11 @@
 *
 */
 
-import { TextUtils } from "../../../../..";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ConfigSchema } from "../../../../../config/src/ConfigSchema";
+import { ImperativeExpect } from "../../../../../expect/src/ImperativeExpect";
+import { ImperativeConfig } from "../../../../../utilities/src/ImperativeConfig";
+import { TextUtils } from "../../../../../utilities/src/TextUtils";
 
 export default class UpdateSchemasHandler implements ICommandHandler {
     /**
@@ -22,6 +24,8 @@ export default class UpdateSchemasHandler implements ICommandHandler {
      * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
+        ImperativeExpect.toNotBeNullOrUndefined(ImperativeConfig.instance.loadedConfig, "Failed to load profile schemas");
+
         const updatedPaths = ConfigSchema.updateSchema({ layer: "all", depth: params.arguments.depth });
 
         // output to terminal
