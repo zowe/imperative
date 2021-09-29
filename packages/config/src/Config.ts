@@ -331,7 +331,7 @@ export class Config {
         }
 
         const schemaFilePath = path.resolve(
-            schemaUri.startsWith("file://") ? fileURLToPath(schemaUri) :
+            schemaUri.startsWith("file://") ? fileURLToPath(schemaUri) : // else if : )
                 schemaUri.startsWith("./") ? path.join(path.dirname(layer.path), schemaUri) : schemaUri);
         const isSchemaLocal = fs.existsSync(schemaFilePath);
 
@@ -379,17 +379,17 @@ export class Config {
      * Set value of a property in the active config layer.
      * TODO: more validation
      *
-     * @param path Property path
+     * @param propertyPath Property path
      * @param value Property value
      * @param opts Include `secure: true` to store the property securely
      */
-    public set(path: string, value: any, opts?: { secure?: boolean }) {
+    public set(propertyPath: string, value: any, opts?: { secure?: boolean }) {
         opts = opts || {};
 
         const layer = this.layerActive();
         let obj: any = layer.properties;
-        const segments = path.split(".");
-        path.split(".").forEach((segment: string) => {
+        const segments = propertyPath.split(".");
+        propertyPath.split(".").forEach((segment: string) => {
             if (obj[segment] == null && segments.indexOf(segment) < segments.length - 1) {
                 obj[segment] = {};
                 obj = obj[segment];
@@ -413,7 +413,7 @@ export class Config {
         });
 
         if (opts.secure != null) {
-            const secureInfo = this.api.secure.secureInfoForProp(path);
+            const secureInfo = this.api.secure.secureInfoForProp(propertyPath);
             if (secureInfo != null) {
                 const secureProps: string[] = lodash.get(layer.properties, secureInfo.path, []);
                 if (opts.secure && !secureProps.includes(secureInfo.prop)) {
@@ -430,17 +430,17 @@ export class Config {
     // _______________________________________________________________________
     /**
      * Unset value of a property in the active config layer.
-     * @param path Property path
+     * @param propertyPath Property path
      * @param opts Include `secure: false` to preserve property in secure array
      */
-    public delete(path: string, opts?: { secure?: boolean }) {
+    public delete(propertyPath: string, opts?: { secure?: boolean }) {
         opts = opts || {};
 
         const layer = this.layerActive();
-        lodash.unset(layer.properties, path);
+        lodash.unset(layer.properties, propertyPath);
 
         if (opts.secure !== false) {
-            const secureInfo = this.api.secure.secureInfoForProp(path);
+            const secureInfo = this.api.secure.secureInfoForProp(propertyPath);
             if (secureInfo != null) {
                 const secureProps: string[] = lodash.get(layer.properties, secureInfo.path);
                 if (secureProps != null && secureProps.includes(secureInfo.prop)) {

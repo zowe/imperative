@@ -9,6 +9,9 @@
 *
 */
 
+import { Config } from "../Config";
+import { IConfigLayer } from "./IConfigLayer";
+
 export interface IConfigSchema {
     $schema: string;
     $version: number;
@@ -17,8 +20,23 @@ export interface IConfigSchema {
     properties: { [key: string]: any };
 }
 
+export interface IConfigUpdateSchemaPaths {
+    [key: string]: {
+        schema: string,
+        updated: boolean
+    }
+}
+
 export interface IConfigUpdateSchemaOptions {
     layer?: 'active' | 'global' | 'all';
     schema?: IConfigSchema;
     depth?: number;
+}
+
+export interface IConfigUpdateSchemaHelperOptions {
+    initialLayer: IConfigLayer,
+    config: Config,
+    schema: IConfigSchema,
+    updatedPaths: IConfigUpdateSchemaPaths,
+    updateOptions: IConfigUpdateSchemaOptions,
 }

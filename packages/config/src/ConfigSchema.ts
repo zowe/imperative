@@ -13,7 +13,7 @@ import * as path from "path";
 import { IExplanationMap, TextUtils } from "../../utilities/src/TextUtils";
 import { ICommandProfileProperty } from "../../cmd";
 import { IProfileProperty, IProfileSchema, IProfileTypeConfiguration } from "../../profiles";
-import { IConfigSchema, IConfigUpdateSchemaOptions } from "./doc/IConfigSchema";
+import { IConfigSchema, IConfigUpdateSchemaHelperOptions, IConfigUpdateSchemaOptions, IConfigUpdateSchemaPaths } from "./doc/IConfigSchema";
 import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
 import { Logger } from "../../logger/src/Logger";
 import { Config } from "./Config";
@@ -131,6 +131,98 @@ export class ConfigSchema {
         };
     }
 
+    private static _updateSchema(opts: IConfigUpdateSchemaHelperOptions): IConfigUpdateSchemaPaths {
+        let updatedPaths = opts.updatedPaths;
+        // Loop through layers starting at the initial one
+        let currentLayer = opts.initialLayer;
+        let nextSchemaLocation = opts.initialLayer.path;
+        while (nextSchemaLocation != null) {
+            // Update the current layer
+            updatedPaths = { ...updatedPaths, ...ConfigSchema.updateSchema({ schema: opts.schema }) };
+
+            // Check if we are in a user config
+            if (!currentLayer.user) {
+                // If we are not in a user config, we can move on to the next directory up the tree
+                nextSchemaLocation = Config.search(opts.config.schemaName, { startDir: path.join(path.dirname(currentLayer.path), "..") });
+            }
+
+            if (nextSchemaLocation != null) {
+                opts.config.api.layers.activate(false, false, nextSchemaLocation);
+            }
+            currentLayer = opts.config.api.layers.get();
+        }
+
+        if (!opts.initialLayer.global) {
+            // Do not update the global layer if that's where we started from
+            updatedPaths = { ...updatedPaths, ...ConfigSchema.updateSchema({ layer: "global", schema: opts.schema }) };
+        }
+
+        /**
+         * Method: `**`
+         * Result: DO NOT USE THIS
+         BIG NO-NO: Takes about 15 seconds from /root
+         Results from / ; time: 42.898s
+            const matches = glob.sync(`**\/${config.schemaName}`, {}).filter((match: string) => {
+                return match.split("/").length <= opts.depth + 1;
+            });
+        */
+
+        /**
+         * Method: `* /* /* /* ...`
+         * Result: DO NOT USE THIS
+         * Takes about a second from /root
+         * Similar to `**`: Takes about 50 seconds from /
+            let matches = glob.sync(`./${config.schemaName}`, {});
+            let str = "*\/"
+            for (let index = 0; index < opts.depth - 1; index++) {
+                str += "*\/"
+                matches = matches.concat(glob.sync(`${str}${config.schemaName}`, {}))
+            }
+         */
+
+        /**
+         * Method: `fast-glob`
+         * Result: Best so far : )
+         * Takes about a second from /root
+         * And less than 20 seconds from /
+            const fg = require("fast-glob");
+            const matches = fg.sync(`**\/${config.schemaName}`, { onlyFiles: true, deep: opts.depth + 1 });
+         */
+
+        if (opts.updateOptions.depth > 0) {
+            // Look for <APP>.schema.json
+            const fg = require("fast-glob");
+            // The `cwd` does not participate in Fast-glob's depth calculation, hence the + 1
+            const matches: string[] = fg.sync(`**/${opts.config.schemaName}`, { dot: true, onlyFiles: true, deep: opts.updateOptions.depth + 1 });
+
+            const globalProjConfig = opts.config.findLayer(false, true);
+            const globalUserConfig = opts.config.findLayer(true, true);
+
+            // Loop through all matches of <APP>.schema.json
+            matches.forEach(schemaLoc => {
+
+                // Check if a layer/config exists in the directory where we found the <APP>.schema.json
+                if (opts.config.api.layers.exists(false, false, schemaLoc)) {
+
+                    // Activate the layer befor updating it
+                    opts.config.api.layers.activate(false, false, schemaLoc);
+                    const layer = opts.config.layerActive();
+
+                    // NOTE: Configs are assumed to be always local (because of path.resolve(layer.path)),
+                    //       if we want to support Config URLs here, we need to call the config import APIs
+                    if (path.resolve(layer.path) !== globalProjConfig.path && path.resolve(layer.path) !== globalUserConfig.path) {
+                        updatedPaths = { ...updatedPaths, ...ConfigSchema.updateSchema({ schema: opts.schema }) };
+                    }
+                }
+            });
+        }
+
+        // Back to initial layer
+        opts.config.api.layers.activate(opts.initialLayer.user, opts.initialLayer.global, opts.initialLayer.path);
+
+        return updatedPaths;
+    }
+
     /**
      * Dynamically builds the config schema for this CLI.
      * @param profiles The profiles supported by this CLI
@@ -219,107 +311,46 @@ export class ConfigSchema {
      * @returns List of updated paths with the new/loaded or given schema
      */
     public static updateSchema(options?: IConfigUpdateSchemaOptions): { [key: string]: { schema: string, updated: boolean } } {
+        // Handle default values
         const opts: IConfigUpdateSchemaOptions = { ...{ layer: "active", depth: 0 }, ...(options ?? {}) };
+
+        // Build schema from loaded config if needed
         const schema = opts.schema ?? ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
+
         const config = ImperativeConfig.instance.config;
         const initialLayer = config.api.layers.get();
-        let updatedPaths: { [key: string]: { schema: string, updated: boolean } } = {};
+        let updatedPaths: IConfigUpdateSchemaPaths = {};
+
+        // Operate based on the given layer
         switch (opts.layer) {
             case "active": {
                 Logger.getAppLogger().debug(`Updating "${initialLayer.path}" with: \n` +
                     TextUtils.prettyJson(TextUtils.explainObject(schema, ConfigSchema.explainSchemaSummary, false), null, false));
+
                 config.setSchema(schema);
+
+                // Get the schema information to gather a list of updated paths
                 const schemaInfo = config.getSchemaInfo();
                 updatedPaths = { [initialLayer.path]: { schema: schemaInfo?.original, updated: schemaInfo?.local } };
                 break;
             }
             case "global": {
+                // Activate the Global Project (non-user) configuration before updating it
                 config.api.layers.activate(false, true);
                 updatedPaths = { ...updatedPaths, ...ConfigSchema.updateSchema({ schema }) };
 
+                // Check for a Global User configuration before activating it and updating the corresponding schema
                 if (config.api.layers.exists(true, true)) {
                     config.api.layers.activate(true, true);
                     updatedPaths = { ...updatedPaths, ...ConfigSchema.updateSchema({ schema }) };
                 }
 
+                // Back to initial layer
                 config.api.layers.activate(initialLayer.user, initialLayer.global, initialLayer.path);
                 break;
             }
             case "all": {
-                let currentLayer = initialLayer;
-                let nextSchemaLocation = initialLayer.path;
-                while (nextSchemaLocation != null) {
-                    updatedPaths = { ...updatedPaths, ...ConfigSchema.updateSchema({ schema }) };
-
-                    // Check if we are in a user config
-                    if (!currentLayer.user) {
-                        // If we are not in a user config, we can move on to the next directory
-                        nextSchemaLocation = Config.search(config.schemaName, { startDir: path.join(path.dirname(currentLayer.path), "..") });
-                    }
-                    if (nextSchemaLocation != null) {
-                        config.api.layers.activate(false, false, nextSchemaLocation);
-                    }
-                    currentLayer = config.api.layers.get();
-                }
-
-                if (!initialLayer.global) {
-                    // Do not update the global layer if that's where we started from
-                    updatedPaths = { ...updatedPaths, ...ConfigSchema.updateSchema({ layer: "global", schema }) };
-                }
-
-                /**
-                 * Method: `**`
-                 * Result: DO NOT USE THIS
-                 BIG NO-NO: Takes about 15 seconds from /root
-                 Results from / ; time: 42.898s
-                    const matches = glob.sync(`**\/${config.schemaName}`, {}).filter((match: string) => {
-                        return match.split("/").length <= opts.depth + 1;
-                    });
-                */
-
-                /**
-                 * Method: `* /* /* /* ...`
-                 * Result: DO NOT USE THIS
-                 * Takes about a second from /root
-                 * Similar to `**`: Takes about 50 seconds from /
-                    let matches = glob.sync(`./${config.schemaName}`, {});
-                    let str = "*\/"
-                    for (let index = 0; index < opts.depth - 1; index++) {
-                        str += "*\/"
-                        matches = matches.concat(glob.sync(`${str}${config.schemaName}`, {}))
-                    }
-                 */
-
-                /**
-                 * Method: `fast-glob`
-                 * Result: Best so far : )
-                 * Takes about a second from /root
-                 * And less than 20 seconds from /
-                    const fg = require("fast-glob");
-                    const matches = fg.sync(`**\/${config.schemaName}`, { onlyFiles: true, deep: opts.depth + 1 });
-                 */
-
-                if (opts.depth > 0) {
-                    const fg = require("fast-glob");
-                    // The `cwd` does not participate in Fast-glob's depth calculation, hence the + 1
-                    const matches: string[] = fg.sync(`**/${config.schemaName}`, { dot: true, onlyFiles: true, deep: opts.depth + 1});
-                    const globalProjConfig = config.findLayer(false, true);
-                    const globalUserConfig = config.findLayer(true, true);
-                    matches.forEach(schemaLoc => {
-                        if (config.api.layers.exists(false, false, schemaLoc)) {
-                            config.api.layers.activate(false, false, schemaLoc);
-                            const layer = config.layerActive();
-                            // NOTE: Configs are assumed to be always local (because of path.resolve(layer.path)),
-                            //       if we want to support Config URLs here, we need to call the config import APIs
-                            if (path.resolve(layer.path) !== globalProjConfig.path && path.resolve(layer.path) !== globalUserConfig.path) {
-                                updatedPaths = { ...updatedPaths, ...ConfigSchema.updateSchema({ schema }) };
-                            }
-                        }
-                    });
-                }
-
-                // Back to initial layer
-                config.api.layers.activate(initialLayer.user, initialLayer.global, initialLayer.path);
+                updatedPaths = { ...updatedPaths, ...this._updateSchema({ config, initialLayer, schema, updatedPaths, updateOptions: opts })};
                 break;
             }
             default: {

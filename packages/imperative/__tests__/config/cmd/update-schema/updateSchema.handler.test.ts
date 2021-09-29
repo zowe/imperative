@@ -35,7 +35,7 @@ const handlerParms: any = {
         },
         format: {
             output: jest.fn((jsonObj) => {
-                formatObj = jsonObj
+                formatObj = jsonObj;
             })
         }
     },

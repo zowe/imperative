@@ -75,8 +75,8 @@ export class ConfigLayers extends ConfigApi {
         // If fields are marked as secure
         const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
         const layerCloned = JSONC.parse(JSONC.stringify(layer, null, ConfigConstants.INDENT));
-        for (const path of this.mConfig.api.secure.secureFields(layer)) {
-            const segments = path.split(".");
+        for (const configPath of this.mConfig.api.secure.secureFields(layer)) {
+            const segments = configPath.split(".");
             let obj: any = layerCloned.properties;
             for (let x = 0; x < segments.length; x++) {
                 const segment = segments[x];
