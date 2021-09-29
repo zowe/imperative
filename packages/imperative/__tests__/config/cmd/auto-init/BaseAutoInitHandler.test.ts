@@ -57,6 +57,9 @@ describe("BaseAutoInitHandler", () => {
         const mockMerge = jest.fn();
         const mockWrite = jest.fn();
         const mockSave = jest.fn();
+        const mockGetSchemaInfo = jest.fn().mockReturnValue({
+            local: true
+        });
         const mockGet = jest.fn().mockReturnValue({
             exists: true,
             properties: {}
@@ -76,7 +79,8 @@ describe("BaseAutoInitHandler", () => {
             config: {
                 api: mockImperativeConfigApi,
                 save: mockSave,
-                setSchema: mockSetSchema
+                setSchema: mockSetSchema,
+                getSchemaInfo: mockGetSchemaInfo,
             },
             loadedConfig: {
                 profiles: []
@@ -98,8 +102,9 @@ describe("BaseAutoInitHandler", () => {
         expect(mockActivate).toHaveBeenCalledTimes(1);
         expect(mockMerge).toHaveBeenCalledTimes(1);
         expect(mockWrite).toHaveBeenCalledTimes(0);
-        expect(mockGet).toHaveBeenCalledTimes(1);
+        expect(mockGet).toHaveBeenCalledTimes(2);
         expect(mockSave).toHaveBeenCalledTimes(1);
+        expect(mockGetSchemaInfo).toHaveBeenCalledTimes(1);
         expect(buildSchemaSpy).toHaveBeenCalledTimes(1);
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
         expect(mockSetSchema).toHaveBeenCalledTimes(1);
@@ -133,6 +138,9 @@ describe("BaseAutoInitHandler", () => {
         const mockMerge = jest.fn();
         const mockWrite = jest.fn();
         const mockSave = jest.fn();
+        const mockGetSchemaInfo = jest.fn().mockReturnValue({
+            local: true
+        });
         const mockGet = jest.fn().mockReturnValue({
             exists: true,
             properties: {}
@@ -153,7 +161,8 @@ describe("BaseAutoInitHandler", () => {
             config: {
                 api: mockImperativeConfigApi,
                 save: mockSave,
-                setSchema: mockSetSchema
+                setSchema: mockSetSchema,
+                getSchemaInfo: mockGetSchemaInfo,
             },
             loadedConfig: {
                 profiles: []
@@ -174,8 +183,9 @@ describe("BaseAutoInitHandler", () => {
         expect(mockActivate).toHaveBeenCalledTimes(1);
         expect(mockMerge).toHaveBeenCalledTimes(1);
         expect(mockWrite).toHaveBeenCalledTimes(0);
-        expect(mockGet).toHaveBeenCalledTimes(1);
+        expect(mockGet).toHaveBeenCalledTimes(2);
         expect(mockSave).toHaveBeenCalledTimes(1);
+        expect(mockGetSchemaInfo).toHaveBeenCalledTimes(1);
         expect(buildSchemaSpy).toHaveBeenCalledTimes(1);
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
         expect(mockSetSchema).toHaveBeenCalledTimes(1);
@@ -211,6 +221,9 @@ describe("BaseAutoInitHandler", () => {
         const mockMerge = jest.fn();
         const mockWrite = jest.fn();
         const mockSave = jest.fn();
+        const mockGetSchemaInfo = jest.fn().mockReturnValue({
+            local: true
+        });
         const mockGet = jest.fn().mockReturnValue({
             exists: true,
             properties: {}
@@ -231,7 +244,8 @@ describe("BaseAutoInitHandler", () => {
             config: {
                 api: mockImperativeConfigApi,
                 save: mockSave,
-                setSchema: mockSetSchema
+                setSchema: mockSetSchema,
+                getSchemaInfo: mockGetSchemaInfo,
             },
             loadedConfig: {
                 profiles: []
@@ -254,8 +268,9 @@ describe("BaseAutoInitHandler", () => {
         expect(mockActivate).toHaveBeenCalledTimes(1);
         expect(mockMerge).toHaveBeenCalledTimes(1);
         expect(mockWrite).toHaveBeenCalledTimes(0);
-        expect(mockGet).toHaveBeenCalledTimes(1);
+        expect(mockGet).toHaveBeenCalledTimes(2);
         expect(mockSave).toHaveBeenCalledTimes(1);
+        expect(mockGetSchemaInfo).toHaveBeenCalledTimes(1);
         expect(buildSchemaSpy).toHaveBeenCalledTimes(1);
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
         expect(mockSetSchema).toHaveBeenCalledTimes(1);
@@ -450,6 +465,9 @@ describe("BaseAutoInitHandler", () => {
         const mockSave = jest.fn();
         const mockSet = jest.fn();
         const mockSetSchema = jest.fn();
+        const mockGetSchemaInfo = jest.fn().mockReturnValue({
+            local: true
+        });
         const mockGet = jest.fn().mockReturnValue({
             exists: true,
             properties: {}
@@ -470,7 +488,8 @@ describe("BaseAutoInitHandler", () => {
             config: {
                 api: mockImperativeConfigApi,
                 save: mockSave,
-                setSchema: mockSetSchema
+                setSchema: mockSetSchema,
+                getSchemaInfo: mockGetSchemaInfo,
             },
             loadedConfig: {
                 profiles: []
@@ -493,8 +512,9 @@ describe("BaseAutoInitHandler", () => {
         expect(mockMerge).toHaveBeenCalledTimes(0);
         expect(mockWrite).toHaveBeenCalledTimes(0);
         expect(mockSave).toHaveBeenCalledTimes(1);
-        expect(mockGet).toHaveBeenCalledTimes(0);
+        expect(mockGet).toHaveBeenCalledTimes(1);
         expect(mockSetSchema).toHaveBeenCalledTimes(1);
+        expect(mockGetSchemaInfo).toHaveBeenCalledTimes(1);
         expect(mockSet).toHaveBeenCalledTimes(1);
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
     });

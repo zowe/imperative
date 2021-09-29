@@ -2,6 +2,14 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+
+## Recent Changes
+
+- Enhancement: Added `config update-schemas [--depth <value>]` command. [zowe/zowe-cli#1059](https://github.com/zowe/zowe-cli/issues/1059)
+- Enhancement: Added the ability to update the global schema file when installing a new plugin. [zowe/zowe-cli#1059](https://github.com/zowe/zowe-cli/issues/1059)
+- **Next Breaking**
+    - Renamed public static function ConfigSchemas.loadProfileSchemas to ConfigSchemas.loadSchemas
+
 ## `5.0.0-next.202110011948`
 
 - Breaking: Changed default log level from DEBUG to WARN for Imperative logger and app logger to reduce the volume of logs written to disk. [#634](https://github.com/zowe/imperative/issues/634)

@@ -10,7 +10,7 @@
 */
 
 import * as fs from "fs";
-import * as node_path from "path";
+import * as path from "path";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 import { ImperativeError } from "../../../error";
@@ -39,17 +39,20 @@ export class ConfigLayers extends ConfigApi {
             try {
                 fileContents = fs.readFileSync(layer.path);
             } catch (e) {
-                throw new ImperativeError({ msg: `An error was encountered while trying to read the file '${layer.path}'.` +
-                    `\nError details: ${e.message}`,
-                suppressDump: true });
+                throw new ImperativeError({
+                    msg: `An error was encountered while trying to read the file '${layer.path}'.\nError details: ${e.message}`,
+                    suppressDump: true
+                });
             }
             try {
                 layer.properties = JSONC.parse(fileContents.toString());
                 layer.exists = true;
             } catch (e) {
-                throw new ImperativeError({ msg: `Error parsing JSON in the file '${layer.path}'.\n` +
-                    `Please check this configuration file for errors.\nError details: ${e.message}\nLine ${e.line}, Column ${e.column}`,
-                suppressDump: true});
+                throw new ImperativeError({
+                    msg: `Error parsing JSON in the file '${layer.path}'.\n` +
+                        `Please check this configuration file for errors.\nError details: ${e.message}\nLine ${e.line}, Column ${e.column}`,
+                    suppressDump: true
+                });
             }
         }
 
@@ -111,9 +114,26 @@ export class ConfigLayers extends ConfigApi {
 
         if (inDir != null) {
             const layer = this.mConfig.layerActive();
-            layer.path = node_path.join(inDir, node_path.basename(layer.path));
+            layer.path = path.join(fs.lstatSync(inDir).isDirectory() ? inDir : path.dirname(inDir), path.basename(layer.path));
             this.read();
         }
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Check if a given layer exists
+     *
+     * @param user True if you want the user layer.
+     * @param global True if you want the global layer.
+     * @param inDir The directory to which you want to look for the layer.
+     */
+    public exists(user: boolean, global: boolean, inDir?: string): boolean {
+        let found = false;
+        const prevLayer = this.get();
+        this.activate(user, global, inDir);
+        found = this.mConfig.findLayer(user, global).exists;
+        this.activate(prevLayer.user, prevLayer.global, prevLayer.path);
+        return found;
     }
 
     // _______________________________________________________________________
@@ -162,8 +182,7 @@ export class ConfigLayers extends ConfigApi {
             layer = this.mConfig.layerActive();
         }
 
-        layer.properties.profiles = lodash.mergeWith(cnfg.profiles, layer.properties.profiles, (obj, src) =>
-        {
+        layer.properties.profiles = lodash.mergeWith(cnfg.profiles, layer.properties.profiles, (obj, src) => {
             if (lodash.isArray(obj) && lodash.isArray(src)) {
                 const temp = JSONC.parse(JSONC.stringify(obj, null, ConfigConstants.INDENT));
                 src.forEach((val, idx) => {

@@ -9,10 +9,15 @@
 *
 */
 
+import * as path from "path";
+import { IExplanationMap, TextUtils } from "../../utilities/src/TextUtils";
 import { ICommandProfileProperty } from "../../cmd";
 import { IProfileProperty, IProfileSchema, IProfileTypeConfiguration } from "../../profiles";
-import { IConfigSchema } from "./doc/IConfigSchema";
-
+import { IConfigSchema, IConfigUpdateSchemaOptions } from "./doc/IConfigSchema";
+import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
+import { Logger } from "../../logger/src/Logger";
+import { Config } from "./Config";
+import { ImperativeError } from "../../error/src/ImperativeError";
 export class ConfigSchema {
     /**
      * JSON schema URI stored in $schema property of the schema
@@ -29,12 +34,29 @@ export class ConfigSchema {
     private static readonly SCHEMA_VERSION = 3;
 
     /**
+     * Pretty explanation of the schema objects
+     * @readonly
+     * @memberof ConfigSchema
+     */
+    private static readonly explainSchemaSummary: IExplanationMap = {
+        $schema: "URL",
+        $version: "Version",
+        properties: {
+            defaults: "Default Definitions",
+            explainedParentKey: "Properties",
+            ignoredKeys: null
+        },
+        explainedParentKey: "Schema",
+        ignoredKeys: null
+    };
+
+    /**
      * Transform an Imperative profile schema to a JSON schema. Removes any
      * non-JSON-schema properties and translates anything useful.
      * @param schema The Imperative profile schema
      * @returns JSON schema for profile properties
      */
-    private static generateJsonSchema(schema: IProfileSchema): any {
+    private static generateSchema(schema: IProfileSchema): any {
         const properties: { [key: string]: any } = {};
         const secureProps: string[] = [];
         for (const [k, v] of Object.entries(schema.properties || {})) {
@@ -82,7 +104,7 @@ export class ConfigSchema {
      * @param schema The JSON schema for profile properties
      * @returns Imperative profile schema
      */
-    private static parseJsonSchema(schema: any): IProfileSchema {
+    private static parseSchema(schema: any): IProfileSchema {
         const properties: { [key: string]: IProfileProperty } = {};
         for (const [k, v] of Object.entries((schema.properties.properties || {}) as { [key: string]: any })) {
             properties[k] = { type: v.type };
@@ -120,7 +142,7 @@ export class ConfigSchema {
         profiles.forEach((profile: { type: string, schema: IProfileSchema }) => {
             entries.push({
                 if: { properties: { type: { const: profile.type } } },
-                then: { properties: this.generateJsonSchema(profile.schema) }
+                then: { properties: this.generateSchema(profile.schema) }
             });
             defaultProperties[profile.type] = { type: "string" };
         });
@@ -175,17 +197,137 @@ export class ConfigSchema {
 
     /**
      * Loads Imperative profile schema objects from a schema JSON file.
-     * @param schemaJson The schema JSON for config
+     * @param schema The schema JSON for config
      */
-    public static loadProfileSchemas(schemaJson: IConfigSchema): IProfileTypeConfiguration[] {
-        const patternName = Object.keys(schemaJson.properties.profiles.patternProperties)[0];
+    public static loadSchema(schema: IConfigSchema): IProfileTypeConfiguration[] {
+        const patternName = Object.keys(schema.properties.profiles.patternProperties)[0];
         const profileSchemas: IProfileTypeConfiguration[] = [];
-        for (const obj of schemaJson.properties.profiles.patternProperties[patternName].allOf) {
+        for (const obj of schema.properties.profiles.patternProperties[patternName].allOf) {
             profileSchemas.push({
                 type: obj.if.properties.type.const,
-                schema: this.parseJsonSchema(obj.then.properties)
+                schema: this.parseSchema(obj.then.properties)
             });
         }
         return profileSchemas;
+    }
+
+    /**
+     * Updates Imperative Config Schema objects from a schema JSON file.
+     * @param options        The options object
+     * @param options.layer  The layer in which we should update the schema file(s). Defaults to the active layer.
+     * @param options.schema The optional schema object to use. If not provided, we build the schema object based on loadedConfig.profiles
+     * @returns List of updated paths with the new/loaded or given schema
+     */
+    public static updateSchema(options?: IConfigUpdateSchemaOptions): { [key: string]: { schema: string, updated: boolean } } {
+        const opts: IConfigUpdateSchemaOptions = { ...{ layer: "active", depth: 0 }, ...(options ?? {}) };
+        const schema = opts.schema ?? ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
+        const config = ImperativeConfig.instance.config;
+        const initialLayer = config.api.layers.get();
+        let updatedPaths: { [key: string]: { schema: string, updated: boolean } } = {};
+        switch (opts.layer) {
+            case "active": {
+                Logger.getAppLogger().debug(`Updating "${initialLayer.path}" with: \n` +
+                    TextUtils.prettyJson(TextUtils.explainObject(schema, ConfigSchema.explainSchemaSummary, false), null, false));
+                config.setSchema(schema);
+                const schemaInfo = config.getSchemaInfo();
+                updatedPaths = { [initialLayer.path]: { schema: schemaInfo?.original, updated: schemaInfo?.local } };
+                break;
+            }
+            case "global": {
+                config.api.layers.activate(false, true);
+                updatedPaths = { ...updatedPaths, ...ConfigSchema.updateSchema({ schema }) };
+
+                if (config.api.layers.exists(true, true)) {
+                    config.api.layers.activate(true, true);
+                    updatedPaths = { ...updatedPaths, ...ConfigSchema.updateSchema({ schema }) };
+                }
+
+                config.api.layers.activate(initialLayer.user, initialLayer.global, initialLayer.path);
+                break;
+            }
+            case "all": {
+                let currentLayer = initialLayer;
+                let nextSchemaLocation = initialLayer.path;
+                while (nextSchemaLocation != null) {
+                    updatedPaths = { ...updatedPaths, ...ConfigSchema.updateSchema({ schema }) };
+
+                    // Check if we are in a user config
+                    if (!currentLayer.user) {
+                        // If we are not in a user config, we can move on to the next directory
+                        nextSchemaLocation = Config.search(config.schemaName, { startDir: path.join(path.dirname(currentLayer.path), "..") });
+                    }
+                    if (nextSchemaLocation != null) {
+                        config.api.layers.activate(false, false, nextSchemaLocation);
+                    }
+                    currentLayer = config.api.layers.get();
+                }
+
+                if (!initialLayer.global) {
+                    // Do not update the global layer if that's where we started from
+                    updatedPaths = { ...updatedPaths, ...ConfigSchema.updateSchema({ layer: "global", schema }) };
+                }
+
+                /**
+                 * Method: `**`
+                 * Result: DO NOT USE THIS
+                 BIG NO-NO: Takes about 15 seconds from /root
+                 Results from / ; time: 42.898s
+                    const matches = glob.sync(`**\/${config.schemaName}`, {}).filter((match: string) => {
+                        return match.split("/").length <= opts.depth + 1;
+                    });
+                */
+
+                /**
+                 * Method: `* /* /* /* ...`
+                 * Result: DO NOT USE THIS
+                 * Takes about a second from /root
+                 * Similar to `**`: Takes about 50 seconds from /
+                    let matches = glob.sync(`./${config.schemaName}`, {});
+                    let str = "*\/"
+                    for (let index = 0; index < opts.depth - 1; index++) {
+                        str += "*\/"
+                        matches = matches.concat(glob.sync(`${str}${config.schemaName}`, {}))
+                    }
+                 */
+
+                /**
+                 * Method: `fast-glob`
+                 * Result: Best so far : )
+                 * Takes about a second from /root
+                 * And less than 20 seconds from /
+                    const fg = require("fast-glob");
+                    const matches = fg.sync(`**\/${config.schemaName}`, { onlyFiles: true, deep: opts.depth + 1 });
+                 */
+
+                if (opts.depth > 0) {
+                    const fg = require("fast-glob");
+                    // The `cwd` does not participate in Fast-glob's depth calculation, hence the + 1
+                    const matches: string[] = fg.sync(`**/${config.schemaName}`, { dot: true, onlyFiles: true, deep: opts.depth + 1});
+                    const globalProjConfig = config.findLayer(false, true);
+                    const globalUserConfig = config.findLayer(true, true);
+                    matches.forEach(schemaLoc => {
+                        if (config.api.layers.exists(false, false, schemaLoc)) {
+                            config.api.layers.activate(false, false, schemaLoc);
+                            const layer = config.layerActive();
+                            // NOTE: Configs are assumed to be always local (because of path.resolve(layer.path)),
+                            //       if we want to support Config URLs here, we need to call the config import APIs
+                            if (path.resolve(layer.path) !== globalProjConfig.path && path.resolve(layer.path) !== globalUserConfig.path) {
+                                updatedPaths = { ...updatedPaths, ...ConfigSchema.updateSchema({ schema }) };
+                            }
+                        }
+                    });
+                }
+
+                // Back to initial layer
+                config.api.layers.activate(initialLayer.user, initialLayer.global, initialLayer.path);
+                break;
+            }
+            default: {
+                throw new ImperativeError({
+                    msg: "Unrecognized layer parameter for ConfigSchema.updateSchemas"
+                });
+            }
+        }
+        return updatedPaths;
     }
 }

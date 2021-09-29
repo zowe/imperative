@@ -18,6 +18,8 @@ import { Logger } from "../../../../../logger";
 import { ImperativeError } from "../../../../../error";
 import { IPluginJsonObject } from "../../doc/IPluginJsonObject";
 import { getPackageInfo, installPackages } from "../NpmFunctions";
+import { ImperativeConfig } from "../../../../../utilities/src/ImperativeConfig";
+import { ConfigSchema } from "../../../../../config/src/ConfigSchema";
 
 
 /**
@@ -123,6 +125,12 @@ export async function install(packageLocation: string, registry: string, install
         writeFileSync(PMFConstants.instance.PLUGIN_JSON, installedPlugins, {
             spaces: 2
         });
+
+        iConsole.debug(`Checking for global team configuration files to update.`);
+        if (PMFConstants.instance.PLUGIN_USING_CONFIG &&
+            PMFConstants.instance.PLUGIN_CONFIG.layers.filter((layer) => layer.global && layer.exists).length > 0) {
+            ConfigSchema.updateSchema({ layer: "global" });
+        }
 
         iConsole.info("Plugin '" + packageName + "' successfully installed.");
         return packageName;

@@ -16,3 +16,9 @@ export interface IConfigSchema {
     description: string;
     properties: { [key: string]: any };
 }
+
+export interface IConfigUpdateSchemaOptions {
+    layer?: 'active' | 'global' | 'all';
+    schema?: IConfigSchema;
+    depth?: number;
+}

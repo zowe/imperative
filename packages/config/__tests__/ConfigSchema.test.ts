@@ -264,7 +264,7 @@ describe("Config Schema", () => {
     it("should be able to regenerate profile schemas from a schema object", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfiguration);
         const returnedSchema = schema.buildSchema(testConfig);
-        const origSchemas = schema.loadProfileSchemas(returnedSchema);
+        const origSchemas = schema.loadSchema(returnedSchema);
         expect(origSchemas.length).toBe(2);
         expect(origSchemas[0].type).toBe(testConfig[0].type);
         expect(origSchemas[1].type).toBe(testConfig[1].type);
@@ -276,7 +276,7 @@ describe("Config Schema", () => {
     it("should be able to regenerate profile schemas with option definitions from a schema object", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfigurationOptionDefinition);
         const returnedSchema = schema.buildSchema(testConfig);
-        const origSchemas = schema.loadProfileSchemas(returnedSchema);
+        const origSchemas = schema.loadSchema(returnedSchema);
         expect(origSchemas.length).toBe(1);
         expect(origSchemas[0].type).toBe(testConfig[0].type);
         // The comparison below needs to be done in this order since we only want to check the structure of the object
