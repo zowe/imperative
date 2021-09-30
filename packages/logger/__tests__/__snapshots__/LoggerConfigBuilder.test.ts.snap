@@ -76,16 +76,7 @@ Object {
 }
 `;
 
-exports[`LoggerConfigBuilder tests Should get a basic log4js configuration from getDefaultIConfigLogging 1`] = `
-Object {
-  "log4jsConfig": Object {
-    "appenders": Object {},
-    "categories": Object {},
-  },
-}
-`;
-
-exports[`LoggerConfigBuilder tests Should multiple appenders to basic log4js configuration 1`] = `
+exports[`LoggerConfigBuilder tests Should add multiple appenders to basic log4js configuration 1`] = `
 Object {
   "log4jsConfig": Object {
     "appenders": Object {
@@ -150,6 +141,15 @@ Object {
         "level": "WARN",
       },
     },
+  },
+}
+`;
+
+exports[`LoggerConfigBuilder tests Should get a basic log4js configuration from getDefaultIConfigLogging 1`] = `
+Object {
+  "log4jsConfig": Object {
+    "appenders": Object {},
+    "categories": Object {},
   },
 }
 `;

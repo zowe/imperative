@@ -47,7 +47,7 @@ describe("LoggerConfigBuilder tests", () => {
         expect(config).toMatchSnapshot();
     });
 
-    it("Should multiple appenders to basic log4js configuration", () => {
+    it("Should add multiple appenders to basic log4js configuration", () => {
         let config = LoggerConfigBuilder.getDefaultIConfigLogging();
         const file1Key = "sampleFile1";
         const file2Key = "sampleFile2";
@@ -74,4 +74,26 @@ describe("LoggerConfigBuilder tests", () => {
         expect(builtPath).toBe(result);
     });
 
+    describe("getDefaultLogLevel", () => {
+        let oldProcessEnv;
+
+        beforeEach(() => {
+            oldProcessEnv = { ...process.env };
+        });
+
+        afterEach(() => {
+            process.env = oldProcessEnv;
+        });
+
+        it("should default to log level DEBUG in development mode", () => {
+            process.env.NODE_ENV = "development";
+            const logLevel = LoggerConfigBuilder.getDefaultLogLevel();
+            expect(logLevel).toBe("DEBUG");
+        });
+
+        it("should default to log level WARN in production mode", () => {
+            const logLevel = LoggerConfigBuilder.getDefaultLogLevel();
+            expect(logLevel).toBe("WARN");
+        });
+    });
 });
