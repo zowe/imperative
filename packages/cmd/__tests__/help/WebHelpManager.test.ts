@@ -43,7 +43,7 @@ describe("WebHelpManager", () => {
         const cmdReponse = new CommandResponse({ silent: false });
         let opener: any;
         let instPluginsFileNm: string;
-        let oldProcessEnv;
+        let oldProcessEnv: any;
 
         beforeAll( async () => {
             jest.mock("opener");

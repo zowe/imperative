@@ -75,7 +75,7 @@ describe("LoggerConfigBuilder tests", () => {
     });
 
     describe("getDefaultLogLevel", () => {
-        let oldProcessEnv;
+        let oldProcessEnv: any;
 
         beforeEach(() => {
             oldProcessEnv = { ...process.env };
