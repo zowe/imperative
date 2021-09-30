@@ -43,6 +43,7 @@ describe("WebHelpManager", () => {
         const cmdReponse = new CommandResponse({ silent: false });
         let opener: any;
         let instPluginsFileNm: string;
+        let oldProcessEnv;
 
         beforeAll( async () => {
             jest.mock("opener");
@@ -74,8 +75,13 @@ describe("WebHelpManager", () => {
             await Imperative.init(configForHelp);
         });
 
+        beforeEach(() => {
+            oldProcessEnv = { ...process.env };
+        });
+
         afterEach(() => {
             jest.clearAllMocks();
+            process.env = oldProcessEnv;
         });
 
         afterAll( async () => {
@@ -182,6 +188,24 @@ describe("WebHelpManager", () => {
 
                 expect(opener).toHaveBeenCalledTimes(1);
                 expect(opener).toHaveBeenLastCalledWith(`file:///${webHelpDirNm}/launcher.html`);
+
+                // restore real function
+                WebHelpGenerator.prototype.buildHelp = realBuildHelp;
+            });
+
+            it("should regenerate and display help in development mode", async () => {
+                const realBuildHelp = WebHelpGenerator.prototype.buildHelp;
+                const mockBuildHelp = jest.fn();
+                WebHelpGenerator.prototype.buildHelp = mockBuildHelp;
+
+                ProcessUtils.isGuiAvailable = jest.fn(() => GuiResult.GUI_AVAILABLE);
+                process.env.NODE_ENV = "development";
+                WebHelpManager.instance.openRootHelp(cmdReponse);
+
+                expect(mockBuildHelp).toHaveBeenCalled();
+
+                expect(opener).toHaveBeenCalledTimes(1);
+                expect(opener).toHaveBeenLastCalledWith(`file:///${webHelpDirNm}/index.html`);
 
                 // restore real function
                 WebHelpGenerator.prototype.buildHelp = realBuildHelp;
