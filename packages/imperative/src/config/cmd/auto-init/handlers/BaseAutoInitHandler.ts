@@ -175,7 +175,10 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             await ImperativeConfig.instance.config.save(false);
         }
 
-        this.displayAutoInitChanges(params.response);
+        // we only display changes if we made changes
+        if (!params.arguments.dryRun || params.arguments.dryRun === false) {
+            this.displayAutoInitChanges(params.response);
+        }
     }
 
     /**
