@@ -12,7 +12,9 @@
 import { IProfileTypeConfiguration } from "../../profiles";
 import { ConfigSchema } from "../src/ConfigSchema";
 import { cloneDeep } from "lodash";
-import { ICommandProfileTypeConfiguration } from "../..";
+import { ICommandProfileTypeConfiguration, ImperativeConfig } from "../..";
+import { IConfigLayer, IConfigUpdateSchemaHelperOptions } from "..";
+import * as path from "path";
 
 describe("Config Schema", () => {
     const schema = ConfigSchema;
@@ -283,10 +285,136 @@ describe("Config Schema", () => {
         expect(testConfig[0].schema).toMatchObject(origSchemas[0].schema);
     });
 
-    describe("Function: updateSchema", () => {
-        it("should update the schema", () => {
-            // TODO: just do it :)
-            expect(true).toBe(true);
+    describe("Function: updateSchema;", () => {
+        const fakeSchema: any = "this is a fake schema, how cool is that?";
+        const fakeUpdatesPaths: any = { cool: "and this are the updated paths. neat, right?" };
+        const fakeLayer: IConfigLayer = {
+            exists: true,
+            global: false,
+            user: false,
+            path: "/fake/path/to/fake.config.json",
+            properties: null,
+        };
+        let spyConfigApiLayersActivate: any = jest.fn();
+        const fakeInstance = {
+            loadedConfig: {},
+            config: {
+                api: {
+                    layers: {
+                        get: jest.fn().mockReturnValue(fakeLayer),
+                        activate: spyConfigApiLayersActivate,
+                    },
+                },
+            },
+        };
+        const originalImperativeConfig = cloneDeep(ImperativeConfig.instance);
+        beforeEach(() => {
+            jest.restoreAllMocks();
+
+            jest.spyOn(ConfigSchema, "buildSchema").mockReturnValue(fakeSchema);
+            Object.defineProperty(ImperativeConfig, "instance", {
+                get: () => fakeInstance
+            });
+        });
+        afterAll(() => {
+            Object.defineProperty(ImperativeConfig, "instance", {
+                get: () => originalImperativeConfig
+            });
+        });
+
+        it("should update the schema without any parameters", () => {
+            const mySpy = jest.spyOn((ConfigSchema as any), "_updateSchemaActive").mockReturnValue(fakeUpdatesPaths);
+            expect(ConfigSchema.updateSchema()).toEqual(fakeUpdatesPaths);
+            expect(mySpy).toHaveBeenCalledWith({
+                layer: fakeLayer,
+                config: fakeInstance.config,
+                updatedPaths: {},
+                updateOptions: {
+                    depth: 0,
+                    layer: "active",
+                    schema: fakeSchema,
+                },
+            });
+        });
+
+        it("should update the schema with a given schema and layer", () => {
+            const mySpy = jest.spyOn((ConfigSchema as any), "_updateSchemaGlobal").mockReturnValue(fakeUpdatesPaths);
+            expect(ConfigSchema.updateSchema({ schema: fakeSchema, layer: "global" })).toEqual(fakeUpdatesPaths);
+            expect(mySpy).toHaveBeenCalledWith({
+                layer: fakeLayer,
+                config: fakeInstance.config,
+                updatedPaths: {},
+                updateOptions: {
+                    depth: 0,
+                    layer: "global",
+                    schema: fakeSchema,
+                },
+            });
+        });
+
+        it("should update the schema with a given schema, layer, and depth", () => {
+            const mySpy = jest.spyOn((ConfigSchema as any), "_updateSchemaAll").mockReturnValue(fakeUpdatesPaths);
+            expect(ConfigSchema.updateSchema({ schema: fakeSchema, layer: "all", depth: 100 })).toEqual(fakeUpdatesPaths);
+            expect(mySpy).toHaveBeenCalledWith({
+                layer: fakeLayer,
+                config: fakeInstance.config,
+                updatedPaths: {},
+                updateOptions: {
+                    depth: 100,
+                    layer: "all",
+                    schema: fakeSchema,
+                },
+            });
+        });
+
+        it("should throw an error if the layer is unknown", () => {
+            const mySpy = jest.spyOn((ConfigSchema as any), "_updateSchemaAll").mockReturnValue(fakeUpdatesPaths);
+            let caughtError = null;
+            let result = null;
+            try {
+                result = ConfigSchema.updateSchema({ schema: fakeSchema, layer: "fake" } as any);
+            } catch (err) {
+                caughtError = err;
+            }
+            expect(result).toBe(null);
+            expect(caughtError.message).toContain("Unrecognized layer parameter for ConfigSchema.updateSchemas");
+            expect(mySpy).not.toHaveBeenCalled();
+        });
+
+        describe("Helper: _Active", () => {
+            it("should update the schema", () => {
+                // TODO: just do it :)
+                expect(true).toBe(true);
+            });
+        });
+
+        describe("Helper: _Global", () => {
+            it("should update the schema", () => {
+                const mySpy = jest.spyOn((ConfigSchema as any), "_updateSchemaActive").mockReturnValue(fakeUpdatesPaths);
+                const anyConfigSchema: any = ConfigSchema;
+                const opts: IConfigUpdateSchemaHelperOptions = {
+                    layer: fakeLayer,
+                    config: fakeInstance.config as any,
+                    updatedPaths: {},
+                    updateOptions: {
+                        depth: 0,
+                        layer: "active",
+                        schema: fakeSchema,
+                    },
+                }
+                expect(anyConfigSchema._updateSchemaGlobal(opts)).toEqual(fakeUpdatesPaths);
+                expect(mySpy).toHaveBeenCalledWith(opts);
+                expect(spyConfigApiLayersActivate).toHaveBeenCalledTimes(2);
+                expect(spyConfigApiLayersActivate).toBeCalledWith(false, true);
+                expect(spyConfigApiLayersActivate).toBeCalledWith(fakeLayer.user, fakeLayer.global, path.dirname(fakeLayer.path));
+            });
+        });
+
+        describe("Helper: _All", () => {
+            it("should update the schema", () => {
+                // TODO: just do it :)
+                expect(true).toBe(true);
+            });
         });
     });
 });

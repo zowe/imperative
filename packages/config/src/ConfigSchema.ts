@@ -343,7 +343,7 @@ export class ConfigSchema {
      * @param options.schema The optional schema object to use. If not provided, we build the schema object based on loadedConfig.profiles
      * @returns List of updated paths with the new/loaded or given schema
      */
-    public static updateSchema(options?: IConfigUpdateSchemaOptions): { [key: string]: { schema: string, updated: boolean } } {
+    public static updateSchema(options?: IConfigUpdateSchemaOptions): IConfigUpdateSchemaPaths {
         // Handle default values
         const opts: IConfigUpdateSchemaOptions = { ...{ layer: "active", depth: 0 }, ...(options ?? {}) };
 
