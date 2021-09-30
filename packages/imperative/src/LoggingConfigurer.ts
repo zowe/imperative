@@ -38,7 +38,6 @@ export class LoggingConfigurer {
         ImperativeExpect.toBeDefinedAndNonBlank(home, "home");
         ImperativeExpect.keysToBeDefinedAndNonBlank(imperativeConfig, ["name"]);
 
-        //   console.log(inspect(imperativeConfig) + home);
         /**
          * Build appropriate minimum required configuration for the loggers of:
          * - imperative

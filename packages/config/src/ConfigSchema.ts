@@ -152,8 +152,7 @@ export class ConfigSchema {
         // Get the schema information to gather a list of updated paths
         const schemaInfo = opts.config.getSchemaInfo();
         updatedPaths = { [layer.path]: { schema: schemaInfo?.original, updated: schemaInfo?.local } };
-
-        if (opts.config.api.layers.exists(!layer.user, layer.global, path.dirname(layer.path)) && checkUser) {
+        if (opts.config.layerExists(path.dirname(layer.path), !layer.user) && checkUser) {
             opts.config.api.layers.activate(!layer.user, layer.global, path.dirname(layer.path));
             updatedPaths = { ...updatedPaths, ...this._updateSchemaActive(opts, false) };
 
@@ -236,9 +235,9 @@ export class ConfigSchema {
             matches.forEach(schemaLoc => {
 
                 // Check if a layer/config exists in the directory where we found the <APP>.schema.json
-                if (opts.config.api.layers.exists(false, false, path.dirname(schemaLoc))) {
+                if (opts.config.layerExists(path.dirname(schemaLoc))) {
 
-                    // Activate the layer befor updating it
+                    // Activate the layer before updating it
                     opts.config.api.layers.activate(false, false, path.dirname(schemaLoc));
                     const layer = opts.config.layerActive();
 

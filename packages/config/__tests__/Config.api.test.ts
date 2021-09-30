@@ -270,7 +270,7 @@ describe("Config API tests", () => {
         describe("write", () => {
             it("should save the active config layer", async () => {
                 jest.spyOn(ConfigSecure.prototype, "save").mockResolvedValueOnce(undefined);
-                const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
+                const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined).mockReturnValueOnce(undefined);
                 const config = await Config.load(MY_APP);
                 await config.api.layers.write();
                 expect(writeFileSpy).toHaveBeenCalled();
@@ -280,7 +280,7 @@ describe("Config API tests", () => {
             it("should save the active config layer with comments", async () => {
                 jest.spyOn(Config, "search").mockReturnValueOnce(__dirname + "/__resources__/commented-project.config.user.json");
                 jest.spyOn(ConfigSecure.prototype, "save").mockResolvedValueOnce(undefined);
-                const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
+                const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined).mockReturnValueOnce(undefined);
                 const config = await Config.load(MY_APP);
                 await config.api.layers.write();
                 expect(writeFileSpy).toHaveBeenCalled();
@@ -360,6 +360,82 @@ describe("Config API tests", () => {
                 expect(properties.properties.plugins).toEqual(JSON.parse(fileContents).plugins);
                 expect(properties.properties.profiles).toEqual(JSON.parse(fileContents).profiles);
             });
+        });
+        describe("exists", () => {
+            const fakePath = path.join(__dirname, "FAKE_PROJECT", "project.config.user.json");
+            const filePathProjectUserConfig = path.join(__dirname, "__resources__", "project.config.user.json");
+            const filePathProjectConfig = path.join(__dirname, "__resources__", "project.config.json");
+            const filePathAppUserConfig = path.join(__dirname, "__resources__", "my_app.config.user.json");
+            const filePathAppConfig = path.join(__dirname, "__resources__", "my_app.config.json");
+            beforeEach(() => {
+                jest.restoreAllMocks();
+                jest.spyOn(Config, "search")
+                    .mockReturnValueOnce(filePathProjectUserConfig)
+                    .mockReturnValueOnce(filePathProjectConfig);
+                jest.spyOn(path, "join")
+                    .mockReturnValueOnce(filePathAppUserConfig)
+                    .mockReturnValueOnce(filePathAppUserConfig)
+                    .mockReturnValueOnce(filePathAppConfig)
+                    .mockReturnValueOnce(filePathAppConfig);
+                jest.spyOn(ConfigSecure.prototype, "load").mockResolvedValue(undefined);
+            });
+
+            const validateExists = async (inDir: string, user?: boolean): Promise<boolean> => {
+                const config = await Config.load(MY_APP);
+                const layer = config.api.layers.get();
+                const found: boolean = config.layerExists(inDir, user);
+                expect(config.layerActive()).toEqual(layer);
+                return found;
+            };
+
+            it("should determine if a layer exists in either of the layers", async () => {
+                expect(await validateExists(path.dirname(filePathProjectUserConfig), undefined)).toBe(true);
+                expect(await validateExists(path.dirname(filePathProjectConfig), undefined)).toBe(true);
+                expect(await validateExists(path.dirname(filePathAppUserConfig), undefined)).toBe(true);
+                expect(await validateExists(path.dirname(filePathAppConfig), undefined)).toBe(true);
+                expect(await validateExists(path.dirname(fakePath), undefined)).toBe(false);
+
+                jest.spyOn(path, "join").mockReturnValue(fakePath);
+
+                expect(await validateExists(path.dirname(fakePath), undefined)).toBe(false);
+                expect(await validateExists(path.dirname(filePathProjectUserConfig), undefined)).toBe(false);
+                expect(await validateExists(path.dirname(filePathProjectConfig), undefined)).toBe(false);
+                expect(await validateExists(path.dirname(filePathAppUserConfig), undefined)).toBe(false);
+                expect(await validateExists(path.dirname(filePathAppConfig), undefined)).toBe(false);
+            });
+
+            it("should determine if a User Config layer exists", async () => {
+                expect(await validateExists(path.dirname(filePathProjectUserConfig), true)).toBe(true);
+                expect(await validateExists(path.dirname(filePathProjectConfig), true)).toBe(true);
+                expect(await validateExists(path.dirname(filePathAppUserConfig), true)).toBe(true);
+                expect(await validateExists(path.dirname(filePathAppConfig), true)).toBe(true);
+                expect(await validateExists(path.dirname(fakePath), true)).toBe(false);
+
+                jest.spyOn(path, "join").mockReturnValue(fakePath);
+
+                expect(await validateExists(path.dirname(fakePath), true)).toBe(false);
+                expect(await validateExists(path.dirname(filePathProjectUserConfig), true)).toBe(false);
+                expect(await validateExists(path.dirname(filePathProjectConfig), true)).toBe(false);
+                expect(await validateExists(path.dirname(filePathAppUserConfig), true)).toBe(false);
+                expect(await validateExists(path.dirname(filePathAppConfig), true)).toBe(false);
+            });
+
+            it("should determine if a Non-User Config layer exists", async () => {
+                expect(await validateExists(path.dirname(filePathProjectUserConfig), false)).toBe(true);
+                expect(await validateExists(path.dirname(filePathProjectConfig), false)).toBe(true);
+                expect(await validateExists(path.dirname(filePathAppUserConfig), false)).toBe(true);
+                expect(await validateExists(path.dirname(filePathAppConfig), false)).toBe(true);
+                expect(await validateExists(path.dirname(fakePath), false)).toBe(false);
+
+                jest.spyOn(path, "join").mockReturnValue(fakePath);
+
+                expect(await validateExists(path.dirname(fakePath), false)).toBe(false);
+                expect(await validateExists(path.dirname(filePathProjectUserConfig), false)).toBe(false);
+                expect(await validateExists(path.dirname(filePathProjectConfig), false)).toBe(false);
+                expect(await validateExists(path.dirname(filePathAppUserConfig), false)).toBe(false);
+                expect(await validateExists(path.dirname(filePathAppConfig), false)).toBe(false);
+            });
+
         });
         describe("get", () => {
             it("should get the active layer", async () => {

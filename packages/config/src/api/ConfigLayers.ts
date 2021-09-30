@@ -121,23 +121,6 @@ export class ConfigLayers extends ConfigApi {
 
     // _______________________________________________________________________
     /**
-     * Check if a given layer exists
-     *
-     * @param user True if you want the user layer.
-     * @param global True if you want the global layer.
-     * @param inDir The directory to which you want to look for the layer.
-     */
-    public exists(user: boolean, global: boolean, inDir?: string): boolean {
-        let found = false;
-        const prevLayer = this.get();
-        this.activate(user, global, inDir);
-        found = this.mConfig.findLayer(user, global).exists;
-        this.activate(prevLayer.user, prevLayer.global, path.dirname(prevLayer.path));
-        return found;
-    }
-
-    // _______________________________________________________________________
-    /**
      * Gets a json object that represents the currently active layer.
      *
      * @returns The json object

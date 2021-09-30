@@ -576,6 +576,32 @@ export class Config {
 
     // _______________________________________________________________________
     /**
+     * Check if a layer exists in the given path
+     *
+     * @param inDir The directory to which you want to look for the layer.
+     */
+    public layerExists(inDir: string, user?: boolean): boolean {
+        let found = false;
+
+        // Search in all layers
+        this.mLayers.forEach(layer => {
+            found = !found && layer.exists && (typeof user !== "undefined" ? layer.user === user : true) && path.dirname(layer.path) === inDir;
+        });
+
+        // Search for user and non-user congif in the given directory
+        if (!found) {
+            if (typeof user === "undefined") {
+                found = fs.existsSync(path.join(inDir, this.configName)) || fs.existsSync(path.join(inDir, this.userConfigName));
+            } else {
+                found = fs.existsSync(path.join(inDir, user ? this.userConfigName : this.configName));
+            }
+        }
+
+        return found;
+    }
+
+    // _______________________________________________________________________
+    /**
      * Form the path name of the team config file to display in messages.
      * Always return the team name (not the user name).
      * If the a team configuration is active, return the full path to the
