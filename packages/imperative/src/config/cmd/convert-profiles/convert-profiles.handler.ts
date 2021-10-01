@@ -11,20 +11,20 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import { ICommandHandler, IHandlerParameters } from "../../../../cmd";
-import { Config, ConfigSchema, IConfig } from "../../../../config";
-import { IProfile, ProfileIO, ProfilesConstants, ProfileUtils } from "../../../../profiles";
-import { ImperativeConfig } from "../../../../utilities";
-import { CredentialManagerFactory } from "../../../../security";
-import { AppSettings } from "../../../../settings";
-import { PluginIssues } from "../../plugins/utilities/PluginIssues";
-import { uninstall as uninstallPlugin } from "../../plugins/utilities/npm-interface";
-import { OverridesLoader } from "../../OverridesLoader";
+import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
+import { Config, ConfigSchema, IConfig } from "../../../../../config";
+import { IProfile, ProfileIO, ProfilesConstants, ProfileUtils } from "../../../../../profiles";
+import { ImperativeConfig } from "../../../../../utilities";
+import { CredentialManagerFactory } from "../../../../../security";
+import { AppSettings } from "../../../../../settings";
+import { PluginIssues } from "../../../plugins/utilities/PluginIssues";
+import { uninstall as uninstallPlugin } from "../../../plugins/utilities/npm-interface";
+import { OverridesLoader } from "../../../OverridesLoader";
 
 /**
- * Handler for the auto-generated migrate profiles command.
+ * Handler for the convert profiles command.
  */
-export default class MigrateProfilesHandler implements ICommandHandler {
+export default class ConvertProfilesHandler implements ICommandHandler {
     private commandParameters: IHandlerParameters;
 
     /**
@@ -67,7 +67,7 @@ export default class MigrateProfilesHandler implements ICommandHandler {
         teamConfig.setSchema(ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles));
         await teamConfig.save(false);
 
-        const oldProfilesDir = `${profilesRootDir.replace(/[\\\/]$/, "")}-old`;
+        const oldProfilesDir = `${profilesRootDir.replace(/[\\/]$/, "")}-old`;
         fs.renameSync(profilesRootDir, oldProfilesDir);
 
         const cliBin = ImperativeConfig.instance.rootCommandName;
@@ -111,7 +111,7 @@ export default class MigrateProfilesHandler implements ICommandHandler {
     }
 
     private async generateTeamConfig(profilesRootDir: string, listOfProfileTypes: string[],
-                                     oldProfiles: { name: string, type: string }[]): Promise<IConfig> {
+        oldProfiles: { name: string, type: string }[]): Promise<IConfig> {
         const newConfig = Config.empty();
 
         for (const profileType of listOfProfileTypes) {

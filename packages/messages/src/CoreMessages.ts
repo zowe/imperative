@@ -194,14 +194,6 @@ export const validateProfileOptionDesc: IMessageDefinition = {
     message: `Validate the state of a group.`,
 };
 
-export const migrateProfilesCommandSummary: IMessageDefinition = {
-    message: `Migrate profiles from Zowe v1 to v2`,
-};
-
-export const migrateProfilesCommandDesc: IMessageDefinition = {
-    message: `${migrateProfilesCommandSummary.message}.`,
-};
-
 export const detailProfileCommandDesc: IMessageDefinition = {
     message: `Show details of a profile of a selected type.`,
 };

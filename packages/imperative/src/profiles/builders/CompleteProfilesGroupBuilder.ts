@@ -16,8 +16,7 @@ import {
     listProfileCommandDesc, listProfileCommandSummary,
     setProfileActionDesc, setProfileActionSummary,
     updateProfileCommandDesc, updateProfileCommandSummary,
-    validateProfileGroupDesc, validateProfileCommandSummary,
-    migrateProfilesCommandDesc, migrateProfilesCommandSummary
+    validateProfileGroupDesc, validateProfileCommandSummary
 } from "../../../../messages";
 import { Constants } from "../../../../constants";
 import { ProfilesCreateCommandBuilder } from "./ProfilesCreateCommandBuilder";
@@ -115,14 +114,6 @@ export class CompleteProfilesGroupBuilder {
             children: [],
         };
 
-        const migrateCommand: ICommandDefinition = {
-            name: Constants.MIGRATE_ACTION,
-            description: migrateProfilesCommandDesc.message,
-            summary: migrateProfilesCommandSummary.message,
-            type: "command",
-            handler: __dirname + "/../handlers/MigrateProfilesHandler"
-        };
-
         for (const profile of profiles) {
             const createCommandAction = new ProfilesCreateCommandBuilder(profile.type, logger, profile);
             const updateCommandAction = new ProfilesUpdateCommandBuilder(profile.type, logger, profile);
@@ -146,7 +137,6 @@ export class CompleteProfilesGroupBuilder {
             // don't bother to add validation commands unless some plans have been provided
             profileGroup.children.push(validateGroup);
         }
-        profileGroup.children.push(migrateCommand);
         return profileGroup;
     }
 }

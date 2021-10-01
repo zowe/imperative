@@ -19,6 +19,7 @@ import { profilesDefinition } from "./cmd/profiles/profiles.definition";
 import { secureDefinition } from "./cmd/secure/secure.definition";
 import { setDefinition } from "./cmd/set/set.definition";
 import { importDefinition } from "./cmd/import/import.definition";
+import { convertProfilesDefinition } from "./cmd/convert-profiles/convert-profiles.definition";
 
 export class ConfigManagementFacility {
     private static mInstance: ConfigManagementFacility;
@@ -74,7 +75,8 @@ export class ConfigManagementFacility {
                 initDefinition,
                 schemaDefinition,
                 profilesDefinition,
-                importDefinition
+                importDefinition,
+                convertProfilesDefinition
             ]
         });
 
