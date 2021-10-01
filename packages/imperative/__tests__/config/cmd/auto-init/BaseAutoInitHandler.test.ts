@@ -18,6 +18,7 @@ import * as stripAnsi from "strip-ansi";
 import * as open from "open";
 import { ConfigSchema } from "../../../../../config";
 import { CredentialManagerFactory } from "../../../../../security";
+import { SessConstants } from "../../../../../rest";
 
 describe("BaseAutoInitHandler", () => {
     beforeEach( async () => {
@@ -67,7 +68,7 @@ describe("BaseAutoInitHandler", () => {
                 write: mockWrite,
                 get: mockGet
             }
-        }
+        };
         const mockSetSchema = jest.fn();
         const buildSchemaSpy = jest.spyOn(ConfigSchema, 'buildSchema').mockImplementation();
         const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
@@ -143,7 +144,7 @@ describe("BaseAutoInitHandler", () => {
                 write: mockWrite,
                 get: mockGet
             }
-        }
+        };
         const buildSchemaSpy = jest.spyOn(ConfigSchema, 'buildSchema').mockImplementation();
         const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
         const mockSetSchema = jest.fn();
@@ -221,7 +222,7 @@ describe("BaseAutoInitHandler", () => {
                 write: mockWrite,
                 get: mockGet
             }
-        }
+        };
         const buildSchemaSpy = jest.spyOn(ConfigSchema, 'buildSchema').mockImplementation();
         const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
         const mockSetSchema = jest.fn();
@@ -313,7 +314,7 @@ describe("BaseAutoInitHandler", () => {
                 secureFields: mockSecureFields,
                 findSecure: mockFindSecure
             }
-        }
+        };
         const diffSpy = jest.spyOn(jestdiff, 'diff');
         const stripAnsiSpy = jest.spyOn(stripAnsi, 'default');
 
@@ -387,7 +388,7 @@ describe("BaseAutoInitHandler", () => {
                 write: mockWrite,
                 get: mockGet
             }
-        }
+        };
         jest.mock('open');
 
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
@@ -462,7 +463,7 @@ describe("BaseAutoInitHandler", () => {
                 get: mockGet,
                 set: mockSet
             }
-        }
+        };
         jest.mock('open');
 
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
@@ -536,16 +537,17 @@ describe("BaseAutoInitHandler", () => {
             exists: true,
             properties: {
                 profiles: {
-                    "my_base": {
+                    "base": {
                         properties: {
-                            authToken: "fake"
+                            tokenType: SessConstants.TOKEN_TYPE_JWT,
+                            tokenValue: "fakeToken"
                         },
-                        secure: ["authToken"]
+                        secure: ["tokenValue"]
                     }
                 }
             }
         });
-        const mockSecureFields = jest.fn().mockReturnValue(["profiles.my_base.properties.authToken"]);
+        const mockSecureFields = jest.fn().mockReturnValue(["profiles.base.properties.tokenValue"]);
         const mockFindSecure = jest.fn().mockReturnValue([]);
         const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
         const mockImperativeConfigApi = {
@@ -559,7 +561,7 @@ describe("BaseAutoInitHandler", () => {
                 secureFields: mockSecureFields,
                 findSecure: mockFindSecure
             }
-        }
+        };
         const diffSpy = jest.spyOn(jestdiff, 'diff');
         const stripAnsiSpy = jest.spyOn(stripAnsi, 'default');
         const unsetSpy = jest.spyOn(lodash, "unset");

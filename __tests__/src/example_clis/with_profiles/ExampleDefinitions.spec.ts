@@ -20,28 +20,28 @@ describe("We should provide the ability to define commands through Javascript ob
 
     it("All commands defined through module globs should be accurately defined, " +
         "and a definition module in the same directory that does not ",
-        function () {
-            // root level help should contain the correct registered commands
-            T.findExpectedOutputInCommand(cliBin,
-                ["--help"], ["ape", "bat", "cat", "dog"],
-                "stdout", true, this);
-            T.findExpectedOutputInCommand(cliBin,
-                ["ape"], ["grape"],
-                "stdout", true, this);
-            T.findExpectedOutputInCommand(cliBin,
-                ["bat"], ["rat"],
-                "stdout", true, this);
-            T.findExpectedOutputInCommand(cliBin,
-                ["cat"], ["splat"],
-                "stdout", true, this);
-            T.findExpectedOutputInCommand(cliBin,
-                ["dog"], ["log"],
-                "stdout", true, this);
-            // make sure the file that doesn't match the glob is not registered
-            T.findExpectedOutputInCommand(cliBin,
-                ["do-not-include"], ["unknown"],
-                "stderr", false, this,
-                undefined, {ignoreCase: true});
-        });
+    function () {
+        // root level help should contain the correct registered commands
+        T.findExpectedOutputInCommand(cliBin,
+            ["--help"], ["ape", "bat", "cat", "dog"],
+            "stdout", true, this);
+        T.findExpectedOutputInCommand(cliBin,
+            ["ape"], ["grape"],
+            "stdout", true, this);
+        T.findExpectedOutputInCommand(cliBin,
+            ["bat"], ["rat"],
+            "stdout", true, this);
+        T.findExpectedOutputInCommand(cliBin,
+            ["cat"], ["splat"],
+            "stdout", true, this);
+        T.findExpectedOutputInCommand(cliBin,
+            ["dog"], ["log"],
+            "stdout", true, this);
+        // make sure the file that doesn't match the glob is not registered
+        T.findExpectedOutputInCommand(cliBin,
+            ["do-not-include"], ["unknown"],
+            "stderr", false, this,
+            undefined, {ignoreCase: true});
+    });
 
 });

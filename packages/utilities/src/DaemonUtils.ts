@@ -153,27 +153,27 @@ export class DaemonUtils {
 
         // process exit
         headers += DaemonUtils.X_ZOWE_DAEMON_EXIT;
-        headers += exitCode
+        headers += exitCode;
         headers += DaemonUtils.X_ZOWE_HEADERS_SEPARATOR;
 
         // stdout
         headers += DaemonUtils.X_ZOWE_DAEMON_STDOUT;
-        headers += stdout
+        headers += stdout;
         headers += DaemonUtils.X_ZOWE_HEADERS_SEPARATOR;
 
         // stderr
         headers += DaemonUtils.X_ZOWE_DAEMON_STDERR;
-        headers += stderr
+        headers += stderr;
         headers += DaemonUtils.X_ZOWE_HEADERS_SEPARATOR;
 
         // prompt
         headers += DaemonUtils.X_ZOWE_DAEMON_PROMPT;
-        headers += prompt
+        headers += prompt;
         headers += DaemonUtils.X_ZOWE_HEADERS_SEPARATOR;
 
         // progress
         headers += DaemonUtils.X_ZOWE_DAEMON_PROGRESS;
-        headers += progress
+        headers += progress;
         headers += DaemonUtils.X_ZOWE_HEADERS_SEPARATOR;
 
         // ending header

@@ -25,7 +25,7 @@ export class CompleteAutoInitCommandBuilder {
      * @returns {ICommandDefinition} - the complete profile group of commands
      */
     public static getAutoInitCommand(autoInitConfig: ICommandProfileAutoInitConfig,
-                                     logger: Logger): ICommandDefinition {
+        logger: Logger): ICommandDefinition {
         const autoInitCommandAction = new AutoInitCommandBuilder(logger, autoInitConfig, autoInitConfig.profileType);
         return autoInitCommandAction.build();
     }

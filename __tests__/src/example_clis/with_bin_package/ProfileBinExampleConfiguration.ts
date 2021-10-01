@@ -10,7 +10,6 @@
 */
 
 import { IImperativeConfig } from "../../../../packages/imperative";
-import { createUniqueTestDataDir } from "../../TestUtil";
 
 const binConfig: IImperativeConfig = {
     commandModuleGlobs: ["definitions/*/*Definition.ts"],

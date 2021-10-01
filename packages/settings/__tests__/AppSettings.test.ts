@@ -14,7 +14,7 @@ import Mock = jest.Mock;
 jest.mock("fs");
 jest.mock("jsonfile");
 
-import { AppSettings } from "../";
+import { AppSettings } from "..";
 import { existsSync } from "fs";
 import { SettingsAlreadyInitialized, SettingsNotInitialized } from "../src/errors";
 import { readFileSync, writeFile, writeFileSync } from "jsonfile";

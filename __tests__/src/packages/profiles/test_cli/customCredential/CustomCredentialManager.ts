@@ -12,21 +12,21 @@
 import { AbstractCredentialManager, SecureCredential } from "../../../../../../packages/security";
 
 export = class CustomCredentialManager extends AbstractCredentialManager {
-  constructor() {
-    super("DummyService", "DummyName");
-  }
+    constructor() {
+        super("DummyService", "DummyName");
+    }
 
-  public async loadCredentials(account: string): Promise<SecureCredential> {
+    public async loadCredentials(account: string): Promise<SecureCredential> {
     // We need to stringify to simulate the stored value that we are loading
-    const cred: SecureCredential = Buffer.from(JSON.stringify("custom")).toString("base64");
-    return cred;
-  }
+        const cred: SecureCredential = Buffer.from(JSON.stringify("custom")).toString("base64");
+        return cred;
+    }
 
-  public async saveCredentials(account: string, credentials: SecureCredential): Promise<void> {
-    return;
-  }
+    public async saveCredentials(account: string, credentials: SecureCredential): Promise<void> {
+        return;
+    }
 
-  public async deleteCredentials(account: string): Promise<void> {
-    return;
-  }
+    public async deleteCredentials(account: string): Promise<void> {
+        return;
+    }
 };

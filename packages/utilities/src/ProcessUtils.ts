@@ -9,9 +9,6 @@
 *
 */
 
-import { ImperativeError } from "../../error";
-import { isNullOrUndefined } from "util";
-
 /**
  * This enum represents the possible results from isGuiAvailable.
  */

@@ -9,7 +9,6 @@
 *
 */
 
-import { CommandPreparer, ICommandDefinition } from "../../../cmd";
 import { IImperativeConfig } from "../../../imperative/src/doc/IImperativeConfig";
 
 export class ImperativeConfig {
@@ -35,14 +34,14 @@ export class ImperativeConfig {
 
     public static get instance(): ImperativeConfig {
         if (this.mInstance == null) {
-          this.mInstance = new ImperativeConfig();
+            this.mInstance = new ImperativeConfig();
         }
 
         return this.mInstance;
     }
 
     public get callerPackageJson(): any {
-         return {version: 10000, name: "sample"};
+        return {version: 10000, name: "sample"};
     }
 
     public get cliHome(): string {
@@ -62,11 +61,11 @@ export class ImperativeConfig {
     }
 
     public get loadedConfig(): IImperativeConfig {
-      return this.mLoadedConfig;
+        return this.mLoadedConfig;
     }
 
     public set loadedConfig(config: IImperativeConfig) {
-      this.mLoadedConfig = config;
+        this.mLoadedConfig = config;
     }
 
     public get hostPackageName(): string {

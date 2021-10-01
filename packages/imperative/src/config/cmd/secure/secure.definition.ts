@@ -33,5 +33,15 @@ export const secureDefinition: ICommandDefinition = {
             type: "boolean",
             defaultValue: false
         }
+    ],
+    examples: [
+        {
+            description: "Secure the properties in global config.",
+            options: "--global-config"
+        },
+        {
+            description: "Secure the properties in user config.",
+            options: "--user-config"
+        }
     ]
 };

@@ -139,7 +139,6 @@ describe("Config tests", () => {
             expect(config.properties).toMatchSnapshot();
             expect(config.properties.defaults).toEqual({});
             expect(config.properties.profiles).toEqual({});
-            expect(config.properties.plugins).toEqual([]);
         });
 
         it("should fail to load config that is not JSON", async () => {
@@ -171,7 +170,7 @@ describe("Config tests", () => {
                 .mockReturnValueOnce(true)      // Project layer
                 .mockReturnValueOnce(false)     // User layer
                 .mockReturnValueOnce(false);    // Global layer
-            jest.spyOn(fs, "readFileSync")
+            jest.spyOn(fs, "readFileSync");
             let error: any;
             try {
                 await Config.load(MY_APP);
@@ -507,6 +506,6 @@ describe("Config tests", () => {
                 const file = Config.search(configFile);
                 expect(file).toBeNull();
             });
-        })
+        });
     });
 });

@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters, TextUtils } from "../../../../../../../lib/index";
+import { ICommandHandler, IHandlerParameters } from "../../../../../../../lib/index";
 
 export default class WithSyntaxErrorsResponses implements ICommandHandler {
     public async process(params: IHandlerParameters): Promise<void> {

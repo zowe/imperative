@@ -10,8 +10,6 @@
 */
 
 import { execSync } from "child_process";
-import { Imperative } from "../../../../";
-import { IssueSeverity } from "./PluginIssues";
 import { Logger } from "../../../../logger";
 import { PMFConstants } from "./PMFConstants";
 
@@ -38,8 +36,8 @@ export function runValidatePlugin(pluginName: string): string {
     cmdToRun += ` "${cliPgmToRun}"`;
 
     const impLogger = Logger.getImperativeLogger();
-    impLogger.debug(`Running plugin validation command = ${cmdToRun} plugins validate "${pluginName}" --response-format-json`);
-    const valOutputJsonTxt = execSync(`${cmdToRun} plugins validate "${pluginName}" --response-format-json`, {
+    impLogger.debug(`Running plugin validation command = ${cmdToRun} plugins validate "${pluginName}" --response-format-json --no-fail-on-error`);
+    const valOutputJsonTxt = execSync(`${cmdToRun} plugins validate "${pluginName}" --response-format-json --no-fail-on-error`, {
         cwd: PMFConstants.instance.PMF_ROOT
     }).toString();
 

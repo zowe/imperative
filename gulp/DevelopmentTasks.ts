@@ -37,8 +37,7 @@ function loadDependencies() {
     gulpReplace = require("gulp-replace");
 }
 
-// use the local versions of tslint and tsc so people don't have to globally install
-const tslintExecutable = "node_modules/tslint/bin/tslint";
+// use the local versions of tsc and madge so people don't have to globally install
 const tscExecutable = "node_modules/typescript/bin/tsc";
 const npmExecutable = "npm" + (require("os").platform() === "win32" ? ".cmd" : "");
 const madgeExecutable = "node_modules/madge/bin/cli.js";
@@ -54,7 +53,7 @@ const lint: ITaskFunction = (done) => {
         lintProcess = childProcess.spawnSync("npm", ["run", "lint"], {stdio: "inherit", shell: true});
 
     } catch (e) {
-        fancylog(ansiColors.red("Error encountered trying to run tslint"));
+        fancylog(ansiColors.red("Error encountered trying to run eslint"));
         done(e);
         return;
     }
@@ -76,7 +75,7 @@ const lint: ITaskFunction = (done) => {
         return;
     }
 };
-lint.description = "Runs tslint on the project to check for style";
+lint.description = "Runs eslint on the project to check for style";
 
 const prepForDirectInstall: ITaskFunction = (done) => {
     loadDependencies();
@@ -256,51 +255,6 @@ const buildAllClis: ITaskFunction = async () => {
     });
 };
 
-const browserify: ITaskFunction = async() => {
-    // Need to load fs module
-    loadDependencies();
-
-    // Browserify main bundle
-    let b = require("browserify")();
-    const bundleCss: string = __dirname + "/../web-help/dist/css/bundle.css";
-    if (fs.existsSync(bundleCss)) {
-        fs.unlinkSync(bundleCss);
-    }
-    b.add(__dirname + "/../node_modules/jstree/dist/themes/default/style.min.css");
-    b.add(__dirname + "/../node_modules/bootstrap/dist/css/bootstrap.min.css");
-    b.require(["bootstrap", "jquery", "jstree", "scroll-into-view-if-needed", "split.js", "url-search-params-polyfill"]);
-    b.transform(require("browserify-css"), {
-        inlineImages: true,
-        onFlush: (options: any, done: any) => {
-            // jsTree CSS needs priority over Bootstrap CSS, so prepend rather than append it
-            if (options.filename.indexOf("jstree") === -1) {
-                fs.appendFileSync(bundleCss, options.data);
-            } else {
-                let outData = options.data;
-                if (fs.existsSync(bundleCss)) {
-                    outData += "\n" + fs.readFileSync(bundleCss);
-                }
-                fs.writeFileSync(bundleCss, outData);
-            }
-            done(null);
-        }
-    });
-    b.bundle().pipe(fs.createWriteStream(__dirname + "/../web-help/dist/js/bundle.js")
-    .on("finish", () => {
-        // Browserify docs bundle
-        b = require("browserify")();
-        b.add(__dirname + "/../node_modules/balloon-css/balloon.min.css");
-        b.add(__dirname + "/../node_modules/github-markdown-css/github-markdown.css");
-        b.require(["array-from", "clipboard"]);
-        b.transform(require("browserify-css"), {
-            inlineImages: true,
-            output: __dirname + "/../web-help/dist/css/bundle-docs.css"
-        });
-        b.bundle().pipe(fs.createWriteStream(__dirname + "/../web-help/dist/js/bundle-docs.js"));
-    }));
-};
-browserify.description = "Browserify dependencies for web help";
-
 function getDirectories(path: string) {
     return fs.readdirSync(path).filter((file: string) => {
         return fs.statSync(path + "/" + file).isDirectory();
@@ -327,4 +281,3 @@ exports.checkCircularDependencies = checkCircularDependencies;
 exports.buildSampleCli = buildSampleCli;
 exports.buildAllClis = buildAllClis;
 exports.installAllCliDependencies = installAllCliDependencies;
-exports.browserify = browserify;

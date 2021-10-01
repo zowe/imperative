@@ -11,7 +11,7 @@
 
 import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerResponseApi } from "../../../../cmd";
 import { Constants } from "../../../../constants";
-import { ISession, ConnectionPropsForSessCfg, Session, SessConstants, AbstractSession } from "../../../../rest";
+import { ISession, ConnectionPropsForSessCfg, Session, SessConstants, AbstractSession, IOptionsForAddConnProps } from "../../../../rest";
 import { Imperative } from "../../Imperative";
 import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
@@ -34,6 +34,11 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * The default token type to use if not specified as a command line option
      */
     protected abstract mDefaultTokenType: SessConstants.TOKEN_TYPE_CHOICES;
+
+    /**
+     * The description of your service to be used in CLI prompt messages
+     */
+    protected mServiceDescription?: string;
 
     /**
      * The session being created from the command line arguments / profile
@@ -62,6 +67,20 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                     msg: `The group name "${commandParameters.positionals[1]}" was passed to the BaseAuthHandler, but it is not valid.`
                 });
         }
+    }
+
+    /**
+     * This is called by the "config secure" handler when it needs to prompt
+     * for connection info to obtain an auth token.
+     * @returns A tuple containing:
+     *  - Options for adding connection properties
+     *  - The login handler
+     */
+    public getPromptParams(): [IOptionsForAddConnProps, (session: AbstractSession) => Promise<string>] {
+        return [{
+            defaultTokenType: this.mDefaultTokenType,
+            serviceDescription: this.mServiceDescription
+        }, this.doLogin];
     }
 
     /**
@@ -164,8 +183,8 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             }
 
             const profilePath = config.api.profiles.expandPath(profileName);
-            config.set(`${profilePath}.properties.authToken`,
-                `${this.mSession.ISession.tokenType}=${tokenValue}`, { secure: true });
+            config.set(`${profilePath}.properties.tokenType`, this.mSession.ISession.tokenType);
+            config.set(`${profilePath}.properties.tokenValue`, tokenValue, { secure: true });
 
             await config.save(false);
             // Restore original active layer
@@ -181,7 +200,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
     private getBaseProfileName(params: IHandlerParameters, config: Config): string {
         let profileName = params.arguments[`${this.mProfileType}-profile`] || config.properties.defaults[this.mProfileType];
         if (profileName == null || !config.api.profiles.exists(profileName)) {
-            profileName = `my_${this.mProfileType}_${params.positionals[2]}`;
+            profileName = `${this.mProfileType}_${params.positionals[2]}`;
         }
         return profileName;
     }
@@ -210,8 +229,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * @param {IHandlerParameters} params Command parameters sent by imperative.
      */
     private async processLogout(params: IHandlerParameters) {
-        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue || params.arguments.authToken,
-            "Token value not supplied, but is required for logout.");
+        ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue, "Token value not supplied, but is required for logout.");
 
         // Force to use of token value, in case user and/or password also on base profile, make user undefined.
         if (params.arguments.user != null) {
@@ -242,13 +260,15 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             let profileWithToken: string = null;
 
             // If you specified a token on the command line, then don't delete the one in the profile if it doesn't match
-            if (loadedProfile?.properties.authToken != null &&
-                loadedProfile.properties.authToken.value === `${params.arguments.tokenType}=${params.arguments.tokenValue}`) {
+            if (loadedProfile != null && loadedProfile?.properties.tokenType != null && loadedProfile?.properties.tokenValue != null &&
+                loadedProfile.properties.tokenType.value === params.arguments.tokenType &&
+                loadedProfile.properties.tokenValue.value === params.arguments.tokenValue) {
                 const beforeLayer = config.api.layers.get();
-                config.api.layers.activate(loadedProfile.properties.authToken.user, loadedProfile.properties.authToken.global);
+                config.api.layers.activate(loadedProfile.properties.tokenValue.user, loadedProfile.properties.tokenValue.global);
 
                 const profilePath = config.api.profiles.expandPath(profileName);
-                config.delete(`${profilePath}.properties.authToken`);
+                config.delete(`${profilePath}.properties.tokenType`);
+                config.delete(`${profilePath}.properties.tokenValue`);
 
                 await config.save(false);
                 config.api.layers.activate(beforeLayer.user, beforeLayer.global);

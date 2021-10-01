@@ -102,7 +102,7 @@ export class WebHelpManager implements IWebHelpManager {
         const newMetadata: MaybePackageMetadata = this.checkIfMetadataChanged();
         if (newMetadata !== null) {
             (new WebHelpGenerator(this.mFullCommandTree, ImperativeConfig.instance, this.webHelpDir)).
-                 buildHelp(cmdResponse);
+                buildHelp(cmdResponse);
             this.writePackageMetadata(newMetadata);
         }
 
@@ -214,7 +214,8 @@ export class WebHelpManager implements IWebHelpManager {
         const currentMetadata: IWebHelpPackageMetadata[] = this.calcPackageMetadata(myConfig.callerPackageJson,
             require(path.join(myConfig.cliHome, "plugins", "plugins.json")));
 
-        const metadataChanged: boolean = !this.eqPackageMetadata(cachedMetadata, currentMetadata);
+        const metadataChanged: boolean = process.env.NODE_ENV === "development" ||
+            !this.eqPackageMetadata(cachedMetadata, currentMetadata);
         return metadataChanged ? currentMetadata : null;
     }
 

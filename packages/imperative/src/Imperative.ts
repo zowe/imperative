@@ -75,8 +75,8 @@ if (PerfTiming.isEnabled) {
 
     // Timerify a wrapper named function so we can be sure that not just
     // any anonymous function gets checked.
-    Module.prototype.require = PerfTiming.api.watch(function NodeModuleLoader() {
-        return originalRequire.apply(this, arguments);
+    Module.prototype.require = PerfTiming.api.watch(function NodeModuleLoader(...args: any[]) {
+        return originalRequire.apply(this, args);
     });
 }
 
@@ -137,6 +137,7 @@ export class Imperative {
      * @returns {Promise<void>} A promise indicating that we are done here.
      */
     public static init(config?: IImperativeConfig): Promise<void> {
+        // eslint-disable-next-line no-async-promise-executor
         return new Promise<void>(async (initializationComplete: () => void, initializationFailed: ImperativeReject) => {
             try {
 
@@ -294,9 +295,9 @@ export class Imperative {
                         "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
                         "Node versions: '%s'" +
                         "Environmental variables: '%s'",
-                        os.platform(), os.arch(), process.argv.join(" "),
-                        JSON.stringify(process.versions, null, 2),
-                        JSON.stringify(process.env, null, 2));
+                    os.platform(), os.arch(), process.argv.join(" "),
+                    JSON.stringify(process.versions, null, 2),
+                    JSON.stringify(process.env, null, 2));
                     Logger.writeInMemoryMessages(Imperative.DEFAULT_DEBUG_FILE);
                     if (error.report) {
                         const {writeFileSync} = require("fs");
@@ -304,7 +305,7 @@ export class Imperative {
                     }
                     if (!(error instanceof ImperativeError)) {
                         const oldError = error;
-                        error = new ImperativeError({
+                        error = new ImperativeError({  // eslint-disable-line no-ex-assign
                             msg: "Unexpected Error Encountered",
                             causeErrors: error
                         });
@@ -490,7 +491,7 @@ export class Imperative {
             } else {
                 message = "Imperative log level '" + envSettings.imperativeLogLevel.value +
                     "' from environmental variable setting '" + envSettings.imperativeLogLevel.key + "' is not recognised.  " +
-                    "Logger level is set to '" + LoggerConfigBuilder.DEFAULT_LOG_LEVEL + "'.  " +
+                    "Logger level is set to '" + LoggerConfigBuilder.getDefaultLogLevel() + "'.  " +
                     "Valid levels are " + Logger.DEFAULT_VALID_LOG_LEVELS.toString();
                 new Console().warn(message);
                 this.log.warn(message);
@@ -508,7 +509,7 @@ export class Imperative {
             } else {
                 message = "Application log level '" + envSettings.appLogLevel.value +
                     "' from environmental variable setting '" + envSettings.appLogLevel.key + "' is not recognised.  " +
-                    "Logger level is set to '" + LoggerConfigBuilder.DEFAULT_LOG_LEVEL + "'.  " +
+                    "Logger level is set to '" + LoggerConfigBuilder.getDefaultLogLevel() + "'.  " +
                     "Valid levels are " + Logger.DEFAULT_VALID_LOG_LEVELS.toString();
                 new Console().warn(message);
                 this.log.warn(message);
@@ -719,7 +720,8 @@ export class Imperative {
             loadedConfig.profiles.forEach((profile) => {
                 if (profile.authConfig != null) {
                     for (const requiredOption of ["host", "port", "user", "password", "tokenType", "tokenValue"]) {
-                        ImperativeExpect.toNotBeNullOrUndefined(profile.schema.properties[requiredOption], `Profile of type ${profile.type} with authConfig property must have ${requiredOption} option defined`);
+                        ImperativeExpect.toNotBeNullOrUndefined(profile.schema.properties[requiredOption],
+                            `Profile of type ${profile.type} with authConfig property must have ${requiredOption} option defined`);
                     }
                     authConfigs[profile.type] = profile.authConfig;
                 }

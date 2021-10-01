@@ -297,19 +297,19 @@ describe("Config API tests", () => {
             beforeEach(() => {
                 jest.restoreAllMocks();
                 jest.spyOn(Config, "search").mockReturnValueOnce(filePathProjectUserConfig)
-                                            .mockReturnValueOnce(filePathProjectConfig);
+                    .mockReturnValueOnce(filePathProjectConfig);
                 jest.spyOn(path, "join").mockReturnValueOnce(filePathAppUserConfig)
-                                        .mockReturnValueOnce(filePathAppUserConfig)
-                                        .mockReturnValueOnce(filePathAppConfig)
-                                        .mockReturnValueOnce(filePathAppConfig);
+                    .mockReturnValueOnce(filePathAppUserConfig)
+                    .mockReturnValueOnce(filePathAppConfig)
+                    .mockReturnValueOnce(filePathAppConfig);
                 jest.spyOn(ConfigSecure.prototype, "load").mockResolvedValue(undefined);
             });
             it("should activate the project configuration", async () => {
                 const config = await Config.load(MY_APP);
                 config.api.layers.activate(false, false);
-                const properties = config.api.layers.get()
+                const properties = config.api.layers.get();
                 const filePath = filePathProjectConfig;
-                const fileContents = fs.readFileSync(filePath).toString()
+                const fileContents = fs.readFileSync(filePath).toString();
                 expect(properties.user).toBe(false);
                 expect(properties.global).toBe(false);
                 expect(properties.exists).toBe(true);
@@ -321,9 +321,9 @@ describe("Config API tests", () => {
             it("should activate the project user configuration", async () => {
                 const config = await Config.load(MY_APP);
                 config.api.layers.activate(true, false);
-                const properties = config.api.layers.get()
+                const properties = config.api.layers.get();
                 const filePath = filePathProjectUserConfig;
-                const fileContents = fs.readFileSync(filePath).toString()
+                const fileContents = fs.readFileSync(filePath).toString();
                 expect(properties.user).toBe(true);
                 expect(properties.global).toBe(false);
                 expect(properties.exists).toBe(true);
@@ -335,9 +335,9 @@ describe("Config API tests", () => {
             it("should activate the global configuration", async () => {
                 const config = await Config.load(MY_APP);
                 config.api.layers.activate(false, true);
-                const properties = config.api.layers.get()
+                const properties = config.api.layers.get();
                 const filePath = filePathAppConfig;
-                const fileContents = fs.readFileSync(filePath).toString()
+                const fileContents = fs.readFileSync(filePath).toString();
                 expect(properties.user).toBe(false);
                 expect(properties.global).toBe(true);
                 expect(properties.exists).toBe(true);
@@ -349,9 +349,9 @@ describe("Config API tests", () => {
             it("should activate the global user configuration", async () => {
                 const config = await Config.load(MY_APP);
                 config.api.layers.activate(true, true);
-                const properties = config.api.layers.get()
+                const properties = config.api.layers.get();
                 const filePath = filePathAppUserConfig;
-                const fileContents = fs.readFileSync(filePath).toString()
+                const fileContents = fs.readFileSync(filePath).toString();
                 expect(properties.user).toBe(true);
                 expect(properties.global).toBe(true);
                 expect(properties.exists).toBe(true);
@@ -376,7 +376,6 @@ describe("Config API tests", () => {
                 const cnfg: IConfig = {
                     $schema: "fake",
                     defaults: {},
-                    plugins: [],
                     profiles: {
                         vegetable: {
                             properties: {
@@ -405,7 +404,6 @@ describe("Config API tests", () => {
                 expect(retrievedConfig).toMatchSnapshot();
                 expect(retrievedConfig.defaults).toEqual({});
                 expect(retrievedConfig.profiles).toEqual({});
-                expect(retrievedConfig.plugins).toEqual([]);
             });
         });
         describe("merge", () => {

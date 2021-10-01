@@ -368,7 +368,7 @@ export class CommandProcessor {
             // NOTE(Kelosky): we adjust `cwd` and do not restore it, so that multiple simultaneous requests from the same
             // directory will operate without unexpected chdir taking place.  Multiple simultaneous requests from different
             // directories may cause unpredictable results
-            process.chdir(params.arguments.dcd as string)
+            process.chdir(params.arguments.dcd as string);
 
             // reinit config for daemon client directory
             const newOpts = ImperativeConfig.instance.config?.opts || {};
@@ -439,8 +439,9 @@ export class CommandProcessor {
                                 this.log.debug("Prompting for positional %s which was requested by passing the value %s",
                                     positionalName, this.promptPhrase);
                                 prepared.args[positionalName] =
-                                    CliUtils.promptForInput(`"${positionalName}" Description: ` +
-                                        `${positional.description}\nPlease enter "${positionalName}":`);
+                                    await response.console.prompt(`"${positionalName}" Description: ` +
+                                        `${positional.description}\nPlease enter "${positionalName}":`,
+                                    { hideText: true, secToWait: 0 });
                             }
                             // array processing
                             else {
@@ -453,8 +454,9 @@ export class CommandProcessor {
                                     this.log.debug("Prompting for positional %s which was requested by passing the value %s",
                                         prepared.args[positionalName][0], this.promptPhrase);
                                     prepared.args[positionalName][0] =
-                                        CliUtils.promptForInput(`"${positionalName}" Description: ` +
-                                            `${positional.description}\nPlease enter "${positionalName}":`);
+                                        await response.console.prompt(`"${positionalName}" Description: ` +
+                                            `${positional.description}\nPlease enter "${positionalName}":`,
+                                        { hideText: true, secToWait: 0 });
                                     // prompting enters as string but need to place it in array
 
                                     const array = prepared.args[positionalName][0].split(" ");
@@ -476,7 +478,9 @@ export class CommandProcessor {
                                 this.log.debug("Prompting for option %s which was requested by passing the value %s",
                                     option.name, this.promptPhrase);
                                 prepared.args[option.name] =
-                                    CliUtils.promptForInput(`"${option.name}" Description: ${option.description}\nPlease enter "${option.name}":`);
+                                    await response.console.prompt(`"${option.name}" Description: ` +
+                                        `${option.description}\nPlease enter "${option.name}":`,
+                                    { hideText: true, secToWait: 0 });
                                 const camelCase = CliUtils.getOptionFormat(option.name).camelCase;
                                 prepared.args[camelCase] = prepared.args[option.name];
                                 if (option.aliases != null) {
@@ -496,8 +500,9 @@ export class CommandProcessor {
                                     this.log.debug("Prompting for option %s which was requested by passing the value %s",
                                         option.name, this.promptPhrase);
                                     prepared.args[option.name][0] =
-                                        CliUtils.promptForInput(
-                                            `"${option.name}" Description: ${option.description}\nPlease enter "${option.name}":`);
+                                        await response.console.prompt(`"${option.name}" Description: ` +
+                                            `${option.description}\nPlease enter "${option.name}":`,
+                                        { hideText: true, secToWait: 0 });
 
                                     const array = prepared.args[option.name][0].split(" ");
                                     prepared.args[option.name] = array;
@@ -695,10 +700,13 @@ export class CommandProcessor {
         // Display the first example on error
         if (this.mDefinition.examples && this.mDefinition.examples.length > 0) {
             let exampleText = TextUtils.wordWrap(`- ${this.mDefinition.examples[0].description}:\n\n`, undefined, " ");
-            exampleText += `      \$ ${this.rootCommand
-                } ${CommandUtils.getFullCommandName(this.mDefinition, this.mFullDefinition)
-                } ${this.mDefinition.examples[0].options
-                }\n`;
+            exampleText += `      $ ${
+                this.rootCommand
+            } ${
+                CommandUtils.getFullCommandName(this.mDefinition, this.mFullDefinition)
+            } ${
+                this.mDefinition.examples[0].options
+            }\n`;
 
             finalHelp += `\nExample:\n\n${exampleText}`;
         }
@@ -745,9 +753,9 @@ export class CommandProcessor {
         let allTypes: string[] = [];
         if (this.definition.profile != null) {
             if (this.definition.profile.required != null)
-                allTypes = allTypes.concat(this.definition.profile.required)
+                allTypes = allTypes.concat(this.definition.profile.required);
             if (this.definition.profile.optional != null)
-                allTypes = allTypes.concat(this.definition.profile.optional)
+                allTypes = allTypes.concat(this.definition.profile.optional);
         }
 
         // Build an object that contains all the options loaded from config
@@ -755,7 +763,7 @@ export class CommandProcessor {
         let fromCnfg: any = {};
         if (this.mConfig != null) {
             for (const profileType of allTypes) {
-                const [opt, _] = ProfileUtils.getProfileOptionAndAlias(profileType);
+                const opt = ProfileUtils.getProfileOptionAndAlias(profileType)[0];
 
                 // If the config contains the requested profiles, then "remember"
                 // that this type has been fulfilled - so that we do NOT load from
@@ -782,7 +790,8 @@ export class CommandProcessor {
             const profileCamel = fromCnfg[cases.camelCase];
 
             if ((profileCamel !== undefined || profileKebab !== undefined) &&
-                (!args.hasOwnProperty(cases.kebabCase) && !args.hasOwnProperty(cases.camelCase))) {
+                (!Object.prototype.hasOwnProperty.call(args, cases.kebabCase) &&
+                 !Object.prototype.hasOwnProperty.call(args, cases.camelCase))) {
 
                 // If both case properties are present in the profile, use the one that matches
                 // the option name explicitly
@@ -903,8 +912,8 @@ export class CommandProcessor {
             this.log.error("Diagnostic information:\n" +
                 "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
                 "Environmental variables: '%s'",
-                os.platform(), os.arch(), process.argv.join(" "),
-                JSON.stringify(process.env, null, 2));
+            os.platform(), os.arch(), process.argv.join(" "),
+            JSON.stringify(process.env, null, 2));
             const errorMessage: string = TextUtils.formatMessage(couldNotInstantiateCommandHandler.message, {
                 commandHandler: nodePath.normalize(handlerPath) || "\"undefined or not specified\"",
                 definitionName: this.definition.name
@@ -939,7 +948,7 @@ export class CommandProcessor {
                     response.writeJsonResponse();
                     break;
                 case "default":
-                    // Do nothing - already written along the way
+                // Do nothing - already written along the way
                     break;
                 default:
                     throw new ImperativeError({
@@ -971,9 +980,9 @@ export class CommandProcessor {
             "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
             "Node versions: '%s'" +
             "Environmental variables: '%s'",
-            os.platform(), os.arch(), process.argv.join(" "),
-            JSON.stringify(process.versions, null, 2),
-            JSON.stringify(process.env, null, 2));
+        os.platform(), os.arch(), process.argv.join(" "),
+        JSON.stringify(process.versions, null, 2),
+        JSON.stringify(process.env, null, 2));
 
         // If this is an instance of an imperative error, then we are good to go and can formulate the response.
         // If it is an Error object, then something truly unexpected occurred in the handler.

@@ -16,11 +16,10 @@ import { TestLogger } from "../../../../__tests__/TestLogger";
 import { ICommandDefinition, CommandResponse, CommandPreparer, ICommandHandler } from "../../../cmd";
 import { ICommandHandlerRequire } from "../../../cmd/src/doc/handler/ICommandHandlerRequire";
 import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
-import { Imperative } from "../../src/__mocks__/Imperative";
 (CommandResponse as any).spinnerChars = "-oO0)|(0Oo-";
 process.env.FORCE_COLOR = "0";
 
-export const COMPLEX_COMMAND: ICommandDefinition = {
+const COMPLEX_COMMAND: ICommandDefinition = {
     name: "test-group",
     description: "my group",
     type: "group",
@@ -78,7 +77,7 @@ export const COMPLEX_COMMAND: ICommandDefinition = {
     ]
 };
 
-export const MULTIPLE_GROUPS: ICommandDefinition = {
+const MULTIPLE_GROUPS: ICommandDefinition = {
     name: "test-outer-group",
     description: "test group",
     type: "group",

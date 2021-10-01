@@ -21,7 +21,7 @@ describe("We should provide the ability to create, manage, and use profiles, " +
     afterEach(function () {
         T.rimraf(logFile);
     });
-    it("If we try to issue a 'log messages' command without the --level option, the command should fail ", function () {
+    it("If we try to issue a 'log messages' command without the --level option, the command should fail", function () {
         T.findExpectedOutputInCommand(cliBin, ["log", "messages"],
             ["level", "syntax"], "stderr", false,
             this, undefined, {ignoreCase: true});

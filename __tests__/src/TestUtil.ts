@@ -71,9 +71,9 @@ export const TEST_RESULT_DIR = nodePath.resolve(__dirname + "/../__results__");
  */
 export function stripNewLines(str: string): string {
     return str
-      .replace(/\n+/g, " ")
-      .trim();
-      // .replace(/\S\S+/g, " "); // Strips out areas of more than one space
+        .replace(/\n+/g, " ")
+        .trim();
+    // .replace(/\S\S+/g, " "); // Strips out areas of more than one space
 }
 
 export function compareIgnoringTrailingBlanks(a: string, b: string): boolean {
@@ -164,8 +164,8 @@ export enum CMD_TYPE {
 }
 
 export function executeTestCLICommand(cliBinModule: string, testContext: any, args: string[],
-                                      execDir?: string, pipeContent?: string | Buffer,
-                                      env: { [key: string]: string } = process.env): SpawnSyncReturns<string> {
+    execDir?: string, pipeContent?: string | Buffer,
+    env: { [key: string]: string } = process.env): SpawnSyncReturns<string> {
     const testLogger = TestLogger.getTestLogger();
     const nodeCommand = "node";
     // run the command with ts-node/register if we're not running via gulp
@@ -223,18 +223,18 @@ export function executeTestCLICommand(cliBinModule: string, testContext: any, ar
  *                                    (if you have used CMD_TYPE.ALL or CMD_TYPE.JSON)
  */
 export function findExpectedOutputInCommand(cliBinModule: string,
-                                            args: string[],
-                                            expectedContent: string | string[],
-                                            jsonFieldForContent: string,
-                                            shouldSucceed: boolean,
-                                            testContext: any,
-                                            variationsToRun: CMD_TYPE = CMD_TYPE.ALL,
-                                            compareOptions: {
-                                                ignoreCase?: boolean,
-                                                ignoreSpaces?: boolean
-                                            } = {ignoreCase: false, ignoreSpaces: false},
-                                            pipeContent?: string | Buffer,
-                                            env: { [key: string]: string } = process.env): ICommandResponse {
+    args: string[],
+    expectedContent: string | string[],
+    jsonFieldForContent: string,
+    shouldSucceed: boolean,
+    testContext: any,
+    variationsToRun: CMD_TYPE = CMD_TYPE.ALL,
+    compareOptions: {
+        ignoreCase?: boolean,
+        ignoreSpaces?: boolean
+    } = {ignoreCase: false, ignoreSpaces: false},
+    pipeContent?: string | Buffer,
+    env: { [key: string]: string } = process.env): ICommandResponse {
 
     let interactiveCommand: SpawnSyncReturns<string>;
     const testLogger = TestLogger.getTestLogger();

@@ -116,8 +116,7 @@ export class Config {
     public static empty(): IConfig {
         return {
             profiles: {},
-            defaults: {},
-            plugins: []
+            defaults: {}
         };
     }
 
@@ -170,7 +169,6 @@ export class Config {
                 // Populate any undefined defaults
                 currLayer.properties.defaults = currLayer.properties.defaults || {};
                 currLayer.properties.profiles = currLayer.properties.profiles || {};
-                currLayer.properties.plugins = currLayer.properties.plugins || [];
             }
         } catch (e) {
             if (e instanceof ImperativeError) {
@@ -225,12 +223,14 @@ export class Config {
      */
     private layerPath(layer: Layers): string {
         switch (layer) {
-            case Layers.ProjectUser:
+            case Layers.ProjectUser: {
                 const userConfigPath = Config.search(this.userConfigName, { ignoreDirs: [this.mHomeDir], startDir: this.mProjectDir });
                 return userConfigPath || node_path.join(this.mProjectDir, this.userConfigName);
-            case Layers.ProjectConfig:
+            }
+            case Layers.ProjectConfig: {
                 const configPath = Config.search(this.configName, { ignoreDirs: [this.mHomeDir], startDir: this.mProjectDir });
                 return configPath || node_path.join(this.mProjectDir, this.configName);
+            }
             case Layers.GlobalUser:
                 return node_path.join(this.mHomeDir, this.userConfigName);
             case Layers.GlobalConfig:
@@ -466,7 +466,10 @@ export class Config {
         this.mLayers.forEach((layer: IConfigLayer) => {
 
             // Merge "plugins" - create a unique set from all entries
-            c.plugins = Array.from(new Set(layer.properties.plugins.concat(c.plugins)));
+            const allPlugins = Array.from(new Set((layer.properties.plugins || []).concat(c.plugins || [])));
+            if (allPlugins.length > 0) {
+                c.plugins = allPlugins;
+            }
 
             // Merge "defaults" - only add new properties from this layer
             for (const [name, value] of Object.entries(layer.properties.defaults))
@@ -541,9 +544,9 @@ export class Config {
      * @returns The active layer object
      */
     public layerActive(): IConfigLayer {
-            const layer = this.findLayer(this.mActive.user, this.mActive.global);
-            if (layer != null) return layer;
-            throw new ImperativeError({ msg: `internal error: no active layer found` });
+        const layer = this.findLayer(this.mActive.user, this.mActive.global);
+        if (layer != null) return layer;
+        throw new ImperativeError({ msg: `internal error: no active layer found` });
     }
 
     // _______________________________________________________________________

@@ -1,8 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`imperative-test-cli config profiles should list profiles 1`] = `
-"my_profiles
-my_profiles.secured
-my_base
+"secured
+base
 "
 `;

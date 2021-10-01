@@ -2,6 +2,32 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `5.0.0-next.202110011948`
+
+- Breaking: Changed default log level from DEBUG to WARN for Imperative logger and app logger to reduce the volume of logs written to disk. [#634](https://github.com/zowe/imperative/issues/634)
+
+## `5.0.0-next.202109281439`
+
+- Enhancement: Added `config import` command that imports team config files from a local path or web URL. [#1083](https://github.com/zowe/zowe-cli/issues/1083)
+- Enhancement: Added Help Doc examples for the `zowe config` group of commands. [#1061](https://github.com/zowe/zowe-cli/issues/1061)
+
+## `5.0.0-next.202109031503`
+
+- Enhancement: Log in to authentication service to obtain token value instead of prompting for it in `config secure` command.
+
+## `5.0.0-next.202108181618`
+
+- Breaking: Make `fail-on-error` option true by default on `zowe plugins validate` command.
+
+## `5.0.0-next.202108121732`
+
+- Enhancement: Flattened the default profiles structure created by the `config init` command.
+- Breaking: Split up authToken property in team config into tokenType and tokenValue properties to be consistent with Zowe v1 profiles.
+
+## `5.0.0-next.202108062025`
+
+- BugFix: Export all Config related interfaces.
+
 ## `5.0.0-next.202107122104`
 
 - BugFix: Fixed secure credentials not being stored by the `config auto-init` command.
@@ -23,7 +49,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## `5.0.0-next.202106212048`
 
-- Enhancement: A new interface (IApimlSvcAttrs) was added. A property (apimlConnLookup) of that interface type was added to IImerpativeConfig to enable plugins to tie themselves to an APIML service. Zowe-CLI can then ask APIML for the configuration data for the plugin to connect to that service.
+- Enhancement: A new interface (IApimlSvcAttrs) was added. A property (apimlConnLookup) of that interface type was added to IImperativeConfig to enable plugins to tie themselves to an APIML service. Zowe-CLI can then ask APIML for the configuration data for the plugin to connect to that service.
 
 ## `5.0.0-next.202106041929`
 
@@ -88,6 +114,27 @@ All notable changes to the Imperative package will be documented in this file.
 ## `5.0.0-next.202009251501`
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
+
+## `4.15.1`
+
+- Bugfix: Update js-yaml to resolve a potential security issue
+
+## `4.15.0`
+
+- Enhancement: Improved command suggestions for mistyped commands, add aliases to command suggestions
+
+## `4.14.0`
+
+- Enhancement: The `plugins validate` command will return an error code when plugins have errors if the new `--fail-on-error` option is specified. Also adds `--fail-on-warning` option to return with an error code when plugins have warnings. [#463](https://github.com/zowe/imperative/issues/463)
+- BugFix: Fixed regression where characters are not correctly escaped in web help causing extra slashes ("\") to appear. [#644](https://github.com/zowe/imperative/issues/644)
+
+## `4.13.4`
+
+- BugFix: Added missing periods at the end of command group descriptions for consistency. [#55](https://github.com/zowe/imperative/issues/55)
+
+## `4.13.3`
+
+- Performance: Improved the way that HTTP response chunks are saved, reducing time complexity from O(n<sup>2</sup>) to O(n). This dramatically improves performance for larger requests. [#618](https://github.com/zowe/imperative/pull/618)
 
 ## `4.13.2`
 

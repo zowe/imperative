@@ -239,7 +239,7 @@ export class BasicProfileManager<T extends IProfileTypeConfiguration> extends Ab
         try {
             this.log.debug(`Loading dependencies for profile "${parms.name}" of type "${this.profileType}", ` +
                 `checking if if they are valid (before save.)`);
-            const loadResponse = await this.loadDependencies(parms.name, parms.profile);
+            await this.loadDependencies(parms.name, parms.profile);
         } catch (e) {
             throw new ImperativeError({
                 msg: `Could not save the profile, because one or more dependencies is invalid or does not exist.\n` +

@@ -61,8 +61,8 @@ export class ProfileValidator {
      *                              that can be used to create a progress bar or track progress in another UI
      */
     public static validate(profile: IProfile,
-                           plan: IProfileValidationPlan,
-                           productDisplayName: string): IPromiseWithProgress<IProfileValidationReport> {
+        plan: IProfileValidationPlan,
+        productDisplayName: string): IPromiseWithProgress<IProfileValidationReport> {
         const log = Logger.getImperativeLogger();
         const progress: ITaskWithStatus = {
             stageName: TaskStage.IN_PROGRESS,
@@ -171,7 +171,7 @@ export class ProfileValidator {
                         }
                     });
                 }
-                    /**
+                /**
                      * Catch unexpected exceptions within the task function
                      */ catch (e) {
                     tasksCompleted++;
@@ -218,8 +218,8 @@ export class ProfileValidator {
      * @returns {string} - the formatted report
      */
     public static getTextDisplayForReport(report: IProfileValidationReport, plan: IProfileValidationPlan,
-                                          productDisplayName: string, primaryHighlightColor: string,
-                                          profileName: string, profileType: string): string {
+        productDisplayName: string, primaryHighlightColor: string,
+        profileName: string, profileType: string): string {
         const log = Logger.getImperativeLogger();
         let text = "";
 

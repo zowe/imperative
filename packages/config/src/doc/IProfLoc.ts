@@ -20,7 +20,7 @@ export enum ProfLocType {
     TEAM_CONFIG,        // a team configuration
     ENV,                // an environment variable
     DEFAULT             // the default value from a profile definition
-};
+}
 
 /** The attributes used to identify the location of a given property */
 export interface IProfLoc {
@@ -46,4 +46,4 @@ export interface IProfLoc {
      * This property is also not used for ENV or DEFAULT.
      */
     jsonLoc?: string;
-};
+}

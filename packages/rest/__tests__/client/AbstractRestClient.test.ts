@@ -463,30 +463,37 @@ describe("AbstractRestClient tests", () => {
         });
 
         (https.request as any) = requestFnc;
+        let caughtError;
 
-        await RestClient.putStreamed(new Session({
-            hostname: "test",
-        }), "/resource", [Headers.APPLICATION_JSON], fakeResponseStream, fakeRequestStream);
+        try {
+            await RestClient.putStreamed(new Session({
+                hostname: "test",
+            }), "/resource", [Headers.APPLICATION_JSON], fakeResponseStream, fakeRequestStream);
 
-        await RestClient.postStreamed(new Session({
-            hostname: "test",
-        }), "/resource", [Headers.APPLICATION_JSON], fakeResponseStream, fakeRequestStream);
+            await RestClient.postStreamed(new Session({
+                hostname: "test",
+            }), "/resource", [Headers.APPLICATION_JSON], fakeResponseStream, fakeRequestStream);
 
-        await RestClient.putStreamedRequestOnly(new Session({
-            hostname: "test",
-        }), "/resource", [Headers.APPLICATION_JSON], fakeRequestStream);
+            await RestClient.putStreamedRequestOnly(new Session({
+                hostname: "test",
+            }), "/resource", [Headers.APPLICATION_JSON], fakeRequestStream);
 
-        await RestClient.postStreamedRequestOnly(new Session({
-            hostname: "test",
-        }), "/resource", [Headers.APPLICATION_JSON], fakeRequestStream);
+            await RestClient.postStreamedRequestOnly(new Session({
+                hostname: "test",
+            }), "/resource", [Headers.APPLICATION_JSON], fakeRequestStream);
 
-        await RestClient.getStreamed(new Session({
-            hostname: "test",
-        }), "/resource", [Headers.APPLICATION_JSON], fakeResponseStream);
+            await RestClient.getStreamed(new Session({
+                hostname: "test",
+            }), "/resource", [Headers.APPLICATION_JSON], fakeResponseStream);
 
-        await RestClient.deleteStreamed(new Session({
-            hostname: "test",
-        }), "/resource", [Headers.APPLICATION_JSON], fakeResponseStream);
+            await RestClient.deleteStreamed(new Session({
+                hostname: "test",
+            }), "/resource", [Headers.APPLICATION_JSON], fakeResponseStream);
+        } catch (error) {
+            caughtError = error;
+        }
+
+        expect(caughtError).toBeUndefined();
     });
 
     it("should return full response when requested", async () => {

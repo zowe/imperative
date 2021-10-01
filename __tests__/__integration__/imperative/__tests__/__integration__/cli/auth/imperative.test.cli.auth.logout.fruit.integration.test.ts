@@ -21,7 +21,7 @@ describe("cmd-cli auth logout", () => {
     async function loadSecureProp(profileName: string): Promise<string> {
         const securedValue = await keytar.getPassword("imperative-test-cli", "secure_config_props");
         const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
-        return Object.values(securedValueJson)[0][`profiles.${profileName}.properties.authToken`];
+        return Object.values(securedValueJson)[0][`profiles.${profileName}.properties.tokenValue`];
     }
 
     // Create the unique test environment
@@ -35,10 +35,10 @@ describe("cmd-cli auth logout", () => {
 
     afterEach(async () => {
         runCliScript(__dirname + "/__scripts__/delete.sh", TEST_ENVIRONMENT.workingDir + "/testDir",
-                     ["imperative-test-cli.config.json imperative-test-cli.config.user.json imperative-test-cli.schema.json"]);
+            ["imperative-test-cli.config.json imperative-test-cli.config.user.json imperative-test-cli.schema.json"]);
         // runCliScript(__dirname + "/__scripts__/delete.sh", join(os.homedir(), ".imperative-test-cli"),
         runCliScript(__dirname + "/__scripts__/delete.sh", TEST_ENVIRONMENT.workingDir,
-                     ["imperative-test-cli.config.json imperative-test-cli.config.user.json imperative-test-cli.schema.json"]);
+            ["imperative-test-cli.config.json imperative-test-cli.config.user.json imperative-test-cli.schema.json"]);
         await keytar.deletePassword("imperative-test-cli", "secure_config_props");
     });
 
@@ -49,7 +49,7 @@ describe("cmd-cli auth logout", () => {
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
-        expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=fakeUser:fakePass@fakeToken");
+        expect(await loadSecureProp("base_fruit")).toBe("fakeUser:fakePass@fakeToken");
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_logout_config.sh",
             TEST_ENVIRONMENT.workingDir + "/testDir");
@@ -68,7 +68,7 @@ describe("cmd-cli auth logout", () => {
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
-        expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=fakeUser:fakePass@fakeToken");
+        expect(await loadSecureProp("base_fruit")).toBe("fakeUser:fakePass@fakeToken");
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_logout_config.sh",
             TEST_ENVIRONMENT.workingDir + "/testDir");
@@ -87,7 +87,7 @@ describe("cmd-cli auth logout", () => {
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
-        expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=fakeUser:fakePass@fakeToken");
+        expect(await loadSecureProp("base_fruit")).toBe("fakeUser:fakePass@fakeToken");
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_logout_config.sh",
             TEST_ENVIRONMENT.workingDir + "/testDir");
@@ -106,7 +106,7 @@ describe("cmd-cli auth logout", () => {
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
-        expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=fakeUser:fakePass@fakeToken");
+        expect(await loadSecureProp("base_fruit")).toBe("fakeUser:fakePass@fakeToken");
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_logout_config.sh",
             TEST_ENVIRONMENT.workingDir + "/testDir");
@@ -125,14 +125,14 @@ describe("cmd-cli auth logout", () => {
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
-        expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=fakeUser:fakePass@fakeToken");
+        expect(await loadSecureProp("base_fruit")).toBe("fakeUser:fakePass@fakeToken");
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_logout_specify_token_config.sh",
-            TEST_ENVIRONMENT.workingDir + "/testDir", ["jwtToken=fakeToken:fakeToken@fakeToken"]);
+            TEST_ENVIRONMENT.workingDir + "/testDir", ["fakeToken:fakeToken@fakeToken"]);
         expect(response.stderr.toString()).toBe("");
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
-        expect(await loadSecureProp("my_base_fruit")).toBe("jwtToken=fakeUser:fakePass@fakeToken");
+        expect(await loadSecureProp("base_fruit")).toBe("fakeUser:fakePass@fakeToken");
     });
 });

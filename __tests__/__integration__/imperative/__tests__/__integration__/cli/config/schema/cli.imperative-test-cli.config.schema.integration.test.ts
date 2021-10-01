@@ -13,7 +13,6 @@ import { ITestEnvironment } from "../../../../../../../__src__/environment/doc/r
 import { SetupTestEnvironment } from "../../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../../src/TestUtil";
 import { expectedSchemaObject } from "../__resources__/expectedObjects";
-import * as fs from "fs";
 
 
 // Test Environment populated in the beforeAll();

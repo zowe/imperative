@@ -43,7 +43,7 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static async getExpectJSON<T extends object>(session: AbstractSession, resource: string,
-                                                        reqHeaders: any[] = []): Promise<T> {
+        reqHeaders: any[] = []): Promise<T> {
         const data = await this.getExpectString(session, resource, reqHeaders);
         return JSONUtils.parse<T>(data, "The get request appeared to succeed, but the response was not in the expected format");
     }
@@ -62,7 +62,7 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static async putExpectJSON<T extends object>(session: AbstractSession, resource: string,
-                                                        reqHeaders: any[] = [], payload: any): Promise<T> {
+        reqHeaders: any[] = [], payload: any): Promise<T> {
         const data = await this.putExpectString(session, resource, reqHeaders, payload);
         return JSONUtils.parse<T>(data, "The put request appeared to succeed, but the response was not in the expected format");
     }
@@ -81,7 +81,7 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static async postExpectJSON<T extends object>(session: AbstractSession, resource: string,
-                                                         reqHeaders: any[] = [], payload?: any): Promise<T> {
+        reqHeaders: any[] = [], payload?: any): Promise<T> {
         const data = await this.postExpectString(session, resource, reqHeaders, payload);
         return JSONUtils.parse<T>(data, "The post request appeared to succeed, but the response was not in the expected format");
     }
@@ -251,11 +251,11 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static getStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [],
-                              responseStream: Writable,
-                              normalizeResponseNewLines?: boolean,
-                              task?: ITaskWithStatus): Promise<string> {
+        responseStream: Writable,
+        normalizeResponseNewLines?: boolean,
+        task?: ITaskWithStatus): Promise<string> {
         return new this(session).request({resource, request:HTTP_VERB.GET, reqHeaders, responseStream,
-                                          normalizeResponseNewLines, task});
+            normalizeResponseNewLines, task});
     }
 
     /**
@@ -277,11 +277,11 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static putStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [],
-                              responseStream: Writable, requestStream: Readable,
-                              normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
-                              task?: ITaskWithStatus): Promise<string> {
+        responseStream: Writable, requestStream: Readable,
+        normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
+        task?: ITaskWithStatus): Promise<string> {
         return new this(session).request({resource, request:HTTP_VERB.PUT, reqHeaders, responseStream, requestStream,
-                                          normalizeResponseNewLines, normalizeRequestNewLines, task});
+            normalizeResponseNewLines, normalizeRequestNewLines, task});
     }
 
     /**
@@ -300,11 +300,11 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static putStreamedRequestOnly(session: AbstractSession, resource: string, reqHeaders: any[] = [],
-                                         requestStream: Readable,
-                                         normalizeRequestNewLines?: boolean,
-                                         task?: ITaskWithStatus): Promise<string> {
+        requestStream: Readable,
+        normalizeRequestNewLines?: boolean,
+        task?: ITaskWithStatus): Promise<string> {
         return new this(session).request({resource, request:HTTP_VERB.PUT, reqHeaders, requestStream,
-                                          normalizeRequestNewLines, task});
+            normalizeRequestNewLines, task});
     }
 
     /**
@@ -326,11 +326,11 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static postStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [],
-                               responseStream: Writable, requestStream: Readable,
-                               normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
-                               task?: ITaskWithStatus): Promise<string> {
+        responseStream: Writable, requestStream: Readable,
+        normalizeResponseNewLines?: boolean, normalizeRequestNewLines?: boolean,
+        task?: ITaskWithStatus): Promise<string> {
         return new this(session).request({resource, request:HTTP_VERB.POST, reqHeaders, responseStream, requestStream,
-                                          normalizeResponseNewLines, normalizeRequestNewLines, task});
+            normalizeResponseNewLines, normalizeRequestNewLines, task});
     }
 
     /**
@@ -349,10 +349,10 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static postStreamedRequestOnly(session: AbstractSession, resource: string, reqHeaders: any[] = [],
-                                          requestStream: Readable, normalizeRequestNewLines?: boolean,
-                                          task?: ITaskWithStatus): Promise<string> {
+        requestStream: Readable, normalizeRequestNewLines?: boolean,
+        task?: ITaskWithStatus): Promise<string> {
         return new this(session).request({resource, request:HTTP_VERB.POST, reqHeaders, requestStream,
-                                          normalizeRequestNewLines, task});
+            normalizeRequestNewLines, task});
     }
 
     /**
@@ -371,10 +371,10 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static deleteStreamed(session: AbstractSession, resource: string, reqHeaders: any[] = [], responseStream: Writable,
-                                 normalizeResponseNewLines?: boolean,
-                                 task?: ITaskWithStatus): Promise<string> {
+        normalizeResponseNewLines?: boolean,
+        task?: ITaskWithStatus): Promise<string> {
         return new this(session).request({resource, request:HTTP_VERB.DELETE, reqHeaders,
-                                          responseStream, normalizeResponseNewLines, task});
+            responseStream, normalizeResponseNewLines, task});
     }
 
     /**
@@ -388,7 +388,7 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static async getExpectFullResponse(session: AbstractSession,
-                                              options: IOptionsFullResponse): Promise<IRestClientResponse> {
+        options: IOptionsFullResponse): Promise<IRestClientResponse> {
         const  requestOptions: IRestOptions = {
             resource : options.resource,
             request : HTTP_VERB.GET,
@@ -417,7 +417,7 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static async putExpectFullResponse(session: AbstractSession,
-                                              options: IOptionsFullResponse): Promise<IRestClientResponse> {
+        options: IOptionsFullResponse): Promise<IRestClientResponse> {
         const  requestOptions: IRestOptions = {
             resource : options.resource,
             request : HTTP_VERB.PUT,
@@ -446,7 +446,7 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static async deleteExpectFullResponse(session: AbstractSession,
-                                                 options: IOptionsFullResponse): Promise<IRestClientResponse> {
+        options: IOptionsFullResponse): Promise<IRestClientResponse> {
         const  requestOptions: IRestOptions = {
             resource : options.resource,
             request : HTTP_VERB.DELETE,
@@ -475,7 +475,7 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     public static async postExpectFullResponse(session: AbstractSession,
-                                               options: IOptionsFullResponse): Promise<IRestClientResponse> {
+        options: IOptionsFullResponse): Promise<IRestClientResponse> {
         const  requestOptions: IRestOptions = {
             resource : options.resource,
             request : HTTP_VERB.POST,
@@ -514,8 +514,8 @@ export class RestClient extends AbstractRestClient {
      * @memberof RestClient
      */
     private static extractExpectedData(client: AbstractRestClient,
-                                       toReturn: CLIENT_PROPERTY[] = Object.values(CLIENT_PROPERTY)
-                                       ): IRestClientResponse {
+        toReturn: CLIENT_PROPERTY[] = Object.values(CLIENT_PROPERTY)
+    ): IRestClientResponse {
         const tailoredResult: any = {};
         toReturn.forEach((property) => {
             tailoredResult[property] = client[property];

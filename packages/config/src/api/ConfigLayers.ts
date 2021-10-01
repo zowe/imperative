@@ -41,7 +41,7 @@ export class ConfigLayers extends ConfigApi {
             } catch (e) {
                 throw new ImperativeError({ msg: `An error was encountered while trying to read the file '${layer.path}'.` +
                     `\nError details: ${e.message}`,
-                                            suppressDump: true });
+                suppressDump: true });
             }
             try {
                 layer.properties = JSONC.parse(fileContents.toString());
@@ -49,14 +49,13 @@ export class ConfigLayers extends ConfigApi {
             } catch (e) {
                 throw new ImperativeError({ msg: `Error parsing JSON in the file '${layer.path}'.\n` +
                     `Please check this configuration file for errors.\nError details: ${e.message}\nLine ${e.line}, Column ${e.column}`,
-                                            suppressDump: true});
+                suppressDump: true});
             }
         }
 
         // Populate any undefined defaults
         layer.properties.defaults = layer.properties.defaults || {};
         layer.properties.profiles = layer.properties.profiles || {};
-        layer.properties.plugins = layer.properties.plugins || [];
     }
 
     // _______________________________________________________________________
@@ -142,7 +141,6 @@ export class ConfigLayers extends ConfigApi {
                 this.mConfig.mLayers[i].properties = cnfg;
                 this.mConfig.mLayers[i].properties.defaults = this.mConfig.mLayers[i].properties.defaults || {};
                 this.mConfig.mLayers[i].properties.profiles = this.mConfig.mLayers[i].properties.profiles || {};
-                this.mConfig.mLayers[i].properties.plugins = this.mConfig.mLayers[i].properties.plugins || [];
             }
         }
     }
@@ -165,22 +163,24 @@ export class ConfigLayers extends ConfigApi {
         }
 
         layer.properties.profiles = lodash.mergeWith(cnfg.profiles, layer.properties.profiles, (obj, src) =>
-            {
-                if (lodash.isArray(obj) && lodash.isArray(src)) {
-                    const temp = JSONC.parse(JSONC.stringify(obj, null, ConfigConstants.INDENT));
-                    src.forEach((val, idx) => {
-                        if (!temp.includes(val)) {
-                            temp.splice(idx, 0, val);
-                        }
-                    });
-                    return temp;
-                }
-            });
+        {
+            if (lodash.isArray(obj) && lodash.isArray(src)) {
+                const temp = JSONC.parse(JSONC.stringify(obj, null, ConfigConstants.INDENT));
+                src.forEach((val, idx) => {
+                    if (!temp.includes(val)) {
+                        temp.splice(idx, 0, val);
+                    }
+                });
+                return temp;
+            }
+        });
 
         layer.properties.defaults = lodash.merge(cnfg.defaults, layer.properties.defaults);
 
-        for (const pluginName of cnfg.plugins) {
-            if (!layer.properties.plugins.includes(pluginName)) {
+        for (const pluginName of (cnfg.plugins || [])) {
+            if (layer.properties.plugins == null) {
+                layer.properties.plugins = [pluginName];
+            } else if (!layer.properties.plugins?.includes(pluginName)) {
                 layer.properties.plugins.push(pluginName);
             }
         }

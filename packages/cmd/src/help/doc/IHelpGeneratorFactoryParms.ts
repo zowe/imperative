@@ -9,7 +9,6 @@
 *
 */
 
-import { ICommandDefinition } from "../../doc/ICommandDefinition";
 /**
  * Input to the help generator factory - normally built by imperative and passed to the command definition
  * infrastructure - Each instance of the help generator is created with the command being issued (and the
