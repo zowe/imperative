@@ -209,7 +209,7 @@ export class ConfigSchema {
             // Update the current layer
             updatedPaths = { ...updatedPaths, ...this._updateSchemaActive(opts) };
 
-            // If we are not in a user config, we can move on to the next directory up the tree
+            // Move on to the next directory up the tree
             nextSchemaLocation = Config.search(opts.config.schemaName, { startDir: path.join(path.dirname(currentLayer.path), "..") });
         }
 
