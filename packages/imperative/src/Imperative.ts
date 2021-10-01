@@ -489,7 +489,7 @@ export class Imperative {
             } else {
                 message = "Imperative log level '" + envSettings.imperativeLogLevel.value +
                     "' from environmental variable setting '" + envSettings.imperativeLogLevel.key + "' is not recognised.  " +
-                    "Logger level is set to '" + LoggerConfigBuilder.DEFAULT_LOG_LEVEL + "'.  " +
+                    "Logger level is set to '" + LoggerConfigBuilder.getDefaultLogLevel() + "'.  " +
                     "Valid levels are " + Logger.DEFAULT_VALID_LOG_LEVELS.toString();
                 new Console().warn(message);
                 this.log.warn(message);
@@ -507,7 +507,7 @@ export class Imperative {
             } else {
                 message = "Application log level '" + envSettings.appLogLevel.value +
                     "' from environmental variable setting '" + envSettings.appLogLevel.key + "' is not recognised.  " +
-                    "Logger level is set to '" + LoggerConfigBuilder.DEFAULT_LOG_LEVEL + "'.  " +
+                    "Logger level is set to '" + LoggerConfigBuilder.getDefaultLogLevel() + "'.  " +
                     "Valid levels are " + Logger.DEFAULT_VALID_LOG_LEVELS.toString();
                 new Console().warn(message);
                 this.log.warn(message);
