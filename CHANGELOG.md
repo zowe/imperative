@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Implement the ability to authenticate using client certificates in PEM format.
+
 ## `4.15.1`
 
 - Bugfix: Update js-yaml to resolve a potential security issue
