@@ -27,6 +27,7 @@ import { IConfigSecure } from "./doc/IConfigSecure";
 import { IConfigVault } from "./doc/IConfigVault";
 import { ConfigLayers, ConfigPlugins, ConfigProfiles, ConfigSecure } from "./api";
 import { fileURLToPath } from "url";
+import { IConfigSchemaInfo } from "./doc/IConfigSchema";
 
 /**
  * Enum used by Config class to maintain order of config layers
@@ -323,22 +324,25 @@ export class Config {
     /**
      * Schema file path used by the active layer
      */
-    public getSchemaInfo(): { original: string, resolved: string, local: boolean } {
+    public getSchemaInfo(): IConfigSchemaInfo {
         const layer = this.layerActive();
-        const schemaUri = layer.properties.$schema ?? null;
+        const schemaUri = layer.properties.$schema;
         if (schemaUri == null) {
-            return null;
+            return {
+                original: null,
+                resolved: null,
+                local: false,
+            };
         }
 
         const schemaFilePath = path.resolve(
             schemaUri.startsWith("file://") ? fileURLToPath(schemaUri) : // else if : )
                 schemaUri.startsWith("./") ? path.join(path.dirname(layer.path), schemaUri) : schemaUri);
         const isSchemaLocal = fs.existsSync(schemaFilePath);
-
         return {
             original: schemaUri,
             resolved: schemaFilePath,
-            local: isSchemaLocal
+            local: isSchemaLocal,
         };
     }
 
@@ -458,17 +462,16 @@ export class Config {
      */
     public setSchema(schema: string | object) {
         const layer = this.layerActive();
-        const schemaInfo = this.getSchemaInfo();
-
-        const schemaUri = (typeof schema === "string") ? schema : schemaInfo?.resolved ?? `./${this.schemaName}`;
+        const schemaUri = (typeof schema === "string") ? schema : `./${this.schemaName}`;
         const schemaObj = (typeof schema !== "string") ? schema : null;
 
-        delete layer.properties.$schema;
-        layer.properties = { $schema: schemaUri, ...layer.properties };
+        if (layer.properties.$schema == null) {
+            layer.properties = JSONC.parse(JSONC.stringify({ ...{ $schema: schemaUri }, ...layer.properties }, null, ConfigConstants.INDENT));
+        }
 
-        if (schemaObj != null) {
-            const filePath = path.resolve(path.dirname(layer.path), schemaUri);
-            fs.writeFileSync(filePath, JSONC.stringify(schemaObj, null, ConfigConstants.INDENT));
+        const schemaInfo = this.getSchemaInfo();
+        if (schemaObj != null && (schemaInfo.local || schemaInfo.original.startsWith("./"))) {
+            fs.writeFileSync(schemaInfo.resolved, JSONC.stringify(schemaObj, null, ConfigConstants.INDENT));
         }
     }
 

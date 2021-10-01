@@ -20,6 +20,12 @@ export interface IConfigSchema {
     properties: { [key: string]: any };
 }
 
+export interface IConfigSchemaInfo {
+    original: string;
+    resolved: string;
+    local: boolean;
+}
+
 export interface IConfigUpdateSchemaPaths {
     [key: string]: {
         schema: string,

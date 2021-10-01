@@ -360,7 +360,6 @@ describe("Config tests", () => {
 
         it("should append to array value in config", async () => {
             const config = await Config.load(MY_APP);
-            // config.set("profiles.fruit.properties.tags", []);
             config.set("profiles.fruit.properties.tags", "sweet");
             expect(config.properties.profiles.fruit.properties.tags.length).toBe(1);
             expect(config.properties.profiles.fruit.properties.tags[0]).toBe("sweet");
@@ -516,7 +515,11 @@ describe("Config tests", () => {
             const config = await Config.load(MY_APP);
             const layer = config.api.layers.get();
             config.layerActive().properties.$schema = null;
-            expect(config.getSchemaInfo()).toBe(null);
+            expect(config.getSchemaInfo()).toEqual({
+                local: false,
+                original: null,
+                resolved: null,
+            });
             expect(spyOnFsWriteFileSync).not.toHaveBeenCalled();
             config.layerActive().properties.$schema = layer.properties.$schema;
         });
