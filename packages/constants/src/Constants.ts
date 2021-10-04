@@ -95,7 +95,6 @@ export class Constants {
     public static readonly VALIDATE_ACTION = "validate";
     public static readonly UPDATE_ACTION = "update";
     public static readonly LIST_ACTION = "list";
-    public static readonly MIGRATE_ACTION = "migrate";
     public static readonly PROFILE_SET_OPTION_ALIAS = `{{typeLetter}}n`;
     public static readonly SET_ACTION = "set-default";
     public static readonly PROFILE_DELETE_PROFILE_DEPS = "delete-dependent-profiles";

@@ -28,7 +28,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
     private commandParameters: IHandlerParameters;
 
     /**
-     * The process command handler for the "profiles migrate" command.
+     * The process command handler for the "config convert-profiles" command.
      * @return {Promise<ICommandResponse>}: The promise to fulfill when complete.
      */
     public async process(params: IHandlerParameters): Promise<void> {
@@ -43,11 +43,11 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         }
 
         if (oldProfiles.length === 0) {
-            params.response.console.log("No old profiles were found to migrate from Zowe v1 to v2.");
+            params.response.console.log("No old profiles were found to convert from Zowe v1 to v2.");
             return;
         }
 
-        params.response.console.log(`Detected ${oldProfiles.length} profile(s) to be migrated from Zowe v1 to v2.\n`);
+        params.response.console.log(`Detected ${oldProfiles.length} profile(s) to be converted from Zowe v1 to v2.\n`);
         // TODO Add no-prompt flag
         const answer = await params.response.console.prompt("Are you sure you want to continue? [y/N]: ");
         if (answer == null || !(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
@@ -75,7 +75,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         params.response.console.log(`Your profiles have been saved to ${teamConfig.layerActive().path}.\n` +
             `Run "${cliBin} config edit --global-config" to open this file in your default editor.\n\n` +
             `The old profiles have been moved to ${oldProfilesDir}.\n` +
-            `Run "${cliBin} config migrate --delete" if you want to completely remove them.`);
+            `Run "${cliBin} config convert-profiles --delete" if you want to completely remove them.`);
     }
 
     private disableCredentialManager(): string {
@@ -101,7 +101,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
 
     /**
      * If CredentialManager was not already loaded by Imperative.init, load it
-     * now before performing config operations in the migrate handler.
+     * now before performing config operations in the convert profiles handler.
      */
     private async ensureCredentialManagerLoaded() {
         if (!CredentialManagerFactory.initialized) {
@@ -120,7 +120,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
             if (oldProfilesByType.length === 0) {
                 continue;
             }
-            this.commandParameters.response.console.log(`Migrating ${profileType} profiles: ${oldProfilesByType.map(p => p.name).join(", ")}`);
+            this.commandParameters.response.console.log(`Converting ${profileType} profiles: ${oldProfilesByType.map(p => p.name).join(", ")}`);
 
             const profileTypeDir = path.join(profilesRootDir, profileType);
             for (const { name } of oldProfilesByType) {
