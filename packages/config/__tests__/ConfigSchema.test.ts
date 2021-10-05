@@ -362,7 +362,7 @@ describe("Config Schema", () => {
                     layer: "active",
                     schema: fakeSchema,
                 },
-            });
+            }, true);
         });
 
         it("should update the schema with a given schema and layer", () => {
@@ -411,7 +411,7 @@ describe("Config Schema", () => {
 
         describe("Helper: _Active", () => {
             it("should update the schema for the project config when no user config is found", () => {
-                spyConfigLayersExists.mockReturnValue(false);
+                spyConfigLayersExists.mockReturnValueOnce(true).mockReturnValue(false);
                 spyConfigLayerActive.mockReturnValue(fakeLayer);
                 spyConfigGetSchemaInfo.mockReturnValue({ original: fakeSchema, local: true });
 
@@ -447,7 +447,7 @@ describe("Config Schema", () => {
                 expect(spyConfigLayerActive).toHaveBeenCalledTimes(2);
                 expect(spyConfigSetSchema).toHaveBeenCalledTimes(2);
                 expect(spyConfigGetSchemaInfo).toHaveBeenCalledTimes(2);
-                expect(spyConfigLayersExists).toHaveBeenCalledTimes(2);
+                expect(spyConfigLayersExists).toHaveBeenCalledTimes(4);
                 expect(spyConfigApiLayersActivate).toHaveBeenCalledTimes(2);
 
                 // Order of recursion
@@ -473,7 +473,7 @@ describe("Config Schema", () => {
                 expect(anyConfigSchema._updateSchemaGlobal(helperOptions)).toEqual(fakeUpdatesPaths_active);
                 expect(mySpy).toHaveBeenCalledWith(helperOptions);
                 expect(spyConfigApiLayersActivate).toHaveBeenCalledTimes(2);
-                expect(spyConfigApiLayersActivate).toHaveBeenCalledWith(false, true);
+                expect(spyConfigApiLayersActivate).toHaveBeenCalledWith(true, true);
                 expect(spyConfigApiLayersActivate).toHaveBeenCalledWith(fakeLayer.user, fakeLayer.global, path.dirname(fakeLayer.path));
             });
         });
@@ -531,8 +531,10 @@ describe("Config Schema", () => {
                     ...fakeUpdatesPaths_active_2,
                 });
 
-                expect(spyConfigApiLayersActivate).toHaveBeenCalledWith(fakeLayer.user, fakeLayer.global, path.dirname(fakeProjPath));
-                expect(spyConfigApiLayersActivate).toHaveBeenCalledWith(fakeLayer.user, fakeLayer.global, path.dirname(fakeUserPath));
+                expect(spyConfigApiLayersActivate).toHaveBeenNthCalledWith(1, true, false, path.dirname(fakeProjPath));
+                expect(spyConfigApiLayersActivate).toHaveBeenNthCalledWith(2, true, false, path.dirname(fakeUserPath));
+                expect(spyConfigApiLayersActivate).toHaveBeenNthCalledWith(3, false, false, path.dirname(fakeProjPath));
+                expect(spyConfigApiLayersActivate).toHaveBeenNthCalledWith(4, false, false, path.dirname(fakeProjPath));
                 expect(spyActive).toHaveBeenCalledWith(copyHelperOptions);
                 expect(spyGlobal).toHaveBeenCalledWith(copyHelperOptions);
                 expect(spyActive).toHaveBeenCalledTimes(3);

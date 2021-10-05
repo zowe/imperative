@@ -591,7 +591,7 @@ export class Config {
             found = !found && layer.exists && (typeof user !== "undefined" ? layer.user === user : true) && path.dirname(layer.path) === inDir;
         });
 
-        // Search for user and non-user congif in the given directory
+        // Search for user and non-user config in the given directory
         if (!found) {
             if (typeof user === "undefined") {
                 found = fs.existsSync(path.join(inDir, this.configName)) || fs.existsSync(path.join(inDir, this.userConfigName));
