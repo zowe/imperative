@@ -47,7 +47,17 @@ Object {
 }
 `;
 
+exports[`Session tests should not allow cert for 'basic' type 1`] = `"Expect Error: Required parameter 'cert' must be undefined"`;
+
+exports[`Session tests should not allow cert for 'bearer' type 1`] = `"Expect Error: Required parameter 'cert' must be undefined"`;
+
+exports[`Session tests should not allow certKey for 'basic' type 1`] = `"Expect Error: Required parameter 'certKey' must be undefined"`;
+
+exports[`Session tests should not allow certKey for 'bearer' type 1`] = `"Expect Error: Required parameter 'certKey' must be undefined"`;
+
 exports[`Session tests should not allow password for 'bearer' type 1`] = `"Expect Error: Required parameter 'password' must be undefined"`;
+
+exports[`Session tests should not allow password for 'cert-pem' type 1`] = `"Expect Error: Required parameter 'password' must be undefined"`;
 
 exports[`Session tests should not allow tokenType for 'basic' type 1`] = `"Expect Error: Required parameter 'tokenType' must be undefined"`;
 
@@ -55,7 +65,11 @@ exports[`Session tests should not allow tokenType for 'bearer' type 1`] = `"Expe
 
 exports[`Session tests should not allow tokenValue for 'basic' type 1`] = `"Expect Error: Required parameter 'tokenValue' must be undefined"`;
 
+exports[`Session tests should not allow tokenValue for 'cert-pem' type for auth login 1`] = `"Expect Error: Required parameter 'tokenValue' must be undefined"`;
+
 exports[`Session tests should not allow user for 'bearer' type 1`] = `"Expect Error: Required parameter 'user' must be undefined"`;
+
+exports[`Session tests should not allow user for 'cert-pem' type 1`] = `"Expect Error: Required parameter 'user' must be undefined"`;
 
 exports[`Session tests should not fail to initialize with minimum data 1`] = `
 Object {
@@ -99,13 +113,17 @@ Object {
 }
 `;
 
+exports[`Session tests should require cert for 'cert-pem' type 1`] = `"Expect Error: Required parameter 'cert' must be defined"`;
+
+exports[`Session tests should require certKey for 'cert-pem' type 1`] = `"Expect Error: Required parameter 'certKey' must be defined"`;
+
 exports[`Session tests should require password for 'basic' type 1`] = `"Must have user & password OR base64 encoded credentials"`;
 
 exports[`Session tests should require password for 'tokenType' type 1`] = `"Expect Error: You must provide a token type to use cookie authentication"`;
 
 exports[`Session tests should require proper protocol 1`] = `"Expect Error: The required entry was NOT found within the input array: 'https','http'"`;
 
-exports[`Session tests should require proper type 1`] = `"Expect Error: The required entry was NOT found within the input array: 'none','basic','token','bearer'"`;
+exports[`Session tests should require proper type 1`] = `"Expect Error: The required entry was NOT found within the input array: 'none','basic','token','bearer','cert-pem'"`;
 
 exports[`Session tests should require token for 'bearer' type 1`] = `"Expect Error: Required parameter 'tokenValue' must be defined"`;
 

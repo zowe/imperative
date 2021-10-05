@@ -537,6 +537,8 @@ describe("Imperative", () => {
                                         password: { type: "string" },
                                         tokenType: { type: "string" },
                                         tokenValue: { type: "string" },
+                                        cert: { type: "existingLocalFile" },
+                                        certKey: { type: "existingLocalFile" },
                                         host: { type: "string" },
                                         port: { type: "string" }
                                     }

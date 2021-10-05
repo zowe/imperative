@@ -115,14 +115,21 @@ export interface ISession {
     rejectUnauthorized?: boolean;
 
     /**
-     * todo
+     * The file path to the client certificate to use for authentication
      * @type {string}
      * @memberof ISession
      */
     cert?: string;
 
     /**
-     * todo
+     * The file path to the client certificate's key to use for authentication
+     * @type {string}
+     * @memberof ISession
+     */
+    certKey?: string;
+
+    /**
+     * The passphrase used to access the client certificate, if in PFX format
      * @type {string}
      * @memberof ISession
      */
@@ -155,4 +162,12 @@ export interface ISession {
      * @memberof ISession
      */
     secureProtocol?: string;
+
+    /**
+     * Decide whether or not to store a returned cookie.
+     * Only applies to certificates for now.
+     * @type {boolean}
+     * @memberof ISession
+     */
+    storeCookie?: boolean;
 }
