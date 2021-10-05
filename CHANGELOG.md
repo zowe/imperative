@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Update dependencies to resolve problems with the ansi-regex package
+
 ## `4.15.1`
 
 - Bugfix: Update js-yaml to resolve a potential security issue
