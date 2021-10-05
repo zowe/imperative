@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `4.16.1`
 
 - BugFix: Updated dependencies to resolve problems with the ansi-regex package
 
