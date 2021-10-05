@@ -149,7 +149,7 @@ export const deleteProfileActionDesc: IMessageDefinition = {
 
 export const deleteProfileCommandDesc: IMessageDefinition = {
     message: `Delete a {{type}} profile.` +
-        ` You must specify a profile name to be deleted. To find a list of available profiles for deletion, ` +
+        ` You must specify a profile name to be deleted. To find a list of available profiles for deletion,` +
         ` issue the profiles list command. By default, you will be prompted to confirm the profile removal.`,
 };
 

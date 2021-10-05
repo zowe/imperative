@@ -2,13 +2,17 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Updated dependencies to resolve problems with the ansi-regex package
+
 ## `4.16.0`
 
-- Enhancement: Implement the ability to authenticate using client certificates in PEM format.
+- Enhancement: Implemented the ability to authenticate using client certificates in PEM format.
 
 ## `4.15.1`
 
-- Bugfix: Update js-yaml to resolve a potential security issue
+- Bugfix: Updated js-yaml to resolve a potential security issue
 
 ## `4.15.0`
 
@@ -16,7 +20,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## `4.14.0`
 
-- Enhancement: The `plugins validate` command will return an error code when plugins have errors if the new `--fail-on-error` option is specified. Also adds `--fail-on-warning` option to return with an error code when plugins have warnings. [#463](https://github.com/zowe/imperative/issues/463)
+- Enhancement: The `plugins validate` command returns an error code when plugins have errors if the new `--fail-on-error` option is specified. Also added `--fail-on-warning` option to return with an error code when plugins have warnings. [#463](https://github.com/zowe/imperative/issues/463)
 - BugFix: Fixed regression where characters are not correctly escaped in web help causing extra slashes ("\") to appear. [#644](https://github.com/zowe/imperative/issues/644)
 
 ## `4.13.4`

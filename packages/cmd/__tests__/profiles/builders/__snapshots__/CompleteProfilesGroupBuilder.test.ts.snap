@@ -188,7 +188,7 @@ Object {
           "customize": Object {
             "profileTypeIdentifier": "type-a",
           },
-          "description": "Delete a type-a profile. You must specify a profile name to be deleted. To find a list of available profiles for deletion,  issue the profiles list command. By default, you will be prompted to confirm the profile removal.",
+          "description": "Delete a type-a profile. You must specify a profile name to be deleted. To find a list of available profiles for deletion, issue the profiles list command. By default, you will be prompted to confirm the profile removal.",
           "examples": Array [
             Object {
               "description": "Delete a type-a profile named profilename",
@@ -224,7 +224,7 @@ Object {
           "customize": Object {
             "profileTypeIdentifier": "type-b",
           },
-          "description": "Delete a type-b profile. You must specify a profile name to be deleted. To find a list of available profiles for deletion,  issue the profiles list command. By default, you will be prompted to confirm the profile removal.",
+          "description": "Delete a type-b profile. You must specify a profile name to be deleted. To find a list of available profiles for deletion, issue the profiles list command. By default, you will be prompted to confirm the profile removal.",
           "examples": Array [
             Object {
               "description": "Delete a type-b profile named profilename",
