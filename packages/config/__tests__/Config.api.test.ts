@@ -362,7 +362,7 @@ describe("Config API tests", () => {
             });
         });
         describe("exists", () => {
-            const fakePath = path.join(__dirname, "FAKE_PROJECT", "project.config.user.json");
+            const fakePath = path.join(__dirname, "FAKE_PROJECT");
             const filePathProjectUserConfig = path.join(__dirname, "__resources__", "project.config.user.json");
             const filePathProjectConfig = path.join(__dirname, "__resources__", "project.config.json");
             const filePathAppUserConfig = path.join(__dirname, "__resources__", "my_app.config.user.json");
@@ -380,62 +380,98 @@ describe("Config API tests", () => {
                 jest.spyOn(ConfigSecure.prototype, "load").mockResolvedValue(undefined);
             });
 
-            const validateExists = async (inDir: string, user?: boolean): Promise<boolean> => {
-                const config = await Config.load(MY_APP);
-                const layer = config.api.layers.get();
-                const found: boolean = config.layerExists(inDir, user);
-                expect(config.layerActive()).toEqual(layer);
+            const validateExists = (opts): boolean => {
+                /*
+                    Layer order:
+                        User Project Configuration
+                        Non-User Project Configuration
+                        User Global Configuration
+                        Non-User Global Configuration
+                */
+                opts.config.mLayers.forEach((tLayer, index) => {
+                    tLayer.exists = opts.layer[index];
+                });
+                const mySpy = jest.spyOn(fs, "existsSync");
+                if (typeof opts.checkUser === "undefined") {
+                    if (opts.userConfigFound) mySpy.mockReturnValueOnce(true);
+                    else mySpy.mockReturnValueOnce(false).mockReturnValueOnce(opts.projConfigFound);
+                } else { // checkUser is defined
+                    if (opts.checkUser) mySpy.mockReturnValueOnce(opts.userConfigFound);
+                    else mySpy.mockReturnValueOnce(opts.projConfigFound);
+                }
+
+                if (opts.inDir) {
+                    jest.spyOn(path, "dirname").mockReturnValueOnce(opts.inDir);
+                }
+                const layer = opts.config.api.layers.get();
+                const found: boolean = opts.config.layerExists(opts.inDir ?? "fake", opts.checkUser);
+                expect(opts.config.layerActive()).toEqual(layer);
                 return found;
             };
 
-            it("should determine if a layer exists in either of the layers", async () => {
-                expect(await validateExists(path.dirname(filePathProjectUserConfig), undefined)).toBe(true);
-                expect(await validateExists(path.dirname(filePathProjectConfig), undefined)).toBe(true);
-                expect(await validateExists(path.dirname(filePathAppUserConfig), undefined)).toBe(true);
-                expect(await validateExists(path.dirname(filePathAppConfig), undefined)).toBe(true);
-                expect(await validateExists(path.dirname(fakePath), undefined)).toBe(false);
-
-                jest.spyOn(path, "join").mockReturnValue(fakePath);
-
-                expect(await validateExists(path.dirname(fakePath), undefined)).toBe(false);
-                expect(await validateExists(path.dirname(filePathProjectUserConfig), undefined)).toBe(false);
-                expect(await validateExists(path.dirname(filePathProjectConfig), undefined)).toBe(false);
-                expect(await validateExists(path.dirname(filePathAppUserConfig), undefined)).toBe(false);
-                expect(await validateExists(path.dirname(filePathAppConfig), undefined)).toBe(false);
+            it("should not find a layer if none exist and no config files are found regardless if are looking for user configuration", async () => {
+                const simulate: any = {
+                    config: await Config.load(MY_APP),
+                    layer: [false, false, false, false],
+                    userConfigFound: false,
+                    projConfigFound: false,
+                };
+                expect(validateExists({ ...simulate, checkUser: undefined })).toBe(false);
+                expect(validateExists({ ...simulate, checkUser: true })).toBe(false);
+                expect(validateExists({ ...simulate, checkUser: false })).toBe(false);
             });
 
-            it("should determine if a User Config layer exists", async () => {
-                expect(await validateExists(path.dirname(filePathProjectUserConfig), true)).toBe(true);
-                expect(await validateExists(path.dirname(filePathProjectConfig), true)).toBe(true);
-                expect(await validateExists(path.dirname(filePathAppUserConfig), true)).toBe(true);
-                expect(await validateExists(path.dirname(filePathAppConfig), true)).toBe(true);
-                expect(await validateExists(path.dirname(fakePath), true)).toBe(false);
-
-                jest.spyOn(path, "join").mockReturnValue(fakePath);
-
-                expect(await validateExists(path.dirname(fakePath), true)).toBe(false);
-                expect(await validateExists(path.dirname(filePathProjectUserConfig), true)).toBe(false);
-                expect(await validateExists(path.dirname(filePathProjectConfig), true)).toBe(false);
-                expect(await validateExists(path.dirname(filePathAppUserConfig), true)).toBe(false);
-                expect(await validateExists(path.dirname(filePathAppConfig), true)).toBe(false);
+            it("should find a layer if it matches what we are looking for: User Config Layer", async () => {
+                const simulate: any = {
+                    config: await Config.load(MY_APP),
+                    layer: [true, false, false, false],
+                    userConfigFound: true,
+                    projConfigFound: false,
+                    inDir: fakePath,
+                };
+                expect(validateExists({ ...simulate, checkUser: undefined })).toBe(true);
+                expect(validateExists({ ...simulate, checkUser: true })).toBe(true);
+                expect(validateExists({ ...simulate, checkUser: false })).toBe(false);
             });
 
-            it("should determine if a Non-User Config layer exists", async () => {
-                expect(await validateExists(path.dirname(filePathProjectUserConfig), false)).toBe(true);
-                expect(await validateExists(path.dirname(filePathProjectConfig), false)).toBe(true);
-                expect(await validateExists(path.dirname(filePathAppUserConfig), false)).toBe(true);
-                expect(await validateExists(path.dirname(filePathAppConfig), false)).toBe(true);
-                expect(await validateExists(path.dirname(fakePath), false)).toBe(false);
-
-                jest.spyOn(path, "join").mockReturnValue(fakePath);
-
-                expect(await validateExists(path.dirname(fakePath), false)).toBe(false);
-                expect(await validateExists(path.dirname(filePathProjectUserConfig), false)).toBe(false);
-                expect(await validateExists(path.dirname(filePathProjectConfig), false)).toBe(false);
-                expect(await validateExists(path.dirname(filePathAppUserConfig), false)).toBe(false);
-                expect(await validateExists(path.dirname(filePathAppConfig), false)).toBe(false);
+            it("should find a layer if it matches what we are looking for: Proj Config Layer", async () => {
+                const simulate: any = {
+                    config: await Config.load(MY_APP),
+                    layer: [false, true, false, false],
+                    userConfigFound: false,
+                    projConfigFound: true,
+                    inDir: fakePath,
+                };
+                expect(validateExists({ ...simulate, checkUser: undefined })).toBe(true);
+                expect(validateExists({ ...simulate, checkUser: true })).toBe(false);
+                expect(validateExists({ ...simulate, checkUser: false })).toBe(true);
             });
 
+            it("should find a layer if it matches what we are looking for: User Global Layer", async () => {
+                const simulate: any = {
+                    config: await Config.load(MY_APP),
+                    layer: [false, false, true, false],
+                    userConfigFound: true,
+                    projConfigFound: false,
+                    inDir: fakePath,
+                };
+                expect(validateExists({ ...simulate, checkUser: undefined })).toBe(true);
+                expect(validateExists({ ...simulate, checkUser: true })).toBe(true);
+                expect(validateExists({ ...simulate, checkUser: false })).toBe(false);
+            });
+
+            it("should find a layer if it matches what we are looking for: Proj Global Layer", async () => {
+                const simulate: any = {
+                    config: await Config.load(MY_APP),
+                    layer: [false, false, false, true],
+                    userConfigFound: false,
+                    projConfigFound: true,
+                    inDir: fakePath,
+                };
+                expect(validateExists({ ...simulate, checkUser: undefined })).toBe(true);
+                expect(validateExists({ ...simulate, checkUser: true })).toBe(false);
+                expect(validateExists({ ...simulate, checkUser: false })).toBe(true);
+            });
         });
         describe("get", () => {
             it("should get the active layer", async () => {
