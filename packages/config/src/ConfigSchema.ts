@@ -139,13 +139,13 @@ export class ConfigSchema {
      *
      * @param opts The various properties needed to accomplish a recursive UpdateSchema operation
      * @param forceSetSchema Indicates if we should force the creation of the schema file even if the config doesn't exist (e.g. config init)
-     * @param checkConstrastingLayer Indicates if we should check for the opposite (user/non-user) layer
+     * @param checkContrastingLayer Indicates if we should check for the opposite (user/non-user) layer
      * @returns Object containing the updated schema paths
      */
     private static _updateSchemaActive(
         opts: IConfigUpdateSchemaHelperOptions,
         forceSetSchema: boolean = false,
-        checkConstrastingLayer: boolean = true): IConfigUpdateSchemaPaths {
+        checkContrastingLayer: boolean = true): IConfigUpdateSchemaPaths {
 
         let updatedPaths: IConfigUpdateSchemaPaths = opts.updatedPaths;
         const layer = opts.config.layerActive();
@@ -160,7 +160,7 @@ export class ConfigSchema {
 
             updatedPaths = { [layer.path]: { schema: schemaInfo.original, updated: schemaInfo.local } };
         }
-        if (opts.config.layerExists(path.dirname(layer.path), !layer.user) && checkConstrastingLayer) {
+        if (opts.config.layerExists(path.dirname(layer.path), !layer.user) && checkContrastingLayer) {
             opts.config.api.layers.activate(!layer.user, layer.global, path.dirname(layer.path));
             updatedPaths = { ...updatedPaths, ...this._updateSchemaActive(opts, forceSetSchema, false) };
 
@@ -353,7 +353,7 @@ export class ConfigSchema {
      */
     public static updateSchema(options?: IConfigUpdateSchemaOptions): IConfigUpdateSchemaPaths {
         // Handle default values
-        const opts: IConfigUpdateSchemaOptions = { ...{ layer: "active", depth: 0 }, ...(options ?? {}) };
+        const opts: IConfigUpdateSchemaOptions = { layer: "active", depth: 0, ...(options ?? {}) };
 
         // Build schema from loaded config if needed
         opts.schema = opts.schema ?? ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);

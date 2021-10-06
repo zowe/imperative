@@ -466,7 +466,7 @@ export class Config {
         const schemaObj = (typeof schema !== "string") ? schema : null;
 
         if (layer.properties.$schema == null) {
-            layer.properties = JSONC.parse(JSONC.stringify({ ...{ $schema: schemaUri }, ...layer.properties }, null, ConfigConstants.INDENT));
+            layer.properties = JSONC.parse(JSONC.stringify({ $schema: schemaUri, ...layer.properties }, null, ConfigConstants.INDENT));
         }
 
         const schemaInfo = this.getSchemaInfo();

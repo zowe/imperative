@@ -36,7 +36,10 @@ describe("imperative-test-cli config update-schemas", () => {
             TEST_ENVIRONMENT.workingDir, ["update-schemas"]);
         expect(response.error).not.toBeDefined();
         expect(response.stderr.toString()).toEqual("");
-        expect(response.output.toString()).toContain(`Update schema files by looking up the directory structure.`);
+        expect(response.output.toString()).toContain("Update schema files by looking up the directory structure.");
+        expect(response.output.toString()).toContain("Schema files up in higher level directories will always be updated.");
+        expect(response.output.toString()).toContain("files down in lower level directories, specify the `--depth` flag.");
+        expect(response.output.toString()).toContain("Specifies how many levels down the directory structure");
     });
 
     it("should not update schemas if we could not find any", () => {

@@ -521,7 +521,6 @@ describe("Config tests", () => {
                 resolved: null,
             });
             expect(spyOnFsWriteFileSync).not.toHaveBeenCalled();
-            config.layerActive().properties.$schema = layer.properties.$schema;
         });
 
         it("should provide information based on the $schema property: Local Path", async () => {
