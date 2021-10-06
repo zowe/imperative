@@ -34,7 +34,6 @@ export class JsUtils {
      * @returns {boolean} - True if it is a URL. False otherwise.
      */
     public static isUrl(urlString: string): boolean {
-        try { new URL(urlString); } catch (_) { return false; }
-        return true;
+        try { return new URL(urlString).origin !== "null"; } catch (_) { return false; }
     }
 }

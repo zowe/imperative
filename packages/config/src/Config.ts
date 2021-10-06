@@ -340,7 +340,7 @@ export class Config {
         const schemaFilePath = path.resolve( tempSchema.startsWith("./") ? path.join(path.dirname(layer.path), tempSchema) : tempSchema);
         return {
             original: originalSchema,
-            resolved: schemaFilePath,
+            resolved: !JsUtils.isUrl(tempSchema) ? schemaFilePath : originalSchema,
             local: !JsUtils.isUrl(tempSchema),
         };
     }

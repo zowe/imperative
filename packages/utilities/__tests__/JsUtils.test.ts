@@ -40,6 +40,10 @@ describe("JsUtils", () => {
             expect(JsUtils.isUrl(__dirname)).toBe(false);
         });
 
+        it("should return false when given a Windows-style path", () => {
+            expect(JsUtils.isUrl("C:\\fake")).toBe(false);
+        });
+
         it("should return true when given a URL", () => {
             expect(JsUtils.isUrl("http://localhost/")).toBe(true);
         });

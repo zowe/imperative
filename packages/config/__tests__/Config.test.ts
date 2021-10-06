@@ -604,7 +604,7 @@ describe("Config tests", () => {
             expect(config.getSchemaInfo()).toEqual({
                 local: false,
                 original: schemaPath,
-                resolved: path.resolve(schemaPath)
+                resolved: schemaPath,
             });
             expect(spyOnFsWriteFileSync).not.toHaveBeenCalled();
         });
