@@ -380,7 +380,7 @@ describe("Config API tests", () => {
                 jest.spyOn(ConfigSecure.prototype, "load").mockResolvedValue(undefined);
             });
 
-            const validateExists = (opts): boolean => {
+            const validateExists = (opts: any): boolean => {
                 /*
                     Layer order:
                         User Project Configuration
@@ -388,7 +388,7 @@ describe("Config API tests", () => {
                         User Global Configuration
                         Non-User Global Configuration
                 */
-                opts.config.mLayers.forEach((tLayer, index) => {
+                opts.config.mLayers.forEach((tLayer: IConfigLayer, index: number) => {
                     tLayer.exists = opts.layer[index];
                 });
                 const mySpy = jest.spyOn(fs, "existsSync");
