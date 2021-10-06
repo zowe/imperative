@@ -26,4 +26,26 @@ describe("JsUtils", () => {
             expect(JsUtils.isObjEmpty({ anyProperty: "value" })).toBe(false);
         });
     });
+
+    describe("isUrl", () => {
+        it("should return false when given null", () => {
+            expect(JsUtils.isUrl(null)).toBe(false);
+        });
+
+        it("should return false when given an empty string", () => {
+            expect(JsUtils.isUrl("")).toBe(false);
+        });
+
+        it("should return false when given a path", () => {
+            expect(JsUtils.isUrl(__dirname)).toBe(false);
+        });
+
+        it("should return true when given a URL", () => {
+            expect(JsUtils.isUrl("http://localhost/")).toBe(true);
+        });
+
+        it("should return false when given an incomplete URL", () => {
+            expect(JsUtils.isUrl("example.com")).toBe(false);
+        });
+    });
 });

@@ -17,7 +17,7 @@ import * as findUp from "find-up";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 
-import { fileURLToPath, URL } from "url";
+import { fileURLToPath } from "url";
 import { ConfigConstants } from "./ConfigConstants";
 import { IConfig } from "./doc/IConfig";
 import { IConfigLayer } from "./doc/IConfigLayer";
@@ -28,6 +28,7 @@ import { IConfigSecure } from "./doc/IConfigSecure";
 import { IConfigVault } from "./doc/IConfigVault";
 import { ConfigLayers, ConfigPlugins, ConfigProfiles, ConfigSecure } from "./api";
 import { IConfigSchemaInfo } from "./doc/IConfigSchema";
+import { JsUtils } from "../../utilities/src/JsUtils";
 
 /**
  * Enum used by Config class to maintain order of config layers
@@ -336,14 +337,11 @@ export class Config {
         }
 
         const tempSchema = originalSchema.startsWith("file://") ? fileURLToPath(originalSchema) : originalSchema;
-        let isUrl = true;
-        try { new URL(tempSchema); } catch (_) { isUrl = false; }
-
         const schemaFilePath = path.resolve( tempSchema.startsWith("./") ? path.join(path.dirname(layer.path), tempSchema) : tempSchema);
         return {
             original: originalSchema,
             resolved: schemaFilePath,
-            local: !isUrl,
+            local: !JsUtils.isUrl(tempSchema),
         };
     }
 
