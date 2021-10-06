@@ -566,7 +566,7 @@ describe("Config tests", () => {
             const schemaPath = path.join(__dirname, "__resources__", `FAKE.${MY_APP}.schema.json`);
             config.setSchema(localPath);
             expect(config.getSchemaInfo()).toEqual({
-                local: false,
+                local: true,
                 original: localPath,
                 resolved: schemaPath
             });
@@ -578,7 +578,7 @@ describe("Config tests", () => {
             const schemaPath = path.join(__dirname, "__resources__", `FAKE.${MY_APP}.schema.json`);
             config.setSchema(schemaPath);
             expect(config.getSchemaInfo()).toEqual({
-                local: false,
+                local: true,
                 original: schemaPath,
                 resolved: schemaPath
             });
@@ -590,7 +590,7 @@ describe("Config tests", () => {
             const schemaPath = path.join(__dirname, "__resources__", `FAKE.${MY_APP}.schema.json`);
             config.setSchema("file://" + schemaPath);
             expect(config.getSchemaInfo()).toEqual({
-                local: false,
+                local: true,
                 original: "file://" + schemaPath,
                 resolved: schemaPath
             });

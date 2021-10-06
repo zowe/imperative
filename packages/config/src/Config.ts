@@ -17,6 +17,7 @@ import * as findUp from "find-up";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 
+import { fileURLToPath, URL } from "url";
 import { ConfigConstants } from "./ConfigConstants";
 import { IConfig } from "./doc/IConfig";
 import { IConfigLayer } from "./doc/IConfigLayer";
@@ -26,7 +27,6 @@ import { IConfigOpts } from "./doc/IConfigOpts";
 import { IConfigSecure } from "./doc/IConfigSecure";
 import { IConfigVault } from "./doc/IConfigVault";
 import { ConfigLayers, ConfigPlugins, ConfigProfiles, ConfigSecure } from "./api";
-import { fileURLToPath } from "url";
 import { IConfigSchemaInfo } from "./doc/IConfigSchema";
 
 /**
@@ -326,8 +326,8 @@ export class Config {
      */
     public getSchemaInfo(): IConfigSchemaInfo {
         const layer = this.layerActive();
-        const schemaUri = layer.properties.$schema;
-        if (schemaUri == null) {
+        const originalSchema = layer.properties.$schema;
+        if (originalSchema == null) {
             return {
                 original: null,
                 resolved: null,
@@ -335,14 +335,15 @@ export class Config {
             };
         }
 
-        const schemaFilePath = path.resolve(
-            schemaUri.startsWith("file://") ? fileURLToPath(schemaUri) : // else if : )
-                schemaUri.startsWith("./") ? path.join(path.dirname(layer.path), schemaUri) : schemaUri);
-        const isSchemaLocal = fs.existsSync(schemaFilePath);
+        const tempSchema = originalSchema.startsWith("file://") ? fileURLToPath(originalSchema) : originalSchema;
+        let isUrl = true;
+        try { new URL(tempSchema); } catch (_) { isUrl = false; }
+
+        const schemaFilePath = path.resolve( tempSchema.startsWith("./") ? path.join(path.dirname(layer.path), tempSchema) : tempSchema);
         return {
-            original: schemaUri,
+            original: originalSchema,
             resolved: schemaFilePath,
-            local: isSchemaLocal,
+            local: !isUrl,
         };
     }
 

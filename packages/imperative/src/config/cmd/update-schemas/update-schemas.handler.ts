@@ -33,13 +33,10 @@ export default class UpdateSchemasHandler implements ICommandHandler {
         params.response.console.log("Configuration files found: " + Object.keys(updatedPaths).length.toString());
         if (Object.keys(updatedPaths).length > 0) {
             const outputObj: any = {};
-            for (const schema in updatedPaths) {
-                if (Object.prototype.hasOwnProperty.call(updatedPaths, schema)) {
-                    const schemaInfo = updatedPaths[schema];
-                    outputObj[TextUtils.chalk.yellow(schema)] = {
-                        [`${schemaInfo.updated ? TextUtils.chalk.green("updated") : TextUtils.chalk.red("skipped")}`]: schemaInfo.schema
-                    };
-                }
+            for (const [schema, schemaInfo] of Object.entries(updatedPaths)) {
+                outputObj[TextUtils.chalk.yellow(schema)] = {
+                    [`${schemaInfo.updated ? TextUtils.chalk.green("updated") : TextUtils.chalk.red("skipped")}`]: schemaInfo.schema
+                };
             }
             params.response.format.output({
                 output: outputObj,
