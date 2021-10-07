@@ -75,8 +75,7 @@ export default class InitHandler implements ICommandHandler {
      */
     private async initWithSchema(config: Config, user: boolean): Promise<void> {
         // Build the schema and write it to disk
-        const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
-        config.setSchema(schema);
+        ConfigSchema.updateSchema();
 
         const opts: IConfigBuilderOpts = {};
         if (!user) {

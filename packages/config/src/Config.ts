@@ -9,7 +9,7 @@
 *
 */
 
-import * as node_path from "path";
+import * as path from "path";
 import * as os from "os";
 import * as fs from "fs";
 import * as deepmerge from "deepmerge";
@@ -17,6 +17,7 @@ import * as findUp from "find-up";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 
+import { fileURLToPath } from "url";
 import { ConfigConstants } from "./ConfigConstants";
 import { IConfig } from "./doc/IConfig";
 import { IConfigLayer } from "./doc/IConfigLayer";
@@ -26,6 +27,8 @@ import { IConfigOpts } from "./doc/IConfigOpts";
 import { IConfigSecure } from "./doc/IConfigSecure";
 import { IConfigVault } from "./doc/IConfigVault";
 import { ConfigLayers, ConfigPlugins, ConfigProfiles, ConfigSecure } from "./api";
+import { IConfigSchemaInfo } from "./doc/IConfigSchema";
+import { JsUtils } from "../../utilities/src/JsUtils";
 
 /**
  * Enum used by Config class to maintain order of config layers
@@ -86,7 +89,7 @@ export class Config {
      */
     public mActive: {
         user: boolean;
-        global: boolean
+        global: boolean;
     };
 
     /**
@@ -133,7 +136,7 @@ export class Config {
         const myNewConfig = new Config(opts);
         myNewConfig.mApp = app;
         myNewConfig.mLayers = [];
-        myNewConfig.mHomeDir = opts.homeDir || node_path.join(os.homedir(), `.${app}`);
+        myNewConfig.mHomeDir = opts.homeDir || path.join(os.homedir(), `.${app}`);
         myNewConfig.mProjectDir = opts.projectDir || process.cwd();
         myNewConfig.mActive = { user: false, global: false };
         myNewConfig.mVault = opts.vault;
@@ -196,8 +199,7 @@ export class Config {
         try {
             for (const currLayer of this.mLayers) {
                 if ((allLayers !== false) ||
-                    (currLayer.user === this.mActive.user && currLayer.global === this.mActive.global))
-                {
+                    (currLayer.user === this.mActive.user && currLayer.global === this.mActive.global)) {
                     await this.api.layers.write(currLayer);
                 }
             }
@@ -225,16 +227,16 @@ export class Config {
         switch (layer) {
             case Layers.ProjectUser: {
                 const userConfigPath = Config.search(this.userConfigName, { ignoreDirs: [this.mHomeDir], startDir: this.mProjectDir });
-                return userConfigPath || node_path.join(this.mProjectDir, this.userConfigName);
+                return userConfigPath || path.join(this.mProjectDir, this.userConfigName);
             }
             case Layers.ProjectConfig: {
                 const configPath = Config.search(this.configName, { ignoreDirs: [this.mHomeDir], startDir: this.mProjectDir });
-                return configPath || node_path.join(this.mProjectDir, this.configName);
+                return configPath || path.join(this.mProjectDir, this.configName);
             }
             case Layers.GlobalUser:
-                return node_path.join(this.mHomeDir, this.userConfigName);
+                return path.join(this.mHomeDir, this.userConfigName);
             case Layers.GlobalConfig:
-                return node_path.join(this.mHomeDir, this.configName);
+                return path.join(this.mHomeDir, this.configName);
         }
     }
 
@@ -321,6 +323,30 @@ export class Config {
 
     // _______________________________________________________________________
     /**
+     * Schema file path used by the active layer
+     */
+    public getSchemaInfo(): IConfigSchemaInfo {
+        const layer = this.layerActive();
+        const originalSchema = layer.properties.$schema;
+        if (originalSchema == null) {
+            return {
+                original: null,
+                resolved: null,
+                local: false,
+            };
+        }
+
+        const tempSchema = originalSchema.startsWith("file://") ? fileURLToPath(originalSchema) : originalSchema;
+        const schemaFilePath = path.resolve( tempSchema.startsWith("./") ? path.join(path.dirname(layer.path), tempSchema) : tempSchema);
+        return {
+            original: originalSchema,
+            resolved: !JsUtils.isUrl(tempSchema) ? schemaFilePath : originalSchema,
+            local: !JsUtils.isUrl(tempSchema),
+        };
+    }
+
+    // _______________________________________________________________________
+    /**
      * Search up the directory tree for the directory containing the
      * specified config file.
      *
@@ -336,9 +362,9 @@ export class Config {
         opts = opts || {};
         const p = findUp.sync((directory: string) => {
             if (opts.ignoreDirs?.includes(directory)) return;
-            return fs.existsSync(node_path.join(directory, file)) && directory;
+            return fs.existsSync(path.join(directory, file)) && directory;
         }, { cwd: opts.startDir, type: "directory" });
-        return p ? node_path.join(p, file) : null;
+        return p ? path.join(p, file) : null;
     }
 
     // _______________________________________________________________________
@@ -356,17 +382,17 @@ export class Config {
      * Set value of a property in the active config layer.
      * TODO: more validation
      *
-     * @param path Property path
+     * @param propertyPath Property path
      * @param value Property value
      * @param opts Include `secure: true` to store the property securely
      */
-    public set(path: string, value: any, opts?: { secure?: boolean }) {
+    public set(propertyPath: string, value: any, opts?: { secure?: boolean }) {
         opts = opts || {};
 
         const layer = this.layerActive();
         let obj: any = layer.properties;
-        const segments = path.split(".");
-        path.split(".").forEach((segment: string) => {
+        const segments = propertyPath.split(".");
+        propertyPath.split(".").forEach((segment: string) => {
             if (obj[segment] == null && segments.indexOf(segment) < segments.length - 1) {
                 obj[segment] = {};
                 obj = obj[segment];
@@ -390,7 +416,7 @@ export class Config {
         });
 
         if (opts.secure != null) {
-            const secureInfo = this.api.secure.secureInfoForProp(path);
+            const secureInfo = this.api.secure.secureInfoForProp(propertyPath);
             if (secureInfo != null) {
                 const secureProps: string[] = lodash.get(layer.properties, secureInfo.path, []);
                 if (opts.secure && !secureProps.includes(secureInfo.prop)) {
@@ -407,17 +433,17 @@ export class Config {
     // _______________________________________________________________________
     /**
      * Unset value of a property in the active config layer.
-     * @param path Property path
+     * @param propertyPath Property path
      * @param opts Include `secure: false` to preserve property in secure array
      */
-    public delete(path: string, opts?: { secure?: boolean }) {
+    public delete(propertyPath: string, opts?: { secure?: boolean }) {
         opts = opts || {};
 
         const layer = this.layerActive();
-        lodash.unset(layer.properties, path);
+        lodash.unset(layer.properties, propertyPath);
 
         if (opts.secure !== false) {
-            const secureInfo = this.api.secure.secureInfoForProp(path);
+            const secureInfo = this.api.secure.secureInfoForProp(propertyPath);
             if (secureInfo != null) {
                 const secureProps: string[] = lodash.get(layer.properties, secureInfo.path);
                 if (secureProps != null && secureProps.includes(secureInfo.prop)) {
@@ -434,16 +460,17 @@ export class Config {
      * @param schema The URI of JSON schema, or a schema object to use
      */
     public setSchema(schema: string | object) {
+        const layer = this.layerActive();
         const schemaUri = (typeof schema === "string") ? schema : `./${this.schemaName}`;
         const schemaObj = (typeof schema !== "string") ? schema : null;
 
-        const layer = this.layerActive();
-        delete layer.properties.$schema;
-        layer.properties = { $schema: schemaUri, ...layer.properties };
+        if (layer.properties.$schema == null) {
+            layer.properties = JSONC.parse(JSONC.stringify({ $schema: schemaUri, ...layer.properties }, null, ConfigConstants.INDENT));
+        }
 
-        if (schemaObj != null) {
-            const filePath = node_path.resolve(node_path.dirname(layer.path), schemaUri);
-            fs.writeFileSync(filePath, JSONC.stringify(schemaObj, null, ConfigConstants.INDENT));
+        const schemaInfo = this.getSchemaInfo();
+        if (schemaObj != null && (schemaInfo.local || schemaInfo.original.startsWith("./"))) {
+            fs.writeFileSync(schemaInfo.resolved, JSONC.stringify(schemaObj, null, ConfigConstants.INDENT));
         }
     }
 
@@ -551,6 +578,32 @@ export class Config {
 
     // _______________________________________________________________________
     /**
+     * Check if a layer exists in the given path
+     *
+     * @param inDir The directory to which you want to look for the layer.
+     */
+    public layerExists(inDir: string, user?: boolean): boolean {
+        let found = false;
+
+        // Search in all layers
+        this.mLayers.forEach(layer => {
+            found = !found && layer.exists && (typeof user !== "undefined" ? layer.user === user : true) && path.dirname(layer.path) === inDir;
+        });
+
+        // Search for user and non-user config in the given directory
+        if (!found) {
+            if (typeof user === "undefined") {
+                found = fs.existsSync(path.join(inDir, this.configName)) || fs.existsSync(path.join(inDir, this.userConfigName));
+            } else {
+                found = fs.existsSync(path.join(inDir, user ? this.userConfigName : this.configName));
+            }
+        }
+
+        return found;
+    }
+
+    // _______________________________________________________________________
+    /**
      * Form the path name of the team config file to display in messages.
      * Always return the team name (not the user name).
      * If the a team configuration is active, return the full path to the
@@ -570,7 +623,7 @@ export class Config {
             return configPathNm;
         }
 
-        if (this.exists){
+        if (this.exists) {
             // form the full path to the team config file
             configPathNm = this.api.layers.get().path;
 
