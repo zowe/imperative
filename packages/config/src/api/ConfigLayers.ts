@@ -10,7 +10,7 @@
 */
 
 import * as fs from "fs";
-import * as node_path from "path";
+import * as path from "path";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 import { ImperativeError } from "../../../error";
@@ -39,17 +39,20 @@ export class ConfigLayers extends ConfigApi {
             try {
                 fileContents = fs.readFileSync(layer.path);
             } catch (e) {
-                throw new ImperativeError({ msg: `An error was encountered while trying to read the file '${layer.path}'.` +
-                    `\nError details: ${e.message}`,
-                suppressDump: true });
+                throw new ImperativeError({
+                    msg: `An error was encountered while trying to read the file '${layer.path}'.\nError details: ${e.message}`,
+                    suppressDump: true
+                });
             }
             try {
                 layer.properties = JSONC.parse(fileContents.toString());
                 layer.exists = true;
             } catch (e) {
-                throw new ImperativeError({ msg: `Error parsing JSON in the file '${layer.path}'.\n` +
-                    `Please check this configuration file for errors.\nError details: ${e.message}\nLine ${e.line}, Column ${e.column}`,
-                suppressDump: true});
+                throw new ImperativeError({
+                    msg: `Error parsing JSON in the file '${layer.path}'.\n` +
+                        `Please check this configuration file for errors.\nError details: ${e.message}\nLine ${e.line}, Column ${e.column}`,
+                    suppressDump: true
+                });
             }
         }
 
@@ -72,8 +75,8 @@ export class ConfigLayers extends ConfigApi {
         // If fields are marked as secure
         const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
         const layerCloned = JSONC.parse(JSONC.stringify(layer, null, ConfigConstants.INDENT));
-        for (const path of this.mConfig.api.secure.secureFields(layer)) {
-            const segments = path.split(".");
+        for (const configPath of this.mConfig.api.secure.secureFields(layer)) {
+            const segments = configPath.split(".");
             let obj: any = layerCloned.properties;
             for (let x = 0; x < segments.length; x++) {
                 const segment = segments[x];
@@ -111,7 +114,7 @@ export class ConfigLayers extends ConfigApi {
 
         if (inDir != null) {
             const layer = this.mConfig.layerActive();
-            layer.path = node_path.join(inDir, node_path.basename(layer.path));
+            layer.path = path.join(inDir, path.basename(layer.path));
             this.read();
         }
     }
@@ -162,8 +165,7 @@ export class ConfigLayers extends ConfigApi {
             layer = this.mConfig.layerActive();
         }
 
-        layer.properties.profiles = lodash.mergeWith(cnfg.profiles, layer.properties.profiles, (obj, src) =>
-        {
+        layer.properties.profiles = lodash.mergeWith(cnfg.profiles, layer.properties.profiles, (obj, src) => {
             if (lodash.isArray(obj) && lodash.isArray(src)) {
                 const temp = JSONC.parse(JSONC.stringify(obj, null, ConfigConstants.INDENT));
                 src.forEach((val, idx) => {

@@ -30,7 +30,7 @@ describe("Plugin validate command handler", () => {
     * that is called underneath the functions that we want to test.
     */
     const impCfg: ImperativeConfig = ImperativeConfig.instance;
-    impCfg.loadedConfig = require("../../baseCliConfig.testData");
+    impCfg.loadedConfig = require("../../__resources__/baseCliConfig.testData");
     impCfg.callerLocation = resolve("../../../../../../imperative-sample/lib/index.js");
 
     beforeEach(() => {

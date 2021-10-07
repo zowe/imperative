@@ -27,13 +27,13 @@ Object {
         "appenders": Array [
           "sampleConsole",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "sampleFile": Object {
         "appenders": Array [
           "sampleFile",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
     },
   },
@@ -69,23 +69,14 @@ Object {
         "appenders": Array [
           "sampleFile",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
     },
   },
 }
 `;
 
-exports[`LoggerConfigBuilder tests Should get a basic log4js configuration from getDefaultIConfigLogging 1`] = `
-Object {
-  "log4jsConfig": Object {
-    "appenders": Object {},
-    "categories": Object {},
-  },
-}
-`;
-
-exports[`LoggerConfigBuilder tests Should multiple appenders to basic log4js configuration 1`] = `
+exports[`LoggerConfigBuilder tests Should add multiple appenders to basic log4js configuration 1`] = `
 Object {
   "log4jsConfig": Object {
     "appenders": Object {
@@ -129,27 +120,36 @@ Object {
         "appenders": Array [
           "sampleConsole1",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "sampleConsole2": Object {
         "appenders": Array [
           "sampleConsole2",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "sampleFile1": Object {
         "appenders": Array [
           "sampleFile1",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "sampleFile2": Object {
         "appenders": Array [
           "sampleFile2",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
     },
+  },
+}
+`;
+
+exports[`LoggerConfigBuilder tests Should get a basic log4js configuration from getDefaultIConfigLogging 1`] = `
+Object {
+  "log4jsConfig": Object {
+    "appenders": Object {},
+    "categories": Object {},
   },
 }
 `;
