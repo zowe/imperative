@@ -370,7 +370,7 @@ export class PluginManagementFacility {
      *
      * @returns {function} - The method responsible for requiring the module
      */
-    public requirePluginModuleCallback(pluginName: string): any {
+    public requirePluginModuleCallback(pluginName: string): ((relativePath: string) => any) {
 
         return (relativePath: string) => {
             const pluginModuleRuntimePath = this.formPluginRuntimePath(pluginName, relativePath);
