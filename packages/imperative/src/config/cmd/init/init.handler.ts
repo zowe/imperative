@@ -144,12 +144,12 @@ export default class InitHandler implements ICommandHandler {
     }
 
     /**
-     * Creates JSON template for config. Also creates a schema file in the same
-     * folder alongside the config.
+     * Do a dry run of creating JSON template for config.
+     * Also create a schema file in the same folder alongside the config.
      * @param config Config object to be populated
      * @param user If true, properties will be left empty for user config
      */
-     private async initForDryRun(config: Config, user: boolean): Promise<any> {
+    private async initForDryRun(config: Config, user: boolean): Promise<any> {
         // Build the schema and write it to disk
         const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
         config.setSchema(schema);
