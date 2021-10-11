@@ -291,7 +291,7 @@ export class ConnectionPropsForSessCfg {
      * List of properties on `sessCfg` object that should be kept secret and
      * may not appear in Imperative log files.
      */
-    private static readonly secureSessCfgProps: string[] = ["user", "password", "tokenValue", "passphrase", "certKey"];
+    private static readonly secureSessCfgProps: string[] = ["user", "password", "tokenValue", "passphrase"];
 
     // ***********************************************************************
     /**
