@@ -214,7 +214,8 @@ export class WebHelpManager implements IWebHelpManager {
         const currentMetadata: IWebHelpPackageMetadata[] = this.calcPackageMetadata(myConfig.callerPackageJson,
             require(path.join(myConfig.cliHome, "plugins", "plugins.json")));
 
-        const metadataChanged: boolean = !this.eqPackageMetadata(cachedMetadata, currentMetadata);
+        const metadataChanged: boolean = process.env.NODE_ENV === "development" ||
+            !this.eqPackageMetadata(cachedMetadata, currentMetadata);
         return metadataChanged ? currentMetadata : null;
     }
 

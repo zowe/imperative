@@ -153,8 +153,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             if (params.arguments.forSure && params.arguments.forSure === true) {
                 // Clear layer, merge, generate schema, and save
                 ImperativeConfig.instance.config.api.layers.set(profileConfig);
-                const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
-                ImperativeConfig.instance.config.setSchema(schema);
+                ConfigSchema.updateSchema();
                 await ImperativeConfig.instance.config.save(false);
             }
         } else {
@@ -162,8 +161,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             ImperativeConfig.instance.config.api.layers.merge(profileConfig);
             if (ImperativeConfig.instance.config.api.layers.get().properties.$schema == null) {
                 // TODO What condition should we use to decide whether to (re)generate schema?
-                const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
-                ImperativeConfig.instance.config.setSchema(schema);
+                ConfigSchema.updateSchema();
             }
             await ImperativeConfig.instance.config.save(false);
         }

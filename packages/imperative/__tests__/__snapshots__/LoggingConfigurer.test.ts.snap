@@ -40,19 +40,19 @@ Object {
         "appenders": Array [
           "app",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "default": Object {
         "appenders": Array [
           "default",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "imperative": Object {
         "appenders": Array [
           "imperative",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
     },
   },
@@ -107,7 +107,7 @@ Object {
         "appenders": Array [
           "default",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "imperative": Object {
         "appenders": Array [
@@ -186,13 +186,13 @@ Object {
         "appenders": Array [
           "default",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "extraOne": Object {
         "appenders": Array [
           "extraOne",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "extraTwo": Object {
         "appenders": Array [
@@ -251,13 +251,13 @@ Object {
         "appenders": Array [
           "app",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "default": Object {
         "appenders": Array [
           "default",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "imperative": Object {
         "appenders": Array [
@@ -310,19 +310,19 @@ Object {
         "appenders": Array [
           "app",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "default": Object {
         "appenders": Array [
           "default",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "imperative": Object {
         "appenders": Array [
           "imperative",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
     },
   },
@@ -369,19 +369,19 @@ Object {
         "appenders": Array [
           "app",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "default": Object {
         "appenders": Array [
           "default",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "imperative": Object {
         "appenders": Array [
           "imperative",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
     },
   },
@@ -428,19 +428,19 @@ Object {
         "appenders": Array [
           "app",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "default": Object {
         "appenders": Array [
           "default",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
       "imperative": Object {
         "appenders": Array [
           "imperative",
         ],
-        "level": "DEBUG",
+        "level": "WARN",
       },
     },
   },

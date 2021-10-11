@@ -912,7 +912,7 @@ export class ProfileInfo {
                         } else {
                             schemaJson = lastSchema.json;
                         }
-                        for (const { type, schema } of ConfigSchema.loadProfileSchemas(schemaJson)) {
+                        for (const { type, schema } of ConfigSchema.loadSchema(schemaJson)) {
                             this.mProfileSchemaCache.set(`${layer.path}:${type}`, schema);
                         }
                     } catch (error) {

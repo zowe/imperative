@@ -248,8 +248,8 @@ describe("Using a Plugin", () => {
         const impLogLocation = join(config.defaultHome, "imperative", "logs", "imperative.log");
         const impLogContent = readFileSync(impLogLocation).toString();
         expect(result.stdout).toContain(resolve(impLogLocation));
-        expect(impLogContent).toContain(`Log message from test plugin: DEBUG: ${randomTest}`);
-        expect(impLogContent).toContain(`Log message from test plugin: INFO: ${randomTest}`);
+        expect(impLogContent).not.toContain(`Log message from test plugin: DEBUG: ${randomTest}`);
+        expect(impLogContent).not.toContain(`Log message from test plugin: INFO: ${randomTest}`);
         expect(impLogContent).toContain(`Log message from test plugin: WARN: ${randomTest}`);
         expect(impLogContent).toContain(`Log message from test plugin: ERROR: ${randomTest}`);
 
@@ -257,8 +257,8 @@ describe("Using a Plugin", () => {
         const appLogLocation = join(config.defaultHome, config.name, "logs", config.name + ".log");
         const appLogContent = readFileSync(appLogLocation).toString();
         expect(result.stdout).toContain(resolve(appLogLocation));
-        expect(appLogContent).toContain(`Log message from test plugin: DEBUG: ${randomTest}`);
-        expect(appLogContent).toContain(`Log message from test plugin: INFO: ${randomTest}`);
+        expect(appLogContent).not.toContain(`Log message from test plugin: DEBUG: ${randomTest}`);
+        expect(appLogContent).not.toContain(`Log message from test plugin: INFO: ${randomTest}`);
         expect(appLogContent).toContain(`Log message from test plugin: WARN: ${randomTest}`);
         expect(appLogContent).toContain(`Log message from test plugin: ERROR: ${randomTest}`);
     });

@@ -18,6 +18,7 @@ jest.mock("path");
 jest.mock("fs");
 jest.mock("find-up");
 jest.mock("../../../../src/plugins/utilities/PMFConstants");
+jest.mock("../../../../../config/src/ConfigSchema");
 jest.mock("../../../../../logger");
 jest.mock("../../../../../cmd/src/response/CommandResponse");
 jest.mock("../../../../../cmd/src/response/HandlerResponse");
@@ -35,6 +36,7 @@ import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { sync } from "find-up";
 import { getPackageInfo, installPackages } from "../../../../src/plugins/utilities/NpmFunctions";
+import { ConfigSchema } from "../../../../../config/src/ConfigSchema";
 
 describe("PMF: Install Interface", () => {
     // Objects created so types are correct.
@@ -50,7 +52,8 @@ describe("PMF: Install Interface", () => {
         normalize: normalize as Mock<typeof normalize>,
         lstatSync: lstatSync as Mock<typeof lstatSync>,
         sync: sync as Mock<typeof sync>,
-        getPackageInfo: getPackageInfo as Mock<typeof getPackageInfo>
+        getPackageInfo: getPackageInfo as Mock<typeof getPackageInfo>,
+        updateSchema: ConfigSchema.updateSchema as Mock<typeof ConfigSchema.updateSchema>,
     };
 
     const packageName = "a";
@@ -83,6 +86,15 @@ describe("PMF: Install Interface", () => {
     const wasNpmInstallCallValid = (expectedPackage: string, expectedRegistry: string) => {
         expect(mocks.installPackages).toHaveBeenCalledWith(PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
             expectedRegistry, expectedPackage);
+        wasUpdateSchemaCallValid();
+    };
+
+    /**
+     * Validates that plugins install call updates the global schema.
+     */
+    const wasUpdateSchemaCallValid = () => {
+        expect(mocks.updateSchema).toHaveBeenCalledTimes(1);
+        expect(mocks.updateSchema).toHaveBeenCalledWith({ layer: "global" });
     };
 
     /**

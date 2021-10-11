@@ -9,13 +9,15 @@
 *
 */
 
+
+import { Config } from "../../../config/src/__mocks__/Config";
 import { IImperativeConfig } from "../../../imperative/src/doc/IImperativeConfig";
 
 export class ImperativeConfig {
     private static mInstance: ImperativeConfig = null;
-    private mConfig: any = {
-        exists: false
-    };
+
+    private mConfig: Config = new Config();
+
     private mLoadedConfig: IImperativeConfig = {
         name: "test-cli",
         allowConfigGroup: false,
@@ -48,11 +50,11 @@ export class ImperativeConfig {
         return "/home";
     }
 
-    public get config(): any {
+    public get config(): Config {
         return this.mConfig;
     }
 
-    public set config(c: any) {
+    public set config(c: Config) {
         this.mConfig = c;
     }
 
