@@ -524,6 +524,7 @@ describe("Configuration Secure command handler", () => {
             existsSyncSpy = jest.spyOn(fs, "existsSync");
 
             mockAuthLogin.mockClear();
+            writeFileSyncSpy.mockReset();
             promptWithTimeoutSpy = jest.fn(() => "fakePromptingData");
             (params.response.console as any).prompt = promptWithTimeoutSpy;
         });

@@ -17,8 +17,6 @@ import * as os from "os";
 export class LoggerConfigBuilder {
 
     public static readonly DEFAULT_LANG = "en";
-
-    public static readonly DEFAULT_LOG_LEVEL = "DEBUG";
     public static readonly DEFAULT_LOG_TYPE_CONSOLE = "console";
     public static readonly DEFAULT_LOG_TYPE_PAT = "pattern";
     public static readonly DEFAULT_LOG_LAYOUT = "[%d{yyyy/MM/dd} %d{hh:mm:ss.SSS}] [%p] %m";
@@ -73,7 +71,7 @@ export class LoggerConfigBuilder {
         };
         config.log4jsConfig.categories[categoryName] = {
             appenders: [key],
-            level: logLevel ? logLevel : LoggerConfigBuilder.DEFAULT_LOG_LEVEL,
+            level: logLevel ? logLevel : LoggerConfigBuilder.getDefaultLogLevel(),
         };
         return config;
     }
@@ -97,7 +95,7 @@ export class LoggerConfigBuilder {
         };
         config.log4jsConfig.categories[categoryName] = {
             appenders: [key],
-            level: logLevel ? logLevel : LoggerConfigBuilder.DEFAULT_LOG_LEVEL,
+            level: logLevel ? logLevel : LoggerConfigBuilder.getDefaultLogLevel(),
         };
         return config;
     }
@@ -109,5 +107,13 @@ export class LoggerConfigBuilder {
     public static getDefaultFileName(name: string) {
         return LoggerConfigBuilder.DEFAULT_LOG_DIR + name + IO.FILE_DELIM +
         LoggerConfigBuilder.DEFAULT_LOG_FILE_DIR + name + LoggerConfigBuilder.DEFAULT_LOG_FILE_EXT;
+    }
+
+    /**
+     * Returns the log level that will be used if not overridden
+     * @returns {string} - the default log level
+     */
+    public static getDefaultLogLevel(): string {
+        return process.env.NODE_ENV === "development" ? "DEBUG" : "WARN";
     }
 }

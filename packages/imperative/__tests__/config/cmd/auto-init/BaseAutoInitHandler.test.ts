@@ -69,14 +69,12 @@ describe("BaseAutoInitHandler", () => {
                 get: mockGet
             }
         };
-        const mockSetSchema = jest.fn();
-        const buildSchemaSpy = jest.spyOn(ConfigSchema, 'buildSchema').mockImplementation();
+        const updateSchemaSpy = jest.spyOn(ConfigSchema, 'updateSchema').mockImplementation();
         const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
             config: {
                 api: mockImperativeConfigApi,
                 save: mockSave,
-                setSchema: mockSetSchema
             },
             loadedConfig: {
                 profiles: []
@@ -100,9 +98,8 @@ describe("BaseAutoInitHandler", () => {
         expect(mockWrite).toHaveBeenCalledTimes(0);
         expect(mockGet).toHaveBeenCalledTimes(1);
         expect(mockSave).toHaveBeenCalledTimes(1);
-        expect(buildSchemaSpy).toHaveBeenCalledTimes(1);
+        expect(updateSchemaSpy).toHaveBeenCalledTimes(1);
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
-        expect(mockSetSchema).toHaveBeenCalledTimes(1);
         expect(mockMerge).toHaveBeenCalledWith(undefined);
     });
 
@@ -145,15 +142,13 @@ describe("BaseAutoInitHandler", () => {
                 get: mockGet
             }
         };
-        const buildSchemaSpy = jest.spyOn(ConfigSchema, 'buildSchema').mockImplementation();
+        const updateSchemaSpy = jest.spyOn(ConfigSchema, 'updateSchema').mockImplementation();
         const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
-        const mockSetSchema = jest.fn();
 
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
             config: {
                 api: mockImperativeConfigApi,
                 save: mockSave,
-                setSchema: mockSetSchema
             },
             loadedConfig: {
                 profiles: []
@@ -176,9 +171,8 @@ describe("BaseAutoInitHandler", () => {
         expect(mockWrite).toHaveBeenCalledTimes(0);
         expect(mockGet).toHaveBeenCalledTimes(1);
         expect(mockSave).toHaveBeenCalledTimes(1);
-        expect(buildSchemaSpy).toHaveBeenCalledTimes(1);
+        expect(updateSchemaSpy).toHaveBeenCalledTimes(1);
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
-        expect(mockSetSchema).toHaveBeenCalledTimes(1);
         expect(mockMerge).toHaveBeenCalledWith(undefined);
     });
 
@@ -223,15 +217,13 @@ describe("BaseAutoInitHandler", () => {
                 get: mockGet
             }
         };
-        const buildSchemaSpy = jest.spyOn(ConfigSchema, 'buildSchema').mockImplementation();
+        const updateSchemaSpy = jest.spyOn(ConfigSchema, 'updateSchema').mockImplementation();
         const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
-        const mockSetSchema = jest.fn();
 
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
             config: {
                 api: mockImperativeConfigApi,
                 save: mockSave,
-                setSchema: mockSetSchema
             },
             loadedConfig: {
                 profiles: []
@@ -256,9 +248,8 @@ describe("BaseAutoInitHandler", () => {
         expect(mockWrite).toHaveBeenCalledTimes(0);
         expect(mockGet).toHaveBeenCalledTimes(1);
         expect(mockSave).toHaveBeenCalledTimes(1);
-        expect(buildSchemaSpy).toHaveBeenCalledTimes(1);
+        expect(updateSchemaSpy).toHaveBeenCalledTimes(1);
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
-        expect(mockSetSchema).toHaveBeenCalledTimes(1);
         expect(mockMerge).toHaveBeenCalledWith(undefined);
     });
 
@@ -449,11 +440,11 @@ describe("BaseAutoInitHandler", () => {
         const mockWrite = jest.fn();
         const mockSave = jest.fn();
         const mockSet = jest.fn();
-        const mockSetSchema = jest.fn();
         const mockGet = jest.fn().mockReturnValue({
             exists: true,
             properties: {}
         });
+        const updateSchemaSpy = jest.spyOn(ConfigSchema, 'updateSchema').mockImplementation();
         const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
         const mockImperativeConfigApi = {
             layers: {
@@ -470,7 +461,6 @@ describe("BaseAutoInitHandler", () => {
             config: {
                 api: mockImperativeConfigApi,
                 save: mockSave,
-                setSchema: mockSetSchema
             },
             loadedConfig: {
                 profiles: []
@@ -494,8 +484,8 @@ describe("BaseAutoInitHandler", () => {
         expect(mockWrite).toHaveBeenCalledTimes(0);
         expect(mockSave).toHaveBeenCalledTimes(1);
         expect(mockGet).toHaveBeenCalledTimes(0);
-        expect(mockSetSchema).toHaveBeenCalledTimes(1);
         expect(mockSet).toHaveBeenCalledTimes(1);
+        expect(updateSchemaSpy).toHaveBeenCalledTimes(1);
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
     });
 
