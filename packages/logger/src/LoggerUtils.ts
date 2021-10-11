@@ -16,7 +16,7 @@ export class LoggerUtils {
     public static readonly CENSOR_RESPONSE = "****";
     public static CENSORED_OPTIONS = ["auth", "p", "pass", "password", "passphrase", "credentials",
         "authentication", "basic-auth", "basicAuth", "tv", "token-value", "tokenValue",
-        "cert-key-file", "certKeyFile", "cert-file-passphrase", "certFilePassphrase"];
+        "cert-file-passphrase", "certFilePassphrase"];
 
     /**
      * Copy and censor any sensitive CLI arguments before logging/printing
