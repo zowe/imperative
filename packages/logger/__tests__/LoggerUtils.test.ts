@@ -23,11 +23,6 @@ describe("LoggerUtils tests", () => {
         expect(data).toContain(LoggerUtils.CENSOR_RESPONSE);
     });
 
-    it("Should hide --cert-key-file operand", () => {
-        const data = LoggerUtils.censorCLIArgs(["--cert-key-file", "cantSeeMe"]);
-        expect(data).toContain(LoggerUtils.CENSOR_RESPONSE);
-    });
-
     it("Should hide --cert-file-passphrase operand", () => {
         const data = LoggerUtils.censorCLIArgs(["--cert-file-passphrase", "cantSeeMe"]);
         expect(data).toContain(LoggerUtils.CENSOR_RESPONSE);

@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Reverts hiding the cert-key-file path so users can see what path was specified and check if the file exists
+
 ## `4.16.1`
 
 - BugFix: Updated dependencies to resolve problems with the ansi-regex package

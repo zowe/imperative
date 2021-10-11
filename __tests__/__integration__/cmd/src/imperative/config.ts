@@ -131,8 +131,7 @@ export const config: IImperativeConfig = {
                 },
                 certKeyFile: {
                     type: "existingLocalFile",
-                    optionDefinition: certKeyFileOption,
-                    secure: true
+                    optionDefinition: certKeyFileOption
                 }
             },
         },
