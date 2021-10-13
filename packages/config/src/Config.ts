@@ -29,7 +29,7 @@ import { IConfigVault } from "./doc/IConfigVault";
 import { ConfigLayers, ConfigPlugins, ConfigProfiles, ConfigSecure } from "./api";
 import { IConfigSchemaInfo } from "./doc/IConfigSchema";
 import { JsUtils } from "../../utilities/src/JsUtils";
-import { ImperativeConfig } from "../..";
+import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
 
 /**
  * Enum used by Config class to maintain order of config layers
