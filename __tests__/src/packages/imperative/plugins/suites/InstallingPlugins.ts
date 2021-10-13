@@ -13,8 +13,9 @@
  * @file Integration tests for installing plugins through the Plugin Management Facility.
  */
 
-import { join } from "path";
+import * as fs from "fs";
 import * as T from "../../../../../src/TestUtil";
+import { join } from "path";
 import { TEST_REGISTRY } from "../../../../../__src__/TestConstants";
 import { execSync, SpawnSyncReturns } from "child_process";
 
@@ -56,28 +57,28 @@ describe("Installing Plugins", () => {
     const plugins: ITestPluginStructure = {
         normal: {
             location: join(__dirname, "../", "test_plugins", "normal_plugin"),
-            name    : "normal-plugin",
-            usage   : "normal-plugin"
+            name: "normal-plugin",
+            usage: "normal-plugin"
         },
         normal2: {
             location: join(__dirname, "../", "test_plugins", "normal_plugin_2"),
-            name    : "normal-plugin-2",
-            usage   : "normal-plugin-2"
+            name: "normal-plugin-2",
+            usage: "normal-plugin-2"
         },
         normal3: {
             location: join(__dirname, "../", "test_plugins", "normal_plugin_3"),
-            name    : "normal-plugin-3",
-            usage   : "normal-plugin-3"
+            name: "normal-plugin-3",
+            usage: "normal-plugin-3"
         },
         space_in_path: {
             location: join(__dirname, "../", "test_plugins", "space in path plugin"),
-            name    : "space-in-path-plugin",
-            usage   : "space-in-path-plugin"
+            name: "space-in-path-plugin",
+            usage: "space-in-path-plugin"
         },
         registry: {
             location: "imperative-sample-plugin",
-            name    : "imperative-sample-plugin",
-            usage   : "sample-plugin"
+            name: "imperative-sample-plugin",
+            usage: "sample-plugin"
         }
     };
 
@@ -141,16 +142,28 @@ describe("Installing Plugins", () => {
     //     expect(strippedOutput).toContain("Installation of the npm package(s) was successful.");
     // });
 
-    it("should install a plugin from a file location", function(){
+    it("should install a plugin from a file location", function () {
+        const originalEnvHome = process.env.ZOWE_CLI_HOME;
+        // Not sure if this needs done for all integration tests to simulate that
+        // --global-config will point to the __results__ directory created for the test
+        process.env.ZOWE_CLI_HOME = config.defaultHome;
 
         let result = executeCommandString(this, "--help");
+        const appPrefix = join(config.defaultHome, config.name);
 
         // Verify that the sample plugin isn't there
         expect(result.stderr).toEqual("");
         expect(result.stdout).not.toContain(plugins.normal.usage);
 
+        result = executeCommandString(this, "config init --global-config --prompt false");
+        expect(result.stderr).toEqual("");
+        expect(result.stdout).toContain(`Saved config template to ${appPrefix + ".config.json"}`);
+
+        expect(fs.readFileSync(appPrefix + ".schema.json").toString()).not.toContain(plugins.normal.name);
+
         // Now go ahead and install the sample
         result = executeCommandString(this, `${pluginGroup} install ${plugins.normal.location}`);
+        expect(fs.readFileSync(appPrefix + ".schema.json").toString()).toContain(plugins.normal.name);
         if (peerDepWarning) {
             expect(result.stderr).toMatch(/npm.*WARN/);
             expect(result.stderr).toContain("requires a peer of @zowe/imperative");
@@ -168,9 +181,11 @@ describe("Installing Plugins", () => {
 
         expect(result.stderr).toEqual("");
         expect(result.stdout).toContain(plugins.normal.usage);
+
+        process.env.ZOWE_CLI_HOME = originalEnvHome;
     });
 
-    it("should install multiple plugins at the same time", function(){
+    it("should install multiple plugins at the same time", function () {
 
         // Verify that nothing currently exists
         let result = executeCommandString(this, "--help");
@@ -203,7 +218,7 @@ describe("Installing Plugins", () => {
         expect(result.stdout).toContain(plugins.normal2.usage);
     });
 
-    it("should re-install plugins using files in the cli home directory", function(){
+    it("should re-install plugins using files in the cli home directory", function () {
 
         // check before install, and after
         const beforeInstall = executeCommandString(this, "--help");
@@ -247,7 +262,7 @@ describe("Installing Plugins", () => {
         expect(result.stdout).toEqual(afterInstall.stdout);
     });
 
-    it("should install a plugin from a file location that contain space in it path", function(){
+    it("should install a plugin from a file location that contain space in it path", function () {
 
         let result = executeCommandString(this, "--help");
 
@@ -347,9 +362,9 @@ describe("Installing Plugins", () => {
                     version: "1.0.1"
                 },
                 [plugins.normal2.name]: {
-                    package : plugins.normal2.location,
+                    package: plugins.normal2.location,
                     registry: TEST_REGISTRY,
-                    version : "1.0.2"
+                    version: "1.0.2"
                 },
             };
 
@@ -363,7 +378,7 @@ describe("Installing Plugins", () => {
             T.rimraf(testFile);
         });
 
-        it("should install using the created plugin json file", function(){
+        it("should install using the created plugin json file", function () {
 
             // Check that the plugins aren't there
             let result = executeCommandString(this, "--help");
@@ -402,7 +417,7 @@ describe("Installing Plugins", () => {
             expect(savedPluginJson).toEqual(expectedContent);
         });
 
-        it("should merge a plugins.json provided with one that is already managed", function(){
+        it("should merge a plugins.json provided with one that is already managed", function () {
 
             const initialVersion = "1.0.2";
 
@@ -478,7 +493,7 @@ describe("Installing Plugins", () => {
             expect(actualJson).toEqual(expectedJson);
         });
 
-        it("should error when a package and --file is specified", function(){
+        it("should error when a package and --file is specified", function () {
             expect(
                 T.stripNewLines(
                     executeCommandString(this, `${pluginGroup} install ${plugins.registry.location} --file ${testFile}`).stderr
@@ -486,7 +501,7 @@ describe("Installing Plugins", () => {
             ).toContain("Option --file can not be specified if positional package... is as well. They are mutually exclusive.");
         });
 
-        it("should error when --file and --registry are specified", function(){
+        it("should error when --file and --registry are specified", function () {
             expect(
                 T.stripNewLines(
                     executeCommandString(this,

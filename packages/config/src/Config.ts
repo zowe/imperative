@@ -29,6 +29,7 @@ import { IConfigVault } from "./doc/IConfigVault";
 import { ConfigLayers, ConfigPlugins, ConfigProfiles, ConfigSecure } from "./api";
 import { IConfigSchemaInfo } from "./doc/IConfigSchema";
 import { JsUtils } from "../../utilities/src/JsUtils";
+import { ImperativeConfig } from "../..";
 
 /**
  * Enum used by Config class to maintain order of config layers
@@ -61,6 +62,7 @@ export class Config {
 
     /**
      * App name used in config filenames (e.g., *my_cli*.config.json)
+     * It could be an absolute path, we recommend always using the getter method
      * @internal
      */
     public mApp: string;
@@ -294,7 +296,7 @@ export class Config {
      * App name used in config filenames (e.g., *my_cli*.config.json)
      */
     public get appName(): string {
-        return this.mApp;
+        return path.isAbsolute(this.mApp) ? ImperativeConfig.instance.loadedConfig?.name ?? path.basename(this.mApp) : this.mApp;
     }
 
     // _______________________________________________________________________
@@ -302,7 +304,7 @@ export class Config {
      * Filename used for config JSONC files
      */
     public get configName(): string {
-        return `${this.mApp}${Config.END_OF_TEAM_CONFIG}`;
+        return `${this.appName}${Config.END_OF_TEAM_CONFIG}`;
     }
 
     // _______________________________________________________________________
@@ -310,7 +312,7 @@ export class Config {
      * Filename used for user config JSONC files
      */
     public get userConfigName(): string {
-        return `${this.mApp}${Config.END_OF_USER_CONFIG}`;
+        return `${this.appName}${Config.END_OF_USER_CONFIG}`;
     }
 
     // _______________________________________________________________________
@@ -318,7 +320,7 @@ export class Config {
      * Filename used for config schema JSON files
      */
     public get schemaName(): string {
-        return `${this.mApp}.schema.json`;
+        return `${this.appName}.schema.json`;
     }
 
     // _______________________________________________________________________
@@ -337,7 +339,7 @@ export class Config {
         }
 
         const tempSchema = originalSchema.startsWith("file://") ? fileURLToPath(originalSchema) : originalSchema;
-        const schemaFilePath = path.resolve( tempSchema.startsWith("./") ? path.join(path.dirname(layer.path), tempSchema) : tempSchema);
+        const schemaFilePath = path.resolve(tempSchema.startsWith("./") ? path.join(path.dirname(layer.path), tempSchema) : tempSchema);
         return {
             original: originalSchema,
             resolved: !JsUtils.isUrl(tempSchema) ? schemaFilePath : originalSchema,
@@ -617,7 +619,7 @@ export class Config {
      */
     public formMainConfigPathNm(options: any): string {
         // if a team configuration is not active, just return the file name.
-        let configPathNm: string = this.mApp + Config.END_OF_TEAM_CONFIG;
+        let configPathNm: string = this.appName + Config.END_OF_TEAM_CONFIG;
         if (options.addPath === false) {
             // if our caller does not want the path, just return the file name.
             return configPathNm;
