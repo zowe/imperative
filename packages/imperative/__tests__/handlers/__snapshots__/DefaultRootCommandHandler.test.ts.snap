@@ -14,7 +14,63 @@ mock_command_name test-group test-command-two
 
 exports[`Default Root Command Handler should display a list of available commands with --available-commands 2`] = `
 Object {
-  "data": Object {},
+  "data": Object {
+    "children": Array [
+      Object {
+        "description": "test command one",
+        "name": "test-command-one",
+        "options": Array [
+          Object {
+            "description": "the option",
+            "name": "test-option",
+            "type": "string",
+          },
+          Object {
+            "description": "the boolean option",
+            "name": "test-boolean",
+            "type": "boolean",
+          },
+        ],
+        "positionals": Array [
+          Object {
+            "description": "the positional option",
+            "name": "positional1",
+            "required": false,
+            "type": "string",
+          },
+        ],
+        "type": "command",
+      },
+      Object {
+        "description": "test command two",
+        "name": "test-command-two",
+        "options": Array [
+          Object {
+            "description": "the option",
+            "name": "test-option",
+            "type": "string",
+          },
+          Object {
+            "description": "the boolean option",
+            "name": "test-boolean",
+            "type": "boolean",
+          },
+        ],
+        "positionals": Array [
+          Object {
+            "description": "the positional option",
+            "name": "positional1",
+            "required": false,
+            "type": "string",
+          },
+        ],
+        "type": "command",
+      },
+    ],
+    "description": "a test group",
+    "name": "test-group",
+    "type": "group",
+  },
   "error": undefined,
   "exitCode": 0,
   "message": "",
