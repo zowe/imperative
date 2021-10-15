@@ -13,13 +13,14 @@ import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerRespons
 import { ISession, ConnectionPropsForSessCfg, Session, AbstractSession } from "../../../../../../rest";
 import { ConfigConstants, ConfigSchema, IConfig } from "../../../../../../config";
 import { diff } from "jest-diff";
-import stripAnsi from "strip-ansi";
 import * as open from "open";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 import { ImperativeConfig, TextUtils } from "../../../../../../utilities";
 import { CredentialManagerFactory } from "../../../../../../security";
 import { OverridesLoader } from "../../../../OverridesLoader";
+
+import stripAnsi = require("strip-ansi");
 
 /**
  * This class is used by the auto init command handler as the base class for its implementation.

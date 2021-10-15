@@ -14,7 +14,7 @@ import { ImperativeConfig } from "../../../../../utilities";
 import { FakeAutoInitHandler } from "./__data__/FakeAutoInitHandler";
 import * as lodash from "lodash";
 import * as jestdiff from "jest-diff";
-import * as stripAnsi from "strip-ansi";
+import * as stripAnsi from"strip-ansi";
 import * as open from "open";
 import { ConfigSchema } from "../../../../../config";
 import { CredentialManagerFactory } from "../../../../../security";
@@ -268,7 +268,7 @@ describe("BaseAutoInitHandler", () => {
         expect(displayAutoInitChangesSpy).toHaveBeenCalledTimes(1);
     });
 
-    it("should call init and do a dry run", async () => {
+    it("should call init and do a dry run with output", async () => {
         const handler = new FakeAutoInitHandler();
         const params: IHandlerParameters = {
             response: {
@@ -323,7 +323,9 @@ describe("BaseAutoInitHandler", () => {
             }
         };
         const diffSpy = jest.spyOn(jestdiff, 'diff');
-        const stripAnsiSpy = jest.spyOn(stripAnsi, 'default');
+
+        jest.mock("strip-ansi");
+        const stripAnsiSpy = jest.spyOn(stripAnsi, "default");
 
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
             config: {
@@ -576,8 +578,9 @@ describe("BaseAutoInitHandler", () => {
             }
         };
         const diffSpy = jest.spyOn(jestdiff, 'diff');
-        const stripAnsiSpy = jest.spyOn(stripAnsi, 'default');
         const unsetSpy = jest.spyOn(lodash, "unset");
+        jest.mock("strip-ansi");
+        const stripAnsiSpy = jest.spyOn(stripAnsi, 'default');
 
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
             config: {
