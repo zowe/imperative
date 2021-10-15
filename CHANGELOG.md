@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Export the Imperative Command Tree on the data object of the `zowe --ac` command when `--rfj` is specified.
+
 ## `4.16.2`
 
 - BugFix: Reverts hiding the cert-key-file path so users can see what path was specified and check if the file exists
