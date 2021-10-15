@@ -296,7 +296,7 @@ export class Config {
      * App name used in config filenames (e.g., *my_cli*.config.json)
      */
     public get appName(): string {
-        return path.isAbsolute(this.mApp) ? ImperativeConfig.instance.loadedConfig?.name ?? path.basename(this.mApp) : this.mApp;
+        return this.mApp;
     }
 
     // _______________________________________________________________________

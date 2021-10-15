@@ -192,7 +192,8 @@ export class Imperative {
                 }
 
                 // Load the base config
-                ImperativeConfig.instance.config = await Config.load(this.mRootCommandName,
+                const configAppName = ImperativeConfig.instance.findPackageBinName() ? this.mRootCommandName : config.name;
+                ImperativeConfig.instance.config = await Config.load(configAppName,
                     { homeDir: ImperativeConfig.instance.cliHome });
 
                 // If plugins are allowed, enable core plugins commands
