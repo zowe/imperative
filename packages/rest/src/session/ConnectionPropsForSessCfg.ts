@@ -111,6 +111,20 @@ export class ConnectionPropsForSessCfg {
             sessCfgToUse, cmdArgs, connOptsToUse
         );
 
+        if (!ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) &&
+        !ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) &&
+        !ConnectionPropsForSessCfg.propHasValue(finalSessCfg.tokenValue) &&
+        ConnectionPropsForSessCfg.propHasValue(cmdArgs.certFile)) {
+            if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.certKeyFile)) {
+                finalSessCfg.cert = cmdArgs.certFile;
+                finalSessCfg.certKey = cmdArgs.certKeyFile;
+            }
+            // else if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.certFilePassphrase)) {
+            //     finalSessCfg.cert = cmdArgs.certFile;
+            //     finalSessCfg.passphrase = cmdArgs.certFilePassphrase;
+            // }
+        }
+
         // This function will provide all the needed properties in one array
         const promptForValues = [];
         if (connOptsToUse.getValuesBack) {
@@ -196,6 +210,30 @@ export class ConnectionPropsForSessCfg {
             connOptsToUse.doPrompting)
         {
             if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.user) === false) {
+        if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.cert) === true) {
+            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.certKey) === true) {
+                impLogger.debug("Using PEM Certificate authentication");
+                finalSessCfg.cert = cmdArgs.certFile;
+                finalSessCfg.certKey = cmdArgs.certKeyFile;
+                finalSessCfg.type = SessConstants.AUTH_TYPE_CERT_PEM;
+                ConnectionPropsForSessCfg.logSessCfg(finalSessCfg);
+            }
+            // else if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.passphrase) === true) {
+            //     impLogger.debug("Using PFX Certificate authentication");
+            //     finalSessCfg.cert = cmdArgs.certFile;
+            //     finalSessCfg.passphrase = cmdArgs.certFilePassphrase;
+            //     finalSessCfg.type = SessConstants.AUTH_TYPE_CERT_PFX;
+            //     ConnectionPropsForSessCfg.logSessCfg(finalSessCfg);
+            //     return finalSessCfg;
+            // }
+        }
+
+        /* At this point we ruled out tokens and certificates, so we use user and password. If our
+         * caller permits, we prompt for any missing user name and password.
+         */
+        if (optsToUse.doPrompting) {
+            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) === false &&
+                ConnectionPropsForSessCfg.propHasValue(finalSessCfg.cert) === false) {
                 let answer = "";
                 while (answer === "") {
                     answer = await this.clientPrompt(`Enter the user name for ${serviceDescription}: `, {
@@ -208,7 +246,8 @@ export class ConnectionPropsForSessCfg {
                 sessCfgToUse.user = answer;
             }
 
-            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.password) === false) {
+            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) === false &&
+                ConnectionPropsForSessCfg.propHasValue(finalSessCfg.cert) === false) {
                 let answer = "";
                 while (answer === "") {
 
@@ -334,7 +373,7 @@ export class ConnectionPropsForSessCfg {
      * List of properties on `sessCfg` object that should be kept secret and
      * may not appear in Imperative log files.
      */
-    private static readonly secureSessCfgProps: string[] = ["user", "password", "tokenValue"];
+    private static readonly secureSessCfgProps: string[] = ["user", "password", "tokenValue", "passphrase"];
 
     /**
      * Handle prompting for clients.  If in a CLI environment, use the IHandlerParameters.response
@@ -374,16 +413,28 @@ export class ConnectionPropsForSessCfg {
         tokenType: SessConstants.TOKEN_TYPE_CHOICES
     ) {
         const impLogger = Logger.getImperativeLogger();
-        let logMsgtext = "Using basic authentication ";
+        let logMsgtext;
+
+        if (sessCfg.cert && sessCfg.certKey) {
+            logMsgtext = "Using PEM certificate authentication ";
+            sessCfg.type = SessConstants.AUTH_TYPE_CERT_PEM;
+        // } else if (sessCfg.cert && sessCfg.passphrase) {
+        //      logMsgtext = "Using PFX certificate authentication ";
+        //      sessCfg.type = SessConstants.AUTH_TYPE_CERT_PFX;
+        } else {
+            logMsgtext = "Using basic authentication ";
+            sessCfg.type = SessConstants.AUTH_TYPE_BASIC;
+        }
 
         if (options.requestToken) {
             // Set our type to token to get a token from user and pass
             logMsgtext += "to get token";
-            sessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
+            if (!sessCfg.cert) {
+                sessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
+            }
             sessCfg.tokenType = tokenType || sessCfg.tokenType || options.defaultTokenType;
         } else {
             logMsgtext += "with no request for token";
-            sessCfg.type = SessConstants.AUTH_TYPE_BASIC;
         }
         impLogger.debug(logMsgtext);
     }

@@ -36,7 +36,7 @@
   "dependencies": {
     "@types/yargs": "13.0.4",
     "chalk": "2.4.2",
-    "cli-table3": "0.5.1",
+    "cli-table3": "0.6.0",
     "dataobject-parser": "1.2.1",
     "find-up": "4.1.0",
     "glob": "7.1.6",
@@ -52,9 +52,9 @@
     "rimraf": "2.6.3",
     "semver": "5.7.0",
     "stack-trace": "0.0.10",
-    "wrap-ansi": "3.0.1",
+    "wrap-ansi": "7.0.0",
     "yamljs": "0.3.0",
-    "yargs": "15.1.0"
+    "yargs": "15.3.1"
   },
   "devDependencies": {
     "@types/body-parser": "^1.16.4",
