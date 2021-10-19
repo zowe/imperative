@@ -187,6 +187,10 @@ export class ConfigLayers extends ConfigApi {
             }
         }
 
+        if (layer.properties.autoStore) {
+            cnfg.autoStore = true;
+        }
+
         if (dryRun) { return layer; }
     }
 }

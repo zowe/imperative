@@ -18,7 +18,6 @@ import * as SessConstants from "./SessConstants";
 import { IPromptOptions } from "../../../cmd/src/doc/response/api/handler/IPromptOptions";
 import { ISession } from "./doc/ISession";
 
-
 /**
  * Extend options for IPromptOptions for internal wrapper method
  * @interface IHandlePromptOptions
@@ -104,7 +103,6 @@ export class ConnectionPropsForSessCfg {
          */
         const sessCfgToUse = { ...initialSessCfg };
         const connOptsToUse = { ...connOpts };
-        const serviceDescription = connOptsToUse.serviceDescription || "your service";
 
         // resolve all values between sessCfg and cmdArgs using option choices
         ConnectionPropsForSessCfg.resolveSessCfgProps(
@@ -112,118 +110,42 @@ export class ConnectionPropsForSessCfg {
         );
 
         // This function will provide all the needed properties in one array
-        const promptForValues = [];
-        if (connOptsToUse.getValuesBack) {
+        const promptForValues: (keyof ISession)[] = [];
 
-            // set doPrompting to false if there's a value in getValuesBack
-            connOptsToUse.doPrompting = false;
-
-            // check what properties are needed to be prompted
-            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.hostname) === false) {
-                promptForValues.push("hostname");
-            }
-
-            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.port) === false) {
-                promptForValues.push("port");
-            }
-
-            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.tokenValue) === false &&
-                ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.cert) === false)
-            {
-                if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.user) === false) {
-                    promptForValues.push("user");
-                }
-
-                if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.password) === false) {
-                    promptForValues.push("password");
-                }
-            }
-
-            // put all the needed properties in an array and call the external function
-            const answer = await connOptsToUse.getValuesBack(promptForValues);
-
-            // validate what values are given back and move it to sessCfgToUse
-            if (ConnectionPropsForSessCfg.propHasValue(answer.hostname)) {
-                sessCfgToUse.hostname = answer.hostname;
-            }
-            if (ConnectionPropsForSessCfg.propHasValue(answer.port)) {
-                sessCfgToUse.port = answer.port;
-            }
-            if (ConnectionPropsForSessCfg.propHasValue(answer.user)) {
-                sessCfgToUse.user = answer.user;
-            }
-            if (ConnectionPropsForSessCfg.propHasValue(answer.password)) {
-                sessCfgToUse.password = answer.password;
-            }
+        // check what properties are needed to be prompted
+        if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.hostname) === false) {
+            promptForValues.push("hostname");
         }
 
-        // if our caller permits, prompt for host and port as needed
-        if (connOptsToUse.doPrompting) {
-            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.hostname) === false) {
-                let answer = "";
-                while (answer === "") {
-                    answer = await this.clientPrompt(`Enter the host name of ${serviceDescription}: `, {
-                        parms: connOptsToUse.parms
-                    });
-                    if (answer === null) {
-                        throw new ImperativeError({msg: "Timed out waiting for host name."});
-                    }
-                }
-                sessCfgToUse.hostname = answer;
-            }
-
-            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.port) === false) {
-                let answer: any;
-                while (answer === undefined) {
-                    answer = await this.clientPrompt(`Enter the port number of ${serviceDescription}: `, {
-                        parms: connOptsToUse.parms
-                    });
-                    if (answer === null) {
-                        throw new ImperativeError({msg: "Timed out waiting for port number."});
-                    } else {
-                        answer = Number(answer);
-                        if (isNaN(answer)) {
-                            throw new ImperativeError({msg: "Specified port was not a number."});
-                        }
-                    }
-                }
-                sessCfgToUse.port = answer;
-            }
+        if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.port) === false) {
+            promptForValues.push("port");
         }
 
-        /* If we have no token, no cert, and we are allowed to prompt,
-         * then we ask the user for any missing user name or missing password.
-         */
         if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.tokenValue) === false &&
-            ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.cert) === false &&
-            connOptsToUse.doPrompting)
+            ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.cert) === false)
         {
             if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.user) === false) {
-                let answer = "";
-                while (answer === "") {
-                    answer = await this.clientPrompt(`Enter the user name for ${serviceDescription}: `, {
-                        parms: connOptsToUse.parms
-                    });
-                    if (answer === null) {
-                        throw new ImperativeError({msg: "Timed out waiting for user name."});
-                    }
-                }
-                sessCfgToUse.user = answer;
+                promptForValues.push("user");
             }
 
             if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.password) === false) {
-                let answer = "";
-                while (answer === "") {
-                    answer = await this.clientPrompt(`Enter the password for ${serviceDescription}: `, {
-                        hideText: true,
-                        parms: connOptsToUse.parms
-                    });
+                promptForValues.push("password");
+            }
+        }
 
-                    if (answer === null) {
-                        throw new ImperativeError({msg: "Timed out waiting for password."});
-                    }
+        if (connOptsToUse.getValuesBack == null && connOptsToUse.doPrompting) {
+            connOptsToUse.getValuesBack = this.getValuesBack(connOptsToUse);
+        }
+
+        if (connOptsToUse.getValuesBack != null) {
+            // put all the needed properties in an array and call the external function
+            const answers = await connOptsToUse.getValuesBack(promptForValues);
+
+            // validate what values are given back and move it to sessCfgToUse
+            for (const value of promptForValues) {
+                if (ConnectionPropsForSessCfg.propHasValue(answers[value])) {
+                    (sessCfgToUse as any)[value] = answers[value];
                 }
-                sessCfgToUse.password = answer;
             }
         }
 
@@ -362,6 +284,42 @@ export class ConnectionPropsForSessCfg {
      */
     private static readonly secureSessCfgProps: string[] = ["user", "password", "tokenValue", "passphrase"];
 
+    private static readonly promptTextForValues: { [key: string]: string } = {
+        hostname: "Enter the host name of",
+        port: "Enter the port number of",
+        user: "Enter the user name for",
+        password: "Enter the password for"
+    };
+
+    private static getValuesBack(connOpts: IOptionsForAddConnProps): (properties: string[]) => Promise<{ [key: string]: any }> {
+        return async (promptForValues: string[]) => {
+            const answers: { [key: string]: any } = {};
+            const serviceDescription = connOpts.serviceDescription || "your service";
+
+            for (const value of promptForValues) {
+                let answer;
+                while (answer === undefined) {
+                    answer = await this.clientPrompt(`${this.promptTextForValues[value]} ${serviceDescription}: `, {
+                        hideText: value === "password",
+                        parms: connOpts.parms
+                    });
+                    if (answer === null) {
+                        throw new ImperativeError({ msg: `Timed out waiting for ${value}.` });
+                    }
+                }
+                if (value === "port") {
+                    answer = Number(answer);
+                    if (isNaN(answer)) {
+                        throw new ImperativeError({ msg: "Specified port was not a number." });
+                    }
+                }
+                answers[value] = answer;
+            }
+
+            return answers;
+        };
+    }
+
     /**
      * Handle prompting for clients.  If in a CLI environment, use the IHandlerParameters.response
      * object prompt method.
@@ -443,9 +401,6 @@ export class ConnectionPropsForSessCfg {
      * @returns true is the property exists and has a value. false otherwise.
      */
     private static propHasValue(propToTest: any) {
-        if ((propToTest === undefined || propToTest === null) || ((typeof propToTest) === "string" && propToTest.length === 0)) {
-            return false;
-        }
-        return true;
+        return propToTest != null && propToTest !== "";
     }
 }

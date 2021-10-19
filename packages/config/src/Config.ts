@@ -499,8 +499,13 @@ export class Config {
             }
 
             // Merge "defaults" - only add new properties from this layer
-            for (const [name, value] of Object.entries(layer.properties.defaults))
+            for (const [name, value] of Object.entries(layer.properties.defaults)) {
                 c.defaults[name] = c.defaults[name] || value;
+            }
+
+            if (layer.properties.autoStore) {
+                c.autoStore = true;
+            }
         });
 
         // Merge the project layer profiles
