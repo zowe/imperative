@@ -6,6 +6,10 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: Added `dry-run` option for `zowe config init` command to preview changes instead of saving them to disk. [#1037](https://github.com/zowe/zowe-cli/issues/1037)
 
+## `5.0.0-next.202110191937`
+
+- **Breaking**: Added the new, required, abstract method 'displayAutoInitChanges' to the 'BaseAutoInitHandler' class.
+
 ## `5.0.0-next.202110071645`
 
 - Enhancement: Added `config update-schemas [--depth <value>]` command. [zowe/zowe-cli#1059](https://github.com/zowe/zowe-cli/issues/1059)
@@ -126,9 +130,21 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
 
+## `4.16.2`
+
+- BugFix: Reverts hiding the cert-key-file path so users can see what path was specified and check if the file exists
+
+## `4.16.1`
+
+- BugFix: Updated dependencies to resolve problems with the ansi-regex package
+
+## `4.16.0`
+
+- Enhancement: Implemented the ability to authenticate using client certificates in PEM format.
+
 ## `4.15.1`
 
-- Bugfix: Update js-yaml to resolve a potential security issue
+- Bugfix: Updated js-yaml to resolve a potential security issue
 
 ## `4.15.0`
 
@@ -136,7 +152,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## `4.14.0`
 
-- Enhancement: The `plugins validate` command will return an error code when plugins have errors if the new `--fail-on-error` option is specified. Also adds `--fail-on-warning` option to return with an error code when plugins have warnings. [#463](https://github.com/zowe/imperative/issues/463)
+- Enhancement: The `plugins validate` command returns an error code when plugins have errors if the new `--fail-on-error` option is specified. Also added `--fail-on-warning` option to return with an error code when plugins have warnings. [#463](https://github.com/zowe/imperative/issues/463)
 - BugFix: Fixed regression where characters are not correctly escaped in web help causing extra slashes ("\") to appear. [#644](https://github.com/zowe/imperative/issues/644)
 
 ## `4.13.4`

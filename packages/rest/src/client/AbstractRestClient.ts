@@ -11,10 +11,11 @@
 
 import { inspect } from "util";
 import { Logger } from "../../../logger";
-import { IImperativeError } from "../../../error";
+import { IImperativeError, ImperativeError } from "../../../error";
 import { AbstractSession } from "../session/AbstractSession";
 import * as https from "https";
 import * as http from "http";
+import { readFileSync } from "fs";
 import { ContentEncoding, Headers } from "./Headers";
 import { RestConstants } from "./RestConstants";
 import { ImperativeReject } from "../../../interfaces";
@@ -268,6 +269,18 @@ export abstract class AbstractRestClient {
             let clientRequest: http.ClientRequest;
             if (this.session.ISession.protocol === SessConstants.HTTPS_PROTOCOL) {
                 clientRequest = https.request(buildOptions, this.requestHandler.bind(this));
+                // try {
+                //     clientRequest = https.request(buildOptions, this.requestHandler.bind(this));
+                // } catch (err) {
+                //     if (err.message === "mac verify failure") {
+                //         throw new ImperativeError({
+                //             msg: "Failed to decrypt PFX file - verify your certificate passphrase is correct.",
+                //             causeErrors: err,
+                //             additionalDetails: err.message,
+                //             stack: err.stack
+                //         });
+                //     } else { throw err; }
+                // }
             } else if (this.session.ISession.protocol === SessConstants.HTTP_PROTOCOL) {
                 clientRequest = http.request(buildOptions, this.requestHandler.bind(this));
             }
@@ -456,7 +469,33 @@ export abstract class AbstractRestClient {
             headerKeys.forEach((property) => {
                 options.headers[property] = authentication;
             });
+        } else if (this.session.ISession.type === SessConstants.AUTH_TYPE_CERT_PEM) {
+            this.log.trace("Using PEM Certificate authentication");
+            try {
+                // Doing this again for SDKs using certificates
+                options.cert = readFileSync(this.session.ISession.cert);
+                options.key = readFileSync(this.session.ISession.certKey);
+            } catch (err) {
+                throw new ImperativeError({
+                    msg: "Failed to open one or more PEM certificate files, the file(s) did not exist.",
+                    causeErrors: err,
+                    additionalDetails: err.message,
+                });
+            }
         }
+        // else if (this.session.ISession.type === SessConstants.AUTH_TYPE_CERT_PFX) {
+        //     this.log.trace("Using PFX Certificate authentication");
+        //     try {
+        //         options.pfx = readFileSync(this.session.ISession.cert);
+        //     } catch (err) {
+        //         throw new ImperativeError({
+        //             msg: "Certificate authentication failed when trying to read files.",
+        //             causeErrors: err,
+        //             additionalDetails: err.message,
+        //         });
+        //     }
+        //     options.passphrase = this.session.ISession.passphrase;
+        // }
 
         // for all headers passed into this request, append them to our options object
         reqHeaders = this.appendHeaders(reqHeaders);
@@ -484,7 +523,8 @@ export abstract class AbstractRestClient {
         this.mContentEncoding = null;
 
         if (this.requestSuccess) {
-            if (this.session.ISession.type === SessConstants.AUTH_TYPE_TOKEN) {
+            // This is not ideal, but is the only way to avoid introducing a breaking change.
+            if (this.session.ISession.type === SessConstants.AUTH_TYPE_TOKEN || this.session.ISession.storeCookie === true) {
                 if (RestConstants.PROP_COOKIE in this.response.headers) {
                     this.session.storeCookie(this.response.headers[RestConstants.PROP_COOKIE]);
                 }
