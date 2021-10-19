@@ -590,8 +590,8 @@ describe("Default Help Generator", () => {
             const helpGen: DefaultHelpGenerator = new DefaultHelpGenerator(GENERATOR_PARMS,
                 { commandDefinition: deprecatedGroup, fullCommandTree: fakeParent });
             const summary = helpGen.buildChildrenSummaryTables();
-            expect(summary).toContain("deprecated-command-one | dc1 Our first deprecated command. (deprecated)");
-            expect(summary).toContain("deprecated-command-two | dc2 Our second deprecated command. (deprecated)");
+            expect(summary).toContain("deprecated-command-one | dc1 Our first deprecated command.  (deprecated)");
+            expect(summary).toContain("deprecated-command-two | dc2 Our second deprecated command.  (deprecated)");
             expect(summary).toContain("not-deprecated-command | ndc Our non-deprecated command.");
 
             // jest's weird way of testing that a string does not contain a specific string

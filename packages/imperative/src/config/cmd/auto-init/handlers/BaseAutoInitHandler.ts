@@ -9,17 +9,18 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters, ICommandArguments } from "../../../../../../cmd";
+import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerResponseApi } from "../../../../../../cmd";
 import { ISession, ConnectionPropsForSessCfg, Session, AbstractSession } from "../../../../../../rest";
 import { ConfigConstants, ConfigSchema, IConfig } from "../../../../../../config";
 import { diff } from "jest-diff";
-import stripAnsi from "strip-ansi";
 import * as open from "open";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 import { ImperativeConfig, TextUtils } from "../../../../../../utilities";
 import { CredentialManagerFactory } from "../../../../../../security";
 import { OverridesLoader } from "../../../../OverridesLoader";
+
+import stripAnsi = require("strip-ansi");
 
 /**
  * This class is used by the auto init command handler as the base class for its implementation.
@@ -70,6 +71,13 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
      * @returns {Promise<string>} The response from the auth service containing a token
      */
     protected abstract doAutoInit(session: AbstractSession, params: IHandlerParameters): Promise<IConfig>;
+
+    /**
+     * This is called by processAutoInit() to display the report of configuration updates.
+     * @abstract
+     * @param {IHandlerParameters} params The command line parameters.
+     */
+    protected abstract displayAutoInitChanges(response: IHandlerResponseApi): void;
 
     /**
      * Processes the auto init command to the auto init service.
@@ -153,7 +161,8 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             if (params.arguments.forSure && params.arguments.forSure === true) {
                 // Clear layer, merge, generate schema, and save
                 ImperativeConfig.instance.config.api.layers.set(profileConfig);
-                ConfigSchema.updateSchema();
+                const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
+                ImperativeConfig.instance.config.setSchema(schema);
                 await ImperativeConfig.instance.config.save(false);
             }
         } else {
@@ -161,9 +170,15 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             ImperativeConfig.instance.config.api.layers.merge(profileConfig);
             if (ImperativeConfig.instance.config.api.layers.get().properties.$schema == null) {
                 // TODO What condition should we use to decide whether to (re)generate schema?
-                ConfigSchema.updateSchema();
+                const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
+                ImperativeConfig.instance.config.setSchema(schema);
             }
             await ImperativeConfig.instance.config.save(false);
+        }
+
+        // we only display changes if we made changes
+        if (!params.arguments.dryRun || params.arguments.dryRun === false) {
+            this.displayAutoInitChanges(params.response);
         }
     }
 

@@ -75,6 +75,7 @@ describe("cmd-cli config auto-init", () => {
         const response = runCliScript(__dirname + "/__scripts__/auto-init_config.sh",
             TEST_ENVIRONMENT.workingDir + "/testDir", ["--host example.com", "--port 443", "--user admin", "--password 123456"]);
         expect(response.stderr.toString()).toBe("");
+        expect(response.stdout.toString()).toContain("**auto-init changes**");
         expect(response.status).toBe(0);
 
         expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir + "/testDir" }))
@@ -90,6 +91,7 @@ describe("cmd-cli config auto-init", () => {
         const response = runCliScript(__dirname + "/__scripts__/auto-init_config.sh",
             TEST_ENVIRONMENT.workingDir + "/testDir", ["--user-config", "--host example.com", "--port 443", "--user admin", "--password 123456"]);
         expect(response.stderr.toString()).toBe("");
+        expect(response.stdout.toString()).toContain("**auto-init changes**");
         expect(response.status).toBe(0);
 
         expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir + "/testDir" }))
@@ -106,6 +108,7 @@ describe("cmd-cli config auto-init", () => {
             TEST_ENVIRONMENT.workingDir + "/testDir", ["--global-config",
                 "--host example.com", "--port 443", "--user admin", "--password 123456"]);
         expect(response.stderr.toString()).toBe("");
+        expect(response.stdout.toString()).toContain("**auto-init changes**");
         expect(response.status).toBe(0);
 
         expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir }))
@@ -122,6 +125,7 @@ describe("cmd-cli config auto-init", () => {
             TEST_ENVIRONMENT.workingDir + "/testDir", ["--global-config", "--user-config",
                 "--host example.com", "--port 443", "--user admin", "--password 123456"]);
         expect(response.stderr.toString()).toBe("");
+        expect(response.stdout.toString()).toContain("**auto-init changes**");
         expect(response.status).toBe(0);
 
         expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir }))
@@ -182,6 +186,7 @@ describe("cmd-cli config auto-init", () => {
             TEST_ENVIRONMENT.workingDir + "/testDir", ["--dry-run",
                 "--host example.com", "--port 443", "--user admin", "--password 123456"]);
         expect(response.stderr.toString()).toBe("");
+        expect(response.stdout.toString()).not.toContain("**auto-init changes**");
         expect(response.status).toBe(0);
 
         expect(glob.sync("*.json", { cwd: TEST_ENVIRONMENT.workingDir + "/testDir" })).toEqual([]);
