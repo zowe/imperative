@@ -15,7 +15,7 @@
 
 import * as fs from "fs";
 import * as T from "../../../../../src/TestUtil";
-import { join } from "path";
+import { join, resolve } from "path";
 import { TEST_REGISTRY } from "../../../../../__src__/TestConstants";
 import { execSync, SpawnSyncReturns } from "child_process";
 
@@ -149,7 +149,7 @@ describe("Installing Plugins", () => {
         process.env.ZOWE_CLI_HOME = config.defaultHome;
 
         let result = executeCommandString(this, "--help");
-        const appPrefix = join(config.defaultHome, config.name);
+        const appPrefix = resolve(config.defaultHome, config.name);
 
         // Verify that the sample plugin isn't there
         expect(result.stderr).toEqual("");
