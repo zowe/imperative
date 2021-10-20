@@ -129,7 +129,7 @@ describe("Default Help Generator", () => {
                 deprecatedReplacement: "Use a better command than dc1",
                 aliases: ["dc1"],
                 type: "command",
-                description: "Our first deprecated command. ",
+                description: "Our first deprecated command.",
                 options: [EXAMPLE_APPLE_OPTION,
                     EXAMPLE_STRAWBERRY_OPTION,
                     EXAMPLE_PICK_OPTION]
@@ -138,7 +138,7 @@ describe("Default Help Generator", () => {
                 name: "not-deprecated-command",
                 aliases: ["ndc"],
                 type: "command",
-                description: "Our non-deprecated command. ",
+                description: "Our non-deprecated command.",
                 options: [EXAMPLE_APPLE_OPTION,
                     EXAMPLE_STRAWBERRY_OPTION,
                     EXAMPLE_PICK_OPTION]
@@ -148,7 +148,7 @@ describe("Default Help Generator", () => {
                 deprecatedReplacement: "Use a better command than dc2",
                 aliases: ["dc2"],
                 type: "command",
-                description: "Our second deprecated command. ",
+                description: "Our second deprecated command.",
                 options: [EXAMPLE_APPLE_OPTION,
                     EXAMPLE_STRAWBERRY_OPTION,
                     EXAMPLE_PICK_OPTION]

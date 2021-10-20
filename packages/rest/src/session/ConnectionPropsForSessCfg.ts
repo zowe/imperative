@@ -17,6 +17,7 @@ import { Logger } from "../../../logger";
 import * as SessConstants from "./SessConstants";
 import { IPromptOptions } from "../../../cmd/src/doc/response/api/handler/IPromptOptions";
 import { ISession } from "./doc/ISession";
+import { ConnectionPropsForProfile } from "./ConnectionPropsForProfile";
 
 /**
  * Extend options for IPromptOptions for internal wrapper method
@@ -295,27 +296,30 @@ export class ConnectionPropsForSessCfg {
         return async (promptForValues: string[]) => {
             const answers: { [key: string]: any } = {};
             const serviceDescription = connOpts.serviceDescription || "your service";
+            const connPropsForProfile = new ConnectionPropsForProfile(connOpts.parms, promptForValues);
+            const profileSchema = connPropsForProfile.loadSchemaForSessCfgProps();
 
             for (const value of promptForValues) {
                 let answer;
                 while (answer === undefined) {
                     answer = await this.clientPrompt(`${this.promptTextForValues[value]} ${serviceDescription}: `, {
-                        hideText: value === "password",
+                        hideText: profileSchema[value]?.secure,
                         parms: connOpts.parms
                     });
                     if (answer === null) {
                         throw new ImperativeError({ msg: `Timed out waiting for ${value}.` });
                     }
                 }
-                if (value === "port") {
+                if (profileSchema[value]?.type === "number") {
                     answer = Number(answer);
                     if (isNaN(answer)) {
-                        throw new ImperativeError({ msg: "Specified port was not a number." });
+                        throw new ImperativeError({ msg: "Specified value was not a number." });
                     }
                 }
                 answers[value] = answer;
             }
 
+            await connPropsForProfile.autoStoreSessCfgProps(answers);
             return answers;
         };
     }
