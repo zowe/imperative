@@ -29,6 +29,28 @@
         "type": "command",
         "handler": "./lib/sample-plugin/cmd/bar/bar.handler"
       }
+    ],
+    "profiles": [
+      {
+        "type": "normal-plugin",
+        "schema": {
+          "type": "object",
+          "title": "normal-plugin Profile",
+          "description": "A normal-plugin profile",
+          "properties": {
+            "cool": {
+              "type": "string",
+              "optionDefinition": {
+                "name": "cool",
+                "description": "A cool property",
+                "type": "string",
+                "required": false,
+                "defaultValue": "duck"
+              }
+            }
+          }
+        }
+      }
     ]
   },
   "peerDependencies": {

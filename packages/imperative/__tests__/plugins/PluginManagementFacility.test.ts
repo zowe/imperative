@@ -1696,9 +1696,8 @@ describe("Plugin Management Facility", () => {
             const mockContent = require(modulePath);
             mockFormPluginRuntimePath.mockReturnValue(modulePath);
 
-            const moduleContent = PMF.requirePluginModuleCallback(modulePath);
+            const moduleContent = PMF.requirePluginModuleCallback("dummy")(modulePath);
             expect(moduleContent).toBe(mockContent);
-
         });
 
         it("should record an error when the module does not exist", () => {
@@ -1706,8 +1705,8 @@ describe("Plugin Management Facility", () => {
             mockFormPluginRuntimePath.mockReturnValue(modulePath);
             PMF.currPluginName = "PluginWithConfigModule";
 
-            const moduleContent = PMF.requirePluginModuleCallback(modulePath);
-            const issue = pluginIssues.getIssueListForPlugin(PMF.pluginNmForUseInCallback)[0];
+            const moduleContent = PMF.requirePluginModuleCallback(PMF.currPluginName)(modulePath);
+            const issue = pluginIssues.getIssueListForPlugin(PMF.currPluginName)[0];
             expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
             expect(issue.issueText).toContain(
                 "Unable to load the following module for plug-in");
