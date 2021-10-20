@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.0.0-next.202110201735`
 
 - **LTS Breaking**
     - Changed the return value of the public `PluginManagementFacility.requirePluginModuleCallback` function
