@@ -127,6 +127,20 @@ export class ConfigProfiles extends ConfigApi {
         return shortPath.replace(/(^|\.)/g, "$1profiles.");
     }
 
+    /**
+     * Finds the highest priority layer where a profile is stored.
+     *
+     * @param loadedProfile
+     *
+     * @returns User and global properties
+     */
+    public getPriorityLayer(loadedProfile: IConfigLoadedProfile): { user: boolean, global: boolean } {
+        return {
+            user: Object.values(loadedProfile.properties).every(v => v.user),
+            global: Object.values(loadedProfile.properties).some(v => v.global)
+        };
+    }
+
     // _______________________________________________________________________
     /**
      * Load the properties and sub-profiles of the profile at the

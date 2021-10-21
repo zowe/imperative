@@ -11,13 +11,13 @@
 
 import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerResponseApi } from "../../../../cmd";
 import { Constants } from "../../../../constants";
-import { ISession, ConnectionPropsForSessCfg, Session, SessConstants, AbstractSession, IOptionsForAddConnProps } from "../../../../rest";
+import { AbstractSession, ConnectionPropsForProfile, ConnectionPropsForSessCfg, IOptionsForAddConnProps, ISession,
+    SessConstants, Session } from "../../../../rest";
 import { Imperative } from "../../Imperative";
 import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../profiles";
 import { ImperativeConfig } from "../../../../utilities";
-import { Config } from "../../../../config";
 import { CredentialManagerFactory } from "../../../../security";
 import { secureSaveError } from "../../../../config/src/ConfigUtils";
 
@@ -122,7 +122,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         );
         const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             sessCfg, params.arguments,
-            { requestToken: true, defaultTokenType: this.mDefaultTokenType, parms: params },
+            { requestToken: true, defaultTokenType: this.mDefaultTokenType, parms: params, autoStore: false },
         );
 
         this.mSession = new Session(sessCfgWithCreds);
@@ -151,7 +151,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             // update the profile given
             // TODO Should config be added to IHandlerParameters?
             const config = ImperativeConfig.instance.config;
-            let profileName = this.getBaseProfileName(params, config);
+            let profileName = this.getBaseProfileName(params);
             const loadedProfile = config.api.profiles.load(profileName);
             let profileExists = loadedProfile != null && Object.keys(loadedProfile.properties).length > 0;
             const beforeLayer = config.api.layers.get();
@@ -179,8 +179,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 });
                 config.api.profiles.defaultSet(this.mProfileType, profileName);
             } else {
-                const user = Object.keys(loadedProfile.properties).every((k: string) => loadedProfile.properties[k].user);
-                const global = Object.keys(loadedProfile.properties).some((k: string) => loadedProfile.properties[k].global);
+                const { user, global } = config.api.profiles.getPriorityLayer(loadedProfile);
                 config.api.layers.activate(user, global);
             }
 
@@ -199,12 +198,9 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         }
     }
 
-    private getBaseProfileName(params: IHandlerParameters, config: Config): string {
-        let profileName = params.arguments[`${this.mProfileType}-profile`] || config.properties.defaults[this.mProfileType];
-        if (profileName == null || !config.api.profiles.exists(profileName)) {
-            profileName = `${this.mProfileType}_${params.positionals[2]}`;
-        }
-        return profileName;
+    private getBaseProfileName(params: IHandlerParameters): string {
+        return ConnectionPropsForProfile.getActiveProfileName(this.mProfileType, params.arguments,
+            `${this.mProfileType}_${params.positionals[2]}`);
     }
 
     private async promptForBaseProfile(params: IHandlerParameters, profileName: string): Promise<boolean> {
@@ -257,7 +253,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             await this.processLogoutOld(params);
         } else {
             const config = ImperativeConfig.instance.config;
-            const profileName = this.getBaseProfileName(params, config);
+            const profileName = this.getBaseProfileName(params);
             const loadedProfile = config.api.profiles.load(profileName);
             let profileWithToken: string = null;
 

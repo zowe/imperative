@@ -18,6 +18,7 @@ import * as SessConstants from "./SessConstants";
 import { IPromptOptions } from "../../../cmd/src/doc/response/api/handler/IPromptOptions";
 import { ISession } from "./doc/ISession";
 import { ConnectionPropsForProfile } from "./ConnectionPropsForProfile";
+import { IProfileProperty } from "../../..";
 
 /**
  * Extend options for IPromptOptions for internal wrapper method
@@ -134,8 +135,11 @@ export class ConnectionPropsForSessCfg {
             }
         }
 
+        const connPropsForProfile = new ConnectionPropsForProfile(connOpts.parms, promptForValues);
+
         if (connOptsToUse.getValuesBack == null && connOptsToUse.doPrompting) {
-            connOptsToUse.getValuesBack = this.getValuesBack(connOptsToUse);
+            const profileSchema = connPropsForProfile.loadSchemaForSessCfgProps();
+            connOptsToUse.getValuesBack = this.getValuesBack(connOptsToUse, profileSchema);
         }
 
         if (connOptsToUse.getValuesBack != null) {
@@ -147,6 +151,10 @@ export class ConnectionPropsForSessCfg {
                 if (ConnectionPropsForSessCfg.propHasValue(answers[value])) {
                     (sessCfgToUse as any)[value] = answers[value];
                 }
+            }
+
+            if (connOpts.autoStore !== false) {
+                await connPropsForProfile.autoStoreSessCfgProps(sessCfgToUse);
             }
         }
 
@@ -292,12 +300,12 @@ export class ConnectionPropsForSessCfg {
         password: "Enter the password for"
     };
 
-    private static getValuesBack(connOpts: IOptionsForAddConnProps): (properties: string[]) => Promise<{ [key: string]: any }> {
+    private static getValuesBack(connOpts: IOptionsForAddConnProps,
+        profileSchema: { [key: string]: IProfileProperty }):
+        (properties: string[]) => Promise<{ [key: string]: any }> {
         return async (promptForValues: string[]) => {
             const answers: { [key: string]: any } = {};
             const serviceDescription = connOpts.serviceDescription || "your service";
-            const connPropsForProfile = new ConnectionPropsForProfile(connOpts.parms, promptForValues);
-            const profileSchema = connPropsForProfile.loadSchemaForSessCfgProps();
 
             for (const value of promptForValues) {
                 let answer;
@@ -319,7 +327,6 @@ export class ConnectionPropsForSessCfg {
                 answers[value] = answer;
             }
 
-            await connPropsForProfile.autoStoreSessCfgProps(answers);
             return answers;
         };
     }
@@ -356,7 +363,7 @@ export class ConnectionPropsForSessCfg {
      * @param tokenType
      *       The type of token that we expect to receive.
      */
-    private static setTypeForTokenRequest(
+    public static setTypeForTokenRequest(
         sessCfg: any,
         options: IOptionsForAddConnProps,
         tokenType: SessConstants.TOKEN_TYPE_CHOICES
