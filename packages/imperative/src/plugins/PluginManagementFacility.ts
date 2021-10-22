@@ -121,16 +121,6 @@ export class PluginManagementFacility {
     private pluginIssues = PluginIssues.instance;
 
     /**
-     * The name of the plugin currently being processed.
-     * This is required by callback function requirePluginModuleCallback, whose signature
-     * is fixed, and cannot have the plugin name passed in.
-     *
-     * @private
-     * @type {string}
-     */
-    private pluginNmForUseInCallback: string = "NoPluginNameAssigned";
-
-    /**
      * A set of bright dependencies used by plugins. Each item in the
      * set contains the dependency's property name, and the the version
      * of that dependency.
@@ -372,28 +362,29 @@ export class PluginManagementFacility {
 
     // __________________________________________________________________________
     /**
-     * Require a module from a plugin using a relative path name to the module.
-     * Used as a callback function from the ConfigurationLoader to load
-     * configuration handlers.
+     * Produces a function that requires a module from a plugin using a relative
+     * path name from the plugin's root to the module. Used as a callback function
+     * from the ConfigurationLoader to load configuration handlers.
      *
-     * @param {string} relativePath - A relative path from plugin's root.
-     *        Typically supplied as ./lib/blah/blah/blah.
+     * @param {string} pluginName - The name of the plugin/module to load.
      *
-     * @returns {any} - The content exported from the specified module.
+     * @returns {function} - The method responsible for requiring the module
      */
-    public requirePluginModuleCallback(relativePath: string): any {
+    public requirePluginModuleCallback(pluginName: string): ((relativePath: string) => any) {
 
-        const pluginModuleRuntimePath = this.formPluginRuntimePath(this.pluginNmForUseInCallback, relativePath);
-        try {
-            return require(pluginModuleRuntimePath);
-        } catch (requireError) {
-            PluginIssues.instance.recordIssue(this.pluginNmForUseInCallback, IssueSeverity.CMD_ERROR,
-                "Unable to load the following module for plug-in '" +
-                this.pluginNmForUseInCallback + "' :\n" + pluginModuleRuntimePath + "\n" +
-                "Reason = " + requireError.message
-            );
-            return "{}";
-        }
+        return (relativePath: string) => {
+            const pluginModuleRuntimePath = this.formPluginRuntimePath(pluginName, relativePath);
+            try {
+                return require(pluginModuleRuntimePath);
+            } catch (requireError) {
+                PluginIssues.instance.recordIssue(pluginName, IssueSeverity.CMD_ERROR,
+                    "Unable to load the following module for plug-in '" +
+                    pluginName + "' :\n" + pluginModuleRuntimePath + "\n" +
+                    "Reason = " + requireError.message
+                );
+                return "{}";
+            }
+        };
     }
 
     // __________________________________________________________________________
@@ -876,10 +867,9 @@ export class PluginManagementFacility {
         }
 
         let pluginConfig: IImperativeConfig;
-        this.pluginNmForUseInCallback = pluginName;
         try {
             pluginConfig = ConfigurationLoader.load(
-                null, pkgJsonData, this.requirePluginModuleCallback.bind(this)
+                null, pkgJsonData, this.requirePluginModuleCallback(pluginName)
             );
         }
         catch (impError) {
@@ -896,8 +886,6 @@ export class PluginManagementFacility {
             timingApi.mark("END_LOAD_PLUGIN");
             timingApi.measure("Load plugin completed", "START_LOAD_PLUGIN", "END_LOAD_PLUGIN");
         }
-
-        this.pluginNmForUseInCallback = "NoPluginNameAssigned";
 
         pluginCfgProps.impConfig = pluginConfig;
         return pluginCfgProps;
