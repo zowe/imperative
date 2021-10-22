@@ -177,13 +177,6 @@ describe("Configuration Initialization command handler", () => {
 
         await handler.process(params as IHandlerParameters);
 
-        const compObj: any = {};
-        // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
-        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        // delete compObj.profiles.secured.properties.secret; // Delete the secret
-        // compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
-
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledTimes(1);
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
@@ -192,13 +185,11 @@ describe("Configuration Initialization command handler", () => {
         // Prompting for secure property
         expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
-        expect(writeFileSyncSpy).toHaveBeenCalledTimes(1); // ****** 2
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
         // Schema
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
-        // expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
-        // expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual("fakeValue");
         expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
         expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
     });
