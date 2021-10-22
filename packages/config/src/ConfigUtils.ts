@@ -9,8 +9,18 @@
 *
 */
 
+import { ICommandArguments } from "../../cmd";
 import { ImperativeConfig } from "../../utilities";
 import { ImperativeError } from "../../error";
+
+export function getActiveProfileName(profileType: string, cmdArguments: ICommandArguments, defaultProfileName?: string): string {
+    // Look for profile name first in command line arguments, second in
+    // default profiles defined in config, and finally fall back to using
+    // the profile type as the profile name.
+    return cmdArguments[`${profileType}-profile`] ||
+        ImperativeConfig.instance.config.properties.defaults[profileType] ||
+        defaultProfileName || profileType;
+}
 
 /**
  * Form an error message for failres to securely save a value.

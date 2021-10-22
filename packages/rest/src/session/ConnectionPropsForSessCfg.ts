@@ -363,7 +363,7 @@ export class ConnectionPropsForSessCfg {
      * @param tokenType
      *       The type of token that we expect to receive.
      */
-    public static setTypeForTokenRequest(
+    private static setTypeForTokenRequest(
         sessCfg: any,
         options: IOptionsForAddConnProps,
         tokenType: SessConstants.TOKEN_TYPE_CHOICES

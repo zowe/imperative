@@ -11,15 +11,19 @@
 
 import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerResponseApi } from "../../../../cmd";
 import { Constants } from "../../../../constants";
-import { AbstractSession, ConnectionPropsForProfile, ConnectionPropsForSessCfg, IOptionsForAddConnProps, ISession,
-    SessConstants, Session } from "../../../../rest";
+import { AbstractSession } from "../../../../rest/src/session/AbstractSession";
+import { ConnectionPropsForSessCfg } from "../../../../rest/src/session/ConnectionPropsForSessCfg";
+import { IOptionsForAddConnProps } from "../../../../rest/src/session/doc/IOptionsForAddConnProps";
+import { ISession } from "../../../../rest/src/session/doc/ISession";
+import { Session } from "../../../../rest/src/session/Session";
+import { AUTH_TYPE_BASIC, TOKEN_TYPE_CHOICES } from "../../../../rest/src/session/SessConstants";
 import { Imperative } from "../../Imperative";
 import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../profiles";
 import { ImperativeConfig } from "../../../../utilities";
 import { CredentialManagerFactory } from "../../../../security";
-import { secureSaveError } from "../../../../config/src/ConfigUtils";
+import { getActiveProfileName, secureSaveError } from "../../../../config/src/ConfigUtils";
 
 /**
  * This class is used by the auth command handlers as the base class for their implementation.
@@ -33,7 +37,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
     /**
      * The default token type to use if not specified as a command line option
      */
-    protected abstract mDefaultTokenType: SessConstants.TOKEN_TYPE_CHOICES;
+    protected abstract mDefaultTokenType: TOKEN_TYPE_CHOICES;
 
     /**
      * The description of your service to be used in CLI prompt messages
@@ -199,8 +203,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
     }
 
     private getBaseProfileName(params: IHandlerParameters): string {
-        return ConnectionPropsForProfile.getActiveProfileName(this.mProfileType, params.arguments,
-            `${this.mProfileType}_${params.positionals[2]}`);
+        return getActiveProfileName(this.mProfileType, params.arguments, `${this.mProfileType}_${params.positionals[2]}`);
     }
 
     private async promptForBaseProfile(params: IHandlerParameters, profileName: string): Promise<boolean> {
@@ -360,7 +363,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             profileWithToken = loadedProfile.name;
         }
 
-        this.mSession.ISession.type = SessConstants.AUTH_TYPE_BASIC;
+        this.mSession.ISession.type = AUTH_TYPE_BASIC;
         this.mSession.ISession.tokenType = undefined;
         this.mSession.ISession.tokenValue = undefined;
 

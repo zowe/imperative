@@ -10,14 +10,17 @@
 */
 
 import * as lodash from "lodash";
-import { ISession, SessConstants } from "../..";
-import { BaseAuthHandler, ImperativeConfig, IProfileProperty, IProfileTypeConfiguration } from "../../..";
-import { ICommandArguments,IHandlerParameters } from "../../../cmd";
+import { ICommandArguments, IHandlerParameters } from "../../../cmd";
 import { ICommandHandlerRequire } from "../../../cmd/src/doc/handler/ICommandHandlerRequire";
 import { ICommandProfileAuthConfig } from "../../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
-import { IConfigLoadedProfile } from "../../../config";
-import { ConnectionPropsForSessCfg } from "./ConnectionPropsForSessCfg";
+import { IConfigLoadedProfile } from "../../../config/src/doc/IConfigLoadedProfile";
+import * as ConfigUtils from "../../../config/src/ConfigUtils";
+import { BaseAuthHandler } from "../../../imperative/src/auth/handlers/BaseAuthHandler";
+import { IProfileProperty, IProfileTypeConfiguration } from "../../../profiles";
+import { ImperativeConfig } from "../../../utilities";
+import { ISession } from "./doc/ISession";
 import { Session } from "./Session";
+import { AUTH_TYPE_TOKEN } from "./SessConstants";
 
 interface IActiveProfileData {
     cmdArguments: ICommandArguments;
@@ -42,15 +45,17 @@ export class ConnectionPropsForProfile {
     public async autoStoreSessCfgProps(sessCfg: { [key: string]: any }): Promise<void> {
         const config = ImperativeConfig.instance.config;
         // TODO Figure out how autoStore should work when value conflicts between layers
-        if (this.mActiveProfile == null || !config.exists || !config.layerActive().properties.autoStore) {
+        if (this.mActiveProfile == null || this.mProfileProps.length == 0 || !config.exists || !config.layerActive().properties.autoStore) {
             return;
         }
 
+        // TODO Should we only fetch token if user/password were prompted for
         const profilePath = config.api.profiles.expandPath(this.mActiveProfile.profileName);
         const authHandlerClass = ConnectionPropsForProfile.findAuthHandlerForProfile(profilePath, this.mActiveProfile.cmdArguments);
         if (authHandlerClass != null) {
             const [promptParams, loginHandler] = authHandlerClass.getPromptParams();
-            ConnectionPropsForSessCfg.setTypeForTokenRequest(sessCfg, { requestToken: true }, promptParams.defaultTokenType);
+            sessCfg.type = AUTH_TYPE_TOKEN;
+            sessCfg.tokenType = promptParams.defaultTokenType;
             const baseSessCfg: ISession = { type: sessCfg.type };
             for (const propName of Object.keys(ImperativeConfig.instance.loadedConfig.baseProfile.schema.properties)) {
                 const sessCfgPropName = propName === "host" ? "hostname" : propName;
@@ -77,6 +82,7 @@ export class ConnectionPropsForProfile {
             });
         }
 
+        // TODO Inform user credentials have been stored (and token fetched) for future use
         await config.save(false);
         // Restore original active layer
         config.api.layers.activate(beforeLayer.user, beforeLayer.global);
@@ -110,7 +116,7 @@ export class ConnectionPropsForProfile {
             if (profile.basePath == null) {
                 return;
             } else if (profile.tokenType == null) {
-                const baseProfileName = this.getActiveProfileName("base", cmdArguments);
+                const baseProfileName = ConfigUtils.getActiveProfileName("base", cmdArguments);
                 return this.findAuthHandlerForProfile(config.api.profiles.expandPath(baseProfileName), cmdArguments);
             }
         }
@@ -136,15 +142,6 @@ export class ConnectionPropsForProfile {
         }
     }
 
-    public static getActiveProfileName(profileType: string, cmdArguments: ICommandArguments, defaultProfileName?: string): string {
-        // Look for profile name first in command line arguments, second in
-        // default profiles defined in config, and finally fall back to using
-        // the profile type as the profile name.
-        return cmdArguments[`${profileType}-profile`] ||
-            ImperativeConfig.instance.config.properties.defaults[profileType] ||
-            defaultProfileName || profileType;
-    }
-
     private findActiveProfile(params: IHandlerParameters): IActiveProfileData | undefined {
         const profileTypes = [
             ...(params.definition.profile?.required || []),
@@ -165,7 +162,7 @@ export class ConnectionPropsForProfile {
         }
 
         const profileType = profileConfig.type;
-        const profileName = ConnectionPropsForProfile.getActiveProfileName(profileType, params.arguments);
+        const profileName = ConfigUtils.getActiveProfileName(profileType, params.arguments);
         const loadedProfile = ImperativeConfig.instance.config.api.profiles.load(profileName);
 
         return {
