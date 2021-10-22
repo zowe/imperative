@@ -146,18 +146,6 @@ describe("Configuration Initialization command handler", () => {
         expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual("fakeValue");
     });
 
-    /* it("should attempt to do a dry run of initializing the project configuration", async () => {
-        const handler = new InitHandler();
-        const params = getIHandlerParametersObject();
-        params.arguments.userConfig = false;
-        params.arguments.globalConfig = false;
-        params.arguments.prompt = true;
-        params.arguments.dryRun = true;
-
-        expect(handler.process(params)).toBe
-    });*/
-
-
     it("should attempt to do a dry run of initializing the project configuration", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
@@ -288,6 +276,9 @@ describe("Configuration Initialization command handler", () => {
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -307,6 +298,8 @@ describe("Configuration Initialization command handler", () => {
         // Schema
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
         // expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
     });
 
     it("should attempt to initialize the global project configuration", async () => {
@@ -389,6 +382,9 @@ describe("Configuration Initialization command handler", () => {
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -415,6 +411,8 @@ describe("Configuration Initialization command handler", () => {
 
         // Secure value supplied during prompting should be on properties
         // expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual("fakeValue");
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
     });
 
     it("should attempt to initialize the global project user configuration", async () => {
@@ -492,6 +490,9 @@ describe("Configuration Initialization command handler", () => {
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -513,6 +514,8 @@ describe("Configuration Initialization command handler", () => {
             JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT)
         );
         // expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
     });
 
     it("should attempt to initialize the project configuration with prompt flag false", async () => {
@@ -585,6 +588,9 @@ describe("Configuration Initialization command handler", () => {
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -603,6 +609,8 @@ describe("Configuration Initialization command handler", () => {
         // Schema
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
         // expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
     });
 
     it("should attempt to initialize the project user configuration with prompting disabled", async () => {
@@ -675,6 +683,9 @@ describe("Configuration Initialization command handler", () => {
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -693,6 +704,8 @@ describe("Configuration Initialization command handler", () => {
         // Schema
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
         // expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
     });
 
     it("should attempt to initialize the global project configuration with prompt flag false", async () => {
@@ -767,6 +780,9 @@ describe("Configuration Initialization command handler", () => {
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -787,6 +803,8 @@ describe("Configuration Initialization command handler", () => {
             JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT)
         );
         // expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
     });
 
     it("should attempt to initialize the global project user configuration with prompting disabled", async () => {
@@ -863,6 +881,9 @@ describe("Configuration Initialization command handler", () => {
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -883,6 +904,8 @@ describe("Configuration Initialization command handler", () => {
             JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT)
         );
         // expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
     });
 
     it("should attempt to initialize the project configuration and use boolean true for the prompt", async () => {
@@ -960,6 +983,9 @@ describe("Configuration Initialization command handler", () => {
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -983,6 +1009,8 @@ describe("Configuration Initialization command handler", () => {
 
         // Secure value supplied during prompting should be on properties
         // expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(true);
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
     });
 
     it("should attempt to initialize the project configuration and use boolean false for the prompt", async () => {
@@ -1060,6 +1088,9 @@ describe("Configuration Initialization command handler", () => {
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -1083,6 +1114,8 @@ describe("Configuration Initialization command handler", () => {
 
         // Secure value supplied during prompting should be on properties
         // expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(false);
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
     });
 
     it("should attempt to initialize the project configuration and use a number for the prompt", async () => {
@@ -1164,6 +1197,9 @@ describe("Configuration Initialization command handler", () => {
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -1187,6 +1223,8 @@ describe("Configuration Initialization command handler", () => {
 
         // Secure value supplied during prompting should be on properties
         // expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(randomValueNumber);
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
     });
 
     it("should attempt to initialize the project configuration and handle getting nothing from the prompt", async () => {
@@ -1264,6 +1302,9 @@ describe("Configuration Initialization command handler", () => {
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -1287,6 +1328,8 @@ describe("Configuration Initialization command handler", () => {
 
         // Secure value supplied during prompting should be on properties
         // expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(undefined);
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
     });
 
     it("should display warning if unable to securely save credentials", async () => {
