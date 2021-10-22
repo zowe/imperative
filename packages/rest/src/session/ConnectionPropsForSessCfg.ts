@@ -413,25 +413,15 @@ export class ConnectionPropsForSessCfg {
     }
 
     private static loadSchemaForSessCfgProps(params: IHandlerParameters | undefined, promptForValues: string[]): { [key: string]: IProfileProperty } {
-        if (params == null || ImperativeConfig.instance.loadedConfig.profiles == null) {
+        if (params == null || ImperativeConfig.instance.loadedConfig.baseProfile == null) {
             return {};
         }
 
-        const profileProps = promptForValues.map(propName => propName === "hostname" ? "host" : propName);
-        const profileTypes = [
-            ...(params.definition.profile?.required || []),
-            ...(params.definition.profile?.optional || [])
-        ];
         const schemas: { [key: string]: IProfileProperty } = {};
-
-        for (const profType of profileTypes) {
-            const profileConfig = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profType);
-            if (profileConfig != null && profileProps.every(propName => propName in profileConfig.schema.properties)) {
-                for (const idx in promptForValues) {
-                    schemas[promptForValues[idx]] = profileConfig.schema.properties[profileProps[idx]];
-                }
-                return schemas;
-            }
+        for (const propName of promptForValues) {
+            const profilePropName = propName === "hostname" ? "host" : propName;
+            schemas[propName] = ImperativeConfig.instance.loadedConfig.baseProfile.schema.properties[profilePropName];
         }
+        return schemas;
     }
 }
