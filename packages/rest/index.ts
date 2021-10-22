@@ -29,6 +29,5 @@ export * as SessConstants from "./src/session/SessConstants";
 export * from "./src/session/doc/ISession";
 export * from "./src/session/doc/IOptionsForAddConnProps";
 export * from "./src/session/AbstractSession";
-export * from "./src/session/ConnectionPropsForProfile";
 export * from "./src/session/ConnectionPropsForSessCfg";
 export * from "./src/session/Session";

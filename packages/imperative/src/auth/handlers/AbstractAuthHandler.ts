@@ -11,10 +11,7 @@
 
 import { ICommandHandler, IHandlerParameters, ICommandArguments } from "../../../../cmd";
 import { Constants } from "../../../../constants";
-import { AbstractSession } from "../../../../rest/src/session/AbstractSession";
-import { IOptionsForAddConnProps } from "../../../../rest/src/session/doc/IOptionsForAddConnProps";
-import { ISession } from "../../../../rest/src/session/doc/ISession";
-import { TOKEN_TYPE_CHOICES } from "../../../../rest/src/session/SessConstants";
+import { AbstractSession, IOptionsForAddConnProps, ISession, SessConstants } from "../../../../rest";
 import { ImperativeError } from "../../../../error";
 
 /**
@@ -29,7 +26,7 @@ export abstract class AbstractAuthHandler implements ICommandHandler {
     /**
      * The default token type to use if not specified as a command line option
      */
-    protected abstract mDefaultTokenType: TOKEN_TYPE_CHOICES;
+    protected abstract mDefaultTokenType: SessConstants.TOKEN_TYPE_CHOICES;
 
     /**
      * The description of your service to be used in CLI prompt messages

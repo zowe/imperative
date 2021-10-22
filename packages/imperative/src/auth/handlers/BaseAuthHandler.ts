@@ -10,12 +10,7 @@
 */
 
 import { IHandlerParameters, IHandlerResponseApi } from "../../../../cmd";
-import { AbstractSession } from "../../../../rest/src/session/AbstractSession";
-import { ConnectionPropsForSessCfg } from "../../../../rest/src/session/ConnectionPropsForSessCfg";
-import { IOptionsForAddConnProps } from "../../../../rest/src/session/doc/IOptionsForAddConnProps";
-import { ISession } from "../../../../rest/src/session/doc/ISession";
-import { Session } from "../../../../rest/src/session/Session";
-import { AUTH_TYPE_BASIC } from "../../../../rest/src/session/SessConstants";
+import { AbstractSession, ConnectionPropsForSessCfg, IOptionsForAddConnProps, ISession, SessConstants, Session } from "../../../../rest";
 import { Imperative } from "../../Imperative";
 import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
@@ -314,7 +309,7 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
             profileWithToken = loadedProfile.name;
         }
 
-        this.mSession.ISession.type = AUTH_TYPE_BASIC;
+        this.mSession.ISession.type = SessConstants.AUTH_TYPE_BASIC;
         this.mSession.ISession.tokenType = undefined;
         this.mSession.ISession.tokenValue = undefined;
 

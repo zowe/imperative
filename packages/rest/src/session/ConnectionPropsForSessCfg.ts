@@ -17,8 +17,9 @@ import { Logger } from "../../../logger";
 import * as SessConstants from "./SessConstants";
 import { IPromptOptions } from "../../../cmd/src/doc/response/api/handler/IPromptOptions";
 import { ISession } from "./doc/ISession";
-import { ConnectionPropsForProfile } from "./ConnectionPropsForProfile";
-import { IProfileProperty } from "../../..";
+import { ImperativeConfig } from "../../../utilities";
+import { IProfileProperty } from "../../../profiles";
+import { ConfigAutoStore } from "../../../config/src/ConfigAutoStore";
 
 /**
  * Extend options for IPromptOptions for internal wrapper method
@@ -135,11 +136,8 @@ export class ConnectionPropsForSessCfg {
             }
         }
 
-        const connPropsForProfile = new ConnectionPropsForProfile(connOpts.parms, promptForValues);
-
         if (connOptsToUse.getValuesBack == null && connOptsToUse.doPrompting) {
-            const profileSchema = connPropsForProfile.loadSchemaForSessCfgProps();
-            connOptsToUse.getValuesBack = this.getValuesBack(connOptsToUse, profileSchema);
+            connOptsToUse.getValuesBack = this.getValuesBack(connOptsToUse);
         }
 
         if (connOptsToUse.getValuesBack != null) {
@@ -153,8 +151,8 @@ export class ConnectionPropsForSessCfg {
                 }
             }
 
-            if (connOpts.autoStore !== false) {
-                await connPropsForProfile.autoStoreSessCfgProps(sessCfgToUse);
+            if (connOptsToUse.autoStore !== false && connOptsToUse.parms != null) {
+                await ConfigAutoStore.storeSessCfgProps(connOptsToUse.parms, sessCfgToUse, promptForValues);
             }
         }
 
@@ -300,11 +298,10 @@ export class ConnectionPropsForSessCfg {
         password: "Enter the password for"
     };
 
-    private static getValuesBack(connOpts: IOptionsForAddConnProps,
-        profileSchema: { [key: string]: IProfileProperty }):
-        (properties: string[]) => Promise<{ [key: string]: any }> {
+    private static getValuesBack(connOpts: IOptionsForAddConnProps): (properties: string[]) => Promise<{ [key: string]: any }> {
         return async (promptForValues: string[]) => {
             const answers: { [key: string]: any } = {};
+            const profileSchema = this.loadSchemaForSessCfgProps(connOpts.parms, promptForValues);
             const serviceDescription = connOpts.serviceDescription || "your service";
 
             for (const value of promptForValues) {
@@ -413,5 +410,28 @@ export class ConnectionPropsForSessCfg {
      */
     private static propHasValue(propToTest: any) {
         return propToTest != null && propToTest !== "";
+    }
+
+    private static loadSchemaForSessCfgProps(params: IHandlerParameters | undefined, promptForValues: string[]): { [key: string]: IProfileProperty } {
+        if (params == null || ImperativeConfig.instance.loadedConfig.profiles == null) {
+            return {};
+        }
+
+        const profileProps = promptForValues.map(propName => propName === "hostname" ? "host" : propName);
+        const profileTypes = [
+            ...(params.definition.profile?.required || []),
+            ...(params.definition.profile?.optional || [])
+        ];
+        const schemas: { [key: string]: IProfileProperty } = {};
+
+        for (const profType of profileTypes) {
+            const profileConfig = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profType);
+            if (profileConfig != null && profileProps.every(propName => propName in profileConfig.schema.properties)) {
+                for (const idx in promptForValues) {
+                    schemas[promptForValues[idx]] = profileConfig.schema.properties[profileProps[idx]];
+                }
+                return schemas;
+            }
+        }
     }
 }

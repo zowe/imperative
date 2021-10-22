@@ -10,11 +10,11 @@
 */
 
 import { ICommandArguments, ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { Config } from "../../../../../config";
+import { Config, ConfigAutoStore } from "../../../../../config";
 import { secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { ImperativeError } from "../../../../../error";
 import { Logger } from "../../../../../logger";
-import { ConnectionPropsForProfile, ConnectionPropsForSessCfg, ISession, Session } from "../../../../../rest";
+import { ConnectionPropsForSessCfg, ISession, Session } from "../../../../../rest";
 import { CredentialManagerFactory } from "../../../../../security";
 import { ImperativeConfig } from "../../../../../utilities";
 
@@ -89,7 +89,7 @@ export default class SecureHandler implements ICommandHandler {
      */
     private async handlePromptForAuthToken(config: Config, propPath: string): Promise<string | undefined> {
         const profilePath = propPath.slice(0, propPath.indexOf(".properties"));
-        const authHandlerClass = ConnectionPropsForProfile.findAuthHandlerForProfile(profilePath, this.params.arguments);
+        const authHandlerClass = ConfigAutoStore.findAuthHandlerForProfile(profilePath, this.params.arguments);
 
         if (authHandlerClass != null) {
             const [promptParams, loginHandler] = authHandlerClass.getPromptParams();

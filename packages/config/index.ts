@@ -10,6 +10,7 @@
 */
 
 export * from "./src/Config";
+export * from "./src/ConfigAutoStore";
 export * from "./src/ConfigConstants";
 export * from "./src/ConfigSchema";
 export * from "./src/ConfigBuilder";
