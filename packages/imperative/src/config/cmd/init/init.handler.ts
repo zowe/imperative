@@ -21,7 +21,7 @@ import { OverridesLoader } from "../../../OverridesLoader";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 import { diff } from "jest-diff";
-import stripAnsi from "strip-ansi";
+import stripAnsi = require("strip-ansi");
 
 /**
  * Init config

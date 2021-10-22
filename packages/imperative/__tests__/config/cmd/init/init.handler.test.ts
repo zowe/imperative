@@ -146,7 +146,7 @@ describe("Configuration Initialization command handler", () => {
         expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual("fakeValue");
     });
 
-    /*it("should attempt to do a dry run of initializing the project configuration", async () => {
+    /* it("should attempt to do a dry run of initializing the project configuration", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = false;
@@ -154,10 +154,10 @@ describe("Configuration Initialization command handler", () => {
         params.arguments.prompt = true;
         params.arguments.dryRun = true;
 
-        // expect(handler.process(params)).toBe
+        expect(handler.process(params)).toBe
     });*/
 
-    /*
+
     it("should attempt to do a dry run of initializing the project configuration", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
@@ -184,6 +184,9 @@ describe("Configuration Initialization command handler", () => {
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -208,7 +211,9 @@ describe("Configuration Initialization command handler", () => {
 
         // Secure value supplied during prompting should be on properties
         // expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual("fakeValue");
-    });*/
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
+    });
 
     it("should attempt to initialize the project user configuration", async () => {
         const handler = new InitHandler();
