@@ -15,7 +15,7 @@ import { ICommandHandlerRequire } from "../../../cmd/src/doc/handler/ICommandHan
 import { ICommandProfileAuthConfig } from "../../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 import { IConfigLoadedProfile } from "../../../config/src/doc/IConfigLoadedProfile";
 import * as ConfigUtils from "../../../config/src/ConfigUtils";
-import { BaseAuthHandler } from "../../../imperative/src/auth/handlers/BaseAuthHandler";
+import { AbstractAuthHandler } from "../../../imperative/src/auth/handlers/AbstractAuthHandler";
 import { IProfileProperty, IProfileTypeConfiguration } from "../../../profiles";
 import { ImperativeConfig } from "../../../utilities";
 import { ISession } from "./doc/ISession";
@@ -101,7 +101,7 @@ export class ConnectionPropsForProfile {
         return schemas;
     }
 
-    public static findAuthHandlerForProfile(profilePath: string, cmdArguments: ICommandArguments): BaseAuthHandler | undefined {
+    public static findAuthHandlerForProfile(profilePath: string, cmdArguments: ICommandArguments): AbstractAuthHandler | undefined {
         const config = ImperativeConfig.instance.config;
         const profileType = lodash.get(config.properties, `${profilePath}.type`);
         const profile = config.api.profiles.get(profilePath.replace(/profiles\./g, ""));
@@ -132,7 +132,7 @@ export class ConnectionPropsForProfile {
             const authHandler: ICommandHandlerRequire = require(authConfig.handler);
             const authHandlerClass = new authHandler.default();
 
-            if (authHandlerClass instanceof BaseAuthHandler) {
+            if (authHandlerClass instanceof AbstractAuthHandler) {
                 const promptParams = authHandlerClass.getPromptParams()[0];
 
                 if (profile.tokenType === promptParams.defaultTokenType) {
