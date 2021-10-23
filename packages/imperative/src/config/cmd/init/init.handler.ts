@@ -150,10 +150,6 @@ export default class InitHandler implements ICommandHandler {
      * @param user If true, properties will be left empty for user config
      */
     private async initForDryRun(config: Config, user: boolean): Promise<any> {
-        // Build the schema and write it to disk
-        const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
-        config.setSchema(schema);
-
         const opts: IConfigBuilderOpts = {};
         if (!user) {
             opts.populateProperties = true;
