@@ -42,7 +42,11 @@ export default class InitHandler implements ICommandHandler {
         config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig, configDir);
         const layer = config.api.layers.get();
 
-        await this.initWithSchema(config, params.arguments.userConfig);
+        if (params.arguments.overwrite) {
+            await this.initAndOverwrite(config, params.arguments.userConfig);
+        } else {
+            await this.initWithSchema(config, params.arguments.userConfig);
+        }
 
         if (params.arguments.prompt !== false && !CredentialManagerFactory.initialized && config.api.secure.secureFields().length > 0) {
             const warning = secureSaveError();
@@ -86,6 +90,27 @@ export default class InitHandler implements ICommandHandler {
         // Build new config and merge with existing layer
         const newConfig: IConfig = await ConfigBuilder.build(ImperativeConfig.instance.loadedConfig, opts);
         config.api.layers.merge(newConfig);
+    }
+
+    /**
+     * Creates JSON template for config. Also creates a schema file in the same
+     * folder alongside the config and overwrites them to disk.
+     * @param config Config object to be populated
+     * @param user If true, properties will be left empty for user config
+     */
+    private async initAndOverwrite(config: Config, user: boolean): Promise<void> {
+        // Build the schema and overwrite it to disk
+        ConfigSchema.updateSchema();
+
+        const opts: IConfigBuilderOpts = {};
+        if (!user) {
+            opts.populateProperties = true;
+            opts.getSecureValue = this.promptForProp.bind(this);
+        }
+
+        // Build new config and merge with existing layer
+        const newConfig: IConfig = await ConfigBuilder.build(ImperativeConfig.instance.loadedConfig, opts);
+        config.api.layers.set(newConfig);
     }
 
     /**

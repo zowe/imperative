@@ -12,6 +12,7 @@
 import { ICommandDefinition } from "../../../../../cmd";
 import { join } from "path";
 import { ImperativeConfig } from "../../../../../utilities";
+import { conflicts } from "yargs";
 
 /**
  * Definition of the init command.
@@ -46,20 +47,35 @@ export const initDefinition: ICommandDefinition = {
             description: "Prompt for secure values. Useful for disabling prompting in CI environments.",
             type: "boolean",
             defaultValue: true
+        },
+        {
+            name: "overwrite",
+            description: "Replace existing config files instead of merging the new changes.",
+            type: "boolean",
+            defaultValue: false,
+            conflictsWith: ["dry-run"]
         }
     ],
     examples: [
         {
-            description: `Initialize configuration files in your home "~/.zowe" directory.`,
+            description: `Initialize configuration files in your home "~/.zowe" directory`,
             options: "--global-config"
         },
         {
-            description: "Initialize the user config files.",
+            description: "Initialize the user config files",
             options: "--user-config"
         },
         {
-            description: "Initialize the user config files and do not prompt for secure values.",
+            description: "Initialize the user config files and do not prompt for secure values",
             options: "--user-config --prompt false"
+        },
+        {
+            description: "Overwrite any existing global config files",
+            options: "--global-config --overwrite"
+        },
+        {
+            description: "Overwrite any existing user config files",
+            options: "--user-config --overwrite"
         }
     ]
 };

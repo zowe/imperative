@@ -142,6 +142,7 @@ export class ConfigLayers extends ConfigApi {
             if (this.mConfig.mLayers[i].user === this.mConfig.mActive.user &&
                 this.mConfig.mLayers[i].global === this.mConfig.mActive.global) {
                 this.mConfig.mLayers[i].properties = cnfg;
+                this.mConfig.mLayers[i].properties.$schema = "./zowe.schema.json";
                 this.mConfig.mLayers[i].properties.defaults = this.mConfig.mLayers[i].properties.defaults || {};
                 this.mConfig.mLayers[i].properties.profiles = this.mConfig.mLayers[i].properties.profiles || {};
             }
