@@ -6,6 +6,12 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: Added `overwrite` option for `zowe config init` command to overwrite config files instead of merging new changes. [#1036](https://github.com/zowe/zowe-cli/issues/1036)
 
+## `5.0.0-next.202110201735`
+
+- **LTS Breaking**
+    - Changed the return value of the public `PluginManagementFacility.requirePluginModuleCallback` function
+- BugFix: Updated the profiles list as soon as the plugin is installed.
+
 ## `5.0.0-next.202110191937`
 
 - **Breaking**: Added the new, required, abstract method 'displayAutoInitChanges' to the 'BaseAutoInitHandler' class.
@@ -15,7 +21,7 @@ All notable changes to the Imperative package will be documented in this file.
 - Enhancement: Added `config update-schemas [--depth <value>]` command. [zowe/zowe-cli#1059](https://github.com/zowe/zowe-cli/issues/1059)
 - Enhancement: Added the ability to update the global schema file when installing a new plugin. [zowe/zowe-cli#1059](https://github.com/zowe/zowe-cli/issues/1059)
 - **Next Breaking**
-    - Renamed public static function ConfigSchemas.loadProfileSchemas to ConfigSchemas.loadSchemas
+    - Renamed public static function ConfigSchemas.loadProfileSchemas to ConfigSchemas.loadSchema
 
 ## `5.0.0-next.202110011948`
 
