@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Added `overwrite` option for `zowe config init` command to overwrite config files instead of merging new changes. [#1036](https://github.com/zowe/zowe-cli/issues/1036)
+
 ## `5.0.0-next.202110191937`
 
 - **Breaking**: Added the new, required, abstract method 'displayAutoInitChanges' to the 'BaseAutoInitHandler' class.
