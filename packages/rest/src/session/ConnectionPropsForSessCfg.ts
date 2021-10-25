@@ -318,7 +318,7 @@ export class ConnectionPropsForSessCfg {
                 if (profileSchema[value]?.type === "number") {
                     answer = Number(answer);
                     if (isNaN(answer)) {
-                        throw new ImperativeError({ msg: "Specified value was not a number." });
+                        throw new ImperativeError({ msg: `Specified ${value} was not a number.` });
                     }
                 }
                 answers[value] = answer;
