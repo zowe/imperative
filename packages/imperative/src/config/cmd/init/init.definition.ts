@@ -52,7 +52,8 @@ export const initDefinition: ICommandDefinition = {
             description: "Display the outcome of the initialization without saving.",
             aliases: ["dr", "dry"],
             type: "boolean",
-            defaultValue: false
+            defaultValue: false,
+            conflictsWith: ["overwrite"]
         }
     ],
     examples: [
