@@ -413,7 +413,7 @@ export class ConnectionPropsForSessCfg {
     }
 
     private static loadSchemaForSessCfgProps(params: IHandlerParameters | undefined, promptForValues: string[]): { [key: string]: IProfileProperty } {
-        if (params == null || ImperativeConfig.instance.loadedConfig.baseProfile == null) {
+        if (params == null || ImperativeConfig.instance.loadedConfig?.baseProfile == null) {
             return {};
         }
 

@@ -66,12 +66,16 @@ export class ConfigAutoStore {
     public static async storeSessCfgProps(params: IHandlerParameters, sessCfg: { [key: string]: any }, propsToStore: string[]): Promise<void> {
         const config = ImperativeConfig.instance.config;
         // TODO Figure out how autoStore should work when value conflicts between layers
-        if (propsToStore.length == 0 || !config.exists || !config.layerActive().properties.autoStore) {
+        if (propsToStore.length == 0 || !config?.exists || !config.layerActive().properties.autoStore) {
             return;
         }
 
         let profileProps = propsToStore.map(propName => propName === "hostname" ? "host" : propName);
-        const [profileType, profileName] = this.findActiveProfile(params, profileProps);
+        const profileData = this.findActiveProfile(params, profileProps);
+        if (profileData == null) {
+            return;
+        }
+        const [profileType, profileName] = profileData;
         const profilePath = config.api.profiles.expandPath(profileName);
 
         // Replace user and password with tokenValue if tokenType is defined in config
