@@ -535,7 +535,7 @@ describe("Configuration Secure command handler", () => {
             (params.response.console as any).prompt = promptWithTimeoutSpy;
         });
 
-        fit("should invoke auth handler to obtain token and store it securely", async () => {
+        it("should invoke auth handler to obtain token and store it securely", async () => {
             const eco = lodash.cloneDeep(expectedConfigObjectWithToken);
 
             readFileSyncSpy.mockReturnValueOnce(JSON.stringify(eco));
