@@ -1070,7 +1070,6 @@ export class CommandResponse implements ICommandResponseApi {
      */
     private writeStderr(data: any) {
         process.stderr.write(data);
-        console.log(`writing data: ${data}`);
         this.writeStream(DaemonRequest.create({ stderr: data }));
     }
 
