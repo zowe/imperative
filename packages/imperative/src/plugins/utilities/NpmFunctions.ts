@@ -15,6 +15,8 @@ import { execSync, StdioOptions } from "child_process";
 import { readFileSync } from "jsonfile";
 import * as npmPackageArg from "npm-package-arg";
 import * as pacote from "pacote";
+import * as fs from "fs";
+import { ImperativeError } from "../../../..";
 const npmCmd = cmdToRun();
 
 /**
@@ -30,8 +32,6 @@ export function cmdToRun() {
         const nodeExecPath = process.execPath;
         command = `"${nodeExecPath}" "${npmExecPath}"` ;
     } catch (err) {
-        // eslint-disable-next-line no-console
-        console.log(err.message);
         command = "npm";
     }
     return command;
@@ -110,18 +110,14 @@ export async function getPackageInfo(pkgSpec: string): Promise<{ name: string, v
  * @return {string} The NPM path
  */
 export function getNpmPath(): string {
-    let npmPath = path.join(require.resolve("npm"));
-    const npmPathArray = npmPath.split(path.sep);
-    if (npmPathArray.indexOf("npm") > 0) {
-        const arrayLen = npmPathArray.length;
-        const npmLoc = npmPathArray.indexOf("npm");
-        npmPath = path.join(...npmPathArray.splice(npmLoc, arrayLen - npmLoc));
-        // eslint-disable-next-line no-console
-        console.log(npmPath);
-    } else {
-        // eslint-disable-next-line no-console
-        console.log("Broken");
-        npmPath = path.join(require.resolve("npm"), "../..");
+    const npmPath = require.resolve("npm");
+    if (npmPath.split(path.sep).indexOf("npm") > 0) {
+        const npmLength = 3;
+        const lastNpmIndex = npmPath.lastIndexOf("npm");
+        const amountToRemove = npmPath.length - lastNpmIndex + npmLength;
+        npmPath.slice(0, amountToRemove);
+        if (fs.existsSync(npmPath)) { return npmPath; }
     }
-    return npmPath;
+
+    throw new ImperativeError({msg: "Unable to resolve 'npm' path."});
 }
