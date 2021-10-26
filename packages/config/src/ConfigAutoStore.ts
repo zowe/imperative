@@ -13,6 +13,7 @@ import * as lodash from "lodash";
 import { ICommandArguments, IHandlerParameters } from "../../cmd";
 import { ICommandHandlerRequire } from "../../cmd/src/doc/handler/ICommandHandlerRequire";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
+import { IConfigLoadedProfile } from "./doc/IConfigLoadedProfile";
 import * as ConfigUtils from "./ConfigUtils";
 import { AbstractAuthHandler } from "../../imperative/src/auth/handlers/AbstractAuthHandler";
 import { ImperativeConfig } from "../../utilities";
@@ -63,6 +64,20 @@ export class ConfigAutoStore {
         }
     }
 
+    /**
+     * Finds the highest priority layer where a profile is stored.
+     *
+     * @param loadedProfile
+     *
+     * @returns User and global properties
+     */
+    public static getPriorityLayer(loadedProfile: IConfigLoadedProfile): { user: boolean, global: boolean } {
+        return {
+            user: Object.values(loadedProfile.properties).every(v => v.user),
+            global: Object.values(loadedProfile.properties).some(v => v.global)
+        };
+    }
+
     public static async storeSessCfgProps(params: IHandlerParameters, sessCfg: { [key: string]: any }, propsToStore: string[]): Promise<void> {
         const config = ImperativeConfig.instance.config;
         // TODO Figure out how autoStore should work when value conflicts between layers
@@ -88,7 +103,7 @@ export class ConfigAutoStore {
         const beforeLayer = config.api.layers.get();
         const loadedProfile = config.api.profiles.load(profileName);
         // TODO What if loadedProfile is null - should be impossible to get to this point?
-        const { user, global } = config.api.profiles.getPriorityLayer(loadedProfile);
+        const { user, global } = this.getPriorityLayer(loadedProfile);
         config.api.layers.activate(user, global);
 
         const baseProfileName = ConfigUtils.getActiveProfileName("base", params.arguments);

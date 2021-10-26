@@ -17,6 +17,7 @@ import { ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../profiles";
 import { ImperativeConfig } from "../../../../utilities";
 import { CredentialManagerFactory } from "../../../../security";
+import { ConfigAutoStore } from "../../../../config/src/ConfigAutoStore";
 import { getActiveProfileName, secureSaveError } from "../../../../config/src/ConfigUtils";
 import { AbstractAuthHandler } from "./AbstractAuthHandler";
 
@@ -129,7 +130,7 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
                 });
                 config.api.profiles.defaultSet(this.mProfileType, profileName);
             } else {
-                const { user, global } = config.api.profiles.getPriorityLayer(loadedProfile);
+                const { user, global } = ConfigAutoStore.getPriorityLayer(loadedProfile);
                 config.api.layers.activate(user, global);
             }
 

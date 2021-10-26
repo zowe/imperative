@@ -568,6 +568,7 @@ describe("Configuration Secure command handler", () => {
             expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(2);  // User and password
             expect(mockAuthLogin).toHaveBeenCalledTimes(1);
             expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
+            console.log(writeFileSyncSpy.mock.calls);
             expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
             expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
         });
