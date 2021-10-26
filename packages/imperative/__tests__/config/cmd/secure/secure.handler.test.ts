@@ -111,12 +111,6 @@ describe("Configuration Secure command handler", () => {
     }
 
     beforeAll( async() => {
-        // The following require may look useless, but without it tests fail in
-        // CI builds. We need ts-jest to transpile the BaseAuthHandler class
-        // before tests run. Otherwise it calls writeFileSync during the test
-        // which interferes with mocks.
-        require("../../../../src/auth/handlers/BaseAuthHandler");
-
         keytarGetPasswordSpy = jest.spyOn(keytar, "getPassword");
         keytarSetPasswordSpy = jest.spyOn(keytar, "setPassword");
         keytarDeletePasswordSpy = jest.spyOn(keytar, "deletePassword");

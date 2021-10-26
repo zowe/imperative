@@ -28,7 +28,7 @@ export class ConfigAutoStore {
         const profileType = lodash.get(config.properties, `${profilePath}.type`);
         const profile = config.api.profiles.get(profilePath.replace(/profiles\./g, ""));
 
-        if (profileType == null) {  // Profile must have type defined
+        if (profile == null || profileType == null) {  // Profile must exist and have type defined
             return;
         } else if (profileType === "base") {
             if (profile.tokenType == null) {  // Base profile must have tokenType defined

@@ -9,7 +9,7 @@
 *
 */
 
-import { CliUtils } from "../../../utilities";
+import { CliUtils, ImperativeConfig } from "../../../utilities";
 import { ICommandArguments, IHandlerParameters } from "../../../cmd";
 import { ImperativeError } from "../../../error";
 import { IOptionsForAddConnProps } from "./doc/IOptionsForAddConnProps";
@@ -17,7 +17,6 @@ import { Logger } from "../../../logger";
 import * as SessConstants from "./SessConstants";
 import { IPromptOptions } from "../../../cmd/src/doc/response/api/handler/IPromptOptions";
 import { ISession } from "./doc/ISession";
-import { ImperativeConfig } from "../../../utilities";
 import { IProfileProperty } from "../../../profiles";
 import { ConfigAutoStore } from "../../../config/src/ConfigAutoStore";
 
