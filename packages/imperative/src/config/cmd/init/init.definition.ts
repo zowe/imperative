@@ -12,7 +12,6 @@
 import { ICommandDefinition } from "../../../../../cmd";
 import { join } from "path";
 import { ImperativeConfig } from "../../../../../utilities";
-import { conflicts } from "yargs";
 
 /**
  * Definition of the init command.
