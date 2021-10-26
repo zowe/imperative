@@ -112,7 +112,7 @@ export async function getPackageInfo(pkgSpec: string): Promise<{ name: string, v
  */
 export function getNpmPath(): string {
     let npmPath = require.resolve("npm");
-    if (npmPath.split(path.sep).indexOf("npm") > 0) {
+    if (npmPath.split(path.sep).includes("npm")) {
         npmPath = findUp.sync("npm", {cwd: npmPath, type: "directory"});
         if (npmPath != null && fs.existsSync(npmPath)) { return npmPath; }
     }
