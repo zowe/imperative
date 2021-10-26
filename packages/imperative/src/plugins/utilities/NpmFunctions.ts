@@ -30,6 +30,8 @@ export function cmdToRun() {
         const nodeExecPath = process.execPath;
         command = `"${nodeExecPath}" "${npmExecPath}"` ;
     } catch (err) {
+        // eslint-disable-next-line no-console
+        console.log(err.message);
         command = "npm";
     }
     return command;
@@ -114,7 +116,11 @@ export function getNpmPath(): string {
         const arrayLen = npmPathArray.length;
         const npmLoc = npmPathArray.indexOf("npm");
         npmPath = path.join(...npmPathArray.splice(npmLoc, arrayLen - npmLoc));
+        // eslint-disable-next-line no-console
+        console.log(npmPath);
     } else {
+        // eslint-disable-next-line no-console
+        console.log("Broken");
         npmPath = path.join(require.resolve("npm"), "../..");
     }
     return npmPath;
