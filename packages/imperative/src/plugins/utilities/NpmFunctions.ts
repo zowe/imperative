@@ -16,7 +16,7 @@ import { readFileSync } from "jsonfile";
 import * as npmPackageArg from "npm-package-arg";
 import * as pacote from "pacote";
 import * as fs from "fs";
-import { ImperativeError } from "../../../..";
+import { ImperativeError } from "../../../../error/src/ImperativeError";
 const npmCmd = cmdToRun();
 
 /**
