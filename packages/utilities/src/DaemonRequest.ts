@@ -12,7 +12,7 @@
 import { IDaemonRequest } from "./doc/IDaemonRequest";
 
 /**
- * Class do handle building a daemon request
+ * Class to handle building a daemon request
  * @export
  * @class DaemonRequest
  */
@@ -30,6 +30,8 @@ export class DaemonRequest {
      * @memberof DaemonRequest
      */
     public static create(request: IDaemonRequest): string {
+
+        // if data is `Buffer` type then convert to string
         if (request.stdout && Buffer.isBuffer(request.stdout)) request.stdout = request.stdout.toString();
         if (request.stderr && Buffer.isBuffer(request.stderr)) request.stderr = request.stderr.toString();
         return new DaemonRequest(request).build();
