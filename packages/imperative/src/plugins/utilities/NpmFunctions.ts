@@ -26,7 +26,7 @@ const npmCmd = cmdToRun();
 export function cmdToRun() {
     let command;
     try {
-        const npmExecPath = path.join(require.resolve("npm"), "../..");
+        const npmExecPath = getNpmPath();
         const nodeExecPath = process.execPath;
         command = `"${nodeExecPath}" "${npmExecPath}"` ;
     } catch (err) {
@@ -100,4 +100,22 @@ export async function getPackageInfo(pkgSpec: string): Promise<{ name: string, v
         // Package name is unknown, so fetch name and version with pacote (npm SDK)
         return pacote.manifest(pkgSpec);
     }
+}
+
+/**
+ * Normalize the NPM path so that it works between older and newer versions of node
+ *
+ * @return {string} The NPM path
+ */
+export function getNpmPath(): string {
+    let npmPath = path.join(require.resolve("npm"));
+    const npmPathArray = npmPath.split(path.sep);
+    if (npmPathArray.indexOf("npm") > 0) {
+        const arrayLen = npmPathArray.length;
+        const npmLoc = npmPathArray.indexOf("npm");
+        npmPath = path.join(...npmPathArray.splice(npmLoc, arrayLen - npmLoc));
+    } else {
+        npmPath = path.join(require.resolve("npm"), "../..");
+    }
+    return npmPath;
 }
