@@ -30,9 +30,10 @@ import { inspect } from "util";
 import * as DeepMerge from "deepmerge";
 import * as ProgressBar from "progress";
 import * as net from "net";
-import { DaemonUtils } from "../../../utilities/src/DaemonUtils";
 import * as tty from "tty";
 import { IPromptOptions } from "../doc/response/api/handler/IPromptOptions";
+import { DaemonRequest } from "../../../utilities/src/DaemonRequest";
+import { IDaemonResponse } from "../../../utilities/src/doc/IDaemonResponse";
 
 const DataObjectParser = require("dataobject-parser");
 
@@ -312,7 +313,7 @@ export class CommandResponse implements ICommandResponseApi {
 
                         // Output the data as a string
                         case "string":
-                        // Stringify if not a string
+                            // Stringify if not a string
                             if (typeof params.output !== "string") {
                                 params.output = JSON.stringify(params.output);
                             }
@@ -351,7 +352,7 @@ export class CommandResponse implements ICommandResponseApi {
                                 // Build the table and catch any errors that may occur from the packages
                                 let pretty;
                                 try {
-                                // Prettify the data
+                                    // Prettify the data
                                     pretty = TextUtils.prettyJson(params.output, undefined, undefined, "");
                                 } catch (prettyErr) {
                                     throw new ImperativeError({
@@ -377,7 +378,7 @@ export class CommandResponse implements ICommandResponseApi {
                                 // Build the table and catch any errors that may occur from the packages
                                 let table;
                                 try {
-                                // Adjust if required
+                                    // Adjust if required
                                     if (!Array.isArray(params.output)) {
                                         params.output = [params.output];
                                     }
@@ -600,12 +601,12 @@ export class CommandResponse implements ICommandResponseApi {
                     if (outer.mStream) {
                         return new Promise<string>((resolve) => {
 
-                            // build prompt headers and sent
-                            const daemonHeaders = DaemonUtils.buildHeader({ prompt: opts?.hideText ?
-                                DaemonUtils.X_ZOWE_DAEMON_PROMPT_SECURE : DaemonUtils.X_ZOWE_DAEMON_PROMPT_UNSECURE });
-
                             // send prompt content
-                            outer.writeStream(questionText + daemonHeaders);
+                            const daemonRequest = opts?.hideText ?
+                                DaemonRequest.create({ securePrompt: questionText }) :
+                                DaemonRequest.create({ prompt: questionText });
+
+                            outer.writeStream(daemonRequest);
 
                             // wait for a response here
                             outer.mStream.on("data", function listener(data) {
@@ -614,9 +615,8 @@ export class CommandResponse implements ICommandResponseApi {
                                 outer.mStream.removeListener("data", listener);
 
                                 // strip response header and give to content the waiting handler
-                                const stringData = data.toString();
-                                const parsed = stringData.substr(DaemonUtils.X_ZOWE_DAEMON_REPLY.length, stringData.length).trim();
-                                resolve(parsed);
+                                const response: IDaemonResponse = JSON.parse(data.toString());
+                                resolve(response.reply.trim());
                             });
                         });
                     } else {
@@ -718,7 +718,7 @@ export class CommandResponse implements ICommandResponseApi {
                  * TODO: get from config - default value is below
                  */
                 private mProgressBarSpinnerChars: string = "-oO0)|(0Oo-";
-                private mSocketProgressBarSpinnerChars = ["-\n", "o\n", "O\n", "0\n", ")\n", "|\n", "(\n", "0\n", "O\n", "o\n", "-\n"];
+                private mSocketProgressBarSpinnerChars = ["-\f", "o\f", "O\f", "0\f", ")\f", "|\f", "(\f", "0\f", "O\f", "o\f", "-\f"];
 
                 /**
                  * Start a progress bar (assuming silent mode is not enabled).
@@ -757,8 +757,8 @@ export class CommandResponse implements ICommandResponseApi {
                         }
 
                         // send header to enable progress bar streaming
-                        const daemonHeaders = DaemonUtils.buildHeader({ progress: true });
-                        outer.writeStream(daemonHeaders);
+                        // const daemonHeaders = DaemonUtils.buildHeaders({ progress: true });
+                        outer.writeStream(DaemonRequest.create({ progress: true }));
 
                         // Create the progress bar instance
                         outer.mProgressBar = new ProgressBar(this.mProgressBarTemplate, {
@@ -796,8 +796,7 @@ export class CommandResponse implements ICommandResponseApi {
                         });
 
                         // send header to disable progress bar streaming
-                        const daemonHeaders = DaemonUtils.buildHeader({ progress: false });
-                        outer.writeStream(daemonHeaders);
+                        outer.writeStream(DaemonRequest.create({ progress: false }));
 
                         outer.mProgressBar.terminate();
                         outer.writeStdout(outer.mStdout.subarray(this.mProgressBarStdoutStartIndex));
@@ -976,7 +975,7 @@ export class CommandResponse implements ICommandResponseApi {
      */
     public endStream() {
         if (this.mStream) {
-            this.sendHeaders();
+            this.setDaemonExitCode();
             this.mStream.end();
         }
     }
@@ -987,9 +986,8 @@ export class CommandResponse implements ICommandResponseApi {
      * @param {string} headers
      * @memberof CommandResponse
      */
-    private sendHeaders() {
-        const daemonHeaders = DaemonUtils.buildHeader({ exitCode: this.mExitCode });
-        this.writeStream(daemonHeaders);
+    private setDaemonExitCode() {
+        this.writeStream(DaemonRequest.create({ exitCode: this.mExitCode }));
     }
 
     /**
@@ -1036,7 +1034,7 @@ export class CommandResponse implements ICommandResponseApi {
      */
     private writeStdout(data: any) {
         process.stdout.write(data);
-        this.writeStream(data);
+        this.writeStream(DaemonRequest.create({ stdout: data }));
     }
 
     /**
@@ -1046,7 +1044,6 @@ export class CommandResponse implements ICommandResponseApi {
      * @memberof CommandResponse
      */
     private writeStream(data: any) {
-
         if (this.mStream) {
             this.mStream.write(data);
         }
@@ -1073,7 +1070,7 @@ export class CommandResponse implements ICommandResponseApi {
      */
     private writeStderr(data: any) {
         process.stderr.write(data);
-        this.writeStream(data);
+        this.writeStream(DaemonRequest.create({ stderr: data }));
     }
 
     /**

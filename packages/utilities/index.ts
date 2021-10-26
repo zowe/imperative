@@ -9,7 +9,7 @@
 *
 */
 
-export * from "./src/DaemonUtils";
+export * from "./src/DaemonRequest";
 export * from "./src/ImperativeConfig";
 export * from "./src/JSONUtils";
 export * from "./src/JsUtils";
