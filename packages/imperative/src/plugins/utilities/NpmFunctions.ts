@@ -17,6 +17,7 @@ import * as npmPackageArg from "npm-package-arg";
 import * as pacote from "pacote";
 import * as fs from "fs";
 import { ImperativeError } from "../../../../error/src/ImperativeError";
+import * as findUp from "find-up";
 const npmCmd = cmdToRun();
 
 /**
@@ -110,14 +111,10 @@ export async function getPackageInfo(pkgSpec: string): Promise<{ name: string, v
  * @return {string} The NPM path
  */
 export function getNpmPath(): string {
-    const npmPath = require.resolve("npm");
+    let npmPath = require.resolve("npm");
     if (npmPath.split(path.sep).indexOf("npm") > 0) {
-        const npmLength = 3;
-        const lastNpmIndex = npmPath.lastIndexOf("npm");
-        const amountToRemove = npmPath.length - lastNpmIndex + npmLength;
-        npmPath.slice(0, amountToRemove);
-        if (fs.existsSync(npmPath)) { return npmPath; }
+        npmPath = findUp.sync("npm", {cwd: npmPath, type: "directory"});
+        if (npmPath != null && fs.existsSync(npmPath)) { return npmPath; }
     }
-
     throw new ImperativeError({msg: "Unable to resolve 'npm' path."});
 }
