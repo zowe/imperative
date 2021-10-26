@@ -111,6 +111,12 @@ describe("Configuration Secure command handler", () => {
     }
 
     beforeAll( async() => {
+        // The following require may look useless, but without it tests fail in
+        // CI builds. We need ts-jest to transpile the BaseAuthHandler class
+        // before tests run. Otherwise it calls writeFileSync during the test
+        // which interferes with mocks.
+        require("../../../../src/auth/handlers/BaseAuthHandler");
+
         keytarGetPasswordSpy = jest.spyOn(keytar, "getPassword");
         keytarSetPasswordSpy = jest.spyOn(keytar, "setPassword");
         keytarDeletePasswordSpy = jest.spyOn(keytar, "deletePassword");
@@ -529,7 +535,7 @@ describe("Configuration Secure command handler", () => {
             (params.response.console as any).prompt = promptWithTimeoutSpy;
         });
 
-        it("should invoke auth handler to obtain token and store it securely", async () => {
+        fit("should invoke auth handler to obtain token and store it securely", async () => {
             const eco = lodash.cloneDeep(expectedConfigObjectWithToken);
 
             readFileSyncSpy.mockReturnValueOnce(JSON.stringify(eco));
@@ -568,7 +574,6 @@ describe("Configuration Secure command handler", () => {
             expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(2);  // User and password
             expect(mockAuthLogin).toHaveBeenCalledTimes(1);
             expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
-            console.log(writeFileSyncSpy.mock.calls);  // eslint-disable-line
             expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
             expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
         });
