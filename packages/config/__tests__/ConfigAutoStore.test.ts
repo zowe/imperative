@@ -235,7 +235,7 @@ describe("ConfigAutoStore tests", () => {
     });
 
     describe("storeSessCfgProps", () => {
-        let findActiveProfileSpy;
+        let findActiveProfileSpy: any;
 
         beforeAll(() => {
             findActiveProfileSpy = jest.spyOn(ConfigAutoStore as any, "findActiveProfile");
@@ -247,6 +247,22 @@ describe("ConfigAutoStore tests", () => {
 
         it("should do nothing if property list is empty", async () => {
             await ConfigAutoStore.storeSessCfgProps(null, {}, []);
+            expect(findActiveProfileSpy).not.toHaveBeenCalled();
+        });
+
+        it("should do nothing if team config does not exist", async () => {
+            jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue({ exists: false } as any);
+            await ConfigAutoStore.storeSessCfgProps(null, {}, ["host"]);
+            expect(findActiveProfileSpy).not.toHaveBeenCalled();
+        });
+
+        it("should do nothing if team config has auto-store disabled", async () => {
+            jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(mockConfigApi({
+                profiles: {},
+                defaults: {},
+                autoStore: false
+            }));
+            await ConfigAutoStore.storeSessCfgProps(null, {}, ["host"]);
             expect(findActiveProfileSpy).not.toHaveBeenCalled();
         });
     });
