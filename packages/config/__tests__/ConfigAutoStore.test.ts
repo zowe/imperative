@@ -61,7 +61,13 @@ describe("ConfigAutoStore tests", () => {
         };
         jest.spyOn(ImperativeConfig.instance, "loadedConfig", "get").mockReturnValue({
             baseProfile: baseProfileConfig,
-            profiles: [baseProfileConfig]
+            profiles: [
+                {
+                    type: "fruit",
+                    schema: baseProfileConfig.schema
+                },
+                baseProfileConfig
+            ]
         });
     });
 
@@ -254,6 +260,20 @@ describe("ConfigAutoStore tests", () => {
     });
 
     describe("storeSessCfgProps", () => {
+        const handlerParams = {
+            arguments: {},
+            definition: {
+                profile: {
+                    required: ["fruit"],
+                    optional: ["base"]
+                }
+            },
+            response: {
+                console: {
+                    log: jest.fn()
+                }
+            }
+        };
         let findActiveProfileSpy: any;
 
         beforeEach(() => {
@@ -264,9 +284,13 @@ describe("ConfigAutoStore tests", () => {
             jest.clearAllMocks();
         });
 
-        it("should store user and password for basic auth", async () => {
+        it("should store user and password in base profile for basic auth", async () => {
             await setupConfigToLoad({
                 profiles: {
+                    fruit: {
+                        type: "fruit",
+                        properties: {},
+                    },
                     base: {
                         type: "base",
                         properties: {
@@ -275,30 +299,15 @@ describe("ConfigAutoStore tests", () => {
                         secure: ["user", "password"]
                     }
                 },
-                defaults: { base: "base" },
+                defaults: { fruit: "fruit", base: "base" },
                 autoStore: true
             });
             ImperativeConfig.instance.config.save = jest.fn();
 
-            const handlerParams = {
-                arguments: {},
-                definition: {
-                    profile: {
-                        required: ["fruit"],
-                        optional: ["base"]
-                    }
-                },
-                response: {
-                    console: {
-                        log: jest.fn()
-                    }
-                }
-            };
             const propsToAdd = {
                 user: "admin",
                 password: "123456"
             };
-
             await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
                 hostname: "example.com",
                 type: SessConstants.AUTH_TYPE_BASIC,
@@ -312,9 +321,49 @@ describe("ConfigAutoStore tests", () => {
             });
         });
 
-        it("should store token value for token auth", async () => {
+        it("should store user and password in service profile for basic auth", async () => {
             await setupConfigToLoad({
                 profiles: {
+                    fruit: {
+                        type: "fruit",
+                        properties: {},
+                        secure: ["user", "password"]
+                    },
+                    base: {
+                        type: "base",
+                        properties: {
+                            host: "example.com"
+                        }
+                    }
+                },
+                defaults: { fruit: "fruit", base: "base" },
+                autoStore: true
+            });
+            ImperativeConfig.instance.config.save = jest.fn();
+
+            const propsToAdd = {
+                user: "admin",
+                password: "123456"
+            };
+            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                hostname: "example.com",
+                type: SessConstants.AUTH_TYPE_BASIC,
+                ...propsToAdd
+            }, ["user", "password"]);
+
+            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+            expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject(propsToAdd);
+        });
+
+        it("should store token value in base profile for token auth", async () => {
+            await setupConfigToLoad({
+                profiles: {
+                    fruit: {
+                        type: "fruit",
+                        properties: {
+                            basePath: "/apple/api/v1"
+                        },
+                    },
                     base: {
                         type: "base",
                         properties: {
@@ -324,30 +373,15 @@ describe("ConfigAutoStore tests", () => {
                         secure: ["tokenValue"]
                     }
                 },
-                defaults: { base: "base" },
+                defaults: { fruit: "fruit", base: "base" },
                 autoStore: true
             });
             ImperativeConfig.instance.config.save = jest.fn();
 
-            const handlerParams = {
-                arguments: {},
-                definition: {
-                    profile: {
-                        required: ["fruit"],
-                        optional: ["base"]
-                    }
-                },
-                response: {
-                    console: {
-                        log: jest.fn()
-                    }
-                }
-            };
             const propsToAdd = {
                 user: "admin",
                 password: "123456"
             };
-
             await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
                 hostname: "example.com",
                 type: SessConstants.AUTH_TYPE_BASIC,
@@ -360,6 +394,46 @@ describe("ConfigAutoStore tests", () => {
                 tokenType: SessConstants.TOKEN_TYPE_JWT,
                 tokenValue: "fakeToken"
             });
+        });
+
+        it("should store token value in service profile for token auth", async () => {
+            await setupConfigToLoad({
+                profiles: {
+                    fruit: {
+                        type: "fruit",
+                        properties: {
+                            basePath: "/apple/api/v1",
+                            tokenType: SessConstants.TOKEN_TYPE_JWT
+                        },
+                    },
+                    base: {
+                        type: "base",
+                        properties: {
+                            host: "example.com"
+                        }
+                    }
+                },
+                defaults: { fruit: "fruit", base: "base" },
+                autoStore: true
+            });
+            ImperativeConfig.instance.config.save = jest.fn();
+
+            const propsToAdd = {
+                user: "admin",
+                password: "123456"
+            };
+            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                hostname: "example.com",
+                type: SessConstants.AUTH_TYPE_BASIC,
+                ...propsToAdd
+            }, ["user", "password"]);
+
+            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+            expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject({
+                tokenType: SessConstants.TOKEN_TYPE_JWT,
+                tokenValue: "fakeToken"
+            });
+            expect(ImperativeConfig.instance.config.properties.profiles.fruit.secure).toEqual(["tokenValue"]);
         });
 
         it("should do nothing if property list is empty", async () => {
@@ -386,10 +460,14 @@ describe("ConfigAutoStore tests", () => {
         it("should do nothing if no active profile is found", async () => {
             await setupConfigToLoad({
                 profiles: {},
-                defaults: {}
+                defaults: {},
+                autoStore: true
             });
-            await ConfigAutoStore.storeSessCfgProps(null, {}, ["host", "hostess"]);
-            expect(findActiveProfileSpy).not.toHaveBeenCalled();
+            ImperativeConfig.instance.config.save = jest.fn();
+
+            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {}, ["host", "hostess"]);
+            expect(findActiveProfileSpy).toHaveBeenCalled();
+            expect(ImperativeConfig.instance.config.save).not.toHaveBeenCalled();
         });
     });
 
@@ -397,17 +475,17 @@ describe("ConfigAutoStore tests", () => {
         it("should find profile in command arguments", async () => {
             await setupConfigToLoad({
                 profiles: {
-                    my_base: {
-                        type: "base",
+                    apple: {
+                        type: "fruit",
                         properties: {}
                     }
                 },
-                defaults: { base: "my_base" }
+                defaults: { fruit: "apple" }
             });
 
             const handlerParams = {
                 arguments: {
-                    "base-profile": "not_my_base"
+                    "fruit-profile": "orange"
                 },
                 definition: {
                     profile: {
@@ -418,18 +496,18 @@ describe("ConfigAutoStore tests", () => {
             };
 
             const profileData = (ConfigAutoStore as any).findActiveProfile(handlerParams, ["host"]);
-            expect(profileData).toEqual(["base", "not_my_base"]);
+            expect(profileData).toEqual(["fruit", "orange"]);
         });
 
         it("should find profile in config properties", async () => {
             await setupConfigToLoad({
                 profiles: {
-                    my_base: {
-                        type: "base",
+                    apple: {
+                        type: "fruit",
                         properties: {}
                     }
                 },
-                defaults: { base: "my_base" }
+                defaults: { fruit: "apple" }
             });
 
             const handlerParams = {
@@ -443,7 +521,7 @@ describe("ConfigAutoStore tests", () => {
             };
 
             const profileData = (ConfigAutoStore as any).findActiveProfile(handlerParams, ["host"]);
-            expect(profileData).toEqual(["base", "my_base"]);
+            expect(profileData).toEqual(["fruit", "apple"]);
         });
 
         it("should fall back to default profile name", async () => {
@@ -463,10 +541,10 @@ describe("ConfigAutoStore tests", () => {
             };
 
             const profileData = (ConfigAutoStore as any).findActiveProfile(handlerParams, ["host"]);
-            expect(profileData).toEqual(["base", "base"]);
+            expect(profileData).toEqual(["fruit", "fruit"]);
         });
 
-        it("should not find profile if type does not match", async () => {
+        it("should not find profile if missing from command definition", async () => {
             await setupConfigToLoad({
                 profiles: {},
                 defaults: {}
@@ -475,9 +553,7 @@ describe("ConfigAutoStore tests", () => {
             const handlerParams = {
                 arguments: {},
                 definition: {
-                    profile: {
-                        required: ["fruit"]
-                    }
+                    profile: {}
                 }
             };
 
@@ -485,7 +561,7 @@ describe("ConfigAutoStore tests", () => {
             expect(profileData).toBeUndefined();
         });
 
-        it("should not find profile if required properties are missing", async () => {
+        it("should not find profile if schema is missing required properties", async () => {
             await setupConfigToLoad({
                 profiles: {},
                 defaults: {}

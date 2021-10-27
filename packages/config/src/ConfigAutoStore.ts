@@ -54,7 +54,7 @@ export class ConfigAutoStore {
 
         const authConfigs: ICommandProfileAuthConfig[] = [];
         ImperativeConfig.instance.loadedConfig.profiles.forEach((profCfg) => {
-            if (profCfg.type === profileType && profCfg.authConfig != null) {
+            if ((profCfg.type === profileType || profCfg.type === "base") && profCfg.authConfig != null) {
                 authConfigs.push(...profCfg.authConfig);
             }
         });
