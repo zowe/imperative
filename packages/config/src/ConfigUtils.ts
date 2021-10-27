@@ -14,6 +14,21 @@ import { ImperativeConfig } from "../../utilities";
 import { ImperativeError } from "../../error";
 
 /**
+ * Coeerces string property value to a boolean or number type.
+ * @param value String value
+ * @returns Boolean, number, or string
+ */
+export function coercePropValue(value: any) {
+    if (value === "true")
+        return true;
+    if (value === "false")
+        return false;
+    if (!isNaN(value) && !isNaN(parseFloat(value)))
+        return parseInt(value, 10);
+    return value;
+}
+
+/**
  * Retrieves the name of the active profile for the given type. If no such
  * profile exists, returns the default name which can be used to create a new profile.
  * @param profileType The type of CLI profile

@@ -27,6 +27,7 @@ import { IConfigOpts } from "./doc/IConfigOpts";
 import { IConfigSecure } from "./doc/IConfigSecure";
 import { IConfigVault } from "./doc/IConfigVault";
 import { ConfigLayers, ConfigPlugins, ConfigProfiles, ConfigSecure } from "./api";
+import { coercePropValue } from "./ConfigUtils";
 import { IConfigSchemaInfo } from "./doc/IConfigSchema";
 import { JsUtils } from "../../utilities/src/JsUtils";
 
@@ -385,9 +386,13 @@ export class Config {
      *
      * @param propertyPath Property path
      * @param value Property value
-     * @param opts Include `secure: true` to store the property securely
+     * @param opts Optional parameters to change behavior
+     * * `parseString` - If true, strings will be converted to a more specific
+     *                   type like boolean or number when possible
+     * * `secure` - If true, the property will be stored securely.
+     *              If false, the property will be stored in plain text.
      */
-    public set(propertyPath: string, value: any, opts?: { secure?: boolean }) {
+    public set(propertyPath: string, value: any, opts?: { parseString?: boolean; secure?: boolean }) {
         opts = opts || {};
 
         const layer = this.layerActive();
@@ -398,15 +403,11 @@ export class Config {
                 obj[segment] = {};
                 obj = obj[segment];
             } else if (segments.indexOf(segment) === segments.length - 1) {
+                if (opts?.parseString) {
+                    value = coercePropValue(value);
+                }
 
-                // TODO: add ability to escape these values to string
-                if (value === "true")
-                    value = true;
-                if (value === "false")
-                    value = false;
-                if (!isNaN(value) && !isNaN(parseFloat(value)))
-                    value = parseInt(value, 10);
-                if (Array.isArray(obj[segment])) {
+                if (opts?.parseString && Array.isArray(obj[segment])) {
                     obj[segment].push(value);
                 } else {
                     obj[segment] = value;

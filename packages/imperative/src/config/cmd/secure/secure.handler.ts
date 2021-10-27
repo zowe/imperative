@@ -61,7 +61,7 @@ export default class SecureHandler implements ICommandHandler {
 
             // Save the value in the config securely
             if (propValue) {
-                config.set(propName, propValue, { secure: true });
+                config.set(propName, propValue, { parseString: true, secure: true });
             }
         }
 

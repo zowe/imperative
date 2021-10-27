@@ -93,7 +93,7 @@ export class ConfigAutoStore {
      */
     public static async storeSessCfgProps(params: IHandlerParameters, sessCfg: { [key: string]: any }, propsToStore: string[]): Promise<void> {
         const config = ImperativeConfig.instance.config;
-        // TODO Figure out how autoStore should work when value conflicts between layers
+        // TODO Which autoStore value should take priority if it conflicts between layers
         if (propsToStore.length == 0 || !config?.exists || !config.properties.autoStore) {
             return;
         }
@@ -115,13 +115,11 @@ export class ConfigAutoStore {
 
         const beforeLayer = config.api.layers.get();
         const loadedProfile = config.api.profiles.load(profileName);
-        // TODO What if loadedProfile is null - should be impossible to get to this point?
         const { user, global } = this.getPriorityLayer(loadedProfile);
         config.api.layers.activate(user, global);
 
         const baseProfileName = ConfigUtils.getActiveProfileName("base", params.arguments);
         const baseProfileObj = lodash.get(config.properties, config.api.profiles.expandPath(baseProfileName));
-        // TODO What if base profile is undefined - should be impossible?
         const baseProfileSchema = ImperativeConfig.instance.loadedConfig.baseProfile.schema;
         const profileSchema = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profileType).schema;
 

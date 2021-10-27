@@ -59,7 +59,7 @@ export default class SetHandler implements ICommandHandler {
         }
 
         // Set the value in the config, save the secure values, write the config layer
-        config.set(params.arguments.property, value, { secure });
+        config.set(params.arguments.property, value, { parseString: true, secure });
 
         await config.save(false);
     }

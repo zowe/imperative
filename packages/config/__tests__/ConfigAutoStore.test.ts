@@ -9,6 +9,8 @@
 *
 */
 
+import * as fs from "fs";
+import * as os from "os";
 import { AbstractAuthHandler } from "../../imperative";
 import { SessConstants } from "../../rest";
 import { ImperativeConfig } from "../../utilities";
@@ -16,18 +18,26 @@ import { IConfig } from "../src/doc/IConfig";
 import { IConfigLoadedProfile } from "../src/doc/IConfigLoadedProfile";
 import { Config } from "../src/Config";
 import { ConfigAutoStore } from "../src/ConfigAutoStore";
-import { ConfigLayers, ConfigProfiles } from "../src/api";
 
-function mockConfigApi(properties: IConfig): Config {
-    const config: any = {
-        exists: true,
-        properties
-    };
-    config.api = {
-        layers: new ConfigLayers(config),
-        profiles: new ConfigProfiles(config)
-    };
-    return config;
+// Load the ImperativeConfig so config can work properly
+async function setupConfigToLoad(properties: IConfig): Promise<void> {
+    // One-time mocks
+    jest.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify(properties));
+    jest.spyOn(Config, "search").mockReturnValueOnce("fakeapp.config.user.json")
+        .mockReturnValueOnce("fakeapp.config.json"); // Give search something to return
+
+    // Permanent mocks
+    const osHomedirSpy = jest.spyOn(os, "homedir").mockReturnValue(__dirname); // Pretend the current directory is the homedir
+    const processCwdSpy = jest.spyOn(process, "cwd").mockReturnValue(__dirname); // Pretend the current directory is where the command was invoked
+    const existsSyncSpy = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false); // Only the user config exists
+
+    const fakeConfig = await Config.load("fakeapp");
+    jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(fakeConfig);
+
+    // Undo permanent mocks
+    osHomedirSpy.mockRestore();
+    processCwdSpy.mockRestore();
+    existsSyncSpy.mockRestore();
 }
 
 describe("ConfigAutoStore tests", () => {
@@ -44,7 +54,8 @@ describe("ConfigAutoStore tests", () => {
                     host: { type: "string" },
                     user: { type: "string", secure: true },
                     password: { type: "string", secure: true },
-                    tokenType: { type: "string" }
+                    tokenType: { type: "string" },
+                    tokenValue: { type: "string", secure: true }
                 }
             }
         };
@@ -55,8 +66,8 @@ describe("ConfigAutoStore tests", () => {
     });
 
     describe("findAuthHandlerForProfile", () => {
-        it("should be able to find auth handler for base profile", () => {
-            jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(mockConfigApi({
+        it("should be able to find auth handler for base profile", async () => {
+            await setupConfigToLoad({
                 profiles: {
                     base: {
                         type: "base",
@@ -66,15 +77,15 @@ describe("ConfigAutoStore tests", () => {
                     }
                 },
                 defaults: { base: "base" }
-            }));
+            });
 
             const authHandler = ConfigAutoStore.findAuthHandlerForProfile("profiles.base", {} as any);
             expect(authHandler).toBeDefined();
             expect(authHandler instanceof AbstractAuthHandler).toBe(true);
         });
 
-        it("should be able to find auth handler for service profile", () => {
-            jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(mockConfigApi({
+        it("should be able to find auth handler for service profile", async () => {
+            await setupConfigToLoad({
                 profiles: {
                     base: {
                         type: "base",
@@ -90,25 +101,25 @@ describe("ConfigAutoStore tests", () => {
                     }
                 },
                 defaults: { base: "base", zosmf: "zosmf" }
-            }));
+            });
 
             const authHandler = ConfigAutoStore.findAuthHandlerForProfile("profiles.zosmf", {} as any);
             expect(authHandler).toBeDefined();
             expect(authHandler instanceof AbstractAuthHandler).toBe(true);
         });
 
-        it("should not find auth handler if profile does not exist", () => {
-            jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(mockConfigApi({
+        it("should not find auth handler if profile does not exist", async () => {
+            await setupConfigToLoad({
                 profiles: {},
                 defaults: {}
-            }));
+            });
 
             const authHandler = ConfigAutoStore.findAuthHandlerForProfile("profiles.base", {} as any);
             expect(authHandler).toBeUndefined();
         });
 
-        it("should not find auth handler if profile type is undefined", () => {
-            jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(mockConfigApi({
+        it("should not find auth handler if profile type is undefined", async () => {
+            await setupConfigToLoad({
                 profiles: {
                     base: {
                         properties: {
@@ -117,14 +128,14 @@ describe("ConfigAutoStore tests", () => {
                     }
                 },
                 defaults: { base: "base" }
-            }));
+            });
 
             const authHandler = ConfigAutoStore.findAuthHandlerForProfile("profiles.base", {} as any);
             expect(authHandler).toBeUndefined();
         });
 
-        it("should not find auth handler if profile token type is undefined", () => {
-            jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(mockConfigApi({
+        it("should not find auth handler if profile token type is undefined", async () => {
+            await setupConfigToLoad({
                 profiles: {
                     base: {
                         type: "base",
@@ -132,14 +143,14 @@ describe("ConfigAutoStore tests", () => {
                     }
                 },
                 defaults: { base: "base" }
-            }));
+            });
 
             const authHandler = ConfigAutoStore.findAuthHandlerForProfile("profiles.base", {} as any);
             expect(authHandler).toBeUndefined();
         });
 
-        it("should not find auth handler if profile base path is undefined", () => {
-            jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(mockConfigApi({
+        it("should not find auth handler if profile base path is undefined", async () => {
+            await setupConfigToLoad({
                 profiles: {
                     base: {
                         type: "base",
@@ -153,7 +164,7 @@ describe("ConfigAutoStore tests", () => {
                     }
                 },
                 defaults: { base: "base", zosmf: "zosmf" }
-            }));
+            });
 
             const authHandler = ConfigAutoStore.findAuthHandlerForProfile("profiles.zosmf", {} as any);
             expect(authHandler).toBeUndefined();
@@ -253,12 +264,102 @@ describe("ConfigAutoStore tests", () => {
             jest.clearAllMocks();
         });
 
-        it.todo("should store user and password for basic auth", () => {
-            expect(true).toBe(true);
+        it("should store user and password for basic auth", async () => {
+            await setupConfigToLoad({
+                profiles: {
+                    base: {
+                        type: "base",
+                        properties: {
+                            host: "example.com"
+                        },
+                        secure: ["user", "password"]
+                    }
+                },
+                defaults: { base: "base" },
+                autoStore: true
+            });
+            ImperativeConfig.instance.config.save = jest.fn();
+
+            const handlerParams = {
+                arguments: {},
+                definition: {
+                    profile: {
+                        required: ["fruit"],
+                        optional: ["base"]
+                    }
+                },
+                response: {
+                    console: {
+                        log: jest.fn()
+                    }
+                }
+            };
+            const propsToAdd = {
+                user: "admin",
+                password: "123456"
+            };
+
+            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                hostname: "example.com",
+                type: SessConstants.AUTH_TYPE_BASIC,
+                ...propsToAdd
+            }, ["user", "password"]);
+
+            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+            expect(ImperativeConfig.instance.config.properties.profiles.base.properties).toMatchObject({
+                host: "example.com",
+                ...propsToAdd
+            });
         });
 
-        it.todo("should store token value for token auth", () => {
-            expect(true).toBe(true);
+        it("should store token value for token auth", async () => {
+            await setupConfigToLoad({
+                profiles: {
+                    base: {
+                        type: "base",
+                        properties: {
+                            host: "example.com",
+                            tokenType: SessConstants.TOKEN_TYPE_JWT
+                        },
+                        secure: ["tokenValue"]
+                    }
+                },
+                defaults: { base: "base" },
+                autoStore: true
+            });
+            ImperativeConfig.instance.config.save = jest.fn();
+
+            const handlerParams = {
+                arguments: {},
+                definition: {
+                    profile: {
+                        required: ["fruit"],
+                        optional: ["base"]
+                    }
+                },
+                response: {
+                    console: {
+                        log: jest.fn()
+                    }
+                }
+            };
+            const propsToAdd = {
+                user: "admin",
+                password: "123456"
+            };
+
+            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                hostname: "example.com",
+                type: SessConstants.AUTH_TYPE_BASIC,
+                ...propsToAdd
+            }, ["user", "password"]);
+
+            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+            expect(ImperativeConfig.instance.config.properties.profiles.base.properties).toMatchObject({
+                host: "example.com",
+                tokenType: SessConstants.TOKEN_TYPE_JWT,
+                tokenValue: "fakeToken"
+            });
         });
 
         it("should do nothing if property list is empty", async () => {
@@ -273,28 +374,28 @@ describe("ConfigAutoStore tests", () => {
         });
 
         it("should do nothing if team config has auto-store disabled", async () => {
-            jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(mockConfigApi({
+            await setupConfigToLoad({
                 profiles: {},
                 defaults: {},
                 autoStore: false
-            }));
+            });
             await ConfigAutoStore.storeSessCfgProps(null, {}, ["host"]);
             expect(findActiveProfileSpy).not.toHaveBeenCalled();
         });
 
         it("should do nothing if no active profile is found", async () => {
-            jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(mockConfigApi({
+            await setupConfigToLoad({
                 profiles: {},
                 defaults: {}
-            }));
+            });
             await ConfigAutoStore.storeSessCfgProps(null, {}, ["host", "hostess"]);
             expect(findActiveProfileSpy).not.toHaveBeenCalled();
         });
     });
 
     describe("findActiveProfile", () => {
-        it("should find profile in command arguments", () => {
-            jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(mockConfigApi({
+        it("should find profile in command arguments", async () => {
+            await setupConfigToLoad({
                 profiles: {
                     my_base: {
                         type: "base",
@@ -302,7 +403,7 @@ describe("ConfigAutoStore tests", () => {
                     }
                 },
                 defaults: { base: "my_base" }
-            }));
+            });
 
             const handlerParams = {
                 arguments: {
@@ -320,8 +421,8 @@ describe("ConfigAutoStore tests", () => {
             expect(profileData).toEqual(["base", "not_my_base"]);
         });
 
-        it("should find profile in config properties", () => {
-            jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(mockConfigApi({
+        it("should find profile in config properties", async () => {
+            await setupConfigToLoad({
                 profiles: {
                     my_base: {
                         type: "base",
@@ -329,7 +430,7 @@ describe("ConfigAutoStore tests", () => {
                     }
                 },
                 defaults: { base: "my_base" }
-            }));
+            });
 
             const handlerParams = {
                 arguments: {},
@@ -345,11 +446,11 @@ describe("ConfigAutoStore tests", () => {
             expect(profileData).toEqual(["base", "my_base"]);
         });
 
-        it("should fall back to default profile name", () => {
-            jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(mockConfigApi({
+        it("should fall back to default profile name", async () => {
+            await setupConfigToLoad({
                 profiles: {},
                 defaults: {}
-            }));
+            });
 
             const handlerParams = {
                 arguments: {},
@@ -365,11 +466,11 @@ describe("ConfigAutoStore tests", () => {
             expect(profileData).toEqual(["base", "base"]);
         });
 
-        it("should not find profile if type does not match", () => {
-            jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(mockConfigApi({
+        it("should not find profile if type does not match", async () => {
+            await setupConfigToLoad({
                 profiles: {},
                 defaults: {}
-            }));
+            });
 
             const handlerParams = {
                 arguments: {},
@@ -384,11 +485,11 @@ describe("ConfigAutoStore tests", () => {
             expect(profileData).toBeUndefined();
         });
 
-        it("should not find profile if required properties are missing", () => {
-            jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(mockConfigApi({
+        it("should not find profile if required properties are missing", async () => {
+            await setupConfigToLoad({
                 profiles: {},
                 defaults: {}
-            }));
+            });
 
             const handlerParams = {
                 arguments: {},
