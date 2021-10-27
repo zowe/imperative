@@ -15,6 +15,9 @@ import { execSync, StdioOptions } from "child_process";
 import { readFileSync } from "jsonfile";
 import * as npmPackageArg from "npm-package-arg";
 import * as pacote from "pacote";
+import * as fs from "fs";
+import { ImperativeError } from "../../../../error/src/ImperativeError";
+import * as findUp from "find-up";
 const npmCmd = cmdToRun();
 
 /**
@@ -26,7 +29,7 @@ const npmCmd = cmdToRun();
 export function cmdToRun() {
     let command;
     try {
-        const npmExecPath = path.join(require.resolve("npm"), "../..");
+        const npmExecPath = getNpmPath();
         const nodeExecPath = process.execPath;
         command = `"${nodeExecPath}" "${npmExecPath}"` ;
     } catch (err) {
@@ -100,4 +103,18 @@ export async function getPackageInfo(pkgSpec: string): Promise<{ name: string, v
         // Package name is unknown, so fetch name and version with pacote (npm SDK)
         return pacote.manifest(pkgSpec);
     }
+}
+
+/**
+ * Normalize the NPM path so that it works between older and newer versions of node
+ *
+ * @return {string} The NPM path
+ */
+export function getNpmPath(): string {
+    let npmPath = require.resolve("npm");
+    if (npmPath.split(path.sep).includes("npm")) {
+        npmPath = findUp.sync("npm", {cwd: npmPath, type: "directory"});
+        if (npmPath != null && fs.existsSync(npmPath)) { return npmPath; }
+    }
+    throw new ImperativeError({msg: "Unable to resolve 'npm' path."});
 }
