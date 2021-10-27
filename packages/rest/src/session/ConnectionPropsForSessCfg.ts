@@ -290,6 +290,10 @@ export class ConnectionPropsForSessCfg {
      */
     private static readonly secureSessCfgProps: string[] = ["user", "password", "tokenValue", "passphrase"];
 
+    /**
+     * List of prompt messages that is used when the CLI prompts for session
+     * config values.
+     */
     private static readonly promptTextForValues: { [key: string]: string } = {
         hostname: "Enter the host name of",
         port: "Enter the port number of",
@@ -297,6 +301,13 @@ export class ConnectionPropsForSessCfg {
         password: "Enter the password for"
     };
 
+    /**
+     * Prompts the user to input session config values in a CLI environment.
+     * This is the default implementation of the `getValuesBack` callback when
+     * `connOpts.doPrompting` is true.
+     * @param connOpts Options for adding connection properties
+     * @returns Name-value pairs of connection properties
+     */
     private static getValuesBack(connOpts: IOptionsForAddConnProps): (properties: string[]) => Promise<{ [key: string]: any }> {
         return async (promptForValues: string[]) => {
             const answers: { [key: string]: any } = {};

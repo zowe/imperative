@@ -13,6 +13,15 @@ import { ICommandArguments } from "../../cmd";
 import { ImperativeConfig } from "../../utilities";
 import { ImperativeError } from "../../error";
 
+/**
+ * Retrieves the name of the active profile for the given type. If no such
+ * profile exists, returns the default name which can be used to create a new profile.
+ * @param profileType The type of CLI profile
+ * @param cmdArguments CLI arguments which may specify a profile
+ * @param defaultProfileName Name to fall back to if profile doesn't exist. If
+ *                           not specified, the profile type will be used.
+ * @returns The profile name
+ */
 export function getActiveProfileName(profileType: string, cmdArguments: ICommandArguments, defaultProfileName?: string): string {
     // Look for profile name first in command line arguments, second in
     // default profiles defined in config, and finally fall back to using
@@ -23,7 +32,7 @@ export function getActiveProfileName(profileType: string, cmdArguments: ICommand
 }
 
 /**
- * Form an error message for failres to securely save a value.
+ * Form an error message for failures to securely save a value.
  *
  * @param solution Text that our caller can supply for a solution.
  */

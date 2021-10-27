@@ -22,7 +22,16 @@ import { Session } from "../../rest/src/session/Session";
 import { AUTH_TYPE_TOKEN } from "../../rest/src/session/SessConstants";
 import { Logger } from "../../logger";
 
+/**
+ * Class to manage automatic storage of properties in team config.
+ */
 export class ConfigAutoStore {
+    /**
+     * Finds the token auth handler class for a team config profile.
+     * @param profilePath JSON path of profile
+     * @param cmdArguments CLI arguments which may specify a profile
+     * @returns Auth handler class or undefined if none was found
+     */
     public static findAuthHandlerForProfile(profilePath: string, cmdArguments: ICommandArguments): AbstractAuthHandler | undefined {
         const config = ImperativeConfig.instance.config;
         const profileType = lodash.get(config.properties, `${profilePath}.type`);
@@ -66,9 +75,7 @@ export class ConfigAutoStore {
 
     /**
      * Finds the highest priority layer where a profile is stored.
-     *
      * @param loadedProfile
-     *
      * @returns User and global properties
      */
     public static getPriorityLayer(loadedProfile: IConfigLoadedProfile): { user: boolean, global: boolean } {
@@ -78,6 +85,12 @@ export class ConfigAutoStore {
         };
     }
 
+    /**
+     * Stores session config properties into a team config profile.
+     * @param params CLI handler parameters object
+     * @param sessCfg Session config containing properties to store
+     * @param propsToStore Names of properties that should be stored
+     */
     public static async storeSessCfgProps(params: IHandlerParameters, sessCfg: { [key: string]: any }, propsToStore: string[]): Promise<void> {
         const config = ImperativeConfig.instance.config;
         // TODO Figure out how autoStore should work when value conflicts between layers
@@ -133,6 +146,13 @@ export class ConfigAutoStore {
         config.api.layers.activate(beforeLayer.user, beforeLayer.global);
     }
 
+    /**
+     * Finds the profile where auto-store properties should be saved.
+     * @param params CLI handler parameters object
+     * @param profileProps List of properties required in the profile schema
+     * @returns Tuple containing profile type and name, or undefined if no
+     *          profile was found
+     */
     private static findActiveProfile(params: IHandlerParameters, profileProps: string[]): [string, string] | undefined {
         const profileTypes = [
             ...(params.definition.profile?.required || []),
@@ -147,6 +167,13 @@ export class ConfigAutoStore {
         }
     }
 
+    /**
+     * Retrieves token value that will be auto-stored into session config.
+     * @param params CLI handler parameters object
+     * @param sessCfg Session config with credentials for basic or cert auth
+     * @param profilePath JSON path of profile containing tokenType
+     * @returns True if auth handler was found and token was fetched
+     */
     private static async fetchTokenForSessCfg(params: IHandlerParameters, sessCfg: { [key: string]: any }, profilePath: string): Promise<boolean> {
         const authHandlerClass = this.findAuthHandlerForProfile(profilePath, params.arguments);
 
