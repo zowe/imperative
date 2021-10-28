@@ -486,7 +486,8 @@ describe("Configuration Secure command handler", () => {
             }
         };
 
-        const authHandlerPath = __dirname + "/../../../../src/auth/handlers/BaseAuthHandler";
+        // Need to use AbstractAuthHandler here, because BaseAuthHandler causes random test failures in CI build
+        const authHandlerPath = __dirname + "/../../../../src/auth/handlers/AbstractAuthHandler";
         const handler = new SecureHandler();
         const params = getIHandlerParametersObject();
         let mockAuthLogin;
@@ -498,10 +499,10 @@ describe("Configuration Secure command handler", () => {
             mockGetPromptParams = jest.fn().mockReturnValue([{ defaultTokenType: SessConstants.TOKEN_TYPE_JWT }, mockAuthLogin]);
 
             jest.doMock(authHandlerPath, () => {
-                const { BaseAuthHandler } = jest.requireActual(authHandlerPath);
+                const { AbstractAuthHandler } = jest.requireActual(authHandlerPath);
                 return {
                     default: jest.fn(() => {
-                        const handler = Object.create(BaseAuthHandler.prototype);
+                        const handler = Object.create(AbstractAuthHandler.prototype);
                         return Object.assign(handler, {
                             getPromptParams: mockGetPromptParams
                         });
@@ -527,6 +528,10 @@ describe("Configuration Secure command handler", () => {
             writeFileSyncSpy.mockReset();
             promptWithTimeoutSpy = jest.fn(() => "fakePromptingData");
             (params.response.console as any).prompt = promptWithTimeoutSpy;
+        });
+
+        afterAll(() => {
+            jest.unmock(authHandlerPath);
         });
 
         it("should invoke auth handler to obtain token and store it securely", async () => {
