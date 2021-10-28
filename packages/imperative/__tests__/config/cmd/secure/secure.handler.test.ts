@@ -488,7 +488,6 @@ describe("Configuration Secure command handler", () => {
             }
         };
 
-        // Need to use AbstractAuthHandler here, because BaseAuthHandler causes random test failures in CI build
         const authHandlerPath = __dirname + "/../../../../src/auth/handlers/AbstractAuthHandler";
         const handler = new SecureHandler();
         const params = getIHandlerParametersObject();

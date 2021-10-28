@@ -76,7 +76,17 @@ export abstract class AbstractAuthHandler implements ICommandHandler {
      */
     protected abstract createSessCfgFromArgs(args: ICommandArguments): ISession;
 
+    /**
+     * Performs the login operation and stores the new token in the profile.
+     * @abstract
+     * @param {IHandlerParameters} params Command parameters sent by imperative.
+     */
     protected abstract processLogin(commandParameters: IHandlerParameters): Promise<void>;
 
+    /**
+     * Performs the logout operation and deletes the old token from the profile.
+     * @abstract
+     * @param {IHandlerParameters} params Command parameters sent by imperative.
+     */
     protected abstract processLogout(commandParameters: IHandlerParameters): Promise<void>;
 }
