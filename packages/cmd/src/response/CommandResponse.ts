@@ -710,7 +710,7 @@ export class CommandResponse implements ICommandResponseApi {
                 private mProgressBarTemplate: string = " " + TextUtils.chalk[outer.mPrimaryTextColor](":bar|") + " :current%  " +
                     TextUtils.chalk[outer.mPrimaryTextColor](":spin") + " | :statusMessage";
                 private mProgressBarInterval: any;
-                private mIsSocket = false;
+                private mIsDaemon = false;
 
                 private mProgressBarStdoutStartIndex: number;
                 private mProgressBarStderrStartIndex: number;
@@ -718,7 +718,7 @@ export class CommandResponse implements ICommandResponseApi {
                  * TODO: get from config - default value is below
                  */
                 private mProgressBarSpinnerChars: string = "-oO0)|(0Oo-";
-                private mSocketProgressBarSpinnerChars = ["-\f", "o\f", "O\f", "0\f", ")\f", "|\f", "(\f", "0\f", "O\f", "o\f", "-\f"];
+                private mDaemonProgressBarSpinnerChars = this.mProgressBarSpinnerChars.split("").map((char) => char + "\f");
 
                 /**
                  * Start a progress bar (assuming silent mode is not enabled).
@@ -742,7 +742,7 @@ export class CommandResponse implements ICommandResponseApi {
 
                         // if we have an outer stream (e.g. socket connection for daemon mode) use it
                         if (outer.mStream) {
-                            this.mIsSocket = true;
+                            this.mIsDaemon = true;
                             stream = outer.mStream;
                             // NOTE(Kelosky): see https://github.com/visionmedia/node-progress/issues/110
                             //                progress explicitly checks for TTY before writing, so
@@ -787,7 +787,7 @@ export class CommandResponse implements ICommandResponseApi {
                         }
 
                         let statusMessage = "Complete";
-                        if (this.mIsSocket) {
+                        if (this.mIsDaemon) {
                             statusMessage += '\n';
                         }
                         outer.mProgressBar.update(1, {
@@ -823,10 +823,10 @@ export class CommandResponse implements ICommandResponseApi {
                             const percentRatio = this.mProgressTask.percentComplete / TaskProgress.ONE_HUNDRED_PERCENT;
                             this.mProgressBarSpinnerIndex = (this.mProgressBarSpinnerIndex + 1) % this.mProgressBarSpinnerChars.length;
 
-                            if (this.mIsSocket) {
+                            if (this.mIsDaemon) {
                                 outer.mProgressBar.update(percentRatio, {
                                     statusMessage: this.mProgressTask.statusMessage,
-                                    spin: this.mSocketProgressBarSpinnerChars[this.mProgressBarSpinnerIndex]
+                                    spin: this.mDaemonProgressBarSpinnerChars[this.mProgressBarSpinnerIndex]
                                 });
                             } else {
                                 outer.mProgressBar.update(percentRatio, {
