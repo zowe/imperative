@@ -22,6 +22,8 @@ import { ImperativeConfig } from "../../../../..";
 import { expectedConfigObject, expectedSchemaObject } from
     "../../../../../../__tests__/__integration__/imperative/__tests__/__integration__/cli/config/__resources__/expectedObjects";
 
+jest.mock("fs");
+
 const expectedConfigText = JSONC.stringify(expectedConfigObject, null, ConfigConstants.INDENT);
 const expectedConfigObjectWithoutSchema = lodash.omit(expectedConfigObject, "$schema");
 const expectedConfigTextWithoutSchema = JSONC.stringify(expectedConfigObjectWithoutSchema, null, ConfigConstants.INDENT);

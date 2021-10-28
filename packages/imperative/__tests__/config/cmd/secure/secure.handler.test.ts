@@ -27,6 +27,8 @@ import * as fs from "fs";
 import * as os from "os";
 import { SessConstants } from "../../../../../rest";
 
+jest.mock("fs");
+
 const getIHandlerParametersObject = (): IHandlerParameters => {
     const x: any = {
         response: {
