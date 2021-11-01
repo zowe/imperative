@@ -1,7 +1,10 @@
 {
   "name": "@zowe/imperative",
+  "version": "5.0.0-next.202110201735",
   "description": "framework for building configurable CLIs",
+  "author": "Broadcom",
   "license": "EPL-2.0",
+  "homepage": "https://github.com/zowe/imperative#readme",
   "bugs": {
     "url": "https://github.com/zowe/imperative/issues"
   },
