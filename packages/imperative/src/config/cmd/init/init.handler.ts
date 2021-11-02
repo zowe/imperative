@@ -74,9 +74,6 @@ export default class InitHandler implements ICommandHandler {
      * @param user If true, properties will be left empty for user config
      */
     private async initWithSchema(config: Config, user: boolean, overwrite: boolean): Promise<void> {
-        // Build the schema and write it to disk
-        ConfigSchema.updateSchema();
-
         const opts: IConfigBuilderOpts = {};
         if (!user) {
             opts.populateProperties = true;
@@ -90,6 +87,9 @@ export default class InitHandler implements ICommandHandler {
         } else {
             config.api.layers.set(newConfig);
         }
+
+        // Build the schema and write it to disk
+        ConfigSchema.updateSchema();
     }
 
     /**
