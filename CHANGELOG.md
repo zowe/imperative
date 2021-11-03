@@ -138,6 +138,14 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
 
+## `4.17.1`
+
+- BugFix: Fixed an issue where plugin install and uninstall did not work with NPM version 8. [#683](https://github.com/zowe/imperative/issues/683)
+
+## `4.17.0`
+
+- Enhancement: Export the Imperative Command Tree on the data object of the `zowe --ac` command when `--rfj` is specified.
+
 ## `4.16.2`
 
 - BugFix: Reverts hiding the cert-key-file path so users can see what path was specified and check if the file exists
