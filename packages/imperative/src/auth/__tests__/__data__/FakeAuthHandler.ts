@@ -13,7 +13,7 @@ import { BaseAuthHandler } from "../../handlers/BaseAuthHandler";
 import { ICommandArguments } from "../../../../../cmd";
 import { ISession, AbstractSession, SessConstants } from "../../../../../rest";
 
-export class FakeAuthHandler extends BaseAuthHandler {
+export default class FakeAuthHandler extends BaseAuthHandler {
     public mProfileType: string = "fruit";
 
     public mDefaultTokenType: SessConstants.TOKEN_TYPE_CHOICES = SessConstants.TOKEN_TYPE_JWT;

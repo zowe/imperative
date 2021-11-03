@@ -9,89 +9,26 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerResponseApi } from "../../../../cmd";
-import { Constants } from "../../../../constants";
-import { ISession, ConnectionPropsForSessCfg, Session, SessConstants, AbstractSession, IOptionsForAddConnProps } from "../../../../rest";
+import { IHandlerParameters, IHandlerResponseApi } from "../../../../cmd";
+import { AbstractSession, ConnectionPropsForSessCfg, IOptionsForAddConnProps, ISession, SessConstants, Session } from "../../../../rest";
 import { Imperative } from "../../Imperative";
 import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../profiles";
 import { ImperativeConfig } from "../../../../utilities";
-import { Config } from "../../../../config";
 import { CredentialManagerFactory } from "../../../../security";
-import { secureSaveError } from "../../../../config/src/ConfigUtils";
+import { ConfigAutoStore } from "../../../../config/src/ConfigAutoStore";
+import { getActiveProfileName, secureSaveError } from "../../../../config/src/ConfigUtils";
+import { AbstractAuthHandler } from "./AbstractAuthHandler";
 
 /**
  * This class is used by the auth command handlers as the base class for their implementation.
  */
-export abstract class BaseAuthHandler implements ICommandHandler {
-    /**
-     * The profile type where token type and value should be stored
-     */
-    protected abstract mProfileType: string;
-
-    /**
-     * The default token type to use if not specified as a command line option
-     */
-    protected abstract mDefaultTokenType: SessConstants.TOKEN_TYPE_CHOICES;
-
-    /**
-     * The description of your service to be used in CLI prompt messages
-     */
-    protected mServiceDescription?: string;
-
+export abstract class BaseAuthHandler extends AbstractAuthHandler {
     /**
      * The session being created from the command line arguments / profile
      */
     protected mSession: AbstractSession;
-
-    /**
-     * This handler is used for both "auth login" and "auth logout" commands.
-     * It determines the correct action to take and calls either `processLogin`
-     * or `processLogout` accordingly.
-     *
-     * @param {IHandlerParameters} commandParameters Command parameters sent by imperative.
-     *
-     * @returns {Promise<void>}
-     */
-    public async process(commandParameters: IHandlerParameters) {
-        switch (commandParameters.positionals[1]) {
-            case Constants.LOGIN_ACTION:
-                await this.processLogin(commandParameters);
-                break;
-            case Constants.LOGOUT_ACTION:
-                await this.processLogout(commandParameters);
-                break;
-            default:
-                throw new ImperativeError({
-                    msg: `The group name "${commandParameters.positionals[1]}" was passed to the BaseAuthHandler, but it is not valid.`
-                });
-        }
-    }
-
-    /**
-     * This is called by the "config secure" handler when it needs to prompt
-     * for connection info to obtain an auth token.
-     * @returns A tuple containing:
-     *  - Options for adding connection properties
-     *  - The login handler
-     */
-    public getPromptParams(): [IOptionsForAddConnProps, (session: AbstractSession) => Promise<string>] {
-        return [{
-            defaultTokenType: this.mDefaultTokenType,
-            serviceDescription: this.mServiceDescription
-        }, this.doLogin];
-    }
-
-    /**
-     * This is called by the {@link BaseAuthHandler#process} when it needs a
-     * session. Should be used to create a session to connect to the auth
-     * service.
-     * @abstract
-     * @param {ICommandArguments} args The command line arguments to use for building the session
-     * @returns {ISession} The session object built from the command line arguments.
-     */
-    protected abstract createSessCfgFromArgs(args: ICommandArguments): ISession;
 
     /**
      * This is called by the "auth login" command after it creates a session, to
@@ -111,18 +48,32 @@ export abstract class BaseAuthHandler implements ICommandHandler {
     protected abstract doLogout(session: AbstractSession): Promise<void>;
 
     /**
+     * This is called by the "config secure" handler when it needs to prompt
+     * for connection info to obtain an auth token.
+     * @returns A tuple containing:
+     *  - Options for adding connection properties
+     *  - The login handler
+     */
+    public getPromptParams(): [IOptionsForAddConnProps, (session: AbstractSession) => Promise<string>] {
+        return [{
+            defaultTokenType: this.mDefaultTokenType,
+            serviceDescription: this.mServiceDescription
+        }, this.doLogin];
+    }
+
+    /**
      * Performs the login operation. Builds a session to connect to the auth
      * service, sends a login request to it to obtain a token, and stores the
      * resulting token in the profile of type `mProfileType`.
      * @param {IHandlerParameters} params Command parameters sent by imperative.
      */
-    private async processLogin(params: IHandlerParameters) {
+    protected async processLogin(params: IHandlerParameters) {
         const sessCfg: ISession = this.createSessCfgFromArgs(
             params.arguments
         );
         const sessCfgWithCreds = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
             sessCfg, params.arguments,
-            { requestToken: true, defaultTokenType: this.mDefaultTokenType, parms: params },
+            { requestToken: true, defaultTokenType: this.mDefaultTokenType, parms: params, autoStore: false }
         );
 
         this.mSession = new Session(sessCfgWithCreds);
@@ -151,7 +102,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             // update the profile given
             // TODO Should config be added to IHandlerParameters?
             const config = ImperativeConfig.instance.config;
-            let profileName = this.getBaseProfileName(params, config);
+            let profileName = this.getBaseProfileName(params);
             const loadedProfile = config.api.profiles.load(profileName);
             let profileExists = loadedProfile != null && Object.keys(loadedProfile.properties).length > 0;
             const beforeLayer = config.api.layers.get();
@@ -179,8 +130,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
                 });
                 config.api.profiles.defaultSet(this.mProfileType, profileName);
             } else {
-                const user = Object.keys(loadedProfile.properties).every((k: string) => loadedProfile.properties[k].user);
-                const global = Object.keys(loadedProfile.properties).some((k: string) => loadedProfile.properties[k].global);
+                const { user, global } = ConfigAutoStore.getPriorityLayer(loadedProfile);
                 config.api.layers.activate(user, global);
             }
 
@@ -199,12 +149,8 @@ export abstract class BaseAuthHandler implements ICommandHandler {
         }
     }
 
-    private getBaseProfileName(params: IHandlerParameters, config: Config): string {
-        let profileName = params.arguments[`${this.mProfileType}-profile`] || config.properties.defaults[this.mProfileType];
-        if (profileName == null || !config.api.profiles.exists(profileName)) {
-            profileName = `${this.mProfileType}_${params.positionals[2]}`;
-        }
-        return profileName;
+    private getBaseProfileName(params: IHandlerParameters): string {
+        return getActiveProfileName(this.mProfileType, params.arguments, `${this.mProfileType}_${params.positionals[2]}`);
     }
 
     private async promptForBaseProfile(params: IHandlerParameters, profileName: string): Promise<boolean> {
@@ -230,7 +176,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
      * and rebuilds the session.
      * @param {IHandlerParameters} params Command parameters sent by imperative.
      */
-    private async processLogout(params: IHandlerParameters) {
+    protected async processLogout(params: IHandlerParameters) {
         ImperativeExpect.toNotBeNullOrUndefined(params.arguments.tokenValue, "Token value not supplied, but is required for logout.");
 
         // Force to use of token value, in case user and/or password also on base profile, make user undefined.
@@ -257,7 +203,7 @@ export abstract class BaseAuthHandler implements ICommandHandler {
             await this.processLogoutOld(params);
         } else {
             const config = ImperativeConfig.instance.config;
-            const profileName = this.getBaseProfileName(params, config);
+            const profileName = this.getBaseProfileName(params);
             const loadedProfile = config.api.profiles.load(profileName);
             let profileWithToken: string = null;
 
