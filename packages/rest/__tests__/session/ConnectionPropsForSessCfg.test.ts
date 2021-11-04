@@ -229,12 +229,6 @@ describe("ConnectionPropsForSessCfg tests", () => {
         const userFromPrompt = "FakeUser";
         const passFromArgs = "FakePassword";
 
-        const sleepReal = CliUtils.sleep;
-        CliUtils.sleep = jest.fn();
-        const readPromptReal = CliUtils.readPrompt;
-        CliUtils.readPrompt = jest.fn(() => {
-            return Promise.resolve(userFromPrompt);
-        });
         const mockClientPrompt = jest.spyOn(ConnectionPropsForSessCfg as any, "clientPrompt");
 
         const initialSessCfg = {
@@ -250,7 +244,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
 
         // command handler prompt method (CLI versus SDK-based prompting)
         const commandHandlerPrompt = jest.fn(() => {
-            // do nothing
+            return Promise.resolve(userFromPrompt);
         });
 
         // pretend we have a command handler object
@@ -267,8 +261,6 @@ describe("ConnectionPropsForSessCfg tests", () => {
                 parms: parms as any // treat this as a CLI-based prompt
             }
         );
-        CliUtils.sleep = sleepReal;
-        CliUtils.readPrompt = readPromptReal;
 
         expect(commandHandlerPrompt).toBeCalled(); // we are only testing that we call an already tested prompt method if in CLI mode
         expect((mockClientPrompt.mock.calls[0][1] as any).parms).toBe(parms);  // toBe is important here, parms object must be same as original
@@ -388,7 +380,46 @@ describe("ConnectionPropsForSessCfg tests", () => {
         expect(sessCfgWithConnProps.certKey).toBeUndefined();
     });
 
-    it("get port from prompt", async() => {
+    it("get port from prompt - string", async() => {
+        const hostFromArgs = "FakeHost";
+        const portFromPrompt = "11";
+        const userFromArgs = "FakeUser";
+        const passFromArgs = "FakePassword";
+
+        const sleepReal = CliUtils.sleep;
+        CliUtils.sleep = jest.fn();
+        const readPromptReal = CliUtils.readPrompt;
+        CliUtils.readPrompt = jest.fn(() => {
+            return Promise.resolve(portFromPrompt);
+        });
+
+        const initialSessCfg = {
+            rejectUnauthorized: true
+        };
+        const args = {
+            $0: "zowe",
+            _: [""],
+            host: hostFromArgs,
+            user: userFromArgs,
+            password: passFromArgs
+        };
+
+        const sessCfgWithConnProps: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+            initialSessCfg, args
+        );
+        CliUtils.sleep = sleepReal;
+        CliUtils.readPrompt = readPromptReal;
+
+        expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
+        expect(sessCfgWithConnProps.user).toBe(userFromArgs);
+        expect(sessCfgWithConnProps.password).toBe(passFromArgs);
+        expect(sessCfgWithConnProps.hostname).toBe(hostFromArgs);
+        expect(sessCfgWithConnProps.port).toBe(portFromPrompt);
+        expect(sessCfgWithConnProps.tokenType).toBeUndefined();
+        expect(sessCfgWithConnProps.tokenValue).toBeUndefined();
+    });
+
+    it("get port from prompt - number", async() => {
         const hostFromArgs = "FakeHost";
         const portFromPrompt = 11;
         const userFromArgs = "FakeUser";
@@ -399,6 +430,9 @@ describe("ConnectionPropsForSessCfg tests", () => {
         const readPromptReal = CliUtils.readPrompt;
         CliUtils.readPrompt = jest.fn(() => {
             return Promise.resolve(portFromPrompt.toString());
+        });
+        jest.spyOn(ConnectionPropsForSessCfg as any, "loadSchemaForSessCfgProps").mockReturnValueOnce({
+            port: { type: "number" }
         });
 
         const initialSessCfg = {
@@ -482,6 +516,9 @@ describe("ConnectionPropsForSessCfg tests", () => {
             questionText = text;
             return Promise.resolve(portFromPrompt.toString());
         });
+        jest.spyOn(ConnectionPropsForSessCfg as any, "loadSchemaForSessCfgProps").mockReturnValueOnce({
+            port: { type: "number" }
+        });
 
         const initialSessCfg = {
             rejectUnauthorized: true
@@ -523,6 +560,9 @@ describe("ConnectionPropsForSessCfg tests", () => {
         const readPromptReal = CliUtils.readPrompt;
         CliUtils.readPrompt = jest.fn(() => {
             return Promise.resolve(portFromPrompt);
+        });
+        jest.spyOn(ConnectionPropsForSessCfg as any, "loadSchemaForSessCfgProps").mockReturnValueOnce({
+            port: { type: "number" }
         });
 
         const initialSessCfg = {
@@ -577,7 +617,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         CliUtils.sleep = sleepReal;
         CliUtils.readPrompt = readPromptReal;
         expect(caughtError instanceof ImperativeError).toBe(true);
-        expect(caughtError.message).toBe("Timed out waiting for user name.");
+        expect(caughtError.message).toBe("Timed out waiting for user.");
     });
 
     it("timeout waiting for password", async() => {
@@ -641,7 +681,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         CliUtils.sleep = sleepReal;
         CliUtils.readPrompt = readPromptReal;
         expect(caughtError instanceof ImperativeError).toBe(true);
-        expect(caughtError.message).toBe("Timed out waiting for host name.");
+        expect(caughtError.message).toBe("Timed out waiting for hostname.");
     });
 
     it("timeout waiting for port number", async() => {
@@ -673,7 +713,7 @@ describe("ConnectionPropsForSessCfg tests", () => {
         CliUtils.sleep = sleepReal;
         CliUtils.readPrompt = readPromptReal;
         expect(caughtError instanceof ImperativeError).toBe(true);
-        expect(caughtError.message).toBe("Timed out waiting for port number.");
+        expect(caughtError.message).toBe("Timed out waiting for port.");
     });
 
     it("should not log secure properties of session config", async () => {

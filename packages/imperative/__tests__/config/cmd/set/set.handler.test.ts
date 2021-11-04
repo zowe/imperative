@@ -26,6 +26,8 @@ import * as lodash from "lodash";
 import * as fs from "fs";
 import * as os from "os";
 
+jest.mock("fs");
+
 const getIHandlerParametersObject = (): IHandlerParameters => {
     const x: any = {
         response: {

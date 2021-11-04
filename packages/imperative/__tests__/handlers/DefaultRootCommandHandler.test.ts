@@ -16,6 +16,10 @@ import { TestLogger } from "../../../../__tests__/TestLogger";
 import { ICommandDefinition, CommandResponse, CommandPreparer, ICommandHandler } from "../../../cmd";
 import { ICommandHandlerRequire } from "../../../cmd/src/doc/handler/ICommandHandlerRequire";
 import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
+
+/* eslint-disable-next-line jest/no-mocks-import */
+import { MOCKED_COMMAND_TREE } from "../../../imperative/src/__mocks__/Imperative";
+
 (CommandResponse as any).spinnerChars = "-oO0)|(0Oo-";
 process.env.FORCE_COLOR = "0";
 
@@ -85,6 +89,7 @@ const MULTIPLE_GROUPS: ICommandDefinition = {
 };
 
 describe("Default Root Command Handler", () => {
+
     afterAll(() => {
         process.env.FORCE_COLOR = "1";
     });
@@ -128,6 +133,8 @@ describe("Default Root Command Handler", () => {
             fullDefinition: MULTIPLE_GROUPS,
             profiles: undefined
         });
+
+        expect(cmdResp.buildJsonResponse().data).toEqual(MOCKED_COMMAND_TREE);
         expect(cmdResp.buildJsonResponse().stdout.toString()).toMatchSnapshot();
         expect(cmdResp.buildJsonResponse()).toMatchSnapshot();
     });
