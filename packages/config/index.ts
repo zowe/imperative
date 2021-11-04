@@ -10,10 +10,14 @@
 */
 
 export * from "./src/Config";
+export * from "./src/ConfigAutoStore";
 export * from "./src/ConfigConstants";
 export * from "./src/ConfigSchema";
 export * from "./src/ConfigBuilder";
+export * as ConfigUtils from "./src/ConfigUtils";
+export * from "./src/ProfileCredentials";
 export * from "./src/ProfileInfo";
+export * from "./src/ProfInfoErr";
 export * from "./src/doc/IConfig";
 export * from "./src/doc/IConfigBuilderOpts";
 export * from "./src/doc/IConfigLayer";

@@ -11,13 +11,14 @@
 
 import { ICommandDefinition } from "../../../../../../lib/index";
 import { LoggingDefinition } from "./logging/Logging.definition";
+import { ConfigAutoStoreCommand } from "./config-auto-store/Config.definition";
 
 export const definition: ICommandDefinition = {
     name: "test",
     description: "Test that various imperative features are working",
     summary: "Test imperative features",
     type: "group",
-    children: [LoggingDefinition]
+    children: [LoggingDefinition, ConfigAutoStoreCommand]
 };
 
 module.exports = definition;

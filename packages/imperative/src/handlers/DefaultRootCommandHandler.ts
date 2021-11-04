@@ -42,6 +42,8 @@ export default class DefaultRootCommandHandler implements ICommandHandler {
                     params.response.console.log("");
                 }
             });
+
+            params.response.data.setObj(Imperative.fullCommandTree, false);
         } else if (params.arguments.helpWeb) {
             WebHelpManager.instance.openRootHelp(params.response);
         } else {

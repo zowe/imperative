@@ -1,6 +1,6 @@
 {
   "name": "@zowe/imperative",
-  "version": "5.0.0-next.202110201735",
+  "version": "5.0.0-next.202111032034",
   "description": "framework for building configurable CLIs",
   "author": "Broadcom",
   "license": "EPL-2.0",
@@ -41,6 +41,7 @@
     "lint": "eslint \"packages/**/*.ts\" \"**/__tests__/**/*.ts\"",
     "lint:packages": "eslint \"packages/**/*.ts\" --ignore-pattern \"**/__tests__/**/*.ts\"",
     "lint:tests": "eslint \"**/__tests__/**/*.ts\"",
+    "circularDependencyCheck": "madge -c lib",
     "watch": "gulp watch",
     "build:webHelp": "cd web-help && tsc",
     "watch:webHelp": "cd web-help && tsc -w",

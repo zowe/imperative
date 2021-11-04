@@ -16,6 +16,7 @@ import * as config from "../../../__tests__/__integration__/imperative/src/imper
 import * as lodash from "lodash";
 
 const expectedConfigObject: IConfig = {
+    autoStore: true,
     defaults: {},
     profiles: {
         secured: {
