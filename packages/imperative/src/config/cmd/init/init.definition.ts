@@ -50,6 +50,7 @@ export const initDefinition: ICommandDefinition = {
         {
             name: "overwrite",
             description: "Replace existing config files instead of merging the new changes.",
+            aliases: ["ow"],
             type: "boolean",
             defaultValue: false,
             conflictsWith: ["dry-run"]
