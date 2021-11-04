@@ -55,7 +55,9 @@ export class ConfigurationLoader {
         // override the config with the content of the module specified
         if (config.configurationModule != null) {
             try {
+                const daemonMode = config.daemonMode;
                 config = callerFileRequirer(config.configurationModule);
+                config.daemonMode = daemonMode;
             } catch (e) {
                 throw new ImperativeError({
                     msg:

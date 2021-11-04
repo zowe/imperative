@@ -326,4 +326,12 @@ export interface IImperativeConfig {
      * @memberof IImperativeConfig
      */
     apimlConnLookup?: IApimlSvcAttrs[];
+
+    /**
+     * If Imperative should run in Daemon mode
+     * This should only be specified for CLIs
+     * @type {boolean}
+     * @memberof IImperativeConfig
+     */
+    daemonMode?: boolean;
 }

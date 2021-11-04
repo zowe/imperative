@@ -163,7 +163,7 @@ export class Config {
         try {
             let setActive = true;
             for (const currLayer of myNewConfig.mLayers) {
-                await myNewConfig.api.layers.read(currLayer);
+                if (!opts.noLoad) { await myNewConfig.api.layers.read(currLayer); }
 
                 // Find the active layer
                 if (setActive && currLayer.exists) {
@@ -185,7 +185,7 @@ export class Config {
         }
 
         // Load secure fields
-        await myNewConfig.api.secure.load();
+        if (!opts.noLoad) { await myNewConfig.api.secure.load(); }
 
         return myNewConfig;
     }
