@@ -23,7 +23,6 @@ import * as lodash from "lodash";
 import * as fs from "fs";
 import * as os from "os";
 import { CredentialManagerFactory } from "../../../../../security";
-import { param } from "jquery";
 
 const getIHandlerParametersObject = (): IHandlerParameters => {
     const x: any = {
