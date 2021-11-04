@@ -49,7 +49,7 @@ export default class InitHandler implements ICommandHandler {
             params.response.console.log(TextUtils.chalk.yellow("Warning:\n") +
                 `${warning.message} Skipped prompting for credentials.\n\n${warning.additionalDetails}\n`);
         }
- 
+
         // Write the active created/updated config layer
         await config.save(false);
 
