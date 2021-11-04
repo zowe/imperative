@@ -202,7 +202,8 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
+            params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the project user configuration", async () => {
@@ -301,7 +302,8 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
+            params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the global project configuration", async () => {
@@ -414,7 +416,8 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
+            params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the global project user configuration", async () => {
@@ -517,7 +520,8 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
+            params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the project configuration with prompt flag false", async () => {
@@ -612,7 +616,8 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
+            params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the project user configuration with prompting disabled", async () => {
@@ -707,7 +712,8 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
+            params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the global project configuration with prompt flag false", async () => {
@@ -806,7 +812,8 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
+            params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the global project user configuration with prompting disabled", async () => {
@@ -909,7 +916,8 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
+            params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the project configuration and use boolean true for the prompt", async () => {
@@ -1014,7 +1022,8 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
+            params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the project configuration and use boolean false for the prompt", async () => {
@@ -1119,7 +1128,8 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
+            params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the project configuration and use a number for the prompt", async () => {
@@ -1228,7 +1238,8 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
+            params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the project configuration and handle getting nothing from the prompt", async () => {
@@ -1333,7 +1344,8 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
+            params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should display warning if unable to securely save credentials", async () => {

@@ -12,8 +12,6 @@
 import { ICommandDefinition } from "../../../../../cmd";
 import { join } from "path";
 import { ImperativeConfig } from "../../../../../utilities";
-import { AutoInitConstants } from "../auto-init/AutoInitConstants";
-import { implies } from "yargs";
 
 /**
  * Definition of the init command.
