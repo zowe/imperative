@@ -42,7 +42,7 @@ export default class InitHandler implements ICommandHandler {
         config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig, configDir);
         const layer = config.api.layers.get();
 
-        await this.initWithSchema(config, params.arguments.userConfig, params.arguments.overwrite);
+        await this.initWithSchema(config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
 
         if (params.arguments.prompt !== false && !CredentialManagerFactory.initialized && config.api.secure.secureFields().length > 0) {
             const warning = secureSaveError();
@@ -73,7 +73,7 @@ export default class InitHandler implements ICommandHandler {
      * @param config Config object to be populated
      * @param user If true, properties will be left empty for user config
      */
-    private async initWithSchema(config: Config, user: boolean, overwrite: boolean): Promise<void> {
+    private async initWithSchema(config: Config, user: boolean, overwrite: boolean, forSure: boolean): Promise<void> {
         const opts: IConfigBuilderOpts = {};
         if (!user) {
             opts.populateProperties = true;
@@ -82,10 +82,10 @@ export default class InitHandler implements ICommandHandler {
 
         // Build new config and merge with existing layer or overwrite it if overwrite option is present
         const newConfig: IConfig = await ConfigBuilder.build(ImperativeConfig.instance.loadedConfig, opts);
-        if (!overwrite) {
-            config.api.layers.merge(newConfig);
-        } else {
+        if (overwrite && forSure) {
             config.api.layers.set(newConfig);
+        } else {
+            config.api.layers.merge(newConfig);
         }
 
         // Build the schema and write it to disk

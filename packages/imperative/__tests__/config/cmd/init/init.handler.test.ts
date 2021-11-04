@@ -152,6 +152,7 @@ describe("Configuration Initialization command handler", () => {
         params.arguments.globalConfig = false;
         params.arguments.prompt = true;
         params.arguments.overwrite = true;
+        params.arguments.forSure = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -199,7 +200,7 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the project user configuration", async () => {
@@ -255,6 +256,7 @@ describe("Configuration Initialization command handler", () => {
         params.arguments.globalConfig = false;
         params.arguments.prompt = true;
         params.arguments.overwrite = true;
+        params.arguments.forSure = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -297,7 +299,7 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the global project configuration", async () => {
@@ -360,6 +362,7 @@ describe("Configuration Initialization command handler", () => {
         params.arguments.globalConfig = true;
         params.arguments.prompt = true;
         params.arguments.overwrite = true;
+        params.arguments.forSure = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -409,7 +412,7 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the global project user configuration", async () => {
@@ -467,6 +470,7 @@ describe("Configuration Initialization command handler", () => {
         params.arguments.globalConfig = true;
         params.arguments.prompt = true;
         params.arguments.overwrite = true;
+        params.arguments.forSure = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -511,7 +515,7 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the project configuration with prompt flag false", async () => {
@@ -565,6 +569,7 @@ describe("Configuration Initialization command handler", () => {
         params.arguments.globalConfig = false;
         params.arguments.prompt = false;
         params.arguments.overwrite = true;
+        params.arguments.forSure = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -605,7 +610,7 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the project user configuration with prompting disabled", async () => {
@@ -659,6 +664,7 @@ describe("Configuration Initialization command handler", () => {
         params.arguments.globalConfig = false;
         params.arguments.prompt = false;
         params.arguments.overwrite = true;
+        params.arguments.forSure = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -699,7 +705,7 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the global project configuration with prompt flag false", async () => {
@@ -755,6 +761,7 @@ describe("Configuration Initialization command handler", () => {
         params.arguments.globalConfig = true;
         params.arguments.prompt = false;
         params.arguments.overwrite = true;
+        params.arguments.forSure = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -797,7 +804,7 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the global project user configuration with prompting disabled", async () => {
@@ -855,6 +862,7 @@ describe("Configuration Initialization command handler", () => {
         params.arguments.globalConfig = true;
         params.arguments.prompt = false;
         params.arguments.overwrite = true;
+        params.arguments.forSure = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -899,7 +907,7 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the project configuration and use boolean true for the prompt", async () => {
@@ -958,6 +966,7 @@ describe("Configuration Initialization command handler", () => {
         params.arguments.globalConfig = false;
         params.arguments.prompt = true;
         params.arguments.overwrite = true;
+        params.arguments.forSure = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -1003,7 +1012,7 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the project configuration and use boolean false for the prompt", async () => {
@@ -1062,6 +1071,7 @@ describe("Configuration Initialization command handler", () => {
         params.arguments.globalConfig = false;
         params.arguments.prompt = true;
         params.arguments.overwrite = true;
+        params.arguments.forSure = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -1107,7 +1117,7 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the project configuration and use a number for the prompt", async () => {
@@ -1168,6 +1178,7 @@ describe("Configuration Initialization command handler", () => {
         params.arguments.globalConfig = false;
         params.arguments.prompt = true;
         params.arguments.overwrite = true;
+        params.arguments.forSure = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -1215,7 +1226,7 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should attempt to initialize the project configuration and handle getting nothing from the prompt", async () => {
@@ -1274,6 +1285,7 @@ describe("Configuration Initialization command handler", () => {
         params.arguments.globalConfig = false;
         params.arguments.prompt = true;
         params.arguments.overwrite = true;
+        params.arguments.forSure = true;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -1319,7 +1331,7 @@ describe("Configuration Initialization command handler", () => {
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
-        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite);
+        expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
     });
 
     it("should display warning if unable to securely save credentials", async () => {

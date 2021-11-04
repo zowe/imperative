@@ -12,6 +12,8 @@
 import { ICommandDefinition } from "../../../../../cmd";
 import { join } from "path";
 import { ImperativeConfig } from "../../../../../utilities";
+import { AutoInitConstants } from "../auto-init/AutoInitConstants";
+import { implies } from "yargs";
 
 /**
  * Definition of the init command.
@@ -53,7 +55,15 @@ export const initDefinition: ICommandDefinition = {
             aliases: ["ow"],
             type: "boolean",
             defaultValue: false,
-            conflictsWith: ["dry-run"]
+            conflictsWith: ["dry-run"],
+            implies: ["for-sure"]
+        },
+        {
+            name: "for-sure",
+            aliases: ["f"],
+            description: "Confirms the overwrite option.",
+            type: "boolean",
+            defaultValue: false
         }
     ],
     examples: [
