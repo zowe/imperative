@@ -117,7 +117,7 @@ describe("Basic Profile Manager - Merge", () => {
         expect(merged.hasNestedArray).toEqual(newProfile.hasNestedArray);
     });
 
-    it("should merge on update if \"merge\" is specified on the parms ", async () => {
+    it("should merge on update if \"merge\" is specified on the parms", async () => {
         const prof = new BasicProfileManager({
             profileRootDirectory: TEST_PROFILE_ROOT_DIR,
             typeConfigurations: [{

@@ -98,51 +98,51 @@ describe("Cli Profile Manager", () => {
                 {type: profileTypeOne, description: profileTypeOne + " dependency", required: true}
             ]
         },
-            {
-                type: profileTypeThree,
-                title: "profile with different option names compare to schema fields",
-                schema: {
-                    type: "object",
-                    title: "test profile",
-                    description: "test profile",
-                    properties: {
-                        property1: {
+        {
+            type: profileTypeThree,
+            title: "profile with different option names compare to schema fields",
+            schema: {
+                type: "object",
+                title: "test profile",
+                description: "test profile",
+                properties: {
+                    property1: {
+                        type: "number",
+                        optionDefinition: {
+                            name: "differentProperty1",
                             type: "number",
-                            optionDefinition: {
-                                name: "differentProperty1",
-                                type: "number",
-                                description: "property1"
-                            }
-                        },
-                        property2: {
+                            description: "property1"
+                        }
+                    },
+                    property2: {
+                        type: "string",
+                        optionDefinition: {
+                            name: "differentProperty2",
                             type: "string",
-                            optionDefinition: {
-                                name: "differentProperty2",
-                                type: "string",
-                                description: "property2"
-                            }
-                        },
-                        hasChild: {
-                            type: "object",
-                            properties: {
-                                hasGrandChild: {
-                                    type: "object",
-                                    properties: {
-                                        grandChild: {
-                                            optionDefinition: {
-                                                name: "myGrandChild",
-                                                type: "string",
-                                                description: "my grand child",
-                                            }
+                            description: "property2"
+                        }
+                    },
+                    hasChild: {
+                        type: "object",
+                        properties: {
+                            hasGrandChild: {
+                                type: "object",
+                                properties: {
+                                    grandChild: {
+                                        optionDefinition: {
+                                            name: "myGrandChild",
+                                            type: "string",
+                                            description: "my grand child",
                                         }
                                     }
                                 }
                             }
                         }
-                    },
-                    required: ["property2"]
+                    }
                 },
-            }];
+                required: ["property2"]
+            },
+        }];
     };
 
     it("should only load all profiles of the manager type if requested", async () => {
@@ -273,13 +273,19 @@ describe("Cli Profile Manager", () => {
             typeConfigurations: configs
         });
         const profileName = "myprofile";
+        let caughtError;
 
-        await manager.save({
-            name: profileName, type: profileTypeOne,
-            profile: {sum: 55},
-            overwrite: true
-        });
-        // validation should pass
+        try {
+            await manager.save({
+                name: profileName, type: profileTypeOne,
+                profile: {sum: 55},
+                overwrite: true
+            });
+        } catch (error) {
+            caughtError = error;
+        }
+
+        expect(caughtError).toBeUndefined();
     });
 
     it("should still update a profile properly without providing args", async () => {
@@ -310,7 +316,7 @@ describe("Cli Profile Manager", () => {
         expect(processSecurePropertiesSpy).toHaveBeenCalledTimes(1);
     });
 
-    it("should still fail profile validation on creation if no args are provided ", async () => {
+    it("should still fail profile validation on creation if no args are provided", async () => {
         const configs = getTypeConfigurations();
 
         (ProfileIO.exists as any) = jest.fn(() => {
@@ -339,7 +345,7 @@ describe("Cli Profile Manager", () => {
         }
     });
 
-    it("should still fail profile validation on update if no args are provided ", async () => {
+    it("should still fail profile validation on update if no args are provided", async () => {
         const configs = getTypeConfigurations();
 
         (ProfileIO.exists as any) = jest.fn(() => {
@@ -535,7 +541,7 @@ describe("Cli Profile Manager", () => {
             return true; // pretend the profile already exists
         });
         ProfileIO.readProfileFile = jest.fn((fullFilePath: string,
-                                             type: "string") => {
+            type: "string") => {
             return {
                 name: profileName,
                 type: profileTypeThree,
@@ -576,7 +582,7 @@ describe("Cli Profile Manager", () => {
             return true; // pretend the profile already exists
         });
         ProfileIO.readProfileFile = jest.fn((fullFilePath: string,
-                                             type: "string") => {
+            type: "string") => {
             return {
                 name: profileName,
                 type: profileTypeThree,
@@ -619,7 +625,7 @@ describe("Cli Profile Manager", () => {
             return true; // pretend the profile already exists
         });
         ProfileIO.readProfileFile = jest.fn((fullFilePath: string,
-                                             type: "string") => {
+            type: "string") => {
             return {
                 name: profileName,
                 type: profileTypeThree,

@@ -29,7 +29,6 @@ export default class TestCmdHandler implements ICommandHandler {
                 });
             }
             if (commandParameters.arguments.throwError) {
-                // tslint:disable-next-line
                 commandParameters.arguments.this.doesnt.exist;
             }
 

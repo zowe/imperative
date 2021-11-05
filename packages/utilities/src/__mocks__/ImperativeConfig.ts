@@ -9,14 +9,15 @@
 *
 */
 
-import { CommandPreparer, ICommandDefinition } from "../../../cmd";
+
+import { Config } from "../../../config/src/__mocks__/Config";
 import { IImperativeConfig } from "../../../imperative/src/doc/IImperativeConfig";
 
 export class ImperativeConfig {
     private static mInstance: ImperativeConfig = null;
-    private mConfig: any = {
-        exists: false
-    };
+
+    private mConfig: Config = new Config();
+
     private mLoadedConfig: IImperativeConfig = {
         name: "test-cli",
         allowConfigGroup: false,
@@ -35,25 +36,25 @@ export class ImperativeConfig {
 
     public static get instance(): ImperativeConfig {
         if (this.mInstance == null) {
-          this.mInstance = new ImperativeConfig();
+            this.mInstance = new ImperativeConfig();
         }
 
         return this.mInstance;
     }
 
     public get callerPackageJson(): any {
-         return {version: 10000, name: "sample"};
+        return {version: 10000, name: "sample"};
     }
 
     public get cliHome(): string {
         return "/home";
     }
 
-    public get config(): any {
+    public get config(): Config {
         return this.mConfig;
     }
 
-    public set config(c: any) {
+    public set config(c: Config) {
         this.mConfig = c;
     }
 
@@ -62,11 +63,11 @@ export class ImperativeConfig {
     }
 
     public get loadedConfig(): IImperativeConfig {
-      return this.mLoadedConfig;
+        return this.mLoadedConfig;
     }
 
     public set loadedConfig(config: IImperativeConfig) {
-      this.mLoadedConfig = config;
+        this.mLoadedConfig = config;
     }
 
     public get hostPackageName(): string {

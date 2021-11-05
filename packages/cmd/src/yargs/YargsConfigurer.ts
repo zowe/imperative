@@ -9,8 +9,8 @@
 *
 */
 
-import { format, inspect, isNullOrUndefined } from "util";
-import { Arguments, Argv } from "yargs";
+import { format, inspect } from "util";
+import { Arguments } from "yargs";
 import { Logger } from "../../../logger";
 import { Constants } from "../../../constants";
 import { AbstractCommandYargs } from "./AbstractCommandYargs";
@@ -23,6 +23,7 @@ import { ICommandProfileTypeConfiguration } from "../doc/profiles/definition/ICo
 import { IHelpGeneratorFactory } from "../help/doc/IHelpGeneratorFactory";
 import { CliUtils } from "../../../utilities/src/CliUtils";
 import { ImperativeConfig } from "../../../utilities";
+import { closest } from "fastest-levenshtein";
 
 /**
  * Before invoking commands, this class configures some settings and callbacks in Yargs,
@@ -30,15 +31,15 @@ import { ImperativeConfig } from "../../../utilities";
  */
 export class YargsConfigurer {
     constructor(private rootCommand: ICommandDefinition,
-                private yargs: any,
-                private commandRespParms: ICommandResponseParms,
-                private profileManagerFactory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
-                private helpGeneratorFactory: IHelpGeneratorFactory,
-                private experimentalCommandDescription: string,
-                private rootCommandName: string,
-                private commandLine: string,
-                private envVariablePrefix: string,
-                private promptPhrase: string
+        private yargs: any,
+        private commandRespParms: ICommandResponseParms,
+        private profileManagerFactory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
+        private helpGeneratorFactory: IHelpGeneratorFactory,
+        private experimentalCommandDescription: string,
+        private rootCommandName: string,
+        private commandLine: string,
+        private envVariablePrefix: string,
+        private promptPhrase: string
     ) {
     }
 
@@ -58,7 +59,6 @@ export class YargsConfigurer {
             const jsonOptionName: string = Constants.JSON_OPTION;
             jsonArg[jsonOptionName] = true;
         }
-        const preferredTerminalWidth = 100;
         const failedCommandHandler = __dirname + "/../handlers/FailedCommandHandler";
         const failedCommandDefinition: ICommandDefinition = {
             name: this.rootCommandName + " " + ImperativeConfig.instance.commandLine,
@@ -79,7 +79,6 @@ export class YargsConfigurer {
                     if (argv.V) {
                         argv.version = true;
                     }
-                    const isJson = argv[Constants.JSON_OPTION] || argv[Constants.JSON_OPTION_ALIAS];
 
                     // Allocate a help generator from the factory
                     const rootHelpGenerator = this.helpGeneratorFactory.getHelpGenerator({
@@ -108,22 +107,7 @@ export class YargsConfigurer {
                 } else {
                     // unknown command, not successful
                     process.exitCode = Constants.ERROR_EXIT_CODE;
-                    const lev = require("levenshtein");
-                    let minimumLevDistance: number = 999999;
-                    let closestCommand: string;
-
-                    const commandTree = CommandUtils.flattenCommandTree(this.rootCommand);
-
-                    for (const command of commandTree) {
-                        if (command.fullName.trim().length === 0) {
-                            continue;
-                        }
-                        const compare = new lev(attemptedCommand, command.fullName);
-                        if (compare.distance < minimumLevDistance) {
-                            minimumLevDistance = compare.distance;
-                            closestCommand = command.fullName;
-                        }
-                    }
+                    const closestCommand = this.getClosestCommand(attemptedCommand);
 
                     argv.failureMessage = this.buildFailureMessage(closestCommand);
 
@@ -151,8 +135,8 @@ export class YargsConfigurer {
                         .then((failedCommandResponse) => {
                             logger.debug("Finished invoking the 'FailedCommand' handler");
                         }).catch((err) => {
-                        logger.error("%s", err.msg);
-                    });
+                            logger.error("%s", err.msg);
+                        });
                 }
             }
         });
@@ -197,8 +181,8 @@ export class YargsConfigurer {
                 .then((failedCommandResponse) => {
                     logger.debug("Finished invoking the 'FailedCommand' handler");
                 }).catch((err) => {
-                logger.error("%s", err.msg);
-            });
+                    logger.error("%s", err.msg);
+                });
         });
         process.on("uncaughtException", (error: Error) => {
             process.exitCode = Constants.ERROR_EXIT_CODE;
@@ -240,8 +224,8 @@ export class YargsConfigurer {
                 .then((failedCommandResponse) => {
                     logger.debug("Finished invoking the 'FailedCommand' handler");
                 }).catch((err) => {
-                logger.error("%s", err.msg);
-            });
+                    logger.error("%s", err.msg);
+                });
         });
     }
 
@@ -255,11 +239,20 @@ export class YargsConfigurer {
         let commands: string = "";
         let groups: string = " "; // default to " " for proper spacing in message
         let delimiter: string = ""; // used to delimit between possible 'command' values
+        const groupValues = ImperativeConfig.instance.commandLine.split(" ", three);
+        const commandToCheck = groupValues.join(" ");
+        const nearestCommand: string = closestCommand || this.getClosestCommand(commandToCheck);
 
         let failureMessage = "Command failed due to improper syntax";
-        failureMessage += `\nCommand entered: "${this.rootCommandName} ${ImperativeConfig.instance.commandLine}"`;
+        if (closestCommand != null) {
+            failureMessage += format("\nUnknown group: %s", groupValues[0]);
+        }
+
+        if (closestCommand != null || !commandToCheck.includes(nearestCommand)) {
+            failureMessage += format("\nDid you mean: %s?\n", nearestCommand);
+        }
+        failureMessage += `\nCommand entered: "${ImperativeConfig.instance.commandLine}"`;
         // limit to three to include two levels of group and command value, if present
-        const groupValues = ImperativeConfig.instance.commandLine.split(" ", three);
 
         // loop through the top level groups
         for (const group of this.rootCommand.children) {
@@ -281,11 +274,6 @@ export class YargsConfigurer {
                 }
                 break;
             }
-        }
-
-        if (!isNullOrUndefined(closestCommand)) {
-            failureMessage += format("\nUnknown group: %s\n", groupValues[0]);
-            failureMessage += format("Did you mean: %s?", closestCommand);
         }
 
         if (commands.length > 0) {
@@ -311,4 +299,17 @@ export class YargsConfigurer {
     //         progressBarPollFrequency: this.commandRespParms.progressBarPollFrequency
     //     });
     // }
+
+    private getClosestCommand(attemptedCommand: string) {
+        const commandTree = CommandUtils.flattenCommandTreeWithAliases(this.rootCommand);
+        const commands: string[] = [];
+
+        for (const commandEntry of commandTree) {
+            if (commandEntry.fullName.trim().length === 0) {
+                continue;
+            }
+            commands.push(commandEntry.fullName);
+        }
+        return closest(attemptedCommand, commands);
+    }
 }

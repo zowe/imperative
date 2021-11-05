@@ -29,13 +29,37 @@ export const listDefinition: ICommandDefinition = {
     options: [
         {
             name: "locations",
-            description: "Separate the config properties into their respective config file locations. Helpful to determine where configuration value is specified.",
+            description: "Separate the config properties into their respective config file locations. " +
+                "Helpful to determine where configuration value is specified.",
             type: "boolean"
         },
         {
             name: "root",
-            description: "List only the root level property names. For example, specify in addition to '--locations' to get a list of config file paths only.",
+            description: "List only the root level property names. " +
+                "For example, specify in addition to '--locations' to get a list of config file paths only.",
             type: "boolean"
+        }
+    ],
+    examples: [
+        {
+            description: "List property names for a specified config property.",
+            options: `"defaults"`
+        },
+        {
+            description: "List only root level property names for a specified config property.",
+            options: `"defaults" --root`
+        },
+        {
+            description: "List config properties by separating them by their respective config file locations.",
+            options: "--locations"
+        },
+        {
+            description: "List only the root level configuration property names.",
+            options: "--root"
+        },
+        {
+            description: "List only the root level configuration properties by separating them by their respective config file locations.",
+            options: "--locations --root"
         }
     ]
 };

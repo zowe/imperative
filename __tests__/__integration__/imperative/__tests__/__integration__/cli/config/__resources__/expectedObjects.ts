@@ -273,7 +273,8 @@ export const expectedConfigObject: IConfig = {
     defaults: {
         secured: "secured",
         base: "base"
-    }
+    },
+    autoStore: true
 };
 
 export const expectedUserConfigObject: IConfig = {
@@ -290,5 +291,6 @@ export const expectedUserConfigObject: IConfig = {
             secure: []
         }
     },
-    defaults: {}
+    defaults: {},
+    autoStore: true
 };

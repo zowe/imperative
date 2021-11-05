@@ -619,7 +619,7 @@ describe("Command Preparer", () => {
         expect(prepared).toMatchSnapshot();
     });
 
-    it("should mark all children of an experimental group as experimental ", () => {
+    it("should mark all children of an experimental group as experimental", () => {
         const cmd: ICommandDefinition = {
             name: "parent",
             type: "group",

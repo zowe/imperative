@@ -38,7 +38,6 @@ export class LoggingConfigurer {
         ImperativeExpect.toBeDefinedAndNonBlank(home, "home");
         ImperativeExpect.keysToBeDefinedAndNonBlank(imperativeConfig, ["name"]);
 
-        //   console.log(inspect(imperativeConfig) + home);
         /**
          * Build appropriate minimum required configuration for the loggers of:
          * - imperative
@@ -182,7 +181,7 @@ export class LoggingConfigurer {
      * @memberof LoggingConfigurer
      */
     private static configureLoggerByKeyHelper(home: string, impLogConfig: IImperativeLoggingConfig,
-                                              loggingConfig: IConfigLogging, entryKey: string, configKey: string) {
+        loggingConfig: IConfigLogging, entryKey: string, configKey: string) {
         if (!isNullOrUndefined(impLogConfig.logFile)) {
             const fullLogFilePath = home +
                 LoggingConfigurer.normalizeDir(impLogConfig.logFile);

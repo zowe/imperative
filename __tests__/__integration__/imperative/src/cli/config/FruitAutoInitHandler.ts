@@ -9,8 +9,8 @@
 *
 */
 
-import { AbstractSession, BaseAutoInitHandler, ICommandArguments, IConfig, IHandlerParameters,
-         ISession, SessConstants } from "../../../../../../lib";
+import { AbstractSession, BaseAutoInitHandler, ICommandArguments, IConfig, IHandlerParameters, IHandlerResponseApi,
+    ISession, SessConstants } from "../../../../../../lib";
 
 /**
  * This class is used by the auto-init command handlers as the base class for their implementation.
@@ -72,5 +72,9 @@ export default class FruitAutoInitHandler extends BaseAutoInitHandler {
                 [this.mProfileType]: "base_fruit"
             }
         };
+    }
+
+    protected displayAutoInitChanges(response: IHandlerResponseApi): void {
+        response.console.log("**auto-init changes**");
     }
 }

@@ -12,7 +12,7 @@
 jest.mock("../../../src/Imperative");
 jest.mock("../../../../utilities/src/ImperativeConfig");
 
-import { IProfile, IProfileLoaded, ProfileValidator } from "../../../../profiles";
+import { IProfileLoaded, ProfileValidator } from "../../../../profiles";
 import { ICommandProfileTypeConfiguration } from "../../../../cmd";
 import { Imperative } from "../../../src/Imperative";
 import { ImperativeConfig } from "../../../../utilities";
@@ -95,7 +95,7 @@ const ProfileLoaded = {
     profile: {
         type: "fakeProfileType"
     }
-}
+};
 
 // "Mocked" version of a crashing imperative API
 const impApiMockedCrash = {
@@ -158,13 +158,13 @@ describe("validate endevor profile handler", () => {
                 },
                 validationPlanModule: "../../../../../__tests__/src/packages/imperative/plugins/test_cli/TestProfileValidationPlan1"
             };
-            Imperative.getProfileConfiguration = jest.fn(() => {return profConfig });
+            Imperative.getProfileConfiguration = jest.fn(() => profConfig);
 
             // print-plan-only forced printing the plan, not validating
             const printedPlanText = "Printed plan for profile validation";
             ProfileValidator.getTextDisplayForPlan = jest.fn(() => {
                 return printedPlanText;
-            })
+            });
 
             Object.defineProperty(Imperative, "api", { value: impApiMockedOk, configurable: true });
             const parms = Object.assign({}, ...[validateProfileParms]);

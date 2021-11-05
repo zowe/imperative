@@ -14,60 +14,60 @@ import { IImperativeOverrides } from "../src/doc/IImperativeOverrides";
 import { IApimlSvcAttrs } from "../src/doc/IApimlSvcAttrs";
 
 describe("ConfigurationLoader", () => {
-  describe("overrides", () => {
-    it("should return a config with an empty overrides", () => {
-      const result = ConfigurationLoader.load(
-        {
-          name: "some-name"
-        },
-        {},
-        () => undefined
-      );
+    describe("overrides", () => {
+        it("should return a config with an empty overrides", () => {
+            const result = ConfigurationLoader.load(
+                {
+                    name: "some-name"
+                },
+                {},
+                () => undefined
+            );
 
-      expect(result.overrides).toEqual({});
-    });
+            expect(result.overrides).toEqual({});
+        });
 
-    it("should return a config with the passed overrides", () => {
-      const overrides: IImperativeOverrides = {
-        CredentialManager: "./ABCD.ts"
-      };
+        it("should return a config with the passed overrides", () => {
+            const overrides: IImperativeOverrides = {
+                CredentialManager: "./ABCD.ts"
+            };
 
-      const result = ConfigurationLoader.load(
-        {
-          name: "some-name",
-          overrides
-        },
-        {},
-        () => undefined
-      );
+            const result = ConfigurationLoader.load(
+                {
+                    name: "some-name",
+                    overrides
+                },
+                {},
+                () => undefined
+            );
 
-      expect(result.overrides).toEqual(overrides);
-    });
+            expect(result.overrides).toEqual(overrides);
+        });
 
-    it("should return a config with apimlConnLookup", () => {
-        const apimlConnLookup: IApimlSvcAttrs[] = [
-            {
-                apiId: "fake_apiId_1",
-                gatewayUrl: "fake_gatewayUrl_1",
-                connProfType: "fake_connProfType_1"
-            },
-            {
-                apiId: "fake_apiId_2",
-                gatewayUrl: "fake_gatewayUrl_2",
-                connProfType: "fake_connProfType_2"
-            }
-        ]
+        it("should return a config with apimlConnLookup", () => {
+            const apimlConnLookup: IApimlSvcAttrs[] = [
+                {
+                    apiId: "fake_apiId_1",
+                    gatewayUrl: "fake_gatewayUrl_1",
+                    connProfType: "fake_connProfType_1"
+                },
+                {
+                    apiId: "fake_apiId_2",
+                    gatewayUrl: "fake_gatewayUrl_2",
+                    connProfType: "fake_connProfType_2"
+                }
+            ];
 
-        const result = ConfigurationLoader.load(
-          {
-            name: "some-name",
-            apimlConnLookup
-          },
-          {},
-          () => undefined
-        );
+            const result = ConfigurationLoader.load(
+                {
+                    name: "some-name",
+                    apimlConnLookup
+                },
+                {},
+                () => undefined
+            );
 
-        expect(result.apimlConnLookup).toEqual(apimlConnLookup);
-      });
+            expect(result.apimlConnLookup).toEqual(apimlConnLookup);
+        });
     });
 });

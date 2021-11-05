@@ -89,10 +89,10 @@ export class Imperative {
 
     public static getHelpGenerator(parms: IHelpGeneratorParms): AbstractHelpGenerator {
         return new DefaultHelpGenerator({
-                produceMarkdown: false,
-                primaryHighlightColor: PRIMARY_COLOR, rootCommandName: "mock"
-            },
-            parms);
+            produceMarkdown: false,
+            primaryHighlightColor: PRIMARY_COLOR, rootCommandName: "mock"
+        },
+        parms);
     }
 
     private static mLoadedConfig: IImperativeConfig = {

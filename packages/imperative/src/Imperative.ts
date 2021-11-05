@@ -60,7 +60,7 @@ import { IYargsContext } from "./doc/IYargsContext";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 import { ImperativeExpect } from "../../expect";
 import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
-import { Config } from "../../config";
+import { Config } from "../../config/src/Config";
 import { CompleteAutoInitCommandBuilder } from "./config/cmd/auto-init/builders/CompleteAutoInitCommandBuilder";
 import { ICommandProfileAutoInitConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAutoInitConfig";
 
@@ -75,8 +75,8 @@ if (PerfTiming.isEnabled) {
 
     // Timerify a wrapper named function so we can be sure that not just
     // any anonymous function gets checked.
-    Module.prototype.require = PerfTiming.api.watch(function NodeModuleLoader() {
-        return originalRequire.apply(this, arguments);
+    Module.prototype.require = PerfTiming.api.watch(function NodeModuleLoader(...args: any[]) {
+        return originalRequire.apply(this, args);
     });
 }
 
@@ -137,6 +137,7 @@ export class Imperative {
      * @returns {Promise<void>} A promise indicating that we are done here.
      */
     public static init(config?: IImperativeConfig): Promise<void> {
+        // eslint-disable-next-line no-async-promise-executor
         return new Promise<void>(async (initializationComplete: () => void, initializationFailed: ImperativeReject) => {
             try {
 
@@ -191,7 +192,8 @@ export class Imperative {
                 }
 
                 // Load the base config
-                ImperativeConfig.instance.config = await Config.load(this.mRootCommandName,
+                const configAppName = ImperativeConfig.instance.findPackageBinName() ? this.mRootCommandName : config.name;
+                ImperativeConfig.instance.config = await Config.load(configAppName,
                     { homeDir: ImperativeConfig.instance.cliHome });
 
                 // If plugins are allowed, enable core plugins commands
@@ -292,9 +294,9 @@ export class Imperative {
                         "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
                         "Node versions: '%s'" +
                         "Environmental variables: '%s'",
-                        os.platform(), os.arch(), process.argv.join(" "),
-                        JSON.stringify(process.versions, null, 2),
-                        JSON.stringify(process.env, null, 2));
+                    os.platform(), os.arch(), process.argv.join(" "),
+                    JSON.stringify(process.versions, null, 2),
+                    JSON.stringify(process.env, null, 2));
                     Logger.writeInMemoryMessages(Imperative.DEFAULT_DEBUG_FILE);
                     if (error.report) {
                         const {writeFileSync} = require("fs");
@@ -302,7 +304,7 @@ export class Imperative {
                     }
                     if (!(error instanceof ImperativeError)) {
                         const oldError = error;
-                        error = new ImperativeError({
+                        error = new ImperativeError({  // eslint-disable-line no-ex-assign
                             msg: "Unexpected Error Encountered",
                             causeErrors: error
                         });
@@ -488,7 +490,7 @@ export class Imperative {
             } else {
                 message = "Imperative log level '" + envSettings.imperativeLogLevel.value +
                     "' from environmental variable setting '" + envSettings.imperativeLogLevel.key + "' is not recognised.  " +
-                    "Logger level is set to '" + LoggerConfigBuilder.DEFAULT_LOG_LEVEL + "'.  " +
+                    "Logger level is set to '" + LoggerConfigBuilder.getDefaultLogLevel() + "'.  " +
                     "Valid levels are " + Logger.DEFAULT_VALID_LOG_LEVELS.toString();
                 new Console().warn(message);
                 this.log.warn(message);
@@ -506,7 +508,7 @@ export class Imperative {
             } else {
                 message = "Application log level '" + envSettings.appLogLevel.value +
                     "' from environmental variable setting '" + envSettings.appLogLevel.key + "' is not recognised.  " +
-                    "Logger level is set to '" + LoggerConfigBuilder.DEFAULT_LOG_LEVEL + "'.  " +
+                    "Logger level is set to '" + LoggerConfigBuilder.getDefaultLogLevel() + "'.  " +
                     "Valid levels are " + Logger.DEFAULT_VALID_LOG_LEVELS.toString();
                 new Console().warn(message);
                 this.log.warn(message);
@@ -717,7 +719,8 @@ export class Imperative {
             loadedConfig.profiles.forEach((profile) => {
                 if (profile.authConfig != null) {
                     for (const requiredOption of ["host", "port", "user", "password", "tokenType", "tokenValue"]) {
-                        ImperativeExpect.toNotBeNullOrUndefined(profile.schema.properties[requiredOption], `Profile of type ${profile.type} with authConfig property must have ${requiredOption} option defined`);
+                        ImperativeExpect.toNotBeNullOrUndefined(profile.schema.properties[requiredOption],
+                            `Profile of type ${profile.type} with authConfig property must have ${requiredOption} option defined`);
                     }
                     authConfigs[profile.type] = profile.authConfig;
                 }

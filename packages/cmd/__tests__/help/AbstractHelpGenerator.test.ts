@@ -23,8 +23,8 @@ describe("Abstract Help Generator Unit Tests", () => {
         process.env.FORCE_COLOR = "0";
     });
     afterAll(() => {
-            process.env.FORCE_COLOR = oldForceColorOption;
-        }
+        process.env.FORCE_COLOR = oldForceColorOption;
+    }
     );
     const generatorParms: IHelpGeneratorFactoryParms = {
         primaryHighlightColor: chalkColor,

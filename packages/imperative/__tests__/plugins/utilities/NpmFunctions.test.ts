@@ -34,7 +34,7 @@ describe("NpmFunctions", () => {
 
         afterAll(() => {
             jest.restoreAllMocks();
-        })
+        });
 
         it("should fetch info for package installed from registry", async () => {
             const pkgSpec = "@zowe/imperative";

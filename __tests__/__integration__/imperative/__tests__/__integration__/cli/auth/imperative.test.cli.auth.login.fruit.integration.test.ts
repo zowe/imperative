@@ -62,10 +62,10 @@ describe("imperative-test-cli auth login", () => {
 
         afterEach(async () => {
             runCliScript(__dirname + "/__scripts__/delete.sh", TEST_ENVIRONMENT.workingDir + "/testDir",
-                         ["imperative-test-cli.config.json imperative-test-cli.config.user.json imperative-test-cli.schema.json"]);
+                ["imperative-test-cli.config.json imperative-test-cli.config.user.json imperative-test-cli.schema.json"]);
             // runCliScript(__dirname + "/__scripts__/delete.sh", join(os.homedir(), ".imperative-test-cli"),
             runCliScript(__dirname + "/__scripts__/delete.sh", TEST_ENVIRONMENT.workingDir,
-                         ["imperative-test-cli.config.json imperative-test-cli.config.user.json imperative-test-cli.schema.json"]);
+                ["imperative-test-cli.config.json imperative-test-cli.config.user.json imperative-test-cli.schema.json"]);
             await keytar.deletePassword("imperative-test-cli", "secure_config_props");
         });
 

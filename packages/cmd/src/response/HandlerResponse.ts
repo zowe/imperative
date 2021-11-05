@@ -9,13 +9,13 @@
 *
 */
 
-import { Logger } from "../../../logger";
 import { CommandResponse } from "./CommandResponse";
 import { IHandlerResponseDataApi } from "../doc/response/api/handler/IHandlerResponseDataApi";
 import { IHandlerResponseConsoleApi } from "../doc/response/api/handler/IHandlerResponseConsoleApi";
 import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerResponseApi";
 import { IHandlerProgressApi } from "../doc/response/api/handler/IHandlerProgressApi";
 import { IHandlerFormatOutputApi } from "../doc/response/api/handler/IHandlerFormatOutputApi";
+
 /**
  * Handler command response APIs. Passed to command handlers for console messages, data responses, and progress bars.
  * Handlers can implement their own logging scheme (or use the Imperative.api to obtain an instance of the logger),

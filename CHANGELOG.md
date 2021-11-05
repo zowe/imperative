@@ -6,6 +6,46 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Added "overrides" array in team config that makes it possible to override CredentialManager but is omitted by default.
 
+## `5.0.0-next.202111032034`
+
+- Enhancement: Added `autoStore` property to config JSON files which defaults to true. When this property is enabled and the CLI prompts you to enter connection info, the values you enter will be saved to disk (or credential vault if they are secure) for future use. [zowe/zowe-cli#923](https://github.com/zowe/zowe-cli/issues/923)
+- **Next Breaking**
+    - Changed the default behavior of `Config.set` so that it no longer coerces string values to other types unless the `parseString` option is true.
+
+## `5.0.0-next.202110201735`
+
+- **LTS Breaking**
+    - Changed the return value of the public `PluginManagementFacility.requirePluginModuleCallback` function
+- BugFix: Updated the profiles list as soon as the plugin is installed.
+
+## `5.0.0-next.202110191937`
+
+- **Breaking**: Added the new, required, abstract method 'displayAutoInitChanges' to the 'BaseAutoInitHandler' class.
+
+## `5.0.0-next.202110071645`
+
+- Enhancement: Added `config update-schemas [--depth <value>]` command. [zowe/zowe-cli#1059](https://github.com/zowe/zowe-cli/issues/1059)
+- Enhancement: Added the ability to update the global schema file when installing a new plugin. [zowe/zowe-cli#1059](https://github.com/zowe/zowe-cli/issues/1059)
+- **Next Breaking**
+    - Renamed public static function ConfigSchemas.loadProfileSchemas to ConfigSchemas.loadSchema
+
+## `5.0.0-next.202110011948`
+
+- Breaking: Changed default log level from DEBUG to WARN for Imperative logger and app logger to reduce the volume of logs written to disk. [#634](https://github.com/zowe/imperative/issues/634)
+
+## `5.0.0-next.202109281439`
+
+- Enhancement: Added `config import` command that imports team config files from a local path or web URL. [#1083](https://github.com/zowe/zowe-cli/issues/1083)
+- Enhancement: Added Help Doc examples for the `zowe config` group of commands. [#1061](https://github.com/zowe/zowe-cli/issues/1061)
+
+## `5.0.0-next.202109031503`
+
+- Enhancement: Log in to authentication service to obtain token value instead of prompting for it in `config secure` command.
+
+## `5.0.0-next.202108181618`
+
+- Breaking: Make `fail-on-error` option true by default on `zowe plugins validate` command.
+
 ## `5.0.0-next.202108121732`
 
 - Enhancement: Flattened the default profiles structure created by the `config init` command.
@@ -36,7 +76,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## `5.0.0-next.202106212048`
 
-- Enhancement: A new interface (IApimlSvcAttrs) was added. A property (apimlConnLookup) of that interface type was added to IImerpativeConfig to enable plugins to tie themselves to an APIML service. Zowe-CLI can then ask APIML for the configuration data for the plugin to connect to that service.
+- Enhancement: A new interface (IApimlSvcAttrs) was added. A property (apimlConnLookup) of that interface type was added to IImperativeConfig to enable plugins to tie themselves to an APIML service. Zowe-CLI can then ask APIML for the configuration data for the plugin to connect to that service.
 
 ## `5.0.0-next.202106041929`
 
@@ -101,6 +141,47 @@ All notable changes to the Imperative package will be documented in this file.
 ## `5.0.0-next.202009251501`
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
+
+## `4.17.1`
+
+- BugFix: Fixed an issue where plugin install and uninstall did not work with NPM version 8. [#683](https://github.com/zowe/imperative/issues/683)
+
+## `4.17.0`
+
+- Enhancement: Export the Imperative Command Tree on the data object of the `zowe --ac` command when `--rfj` is specified.
+
+## `4.16.2`
+
+- BugFix: Reverts hiding the cert-key-file path so users can see what path was specified and check if the file exists
+
+## `4.16.1`
+
+- BugFix: Updated dependencies to resolve problems with the ansi-regex package
+
+## `4.16.0`
+
+- Enhancement: Implemented the ability to authenticate using client certificates in PEM format.
+
+## `4.15.1`
+
+- Bugfix: Updated js-yaml to resolve a potential security issue
+
+## `4.15.0`
+
+- Enhancement: Improved command suggestions for mistyped commands, add aliases to command suggestions
+
+## `4.14.0`
+
+- Enhancement: The `plugins validate` command returns an error code when plugins have errors if the new `--fail-on-error` option is specified. Also added `--fail-on-warning` option to return with an error code when plugins have warnings. [#463](https://github.com/zowe/imperative/issues/463)
+- BugFix: Fixed regression where characters are not correctly escaped in web help causing extra slashes ("\") to appear. [#644](https://github.com/zowe/imperative/issues/644)
+
+## `4.13.4`
+
+- BugFix: Added missing periods at the end of command group descriptions for consistency. [#55](https://github.com/zowe/imperative/issues/55)
+
+## `4.13.3`
+
+- Performance: Improved the way that HTTP response chunks are saved, reducing time complexity from O(n<sup>2</sup>) to O(n). This dramatically improves performance for larger requests. [#618](https://github.com/zowe/imperative/pull/618)
 
 ## `4.13.2`
 

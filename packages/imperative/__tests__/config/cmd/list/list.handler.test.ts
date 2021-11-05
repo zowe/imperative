@@ -94,7 +94,7 @@ describe("Configuration List command handler", () => {
         formatObj = null;
         errorText = null;
         logText = null;
-    })
+    });
 
     it("should output empty object when there is no config", async () => {
         jest.spyOn(fakeConfig, "exists", "get").mockReturnValueOnce(false);

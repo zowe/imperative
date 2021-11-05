@@ -32,4 +32,4 @@ export interface IYargsContext {
      * @memberof IYargsContext
      */
     cwd?: string;
-};
+}

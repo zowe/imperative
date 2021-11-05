@@ -18,6 +18,10 @@ import { Logger } from "../../../../../logger";
 import { ImperativeError } from "../../../../../error";
 import { IPluginJsonObject } from "../../doc/IPluginJsonObject";
 import { getPackageInfo, installPackages } from "../NpmFunctions";
+import { ConfigSchema } from "../../../../../config/src/ConfigSchema";
+import { PluginManagementFacility } from "../../PluginManagementFacility";
+import { ConfigurationLoader } from "../../../ConfigurationLoader";
+import { UpdateImpConfig } from "../../../UpdateImpConfig";
 
 
 /**
@@ -123,6 +127,17 @@ export async function install(packageLocation: string, registry: string, install
         writeFileSync(PMFConstants.instance.PLUGIN_JSON, installedPlugins, {
             spaces: 2
         });
+
+        iConsole.debug(`Checking for global team configuration files to update.`);
+        if (PMFConstants.instance.PLUGIN_USING_CONFIG &&
+            PMFConstants.instance.PLUGIN_CONFIG.layers.filter((layer) => layer.global && layer.exists).length > 0) {
+            // Update the Imperative Configuration to add the profiles introduced by the recently installed plugin
+            // This might be needed outside of PLUGIN_USING_CONFIG scenarios, but we haven't had issues with other APIs before
+            const requirerFunction = PluginManagementFacility.instance.requirePluginModuleCallback(packageInfo.name);
+            UpdateImpConfig.addProfiles(ConfigurationLoader.load(null, packageInfo, requirerFunction).profiles);
+
+            ConfigSchema.updateSchema({ layer: "global" });
+        }
 
         iConsole.info("Plugin '" + packageName + "' successfully installed.");
         return packageName;

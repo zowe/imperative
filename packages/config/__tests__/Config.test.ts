@@ -61,7 +61,7 @@ describe("Config tests", () => {
                 .mockReturnValueOnce(false)     // User layer
                 .mockReturnValueOnce(false);    // Global layer
             const config = await Config.load(MY_APP);
-            const formedConfigPathNm = config.formMainConfigPathNm({addPath: true});
+            const formedConfigPathNm = config.formMainConfigPathNm({ addPath: true });
             expect(formedConfigPathNm).toBe(actualConfigPathNm);
         });
 
@@ -75,7 +75,7 @@ describe("Config tests", () => {
                 .mockReturnValueOnce(false)     // User layer
                 .mockReturnValueOnce(false);    // Global layer
             const config = await Config.load(MY_APP);
-            const formedConfigFileNm = config.formMainConfigPathNm({addPath: false});
+            const formedConfigFileNm = config.formMainConfigPathNm({ addPath: false });
             expect(formedConfigFileNm).toBe(actualConfigFileNm);
         });
 
@@ -90,9 +90,9 @@ describe("Config tests", () => {
                 .mockReturnValueOnce(false);    // Global layer
             const config = new (Config as any)();
             config.mApp = MY_APP;
-            config.mLayers = [ { exists: false } ];
+            config.mLayers = [{ exists: false }];
 
-            const formedConfigFileNm = config.formMainConfigPathNm({addPath: true});
+            const formedConfigFileNm = config.formMainConfigPathNm({ addPath: true });
             expect(formedConfigFileNm).toBe(actualConfigFileNm);
         });
 
@@ -170,7 +170,7 @@ describe("Config tests", () => {
                 .mockReturnValueOnce(true)      // Project layer
                 .mockReturnValueOnce(false)     // User layer
                 .mockReturnValueOnce(false);    // Global layer
-            jest.spyOn(fs, "readFileSync")
+            jest.spyOn(fs, "readFileSync");
             let error: any;
             try {
                 await Config.load(MY_APP);
@@ -202,7 +202,7 @@ describe("Config tests", () => {
 
     it("should not find config that exists if no layers exist", () => {
         const config = new (Config as any)();
-        config.mLayers = [ { exists: false } ];
+        config.mLayers = [{ exists: false }];
         expect(config.exists).toBe(false);
     });
 
@@ -236,28 +236,36 @@ describe("Config tests", () => {
 
         it("should set boolean true in config", async () => {
             const config = await Config.load(MY_APP);
-            config.set("profiles.fruit.profiles.apple.properties.ripe", "true");
+            config.set("profiles.fruit.profiles.apple.properties.ripe", "true", { parseString: true });
             expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(true);
+            config.set("profiles.fruit.profiles.apple.properties.ripe", "true");
+            expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe("true");
         });
 
         it("should set boolean false in config", async () => {
             const config = await Config.load(MY_APP);
-            config.set("profiles.fruit.profiles.apple.properties.ripe", "false");
+            config.set("profiles.fruit.profiles.apple.properties.ripe", "false", { parseString: true });
             expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(false);
+            config.set("profiles.fruit.profiles.apple.properties.ripe", "false");
+            expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe("false");
         });
 
         it("should set integer value in config", async () => {
             const config = await Config.load(MY_APP);
-            config.set("profiles.fruit.profiles.apple.properties.price", "2");
+            config.set("profiles.fruit.profiles.apple.properties.price", "2", { parseString: true });
             expect(config.properties.profiles.fruit.profiles.apple.properties.price).toBe(2);
+            config.set("profiles.fruit.profiles.apple.properties.price", "2");
+            expect(config.properties.profiles.fruit.profiles.apple.properties.price).toBe("2");
         });
 
         it("should append to array value in config", async () => {
             const config = await Config.load(MY_APP);
             config.set("profiles.fruit.properties.tags", []);
-            config.set("profiles.fruit.properties.tags", "sweet");
+            config.set("profiles.fruit.properties.tags", "sweet", { parseString: true });
             expect(config.properties.profiles.fruit.properties.tags.length).toBe(1);
             expect(config.properties.profiles.fruit.properties.tags[0]).toBe("sweet");
+            config.set("profiles.fruit.properties.tags", "sweet");
+            expect(config.properties.profiles.fruit.properties.tags).toBe("sweet");
         });
 
         it("should set secure string value in config", async () => {
@@ -291,7 +299,7 @@ describe("Config tests", () => {
             const config = await Config.load(MY_APP);
             config.set("profiles.fruit.profiles.mango.properties.color", "orange");
             expect(config.properties.profiles.fruit.profiles.mango.properties.color).toBe("orange");
-            expect (config.properties.profiles).toMatchSnapshot();
+            expect(config.properties.profiles).toMatchSnapshot();
         });
 
         it("should fail to secure a profile object in config", async () => {
@@ -324,7 +332,7 @@ describe("Config tests", () => {
 
         it("should set boolean true in config", async () => {
             const config = await Config.load(MY_APP);
-            config.set("profiles.fruit.profiles.apple.properties.ripe", "true");
+            config.set("profiles.fruit.profiles.apple.properties.ripe", "true", { parseString: true });
             expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(true);
 
             const layer = (config as any).layerActive();
@@ -336,7 +344,7 @@ describe("Config tests", () => {
 
         it("should set boolean false in config", async () => {
             const config = await Config.load(MY_APP);
-            config.set("profiles.fruit.profiles.apple.properties.ripe", "false");
+            config.set("profiles.fruit.profiles.apple.properties.ripe", "false", { parseString: true });
             expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(false);
 
             const layer = (config as any).layerActive();
@@ -348,7 +356,7 @@ describe("Config tests", () => {
 
         it("should set integer value in config", async () => {
             const config = await Config.load(MY_APP);
-            config.set("profiles.fruit.profiles.apple.properties.price", "2");
+            config.set("profiles.fruit.profiles.apple.properties.price", "2", { parseString: true });
             expect(config.properties.profiles.fruit.profiles.apple.properties.price).toBe(2);
 
             const layer = (config as any).layerActive();
@@ -360,8 +368,7 @@ describe("Config tests", () => {
 
         it("should append to array value in config", async () => {
             const config = await Config.load(MY_APP);
-            // config.set("profiles.fruit.properties.tags", []);
-            config.set("profiles.fruit.properties.tags", "sweet");
+            config.set("profiles.fruit.properties.tags", "sweet", { parseString: true });
             expect(config.properties.profiles.fruit.properties.tags.length).toBe(1);
             expect(config.properties.profiles.fruit.properties.tags[0]).toBe("sweet");
 
@@ -493,7 +500,7 @@ describe("Config tests", () => {
         describe("without opts", () => {
             beforeEach(() => {
                 const oldFindUp = findUp.sync;
-                jest.spyOn(findUp, "sync").mockImplementationOnce((matcher, options) => oldFindUp(matcher, {...options, cwd: configDir}));
+                jest.spyOn(findUp, "sync").mockImplementationOnce((matcher, options) => oldFindUp(matcher, { ...options, cwd: configDir }));
             });
             it("should search for and find a file", async () => {
                 const expectedPath = path.join(configDir, configFile);
@@ -506,6 +513,108 @@ describe("Config tests", () => {
                 const file = Config.search(configFile);
                 expect(file).toBeNull();
             });
-        })
+        });
+    });
+
+    describe("getSchemaInfo", () => {
+        const spyOnFsWriteFileSync = jest.spyOn(fs, "writeFileSync");
+
+        it("should not be able to get any information if the $schema property is missing from the active layer", async () => {
+            const config = await Config.load(MY_APP);
+            const layer = config.api.layers.get();
+            config.layerActive().properties.$schema = null;
+            expect(config.getSchemaInfo()).toEqual({
+                local: false,
+                original: null,
+                resolved: null,
+            });
+            expect(spyOnFsWriteFileSync).not.toHaveBeenCalled();
+        });
+
+        it("should provide information based on the $schema property: Local Path", async () => {
+            const config = await Config.load(MY_APP);
+            const localPath = `./packages/config/__tests__/__resources__/${MY_APP}.schema.json`;
+            const schemaPath = path.join(__dirname, "__resources__", `${MY_APP}.schema.json`);
+            config.setSchema(localPath);
+            expect(config.getSchemaInfo()).toEqual({
+                local: true,
+                original: localPath,
+                resolved: schemaPath
+            });
+            expect(spyOnFsWriteFileSync).not.toHaveBeenCalled();
+        });
+
+        it("should provide information based on the $schema property: Absolute Path", async () => {
+            const config = await Config.load(MY_APP);
+            const schemaPath = path.join(__dirname, "__resources__", `${MY_APP}.schema.json`);
+            config.setSchema(schemaPath);
+            expect(config.getSchemaInfo()).toEqual({
+                local: true,
+                original: schemaPath,
+                resolved: schemaPath
+            });
+            expect(spyOnFsWriteFileSync).not.toHaveBeenCalled();
+        });
+
+        it("should provide information based on the $schema property: File URL", async () => {
+            const config = await Config.load(MY_APP);
+            const schemaPath = path.join(__dirname, "__resources__", `${MY_APP}.schema.json`);
+            config.setSchema("file://" + schemaPath);
+            expect(config.getSchemaInfo()).toEqual({
+                local: true,
+                original: "file://" + schemaPath,
+                resolved: schemaPath
+            });
+            expect(spyOnFsWriteFileSync).not.toHaveBeenCalled();
+        });
+
+        it("should provide information based on the $schema property: Local Path not found", async () => {
+            const config = await Config.load(MY_APP);
+            const localPath = `./packages/config/__tests__/__resources__/FAKE.${MY_APP}.schema.json`;
+            const schemaPath = path.join(__dirname, "__resources__", `FAKE.${MY_APP}.schema.json`);
+            config.setSchema(localPath);
+            expect(config.getSchemaInfo()).toEqual({
+                local: true,
+                original: localPath,
+                resolved: schemaPath
+            });
+            expect(spyOnFsWriteFileSync).not.toHaveBeenCalled();
+        });
+
+        it("should provide information based on the $schema property: Absolute Path not found", async () => {
+            const config = await Config.load(MY_APP);
+            const schemaPath = path.join(__dirname, "__resources__", `FAKE.${MY_APP}.schema.json`);
+            config.setSchema(schemaPath);
+            expect(config.getSchemaInfo()).toEqual({
+                local: true,
+                original: schemaPath,
+                resolved: schemaPath
+            });
+            expect(spyOnFsWriteFileSync).not.toHaveBeenCalled();
+        });
+
+        it("should provide information based on the $schema property: File URL not found", async () => {
+            const config = await Config.load(MY_APP);
+            const schemaPath = path.join(__dirname, "__resources__", `FAKE.${MY_APP}.schema.json`);
+            config.setSchema("file://" + schemaPath);
+            expect(config.getSchemaInfo()).toEqual({
+                local: true,
+                original: "file://" + schemaPath,
+                resolved: schemaPath
+            });
+            expect(spyOnFsWriteFileSync).not.toHaveBeenCalled();
+        });
+
+        it("should provide information based on the $schema property: Regular URL", async () => {
+            const config = await Config.load(MY_APP);
+            const schemaPath = `http://localhost/${MY_APP}.schema.json`;
+            config.setSchema(schemaPath);
+            expect(config.getSchemaInfo()).toEqual({
+                local: false,
+                original: schemaPath,
+                resolved: schemaPath,
+            });
+            expect(spyOnFsWriteFileSync).not.toHaveBeenCalled();
+        });
     });
 });

@@ -92,41 +92,41 @@ describe("Cli Profile Manager", () => {
 
     it("should take a handler to update a profile that has already been created," +
         " call the handler and update the profile from arguments.",
-        async () => {
-            const configs = getTypeConfigurations();
-            configs[0].updateProfileFromArgumentsHandler = addTwoNumbersHandler;
-            const manager = new CliProfileManager({
-                profileRootDirectory: profileDir,
-                type: profileTypeOne,
-                logger: testLogger,
-                typeConfigurations: configs
-            });
-            const a = 1;
-            const b = 2;
-            const originalSum = 55;
-            const profileName = "myprofile";
-            const saveResult = await manager.save({
-                name: profileName, type: profileTypeOne,
-                profile: {sum: originalSum}
-            });
-            expect(saveResult.overwritten).toEqual(false);
-
-            testLogger.info("Save profile result: " + inspect(saveResult));
-
-            const updateResult = await manager.update({
-                name: profileName, type: profileTypeOne,
-                profile: {
-                    sum: 1
-                },
-                args: {_: [], $0: "fake", a, b}
-            });
-            expect(updateResult.profile.sum).toEqual(a + b);
-
-            testLogger.info("Update profile result: " + inspect(updateResult));
-            const loadedProfile: any = await manager.load({name: profileName});
-            testLogger.info("Loaded profile after update: " + inspect(loadedProfile));
-            expect(loadedProfile.profile.sum).toEqual(a + b);
+    async () => {
+        const configs = getTypeConfigurations();
+        configs[0].updateProfileFromArgumentsHandler = addTwoNumbersHandler;
+        const manager = new CliProfileManager({
+            profileRootDirectory: profileDir,
+            type: profileTypeOne,
+            logger: testLogger,
+            typeConfigurations: configs
         });
+        const a = 1;
+        const b = 2;
+        const originalSum = 55;
+        const profileName = "myprofile";
+        const saveResult = await manager.save({
+            name: profileName, type: profileTypeOne,
+            profile: {sum: originalSum}
+        });
+        expect(saveResult.overwritten).toEqual(false);
+
+        testLogger.info("Save profile result: " + inspect(saveResult));
+
+        const updateResult = await manager.update({
+            name: profileName, type: profileTypeOne,
+            profile: {
+                sum: 1
+            },
+            args: {_: [], $0: "fake", a, b}
+        });
+        expect(updateResult.profile.sum).toEqual(a + b);
+
+        testLogger.info("Update profile result: " + inspect(updateResult));
+        const loadedProfile: any = await manager.load({name: profileName});
+        testLogger.info("Loaded profile after update: " + inspect(loadedProfile));
+        expect(loadedProfile.profile.sum).toEqual(a + b);
+    });
 
     it("If we provide a non existent handler to update a profile from command line arguments, " +
         "we should get a helpful error.", async () => {

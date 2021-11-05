@@ -381,7 +381,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
                 const positionalString = "{{codeBegin}}" +
                     positional.name + "{{codeEnd}}\t\t " +
                     this.dimGrey("{{italic}}(" + this.explainType(positional.type) + "){{italic}}");
-                let fullDescription = this.mProduceMarkdown ? this.escapeMarkdown(positional.description) : positional.description;
+                let fullDescription = positional.description;
                 if (positional.regex) {
                     fullDescription += (DefaultHelpGenerator.HELP_INDENT +
                         DefaultHelpGenerator.HELP_INDENT + "Must match regular expression: {{codeBegin}}"
@@ -492,7 +492,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
                 let exampleText = TextUtils.wordWrap("{{bullet}}" + exampleHyphen + " {{space}}" + description + ":\n\n",
                     undefined,
                     this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT);
-                exampleText += "      {{bullet}}{{space}}{{codeBegin}}\$ {{space}}" +
+                exampleText += "      {{bullet}}{{space}}{{codeBegin}}$ {{space}}" +
                     prefix +
                     this.mRootCommandName + " " +
                     CommandUtils.getFullCommandName(this.mCommandDefinition,
@@ -535,10 +535,11 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
 
     /**
      * Utility function to escape Markdown special characters.
+     * Note: This should only be called once to avoid double escaping.
      * @param {string} text - The text to escape
      * @return {string} - The escaped string
      */
     private escapeMarkdown(text: string): string {
-        return text.replace(/([\*\#\-\`\_\[\]\+\.\!])/g, "\\$1");
+        return text.replace(/([*#\-`_[\]+.!\\])/g, "\\$1");
     }
 }

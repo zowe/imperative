@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition, ICommandProfileTypeConfiguration } from "../../../../cmd";
+import { ICommandDefinition } from "../../../../cmd";
 import {
     createProfilesCommandDesc, createProfilesCommandSummary,
     deleteProfilesCommandDesc, deleteProfilesCommandSummary,
@@ -47,7 +47,7 @@ export class CompleteProfilesGroupBuilder {
 
         const profileGroup: ICommandDefinition = {
             name: Constants.PROFILE_GROUP,
-            description: "Create and manage configuration profiles",
+            description: "Create and manage configuration profiles.",
             type: "group",
             deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_INIT,
             children: []
@@ -116,7 +116,6 @@ export class CompleteProfilesGroupBuilder {
 
         };
 
-        const cmdGroups: ICommandDefinition[] = [];
         for (const profile of profiles) {
 
 

@@ -17,7 +17,7 @@ import { ICommandDefinition } from "../../src/doc/ICommandDefinition";
 import { DefaultHelpGenerator } from "../../src/help/DefaultHelpGenerator";
 import { ICommandOptionDefinition } from "../..";
 import { ImperativeError } from "../../..";
-import { ImperativeConfig } from "../../../utilities"
+import { ImperativeConfig } from "../../../utilities";
 
 const chalkColor: string = "blue";
 const oldForceColorOption = process.env.FORCE_COLOR;
@@ -129,7 +129,7 @@ describe("Default Help Generator", () => {
                 deprecatedReplacement: "Use a better command than dc1",
                 aliases: ["dc1"],
                 type: "command",
-                description: "Our first deprecated command. ",
+                description: "Our first deprecated command.",
                 options: [EXAMPLE_APPLE_OPTION,
                     EXAMPLE_STRAWBERRY_OPTION,
                     EXAMPLE_PICK_OPTION]
@@ -138,7 +138,7 @@ describe("Default Help Generator", () => {
                 name: "not-deprecated-command",
                 aliases: ["ndc"],
                 type: "command",
-                description: "Our non-deprecated command. ",
+                description: "Our non-deprecated command.",
                 options: [EXAMPLE_APPLE_OPTION,
                     EXAMPLE_STRAWBERRY_OPTION,
                     EXAMPLE_PICK_OPTION]
@@ -148,7 +148,7 @@ describe("Default Help Generator", () => {
                 deprecatedReplacement: "Use a better command than dc2",
                 aliases: ["dc2"],
                 type: "command",
-                description: "Our second deprecated command. ",
+                description: "Our second deprecated command.",
                 options: [EXAMPLE_APPLE_OPTION,
                     EXAMPLE_STRAWBERRY_OPTION,
                     EXAMPLE_PICK_OPTION]
@@ -347,9 +347,14 @@ describe("Default Help Generator", () => {
         it("getGroupHelpText test", () => {
             const helpGen: DefaultHelpGenerator = new DefaultHelpGenerator(GENERATOR_PARMS,
                 { commandDefinition: definition, fullCommandTree: fakeParent });
-            expect(() => {
+            let error: any;
+            try {
                 helpGen.buildFullGroupHelpText();
-            }).toThrowErrorMatchingSnapshot();
+            } catch (err) {
+                error = err;
+            }
+            expect(error).toBeDefined();
+            expect(error.message).toMatch(/Cannot read (property 'sort' of undefined|properties of undefined \(reading 'sort'\))/);
             const rootGen: DefaultHelpGenerator = new DefaultHelpGenerator(GENERATOR_PARMS,
                 { commandDefinition: expParent, fullCommandTree: expParent });
             expect(rootGen.buildFullGroupHelpText()).toMatchSnapshot();
@@ -395,9 +400,14 @@ describe("Default Help Generator", () => {
         it("getPrintedActionsOrGroups test", () => {
             const helpGen: DefaultHelpGenerator = new DefaultHelpGenerator(GENERATOR_PARMS,
                 { commandDefinition: definition, fullCommandTree: fakeParent });
-            expect(() => {
+            let error: any;
+            try {
                 helpGen.buildChildrenSummaryTables();
-            }).toThrowErrorMatchingSnapshot();
+            } catch (err) {
+                error = err;
+            }
+            expect(error).toBeDefined();
+            expect(error.message).toMatch(/Cannot read (property 'sort' of undefined|properties of undefined \(reading 'sort'\))/);
             const rootGen: DefaultHelpGenerator = new DefaultHelpGenerator(GENERATOR_PARMS,
                 { commandDefinition: expParent, fullCommandTree: expParent });
             expect(rootGen.buildChildrenSummaryTables()).toMatchSnapshot();

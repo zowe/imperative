@@ -10,8 +10,8 @@
 */
 
 import { BaseAutoInitHandler } from "../../../../../src/config/cmd/auto-init/handlers/BaseAutoInitHandler";
-import { ICommandArguments, IHandlerParameters } from "../../../../../../cmd";
-import { ISession, AbstractSession, SessConstants } from "../../../../../../rest";
+import { ICommandArguments, IHandlerResponseApi } from "../../../../../../cmd";
+import { ISession, AbstractSession } from "../../../../../../rest";
 
 export class FakeAutoInitHandler extends BaseAutoInitHandler {
     public mProfileType: string = "fruit";
@@ -21,4 +21,6 @@ export class FakeAutoInitHandler extends BaseAutoInitHandler {
     }
 
     protected async doAutoInit(session: AbstractSession): Promise<void> { /* Do nothing */ }
+
+    protected displayAutoInitChanges(response: IHandlerResponseApi): void { /* Do nothing */ }
 }

@@ -12,8 +12,7 @@
 jest.mock("../../../src/Imperative");
 jest.mock("../../../../utilities/src/ImperativeConfig");
 
-import { IProfile, IProfileLoaded } from "../../../../profiles";
-import { CommandProfiles, IHandlerParameters, ICommandDefinition } from "../../../../cmd";
+import { IProfileLoaded } from "../../../../profiles";
 import { Imperative } from "../../../src/Imperative";
 import { ImperativeConfig } from "../../../../utilities";
 
@@ -94,7 +93,7 @@ const ProfileDeleted = {
     profile: {
         type: "fakeProfileType"
     }
-}
+};
 
 // "Mocked" version of a crashing imperative API
 const impApiMockedCrash = {

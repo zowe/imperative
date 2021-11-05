@@ -12,7 +12,7 @@
 import { ISetupEnvironmentParms } from "./doc/parms/ISetupEnvironmentParms";
 import { ImperativeExpect } from "../../../packages";
 import * as nodePath from "path";
-import { TEST_RESULT_DIR, TEST_RESULT_DATA_DIR } from "../TestConstants";
+import { TEST_RESULT_DATA_DIR } from "../TestConstants";
 import { mkdirpSync } from "fs-extra";
 import { ITestEnvironment } from "./doc/response/ITestEnvironment";
 const uuidv4 = require("uuid/v4");

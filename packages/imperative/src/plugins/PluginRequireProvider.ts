@@ -161,7 +161,7 @@ export class PluginRequireProvider {
          * If modules = ["@zowe/imperative"]
          *    request = "@zowe/imperative/lib/errors"
          */
-         // This regular expression will match /(@zowe\/imperative)/.*/
+        // This regular expression will match /(@zowe\/imperative)/.*/
         /*
          * The ?: check after the group in the regular expression is to explicitly
          * require that a submodule import has to match. This is to account for the
@@ -174,8 +174,9 @@ export class PluginRequireProvider {
 
         // Timerify the function if needed
         // Gave it a name so that we can more easily track it
-        Module.prototype.require = PerfTiming.api.watch(function PluginModuleLoader(request: string) {
+        Module.prototype.require = PerfTiming.api.watch(function PluginModuleLoader(...args: any[]) {
             // Check to see if the module should be injected
+            const request: string = args[0];
             const doesUseOverrides = request.match(regex);
 
             if (doesUseOverrides) {
@@ -183,17 +184,17 @@ export class PluginRequireProvider {
                 // we need to remap the import.
                 if (request.startsWith(ImperativeConfig.instance.hostPackageName)) {
                     if (request === ImperativeConfig.instance.hostPackageName) {
-                        arguments[0] = "./";
+                        args[0] = "./";
                     } else {
-                        arguments[0] = `${hostPackageRoot}${request.substr(hostPackageNameLength)}`;
+                        args[0] = `${hostPackageRoot}${request.substr(hostPackageNameLength)}`;
                     }
                 }
 
                 // Inject it from the main module dependencies
-                return origRequire.apply(process.mainModule, arguments);
+                return origRequire.apply(process.mainModule, args);
             } else {
                 // Otherwise use the package dependencies
-                return origRequire.apply(this, arguments);
+                return origRequire.apply(this, args);
             }
         });
     }

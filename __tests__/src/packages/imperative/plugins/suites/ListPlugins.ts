@@ -14,26 +14,26 @@ import { cliBin } from "../PluginManagementFacility.spec";
 import { join } from "path";
 
 describe("List plugin", () => {
-  const testPluginDir = join(__dirname, "../test_plugins");
+    const testPluginDir = join(__dirname, "../test_plugins");
 
-  it("should list all installed plugin", () => {
-    const pluginName = "normal-plugin";
-    const testPlugin = join(testPluginDir, "normal_plugin");
-    let cmd = `plugins install ${testPlugin}`;
-    let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-    expect(result.stdout).toContain(`Installed plugin name = '${pluginName}'`);
+    it("should list all installed plugin", () => {
+        const pluginName = "normal-plugin";
+        const testPlugin = join(testPluginDir, "normal_plugin");
+        let cmd = `plugins install ${testPlugin}`;
+        let result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+        expect(result.stdout).toContain(`Installed plugin name = '${pluginName}'`);
 
-    cmd = `plugins list`;
-    result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-    expect(result.stdout).toContain(`pluginName: ${pluginName}`);
-    expect(result.stdout).toContain(`package:`);
-    expect(result.stdout).toContain(`version:`);
-    expect(result.stdout).toContain(`registry:`);
-  });
+        cmd = `plugins list`;
+        result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+        expect(result.stdout).toContain(`pluginName: ${pluginName}`);
+        expect(result.stdout).toContain(`package:`);
+        expect(result.stdout).toContain(`version:`);
+        expect(result.stdout).toContain(`registry:`);
+    });
 
-  it("should display proper message when no plugin is installed", () => {
-    const cmd = `plugins list`;
-    const result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-    expect(result.stdout).toContain("No plugins have been installed");
-  });
+    it("should display proper message when no plugin is installed", () => {
+        const cmd = `plugins list`;
+        const result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
+        expect(result.stdout).toContain("No plugins have been installed");
+    });
 });

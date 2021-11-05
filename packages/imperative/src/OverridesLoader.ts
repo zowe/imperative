@@ -50,7 +50,19 @@ export class OverridesLoader {
   ): Promise<void> {
     const overrides: IImperativeOverrides = config.overrides || {};
 
-    const ZOWE_CLI_PACKAGE_NAME = `@zowe/cli`;
+        // The manager display name used to populate the "managed by" fields in profiles
+        const displayName: string = (
+            overrides.CredentialManager != null
+            && AppSettings.initialized
+            && AppSettings.instance.getNamespace("overrides") != null
+            && AppSettings.instance.get("overrides", "CredentialManager") != null
+            && AppSettings.instance.get("overrides", "CredentialManager") !== false
+        ) ?
+            // App settings is configured - use the plugin name for the manager name
+            AppSettings.instance.get("overrides", "CredentialManager") as string
+            :
+            // App settings is not configured - use the CLI display name OR the package name as the manager name
+            config.productDisplayName || config.name;
 
     // The manager display name used to populate the "managed by" fields in profiles
     // App settings is not configured - use the CLI display name OR the package name as the manager name
@@ -81,44 +93,36 @@ export class OverridesLoader {
         Manager = resolve(process.mainModule.filename, "../", overrides.CredentialManager);
       }
 
-      await CredentialManagerFactory.initialize({
-        // Init the manager with the override specified OR (if null) default to keytar
-        Manager,
-        // The display name will be the plugin name that introduced the override OR it will default to the CLI name
-        displayName,
+                // zowe cli will always add `Zowe` to it's list of service names
+                service: config?.name === ZOWE_CLI_PACKAGE_NAME ? DefaultCredentialManager.SVC_NAME : config?.name,
 
         // zowe cli will always add `Zowe` to it's list of service names
         service: config?.credentialServiceName || (config.name !== ZOWE_CLI_PACKAGE_NAME ? config.name : null),
 
-        // If the default is to be used, we won't implant the invalid credential manager
-        invalidOnFailure: !(Manager == null)
-      });
+        await OverridesLoader.loadSecureConfig();
     }
 
-    await OverridesLoader.loadSecureConfig();
-  }
+    /**
+     * After the plugins and secure credentials are loaded, rebuild the configuration with the
+     * secure values
+     */
+    private static async loadSecureConfig() {
+        if (!CredentialManagerFactory.initialized) return;
 
-  /**
-   * After the plugins and secure credentials are loaded, rebuild the configuration with the
-   * secure values
-   */
-  private static async loadSecureConfig() {
-    if (!CredentialManagerFactory.initialized) return;
+        const vault: IConfigVault = {
+            load: ((key: string): Promise<string> => {
+                return CredentialManagerFactory.manager.load(key, true);
+            }),
+            save: ((key: string, value: any): Promise<void> => {
+                return CredentialManagerFactory.manager.save(key, value);
+            })
+        };
 
-    const vault: IConfigVault = {
-      load: ((key: string): Promise<string> => {
-        return CredentialManagerFactory.manager.load(key, true);
-      }),
-      save: ((key: string, value: any): Promise<void> => {
-        return CredentialManagerFactory.manager.save(key, value);
-      })
-    };
-
-    try {
-      await ImperativeConfig.instance.config.api.secure.load(vault);
-    } catch (err) {
-      // Secure vault is optional since we can prompt for values instead
-      Logger.getImperativeLogger().warn(`Secure vault not enabled. Reason: ${err.message}`);
+        try {
+            await ImperativeConfig.instance.config.api.secure.load(vault);
+        } catch (err) {
+            // Secure vault is optional since we can prompt for values instead
+            Logger.getImperativeLogger().warn(`Secure vault not enabled. Reason: ${err.message}`);
+        }
     }
-  }
 }

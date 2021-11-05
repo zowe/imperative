@@ -178,6 +178,6 @@ export class ConfigSecure extends ConfigApi {
         return {
             path: propertyPath.replace(/\.properties.+/, ".secure"),
             prop: propertyPath.split(".").pop()
-        }
+        };
     }
 }

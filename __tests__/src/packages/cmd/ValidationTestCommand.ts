@@ -90,13 +90,13 @@ export const ValidationTestCommand: ICommandDefinition = {
                 description: "this value should be less than or equal to eight characters long but " +
                 "greater than or equal to 2 characters long",
                 type: "string",
-                stringLengthRange: [2, 8] // tslint:disable-line:no-magic-numbers
+                stringLengthRange: [2, 8]
             },
             {
                 name: "eggs-to-eat",
                 description: "How many eggs to eat out of a dozen",
                 type: "number",
-                numericValueRange: [1, 12] // tslint:disable-line:no-magic-numbers
+                numericValueRange: [1, 12]
             },
             {
                 name: "array-allow-duplicate",

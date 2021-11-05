@@ -207,7 +207,7 @@ export abstract class AbstractHelpGenerator implements IHelpGenerator {
         }
         // avoid replacing any literal {{strings like this}} in the help
         const validTags = ["indent", "space", "italic", "header", "bullet", "codeBegin", "codeEnd"];
-        const mustachePattern = /\{\{([a-z0-9\-]*?)\}\}/ig;
+        const mustachePattern = /\{\{([a-z0-9-]*?)\}\}/ig;
         help = help.replace(mustachePattern, (fullMatch, variableName) => {
             if (validTags.indexOf(variableName) >= 0) {
                 return fullMatch;

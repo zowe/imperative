@@ -9,17 +9,18 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters, ICommandArguments } from "../../../../../../cmd";
+import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerResponseApi } from "../../../../../../cmd";
 import { ISession, ConnectionPropsForSessCfg, Session, AbstractSession } from "../../../../../../rest";
 import { ConfigConstants, ConfigSchema, IConfig } from "../../../../../../config";
 import { diff } from "jest-diff";
-import stripAnsi from "strip-ansi";
 import * as open from "open";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 import { ImperativeConfig, TextUtils } from "../../../../../../utilities";
 import { CredentialManagerFactory } from "../../../../../../security";
 import { OverridesLoader } from "../../../../OverridesLoader";
+
+import stripAnsi = require("strip-ansi");
 
 /**
  * This class is used by the auto init command handler as the base class for its implementation.
@@ -72,6 +73,13 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
     protected abstract doAutoInit(session: AbstractSession, params: IHandlerParameters): Promise<IConfig>;
 
     /**
+     * This is called by processAutoInit() to display the report of configuration updates.
+     * @abstract
+     * @param {IHandlerParameters} params The command line parameters.
+     */
+    protected abstract displayAutoInitChanges(response: IHandlerResponseApi): void;
+
+    /**
      * Processes the auto init command to the auto init service.
      * Applies the changes to whichever config layer is specified by IHandlerParameters.
      * Can also perform a dry run and display the changes, or open the config for editing.
@@ -93,7 +101,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             global = true;
         }
         if (params.arguments.userConfig && params.arguments.userConfig === true) {
-            user = true
+            user = true;
         }
         ImperativeConfig.instance.config.api.layers.activate(user, global);
 
@@ -128,16 +136,16 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             }
 
             original = JSONC.stringify(originalProperties,
-                                      null,
-                                      ConfigConstants.INDENT);
+                null,
+                ConfigConstants.INDENT);
             dryRun = JSONC.stringify(dryRunProperties,
-                                     null,
-                                     ConfigConstants.INDENT);
+                null,
+                ConfigConstants.INDENT);
 
             let jsonDiff = diff(original, dryRun, {aAnnotation: "Removed",
-                                                   bAnnotation: "Added",
-                                                   aColor: TextUtils.chalk.red,
-                                                   bColor: TextUtils.chalk.green});
+                bAnnotation: "Added",
+                aColor: TextUtils.chalk.red,
+                bColor: TextUtils.chalk.green});
 
             if (stripAnsi(jsonDiff) === "Compared values have no visual difference.") {
                 jsonDiff = dryRun;
@@ -166,6 +174,11 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
                 ImperativeConfig.instance.config.setSchema(schema);
             }
             await ImperativeConfig.instance.config.save(false);
+        }
+
+        // we only display changes if we made changes
+        if (!params.arguments.dryRun || params.arguments.dryRun === false) {
+            this.displayAutoInitChanges(params.response);
         }
     }
 

@@ -78,7 +78,7 @@ export class CommandProfileLoader {
      * @memberof CommandProfileLoader
      */
     constructor(commandDefinition: ICommandDefinition, factory: IProfileManagerFactory<ICommandProfileTypeConfiguration>,
-                logger = Logger.getImperativeLogger()) {
+        logger = Logger.getImperativeLogger()) {
         const err: string = "Could not construct the profile loader.";
         ImperativeExpect.toNotBeNullOrUndefined(commandDefinition, `${err} No command definition supplied.`);
         ImperativeExpect.toNotBeNullOrUndefined(factory, `${err} No profile factory supplied.`);
@@ -220,7 +220,7 @@ export class CommandProfileLoader {
 
                 // If the argument is specified, indicate that this is a user specified load and if not
                 // assume that the default should be loaded (but still required on the command)
-                const [profOpt, profOptAlias] = ProfileUtils.getProfileOptionAndAlias(type);
+                const profOpt = ProfileUtils.getProfileOptionAndAlias(type)[0];
                 if (!isNullOrUndefined(commandArguments[profOpt])) {
                     load.userSpecified = true;
                     load.name = commandArguments[profOpt] as string;

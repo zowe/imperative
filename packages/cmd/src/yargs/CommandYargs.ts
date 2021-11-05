@@ -197,7 +197,7 @@ export class CommandYargs extends AbstractCommandYargs {
      * @return {Promise<ICommandResponse[]>}: The promise to be fulfilled when all handlers are complete.
      */
     private invokeHandlers(handlers: ICommandDefinition[], index: number, argsForHandler: Arguments,
-                           responses: ICommandResponse[]): Promise<ICommandResponse[]> {
+        responses: ICommandResponse[]): Promise<ICommandResponse[]> {
         return new Promise<ICommandResponse[]>((invokeHandlersResponse, invokeHandlersError) => {
             /**
              * If the index is greater than the handler array, fulfill the promise.

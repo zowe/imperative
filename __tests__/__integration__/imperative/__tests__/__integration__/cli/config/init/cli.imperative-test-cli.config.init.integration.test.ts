@@ -12,7 +12,6 @@
 import { ITestEnvironment } from "../../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../../src/TestUtil";
-import { IConfig } from "../../../../../../../../packages/config";
 import { expectedSchemaObject, expectedConfigObject, expectedUserConfigObject } from "../__resources__/expectedObjects";
 import * as fs from "fs";
 import * as path from "path";
@@ -32,7 +31,7 @@ describe("imperative-test-cli config init", () => {
     afterEach(() => {
         runCliScript(__dirname + "/../__scripts__/delete_configs.sh", TEST_ENVIRONMENT.workingDir,
             ["-rf imperative-test-cli.config.user.json imperative-test-cli.config.json test imperative-test-cli.schema.json"]);
-    })
+    });
     it("should display the help", () => {
         const response = runCliScript(__dirname + "/../__scripts__/get_help.sh",
             TEST_ENVIRONMENT.workingDir, ["init"]);
@@ -150,6 +149,7 @@ describe("imperative-test-cli config init", () => {
         expect(JSON.parse(fs.readFileSync(expectedConfigLocation).toString())).toEqual(expectedUserConfigObject);
         expect(JSON.parse(fs.readFileSync(expectedSchemaLocation).toString())).toEqual(expectedSchemaObject);
     });
+    // eslint-disable-next-line jest/no-commented-out-tests
     // it("should create a profile of a specified name", () => {
     //     const response = runCliScript(__dirname + "/__scripts__/init_config.sh",
     //         TEST_ENVIRONMENT.workingDir, ["--profile lpar.service --prompt false"]);

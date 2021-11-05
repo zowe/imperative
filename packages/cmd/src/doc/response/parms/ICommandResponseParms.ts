@@ -12,7 +12,6 @@
 import { COMMAND_RESPONSE_FORMAT } from "../api/processor/ICommandResponseApi";
 import { ICommandDefinition } from "../../../..";
 import { Arguments } from "yargs";
-import * as net from "net";
 
 /**
  * Command response control parameters. Indicates how the command response should behave and allows influence over
