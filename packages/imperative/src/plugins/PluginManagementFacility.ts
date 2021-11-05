@@ -261,7 +261,7 @@ export class PluginManagementFacility {
         // from app settings
         let overrideSettings: any = {};
         if (this.pmfConst.PLUGIN_USING_CONFIG) {
-            overrideSettings = ImperativeConfig.instance.config.properties.overrides;
+            overrideSettings = this.pmfConst.PLUGIN_CONFIG.properties.overrides || {};
         } else {
             overrideSettings = AppSettings.instance.getNamespace("overrides");
         }

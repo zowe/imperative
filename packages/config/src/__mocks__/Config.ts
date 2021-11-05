@@ -9,7 +9,7 @@
 *
 */
 
-import { IConfigOpts } from "../..";
+import { IConfig, IConfigOpts } from "../..";
 import { IConfigLayer } from "../../src/doc/IConfigLayer";
 
 export class Config {
@@ -18,6 +18,10 @@ export class Config {
     public get layers(): IConfigLayer[] {
         // return JSONC.parse(JSONC.stringify(this.mLayers, null, ConfigConstants.INDENT));
         return this.mLayers;
+    }
+
+    public get properties(): IConfig {
+        return this.mLayers[0].properties;
     }
 
     public get api() {
@@ -45,7 +49,8 @@ export class Config {
             exists: true,
             properties: {
                 profiles: {},
-                defaults: {}
+                defaults: {},
+                autoStore: true
             },
             global: true,
             user: false

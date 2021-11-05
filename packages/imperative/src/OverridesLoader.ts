@@ -10,7 +10,7 @@
 */
 
 import { IImperativeOverrides } from "./doc/IImperativeOverrides";
-import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
+import { CredentialManagerFactory } from "../../security";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import { isAbsolute, resolve } from "path";
 import { AppSettings } from "../../settings";
@@ -69,10 +69,9 @@ export class OverridesLoader {
             displayName = AppSettings.instance.get("overrides", "CredentialManager") as string;
         }
 
-        let cliHasKeytar: boolean = packageJson.dependencies?.keytar != null;
-        if (ImperativeConfig.instance.config?.exists) {
-            cliHasKeytar = cliHasKeytar || packageJson.optionalDependencies?.keytar != null;
-        }
+        // Load keytar if listed as a dependency in package.json, and CredentialManager is not disabled
+        const cliHasKeytar: boolean = (overrides as any).CredentialManager !== false &&
+            (packageJson.dependencies?.keytar != null || packageJson.optionalDependencies?.keytar != null);
 
         // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
         if (overrides.CredentialManager != null || cliHasKeytar) {

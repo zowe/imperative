@@ -17,6 +17,7 @@ import { ISettingsFilePersistence } from "./persistance/ISettingsFilePersistence
 import { JSONSettingsFilePersistence } from "./persistance/JSONSettingsFilePersistence";
 import { IO } from "../../io";
 import { ImperativeError } from "../../error";
+import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
 
 type SettingValue = false | string;
 
@@ -42,20 +43,24 @@ export class AppSettings {
         const persistence = new JSONSettingsFilePersistence(settingsFile);
 
         let settings = {};
-        try {
-            Logger.getImperativeLogger().trace(`Attempting to load settings file: ${settingsFile}`);
+        if (ImperativeConfig.instance.config?.exists) {
+            Logger.getImperativeLogger().trace("Detected Zowe v2 configuration in use, will not load app settings file");
+        } else {
+            try {
+                Logger.getImperativeLogger().trace(`Attempting to load settings file: ${settingsFile}`);
 
-            settings = persistence.read();
-        } catch (up) {
-            if (!existsSync(settingsFile)) {
-                Logger.getImperativeLogger().trace("Executing missing file recovery.");
-                IO.createDirsSyncFromFilePath(settingsFile);
-                persistence.write(defaults);
-            } else {
-                Logger.getImperativeLogger().error("Unable to recover from load failure");
-                Logger.getImperativeLogger().error(up.toString());
+                settings = persistence.read();
+            } catch (up) {
+                if (!existsSync(settingsFile)) {
+                    Logger.getImperativeLogger().trace("Executing missing file recovery.");
+                    IO.createDirsSyncFromFilePath(settingsFile);
+                    persistence.write(defaults);
+                } else {
+                    Logger.getImperativeLogger().error("Unable to recover from load failure");
+                    Logger.getImperativeLogger().error(up.toString());
 
-                throw up;
+                    throw up;
+                }
             }
         }
 
@@ -165,6 +170,10 @@ export class AppSettings {
      * Writes settings to the file
      */
     private flush() {
+        if (ImperativeConfig.instance.config?.exists) {
+            throw new ImperativeError({ msg: "Detected Zowe v2 configuration in use, will not save app settings file" });
+        }
+
         try {
             this.persistence.write(this.settings);
         } catch (err) {
