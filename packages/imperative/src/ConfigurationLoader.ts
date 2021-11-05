@@ -57,7 +57,7 @@ export class ConfigurationLoader {
             try {
                 const daemonMode = config.daemonMode;
                 config = callerFileRequirer(config.configurationModule);
-                config.daemonMode = daemonMode;
+                if (daemonMode) {config.daemonMode = daemonMode;}
             } catch (e) {
                 throw new ImperativeError({
                     msg:

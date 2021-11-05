@@ -209,6 +209,20 @@ Object {
 }
 `;
 
+exports[`Config tests load should not actually load config that seems to exist but is malformed when noLoad specified 1`] = `
+Object {
+  "defaults": Object {},
+  "profiles": Object {},
+}
+`;
+
+exports[`Config tests load should not try to load config that seems to exist but doesn't 1`] = `
+Object {
+  "defaults": Object {},
+  "profiles": Object {},
+}
+`;
+
 exports[`Config tests set should add a new layer when one is specified in the set 1`] = `
 Object {
   "fruit": Object {
