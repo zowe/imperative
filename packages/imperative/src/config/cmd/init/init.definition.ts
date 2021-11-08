@@ -46,6 +46,14 @@ export const initDefinition: ICommandDefinition = {
             description: "Prompt for secure values. Useful for disabling prompting in CI environments.",
             type: "boolean",
             defaultValue: true
+        },
+        {
+            name: "dry-run",
+            description: "Display the outcome of the initialization without saving.",
+            aliases: ["dr", "dry"],
+            type: "boolean",
+            defaultValue: false,
+            conflictsWith: ["overwrite"]
         }
     ],
     examples: [
@@ -54,12 +62,20 @@ export const initDefinition: ICommandDefinition = {
             options: "--global-config"
         },
         {
+            description: `Do a dry run of initializing configuration files in your home "~/.zowe" directory.`,
+            options: "--global-config --dry-run"
+        },
+        {
             description: "Initialize the user config files.",
             options: "--user-config"
         },
         {
             description: "Initialize the user config files and do not prompt for secure values.",
             options: "--user-config --prompt false"
+        },
+        {
+            description: "Do a dry run of initializing the user config files and do not prompt for secure values.",
+            options: "--user-config --prompt false --dry-run"
         }
     ]
 };
