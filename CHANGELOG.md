@@ -6,6 +6,12 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: Added `dry-run` option for `zowe config init` command to preview changes instead of saving them to disk. [#1037](https://github.com/zowe/zowe-cli/issues/1037)
 
+## `5.0.0-next.202111032034`
+
+- Enhancement: Added `autoStore` property to config JSON files which defaults to true. When this property is enabled and the CLI prompts you to enter connection info, the values you enter will be saved to disk (or credential vault if they are secure) for future use. [zowe/zowe-cli#923](https://github.com/zowe/zowe-cli/issues/923)
+- **Next Breaking**
+    - Changed the default behavior of `Config.set` so that it no longer coerces string values to other types unless the `parseString` option is true.
+
 ## `5.0.0-next.202110201735`
 
 - **LTS Breaking**
@@ -135,6 +141,14 @@ All notable changes to the Imperative package will be documented in this file.
 ## `5.0.0-next.202009251501`
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
+
+## `4.17.1`
+
+- BugFix: Fixed an issue where plugin install and uninstall did not work with NPM version 8. [#683](https://github.com/zowe/imperative/issues/683)
+
+## `4.17.0`
+
+- Enhancement: Export the Imperative Command Tree on the data object of the `zowe --ac` command when `--rfj` is specified.
 
 ## `4.16.2`
 

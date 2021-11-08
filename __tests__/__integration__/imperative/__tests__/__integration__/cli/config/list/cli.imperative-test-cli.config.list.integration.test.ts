@@ -68,10 +68,6 @@ describe("imperative-test-cli config list", () => {
         const parsedResponse = JSON.parse(response.stdout.toString());
         const expectedResponse = {
             data: {
-                defaults: {
-                    secured: "secured",
-                    base: "base"
-                },
                 profiles: {
                     base: {
                         properties: {},
@@ -87,7 +83,12 @@ describe("imperative-test-cli config list", () => {
                             "secret"
                         ]
                     }
-                }
+                },
+                defaults: {
+                    secured: "secured",
+                    base: "base"
+                },
+                autoStore: true
             }
         };
         expect(parsedResponse.success).toEqual(true);
@@ -107,7 +108,7 @@ describe("imperative-test-cli config list", () => {
         expect(response.stdout.toString()).toContain("type:       secured");
         expect(response.stdout.toString()).toContain("properties:");
         expect(response.stdout.toString()).toContain("secured: secured");
-        expect(response.stdout.toString()).toContain("$schema:  ./imperative-test-cli.schema.json");
+        expect(response.stdout.toString()).toContain("$schema:   ./imperative-test-cli.schema.json");
         expect(response.stderr.toString()).toEqual("");
         expect(response.error).not.toBeDefined();
     });
@@ -128,7 +129,8 @@ describe("imperative-test-cli config list", () => {
                     secure: []
                 }
             },
-            defaults: {}
+            defaults: {},
+            autoStore: true
         };
         const expectedProjectConfig = lodash.cloneDeep(expectedConfigObject);
         const expectedResponse = {

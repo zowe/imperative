@@ -16,7 +16,7 @@ import { IProfileProperty } from "../../../../../profiles";
 import { ConfigBuilder } from "../../../../../config/src/ConfigBuilder";
 import { IConfigBuilderOpts } from "../../../../../config/src/doc/IConfigBuilderOpts";
 import { CredentialManagerFactory } from "../../../../../security";
-import { secureSaveError } from "../../../../../config/src/ConfigUtils";
+import { coercePropValue, secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { OverridesLoader } from "../../../OverridesLoader";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
@@ -182,12 +182,7 @@ export default class InitHandler implements ICommandHandler {
 
         // coerce to correct type
         if (propValue && propValue.trim().length > 0) {
-            if (propValue === "true")
-                return true;
-            if (propValue === "false")
-                return false;
-            if (!isNaN(propValue) && !isNaN(parseFloat(propValue)))
-                return parseInt(propValue, 10);
+            return coercePropValue(propValue);
         }
 
         return propValue || null;

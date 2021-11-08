@@ -14,7 +14,7 @@ import { ImperativeConfig } from "../../../../../utilities";
 import { FakeAutoInitHandler } from "./__data__/FakeAutoInitHandler";
 import * as lodash from "lodash";
 import * as jestdiff from "jest-diff";
-import * as stripAnsi from"strip-ansi";
+import * as stripAnsi from "strip-ansi";
 import * as open from "open";
 import { ConfigSchema } from "../../../../../config";
 import { CredentialManagerFactory } from "../../../../../security";
