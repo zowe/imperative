@@ -796,8 +796,8 @@ export class CommandResponse implements ICommandResponseApi {
                         });
 
                         outer.mProgressBar.terminate();
-                        outer.writeStdout(outer.mStdout.subarray(this.mProgressBarStderrStartIndex).toString());
-                        outer.writeStderr(outer.mStderr.subarray(this.mProgressBarStderrStartIndex).toString());
+                        outer.writeStdout(outer.mStdout.subarray(this.mProgressBarStderrStartIndex));
+                        outer.writeStderr(outer.mStderr.subarray(this.mProgressBarStderrStartIndex));
                         this.mProgressTask = undefined;
 
                         // clear the progress bar field
