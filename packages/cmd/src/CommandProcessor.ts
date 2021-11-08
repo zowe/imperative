@@ -391,7 +391,7 @@ export class CommandProcessor {
                 process.chdir(params.arguments.dcd as string);
 
                 // reinit config for daemon client directory
-                if (ImperativeConfig.instance.config?.opts?.noLoad) {
+                if (ImperativeConfig.instance.config?.opts?.noLoad != null) {
                     delete ImperativeConfig.instance.config.opts.noLoad;
                 }
                 const newOpts = ImperativeConfig.instance.config?.opts || {};

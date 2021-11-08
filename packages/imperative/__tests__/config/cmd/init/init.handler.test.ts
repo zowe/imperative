@@ -102,6 +102,7 @@ describe("Configuration Initialization command handler", () => {
         params.arguments.userConfig = false;
         params.arguments.globalConfig = false;
         params.arguments.prompt = true;
+        params.arguments.dryRun = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -147,12 +148,56 @@ describe("Configuration Initialization command handler", () => {
         expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual("fakeValue");
     });
 
+    it("should attempt to do a dry run of initializing the project configuration", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
+        params.arguments.prompt = true;
+        params.arguments.dryRun = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
+        await handler.process(params as IHandlerParameters);
+
+        expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
+
+        expect(writeFileSyncSpy).not.toHaveBeenCalled();
+    });
+
     it("should attempt to initialize the project user configuration", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = true;
         params.arguments.globalConfig = false;
         params.arguments.prompt = true;
+        params.arguments.dryRun = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -193,12 +238,54 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
     });
 
+    it("should attempt to do a dry run of initializing the project user configuration", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.userConfig = true;
+        params.arguments.globalConfig = false;
+        params.arguments.prompt = true;
+        params.arguments.dryRun = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
+        await handler.process(params as IHandlerParameters);
+
+        expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // User config is a skeleton - no prompting should occur
+
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
+
+        expect(writeFileSyncSpy).not.toHaveBeenCalled();
+    });
+
     it("should attempt to initialize the global project configuration", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = false;
         params.arguments.globalConfig = true;
         params.arguments.prompt = true;
+        params.arguments.dryRun = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -246,12 +333,56 @@ describe("Configuration Initialization command handler", () => {
         expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual("fakeValue");
     });
 
+    it("should attempt to do a dry run of initializing the global project configuration", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = true;
+        params.arguments.prompt = true;
+        params.arguments.dryRun = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
+        await handler.process(params as IHandlerParameters);
+
+        expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
+
+        expect(writeFileSyncSpy).not.toHaveBeenCalled();
+    });
+
     it("should attempt to initialize the global project user configuration", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = true;
         params.arguments.globalConfig = true;
         params.arguments.prompt = true;
+        params.arguments.dryRun = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -294,12 +425,54 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjUserPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
     });
 
+    it("should attempt to do a dry run of initializing the global project user configuration", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.userConfig = true;
+        params.arguments.globalConfig = true;
+        params.arguments.prompt = true;
+        params.arguments.dryRun = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
+        await handler.process(params as IHandlerParameters);
+
+        expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // User config is a skeleton - no prompting should occur
+
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
+
+        expect(writeFileSyncSpy).not.toHaveBeenCalled();
+    });
+
     it("should attempt to initialize the project configuration with prompt flag false", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = false;
         params.arguments.globalConfig = false;
         params.arguments.prompt = false;
+        params.arguments.dryRun = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -338,12 +511,51 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
     });
 
+    it("should attempt to do a dry run of initializing the project configuration with prompt flag false", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
+        params.arguments.prompt = false;
+        params.arguments.dryRun = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
+        await handler.process(params as IHandlerParameters);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
+
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
+
+        expect(writeFileSyncSpy).not.toHaveBeenCalled();
+    });
+
     it("should attempt to initialize the project user configuration with prompting disabled", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = true;
         params.arguments.globalConfig = false;
         params.arguments.prompt = false;
+        params.arguments.dryRun = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -382,12 +594,51 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
     });
 
+    it("should attempt to do a dry run of initializing the project user configuration with prompting disabled", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.userConfig = true;
+        params.arguments.globalConfig = false;
+        params.arguments.prompt = false;
+        params.arguments.dryRun = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
+        await handler.process(params as IHandlerParameters);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
+
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
+
+        expect(writeFileSyncSpy).not.toHaveBeenCalled();
+    });
+
     it("should attempt to initialize the global project configuration with prompt flag false", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = false;
         params.arguments.globalConfig = true;
         params.arguments.prompt = false;
+        params.arguments.dryRun = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -428,12 +679,51 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeGblProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
     });
 
+    it("should attempt to do a dry run of initializing the global project configuration with prompt flag false", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = true;
+        params.arguments.prompt = false;
+        params.arguments.dryRun = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
+        await handler.process(params as IHandlerParameters);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
+
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
+
+        expect(writeFileSyncSpy).not.toHaveBeenCalled();
+    });
+
     it("should attempt to initialize the global project user configuration with prompting disabled", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = true;
         params.arguments.globalConfig = true;
         params.arguments.prompt = false;
+        params.arguments.dryRun = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -476,12 +766,51 @@ describe("Configuration Initialization command handler", () => {
         ); // Config
     });
 
+    it("should attempt to do a dry run of initializing the global project user configuration with prompting disabled", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.userConfig = true;
+        params.arguments.globalConfig = true;
+        params.arguments.prompt = false;
+        params.arguments.dryRun = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
+        await handler.process(params as IHandlerParameters);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
+
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
+
+        expect(writeFileSyncSpy).not.toHaveBeenCalled();
+    });
+
     it("should attempt to initialize the project configuration and use boolean true for the prompt", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = false;
         params.arguments.globalConfig = false;
         params.arguments.prompt = true;
+        params.arguments.dryRun = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -525,12 +854,53 @@ describe("Configuration Initialization command handler", () => {
         expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(true);
     });
 
+    it("should attempt to do a dry run of initializing the project configuration and use boolean true for the prompt", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
+        params.arguments.prompt = true;
+        params.arguments.dryRun = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        const promptWithTimeoutSpy = jest.fn(() => "true");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
+        await handler.process(params as IHandlerParameters);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
+
+        expect(writeFileSyncSpy).not.toHaveBeenCalled();
+    });
+
     it("should attempt to initialize the project configuration and use boolean false for the prompt", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = false;
         params.arguments.globalConfig = false;
         params.arguments.prompt = true;
+        params.arguments.dryRun = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -574,12 +944,53 @@ describe("Configuration Initialization command handler", () => {
         expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(false);
     });
 
+    it("should attempt to do a dry run of initializing the project configuration and use boolean false for the prompt", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
+        params.arguments.prompt = true;
+        params.arguments.dryRun = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        const promptWithTimeoutSpy = jest.fn(() => "false");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
+        await handler.process(params as IHandlerParameters);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
+
+        expect(writeFileSyncSpy).not.toHaveBeenCalled();
+    });
+
     it("should attempt to initialize the project configuration and use a number for the prompt", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = false;
         params.arguments.globalConfig = false;
         params.arguments.prompt = true;
+        params.arguments.dryRun = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -625,12 +1036,55 @@ describe("Configuration Initialization command handler", () => {
         expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(randomValueNumber);
     });
 
+    it("should attempt to do a dry run of initializing the project configuration and use a number for the prompt", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
+        params.arguments.prompt = true;
+        params.arguments.dryRun = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        const randomValueString = "9001";
+        const randomValueNumber = parseInt(randomValueString, 10);
+        const promptWithTimeoutSpy = jest.fn(() => randomValueString);
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
+        await handler.process(params as IHandlerParameters);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
+
+        expect(writeFileSyncSpy).not.toHaveBeenCalled();
+    });
+
     it("should attempt to initialize the project configuration and handle getting nothing from the prompt", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = false;
         params.arguments.globalConfig = false;
         params.arguments.prompt = true;
+        params.arguments.dryRun = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
@@ -674,12 +1128,53 @@ describe("Configuration Initialization command handler", () => {
         expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(undefined);
     });
 
+    it("should attempt to do a dry run of initializing the project configuration and handle getting nothing from the prompt", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
+        params.arguments.prompt = true;
+        params.arguments.dryRun = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+        osHomedirSpy.mockClear();
+        currentWorkingDirectorySpy.mockClear();
+
+        // initWithSchema
+        const promptWithTimeoutSpy = jest.fn(() => undefined);
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        // initForDryRun
+        const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
+
+        await handler.process(params as IHandlerParameters);
+
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        // Prompting for secure property
+        expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+
+        expect(initForDryRunSpy).toHaveBeenCalledTimes(1);
+        expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
+
+        expect(writeFileSyncSpy).not.toHaveBeenCalled();
+    });
+
     it("should display warning if unable to securely save credentials", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = false;
         params.arguments.globalConfig = false;
         params.arguments.prompt = true;
+        params.arguments.dryRun = false;
 
         existsSyncSpy.mockReturnValue(false); // No files exist
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
