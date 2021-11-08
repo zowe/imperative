@@ -788,19 +788,16 @@ export class CommandResponse implements ICommandResponseApi {
 
                         let statusMessage = "Complete";
                         if (this.mIsDaemon) {
-                            statusMessage += '\n';
+                            statusMessage += '\f';
                         }
                         outer.mProgressBar.update(1, {
                             statusMessage,
                             spin: " "
                         });
 
-                        // send header to disable progress bar streaming
-                        outer.writeStream(DaemonRequest.create({ progress: false }));
-
                         outer.mProgressBar.terminate();
-                        outer.writeStdout(outer.mStdout.subarray(this.mProgressBarStdoutStartIndex));
-                        outer.writeStderr(outer.mStderr.subarray(this.mProgressBarStderrStartIndex));
+                        outer.writeStdout(outer.mStdout.subarray(this.mProgressBarStderrStartIndex).toString());
+                        outer.writeStderr(outer.mStderr.subarray(this.mProgressBarStderrStartIndex).toString());
                         this.mProgressTask = undefined;
 
                         // clear the progress bar field
