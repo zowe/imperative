@@ -235,7 +235,7 @@ describe("Imperative", () => {
                 expect(ConfigManagementFacility.instance.init).toHaveBeenCalledTimes(1);
             });
 
-            it("should surface failures if daemonMode is specified", async () => {
+            it("should surface failures if daemonMode is not specified", async () => {
                 jest.spyOn(mocks.Config, "load").mockRejectedValueOnce(new ImperativeError({msg: "Config error"})).mockResolvedValue({});
                 let error;
                 try {
