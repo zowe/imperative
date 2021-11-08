@@ -62,20 +62,36 @@ export const initDefinition: ICommandDefinition = {
             description: "Confirms the overwrite option.",
             type: "boolean",
             defaultValue: false
+        },
+        {
+            name: "dry-run",
+            description: "Display the outcome of the initialization without saving.",
+            aliases: ["dr", "dry"],
+            type: "boolean",
+            defaultValue: false,
+            conflictsWith: ["overwrite"]
         }
     ],
     examples: [
         {
-            description: `Initialize configuration files in your home "~/.zowe" directory`,
+            description: `Initialize configuration files in your home "~/.zowe" directory.`,
             options: "--global-config"
         },
         {
-            description: "Initialize the user config files",
+            description: `Do a dry run of initializing configuration files in your home "~/.zowe" directory.`,
+            options: "--global-config --dry-run"
+        },
+        {
+            description: "Initialize the user config files.",
             options: "--user-config"
         },
         {
-            description: "Initialize the user config files and do not prompt for secure values",
+            description: "Initialize the user config files and do not prompt for secure values.",
             options: "--user-config --prompt false"
+        },
+        {
+            description: "Do a dry run of initializing the user config files and do not prompt for secure values.",
+            options: "--user-config --prompt false --dry-run"
         },
         {
             description: "Overwrite any existing global config files",
