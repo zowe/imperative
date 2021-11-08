@@ -58,7 +58,7 @@ export const initDefinition: ICommandDefinition = {
         },
         {
             name: "for-sure",
-            aliases: ["f"],
+            aliases: ["fs"],
             description: "Confirms the overwrite option.",
             type: "boolean",
             defaultValue: false
