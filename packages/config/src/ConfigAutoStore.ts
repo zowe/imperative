@@ -27,6 +27,27 @@ import { Logger } from "../../logger";
  */
 export class ConfigAutoStore {
     /**
+     * Finds the profile where auto-store properties should be saved.
+     * @param params CLI handler parameters object
+     * @param profileProps List of properties required in the profile schema
+     * @returns Tuple containing profile type and name, or undefined if no
+     *          profile was found
+     */
+    public static findActiveProfile(params: IHandlerParameters, profileProps: string[]): [string, string] | undefined {
+        const profileTypes = [
+            ...(params.definition.profile?.required || []),
+            ...(params.definition.profile?.optional || [])
+        ];
+
+        for (const profType of profileTypes) {
+            const profileMatch = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profType);
+            if (profileMatch != null && profileProps.every(propName => propName in profileMatch.schema.properties)) {
+                return [profType, ConfigUtils.getActiveProfileName(profType, params.arguments)];
+            }
+        }
+    }
+
+    /**
      * Finds the token auth handler class for a team config profile.
      * @param profilePath JSON path of profile
      * @param cmdArguments CLI arguments which may specify a profile
@@ -142,27 +163,6 @@ export class ConfigAutoStore {
         params.response.console.log(`Stored properties in ${config.layerActive().path}: ${profileProps.join(", ")}`);
         // Restore original active layer
         config.api.layers.activate(beforeLayer.user, beforeLayer.global);
-    }
-
-    /**
-     * Finds the profile where auto-store properties should be saved.
-     * @param params CLI handler parameters object
-     * @param profileProps List of properties required in the profile schema
-     * @returns Tuple containing profile type and name, or undefined if no
-     *          profile was found
-     */
-    private static findActiveProfile(params: IHandlerParameters, profileProps: string[]): [string, string] | undefined {
-        const profileTypes = [
-            ...(params.definition.profile?.required || []),
-            ...(params.definition.profile?.optional || [])
-        ];
-
-        for (const profType of profileTypes) {
-            const profileMatch = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profType);
-            if (profileMatch != null && profileProps.every(propName => propName in profileMatch.schema.properties)) {
-                return [profType, ConfigUtils.getActiveProfileName(profType, params.arguments)];
-            }
-        }
     }
 
     /**

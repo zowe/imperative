@@ -9,6 +9,7 @@
 *
 */
 
+import * as lodash from "lodash";
 import { CliUtils, ImperativeConfig } from "../../../utilities";
 import { ICommandArguments, IHandlerParameters } from "../../../cmd";
 import { ImperativeError } from "../../../error";
@@ -19,6 +20,7 @@ import { IPromptOptions } from "../../../cmd/src/doc/response/api/handler/IPromp
 import { ISession } from "./doc/ISession";
 import { IProfileProperty } from "../../../profiles";
 import { ConfigAutoStore } from "../../../config/src/ConfigAutoStore";
+import { ConfigUtils } from "../../..";
 
 /**
  * Extend options for IPromptOptions for internal wrapper method
@@ -134,6 +136,8 @@ export class ConnectionPropsForSessCfg {
                 promptForValues.push("password");
             }
         }
+
+        this.loadSecureSessCfgProps(connOptsToUse.parms, promptForValues);
 
         if (connOptsToUse.getValuesBack == null && connOptsToUse.doPrompting) {
             connOptsToUse.getValuesBack = this.getValuesBack(connOptsToUse);
@@ -288,7 +292,7 @@ export class ConnectionPropsForSessCfg {
      * List of properties on `sessCfg` object that should be kept secret and
      * may not appear in Imperative log files.
      */
-    private static readonly secureSessCfgProps: string[] = ["user", "password", "tokenValue", "passphrase"];
+    private static secureSessCfgProps: Set<string> = new Set(["user", "password", "tokenValue", "passphrase"]);
 
     /**
      * List of prompt messages that is used when the CLI prompts for session
@@ -317,10 +321,12 @@ export class ConnectionPropsForSessCfg {
             for (const value of promptForValues) {
                 let answer;
                 while (answer === undefined) {
-                    answer = await this.clientPrompt(`${this.promptTextForValues[value]} ${serviceDescription}: `, {
-                        hideText: profileSchema[value]?.secure,
-                        parms: connOpts.parms
-                    });
+                    const hideText = profileSchema[value]?.secure || this.secureSessCfgProps.has(value);
+                    let promptText = `${this.promptTextForValues[value]} ${serviceDescription}`;
+                    if (hideText) {
+                        promptText += " (will be hidden)";
+                    }
+                    answer = await this.clientPrompt(`${promptText}: `, { hideText, parms: connOpts.parms });
                     if (answer === null) {
                         throw new ImperativeError({ msg: `Timed out waiting for ${value}.` });
                     }
@@ -433,5 +439,31 @@ export class ConnectionPropsForSessCfg {
             schemas[propName] = ImperativeConfig.instance.loadedConfig.baseProfile.schema.properties[profilePropName];
         }
         return schemas;
+    }
+
+    private static loadSecureSessCfgProps(params: IHandlerParameters | undefined, promptForValues: string[]): void {
+        if (params == null || !ImperativeConfig.instance.config?.exists) {
+            return;
+        }
+
+        const profileProps = promptForValues.map(propName => propName === "hostname" ? "host" : propName);
+        const profileData = ConfigAutoStore.findActiveProfile(params, profileProps);
+        if (profileData == null) {
+            return;
+        }
+
+        const config = ImperativeConfig.instance.config;
+        const profilePath = config.api.profiles.expandPath(profileData[1]);
+        const profileObj = lodash.get(config.properties, profilePath);
+        for (const secureProp of (profileObj?.secure || [])) {
+            this.secureSessCfgProps.add(secureProp === "host" ? "hostname" : secureProp);
+        }
+
+        const baseProfileName = ConfigUtils.getActiveProfileName("base", params.arguments);
+        const baseProfilePath = config.api.profiles.expandPath(baseProfileName);
+        const baseProfileObj = lodash.get(config.properties, baseProfilePath);
+        for (const secureProp of (baseProfileObj?.secure || [])) {
+            this.secureSessCfgProps.add(secureProp === "host" ? "hostname" : secureProp);
+        }
     }
 }
