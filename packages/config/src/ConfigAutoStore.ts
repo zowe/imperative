@@ -136,8 +136,10 @@ export class ConfigAutoStore {
 
         const beforeLayer = config.api.layers.get();
         const loadedProfile = config.api.profiles.load(profileName);
-        const { user, global } = this.getPriorityLayer(loadedProfile);
-        config.api.layers.activate(user, global);
+        if (loadedProfile != null) {
+            const { user, global } = this.getPriorityLayer(loadedProfile);
+            config.api.layers.activate(user, global);
+        }
 
         const baseProfileName = ConfigUtils.getActiveProfileName("base", params.arguments);
         const baseProfileObj = lodash.get(config.properties, config.api.profiles.expandPath(baseProfileName));
@@ -146,10 +148,16 @@ export class ConfigAutoStore {
 
         for (const propName of profileProps) {
             let propProfilePath = profilePath;
-            // Determine if property should be stored in base profile instead
-            if (loadedProfile.properties[propName] == null && !loadedProfile.secure?.includes(propName) &&
-                (baseProfileObj.properties[propName] != null || baseProfileObj.secure?.includes(propName) ||
-                (propName === "tokenValue" && baseProfileObj.properties.tokenType != null))) {
+            /* If any of the following is true, then property should be stored in base profile:
+                (1) Service profile does not exist, but base profile does
+                (2) Property is missing from service profile properties/secure objects, but present in base profile
+                (3) Property is tokenValue and tokenType is missing from service profile, but present in base profile
+            */
+            if ((loadedProfile == null && baseProfileObj != null) ||
+                (loadedProfile?.properties[propName] == null && !loadedProfile?.secure?.includes(propName) &&
+                (baseProfileObj?.properties[propName] != null || baseProfileObj?.secure?.includes(propName))) ||
+                (propName === "tokenValue" && loadedProfile?.properties.tokenType == null && baseProfileObj?.properties.tokenType != null)
+            ) {
                 propProfilePath = config.api.profiles.expandPath(baseProfileName);
             }
             const sessCfgPropName = propName === "host" ? "hostname" : propName;

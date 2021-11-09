@@ -321,6 +321,33 @@ describe("ConfigAutoStore tests", () => {
             });
         });
 
+        it("should store user and password in base profile for basic auth 2", async () => {
+            await setupConfigToLoad({
+                profiles: {
+                    base: {
+                        type: "base",
+                        properties: {}
+                    }
+                },
+                defaults: { base: "base" },
+                autoStore: true
+            });
+            ImperativeConfig.instance.config.save = jest.fn();
+
+            const propsToAdd = {
+                user: "admin",
+                password: "123456"
+            };
+            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                hostname: "example.com",
+                type: SessConstants.AUTH_TYPE_BASIC,
+                ...propsToAdd
+            }, ["user", "password"]);
+
+            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+            expect(ImperativeConfig.instance.config.properties.profiles.base.properties).toMatchObject(propsToAdd);
+        });
+
         it("should store user and password in service profile for basic auth", async () => {
             await setupConfigToLoad({
                 profiles: {
@@ -337,6 +364,55 @@ describe("ConfigAutoStore tests", () => {
                     }
                 },
                 defaults: { fruit: "fruit", base: "base" },
+                autoStore: true
+            });
+            ImperativeConfig.instance.config.save = jest.fn();
+
+            const propsToAdd = {
+                user: "admin",
+                password: "123456"
+            };
+            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                hostname: "example.com",
+                type: SessConstants.AUTH_TYPE_BASIC,
+                ...propsToAdd
+            }, ["user", "password"]);
+
+            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+            expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject(propsToAdd);
+        });
+
+        it("should store user and password in service profile for basic auth 2", async () => {
+            await setupConfigToLoad({
+                profiles: {
+                    fruit: {
+                        type: "fruit",
+                        properties: {}
+                    }
+                },
+                defaults: { fruit: "fruit" },
+                autoStore: true
+            });
+            ImperativeConfig.instance.config.save = jest.fn();
+
+            const propsToAdd = {
+                user: "admin",
+                password: "123456"
+            };
+            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                hostname: "example.com",
+                type: SessConstants.AUTH_TYPE_BASIC,
+                ...propsToAdd
+            }, ["user", "password"]);
+
+            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+            expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject(propsToAdd);
+        });
+
+        it("should store user and password in service profile for basic auth 3", async () => {
+            await setupConfigToLoad({
+                profiles: {},
+                defaults: {},
                 autoStore: true
             });
             ImperativeConfig.instance.config.save = jest.fn();
