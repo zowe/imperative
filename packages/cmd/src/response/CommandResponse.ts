@@ -786,17 +786,19 @@ export class CommandResponse implements ICommandResponseApi {
                             this.mProgressBarInterval = undefined;
                         }
 
-                        let statusMessage = "Complete";
-                        if (this.mIsDaemon) {
-                            statusMessage += '\f';
-                        }
+                        const statusMessage = "Complete";
                         outer.mProgressBar.update(1, {
                             statusMessage,
                             spin: " "
                         });
 
                         outer.mProgressBar.terminate();
-                        outer.writeStdout(outer.mStdout.subarray(this.mProgressBarStderrStartIndex));
+
+                        // NOTE(Kelosky): ansi escape codes for progress bar cursor and line clearing are written on the socket
+                        // so we need to ensure they're emptied out before we write to the stream.
+                        if (this.mIsDaemon) outer.writeStream(`\f`);
+
+                        outer.writeStdout(outer.mStdout.subarray(this.mProgressBarStdoutStartIndex));
                         outer.writeStderr(outer.mStderr.subarray(this.mProgressBarStderrStartIndex));
                         this.mProgressTask = undefined;
 
