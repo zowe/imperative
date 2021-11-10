@@ -428,6 +428,12 @@ export class ConnectionPropsForSessCfg {
         return propToTest != null && propToTest !== "";
     }
 
+    /**
+     * Load base profile property schema for connection properties.
+     * @param params CLI handler parameters object
+     * @param promptForValues List of ISessCfg properties to prompt for
+     * @returns Key-value pairs of ISessCfg property name and profile property schema
+     */
     private static loadSchemaForSessCfgProps(params: IHandlerParameters | undefined, promptForValues: string[]): { [key: string]: IProfileProperty } {
         if (params == null || ImperativeConfig.instance.loadedConfig?.baseProfile == null) {
             return {};
@@ -441,6 +447,11 @@ export class ConnectionPropsForSessCfg {
         return schemas;
     }
 
+    /**
+     * Load list of secure property names defined in team config.
+     * @param params CLI handler parameters object
+     * @param promptForValues List of ISessCfg properties to prompt for
+     */
     private static loadSecureSessCfgProps(params: IHandlerParameters | undefined, promptForValues: string[]): void {
         if (params == null || !ImperativeConfig.instance.config?.exists) {
             return;
