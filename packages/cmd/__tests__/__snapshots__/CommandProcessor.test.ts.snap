@@ -1245,6 +1245,24 @@ Line should not be indented",
 }
 `;
 
+exports[`Command Processor should reset noLoad on config load 1`] = `
+Object {
+  "data": Object {},
+  "error": undefined,
+  "exitCode": 0,
+  "message": "",
+  "stderr": Object {
+    "data": Array [],
+    "type": "Buffer",
+  },
+  "stdout": Object {
+    "data": Array [],
+    "type": "Buffer",
+  },
+  "success": true,
+}
+`;
+
 exports[`Command Processor should use the value specified on the CLI option, if the argument is supplied in both CLI and profile 1`] = `
 "green
 "

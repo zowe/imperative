@@ -130,6 +130,7 @@ export class Config {
      * Load config files from disk and secure properties from vault.
      * @param app App name used in config filenames (e.g., *my_cli*.config.json)
      * @param opts Options to control how Config class behaves
+     * @throws An ImperativeError if the configuration does not load successfully
      */
     public static async load(app: string, opts?: IConfigOpts): Promise<Config> {
         opts = opts || {};
@@ -162,7 +163,7 @@ export class Config {
         try {
             let setActive = true;
             for (const currLayer of myNewConfig.mLayers) {
-                await myNewConfig.api.layers.read(currLayer);
+                if (!opts.noLoad) { await myNewConfig.api.layers.read(currLayer); }
 
                 // Find the active layer
                 if (setActive && currLayer.exists) {
@@ -184,7 +185,7 @@ export class Config {
         }
 
         // Load secure fields
-        await myNewConfig.api.secure.load();
+        if (!opts.noLoad) { await myNewConfig.api.secure.load(); }
 
         return myNewConfig;
     }

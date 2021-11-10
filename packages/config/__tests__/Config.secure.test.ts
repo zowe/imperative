@@ -11,6 +11,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { ImperativeError } from "../../error/src/ImperativeError";
 import { Config } from "../src/Config";
 import { IConfigSecure } from "../src/doc/IConfigSecure";
 import { IConfigVault } from "../src/doc/IConfigVault";
@@ -121,5 +122,30 @@ describe("Config secure tests", () => {
         config.set(securePropPath, "area51", { secure: true });
         layer = config.api.layers.get();
         expect(layer.properties.profiles.fruit.secure.includes("secret")).toBe(true);
+    });
+
+    it("should not actually load config that has a bad vault when noLoad specified", async () => {
+        jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/badproject.config.json");
+        jest.spyOn(fs, "existsSync")
+            .mockReturnValueOnce(false)     // Project user layer
+            .mockReturnValueOnce(true)      // Project layer
+            .mockReturnValueOnce(false)     // User layer
+            .mockReturnValueOnce(false);    // Global layer
+        jest.spyOn(fs, "readFileSync");
+        let secureError: any;
+        const vault: IConfigVault = {
+            load: jest.fn().mockRejectedValue(new ImperativeError({msg: "The vault failed"})),
+            save: jest.fn()
+        };
+        const config = await Config.load(MY_APP, {noLoad: true, vault: vault});
+        config.mVault = vault;
+        try {
+            await config.api.secure.load(vault);
+        } catch (err) {
+            secureError = err;
+        }
+        expect(vault.load).toHaveBeenCalledTimes(1);
+        expect(secureError).toBeDefined();
+        expect(config.properties).toMatchSnapshot();
     });
 });
