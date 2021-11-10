@@ -22,6 +22,7 @@ import { SharedOptions } from "../src/utils/SharedOptions";
 import { CommandProfileLoader } from "../src/profiles/CommandProfileLoader";
 import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "../src/help/WebHelpManager";
+import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
 
 jest.mock("../src/syntax/SyntaxValidator");
 jest.mock("../src/utils/SharedOptions");
@@ -245,6 +246,7 @@ describe("Command Processor", () => {
     afterEach(() => {
         process.stdout.write = ORIGINAL_STDOUT_WRITE;
         process.stderr.write = ORIGINAL_STDERR_WRITE;
+        if (ImperativeConfig?.instance?.config?.opts?.noLoad) { delete ImperativeConfig.instance.config.opts.noLoad; }
     });
 
     it("should allow us to create an instance", () => {
@@ -1408,6 +1410,51 @@ describe("Command Processor", () => {
         const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(commandResponse).toBeDefined();
         expect(commandResponse).toMatchSnapshot();
+    });
+
+    it("should reset noLoad on config load", async () => {
+        // Allocate the command processor
+        ImperativeConfig.instance.config.opts.noLoad = true;
+        expect(ImperativeConfig.instance.config.opts.noLoad).toEqual(true);
+
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            fullDefinition: SAMPLE_COMPLEX_COMMAND,
+            definition: SAMPLE_COMMAND_REAL_HANDLER,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: "",
+            promptPhrase: "dummydummy"
+        });
+
+        // Mock read stdin
+        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+            // Nothing to do
+        });
+
+        // Mock the profile loader
+        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+            return {
+                loadProfiles: (profArgs: any) => {
+                    // Nothing to do
+                }
+            };
+        });
+
+        const parms: any = {
+            arguments: {
+                _: ["check", "for", "banana"],
+                $0: "",
+                valid: true,
+                dcd: process.cwd()
+            },
+            silent: true
+        };
+        const commandResponse: ICommandResponse = await processor.invoke(parms);
+        expect(commandResponse).toBeDefined();
+        expect(commandResponse).toMatchSnapshot();
+        expect(ImperativeConfig.instance.config.opts.noLoad).not.toBeDefined();
     });
 
     it("should extract arguments not specified on invoke from a profile and merge with args", async () => {

@@ -26,4 +26,9 @@ export interface IConfigOpts {
      * Vault object with methods for loading and saving secure credentials
      */
     vault?: IConfigVault;
+
+    /**
+     * Do not attempt to load the config, meant for when the config is broken
+     */
+    noLoad?: boolean;
 }

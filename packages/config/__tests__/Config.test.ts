@@ -12,7 +12,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as findUp from "find-up";
-import { ImperativeError } from "../..";
+import { ImperativeError } from "../../error/src/ImperativeError";
 import { Config } from "../src/Config";
 import { ConfigConstants } from "../src/ConfigConstants";
 import * as JSONC from "comment-json";
@@ -181,6 +181,25 @@ describe("Config tests", () => {
             expect(error.message).toContain("An error was encountered while trying to read the file");
             expect(error.message).toContain(__dirname + "/__resources__");
             expect(error instanceof ImperativeError).toBe(true);
+        });
+
+        it("should not actually load config that seems to exist but is malformed when noLoad specified", async () => {
+            jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/badproject.config.json");
+            jest.spyOn(fs, "existsSync")
+                .mockReturnValueOnce(false)     // Project user layer
+                .mockReturnValueOnce(true)      // Project layer
+                .mockReturnValueOnce(false)     // User layer
+                .mockReturnValueOnce(false);    // Global layer
+            jest.spyOn(fs, "readFileSync");
+            let readError: any;
+            const config = await Config.load(MY_APP, {noLoad: true});
+            try {
+                for (const layer of config.mLayers) { await config.api.layers.read(layer); }
+            } catch (err) {
+                readError = err;
+            }
+            expect(readError).toBeDefined();
+            expect(config.properties).toMatchSnapshot();
         });
     });
 
