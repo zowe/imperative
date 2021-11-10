@@ -27,6 +27,9 @@ import * as nodePath from "path";
 import { mkdirpSync } from "fs-extra";
 import * as fs from "fs";
 import { randomBytes } from "crypto";
+import * as os from "os";
+import { Config, IConfig, IConfigOpts } from "../../packages/config";
+import { ImperativeConfig } from "../../packages/utilities";
 
 /**
  * Requires for non-typed.
@@ -434,4 +437,36 @@ export function runCliScript(scriptPath: string, cwd: string, args: any = [], en
     } else {
         throw new Error("The script directory doesn't exist");
     }
+}
+
+/**
+ * Load the ImperativeConfig so config can work properly.
+ *
+ * Warning: This method resets mock implementations of `os.homedir` and `process.cwd`.
+ * @param properties Provide a config object to be loaded as the project layer.
+ *  If no config object is provided, the following steps are needed before calling:
+ *  1. Mock out Config.search the appropriate number of times
+    2. Mock out fs.existsSync and/or fs.readFileSync the appropriate number of times
+ * @param opts Options to pass to Config.load
+ */
+export async function setupConfigToLoad(properties?: IConfig, opts: IConfigOpts = {}): Promise<void> {
+    const dirname = nodePath.dirname((jasmine as any).testPath); // Get __dirname for current test suite
+    const osHomedirSpy = jest.spyOn(os, "homedir").mockReturnValue(dirname); // Pretend the current directory is the homedir
+    const processCwdSpy = jest.spyOn(process, "cwd").mockReturnValue(dirname); // Pretend the current directory is where the command was invoked
+    let existsSyncSpy;
+
+    if (properties != null) {
+        jest.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify(properties));
+        jest.spyOn(Config, "search").mockReturnValueOnce("fakeapp.config.user.json")
+            .mockReturnValueOnce("fakeapp.config.json"); // Give search something to return
+        existsSyncSpy = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false); // Only the user config exists
+    }
+
+    const fakeConfig = await Config.load("fakeapp", opts);
+    jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(fakeConfig);
+
+    // Undo permanent mocks
+    osHomedirSpy.mockRestore();
+    processCwdSpy.mockRestore();
+    existsSyncSpy?.mockRestore();
 }

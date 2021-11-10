@@ -9,36 +9,12 @@
 *
 */
 
-import * as fs from "fs";
-import * as os from "os";
 import { AbstractAuthHandler } from "../../imperative";
 import { SessConstants } from "../../rest";
 import { ImperativeConfig } from "../../utilities";
-import { IConfig } from "../src/doc/IConfig";
 import { IConfigLoadedProfile } from "../src/doc/IConfigLoadedProfile";
-import { Config } from "../src/Config";
 import { ConfigAutoStore } from "../src/ConfigAutoStore";
-
-// Load the ImperativeConfig so config can work properly
-async function setupConfigToLoad(properties: IConfig): Promise<void> {
-    // One-time mocks
-    jest.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify(properties));
-    jest.spyOn(Config, "search").mockReturnValueOnce("fakeapp.config.user.json")
-        .mockReturnValueOnce("fakeapp.config.json"); // Give search something to return
-
-    // Permanent mocks
-    const osHomedirSpy = jest.spyOn(os, "homedir").mockReturnValue(__dirname); // Pretend the current directory is the homedir
-    const processCwdSpy = jest.spyOn(process, "cwd").mockReturnValue(__dirname); // Pretend the current directory is where the command was invoked
-    const existsSyncSpy = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false); // Only the user config exists
-
-    const fakeConfig = await Config.load("fakeapp");
-    jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(fakeConfig);
-
-    // Undo permanent mocks
-    osHomedirSpy.mockRestore();
-    processCwdSpy.mockRestore();
-    existsSyncSpy.mockRestore();
-}
+import { setupConfigToLoad } from "../../../__tests__/src/TestUtil";
 
 describe("ConfigAutoStore tests", () => {
     beforeAll(() => {
@@ -277,7 +253,7 @@ describe("ConfigAutoStore tests", () => {
         let findActiveProfileSpy: any;
 
         beforeEach(() => {
-            findActiveProfileSpy = jest.spyOn(ConfigAutoStore as any, "findActiveProfile");
+            findActiveProfileSpy = jest.spyOn(ConfigAutoStore, "findActiveProfile");
         });
 
         afterEach(() => {
@@ -571,7 +547,7 @@ describe("ConfigAutoStore tests", () => {
                 }
             };
 
-            const profileData = (ConfigAutoStore as any).findActiveProfile(handlerParams, ["host"]);
+            const profileData = ConfigAutoStore.findActiveProfile(handlerParams as any, ["host"]);
             expect(profileData).toEqual(["fruit", "orange"]);
         });
 
@@ -596,7 +572,7 @@ describe("ConfigAutoStore tests", () => {
                 }
             };
 
-            const profileData = (ConfigAutoStore as any).findActiveProfile(handlerParams, ["host"]);
+            const profileData = ConfigAutoStore.findActiveProfile(handlerParams as any, ["host"]);
             expect(profileData).toEqual(["fruit", "apple"]);
         });
 
@@ -616,7 +592,7 @@ describe("ConfigAutoStore tests", () => {
                 }
             };
 
-            const profileData = (ConfigAutoStore as any).findActiveProfile(handlerParams, ["host"]);
+            const profileData = ConfigAutoStore.findActiveProfile(handlerParams as any, ["host"]);
             expect(profileData).toEqual(["fruit", "fruit"]);
         });
 
@@ -633,7 +609,7 @@ describe("ConfigAutoStore tests", () => {
                 }
             };
 
-            const profileData = (ConfigAutoStore as any).findActiveProfile(handlerParams, ["host"]);
+            const profileData = ConfigAutoStore.findActiveProfile(handlerParams as any, ["host"]);
             expect(profileData).toBeUndefined();
         });
 
@@ -653,7 +629,7 @@ describe("ConfigAutoStore tests", () => {
                 }
             };
 
-            const profileData = (ConfigAutoStore as any).findActiveProfile(handlerParams, ["host", "hostess"]);
+            const profileData = ConfigAutoStore.findActiveProfile(handlerParams as any, ["host", "hostess"]);
             expect(profileData).toBeUndefined();
         });
     });
