@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.0.0-next.202111101806`
 
 - Enhancement: Added `dry-run` option for `zowe config init` command to preview changes instead of saving them to disk. [#1037](https://github.com/zowe/zowe-cli/issues/1037)
 - Bugfix: Fix crashing issue related to reloading the config when `--dcd` option is specified [#943](https://github.com/zowe/zowe-cli/issues/943) [#1190](https://github.com/zowe/zowe-cli/issues/1190)
