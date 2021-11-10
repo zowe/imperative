@@ -35,6 +35,8 @@ describe("imperative-test-cli config import", () => {
 
     // Create the test environment
     beforeAll(async () => {
+        const serverAddressRegex = /(http.*)\s/;
+
         TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
             cliHomeEnvVar: "IMPERATIVE_TEST_CLI_CLI_HOME",
             testName: "imperative_test_cli_test_config_init_command"
@@ -47,7 +49,10 @@ describe("imperative-test-cli config import", () => {
         // Retrieve server URL from the end of first line printed to stdout
         localhostUrl = await new Promise((resolve, reject) => {
             pServer.stdout.on("data", (data: Buffer) => {
-                resolve(data.toString().trim().split(" ").pop());
+                const match = data.toString().match(serverAddressRegex);
+                if(match != null) {
+                    resolve(match[1]);
+                }
             });
         });
     });

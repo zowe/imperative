@@ -27,6 +27,7 @@ import { IConfigOpts } from "./doc/IConfigOpts";
 import { IConfigSecure } from "./doc/IConfigSecure";
 import { IConfigVault } from "./doc/IConfigVault";
 import { ConfigLayers, ConfigPlugins, ConfigProfiles, ConfigSecure } from "./api";
+import { coercePropValue } from "./ConfigUtils";
 import { IConfigSchemaInfo } from "./doc/IConfigSchema";
 import { JsUtils } from "../../utilities/src/JsUtils";
 
@@ -61,6 +62,7 @@ export class Config {
 
     /**
      * App name used in config filenames (e.g., *my_cli*.config.json)
+     * It could be an absolute path, we recommend always using the getter method
      * @internal
      */
     public mApp: string;
@@ -128,6 +130,7 @@ export class Config {
      * Load config files from disk and secure properties from vault.
      * @param app App name used in config filenames (e.g., *my_cli*.config.json)
      * @param opts Options to control how Config class behaves
+     * @throws An ImperativeError if the configuration does not load successfully
      */
     public static async load(app: string, opts?: IConfigOpts): Promise<Config> {
         opts = opts || {};
@@ -160,7 +163,7 @@ export class Config {
         try {
             let setActive = true;
             for (const currLayer of myNewConfig.mLayers) {
-                await myNewConfig.api.layers.read(currLayer);
+                if (!opts.noLoad) { await myNewConfig.api.layers.read(currLayer); }
 
                 // Find the active layer
                 if (setActive && currLayer.exists) {
@@ -182,7 +185,7 @@ export class Config {
         }
 
         // Load secure fields
-        await myNewConfig.api.secure.load();
+        if (!opts.noLoad) { await myNewConfig.api.secure.load(); }
 
         return myNewConfig;
     }
@@ -302,7 +305,7 @@ export class Config {
      * Filename used for config JSONC files
      */
     public get configName(): string {
-        return `${this.mApp}${Config.END_OF_TEAM_CONFIG}`;
+        return `${this.appName}${Config.END_OF_TEAM_CONFIG}`;
     }
 
     // _______________________________________________________________________
@@ -310,7 +313,7 @@ export class Config {
      * Filename used for user config JSONC files
      */
     public get userConfigName(): string {
-        return `${this.mApp}${Config.END_OF_USER_CONFIG}`;
+        return `${this.appName}${Config.END_OF_USER_CONFIG}`;
     }
 
     // _______________________________________________________________________
@@ -318,7 +321,7 @@ export class Config {
      * Filename used for config schema JSON files
      */
     public get schemaName(): string {
-        return `${this.mApp}.schema.json`;
+        return `${this.appName}.schema.json`;
     }
 
     // _______________________________________________________________________
@@ -337,7 +340,7 @@ export class Config {
         }
 
         const tempSchema = originalSchema.startsWith("file://") ? fileURLToPath(originalSchema) : originalSchema;
-        const schemaFilePath = path.resolve( tempSchema.startsWith("./") ? path.join(path.dirname(layer.path), tempSchema) : tempSchema);
+        const schemaFilePath = path.resolve(tempSchema.startsWith("./") ? path.join(path.dirname(layer.path), tempSchema) : tempSchema);
         return {
             original: originalSchema,
             resolved: !JsUtils.isUrl(tempSchema) ? schemaFilePath : originalSchema,
@@ -384,9 +387,13 @@ export class Config {
      *
      * @param propertyPath Property path
      * @param value Property value
-     * @param opts Include `secure: true` to store the property securely
+     * @param opts Optional parameters to change behavior
+     * * `parseString` - If true, strings will be converted to a more specific
+     *                   type like boolean or number when possible
+     * * `secure` - If true, the property will be stored securely.
+     *              If false, the property will be stored in plain text.
      */
-    public set(propertyPath: string, value: any, opts?: { secure?: boolean }) {
+    public set(propertyPath: string, value: any, opts?: { parseString?: boolean; secure?: boolean }) {
         opts = opts || {};
 
         const layer = this.layerActive();
@@ -397,15 +404,11 @@ export class Config {
                 obj[segment] = {};
                 obj = obj[segment];
             } else if (segments.indexOf(segment) === segments.length - 1) {
+                if (opts?.parseString) {
+                    value = coercePropValue(value);
+                }
 
-                // TODO: add ability to escape these values to string
-                if (value === "true")
-                    value = true;
-                if (value === "false")
-                    value = false;
-                if (!isNaN(value) && !isNaN(parseFloat(value)))
-                    value = parseInt(value, 10);
-                if (Array.isArray(obj[segment])) {
+                if (opts?.parseString && Array.isArray(obj[segment])) {
                     obj[segment].push(value);
                 } else {
                     obj[segment] = value;
@@ -499,8 +502,13 @@ export class Config {
             }
 
             // Merge "defaults" - only add new properties from this layer
-            for (const [name, value] of Object.entries(layer.properties.defaults))
+            for (const [name, value] of Object.entries(layer.properties.defaults)) {
                 c.defaults[name] = c.defaults[name] || value;
+            }
+
+            if (layer.properties.autoStore) {
+                c.autoStore = true;
+            }
         });
 
         // Merge the project layer profiles
@@ -617,7 +625,7 @@ export class Config {
      */
     public formMainConfigPathNm(options: any): string {
         // if a team configuration is not active, just return the file name.
-        let configPathNm: string = this.mApp + Config.END_OF_TEAM_CONFIG;
+        let configPathNm: string = this.appName + Config.END_OF_TEAM_CONFIG;
         if (options.addPath === false) {
             // if our caller does not want the path, just return the file name.
             return configPathNm;

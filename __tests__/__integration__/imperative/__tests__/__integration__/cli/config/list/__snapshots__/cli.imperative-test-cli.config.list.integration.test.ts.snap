@@ -16,6 +16,7 @@ exports[`imperative-test-cli config list should list the configuration 1`] = `
 defaults: 
   secured: secured
   base:    base
+autoStore: true
 "
 `;
 
@@ -36,6 +37,7 @@ exports[`imperative-test-cli config list should list the configuration without s
 defaults: 
   secured: secured
   base:    base
+autoStore: true
 "
 `;
 
@@ -63,5 +65,6 @@ base:
 exports[`imperative-test-cli config list should list the root level property names only 1`] = `
 "profiles
 defaults
+autoStore
 "
 `;

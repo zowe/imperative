@@ -22,6 +22,8 @@ import { ImperativeConfig } from "../../../../..";
 import { expectedConfigObject, expectedSchemaObject } from
     "../../../../../../__tests__/__integration__/imperative/__tests__/__integration__/cli/config/__resources__/expectedObjects";
 
+jest.mock("fs");
+
 const expectedConfigText = JSONC.stringify(expectedConfigObject, null, ConfigConstants.INDENT);
 const expectedConfigObjectWithoutSchema = lodash.omit(expectedConfigObject, "$schema");
 const expectedConfigTextWithoutSchema = JSONC.stringify(expectedConfigObjectWithoutSchema, null, ConfigConstants.INDENT);
@@ -58,6 +60,8 @@ const getIHandlerParametersObject = (): IHandlerParameters => {
 
 describe("Configuration Import command handler", () => {
     describe("handler", () => {
+        const readFileSyncSpy = jest.spyOn(fs, "readFileSync");
+        const writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
         const downloadSchemaSpy = jest.spyOn(ImportHandler.prototype as any, "downloadSchema");
         const fetchConfigSpy = jest.spyOn(ImportHandler.prototype as any, "fetchConfig");
         let teamConfig: Config;
@@ -81,39 +85,39 @@ describe("Configuration Import command handler", () => {
 
         it("should import config from local file", async () => {
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
-            jest.spyOn(fs, "readFileSync").mockReturnValueOnce(expectedConfigTextWithoutSchema);
-            jest.spyOn(fs, "writeFileSync").mockReturnValueOnce();
+            readFileSyncSpy.mockReturnValueOnce(expectedConfigTextWithoutSchema);
+            writeFileSyncSpy.mockReturnValueOnce();
 
             const params: IHandlerParameters = getIHandlerParametersObject();
             params.arguments.location = __dirname + "/fakeapp.config.json";
             await new ImportHandler().process(params);
 
-            expect(fs.readFileSync).toHaveBeenCalled();
+            expect(readFileSyncSpy).toHaveBeenCalled();
             expect(fetchConfigSpy).not.toHaveBeenCalled();
             expect(downloadSchemaSpy).not.toHaveBeenCalled();
-            expect(fs.writeFileSync).toHaveBeenCalledWith(path.join(process.cwd(), "fakeapp.config.json"),
+            expect(writeFileSyncSpy).toHaveBeenCalledWith(path.join(process.cwd(), "fakeapp.config.json"),
                 expectedConfigTextWithoutSchema);
         });
 
         it("should import config with schema from local file", async () => {
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(true);
-            jest.spyOn(fs, "readFileSync").mockReturnValueOnce(expectedConfigText);
-            jest.spyOn(fs, "writeFileSync").mockReturnValueOnce();
+            readFileSyncSpy.mockReturnValueOnce(expectedConfigText);
+            writeFileSyncSpy.mockReturnValueOnce();
 
             const params: IHandlerParameters = getIHandlerParametersObject();
             params.arguments.location = __dirname + "/fakeapp.config.json";
             await new ImportHandler().process(params);
 
-            expect(fs.readFileSync).toHaveBeenCalled();
+            expect(readFileSyncSpy).toHaveBeenCalled();
             expect(fetchConfigSpy).not.toHaveBeenCalled();
             expect(downloadSchemaSpy).toHaveBeenCalled();
-            expect(fs.writeFileSync).toHaveBeenCalledWith(path.join(process.cwd(), "fakeapp.config.json"),
+            expect(writeFileSyncSpy).toHaveBeenCalledWith(path.join(process.cwd(), "fakeapp.config.json"),
                 expectedConfigText);
         });
 
         it("should import config from web address", async () => {
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(false);
-            jest.spyOn(fs, "writeFileSync").mockReturnValueOnce();
+            writeFileSyncSpy.mockReturnValueOnce();
             fetchConfigSpy.mockResolvedValueOnce(expectedConfigObjectWithoutSchema);
 
             const params: IHandlerParameters = getIHandlerParametersObject();
@@ -122,13 +126,13 @@ describe("Configuration Import command handler", () => {
 
             expect(fetchConfigSpy).toHaveBeenCalled();
             expect(downloadSchemaSpy).not.toHaveBeenCalled();
-            expect(fs.writeFileSync).toHaveBeenCalledWith(path.join(process.cwd(), "fakeapp.config.json"),
+            expect(writeFileSyncSpy).toHaveBeenCalledWith(path.join(process.cwd(), "fakeapp.config.json"),
                 expectedConfigTextWithoutSchema);
         });
 
         it("should import config with schema from web address", async () => {
             jest.spyOn(fs, "existsSync").mockReturnValueOnce(false);
-            jest.spyOn(fs, "writeFileSync").mockReturnValueOnce();
+            writeFileSyncSpy.mockReturnValueOnce();
             fetchConfigSpy.mockResolvedValueOnce(expectedConfigObject);
 
             const params: IHandlerParameters = getIHandlerParametersObject();
@@ -137,7 +141,7 @@ describe("Configuration Import command handler", () => {
 
             expect(fetchConfigSpy).toHaveBeenCalled();
             expect(downloadSchemaSpy).toHaveBeenCalled();
-            expect(fs.writeFileSync).toHaveBeenCalledWith(path.join(process.cwd(), "fakeapp.config.json"),
+            expect(writeFileSyncSpy).toHaveBeenCalledWith(path.join(process.cwd(), "fakeapp.config.json"),
                 expectedConfigText);
         });
 
@@ -149,8 +153,8 @@ describe("Configuration Import command handler", () => {
             teamConfig.layerActive().exists = true;
             await new ImportHandler().process(params);
 
-            expect(fs.readFileSync).not.toHaveBeenCalled();
-            expect(fs.writeFileSync).not.toHaveBeenCalled();
+            expect(readFileSyncSpy).not.toHaveBeenCalled();
+            expect(writeFileSyncSpy).not.toHaveBeenCalled();
         });
     });
 

@@ -77,6 +77,7 @@ export * from "./src/response/CommandResponse";
 export * from "./src/profiles/CommandProfiles";
 
 export * from "./src/response/CommandResponse";
+export * from "./src/response/HandlerResponse";
 
 export * from "./src/doc/response/api/handler/IHandlerResponseApi";
 export * from "./src/doc/response/api/handler/IHandlerProgressApi";

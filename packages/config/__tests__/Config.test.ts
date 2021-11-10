@@ -12,7 +12,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as findUp from "find-up";
-import { ImperativeError } from "../..";
+import { ImperativeError } from "../../error/src/ImperativeError";
 import { Config } from "../src/Config";
 import { ConfigConstants } from "../src/ConfigConstants";
 import * as JSONC from "comment-json";
@@ -182,6 +182,25 @@ describe("Config tests", () => {
             expect(error.message).toContain(__dirname + "/__resources__");
             expect(error instanceof ImperativeError).toBe(true);
         });
+
+        it("should not actually load config that seems to exist but is malformed when noLoad specified", async () => {
+            jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/badproject.config.json");
+            jest.spyOn(fs, "existsSync")
+                .mockReturnValueOnce(false)     // Project user layer
+                .mockReturnValueOnce(true)      // Project layer
+                .mockReturnValueOnce(false)     // User layer
+                .mockReturnValueOnce(false);    // Global layer
+            jest.spyOn(fs, "readFileSync");
+            let readError: any;
+            const config = await Config.load(MY_APP, {noLoad: true});
+            try {
+                for (const layer of config.mLayers) { await config.api.layers.read(layer); }
+            } catch (err) {
+                readError = err;
+            }
+            expect(readError).toBeDefined();
+            expect(config.properties).toMatchSnapshot();
+        });
     });
 
     it("should return the app name", () => {
@@ -236,28 +255,36 @@ describe("Config tests", () => {
 
         it("should set boolean true in config", async () => {
             const config = await Config.load(MY_APP);
-            config.set("profiles.fruit.profiles.apple.properties.ripe", "true");
+            config.set("profiles.fruit.profiles.apple.properties.ripe", "true", { parseString: true });
             expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(true);
+            config.set("profiles.fruit.profiles.apple.properties.ripe", "true");
+            expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe("true");
         });
 
         it("should set boolean false in config", async () => {
             const config = await Config.load(MY_APP);
-            config.set("profiles.fruit.profiles.apple.properties.ripe", "false");
+            config.set("profiles.fruit.profiles.apple.properties.ripe", "false", { parseString: true });
             expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(false);
+            config.set("profiles.fruit.profiles.apple.properties.ripe", "false");
+            expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe("false");
         });
 
         it("should set integer value in config", async () => {
             const config = await Config.load(MY_APP);
-            config.set("profiles.fruit.profiles.apple.properties.price", "2");
+            config.set("profiles.fruit.profiles.apple.properties.price", "2", { parseString: true });
             expect(config.properties.profiles.fruit.profiles.apple.properties.price).toBe(2);
+            config.set("profiles.fruit.profiles.apple.properties.price", "2");
+            expect(config.properties.profiles.fruit.profiles.apple.properties.price).toBe("2");
         });
 
         it("should append to array value in config", async () => {
             const config = await Config.load(MY_APP);
             config.set("profiles.fruit.properties.tags", []);
-            config.set("profiles.fruit.properties.tags", "sweet");
+            config.set("profiles.fruit.properties.tags", "sweet", { parseString: true });
             expect(config.properties.profiles.fruit.properties.tags.length).toBe(1);
             expect(config.properties.profiles.fruit.properties.tags[0]).toBe("sweet");
+            config.set("profiles.fruit.properties.tags", "sweet");
+            expect(config.properties.profiles.fruit.properties.tags).toBe("sweet");
         });
 
         it("should set secure string value in config", async () => {
@@ -324,7 +351,7 @@ describe("Config tests", () => {
 
         it("should set boolean true in config", async () => {
             const config = await Config.load(MY_APP);
-            config.set("profiles.fruit.profiles.apple.properties.ripe", "true");
+            config.set("profiles.fruit.profiles.apple.properties.ripe", "true", { parseString: true });
             expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(true);
 
             const layer = (config as any).layerActive();
@@ -336,7 +363,7 @@ describe("Config tests", () => {
 
         it("should set boolean false in config", async () => {
             const config = await Config.load(MY_APP);
-            config.set("profiles.fruit.profiles.apple.properties.ripe", "false");
+            config.set("profiles.fruit.profiles.apple.properties.ripe", "false", { parseString: true });
             expect(config.properties.profiles.fruit.profiles.apple.properties.ripe).toBe(false);
 
             const layer = (config as any).layerActive();
@@ -348,7 +375,7 @@ describe("Config tests", () => {
 
         it("should set integer value in config", async () => {
             const config = await Config.load(MY_APP);
-            config.set("profiles.fruit.profiles.apple.properties.price", "2");
+            config.set("profiles.fruit.profiles.apple.properties.price", "2", { parseString: true });
             expect(config.properties.profiles.fruit.profiles.apple.properties.price).toBe(2);
 
             const layer = (config as any).layerActive();
@@ -360,7 +387,7 @@ describe("Config tests", () => {
 
         it("should append to array value in config", async () => {
             const config = await Config.load(MY_APP);
-            config.set("profiles.fruit.properties.tags", "sweet");
+            config.set("profiles.fruit.properties.tags", "sweet", { parseString: true });
             expect(config.properties.profiles.fruit.properties.tags.length).toBe(1);
             expect(config.properties.profiles.fruit.properties.tags[0]).toBe("sweet");
 

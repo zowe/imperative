@@ -17,7 +17,7 @@ import { SessConstants } from "../../../../rest";
 import { ImperativeConfig } from "../../../../utilities";
 import { Config } from "../../../../config";
 import { IConfigSecure } from "../../../../config/src/doc/IConfigSecure";
-import { FakeAuthHandler } from "./__data__/FakeAuthHandler";
+import FakeAuthHandler from "./__data__/FakeAuthHandler";
 import { CredentialManagerFactory } from "../../../../security";
 import { ImperativeError } from "../../../..";
 

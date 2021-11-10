@@ -2,10 +2,11 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+<<<<<<< HEAD
 ## Recent Changes
 
 - **Breaking**: Use JSON-based communication protocol between imperative daemon server and client.
-
+=======
 ## `5.0.0-next.202111101806`
 
 - Enhancement: Added `dry-run` option for `zowe config init` command to preview changes instead of saving them to disk. [#1037](https://github.com/zowe/zowe-cli/issues/1037)
@@ -22,6 +23,7 @@ All notable changes to the Imperative package will be documented in this file.
 - **LTS Breaking**
     - Changed the return value of the public `PluginManagementFacility.requirePluginModuleCallback` function
 - BugFix: Updated the profiles list as soon as the plugin is installed.
+>>>>>>> origin/next
 
 ## `5.0.0-next.202110191937`
 

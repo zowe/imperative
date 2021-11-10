@@ -12,7 +12,7 @@
 import { IHandlerParameters } from "../../../../cmd";
 import { Imperative } from "../../Imperative";
 import { ImperativeConfig } from "../../../..";
-import { FakeAuthHandler } from "./__data__/FakeAuthHandler";
+import FakeAuthHandler from "./__data__/FakeAuthHandler";
 
 describe("BaseAuthHandler", () => {
     const mockSaveProfile = jest.fn();
