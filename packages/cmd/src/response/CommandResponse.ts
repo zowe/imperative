@@ -718,7 +718,7 @@ export class CommandResponse implements ICommandResponseApi {
                  * TODO: get from config - default value is below
                  */
                 private mProgressBarSpinnerChars: string = "-oO0)|(0Oo-";
-                private mDaemonProgressBarSpinnerChars = this.mProgressBarSpinnerChars.split("").map((char) => char + "\f");
+                private mDaemonProgressBarSpinnerChars = this.mProgressBarSpinnerChars.split("").map((char) => char + DaemonRequest.EOW_DELIMITER);
 
                 /**
                  * Start a progress bar (assuming silent mode is not enabled).
@@ -796,7 +796,7 @@ export class CommandResponse implements ICommandResponseApi {
 
                         // NOTE(Kelosky): ansi escape codes for progress bar cursor and line clearing are written on the socket
                         // so we need to ensure they're emptied out before we write to the stream.
-                        if (this.mIsDaemon) outer.writeStream(`\f`);
+                        if (this.mIsDaemon) outer.writeStream(DaemonRequest.EOW_DELIMITER);
 
                         outer.writeStdout(outer.mStdout.subarray(this.mProgressBarStdoutStartIndex));
                         outer.writeStderr(outer.mStderr.subarray(this.mProgressBarStderrStartIndex));

@@ -18,6 +18,19 @@ import { IDaemonRequest } from "./doc/IDaemonRequest";
  */
 export class DaemonRequest {
 
+    /**
+     * End of writing delimiter
+     * @static
+     * @type {string}
+     * @memberof DaemonRequest
+     */
+    public static readonly EOW_DELIMITER: string = "\f";
+
+    /**
+     *Creates an instance of DaemonRequest.
+     * @param {IDaemonRequest} request
+     * @memberof DaemonRequest
+     */
     constructor(private request: IDaemonRequest) {
         this.request = request;
     }
@@ -45,6 +58,6 @@ export class DaemonRequest {
      * @memberof DaemonRequest
      */
     private build(): string {
-        return JSON.stringify(this.request) + "\f";
+        return JSON.stringify(this.request) + DaemonRequest.EOW_DELIMITER;
     }
 }
