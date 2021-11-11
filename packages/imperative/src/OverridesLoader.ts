@@ -10,7 +10,7 @@
 */
 
 import { IImperativeOverrides } from "./doc/IImperativeOverrides";
-import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
+import { CredentialManagerFactory } from "../../security";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import { isAbsolute, resolve } from "path";
 import { AppSettings } from "../../settings";
@@ -35,37 +35,17 @@ export class OverridesLoader {
         packageJson: any
     ): Promise<void> {
         // Initialize the Credential Manager
-        await (ImperativeConfig.instance.config?.exists ? this.loadCredentialManager : this.loadCredentialManagerOld)(config, packageJson);
+        await this.loadCredentialManager(config, packageJson, ImperativeConfig.instance.config?.exists);
     }
 
     /**
-     * Load the baked-in zowe CredentialManager and initialize it.
-     * If we need to reinstate 3rd party overrides, delete this function and
-     * rename loadCredentialManagerOld.
-     *
-     * @internal
-     * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
-     * @param {any} packageJson - the current package.json
+     * Ensure the Credential Manager is initialized for team config.
      */
-    public static async loadCredentialManager(
-        config: IImperativeConfig,
-        packageJson: any
-    ): Promise<void> {
-        if (packageJson.dependencies?.keytar != null || packageJson.optionalDependencies?.keytar != null) {
-            // Load the CredentialManager built into Imperative for managing secure properties
-            await CredentialManagerFactory.initialize({
-                // The display name will be the plugin name that introduced the override OR it will default to the CLI name
-                displayName: config.productDisplayName || config.name,
-                // For overrides, the service could be the CLI name, but we do not override anymore.
-                // Null will use the service name of the built-in credential manager.
-                service: config.credentialServiceName || null,
-                // If the default is to be used, we won't implant the invalid credential manager.
-                // We do not use the invalid credential manager, since we no longer allow overrides.
-                invalidOnFailure: false
-            });
-        }
+    public static async ensureCredentialManagerLoaded(): Promise<void> {
+        if (CredentialManagerFactory.initialized) return;
 
-        await OverridesLoader.loadSecureConfig();
+        await this.loadCredentialManager(ImperativeConfig.instance.loadedConfig,
+            ImperativeConfig.instance.callerPackageJson, true);
     }
 
     /**
@@ -74,33 +54,37 @@ export class OverridesLoader {
      * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
      * @param {any} packageJson - the current package.json
      */
-    private static async loadCredentialManagerOld(
+    private static async loadCredentialManager(
         config: IImperativeConfig,
-        packageJson: any
+        packageJson: any,
+        useTeamConfig?: boolean
     ): Promise<void> {
-        const overrides: IImperativeOverrides = config.overrides;
-
-        const ZOWE_CLI_PACKAGE_NAME = `@zowe/cli`;
+        const overrides: IImperativeOverrides = config.overrides || {};
 
         // The manager display name used to populate the "managed by" fields in profiles
         const displayName: string = (
             overrides.CredentialManager != null
-            && AppSettings.initialized
-            && AppSettings.instance.getNamespace("overrides") != null
-            && AppSettings.instance.get("overrides", "CredentialManager") != null
-            && AppSettings.instance.get("overrides", "CredentialManager") !== false
+        && AppSettings.initialized
+        && AppSettings.instance.getNamespace("overrides") != null
+        && AppSettings.instance.get("overrides", "CredentialManager") != null
+        && AppSettings.instance.get("overrides", "CredentialManager") !== false
         ) ?
-            // App settings is configured - use the plugin name for the manager name
+        // App settings is configured - use the plugin name for the manager name
             AppSettings.instance.get("overrides", "CredentialManager") as string
             :
-            // App settings is not configured - use the CLI display name OR the package name as the manager name
+        // App settings is not configured - use the CLI display name OR the package name as the manager name
             config.productDisplayName || config.name;
 
+        // Load keytar if listed as a dependency in package.json
+        const cliHasKeytar: boolean = (packageJson.dependencies?.keytar != null || packageJson.optionalDependencies?.keytar != null) &&
+            (useTeamConfig || overrides.CredentialManager === packageJson.name);
+
         // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
-        if (overrides.CredentialManager != null || packageJson.dependencies?.keytar != null) {
+        if (overrides.CredentialManager != null || cliHasKeytar) {
             let Manager = overrides.CredentialManager;
             if (typeof overrides.CredentialManager === "string" && !isAbsolute(overrides.CredentialManager)) {
-                Manager = resolve(process.mainModule.filename, "../", overrides.CredentialManager);
+                Manager = (overrides.CredentialManager !== packageJson.name) ?
+                    resolve(process.mainModule.filename, "../", overrides.CredentialManager) : undefined;
             }
 
             await CredentialManagerFactory.initialize({
@@ -108,16 +92,14 @@ export class OverridesLoader {
                 Manager,
                 // The display name will be the plugin name that introduced the override OR it will default to the CLI name
                 displayName,
-
-                // zowe cli will always add `Zowe` to it's list of service names
-                service: config?.name === ZOWE_CLI_PACKAGE_NAME ? DefaultCredentialManager.SVC_NAME : config?.name,
-
+                // The service is always the CLI name (Keytar and other plugins can use this to uniquely identify the service)
+                service: useTeamConfig ? null : config.name,
                 // If the default is to be used, we won't implant the invalid credential manager
                 invalidOnFailure: !(Manager == null)
             });
         }
 
-        await OverridesLoader.loadSecureConfig();
+        if (useTeamConfig) await OverridesLoader.loadSecureConfig();
     }
 
     /**
