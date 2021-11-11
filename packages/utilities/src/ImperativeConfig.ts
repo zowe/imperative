@@ -96,6 +96,15 @@ export class ImperativeConfig {
     }
 
     /**
+     * Get the configured environmental variable prefix for the user's CLI
+     * @returns {string} - the configured or default prefix for environmental variables for use in the environmental variable service
+     */
+    public get envVariablePrefix(): string {
+        return ImperativeConfig.instance.loadedConfig.envVariablePrefix == null ? ImperativeConfig.instance.loadedConfig.name :
+            ImperativeConfig.instance.loadedConfig.envVariablePrefix;
+    }
+
+    /**
      * Set the caller location.
      * @param {string} location new location to be updated with
      */

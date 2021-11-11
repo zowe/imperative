@@ -34,6 +34,7 @@ import * as tty from "tty";
 import { IPromptOptions } from "../doc/response/api/handler/IPromptOptions";
 import { DaemonRequest } from "../../../utilities/src/DaemonRequest";
 import { IDaemonResponse } from "../../../utilities/src/doc/IDaemonResponse";
+import { Logger, LoggerUtils } from "../../../logger";
 
 const DataObjectParser = require("dataobject-parser");
 
@@ -547,15 +548,12 @@ export class CommandResponse implements ICommandResponseApi {
                  * @returns {string} - The formatted data or the original data.toString() if a buffer was passed
                  */
                 public log(message: string | Buffer, ...values: any[]): string {
+                    let msg: string = LoggerUtils.censorRawData(message.toString(), Logger.DEFAULT_CONSOLE_NAME);
                     if (!Buffer.isBuffer(message)) {
-                        let msg: string = outer.formatMessage(message.toString(), ...values);
-                        msg += "\n";
-                        outer.writeAndBufferStdout(msg);
-                        return msg;
-                    } else {
-                        outer.writeAndBufferStdout(message);
-                        return message.toString();
+                        msg = outer.formatMessage(msg.toString(), ...values) + "\n";
                     }
+                    outer.writeAndBufferStdout(msg);
+                    return msg;
                 }
 
                 /**
@@ -566,16 +564,12 @@ export class CommandResponse implements ICommandResponseApi {
                  * @returns {string} - The formatted data, or the original data.toString() if a buffer was passed
                  */
                 public error(message: string | Buffer, ...values: any[]): string {
+                    let msg: string = LoggerUtils.censorRawData(message.toString(), Logger.DEFAULT_CONSOLE_NAME);
                     if (!Buffer.isBuffer(message)) {
-                        let msg: string = outer.formatMessage(message.toString(), ...values);
-                        msg += "\n";
-                        outer.writeAndBufferStderr(msg);
-                        return msg;
-                    } else {
-                        outer.writeAndBufferStderr(message);
-                        return message.toString();
+                        msg = outer.formatMessage(msg.toString(), ...values) + "\n";
                     }
-
+                    outer.writeAndBufferStderr(msg);
+                    return msg;
                 }
 
                 /**
@@ -1028,21 +1022,21 @@ export class CommandResponse implements ICommandResponseApi {
     /**
      * Writes the data to stdout
      * @private
-     * @param {*} data - the data to write
+     * @param {(Buffer | string)} data - the data to write
      * @memberof CommandResponse
      */
-    private writeStdout(data: any) {
+    private writeStdout(data: Buffer | string) {
         process.stdout.write(data);
-        this.writeStream(DaemonRequest.create({ stdout: data }));
+        this.writeStream(DaemonRequest.create({ stdout: data.toString() }));
     }
 
     /**
      * Writes data to stream if provided (for daemon mode)
      * @private
-     * @param {*} data
+     * @param {(Buffer | string)} data
      * @memberof CommandResponse
      */
-    private writeStream(data: any) {
+    private writeStream(data: Buffer | string) {
         if (this.mStream) {
             this.mStream.write(data);
         }
@@ -1064,12 +1058,12 @@ export class CommandResponse implements ICommandResponseApi {
     /**
      * Writes the data to stderr
      * @private
-     * @param {*} data - the data to write to stderr
+     * @param {(Buffer | string)} data - the data to write to stderr
      * @memberof CommandResponse
      */
-    private writeStderr(data: any) {
+    private writeStderr(data: Buffer | string) {
         process.stderr.write(data);
-        this.writeStream(DaemonRequest.create({ stderr: data }));
+        this.writeStream(DaemonRequest.create({ stderr: data.toString() }));
     }
 
     /**

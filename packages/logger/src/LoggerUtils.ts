@@ -10,7 +10,10 @@
 */
 
 import { Arguments } from "yargs";
+import { EnvironmentalVariableSettings } from "../../imperative/src/env/EnvironmentalVariableSettings";
 import { CliUtils } from "../../utilities/src/CliUtils";
+import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
+import * as lodash from "lodash";
 
 export class LoggerUtils {
     public static readonly CENSOR_RESPONSE = "****";
@@ -25,7 +28,8 @@ export class LoggerUtils {
      */
     public static censorCLIArgs(args: string[]): string[] {
         const newArgs: string[] = JSON.parse(JSON.stringify(args));
-        const censoredValues = LoggerUtils.CENSORED_OPTIONS.map(CliUtils.getDashFormOfOption);
+        const censoredList: string[] = LoggerUtils.CENSORED_OPTIONS;
+        const censoredValues = censoredList.map(CliUtils.getDashFormOfOption);
         for (const value of censoredValues) {
             if (args.indexOf(value) >= 0) {
                 const valueIndex = args.indexOf(value);
@@ -44,9 +48,9 @@ export class LoggerUtils {
      */
     public static censorYargsArguments(args: Arguments): Arguments {
         const newArgs: Arguments = JSON.parse(JSON.stringify(args));
-
+        const censoredList: string[] = LoggerUtils.CENSORED_OPTIONS;
         for (const optionName of Object.keys(newArgs)) {
-            if (LoggerUtils.CENSORED_OPTIONS.indexOf(optionName) >= 0) {
+            if (censoredList.indexOf(optionName) >= 0) {
                 const valueToCensor = newArgs[optionName];
                 newArgs[optionName] = LoggerUtils.CENSOR_RESPONSE;
                 for (const checkAliasKey of Object.keys(newArgs)) {
@@ -57,5 +61,31 @@ export class LoggerUtils {
             }
         }
         return newArgs;
+    }
+
+    /**
+     * Copy and censor any sensitive CLI arguments before logging/printing
+     * @param {string} data
+     * @returns {string}
+     */
+    public static censorRawData(data: string, category: string = ""): string {
+        // Return the data if not using config
+        if (!ImperativeConfig.instance.config?.exists) return data;
+
+        // Return the data if we are printing to the console and masking is disabled
+        const envMaskOutput = EnvironmentalVariableSettings.read(ImperativeConfig.instance.envVariablePrefix).maskOutput.value;
+        // Hardcoding "console" instead of using Logger.DEFAULT_CONSOLE_NAME because of circular dependencies
+        if (category === "console" && envMaskOutput.toUpperCase() === "FALSE") return data;
+
+        let newData = data;
+        const config = ImperativeConfig.instance.config;
+        const layer = config.api.layers.get();
+        const secProps = config.api.secure.secureFields();
+        for (const prop of secProps) {
+            const sec = lodash.get(layer.properties, prop);
+            if (sec && !prop.endsWith(".user") && !prop.endsWith(".password") && !prop.endsWith(".tokenValue"))
+                newData = newData.replace(new RegExp(sec, "gi"), LoggerUtils.CENSOR_RESPONSE);
+        }
+        return newData;
     }
 }

@@ -16,6 +16,10 @@ Object {
     "key": "MOCK_PROCESS_APP_TEST_PREFIX_IMPERATIVE_LOG_LEVEL",
     "value": undefined,
   },
+  "maskOutput": Object {
+    "key": "MOCK_PROCESS_APP_TEST_PREFIX_APP_MASK_OUTPUT",
+    "value": "TRUE",
+  },
   "promptPhrase": Object {
     "key": "MOCK_PROCESS_APP_TEST_PREFIX_PROMPT_PHRASE",
     "value": undefined,
@@ -36,6 +40,10 @@ Object {
   "imperativeLogLevel": Object {
     "key": "MOCK_PROCESS_IMP_AND_APP_TEST_PREFIX_IMPERATIVE_LOG_LEVEL",
     "value": "SOME_EXTREME",
+  },
+  "maskOutput": Object {
+    "key": "MOCK_PROCESS_IMP_AND_APP_TEST_PREFIX_APP_MASK_OUTPUT",
+    "value": "TRUE",
   },
   "promptPhrase": Object {
     "key": "MOCK_PROCESS_IMP_AND_APP_TEST_PREFIX_PROMPT_PHRASE",
@@ -59,6 +67,10 @@ Object {
   "imperativeLogLevel": Object {
     "key": "MOCK_PROCESS_IMP_TEST_PREFIX_IMPERATIVE_LOG_LEVEL",
     "value": "EXTREME",
+  },
+  "maskOutput": Object {
+    "key": "MOCK_PROCESS_IMP_TEST_PREFIX_APP_MASK_OUTPUT",
+    "value": "TRUE",
   },
   "promptPhrase": Object {
     "key": "MOCK_PROCESS_IMP_TEST_PREFIX_PROMPT_PHRASE",
@@ -87,6 +99,10 @@ Object {
     "key": "MY_PREFIX_IMPERATIVE_LOG_LEVEL",
     "value": undefined,
   },
+  "maskOutput": Object {
+    "key": "MY_PREFIX_APP_MASK_OUTPUT",
+    "value": "TRUE",
+  },
   "promptPhrase": Object {
     "key": "MY_PREFIX_PROMPT_PHRASE",
     "value": undefined,
@@ -111,6 +127,10 @@ Object {
   "imperativeLogLevel": Object {
     "key": "_(){}[]$*+-\\\\/\\"#',;.@!?a1234567890_IMPERATIVE_LOG_LEVEL",
     "value": undefined,
+  },
+  "maskOutput": Object {
+    "key": "_(){}[]$*+-\\\\/\\"#',;.@!?a1234567890_APP_MASK_OUTPUT",
+    "value": "TRUE",
   },
   "promptPhrase": Object {
     "key": "_(){}[]$*+-\\\\/\\"#',;.@!?a1234567890_PROMPT_PHRASE",
