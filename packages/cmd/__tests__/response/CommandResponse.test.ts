@@ -166,8 +166,9 @@ describe("Command Response", () => {
             });
         const oneSecond = 1;
         setTimeout(() => {
-            // turn off the progress bar - t he details should be set
-            response.progress.endBar();
+            // force updateProgressBar to trigger the `endBar` call
+            (response.progress as any).mProgressTask.stageName = TaskStage.COMPLETE;
+            (response.progress as any).updateProgressBar();
             expect((response as any).mProgressBar).toBeUndefined();
             expect((response.progress as any).mProgressBarInterval).toBeUndefined();
             done();
