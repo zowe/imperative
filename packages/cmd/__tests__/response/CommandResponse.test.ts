@@ -143,7 +143,7 @@ describe("Command Response", () => {
         }, oneSecond);
     });
 
-    it("should work if the progress bar is directed to a socket stream", (done) => {  // eslint-disable-line jest/no-done-callback
+    it("should allow the progress bar to write directly to a socket stream", (done) => {  // eslint-disable-line jest/no-done-callback
         const response = new CommandResponse({ silent: false, responseFormat: "default", stream });
         const status: ITaskWithStatus = {
             statusMessage: "Making a bar",
@@ -157,6 +157,8 @@ describe("Command Response", () => {
             });
         expect((response as any).mProgressBar).toBeDefined(); // access private fields
         expect((response.progress as any).mProgressBarInterval).toBeDefined();
+        expect((response.progress as any).mIsDaemon).toBe(true);
+        (response.progress as any).updateProgressBar();
         TestLogger.debug("Progress bar was created. Details:\n{{progressBar}}\nInterval identifier:\n{{interval}}",
             {
                 progressBar: inspect((response as any).progressBar),
