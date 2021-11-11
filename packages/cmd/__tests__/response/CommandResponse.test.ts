@@ -18,7 +18,7 @@ import { inspect } from "util";
 import { TestLogger } from "../../../../__tests__/TestLogger";
 import { IO } from "../../../io";
 import { OUTPUT_FORMAT } from "../..";
-import { CliUtils, DaemonUtils } from "../../../utilities";
+import { CliUtils, IDaemonResponse } from "../../../utilities";
 
 const EXAMPLE_LIST = [
     "banana",
@@ -364,14 +364,14 @@ describe("Command Response", () => {
         const responseMessage = "daemon response";
 
         // construct the response in a proper protocol header (see DaemonUtils.ts)
-        const headerResponseMessage = DaemonUtils.X_ZOWE_DAEMON_REPLY + responseMessage;
+        const daemonResponse: IDaemonResponse = { id: "test", reply: responseMessage };
 
         // simulate a .on(data...) method
         const eventStream = jest.fn((event: string, func: (data: any) => void) => {
-            func(Buffer.from(headerResponseMessage));
+            func(Buffer.from(JSON.stringify(daemonResponse)));
         });
 
-        // ignore writestream, we just make sure that it's called, it will send a request our
+        // ignore writestream, we just make sure that it's called, it will send a request to our
         // simulated daemon client asking for a response.
         const writeStream = jest.fn((data) => {
             // do nothing
