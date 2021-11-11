@@ -57,7 +57,7 @@ describe("OverridesLoader", () => {
             expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(0);
         });
 
-        it("should load the default when not passed any configuration and keytar is present in dependencies.", async () => {
+        it("should not set a credential manager if there are no overrides and keytar is present in dependencies", async () => {
             const config: IImperativeConfig = {
                 name: "ABCD",
                 overrides: {},
@@ -66,6 +66,30 @@ describe("OverridesLoader", () => {
 
             // Fake out package.json for the overrides loader
             const packageJson = {
+                name: "host-package",
+                dependencies: {
+                    keytar: "1.0"
+                }
+            };
+
+            await OverridesLoader.load(config, packageJson);
+
+            // It should not have called initialize
+            expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(0);
+        });
+
+        it("should load the default when override matches host package name and keytar is present in dependencies", async () => {
+            const config: IImperativeConfig = {
+                name: "ABCD",
+                overrides: {
+                    CredentialManager: "host-package"
+                },
+                productDisplayName: "a fake CLI"
+            };
+
+            // Fake out package.json for the overrides loader
+            const packageJson = {
+                name: "host-package",
                 dependencies: {
                     keytar: "1.0"
                 }
@@ -180,8 +204,12 @@ describe("OverridesLoader", () => {
             beforeEach(() => {
                 jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
                     config: {
-                        exists: () => true,
-                        secureLoad: jest.fn()
+                        api: {
+                            secure: {
+                                load: jest.fn()
+                            }
+                        },
+                        exists: () => true
                     }
                 } as any);
             });
@@ -201,7 +229,7 @@ describe("OverridesLoader", () => {
                 expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(0);
             });
 
-            it("should load the default when keytar is present in dependencies.", async () => {
+            it("should load the default when keytar is present in dependencies", async () => {
                 const config: IImperativeConfig = {
                     name: "ABCD",
                     overrides: {}
@@ -225,7 +253,7 @@ describe("OverridesLoader", () => {
                 });
             });
 
-            it("should load the default when keytar is present in optional dependencies.", async () => {
+            it("should load the default when keytar is present in optional dependencies", async () => {
                 const config: IImperativeConfig = {
                     name: "ABCD",
                     overrides: {}
@@ -253,14 +281,6 @@ describe("OverridesLoader", () => {
                 const config: IImperativeConfig = {
                     name: "ABCD",
                     overrides: {}
-                };
-
-                (ImperativeConfig.instance.config as any) = {
-                    api: {
-                        secure: {
-                            load: jest.fn()
-                        }
-                    }
                 };
 
                 // Fake out package.json for the overrides loader
