@@ -382,8 +382,12 @@ describe("Command Response", () => {
             // do nothing
         });
 
+        const endStream = jest.fn(() => {
+            // do nothing
+        });
+
         // build our pseudo socket object
-        const socket: any = {on: eventStream, write: writeStream, removeListener};
+        const socket: any = {on: eventStream, write: writeStream, removeListener, end: endStream};
 
         // create response object
         const response = new CommandResponse({stream: socket});
@@ -397,6 +401,7 @@ describe("Command Response", () => {
         // prompt the daemon client
         const msg: string = "please give me a message";
         const answer = await response.console.prompt(msg);
+        response.endStream(); // terminate
 
         // restore
         process.stdout.write = ORIGINAL_STDOUT_WRITE;
@@ -404,6 +409,7 @@ describe("Command Response", () => {
         expect(write).not.toHaveBeenCalled();
         expect(writeStream).toHaveBeenCalled();
         expect(removeListener).toHaveBeenCalled();
+        expect(endStream).toHaveBeenCalled();
         expect(answer).toBe(responseMessage);
     });
 
