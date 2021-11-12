@@ -55,6 +55,7 @@ export class OverridesLoader {
      *
      * @param {IImperativeConfig} config - the current {@link Imperative#loadedConfig}
      * @param {any} packageJson - the current package.json
+     * @param {boolean} useTeamConfig - specify True if team config is active
      */
     private static async loadCredentialManager(
         config: IImperativeConfig,
@@ -77,15 +78,9 @@ export class OverridesLoader {
             // App settings is not configured - use the CLI display name OR the package name as the manager name
             config.productDisplayName || config.name;
 
-        // Load keytar if listed as a dependency in package.json, and one of the following is true:
-        // (1) AppSettings are not initialized (SDK usage)
-        // (2) Team config is active (CLI with v2 profiles)
-        // (3) CredentialManager override is host package name (CLI with v1 profiles)
-        const cliHasKeytar: boolean = (packageJson.dependencies?.keytar != null || packageJson.optionalDependencies?.keytar != null) &&
-            (!AppSettings.initialized || useTeamConfig || overrides.CredentialManager === packageJson.name);
-
         // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
-        if ((overrides.CredentialManager != null && overrides.CredentialManager !== packageJson.name) || cliHasKeytar) {
+        if ((overrides.CredentialManager != null && overrides.CredentialManager !== packageJson.name) ||
+            this.shouldUseKeytar(overrides, packageJson, useTeamConfig)) {
             let Manager = overrides.CredentialManager;
             if (typeof overrides.CredentialManager === "string" && !isAbsolute(overrides.CredentialManager)) {
                 Manager = (overrides.CredentialManager !== packageJson.name) ?
@@ -105,6 +100,22 @@ export class OverridesLoader {
         }
 
         await OverridesLoader.loadSecureConfig();
+    }
+
+    /**
+     * Check if the DefaultCredentialManager which uses keytar should be enabled.
+     * We require that keytar is listed as a dependency in package.json, and one of the following is true:
+     *  1. AppSettings are not initialized (SDK usage)
+     *  2. Team config is active (CLI with v2 profiles)
+     *  3. CredentialManager override is host package name (CLI with v1 profiles)
+     * @param overrides Imperative overrides object that includes CredentialManager
+     * @param packageJson The current package.json of the CLI package
+     * @param useTeamConfig Specify True if team config is active
+     * @returns True if DefaultCredentialManager should be used
+     */
+    private static shouldUseKeytar(overrides: IImperativeOverrides, packageJson: any, useTeamConfig: boolean): boolean {
+        return (packageJson.dependencies?.keytar != null || packageJson.optionalDependencies?.keytar != null) &&
+            (!AppSettings.initialized || useTeamConfig || overrides.CredentialManager === packageJson.name);
     }
 
     /**
