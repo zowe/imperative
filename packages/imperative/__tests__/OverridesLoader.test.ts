@@ -342,7 +342,7 @@ describe("OverridesLoader", () => {
         const callerPackageJson = { name: "host-package" };
         const loadedConfig = "fakeConfig";
         const mockSecureLoad = jest.fn();
-        let loadCredMgrSpy;
+        let loadCredMgrSpy: any;
 
         beforeEach(() => {
             jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
