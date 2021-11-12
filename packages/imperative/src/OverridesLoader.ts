@@ -10,7 +10,7 @@
 */
 
 import { IImperativeOverrides } from "./doc/IImperativeOverrides";
-import { CredentialManagerFactory } from "../../security";
+import { CredentialManagerFactory, DefaultCredentialManager } from "../../security";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import { isAbsolute, resolve } from "path";
 import { AppSettings } from "../../settings";
@@ -23,6 +23,8 @@ import { Logger } from "../../logger";
  * You should not need to call this from your CLI.
  */
 export class OverridesLoader {
+    private static readonly ZOWE_CLI_PACKAGE_NAME = "@zowe/cli";
+
     /**
      * Apply overrides to all applicable facilities and use our defaults where
      * an override is not provided.
@@ -59,25 +61,28 @@ export class OverridesLoader {
         packageJson: any,
         useTeamConfig?: boolean
     ): Promise<void> {
-        const overrides: IImperativeOverrides = config.overrides || {};
+        const overrides: IImperativeOverrides = config.overrides;
 
         // The manager display name used to populate the "managed by" fields in profiles
         const displayName: string = (
             overrides.CredentialManager != null
-        && AppSettings.initialized
-        && AppSettings.instance.getNamespace("overrides") != null
-        && AppSettings.instance.get("overrides", "CredentialManager") != null
-        && AppSettings.instance.get("overrides", "CredentialManager") !== false
+            && AppSettings.initialized
+            && AppSettings.instance.getNamespace("overrides") != null
+            && AppSettings.instance.get("overrides", "CredentialManager") != null
+            && AppSettings.instance.get("overrides", "CredentialManager") !== false
         ) ?
-        // App settings is configured - use the plugin name for the manager name
+            // App settings is configured - use the plugin name for the manager name
             AppSettings.instance.get("overrides", "CredentialManager") as string
             :
-        // App settings is not configured - use the CLI display name OR the package name as the manager name
+            // App settings is not configured - use the CLI display name OR the package name as the manager name
             config.productDisplayName || config.name;
 
-        // Load keytar if listed as a dependency in package.json
+        // Load keytar if listed as a dependency in package.json, and one of the following is true:
+        // (1) AppSettings are not initialized (SDK usage)
+        // (2) Team config is active (CLI with v2 profiles)
+        // (3) CredentialManager override is host package name (CLI with v1 profiles)
         const cliHasKeytar: boolean = (packageJson.dependencies?.keytar != null || packageJson.optionalDependencies?.keytar != null) &&
-            (useTeamConfig || overrides.CredentialManager === packageJson.name);
+            (!AppSettings.initialized || useTeamConfig || overrides.CredentialManager === packageJson.name);
 
         // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
         if (overrides.CredentialManager != null || cliHasKeytar) {
@@ -93,7 +98,7 @@ export class OverridesLoader {
                 // The display name will be the plugin name that introduced the override OR it will default to the CLI name
                 displayName,
                 // The service is always the CLI name (Keytar and other plugins can use this to uniquely identify the service)
-                service: useTeamConfig ? null : config.name,
+                service: config.name === this.ZOWE_CLI_PACKAGE_NAME ? DefaultCredentialManager.SVC_NAME : config.name,
                 // If the default is to be used, we won't implant the invalid credential manager
                 invalidOnFailure: !(Manager == null)
             });

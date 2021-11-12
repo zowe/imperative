@@ -297,7 +297,7 @@ describe("Cli Profile Manager", () => {
                 expect(result.stderr).toMatch(credentialManagerErrorMessage);
             });
 
-            it("should be able to isssue command", () => {
+            it("should be able to issue command", () => {
                 renameKeyTar();
 
                 const cmd = `display-non-keytar`;
