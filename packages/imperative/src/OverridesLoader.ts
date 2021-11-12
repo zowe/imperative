@@ -85,7 +85,7 @@ export class OverridesLoader {
             (!AppSettings.initialized || useTeamConfig || overrides.CredentialManager === packageJson.name);
 
         // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
-        if (overrides.CredentialManager != null || cliHasKeytar) {
+        if ((overrides.CredentialManager != null && overrides.CredentialManager !== packageJson.name) || cliHasKeytar) {
             let Manager = overrides.CredentialManager;
             if (typeof overrides.CredentialManager === "string" && !isAbsolute(overrides.CredentialManager)) {
                 Manager = (overrides.CredentialManager !== packageJson.name) ?
@@ -104,7 +104,7 @@ export class OverridesLoader {
             });
         }
 
-        if (useTeamConfig) await OverridesLoader.loadSecureConfig();
+        await OverridesLoader.loadSecureConfig();
     }
 
     /**
