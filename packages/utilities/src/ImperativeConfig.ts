@@ -100,8 +100,7 @@ export class ImperativeConfig {
      * @returns {string} - the configured or default prefix for environmental variables for use in the environmental variable service
      */
     public get envVariablePrefix(): string {
-        return ImperativeConfig.instance.loadedConfig.envVariablePrefix == null ? ImperativeConfig.instance.loadedConfig.name :
-            ImperativeConfig.instance.loadedConfig.envVariablePrefix;
+        return this.loadedConfig.envVariablePrefix == null ? this.loadedConfig.name : this.loadedConfig.envVariablePrefix;
     }
 
     /**
@@ -193,7 +192,7 @@ export class ImperativeConfig {
      * @return {string} path to cli Home.
      */
     public get cliHome(): string {
-        const settings = EnvironmentalVariableSettings.read(this.loadedConfig.envVariablePrefix || this.loadedConfig.name);
+        const settings = EnvironmentalVariableSettings.read(this.envVariablePrefix);
         if (settings.cliHome.value != null) {
             return settings.cliHome.value;
         }

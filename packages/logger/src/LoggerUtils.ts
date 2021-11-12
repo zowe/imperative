@@ -28,8 +28,7 @@ export class LoggerUtils {
      */
     public static censorCLIArgs(args: string[]): string[] {
         const newArgs: string[] = JSON.parse(JSON.stringify(args));
-        const censoredList: string[] = LoggerUtils.CENSORED_OPTIONS;
-        const censoredValues = censoredList.map(CliUtils.getDashFormOfOption);
+        const censoredValues = LoggerUtils.CENSORED_OPTIONS.map(CliUtils.getDashFormOfOption);
         for (const value of censoredValues) {
             if (args.indexOf(value) >= 0) {
                 const valueIndex = args.indexOf(value);
@@ -48,9 +47,9 @@ export class LoggerUtils {
      */
     public static censorYargsArguments(args: Arguments): Arguments {
         const newArgs: Arguments = JSON.parse(JSON.stringify(args));
-        const censoredList: string[] = LoggerUtils.CENSORED_OPTIONS;
+
         for (const optionName of Object.keys(newArgs)) {
-            if (censoredList.indexOf(optionName) >= 0) {
+            if (LoggerUtils.CENSORED_OPTIONS.indexOf(optionName) >= 0) {
                 const valueToCensor = newArgs[optionName];
                 newArgs[optionName] = LoggerUtils.CENSOR_RESPONSE;
                 for (const checkAliasKey of Object.keys(newArgs)) {

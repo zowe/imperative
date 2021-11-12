@@ -77,4 +77,8 @@ export class ImperativeConfig {
     public get imperativePackageName(): string {
         return this.mImperativePackageName;
     }
+
+    public get envVariablePrefix(): string {
+        return this.loadedConfig.envVariablePrefix == null ? this.loadedConfig.name : this.loadedConfig.envVariablePrefix;
+    }
 }

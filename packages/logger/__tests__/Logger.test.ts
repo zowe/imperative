@@ -157,9 +157,9 @@ describe("Logger tests", () => {
         const logger = Logger.initLogger(config);
         const level = logger.level;
 
-        expect((level as any).levelStr.toUpperCase()).toMatchSnapshot();
+        expect((level as any).levelStr.toUpperCase()).toEqual("DEBUG");
         logger.level = "trace";
-        expect((logger.level as any).levelStr.toUpperCase()).toMatchSnapshot();
+        expect((logger.level as any).levelStr.toUpperCase()).toEqual("TRACE");
     });
 
     it("Should call underlying services for logError function", () => {
@@ -205,8 +205,8 @@ describe("Logger tests", () => {
         const console = Logger.getConsoleLogger();
 
         // these should match config
-        expect((imperative.level as any).levelStr.toUpperCase()).toMatchSnapshot();
-        expect((app.level as any).levelStr.toUpperCase()).toMatchSnapshot();
+        expect((imperative.level as any).levelStr.toUpperCase()).toEqual("ERROR");
+        expect((app.level as any).levelStr.toUpperCase()).toEqual("TRACE");
 
         // this should be identical to imperative
         expect((imperative.level as any).levelStr.toUpperCase()).toBe((imperativeCategory.level as any).levelStr.toUpperCase());

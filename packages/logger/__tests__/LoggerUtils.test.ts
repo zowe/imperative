@@ -9,7 +9,9 @@
 *
 */
 
+import { EnvironmentalVariableSettings } from "../../imperative/src/env/EnvironmentalVariableSettings";
 import { LoggerUtils } from "../../logger";
+import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
 
 describe("LoggerUtils tests", () => {
 
@@ -49,7 +51,88 @@ describe("LoggerUtils tests", () => {
     });
 
     it("Should not hide notSecret operand", () => {
-        const data = LoggerUtils.censorYargsArguments({_: [], $0: "test", notSecret: "canSeeMe"});
+        const data = LoggerUtils.censorYargsArguments({ _: [], $0: "test", notSecret: "canSeeMe" });
         expect(data.notSecret).not.toContain(LoggerUtils.CENSOR_RESPONSE);
+    });
+
+    describe("censoreRawData", () => {
+        const secrets = ["secret0", "secret1"];
+        let impConfigSpy = null;
+        let envSettingsReadSpy = null;
+        let secureFields = null;
+        let layersGet = null;
+        let impConfig = null;
+        beforeEach(() => {
+            jest.restoreAllMocks();
+            secureFields = jest.fn();
+            layersGet = jest.fn();
+            impConfigSpy = jest.spyOn(ImperativeConfig, "instance", "get");
+            envSettingsReadSpy = jest.spyOn(EnvironmentalVariableSettings, "read");
+            impConfig = {
+                config: {
+                    exists: true,
+                    api: {
+                        layers: { get: layersGet },
+                        secure: { secureFields }
+                    }
+                }
+            };
+        });
+
+        describe("should NOT censor", () => {
+            it("data if we are using old profiles", () => {
+                impConfigSpy.mockReturnValue({ config: { exists: false } });
+                expect(LoggerUtils.censorRawData(secrets[0])).toEqual(secrets[0]);
+            });
+
+            it("Console Output if the MASK_OUTPUT env var is FALSE", () => {
+                impConfigSpy.mockReturnValue({ config: { exists: true } });
+                envSettingsReadSpy.mockReturnValue({ maskOutput: { value: "FALSE" } });
+                expect(LoggerUtils.censorRawData(secrets[1], "console")).toEqual(secrets[1]);
+            });
+
+            describe("special value:", () => {
+                beforeEach(() => {
+                    impConfigSpy.mockReturnValue(impConfig);
+                    envSettingsReadSpy.mockReturnValue({ maskOutput: { value: "TRUE" } });
+                });
+
+                const _lazyTest = (prop: string): [string, string] => {
+                    secureFields.mockReturnValue([`secret.${prop}`, "secret.secret"]);
+                    layersGet.mockReturnValue({ properties: { secret: { [prop]: secrets[0], secret: secrets[1] } } });
+
+                    const received = LoggerUtils.censorRawData(`visible secret: ${secrets[0]}, masked secret: ${secrets[1]}`);
+                    const expected = `visible secret: ${secrets[0]}, masked secret: ${LoggerUtils.CENSOR_RESPONSE}`;
+                    return [received, expected];
+                }
+
+                it("user", () => {
+                    const [received, expected] = _lazyTest("user");
+                    expect(received).toEqual(expected);
+                });
+                it("password", () => {
+                    const [received, expected] = _lazyTest("password");
+                    expect(received).toEqual(expected);
+                });
+                it("tokenValue", () => {
+                    const [received, expected] = _lazyTest("tokenValue");
+                    expect(received).toEqual(expected);
+                });
+            });
+        });
+
+        describe("should censor", () => {
+            beforeEach(() => {
+                impConfigSpy.mockReturnValue(impConfig);
+                envSettingsReadSpy.mockReturnValue({ maskOutput: { value: "FALSE" } });
+            });
+            it("data if the logger category is not console, regardless of the MASK_OUTPUT env var value", () => {
+                secureFields.mockReturnValue(["secret.secret"]);
+                layersGet.mockReturnValue({ properties: { secret: { secret: secrets[1] } } });
+                const received = LoggerUtils.censorRawData(`masked secret: ${secrets[1]}`, "This is not the console");
+                const expected = `masked secret: ${LoggerUtils.CENSOR_RESPONSE}`;
+                expect(received).toEqual(expected);
+            });
+        });
     });
 });

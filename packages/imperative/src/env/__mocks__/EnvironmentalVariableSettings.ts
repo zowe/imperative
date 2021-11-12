@@ -20,6 +20,7 @@ const EnvironmentalVariableSettings: any =
 (EnvironmentalVariableSettings.IMPERATIVE_LOG_LEVEL_KEY_SUFFIX as any) = envActual.IMPERATIVE_LOG_LEVEL_KEY_SUFFIX;
 (EnvironmentalVariableSettings.APP_LOG_LEVEL_KEY_SUFFIX as any) = envActual.APP_LOG_LEVEL_KEY_SUFFIX;
 (EnvironmentalVariableSettings.CLI_HOME_SUFFIX as any) = envActual.CLI_HOME_SUFFIX;
+(EnvironmentalVariableSettings.PROMPT_PHRASE_SUFFIX as any) = envActual.PROMPT_PHRASE_SUFFIX;
 (EnvironmentalVariableSettings.APP_MASK_OUTPUT_SUFFIX as any) = envActual.APP_MASK_OUTPUT_SUFFIX;
 
 (EnvironmentalVariableSettings.read as Mock).mockImplementation((prefix: string): IImperativeEnvironmentalVariableSettings => {
@@ -31,6 +32,7 @@ const EnvironmentalVariableSettings: any =
         imperativeLogLevel: getSetting(EnvironmentalVariableSettings.IMPERATIVE_LOG_LEVEL_KEY_SUFFIX),
         appLogLevel: getSetting(EnvironmentalVariableSettings.APP_LOG_LEVEL_KEY_SUFFIX),
         cliHome: getSetting(EnvironmentalVariableSettings.CLI_HOME_SUFFIX),
+        promptPhrase: getSetting(EnvironmentalVariableSettings.PROMPT_PHRASE_SUFFIX),
         maskOutput: getSetting(EnvironmentalVariableSettings.APP_MASK_OUTPUT_SUFFIX),
     };
 });
