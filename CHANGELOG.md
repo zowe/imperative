@@ -4,7 +4,11 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
-- Enhancement: Added an environment variable to control whether or not sentitive data will be masked in the console output. This excludes the following properties: user, password, and tokenValue. [zowe/zowe-cli #1106](https://github.com/zowe/zowe-cli/issues/1106)
+- Enhancement: Added an environment variable to control whether or not sensitive data will be masked in the console output.<br/>
+    This behavior excludes any TRACE lavel logs for both, Imperative.log and AppName.log.<br/>
+    This behavior also excludes properties defined as secure by the plugin developers.<br/>
+    If the schema definition is not found, we will exclude the following properties: user, password, tokenValue, and keyPassphrase.<br/>
+    More information: [zowe/zowe-cli #1106](https://github.com/zowe/zowe-cli/issues/1106)
 
 ## `5.0.0-next.202112021611`
 

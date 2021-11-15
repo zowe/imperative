@@ -14,6 +14,8 @@ import { EnvironmentalVariableSettings } from "../../imperative/src/env/Environm
 import { CliUtils } from "../../utilities/src/CliUtils";
 import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
 import * as lodash from "lodash";
+import { Config } from "../../config/src/Config";
+import { IConfigLayer } from "../../config/src/doc/IConfigLayer";
 
 export class LoggerUtils {
     public static readonly CENSOR_RESPONSE = "****";
@@ -62,6 +64,37 @@ export class LoggerUtils {
         return newArgs;
     }
 
+    private static mConfig: Config = null;
+    private static get config(): Config {
+        if (LoggerUtils.mConfig == null) LoggerUtils.mConfig = ImperativeConfig.instance.config;
+        return LoggerUtils.mConfig;
+    }
+    private static mLayer: IConfigLayer = null;
+    private static get layer(): IConfigLayer {
+        if (LoggerUtils.mLayer == null) LoggerUtils.mLayer = LoggerUtils.config.api.layers.get();
+        return LoggerUtils.mLayer;
+    }
+    private static mSecureFields: string[] = null;
+    private static get secureFields(): string[] {
+        if (LoggerUtils.mSecureFields == null) LoggerUtils.mSecureFields = LoggerUtils.config.api.secure.secureFields();
+        return LoggerUtils.mSecureFields;
+    }
+
+    private static isSpecialValue = (prop: string): boolean => {
+        // Others: token, job_load, job_pmahlq
+        const specialValues = ["user", "password", "tokenValue", "keyPassphrase"];
+        // TODO: add special values based on secure properties in:
+        // - meta (imperative config object from plugins)
+        // - schema.json
+
+        // How to handle DNS resolution (using a wrong port) e.g. zowe jobs list jobs --port 443
+
+        for (const v of specialValues) {
+            if (prop.endsWith(`.${v}`)) return true;
+        }
+        return false;
+    };
+
     /**
      * Copy and censor any sensitive CLI arguments before logging/printing
      * @param {string} data
@@ -74,16 +107,12 @@ export class LoggerUtils {
         // Return the data if we are printing to the console and masking is disabled
         const envMaskOutput = EnvironmentalVariableSettings.read(ImperativeConfig.instance.envVariablePrefix).maskOutput.value;
         // Hardcoding "console" instead of using Logger.DEFAULT_CONSOLE_NAME because of circular dependencies
-        if (category === "console" && envMaskOutput.toUpperCase() === "FALSE") return data;
+        if ((category === "console" || category === "json") && envMaskOutput.toUpperCase() === "FALSE") return data;
 
         let newData = data;
-        const config = ImperativeConfig.instance.config;
-        const layer = config.api.layers.get();
-        const secProps = config.api.secure.secureFields();
-        for (const prop of secProps) {
-            const sec = lodash.get(layer.properties, prop);
-            if (sec && !prop.endsWith(".user") && !prop.endsWith(".password") && !prop.endsWith(".tokenValue"))
-                newData = newData.replace(new RegExp(sec, "gi"), LoggerUtils.CENSOR_RESPONSE);
+        for (const prop of LoggerUtils.secureFields) {
+            const sec = lodash.get(LoggerUtils.layer.properties, prop);
+            if (sec && !LoggerUtils.isSpecialValue(prop)) newData = newData.replace(new RegExp(sec, "gi"), LoggerUtils.CENSOR_RESPONSE);
         }
         return newData;
     }

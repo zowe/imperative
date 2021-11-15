@@ -34,7 +34,7 @@ describe("Imperative", () => {
             jest.doMock("../src/ConfigurationLoader");
             jest.doMock("../src/ConfigurationValidator");
             jest.doMock("../src/help/ImperativeHelpGeneratorFactory");
-            jest.doMock("../../utilities/src/ImperativeConfig", ()=> require("../../utilities/src/__mocks__/ImperativeConfig"));
+            jest.doMock("../../utilities/src/ImperativeConfig");
             jest.doMock("../src/config/ConfigManagementFacility");
             jest.doMock("../src/plugins/PluginManagementFacility");
             jest.doMock("../../settings/src/AppSettings");
@@ -51,8 +51,7 @@ describe("Imperative", () => {
             const { ConfigurationLoader } = require("../src/ConfigurationLoader");
             const ConfigurationValidator = require("../src/ConfigurationValidator").ConfigurationValidator.validate;
             const { AppSettings } = require("../../settings");
-            const { ImperativeConfig } = require("../../utilities/src/__mocks__/ImperativeConfig");
-            // const { ImperativeConfig } = require("../../utilities/src/ImperativeConfig");
+            const { ImperativeConfig } = require("../../utilities/src/ImperativeConfig");
             const { ConfigManagementFacility } = require("../src/config/ConfigManagementFacility");
             const { PluginManagementFacility } = require("../src/plugins/PluginManagementFacility");
             const { Logger } = require("../../logger");

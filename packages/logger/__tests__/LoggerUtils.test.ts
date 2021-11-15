@@ -104,7 +104,7 @@ describe("LoggerUtils tests", () => {
                     const received = LoggerUtils.censorRawData(`visible secret: ${secrets[0]}, masked secret: ${secrets[1]}`);
                     const expected = `visible secret: ${secrets[0]}, masked secret: ${LoggerUtils.CENSOR_RESPONSE}`;
                     return [received, expected];
-                }
+                };
 
                 it("user", () => {
                     const [received, expected] = _lazyTest("user");

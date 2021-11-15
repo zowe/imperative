@@ -22,7 +22,7 @@ describe("EnvironmentalVariableSettings tests", () => {
 
     const getSetting = (key: string, defaultValue?: string): IImperativeEnvironmentalVariableSetting => {
         return { key, value: process.env[key] || defaultValue };
-    }
+    };
     const getEnvSettings = (prefix: string): IImperativeEnvironmentalVariableSettings => {
         return {
             imperativeLogLevel: getSetting(prefix + EnvironmentalVariableSettings.IMPERATIVE_LOG_LEVEL_KEY_SUFFIX),
@@ -31,7 +31,7 @@ describe("EnvironmentalVariableSettings tests", () => {
             promptPhrase: getSetting(prefix + EnvironmentalVariableSettings.PROMPT_PHRASE_SUFFIX),
             maskOutput: getSetting(prefix + EnvironmentalVariableSettings.APP_MASK_OUTPUT_SUFFIX, Constants.DEFAULT_MASK_OUTPUT),
         };
-    }
+    };
 
     it("should error if no prefix is supplied", () => {
         let error;

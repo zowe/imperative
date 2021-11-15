@@ -927,6 +927,10 @@ export class CommandResponse implements ICommandResponseApi {
             response = this.buildJsonResponse();
             (response.stderr as any) = response.stderr.toString();
             (response.stdout as any) = response.stdout.toString();
+            response.message = LoggerUtils.censorRawData(response.message, "json");
+            response.data =  response.data ? JSON.parse(LoggerUtils.censorRawData(JSON.stringify(response.data), "json")) : undefined;
+            response.error = response.error ? JSON.parse(LoggerUtils.censorRawData(JSON.stringify(response.error), "json")) : undefined;
+
             if (!this.mSilent) {
                 this.writeStdout(JSON.stringify(response, null, 2));
             }
