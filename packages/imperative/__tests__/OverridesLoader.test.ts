@@ -79,7 +79,7 @@ describe("OverridesLoader", () => {
 
             jest.spyOn(AppSettings, "initialized", "get").mockReturnValue(true);
             jest.spyOn(AppSettings, "instance", "get").mockReturnValue({
-                getNamespace: () => null
+                getNamespace: jest.fn()
             } as any);
             await OverridesLoader.load(config, packageJson);
 
