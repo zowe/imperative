@@ -82,8 +82,7 @@ export class OverridesLoader {
         if (overrides.CredentialManager != null || this.shouldUseKeytar(packageJson, useTeamConfig)) {
             let Manager = overrides.CredentialManager;
             if (typeof overrides.CredentialManager === "string" && !isAbsolute(overrides.CredentialManager)) {
-                Manager = (overrides.CredentialManager !== packageJson.name) ?
-                    resolve(process.mainModule.filename, "../", overrides.CredentialManager) : undefined;
+                Manager = resolve(process.mainModule.filename, "../", overrides.CredentialManager);
             }
 
             await CredentialManagerFactory.initialize({
