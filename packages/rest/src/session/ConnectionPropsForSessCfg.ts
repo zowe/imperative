@@ -457,6 +457,7 @@ export class ConnectionPropsForSessCfg {
             return;
         }
 
+        // Find profile that includes all the properties being prompted for
         const profileProps = promptForValues.map(propName => propName === "hostname" ? "host" : propName);
         const profileData = ConfigAutoStore.findActiveProfile(params, profileProps);
         if (profileData == null) {
@@ -464,17 +465,18 @@ export class ConnectionPropsForSessCfg {
         }
 
         const config = ImperativeConfig.instance.config;
-        const profilePath = config.api.profiles.expandPath(profileData[1]);
-        const profileObj = lodash.get(config.properties, profilePath);
-        for (const secureProp of (profileObj?.secure || [])) {
-            this.secureSessCfgProps.add(secureProp === "host" ? "hostname" : secureProp);
-        }
-
+        const activeProfilePath = config.api.profiles.expandPath(profileData[1]);
         const baseProfileName = ConfigUtils.getActiveProfileName("base", params.arguments);
         const baseProfilePath = config.api.profiles.expandPath(baseProfileName);
-        const baseProfileObj = lodash.get(config.properties, baseProfilePath);
-        for (const secureProp of (baseProfileObj?.secure || [])) {
-            this.secureSessCfgProps.add(secureProp === "host" ? "hostname" : secureProp);
+
+        // Load secure property names that are defined for active profiles
+        for (const propPath of config.api.secure.secureFields()) {
+            const pathSegments = propPath.split(".");  // profiles.XXX.properties.YYY
+            const profilePath = pathSegments.slice(0, -2).join(".");  // eslint-disable-line @typescript-eslint/no-magic-numbers
+            if (activeProfilePath.startsWith(profilePath) || baseProfilePath.startsWith(profilePath)) {
+                const secureProp = pathSegments.pop();
+                this.secureSessCfgProps.add(secureProp === "host" ? "hostname" : secureProp);
+            }
         }
     }
 }
