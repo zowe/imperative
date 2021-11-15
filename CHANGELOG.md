@@ -5,6 +5,8 @@ All notable changes to the Imperative package will be documented in this file.
 ## Recent Changes
 
 - BugFix: Changed credentials to be stored securely by default for v1 profiles to be consistent with the experience for v2 profiles. [zowe/zowe-cli#1128](https://github.com/zowe/zowe-cli/issues/1128)
+- **Next Breaking**
+    - Removed the `credentialServiceName` property from ImperativeConfig. The default credential manager uses the `name` property instead.
 
 ## `5.0.0-next.202111101806`
 
