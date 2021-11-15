@@ -16,6 +16,7 @@ import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
 import * as lodash from "lodash";
 import { Config } from "../../config/src/Config";
 import { IConfigLayer } from "../../config/src/doc/IConfigLayer";
+import { ICommandProfileTypeConfiguration } from "../../cmd/src/doc/profiles/definition/ICommandProfileTypeConfiguration";
 
 export class LoggerUtils {
     public static readonly CENSOR_RESPONSE = "****";
@@ -64,30 +65,66 @@ export class LoggerUtils {
         return newArgs;
     }
 
+    /**
+     * Singleton implementation of an internal reference of ImperativeConfig.instance.config
+     */
     private static mConfig: Config = null;
     private static get config(): Config {
         if (LoggerUtils.mConfig == null) LoggerUtils.mConfig = ImperativeConfig.instance.config;
         return LoggerUtils.mConfig;
     }
+
+    /**
+     * Singleton implementation of an internal reference to the active layer
+     * This should help with performance since one a single copy will be created for censoring data
+     */
     private static mLayer: IConfigLayer = null;
     private static get layer(): IConfigLayer {
-        if (LoggerUtils.mLayer == null) LoggerUtils.mLayer = LoggerUtils.config.api.layers.get();
+        // if (LoggerUtils.mLayer == null) LoggerUtils.mLayer = LoggerUtils.config.api.layers.get();
+        // Have to get a new copy every time because of how secure properties get lazy-loaded
+        LoggerUtils.mLayer = LoggerUtils.config.api.layers.get();
         return LoggerUtils.mLayer;
     }
+
+    /**
+     * Singleton implementation of an internal reference to the secure fields stored in the config
+     */
     private static mSecureFields: string[] = null;
     private static get secureFields(): string[] {
         if (LoggerUtils.mSecureFields == null) LoggerUtils.mSecureFields = LoggerUtils.config.api.secure.secureFields();
         return LoggerUtils.mSecureFields;
     }
 
-    private static isSpecialValue = (prop: string): boolean => {
+    /**
+     * Singleton implementation of an internal reference to the loaded profiles
+     */
+    private static mProfiles: ICommandProfileTypeConfiguration[] = null;
+    private static get profiles(): ICommandProfileTypeConfiguration[] {
+        if (LoggerUtils.mProfiles == null) LoggerUtils.mProfiles = ImperativeConfig.instance.loadedConfig.profiles ?? [];
+        return LoggerUtils.mProfiles;
+    }
+
+    /**
+     * Specifies whether a given property path (e.g. "profiles.lpar1.properties.host") is a special value or not.
+     * Special value: Refers to any value defined as secure in the schema definition.
+     *                These values should be already masked by the application (and/or plugin) developer.
+     * @param prop Property path to determine if it is a special value
+     * @returns True - if the given property is to be treated as a special value; False - otherwise
+     */
+    public static isSpecialValue = (prop: string): boolean => {
         // Others: token, job_load, job_pmahlq
         const specialValues = ["user", "password", "tokenValue", "keyPassphrase"];
         // TODO: add special values based on secure properties in:
         // - meta (imperative config object from plugins)
         // - schema.json
 
-        // How to handle DNS resolution (using a wrong port) e.g. zowe jobs list jobs --port 443
+        for (const profile of LoggerUtils.profiles) {
+
+        }
+
+        // TODO: How to handle DNS resolution (using a wrong port)
+        //  ex: zowe jobs list jobs --port 12345
+        //      May print the IP address of the given host if the resolved IP:port combination is not valid
 
         for (const v of specialValues) {
             if (prop.endsWith(`.${v}`)) return true;
@@ -110,8 +147,9 @@ export class LoggerUtils {
         if ((category === "console" || category === "json") && envMaskOutput.toUpperCase() === "FALSE") return data;
 
         let newData = data;
+        const layer = LoggerUtils.layer;
         for (const prop of LoggerUtils.secureFields) {
-            const sec = lodash.get(LoggerUtils.layer.properties, prop);
+            const sec = lodash.get(layer.properties, prop);
             if (sec && !LoggerUtils.isSpecialValue(prop)) newData = newData.replace(new RegExp(sec, "gi"), LoggerUtils.CENSOR_RESPONSE);
         }
         return newData;
