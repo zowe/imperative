@@ -79,8 +79,7 @@ export class OverridesLoader {
             config.productDisplayName || config.name;
 
         // Initialize the credential manager if an override was supplied and/or keytar was supplied in package.json
-        if ((overrides.CredentialManager != null && overrides.CredentialManager !== packageJson.name) ||
-            this.shouldUseKeytar(overrides, packageJson, useTeamConfig)) {
+        if (overrides.CredentialManager != null || this.shouldUseKeytar(packageJson, useTeamConfig)) {
             let Manager = overrides.CredentialManager;
             if (typeof overrides.CredentialManager === "string" && !isAbsolute(overrides.CredentialManager)) {
                 Manager = (overrides.CredentialManager !== packageJson.name) ?
@@ -108,14 +107,13 @@ export class OverridesLoader {
      *  1. AppSettings are not initialized (SDK usage)
      *  2. Team config is active (CLI with v2 profiles)
      *  3. CredentialManager override is host package name (CLI with v1 profiles)
-     * @param overrides Imperative overrides object that includes CredentialManager
      * @param packageJson The current package.json of the CLI package
      * @param useTeamConfig Specify True if team config is active
      * @returns True if DefaultCredentialManager should be used
      */
-    private static shouldUseKeytar(overrides: IImperativeOverrides, packageJson: any, useTeamConfig: boolean): boolean {
+    private static shouldUseKeytar(packageJson: any, useTeamConfig: boolean): boolean {
         return (packageJson.dependencies?.keytar != null || packageJson.optionalDependencies?.keytar != null) &&
-            (!AppSettings.initialized || useTeamConfig || overrides.CredentialManager === packageJson.name);
+            (!AppSettings.initialized || useTeamConfig || AppSettings.instance.getNamespace("overrides")?.CredentialManager === packageJson.name);
     }
 
     /**

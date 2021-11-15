@@ -77,7 +77,10 @@ describe("OverridesLoader", () => {
                 }
             };
 
-            jest.spyOn(AppSettings, "initialized", "get").mockReturnValueOnce(true);
+            jest.spyOn(AppSettings, "initialized", "get").mockReturnValue(true);
+            jest.spyOn(AppSettings, "instance", "get").mockReturnValue({
+                getNamespace: () => null
+            } as any);
             await OverridesLoader.load(config, packageJson);
 
             // It should not have called initialize
@@ -113,9 +116,7 @@ describe("OverridesLoader", () => {
         it("should load the default when override matches host package name and keytar is present in dependencies", async () => {
             const config: IImperativeConfig = {
                 name: "ABCD",
-                overrides: {
-                    CredentialManager: "host-package"
-                },
+                overrides: {},
                 productDisplayName: "a fake CLI"
             };
 
@@ -127,6 +128,10 @@ describe("OverridesLoader", () => {
                 }
             };
 
+            jest.spyOn(AppSettings, "initialized", "get").mockReturnValue(true);
+            jest.spyOn(AppSettings, "instance", "get").mockReturnValue({
+                getNamespace: () => ({ CredentialManager: "host-package" })
+            } as any);
             await OverridesLoader.load(config, packageJson);
 
             expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);

@@ -63,7 +63,6 @@ import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuild
 import { Config } from "../../config/src/Config";
 import { CompleteAutoInitCommandBuilder } from "./config/cmd/auto-init/builders/CompleteAutoInitCommandBuilder";
 import { ICommandProfileAutoInitConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAutoInitConfig";
-import * as lodash from "lodash";
 
 // Bootstrap the performance tools
 if (PerfTiming.isEnabled) {
@@ -484,9 +483,6 @@ export class Imperative {
                 CredentialManager: ImperativeConfig.instance.hostPackageName
             }
         };
-
-        ImperativeConfig.instance.loadedConfig.overrides = lodash.defaults(
-            ImperativeConfig.instance.loadedConfig.overrides, defaultSettings.overrides);
 
         AppSettings.initialize(
             cliSettingsFile,
