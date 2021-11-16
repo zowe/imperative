@@ -17,6 +17,7 @@ import * as lodash from "lodash";
 import { Config } from "../../config/src/Config";
 import { IConfigLayer } from "../../config/src/doc/IConfigLayer";
 import { ICommandProfileTypeConfiguration } from "../../cmd/src/doc/profiles/definition/ICommandProfileTypeConfiguration";
+import { ICommandProfileProperty } from "../../cmd/src/doc/profiles/definition/ICommandProfileProperty";
 
 export class LoggerUtils {
     public static readonly CENSOR_RESPONSE = "****";
@@ -112,14 +113,19 @@ export class LoggerUtils {
      * @returns True - if the given property is to be treated as a special value; False - otherwise
      */
     public static isSpecialValue = (prop: string): boolean => {
-        // Others: token, job_load, job_pmahlq
-        const specialValues = ["user", "password", "tokenValue", "keyPassphrase"];
-        // TODO: add special values based on secure properties in:
-        // - meta (imperative config object from plugins)
-        // - schema.json
+        let specialValues = ["user", "password", "tokenValue", "keyPassphrase"];
+
+        const getPropertyNames = (prop: ICommandProfileProperty): string[] => {
+            const ret: string[] = [];
+            ret.push(prop.optionDefinition?.name);
+            prop.optionDefinitions?.map(opDef => ret.push(opDef.name));
+            return ret;
+        };
 
         for (const profile of LoggerUtils.profiles) {
-
+            for (const [_, prop] of Object.entries(profile.schema.properties)) {
+                if (prop.secure) specialValues = lodash.union(specialValues, getPropertyNames(prop));
+            }
         }
 
         // TODO: How to handle DNS resolution (using a wrong port)
