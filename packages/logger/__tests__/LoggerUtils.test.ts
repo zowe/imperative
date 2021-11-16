@@ -57,11 +57,11 @@ describe("LoggerUtils tests", () => {
 
     describe("censoreRawData", () => {
         const secrets = ["secret0", "secret1"];
-        let impConfigSpy = null;
-        let envSettingsReadSpy = null;
-        let secureFields = null;
-        let layersGet = null;
-        let impConfig = null;
+        let impConfigSpy: jest.SpyInstance = null;
+        let envSettingsReadSpy: jest.SpyInstance = null;
+        let secureFields: jest.SpyInstance = null;
+        let layersGet: jest.SpyInstance = null;
+        let impConfig: any = null; // tried Partial<ImperativeConfig> but some properties complain about missing functionality
         beforeEach(() => {
             jest.restoreAllMocks();
             secureFields = jest.fn();
