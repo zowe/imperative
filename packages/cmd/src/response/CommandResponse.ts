@@ -632,7 +632,7 @@ export class CommandResponse implements ICommandResponseApi {
                             // build interactive header
                             const daemonHeaders = DaemonUtils.buildHeader({interactive: true});
 
-                            const obj: any = {}
+                            const obj: any = {};
                             if (opts?.header) obj.header = opts.header;
                             obj.menu = menu;
                             outer.writeStream(JSON.stringify(obj));
