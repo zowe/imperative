@@ -101,7 +101,7 @@ export class LoggerUtils {
      */
     private static mProfiles: ICommandProfileTypeConfiguration[] = null;
     private static get profiles(): ICommandProfileTypeConfiguration[] {
-        if (LoggerUtils.mProfiles == null) LoggerUtils.mProfiles = ImperativeConfig.instance.loadedConfig.profiles ?? [];
+        if (LoggerUtils.mProfiles == null) LoggerUtils.mProfiles = ImperativeConfig.instance.loadedConfig?.profiles ?? [];
         return LoggerUtils.mProfiles;
     }
 
@@ -115,6 +115,11 @@ export class LoggerUtils {
     public static isSpecialValue = (prop: string): boolean => {
         let specialValues = ["user", "password", "tokenValue", "keyPassphrase"];
 
+        /**
+         * Helper function that return a list of all optionDefinition names for a given ICommandProfileProperty
+         * @param prop profile property to get the optionDefinition names from
+         * @returns List of optionDefinition names
+         */
         const getPropertyNames = (prop: ICommandProfileProperty): string[] => {
             const ret: string[] = [];
             ret.push(prop.optionDefinition?.name);
@@ -157,7 +162,8 @@ export class LoggerUtils {
         const layer = LoggerUtils.layer;
         for (const prop of LoggerUtils.secureFields) {
             const sec = lodash.get(layer.properties, prop);
-            if (sec && !LoggerUtils.isSpecialValue(prop)) newData = newData.replace(new RegExp(sec, "gi"), LoggerUtils.CENSOR_RESPONSE);
+            if (sec && typeof sec !== "object" && !LoggerUtils.isSpecialValue(prop))
+                newData = newData.replace(new RegExp(sec, "gi"), LoggerUtils.CENSOR_RESPONSE);
         }
         return newData;
     }
