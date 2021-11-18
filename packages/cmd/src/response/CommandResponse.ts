@@ -634,9 +634,13 @@ export class CommandResponse implements ICommandResponseApi {
                         throw new ImperativeError({msg: "Menu should contain at least one element"});
                     }
 
+                    /**
+                     * Converts an object[] into a single line menu using the keys as headers
+                     * @param iMenu Menu to be converted to a singleLineMenu (string[]) menu
+                     * @returns single line menu
+                     */
                     const convertInputMenu = (iMenu: object[]): [string[], string] => {
                         const _menu: string[] = outer.format.formatOutput({
-                            // Fields:  owner phase subsystem phase-name job-correlator type url jobid class files-url jobname status retcode
                             fields: opts?.fields,
                             output: iMenu,
                             format: "table",

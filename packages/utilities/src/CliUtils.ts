@@ -14,7 +14,8 @@ import { Constants } from "../../constants";
 import { Arguments } from "yargs";
 import { TextUtils } from "./TextUtils";
 import { IOptionFormat } from "./doc/IOptionFormat";
-import { CommandProfiles, ICommandOptionDefinition, ICommandPositionalDefinition,
+import {
+    CommandProfiles, ICommandOptionDefinition, ICommandPositionalDefinition,
     ICommandProfile, IHandlerParameters
 } from "../../cmd";
 import { ICommandArguments } from "../../cmd/src/doc/args/ICommandArguments";
@@ -158,7 +159,7 @@ export class CliUtils {
                     // does NOT already contain the value in any case
                     if ((profileCamel !== undefined || profileKebab !== undefined) &&
                         (!Object.prototype.hasOwnProperty.call(args, cases.kebabCase) &&
-                         !Object.prototype.hasOwnProperty.call(args, cases.camelCase))) {
+                            !Object.prototype.hasOwnProperty.call(args, cases.camelCase))) {
 
                         // If both case properties are present in the profile, use the one that matches
                         // the option name explicitly
@@ -169,7 +170,7 @@ export class CliUtils {
                             ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
                             value
                         );
-                        args = {...args, ...keys};
+                        args = { ...args, ...keys };
                     }
                 });
             }
@@ -191,7 +192,7 @@ export class CliUtils {
     public static mergeArguments(...args: any[]): any {
         let merged = {};
         args.forEach((obj) => {
-            merged = {...merged, ...obj};
+            merged = { ...merged, ...obj };
         });
         return merged;
     }
@@ -252,7 +253,7 @@ export class CliUtils {
                     ("aliases" in opt) ? (opt as ICommandOptionDefinition).aliases : [],
                     envValue
                 );
-                args = {...args, ...keys};
+                args = { ...args, ...keys };
             }
         });
         return args;
@@ -357,7 +358,7 @@ export class CliUtils {
         }
         const numDashes = header.length + 1;
         const headerText = TextUtils.formatMessage("{{indent}}{{headerText}}\n{{indent}}{{dashes}}",
-            {headerText: header.toUpperCase(), dashes: Array(numDashes).join("-"), indent});
+            { headerText: header.toUpperCase(), dashes: Array(numDashes).join("-"), indent });
         return TextUtils.chalk[color](headerText);
     }
 
@@ -439,7 +440,7 @@ export class CliUtils {
      * @returns value - the value entered by the user
      */
     public static promptForInput(message: string): string {
-        prompt.setDefaultOptions({mask: "", hideEchoBack: true});
+        prompt.setDefaultOptions({ mask: "", hideEchoBack: true });
         return prompt.question(message);
     }
 
@@ -524,7 +525,7 @@ export class CliUtils {
                      * and the hidden response. Redisplay the prompt and hide the response.
                      */
                     let stringToShow = stringToWrite.substring(0, questionText.length);
-                    for (let count = 1; count <= stringToWrite.length - questionText.length; count ++) {
+                    for (let count = 1; count <= stringToWrite.length - questionText.length; count++) {
                         stringToShow += "*";
                     }
                     ttyIo.output.write(stringToShow);
@@ -562,16 +563,16 @@ export class CliUtils {
                         term.moveTo(1, cursor.y + menu.length + (opts?.header != null ? 1 : 0) + 1);
                     }
                     term.grabInput(false);
-                    throw "No input selected!";
+                    throw new ImperativeError({ msg: "No input selected!" });
                 }
             });
             const singleColumnMenu = require("util").promisify(term.singleColumnMenu);
-            const userInteraction = await singleColumnMenu.call(term, menu, {cancelable: true});
+            const userInteraction = await singleColumnMenu.call(term, menu, { cancelable: true });
             term.grabInput(false);
             return userInteraction.selectedIndex + 1;
-        } catch(err) {
+        } catch (err) {
             term.grabInput(false);
-            throw "Oh oh! Something went wrong!\nDetails:\n" + err.message;
+            throw new ImperativeError({ msg: "Uh oh! Something went wrong!\nDetails:\n" + err.message });
         }
     }
 
@@ -643,7 +644,7 @@ export class CliUtils {
      *
      */
     public static buildBaseArgs(args: Arguments): ICommandArguments {
-        const impArgs: ICommandArguments = {...args};
+        const impArgs: ICommandArguments = { ...args };
         Object.keys(impArgs).forEach((key) => {
             if (key !== "_" && key !== "$0" && impArgs[key] === undefined) {
                 delete impArgs[key];
