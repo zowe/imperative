@@ -13,4 +13,5 @@ import { ICommandOutputFormat } from "../../../../../src/doc/response/response/I
 
 export interface IHandlerFormatOutputApi {
     output: (format: ICommandOutputFormat) => void;
+    formatOutput: (format: ICommandOutputFormat) => any;
 }

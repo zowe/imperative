@@ -290,16 +290,17 @@ export class CommandResponse implements ICommandResponseApi {
                 }
 
                 /**
-                 * Formats and prints the data/output passed. The handler dictates (via the ICommandOutputFormat params)
+                 * Formats the data/output passed. The handler dictates (via the ICommandOutputFormat params)
                  * the default output format. However, if the user has specified any of the response-format options,
                  * those take precedence over the defaults.
                  * @private
                  * @param {ICommandOutputFormat} params - the command format output parameters (see interface for details)
                  * @param {CommandResponse} response - the command response object
                  * @param {Arguments} args - the arguments passed on the command line by the user
+                 * @returns the formatted output to be printed to the console.
                  * @memberof CommandProcessor
                  */
-                private formatOutput(params: ICommandOutputFormat): any {
+                public formatOutput(params: ICommandOutputFormat): any {
 
                     // If a single filter is specified, save the field the data was extracted from
                     const extractedFrom = (params.fields != null && params.fields.length === 1 && typeof params.output !== "string") ?
@@ -623,17 +624,42 @@ export class CommandResponse implements ICommandResponseApi {
 
                 /**
                  * Handles interactive menu selection for command input
-                 * @param {string[]} menu
+                 * @param {any[]} menu
                  * @param {IInteractiveOptions} [opts]
                  */
-                public interactiveSelection(menu: string[], opts?: IInteractiveOptions): Promise<number> {
+                public interactiveSelection(inputMenu: any[], opts?: IInteractiveOptions): Promise<number> {
+                    ImperativeExpect.toNotBeNullOrUndefined(inputMenu);
+                    ImperativeExpect.toBeAnArray(inputMenu);
+                    if(inputMenu.length === 0) {
+                        throw new ImperativeError({msg: "Menu should contain at least one element"});
+                    }
+
+                    const convertInputMenu = (iMenu: object[]): [string[], string] => {
+                        const _menu: string[] = outer.format.formatOutput({
+                            // Fields:  owner phase subsystem phase-name job-correlator type url jobid class files-url jobname status retcode
+                            fields: opts?.fields,
+                            output: iMenu,
+                            format: "table",
+                            header: true
+                        }).split("\n");
+                        return [_menu, _menu.shift()];
+                    };
+
+                    let menu: string[] = null;
+                    let header = opts?.header;
+                    if (typeof inputMenu[0] !== 'string') {
+                        [menu, header] = convertInputMenu(inputMenu);
+                    } else {
+                        menu = inputMenu as string[];
+                    }
+
                     if (outer.mStream) {
                         return new Promise<number>((resolve) => {
                             // build interactive header
                             const daemonHeaders = DaemonUtils.buildHeader({interactive: true});
 
                             const obj: any = {};
-                            if (opts?.header) obj.header = opts.header;
+                            if (header) obj.header = header;
                             obj.menu = menu;
                             outer.writeStream(JSON.stringify(obj));
 
@@ -653,7 +679,7 @@ export class CommandResponse implements ICommandResponseApi {
                             });
                         });
                     } else {
-                        return CliUtils.interactiveSelection(menu, opts);
+                        return CliUtils.interactiveSelection(menu, {...opts, header });
                     }
                 }
             }();

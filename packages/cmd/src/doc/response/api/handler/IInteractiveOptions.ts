@@ -15,7 +15,6 @@
  * @interface IInteractiveOptions
  */
 export interface IInteractiveOptions {
-
     /**
      * Header to be applied to the menu
      * @type {boolean}
@@ -23,4 +22,10 @@ export interface IInteractiveOptions {
      */
     header?: string;
 
+    /**
+     * Fields to filter the object menu
+     * @type {boolean}
+     * @memberof IInteractiveOptions
+     */
+    fields?: string[];
 }

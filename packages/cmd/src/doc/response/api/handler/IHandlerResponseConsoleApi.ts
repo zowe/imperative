@@ -53,10 +53,10 @@ export interface IHandlerResponseConsoleApi {
     prompt(questionText: string, opts?: IPromptOptions): Promise<string>;
     /**
      * Handles interactive menu selection for CLI handlers
-     * @param {string} menu
+     * @param {any[]} menu
      * @param {IInteractiveOptions} [opts]
      * @returns {Promise<number>}
      * @memberof IHandlerResponseConsoleApi
      */
-    interactiveSelection?(menu: string[], opts?: IInteractiveOptions): Promise<number>;
+    interactiveSelection?(menu: any[], opts?: IInteractiveOptions): Promise<number>;
 }
