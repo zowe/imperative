@@ -106,6 +106,16 @@ export class Config {
      */
     public mSecure: IConfigSecure;
 
+    /**
+     * Cached version of Config APIs
+     */
+    private mApi: {
+        profiles: ConfigProfiles,
+        plugins: ConfigPlugins,
+        layers: ConfigLayers,
+        secure: ConfigSecure
+    };
+
     // _______________________________________________________________________
     /**
      * Constructor for Config class. Don't use this directly. Await `Config.load` instead.
@@ -248,12 +258,15 @@ export class Config {
      * Access the config API for manipulating profiles, plugins, layers, and secure values.
      */
     get api() {
-        return {
-            profiles: new ConfigProfiles(this),
-            plugins: new ConfigPlugins(this),
-            layers: new ConfigLayers(this),
-            secure: new ConfigSecure(this)
-        };
+        if (this.mApi == null) {
+            this.mApi = {
+                profiles: new ConfigProfiles(this),
+                plugins: new ConfigPlugins(this),
+                layers: new ConfigLayers(this),
+                secure: new ConfigSecure(this)
+            };
+        }
+        return this.mApi;
     }
 
     // _______________________________________________________________________

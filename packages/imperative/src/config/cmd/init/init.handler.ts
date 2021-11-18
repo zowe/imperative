@@ -15,7 +15,6 @@ import { Config, ConfigConstants, ConfigSchema, IConfig } from "../../../../../c
 import { IProfileProperty } from "../../../../../profiles";
 import { ConfigBuilder } from "../../../../../config/src/ConfigBuilder";
 import { IConfigBuilderOpts } from "../../../../../config/src/doc/IConfigBuilderOpts";
-import { CredentialManagerFactory } from "../../../../../security";
 import { coercePropValue, secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { OverridesLoader } from "../../../OverridesLoader";
 import * as JSONC from "comment-json";
@@ -49,7 +48,7 @@ export default class InitHandler implements ICommandHandler {
         if (params.arguments.dryRun && params.arguments.dryRun === true) {
             let dryRun = await this.initForDryRun(config, params.arguments.userConfig);
 
-            if (params.arguments.prompt !== false && !CredentialManagerFactory.initialized && config.api.secure.secureFields().length > 0) {
+            if (params.arguments.prompt !== false && config.api.secure.loadFailed && config.api.secure.secureFields().length > 0) {
                 const warning = secureSaveError();
                 params.response.console.log(TextUtils.chalk.yellow("Warning:\n") +
                     `${warning.message} Skipped prompting for credentials.\n\n${warning.additionalDetails}\n`);
@@ -99,7 +98,7 @@ export default class InitHandler implements ICommandHandler {
         } else {
             await this.initWithSchema(config, params.arguments.userConfig);
 
-            if (params.arguments.prompt !== false && !CredentialManagerFactory.initialized && config.api.secure.secureFields().length > 0) {
+            if (params.arguments.prompt !== false && config.api.secure.loadFailed && config.api.secure.secureFields().length > 0) {
                 const warning = secureSaveError();
                 params.response.console.log(TextUtils.chalk.yellow("Warning:\n") +
                     `${warning.message} Skipped prompting for credentials.\n\n${warning.additionalDetails}\n`);
@@ -158,7 +157,7 @@ export default class InitHandler implements ICommandHandler {
      */
     private async promptForProp(propName: string, property: IProfileProperty): Promise<any> {
         // skip prompting in CI environment
-        if (this.params.arguments.prompt === false || !CredentialManagerFactory.initialized) {
+        if (this.params.arguments.prompt === false || ImperativeConfig.instance.config.api.secure.loadFailed) {
             return null;
         }
 
