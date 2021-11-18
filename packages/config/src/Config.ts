@@ -148,20 +148,36 @@ export class Config {
         // Create the basic empty configuration
         const myNewConfig = new Config(opts);
         myNewConfig.mApp = app;
-        myNewConfig.mLayers = [];
-        myNewConfig.mHomeDir = opts.homeDir || path.join(os.homedir(), `.${app}`);
-        myNewConfig.mProjectDir = opts.projectDir || process.cwd();
         myNewConfig.mActive = { user: false, global: false };
         myNewConfig.mVault = opts.vault;
         myNewConfig.mSecure = {};
+
+        // Populate configuration file layers
+        await myNewConfig.reload(opts);
+
+        // Load secure fields
+        if (!opts.noLoad) { await myNewConfig.api.secure.load(); }
+
+        return myNewConfig;
+    }
+
+    /**
+     * Reload config files from disk in the current project directory.
+     * @param opts Options to control how Config class behaves
+     * @throws An ImperativeError if the configuration does not load successfully
+     */
+    public async reload(opts?: IConfigOpts) {
+        this.mLayers = [];
+        this.mHomeDir = opts?.homeDir || path.join(os.homedir(), `.${this.mApp}`);
+        this.mProjectDir = opts?.projectDir || process.cwd();
 
         // Populate configuration file layers
         for (const layer of [
             Layers.ProjectUser, Layers.ProjectConfig,
             Layers.GlobalUser, Layers.GlobalConfig
         ]) {
-            myNewConfig.mLayers.push({
-                path: myNewConfig.layerPath(layer),
+            this.mLayers.push({
+                path: this.layerPath(layer),
                 exists: false,
                 properties: Config.empty(),
                 global: layer === Layers.GlobalUser || layer === Layers.GlobalConfig,
@@ -172,13 +188,13 @@ export class Config {
         // Read and populate each configuration layer
         try {
             let setActive = true;
-            for (const currLayer of myNewConfig.mLayers) {
-                if (!opts.noLoad) { await myNewConfig.api.layers.read(currLayer); }
+            for (const currLayer of this.mLayers) {
+                if (!opts?.noLoad) { await this.api.layers.read(currLayer); }
 
                 // Find the active layer
                 if (setActive && currLayer.exists) {
-                    myNewConfig.mActive.user = currLayer.user;
-                    myNewConfig.mActive.global = currLayer.global;
+                    this.mActive.user = currLayer.user;
+                    this.mActive.global = currLayer.global;
                     setActive = false;
                 }
 
@@ -193,11 +209,6 @@ export class Config {
                 throw new ImperativeError({ msg: `An unexpected error occurred during config load: ${e.message}` });
             }
         }
-
-        // Load secure fields
-        if (!opts.noLoad) { await myNewConfig.api.secure.load(); }
-
-        return myNewConfig;
     }
 
     // _______________________________________________________________________
