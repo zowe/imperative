@@ -569,6 +569,7 @@ export class CliUtils {
             const _combinedMenu = () => new Promise<[number, number]>((resolve) => {
                 if (opts?.header != null) term.defaultColor(opts.header);
                 const menuItems = term.singleColumnMenu(menu, { leftPadding: '', cancelable: true });
+                term.moveTo(1, cursor.y + menu.length);
                 const actionItems = opts?.actions == null ? null : term.singleRowMenu(opts.actions, {
                     cancelable: true,
                     selectedStyle: term,
