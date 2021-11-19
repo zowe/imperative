@@ -203,6 +203,34 @@ describe("Config tests", () => {
         });
     });
 
+    it("should reload config in new project directory", async () => {
+        // First load project and project user layers
+        jest.spyOn(Config, "search")
+            .mockReturnValueOnce(__dirname + "/__resources__/project.config.user.json")
+            .mockReturnValueOnce(__dirname + "/__resources__/project.config.json");
+        jest.spyOn(fs, "existsSync")
+            .mockReturnValueOnce(true)      // Project user layer
+            .mockReturnValueOnce(true)      // Project layer
+            .mockReturnValueOnce(false)     // User layer
+            .mockReturnValueOnce(false);    // Global layer
+        const config = await Config.load(MY_APP);
+        expect(config.properties.profiles.fruit.profiles.orange).toBeDefined();
+        expect(config.properties.profiles.vegetable).toBeUndefined();
+
+        // Then reload the layers with different contents
+        jest.spyOn(Config, "search")
+            .mockReturnValueOnce(__dirname + "/__resources__/my_app.config.user.json")
+            .mockReturnValueOnce(__dirname + "/__resources__/my_app.config.json");
+        jest.spyOn(fs, "existsSync")
+            .mockReturnValueOnce(true)      // Project user layer
+            .mockReturnValueOnce(true)      // Project layer
+            .mockReturnValueOnce(false)     // User layer
+            .mockReturnValueOnce(false);    // Global layer
+        await config.reload();
+        expect(config.properties.profiles.fruit.profiles.banana).toBeDefined();
+        expect(config.properties.profiles.vegetable).toBeDefined();
+    });
+
     it("should return the app name", () => {
         const config = new (Config as any)();
         config.mApp = "greatAppName";

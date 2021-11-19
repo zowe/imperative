@@ -390,15 +390,8 @@ export class CommandProcessor {
                 // directories may cause unpredictable results
                 process.chdir(params.arguments.dcd as string);
 
-                // reinit config for daemon client directory
-                if (ImperativeConfig.instance.config?.opts?.noLoad != null) {
-                    delete ImperativeConfig.instance.config.opts.noLoad;
-                }
-                const newOpts = ImperativeConfig.instance.config?.opts || {};
-
-                if (newOpts.vault == null) newOpts.vault = ImperativeConfig.instance.config?.mVault;
-                ImperativeConfig.instance.config = await Config.load(ImperativeConfig.instance.rootCommandName, newOpts);
-                this.mConfig = ImperativeConfig.instance.config;
+                // reload config for daemon client directory
+                await ImperativeConfig.instance.config.reload();
             }
 
             this.log.info(`Preparing (loading profiles, reading stdin, etc.) execution of "${this.definition.name}" command...`);
