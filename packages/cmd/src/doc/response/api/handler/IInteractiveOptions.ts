@@ -28,4 +28,11 @@ export interface IInteractiveOptions {
      * @memberof IInteractiveOptions
      */
     fields?: string[];
+
+    /**
+     * Actions to be displayed alongside menu items
+     * @type {boolean}
+     * @memberof IInteractiveOptions
+     */
+    actions?: string[];
 }

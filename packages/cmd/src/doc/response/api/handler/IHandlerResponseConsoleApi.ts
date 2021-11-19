@@ -55,8 +55,11 @@ export interface IHandlerResponseConsoleApi {
      * Handles interactive menu selection for CLI handlers
      * @param {any[]} menu
      * @param {IInteractiveOptions} [opts]
-     * @returns {Promise<number>}
+     * @returns {Promise<[number, number]>}
+     *      First element is the selected row (1-based)
+     *      Second element is the selected action (1-based)
+     *          return 1, if no actions were provided to select from
      * @memberof IHandlerResponseConsoleApi
      */
-    interactiveSelection?(menu: any[], opts?: IInteractiveOptions): Promise<number>;
+    interactiveSelection?(menu: any[], opts?: IInteractiveOptions): Promise<[number, number]>;
 }

@@ -314,7 +314,7 @@ export class CommandResponse implements ICommandResponseApi {
 
                         // Output the data as a string
                         case "string":
-                        // Stringify if not a string
+                            // Stringify if not a string
                             if (typeof params.output !== "string") {
                                 params.output = JSON.stringify(params.output);
                             }
@@ -350,7 +350,7 @@ export class CommandResponse implements ICommandResponseApi {
                                 // Build the table and catch any errors that may occur from the packages
                                 let pretty;
                                 try {
-                                // Prettify the data
+                                    // Prettify the data
                                     pretty = TextUtils.prettyJson(params.output, undefined, undefined, "");
                                 } catch (prettyErr) {
                                     throw new ImperativeError({
@@ -375,7 +375,7 @@ export class CommandResponse implements ICommandResponseApi {
                                 // Build the table and catch any errors that may occur from the packages
                                 let table;
                                 try {
-                                // Adjust if required
+                                    // Adjust if required
                                     if (!Array.isArray(params.output)) {
                                         params.output = [params.output];
                                     }
@@ -599,8 +599,10 @@ export class CommandResponse implements ICommandResponseApi {
                         return new Promise<string>((resolve) => {
 
                             // build prompt headers and sent
-                            const daemonHeaders = DaemonUtils.buildHeader({ prompt: opts?.hideText ?
-                                DaemonUtils.X_ZOWE_DAEMON_PROMPT_SECURE : DaemonUtils.X_ZOWE_DAEMON_PROMPT_UNSECURE });
+                            const daemonHeaders = DaemonUtils.buildHeader({
+                                prompt: opts?.hideText ?
+                                    DaemonUtils.X_ZOWE_DAEMON_PROMPT_SECURE : DaemonUtils.X_ZOWE_DAEMON_PROMPT_UNSECURE
+                            });
 
                             // send prompt content
                             outer.writeStream(questionText + daemonHeaders);
@@ -627,11 +629,11 @@ export class CommandResponse implements ICommandResponseApi {
                  * @param {any[]} menu
                  * @param {IInteractiveOptions} [opts]
                  */
-                public interactiveSelection(inputMenu: any[], opts?: IInteractiveOptions): Promise<number> {
+                public interactiveSelection(inputMenu: any[], opts?: IInteractiveOptions): Promise<[number, number]> {
                     ImperativeExpect.toNotBeNullOrUndefined(inputMenu);
                     ImperativeExpect.toBeAnArray(inputMenu);
-                    if(inputMenu.length === 0) {
-                        throw new ImperativeError({msg: "Menu should contain at least one element"});
+                    if (inputMenu.length === 0) {
+                        throw new ImperativeError({ msg: "Menu should contain at least one element" });
                     }
 
                     /**
@@ -658,12 +660,13 @@ export class CommandResponse implements ICommandResponseApi {
                     }
 
                     if (outer.mStream) {
-                        return new Promise<number>((resolve) => {
+                        return new Promise<[number, number]>((resolve) => {
                             // build interactive header
-                            const daemonHeaders = DaemonUtils.buildHeader({interactive: true});
+                            const daemonHeaders = DaemonUtils.buildHeader({ interactive: true });
 
                             const obj: any = {};
                             if (header) obj.header = header;
+                            if (opts?.actions) obj.actions = opts.actions;
                             obj.menu = menu;
                             outer.writeStream(JSON.stringify(obj));
 
@@ -678,12 +681,12 @@ export class CommandResponse implements ICommandResponseApi {
 
                                 // strip response header and give to content the waiting handler
                                 const stringData = data.toString();
-                                const parsed = stringData.substr(DaemonUtils.X_ZOWE_DAEMON_REPLY.length, stringData.length).trim();
-                                resolve(+(parsed));
+                                const parsed = stringData.substr(DaemonUtils.X_ZOWE_DAEMON_REPLY.length, stringData.length).trim().split(',');
+                                resolve([+(parsed[0]), opts?.actions == null || parsed.length === 1 ? 1 : +(parsed[1])]);
                             });
                         });
                     } else {
-                        return CliUtils.interactiveSelection(menu, {...opts, header });
+                        return CliUtils.interactiveSelection(menu, { ...opts, header });
                     }
                 }
             }();

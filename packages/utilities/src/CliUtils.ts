@@ -550,10 +550,9 @@ export class CliUtils {
         return answerToReturn;
     }
 
-    public static async interactiveSelection(menu: string[], opts?: IInteractiveOptions): Promise<number> {
+    public static async interactiveSelection(menu: string[], opts?: IInteractiveOptions): Promise<[number, number]> {
         // TODO(Fernando) - Move terminal code out of the API
         const term = require("terminal-kit").terminal;
-        if (opts?.header != null) term.defaultColor(" " + opts.header);
         try {
             term.grabInput(true);
             const cursor = await term.getCursorLocation();
@@ -566,10 +565,34 @@ export class CliUtils {
                     throw new ImperativeError({ msg: "No input selected!" });
                 }
             });
-            const singleColumnMenu = require("util").promisify(term.singleColumnMenu);
-            const userInteraction = await singleColumnMenu.call(term, menu, { cancelable: true });
+
+            const _combinedMenu = () => new Promise<[number, number]>((resolve) => {
+                if (opts?.header != null) term.defaultColor(opts.header);
+                const menuItems = term.singleColumnMenu(menu, { leftPadding: '', cancelable: true });
+                const actionItems = opts?.actions == null ? null : term.singleRowMenu(opts.actions, {
+                    cancelable: true,
+                    selectedStyle: term,
+                    keyBindings: {
+                        ENTER: "submit",
+                        LEFT: "previous",
+                        RIGHT: "next",
+                        PAGE_UP: "previousPage",
+                        PAGE_DOWN: "nextPage",
+                        HOME: "first",
+                        END: "last",
+                        ESCAPE: "escape",
+                    },
+                }).promise;
+
+                menuItems.on("submit", async (response: any) => {
+                    const actionSelected = actionItems == null ? 1 : (await actionItems).selectedIndex + 1;
+                    term("\n");
+                    resolve([response.selectedIndex + 1, actionSelected]);
+                });
+            });
+            const userInteraction = await _combinedMenu();
             term.grabInput(false);
-            return userInteraction.selectedIndex + 1;
+            return userInteraction;
         } catch (err) {
             term.grabInput(false);
             throw new ImperativeError({ msg: "Uh oh! Something went wrong!\nDetails:\n" + err.message });
