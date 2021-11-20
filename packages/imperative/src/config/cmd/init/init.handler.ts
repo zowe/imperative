@@ -11,13 +11,17 @@
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ImperativeConfig, TextUtils } from "../../../../../utilities";
-import { Config, ConfigSchema, IConfig } from "../../../../../config";
+import { Config, ConfigConstants, ConfigSchema, IConfig } from "../../../../../config";
 import { IProfileProperty } from "../../../../../profiles";
 import { ConfigBuilder } from "../../../../../config/src/ConfigBuilder";
 import { IConfigBuilderOpts } from "../../../../../config/src/doc/IConfigBuilderOpts";
 import { CredentialManagerFactory } from "../../../../../security";
 import { coercePropValue, secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { OverridesLoader } from "../../../OverridesLoader";
+import * as JSONC from "comment-json";
+import * as lodash from "lodash";
+import { diff } from "jest-diff";
+import stripAnsi = require("strip-ansi");
 
 /**
  * Init config
@@ -42,18 +46,70 @@ export default class InitHandler implements ICommandHandler {
         config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig, configDir);
         const layer = config.api.layers.get();
 
-        await this.initWithSchema(config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
+        // Do a dry run if dryRun flag is present. Otherwise, initialize or overwrite the config
+        if (params.arguments.dryRun && params.arguments.dryRun === true) {
+            let dryRun = await this.initForDryRun(config, params.arguments.userConfig);
 
-        if (params.arguments.prompt !== false && !CredentialManagerFactory.initialized && config.api.secure.secureFields().length > 0) {
-            const warning = secureSaveError();
-            params.response.console.log(TextUtils.chalk.yellow("Warning:\n") +
-                `${warning.message} Skipped prompting for credentials.\n\n${warning.additionalDetails}\n`);
+            if (params.arguments.prompt !== false && !CredentialManagerFactory.initialized && config.api.secure.secureFields().length > 0) {
+                const warning = secureSaveError();
+                params.response.console.log(TextUtils.chalk.yellow("Warning:\n") +
+                    `${warning.message} Skipped prompting for credentials.\n\n${warning.additionalDetails}\n`);
+            }
+
+            // Merge and display, do not save
+            // Handle if the file doesn't actually exist
+            let original: any = layer;
+            let originalProperties: any;
+
+            if (original.exists === false) {
+                originalProperties = {};
+            } else {
+                originalProperties = JSONC.parse(JSONC.stringify(original.properties, null, ConfigConstants.INDENT));
+
+                // Hide secure stuff
+                for (const secureProp of ImperativeConfig.instance.config.api.secure.secureFields(original)) {
+                    if (lodash.has(originalProperties, secureProp)) {
+                        lodash.unset(originalProperties, secureProp);
+                    }
+                }
+            }
+
+            const dryRunProperties = JSONC.parse(JSONC.stringify(dryRun.properties, null, ConfigConstants.INDENT));
+
+            // Hide secure stuff
+            for (const secureProp of ImperativeConfig.instance.config.api.secure.findSecure(dryRun.properties.profiles, "profiles")) {
+                if (lodash.has(dryRunProperties, secureProp)) {
+                    lodash.unset(dryRunProperties, secureProp);
+                }
+            }
+
+            original = JSONC.stringify(originalProperties, null, ConfigConstants.INDENT);
+            dryRun = JSONC.stringify(dryRunProperties, null, ConfigConstants.INDENT);
+
+            let jsonDiff = diff(original, dryRun, {aAnnotation: "Removed",
+                bAnnotation: "Added",
+                aColor: TextUtils.chalk.red,
+                bColor: TextUtils.chalk.green});
+
+            if (stripAnsi(jsonDiff) === "Compared values have no visual difference.") {
+                jsonDiff = dryRun;
+            }
+
+            params.response.console.log(jsonDiff);
+            params.response.data.setObj(jsonDiff);
+        } else {
+            await this.initWithSchema(config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
+
+            if (params.arguments.prompt !== false && !CredentialManagerFactory.initialized && config.api.secure.secureFields().length > 0) {
+                const warning = secureSaveError();
+                params.response.console.log(TextUtils.chalk.yellow("Warning:\n") +
+                    `${warning.message} Skipped prompting for credentials.\n\n${warning.additionalDetails}\n`);
+            }
+
+            // Write the active created/updated config layer
+            await config.save(false);
+            params.response.console.log(`Saved config template to ${layer.path}`);
         }
-
-        // Write the active created/updated config layer
-        await config.save(false);
-
-        params.response.console.log(`Saved config template to ${layer.path}`);
     }
 
     /**
@@ -80,7 +136,7 @@ export default class InitHandler implements ICommandHandler {
             opts.getSecureValue = this.promptForProp.bind(this);
         }
 
-        // Build new config and merge with existing layer or overwrite it if overwrite option is present
+        // Build new config and merge with existing layer or overwrite it if overwrite & forSure options are present
         const newConfig: IConfig = await ConfigBuilder.build(ImperativeConfig.instance.loadedConfig, opts);
         if (overwrite && forSure) {
             config.api.layers.set(newConfig);
@@ -90,6 +146,24 @@ export default class InitHandler implements ICommandHandler {
 
         // Build the schema and write it to disk
         ConfigSchema.updateSchema();
+    }
+
+    /**
+     * Do a dry run of creating JSON template for config.
+     * Also create a schema file in the same folder alongside the config.
+     * @param config Config object to be populated
+     * @param user If true, properties will be left empty for user config
+     */
+    private async initForDryRun(config: Config, user: boolean): Promise<any> {
+        const opts: IConfigBuilderOpts = {};
+        if (!user) {
+            opts.populateProperties = true;
+            opts.getSecureValue = this.promptForProp.bind(this);
+        }
+
+        // Build new config and merge with existing layer
+        const newConfig: IConfig = await ConfigBuilder.build(ImperativeConfig.instance.loadedConfig, opts);
+        return config.api.layers.merge(newConfig, true);
     }
 
     /**
