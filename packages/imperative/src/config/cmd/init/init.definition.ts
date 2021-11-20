@@ -79,11 +79,11 @@ export const initDefinition: ICommandDefinition = {
         },
         {
             description: "Overwrite any existing global config files",
-            options: "--global-config --overwrite"
+            options: "--global-config --overwrite --for-sure"
         },
         {
             description: "Overwrite any existing user config files",
-            options: "--user-config --overwrite"
+            options: "--user-config --overwrite --for-sure"
         }
     ]
 };
