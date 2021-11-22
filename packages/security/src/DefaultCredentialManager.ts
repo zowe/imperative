@@ -127,7 +127,7 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
             this.keytar = await import(keytarPath);
         } catch (error) {
             this.loadError = new ImperativeError({
-                msg: "Keytar not Installed",
+                msg: "Failed to load Keytar module",
                 causeErrors: error
             });
         }

@@ -47,15 +47,24 @@ export function getActiveProfileName(profileType: string, cmdArguments: ICommand
 }
 
 /**
+ * Describe the solutions we suggest for credential manager errors.
+ * @param displayName Display name of the CLI or credential manager
+ * @returns Additional details to store on the error object
+ */
+export function secureErrorDetails(displayName: string): string {
+    return `Possible Solutions:\n` +
+        ` 1. Reinstall ${displayName}. On Linux systems, also make sure to install the prerequisites listed in ${displayName} documentation.\n` +
+        ` 2. Ensure ${displayName} can access secure credential storage. ${displayName} needs access to the OS to securely save credentials.`;
+}
+
+/**
  * Form an error message for failures to securely save a value.
- *
  * @param solution Text that our caller can supply for a solution.
+ * @returns ImperativeError to be thrown
  */
 export function secureSaveError(solution?: string): ImperativeError {
     const displayName = ImperativeConfig.instance.loadedConfig.productDisplayName || ImperativeConfig.instance.loadedConfig.name;
-    let details = `Possible Solutions:\n` +
-        ` 1. Reinstall ${displayName}. On Linux systems, also make sure to install the prerequisites listed in ${displayName} documentation.\n` +
-        ` 2. Ensure ${displayName} can access secure credential storage. ${displayName} needs access to the OS to securely save credentials.`;
+    let details = secureErrorDetails(displayName);
     if (solution != null) {
         details += `\n 3. ${solution}`;
     }

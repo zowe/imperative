@@ -37,6 +37,7 @@ import { SecureOperationFunction } from "../types/SecureOperationFunction";
 import { ICliLoadProfile } from "../doc/profiles/parms/ICliLoadProfile";
 import { ICliLoadAllProfiles } from "../doc/profiles/parms/ICliLoadAllProfiles";
 import { CliUtils } from "../../../utilities/src/CliUtils";
+import { secureErrorDetails } from "../../../config/src/ConfigUtils";
 
 /**
  * A profile management API compatible with transforming command line arguments into
@@ -330,6 +331,8 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             "  To recreate credentials, issue a 'profiles create' sub-command with the --ow flag.\n";
         if (errDetails.includes(recreateCredText)) {
             errDetails += recreateProfileText;
+        } else {
+            errDetails += "\n\n" + secureErrorDetails(CredentialManagerFactory.manager.name);
         }
         return errDetails;
     }
