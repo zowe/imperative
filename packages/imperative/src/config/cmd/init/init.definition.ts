@@ -69,7 +69,7 @@ export const initDefinition: ICommandDefinition = {
             aliases: ["dr", "dry"],
             type: "boolean",
             defaultValue: false,
-            conflictsWith: ["overwrite"]
+            // conflictsWith: ["overwrite"]
         }
     ],
     examples: [
@@ -94,11 +94,11 @@ export const initDefinition: ICommandDefinition = {
             options: "--user-config --prompt false --dry-run"
         },
         {
-            description: "Overwrite any existing global config files",
+            description: "Overwrite any existing global config files.",
             options: "--global-config --overwrite --for-sure"
         },
         {
-            description: "Overwrite any existing user config files",
+            description: "Overwrite any existing user config files.",
             options: "--user-config --overwrite --for-sure"
         }
     ]
