@@ -136,6 +136,26 @@ export class ConfigSecure extends ConfigApi {
         return this.findSecure(layer.properties.profiles, "profiles");
     }
 
+    // _______________________________________________________________________
+    /**
+     * List names of secure properties for a profile. They may be defined at
+     * the profile's level, or at a higher level if the config is nested.
+     * @param profileName Profile name to search for
+     * @returns Array of secure property names
+     */
+    public securePropsForProfile(profileName: string) {
+        const profilePath = this.mConfig.api.profiles.expandPath(profileName);
+        const secureProps = [];
+        for (const propPath of this.secureFields()) {
+            const pathSegments = propPath.split(".");  // profiles.XXX.properties.YYY
+            // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+            if (profilePath.startsWith(pathSegments.slice(0, -2).join("."))) {
+                secureProps.push(pathSegments.pop());
+            }
+        }
+        return secureProps;
+    }
+
     /**
      * Recursively find secure property paths inside a team config
      * "profiles" object.

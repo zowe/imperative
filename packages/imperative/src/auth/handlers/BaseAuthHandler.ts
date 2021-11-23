@@ -17,7 +17,6 @@ import { ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../profiles";
 import { ImperativeConfig } from "../../../../utilities";
 import { CredentialManagerFactory } from "../../../../security";
-import { ConfigAutoStore } from "../../../../config/src/ConfigAutoStore";
 import { getActiveProfileName, secureSaveError } from "../../../../config/src/ConfigUtils";
 import { AbstractAuthHandler } from "./AbstractAuthHandler";
 
@@ -103,12 +102,13 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
             // TODO Should config be added to IHandlerParameters?
             const config = ImperativeConfig.instance.config;
             let profileName = this.getBaseProfileName(params);
-            const loadedProfile = config.api.profiles.load(profileName);
-            let profileExists = loadedProfile != null && Object.keys(loadedProfile.properties).length > 0;
+            const profileProps = Object.keys(config.api.profiles.get(profileName));
+            let profileExists = config.api.profiles.exists(profileName) && profileProps.length > 0;
+            profileProps.push(...config.api.secure.securePropsForProfile(profileName));
             const beforeLayer = config.api.layers.get();
 
             // Check if existing base profile is reusable (does it include user/password?)
-            if (profileExists && (loadedProfile.properties.user != null || loadedProfile.properties.password != null)) {
+            if (profileExists && (profileProps.includes("user") || profileProps.includes("password"))) {
                 profileName = `${profileName}_${params.positionals[2]}`;
                 profileExists = false;
             }
@@ -130,7 +130,7 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
                 });
                 config.api.profiles.defaultSet(this.mProfileType, profileName);
             } else {
-                const { user, global } = ConfigAutoStore.getPriorityLayer(loadedProfile);
+                const { user, global } = config.api.layers.find(profileName);
                 config.api.layers.activate(user, global);
             }
 
@@ -204,22 +204,17 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
         } else {
             const config = ImperativeConfig.instance.config;
             const profileName = this.getBaseProfileName(params);
-            const loadedProfile = config.api.profiles.load(profileName);
+            const profileProps = config.api.profiles.get(profileName);
             let profileWithToken: string = null;
 
             // If you specified a token on the command line, then don't delete the one in the profile if it doesn't match
-            if (loadedProfile != null && loadedProfile?.properties.tokenType != null && loadedProfile?.properties.tokenValue != null &&
-                loadedProfile.properties.tokenType.value === params.arguments.tokenType &&
-                loadedProfile.properties.tokenValue.value === params.arguments.tokenValue) {
-                const beforeLayer = config.api.layers.get();
-                config.api.layers.activate(loadedProfile.properties.tokenValue.user, loadedProfile.properties.tokenValue.global);
-
+            if (Object.keys(profileProps).length > 0 && profileProps.tokenType != null && profileProps.tokenValue != null &&
+                profileProps.tokenType === params.arguments.tokenType && profileProps.tokenValue === params.arguments.tokenValue) {
                 const profilePath = config.api.profiles.expandPath(profileName);
                 config.delete(`${profilePath}.properties.tokenType`);
                 config.delete(`${profilePath}.properties.tokenValue`);
 
                 await config.save(false);
-                config.api.layers.activate(beforeLayer.user, beforeLayer.global);
                 profileWithToken = profileName;
             }
 

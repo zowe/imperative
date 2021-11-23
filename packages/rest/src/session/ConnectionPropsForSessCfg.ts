@@ -9,7 +9,6 @@
 *
 */
 
-import * as lodash from "lodash";
 import { CliUtils, ImperativeConfig } from "../../../utilities";
 import { ICommandArguments, IHandlerParameters } from "../../../cmd";
 import { ImperativeError } from "../../../error";
@@ -464,19 +463,12 @@ export class ConnectionPropsForSessCfg {
             return;
         }
 
-        const config = ImperativeConfig.instance.config;
-        const activeProfilePath = config.api.profiles.expandPath(profileData[1]);
-        const baseProfileName = ConfigUtils.getActiveProfileName("base", params.arguments);
-        const baseProfilePath = config.api.profiles.expandPath(baseProfileName);
-
         // Load secure property names that are defined for active profiles
-        for (const propPath of config.api.secure.secureFields()) {
-            const pathSegments = propPath.split(".");  // profiles.XXX.properties.YYY
-            const profilePath = pathSegments.slice(0, -2).join(".");  // eslint-disable-line @typescript-eslint/no-magic-numbers
-            if (activeProfilePath.startsWith(profilePath) || baseProfilePath.startsWith(profilePath)) {
-                const secureProp = pathSegments.pop();
-                this.secureSessCfgProps.add(secureProp === "host" ? "hostname" : secureProp);
-            }
+        const config = ImperativeConfig.instance.config;
+        const baseProfileName = ConfigUtils.getActiveProfileName("base", params.arguments);
+        for (const secureProp of [...config.api.secure.securePropsForProfile(profileData[1]),
+            ...config.api.secure.securePropsForProfile(baseProfileName)]) {
+            this.secureSessCfgProps.add(secureProp === "host" ? "hostname" : secureProp);
         }
     }
 }

@@ -148,4 +148,28 @@ describe("Config secure tests", () => {
         expect(secureError).toBeDefined();
         expect(config.properties).toMatchSnapshot();
     });
+
+    it("should list all secure fields in config layer", async () => {
+        jest.spyOn(Config, "search").mockReturnValue(projectConfigPath);
+        jest.spyOn(fs, "existsSync")
+            .mockReturnValueOnce(false)     // Project user layer
+            .mockReturnValueOnce(true)      // Project layer
+            .mockReturnValueOnce(false)     // User layer
+            .mockReturnValueOnce(false);    // Global layer
+        jest.spyOn(fs, "readFileSync");
+        const config = await Config.load(MY_APP);
+        expect(config.api.secure.secureFields()).toEqual(["profiles.fruit.properties.secret"]);
+    });
+
+    it("should list all secure fields for a profile", async () => {
+        jest.spyOn(Config, "search").mockReturnValue(projectConfigPath);
+        jest.spyOn(fs, "existsSync")
+            .mockReturnValueOnce(false)     // Project user layer
+            .mockReturnValueOnce(true)      // Project layer
+            .mockReturnValueOnce(false)     // User layer
+            .mockReturnValueOnce(false);    // Global layer
+        jest.spyOn(fs, "readFileSync");
+        const config = await Config.load(MY_APP);
+        expect(config.api.secure.securePropsForProfile("fruit.apple")).toEqual(["secret"]);
+    });
 });

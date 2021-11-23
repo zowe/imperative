@@ -12,7 +12,6 @@
 import { AbstractAuthHandler } from "../../imperative";
 import { SessConstants } from "../../rest";
 import { ImperativeConfig } from "../../utilities";
-import { IConfigLoadedProfile } from "../src/doc/IConfigLoadedProfile";
 import { ConfigAutoStore } from "../src/ConfigAutoStore";
 import { setupConfigToLoad } from "../../../__tests__/src/TestUtil";
 
@@ -150,88 +149,6 @@ describe("ConfigAutoStore tests", () => {
 
             const authHandler = ConfigAutoStore.findAuthHandlerForProfile("profiles.zosmf", {} as any);
             expect(authHandler).toBeUndefined();
-        });
-    });
-
-    describe("getPriorityLayer", () => {
-        it("should choose project layer", () => {
-            const loadedProfile: IConfigLoadedProfile = {
-                properties: {
-                    host: {
-                        secure: false,
-                        user: false,
-                        global: false
-                    },
-                    user: {
-                        secure: true,
-                        user: true,
-                        global: false
-                    }
-                }
-            };
-            const { user, global } = ConfigAutoStore.getPriorityLayer(loadedProfile);
-            expect(user).toBe(false);
-            expect(global).toBe(false);
-        });
-
-        it("should choose global layer", () => {
-            const loadedProfile: IConfigLoadedProfile = {
-                properties: {
-                    host: {
-                        secure: false,
-                        user: false,
-                        global: true
-                    },
-                    user: {
-                        secure: true,
-                        user: true,
-                        global: false
-                    }
-                }
-            };
-            const { user, global } = ConfigAutoStore.getPriorityLayer(loadedProfile);
-            expect(user).toBe(false);
-            expect(global).toBe(true);
-        });
-
-        it("should choose project user layer", () => {
-            const loadedProfile: IConfigLoadedProfile = {
-                properties: {
-                    host: {
-                        secure: false,
-                        user: true,
-                        global: false
-                    },
-                    user: {
-                        secure: true,
-                        user: true,
-                        global: false
-                    }
-                }
-            };
-            const { user, global } = ConfigAutoStore.getPriorityLayer(loadedProfile);
-            expect(user).toBe(true);
-            expect(global).toBe(false);
-        });
-
-        it("should choose global user layer", () => {
-            const loadedProfile: IConfigLoadedProfile = {
-                properties: {
-                    host: {
-                        secure: false,
-                        user: true,
-                        global: true
-                    },
-                    user: {
-                        secure: true,
-                        user: true,
-                        global: false
-                    }
-                }
-            };
-            const { user, global } = ConfigAutoStore.getPriorityLayer(loadedProfile);
-            expect(user).toBe(true);
-            expect(global).toBe(true);
         });
     });
 

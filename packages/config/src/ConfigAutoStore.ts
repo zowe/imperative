@@ -13,7 +13,6 @@ import * as lodash from "lodash";
 import { ICommandArguments, IHandlerParameters } from "../../cmd";
 import { ICommandHandlerRequire } from "../../cmd/src/doc/handler/ICommandHandlerRequire";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
-import { IConfigLoadedProfile } from "./doc/IConfigLoadedProfile";
 import * as ConfigUtils from "./ConfigUtils";
 import { AbstractAuthHandler } from "../../imperative/src/auth/handlers/AbstractAuthHandler";
 import { ImperativeConfig } from "../../utilities";
@@ -95,18 +94,6 @@ export class ConfigAutoStore {
     }
 
     /**
-     * Finds the highest priority layer where a profile is stored.
-     * @param loadedProfile
-     * @returns User and global properties
-     */
-    public static getPriorityLayer(loadedProfile: IConfigLoadedProfile): { user: boolean, global: boolean } {
-        return {
-            user: Object.values(loadedProfile.properties).every(v => v.user),
-            global: Object.values(loadedProfile.properties).some(v => v.global)
-        };
-    }
-
-    /**
      * Stores session config properties into a team config profile.
      * @param params CLI handler parameters object
      * @param sessCfg Session config containing properties to store
@@ -135,16 +122,19 @@ export class ConfigAutoStore {
         }
 
         const beforeLayer = config.api.layers.get();
-        const loadedProfile = config.api.profiles.load(profileName);
-        if (loadedProfile != null) {
-            const { user, global } = this.getPriorityLayer(loadedProfile);
+        if (config.api.profiles.exists(profileName)) {
+            const { user, global } = config.api.layers.find(profileName);
             config.api.layers.activate(user, global);
         }
 
-        const baseProfileName = ConfigUtils.getActiveProfileName("base", params.arguments);
-        const baseProfileObj = lodash.get(config.properties, config.api.profiles.expandPath(baseProfileName));
-        const baseProfileSchema = ImperativeConfig.instance.loadedConfig.baseProfile.schema;
+        const profileObj = config.api.profiles.get(profileName);
         const profileSchema = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profileType).schema;
+        const profileSecureProps = config.api.secure.securePropsForProfile(profileName);
+
+        const baseProfileName = ConfigUtils.getActiveProfileName("base", params.arguments);
+        const baseProfileObj = config.api.profiles.get(baseProfileName);
+        const baseProfileSchema = ImperativeConfig.instance.loadedConfig.baseProfile.schema;
+        const baseProfileSecureProps = config.api.secure.securePropsForProfile(baseProfileName);
 
         for (const propName of profileProps) {
             let propProfilePath = profilePath;
@@ -153,10 +143,10 @@ export class ConfigAutoStore {
                 (2) Property is missing from service profile properties/secure objects, but present in base profile
                 (3) Property is tokenValue and tokenType is missing from service profile, but present in base profile
             */
-            if ((loadedProfile == null && baseProfileObj != null) ||
-                (loadedProfile?.properties[propName] == null && !loadedProfile?.secure?.includes(propName) &&
-                (baseProfileObj?.properties[propName] != null || baseProfileObj?.secure?.includes(propName))) ||
-                (propName === "tokenValue" && loadedProfile?.properties.tokenType == null && baseProfileObj?.properties.tokenType != null)
+            if ((!config.api.profiles.exists(profileName) && config.api.profiles.exists(baseProfileName)) ||
+                (profileObj[propName] == null && !profileSecureProps.includes(propName) &&
+                (baseProfileObj[propName] != null || baseProfileSecureProps.includes(propName))) ||
+                (propName === "tokenValue" && profileObj.tokenType == null && baseProfileObj.tokenType != null)
             ) {
                 propProfilePath = config.api.profiles.expandPath(baseProfileName);
             }
