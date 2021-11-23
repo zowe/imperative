@@ -6,6 +6,12 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: Changed CLI prompt input to be hidden for properties designated as secure in team config. [zowe/zowe-cli#1106](https://github.com/zowe/zowe-cli/issues/1106)
 
+## `5.0.0-next.202111192150`
+
+- BugFix: Changed credentials to be stored securely by default for v1 profiles to be consistent with the experience for v2 profiles. [zowe/zowe-cli#1128](https://github.com/zowe/zowe-cli/issues/1128)
+- **Next Breaking**
+    - Removed the `credentialServiceName` property from ImperativeConfig. The default credential manager uses the `name` property instead.
+
 ## `5.0.0-next.202111101806`
 
 - Enhancement: Added `dry-run` option for `zowe config init` command to preview changes instead of saving them to disk. [#1037](https://github.com/zowe/zowe-cli/issues/1037)

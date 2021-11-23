@@ -480,7 +480,7 @@ export class Imperative {
 
         const defaultSettings: ISettingsFile = {
             overrides: {
-                CredentialManager: false
+                CredentialManager: ImperativeConfig.instance.hostPackageName
             }
         };
 
