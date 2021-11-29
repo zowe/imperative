@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Added a utility function to get basic system architecture and platform info
+
 ## `5.0.0-next.202111292021`
 
 - **Next Breaking**: Use JSON-based communication protocol between imperative daemon server and client.
