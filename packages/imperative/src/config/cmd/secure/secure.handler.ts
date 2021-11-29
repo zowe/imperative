@@ -15,7 +15,6 @@ import { secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { ImperativeError } from "../../../../../error";
 import { Logger } from "../../../../../logger";
 import { ConnectionPropsForSessCfg, ISession, Session } from "../../../../../rest";
-import { CredentialManagerFactory } from "../../../../../security";
 import { ImperativeConfig } from "../../../../../utilities";
 
 export default class SecureHandler implements ICommandHandler {
@@ -33,14 +32,14 @@ export default class SecureHandler implements ICommandHandler {
      */
     public async process(params: IHandlerParameters): Promise<void> {
         this.params = params;
+        const config = ImperativeConfig.instance.config;
 
         // Setup the credential vault API for the config
-        if (!CredentialManagerFactory.initialized) {
+        if (config.api.secure.loadFailed) {
             throw secureSaveError();
         }
 
         // Create the config, load the secure values, and activate the desired layer
-        const config = ImperativeConfig.instance.config;
         config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig);
         const secureProps: string[] = config.api.secure.secureFields();
 

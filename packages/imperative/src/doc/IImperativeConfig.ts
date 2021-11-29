@@ -310,14 +310,6 @@ export interface IImperativeConfig {
     webHelpCustomCssPath?: string;
 
     /**
-     * Service name that should be used in vault for secure credentials.
-     * If omitted, the default service name "Zowe" is used.
-     * @type {string}
-     * @memberof IImperativeConfig
-     */
-    credentialServiceName?: string;
-
-    /**
      * The set of attributes used to lookup (within the API Mediation Layer)
      * the connection properties for the REST service associated with this
      * command group. We use an array of such attributes in case the command
@@ -326,4 +318,12 @@ export interface IImperativeConfig {
      * @memberof IImperativeConfig
      */
     apimlConnLookup?: IApimlSvcAttrs[];
+
+    /**
+     * If Imperative should run in Daemon mode
+     * This should only be specified for CLIs
+     * @type {boolean}
+     * @memberof IImperativeConfig
+     */
+    daemonMode?: boolean;
 }

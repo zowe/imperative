@@ -18,6 +18,7 @@ import { IConfigLogging } from "../../logger";
 import { IImperativeEnvironmentalVariableSettings } from "..";
 import { ICommandDefinition } from "../../cmd/src/doc/ICommandDefinition";
 import * as yargs from "yargs";
+import { ImperativeError } from "../../error/src/ImperativeError";
 
 describe("Imperative", () => {
     const mainModule = process.mainModule;
@@ -190,7 +191,7 @@ describe("Imperative", () => {
         });
 
         describe("AppSettings", () => {
-            const defaultSettings = { overrides: { CredentialManager: false } };
+            const defaultSettings = { overrides: { CredentialManager: "host-package" } };
             it("should initialize an app settings instance", async () => {
                 await Imperative.init();
 
@@ -232,6 +233,35 @@ describe("Imperative", () => {
                 await Imperative.init();
 
                 expect(ConfigManagementFacility.instance.init).toHaveBeenCalledTimes(1);
+            });
+
+            it("should surface failures if daemonMode is not specified", async () => {
+                jest.spyOn(mocks.Config, "load").mockRejectedValueOnce(new ImperativeError({msg: "Config error"})).mockResolvedValue({});
+                let error;
+                try {
+                    await Imperative.init();
+                } catch (err) {
+                    error = err;
+                }
+
+                expect(error).toBeDefined();
+                expect(ConfigManagementFacility.instance.init).toHaveBeenCalledTimes(1);
+                expect(mocks.Config.load).toHaveBeenCalledTimes(1);
+            });
+
+            it("should not surface failures if daemonMode is specified", async () => {
+                mocks.ConfigurationLoader.load.mockReturnValue({...defaultConfig, daemonMode: true});
+                jest.spyOn(mocks.Config, "load").mockRejectedValueOnce(new ImperativeError({msg: "Config error"})).mockResolvedValue({});
+                let error;
+                try {
+                    await Imperative.init();
+                } catch (err) {
+                    error = err;
+                }
+
+                expect(error).not.toBeDefined();
+                expect(ConfigManagementFacility.instance.init).toHaveBeenCalledTimes(1);
+                expect(mocks.Config.load).toHaveBeenCalledTimes(2);
             });
         });
 

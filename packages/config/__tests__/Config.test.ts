@@ -12,7 +12,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as findUp from "find-up";
-import { ImperativeError } from "../..";
+import { ImperativeError } from "../../error/src/ImperativeError";
 import { Config } from "../src/Config";
 import { ConfigConstants } from "../src/ConfigConstants";
 import * as JSONC from "comment-json";
@@ -182,6 +182,53 @@ describe("Config tests", () => {
             expect(error.message).toContain(__dirname + "/__resources__");
             expect(error instanceof ImperativeError).toBe(true);
         });
+
+        it("should not actually load config that seems to exist but is malformed when noLoad specified", async () => {
+            jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/badproject.config.json");
+            jest.spyOn(fs, "existsSync")
+                .mockReturnValueOnce(false)     // Project user layer
+                .mockReturnValueOnce(true)      // Project layer
+                .mockReturnValueOnce(false)     // User layer
+                .mockReturnValueOnce(false);    // Global layer
+            jest.spyOn(fs, "readFileSync");
+            let readError: any;
+            const config = await Config.load(MY_APP, {noLoad: true});
+            try {
+                for (const layer of config.mLayers) { await config.api.layers.read(layer); }
+            } catch (err) {
+                readError = err;
+            }
+            expect(readError).toBeDefined();
+            expect(config.properties).toMatchSnapshot();
+        });
+    });
+
+    it("should reload config in new project directory", async () => {
+        // First load project and project user layers
+        jest.spyOn(Config, "search")
+            .mockReturnValueOnce(__dirname + "/__resources__/project.config.user.json")
+            .mockReturnValueOnce(__dirname + "/__resources__/project.config.json");
+        jest.spyOn(fs, "existsSync")
+            .mockReturnValueOnce(true)      // Project user layer
+            .mockReturnValueOnce(true)      // Project layer
+            .mockReturnValueOnce(false)     // User layer
+            .mockReturnValueOnce(false);    // Global layer
+        const config = await Config.load(MY_APP);
+        expect(config.properties.profiles.fruit.profiles.orange).toBeDefined();
+        expect(config.properties.profiles.vegetable).toBeUndefined();
+
+        // Then reload the layers with different contents
+        jest.spyOn(Config, "search")
+            .mockReturnValueOnce(__dirname + "/__resources__/my_app.config.user.json")
+            .mockReturnValueOnce(__dirname + "/__resources__/my_app.config.json");
+        jest.spyOn(fs, "existsSync")
+            .mockReturnValueOnce(true)      // Project user layer
+            .mockReturnValueOnce(true)      // Project layer
+            .mockReturnValueOnce(false)     // User layer
+            .mockReturnValueOnce(false);    // Global layer
+        await config.reload();
+        expect(config.properties.profiles.fruit.profiles.banana).toBeDefined();
+        expect(config.properties.profiles.vegetable).toBeDefined();
     });
 
     it("should return the app name", () => {
