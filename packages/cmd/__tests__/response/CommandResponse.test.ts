@@ -18,7 +18,7 @@ import { inspect } from "util";
 import { TestLogger } from "../../../../__tests__/TestLogger";
 import { IO } from "../../../io";
 import { OUTPUT_FORMAT } from "../..";
-import { CliUtils, DaemonUtils } from "../../../utilities";
+import { CliUtils, IDaemonResponse } from "../../../utilities";
 
 const EXAMPLE_LIST = [
     "banana",
@@ -143,7 +143,7 @@ describe("Command Response", () => {
         }, oneSecond);
     });
 
-    it("should work if the progress bar is directed to a socket stream", (done) => {  // eslint-disable-line jest/no-done-callback
+    it("should allow the progress bar to write directly to a socket stream", (done) => {  // eslint-disable-line jest/no-done-callback
         const response = new CommandResponse({ silent: false, responseFormat: "default", stream });
         const status: ITaskWithStatus = {
             statusMessage: "Making a bar",
@@ -157,6 +157,8 @@ describe("Command Response", () => {
             });
         expect((response as any).mProgressBar).toBeDefined(); // access private fields
         expect((response.progress as any).mProgressBarInterval).toBeDefined();
+        expect((response.progress as any).mIsDaemon).toBe(true);
+        (response.progress as any).updateProgressBar();
         TestLogger.debug("Progress bar was created. Details:\n{{progressBar}}\nInterval identifier:\n{{interval}}",
             {
                 progressBar: inspect((response as any).progressBar),
@@ -164,8 +166,9 @@ describe("Command Response", () => {
             });
         const oneSecond = 1;
         setTimeout(() => {
-            // turn off the progress bar - t he details should be set
-            response.progress.endBar();
+            // force updateProgressBar to trigger the `endBar` call
+            (response.progress as any).mProgressTask.stageName = TaskStage.COMPLETE;
+            (response.progress as any).updateProgressBar();
             expect((response as any).mProgressBar).toBeUndefined();
             expect((response.progress as any).mProgressBarInterval).toBeUndefined();
             done();
@@ -364,14 +367,14 @@ describe("Command Response", () => {
         const responseMessage = "daemon response";
 
         // construct the response in a proper protocol header (see DaemonUtils.ts)
-        const headerResponseMessage = DaemonUtils.X_ZOWE_DAEMON_REPLY + responseMessage;
+        const daemonResponse: IDaemonResponse = { id: "test", reply: responseMessage };
 
         // simulate a .on(data...) method
         const eventStream = jest.fn((event: string, func: (data: any) => void) => {
-            func(Buffer.from(headerResponseMessage));
+            func(Buffer.from(JSON.stringify(daemonResponse)));
         });
 
-        // ignore writestream, we just make sure that it's called, it will send a request our
+        // ignore writestream, we just make sure that it's called, it will send a request to our
         // simulated daemon client asking for a response.
         const writeStream = jest.fn((data) => {
             // do nothing
@@ -382,8 +385,12 @@ describe("Command Response", () => {
             // do nothing
         });
 
+        const endStream = jest.fn(() => {
+            // do nothing
+        });
+
         // build our pseudo socket object
-        const socket: any = {on: eventStream, write: writeStream, removeListener};
+        const socket: any = {on: eventStream, write: writeStream, removeListener, end: endStream};
 
         // create response object
         const response = new CommandResponse({stream: socket});
@@ -397,6 +404,7 @@ describe("Command Response", () => {
         // prompt the daemon client
         const msg: string = "please give me a message";
         const answer = await response.console.prompt(msg);
+        response.endStream(); // terminate
 
         // restore
         process.stdout.write = ORIGINAL_STDOUT_WRITE;
@@ -404,6 +412,7 @@ describe("Command Response", () => {
         expect(write).not.toHaveBeenCalled();
         expect(writeStream).toHaveBeenCalled();
         expect(removeListener).toHaveBeenCalled();
+        expect(endStream).toHaveBeenCalled();
         expect(answer).toBe(responseMessage);
     });
 
