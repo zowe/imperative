@@ -16,3 +16,4 @@ export * from "./src/JsUtils";
 export * from "./src/ProcessUtils";
 export * from "./src/TextUtils";
 export * from "./src/CliUtils";
+export * from "./src/doc/ISystemInfo";

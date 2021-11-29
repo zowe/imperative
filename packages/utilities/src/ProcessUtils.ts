@@ -9,6 +9,8 @@
 *
 */
 
+import { ISystemInfo } from "./doc/ISystemInfo";
+
 /**
  * This enum represents the possible results from isGuiAvailable.
  */
@@ -79,5 +81,15 @@ export class ProcessUtils {
 
         // otherwise we assume we have a GUI
         return GuiResult.GUI_AVAILABLE;
+    }
+
+    /**
+     * Get some basic information about the system
+     */
+    public static getBasicSystemInfo(): ISystemInfo {
+        const sysInfo: ISystemInfo = {arch: undefined, platform: undefined};
+        sysInfo.arch = process.arch;
+        sysInfo.platform = process.platform;
+        return sysInfo;
     }
 }
