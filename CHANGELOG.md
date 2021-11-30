@@ -8,6 +8,14 @@ All notable changes to the Imperative package will be documented in this file.
 - **Next Breaking**
     - Removed the `ConfigProfiles.load` API method. Use the methods `ConfigLayers.find` and `ConfigSecure.securePropsForProfile` instead. [#568](https://github.com/zowe/imperative/issues/568)
 
+## `5.0.0-next.202111301806`
+
+- Enhancement: Added a utility function to get basic system architecture and platform info
+
+## `5.0.0-next.202111292021`
+
+- **Next Breaking**: Use JSON-based communication protocol between imperative daemon server and client.
+
 ## `5.0.0-next.202111192150`
 
 - BugFix: Changed credentials to be stored securely by default for v1 profiles to be consistent with the experience for v2 profiles. [zowe/zowe-cli#1128](https://github.com/zowe/zowe-cli/issues/1128)
