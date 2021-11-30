@@ -109,7 +109,7 @@ describe("ProcessUtils tests", () => {
         beforeAll(() => {
             realPlatform = process.platform;
             realArch = process.arch;
-        })
+        });
 
         afterEach(() => {
             Object.defineProperty(process, "platform", { value: realPlatform });
