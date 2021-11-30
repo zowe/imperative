@@ -5,6 +5,8 @@ All notable changes to the Imperative package will be documented in this file.
 ## Recent Changes
 
 - Enhancement: Changed CLI prompt input to be hidden for properties designated as secure in team config. [zowe/zowe-cli#1106](https://github.com/zowe/zowe-cli/issues/1106)
+- **Next Breaking**
+    - Removed the `ConfigProfiles.load` API method. Use the methods `ConfigLayers.find` and `ConfigSecure.securePropsForProfile` instead. [#568](https://github.com/zowe/imperative/issues/568)
 
 ## `5.0.0-next.202111192150`
 
