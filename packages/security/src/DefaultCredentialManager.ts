@@ -133,6 +133,13 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
         }
     }
 
+    protected get possibleSolutions(): string[] {
+        return [
+            `Reinstall ${this.name}. On Linux systems, also make sure to install the prerequisites listed in ${this.name} documentation.`,
+            `Ensure ${this.name} can access secure credential storage. ${this.name} needs access to the OS to securely save credentials.`
+        ];
+    }
+
     /**
      * Calls the keytar deletePassword service with {@link DefaultCredentialManager#service} and the
      * account passed to the function by Imperative.

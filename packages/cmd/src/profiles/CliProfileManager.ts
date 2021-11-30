@@ -37,7 +37,6 @@ import { SecureOperationFunction } from "../types/SecureOperationFunction";
 import { ICliLoadProfile } from "../doc/profiles/parms/ICliLoadProfile";
 import { ICliLoadAllProfiles } from "../doc/profiles/parms/ICliLoadAllProfiles";
 import { CliUtils } from "../../../utilities/src/CliUtils";
-import { secureErrorDetails } from "../../../config/src/ConfigUtils";
 
 /**
  * A profile management API compatible with transforming command line arguments into
@@ -332,7 +331,10 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
         if (errDetails.includes(recreateCredText)) {
             errDetails += recreateProfileText;
         } else {
-            errDetails += "\n\n" + secureErrorDetails(CredentialManagerFactory.manager.name);
+            const additionalDetails = CredentialManagerFactory.manager.secureErrorDetails();
+            if (additionalDetails != null) {
+                errDetails += "\n\n" + additionalDetails;
+            }
         }
         return errDetails;
     }

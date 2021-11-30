@@ -153,6 +153,7 @@ describe("BaseAuthHandler config", () => {
                 const params = lodash.cloneDeep(loginParams);
 
                 jest.spyOn(CredentialManagerFactory, "initialized", "get").mockReturnValueOnce(false);
+                jest.spyOn(CredentialManagerFactory, "manager", "get").mockReturnValueOnce({ secureErrorDetails: jest.fn() } as any);
                 const doLoginSpy = jest.spyOn(handler as any, "doLogin");
                 const writeFileSpy = jest.spyOn(fs, "writeFileSync");
                 let caughtError;
