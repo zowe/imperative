@@ -324,6 +324,46 @@ describe("ConfigAutoStore tests", () => {
             expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject(propsToAdd);
         });
 
+        it("should store user and password in top level profile for basic auth", async () => {
+            await setupConfigToLoad({
+                profiles: {
+                    fruit: {
+                        type: "fruit",
+                        profiles: {
+                            apple: {
+                                type: "apple",
+                                properties: {}
+                            }
+                        },
+                        properties: {},
+                        secure: ["user", "password"]
+                    },
+                    base: {
+                        type: "base",
+                        properties: {
+                            host: "example.com"
+                        }
+                    }
+                },
+                defaults: { fruit: "fruit.apple", base: "base" },
+                autoStore: true
+            });
+            ImperativeConfig.instance.config.save = jest.fn();
+
+            const propsToAdd = {
+                user: "admin",
+                password: "123456"
+            };
+            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                hostname: "example.com",
+                type: SessConstants.AUTH_TYPE_BASIC,
+                ...propsToAdd
+            }, ["user", "password"]);
+
+            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+            expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject(propsToAdd);
+        });
+
         it("should store token value in base profile for token auth", async () => {
             await setupConfigToLoad({
                 profiles: {
