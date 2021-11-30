@@ -10,6 +10,7 @@
 */
 
 import * as JSONC from "comment-json";
+import * as lodash from "lodash";
 import { ConfigApi } from "./ConfigApi";
 import { IConfigVault } from "../doc/IConfigVault";
 import { IConfigSecureProperties } from "../doc/IConfigSecure";
@@ -195,18 +196,33 @@ export class ConfigSecure extends ConfigApi {
      *
      * @internal
      * @param propertyPath The full path of the profile property
+     * @param findUp Specify true to search up in the config file for higher level secure arrays
      * @returns Object with the following attributes:
      *  - `path` The JSON path of the secure array
      *  - `prop` The name of the property
      */
-    public secureInfoForProp(propertyPath: string): { path: string, prop: string } {
+    public secureInfoForProp(propertyPath: string, findUp?: boolean): { path: string, prop: string } {
         if (!propertyPath.includes(".properties.")) {
-            return null;
+            return;
         }
-        return {
-            path: propertyPath.replace(/\.properties.+/, ".secure"),
-            prop: propertyPath.split(".").pop()
-        };
+
+        const pathSegments = propertyPath.split(".");  // profiles.XXX.properties.YYY
+        const secureProp = pathSegments.pop();
+        let securePath = propertyPath.replace(/\.properties.+/, ".secure");
+
+        if (findUp) {
+            const layer = this.mConfig.layerActive();
+            while (layer.exists && pathSegments.length > 2) {
+                pathSegments.pop();
+                const testSecurePath = pathSegments.join(".") + ".secure";
+                if (lodash.get(layer.properties, testSecurePath)?.includes(secureProp)) {
+                    securePath = testSecurePath;
+                    break;
+                }
+            }
+        }
+
+        return { path: securePath, prop: secureProp };
     }
 
     /**

@@ -150,8 +150,17 @@ export class ConfigAutoStore {
             ) {
                 propProfilePath = config.api.profiles.expandPath(baseProfileName);
             }
+
             const sessCfgPropName = propName === "host" ? "hostname" : propName;
             const propDefinition = profileSchema.properties[propName] || baseProfileSchema.properties[propName];
+            // If secure array at higher level includes this property, then property should be stored at higher level
+            if (propDefinition.secure) {
+                const secureProfilePath = config.api.secure.secureInfoForProp(`${propProfilePath}.properties.${propName}`, true).path;
+                if (secureProfilePath.split(".").length < propProfilePath.split(".").length) {
+                    propProfilePath = secureProfilePath.substr(0, secureProfilePath.lastIndexOf("."));
+                }
+            }
+
             config.set(`${propProfilePath}.properties.${propName}`, sessCfg[sessCfgPropName], {
                 secure: propDefinition.secure
             });
