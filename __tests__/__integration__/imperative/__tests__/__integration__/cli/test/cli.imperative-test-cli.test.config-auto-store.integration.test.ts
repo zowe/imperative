@@ -35,6 +35,7 @@ describe("imperative-test-cli test config-auto-store command", () => {
         res = runCliScript(__dirname + "/__scripts__/test_config_auto_store.sh", TEST_ENVIRONMENT.workingDir, [testPwd]);
         expect(res.stderr.toString()).toBe("");
         expect(res.status).toBe(0);
+        expect(res.stdout.toString()).toContain("(will be hidden)");
         expect(res.stdout.toString()).toContain(testPwd);
 
         res = runCliScript(__dirname + "/__scripts__/test_config_auto_store.sh", TEST_ENVIRONMENT.workingDir);
