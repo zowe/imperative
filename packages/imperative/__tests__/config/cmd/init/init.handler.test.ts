@@ -1152,6 +1152,7 @@ describe("Configuration Initialization command handler", () => {
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
         jest.spyOn(CredentialManagerFactory, "initialized", "get").mockReturnValue(false);
+        jest.spyOn(CredentialManagerFactory, "manager", "get").mockReturnValue({ secureErrorDetails: jest.fn() } as any);
 
         jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);

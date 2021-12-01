@@ -9,6 +9,7 @@
 *
 */
 
+import { CredentialManagerFactory } from "../../security";
 import { ICommandArguments } from "../../cmd";
 import { ImperativeConfig } from "../../utilities";
 import { ImperativeError } from "../../error";
@@ -48,16 +49,13 @@ export function getActiveProfileName(profileType: string, cmdArguments: ICommand
 
 /**
  * Form an error message for failures to securely save a value.
- *
  * @param solution Text that our caller can supply for a solution.
+ * @returns ImperativeError to be thrown
  */
 export function secureSaveError(solution?: string): ImperativeError {
-    const displayName = ImperativeConfig.instance.loadedConfig.productDisplayName || ImperativeConfig.instance.loadedConfig.name;
-    let details = `Possible Solutions:\n` +
-        ` 1. Reinstall ${displayName}. On Linux systems, also make sure to install the prerequisites listed in ${displayName} documentation.\n` +
-        ` 2. Ensure ${displayName} can access secure credential storage. ${displayName} needs access to the OS to securely save credentials.`;
+    let details = CredentialManagerFactory.manager.secureErrorDetails();
     if (solution != null) {
-        details += `\n 3. ${solution}`;
+        details = (details != null) ? (details + `\n - ${solution}`) : solution;
     }
     return new ImperativeError({
         msg: "Unable to securely save credentials.",
