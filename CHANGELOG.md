@@ -2,6 +2,11 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed `config import` and `config init` behaving incorrectly when config JSON exists in higher level directory. [zowe/zowe-cli#1218](https://github.com/zowe/zowe-cli/issues/1218)
+- BugFix: Fixed `config import` command not failing when positional argument "location" is missing.
+
 ## `5.0.0-next.202111301806`
 
 - Enhancement: Added a utility function to get basic system architecture and platform info

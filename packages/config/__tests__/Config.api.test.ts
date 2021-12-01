@@ -360,6 +360,20 @@ describe("Config API tests", () => {
                 expect(properties.properties.plugins).toEqual(JSON.parse(fileContents).plugins);
                 expect(properties.properties.profiles).toEqual(JSON.parse(fileContents).profiles);
             });
+            it("should activate empty configuration in directory where it doesn't exist", async () => {
+                const config = await Config.load(MY_APP);
+                jest.spyOn(path, "join").mockRestore();
+                config.api.layers.activate(false, false, __dirname);
+                const properties = config.api.layers.get();
+                expect(properties.user).toBe(false);
+                expect(properties.global).toBe(false);
+                expect(properties.exists).toBe(false);
+                expect(properties.path).toEqual(path.join(__dirname, "project.config.json"));
+                expect(properties.properties).toEqual({
+                    profiles: {},
+                    defaults: {}
+                });
+            });
         });
         describe("exists", () => {
             const fakePath = path.join(__dirname, "FAKE_PROJECT");
