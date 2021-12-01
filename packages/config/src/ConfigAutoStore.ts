@@ -13,7 +13,6 @@ import * as lodash from "lodash";
 import { ICommandArguments, IHandlerParameters } from "../../cmd";
 import { ICommandHandlerRequire } from "../../cmd/src/doc/handler/ICommandHandlerRequire";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
-import { IConfigLoadedProfile } from "./doc/IConfigLoadedProfile";
 import * as ConfigUtils from "./ConfigUtils";
 import { AbstractAuthHandler } from "../../imperative/src/auth/handlers/AbstractAuthHandler";
 import { ImperativeConfig } from "../../utilities";
@@ -26,6 +25,27 @@ import { Logger } from "../../logger";
  * Class to manage automatic storage of properties in team config.
  */
 export class ConfigAutoStore {
+    /**
+     * Finds the profile where auto-store properties should be saved.
+     * @param params CLI handler parameters object
+     * @param profileProps List of properties required in the profile schema
+     * @returns Tuple containing profile type and name, or undefined if no
+     *          profile was found
+     */
+    public static findActiveProfile(params: IHandlerParameters, profileProps: string[]): [string, string] | undefined {
+        const profileTypes = [
+            ...(params.definition.profile?.required || []),
+            ...(params.definition.profile?.optional || [])
+        ];
+
+        for (const profType of profileTypes) {
+            const profileMatch = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profType);
+            if (profileMatch != null && profileProps.every(propName => propName in profileMatch.schema.properties)) {
+                return [profType, ConfigUtils.getActiveProfileName(profType, params.arguments)];
+            }
+        }
+    }
+
     /**
      * Finds the token auth handler class for a team config profile.
      * @param profilePath JSON path of profile
@@ -74,18 +94,6 @@ export class ConfigAutoStore {
     }
 
     /**
-     * Finds the highest priority layer where a profile is stored.
-     * @param loadedProfile
-     * @returns User and global properties
-     */
-    public static getPriorityLayer(loadedProfile: IConfigLoadedProfile): { user: boolean, global: boolean } {
-        return {
-            user: Object.values(loadedProfile.properties).every(v => v.user),
-            global: Object.values(loadedProfile.properties).some(v => v.global)
-        };
-    }
-
-    /**
      * Stores session config properties into a team config profile.
      * @param params CLI handler parameters object
      * @param sessCfg Session config containing properties to store
@@ -114,25 +122,45 @@ export class ConfigAutoStore {
         }
 
         const beforeLayer = config.api.layers.get();
-        const loadedProfile = config.api.profiles.load(profileName);
-        const { user, global } = this.getPriorityLayer(loadedProfile);
-        config.api.layers.activate(user, global);
+        if (config.api.profiles.exists(profileName)) {
+            const { user, global } = config.api.layers.find(profileName);
+            config.api.layers.activate(user, global);
+        }
+
+        const profileObj = config.api.profiles.get(profileName);
+        const profileSchema = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profileType).schema;
+        const profileSecureProps = config.api.secure.securePropsForProfile(profileName);
 
         const baseProfileName = ConfigUtils.getActiveProfileName("base", params.arguments);
-        const baseProfileObj = lodash.get(config.properties, config.api.profiles.expandPath(baseProfileName));
+        const baseProfileObj = config.api.profiles.get(baseProfileName);
         const baseProfileSchema = ImperativeConfig.instance.loadedConfig.baseProfile.schema;
-        const profileSchema = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profileType).schema;
+        const baseProfileSecureProps = config.api.secure.securePropsForProfile(baseProfileName);
 
         for (const propName of profileProps) {
             let propProfilePath = profilePath;
-            // Determine if property should be stored in base profile instead
-            if (loadedProfile.properties[propName] == null && !loadedProfile.secure?.includes(propName) &&
-                (baseProfileObj.properties[propName] != null || baseProfileObj.secure?.includes(propName) ||
-                (propName === "tokenValue" && baseProfileObj.properties.tokenType != null))) {
+            /* If any of the following is true, then property should be stored in base profile:
+                (1) Service profile does not exist, but base profile does
+                (2) Property is missing from service profile properties/secure objects, but present in base profile
+                (3) Property is tokenValue and tokenType is missing from service profile, but present in base profile
+            */
+            if ((!config.api.profiles.exists(profileName) && config.api.profiles.exists(baseProfileName)) ||
+                (profileObj[propName] == null && !profileSecureProps.includes(propName) &&
+                (baseProfileObj[propName] != null || baseProfileSecureProps.includes(propName))) ||
+                (propName === "tokenValue" && profileObj.tokenType == null && baseProfileObj.tokenType != null)
+            ) {
                 propProfilePath = config.api.profiles.expandPath(baseProfileName);
             }
+
             const sessCfgPropName = propName === "host" ? "hostname" : propName;
             const propDefinition = profileSchema.properties[propName] || baseProfileSchema.properties[propName];
+            // If secure array at higher level includes this property, then property should be stored at higher level
+            if (propDefinition.secure) {
+                const secureProfilePath = config.api.secure.secureInfoForProp(`${propProfilePath}.properties.${propName}`, true).path;
+                if (secureProfilePath.split(".").length < propProfilePath.split(".").length) {
+                    propProfilePath = secureProfilePath.substr(0, secureProfilePath.lastIndexOf("."));
+                }
+            }
+
             config.set(`${propProfilePath}.properties.${propName}`, sessCfg[sessCfgPropName], {
                 secure: propDefinition.secure
             });
@@ -142,27 +170,6 @@ export class ConfigAutoStore {
         params.response.console.log(`Stored properties in ${config.layerActive().path}: ${profileProps.join(", ")}`);
         // Restore original active layer
         config.api.layers.activate(beforeLayer.user, beforeLayer.global);
-    }
-
-    /**
-     * Finds the profile where auto-store properties should be saved.
-     * @param params CLI handler parameters object
-     * @param profileProps List of properties required in the profile schema
-     * @returns Tuple containing profile type and name, or undefined if no
-     *          profile was found
-     */
-    private static findActiveProfile(params: IHandlerParameters, profileProps: string[]): [string, string] | undefined {
-        const profileTypes = [
-            ...(params.definition.profile?.required || []),
-            ...(params.definition.profile?.optional || [])
-        ];
-
-        for (const profType of profileTypes) {
-            const profileMatch = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profType);
-            if (profileMatch != null && profileProps.every(propName => propName in profileMatch.schema.properties)) {
-                return [profType, ConfigUtils.getActiveProfileName(profType, params.arguments)];
-            }
-        }
     }
 
     /**

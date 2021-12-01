@@ -71,7 +71,8 @@ describe("BaseAuthHandler config", () => {
                 user: "fakeUser",
                 password: "fakePass"
             },
-            positionals: ["auth", "login", "creds"]
+            positionals: ["auth", "login", "creds"],
+            definition: {}
         } as any;
 
         describe("default layer", () => {
@@ -446,7 +447,8 @@ describe("BaseAuthHandler config", () => {
                 tokenType: SessConstants.TOKEN_TYPE_JWT,
                 tokenValue: "fakeToken"
             },
-            positionals: ["auth", "logout", "creds"]
+            positionals: ["auth", "logout", "creds"],
+            definition: {}
         } as any;
 
         beforeEach(async () => {

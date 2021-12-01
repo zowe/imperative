@@ -21,8 +21,8 @@ import * as config from "../../../../../../__tests__/__integration__/imperative/
 import * as path from "path";
 import * as lodash from "lodash";
 import * as fs from "fs";
-import * as os from "os";
 import { CredentialManagerFactory } from "../../../../../security";
+import { setupConfigToLoad } from "../../../../../../__tests__/src/TestUtil";
 import { OverridesLoader } from "../../../../src/OverridesLoader";
 
 jest.mock("fs");
@@ -64,22 +64,8 @@ const fakeGblProjUserPath = path.join(__dirname, ".fakeapp", "fakeapp.config.use
 describe("Configuration Initialization command handler", () => {
     let writeFileSyncSpy: any;
     let existsSyncSpy: any;
-    let osHomedirSpy: any;
-    let currentWorkingDirectorySpy: any;
     let searchSpy: any;
     let setSchemaSpy: any;
-
-    async function setupConfigToLoad() {
-        // Load the ImperativeConfig so init can work properly
-
-        // Steps to take before calling:
-        // 1. Mock out Config.search the appropriate number of times
-        // 2. Mock out fs.existsSync and/or fs.readFileSync the appropriate number of times
-
-        osHomedirSpy.mockReturnValue(__dirname); // Pretend the current directory is the homedir
-        currentWorkingDirectorySpy.mockReturnValue(__dirname); // Pretend the current directory is where the command was invoked
-        ImperativeConfig.instance.config = await Config.load("fakeapp", {});
-    }
 
     beforeEach( async () => {
         jest.resetAllMocks();
@@ -88,8 +74,6 @@ describe("Configuration Initialization command handler", () => {
 
         writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
         existsSyncSpy = jest.spyOn(fs, "existsSync");
-        osHomedirSpy = jest.spyOn(os, "homedir");
-        currentWorkingDirectorySpy = jest.spyOn(process, "cwd");
         searchSpy = jest.spyOn(Config, "search");
     });
 
@@ -115,14 +99,13 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -167,8 +150,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -178,6 +159,7 @@ describe("Configuration Initialization command handler", () => {
         // initForDryRun
         const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
@@ -210,14 +192,13 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -257,8 +238,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -268,6 +247,7 @@ describe("Configuration Initialization command handler", () => {
         // initForDryRun
         const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
@@ -298,14 +278,13 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -352,8 +331,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -363,6 +340,7 @@ describe("Configuration Initialization command handler", () => {
         // initForDryRun
         const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
@@ -395,14 +373,13 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -444,8 +421,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -455,6 +430,7 @@ describe("Configuration Initialization command handler", () => {
         // initForDryRun
         const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
@@ -484,14 +460,13 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -529,8 +504,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -540,6 +513,7 @@ describe("Configuration Initialization command handler", () => {
         // initForDryRun
         const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
@@ -567,14 +541,13 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -612,8 +585,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -623,6 +594,7 @@ describe("Configuration Initialization command handler", () => {
         // initForDryRun
         const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
@@ -650,14 +622,13 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -697,8 +668,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -708,6 +677,7 @@ describe("Configuration Initialization command handler", () => {
         // initForDryRun
         const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
@@ -735,14 +705,13 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -784,8 +753,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -795,6 +762,7 @@ describe("Configuration Initialization command handler", () => {
         // initForDryRun
         const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
@@ -822,14 +790,13 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "true");
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -872,8 +839,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "true");
@@ -883,6 +848,7 @@ describe("Configuration Initialization command handler", () => {
         // initForDryRun
         const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
@@ -912,14 +878,13 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "false");
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -962,8 +927,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "false");
@@ -973,6 +936,7 @@ describe("Configuration Initialization command handler", () => {
         // initForDryRun
         const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
@@ -1002,8 +966,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const randomValueString = "9001";
@@ -1012,6 +974,7 @@ describe("Configuration Initialization command handler", () => {
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -1054,8 +1017,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const randomValueString = "9001";
@@ -1067,6 +1028,7 @@ describe("Configuration Initialization command handler", () => {
         // initForDryRun
         const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
@@ -1096,14 +1058,13 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => undefined);
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -1146,8 +1107,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => undefined);
@@ -1157,6 +1116,7 @@ describe("Configuration Initialization command handler", () => {
         // initForDryRun
         const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
@@ -1186,8 +1146,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => undefined);
@@ -1195,6 +1153,7 @@ describe("Configuration Initialization command handler", () => {
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
         jest.spyOn(CredentialManagerFactory, "initialized", "get").mockReturnValue(false);
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};

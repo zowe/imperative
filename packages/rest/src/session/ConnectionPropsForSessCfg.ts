@@ -19,6 +19,7 @@ import { IPromptOptions } from "../../../cmd/src/doc/response/api/handler/IPromp
 import { ISession } from "./doc/ISession";
 import { IProfileProperty } from "../../../profiles";
 import { ConfigAutoStore } from "../../../config/src/ConfigAutoStore";
+import * as ConfigUtils from "../../../config/src/ConfigUtils";
 
 /**
  * Extend options for IPromptOptions for internal wrapper method
@@ -134,6 +135,8 @@ export class ConnectionPropsForSessCfg {
                 promptForValues.push("password");
             }
         }
+
+        this.loadSecureSessCfgProps(connOptsToUse.parms, promptForValues);
 
         if (connOptsToUse.getValuesBack == null && connOptsToUse.doPrompting) {
             connOptsToUse.getValuesBack = this.getValuesBack(connOptsToUse);
@@ -288,7 +291,7 @@ export class ConnectionPropsForSessCfg {
      * List of properties on `sessCfg` object that should be kept secret and
      * may not appear in Imperative log files.
      */
-    private static readonly secureSessCfgProps: string[] = ["user", "password", "tokenValue", "passphrase"];
+    private static secureSessCfgProps: Set<string> = new Set(["user", "password", "tokenValue", "passphrase"]);
 
     /**
      * List of prompt messages that is used when the CLI prompts for session
@@ -317,10 +320,12 @@ export class ConnectionPropsForSessCfg {
             for (const value of promptForValues) {
                 let answer;
                 while (answer === undefined) {
-                    answer = await this.clientPrompt(`${this.promptTextForValues[value]} ${serviceDescription}: `, {
-                        hideText: profileSchema[value]?.secure,
-                        parms: connOpts.parms
-                    });
+                    const hideText = profileSchema[value]?.secure || this.secureSessCfgProps.has(value);
+                    let promptText = `${this.promptTextForValues[value]} ${serviceDescription}`;
+                    if (hideText) {
+                        promptText += " (will be hidden)";
+                    }
+                    answer = await this.clientPrompt(`${promptText}: `, { hideText, parms: connOpts.parms });
                     if (answer === null) {
                         throw new ImperativeError({ msg: `Timed out waiting for ${value}.` });
                     }
@@ -422,6 +427,12 @@ export class ConnectionPropsForSessCfg {
         return propToTest != null && propToTest !== "";
     }
 
+    /**
+     * Load base profile property schema for connection properties.
+     * @param params CLI handler parameters object
+     * @param promptForValues List of ISessCfg properties to prompt for
+     * @returns Key-value pairs of ISessCfg property name and profile property schema
+     */
     private static loadSchemaForSessCfgProps(params: IHandlerParameters | undefined, promptForValues: string[]): { [key: string]: IProfileProperty } {
         if (params == null || ImperativeConfig.instance.loadedConfig?.baseProfile == null) {
             return {};
@@ -433,5 +444,31 @@ export class ConnectionPropsForSessCfg {
             schemas[propName] = ImperativeConfig.instance.loadedConfig.baseProfile.schema.properties[profilePropName];
         }
         return schemas;
+    }
+
+    /**
+     * Load list of secure property names defined in team config.
+     * @param params CLI handler parameters object
+     * @param promptForValues List of ISessCfg properties to prompt for
+     */
+    private static loadSecureSessCfgProps(params: IHandlerParameters | undefined, promptForValues: string[]): void {
+        if (params == null || !ImperativeConfig.instance.config?.exists) {
+            return;
+        }
+
+        // Find profile that includes all the properties being prompted for
+        const profileProps = promptForValues.map(propName => propName === "hostname" ? "host" : propName);
+        const profileData = ConfigAutoStore.findActiveProfile(params, profileProps);
+        if (profileData == null) {
+            return;
+        }
+
+        // Load secure property names that are defined for active profiles
+        const config = ImperativeConfig.instance.config;
+        const baseProfileName = ConfigUtils.getActiveProfileName("base", params.arguments);
+        for (const secureProp of [...config.api.secure.securePropsForProfile(profileData[1]),
+            ...config.api.secure.securePropsForProfile(baseProfileName)]) {
+            this.secureSessCfgProps.add(secureProp === "host" ? "hostname" : secureProp);
+        }
     }
 }
