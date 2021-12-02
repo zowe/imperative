@@ -54,11 +54,14 @@ export class ConfigLayers extends ConfigApi {
                     suppressDump: true
                 });
             }
+        } else if (layer.exists) {
+            layer.properties = {} as any;
+            layer.exists = false;
         }
 
         // Populate any undefined defaults
-        layer.properties.defaults = layer.properties.defaults || {};
         layer.properties.profiles = layer.properties.profiles || {};
+        layer.properties.defaults = layer.properties.defaults || {};
     }
 
     // _______________________________________________________________________
