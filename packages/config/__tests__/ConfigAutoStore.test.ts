@@ -9,36 +9,11 @@
 *
 */
 
-import * as fs from "fs";
-import * as os from "os";
 import { AbstractAuthHandler } from "../../imperative";
 import { SessConstants } from "../../rest";
 import { ImperativeConfig } from "../../utilities";
-import { IConfig } from "../src/doc/IConfig";
-import { IConfigLoadedProfile } from "../src/doc/IConfigLoadedProfile";
-import { Config } from "../src/Config";
 import { ConfigAutoStore } from "../src/ConfigAutoStore";
-
-// Load the ImperativeConfig so config can work properly
-async function setupConfigToLoad(properties: IConfig): Promise<void> {
-    // One-time mocks
-    jest.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify(properties));
-    jest.spyOn(Config, "search").mockReturnValueOnce("fakeapp.config.user.json")
-        .mockReturnValueOnce("fakeapp.config.json"); // Give search something to return
-
-    // Permanent mocks
-    const osHomedirSpy = jest.spyOn(os, "homedir").mockReturnValue(__dirname); // Pretend the current directory is the homedir
-    const processCwdSpy = jest.spyOn(process, "cwd").mockReturnValue(__dirname); // Pretend the current directory is where the command was invoked
-    const existsSyncSpy = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false); // Only the user config exists
-
-    const fakeConfig = await Config.load("fakeapp");
-    jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(fakeConfig);
-
-    // Undo permanent mocks
-    osHomedirSpy.mockRestore();
-    processCwdSpy.mockRestore();
-    existsSyncSpy.mockRestore();
-}
+import { setupConfigToLoad } from "../../../__tests__/src/TestUtil";
 
 describe("ConfigAutoStore tests", () => {
     beforeAll(() => {
@@ -177,88 +152,6 @@ describe("ConfigAutoStore tests", () => {
         });
     });
 
-    describe("getPriorityLayer", () => {
-        it("should choose project layer", () => {
-            const loadedProfile: IConfigLoadedProfile = {
-                properties: {
-                    host: {
-                        secure: false,
-                        user: false,
-                        global: false
-                    },
-                    user: {
-                        secure: true,
-                        user: true,
-                        global: false
-                    }
-                }
-            };
-            const { user, global } = ConfigAutoStore.getPriorityLayer(loadedProfile);
-            expect(user).toBe(false);
-            expect(global).toBe(false);
-        });
-
-        it("should choose global layer", () => {
-            const loadedProfile: IConfigLoadedProfile = {
-                properties: {
-                    host: {
-                        secure: false,
-                        user: false,
-                        global: true
-                    },
-                    user: {
-                        secure: true,
-                        user: true,
-                        global: false
-                    }
-                }
-            };
-            const { user, global } = ConfigAutoStore.getPriorityLayer(loadedProfile);
-            expect(user).toBe(false);
-            expect(global).toBe(true);
-        });
-
-        it("should choose project user layer", () => {
-            const loadedProfile: IConfigLoadedProfile = {
-                properties: {
-                    host: {
-                        secure: false,
-                        user: true,
-                        global: false
-                    },
-                    user: {
-                        secure: true,
-                        user: true,
-                        global: false
-                    }
-                }
-            };
-            const { user, global } = ConfigAutoStore.getPriorityLayer(loadedProfile);
-            expect(user).toBe(true);
-            expect(global).toBe(false);
-        });
-
-        it("should choose global user layer", () => {
-            const loadedProfile: IConfigLoadedProfile = {
-                properties: {
-                    host: {
-                        secure: false,
-                        user: true,
-                        global: true
-                    },
-                    user: {
-                        secure: true,
-                        user: true,
-                        global: false
-                    }
-                }
-            };
-            const { user, global } = ConfigAutoStore.getPriorityLayer(loadedProfile);
-            expect(user).toBe(true);
-            expect(global).toBe(true);
-        });
-    });
-
     describe("storeSessCfgProps", () => {
         const handlerParams = {
             arguments: {},
@@ -277,7 +170,7 @@ describe("ConfigAutoStore tests", () => {
         let findActiveProfileSpy: any;
 
         beforeEach(() => {
-            findActiveProfileSpy = jest.spyOn(ConfigAutoStore as any, "findActiveProfile");
+            findActiveProfileSpy = jest.spyOn(ConfigAutoStore, "findActiveProfile");
         });
 
         afterEach(() => {
@@ -321,6 +214,33 @@ describe("ConfigAutoStore tests", () => {
             });
         });
 
+        it("should store user and password in base profile for basic auth 2", async () => {
+            await setupConfigToLoad({
+                profiles: {
+                    base: {
+                        type: "base",
+                        properties: {}
+                    }
+                },
+                defaults: { base: "base" },
+                autoStore: true
+            });
+            ImperativeConfig.instance.config.save = jest.fn();
+
+            const propsToAdd = {
+                user: "admin",
+                password: "123456"
+            };
+            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                hostname: "example.com",
+                type: SessConstants.AUTH_TYPE_BASIC,
+                ...propsToAdd
+            }, ["user", "password"]);
+
+            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+            expect(ImperativeConfig.instance.config.properties.profiles.base.properties).toMatchObject(propsToAdd);
+        });
+
         it("should store user and password in service profile for basic auth", async () => {
             await setupConfigToLoad({
                 profiles: {
@@ -337,6 +257,95 @@ describe("ConfigAutoStore tests", () => {
                     }
                 },
                 defaults: { fruit: "fruit", base: "base" },
+                autoStore: true
+            });
+            ImperativeConfig.instance.config.save = jest.fn();
+
+            const propsToAdd = {
+                user: "admin",
+                password: "123456"
+            };
+            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                hostname: "example.com",
+                type: SessConstants.AUTH_TYPE_BASIC,
+                ...propsToAdd
+            }, ["user", "password"]);
+
+            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+            expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject(propsToAdd);
+        });
+
+        it("should store user and password in service profile for basic auth 2", async () => {
+            await setupConfigToLoad({
+                profiles: {
+                    fruit: {
+                        type: "fruit",
+                        properties: {}
+                    }
+                },
+                defaults: { fruit: "fruit" },
+                autoStore: true
+            });
+            ImperativeConfig.instance.config.save = jest.fn();
+
+            const propsToAdd = {
+                user: "admin",
+                password: "123456"
+            };
+            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                hostname: "example.com",
+                type: SessConstants.AUTH_TYPE_BASIC,
+                ...propsToAdd
+            }, ["user", "password"]);
+
+            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+            expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject(propsToAdd);
+        });
+
+        it("should store user and password in service profile for basic auth 3", async () => {
+            await setupConfigToLoad({
+                profiles: {},
+                defaults: {},
+                autoStore: true
+            });
+            ImperativeConfig.instance.config.save = jest.fn();
+
+            const propsToAdd = {
+                user: "admin",
+                password: "123456"
+            };
+            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                hostname: "example.com",
+                type: SessConstants.AUTH_TYPE_BASIC,
+                ...propsToAdd
+            }, ["user", "password"]);
+
+            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+            expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject(propsToAdd);
+        });
+
+        it("should store user and password in top level profile for basic auth", async () => {
+            await setupConfigToLoad({
+                profiles: {
+                    fruit: {
+                        type: "fruit",
+                        profiles: {
+                            apple: {
+                                type: "apple",
+                                properties: {}
+                            }
+                        },
+                        properties: {},
+                        secure: ["user", "password"]
+                    },
+                    base: {
+                        type: "base",
+                        properties: {
+                            host: "example.com"
+                        }
+                    }
+                },
+                defaults: { fruit: "fruit.apple", base: "base" },
                 autoStore: true
             });
             ImperativeConfig.instance.config.save = jest.fn();
@@ -495,7 +504,7 @@ describe("ConfigAutoStore tests", () => {
                 }
             };
 
-            const profileData = (ConfigAutoStore as any).findActiveProfile(handlerParams, ["host"]);
+            const profileData = ConfigAutoStore.findActiveProfile(handlerParams as any, ["host"]);
             expect(profileData).toEqual(["fruit", "orange"]);
         });
 
@@ -520,7 +529,7 @@ describe("ConfigAutoStore tests", () => {
                 }
             };
 
-            const profileData = (ConfigAutoStore as any).findActiveProfile(handlerParams, ["host"]);
+            const profileData = ConfigAutoStore.findActiveProfile(handlerParams as any, ["host"]);
             expect(profileData).toEqual(["fruit", "apple"]);
         });
 
@@ -540,7 +549,7 @@ describe("ConfigAutoStore tests", () => {
                 }
             };
 
-            const profileData = (ConfigAutoStore as any).findActiveProfile(handlerParams, ["host"]);
+            const profileData = ConfigAutoStore.findActiveProfile(handlerParams as any, ["host"]);
             expect(profileData).toEqual(["fruit", "fruit"]);
         });
 
@@ -557,7 +566,7 @@ describe("ConfigAutoStore tests", () => {
                 }
             };
 
-            const profileData = (ConfigAutoStore as any).findActiveProfile(handlerParams, ["host"]);
+            const profileData = ConfigAutoStore.findActiveProfile(handlerParams as any, ["host"]);
             expect(profileData).toBeUndefined();
         });
 
@@ -577,7 +586,7 @@ describe("ConfigAutoStore tests", () => {
                 }
             };
 
-            const profileData = (ConfigAutoStore as any).findActiveProfile(handlerParams, ["host", "hostess"]);
+            const profileData = ConfigAutoStore.findActiveProfile(handlerParams as any, ["host", "hostess"]);
             expect(profileData).toBeUndefined();
         });
     });

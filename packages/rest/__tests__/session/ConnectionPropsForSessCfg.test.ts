@@ -16,6 +16,8 @@ import * as SessConstants from "../../src/session/SessConstants";
 import { ISession } from "../../src/session/doc/ISession";
 import { Logger } from "../../../logger";
 import { join } from "path";
+import { ConfigAutoStore } from "../../../config/src/ConfigAutoStore";
+import { setupConfigToLoad } from "../../../../__tests__/src/TestUtil";
 
 const certFilePath = join(__dirname, "..", "..", "..", "..", "__tests__", "__integration__", "cmd",
     "__tests__", "integration", "cli", "auth", "__resources__", "fakeCert.cert");
@@ -547,6 +549,138 @@ describe("ConnectionPropsForSessCfg tests", () => {
         expect(sessCfgWithConnProps.tokenValue).toBeUndefined();
         expect(sessCfgWithConnProps.cert).toBeUndefined();
         expect(sessCfgWithConnProps.certKey).toBeUndefined();
+    });
+
+    it("get host name from prompt with hidden text - service profile", async() => {
+        const hostFromPrompt = "FakeHost";
+        const portFromArgs = 11;
+        const userFromArgs = "FakeUser";
+        const passFromArgs = "FakePassword";
+        let questionText: string;
+        let promptOpts: any;
+
+        const initialSessCfg = {
+            rejectUnauthorized: true,
+        };
+        const args = {
+            $0: "zowe",
+            _: [""],
+            port: portFromArgs,
+            user: userFromArgs,
+            password: passFromArgs
+        };
+
+        // command handler prompt method (CLI versus SDK-based prompting)
+        const commandHandlerPrompt = jest.fn((text: string, opts: any) => {
+            questionText = text;
+            promptOpts = opts;
+            return Promise.resolve(hostFromPrompt);
+        });
+
+        // pretend we have a command handler object
+        const parms = {
+            arguments: {},
+            response: {
+                console: {
+                    prompt: commandHandlerPrompt
+                }
+            }
+        };
+
+        jest.spyOn(ConfigAutoStore, "findActiveProfile").mockReturnValueOnce(["fruit", "mango"]);
+        await setupConfigToLoad({
+            profiles: {
+                mango: {
+                    type: "fruit",
+                    properties: {},
+                    secure: ["host"]
+                }
+            },
+            defaults: { fruit: "mango" }
+        });
+
+        const sessCfgWithConnProps: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+            initialSessCfg, args, {
+                parms: parms as any // treat this as a CLI-based prompt
+            }
+        );
+
+        expect(questionText).toContain("(will be hidden)");
+        expect(promptOpts.hideText).toBe(true);
+        expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
+        expect(sessCfgWithConnProps.user).toBe(userFromArgs);
+        expect(sessCfgWithConnProps.password).toBe(passFromArgs);
+        expect(sessCfgWithConnProps.hostname).toBe(hostFromPrompt);
+        expect(sessCfgWithConnProps.tokenType).toBeUndefined();
+        expect(sessCfgWithConnProps.tokenValue).toBeUndefined();
+    });
+
+    it("get host name from prompt with hidden text - base profile", async() => {
+        const hostFromPrompt = "FakeHost";
+        const portFromArgs = 11;
+        const userFromArgs = "FakeUser";
+        const passFromArgs = "FakePassword";
+        let questionText: string;
+        let promptOpts: any;
+
+        const initialSessCfg = {
+            rejectUnauthorized: true,
+        };
+        const args = {
+            $0: "zowe",
+            _: [""],
+            port: portFromArgs,
+            user: userFromArgs,
+            password: passFromArgs
+        };
+
+        // command handler prompt method (CLI versus SDK-based prompting)
+        const commandHandlerPrompt = jest.fn((text: string, opts: any) => {
+            questionText = text;
+            promptOpts = opts;
+            return Promise.resolve(hostFromPrompt);
+        });
+
+        // pretend we have a command handler object
+        const parms = {
+            arguments: {},
+            response: {
+                console: {
+                    prompt: commandHandlerPrompt
+                }
+            }
+        };
+
+        jest.spyOn(ConfigAutoStore, "findActiveProfile").mockReturnValueOnce(["fruit", "mango"]);
+        await setupConfigToLoad({
+            profiles: {
+                mango: {
+                    type: "fruit",
+                    properties: {}
+                },
+                fruit: {
+                    type: "base",
+                    properties: {},
+                    secure: ["host"]
+                }
+            },
+            defaults: { fruit: "mango", base: "fruit" }
+        });
+
+        const sessCfgWithConnProps: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt<ISession>(
+            initialSessCfg, args, {
+                parms: parms as any // treat this as a CLI-based prompt
+            }
+        );
+
+        expect(questionText).toContain("(will be hidden)");
+        expect(promptOpts.hideText).toBe(true);
+        expect(sessCfgWithConnProps.type).toBe(SessConstants.AUTH_TYPE_BASIC);
+        expect(sessCfgWithConnProps.user).toBe(userFromArgs);
+        expect(sessCfgWithConnProps.password).toBe(passFromArgs);
+        expect(sessCfgWithConnProps.hostname).toBe(hostFromPrompt);
+        expect(sessCfgWithConnProps.tokenType).toBeUndefined();
+        expect(sessCfgWithConnProps.tokenValue).toBeUndefined();
     });
 
     it("throws an error if user doesn't enter port as a number", async() => {

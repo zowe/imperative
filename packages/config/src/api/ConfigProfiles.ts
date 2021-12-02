@@ -10,10 +10,7 @@
 */
 
 import * as JSONC from "comment-json";
-import * as lodash from "lodash";
-import * as lodashDeep from "lodash-deep";
 import { ConfigConstants } from "../ConfigConstants";
-import { IConfigLoadedProfile, IConfigLoadedProperty } from "../doc/IConfigLoadedProfile";
 import { IConfigProfile } from "../doc/IConfigProfile";
 import { ConfigApi } from "./ConfigApi";
 
@@ -74,19 +71,6 @@ export class ConfigProfiles extends ConfigApi {
 
     // _______________________________________________________________________
     /**
-     * Load the properties and sub-profiles of the profile at the
-     * specified location.
-     *
-     * @param path The dotted path of desired location.
-     *
-     * @returns The desired profile object. null if the path does not exist.
-     */
-    public load(path: string): IConfigLoadedProfile {
-        return this.loadProfile(this.expandPath(path));
-    }
-
-    // _______________________________________________________________________
-    /**
      * Set the default value for the specified type of profile within
      * the currently active layer.
      *
@@ -125,57 +109,6 @@ export class ConfigProfiles extends ConfigApi {
      */
     public expandPath(shortPath: string): string {
         return shortPath.replace(/(^|\.)/g, "$1profiles.");
-    }
-
-    // _______________________________________________________________________
-    /**
-     * Load the properties and sub-profiles of the profile at the
-     * specified location.
-     *
-     * Place secure values into their expected locations within the profile.
-     *
-     * TODO: Does this need to recurse up through nested profiles?
-     *
-     * @param path The dotted path of desired location.
-     *
-     * @returns The desired profile object. null if the path does not exist.
-     */
-    private loadProfile(path: string): IConfigLoadedProfile {
-        const profile = lodash.get(this.mConfig.properties, path);
-        if (profile == null) {
-            return null;
-        }
-
-        const loadedProfile = lodashDeep.deepMapValues(profile, (value: any, p: string) => {
-            if (p.includes("properties.")) {
-                for (const layer of this.mConfig.mLayers) {
-                    const propertyPath = `${path}.${p}`;
-                    if (lodash.get(layer.properties, propertyPath) != null) {
-                        const property: IConfigLoadedProperty = {
-                            value,
-                            secure: this.mConfig.api.secure.secureFields(layer).includes(propertyPath),
-                            user: layer.user,
-                            global: layer.global
-                        };
-                        return property;
-                    }
-                }
-            }
-            return value;
-        });
-
-        for (const layer of this.mConfig.mLayers) {
-            for (const secureProp of this.mConfig.api.secure.secureFields(layer)) {
-                if (secureProp.startsWith(`${path}.`)) {
-                    const subpath = secureProp.slice(path.length + 1);
-                    if (lodash.get(loadedProfile, subpath) == null) {
-                        lodash.set(loadedProfile, subpath, { secure: true, user: layer.user, global: layer.global });
-                    }
-                }
-            }
-        }
-
-        return loadedProfile;
     }
 
     // _______________________________________________________________________
