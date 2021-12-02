@@ -54,7 +54,7 @@ export class ConfigLayers extends ConfigApi {
                     suppressDump: true
                 });
             }
-        } else {
+        } else if (layer.exists) {
             layer.properties = {} as any;
             layer.exists = false;
         }
