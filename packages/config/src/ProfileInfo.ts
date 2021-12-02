@@ -799,7 +799,7 @@ export class ProfileInfo {
      * @returns A session containing all of the supplied profile argument
      *          attributes that are relevant to a session.
      */
-    private static initSessCfg(profArgs: IProfArgAttrs[]): ISession {
+    public static initSessCfg(profArgs: IProfArgAttrs[]): ISession {
         const sessCfg: any = {};
 
         // the set of names of arguments in IProfArgAttrs used in ISession

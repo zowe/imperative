@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Made the `ProfileInfo.initSessCfg` method public for easier instantiation of classes that extend AbstractSession.
+
 ## `5.0.0-next.202112021611`
 
 - BugFix: Fixed `config import` and `config init` behaving incorrectly when config JSON exists in higher level directory. [zowe/zowe-cli#1218](https://github.com/zowe/zowe-cli/issues/1218)
