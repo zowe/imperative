@@ -11,7 +11,7 @@
 
 import * as path from "path";
 import * as lodash from "lodash";
-import { IProfile, ProfileIO, ProfilesConstants, ProfileUtils } from "../../profiles";
+import { ProfileIO, ProfilesConstants, ProfileUtils } from "../../profiles";
 import { IImperativeConfig } from "../../imperative";
 import { Config } from "./Config";
 import { IConfig } from "./doc/IConfig";
@@ -81,80 +81,63 @@ export class ConfigBuilder {
      * @returns Results object including new config and error details for profiles that failed to convert.
      */
     public static async convert(profilesRootDir: string): Promise<IConfigConvertResult> {
-        const profileTypes = ProfileIO.getAllProfileDirectories(profilesRootDir);
-        const oldProfiles: { name: string; type: string }[] = [];
-        for (const profileType of profileTypes) {
+        const result: IConfigConvertResult = {
+            config: Config.empty(),
+            profilesConverted: {},
+            profilesFailed: []
+        };
+
+        for (const profileType of ProfileIO.getAllProfileDirectories(profilesRootDir)) {
             const profileTypeDir = path.join(profilesRootDir, profileType);
             const profileNames = ProfileIO.getAllProfileNames(profileTypeDir, ".yaml", `${profileType}_meta`);
-            profileNames.forEach(name => oldProfiles.push({ name, type: profileType }));
-        }
-        const config = Config.empty();
-        const profilesConverted: any = {};
-        const profilesFailed = [];
-
-        for (const profileType of profileTypes) {
-            // TODO Thoroughly handle error cases for invalid folders/profile YAMLs/meta YAMLs
-            const oldProfilesByType = oldProfiles.filter(({ type }) => type === profileType);
-            if (oldProfilesByType.length === 0) {
+            if (profileNames.length === 0) {
                 continue;
             }
 
-            const profileTypeDir = path.join(profilesRootDir, profileType);
-            for (const { name } of oldProfilesByType) {
-                const profileFilePath = path.join(profileTypeDir, `${name}.yaml`);
-                const secureProps = [];
-                let convertError: Error;
-                let profileProps: IProfile;
-
+            for (const profileName of profileNames) {
                 try {
-                    profileProps = ProfileIO.readProfileFile(profileFilePath, profileType);
-                } catch (error) {
-                    convertError = new Error(`Failed to read profile YAML file: ${profileFilePath}`);
-                    continue;
-                }
+                    const profileFilePath = path.join(profileTypeDir, `${profileName}.yaml`);
+                    const profileProps = ProfileIO.readProfileFile(profileFilePath, profileType);
+                    const secureProps = [];
 
-                for (const [key, value] of Object.entries(profileProps)) {
-                    if (value.toString().startsWith(ProfilesConstants.PROFILES_OPTION_SECURELY_STORED)) {
-                        const secureValue = await CredentialManagerFactory.manager.load(
-                            ProfileUtils.getProfilePropertyKey(profileType, name, key), true);
-                        if (secureValue != null) {
-                            profileProps[key] = JSON.parse(secureValue);
-                            secureProps.push(key);
-                        } else {
-                            delete profileProps[key];
+                    for (const [key, value] of Object.entries(profileProps)) {
+                        if (value.toString().startsWith(ProfilesConstants.PROFILES_OPTION_SECURELY_STORED)) {
+                            const secureValue = await CredentialManagerFactory.manager.load(
+                                ProfileUtils.getProfilePropertyKey(profileType, profileName, key), true);
+                            if (secureValue != null) {
+                                profileProps[key] = JSON.parse(secureValue);
+                                secureProps.push(key);
+                            } else {
+                                delete profileProps[key];
+                            }
                         }
                     }
-                }
 
-                config.profiles[ProfileUtils.getProfileMapKey(profileType, name)] = {
-                    type: profileType,
-                    properties: profileProps,
-                    secure: secureProps
-                };
+                    result.config.profiles[ProfileUtils.getProfileMapKey(profileType, profileName)] = {
+                        type: profileType,
+                        properties: profileProps,
+                        secure: secureProps
+                    };
 
-                if (convertError == null) {
-                    profilesConverted[profileType] = [...(profilesConverted[profileType] || []), name];
-                } else {
-                    profilesFailed.push({ name, type: profileType, error: convertError });
+                    result.profilesConverted[profileType] = [...(result.profilesConverted[profileType] || []), profileName];
+                } catch (error) {
+                    result.profilesFailed.push({ name: profileName, type: profileType, error });
                 }
             }
 
-            const metaFilePath = path.join(profileTypeDir, `${profileType}_meta.yaml`);
             try {
+                const metaFilePath = path.join(profileTypeDir, `${profileType}_meta.yaml`);
                 const profileMetaFile = ProfileIO.readMetaFile(metaFilePath);
                 if (profileMetaFile.defaultProfile != null) {
-                    config.defaults[profileType] = ProfileUtils.getProfileMapKey(profileType, profileMetaFile.defaultProfile);
+                    result.config.defaults[profileType] = ProfileUtils.getProfileMapKey(profileType, profileMetaFile.defaultProfile);
                 }
             } catch (error) {
-                profilesFailed.push({ type: profileType, error: new Error(`Failed to read profile meta YAML file: ${metaFilePath}`) });
+                result.profilesFailed.push({ type: profileType, error });
             }
         }
 
-        return {
-            config: { ...config, autoStore: true },
-            profilesConverted,
-            profilesFailed
-        };
+        result.config.autoStore = true;
+        return result;
     }
 
     /**

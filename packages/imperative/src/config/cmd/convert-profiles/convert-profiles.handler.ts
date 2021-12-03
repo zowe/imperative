@@ -55,19 +55,22 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         for (const [k, v] of Object.entries(convertResult.profilesConverted)) {
             params.response.console.log(`Converted ${k} profiles: ${v.join(", ")}`);
         }
-        const profilesFailed = convertResult.profilesFailed.filter(pf => pf.name != null);
-        if (profilesFailed.length > 0) {
-            params.response.console.errorHeader(`Failed to convert ${profilesFailed.length} profiles`);
+
+        if (convertResult.profilesFailed.length > 0) {
+            params.response.console.log("");
+            const numProfilesFailed = convertResult.profilesFailed.filter(pf => pf.name != null).length;
+            // TODO What if number is 0 because only failure is related to meta files
+            params.response.console.errorHeader(`Failed to convert ${numProfilesFailed} profile(s). See details below`);
         }
         for (const { name, type, error } of convertResult.profilesFailed) {
             if (name != null) {
-                params.response.console.error(`Failed to load ${type} profile "${name}":\n${error}`);
+                params.response.console.error(`Failed to load ${type} profile "${name}":\n    ${error}`);
             } else {
-                params.response.console.error(`Failed to find default ${type} profile:\n${error}`);
+                params.response.console.error(`Failed to find default ${type} profile:\n    ${error}`);
             }
         }
-        params.response.console.log("");
 
+        params.response.console.log("");
         const teamConfig = ImperativeConfig.instance.config;
         teamConfig.api.layers.activate(false, true);
         teamConfig.api.layers.merge(convertResult.config);
@@ -75,6 +78,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         await teamConfig.save(false);
 
         const oldProfilesDir = `${profilesRootDir.replace(/[\\/]$/, "")}-old`;
+        // TODO What if renaming directory fails? Lack of permissions, file inside is locked, etc?
         fs.renameSync(profilesRootDir, oldProfilesDir);
 
         const cliBin = ImperativeConfig.instance.rootCommandName;
