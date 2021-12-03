@@ -9,12 +9,16 @@
 *
 */
 
+import * as path from "path";
 import * as lodash from "lodash";
+import { IProfile, ProfileIO, ProfilesConstants, ProfileUtils } from "../../profiles";
 import { IImperativeConfig } from "../../imperative";
 import { Config } from "./Config";
 import { IConfig } from "./doc/IConfig";
 import { IConfigBuilderOpts } from "./doc/IConfigBuilderOpts";
 import { IConfigProfile } from "./doc/IConfigProfile";
+import { CredentialManagerFactory } from "../../security";
+import { IConfigConvertResult } from "./doc/IConfigConvertResult";
 
 export class ConfigBuilder {
     /**
@@ -69,6 +73,88 @@ export class ConfigBuilder {
         }
 
         return { ...config, autoStore: true };
+    }
+
+    /**
+     * Convert existing v1 profiles to a Config object and report any conversion failures.
+     * @param profilesRootDir Root directory where v1 profiles are stored.
+     * @returns Results object including new config and error details for profiles that failed to convert.
+     */
+    public static async convert(profilesRootDir: string): Promise<IConfigConvertResult> {
+        const profileTypes = ProfileIO.getAllProfileDirectories(profilesRootDir);
+        const oldProfiles: { name: string; type: string }[] = [];
+        for (const profileType of profileTypes) {
+            const profileTypeDir = path.join(profilesRootDir, profileType);
+            const profileNames = ProfileIO.getAllProfileNames(profileTypeDir, ".yaml", `${profileType}_meta`);
+            profileNames.forEach(name => oldProfiles.push({ name, type: profileType }));
+        }
+        const config = Config.empty();
+        const profilesConverted: any = {};
+        const profilesFailed = [];
+
+        for (const profileType of profileTypes) {
+            // TODO Thoroughly handle error cases for invalid folders/profile YAMLs/meta YAMLs
+            const oldProfilesByType = oldProfiles.filter(({ type }) => type === profileType);
+            if (oldProfilesByType.length === 0) {
+                continue;
+            }
+
+            const profileTypeDir = path.join(profilesRootDir, profileType);
+            for (const { name } of oldProfilesByType) {
+                const profileFilePath = path.join(profileTypeDir, `${name}.yaml`);
+                const secureProps = [];
+                let convertError: Error;
+                let profileProps: IProfile;
+
+                try {
+                    profileProps = ProfileIO.readProfileFile(profileFilePath, profileType);
+                } catch (error) {
+                    convertError = new Error(`Failed to read profile YAML file: ${profileFilePath}`);
+                    continue;
+                }
+
+                for (const [key, value] of Object.entries(profileProps)) {
+                    if (value.toString().startsWith(ProfilesConstants.PROFILES_OPTION_SECURELY_STORED)) {
+                        const secureValue = await CredentialManagerFactory.manager.load(
+                            ProfileUtils.getProfilePropertyKey(profileType, name, key), true);
+                        if (secureValue != null) {
+                            profileProps[key] = JSON.parse(secureValue);
+                            secureProps.push(key);
+                        } else {
+                            delete profileProps[key];
+                        }
+                    }
+                }
+
+                config.profiles[ProfileUtils.getProfileMapKey(profileType, name)] = {
+                    type: profileType,
+                    properties: profileProps,
+                    secure: secureProps
+                };
+
+                if (convertError == null) {
+                    profilesConverted[profileType] = [...(profilesConverted[profileType] || []), name];
+                } else {
+                    profilesFailed.push({ name, type: profileType, error: convertError });
+                }
+            }
+
+            const metaFilePath = path.join(profileTypeDir, `${profileType}_meta.yaml`);
+            try {
+                const profileMetaFile = ProfileIO.readMetaFile(metaFilePath);
+                if (profileMetaFile.defaultProfile != null) {
+                    config.defaults[profileType] = ProfileUtils.getProfileMapKey(profileType, profileMetaFile.defaultProfile);
+                }
+            } catch (error) {
+                profilesFailed.push({ type: profileType, error: new Error(`Failed to read profile meta YAML file: ${metaFilePath}`) });
+            }
+        }
+
+        return {
+            config: { ...config, autoStore: true },
+            profilesConverted,
+            profilesFailed
+        };
     }
 
     /**
