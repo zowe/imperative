@@ -51,7 +51,7 @@ describe("Plugin Management Facility", () => {
      */
     const impCfg: ImperativeConfig = ImperativeConfig.instance;
 
-    impCfg.loadedConfig = require("./baseCliConfig.testData");
+    impCfg.loadedConfig = require("./__resources__/baseCliConfig.testData");
     impCfg.callerLocation = resolve("../../../../imperative-sample/lib/index.js");
 
     const mockAddCmdGrpToResolvedCliCmdTree = jest.fn();
@@ -1255,7 +1255,7 @@ describe("Plugin Management Facility", () => {
         let impCmdTree: ICommandDefinition;
 
         beforeEach(() => {
-            impCmdTree = require("./impCmdTree.testData");
+            impCmdTree = require("./__resources__/impCmdTree.testData");
         });
 
         it("should return true when plugin groupName matches another top-level name", () => {
@@ -1692,13 +1692,12 @@ describe("Plugin Management Facility", () => {
         });
 
         it("should return the exported content of a valid module", () => {
-            const modulePath = __dirname + "/mockConfigModule";
+            const modulePath = __dirname + "/__resources__/mockConfigModule";
             const mockContent = require(modulePath);
             mockFormPluginRuntimePath.mockReturnValue(modulePath);
 
-            const moduleContent = PMF.requirePluginModuleCallback(modulePath);
+            const moduleContent = PMF.requirePluginModuleCallback("dummy")(modulePath);
             expect(moduleContent).toBe(mockContent);
-
         });
 
         it("should record an error when the module does not exist", () => {
@@ -1706,8 +1705,8 @@ describe("Plugin Management Facility", () => {
             mockFormPluginRuntimePath.mockReturnValue(modulePath);
             PMF.currPluginName = "PluginWithConfigModule";
 
-            const moduleContent = PMF.requirePluginModuleCallback(modulePath);
-            const issue = pluginIssues.getIssueListForPlugin(PMF.pluginNmForUseInCallback)[0];
+            const moduleContent = PMF.requirePluginModuleCallback(PMF.currPluginName)(modulePath);
+            const issue = pluginIssues.getIssueListForPlugin(PMF.currPluginName)[0];
             expect(issue.issueSev).toBe(IssueSeverity.CMD_ERROR);
             expect(issue.issueText).toContain(
                 "Unable to load the following module for plug-in");

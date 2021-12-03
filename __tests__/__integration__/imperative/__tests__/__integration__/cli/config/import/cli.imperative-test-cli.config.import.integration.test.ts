@@ -35,6 +35,8 @@ describe("imperative-test-cli config import", () => {
 
     // Create the test environment
     beforeAll(async () => {
+        const serverAddressRegex = /(http.*)\s/;
+
         TEST_ENVIRONMENT = await SetupTestEnvironment.createTestEnv({
             cliHomeEnvVar: "IMPERATIVE_TEST_CLI_CLI_HOME",
             testName: "imperative_test_cli_test_config_init_command"
@@ -47,7 +49,10 @@ describe("imperative-test-cli config import", () => {
         // Retrieve server URL from the end of first line printed to stdout
         localhostUrl = await new Promise((resolve, reject) => {
             pServer.stdout.on("data", (data: Buffer) => {
-                resolve(data.toString().trim().split(" ").pop());
+                const match = data.toString().match(serverAddressRegex);
+                if(match != null) {
+                    resolve(match[1]);
+                }
             });
         });
     });
@@ -84,6 +89,15 @@ describe("imperative-test-cli config import", () => {
             expectedLines.forEach((line: string) => expect(response.output.toString()).toContain(line));
             expect(response.error).not.toBeDefined();
             expect(response.stderr.toString()).toEqual("");
+        });
+
+        it("should fail to import if location is not specified", () => {
+            const response = runCliScript(path.join(__dirname, "/__scripts__/import_config.sh"), TEST_ENVIRONMENT.workingDir, []);
+
+            expect(response.status).toEqual(1);
+            expect(response.stderr.toString()).toContain("Missing Positional Argument");
+            expect(response.stderr.toString()).toMatchSnapshot();
+            expect(response.stdout.toString()).toEqual("");
         });
 
         it("should successfully import and overwrite a config and schema", () => {

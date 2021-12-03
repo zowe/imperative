@@ -68,7 +68,7 @@ export class ConfigBuilder {
             this.hoistTemplateProperties(config.profiles, impConfig.baseProfile.type);
         }
 
-        return config;
+        return { ...config, autoStore: true };
     }
 
     /**

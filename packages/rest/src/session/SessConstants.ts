@@ -52,11 +52,24 @@ export const AUTH_TYPE_BEARER = "bearer";
 export const AUTH_TYPE_TOKEN = "token";
 
 /**
+ * Session type property value for certificate authentication,
+ * which uses a certificate file and key file.
+ */
+export const AUTH_TYPE_CERT_PEM = "cert-pem";
+
+/**
+ * Session type property value for certificate authentication,
+ * which uses a certificate file and passphrase.
+ */
+// export const AUTH_TYPE_CERT_PFX = "cert-pfx";
+
+/**
  * type that specifies the choice of authentication types
  */
 export type AUTH_TYPE_CHOICES =
-    typeof AUTH_TYPE_NONE   | typeof AUTH_TYPE_BASIC |
-    typeof AUTH_TYPE_BEARER | typeof AUTH_TYPE_TOKEN;
+    typeof AUTH_TYPE_NONE     | typeof AUTH_TYPE_BASIC    |
+    typeof AUTH_TYPE_BEARER   | typeof AUTH_TYPE_TOKEN    |
+    typeof AUTH_TYPE_CERT_PEM; // | typeof AUTH_TYPE_CERT_PFX ;
 
 /**
  * tokenType property value for IBM's LTPA2 token

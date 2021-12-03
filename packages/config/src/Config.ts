@@ -9,7 +9,7 @@
 *
 */
 
-import * as node_path from "path";
+import * as path from "path";
 import * as os from "os";
 import * as fs from "fs";
 import * as deepmerge from "deepmerge";
@@ -17,6 +17,7 @@ import * as findUp from "find-up";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 
+import { fileURLToPath } from "url";
 import { ConfigConstants } from "./ConfigConstants";
 import { IConfig } from "./doc/IConfig";
 import { IConfigLayer } from "./doc/IConfigLayer";
@@ -26,6 +27,9 @@ import { IConfigOpts } from "./doc/IConfigOpts";
 import { IConfigSecure } from "./doc/IConfigSecure";
 import { IConfigVault } from "./doc/IConfigVault";
 import { ConfigLayers, ConfigPlugins, ConfigProfiles, ConfigSecure } from "./api";
+import { coercePropValue } from "./ConfigUtils";
+import { IConfigSchemaInfo } from "./doc/IConfigSchema";
+import { JsUtils } from "../../utilities/src/JsUtils";
 
 /**
  * Enum used by Config class to maintain order of config layers
@@ -58,6 +62,7 @@ export class Config {
 
     /**
      * App name used in config filenames (e.g., *my_cli*.config.json)
+     * It could be an absolute path, we recommend always using the getter method
      * @internal
      */
     public mApp: string;
@@ -86,7 +91,7 @@ export class Config {
      */
     public mActive: {
         user: boolean;
-        global: boolean
+        global: boolean;
     };
 
     /**
@@ -100,6 +105,16 @@ export class Config {
      * @internal
      */
     public mSecure: IConfigSecure;
+
+    /**
+     * Cached version of Config APIs
+     */
+    private mApi: {
+        profiles: ConfigProfiles,
+        plugins: ConfigPlugins,
+        layers: ConfigLayers,
+        secure: ConfigSecure
+    };
 
     // _______________________________________________________________________
     /**
@@ -125,6 +140,7 @@ export class Config {
      * Load config files from disk and secure properties from vault.
      * @param app App name used in config filenames (e.g., *my_cli*.config.json)
      * @param opts Options to control how Config class behaves
+     * @throws An ImperativeError if the configuration does not load successfully
      */
     public static async load(app: string, opts?: IConfigOpts): Promise<Config> {
         opts = opts || {};
@@ -132,20 +148,36 @@ export class Config {
         // Create the basic empty configuration
         const myNewConfig = new Config(opts);
         myNewConfig.mApp = app;
-        myNewConfig.mLayers = [];
-        myNewConfig.mHomeDir = opts.homeDir || node_path.join(os.homedir(), `.${app}`);
-        myNewConfig.mProjectDir = opts.projectDir || process.cwd();
         myNewConfig.mActive = { user: false, global: false };
         myNewConfig.mVault = opts.vault;
         myNewConfig.mSecure = {};
+
+        // Populate configuration file layers
+        await myNewConfig.reload(opts);
+
+        // Load secure fields
+        if (!opts.noLoad) { await myNewConfig.api.secure.load(); }
+
+        return myNewConfig;
+    }
+
+    /**
+     * Reload config files from disk in the current project directory.
+     * @param opts Options to control how Config class behaves
+     * @throws An ImperativeError if the configuration does not load successfully
+     */
+    public async reload(opts?: IConfigOpts) {
+        this.mLayers = [];
+        this.mHomeDir = opts?.homeDir || path.join(os.homedir(), `.${this.mApp}`);
+        this.mProjectDir = opts?.projectDir || process.cwd();
 
         // Populate configuration file layers
         for (const layer of [
             Layers.ProjectUser, Layers.ProjectConfig,
             Layers.GlobalUser, Layers.GlobalConfig
         ]) {
-            myNewConfig.mLayers.push({
-                path: myNewConfig.layerPath(layer),
+            this.mLayers.push({
+                path: this.layerPath(layer),
                 exists: false,
                 properties: Config.empty(),
                 global: layer === Layers.GlobalUser || layer === Layers.GlobalConfig,
@@ -156,13 +188,13 @@ export class Config {
         // Read and populate each configuration layer
         try {
             let setActive = true;
-            for (const currLayer of myNewConfig.mLayers) {
-                await myNewConfig.api.layers.read(currLayer);
+            for (const currLayer of this.mLayers) {
+                if (!opts?.noLoad) { await this.api.layers.read(currLayer); }
 
                 // Find the active layer
                 if (setActive && currLayer.exists) {
-                    myNewConfig.mActive.user = currLayer.user;
-                    myNewConfig.mActive.global = currLayer.global;
+                    this.mActive.user = currLayer.user;
+                    this.mActive.global = currLayer.global;
                     setActive = false;
                 }
 
@@ -177,11 +209,6 @@ export class Config {
                 throw new ImperativeError({ msg: `An unexpected error occurred during config load: ${e.message}` });
             }
         }
-
-        // Load secure fields
-        await myNewConfig.api.secure.load();
-
-        return myNewConfig;
     }
 
     // _______________________________________________________________________
@@ -196,8 +223,7 @@ export class Config {
         try {
             for (const currLayer of this.mLayers) {
                 if ((allLayers !== false) ||
-                    (currLayer.user === this.mActive.user && currLayer.global === this.mActive.global))
-                {
+                    (currLayer.user === this.mActive.user && currLayer.global === this.mActive.global)) {
                     await this.api.layers.write(currLayer);
                 }
             }
@@ -225,16 +251,16 @@ export class Config {
         switch (layer) {
             case Layers.ProjectUser: {
                 const userConfigPath = Config.search(this.userConfigName, { ignoreDirs: [this.mHomeDir], startDir: this.mProjectDir });
-                return userConfigPath || node_path.join(this.mProjectDir, this.userConfigName);
+                return userConfigPath || path.join(this.mProjectDir, this.userConfigName);
             }
             case Layers.ProjectConfig: {
                 const configPath = Config.search(this.configName, { ignoreDirs: [this.mHomeDir], startDir: this.mProjectDir });
-                return configPath || node_path.join(this.mProjectDir, this.configName);
+                return configPath || path.join(this.mProjectDir, this.configName);
             }
             case Layers.GlobalUser:
-                return node_path.join(this.mHomeDir, this.userConfigName);
+                return path.join(this.mHomeDir, this.userConfigName);
             case Layers.GlobalConfig:
-                return node_path.join(this.mHomeDir, this.configName);
+                return path.join(this.mHomeDir, this.configName);
         }
     }
 
@@ -243,12 +269,15 @@ export class Config {
      * Access the config API for manipulating profiles, plugins, layers, and secure values.
      */
     get api() {
-        return {
-            profiles: new ConfigProfiles(this),
-            plugins: new ConfigPlugins(this),
-            layers: new ConfigLayers(this),
-            secure: new ConfigSecure(this)
-        };
+        if (this.mApi == null) {
+            this.mApi = {
+                profiles: new ConfigProfiles(this),
+                plugins: new ConfigPlugins(this),
+                layers: new ConfigLayers(this),
+                secure: new ConfigSecure(this)
+            };
+        }
+        return this.mApi;
     }
 
     // _______________________________________________________________________
@@ -300,7 +329,7 @@ export class Config {
      * Filename used for config JSONC files
      */
     public get configName(): string {
-        return `${this.mApp}${Config.END_OF_TEAM_CONFIG}`;
+        return `${this.appName}${Config.END_OF_TEAM_CONFIG}`;
     }
 
     // _______________________________________________________________________
@@ -308,7 +337,7 @@ export class Config {
      * Filename used for user config JSONC files
      */
     public get userConfigName(): string {
-        return `${this.mApp}${Config.END_OF_USER_CONFIG}`;
+        return `${this.appName}${Config.END_OF_USER_CONFIG}`;
     }
 
     // _______________________________________________________________________
@@ -316,7 +345,31 @@ export class Config {
      * Filename used for config schema JSON files
      */
     public get schemaName(): string {
-        return `${this.mApp}.schema.json`;
+        return `${this.appName}.schema.json`;
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Schema file path used by the active layer
+     */
+    public getSchemaInfo(): IConfigSchemaInfo {
+        const layer = this.layerActive();
+        const originalSchema = layer.properties.$schema;
+        if (originalSchema == null) {
+            return {
+                original: null,
+                resolved: null,
+                local: false,
+            };
+        }
+
+        const tempSchema = originalSchema.startsWith("file://") ? fileURLToPath(originalSchema) : originalSchema;
+        const schemaFilePath = path.resolve(tempSchema.startsWith("./") ? path.join(path.dirname(layer.path), tempSchema) : tempSchema);
+        return {
+            original: originalSchema,
+            resolved: !JsUtils.isUrl(tempSchema) ? schemaFilePath : originalSchema,
+            local: !JsUtils.isUrl(tempSchema),
+        };
     }
 
     // _______________________________________________________________________
@@ -336,9 +389,9 @@ export class Config {
         opts = opts || {};
         const p = findUp.sync((directory: string) => {
             if (opts.ignoreDirs?.includes(directory)) return;
-            return fs.existsSync(node_path.join(directory, file)) && directory;
+            return fs.existsSync(path.join(directory, file)) && directory;
         }, { cwd: opts.startDir, type: "directory" });
-        return p ? node_path.join(p, file) : null;
+        return p ? path.join(p, file) : null;
     }
 
     // _______________________________________________________________________
@@ -356,30 +409,30 @@ export class Config {
      * Set value of a property in the active config layer.
      * TODO: more validation
      *
-     * @param path Property path
+     * @param propertyPath Property path
      * @param value Property value
-     * @param opts Include `secure: true` to store the property securely
+     * @param opts Optional parameters to change behavior
+     * * `parseString` - If true, strings will be converted to a more specific
+     *                   type like boolean or number when possible
+     * * `secure` - If true, the property will be stored securely.
+     *              If false, the property will be stored in plain text.
      */
-    public set(path: string, value: any, opts?: { secure?: boolean }) {
+    public set(propertyPath: string, value: any, opts?: { parseString?: boolean; secure?: boolean }) {
         opts = opts || {};
 
         const layer = this.layerActive();
         let obj: any = layer.properties;
-        const segments = path.split(".");
-        path.split(".").forEach((segment: string) => {
+        const segments = propertyPath.split(".");
+        propertyPath.split(".").forEach((segment: string) => {
             if (obj[segment] == null && segments.indexOf(segment) < segments.length - 1) {
                 obj[segment] = {};
                 obj = obj[segment];
             } else if (segments.indexOf(segment) === segments.length - 1) {
+                if (opts?.parseString) {
+                    value = coercePropValue(value);
+                }
 
-                // TODO: add ability to escape these values to string
-                if (value === "true")
-                    value = true;
-                if (value === "false")
-                    value = false;
-                if (!isNaN(value) && !isNaN(parseFloat(value)))
-                    value = parseInt(value, 10);
-                if (Array.isArray(obj[segment])) {
+                if (opts?.parseString && Array.isArray(obj[segment])) {
                     obj[segment].push(value);
                 } else {
                     obj[segment] = value;
@@ -390,7 +443,7 @@ export class Config {
         });
 
         if (opts.secure != null) {
-            const secureInfo = this.api.secure.secureInfoForProp(path);
+            const secureInfo = this.api.secure.secureInfoForProp(propertyPath);
             if (secureInfo != null) {
                 const secureProps: string[] = lodash.get(layer.properties, secureInfo.path, []);
                 if (opts.secure && !secureProps.includes(secureInfo.prop)) {
@@ -407,17 +460,17 @@ export class Config {
     // _______________________________________________________________________
     /**
      * Unset value of a property in the active config layer.
-     * @param path Property path
+     * @param propertyPath Property path
      * @param opts Include `secure: false` to preserve property in secure array
      */
-    public delete(path: string, opts?: { secure?: boolean }) {
+    public delete(propertyPath: string, opts?: { secure?: boolean }) {
         opts = opts || {};
 
         const layer = this.layerActive();
-        lodash.unset(layer.properties, path);
+        lodash.unset(layer.properties, propertyPath);
 
         if (opts.secure !== false) {
-            const secureInfo = this.api.secure.secureInfoForProp(path);
+            const secureInfo = this.api.secure.secureInfoForProp(propertyPath);
             if (secureInfo != null) {
                 const secureProps: string[] = lodash.get(layer.properties, secureInfo.path);
                 if (secureProps != null && secureProps.includes(secureInfo.prop)) {
@@ -434,16 +487,17 @@ export class Config {
      * @param schema The URI of JSON schema, or a schema object to use
      */
     public setSchema(schema: string | object) {
+        const layer = this.layerActive();
         const schemaUri = (typeof schema === "string") ? schema : `./${this.schemaName}`;
         const schemaObj = (typeof schema !== "string") ? schema : null;
 
-        const layer = this.layerActive();
-        delete layer.properties.$schema;
-        layer.properties = { $schema: schemaUri, ...layer.properties };
+        if (layer.properties.$schema == null) {
+            layer.properties = JSONC.parse(JSONC.stringify({ $schema: schemaUri, ...layer.properties }, null, ConfigConstants.INDENT));
+        }
 
-        if (schemaObj != null) {
-            const filePath = node_path.resolve(node_path.dirname(layer.path), schemaUri);
-            fs.writeFileSync(filePath, JSONC.stringify(schemaObj, null, ConfigConstants.INDENT));
+        const schemaInfo = this.getSchemaInfo();
+        if (schemaObj != null && (schemaInfo.local || schemaInfo.original.startsWith("./"))) {
+            fs.writeFileSync(schemaInfo.resolved, JSONC.stringify(schemaObj, null, ConfigConstants.INDENT));
         }
     }
 
@@ -472,8 +526,13 @@ export class Config {
             }
 
             // Merge "defaults" - only add new properties from this layer
-            for (const [name, value] of Object.entries(layer.properties.defaults))
+            for (const [name, value] of Object.entries(layer.properties.defaults)) {
                 c.defaults[name] = c.defaults[name] || value;
+            }
+
+            if (layer.properties.autoStore) {
+                c.autoStore = true;
+            }
         });
 
         // Merge the project layer profiles
@@ -551,6 +610,32 @@ export class Config {
 
     // _______________________________________________________________________
     /**
+     * Check if a layer exists in the given path
+     *
+     * @param inDir The directory to which you want to look for the layer.
+     */
+    public layerExists(inDir: string, user?: boolean): boolean {
+        let found = false;
+
+        // Search in all layers
+        this.mLayers.forEach(layer => {
+            found = !found && layer.exists && (typeof user !== "undefined" ? layer.user === user : true) && path.dirname(layer.path) === inDir;
+        });
+
+        // Search for user and non-user config in the given directory
+        if (!found) {
+            if (typeof user === "undefined") {
+                found = fs.existsSync(path.join(inDir, this.configName)) || fs.existsSync(path.join(inDir, this.userConfigName));
+            } else {
+                found = fs.existsSync(path.join(inDir, user ? this.userConfigName : this.configName));
+            }
+        }
+
+        return found;
+    }
+
+    // _______________________________________________________________________
+    /**
      * Form the path name of the team config file to display in messages.
      * Always return the team name (not the user name).
      * If the a team configuration is active, return the full path to the
@@ -564,13 +649,13 @@ export class Config {
      */
     public formMainConfigPathNm(options: any): string {
         // if a team configuration is not active, just return the file name.
-        let configPathNm: string = this.mApp + Config.END_OF_TEAM_CONFIG;
+        let configPathNm: string = this.appName + Config.END_OF_TEAM_CONFIG;
         if (options.addPath === false) {
             // if our caller does not want the path, just return the file name.
             return configPathNm;
         }
 
-        if (this.exists){
+        if (this.exists) {
             // form the full path to the team config file
             configPathNm = this.api.layers.get().path;
 

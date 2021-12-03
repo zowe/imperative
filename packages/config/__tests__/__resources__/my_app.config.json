@@ -1,4 +1,5 @@
 {
+    "$schema": "./my_app.schema.json",
     "profiles": {
         "fruit": {
             "properties": {

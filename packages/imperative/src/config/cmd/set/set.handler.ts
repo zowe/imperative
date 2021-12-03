@@ -13,7 +13,6 @@ import * as JSONC from "comment-json";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { ImperativeError } from "../../../../../error";
-import { CredentialManagerFactory } from "../../../../../security";
 import { ImperativeConfig } from "../../../../../utilities";
 
 export default class SetHandler implements ICommandHandler {
@@ -38,7 +37,7 @@ export default class SetHandler implements ICommandHandler {
         }
 
         // Setup the credential vault API for the config
-        if (secure && !CredentialManagerFactory.initialized) {
+        if (secure && config.api.secure.loadFailed) {
             throw secureSaveError();
         }
 
@@ -59,7 +58,7 @@ export default class SetHandler implements ICommandHandler {
         }
 
         // Set the value in the config, save the secure values, write the config layer
-        config.set(params.arguments.property, value, { secure });
+        config.set(params.arguments.property, value, { parseString: true, secure });
 
         await config.save(false);
     }

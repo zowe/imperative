@@ -24,8 +24,10 @@ import * as keytar from "keytar";
 import * as path from "path";
 import * as lodash from "lodash";
 import * as fs from "fs";
-import * as os from "os";
 import { SessConstants } from "../../../../../rest";
+import { setupConfigToLoad } from "../../../../../../__tests__/src/TestUtil";
+
+jest.mock("fs");
 
 const getIHandlerParametersObject = (): IHandlerParameters => {
     const x: any = {
@@ -49,6 +51,7 @@ const getIHandlerParametersObject = (): IHandlerParameters => {
             }
         },
         arguments: {},
+        definition: {}
     };
     return x as IHandlerParameters;
 };
@@ -79,36 +82,22 @@ describe("Configuration Secure command handler", () => {
     let readFileSyncSpy: any;
     let writeFileSyncSpy: any;
     let existsSyncSpy: any;
-    let osHomedirSpy: any;
-    let currentWorkingDirectorySpy: any;
     let searchSpy: any;
     let setSchemaSpy: any;
     let keytarGetPasswordSpy: any;
     let keytarSetPasswordSpy: any;
     let keytarDeletePasswordSpy: any;
 
-    async function setupConfigToLoad() {
-        // Load the ImperativeConfig so init can work properly
-
-        // Steps to take before calling:
-        // 1. Mock out Config.search the appropriate number of times
-        // 2. Mock out fs.existsSync and/or fs.readFileSync the appropriate number of times
-
-        const opts: IConfigOpts = {
-            vault: {
-                load: ((k: string): Promise<string> => {
-                    return CredentialManagerFactory.manager.load(k, true);
-                }),
-                save: ((k: string, v: any): Promise<void> => {
-                    return CredentialManagerFactory.manager.save(k, v);
-                })
-            }
-        };
-
-        osHomedirSpy.mockReturnValue(__dirname); // Pretend the current directory is the homedir
-        currentWorkingDirectorySpy.mockReturnValue(__dirname); // Pretend the current directory is where the command was invoked
-        ImperativeConfig.instance.config = await Config.load("fakeapp", opts);
-    }
+    const configOpts: IConfigOpts = {
+        vault: {
+            load: ((k: string): Promise<string> => {
+                return CredentialManagerFactory.manager.load(k, true);
+            }),
+            save: ((k: string, v: any): Promise<void> => {
+                return CredentialManagerFactory.manager.save(k, v);
+            })
+        }
+    };
 
     beforeAll( async() => {
         keytarGetPasswordSpy = jest.spyOn(keytar, "getPassword");
@@ -127,8 +116,6 @@ describe("Configuration Secure command handler", () => {
     beforeEach( async () => {
         ImperativeConfig.instance.loadedConfig = lodash.cloneDeep(fakeConfig);
 
-        osHomedirSpy = jest.spyOn(os, "homedir");
-        currentWorkingDirectorySpy = jest.spyOn(process, "cwd");
         searchSpy = jest.spyOn(Config, "search");
         keytarGetPasswordSpy = jest.spyOn(keytar, "getPassword");
         keytarSetPasswordSpy = jest.spyOn(keytar, "setPassword");
@@ -163,12 +150,10 @@ describe("Configuration Secure command handler", () => {
         writeFileSyncSpy.mockImplementation();
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
 
-        await setupConfigToLoad(); // Setup the config
+        await setupConfigToLoad(undefined, configOpts); // Setup the config
 
         // We aren't testing the config initialization - clear the spies
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
         writeFileSyncSpy.mockClear();
         existsSyncSpy.mockClear();
         readFileSyncSpy.mockClear();
@@ -230,12 +215,10 @@ describe("Configuration Secure command handler", () => {
         writeFileSyncSpy.mockImplementation();
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
 
-        await setupConfigToLoad(); // Setup the config
+        await setupConfigToLoad(undefined, configOpts); // Setup the config
 
         // We aren't testing the config initialization - clear the spies
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
         writeFileSyncSpy.mockClear();
         existsSyncSpy.mockClear();
         readFileSyncSpy.mockClear();
@@ -297,12 +280,10 @@ describe("Configuration Secure command handler", () => {
         writeFileSyncSpy.mockImplementation();
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
 
-        await setupConfigToLoad(); // Setup the config
+        await setupConfigToLoad(undefined, configOpts); // Setup the config
 
         // We aren't testing the config initialization - clear the spies
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
         writeFileSyncSpy.mockClear();
         existsSyncSpy.mockClear();
         readFileSyncSpy.mockClear();
@@ -363,12 +344,10 @@ describe("Configuration Secure command handler", () => {
         writeFileSyncSpy.mockImplementation();
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
 
-        await setupConfigToLoad(); // Setup the config
+        await setupConfigToLoad(undefined, configOpts); // Setup the config
 
         // We aren't testing the config initialization - clear the spies
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
         writeFileSyncSpy.mockClear();
         existsSyncSpy.mockClear();
         readFileSyncSpy.mockClear();
@@ -430,12 +409,10 @@ describe("Configuration Secure command handler", () => {
         writeFileSyncSpy.mockImplementation();
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
 
-        await setupConfigToLoad(); // Setup the config
+        await setupConfigToLoad(undefined, configOpts); // Setup the config
 
         // We aren't testing the config initialization - clear the spies
         searchSpy.mockClear();
-        osHomedirSpy.mockClear();
-        currentWorkingDirectorySpy.mockClear();
         writeFileSyncSpy.mockClear();
         existsSyncSpy.mockClear();
         readFileSyncSpy.mockClear();
@@ -486,7 +463,7 @@ describe("Configuration Secure command handler", () => {
             }
         };
 
-        const authHandlerPath = __dirname + "/../../../../src/auth/handlers/BaseAuthHandler";
+        const authHandlerPath = __dirname + "/../../../../src/auth/handlers/AbstractAuthHandler";
         const handler = new SecureHandler();
         const params = getIHandlerParametersObject();
         let mockAuthLogin;
@@ -498,10 +475,10 @@ describe("Configuration Secure command handler", () => {
             mockGetPromptParams = jest.fn().mockReturnValue([{ defaultTokenType: SessConstants.TOKEN_TYPE_JWT }, mockAuthLogin]);
 
             jest.doMock(authHandlerPath, () => {
-                const { BaseAuthHandler } = jest.requireActual(authHandlerPath);
+                const { AbstractAuthHandler } = jest.requireActual(authHandlerPath);
                 return {
                     default: jest.fn(() => {
-                        const handler = Object.create(BaseAuthHandler.prototype);
+                        const handler = Object.create(AbstractAuthHandler.prototype);
                         return Object.assign(handler, {
                             getPromptParams: mockGetPromptParams
                         });
@@ -524,8 +501,13 @@ describe("Configuration Secure command handler", () => {
             existsSyncSpy = jest.spyOn(fs, "existsSync");
 
             mockAuthLogin.mockClear();
+            writeFileSyncSpy.mockReset();
             promptWithTimeoutSpy = jest.fn(() => "fakePromptingData");
             (params.response.console as any).prompt = promptWithTimeoutSpy;
+        });
+
+        afterAll(() => {
+            jest.unmock(authHandlerPath);
         });
 
         it("should invoke auth handler to obtain token and store it securely", async () => {
@@ -536,7 +518,7 @@ describe("Configuration Secure command handler", () => {
             writeFileSyncSpy.mockImplementation();
             searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
 
-            await setupConfigToLoad(); // Setup the config
+            await setupConfigToLoad(undefined, configOpts); // Setup the config
 
             jest.spyOn(ImperativeConfig.instance, "loadedConfig", "get").mockReturnValueOnce({
                 profiles: [{
@@ -580,7 +562,7 @@ describe("Configuration Secure command handler", () => {
             writeFileSyncSpy.mockImplementation();
             searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
 
-            await setupConfigToLoad(); // Setup the config
+            await setupConfigToLoad(undefined, configOpts); // Setup the config
             await handler.process(params);
 
             const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
@@ -616,7 +598,7 @@ describe("Configuration Secure command handler", () => {
             writeFileSyncSpy.mockImplementation();
             searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
 
-            await setupConfigToLoad(); // Setup the config
+            await setupConfigToLoad(undefined, configOpts); // Setup the config
             await handler.process(params);
 
             const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
@@ -651,7 +633,7 @@ describe("Configuration Secure command handler", () => {
             writeFileSyncSpy.mockImplementation();
             searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
 
-            await setupConfigToLoad(); // Setup the config
+            await setupConfigToLoad(undefined, configOpts); // Setup the config
 
             jest.spyOn(ImperativeConfig.instance, "loadedConfig", "get").mockReturnValueOnce({
                 profiles: [{
@@ -694,7 +676,7 @@ describe("Configuration Secure command handler", () => {
             writeFileSyncSpy.mockImplementation();
             searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
 
-            await setupConfigToLoad(); // Setup the config
+            await setupConfigToLoad(undefined, configOpts); // Setup the config
 
             jest.spyOn(ImperativeConfig.instance, "loadedConfig", "get").mockReturnValueOnce({
                 profiles: [{
@@ -738,7 +720,7 @@ describe("Configuration Secure command handler", () => {
             writeFileSyncSpy.mockImplementation();
             searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
 
-            await setupConfigToLoad(); // Setup the config
+            await setupConfigToLoad(undefined, configOpts); // Setup the config
 
             jest.spyOn(ImperativeConfig.instance, "loadedConfig", "get").mockReturnValueOnce({
                 profiles: [{

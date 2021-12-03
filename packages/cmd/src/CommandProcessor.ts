@@ -355,6 +355,20 @@ export class CommandProcessor {
             commandLine = commandLine.replace(regEx, "--$1 ****");
         }
 
+        // determine if the command has the cert key file option and mask the value
+        regEx = /--(cert-key-file|certKeyFile) ([^\s]+)/gi;
+
+        if (commandLine.search(regEx) >= 0) {
+            commandLine = commandLine.replace(regEx, "--$1 ****");
+        }
+
+        // determine if the command has the cert file passphrase option and mask the value
+        regEx = /--(cert-file-passphrase|certFilePassphrase) ([^\s]+)/gi;
+
+        if (commandLine.search(regEx) >= 0) {
+            commandLine = commandLine.replace(regEx, "--$1 ****");
+        }
+
         // this.log.info(`post commandLine issued:\n\n${TextUtils.prettyJson(commandLine)}`);
         // Log the invoke
         this.log.info(`Invoking command "${this.definition.name}"...`);
@@ -362,28 +376,24 @@ export class CommandProcessor {
         this.log.trace(`Invoke parameters:\n${inspect(params, { depth: null })}`);
         this.log.trace(`Command definition:\n${inspect(this.definition, { depth: null })}`);
 
-        // Build the response object, base args object, and the entire array of options for this command
-        // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
-        if (params.arguments.dcd) {
-            // NOTE(Kelosky): we adjust `cwd` and do not restore it, so that multiple simultaneous requests from the same
-            // directory will operate without unexpected chdir taking place.  Multiple simultaneous requests from different
-            // directories may cause unpredictable results
-            process.chdir(params.arguments.dcd as string);
-
-            // reinit config for daemon client directory
-            const newOpts = ImperativeConfig.instance.config?.opts || {};
-
-            if (newOpts.vault == null) newOpts.vault = ImperativeConfig.instance.config?.mVault;
-            ImperativeConfig.instance.config = await Config.load(ImperativeConfig.instance.rootCommandName, newOpts);
-            this.mConfig = ImperativeConfig.instance.config;
-        }
-
         const prepareResponse = this.constructResponseObject(params);
         prepareResponse.succeeded();
 
         // Prepare for command processing - load profiles, stdin, etc.
         let prepared: ICommandPrepared;
         try {
+            // Build the response object, base args object, and the entire array of options for this command
+            // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
+            if (params.arguments.dcd) {
+                // NOTE(Kelosky): we adjust `cwd` and do not restore it, so that multiple simultaneous requests from the same
+                // directory will operate without unexpected chdir taking place.  Multiple simultaneous requests from different
+                // directories may cause unpredictable results
+                process.chdir(params.arguments.dcd as string);
+
+                // reload config for daemon client directory
+                await ImperativeConfig.instance.config.reload();
+            }
+
             this.log.info(`Preparing (loading profiles, reading stdin, etc.) execution of "${this.definition.name}" command...`);
             prepared = await this.prepare(prepareResponse, params.arguments);
         } catch (prepareErr) {

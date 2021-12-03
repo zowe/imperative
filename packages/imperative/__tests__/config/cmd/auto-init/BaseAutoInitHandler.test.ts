@@ -19,6 +19,7 @@ import * as open from "open";
 import { ConfigSchema } from "../../../../../config";
 import { CredentialManagerFactory } from "../../../../../security";
 import { SessConstants } from "../../../../../rest";
+import { OverridesLoader } from "../../../../src/OverridesLoader";
 
 describe("BaseAutoInitHandler", () => {
     beforeEach( async () => {
@@ -71,7 +72,8 @@ describe("BaseAutoInitHandler", () => {
         };
         const mockSetSchema = jest.fn();
         const buildSchemaSpy = jest.spyOn(ConfigSchema, 'buildSchema').mockImplementation();
-        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
+        const ensureCredMgrSpy = jest.spyOn(OverridesLoader, "ensureCredentialManagerLoaded");
+        const displayAutoInitChangesSpy = jest.spyOn(handler as any, "displayAutoInitChanges");
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
             config: {
                 api: mockImperativeConfigApi,
@@ -104,6 +106,7 @@ describe("BaseAutoInitHandler", () => {
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
         expect(mockSetSchema).toHaveBeenCalledTimes(1);
         expect(mockMerge).toHaveBeenCalledWith(undefined);
+        expect(displayAutoInitChangesSpy).toHaveBeenCalledTimes(1);
     });
 
     it("should call init with token", async () => {
@@ -146,7 +149,8 @@ describe("BaseAutoInitHandler", () => {
             }
         };
         const buildSchemaSpy = jest.spyOn(ConfigSchema, 'buildSchema').mockImplementation();
-        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
+        const ensureCredMgrSpy = jest.spyOn(OverridesLoader, "ensureCredentialManagerLoaded");
+        const displayAutoInitChangesSpy = jest.spyOn(handler as any, "displayAutoInitChanges");
         const mockSetSchema = jest.fn();
 
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
@@ -180,6 +184,7 @@ describe("BaseAutoInitHandler", () => {
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
         expect(mockSetSchema).toHaveBeenCalledTimes(1);
         expect(mockMerge).toHaveBeenCalledWith(undefined);
+        expect(displayAutoInitChangesSpy).toHaveBeenCalledTimes(1);
     });
 
     it("should process login successfully without creating profile on timeout", async () => {
@@ -224,7 +229,8 @@ describe("BaseAutoInitHandler", () => {
             }
         };
         const buildSchemaSpy = jest.spyOn(ConfigSchema, 'buildSchema').mockImplementation();
-        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
+        const ensureCredMgrSpy = jest.spyOn(OverridesLoader, "ensureCredentialManagerLoaded");
+        const displayAutoInitChangesSpy = jest.spyOn(handler as any, "displayAutoInitChanges");
         const mockSetSchema = jest.fn();
 
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
@@ -260,9 +266,10 @@ describe("BaseAutoInitHandler", () => {
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
         expect(mockSetSchema).toHaveBeenCalledTimes(1);
         expect(mockMerge).toHaveBeenCalledWith(undefined);
+        expect(displayAutoInitChangesSpy).toHaveBeenCalledTimes(1);
     });
 
-    it("should call init and do a dry run", async () => {
+    it("should call init and do a dry run with output", async () => {
         const handler = new FakeAutoInitHandler();
         const params: IHandlerParameters = {
             response: {
@@ -302,7 +309,8 @@ describe("BaseAutoInitHandler", () => {
         });
         const mockSecureFields = jest.fn().mockReturnValue([]);
         const mockFindSecure = jest.fn().mockReturnValue([]);
-        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
+        const ensureCredMgrSpy = jest.spyOn(OverridesLoader, "ensureCredentialManagerLoaded");
+        const displayAutoInitChangesSpy = jest.spyOn(handler as any, "displayAutoInitChanges");
         const mockImperativeConfigApi = {
             layers: {
                 activate: mockActivate,
@@ -316,7 +324,9 @@ describe("BaseAutoInitHandler", () => {
             }
         };
         const diffSpy = jest.spyOn(jestdiff, 'diff');
-        const stripAnsiSpy = jest.spyOn(stripAnsi, 'default');
+
+        jest.mock("strip-ansi");
+        const stripAnsiSpy = jest.spyOn(stripAnsi, "default");
 
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
             config: {
@@ -346,6 +356,7 @@ describe("BaseAutoInitHandler", () => {
         expect(stripAnsiSpy).toHaveBeenCalledTimes(1);
         expect(mockMerge).toHaveBeenCalledWith(undefined, true);
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
+        expect(displayAutoInitChangesSpy).toHaveBeenCalledTimes(0);
     });
 
     it("should call init and do edit", async () => {
@@ -380,7 +391,8 @@ describe("BaseAutoInitHandler", () => {
             exists: true,
             properties: {}
         });
-        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
+        const ensureCredMgrSpy = jest.spyOn(OverridesLoader, "ensureCredentialManagerLoaded");
+        const displayAutoInitChangesSpy = jest.spyOn(handler as any, "displayAutoInitChanges");
         const mockImperativeConfigApi = {
             layers: {
                 activate: mockActivate,
@@ -417,6 +429,7 @@ describe("BaseAutoInitHandler", () => {
         expect(mockGet).toHaveBeenCalledTimes(1);
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
         expect(open).toHaveBeenCalledTimes(1);
+        expect(displayAutoInitChangesSpy).toHaveBeenCalledTimes(1);
     });
 
     it("should call init and do overwrite", async () => {
@@ -454,7 +467,8 @@ describe("BaseAutoInitHandler", () => {
             exists: true,
             properties: {}
         });
-        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
+        const ensureCredMgrSpy = jest.spyOn(OverridesLoader, "ensureCredentialManagerLoaded");
+        const displayAutoInitChangesSpy = jest.spyOn(handler as any, "displayAutoInitChanges");
         const mockImperativeConfigApi = {
             layers: {
                 activate: mockActivate,
@@ -497,6 +511,7 @@ describe("BaseAutoInitHandler", () => {
         expect(mockSetSchema).toHaveBeenCalledTimes(1);
         expect(mockSet).toHaveBeenCalledTimes(1);
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
+        expect(displayAutoInitChangesSpy).toHaveBeenCalledTimes(1);
     });
 
     it("should call init and do a dry run and hide output", async () => {
@@ -549,7 +564,8 @@ describe("BaseAutoInitHandler", () => {
         });
         const mockSecureFields = jest.fn().mockReturnValue(["profiles.base.properties.tokenValue"]);
         const mockFindSecure = jest.fn().mockReturnValue([]);
-        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
+        const ensureCredMgrSpy = jest.spyOn(OverridesLoader, "ensureCredentialManagerLoaded");
+        const displayAutoInitChangesSpy = jest.spyOn(handler as any, "displayAutoInitChanges");
         const mockImperativeConfigApi = {
             layers: {
                 activate: mockActivate,
@@ -563,8 +579,9 @@ describe("BaseAutoInitHandler", () => {
             }
         };
         const diffSpy = jest.spyOn(jestdiff, 'diff');
-        const stripAnsiSpy = jest.spyOn(stripAnsi, 'default');
         const unsetSpy = jest.spyOn(lodash, "unset");
+        jest.mock("strip-ansi");
+        const stripAnsiSpy = jest.spyOn(stripAnsi, 'default');
 
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
             config: {
@@ -595,5 +612,6 @@ describe("BaseAutoInitHandler", () => {
         expect(unsetSpy).toHaveBeenCalledTimes(1);
         expect(mockMerge).toHaveBeenCalledWith(undefined, true);
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
+        expect(displayAutoInitChangesSpy).toHaveBeenCalledTimes(0);
     });
 });

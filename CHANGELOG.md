@@ -2,6 +2,60 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `5.0.0-next.202112021611`
+
+- BugFix: Fixed `config import` and `config init` behaving incorrectly when config JSON exists in higher level directory. [zowe/zowe-cli#1218](https://github.com/zowe/zowe-cli/issues/1218)
+- BugFix: Fixed `config import` command not failing when positional argument "location" is missing.
+
+## `5.0.0-next.202112012301`
+
+- Enhancement: Changed CLI prompt input to be hidden for properties designated as secure in team config. [zowe/zowe-cli#1106](https://github.com/zowe/zowe-cli/issues/1106)
+- BugFix: Improved error message when Keytar module fails to load. [#27](https://github.com/zowe/imperative/issues/27)
+- **Next Breaking**
+    - Removed the `ConfigProfiles.load` API method. Use the methods `ConfigLayers.find` and `ConfigSecure.securePropsForProfile` instead. [#568](https://github.com/zowe/imperative/issues/568)
+
+## `5.0.0-next.202111301806`
+
+- Enhancement: Added a utility function to get basic system architecture and platform info
+
+## `5.0.0-next.202111292021`
+
+- **Next Breaking**: Use JSON-based communication protocol between imperative daemon server and client.
+
+## `5.0.0-next.202111192150`
+
+- BugFix: Changed credentials to be stored securely by default for v1 profiles to be consistent with the experience for v2 profiles. [zowe/zowe-cli#1128](https://github.com/zowe/zowe-cli/issues/1128)
+- **Next Breaking**
+    - Removed the `credentialServiceName` property from ImperativeConfig. The default credential manager uses the `name` property instead.
+
+## `5.0.0-next.202111101806`
+
+- Enhancement: Added `dry-run` option for `zowe config init` command to preview changes instead of saving them to disk. [#1037](https://github.com/zowe/zowe-cli/issues/1037)
+- Bugfix: Fix crashing issue related to reloading the config when `--dcd` option is specified [#943](https://github.com/zowe/zowe-cli/issues/943) [#1190](https://github.com/zowe/zowe-cli/issues/1190)
+
+## `5.0.0-next.202111032034`
+
+- Enhancement: Added `autoStore` property to config JSON files which defaults to true. When this property is enabled and the CLI prompts you to enter connection info, the values you enter will be saved to disk (or credential vault if they are secure) for future use. [zowe/zowe-cli#923](https://github.com/zowe/zowe-cli/issues/923)
+- **Next Breaking**
+    - Changed the default behavior of `Config.set` so that it no longer coerces string values to other types unless the `parseString` option is true.
+
+## `5.0.0-next.202110201735`
+
+- **LTS Breaking**
+    - Changed the return value of the public `PluginManagementFacility.requirePluginModuleCallback` function
+- BugFix: Updated the profiles list as soon as the plugin is installed.
+
+## `5.0.0-next.202110191937`
+
+- **Breaking**: Added the new, required, abstract method 'displayAutoInitChanges' to the 'BaseAutoInitHandler' class.
+
+## `5.0.0-next.202110071645`
+
+- Enhancement: Added `config update-schemas [--depth <value>]` command. [zowe/zowe-cli#1059](https://github.com/zowe/zowe-cli/issues/1059)
+- Enhancement: Added the ability to update the global schema file when installing a new plugin. [zowe/zowe-cli#1059](https://github.com/zowe/zowe-cli/issues/1059)
+- **Next Breaking**
+    - Renamed public static function ConfigSchemas.loadProfileSchemas to ConfigSchemas.loadSchema
+
 ## `5.0.0-next.202110011948`
 
 - Breaking: Changed default log level from DEBUG to WARN for Imperative logger and app logger to reduce the volume of logs written to disk. [#634](https://github.com/zowe/imperative/issues/634)
@@ -115,9 +169,29 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
 
+## `4.17.1`
+
+- BugFix: Fixed an issue where plugin install and uninstall did not work with NPM version 8. [#683](https://github.com/zowe/imperative/issues/683)
+
+## `4.17.0`
+
+- Enhancement: Export the Imperative Command Tree on the data object of the `zowe --ac` command when `--rfj` is specified.
+
+## `4.16.2`
+
+- BugFix: Reverts hiding the cert-key-file path so users can see what path was specified and check if the file exists
+
+## `4.16.1`
+
+- BugFix: Updated dependencies to resolve problems with the ansi-regex package
+
+## `4.16.0`
+
+- Enhancement: Implemented the ability to authenticate using client certificates in PEM format.
+
 ## `4.15.1`
 
-- Bugfix: Update js-yaml to resolve a potential security issue
+- Bugfix: Updated js-yaml to resolve a potential security issue
 
 ## `4.15.0`
 
@@ -125,7 +199,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## `4.14.0`
 
-- Enhancement: The `plugins validate` command will return an error code when plugins have errors if the new `--fail-on-error` option is specified. Also adds `--fail-on-warning` option to return with an error code when plugins have warnings. [#463](https://github.com/zowe/imperative/issues/463)
+- Enhancement: The `plugins validate` command returns an error code when plugins have errors if the new `--fail-on-error` option is specified. Also added `--fail-on-warning` option to return with an error code when plugins have warnings. [#463](https://github.com/zowe/imperative/issues/463)
 - BugFix: Fixed regression where characters are not correctly escaped in web help causing extra slashes ("\") to appear. [#644](https://github.com/zowe/imperative/issues/644)
 
 ## `4.13.4`

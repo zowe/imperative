@@ -210,50 +210,6 @@ describe("Config API tests", () => {
                 expect(profile).toBeNull();
             });
         });
-        describe("load", () => {
-            it("should get a first level profile", async () => {
-                const config = await Config.load(MY_APP);
-                const profile = config.api.profiles.load("fruit");
-                expect(profile).toMatchSnapshot();
-                expect(profile.properties.origin.value).toEqual("California");
-            });
-            it("should get a second level profile", async () => {
-                const config = await Config.load(MY_APP);
-                const profile = config.api.profiles.load("fruit.apple");
-                expect(profile).toMatchSnapshot();
-                expect(profile.properties.color.value).toEqual("red");
-                expect(profile.properties.origin).toBeUndefined();
-            });
-            it("should fail to get a profile that doesn't exist", async () => {
-                const config = await Config.load(MY_APP);
-                const profile = config.api.profiles.load("vegetable");
-                expect(profile).toBeNull();
-            });
-            it("should merge properties between project and user layers", async () => {
-                const config = await Config.load(MY_APP);
-                config.api.layers.activate(false, false);
-                config.set("profiles.fruit.properties.origin", "Mexico");
-                config.set("profiles.fruit.properties.tags", ["sweet"]);
-                const profile = config.api.profiles.load("fruit");
-                expect(profile.properties.origin).toEqual({ value: "California", secure: false, user: true, global: false });
-                expect(profile.properties.tags).toEqual([{ value: "sweet", secure: false, user: false, global: false }]);
-            });
-            it("should skip loading properties that are inactive", async () => {
-                const config = await Config.load(MY_APP);
-                config.api.layers.activate(false, true);
-                config.set("profiles.fruit.properties.tags", ["sweet"]);
-                const profile = config.api.profiles.load("fruit");
-                expect(profile.properties.origin).toEqual({ value: "California", secure: false, user: true, global: false });
-                expect(profile.properties.tags).toBeUndefined();
-            });
-            it("should include secure properties with no value defined", async () => {
-                const config = await Config.load(MY_APP);
-                (config as any).layerActive().properties.profiles.fruit.secure.push("secret");
-                const profile = config.api.profiles.load("fruit");
-                expect(profile.properties.origin.value).toEqual("California");
-                expect(profile.properties.secret.secure).toBe(true);
-            });
-        });
     });
     describe("plugins", () => {
         describe("get", () => {
@@ -270,7 +226,7 @@ describe("Config API tests", () => {
         describe("write", () => {
             it("should save the active config layer", async () => {
                 jest.spyOn(ConfigSecure.prototype, "save").mockResolvedValueOnce(undefined);
-                const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined);
+                const writeFileSpy = jest.spyOn(fs, "writeFileSync").mockReturnValueOnce(undefined).mockReturnValueOnce(undefined);
                 const config = await Config.load(MY_APP);
                 await config.api.layers.write();
                 expect(writeFileSpy).toHaveBeenCalled();
@@ -360,6 +316,132 @@ describe("Config API tests", () => {
                 expect(properties.properties.plugins).toEqual(JSON.parse(fileContents).plugins);
                 expect(properties.properties.profiles).toEqual(JSON.parse(fileContents).profiles);
             });
+            it("should activate empty configuration in directory where it doesn't exist", async () => {
+                const config = await Config.load(MY_APP);
+                jest.spyOn(path, "join").mockRestore();
+                config.api.layers.activate(false, false, __dirname);
+                const properties = config.api.layers.get();
+                expect(properties.user).toBe(false);
+                expect(properties.global).toBe(false);
+                expect(properties.exists).toBe(false);
+                expect(properties.path).toEqual(path.join(__dirname, "project.config.json"));
+                expect(properties.properties).toEqual({
+                    profiles: {},
+                    defaults: {}
+                });
+            });
+        });
+        describe("exists", () => {
+            const fakePath = path.join(__dirname, "FAKE_PROJECT");
+            const filePathProjectUserConfig = path.join(__dirname, "__resources__", "project.config.user.json");
+            const filePathProjectConfig = path.join(__dirname, "__resources__", "project.config.json");
+            const filePathAppUserConfig = path.join(__dirname, "__resources__", "my_app.config.user.json");
+            const filePathAppConfig = path.join(__dirname, "__resources__", "my_app.config.json");
+            beforeEach(() => {
+                jest.restoreAllMocks();
+                jest.spyOn(Config, "search")
+                    .mockReturnValueOnce(filePathProjectUserConfig)
+                    .mockReturnValueOnce(filePathProjectConfig);
+                jest.spyOn(path, "join")
+                    .mockReturnValueOnce(filePathAppUserConfig)
+                    .mockReturnValueOnce(filePathAppUserConfig)
+                    .mockReturnValueOnce(filePathAppConfig)
+                    .mockReturnValueOnce(filePathAppConfig);
+                jest.spyOn(ConfigSecure.prototype, "load").mockResolvedValue(undefined);
+            });
+
+            const validateExists = (opts: any): boolean => {
+                /*
+                    Layer order:
+                        User Project Configuration
+                        Non-User Project Configuration
+                        User Global Configuration
+                        Non-User Global Configuration
+                */
+                opts.config.mLayers.forEach((tLayer: IConfigLayer, index: number) => {
+                    tLayer.exists = opts.layer[index];
+                });
+                const mySpy = jest.spyOn(fs, "existsSync");
+                if (typeof opts.checkUser === "undefined") {
+                    if (opts.userConfigFound) mySpy.mockReturnValueOnce(true);
+                    else mySpy.mockReturnValueOnce(false).mockReturnValueOnce(opts.projConfigFound);
+                } else { // checkUser is defined
+                    if (opts.checkUser) mySpy.mockReturnValueOnce(opts.userConfigFound);
+                    else mySpy.mockReturnValueOnce(opts.projConfigFound);
+                }
+
+                if (opts.inDir) {
+                    jest.spyOn(path, "dirname").mockReturnValueOnce(opts.inDir);
+                }
+                const layer = opts.config.api.layers.get();
+                const found: boolean = opts.config.layerExists(opts.inDir ?? "fake", opts.checkUser);
+                expect(opts.config.layerActive()).toEqual(layer);
+                return found;
+            };
+
+            it("should not find a layer if none exist and no config files are found regardless if are looking for user configuration", async () => {
+                const simulate: any = {
+                    config: await Config.load(MY_APP),
+                    layer: [false, false, false, false],
+                    userConfigFound: false,
+                    projConfigFound: false,
+                };
+                expect(validateExists({ ...simulate, checkUser: undefined })).toBe(false);
+                expect(validateExists({ ...simulate, checkUser: true })).toBe(false);
+                expect(validateExists({ ...simulate, checkUser: false })).toBe(false);
+            });
+
+            it("should find a layer if it matches what we are looking for: User Config Layer", async () => {
+                const simulate: any = {
+                    config: await Config.load(MY_APP),
+                    layer: [true, false, false, false],
+                    userConfigFound: true,
+                    projConfigFound: false,
+                    inDir: fakePath,
+                };
+                expect(validateExists({ ...simulate, checkUser: undefined })).toBe(true);
+                expect(validateExists({ ...simulate, checkUser: true })).toBe(true);
+                expect(validateExists({ ...simulate, checkUser: false })).toBe(false);
+            });
+
+            it("should find a layer if it matches what we are looking for: Proj Config Layer", async () => {
+                const simulate: any = {
+                    config: await Config.load(MY_APP),
+                    layer: [false, true, false, false],
+                    userConfigFound: false,
+                    projConfigFound: true,
+                    inDir: fakePath,
+                };
+                expect(validateExists({ ...simulate, checkUser: undefined })).toBe(true);
+                expect(validateExists({ ...simulate, checkUser: true })).toBe(false);
+                expect(validateExists({ ...simulate, checkUser: false })).toBe(true);
+            });
+
+            it("should find a layer if it matches what we are looking for: User Global Layer", async () => {
+                const simulate: any = {
+                    config: await Config.load(MY_APP),
+                    layer: [false, false, true, false],
+                    userConfigFound: true,
+                    projConfigFound: false,
+                    inDir: fakePath,
+                };
+                expect(validateExists({ ...simulate, checkUser: undefined })).toBe(true);
+                expect(validateExists({ ...simulate, checkUser: true })).toBe(true);
+                expect(validateExists({ ...simulate, checkUser: false })).toBe(false);
+            });
+
+            it("should find a layer if it matches what we are looking for: Proj Global Layer", async () => {
+                const simulate: any = {
+                    config: await Config.load(MY_APP),
+                    layer: [false, false, false, true],
+                    userConfigFound: false,
+                    projConfigFound: true,
+                    inDir: fakePath,
+                };
+                expect(validateExists({ ...simulate, checkUser: undefined })).toBe(true);
+                expect(validateExists({ ...simulate, checkUser: true })).toBe(false);
+                expect(validateExists({ ...simulate, checkUser: false })).toBe(true);
+            });
         });
         describe("get", () => {
             it("should get the active layer", async () => {
@@ -447,6 +529,64 @@ describe("Config API tests", () => {
 
                 // Check that the original was not modified
                 expect(config.layerActive()).toEqual(existingConfig);
+            });
+        });
+        describe("find", () => {
+            const nutProfile: IConfigProfile = {
+                type: "nut",
+                properties: {}
+            };
+            let config: Config;
+
+            beforeEach(async () => {
+                config = await Config.load(MY_APP);
+                (config as any).mLayers[0].properties = {
+                    profiles: {
+                        coconut: nutProfile
+                    }
+                };
+                (config as any).mLayers[1].properties = {
+                    profiles: {
+                        ...(config as any).mLayers[0].properties.profiles,
+                        hazelnut: nutProfile
+                    }
+                };
+                (config as any).mLayers[2].properties = {
+                    profiles: {
+                        ...(config as any).mLayers[1].properties.profiles,
+                        peanut: nutProfile
+                    }
+                };
+                (config as any).mLayers[3].properties = {
+                    profiles: {
+                        ...(config as any).mLayers[2].properties.profiles,
+                        walnut: nutProfile
+                    }
+                };
+            });
+
+            it("should choose project user layer", async () => {
+                const { user, global } = config.api.layers.find("coconut");
+                expect(user).toBe(true);
+                expect(global).toBe(false);
+            });
+
+            it("should choose project layer", async () => {
+                const { user, global } = config.api.layers.find("hazelnut");
+                expect(user).toBe(false);
+                expect(global).toBe(false);
+            });
+
+            it("should choose global user layer", async () => {
+                const { user, global } = config.api.layers.find("peanut");
+                expect(user).toBe(true);
+                expect(global).toBe(true);
+            });
+
+            it("should choose global layer", async () => {
+                const { user, global } = config.api.layers.find("walnut");
+                expect(user).toBe(false);
+                expect(global).toBe(true);
             });
         });
     });

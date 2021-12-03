@@ -330,6 +330,11 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             "  To recreate credentials, issue a 'profiles create' sub-command with the --ow flag.\n";
         if (errDetails.includes(recreateCredText)) {
             errDetails += recreateProfileText;
+        } else {
+            const additionalDetails = CredentialManagerFactory.manager.secureErrorDetails();
+            if (additionalDetails != null) {
+                errDetails += "\n\n" + additionalDetails;
+            }
         }
         return errDetails;
     }

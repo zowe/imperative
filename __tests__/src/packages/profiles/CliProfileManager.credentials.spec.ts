@@ -264,7 +264,7 @@ describe("Cli Profile Manager", () => {
                 const result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 expect(result.stdout).toEqual("");
                 expect(result.stderr).toContain(profileName);
-                expect(result.stderr).toContain("Keytar not Installed");
+                expect(result.stderr).toContain("Failed to load Keytar module");
             });
 
             it("should fail if keytar is not loaded on using profile handler", () => {
@@ -279,7 +279,7 @@ describe("Cli Profile Manager", () => {
                 cmd = `display-profile`;
                 result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
                 expect(result.stderr).toContain("Command Preparation Failed");
-                expect(result.stderr).toContain("Keytar not Installed");
+                expect(result.stderr).toContain("Failed to load Keytar module");
             });
 
             it("should fail if keytar is not loaded on profiles delete", () => {
@@ -297,7 +297,7 @@ describe("Cli Profile Manager", () => {
                 expect(result.stderr).toMatch(credentialManagerErrorMessage);
             });
 
-            it("should be able to isssue command", () => {
+            it("should be able to issue command", () => {
                 renameKeyTar();
 
                 const cmd = `display-non-keytar`;

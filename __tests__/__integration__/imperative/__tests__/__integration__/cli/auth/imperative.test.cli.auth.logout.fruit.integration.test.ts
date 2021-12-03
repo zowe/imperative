@@ -17,7 +17,7 @@ import * as keytar from "keytar";
 
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
-describe("cmd-cli auth logout", () => {
+describe("imperative-test-cli auth logout", () => {
     async function loadSecureProp(profileName: string): Promise<string> {
         const securedValue = await keytar.getPassword("imperative-test-cli", "secure_config_props");
         const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());

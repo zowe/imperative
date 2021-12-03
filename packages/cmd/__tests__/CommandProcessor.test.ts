@@ -22,6 +22,7 @@ import { SharedOptions } from "../src/utils/SharedOptions";
 import { CommandProfileLoader } from "../src/profiles/CommandProfileLoader";
 import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "../src/help/WebHelpManager";
+import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
 
 jest.mock("../src/syntax/SyntaxValidator");
 jest.mock("../src/utils/SharedOptions");
@@ -245,6 +246,7 @@ describe("Command Processor", () => {
     afterEach(() => {
         process.stdout.write = ORIGINAL_STDOUT_WRITE;
         process.stderr.write = ORIGINAL_STDERR_WRITE;
+        jest.restoreAllMocks();
     });
 
     it("should allow us to create an instance", () => {
@@ -845,7 +847,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: "--user fakeUser --password fakePass --token-value fakeToken",
+            commandLine: "--user fakeUser --password fakePass --token-value fakeToken " +
+                "--cert-file-passphrase fakePassphrase --cert-key-file /fake/path",
             promptPhrase: "dummydummy"
         });
 
@@ -867,7 +870,7 @@ describe("Command Processor", () => {
         const commandResponse: ICommandResponse = await processor.invoke(parms);
 
         expect(mockLogInfo).toHaveBeenCalled();
-        expect(logOutput).toContain("--user **** --password **** --token-value ****");
+        expect(logOutput).toContain("--user **** --password **** --token-value **** --cert-file-passphrase **** --cert-key-file ****");
     });
 
     it("should handle an error thrown from the profile loader", async () => {
@@ -1395,6 +1398,11 @@ describe("Command Processor", () => {
             };
         });
 
+        const mockConfigReload = jest.fn();
+        jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
+            config: { reload: mockConfigReload }
+        } as any);
+
         const parms: any = {
             arguments: {
                 _: ["check", "for", "banana"],
@@ -1407,6 +1415,7 @@ describe("Command Processor", () => {
         const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(commandResponse).toBeDefined();
         expect(commandResponse).toMatchSnapshot();
+        expect(mockConfigReload).toHaveBeenCalledTimes(1);
     });
 
     it("should extract arguments not specified on invoke from a profile and merge with args", async () => {

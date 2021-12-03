@@ -9,17 +9,17 @@
 *
 */
 
-import { ICommandHandler, IHandlerParameters, ICommandArguments } from "../../../../../../cmd";
+import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerResponseApi } from "../../../../../../cmd";
 import { ISession, ConnectionPropsForSessCfg, Session, AbstractSession } from "../../../../../../rest";
 import { ConfigConstants, ConfigSchema, IConfig } from "../../../../../../config";
 import { diff } from "jest-diff";
-import stripAnsi from "strip-ansi";
 import * as open from "open";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 import { ImperativeConfig, TextUtils } from "../../../../../../utilities";
-import { CredentialManagerFactory } from "../../../../../../security";
 import { OverridesLoader } from "../../../../OverridesLoader";
+
+import stripAnsi = require("strip-ansi");
 
 /**
  * This class is used by the auto init command handler as the base class for its implementation.
@@ -72,6 +72,13 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
     protected abstract doAutoInit(session: AbstractSession, params: IHandlerParameters): Promise<IConfig>;
 
     /**
+     * This is called by processAutoInit() to display the report of configuration updates.
+     * @abstract
+     * @param {IHandlerParameters} params The command line parameters.
+     */
+    protected abstract displayAutoInitChanges(response: IHandlerResponseApi): void;
+
+    /**
      * Processes the auto init command to the auto init service.
      * Applies the changes to whichever config layer is specified by IHandlerParameters.
      * Can also perform a dry run and display the changes, or open the config for editing.
@@ -88,7 +95,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
         let user = false;
 
         // Use params to set which config layer to apply to
-        await this.ensureCredentialManagerLoaded();
+        await OverridesLoader.ensureCredentialManagerLoaded();
         if (params.arguments.globalConfig && params.arguments.globalConfig === true) {
             global = true;
         }
@@ -167,16 +174,10 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
             }
             await ImperativeConfig.instance.config.save(false);
         }
-    }
 
-    /**
-     * If CredentialManager was not already loaded by Imperative.init, load it
-     * now before performing config operations in the auto-init handler.
-     */
-    private async ensureCredentialManagerLoaded() {
-        if (!CredentialManagerFactory.initialized) {
-            await OverridesLoader.loadCredentialManager(ImperativeConfig.instance.loadedConfig,
-                ImperativeConfig.instance.callerPackageJson);
+        // we only display changes if we made changes
+        if (!params.arguments.dryRun || params.arguments.dryRun === false) {
+            this.displayAutoInitChanges(params.response);
         }
     }
 }

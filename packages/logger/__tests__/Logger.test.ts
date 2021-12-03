@@ -33,7 +33,6 @@ describe("Logger tests", () => {
     beforeAll(() => {
         let configuration: ILog4jsConfig;
         (log4js.configure as any) = jest.fn((config: any) => {
-            // console.log("config passed to configure: " + require("util").inspect(config));
             configuration = config;
         });
 
