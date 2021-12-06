@@ -52,7 +52,6 @@ export const initDefinition: ICommandDefinition = {
             description: "Replace existing config files instead of merging the new changes.",
             aliases: ["ow"],
             type: "boolean",
-            defaultValue: false,
             conflictsWith: ["dry-run"],
             implies: ["for-sure"]
         },
@@ -68,8 +67,7 @@ export const initDefinition: ICommandDefinition = {
             description: "Display the outcome of the initialization without saving.",
             aliases: ["dr", "dry"],
             type: "boolean",
-            defaultValue: false,
-            // conflictsWith: ["overwrite"]
+            conflictsWith: ["overwrite"]
         }
     ],
     examples: [
