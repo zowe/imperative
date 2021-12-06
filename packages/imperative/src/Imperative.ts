@@ -249,8 +249,11 @@ export class Imperative {
                 /**
                  * Now we should apply any overrides to default Imperative functionality. This is where CLI
                  * developers are able to really start customizing Imperative and how it operates internally.
+                 * For the "config convert-profiles" command, we skip loading the CredentialManager override
+                 * because we need to be able to uninstall the plugin that provides it.
                  */
-                if (!process.argv.join(" ").includes("config convert-profiles")) {  // TODO Fix this terrible hack
+                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                if (!(process.argv.length > 3 && process.argv[2] === "config" && process.argv[3].startsWith("convert"))) {
                     await OverridesLoader.load(ImperativeConfig.instance.loadedConfig,
                         ImperativeConfig.instance.callerPackageJson);
                 }

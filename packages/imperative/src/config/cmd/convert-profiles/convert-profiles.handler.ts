@@ -41,10 +41,11 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         }
 
         params.response.console.log(`Detected ${oldProfileCount} profile(s) to be converted from Zowe v1 to v2.\n`);
-        // TODO Add no-prompt flag
-        const answer = await params.response.console.prompt("Are you sure you want to continue? [y/N]: ");
-        if (answer == null || !(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
-            return;
+        if (!params.arguments.force) {
+            const answer = await params.response.console.prompt("Are you sure you want to continue? [y/N]: ");
+            if (answer == null || !(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
+                return;
+            }
         }
 
         params.response.console.log("");
@@ -58,15 +59,13 @@ export default class ConvertProfilesHandler implements ICommandHandler {
 
         if (convertResult.profilesFailed.length > 0) {
             params.response.console.log("");
-            const numProfilesFailed = convertResult.profilesFailed.filter(pf => pf.name != null).length;
-            // TODO What if number is 0 because only failure is related to meta files
-            params.response.console.errorHeader(`Failed to convert ${numProfilesFailed} profile(s). See details below`);
-        }
-        for (const { name, type, error } of convertResult.profilesFailed) {
-            if (name != null) {
-                params.response.console.error(`Failed to load ${type} profile "${name}":\n    ${error}`);
-            } else {
-                params.response.console.error(`Failed to find default ${type} profile:\n    ${error}`);
+            params.response.console.errorHeader(`Failed to convert ${convertResult.profilesFailed.length} profile(s). See details below`);
+            for (const { name, type, error } of convertResult.profilesFailed) {
+                if (name != null) {
+                    params.response.console.error(`Failed to load ${type} profile "${name}":\n    ${error}`);
+                } else {
+                    params.response.console.error(`Failed to find default ${type} profile:\n    ${error}`);
+                }
             }
         }
 
@@ -78,8 +77,11 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         await teamConfig.save(false);
 
         const oldProfilesDir = `${profilesRootDir.replace(/[\\/]$/, "")}-old`;
-        // TODO What if renaming directory fails? Lack of permissions, file inside is locked, etc?
-        fs.renameSync(profilesRootDir, oldProfilesDir);
+        try {
+            fs.renameSync(profilesRootDir, oldProfilesDir);
+        } catch (error) {
+            params.response.console.error(`Failed to rename profiles directory to ${oldProfilesDir}:\n    ${error}`);
+        }
 
         const cliBin = ImperativeConfig.instance.rootCommandName;
         // TODO Implement config edit command

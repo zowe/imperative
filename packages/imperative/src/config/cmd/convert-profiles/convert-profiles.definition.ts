@@ -18,12 +18,18 @@ import { ICommandDefinition } from "../../../../../cmd";
  */
 export const convertProfilesDefinition: ICommandDefinition = {
     name: "convert-profiles",
-    aliases: ["cp"],
+    aliases: ["convert"],
     type: "command",
     handler: join(__dirname, "convert-profiles.handler"),
     summary: "Convert profiles to team config",
     description: "Convert Zowe v1 profiles to a global zowe.config.json file.",
-    // positionals: [],
-    // options: [],
-    // examples: []
+    options: [{
+        name: "force",
+        description: "Bypass prompt for user confirmation before profile conversion.",
+        type: "boolean"
+    }],
+    examples: [{
+        description: "Convert profiles to team config without prompting",
+        options: "--force"
+    }]
 };
