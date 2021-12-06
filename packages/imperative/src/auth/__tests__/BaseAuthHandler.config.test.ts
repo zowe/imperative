@@ -71,7 +71,8 @@ describe("BaseAuthHandler config", () => {
                 user: "fakeUser",
                 password: "fakePass"
             },
-            positionals: ["auth", "login", "creds"]
+            positionals: ["auth", "login", "creds"],
+            definition: {}
         } as any;
 
         describe("default layer", () => {
@@ -153,6 +154,7 @@ describe("BaseAuthHandler config", () => {
                 const params = lodash.cloneDeep(loginParams);
 
                 jest.spyOn(CredentialManagerFactory, "initialized", "get").mockReturnValueOnce(false);
+                jest.spyOn(CredentialManagerFactory, "manager", "get").mockReturnValueOnce({ secureErrorDetails: jest.fn() } as any);
                 const doLoginSpy = jest.spyOn(handler as any, "doLogin");
                 const writeFileSpy = jest.spyOn(fs, "writeFileSync");
                 let caughtError;
@@ -446,7 +448,8 @@ describe("BaseAuthHandler config", () => {
                 tokenType: SessConstants.TOKEN_TYPE_JWT,
                 tokenValue: "fakeToken"
             },
-            positionals: ["auth", "logout", "creds"]
+            positionals: ["auth", "logout", "creds"],
+            definition: {}
         } as any;
 
         beforeEach(async () => {

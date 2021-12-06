@@ -68,7 +68,7 @@ describe("DefaultCredentialManager", () => {
 
                 expect(privateManager.keytar).toBeUndefined();
                 expect(privateManager.loadError).toBeInstanceOf(ImperativeError);
-                expect(privateManager.loadError.message).toEqual("Keytar not Installed");
+                expect(privateManager.loadError.message).toEqual("Failed to load Keytar module");
             });
 
             it("should look for keytar in CLI node_modules folder", async () => {

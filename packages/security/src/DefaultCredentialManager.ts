@@ -127,10 +127,17 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
             this.keytar = await import(keytarPath);
         } catch (error) {
             this.loadError = new ImperativeError({
-                msg: "Keytar not Installed",
+                msg: "Failed to load Keytar module",
                 causeErrors: error
             });
         }
+    }
+
+    protected get possibleSolutions(): string[] {
+        return [
+            `Reinstall ${this.name}. On Linux systems, also make sure to install the prerequisites listed in ${this.name} documentation.`,
+            `Ensure ${this.name} can access secure credential storage. ${this.name} needs access to the OS to securely save credentials.`
+        ];
     }
 
     /**
