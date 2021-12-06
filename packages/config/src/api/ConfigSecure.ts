@@ -15,11 +15,13 @@ import { IConfigVault } from "../doc/IConfigVault";
 import { IConfigSecureProperties } from "../doc/IConfigSecure";
 import { ConfigConstants } from "../ConfigConstants";
 import { IConfigProfile } from "../doc/IConfigProfile";
+import { CredentialManagerFactory } from "../../../security";
 
 /**
  * API Class for manipulating config layers.
  */
 export class ConfigSecure extends ConfigApi {
+    private mLoadFailed: boolean;
 
     // _______________________________________________________________________
     /**
@@ -36,9 +38,15 @@ export class ConfigSecure extends ConfigApi {
         if (this.mConfig.mVault == null) return;
 
         // load the secure fields
-        const s: string = await this.mConfig.mVault.load(ConfigConstants.SECURE_ACCT);
-        if (s == null) return;
-        this.mConfig.mSecure = JSONC.parse(s);
+        try {
+            const s: string = await this.mConfig.mVault.load(ConfigConstants.SECURE_ACCT);
+            if (s == null) return;
+            this.mConfig.mSecure = JSONC.parse(s);
+        } catch (error) {
+            this.mLoadFailed = true;
+            throw error;
+        }
+        this.mLoadFailed = false;
 
         // populate each layers properties
         for (const layer of this.mConfig.mLayers) {
@@ -179,5 +187,13 @@ export class ConfigSecure extends ConfigApi {
             path: propertyPath.replace(/\.properties.+/, ".secure"),
             prop: propertyPath.split(".").pop()
         };
+    }
+
+    /**
+     * Return true if the secure load method was called and threw an error, or
+     * it was never called because the CredentialManager failed to initialize.
+     */
+    public get loadFailed(): boolean {
+        return this.mLoadFailed || !CredentialManagerFactory.initialized;
     }
 }

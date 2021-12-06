@@ -16,7 +16,6 @@ import { ImperativeExpect } from "../../../../expect";
 import { ImperativeError } from "../../../../error";
 import { ISaveProfileFromCliArgs } from "../../../../profiles";
 import { ImperativeConfig } from "../../../../utilities";
-import { CredentialManagerFactory } from "../../../../security";
 import { ConfigAutoStore } from "../../../../config/src/ConfigAutoStore";
 import { getActiveProfileName, secureSaveError } from "../../../../config/src/ConfigUtils";
 import { AbstractAuthHandler } from "./AbstractAuthHandler";
@@ -94,7 +93,7 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
         } else if (!ImperativeConfig.instance.config.exists) {
             // process login for old school profiles
             await this.processLoginOld(params, tokenValue);
-        } else if (!CredentialManagerFactory.initialized) {
+        } else if (ImperativeConfig.instance.config.api.secure.loadFailed) {
             throw secureSaveError(`Instead of secure storage, rerun this command with the "--show-token" flag to print the token to console. ` +
                 `Store the token in an environment variable ${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_OPT_TOKEN_VALUE to use it ` +
                 `in future commands.`);

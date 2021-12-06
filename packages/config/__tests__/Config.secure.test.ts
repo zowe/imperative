@@ -11,6 +11,8 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { CredentialManagerFactory } from "../../security";
+import { ImperativeError } from "../../error/src/ImperativeError";
 import { Config } from "../src/Config";
 import { IConfigSecure } from "../src/doc/IConfigSecure";
 import { IConfigVault } from "../src/doc/IConfigVault";
@@ -121,5 +123,74 @@ describe("Config secure tests", () => {
         config.set(securePropPath, "area51", { secure: true });
         layer = config.api.layers.get();
         expect(layer.properties.profiles.fruit.secure.includes("secret")).toBe(true);
+    });
+
+    it("should not actually load config that has a bad vault when noLoad specified", async () => {
+        jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/badproject.config.json");
+        jest.spyOn(fs, "existsSync")
+            .mockReturnValueOnce(false)     // Project user layer
+            .mockReturnValueOnce(true)      // Project layer
+            .mockReturnValueOnce(false)     // User layer
+            .mockReturnValueOnce(false);    // Global layer
+        jest.spyOn(fs, "readFileSync");
+        let secureError: any;
+        const vault: IConfigVault = {
+            load: jest.fn().mockRejectedValue(new ImperativeError({msg: "The vault failed"})),
+            save: jest.fn()
+        };
+        const config = await Config.load(MY_APP, {noLoad: true, vault: vault});
+        config.mVault = vault;
+        try {
+            await config.api.secure.load(vault);
+        } catch (err) {
+            secureError = err;
+        }
+        expect(vault.load).toHaveBeenCalledTimes(1);
+        expect(secureError).toBeDefined();
+        expect(config.properties).toMatchSnapshot();
+    });
+
+    describe("loadFailed", () => {
+        const mockCredMgrInitialized = jest.fn().mockReturnValue(true);
+
+        beforeAll(() => {
+            Object.defineProperty(CredentialManagerFactory, "initialized", { get: mockCredMgrInitialized });
+        });
+
+        it("should be false if credentials loaded successfully", async () => {
+            jest.spyOn(Config, "search").mockReturnValue(projectConfigPath);
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false);
+            mockSecureLoad.mockImplementation();
+            const config = await Config.load(MY_APP, { vault: mockVault });
+            expect(config.api.secure.loadFailed).toBe(false);
+        });
+
+        it("should be true if credentials failed to load", async () => {
+            const secureLoadError = new Error("failed to load credentials");
+            jest.spyOn(Config, "search").mockReturnValue(projectConfigPath);
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false);
+            mockSecureLoad.mockReturnValueOnce(undefined).mockRejectedValue(secureLoadError);
+
+            const config = await Config.load(MY_APP, { vault: mockVault });
+            let caughtError: Error;
+            try {
+                await config.api.secure.load();
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeDefined();
+            expect(caughtError.message).toBe(secureLoadError.message);
+            expect(config.api.secure.loadFailed).toBe(true);
+        });
+
+        it("should be true if credential manager failed to load", async () => {
+            jest.spyOn(Config, "search").mockReturnValue(projectConfigPath);
+            jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false);
+            mockCredMgrInitialized.mockReturnValueOnce(false);
+            mockSecureLoad.mockImplementation();
+            const config = await Config.load(MY_APP, { vault: mockVault });
+            expect(config.api.secure.loadFailed).toBe(true);
+        });
     });
 });

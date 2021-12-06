@@ -191,10 +191,18 @@ export class Imperative {
                     ConfigManagementFacility.ConfigManagementFacility.instance.init();
                 }
 
-                // Load the base config
+                let delayedConfigLoadError = undefined;
+
+                // Load the base config, save any error from config load
                 const configAppName = ImperativeConfig.instance.findPackageBinName() ? this.mRootCommandName : config.name;
-                ImperativeConfig.instance.config = await Config.load(configAppName,
-                    { homeDir: ImperativeConfig.instance.cliHome });
+
+                try {
+                    ImperativeConfig.instance.config = await Config.load(configAppName,
+                        { homeDir: ImperativeConfig.instance.cliHome }
+                    );
+                } catch (err) {
+                    delayedConfigLoadError = err;
+                }
 
                 // If plugins are allowed, enable core plugins commands
                 if (config.allowPlugins) {
@@ -219,6 +227,24 @@ export class Imperative {
                  * Any other initialization added to this routine should occur after logging has been initialized.
                  */
                 this.initLogging();
+
+                /**
+                 * If there was an error trying to load the user's configuration, tell them about it now.
+                 */
+                if (delayedConfigLoadError) {
+                    if (config.daemonMode) {
+                        ImperativeConfig.instance.config = await Config.load(configAppName,
+                            {
+                                homeDir: ImperativeConfig.instance.cliHome,
+                                noLoad: true
+                            }
+                        );
+                        const imperativeLogger = Logger.getImperativeLogger();
+                        imperativeLogger.error(delayedConfigLoadError);
+                    } else {
+                        throw delayedConfigLoadError;
+                    }
+                }
 
                 /**
                  * Now we should apply any overrides to default Imperative functionality. This is where CLI
@@ -454,7 +480,7 @@ export class Imperative {
 
         const defaultSettings: ISettingsFile = {
             overrides: {
-                CredentialManager: false
+                CredentialManager: ImperativeConfig.instance.hostPackageName
             }
         };
 
