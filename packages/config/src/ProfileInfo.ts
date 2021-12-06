@@ -942,6 +942,7 @@ export class ProfileInfo {
                 }
             }
         }
+        Logger.profileSchemas = this.mProfileSchemaCache;
     }
 
     // _______________________________________________________________________

@@ -18,6 +18,7 @@ import { Config } from "../../config/src/Config";
 import { IConfigLayer } from "../../config/src/doc/IConfigLayer";
 import { ICommandProfileTypeConfiguration } from "../../cmd/src/doc/profiles/definition/ICommandProfileTypeConfiguration";
 import { ICommandProfileProperty } from "../../cmd/src/doc/profiles/definition/ICommandProfileProperty";
+import { IProfileSchema } from "../../profiles/src/doc/definition/IProfileSchema";
 
 export class LoggerUtils {
     public static readonly CENSOR_RESPONSE = "****";
@@ -100,9 +101,17 @@ export class LoggerUtils {
      * Singleton implementation of an internal reference to the loaded profiles
      */
     private static mProfiles: ICommandProfileTypeConfiguration[] = null;
-    private static get profiles(): ICommandProfileTypeConfiguration[] {
-        if (LoggerUtils.mProfiles == null) LoggerUtils.mProfiles = ImperativeConfig.instance.loadedConfig?.profiles ?? [];
+    private static get profileSchemas(): ICommandProfileTypeConfiguration[] {
+        if (LoggerUtils.mProfiles == null) LoggerUtils.mProfiles = ImperativeConfig.instance.loadedConfig?.profiles ?? null;
         return LoggerUtils.mProfiles;
+    }
+    public static setProfileSchemas(_schemas: Map<string, IProfileSchema>) {
+        if (LoggerUtils.mProfiles == null) {
+            LoggerUtils.mProfiles = [];
+            _schemas.forEach((v: IProfileSchema) => {
+                LoggerUtils.mProfiles.push({ type: v.type, schema: v });
+            });
+        }
     }
 
     /**
@@ -127,7 +136,7 @@ export class LoggerUtils {
             return ret;
         };
 
-        for (const profile of LoggerUtils.profiles) {
+        for (const profile of LoggerUtils.profileSchemas) {
             // eslint-disable-next-line unused-imports/no-unused-vars
             for (const [_, prop] of Object.entries(profile.schema.properties)) {
                 if (prop.secure) specialValues = lodash.union(specialValues, getPropertyNames(prop));

@@ -21,6 +21,7 @@ import { LoggerManager } from "./LoggerManager";
 import * as log4js from "log4js";
 import { Console } from "../../console/src/Console";
 import { LoggerUtils } from "./LoggerUtils";
+import { IProfileSchema } from "../../profiles/src/doc/definition/IProfileSchema";
 
 /**
  * Note(Kelosky): it seems from the log4js doc that you only get a single
@@ -153,6 +154,14 @@ export class Logger {
      */
     private initStatus: boolean;
 
+    private static mProfileSchemas = new Map<string, IProfileSchema>();
+    public static get profileSchemas(): Map<string, IProfileSchema> {
+        return this.mProfileSchemas;
+    }
+    public static set profileSchemas(schemas: Map<string, IProfileSchema>) {
+        this.mProfileSchemas = schemas;
+    }
+
     constructor(private mJsLogger: log4js.Logger | Console, private category?: string) {
 
         if (LoggerManager.instance.isLoggerInit && LoggerManager.instance.QueuedMessages.length > 0) {
@@ -168,6 +177,11 @@ export class Logger {
     }
 
     // TODO: Can we find trace info for TypeScript to have e.g.  [ERROR] Jobs.ts : 43 - Error encountered
+
+    private censorData(message: string, args: any[]): string {
+        LoggerUtils.setProfileSchemas(Logger.profileSchemas);
+        return LoggerUtils.censorRawData(TextUtils.formatMessage.apply(this, [message].concat(args)), this.category);
+    }
 
     /**
      * Log a message at the "trace" level
@@ -195,7 +209,7 @@ export class Logger {
      * @returns {any}
      */
     public debug(message: string, ...args: any[]): string {
-        const finalMessage = LoggerUtils.censorRawData(TextUtils.formatMessage.apply(this, [message].concat(args)), this.category);
+        const finalMessage = this.censorData(message, args);
         if (LoggerManager.instance.isLoggerInit || this.category === Logger.DEFAULT_CONSOLE_NAME) {
             this.logService.debug(this.getCallerFileAndLineTag() + finalMessage);
         } else {
@@ -213,7 +227,7 @@ export class Logger {
      * @returns {any}
      */
     public info(message: string, ...args: any[]): string {
-        const finalMessage = LoggerUtils.censorRawData(TextUtils.formatMessage.apply(this, [message].concat(args)), this.category);
+        const finalMessage = this.censorData(message, args);
         if (LoggerManager.instance.isLoggerInit || this.category === Logger.DEFAULT_CONSOLE_NAME) {
             this.logService.info(this.getCallerFileAndLineTag() + finalMessage);
         } else {
@@ -231,7 +245,7 @@ export class Logger {
      * @returns {any}
      */
     public warn(message: string, ...args: any[]): string {
-        const finalMessage = LoggerUtils.censorRawData(TextUtils.formatMessage.apply(this, [message].concat(args)), this.category);
+        const finalMessage = this.censorData(message, args);
         if (LoggerManager.instance.isLoggerInit || this.category === Logger.DEFAULT_CONSOLE_NAME) {
             this.logService.warn(this.getCallerFileAndLineTag() + finalMessage);
         } else {
@@ -248,7 +262,7 @@ export class Logger {
      * @returns {any}
      */
     public error(message: string, ...args: any[]): string {
-        const finalMessage = LoggerUtils.censorRawData(TextUtils.formatMessage.apply(this, [message].concat(args)), this.category);
+        const finalMessage = this.censorData(message, args);
         if (LoggerManager.instance.isLoggerInit || this.category === Logger.DEFAULT_CONSOLE_NAME) {
             this.logService.error(this.getCallerFileAndLineTag() + finalMessage);
         } else {
@@ -265,7 +279,7 @@ export class Logger {
      * @returns {any}
      */
     public fatal(message: string, ...args: any[]): string {
-        const finalMessage = LoggerUtils.censorRawData(TextUtils.formatMessage.apply(this, [message].concat(args)), this.category);
+        const finalMessage = this.censorData(message, args);
         if (LoggerManager.instance.isLoggerInit || this.category === Logger.DEFAULT_CONSOLE_NAME) {
             this.logService.fatal(this.getCallerFileAndLineTag() + finalMessage);
         } else {
@@ -282,7 +296,7 @@ export class Logger {
      * @returns {any}
      */
     public simple(message: string, ...args: any[]): string {
-        const finalMessage = LoggerUtils.censorRawData(TextUtils.formatMessage.apply(this, [message].concat(args)), this.category);
+        const finalMessage = this.censorData(message, args);
         if (LoggerManager.instance.isLoggerInit || this.category === Logger.DEFAULT_CONSOLE_NAME) {
             this.logService.info(finalMessage);
         } else {
