@@ -205,7 +205,7 @@ describe("Configuration Initialization command handler", () => {
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
         await setupConfigToLoad(); // Setup the config
 
-        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
+        const ensureCredMgrSpy = jest.spyOn(OverridesLoader, "ensureCredentialManagerLoaded");
         setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
         const initWithSchemaSpy = jest.spyOn(handler as any, "initWithSchema");
 
@@ -352,7 +352,7 @@ describe("Configuration Initialization command handler", () => {
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
         await setupConfigToLoad(); // Setup the config
 
-        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
+        const ensureCredMgrSpy = jest.spyOn(OverridesLoader, "ensureCredentialManagerLoaded");
         setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
         const initWithSchemaSpy = jest.spyOn(handler as any, "initWithSchema");
 
@@ -503,7 +503,7 @@ describe("Configuration Initialization command handler", () => {
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
         await setupConfigToLoad(); // Setup the config
 
-        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
+        const ensureCredMgrSpy = jest.spyOn(OverridesLoader, "ensureCredentialManagerLoaded");
         setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
         const initWithSchemaSpy = jest.spyOn(handler as any, "initWithSchema");
 
@@ -654,7 +654,7 @@ describe("Configuration Initialization command handler", () => {
         searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
         await setupConfigToLoad(); // Setup the config
 
-        const ensureCredMgrSpy = jest.spyOn(handler as any, "ensureCredentialManagerLoaded");
+        const ensureCredMgrSpy = jest.spyOn(OverridesLoader, "ensureCredentialManagerLoaded");
         setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
         const initWithSchemaSpy = jest.spyOn(handler as any, "initWithSchema");
 
