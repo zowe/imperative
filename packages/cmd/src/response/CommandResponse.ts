@@ -580,7 +580,8 @@ export class CommandResponse implements ICommandResponseApi {
                  * @returns {string} - The string that is printed (including the color codes)
                  */
                 public errorHeader(message: string, delimeter = ":"): string {
-                    const msg = TextUtils.chalk.red(message + `${delimeter}\n`);
+                    let msg: string = LoggerUtils.censorRawData(message.toString(), Logger.DEFAULT_CONSOLE_NAME);
+                    msg = TextUtils.chalk.red(msg + `${delimeter}\n`);
                     outer.writeAndBufferStderr(msg);
                     return msg;
                 }
@@ -592,13 +593,15 @@ export class CommandResponse implements ICommandResponseApi {
                  * @returns {Promise<string>}
                  */
                 public prompt(questionText: string, opts?: IPromptOptions): Promise<string> {
+                    const msg: string = LoggerUtils.censorRawData(questionText.toString(), Logger.DEFAULT_CONSOLE_NAME);
+
                     if (outer.mStream) {
                         return new Promise<string>((resolve) => {
 
                             // send prompt content
                             const daemonRequest = opts?.hideText ?
-                                DaemonRequest.create({ securePrompt: questionText }) :
-                                DaemonRequest.create({ prompt: questionText });
+                                DaemonRequest.create({ securePrompt: msg }) :
+                                DaemonRequest.create({ prompt: msg });
 
                             outer.writeStream(daemonRequest);
 
@@ -614,7 +617,7 @@ export class CommandResponse implements ICommandResponseApi {
                             });
                         });
                     } else {
-                        return CliUtils.readPrompt(questionText, opts);
+                        return CliUtils.readPrompt(msg, opts);
                     }
                 }
             }();
