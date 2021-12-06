@@ -91,6 +91,15 @@ describe("imperative-test-cli config import", () => {
             expect(response.stderr.toString()).toEqual("");
         });
 
+        it("should fail to import if location is not specified", () => {
+            const response = runCliScript(path.join(__dirname, "/__scripts__/import_config.sh"), TEST_ENVIRONMENT.workingDir, []);
+
+            expect(response.status).toEqual(1);
+            expect(response.stderr.toString()).toContain("Missing Positional Argument");
+            expect(response.stderr.toString()).toMatchSnapshot();
+            expect(response.stdout.toString()).toEqual("");
+        });
+
         it("should successfully import and overwrite a config and schema", () => {
             let response = runCliScript(path.join(__dirname, "/__scripts__/import_config.sh"), TEST_ENVIRONMENT.workingDir, [
                 path.join(__dirname, "__resources__", "test.config.good.with.schema.json"), "--user-config false --global-config false"

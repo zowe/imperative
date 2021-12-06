@@ -27,6 +27,7 @@ export const importDefinition: ICommandDefinition = {
         {
             name: "location",
             description: "File path or URL to import from.",
+            required: true,
             type: "string"
         }
     ],

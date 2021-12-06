@@ -54,11 +54,14 @@ export class ConfigLayers extends ConfigApi {
                     suppressDump: true
                 });
             }
+        } else if (layer.exists) {
+            layer.properties = {} as any;
+            layer.exists = false;
         }
 
         // Populate any undefined defaults
-        layer.properties.defaults = layer.properties.defaults || {};
         layer.properties.profiles = layer.properties.profiles || {};
+        layer.properties.defaults = layer.properties.defaults || {};
     }
 
     // _______________________________________________________________________
@@ -192,5 +195,20 @@ export class ConfigLayers extends ConfigApi {
         }
 
         if (dryRun) { return layer; }
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Finds the highest priority layer where a profile is stored.
+     * @param profileName Profile name to search for
+     * @returns User and global properties, or undefined if profile does not exist
+     */
+    public find(profileName: string): { user: boolean, global: boolean } {
+        const profilePath = this.mConfig.api.profiles.expandPath(profileName);
+        for (const layer of this.mConfig.layers) {
+            if (lodash.get(layer.properties, profilePath) != null) {
+                return layer;
+            }
+        }
     }
 }

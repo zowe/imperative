@@ -132,6 +132,25 @@ export abstract class AbstractCredentialManager {
     }
 
     /**
+     * @returns {string} - Additional details for credential manager errors,
+     * if the current CredentialManager has provided any.
+     */
+    public secureErrorDetails(): string | undefined {
+        if (this.possibleSolutions == null || this.possibleSolutions.length === 0) {
+            return;
+        }
+        return ["Possible Solutions:", ...this.possibleSolutions].join("\n - ");
+    }
+
+    /**
+     * @returns {string[]} - List of possible solutions for credential manager errors.
+     * Override this in your CredentialManager to supply more detailed error messages.
+     */
+    protected get possibleSolutions(): string[] | undefined {
+        return;
+    }
+
+    /**
      * Called by Imperative to delete the credentials of a profile.
      *
      * @param {string} account - A user account (or profile identifier)

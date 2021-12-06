@@ -137,5 +137,23 @@ describe("AbstractCredentialManager", () => {
             expect(result.message).toEqual(errorMsg);
         });
     });
+
+    describe("secureErrorDetails", () => {
+        it("should return additional details if possibleSolutions is defined", () => {
+            const errorDetails = manager.secureErrorDetails();
+            expect(errorDetails).toContain("Possible Solutions:");
+            expect(errorDetails).toMatchSnapshot();
+        });
+
+        it("should not return additional details if possibleSolutions is undefined", () => {
+            jest.spyOn(privateManager, "possibleSolutions", "get").mockReturnValue(undefined);
+            expect(manager.secureErrorDetails()).toBeUndefined();
+        });
+
+        it("should not return additional details if possibleSolutions is empty", () => {
+            jest.spyOn(privateManager, "possibleSolutions", "get").mockReturnValue([]);
+            expect(manager.secureErrorDetails()).toBeUndefined();
+        });
+    });
 });
 
