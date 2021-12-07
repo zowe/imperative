@@ -20,10 +20,20 @@ import { PluginIssues } from "../../../plugins/utilities/PluginIssues";
 import { uninstall as uninstallPlugin } from "../../../plugins/utilities/npm-interface";
 import { OverridesLoader } from "../../../OverridesLoader";
 
+interface IPluginToUninstall {
+    name: string;
+    preUninstall?: () => void | Promise<void>;
+    postUninstall?: () => void | Promise<void>;
+}
+
 /**
  * Handler for the convert profiles command.
  */
 export default class ConvertProfilesHandler implements ICommandHandler {
+    private readonly ZOWE_CLI_PACKAGE_NAME = "@zowe/cli";
+
+    private readonly ZOWE_CLI_SECURE_PLUGIN_NAME = "@zowe/secure-credential-store-for-zowe-cli";
+
     private commandParameters: IHandlerParameters;
 
     /**
@@ -33,14 +43,23 @@ export default class ConvertProfilesHandler implements ICommandHandler {
     public async process(params: IHandlerParameters): Promise<void> {
         this.commandParameters = params;
         const profilesRootDir = ProfileUtils.constructProfilesRootDirectory(ImperativeConfig.instance.cliHome);
+        const obsoletePlugins = this.getObsoletePlugins();
         const oldProfileCount = this.getOldProfileCount(profilesRootDir);
 
-        if (oldProfileCount === 0) {
+        if (obsoletePlugins.length == 0 && oldProfileCount === 0) {
             params.response.console.log("No old profiles were found to convert from Zowe v1 to v2.");
             return;
         }
 
-        params.response.console.log(`Detected ${oldProfileCount} profile(s) to be converted from Zowe v1 to v2.\n`);
+        const listToConvert = [];
+        if (obsoletePlugins.length > 0) {
+            listToConvert.push(`${obsoletePlugins.length} obsolete plug-in(s)`);
+        }
+        if (oldProfileCount > 0) {
+            listToConvert.push(`${oldProfileCount} old profile(s)`);
+        }
+        params.response.console.log(`Detected ${listToConvert.join(" and ")} to convert from Zowe v1 to v2.\n`);
+
         if (!params.arguments.force) {
             const answer = await params.response.console.prompt("Are you sure you want to continue? [y/N]: ");
             if (answer == null || !(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
@@ -49,14 +68,17 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         }
 
         params.response.console.log("");
-        const credMgrName = this.disableCredentialManager();
-        this.uninstallCredentialManager(credMgrName);
+        for (const pluginInfo of obsoletePlugins) {
+            if (pluginInfo.preUninstall) await pluginInfo.preUninstall();
+            this.uninstallPlugin(pluginInfo.name);
+            if (pluginInfo.postUninstall) await pluginInfo.postUninstall();
+        }
+
         await OverridesLoader.ensureCredentialManagerLoaded();
         const convertResult = await ConfigBuilder.convert(profilesRootDir);
         for (const [k, v] of Object.entries(convertResult.profilesConverted)) {
             params.response.console.log(`Converted ${k} profiles: ${v.join(", ")}`);
         }
-
         if (convertResult.profilesFailed.length > 0) {
             params.response.console.log("");
             params.response.console.errorHeader(`Failed to convert ${convertResult.profilesFailed.length} profile(s). See details below`);
@@ -85,10 +107,27 @@ export default class ConvertProfilesHandler implements ICommandHandler {
 
         const cliBin = ImperativeConfig.instance.rootCommandName;
         // TODO Implement config edit command
-        params.response.console.log(`Your profiles have been saved to ${teamConfig.layerActive().path}.\n` +
+        params.response.console.log(`Your new profiles have been saved to ${teamConfig.layerActive().path}.\n` +
             `Run "${cliBin} config edit --global-config" to open this file in your default editor.\n\n` +
-            `The old profiles have been moved to ${oldProfilesDir}.\n` +
+            `Your old profiles have been moved to ${oldProfilesDir}.\n` +
             `Run "${cliBin} config convert-profiles --delete" if you want to completely remove them.`);
+    }
+
+    private getObsoletePlugins(): IPluginToUninstall[] {
+        const obsoletePlugins: IPluginToUninstall[] = [];
+
+        if (ImperativeConfig.instance.hostPackageName === this.ZOWE_CLI_PACKAGE_NAME) {
+            let credMgrSetting = AppSettings.instance.get("overrides", "CredentialManager");
+            if (credMgrSetting === ImperativeConfig.instance.hostPackageName) {
+                credMgrSetting = undefined;
+            }
+            obsoletePlugins.push({
+                name: typeof credMgrSetting === "string" ? credMgrSetting : this.ZOWE_CLI_SECURE_PLUGIN_NAME,
+                preUninstall: credMgrSetting ? this.disableCredentialManager : undefined
+            });
+        }
+
+        return obsoletePlugins;
     }
 
     private getOldProfileCount(profilesRootDir: string): number {
@@ -102,27 +141,22 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         return oldProfileCount;
     }
 
-    private disableCredentialManager(): string {
-        const credMgrSetting = AppSettings.instance.get("overrides", "CredentialManager");
-        if (credMgrSetting && credMgrSetting !== ImperativeConfig.instance.hostPackageName) {
-            AppSettings.instance.set("overrides", "CredentialManager", ImperativeConfig.instance.hostPackageName);
-            if (ImperativeConfig.instance.loadedConfig.overrides.CredentialManager != null) {
-                delete ImperativeConfig.instance.loadedConfig.overrides.CredentialManager;
-            }
-            this.commandParameters.response.console.log(`Disabled credential manager: ${credMgrSetting}`);
+    private disableCredentialManager() {
+        AppSettings.instance.set("overrides", "CredentialManager", ImperativeConfig.instance.hostPackageName);
+        if (ImperativeConfig.instance.loadedConfig.overrides.CredentialManager != null) {
+            delete ImperativeConfig.instance.loadedConfig.overrides.CredentialManager;
         }
-        // TODO Fix hardcoded plugin name which doesn't belong in Imperative
-        return (typeof credMgrSetting === "string") ? credMgrSetting : "@zowe/secure-credential-store-for-zowe-cli";
     }
 
-    private uninstallCredentialManager(credMgrName: string): void {
-        if (Object.keys(PluginIssues.instance.getInstalledPlugins()).includes(credMgrName)) {
-            try {
-                uninstallPlugin(credMgrName);
-                this.commandParameters.response.console.log(`Uninstalled credential manager: ${credMgrName}`);
-            } catch (error) {
-                this.commandParameters.response.console.error(`Failed to uninstall credential manager: ${error}`);
-            }
+    private uninstallPlugin(pluginName: string): void {
+        if (!Object.keys(PluginIssues.instance.getInstalledPlugins()).includes(pluginName)) {
+            return;
+        }
+        try {
+            uninstallPlugin(pluginName);
+            this.commandParameters.response.console.log(`Removed obsolete plug-in: ${pluginName}`);
+        } catch (error) {
+            this.commandParameters.response.console.error(`Failed to uninstall plug-in ${pluginName}:\n    ${error}`);
         }
     }
 }
