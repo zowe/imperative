@@ -11,6 +11,7 @@
 
 import { join } from "path";
 import { ICommandDefinition } from "../../../../../cmd";
+import { ImperativeConfig } from "../../../../../utilities";
 
 /**
  * Definition of the convert-profiles command.
@@ -22,7 +23,7 @@ export const convertProfilesDefinition: ICommandDefinition = {
     type: "command",
     handler: join(__dirname, "convert-profiles.handler"),
     summary: "Convert profiles to team config",
-    description: "Convert Zowe v1 profiles to a global zowe.config.json file.",
+    description: `Convert v1 profiles to a global ${ImperativeConfig.instance.rootCommandName}.config.json file.`,
     options: [{
         name: "force",
         description: "Bypass prompt for user confirmation before profile conversion.",

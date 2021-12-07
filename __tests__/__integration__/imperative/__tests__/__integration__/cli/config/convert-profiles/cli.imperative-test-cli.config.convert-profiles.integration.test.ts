@@ -46,7 +46,7 @@ describe("imperative-test-cli config convert-profiles", () => {
         it("should display the help", () => {
             const response = runCliScript(__dirname + "/../__scripts__/get_help.sh", TEST_ENVIRONMENT.workingDir, ["convert-profiles"]);
             expect(response.status).toBe(0);
-            expect(response.stdout.toString()).toContain("Convert Zowe v1 profiles to a global zowe.config.json file.");
+            expect(response.stdout.toString()).toContain("Convert v1 profiles to a global imperative-test-cli.config.json file.");
             expect(response.stderr.toString()).toEqual("");
         });
 
