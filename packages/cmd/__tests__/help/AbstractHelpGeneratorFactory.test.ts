@@ -73,34 +73,6 @@ describe("Abstract Help Generator Factory", () => {
         expect(error.message).toMatchSnapshot();
     });
 
-    it("should detect missing root command name", () => {
-        let error;
-        try {
-            const factory = new TestHelpGeneratorFactory({
-                rootCommandName: undefined
-            });
-        } catch (e) {
-            error = e;
-        }
-        expect(error).toBeDefined();
-        expect(error instanceof ImperativeError).toBe(true);
-        expect(error.message).toMatchSnapshot();
-    });
-
-    it("should detect missing root command name", () => {
-        let error;
-        try {
-            const factory = new TestHelpGeneratorFactory({
-                rootCommandName: undefined
-            });
-        } catch (e) {
-            error = e;
-        }
-        expect(error).toBeDefined();
-        expect(error instanceof ImperativeError).toBe(true);
-        expect(error.message).toMatchSnapshot();
-    });
-
     it("should detect missing command definition when getting a factory", () => {
         let error;
         try {

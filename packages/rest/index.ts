@@ -11,6 +11,10 @@
 
 export * from "./src/client/types/HTTPVerb";
 export * from "./src/client/doc/IHeaderContent";
+export * from "./src/client/doc/IHTTPSOptions";
+export * from "./src/client/doc/IOptionsFullResponse";
+export * from "./src/client/doc/IRestClientError";
+export * from "./src/client/doc/IRestClientResponse";
 export * from "./src/client/doc/IRestOptions";
 export * from "./src/client/Headers";
 export * from "./src/client/AbstractRestClient";
@@ -25,5 +29,5 @@ export * as SessConstants from "./src/session/SessConstants";
 export * from "./src/session/doc/ISession";
 export * from "./src/session/doc/IOptionsForAddConnProps";
 export * from "./src/session/AbstractSession";
-export * from "./src/session/Session";
 export * from "./src/session/ConnectionPropsForSessCfg";
+export * from "./src/session/Session";

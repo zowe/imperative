@@ -59,12 +59,6 @@ const tokenValueOption: ICommandOptionDefinition = {
     type: "string"
 };
 
-const authTokenOption: ICommandOptionDefinition = {
-    name: "auth-token",
-    description: "Fruit auth token value",
-    type: "string"
-};
-
 // Example to use with tsnode: */*CommandDefinitions!(.d).*s
 export const config: IImperativeConfig = {
     commandModuleGlobs: ["**/cli/*/*definition!(.d).*s"],
@@ -72,9 +66,23 @@ export const config: IImperativeConfig = {
     defaultHome: "~/.imperative-test-cli",
     productDisplayName: "Imperative Package Test CLI",
     name: "imperative-test-cli",
-    credentialServiceName: "imperative-test-cli",
     envVariablePrefix: "IMPERATIVE_TEST_CLI",
     allowPlugins: false,
+    configAutoInitCommandConfig: {
+        handler: __dirname + "/cli/config/FruitAutoInitHandler",
+        provider: "Fruit Manager",
+        autoInit: {
+            options: [
+                hostOption,
+                portOption,
+                userOption,
+                passwordOption,
+                tokenTypeOption,
+                tokenValueOption
+            ]
+        },
+        profileType: "base"
+    },
     profiles: [
         {
             type: "secured",
@@ -140,11 +148,6 @@ export const config: IImperativeConfig = {
                     type: "string",
                     optionDefinition: tokenValueOption,
                     secure: true
-                },
-                authToken: {
-                    type: "string",
-                    optionDefinition: authTokenOption,
-                    secure: true
                 }
             },
         },
@@ -159,8 +162,7 @@ export const config: IImperativeConfig = {
                         hostOption,
                         portOption,
                         userOption,
-                        passwordOption,
-                        authTokenOption
+                        passwordOption
                     ]
                 },
                 logout: {
@@ -170,8 +172,7 @@ export const config: IImperativeConfig = {
                         hostOption,
                         portOption,
                         tokenTypeOption,
-                        tokenValueOption,
-                        authTokenOption
+                        tokenValueOption
                     ]
                 }
             }

@@ -14,7 +14,7 @@ import { BaseAuthHandler, AbstractSession, ICommandArguments, ISession, SessCons
 /**
  * This class is used by the auth command handlers as the base class for their implementation.
  */
-export default class ApimlAuthHandler extends BaseAuthHandler {
+export default class FruitAuthHandler extends BaseAuthHandler {
     /**
      * The profile type where token type and value should be stored
      */

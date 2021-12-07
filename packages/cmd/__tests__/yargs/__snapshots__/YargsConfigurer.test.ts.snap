@@ -2,8 +2,9 @@
 
 exports[`YargsConfigurer tests should build a failure message 1`] = `
 "Command failed due to improper syntax
-Command entered: \\"fake some-command\\"
 Unknown group: some-command
 Did you mean: apple?
+
+Command entered: \\"some-command\\"
 Use \\"fake --help\\" to view groups, commands, and options."
 `;

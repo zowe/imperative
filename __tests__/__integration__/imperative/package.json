@@ -5,7 +5,7 @@
   "license": "EPL 2.0",
   "repository": "",
   "bin": {
-    "imperative-test-cli": "lib/main.js"
+    "imperative-test-cli": "./lib/main.js"
   },
   "author": {
     "name": "",
@@ -25,7 +25,7 @@
   },
   "scripts": {
     "clean": "rimraf lib && rimraf coverage",
-    "lint": "tslint --force --format verbose \"src/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\"",
     "prebuild": "npm run clean && npm run lint && echo Using TypeScript && tsc --version",
     "build": "tsc -b --pretty",
     "pretest": "npm install -g",
@@ -36,7 +36,7 @@
   "dependencies": {
     "@types/yargs": "13.0.4",
     "chalk": "2.4.2",
-    "cli-table3": "0.5.1",
+    "cli-table3": "0.6.0",
     "dataobject-parser": "1.2.1",
     "deepmerge": "3.0.0",
     "express": "4.17.1",
@@ -47,7 +47,7 @@
     "jsonschema": "1.1.1",
     "keytar": "7.1.0",
     "levenshtein": "1.0.5",
-    "lodash": "4.17.19",
+    "lodash": "4.17.21",
     "log4js": "6.1.0",
     "moment": "2.20.1",
     "mustache": "2.3.0",
@@ -55,14 +55,14 @@
     "progress": "2.0.3",
     "rimraf": "2.6.3",
     "stack-trace": "0.0.10",
-    "wrap-ansi": "3.0.1",
+    "wrap-ansi": "7.0.0",
     "yamljs": "0.3.0",
-    "yargs": "15.1.0"
+    "yargs": "15.3.1"
   },
   "devDependencies": {
     "@types/node": "^12.12.24",
+    "eslint": "^7.32.0",
     "gulp": "^4.0.2",
-    "tslint": "^5.20.1",
     "typescript": "^3.7.4"
   },
   "engines": {

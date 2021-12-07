@@ -5,7 +5,7 @@
   "license": "EPL 2.0",
   "repository": "",
   "bin": {
-    "hello-world-cli": "lib/index.js"
+    "hello-world-cli": "./lib/index.js"
   },
   "author": {
     "name": "",
@@ -25,7 +25,7 @@
   },
   "scripts": {
     "clean": "rimraf lib && rimraf coverage",
-    "lint": "tslint --force --format verbose \"src/**/*.ts\"",
+    "lint": "eslint \"src/**/*.ts\"",
     "prebuild": "npm run clean && npm run lint && echo Using TypeScript && tsc --version",
     "build": "tsc -b --pretty",
     "pretest": "npm install -g",
@@ -36,7 +36,7 @@
   "dependencies": {
     "@types/yargs": "13.0.4",
     "chalk": "2.4.2",
-    "cli-table3": "0.5.1",
+    "cli-table3": "0.6.0",
     "dataobject-parser": "1.2.1",
     "find-up": "4.1.0",
     "glob": "7.1.6",
@@ -52,9 +52,9 @@
     "rimraf": "2.6.3",
     "semver": "5.7.0",
     "stack-trace": "0.0.10",
-    "wrap-ansi": "3.0.1",
+    "wrap-ansi": "7.0.0",
     "yamljs": "0.3.0",
-    "yargs": "15.1.0"
+    "yargs": "15.3.1"
   },
   "devDependencies": {
     "@types/body-parser": "^1.16.4",
@@ -71,6 +71,7 @@
     "codepage": "^1.12.2",
     "cowsay": "^1.2.1",
     "deep-diff": "^0.3.8",
+    "eslint": "^7.32.0",
     "fs-extra": "^8.1.0",
     "get-function-arguments": "^1.0.0",
     "gulp": "^4.0.2",
@@ -84,7 +85,6 @@
     "keytar": "^7.1.0",
     "madge": "^3.6.0",
     "shebang-regex": "^2.0.0",
-    "tslint": "^5.20.1",
     "typedoc": "^0.15.0",
     "typescript": "^3.7.4",
     "uuid": "^3.3.2",

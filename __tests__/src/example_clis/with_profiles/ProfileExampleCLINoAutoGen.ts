@@ -15,6 +15,6 @@ const config: IImperativeConfig = require(__dirname + "/ProfileExampleConfigurat
 config.autoGenerateProfileCommands = false; // but turn off the auto generated commands
 
 Imperative.init(config).then(() => {
-  Imperative.parse();
+    Imperative.parse();
 });
 

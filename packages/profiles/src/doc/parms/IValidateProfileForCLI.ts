@@ -9,7 +9,6 @@
 *
 */
 
-import { IValidateProfile } from "./IValidateProfile";
 import { IValidateProfileWithSchema } from "./IValidateProfileWithSchema";
 
 /**

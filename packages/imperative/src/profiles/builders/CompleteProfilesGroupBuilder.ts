@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandDefinition, ICommandProfileTypeConfiguration } from "../../../../cmd";
+import { ICommandDefinition } from "../../../../cmd";
 import {
     createProfilesCommandDesc, createProfilesCommandSummary,
     deleteProfilesCommandDesc, deleteProfilesCommandSummary,
@@ -26,7 +26,6 @@ import { ProfilesValidateCommandBuilder } from "./ProfilesValidateCommandBuilder
 import { ProfilesListCommandBuilder } from "./ProfilesListCommandBuilder";
 import { ProfilesSetCommandBuilder } from "./ProfilesSetCommandBuilder";
 import { Logger } from "../../../../logger/index";
-import { isNullOrUndefined } from "util";
 import { IProfileTypeConfiguration, ProfilesConstants } from "../../../../profiles";
 import { ImperativeConfig } from "../../../../utilities";
 
@@ -47,7 +46,7 @@ export class CompleteProfilesGroupBuilder {
 
         const profileGroup: ICommandDefinition = {
             name: Constants.PROFILE_GROUP,
-            description: "Create and manage configuration profiles",
+            description: "Create and manage configuration profiles.",
             type: "group",
             deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_INIT,
             children: []
@@ -113,13 +112,9 @@ export class CompleteProfilesGroupBuilder {
             type: "group",
             deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_LIST,
             children: [],
-
         };
 
-        const cmdGroups: ICommandDefinition[] = [];
         for (const profile of profiles) {
-
-
             const createCommandAction = new ProfilesCreateCommandBuilder(profile.type, logger, profile);
             const updateCommandAction = new ProfilesUpdateCommandBuilder(profile.type, logger, profile);
             const deleteCommandAction = new ProfilesDeleteCommandBuilder(profile.type, logger, profile);
@@ -130,7 +125,7 @@ export class CompleteProfilesGroupBuilder {
             deleteGroup.children.push(deleteCommandAction.build());
             // validate profile is optional depending on if the profile has a validation plan
             const validateCommandResult = validateCommandAction.build();
-            if (!isNullOrUndefined(validateCommandResult)) {
+            if (validateCommandResult != null) {
                 validateGroup.children.push(validateCommandResult);
             }
             listGroup.children.push(listCommandAction.build());
@@ -139,7 +134,7 @@ export class CompleteProfilesGroupBuilder {
         }
         profileGroup.children.push(createGroup, updateGroup, deleteGroup, listGroup, setGroup);
         if (validateGroup.children.length > 0) {
-            // don't bother to add validation commands unless some plans have been providedl
+            // don't bother to add validation commands unless some plans have been provided
             profileGroup.children.push(validateGroup);
         }
         return profileGroup;

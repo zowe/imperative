@@ -12,14 +12,15 @@
                 "color": "orange"
             }
         },
-        "my_fruit": {
+        "fruit": {
             "type": "fruit",
             "properties": {
                 "host": "fruitoftheloom.com",
-                "port": 1337
+                "port": 1337,
+                "tokenType": "jwtToken"
             },
             "secure": [
-                "authToken"
+                "tokenValue"
             ]
         }
     },

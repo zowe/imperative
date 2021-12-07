@@ -119,9 +119,9 @@ exports[`Command Processor should detect missing ENV var prefix 1`] = `"Expect E
 
 exports[`Command Processor should detect missing arguments on invoke 1`] = `"Expect Error: Command Processor Error: invoke(): No command arguments supplied."`;
 
-exports[`Command Processor should detect missing command parameters to validate 1`] = `"Expect Error: Command Processor Error: validate(): No command arguments supplied."`;
+exports[`Command Processor should detect missing command arguments to validate 1`] = `"Expect Error: Command Processor Error: validate(): No command arguments supplied."`;
 
-exports[`Command Processor should detect missing command parameters to validate 2`] = `"Expect Error: Command Processor Error: validate(): No response object supplied."`;
+exports[`Command Processor should detect missing command response to validate 1`] = `"Expect Error: Command Processor Error: validate(): No response object supplied."`;
 
 exports[`Command Processor should detect missing parameters on invoke 1`] = `"Expect Error: Command Processor Error: invoke(): No parameters supplied."`;
 
@@ -242,12 +242,6 @@ Object {
   "weird": "error",
 }
 `;
-
-exports[`Command Processor should handle an error thrown from the handler 1`] = `"Unexpected Command Error: Cannot read property 'doesnt' of undefined"`;
-
-exports[`Command Processor should handle an error thrown from the handler 2`] = `"Cannot read property 'doesnt' of undefined"`;
-
-exports[`Command Processor should handle an error thrown from the handler 3`] = `"Cannot read property 'doesnt' of undefined"`;
 
 exports[`Command Processor should handle an error thrown from the profile loader 1`] = `
 Object {
@@ -951,24 +945,6 @@ Object {
 `;
 
 exports[`Command Processor should invoke the handler and return success=true if the handler was successful 1`] = `
-Object {
-  "data": Object {},
-  "error": undefined,
-  "exitCode": 0,
-  "message": "",
-  "stderr": Object {
-    "data": Array [],
-    "type": "Buffer",
-  },
-  "stdout": Object {
-    "data": Array [],
-    "type": "Buffer",
-  },
-  "success": true,
-}
-`;
-
-exports[`Command Processor should invoke the handler and return success=true if the handler was successful 2`] = `
 Object {
   "data": Object {},
   "error": undefined,

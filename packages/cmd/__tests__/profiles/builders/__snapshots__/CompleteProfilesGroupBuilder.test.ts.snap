@@ -196,7 +196,7 @@ Object {
           },
           "deprecatedReplacement": "Edit your Zowe V2 configuration
     zowe.config.json",
-          "description": "Delete a type-a profile. You must specify a profile name to be deleted. To find a list of available profiles for deletion,  issue the profiles list command. By default, you will be prompted to confirm the profile removal.",
+          "description": "Delete a type-a profile. You must specify a profile name to be deleted. To find a list of available profiles for deletion, issue the profiles list command. By default, you will be prompted to confirm the profile removal.",
           "examples": Array [
             Object {
               "description": "Delete a type-a profile named profilename",
@@ -234,7 +234,7 @@ Object {
           },
           "deprecatedReplacement": "Edit your Zowe V2 configuration
     zowe.config.json",
-          "description": "Delete a type-b profile. You must specify a profile name to be deleted. To find a list of available profiles for deletion,  issue the profiles list command. By default, you will be prompted to confirm the profile removal.",
+          "description": "Delete a type-b profile. You must specify a profile name to be deleted. To find a list of available profiles for deletion, issue the profiles list command. By default, you will be prompted to confirm the profile removal.",
           "examples": Array [
             Object {
               "description": "Delete a type-b profile named profilename",
@@ -306,7 +306,7 @@ Object {
               "type": "boolean",
             },
           ],
-          "summary": "List profiles of the type type-a",
+          "summary": "List profiles of the type type-a.",
           "type": "command",
         },
         Object {
@@ -341,12 +341,12 @@ Object {
               "type": "boolean",
             },
           ],
-          "summary": "List profiles of the type type-b",
+          "summary": "List profiles of the type type-b.",
           "type": "command",
         },
       ],
       "deprecatedReplacement": "The 'config list' command",
-      "description": "List profiles of the type {{type}}",
+      "description": "List profiles of the type {{type}}.",
       "name": "list",
       "summary": "List existing profiles",
       "type": "group",
@@ -473,7 +473,7 @@ Object {
     },
   ],
   "deprecatedReplacement": "The 'config init' command",
-  "description": "Create and manage configuration profiles",
+  "description": "Create and manage configuration profiles.",
   "name": "profiles",
   "type": "group",
 }

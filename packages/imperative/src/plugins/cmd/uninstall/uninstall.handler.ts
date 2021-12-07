@@ -9,7 +9,7 @@
 *
 */
 
-import { ICommandHandler, ICommandResponse, IHandlerParameters } from "../../../../../cmd";
+import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { Logger } from "../../../../../logger/";
 import { PMFConstants } from "../../utilities/PMFConstants";
 import { uninstall } from "../../utilities/npm-interface";
@@ -22,45 +22,45 @@ import { TextUtils } from "../../../../../utilities";
  * @see {uninstallDefinition}
  */
 export default class UninstallHandler implements ICommandHandler {
-  /**
-   * A logger for this class
-   *
-   * @private
-   * @type {Logger}
-   */
-  private console: Logger = Logger.getImperativeLogger();
+    /**
+     * A logger for this class
+     *
+     * @private
+     * @type {Logger}
+     */
+    private console: Logger = Logger.getImperativeLogger();
 
-  /**
-   * Process the command and input.
-   *
-   * @param {IHandlerParameters} params Parameters supplied by yargs
-   *
-   * @param {string[]} [params.arguments.plugin] This is the plugin to uninstall.
-   *
-   * @returns {Promise<ICommandResponse>} The command response
-   *
-   * @throws {ImperativeError}
-   */
-  public async process(params: IHandlerParameters): Promise<void> {
-    const chalk = TextUtils.chalk;
-    this.console.debug(`Root Directory: ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION}`);
+    /**
+     * Process the command and input.
+     *
+     * @param {IHandlerParameters} params Parameters supplied by yargs
+     *
+     * @param {string[]} [params.arguments.plugin] This is the plugin to uninstall.
+     *
+     * @returns {Promise<ICommandResponse>} The command response
+     *
+     * @throws {ImperativeError}
+     */
+    public async process(params: IHandlerParameters): Promise<void> {
+        const chalk = TextUtils.chalk;
+        this.console.debug(`Root Directory: ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION}`);
 
-    if (params.arguments.plugin == null || params.arguments.plugin.length === 0) {
-      throw new ImperativeError({
-        msg: `${chalk.yellow.bold("Package name")} is required.`
-      });
-    } else {
-      try {
-        uninstall(params.arguments.plugin);
-        params.response.console.log("Removal of the npm package(s) was successful.\n"
-        );
-      } catch (e) {
-        throw new ImperativeError({
-          msg: "Uninstall Failed",
-          causeErrors: [e],
-          additionalDetails: e.message
-        });
-      }
+        if (params.arguments.plugin == null || params.arguments.plugin.length === 0) {
+            throw new ImperativeError({
+                msg: `${chalk.yellow.bold("Package name")} is required.`
+            });
+        } else {
+            try {
+                uninstall(params.arguments.plugin);
+                params.response.console.log("Removal of the npm package(s) was successful.\n"
+                );
+            } catch (e) {
+                throw new ImperativeError({
+                    msg: "Uninstall Failed",
+                    causeErrors: [e],
+                    additionalDetails: e.message
+                });
+            }
+        }
     }
-  }
 }

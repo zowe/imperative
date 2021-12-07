@@ -23,23 +23,23 @@ import { getPackageInfo, installPackages } from "../NpmFunctions";
  *
  */
 export async function update(packageName: string, registry: string) {
-  const iConsole = Logger.getImperativeLogger();
-  const npmPackage = packageName;
+    const iConsole = Logger.getImperativeLogger();
+    const npmPackage = packageName;
 
-  iConsole.debug(`updating package: ${packageName}`);
+    iConsole.debug(`updating package: ${packageName}`);
 
-  // NOTE: Using npm install in order to retrieve the version which may be updated
-  iConsole.info("updating package...this may take some time.");
+    // NOTE: Using npm install in order to retrieve the version which may be updated
+    iConsole.info("updating package...this may take some time.");
 
-  installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, registry, npmPackage);
+    installPackages(PMFConstants.instance.PLUGIN_INSTALL_LOCATION, registry, npmPackage);
 
-  // We fetch the package version of newly installed plugin
-  const packageInfo = await getPackageInfo(npmPackage);
-  const packageVersion = packageInfo.version;
+    // We fetch the package version of newly installed plugin
+    const packageInfo = await getPackageInfo(npmPackage);
+    const packageVersion = packageInfo.version;
 
-  iConsole.info("Update complete");
+    iConsole.info("Update complete");
 
-  // return the package version so the plugins.json file can be updated
-  return packageVersion;
+    // return the package version so the plugins.json file can be updated
+    return packageVersion;
 }
 

@@ -35,22 +35,21 @@ export class ChainedHandlerService {
      * @returns {yargs.Arguments[]} fully mapped arguments for this command
      */
     public static getArguments(binName: string,
-                               chainedHandlerConfigs: IChainedHandlerEntry[],
-                               handlerIndex: number,
-                               previousResponseObjects: any[],
-                               overallArguments: yargs.Arguments,
-                               logger: Logger): yargs.Arguments {
+        chainedHandlerConfigs: IChainedHandlerEntry[],
+        handlerIndex: number,
+        previousResponseObjects: any[],
+        overallArguments: yargs.Arguments,
+        logger: Logger): yargs.Arguments {
         const args: yargs.Arguments = {$0: binName, _: []};
         if (previousResponseObjects.length < handlerIndex) {
             throw new ImperativeError({
                 msg: TextUtils.formatMessage("You must provide at least as many response " +
                     "objects as chained handlers that have been" +
                     " processed so far. You provided %d response objects  and tried to process the handler at index %d.",
-                    previousResponseObjects.length,
-                    handlerIndex)
+                previousResponseObjects.length,
+                handlerIndex)
             });
         }
-        let argumentIndex = 0;
         // we will loop through the chained handler configurations and skip any
         // mappings that are not relevant to the current handler's arguments
         for (let configIndex = 0; configIndex <= handlerIndex; configIndex++) {
@@ -118,7 +117,6 @@ export class ChainedHandlerService {
                     }
                 }
             }
-            argumentIndex++;
         }
         return args;
     }

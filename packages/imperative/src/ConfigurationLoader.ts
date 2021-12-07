@@ -31,7 +31,7 @@ export class ConfigurationLoader {
      * @returns {IImperativeConfig}
      */
     public static load(providedConfig: IImperativeConfig, packageJson: any,
-                       callerFileRequirer: (file: string) => any): IImperativeConfig {
+        callerFileRequirer: (file: string) => any): IImperativeConfig {
 
         let config: IImperativeConfig = providedConfig;
         // if the user has not specified a config,
@@ -55,7 +55,9 @@ export class ConfigurationLoader {
         // override the config with the content of the module specified
         if (config.configurationModule != null) {
             try {
+                const daemonMode = config.daemonMode;
                 config = callerFileRequirer(config.configurationModule);
+                if (daemonMode) {config.daemonMode = daemonMode;}
             } catch (e) {
                 throw new ImperativeError({
                     msg:

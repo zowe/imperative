@@ -13,7 +13,6 @@ import { Argv } from "yargs";
 import { ICommandDefinition } from "../../doc/ICommandDefinition";
 import { GroupCommandYargs } from "../GroupCommandYargs";
 import { ICommandResponseParms } from "../../doc/response/parms/ICommandResponseParms";
-import { AbstractHelpGeneratorFactory } from "../../../src/help/abstract/AbstractHelpGeneratorFactory";
 import { IProfileManagerFactory } from "../../../../profiles";
 import { IHelpGeneratorFactory } from "../../help/doc/IHelpGeneratorFactory";
 /**

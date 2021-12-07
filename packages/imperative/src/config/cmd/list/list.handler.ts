@@ -54,7 +54,7 @@ export default class ListHandler implements ICommandHandler {
         // If requested, only include the root property
         if (params.arguments.root && !Array.isArray(obj)) {
             const root = [];
-            for (const [p, _] of Object.entries(obj))
+            for (const p of Object.keys(obj))
                 root.push(p);
             obj = root;
         }

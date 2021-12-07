@@ -30,9 +30,10 @@ import { inspect } from "util";
 import * as DeepMerge from "deepmerge";
 import * as ProgressBar from "progress";
 import * as net from "net";
-import { DaemonUtils } from "../../../utilities/src/DaemonUtils";
 import * as tty from "tty";
 import { IPromptOptions } from "../doc/response/api/handler/IPromptOptions";
+import { DaemonRequest } from "../../../utilities/src/DaemonRequest";
+import { IDaemonResponse } from "../../../utilities/src/doc/IDaemonResponse";
 
 const DataObjectParser = require("dataobject-parser");
 
@@ -230,11 +231,10 @@ export class CommandResponse implements ICommandResponseApi {
 
     get format(): IHandlerFormatOutputApi {
         // Access to "this" from the inner class
-        // tslint:disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const outer: CommandResponse = this;
 
         if (this.mFormatApi == null) {
-            // tslint:disable-next-line
             this.mFormatApi = new class implements IHandlerFormatOutputApi {
                 /**
                  * Format output data from the command based on the defaults specified OR the parameters specified by
@@ -532,12 +532,11 @@ export class CommandResponse implements ICommandResponseApi {
      */
     get console(): IHandlerResponseConsoleApi {
         // Access to "this" from the inner class
-        // tslint:disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const outer: CommandResponse = this;
 
         // Create only a single instance of the console API
         if (this.mConsoleApi == null) {
-            // tslint:disable-next-line
             this.mConsoleApi = new class implements IHandlerResponseConsoleApi {
 
                 /**
@@ -602,12 +601,12 @@ export class CommandResponse implements ICommandResponseApi {
                     if (outer.mStream) {
                         return new Promise<string>((resolve) => {
 
-                            // build prompt headers and sent
-                            const daemonHeaders = DaemonUtils.buildHeader({ prompt: opts?.hideText ?
-                                DaemonUtils.X_ZOWE_DAEMON_PROMPT_SECURE : DaemonUtils.X_ZOWE_DAEMON_PROMPT_UNSECURE });
-
                             // send prompt content
-                            outer.writeStream(questionText + daemonHeaders);
+                            const daemonRequest = opts?.hideText ?
+                                DaemonRequest.create({ securePrompt: questionText }) :
+                                DaemonRequest.create({ prompt: questionText });
+
+                            outer.writeStream(daemonRequest);
 
                             // wait for a response here
                             outer.mStream.on("data", function listener(data) {
@@ -616,13 +615,12 @@ export class CommandResponse implements ICommandResponseApi {
                                 outer.mStream.removeListener("data", listener);
 
                                 // strip response header and give to content the waiting handler
-                                const stringData = data.toString();
-                                const parsed = stringData.substr(DaemonUtils.X_ZOWE_DAEMON_REPLY.length, stringData.length).trim();
-                                resolve(parsed)
+                                const response: IDaemonResponse = JSON.parse(data.toString());
+                                resolve(response.reply.trim());
                             });
                         });
                     } else {
-                        return CliUtils.promptWithTimeout(questionText, opts?.hideText, opts?.secToWait);
+                        return CliUtils.readPrompt(questionText, opts);
                     }
                 }
             }();
@@ -641,12 +639,11 @@ export class CommandResponse implements ICommandResponseApi {
      */
     get data(): IHandlerResponseDataApi {
         // Access to "this" from the inner class.
-        // tslint:disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const outer: CommandResponse = this;
 
         // Only create a single instance
         if (this.mDataApi == null) {
-            // tslint:disable-next-line
             this.mDataApi = new class {
 
                 /**
@@ -699,22 +696,21 @@ export class CommandResponse implements ICommandResponseApi {
      */
     get progress(): IHandlerProgressApi {
         // Remember "this" for the inner classes usage and ensure that progress bar has not been started.
-        // tslint:disable-next-line
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const outer: CommandResponse = this;
 
         // Ensure there is only a single instance created of the progress API class
         if (this.mProgressApi == null) {
 
             // Create an instance of the class
-            // tslint:disable-next-line
             this.mProgressApi = new class {
                 private mProgressBarSpinnerIndex = 0;
                 private mProgressTask: ITaskWithStatus;
-                private mProgressBarPollFrequency = 65;
+                private mProgressBarPollFrequency = 65;  // eslint-disable-line @typescript-eslint/no-magic-numbers
                 private mProgressBarTemplate: string = " " + TextUtils.chalk[outer.mPrimaryTextColor](":bar|") + " :current%  " +
                     TextUtils.chalk[outer.mPrimaryTextColor](":spin") + " | :statusMessage";
                 private mProgressBarInterval: any;
-                private mIsSocket = false;
+                private mIsDaemon = false;
 
                 private mProgressBarStdoutStartIndex: number;
                 private mProgressBarStderrStartIndex: number;
@@ -722,7 +718,7 @@ export class CommandResponse implements ICommandResponseApi {
                  * TODO: get from config - default value is below
                  */
                 private mProgressBarSpinnerChars: string = "-oO0)|(0Oo-";
-                private mSocketProgressBarSpinnerChars = ["-\n", "o\n", "O\n", "0\n", ")\n", "|\n", "(\n", "0\n", "O\n", "o\n", "-\n"];
+                private mDaemonProgressBarSpinnerChars = this.mProgressBarSpinnerChars.split("").map((char) => char + DaemonRequest.EOW_DELIMITER);
 
                 /**
                  * Start a progress bar (assuming silent mode is not enabled).
@@ -746,7 +742,7 @@ export class CommandResponse implements ICommandResponseApi {
 
                         // if we have an outer stream (e.g. socket connection for daemon mode) use it
                         if (outer.mStream) {
-                            this.mIsSocket = true;
+                            this.mIsDaemon = true;
                             stream = outer.mStream;
                             // NOTE(Kelosky): see https://github.com/visionmedia/node-progress/issues/110
                             //                progress explicitly checks for TTY before writing, so
@@ -761,8 +757,8 @@ export class CommandResponse implements ICommandResponseApi {
                         }
 
                         // send header to enable progress bar streaming
-                        const daemonHeaders = DaemonUtils.buildHeader({ progress: true });
-                        outer.writeStream(daemonHeaders);
+                        // const daemonHeaders = DaemonUtils.buildHeaders({ progress: true });
+                        outer.writeStream(DaemonRequest.create({ progress: true }));
 
                         // Create the progress bar instance
                         outer.mProgressBar = new ProgressBar(this.mProgressBarTemplate, {
@@ -790,20 +786,18 @@ export class CommandResponse implements ICommandResponseApi {
                             this.mProgressBarInterval = undefined;
                         }
 
-                        let statusMessage = "Complete";
-                        if (this.mIsSocket) {
-                            statusMessage += '\n';
-                        }
+                        const statusMessage = "Complete";
                         outer.mProgressBar.update(1, {
                             statusMessage,
                             spin: " "
                         });
 
-                        // send header to disable progress bar streaming
-                        const daemonHeaders = DaemonUtils.buildHeader({ progress: false });
-                        outer.writeStream(daemonHeaders);
-
                         outer.mProgressBar.terminate();
+
+                        // NOTE(Kelosky): ansi escape codes for progress bar cursor and line clearing are written on the socket
+                        // so we need to ensure they're emptied out before we write to the stream.
+                        if (this.mIsDaemon) outer.writeStream(DaemonRequest.EOW_DELIMITER);
+
                         outer.writeStdout(outer.mStdout.subarray(this.mProgressBarStdoutStartIndex));
                         outer.writeStderr(outer.mStderr.subarray(this.mProgressBarStderrStartIndex));
                         this.mProgressTask = undefined;
@@ -828,10 +822,10 @@ export class CommandResponse implements ICommandResponseApi {
                             const percentRatio = this.mProgressTask.percentComplete / TaskProgress.ONE_HUNDRED_PERCENT;
                             this.mProgressBarSpinnerIndex = (this.mProgressBarSpinnerIndex + 1) % this.mProgressBarSpinnerChars.length;
 
-                            if (this.mIsSocket) {
+                            if (this.mIsDaemon) {
                                 outer.mProgressBar.update(percentRatio, {
                                     statusMessage: this.mProgressTask.statusMessage,
-                                    spin: this.mSocketProgressBarSpinnerChars[this.mProgressBarSpinnerIndex]
+                                    spin: this.mDaemonProgressBarSpinnerChars[this.mProgressBarSpinnerIndex]
                                 });
                             } else {
                                 outer.mProgressBar.update(percentRatio, {
@@ -980,7 +974,7 @@ export class CommandResponse implements ICommandResponseApi {
      */
     public endStream() {
         if (this.mStream) {
-            this.sendHeaders();
+            this.setDaemonExitCode();
             this.mStream.end();
         }
     }
@@ -991,9 +985,8 @@ export class CommandResponse implements ICommandResponseApi {
      * @param {string} headers
      * @memberof CommandResponse
      */
-    private sendHeaders() {
-        const daemonHeaders = DaemonUtils.buildHeader({ exitCode: this.mExitCode });
-        this.writeStream(daemonHeaders);
+    private setDaemonExitCode() {
+        this.writeStream(DaemonRequest.create({ exitCode: this.mExitCode }));
     }
 
     /**
@@ -1040,7 +1033,7 @@ export class CommandResponse implements ICommandResponseApi {
      */
     private writeStdout(data: any) {
         process.stdout.write(data);
-        this.writeStream(data);
+        this.writeStream(DaemonRequest.create({ stdout: data }));
     }
 
     /**
@@ -1050,7 +1043,6 @@ export class CommandResponse implements ICommandResponseApi {
      * @memberof CommandResponse
      */
     private writeStream(data: any) {
-
         if (this.mStream) {
             this.mStream.write(data);
         }
@@ -1077,7 +1069,7 @@ export class CommandResponse implements ICommandResponseApi {
      */
     private writeStderr(data: any) {
         process.stderr.write(data);
-        this.writeStream(data);
+        this.writeStream(DaemonRequest.create({ stderr: data }));
     }
 
     /**

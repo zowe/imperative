@@ -9,25 +9,31 @@
 *
 */
 
+import { URL } from "url";
+
 export class JsUtils {
 
-  // __________________________________________________________________________
-  /**
-   * Is the supplied object empty.
-   *
-   * @param {object} objToTest - The object to test.
-   *
-   * @returns {boolean} - True if empty. False otherwise.
-   */
-  public static isObjEmpty(objToTest: object): boolean {
-    if (!objToTest) {
-      return true;
+    // __________________________________________________________________________
+    /**
+     * Is the supplied object empty.
+     *
+     * @param {object} objToTest - The object to test.
+     *
+     * @returns {boolean} - True if empty. False otherwise.
+     */
+    public static isObjEmpty(objToTest: object): boolean {
+        return Object.keys(objToTest ?? {}).length === 0;
     }
-    for (const prop in objToTest) {
-      if (objToTest.hasOwnProperty(prop)) {
-        return false;
-      }
+
+    // __________________________________________________________________________
+    /**
+     * Is the supplied string a URL.
+     *
+     * @param {string} urlString - The string to test.
+     *
+     * @returns {boolean} - True if it is a URL. False otherwise.
+     */
+    public static isUrl(urlString: string): boolean {
+        try { return new URL(urlString).origin !== "null"; } catch (_) { return false; }
     }
-    return true;
-  }
 }

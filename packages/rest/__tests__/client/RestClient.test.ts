@@ -142,7 +142,7 @@ describe("RestClient tests", () => {
         try {
             await CustomRestClientWithProcessError.getExpectString(new Session(
                 {hostname: "google.corn"}),
-                "/my/fake/resource/is/here.xml");
+            "/my/fake/resource/is/here.xml");
         } catch (thrownError) {
             error = thrownError;
         }

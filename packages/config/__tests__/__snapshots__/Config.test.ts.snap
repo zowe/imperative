@@ -3,7 +3,6 @@
 exports[`Config tests load should load a config and populate missing defaults 1`] = `
 Object {
   "defaults": Object {},
-  "plugins": Array [],
   "profiles": Object {},
 }
 `;
@@ -14,7 +13,6 @@ Object {
     "fruit": "fruit.banana",
     "vegetable": "vegetable.artichoke",
   },
-  "plugins": Array [],
   "profiles": Object {
     "fruit": Object {
       "profiles": Object {
@@ -58,7 +56,6 @@ Object {
   "defaults": Object {
     "fruit": "fruit.orange",
   },
-  "plugins": Array [],
   "profiles": Object {
     "fruit": Object {
       "profiles": Object {
@@ -125,7 +122,6 @@ Object {
     "fruit": "fruit.apple",
     "vegetable": "vegetable.artichoke",
   },
-  "plugins": Array [],
   "profiles": Object {
     "fruit": Object {
       "profiles": Object {
@@ -210,6 +206,13 @@ Object {
       },
     },
   },
+}
+`;
+
+exports[`Config tests load should not actually load config that seems to exist but is malformed when noLoad specified 1`] = `
+Object {
+  "defaults": Object {},
+  "profiles": Object {},
 }
 `;
 

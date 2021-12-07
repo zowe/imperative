@@ -15,12 +15,13 @@ import { Arguments } from "yargs";
 import { TextUtils } from "./TextUtils";
 import { IOptionFormat } from "./doc/IOptionFormat";
 import { CommandProfiles, ICommandOptionDefinition, ICommandPositionalDefinition,
-         ICommandProfile, IHandlerParameters
+    ICommandProfile, IHandlerParameters
 } from "../../cmd";
 import { ICommandArguments } from "../../cmd/src/doc/args/ICommandArguments";
 import { IProfile } from "../../profiles";
 import * as prompt from "readline-sync";
 import * as os from "os";
+import { IPromptOptions } from "../../cmd/src/doc/response/api/handler/IPromptOptions";
 
 /**
  * Cli Utils contains a set of static methods/helpers that are CLI related (forming options, censoring args, etc.)
@@ -118,7 +119,7 @@ export class CliUtils {
      * @memberof CliUtils
      */
     public static getOptValueFromProfiles(profiles: CommandProfiles, definitions: ICommandProfile,
-                                          options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): any {
+        options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): any {
         let args: any = {};
 
         // Construct the precedence order to iterate through the profiles
@@ -155,7 +156,8 @@ export class CliUtils {
                     // If the profile has either type (or both specified) we'll add it to args if the args object
                     // does NOT already contain the value in any case
                     if ((profileCamel !== undefined || profileKebab !== undefined) &&
-                        (!args.hasOwnProperty(cases.kebabCase) && !args.hasOwnProperty(cases.camelCase))) {
+                        (!Object.prototype.hasOwnProperty.call(args, cases.kebabCase) &&
+                         !Object.prototype.hasOwnProperty.call(args, cases.camelCase))) {
 
                         // If both case properties are present in the profile, use the one that matches
                         // the option name explicitly
@@ -204,7 +206,7 @@ export class CliUtils {
      *
      */
     public static extractEnvForOptions(envPrefix: string,
-                                       options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): ICommandArguments["args"] {
+        options: Array<ICommandOptionDefinition | ICommandPositionalDefinition>): ICommandArguments["args"] {
         let args: ICommandArguments["args"] = {};
         options.forEach((opt) => {
             let envValue: any = CliUtils.getEnvValForOption(envPrefix, opt.name);
@@ -224,7 +226,7 @@ export class CliUtils {
                         break;
 
                     // convert strings to numbers if the option is number type
-                    case "number":
+                    case "number": {
                         const BASE_TEN = 10;
                         const oldEnvValue = envValue;
                         envValue = parseInt(envValue, BASE_TEN);
@@ -234,12 +236,12 @@ export class CliUtils {
                             envValue = oldEnvValue;
                         }
                         break;
-
+                    }
                     // convert to an array of strings if the type is array
-                    case "array":
+                    case "array": {
                         envValue = this.extractArrayFromEnvValue(envValue);
                         break;
-
+                    }
                     // Do nothing for other option types
                     default:
                         break;
@@ -315,7 +317,7 @@ export class CliUtils {
             envVarName.toUpperCase().replace(/-/g, envDelim);
 
         // Get the value of the environment variable
-        if (process.env.hasOwnProperty(envVarName)) {
+        if (Object.prototype.hasOwnProperty.call(process.env, envVarName)) {
             return process.env[envVarName];
         }
 
@@ -431,6 +433,7 @@ export class CliUtils {
      * DOES NOT WORK WITH COMMANDS THAT ALSO READ STDIN
      * Useful for prompting the user for sensitive info such as passwords
      * Synchronous
+     * @deprecated Use the asynchronous method `readPrompt` instead
      * @param message - The message to display to the user e.g. "Please enter password:"
      * @returns value - the value entered by the user
      */
@@ -457,13 +460,14 @@ export class CliUtils {
      * Prompt the user with a question and wait for an answer,
      * but only up to the specified timeout.
      *
+     * @deprecated Use `readPrompt` instead which supports more options
      * @param questionText The text with which we will prompt the user.
      *
      * @param hideText Should we hide the text. True = display stars.
      *                 False = display text. Default = false.
      *
      * @param secToWait The number of seconds that we will wait for an answer.
-     *                  If not supplied, the default is 30 seconds.
+     *                  If not supplied, the default is 600 seconds.
      *
      * @return A string containing the user's answer, or null if we timeout.
      *
@@ -542,6 +546,62 @@ export class CliUtils {
         // terminate our use of the ttyIo object
         ttyIo.close();
         return answerToReturn;
+    }
+
+    /**
+     * Prompt the user with a question and wait for an answer,
+     * but only up to the specified timeout.
+     *
+     * @param message The text with which we will prompt the user.
+     *
+     * @param opts.hideText Should we hide the text. True = display stars.
+     *        False = display text. Default = false.
+     *
+     * @param opts.secToWait The number of seconds that we will wait for an answer.
+     *        If not supplied, the default is 10 minutes.
+     *        If 0 is specified, we will never timeout.
+     *        Numbers larger than 3600 (1 hour) are not allowed.
+     *
+     * @param opts.maskChar The character that should be used to mask hidden text.
+     *        If null is specified, then no characters will be echoed back.
+     *
+     * @return A string containing the user's answer, or null if we timeout.
+     *
+     * @example
+     *      const answer = await CliUtils.readPrompt("Type your answer here: ");
+     *      if (answer === null) {
+     *          // abort the operation that you wanted to perform
+     *      } else {
+     *          // use answer in some operation
+     *      }
+     */
+    public static async readPrompt(message: string, opts?: IPromptOptions): Promise<string> {
+        // Ensure that we use a reasonable timeout
+        let secToWait = opts?.secToWait || 600;  // eslint-disable-line @typescript-eslint/no-magic-numbers
+        const maxSecToWait = 3600; // 1 hour max
+        if (secToWait > maxSecToWait || secToWait < 0) {
+            secToWait = maxSecToWait;
+        }
+
+        return new Promise((resolve, reject) => {
+            require("read")({
+                input: process.stdin,
+                output: process.stdout,
+                terminal: true,
+                prompt: message,
+                silent: opts?.hideText,
+                replace: opts?.maskChar,
+                timeout: secToWait ? (secToWait * 1000) : null  // eslint-disable-line @typescript-eslint/no-magic-numbers
+            }, (error: any, result: string) => {
+                if (error == null) {
+                    resolve(result);
+                } else if (error.message === "timed out") {
+                    resolve(null);
+                } else {
+                    reject(error);
+                }
+            });
+        });
     }
 
     /**

@@ -22,6 +22,7 @@ import { SharedOptions } from "../src/utils/SharedOptions";
 import { CommandProfileLoader } from "../src/profiles/CommandProfileLoader";
 import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "../src/help/WebHelpManager";
+import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
 
 jest.mock("../src/syntax/SyntaxValidator");
 jest.mock("../src/utils/SharedOptions");
@@ -245,18 +246,27 @@ describe("Command Processor", () => {
     afterEach(() => {
         process.stdout.write = ORIGINAL_STDOUT_WRITE;
         process.stderr.write = ORIGINAL_STDERR_WRITE;
+        jest.restoreAllMocks();
     });
 
     it("should allow us to create an instance", () => {
-        const processor: CommandProcessor = new CommandProcessor({
-            envVariablePrefix: ENV_VAR_PREFIX,
-            definition: SAMPLE_COMMAND_DEFINITION,
-            helpGenerator: FAKE_HELP_GENERATOR,
-            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: "",
-            promptPhrase: "dummydummy"
-        });
+        let caughtError;
+
+        try {
+            const processor: CommandProcessor = new CommandProcessor({
+                envVariablePrefix: ENV_VAR_PREFIX,
+                definition: SAMPLE_COMMAND_DEFINITION,
+                helpGenerator: FAKE_HELP_GENERATOR,
+                profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+                rootCommandName: SAMPLE_ROOT_COMMAND,
+                commandLine: "",
+                promptPhrase: "dummydummy"
+            });
+        } catch (error) {
+            caughtError = error;
+        }
+
+        expect(caughtError).toBeUndefined();
     });
 
     it("should detect that no parameters have been supplied", () => {
@@ -591,7 +601,7 @@ describe("Command Processor", () => {
         expect(validateResponse).toMatchSnapshot();
     });
 
-    it("should detect missing command parameters to validate", async () => {
+    it("should detect missing command arguments to validate", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
             envVariablePrefix: ENV_VAR_PREFIX,
@@ -614,7 +624,7 @@ describe("Command Processor", () => {
         expect(error.message).toMatchSnapshot();
     });
 
-    it("should detect missing command parameters to validate", async () => {
+    it("should detect missing command response to validate", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
             envVariablePrefix: ENV_VAR_PREFIX,
@@ -837,7 +847,8 @@ describe("Command Processor", () => {
             helpGenerator: FAKE_HELP_GENERATOR,
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: "--user fakeUser --password fakePass --token-value fakeToken",
+            commandLine: "--user fakeUser --password fakePass --token-value fakeToken " +
+                "--cert-file-passphrase fakePassphrase --cert-key-file /fake/path",
             promptPhrase: "dummydummy"
         });
 
@@ -859,7 +870,7 @@ describe("Command Processor", () => {
         const commandResponse: ICommandResponse = await processor.invoke(parms);
 
         expect(mockLogInfo).toHaveBeenCalled();
-        expect(logOutput).toContain("--user **** --password **** --token-value ****");
+        expect(logOutput).toContain("--user **** --password **** --token-value **** --cert-file-passphrase **** --cert-key-file ****");
     });
 
     it("should handle an error thrown from the profile loader", async () => {
@@ -1223,14 +1234,17 @@ describe("Command Processor", () => {
 
         expect(commandResponse).toBeDefined();
         expect(commandResponse.success).toBe(false);
-        expect(commandResponse.message).toMatchSnapshot();
-        expect(commandResponse.error.msg).toMatchSnapshot();
+        expect(commandResponse.message).toMatch(
+            /Unexpected Command Error: Cannot read (property 'doesnt' of undefined|properties of undefined \(reading 'doesnt'\))/
+        );
+        expect(commandResponse.error.msg).toMatch(/Cannot read (property 'doesnt' of undefined|properties of undefined \(reading 'doesnt'\))/);
         expect(commandResponse.stdout.toString().length).toBe(0);
         expect(commandResponse.stderr.toString()).toContain("Unexpected Command Error:");
         expect(commandResponse.stderr.toString()).toContain("Message:");
         expect(commandResponse.stderr.toString()).toContain("Stack:");
-        expect(commandResponse.error.msg).toMatchSnapshot();
-        expect(commandResponse.error.stack).toContain("TypeError: Cannot read property 'doesnt' of undefined");
+        expect(commandResponse.error.stack).toMatch(
+            /TypeError: Cannot read (property 'doesnt' of undefined|properties of undefined \(reading 'doesnt'\))/
+        );
     });
 
     it("should handle the handler rejecting with a message", async () => {
@@ -1384,6 +1398,11 @@ describe("Command Processor", () => {
             };
         });
 
+        const mockConfigReload = jest.fn();
+        jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
+            config: { reload: mockConfigReload }
+        } as any);
+
         const parms: any = {
             arguments: {
                 _: ["check", "for", "banana"],
@@ -1396,6 +1415,7 @@ describe("Command Processor", () => {
         const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(commandResponse).toBeDefined();
         expect(commandResponse).toMatchSnapshot();
+        expect(mockConfigReload).toHaveBeenCalledTimes(1);
     });
 
     it("should extract arguments not specified on invoke from a profile and merge with args", async () => {
@@ -1638,46 +1658,6 @@ describe("Command Processor", () => {
         const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(CliUtils.getOptValueFromProfiles).toHaveBeenCalledTimes(1);
         expect(commandResponse.stdout.toString()).toMatchSnapshot();
-        expect(commandResponse).toBeDefined();
-        expect(commandResponse).toMatchSnapshot();
-    });
-
-    it("should invoke the handler and return success=true if the handler was successful", async () => {
-        // Allocate the command processor
-        const processor: CommandProcessor = new CommandProcessor({
-            envVariablePrefix: ENV_VAR_PREFIX,
-            fullDefinition: SAMPLE_COMPLEX_COMMAND,
-            definition: SAMPLE_COMMAND_REAL_HANDLER,
-            helpGenerator: FAKE_HELP_GENERATOR,
-            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
-            rootCommandName: SAMPLE_ROOT_COMMAND,
-            commandLine: "",
-            promptPhrase: "dummydummy"
-        });
-
-        // Mock read stdin
-        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
-            // Nothing to do
-        });
-
-        // Mock the profile loader
-        (CommandProfileLoader.loader as any) = jest.fn((args) => {
-            return {
-                loadProfiles: (profArgs: any) => {
-                    // Nothing to do
-                }
-            };
-        });
-
-        const parms: any = {
-            arguments: {
-                _: ["check", "for", "banana"],
-                $0: "",
-                valid: true,
-            },
-            silent: true
-        };
-        const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(commandResponse).toBeDefined();
         expect(commandResponse).toMatchSnapshot();
     });

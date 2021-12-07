@@ -23,9 +23,9 @@ export const initDefinition: ICommandDefinition = {
     handler: join(__dirname, "init.handler"),
     summary: "init config files",
     description: `Initialize config files. Defaults to initializing "${ImperativeConfig.instance.rootCommandName}.config.json" in the current ` +
-        `working directory unless otherwise specified.\n\nUse "--user-config" to init "${ImperativeConfig.instance.rootCommandName}.config.user.json". ` +
-        `Use "--global-config" to initialize the configuration files in your home "~/.zowe" directory.\n\nUse "--no-prompt" to skip prompting for values ` +
-        `in a CI environment.`,
+        `working directory unless otherwise specified.\n\nUse "--user-config" to init ` +
+        `"${ImperativeConfig.instance.rootCommandName}.config.user.json". Use "--global-config" to initialize the configuration files in your home ` +
+        `"~/.zowe" directory.\n\nUse "--no-prompt" to skip prompting for values in a CI environment.`,
     options: [
         {
             name: "global-config",
@@ -41,50 +41,41 @@ export const initDefinition: ICommandDefinition = {
             type: "boolean",
             defaultValue: false
         },
-        // {
-        //     name: "url",
-        //     description: "Downloads the configuration file specified by the URL.",
-        //     type: "string"
-        // },
-        // {
-        //     name: "default",
-        //     description: "When creating a profile of a specified type (--type <type>), applies default values from the profile schema.",
-        //     type: "boolean",
-        //     defaultValue: false
-        // },
-        // {
-        //     name: "profile",
-        //     description: "Create a profile of the specified name. You may also specify a profile \"path\" (e.g. host1.service1.details1).",
-        //     type: "string",
-        // },
-        // {
-        //     name: "type",
-        //     description: "Create a profile of the specified type. You will be prompted for values based on the profile schema (definition).",
-        //     type: "string",
-        // },
-        // {
-        //     // TODO Should this be removed if it is unused?
-        //     name: "template",
-        //     description: "apply a type as a template to guide creation.",
-        //     type: "string"
-        // },
-        // {
-        //     name: "update",
-        //     description: "update the config if it already exists.",
-        //     type: "boolean",
-        //     defaultValue: false
-        // },
-        // {
-        //     name: "set-default",
-        //     description: "when profiles are created, set them as the default.",
-        //     type: "boolean",
-        //     defaultValue: false
-        // },
         {
             name: "prompt",
             description: "Prompt for secure values. Useful for disabling prompting in CI environments.",
             type: "boolean",
             defaultValue: true
+        },
+        {
+            name: "dry-run",
+            description: "Display the outcome of the initialization without saving.",
+            aliases: ["dr", "dry"],
+            type: "boolean",
+            defaultValue: false,
+            conflictsWith: ["overwrite"]
+        }
+    ],
+    examples: [
+        {
+            description: `Initialize configuration files in your home "~/.zowe" directory.`,
+            options: "--global-config"
+        },
+        {
+            description: `Do a dry run of initializing configuration files in your home "~/.zowe" directory.`,
+            options: "--global-config --dry-run"
+        },
+        {
+            description: "Initialize the user config files.",
+            options: "--user-config"
+        },
+        {
+            description: "Initialize the user config files and do not prompt for secure values.",
+            options: "--user-config --prompt false"
+        },
+        {
+            description: "Do a dry run of initializing the user config files and do not prompt for secure values.",
+            options: "--user-config --prompt false --dry-run"
         }
     ]
 };

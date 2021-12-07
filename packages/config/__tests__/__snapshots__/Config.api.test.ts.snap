@@ -39,6 +39,49 @@ Object {
 }
 `;
 
+exports[`Config API tests layers merge - dry run should merge config layers with correct priority 1`] = `
+Object {
+  "defaults": Object {
+    "fruit": "fruit.apple",
+  },
+  "plugins": CommentArray [
+    "@zowe/fruit-for-imperative",
+    "@zowe/vegetable-for-imperative",
+  ],
+  "profiles": Object {
+    "fruit": Object {
+      "profiles": Object {
+        "apple": Object {
+          "properties": Object {
+            "color": "red",
+          },
+          "type": "fruit",
+        },
+        "grape": Object {
+          "properties": Object {
+            "color": "red",
+          },
+          "type": "fruit",
+        },
+        "orange": Object {
+          "properties": Object {
+            "color": "orange",
+          },
+          "type": "fruit",
+        },
+      },
+      "properties": Object {
+        "origin": "California",
+        "shipDate": "2000-01-01",
+      },
+      "secure": CommentArray [
+        "secret",
+      ],
+    },
+  },
+}
+`;
+
 exports[`Config API tests layers merge should merge config layers with correct priority 1`] = `
 Object {
   "defaults": Object {
@@ -74,7 +117,7 @@ Object {
         "origin": "California",
         "shipDate": "2000-01-01",
       },
-      "secure": Array [
+      "secure": CommentArray [
         "secret",
       ],
     },
@@ -86,7 +129,6 @@ exports[`Config API tests layers set should set the current layer 1`] = `
 Object {
   "$schema": "fake",
   "defaults": Object {},
-  "plugins": CommentArray [],
   "profiles": Object {
     "vegetable": Object {
       "properties": Object {
@@ -101,7 +143,6 @@ Object {
 exports[`Config API tests layers set should set the current layer when nothing is provided 1`] = `
 Object {
   "defaults": Object {},
-  "plugins": CommentArray [],
   "profiles": Object {},
 }
 `;
@@ -253,58 +294,6 @@ exports[`Config API tests profiles get should get a second level profile 1`] = `
 Object {
   "color": "red",
   "origin": "California",
-}
-`;
-
-exports[`Config API tests profiles load should get a first level profile 1`] = `
-Object {
-  "profiles": Object {
-    "apple": Object {
-      "properties": Object {
-        "color": Object {
-          "global": false,
-          "secure": false,
-          "user": true,
-          "value": "red",
-        },
-      },
-      "type": "fruit",
-    },
-    "orange": Object {
-      "properties": Object {
-        "color": Object {
-          "global": false,
-          "secure": false,
-          "user": true,
-          "value": "orange",
-        },
-      },
-      "type": "fruit",
-    },
-  },
-  "properties": Object {
-    "origin": Object {
-      "global": false,
-      "secure": false,
-      "user": true,
-      "value": "California",
-    },
-  },
-  "secure": Array [],
-}
-`;
-
-exports[`Config API tests profiles load should get a second level profile 1`] = `
-Object {
-  "properties": Object {
-    "color": Object {
-      "global": false,
-      "secure": false,
-      "user": true,
-      "value": "red",
-    },
-  },
-  "type": "fruit",
 }
 `;
 

@@ -165,11 +165,11 @@ describe("PluginRequireProvider", () => {
          * the tests to still function correctly without us mucking up node with
          * bogus test requires.
          */
-        return Module.prototype.require = jest.fn(function(request: string, testCheck?: typeof testRequireIndicator | any) {
-            if (arguments[1] === testRequireIndicator) {
+        return Module.prototype.require = jest.fn(function(...args: any[]) {
+            if (args[1] === testRequireIndicator) {
                 return this;
             } else {
-                return originalRequire.apply(this, arguments);
+                return originalRequire.apply(this, args);
             }
         });
     };
@@ -232,9 +232,9 @@ describe("PluginRequireProvider", () => {
         });
 
         it("should guard against destroying hooks that haven't been created", () => {
-           expect(() => {
-               PluginRequireProvider.destroyPluginHooks();
-           }).toThrow(PluginRequireNotCreatedError);
+            expect(() => {
+                PluginRequireProvider.destroyPluginHooks();
+            }).toThrow(PluginRequireNotCreatedError);
         });
     });
 
@@ -342,9 +342,9 @@ describe("PluginRequireProvider", () => {
                     modules: randomModuleMaxLength,
                     shouldRequireDirectly: [
                         "./anything/goes/here",
-                        randomModuleMaxLength[0].substr(15),  //tslint:disable-line
-                        randomModuleMaxLength[1].substr(200), //tslint:disable-line
-                        randomModuleMaxLength[2].substr(59)   //tslint:disable-line
+                        randomModuleMaxLength[0].substr(15),
+                        randomModuleMaxLength[1].substr(200),
+                        randomModuleMaxLength[2].substr(59)
                     ]
                 },
                 "1 module with periods": {

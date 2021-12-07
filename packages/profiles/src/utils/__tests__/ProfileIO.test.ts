@@ -600,5 +600,5 @@ describe("Profile IO", () => {
             expect(error instanceof ImperativeError).toBe(true);
             expect(error.message).toContain(configModeErr);
         });
-    })
+    });
 });

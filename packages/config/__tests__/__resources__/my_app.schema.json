@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$version": 3,
+  "type": "object",
+  "description": "config",
+  "properties": {
+      "profiles": {
+          "type": "object",
+          "description": "named profiles config",
+          "patternProperties": {
+              "^\\S*$": {
+                  "type": "object",
+                  "description": "a profile",
+                  "properties": {
+                      "type": {
+                          "description": "the profile type",
+                          "type": "string"
+                      },
+                      "properties": {
+                          "description": "the profile properties",
+                          "type": "object"
+                      },
+                      "profiles": {
+                          "description": "additional sub-profiles",
+                          "type": "object",
+                          "$ref": "#/properties/profiles"
+                      },
+                      "secure": {
+                          "description": "secure property names",
+                          "type": "array",
+                          "prefixItems": {
+                              "type": "string"
+                          },
+                          "uniqueItems": true
+                      }
+                  },
+                  "allOf": [
+                      {
+                          "if": {
+                              "properties": {
+                                  "type": {
+                                      "const": "fruit"
+                                  }
+                              }
+                          },
+                          "then": {
+                              "properties": {
+                                  "properties": {
+                                      "type": "object",
+                                      "title": "Fruit Profile",
+                                      "description": "Fruit Profile",
+                                      "properties": {
+                                          "origin": {
+                                              "type": "string",
+                                              "description": "The Fruit origin."
+                                          },
+                                          "color": {
+                                              "type": "number",
+                                              "description": "The Fruit color."
+                                          }
+                                      },
+                                      "required": []
+                                  },
+                                  "secure": {
+                                      "prefixItems": {
+                                          "enum": [
+                                              "user",
+                                              "password"
+                                          ]
+                                      }
+                                  }
+                              }
+                          }
+                      },
+                      {
+                          "if": {
+                              "properties": {
+                                  "type": {
+                                      "const": "vegetable"
+                                  }
+                              }
+                          },
+                          "then": {
+                              "properties": {
+                                  "properties": {
+                                      "type": "object",
+                                      "title": "Vegetable Profile",
+                                      "description": "Vegetable User Profile",
+                                      "properties": {
+                                          "origin": {
+                                              "type": "string",
+                                              "description": "The Vegetable origin."
+                                          },
+                                          "color": {
+                                              "type": "string",
+                                              "description": "The Vegetable Color."
+                                          }
+                                      },
+                                      "required": []
+                                  },
+                                  "secure": {
+                                      "prefixItems": {
+                                          "enum": [
+                                              "user",
+                                              "password"
+                                          ]
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                  ]
+              }
+          }
+      },
+      "defaults": {
+          "type": "object",
+          "description": "default profiles config",
+          "properties": {
+              "fruit": {
+                  "type": "string"
+              },
+              "vegetable": {
+                  "type": "string"
+              }
+          }
+      }
+  }
+}

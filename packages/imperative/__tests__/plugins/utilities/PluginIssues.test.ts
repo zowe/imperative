@@ -33,10 +33,10 @@ describe("PluginIssues", () => {
 
             it("should return false when no error", () => {
                 expect(pluginIssues.doesPluginHaveIssueSev(pluginName, [
-                        IssueSeverity.CFG_ERROR,
-                        IssueSeverity.CMD_ERROR,
-                        IssueSeverity.OVER_ERROR
-                    ])).toBeFalsy();
+                    IssueSeverity.CFG_ERROR,
+                    IssueSeverity.CMD_ERROR,
+                    IssueSeverity.OVER_ERROR
+                ])).toBeFalsy();
             });
         });
 
@@ -46,8 +46,8 @@ describe("PluginIssues", () => {
                 pluginIssues.recordIssue("test2", IssueSeverity.CMD_ERROR, "test2");
 
                 const issues = pluginIssues.getAllIssues();
-                expect(issues.hasOwnProperty("test1")).toBeTruthy();
-                expect(issues.hasOwnProperty("test2")).toBeTruthy();
+                expect(Object.prototype.hasOwnProperty.call(issues, "test1")).toBeTruthy();
+                expect(Object.prototype.hasOwnProperty.call(issues, "test2")).toBeTruthy();
 
                 pluginIssues.removeIssuesForPlugin("test1");
                 pluginIssues.removeIssuesForPlugin("test2");

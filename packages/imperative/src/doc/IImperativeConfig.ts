@@ -14,6 +14,7 @@ import { IImperativeLogsConfig } from "./IImperativeLogsConfig";
 import { IImperativeOverrides } from "./IImperativeOverrides";
 import { IImperativeAuthGroupConfig } from "./IImperativeAuthGroupConfig";
 import { IApimlSvcAttrs } from "./IApimlSvcAttrs";
+import { ICommandProfileAutoInitConfig } from "../../../cmd/src/doc/profiles/definition/ICommandProfileAutoInitConfig";
 
 /**
  * All of the configuration required to set up your Imperative CLI app
@@ -176,11 +177,11 @@ export interface IImperativeConfig {
     authGroupConfig?: IImperativeAuthGroupConfig;
 
     /**
-     * Specify the name to use in the config template for the root profile that contains all supported profiles.
-     * @type {string}
+     * Use this property to customize the command definition for the config init command.
+     * @type {ICommandProfileAutoInitConfig}
      * @memberof IImperativeConfig
      */
-    templateProfileName?: string;
+    configAutoInitCommandConfig?: ICommandProfileAutoInitConfig;
 
     /**
      * If you specify a list of profile configurations, you can set this to true to
@@ -309,14 +310,6 @@ export interface IImperativeConfig {
     webHelpCustomCssPath?: string;
 
     /**
-     * Service name that should be used in vault for secure credentials.
-     * If omitted, the default service name "Zowe" is used.
-     * @type {string}
-     * @memberof IImperativeConfig
-     */
-    credentialServiceName?: string;
-
-    /**
      * The set of attributes used to lookup (within the API Mediation Layer)
      * the connection properties for the REST service associated with this
      * command group. We use an array of such attributes in case the command
@@ -325,4 +318,12 @@ export interface IImperativeConfig {
      * @memberof IImperativeConfig
      */
     apimlConnLookup?: IApimlSvcAttrs[];
+
+    /**
+     * If Imperative should run in Daemon mode
+     * This should only be specified for CLIs
+     * @type {boolean}
+     * @memberof IImperativeConfig
+     */
+    daemonMode?: boolean;
 }

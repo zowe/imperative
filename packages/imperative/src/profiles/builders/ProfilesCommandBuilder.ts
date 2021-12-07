@@ -33,8 +33,8 @@ export abstract class ProfilesCommandBuilder implements AbstractCommandBuilder {
      * @param {IProfileSchema} mProfileConfig: The schema that describes the profile
      */
     constructor(protected mProfileType: string,
-                protected mLogger: Logger,
-                protected mProfileConfig: ICommandProfileTypeConfiguration) {
+        protected mLogger: Logger,
+        protected mProfileConfig: ICommandProfileTypeConfiguration) {
 
         this.mSchema = mProfileConfig.schema;
         if (isNullOrUndefined(this.mSchema)) {
@@ -76,7 +76,7 @@ export abstract class ProfilesCommandBuilder implements AbstractCommandBuilder {
      * @return {ICommandOptionDefinition[]}: The set of returned option definitions
      */
     protected buildOptionsFromProfileSchema(properties: any,
-                                            options: ICommandOptionDefinition[]): ICommandOptionDefinition[] {
+        options: ICommandOptionDefinition[]): ICommandOptionDefinition[] {
         for (const propName of Object.keys(properties)) {
             // helper to recursively add any nested option definitions
             const findAndAddOptions = (propertiesObject: any, propertyName: string) => {

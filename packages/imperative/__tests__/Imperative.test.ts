@@ -18,6 +18,7 @@ import { IConfigLogging } from "../../logger";
 import { IImperativeEnvironmentalVariableSettings } from "..";
 import { ICommandDefinition } from "../../cmd/src/doc/ICommandDefinition";
 import * as yargs from "yargs";
+import { ImperativeError } from "../../error/src/ImperativeError";
 
 describe("Imperative", () => {
     const mainModule = process.mainModule;
@@ -41,23 +42,25 @@ describe("Imperative", () => {
             jest.doMock("../src/env/EnvironmentalVariableSettings");
             jest.doMock("../src/auth/builders/CompleteAuthGroupBuilder");
             jest.doMock("../src/profiles/builders/CompleteProfilesGroupBuilder");
+            jest.doMock("../src/config/cmd/auto-init/builders/CompleteAutoInitCommandBuilder");
             jest.doMock("../../config/src/Config");
             jest.doMock("../../security/src/CredentialManagerFactory");
 
-            const {OverridesLoader} = require("../src/OverridesLoader");
-            const {LoggingConfigurer} = require("../src/LoggingConfigurer");
-            const {ConfigurationLoader} = require("../src/ConfigurationLoader");
+            const { OverridesLoader } = require("../src/OverridesLoader");
+            const { LoggingConfigurer } = require("../src/LoggingConfigurer");
+            const { ConfigurationLoader } = require("../src/ConfigurationLoader");
             const ConfigurationValidator = require("../src/ConfigurationValidator").ConfigurationValidator.validate;
-            const {AppSettings} = require("../../settings");
-            const {ImperativeConfig} = require("../../utilities/src/ImperativeConfig");
-            const {ConfigManagementFacility} = require("../src/config/ConfigManagementFacility");
-            const {PluginManagementFacility} = require("../src/plugins/PluginManagementFacility");
-            const {Logger} = require("../../logger");
-            const {EnvironmentalVariableSettings} = require("../src/env/EnvironmentalVariableSettings");
-            const {CompleteAuthGroupBuilder} = require("../src/auth/builders/CompleteAuthGroupBuilder");
-            const {CompleteProfilesGroupBuilder} = require("../src/profiles/builders/CompleteProfilesGroupBuilder");
-            const {Config} = require("../../config/src/Config");
-            const {CredentialManagerFactory} = require("../../security/src/CredentialManagerFactory");
+            const { AppSettings } = require("../../settings");
+            const { ImperativeConfig } = require("../../utilities/src/ImperativeConfig");
+            const { ConfigManagementFacility } = require("../src/config/ConfigManagementFacility");
+            const { PluginManagementFacility } = require("../src/plugins/PluginManagementFacility");
+            const { Logger } = require("../../logger");
+            const { EnvironmentalVariableSettings } = require("../src/env/EnvironmentalVariableSettings");
+            const { CompleteAuthGroupBuilder } = require("../src/auth/builders/CompleteAuthGroupBuilder");
+            const { CompleteProfilesGroupBuilder } = require("../src/profiles/builders/CompleteProfilesGroupBuilder");
+            const { CompleteAutoInitCommandBuilder } = require("../src/config/cmd/auto-init/builders/CompleteAutoInitCommandBuilder");
+            const { Config } = require("../../config/src/Config");
+            const { CredentialManagerFactory } = require("../../security/src/CredentialManagerFactory");
             return {
                 OverridesLoader: {
                     load: OverridesLoader.load as Mock<typeof OverridesLoader.load>
@@ -83,8 +86,15 @@ describe("Imperative", () => {
                 CompleteProfilesGroupBuilder: {
                     getProfileGroup: CompleteProfilesGroupBuilder.getProfileGroup as Mock<typeof CompleteProfilesGroupBuilder.getProfileGroup>
                 },
+                CompleteAutoInitCommandBuilder: {
+                    getAutoInitCommand: CompleteAutoInitCommandBuilder.getAutoInitCommand as Mock<
+                        typeof CompleteAutoInitCommandBuilder.getAutoInitCommand
+                    >
+                },
                 Config: {
-                    load: Config.load as Mock<typeof Config.load>
+                    load: jest.spyOn(Config, "load") as Mock<typeof Config.load>
+                    // Actual Config.load still gets loaded because of localized mock introduced
+                    // load: Config.load as Mock<typeof Config.load>
                 },
                 CredentialManagerFactory
             };
@@ -124,17 +134,17 @@ describe("Imperative", () => {
             filename: __filename
         };
 
-        jest.resetModuleRegistry();
+        jest.resetModules();
 
         // Refresh the imperative load every time
         mocks = reloadExternalMocks();
         Imperative = loadImperative();
 
         realGetResolvedCmdTree = Imperative.getResolvedCmdTree;
-        Imperative.getResolvedCmdTree = jest.fn(() => mockCmdTree );
+        Imperative.getResolvedCmdTree = jest.fn(() => mockCmdTree);
 
         realGetPreparedCmdTree = Imperative.getPreparedCmdTree;
-        Imperative.getPreparedCmdTree = jest.fn(() => mockCmdTree );
+        Imperative.getPreparedCmdTree = jest.fn(() => mockCmdTree);
     });
 
     afterEach(() => {
@@ -177,11 +187,11 @@ describe("Imperative", () => {
             expect(result).toBeUndefined();
             expect(mocks.Config.load).toHaveBeenCalledTimes(1);
             expect(mocks.OverridesLoader.load).toHaveBeenCalledTimes(1);
-            expect(mocks.OverridesLoader.load).toHaveBeenCalledWith(defaultConfig, {version: 10000, name: "sample"});
+            expect(mocks.OverridesLoader.load).toHaveBeenCalledWith(defaultConfig, { version: 10000, name: "sample" });
         });
 
         describe("AppSettings", () => {
-            const defaultSettings =  {overrides: {CredentialManager: false}};
+            const defaultSettings = { overrides: { CredentialManager: "host-package" } };
             it("should initialize an app settings instance", async () => {
                 await Imperative.init();
 
@@ -224,6 +234,35 @@ describe("Imperative", () => {
 
                 expect(ConfigManagementFacility.instance.init).toHaveBeenCalledTimes(1);
             });
+
+            it("should surface failures if daemonMode is not specified", async () => {
+                jest.spyOn(mocks.Config, "load").mockRejectedValueOnce(new ImperativeError({msg: "Config error"})).mockResolvedValue({});
+                let error;
+                try {
+                    await Imperative.init();
+                } catch (err) {
+                    error = err;
+                }
+
+                expect(error).toBeDefined();
+                expect(ConfigManagementFacility.instance.init).toHaveBeenCalledTimes(1);
+                expect(mocks.Config.load).toHaveBeenCalledTimes(1);
+            });
+
+            it("should not surface failures if daemonMode is specified", async () => {
+                mocks.ConfigurationLoader.load.mockReturnValue({...defaultConfig, daemonMode: true});
+                jest.spyOn(mocks.Config, "load").mockRejectedValueOnce(new ImperativeError({msg: "Config error"})).mockResolvedValue({});
+                let error;
+                try {
+                    await Imperative.init();
+                } catch (err) {
+                    error = err;
+                }
+
+                expect(error).not.toBeDefined();
+                expect(ConfigManagementFacility.instance.init).toHaveBeenCalledTimes(1);
+                expect(mocks.Config.load).toHaveBeenCalledTimes(2);
+            });
         });
 
         describe("Plugins", () => {
@@ -249,7 +288,7 @@ describe("Imperative", () => {
             // @FUTURE When there are more overrides we should think about making this function dynamic
             it("should allow a plugin to override modules", async () => {
                 const testOverrides: IImperativeOverrides = {
-                    CredentialManager: generateRandomAlphaNumericString(16) //tslint:disable-line
+                    CredentialManager: generateRandomAlphaNumericString(16)
                 };
 
                 // Formulate a deep copy of the expected overrides. Ensures that we are comparing values
@@ -364,7 +403,7 @@ describe("Imperative", () => {
                     expect(mocks.Logger.initLogger).toHaveBeenCalledWith(loggingConfig);
                 });
 
-                it("should handle an invalid imperative log level", async () => {
+                it("should handle an invalid app log level", async () => {
                     envConfig.appLogLevel.value = badLevel;
 
                     mocks.EnvironmentalVariableSettings.read.mockReturnValue(envConfig);
@@ -485,7 +524,7 @@ describe("Imperative", () => {
             /* getResolvedCmdTree calls DefinitionTreeResolver.resolve.
              * We need it to return an expected command tree.
              */
-            const {DefinitionTreeResolver} = require("../src/DefinitionTreeResolver");
+            const { DefinitionTreeResolver } = require("../src/DefinitionTreeResolver");
             DefinitionTreeResolver.resolve = jest.fn(() => expectedCmdDef);
 
             // we want to test the real getResolvedCmdTree, not a mocked one
@@ -507,7 +546,7 @@ describe("Imperative", () => {
             /* getPreparedCmdTree calls CommandPreparer.prepare.
              * We need it to return an expected command tree.
              */
-            const {CommandPreparer} = require("../../cmd/src/CommandPreparer");
+            const { CommandPreparer } = require("../../cmd/src/CommandPreparer");
             CommandPreparer.prepare = jest.fn(() => expectedCmdTree);
 
             // we want to test the real getPreparedCmdTree, not a mocked one
@@ -530,7 +569,7 @@ describe("Imperative", () => {
                         properties: {
                             mockProp: {
                                 type: "string",
-                                optionDefinition:  {
+                                optionDefinition: {
                                     name: "mockProp",
                                     aliases: ["m"],
                                     description: "The mockProp description.",
@@ -548,7 +587,12 @@ describe("Imperative", () => {
             name: "mockRootCmdName",
             description: "Description of a mock root command",
             type: "group",
-            children: []
+            children: [{
+                name: "config",
+                description: "fake",
+                type: "group",
+                children: []
+            }]
         };
 
         it("should call getProfileGroup when we need to auto-generate commands", () => {
@@ -564,7 +608,7 @@ describe("Imperative", () => {
 
             const autoGenCmdTree = Imperative.addAutoGeneratedCommands(JSON.parse(JSON.stringify(mockRootCmdTree)));
             expect(mocks.CompleteProfilesGroupBuilder.getProfileGroup).toHaveBeenCalledTimes(1);
-            expect(autoGenCmdTree.children.length).toBe(1);
+            expect(autoGenCmdTree.children.length).toBe(2);
         });
 
         it("should add base profile in getProfileGroup when it is defined in Imperative config", () => {
@@ -576,14 +620,14 @@ describe("Imperative", () => {
             Object.defineProperty(mocks.ImperativeConfig.instance, "loadedConfig", {
                 configurable: true,
                 get: jest.fn(() => {
-                    return {...fakeConfig, baseProfile: fakeConfig.profiles[0]};
+                    return { ...fakeConfig, baseProfile: fakeConfig.profiles[0] };
                 })
             });
 
             const autoGenCmdTree = Imperative.addAutoGeneratedCommands(JSON.parse(JSON.stringify(mockRootCmdTree)));
             expect(mocks.CompleteProfilesGroupBuilder.getProfileGroup).toHaveBeenCalledTimes(1);
             expect(mocks.CompleteProfilesGroupBuilder.getProfileGroup.mock.calls[0][0].length).toBe(2);
-            expect(autoGenCmdTree.children.length).toBe(1);
+            expect(autoGenCmdTree.children.length).toBe(2);
         });
 
         it("should add auth service in getAuthGroup when it is defined in Imperative config", () => {
@@ -606,6 +650,8 @@ describe("Imperative", () => {
                                         password: { type: "string" },
                                         tokenType: { type: "string" },
                                         tokenValue: { type: "string" },
+                                        cert: { type: "existingLocalFile" },
+                                        certKey: { type: "existingLocalFile" },
                                         host: { type: "string" },
                                         port: { type: "string" }
                                     }
@@ -624,8 +670,42 @@ describe("Imperative", () => {
 
             const autoGenCmdTree = Imperative.addAutoGeneratedCommands(JSON.parse(JSON.stringify(mockRootCmdTree)));
             expect(mocks.CompleteAuthGroupBuilder.getAuthGroup).toHaveBeenCalledTimes(1);
-            // Expect 2 command groups added (auth and profiles)
-            expect(autoGenCmdTree.children.length).toBe(2);
+            // Expect 3 command groups added (auth, config and profiles)
+            expect(autoGenCmdTree.children.length).toBe(3);
+        });
+
+        it("should add auto init in the config group when it is defined in Imperative config", () => {
+            /* addAutoGeneratedCommands calls ImperativeConfig.instance.loadedConfig.
+             * getLoadedConfig is a getter of a property, so mock we the property.
+             * We need loadedConfig.autoGenerateProfileCommands to be null and
+             * loadedConfig.profiles to have something in it.
+             */
+            fakeConfig.profiles = [];
+            Object.defineProperty(mocks.ImperativeConfig.instance, "loadedConfig", {
+                configurable: true,
+                get: jest.fn(() => {
+                    return {
+                        ...fakeConfig,
+                        configAutoInitCommandConfig: {
+                            autoInitConfig: {
+                                handler: "fakeHandler",
+                                provider: "fakeProvider",
+                                autoInit: {
+                                    options: [
+                                        "fakeOption"
+                                    ]
+                                }
+                            }
+                        }
+                    };
+                })
+            });
+
+            const autoGenCmdTree = Imperative.addAutoGeneratedCommands(JSON.parse(JSON.stringify(mockRootCmdTree)));
+            expect(mocks.CompleteAutoInitCommandBuilder.getAutoInitCommand).toHaveBeenCalledTimes(1);
+            // Expect 1 command group manually added (config)
+            expect(autoGenCmdTree.children.length).toBe(1);
+            expect(autoGenCmdTree.children[0].children.length).toBe(1);
         });
     });
 

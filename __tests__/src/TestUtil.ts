@@ -27,6 +27,9 @@ import * as nodePath from "path";
 import { mkdirpSync } from "fs-extra";
 import * as fs from "fs";
 import { randomBytes } from "crypto";
+import * as os from "os";
+import { Config, IConfig, IConfigOpts } from "../../packages/config";
+import { ImperativeConfig } from "../../packages/utilities";
 
 /**
  * Requires for non-typed.
@@ -71,9 +74,9 @@ export const TEST_RESULT_DIR = nodePath.resolve(__dirname + "/../__results__");
  */
 export function stripNewLines(str: string): string {
     return str
-      .replace(/\n+/g, " ")
-      .trim();
-      // .replace(/\S\S+/g, " "); // Strips out areas of more than one space
+        .replace(/\n+/g, " ")
+        .trim();
+    // .replace(/\S\S+/g, " "); // Strips out areas of more than one space
 }
 
 export function compareIgnoringTrailingBlanks(a: string, b: string): boolean {
@@ -164,8 +167,8 @@ export enum CMD_TYPE {
 }
 
 export function executeTestCLICommand(cliBinModule: string, testContext: any, args: string[],
-                                      execDir?: string, pipeContent?: string | Buffer,
-                                      env: { [key: string]: string } = process.env): SpawnSyncReturns<string> {
+    execDir?: string, pipeContent?: string | Buffer,
+    env: { [key: string]: string } = process.env): SpawnSyncReturns<string> {
     const testLogger = TestLogger.getTestLogger();
     const nodeCommand = "node";
     // run the command with ts-node/register if we're not running via gulp
@@ -223,18 +226,18 @@ export function executeTestCLICommand(cliBinModule: string, testContext: any, ar
  *                                    (if you have used CMD_TYPE.ALL or CMD_TYPE.JSON)
  */
 export function findExpectedOutputInCommand(cliBinModule: string,
-                                            args: string[],
-                                            expectedContent: string | string[],
-                                            jsonFieldForContent: string,
-                                            shouldSucceed: boolean,
-                                            testContext: any,
-                                            variationsToRun: CMD_TYPE = CMD_TYPE.ALL,
-                                            compareOptions: {
-                                                ignoreCase?: boolean,
-                                                ignoreSpaces?: boolean
-                                            } = {ignoreCase: false, ignoreSpaces: false},
-                                            pipeContent?: string | Buffer,
-                                            env: { [key: string]: string } = process.env): ICommandResponse {
+    args: string[],
+    expectedContent: string | string[],
+    jsonFieldForContent: string,
+    shouldSucceed: boolean,
+    testContext: any,
+    variationsToRun: CMD_TYPE = CMD_TYPE.ALL,
+    compareOptions: {
+        ignoreCase?: boolean,
+        ignoreSpaces?: boolean
+    } = {ignoreCase: false, ignoreSpaces: false},
+    pipeContent?: string | Buffer,
+    env: { [key: string]: string } = process.env): ICommandResponse {
 
     let interactiveCommand: SpawnSyncReturns<string>;
     const testLogger = TestLogger.getTestLogger();
@@ -434,4 +437,36 @@ export function runCliScript(scriptPath: string, cwd: string, args: any = [], en
     } else {
         throw new Error("The script directory doesn't exist");
     }
+}
+
+/**
+ * Load the ImperativeConfig so config can work properly.
+ *
+ * Warning: This method resets mock implementations of `os.homedir` and `process.cwd`.
+ * @param properties Provide a config object to be loaded as the project layer.
+ *  If no config object is provided, the following steps are needed before calling:
+ *  1. Mock out Config.search the appropriate number of times
+    2. Mock out fs.existsSync and/or fs.readFileSync the appropriate number of times
+ * @param opts Options to pass to Config.load
+ */
+export async function setupConfigToLoad(properties?: IConfig, opts: IConfigOpts = {}): Promise<void> {
+    const dirname = nodePath.dirname((jasmine as any).testPath); // Get __dirname for current test suite
+    const osHomedirSpy = jest.spyOn(os, "homedir").mockReturnValue(dirname); // Pretend the current directory is the homedir
+    const processCwdSpy = jest.spyOn(process, "cwd").mockReturnValue(dirname); // Pretend the current directory is where the command was invoked
+    let existsSyncSpy;
+
+    if (properties != null) {
+        jest.spyOn(fs, "readFileSync").mockReturnValueOnce(JSON.stringify(properties));
+        jest.spyOn(Config, "search").mockReturnValueOnce("fakeapp.config.user.json")
+            .mockReturnValueOnce("fakeapp.config.json"); // Give search something to return
+        existsSyncSpy = jest.spyOn(fs, "existsSync").mockReturnValueOnce(true).mockReturnValue(false); // Only the user config exists
+    }
+
+    const fakeConfig = await Config.load("fakeapp", opts);
+    jest.spyOn(ImperativeConfig.instance, "config", "get").mockReturnValue(fakeConfig);
+
+    // Undo permanent mocks
+    osHomedirSpy.mockRestore();
+    processCwdSpy.mockRestore();
+    existsSyncSpy?.mockRestore();
 }

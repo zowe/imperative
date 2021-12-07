@@ -10,18 +10,27 @@
 */
 
 export * from "./src/Config";
+export * from "./src/ConfigAutoStore";
 export * from "./src/ConfigConstants";
 export * from "./src/ConfigSchema";
 export * from "./src/ConfigBuilder";
+export * as ConfigUtils from "./src/ConfigUtils";
+export * from "./src/ProfileCredentials";
 export * from "./src/ProfileInfo";
+export * from "./src/ProfInfoErr";
 export * from "./src/doc/IConfig";
+export * from "./src/doc/IConfigBuilderOpts";
+export * from "./src/doc/IConfigConvertResult";
 export * from "./src/doc/IConfigLayer";
 export * from "./src/doc/IConfigOpts";
 export * from "./src/doc/IConfigProfile";
 export * from "./src/doc/IConfigSchema";
+export * from "./src/doc/IConfigSecure";
 export * from "./src/doc/IConfigVault";
 export * from "./src/doc/IProfArgAttrs";
 export * from "./src/doc/IProfAttrs";
+export * from "./src/doc/IProfInfoErrParms";
 export * from "./src/doc/IProfLoc";
+export * from "./src/doc/IProfMergeArgOpts";
 export * from "./src/doc/IProfMergedArg";
 export * from "./src/doc/IProfOpts";
