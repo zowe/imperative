@@ -34,14 +34,11 @@ export default class ConvertProfilesHandler implements ICommandHandler {
 
     private readonly ZOWE_CLI_SECURE_PLUGIN_NAME = "@zowe/secure-credential-store-for-zowe-cli";
 
-    private commandParameters: IHandlerParameters;
-
     /**
      * The process command handler for the "config convert-profiles" command.
      * @return {Promise<ICommandResponse>}: The promise to fulfill when complete.
      */
     public async process(params: IHandlerParameters): Promise<void> {
-        this.commandParameters = params;
         const profilesRootDir = ProfileUtils.constructProfilesRootDirectory(ImperativeConfig.instance.cliHome);
         const obsoletePlugins = this.getObsoletePlugins();
         const oldProfileCount = this.getOldProfileCount(profilesRootDir);
@@ -70,11 +67,18 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         params.response.console.log("");
         for (const pluginInfo of obsoletePlugins) {
             if (pluginInfo.preUninstall) await pluginInfo.preUninstall();
-            this.uninstallPlugin(pluginInfo.name);
+            try {
+                this.uninstallPlugin(pluginInfo.name);
+                params.response.console.log(`Removed obsolete plug-in: ${pluginInfo.name}`);
+            } catch (error) {
+                params.response.console.error(`Failed to uninstall plug-in "${pluginInfo.name}":\n    ${error}`);
+            }
             if (pluginInfo.postUninstall) await pluginInfo.postUninstall();
         }
 
+        if (oldProfileCount == 0) return;
         await OverridesLoader.ensureCredentialManagerLoaded();
+
         const convertResult = await ConfigBuilder.convert(profilesRootDir);
         for (const [k, v] of Object.entries(convertResult.profilesConverted)) {
             params.response.console.log(`Converted ${k} profiles: ${v.join(", ")}`);
@@ -149,14 +153,8 @@ export default class ConvertProfilesHandler implements ICommandHandler {
     }
 
     private uninstallPlugin(pluginName: string): void {
-        if (!Object.keys(PluginIssues.instance.getInstalledPlugins()).includes(pluginName)) {
-            return;
-        }
-        try {
+        if (Object.keys(PluginIssues.instance.getInstalledPlugins()).includes(pluginName)) {
             uninstallPlugin(pluginName);
-            this.commandParameters.response.console.log(`Removed obsolete plug-in: ${pluginName}`);
-        } catch (error) {
-            this.commandParameters.response.console.error(`Failed to uninstall plug-in ${pluginName}:\n    ${error}`);
         }
     }
 }
