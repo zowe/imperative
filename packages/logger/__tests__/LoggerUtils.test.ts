@@ -55,7 +55,7 @@ describe("LoggerUtils tests", () => {
         expect(data.notSecret).not.toContain(LoggerUtils.CENSOR_RESPONSE);
     });
 
-    describe("censoreRawData", () => {
+    describe("censorRawData", () => {
         const secrets = ["secret0", "secret1"];
         let impConfigSpy: jest.SpyInstance = null;
         let envSettingsReadSpy: jest.SpyInstance = null;
@@ -77,6 +77,7 @@ describe("LoggerUtils tests", () => {
                     }
                 }
             };
+            LoggerUtils.setProfileSchemas(new Map());
         });
 
         describe("should NOT censor", () => {

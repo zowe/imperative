@@ -5,7 +5,7 @@ All notable changes to the Imperative package will be documented in this file.
 ## Recent Changes
 
 - Enhancement: Added an environment variable to control whether or not sensitive data will be masked in the console output.<br/>
-    This behavior excludes any TRACE lavel logs for both, Imperative.log and AppName.log.<br/>
+    This behavior excludes any TRACE level logs for both, Imperative.log and AppName.log.<br/>
     This behavior also excludes properties defined as secure by the plugin developers.<br/>
     If the schema definition is not found, we will exclude the following properties: user, password, tokenValue, and keyPassphrase.<br/>
     More information: [zowe/zowe-cli #1106](https://github.com/zowe/zowe-cli/issues/1106)
@@ -35,6 +35,7 @@ All notable changes to the Imperative package will be documented in this file.
 - BugFix: Changed credentials to be stored securely by default for v1 profiles to be consistent with the experience for v2 profiles. [zowe/zowe-cli#1128](https://github.com/zowe/zowe-cli/issues/1128)
 - **Next Breaking**
     - Removed the `credentialServiceName` property from ImperativeConfig. The default credential manager uses the `name` property instead.
+
 ## `5.0.0-next.202111101806`
 
 - Enhancement: Added `dry-run` option for `zowe config init` command to preview changes instead of saving them to disk. [#1037](https://github.com/zowe/zowe-cli/issues/1037)
