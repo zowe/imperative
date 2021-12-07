@@ -9,7 +9,6 @@
 *
 */
 
-import { IImperativeConfig } from "../../../../../packages/imperative";
 import * as T from "../../../TestUtil";
 import { ExperimentalExampleConstants } from "../ExperimentalExampleConstants";
 import { Constants } from "../../../../../packages/constants";
