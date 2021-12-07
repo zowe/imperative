@@ -9,15 +9,15 @@
 *
 */
 
-import * as T from "../../TestUtil";
-import { IImperativeConfig } from "../../../../packages/imperative";
+import * as T from "../../../TestUtil";
+import { IImperativeConfig } from "../../../../../packages/imperative";
 
 describe("We should provide the ability to create, manage, and use profiles, " +
     "tested through an example CLI", function () {
 
-    const config: IImperativeConfig = require(__dirname + "/ProfileExampleConfiguration");
+    const config: IImperativeConfig = require(__dirname + "/../ProfileExampleConfiguration");
     it("We should be able to get --help for our example CLI", function () {
-        T.findExpectedOutputInCommand(__dirname + "/ProfileExampleCLI", ["--help"],
+        T.findExpectedOutputInCommand(__dirname + "/../ProfileExampleCLI", ["--help"],
             [config.productDisplayName, "log"], "stdout", true,
             this, T.CMD_TYPE.INTERACTIVE);
     });

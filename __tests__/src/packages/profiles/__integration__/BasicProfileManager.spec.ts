@@ -9,18 +9,18 @@
 *
 */
 
-import * as TestUtil from "../../TestUtil";
+import * as TestUtil from "../../../TestUtil";
 import { inspect } from "util";
-import { TestLogger } from "../../../TestLogger";
-import { ProfileUtils } from "../../../../packages/profiles/";
-import { BANANA_AGE, getConfig, PROFILE_TYPE } from "./src/constants/BasicProfileManagerTestContants";
+import { TestLogger } from "../../../../TestLogger";
+import { ProfileUtils } from "../../../../../packages/profiles";
+import { BANANA_AGE, getConfig, PROFILE_TYPE } from "../src/constants/BasicProfileManagerTestContants";
 
 describe("Imperative should allow CLI implementations to configure their own profiles and types", function () {
     const loadChangingDependencies = () => {
         return {
-            Imperative: require("../../../../packages/imperative/src/Imperative").Imperative,
-            ImperativeConfig: require("../../../../packages/utilities/src/ImperativeConfig").ImperativeConfig,
-            ImperativeError: require("../../../../packages/error/src/ImperativeError").ImperativeError
+            Imperative: require("../../../../../packages/imperative/src/Imperative").Imperative,
+            ImperativeConfig: require("../../../../../packages/utilities/src/ImperativeConfig").ImperativeConfig,
+            ImperativeError: require("../../../../../packages/error/src/ImperativeError").ImperativeError
         };
     };
 

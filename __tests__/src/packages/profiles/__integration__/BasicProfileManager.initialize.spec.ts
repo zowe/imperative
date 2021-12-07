@@ -9,12 +9,12 @@
 *
 */
 
-jest.mock("../../../../packages/utilities/src/ImperativeConfig");
+jest.mock("../../../../../packages/utilities/src/ImperativeConfig");
 
-import * as TestUtil from "../../TestUtil";
-import { BasicProfileManager } from "../../../../packages/index";
-import { TestLogger } from "../../../TestLogger";
-import { PROFILE_TYPE, getConfig } from "./src/constants/BasicProfileManagerTestContants";
+import * as TestUtil from "../../../TestUtil";
+import { BasicProfileManager } from "../../../../../packages/index";
+import { TestLogger } from "../../../../TestLogger";
+import { PROFILE_TYPE, getConfig } from "../src/constants/BasicProfileManagerTestContants";
 import * as fs from "fs";
 
 const profileDirectory = TestUtil.createUniqueTestDataDir("profile-manager-initialize");

@@ -19,7 +19,7 @@ import { join, resolve } from "path";
 import { TEST_REGISTRY } from "../../../../../__src__/TestConstants";
 import { execSync, SpawnSyncReturns } from "child_process";
 
-import { config, cliBin, pluginGroup } from "../PluginManagementFacility.spec";
+import { config, cliBin, pluginGroup } from "../../__integration__/PluginManagementFacility.spec";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { IPluginJson } from "../../../../../../packages/imperative/src/plugins/doc/IPluginJson";
 

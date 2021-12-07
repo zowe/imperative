@@ -9,13 +9,13 @@
 *
 */
 
-import * as T from "../../../src/TestUtil";
+import * as T from "../../../TestUtil";
 import * as path from "path";
 import * as fs from "fs";
-import { IImperativeConfig } from "../../../../packages/imperative";
-import { CliProfileManager } from "../../../../packages/cmd";
-import { ProfileIO } from "../../../../packages/profiles/src/utils";
-import { IProfile } from "../../../../packages/profiles/src/doc/definition";
+import { IImperativeConfig } from "../../../../../packages/imperative";
+import { CliProfileManager } from "../../../../../packages/cmd";
+import { ProfileIO } from "../../../../../packages/profiles/src/utils";
+import { IProfile } from "../../../../../packages/profiles/src/doc/definition";
 
 describe("Cli Profile Manager", () => {
     let writtenProfile: any;
@@ -57,8 +57,8 @@ describe("Cli Profile Manager", () => {
     });
 
     describe("Default Credential Management", () => {
-        const cliBin = path.join(__dirname, "test_cli/TestCLI.ts");
-        const config: IImperativeConfig = require(path.join(__dirname, "test_cli/TestConfiguration"));
+        const cliBin = path.join(__dirname, "../test_cli/TestCLI.ts");
+        const config: IImperativeConfig = require(path.join(__dirname, "../test_cli/TestConfiguration"));
         const homeDir: string = config.defaultHome;
 
         const testProfileName = "username-password";
@@ -240,8 +240,8 @@ describe("Cli Profile Manager", () => {
 
         describe("Missing keytar installation", () => {
             const profileName = "missing-keytar";
-            const keyTarDir = path.join(__dirname, "../../../../node_modules/keytar");
-            const renamedKeyTarDir = path.join(__dirname, "../../../../node_modules/keytar-renamed");
+            const keyTarDir = path.join(__dirname, "../../../../../node_modules/keytar");
+            const renamedKeyTarDir = path.join(__dirname, "../../../../../node_modules/keytar-renamed");
 
             const renameKeyTar = () => {
                 if (fs.existsSync(keyTarDir)) {
@@ -308,8 +308,8 @@ describe("Cli Profile Manager", () => {
     });
 
     describe("Custom Credential Management (Absolute String)", () => {
-        const cliBin = path.join(__dirname, "test_cli/TestCustomCredString.ts");
-        const config: IImperativeConfig = require(path.join(__dirname, "test_cli/TestCustomCredStringConfiguration"));
+        const cliBin = path.join(__dirname, "../test_cli/TestCustomCredString.ts");
+        const config: IImperativeConfig = require(path.join(__dirname, "../test_cli/TestCustomCredStringConfiguration"));
         const homeDir: string = config.defaultHome;
 
         const testProfileName = "username-password";
@@ -335,8 +335,8 @@ describe("Cli Profile Manager", () => {
     });
 
     describe("Custom Credential Management (Class)", () => {
-        const cliBin = path.join(__dirname, "test_cli/TestCustomCredClass.ts");
-        const config: IImperativeConfig = require(path.join(__dirname, "test_cli/TestCustomCredClassConfiguration"));
+        const cliBin = path.join(__dirname, "../test_cli/TestCustomCredClass.ts");
+        const config: IImperativeConfig = require(path.join(__dirname, "../test_cli/TestCustomCredClassConfiguration"));
         const homeDir: string = config.defaultHome;
 
         const testProfileName = "username-password";

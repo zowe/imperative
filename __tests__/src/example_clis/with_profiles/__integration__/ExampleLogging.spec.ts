@@ -9,13 +9,13 @@
 *
 */
 
-import * as T from "../../TestUtil";
-import { IImperativeConfig } from "../../../../packages/imperative";
+import * as T from "../../../TestUtil";
+import { IImperativeConfig } from "../../../../../packages/imperative";
 
 describe("We should provide the ability to create, manage, and use profiles, " +
     "tested through an example CLI", function () {
-    const cliBin = __dirname + "/ProfileExampleCLI.ts";
-    const config: IImperativeConfig = require(__dirname + "/ProfileExampleConfiguration");
+    const cliBin = __dirname + "/../ProfileExampleCLI.ts";
+    const config: IImperativeConfig = require(__dirname + "/../ProfileExampleConfiguration");
     const logFile = config.defaultHome + "/" + config.name + "/logs/" + config.name + ".log";
 
     afterEach(function () {

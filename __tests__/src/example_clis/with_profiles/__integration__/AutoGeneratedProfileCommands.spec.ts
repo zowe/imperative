@@ -9,13 +9,13 @@
 *
 */
 
-import { IImperativeConfig } from "../../../../packages/imperative";
-import * as T from "../../TestUtil";
+import { IImperativeConfig } from "../../../../../packages/imperative";
+import * as T from "../../../TestUtil";
 
 describe("We should provide auto-generated profile commands for convenience, " +
     "so that Imperative-based CLIs can let users manage configuration profiles", () => {
-    const cliBin = __dirname + "/ProfileExampleCLI.ts";
-    const config: IImperativeConfig = require(__dirname + "/ProfileExampleConfiguration");
+    const cliBin = __dirname + "/../ProfileExampleCLI.ts";
+    const config: IImperativeConfig = require(__dirname + "/../ProfileExampleConfiguration");
 
     const profileTypeA = "profile-a";
     const profileTypeB = "profile-b";
@@ -65,7 +65,7 @@ describe("We should provide auto-generated profile commands for convenience, " +
 
     it("If we turn off  auto-generating profile commands, " +
         "commands should NOT be generated for each profile type", () => {
-        const cliBinNoCommands = __dirname + "/ProfileExampleCLINoAutoGen.ts";
+        const cliBinNoCommands = __dirname + "/../ProfileExampleCLINoAutoGen.ts";
         T.findExpectedOutputInCommand(cliBinNoCommands, ["profiles", "--help"], ["Error"],
             "stderr", false, this);
         // validate commands have been generated for each type of profile
