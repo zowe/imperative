@@ -101,17 +101,17 @@ export class LoggerUtils {
      * Singleton implementation of an internal reference to the loaded profiles
      */
     private static mProfiles: ICommandProfileTypeConfiguration[] = null;
-    private static get profileSchemas(): ICommandProfileTypeConfiguration[] {
-        if (LoggerUtils.mProfiles == null) LoggerUtils.mProfiles = ImperativeConfig.instance.loadedConfig?.profiles ?? null;
+    public static get profileSchemas(): ICommandProfileTypeConfiguration[] {
+        if (LoggerUtils.mProfiles == null) LoggerUtils.mProfiles = ImperativeConfig.instance.loadedConfig?.profiles ?? [];
         return LoggerUtils.mProfiles;
     }
     public static setProfileSchemas(_schemas: Map<string, IProfileSchema>) {
         if (LoggerUtils.mProfiles == null) {
             LoggerUtils.mProfiles = [];
-            _schemas.forEach((v: IProfileSchema) => {
-                LoggerUtils.mProfiles.push({ type: v.type, schema: v });
-            });
         }
+        _schemas.forEach((v: IProfileSchema) => {
+            LoggerUtils.mProfiles.push({ type: v.type, schema: v });
+        });
     }
 
     /**

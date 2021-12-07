@@ -41,7 +41,7 @@ import { EnvironmentalVariableSettings } from "../../imperative/src/env/Environm
 import { LoggingConfigurer } from "../../imperative/src/LoggingConfigurer";
 import { CliUtils, ImperativeConfig } from "../../utilities";
 import { ImperativeExpect } from "../../expect";
-import { Logger } from "../../logger";
+import { Logger, LoggerUtils } from "../../logger";
 import { LoggerManager } from "../../logger/src/LoggerManager";
 import {
     IOptionsForAddConnProps, ISession, Session, SessConstants, ConnectionPropsForSessCfg
@@ -942,7 +942,7 @@ export class ProfileInfo {
                 }
             }
         }
-        Logger.profileSchemas = this.mProfileSchemaCache;
+        LoggerUtils.setProfileSchemas(this.mProfileSchemaCache);
     }
 
     // _______________________________________________________________________
@@ -1148,7 +1148,6 @@ export class ProfileInfo {
             // for old school profiles, there is only one schema per profile type
             schemaMapKey = profile.profType;
         }
-
         if (schemaMapKey != null && this.mProfileSchemaCache.has(schemaMapKey)) {
             return this.mProfileSchemaCache.get(schemaMapKey);
         }
