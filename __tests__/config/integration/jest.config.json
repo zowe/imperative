@@ -24,5 +24,5 @@
         "unit",
         "__system__"
     ],
-    "testRegex": "__integration__.*(test|spec)\\.(ts)"
+    "testRegex": "__integration__.*(test|spec)\\.(ts|js)"
 }
