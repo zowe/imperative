@@ -153,10 +153,10 @@ export class Config {
         myNewConfig.mSecure = {};
 
         // Populate configuration file layers
-        await myNewConfig.reload(opts);
+        await myNewConfig.reload({ ...opts, noSecureLoad: true });
 
         // Load secure fields
-        if (!opts.noLoad) { await myNewConfig.api.secure.load(); }
+        if (!opts?.noLoad && !opts?.noSecureLoad) { await myNewConfig.api.secure.load(); }
 
         return myNewConfig;
     }
@@ -209,6 +209,8 @@ export class Config {
                 throw new ImperativeError({ msg: `An unexpected error occurred during config load: ${e.message}` });
             }
         }
+
+        if (!opts?.noSecureLoad) { this.api.secure.loadSecureProps(); }
     }
 
     // _______________________________________________________________________

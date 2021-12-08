@@ -49,36 +49,7 @@ export class ConfigSecure extends ConfigApi {
         }
         this.mLoadFailed = false;
 
-        // populate each layers properties
-        for (const layer of this.mConfig.mLayers) {
-
-            // Find the matching layer
-            for (const [filePath, secureProps] of Object.entries(this.mConfig.mSecure)) {
-                if (filePath === layer.path) {
-
-                    // Only set those indicated by the config
-                    for (const p of this.secureFields(layer)) {
-
-                        // Extract and set secure properties
-                        for (const [sPath, sValue] of Object.entries(secureProps)) {
-                            if (sPath === p) {
-                                const segments = sPath.split(".");
-                                let obj: any = layer.properties;
-                                for (let x = 0; x < segments.length; x++) {
-                                    const segment = segments[x];
-                                    if (x === segments.length - 1) {
-                                        obj[segment] = sValue;
-                                        break;
-                                    }
-                                    obj = obj[segment];
-                                    if (obj == null) break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        this.loadSecureProps();
     }
 
     // _______________________________________________________________________
@@ -163,6 +134,43 @@ export class ConfigSecure extends ConfigApi {
             }
         }
         return secureProps;
+    }
+
+    /**
+     * Merge secure property values into config layers.
+     * @internal
+     */
+    public loadSecureProps() {
+        // populate each layers properties
+        for (const layer of this.mConfig.mLayers) {
+
+            // Find the matching layer
+            for (const [filePath, secureProps] of Object.entries(this.mConfig.mSecure)) {
+                if (filePath === layer.path) {
+
+                    // Only set those indicated by the config
+                    for (const p of this.secureFields(layer)) {
+
+                        // Extract and set secure properties
+                        for (const [sPath, sValue] of Object.entries(secureProps)) {
+                            if (sPath === p) {
+                                const segments = sPath.split(".");
+                                let obj: any = layer.properties;
+                                for (let x = 0; x < segments.length; x++) {
+                                    const segment = segments[x];
+                                    if (x === segments.length - 1) {
+                                        obj[segment] = sValue;
+                                        break;
+                                    }
+                                    obj = obj[segment];
+                                    if (obj == null) break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
