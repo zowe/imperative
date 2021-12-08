@@ -18,6 +18,7 @@ import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
 import { Readable, Writable } from "stream";
 import { mkdirpSync } from "fs-extra";
+import { GuiResult, ProcessUtils } from "../../utilities/src/ProcessUtils";
 
 /**
  * This class will handle common sequences of node I/O and issue messages /
@@ -285,6 +286,10 @@ export class IO {
             if (process.env[editorEnvVar] != null) {
                 return process.env[editorEnvVar];
             }
+        }
+
+        if (ProcessUtils.isGuiAvailable() !== GuiResult.GUI_AVAILABLE) {
+            return "vi";
         }
 
         const platform = os.platform();
