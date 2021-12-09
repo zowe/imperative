@@ -207,8 +207,10 @@ export class Config {
             }
         }
 
-        // Load secure fields
-        if (!opts?.noLoad && !this.api.secure.loadFailed) { await this.api.secure.load(); }
+        // Load secure fields unless we have already failed to load them from the vault
+        if (!opts?.noLoad && (opts?.vault != null || !this.api.secure.loadFailed)) {
+            await this.api.secure.load(opts?.vault);
+        }
     }
 
     // _______________________________________________________________________
