@@ -153,10 +153,7 @@ export class Config {
         myNewConfig.mSecure = {};
 
         // Populate configuration file layers
-        await myNewConfig.reload({ ...opts, noSecureLoad: true });
-
-        // Load secure fields
-        if (!opts?.noLoad && !opts?.noSecureLoad) { await myNewConfig.api.secure.load(); }
+        await myNewConfig.reload(opts);
 
         return myNewConfig;
     }
@@ -210,7 +207,8 @@ export class Config {
             }
         }
 
-        if (!opts?.noSecureLoad) { this.api.secure.loadSecureProps(); }
+        // Load secure fields
+        if (!opts?.noLoad && !this.api.secure.loadFailed) { await this.api.secure.load(); }
     }
 
     // _______________________________________________________________________

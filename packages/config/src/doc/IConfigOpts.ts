@@ -31,9 +31,4 @@ export interface IConfigOpts {
      * Do not attempt to load the config, meant for when the config is broken
      */
     noLoad?: boolean;
-
-    /**
-     * Do not attempt to load secure fields in the config, meant for when the credential manager is broken
-     */
-    noSecureLoad?: boolean;
 }
