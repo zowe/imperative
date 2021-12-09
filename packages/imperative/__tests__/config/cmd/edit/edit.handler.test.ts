@@ -13,6 +13,9 @@ import EditHandler from "../../../../src/config/cmd/edit/edit.handler";
 import { IHandlerParameters } from "../../../../../cmd";
 import { GuiResult, ImperativeConfig, ProcessUtils } from "../../../../../utilities";
 
+jest.mock("child_process");
+jest.mock("opener");
+
 const getIHandlerParametersObject = (): IHandlerParameters => {
     const x: any = {
         response: {
@@ -56,6 +59,7 @@ describe("Configuration Edit command handler", () => {
                     }
                 }
             },
+            loadedConfig: {},
             rootCommandName: "test-cli"
         } as any);
     });
@@ -78,7 +82,7 @@ describe("Configuration Edit command handler", () => {
     it("should open config file in graphical text editor", async () => {
         const handler = new EditHandler();
         jest.spyOn(ProcessUtils, "isGuiAvailable").mockReturnValueOnce(GuiResult.GUI_AVAILABLE);
-        const openFileSpy = jest.spyOn(handler as any, "openFileInGui").mockImplementation();
+        const openFileSpy = jest.spyOn(handler as any, "openFileInGui");
         const params = getIHandlerParametersObject();
 
         await handler.process(params);
@@ -88,7 +92,7 @@ describe("Configuration Edit command handler", () => {
     it("should open config file in command-line text editor", async () => {
         const handler = new EditHandler();
         jest.spyOn(ProcessUtils, "isGuiAvailable").mockReturnValueOnce(GuiResult.NO_GUI_NO_DISPLAY);
-        const openFileSpy = jest.spyOn(handler as any, "openFileInCli").mockImplementation();
+        const openFileSpy = jest.spyOn(handler as any, "openFileInCli");
         const params = getIHandlerParametersObject();
 
         await handler.process(params);
