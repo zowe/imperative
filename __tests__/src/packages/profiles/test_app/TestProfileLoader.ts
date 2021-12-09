@@ -16,40 +16,36 @@ import { IProfAttrs } from "../../../../../packages";
 import * as path from "path";
 
 export class TestProfileLoader {
-    private mLogger: Logger;
     private mProfileInfo: ProfileInfo;
-    public projectDir: string = null;
 
+    public appLogger: Logger;
+    public impLogger: Logger;
+    public projectDir: string = null;
     public appName = "test_app";
     constructor(projectDir: string) {
         this.projectDir = projectDir;
-        this.mLogger = this.initLogger();
+        this.initLogger();
+        this.appLogger = Logger.getAppLogger();
+        this.impLogger = Logger.getImperativeLogger();
         this.mProfileInfo = new ProfileInfo(this.appName);
     }
 
-    public initLogger(): Logger {
+    public initLogger() {
         const loggerConfig = Log4jsConfig;
         for (const appenderName in loggerConfig.log4jsConfig.appenders) {
             loggerConfig.log4jsConfig.appenders[appenderName].filename = path.join(
                 this.projectDir, Log4jsConfig.log4jsConfig.appenders[appenderName].filename);
         }
         Logger.initLogger(loggerConfig);
-        return Logger.getAppLogger();
     }
 
     public async defaultProfile() {
         await this.mProfileInfo.readProfilesFromDisk({ projectDir: this.projectDir });
         const profile = this.mProfileInfo.getDefaultProfile(this.appName);
-        this.mLogger.trace("default profile:", JSON.stringify(profile));
-        this.mLogger.debug("default profile:", JSON.stringify(profile));
         return profile;
     }
 
     public getProperties(profile: IProfAttrs) {
         return this.mProfileInfo.mergeArgsForProfile(profile, { getSecureVals: true });
-    }
-
-    public get logger(): Logger {
-        return this.mLogger;
     }
 }

@@ -12,6 +12,7 @@
 import { TestProfileLoader } from "./TestProfileLoader";
 import { TestAppImperativeConfig } from "../src/constants/ProfileInfoConstants";
 import { CliProfileManager } from "../../../../../packages/cmd/src/profiles/CliProfileManager";
+import { Logger } from "../../../../../packages/logger/src/Logger";
 import * as path from "path";
 
 const setupOldProfiles = async (projectDir: string) => {
@@ -19,6 +20,13 @@ const setupOldProfiles = async (projectDir: string) => {
         configuration: TestAppImperativeConfig.profiles,
         profileRootDirectory: path.join(projectDir, "profiles"),
     });
+};
+
+const log = (logger: Logger, msg: string, ...args: any) => {
+    const loggerFunctions: string[] = ["trace", "debug", "simple", "info", "warn", "error", "fatal"];
+    for (const fName of loggerFunctions) {
+        (logger[fName as keyof Logger] as any)(msg, ...args);
+    }
 };
 
 /**
@@ -36,8 +44,13 @@ const setupOldProfiles = async (projectDir: string) => {
     const loader = new TestProfileLoader(projectDir);
 
     const profile = await loader.defaultProfile();
-    loader.logger.debug("default profile:", profile);
+    log(loader.appLogger, "default profile:", profile);
+    log(loader.impLogger, "default profile:", profile);
 
     const mergedArgs = loader.getProperties(profile);
-    loader.logger.debug("merged args:", mergedArgs);
+    log(loader.appLogger, "merged args:", mergedArgs);
+    log(loader.impLogger, "merged args:", mergedArgs);
+
+    // eslint-disable-next-line no-console
+    console.log("Done!\nPlease check the logs at:", projectDir + "/logs");
 })(process.argv);

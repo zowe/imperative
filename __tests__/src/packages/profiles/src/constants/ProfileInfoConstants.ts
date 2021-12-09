@@ -9,7 +9,7 @@
 *
 */
 
-import { IImperativeConfig, IConfigLogging } from "../../../../../../packages";
+import { IImperativeConfig, IConfigLogging, IConfig, IConfigSchema } from "../../../../../../packages";
 
 export const Log4jsConfig: IConfigLogging = {
     "log4jsConfig": {
@@ -104,7 +104,7 @@ export const TestAppImperativeConfig: IImperativeConfig = {
     }]
 };
 
-export const test_appConfigJson = {
+export const test_appConfigJson: IConfig = {
     "$schema": "./test_app.schema.json",
     "profiles": {
         "test_app": {
@@ -129,7 +129,7 @@ export const test_appConfigJson = {
     "autoStore": true
 };
 
-export const test_appSchemaJson = {
+export const test_appSchemaJson: IConfigSchema = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$version": 3,
     "type": "object",
