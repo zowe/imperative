@@ -7,6 +7,10 @@ All notable changes to the Imperative package will be documented in this file.
 - Enhancement: Added `config convert-profiles` command that converts v1 profiles to team config. [zowe/zowe-cli#896](https://github.com/zowe/zowe-cli/issues/896)
 - Enhancement: Added `config edit` command that opens config JSON file in default text editor. [zowe/zowe-cli#1072](https://github.com/zowe/zowe-cli/issues/1072)
 
+## `5.0.0-next.202112101814`
+
+- BugFix: Fixed daemon mode not loading secure properties in team config. [zowe/zowe-cli#1232](https://github.com/zowe/zowe-cli/issues/1232)
+
 ## `5.0.0-next.202112021611`
 
 - BugFix: Fixed `config import` and `config init` behaving incorrectly when config JSON exists in higher level directory. [zowe/zowe-cli#1218](https://github.com/zowe/zowe-cli/issues/1218)

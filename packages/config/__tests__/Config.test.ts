@@ -16,7 +16,7 @@ import { ImperativeError } from "../../error/src/ImperativeError";
 import { Config } from "../src/Config";
 import { ConfigConstants } from "../src/ConfigConstants";
 import * as JSONC from "comment-json";
-import { ConfigSecure } from "../src/api";
+import { ConfigLayers, ConfigSecure } from "../src/api";
 
 const MY_APP = "my_app";
 
@@ -226,9 +226,47 @@ describe("Config tests", () => {
             .mockReturnValueOnce(true)      // Project layer
             .mockReturnValueOnce(false)     // User layer
             .mockReturnValueOnce(false);    // Global layer
+        const layerReadSpy = jest.spyOn(ConfigLayers.prototype, "read");
+        const secureLoadSpy = jest.spyOn(ConfigSecure.prototype, "load").mockResolvedValue(undefined);
+        jest.spyOn(ConfigSecure.prototype, "loadFailed", "get").mockReturnValue(true);
         await config.reload();
         expect(config.properties.profiles.fruit.profiles.banana).toBeDefined();
         expect(config.properties.profiles.vegetable).toBeDefined();
+        expect(layerReadSpy).toHaveBeenCalledTimes(4);
+        expect(secureLoadSpy).not.toHaveBeenCalled();
+    });
+
+    it("should reload config in new project directory with secure credentials", async () => {
+        // First load project and project user layers
+        jest.spyOn(Config, "search")
+            .mockReturnValueOnce(__dirname + "/__resources__/project.config.user.json")
+            .mockReturnValueOnce(__dirname + "/__resources__/project.config.json");
+        jest.spyOn(fs, "existsSync")
+            .mockReturnValueOnce(true)      // Project user layer
+            .mockReturnValueOnce(true)      // Project layer
+            .mockReturnValueOnce(false)     // User layer
+            .mockReturnValueOnce(false);    // Global layer
+        const config = await Config.load(MY_APP);
+        expect(config.properties.profiles.fruit.profiles.orange).toBeDefined();
+        expect(config.properties.profiles.vegetable).toBeUndefined();
+
+        // Then reload the layers with different contents
+        jest.spyOn(Config, "search")
+            .mockReturnValueOnce(__dirname + "/__resources__/my_app.config.user.json")
+            .mockReturnValueOnce(__dirname + "/__resources__/my_app.config.json");
+        jest.spyOn(fs, "existsSync")
+            .mockReturnValueOnce(true)      // Project user layer
+            .mockReturnValueOnce(true)      // Project layer
+            .mockReturnValueOnce(false)     // User layer
+            .mockReturnValueOnce(false);    // Global layer
+        const layerReadSpy = jest.spyOn(ConfigLayers.prototype, "read");
+        const secureLoadSpy = jest.spyOn(ConfigSecure.prototype, "load").mockResolvedValue(undefined);
+        jest.spyOn(ConfigSecure.prototype, "loadFailed", "get").mockReturnValue(false);
+        await config.reload();
+        expect(config.properties.profiles.fruit.profiles.banana).toBeDefined();
+        expect(config.properties.profiles.vegetable).toBeDefined();
+        expect(layerReadSpy).toHaveBeenCalledTimes(4);
+        expect(secureLoadSpy).toHaveBeenCalledTimes(1);
     });
 
     it("should return the app name", () => {
