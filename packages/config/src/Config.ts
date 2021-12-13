@@ -155,9 +155,6 @@ export class Config {
         // Populate configuration file layers
         await myNewConfig.reload(opts);
 
-        // Load secure fields
-        if (!opts.noLoad) { await myNewConfig.api.secure.load(); }
-
         return myNewConfig;
     }
 
@@ -208,6 +205,11 @@ export class Config {
             } else {
                 throw new ImperativeError({ msg: `An unexpected error occurred during config load: ${e.message}` });
             }
+        }
+
+        // Load secure fields unless we have already failed to load them from the vault
+        if (!opts?.noLoad && (opts?.vault != null || !this.api.secure.loadFailed)) {
+            await this.api.secure.load(opts?.vault);
         }
     }
 
