@@ -11,15 +11,15 @@
 
 /* eslint-disable jest/expect-expect */
 import { isNullOrUndefined } from "util";
-import { CommandProcessor, ICommandDefinition, ICommandResponse } from "../../../../packages/cmd/index";
-import { ValidationTestCommand } from "./ValidationTestCommand";
-import { Constants } from "../../../../packages/constants/index";
-import { Imperative } from "../../../../packages/imperative/src/Imperative";
-import { TestLogger } from "../../../TestLogger";
-import { createUniqueTestDataDir, rimraf } from "../../TestUtil";
-import { AbstractHelpGenerator } from "../../../../packages/cmd/src/help/abstract/AbstractHelpGenerator";
-import { DefaultHelpGenerator } from "../../../../packages/cmd/src/help/DefaultHelpGenerator";
-import { BasicProfileManagerFactory, IProfileTypeConfiguration } from "../../../../packages/index";
+import { CommandProcessor, ICommandDefinition, ICommandResponse } from "../../../../../packages/cmd/index";
+import { ValidationTestCommand } from "../ValidationTestCommand";
+import { Constants } from "../../../../../packages/constants/index";
+import { Imperative } from "../../../../../packages/imperative/src/Imperative";
+import { TestLogger } from "../../../../TestLogger";
+import { createUniqueTestDataDir, rimraf } from "../../../TestUtil";
+import { AbstractHelpGenerator } from "../../../../../packages/cmd/src/help/abstract/AbstractHelpGenerator";
+import { DefaultHelpGenerator } from "../../../../../packages/cmd/src/help/DefaultHelpGenerator";
+import { BasicProfileManagerFactory, IProfileTypeConfiguration } from "../../../../../packages/index";
 
 const ENV_PREFIX = "INTEGRATION_TEST";
 const TEST_HOME = createUniqueTestDataDir();
@@ -426,7 +426,7 @@ describe("Imperative should provide advanced syntax validation rules", function 
                     }
                 ],
                 type: "command",
-                handler: __dirname + "/ValidationTestCommandHandler"
+                handler: __dirname + "/../ValidationTestCommandHandler"
             };
             const fakeParent: ICommandDefinition = {
                 name: undefined,
@@ -459,9 +459,8 @@ describe("Imperative should provide advanced syntax validation rules", function 
                     responseFormat: "json"
                 }).then(
                     (completedResponse: ICommandResponse) => {
-                        // Command should have failed
-                        expect(completedResponse.success).toEqual(true);
                         logger.debug(JSON.stringify(completedResponse));
+                        expect(completedResponse.success).toEqual(true);
                     });
             });
 
@@ -512,7 +511,7 @@ describe("Imperative should provide advanced syntax validation rules", function 
                     }
                 ],
                 type: "command",
-                handler: __dirname + "/ValidationTestCommandHandler"
+                handler: __dirname + "/../ValidationTestCommandHandler"
             };
             const fakeParent: ICommandDefinition = {
                 name: undefined,

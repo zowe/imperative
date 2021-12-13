@@ -22,7 +22,7 @@ describe("Cli Profile Manager", () => {
     const testLogger = TestLogger.getTestLogger();
     const profileTypeOne = "banana";
 
-    const addTwoNumbersHandler = __dirname + "/profileHandlers/AddTwoNumbersHandler";
+    const addTwoNumbersHandler = __dirname + "/../profileHandlers/AddTwoNumbersHandler";
     afterEach(() => {
         rimraf(profileDir);
     });

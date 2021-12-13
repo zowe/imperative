@@ -9,16 +9,16 @@
 *
 */
 
-import * as T from "../../TestUtil";
-import { IImperativeConfig } from "../../../../packages/imperative";
+import * as T from "../../../TestUtil";
+import { IImperativeConfig } from "../../../../../packages/imperative";
 import * as yargs from "yargs";
-import { Constants } from "../../../../packages/constants";
-import { CommandProcessor, ICommandDefinition, ICommandProfileTypeConfiguration, ICommandResponse } from "../../../../packages/cmd";
+import { Constants } from "../../../../../packages/constants";
+import { CommandProcessor, ICommandDefinition, ICommandProfileTypeConfiguration, ICommandResponse } from "../../../../../packages/cmd";
 import { isNullOrUndefined } from "util";
-import { TestLogger } from "../../../TestLogger";
-import { AbstractHelpGenerator } from "../../../../packages/cmd/src/help/abstract/AbstractHelpGenerator";
-import { DefaultHelpGenerator } from "../../../../packages/cmd/src/help/DefaultHelpGenerator";
-import { BasicProfileManagerFactory } from "../../../../packages/index";
+import { TestLogger } from "../../../../TestLogger";
+import { AbstractHelpGenerator } from "../../../../../packages/cmd/src/help/abstract/AbstractHelpGenerator";
+import { DefaultHelpGenerator } from "../../../../../packages/cmd/src/help/DefaultHelpGenerator";
+import { BasicProfileManagerFactory } from "../../../../../packages/index";
 
 const logger = TestLogger.getTestLogger();
 const PROFILE_CONFIGURATIONS: ICommandProfileTypeConfiguration[] = [{

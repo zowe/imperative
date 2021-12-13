@@ -11,7 +11,7 @@
 
 import { IImperativeConfig } from "../../../../../packages/imperative";
 import { IO } from "../../../../../packages/io";
-import * as T from "../../../../src/TestUtil";
+import * as T from "../../../TestUtil";
 import { join } from "path";
 
 /////////////////////////////////////////////////////////////////////////////
@@ -21,13 +21,13 @@ import { join } from "path";
  * The config of the test cli
  * @type {IImperativeConfig}
  */
-export const config: IImperativeConfig = require(join(__dirname, "test_cli", "TestConfiguration"));
+export const config: IImperativeConfig = require(join(__dirname, "..", "plugins", "test_cli", "TestConfiguration"));
 
 /**
  * The bin directory for plugins tests
  * @type {string}
  */
-export const cliBin: string = join(__dirname, "test_cli", "TestCLI.ts");
+export const cliBin: string = join(__dirname, "..", "plugins", "test_cli", "TestCLI.ts");
 
 /**
  * The name of the plugin group to run tests on. In the event it changes in the future
@@ -35,7 +35,7 @@ export const cliBin: string = join(__dirname, "test_cli", "TestCLI.ts");
  */
 export const pluginGroup: string = "plugins";
 
-const testCliNodeModulePath = join(__dirname, "test_cli", "node_modules");
+const testCliNodeModulePath = join(__dirname, "..", "plugins", "test_cli", "node_modules");
 const impLibDir = join(__dirname, "../../../../../lib");
 
 describe("Plugin Management Facility", () => {
@@ -69,10 +69,10 @@ describe("Plugin Management Facility", () => {
         IO.deleteDirTree(testCliNodeModulePath);
     });
 
-    require("./suites/InstallingPlugins");
-    require("./suites/ValidatePlugin");
-    require("./suites/UsingPlugins");
-    require("./suites/UninstallPlugins");
-    require("./suites/ListPlugins");
-    require("./suites/UpdatePlugins");
+    require("../plugins/suites/InstallingPlugins");
+    require("../plugins/suites/ValidatePlugin");
+    require("../plugins/suites/UsingPlugins");
+    require("../plugins/suites/UninstallPlugins");
+    require("../plugins/suites/ListPlugins");
+    require("../plugins/suites/UpdatePlugins");
 });

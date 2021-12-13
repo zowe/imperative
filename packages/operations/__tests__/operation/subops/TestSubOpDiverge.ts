@@ -9,33 +9,35 @@
 *
 */
 
+import { TestOperations2 } from "../TestOperations2";
 import { IOperationCompleted, IOperationUndoCompleted, Operation } from "../../../../index";
-import { TestLogger } from "../../../../../../__tests__/TestLogger";
+import { TestLogger } from "../../../../../__tests__/TestLogger";
 
 const logger = TestLogger.getTestLogger();
 
-export class TestSubOp6 extends Operation<any> {
+export class TestSubOpDiverge extends Operation<any> {
 
     constructor() {
-        super("Initialize Test Sub Op 6", true);
+        super("Initialize Test Sub Op diverge", true);
     }
 
     public logOperationResults(): void {
-        logger.debug("Test sub operation 6 has ended.");
+        logger.debug("Test sub operation diverge has ended.");
     }
 
     protected execute(inputParameters: any, operationCompletedCallback: IOperationCompleted<any>) {
-        this.operationResultMessage = "The test sub op 6 was executed.";
+        this.operationResultMessage = "The test sub op diverge was executed.";
         this.setOperationUndoable();
+        this.setOperationDiverge(new TestOperations2(), true);
         operationCompletedCallback(Operation.NO_OUTPUT);
     }
 
     protected undo(undoCompletedCallback: IOperationUndoCompleted): void {
-        logger.debug("Performing undo action for test sub op 6.");
+        logger.debug("Performing undo action for test sub op diverge.");
         undoCompletedCallback();
     }
 
     protected logOperationBeginMessages(): void {
-        logger.debug("Test sub operation 6 is beginning.");
+        logger.debug("Test sub operation diverge is beginning.");
     }
 }

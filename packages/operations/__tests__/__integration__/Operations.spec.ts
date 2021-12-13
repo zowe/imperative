@@ -10,11 +10,11 @@
 */
 
 /* eslint-disable jest/expect-expect */
-import { TestOperations1 } from "./mockops/TestOperations1";
-import { TestOperations4 } from "./mockops/TestOperations4";
+import { TestOperations1 } from "../operation/TestOperations1";
+import { TestOperations4 } from "../operation/TestOperations4";
 
 import { isNullOrUndefined } from "util";
-import { TestOperations3 } from "./mockops/TestOperations3";
+import { TestOperations3 } from "../operation/TestOperations3";
 
 import { IOperationResult, Operation, Operations } from "../../index";
 import { TestLogger } from "../../../../__tests__/TestLogger";

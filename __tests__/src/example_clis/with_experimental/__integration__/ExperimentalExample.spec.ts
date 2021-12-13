@@ -9,15 +9,13 @@
 *
 */
 
-import { IImperativeConfig } from "../../../../packages/imperative";
-import * as T from "../../TestUtil";
-import { ExperimentalExampleConstants } from "./ExperimentalExampleConstants";
-import { Constants } from "../../../../packages/constants";
+import * as T from "../../../TestUtil";
+import { ExperimentalExampleConstants } from "../ExperimentalExampleConstants";
+import { Constants } from "../../../../../packages/constants";
 
 describe("We should provide the ability to set commands as experimental", function () {
-    const cliBin = __dirname + "/ExperimentalExampleCLI.ts";
-    const cliBinNoCustomHelp = __dirname + "/ExperimentalExampleCLINoCustomHelpText.ts";
-    const config: IImperativeConfig = require(__dirname + "/ExperimentalExampleConfiguration");
+    const cliBin = __dirname + "/../ExperimentalExampleCLI.ts";
+    const cliBinNoCustomHelp = __dirname + "/../ExperimentalExampleCLINoCustomHelpText.ts";
 
     it("should show the text 'experimental' when listing experimental commands",
         function () {

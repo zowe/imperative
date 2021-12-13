@@ -10,32 +10,32 @@
 */
 
 import { IOperationCompleted, IOperationUndoCompleted, Operation } from "../../../../index";
-import { TestLogger } from "../../../../../../__tests__/TestLogger";
+import { TestLogger } from "../../../../../__tests__/TestLogger";
 
 const logger = TestLogger.getTestLogger();
 
-export class TestSubOp5 extends Operation<any> {
+export class TestSubOp6 extends Operation<any> {
 
     constructor() {
-        super("Initialize Test Sub Op 5", true);
+        super("Initialize Test Sub Op 6", true);
     }
 
     public logOperationResults(): void {
-        logger.debug("Test sub operation 5 has ended.");
+        logger.debug("Test sub operation 6 has ended.");
     }
 
     protected execute(inputParameters: any, operationCompletedCallback: IOperationCompleted<any>) {
-        this.operationResultMessage = "The test sub op 5 was executed.";
+        this.operationResultMessage = "The test sub op 6 was executed.";
         this.setOperationUndoable();
         operationCompletedCallback(Operation.NO_OUTPUT);
     }
 
     protected undo(undoCompletedCallback: IOperationUndoCompleted): void {
-        logger.debug("Performing undo action for test sub op 5.");
+        logger.debug("Performing undo action for test sub op 6.");
         undoCompletedCallback();
     }
 
     protected logOperationBeginMessages(): void {
-        logger.debug("Test sub operation 5 is beginning.");
+        logger.debug("Test sub operation 6 is beginning.");
     }
 }
