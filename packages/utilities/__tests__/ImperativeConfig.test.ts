@@ -69,6 +69,10 @@ describe("ImperativeConfig", () => {
             expect(ImperativeConfig.instance.imperativePackageName).toBe("@zowe/imperative");
         });
 
+        it("should get envVariablePrefix", async () => {
+            expect(ImperativeConfig.instance.envVariablePrefix).toBe(mockConfig.name);
+        });
+
         it("should findPackageBinName", async () => {
             // We are in the imperative project. It has no binName, so null.
             expect(ImperativeConfig.instance.findPackageBinName()).toBe(null);

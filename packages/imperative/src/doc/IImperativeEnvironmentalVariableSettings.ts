@@ -40,4 +40,11 @@ export interface IImperativeEnvironmentalVariableSettings {
      * @type {IImperativeEnvironmentalVariableSetting}
      */
     promptPhrase?: IImperativeEnvironmentalVariableSetting;
+
+    /**
+     * The indication that sensitive data should be obscured in the CLI
+     * default is TRUE
+     * @type {IImperativeEnvironmentalVariableSetting}
+     */
+    maskOutput?: IImperativeEnvironmentalVariableSetting;
 }

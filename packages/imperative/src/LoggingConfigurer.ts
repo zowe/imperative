@@ -9,14 +9,16 @@
 *
 */
 
-import { IConfigLogging, Logger, LoggerConfigBuilder } from "../../logger";
+import { IConfigLogging } from "../../logger/src/doc/IConfigLogging";
+import { Logger } from "../../logger/src/Logger";
+import { LoggerConfigBuilder } from "../../logger/src/LoggerConfigBuilder";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import { Console } from "../../console";
 import { isNullOrUndefined } from "util";
-import { IO } from "../../io";
+import { IO } from "../../io/src/IO";
 import { IImperativeLoggingConfig } from "./doc/IImperativeLoggingConfig";
-import { ImperativeError } from "../../error";
-import { ImperativeExpect } from "../../expect";
+import { ImperativeError } from "../../error/src/ImperativeError";
+import { ImperativeExpect } from "../../expect/src/ImperativeExpect";
 
 /**
  * Helper class to construct default config, log4js config, and define

@@ -14,51 +14,54 @@
  * require("@zowe/imperative") e.g. const imperative =  require("@zowe/imperative");
  */
 import { PerfTiming } from "@zowe/perf-timing";
-import { Logger, LoggerConfigBuilder } from "../../logger";
+import { Logger} from "../../logger/src/Logger";
+import { LoggerConfigBuilder } from "../../logger/src/LoggerConfigBuilder";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
 import * as yargs from "yargs";
 import { ConfigurationLoader } from "./ConfigurationLoader";
 import { ConfigurationValidator } from "./ConfigurationValidator";
 import { ImperativeApi } from "./api/ImperativeApi";
 import { IImperativeApi } from "./api/doc/IImperativeApi";
-import { Constants } from "../../constants";
-import { ImperativeConfig, TextUtils } from "../../utilities";
-import { ImperativeReject } from "../../interfaces";
+import { Constants } from "../../constants/src/Constants";
+import { TextUtils } from "../../utilities/src/TextUtils";
+import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
+import { ImperativeReject } from "../../interfaces/src/types/ImperativeReject";
 import { LoggingConfigurer } from "./LoggingConfigurer";
 import { ImperativeError } from "../../error";
 import { PluginManagementFacility } from "./plugins/PluginManagementFacility";
 // import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
-import {
-    AbstractCommandYargs,
-    CliProfileManager,
-    CommandPreparer,
-    CommandYargs,
-    ICommandDefinition,
-    ICommandProfileTypeConfiguration,
-    ICommandResponseParms,
-    IHelpGenerator,
-    IHelpGeneratorFactory,
-    IHelpGeneratorParms,
-    IYargsResponse,
-    WebHelpManager,
-    YargsConfigurer,
-    YargsDefiner
-} from "../../cmd";
-import { ProfileUtils, IProfileTypeConfiguration } from "../../profiles";
+
+import { AbstractCommandYargs } from "../../cmd/src/yargs/AbstractCommandYargs";
+import { CliProfileManager } from "../../cmd/src/profiles/CliProfileManager";
+import { CommandPreparer } from "../../cmd/src/CommandPreparer";
+import { CommandYargs } from "../../cmd/src/yargs/CommandYargs";
+import { ICommandDefinition } from "../../cmd/src/doc/ICommandDefinition";
+import { ICommandProfileTypeConfiguration } from "../../cmd/src/doc/profiles/definition/ICommandProfileTypeConfiguration";
+import { ICommandResponseParms } from "../../cmd/src/doc/response/parms/ICommandResponseParms";
+import { IHelpGenerator } from "../../cmd/src/help/doc/IHelpGenerator";
+import { IHelpGeneratorFactory } from "../../cmd/src/help/doc/IHelpGeneratorFactory";
+import { IHelpGeneratorParms } from "../../cmd/src/help/doc/IHelpGeneratorParms";
+import { IYargsResponse } from "../../cmd/src/yargs/doc/IYargsResponse";
+import { WebHelpManager } from "../../cmd/src/help/WebHelpManager";
+import { YargsConfigurer } from "../../cmd/src/yargs/YargsConfigurer";
+import { YargsDefiner } from "../../cmd/src/yargs/YargsDefiner";
+
+import { ProfileUtils } from "../../profiles/src/utils/ProfileUtils";
+import { IProfileTypeConfiguration } from "../../profiles/src/doc/config/IProfileTypeConfiguration";
 import { CompleteProfilesGroupBuilder } from "./profiles/builders/CompleteProfilesGroupBuilder";
 import { ImperativeHelpGeneratorFactory } from "./help/ImperativeHelpGeneratorFactory";
 import { OverridesLoader } from "./OverridesLoader";
 import { ImperativeProfileManagerFactory } from "./profiles/ImperativeProfileManagerFactory";
 import { DefinitionTreeResolver } from "./DefinitionTreeResolver";
 import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
-import { AppSettings } from "../../settings";
+import { AppSettings } from "../../settings/src/AppSettings";
 import { dirname, join } from "path";
 
-import { Console } from "../../console";
+import { Console } from "../../console/src/Console";
 import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
 import { IYargsContext } from "./doc/IYargsContext";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
-import { ImperativeExpect } from "../../expect";
+import { ImperativeExpect } from "../../expect/src/ImperativeExpect";
 import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
 import { Config } from "../../config/src/Config";
 import { CompleteAutoInitCommandBuilder } from "./config/cmd/auto-init/builders/CompleteAutoInitCommandBuilder";
@@ -441,10 +444,10 @@ export class Imperative {
     /**
      * Get the configured environmental variable prefix for the user's CLI
      * @returns {string} - the configured or default prefix for environmental variables for use in the environmental variable service
+     * @deprecated Please use ImperativeConfig.instance.envVariablePrefix
      */
     public static get envVariablePrefix(): string {
-        return ImperativeConfig.instance.loadedConfig.envVariablePrefix == null ? ImperativeConfig.instance.loadedConfig.name :
-            ImperativeConfig.instance.loadedConfig.envVariablePrefix;
+        return ImperativeConfig.instance.envVariablePrefix;
     }
 
     /**
@@ -506,7 +509,7 @@ export class Imperative {
         /**
          * Set log levels from environmental variable settings
          */
-        const envSettings = EnvironmentalVariableSettings.read(this.envVariablePrefix);
+        const envSettings = EnvironmentalVariableSettings.read(ImperativeConfig.instance.envVariablePrefix);
         if (envSettings.imperativeLogLevel.value != null && envSettings.imperativeLogLevel.value.trim().length > 0) {
             if (Logger.isValidLevel(envSettings.imperativeLogLevel.value.trim())) {
                 // set the imperative log level based on the user's environmental variable, if any
@@ -592,8 +595,10 @@ export class Imperative {
             ImperativeConfig.instance.loadedConfig.experimentalCommandDescription,
             Imperative.rootCommandName,
             Imperative.commandLine,
-            Imperative.envVariablePrefix,
-            EnvironmentalVariableSettings.read(this.envVariablePrefix).promptPhrase.value ||
+            ImperativeConfig.instance.envVariablePrefix,
+
+            // Default value for PROMPT phrase couls be handled in the EnvironmentalVariableSettings class
+            EnvironmentalVariableSettings.read(ImperativeConfig.instance.envVariablePrefix).promptPhrase.value ||
             Constants.DEFAULT_PROMPT_PHRASE // allow environmental variable to override the default prompt phrase
         ).configure();
 
@@ -604,11 +609,13 @@ export class Imperative {
             ImperativeConfig.instance.loadedConfig.primaryTextColor,
             Imperative.rootCommandName,
             Imperative.commandLine,
-            Imperative.envVariablePrefix,
+            ImperativeConfig.instance.envVariablePrefix,
             new ImperativeProfileManagerFactory(this.api),
             this.mHelpGeneratorFactory,
             ImperativeConfig.instance.loadedConfig.experimentalCommandDescription,
-            EnvironmentalVariableSettings.read(this.envVariablePrefix).promptPhrase.value ||
+
+            // Default value for PROMPT phrase couls be handled in the EnvironmentalVariableSettings class
+            EnvironmentalVariableSettings.read(ImperativeConfig.instance.envVariablePrefix).promptPhrase.value ||
             Constants.DEFAULT_PROMPT_PHRASE // allow environmental variable to override the default prompt phrase
         );
 

@@ -14,6 +14,10 @@ Object {
     "key": "IMP_INTEGRATION_TESTING_IMPERATIVE_LOG_LEVEL",
     "value": "THIS IS A TEST",
   },
+  "maskOutput": Object {
+    "key": "IMP_INTEGRATION_TESTING_APP_MASK_OUTPUT",
+    "value": "TRUE",
+  },
   "promptPhrase": Object {
     "key": "IMP_INTEGRATION_TESTING_PROMPT_PHRASE",
     "value": undefined,
