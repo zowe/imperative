@@ -230,6 +230,6 @@ export class ConfigSecure extends ConfigApi {
      * it was never called because the CredentialManager failed to initialize.
      */
     public get loadFailed(): boolean {
-        return this.mLoadFailed || !CredentialManagerFactory.initialized;
+        return (this.mLoadFailed != null) ? this.mLoadFailed : !CredentialManagerFactory.initialized;
     }
 }

@@ -10,6 +10,10 @@ All notable changes to the Imperative package will be documented in this file.
     If the schema definition is not found, we will exclude the following properties: user, password, tokenValue, and keyPassphrase.<br/>
     More information: [zowe/zowe-cli #1106](https://github.com/zowe/zowe-cli/issues/1106)
 
+## `5.0.0-next.202112101814`
+
+- BugFix: Fixed daemon mode not loading secure properties in team config. [zowe/zowe-cli#1232](https://github.com/zowe/zowe-cli/issues/1232)
+
 ## `5.0.0-next.202112021611`
 
 - BugFix: Fixed `config import` and `config init` behaving incorrectly when config JSON exists in higher level directory. [zowe/zowe-cli#1218](https://github.com/zowe/zowe-cli/issues/1218)
