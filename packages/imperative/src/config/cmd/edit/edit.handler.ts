@@ -44,6 +44,10 @@ export default class EditHandler implements ICommandHandler {
         }
     }
 
+    /**
+     * Open file in the graphical editor associated with its file extension
+     * @param filePath Path to config JSON file
+     */
     private openFileInGui(filePath: string) {
         const openerProc = require("opener")(filePath);
 
@@ -59,6 +63,10 @@ export default class EditHandler implements ICommandHandler {
         }
     }
 
+    /**
+     * Open config file in the command-line editor specified by the user or vi.
+     * @param filePath Path to config JSON file
+     */
     private async openFileInCli(filePath: string) {
         const editor = IO.getDefaultTextEditor(ImperativeConfig.instance.loadedConfig.envVariablePrefix);
         await require("child_process").spawn(editor, [filePath], { stdio: "inherit" });

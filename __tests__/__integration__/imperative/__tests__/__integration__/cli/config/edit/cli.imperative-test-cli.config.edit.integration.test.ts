@@ -44,7 +44,7 @@ describe("imperative-test-cli config convert-profiles", () => {
         it("should display the help", () => {
             const response = runCliScript(__dirname + "/../__scripts__/get_help.sh", TEST_ENVIRONMENT.workingDir, ["edit"]);
             expect(response.status).toBe(0);
-            expect(response.stdout.toString()).toContain("Edit config file in your system's default text editor.");
+            expect(response.stdout.toString()).toContain("Edit an existing config file in your system's default text editor.");
             expect(response.stderr.toString()).toEqual("");
         });
 
