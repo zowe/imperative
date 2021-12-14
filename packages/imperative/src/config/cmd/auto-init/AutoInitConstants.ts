@@ -46,7 +46,6 @@ export class AutoInitConstants {
         aliases: ["dr", "dry"],
         description: "Display the outcome of the initialization without saving",
         type: "boolean",
-        defaultValue: false,
         conflictsWith: ["edit"],
         group: AutoInitConstants.AUTO_INIT_OPTION_GROUP
     };
@@ -59,7 +58,6 @@ export class AutoInitConstants {
         aliases: ["e"],
         description: "Open in editor after initializing the configuration",
         type: "boolean",
-        defaultValue: false,
         conflictsWith: ["dry-run"],
         group: AutoInitConstants.AUTO_INIT_OPTION_GROUP
     };

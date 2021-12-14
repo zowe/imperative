@@ -52,7 +52,6 @@ export const initDefinition: ICommandDefinition = {
             description: "Display the outcome of the initialization without saving.",
             aliases: ["dr", "dry"],
             type: "boolean",
-            defaultValue: false,
             conflictsWith: ["overwrite", "edit"]
         },
         {
@@ -60,7 +59,6 @@ export const initDefinition: ICommandDefinition = {
             aliases: ["e"],
             description: "Open in editor after initializing the configuration",
             type: "boolean",
-            defaultValue: false,
             conflictsWith: ["dry-run"],
         }
     ],

@@ -41,7 +41,6 @@ Object {
       "conflictsWith": Array [
         "edit",
       ],
-      "defaultValue": false,
       "description": "Display the outcome of the initialization without saving",
       "group": "Automatic Config Initialization Options",
       "name": "dry-run",
@@ -54,7 +53,6 @@ Object {
       "conflictsWith": Array [
         "dry-run",
       ],
-      "defaultValue": false,
       "description": "Open in editor after initializing the configuration",
       "group": "Automatic Config Initialization Options",
       "name": "edit",
