@@ -17,7 +17,6 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { IO } from "../../io";
-import { GuiResult, ProcessUtils } from "../..";
 
 describe("IO tests", () => {
 
@@ -462,39 +461,20 @@ describe("IO tests", () => {
     });
 
     describe("getDefaultTextEditor", () => {
-        it("should load editor defined in environment variable", () => {
-            try {
-                process.env.TEST_CLI_EDITOR = "fakeEdit";
-                const editor = IO.getDefaultTextEditor("TEST_CLI");
-                expect(editor).toBe("fakeEdit");
-            } finally {
-                delete process.env.TEST_CLI_EDITOR;
-            }
-        });
-
-        it("should fall back to vi when there is no GUI available", () => {
-            jest.spyOn(ProcessUtils, "isGuiAvailable").mockReturnValueOnce(GuiResult.NO_GUI_NO_DISPLAY);
-            const editor = IO.getDefaultTextEditor();
-            expect(editor).toBe("vi");
-        });
-
-        it("should fall back to Notepad on Windows", () => {
+        it("should use Notepad on Windows", () => {
             jest.spyOn(os, "platform").mockReturnValueOnce(IO.OS_WIN32);
-            jest.spyOn(ProcessUtils, "isGuiAvailable").mockReturnValueOnce(GuiResult.GUI_AVAILABLE);
             const editor = IO.getDefaultTextEditor();
             expect(editor).toBe("notepad");
         });
 
-        it("should fall back to TextEdit on macOS", () => {
+        it("should use TextEdit on macOS", () => {
             jest.spyOn(os, "platform").mockReturnValueOnce(IO.OS_MAC);
-            jest.spyOn(ProcessUtils, "isGuiAvailable").mockReturnValueOnce(GuiResult.GUI_AVAILABLE);
             const editor = IO.getDefaultTextEditor();
             expect(editor).toContain("TextEdit");
         });
 
-        it("should fall back to GEdit on Linux", () => {
+        it("should use GEdit on Linux", () => {
             jest.spyOn(os, "platform").mockReturnValueOnce(IO.OS_LINUX);
-            jest.spyOn(ProcessUtils, "isGuiAvailable").mockReturnValueOnce(GuiResult.GUI_AVAILABLE);
             const editor = IO.getDefaultTextEditor();
             expect(editor).toBe("gedit");
         });

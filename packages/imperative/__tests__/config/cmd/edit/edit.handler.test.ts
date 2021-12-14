@@ -11,10 +11,7 @@
 
 import EditHandler from "../../../../src/config/cmd/edit/edit.handler";
 import { IHandlerParameters } from "../../../../../cmd";
-import { GuiResult, ImperativeConfig, ProcessUtils } from "../../../../../utilities";
-
-jest.mock("child_process");
-jest.mock("opener");
+import { ImperativeConfig, ProcessUtils } from "../../../../../utilities";
 
 const getIHandlerParametersObject = (): IHandlerParameters => {
     const x: any = {
@@ -79,23 +76,12 @@ describe("Configuration Edit command handler", () => {
         expect(consoleLogSpy.mock.calls[0][0]).toContain("File does not exist");
     });
 
-    it("should open config file in graphical text editor", async () => {
+    it("should open config file that exists in editor", async () => {
         const handler = new EditHandler();
-        jest.spyOn(ProcessUtils, "isGuiAvailable").mockReturnValueOnce(GuiResult.GUI_AVAILABLE);
-        const openFileSpy = jest.spyOn(handler as any, "openFileInGui");
+        const editFileSpy = jest.spyOn(ProcessUtils, "openInEditor").mockResolvedValueOnce();
         const params = getIHandlerParametersObject();
 
         await handler.process(params);
-        expect(openFileSpy).toHaveBeenCalledWith("fake");
-    });
-
-    it("should open config file in command-line text editor", async () => {
-        const handler = new EditHandler();
-        jest.spyOn(ProcessUtils, "isGuiAvailable").mockReturnValueOnce(GuiResult.NO_GUI_NO_DISPLAY);
-        const openFileSpy = jest.spyOn(handler as any, "openFileInCli");
-        const params = getIHandlerParametersObject();
-
-        await handler.process(params);
-        expect(openFileSpy).toHaveBeenCalledWith("fake");
+        expect(editFileSpy).toHaveBeenCalledWith("fake");
     });
 });
