@@ -10,9 +10,7 @@
 */
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { IO } from "../../../../../io";
-import { Logger } from "../../../../../logger";
-import { GuiResult, ImperativeConfig, ProcessUtils } from "../../../../../utilities";
+import { ImperativeConfig, ProcessUtils } from "../../../../../utilities";
 
 /**
  * Edit config
@@ -35,40 +33,8 @@ export default class EditHandler implements ICommandHandler {
             const initCmd = ImperativeConfig.instance.commandLine.replace("edit", "init");
             params.response.console.log(`File does not exist: ${configLayer.path}\n` +
                 `To create it, run "${ImperativeConfig.instance.rootCommandName} ${initCmd}".`);
-        } else if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
-            Logger.getAppLogger().info(`Opening ${configLayer.path} in graphical text editor`);
-            this.openFileInGui(configLayer.path);
         } else {
-            Logger.getAppLogger().info(`Opening ${configLayer.path} in command-line text editor`);
-            await this.openFileInCli(configLayer.path);
+            await ProcessUtils.openInEditor(ImperativeConfig.instance.config.api.layers.get().path);
         }
-    }
-
-    /**
-     * Open file in the graphical editor associated with its file extension
-     * @param filePath Path to config JSON file
-     */
-    private openFileInGui(filePath: string) {
-        const openerProc = require("opener")(filePath);
-
-        if (process.platform !== "win32") {
-            /* On linux, without the following statements, the zowe
-            * command does not return until the browser is closed.
-            * Mac is untested, but for now we treat it like linux.
-            */
-            openerProc.unref();
-            openerProc.stdin.unref();
-            openerProc.stdout.unref();
-            openerProc.stderr.unref();
-        }
-    }
-
-    /**
-     * Open config file in the command-line editor specified by the user or vi.
-     * @param filePath Path to config JSON file
-     */
-    private async openFileInCli(filePath: string) {
-        const editor = IO.getDefaultTextEditor(ImperativeConfig.instance.loadedConfig.envVariablePrefix);
-        await require("child_process").spawn(editor, [filePath], { stdio: "inherit" });
     }
 }

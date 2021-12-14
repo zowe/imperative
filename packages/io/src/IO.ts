@@ -18,7 +18,6 @@ import { ImperativeError } from "../../error";
 import { ImperativeExpect } from "../../expect";
 import { Readable, Writable } from "stream";
 import { mkdirpSync } from "fs-extra";
-import { GuiResult, ProcessUtils } from "../../utilities/src/ProcessUtils";
 
 /**
  * This class will handle common sequences of node I/O and issue messages /
@@ -275,23 +274,10 @@ export class IO {
     /**
      * Get default text editor for a given operating system
      * @static
-     * @param {string} envPrefix - Optional environment variable prefix. If
-     *  specified, the editor set in <envPrefix>_EDITOR will be used.
      * @returns {string} - text editor launch string
      * @memberof IO
      */
-    public static getDefaultTextEditor(envPrefix?: string): string {
-        if (envPrefix != null) {
-            const editorEnvVar = `${envPrefix}_EDITOR`;
-            if (process.env[editorEnvVar] != null) {
-                return process.env[editorEnvVar];
-            }
-        }
-
-        if (ProcessUtils.isGuiAvailable() !== GuiResult.GUI_AVAILABLE) {
-            return "vi";
-        }
-
+    public static getDefaultTextEditor(): string {
         const platform = os.platform();
         if (platform === IO.OS_WIN32) {
             return "notepad";

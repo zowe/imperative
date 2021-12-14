@@ -53,7 +53,15 @@ export const initDefinition: ICommandDefinition = {
             aliases: ["dr", "dry"],
             type: "boolean",
             defaultValue: false,
-            conflictsWith: ["overwrite"]
+            conflictsWith: ["overwrite", "edit"]
+        },
+        {
+            name: "edit",
+            aliases: ["e"],
+            description: "Open in editor after initializing the configuration",
+            type: "boolean",
+            defaultValue: false,
+            conflictsWith: ["dry-run"],
         }
     ],
     examples: [
