@@ -7,6 +7,18 @@ All notable changes to the Imperative package will be documented in this file.
 - BugFix: Removed `@internal` methods from type declarations so they don't appear in IntelliSense. [#679](https://github.com/zowe/imperative/issues/679)
 - BugFix: Made the `ProfileInfo.initSessCfg` method public for easier instantiation of classes that extend AbstractSession.
 
+## `5.0.0-next.202112132158`
+
+- Enhancement: Added an environment variable to control whether or not sensitive data will be masked in the console output.<br/>
+    This behavior excludes any TRACE level logs for both, Imperative.log and AppName.log.<br/>
+    This behavior also excludes properties defined as secure by the plugin developers.<br/>
+    If the schema definition is not found, we will exclude the following properties: user, password, tokenValue, and keyPassphrase.<br/>
+    More information: [zowe/zowe-cli #1106](https://github.com/zowe/zowe-cli/issues/1106)
+
+## `5.0.0-next.202112101814`
+
+- BugFix: Fixed daemon mode not loading secure properties in team config. [zowe/zowe-cli#1232](https://github.com/zowe/zowe-cli/issues/1232)
+
 ## `5.0.0-next.202112021611`
 
 - BugFix: Fixed `config import` and `config init` behaving incorrectly when config JSON exists in higher level directory. [zowe/zowe-cli#1218](https://github.com/zowe/zowe-cli/issues/1218)

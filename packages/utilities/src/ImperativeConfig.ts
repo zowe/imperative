@@ -96,6 +96,14 @@ export class ImperativeConfig {
     }
 
     /**
+     * Get the configured environmental variable prefix for the user's CLI
+     * @returns {string} - the configured or default prefix for environmental variables for use in the environmental variable service
+     */
+    public get envVariablePrefix(): string {
+        return this.loadedConfig.envVariablePrefix == null ? this.loadedConfig.name : this.loadedConfig.envVariablePrefix;
+    }
+
+    /**
      * Set the caller location.
      * @param {string} location new location to be updated with
      */
@@ -184,7 +192,7 @@ export class ImperativeConfig {
      * @return {string} path to cli Home.
      */
     public get cliHome(): string {
-        const settings = EnvironmentalVariableSettings.read(this.loadedConfig.envVariablePrefix || this.loadedConfig.name);
+        const settings = EnvironmentalVariableSettings.read(this.envVariablePrefix);
         if (settings.cliHome.value != null) {
             return settings.cliHome.value;
         }
