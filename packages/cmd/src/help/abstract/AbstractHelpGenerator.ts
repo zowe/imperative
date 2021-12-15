@@ -11,13 +11,14 @@
 
 import { TextUtils } from "../../../../utilities";
 import { format, isNullOrUndefined } from "util";
-import { CommandOptionType, ICommandDefinition, ICommandOptionDefinition } from "../../../";
-import { ImperativeError } from "../../../../error";
-import { Logger } from "../../../../logger";
+import { ImperativeError } from "../../../../error/src/ImperativeError";
+import { Logger } from "../../../../logger/src/Logger";
 import { IHelpGeneratorParms } from "../doc/IHelpGeneratorParms";
 import { IHelpGeneratorFactoryParms } from "../doc/IHelpGeneratorFactoryParms";
 import { IHelpGenerator } from "../doc/IHelpGenerator";
 import { Constants } from "../../../../constants";
+import { ICommandDefinition } from "../../doc/ICommandDefinition";
+import { CommandOptionType, ICommandOptionDefinition } from "../../doc/option/ICommandOptionDefinition";
 
 export abstract class AbstractHelpGenerator implements IHelpGenerator {
 

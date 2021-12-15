@@ -41,7 +41,7 @@ import { EnvironmentalVariableSettings } from "../../imperative/src/env/Environm
 import { LoggingConfigurer } from "../../imperative/src/LoggingConfigurer";
 import { CliUtils, ImperativeConfig } from "../../utilities";
 import { ImperativeExpect } from "../../expect";
-import { Logger } from "../../logger";
+import { Logger, LoggerUtils } from "../../logger";
 import { LoggerManager } from "../../logger/src/LoggerManager";
 import {
     IOptionsForAddConnProps, ISession, Session, SessConstants, ConnectionPropsForSessCfg
@@ -799,7 +799,7 @@ export class ProfileInfo {
      * @returns A session containing all of the supplied profile argument
      *          attributes that are relevant to a session.
      */
-    private static initSessCfg(profArgs: IProfArgAttrs[]): ISession {
+    public static initSessCfg(profArgs: IProfArgAttrs[]): ISession {
         const sessCfg: any = {};
 
         // the set of names of arguments in IProfArgAttrs used in ISession
@@ -942,6 +942,7 @@ export class ProfileInfo {
                 }
             }
         }
+        LoggerUtils.setProfileSchemas(this.mProfileSchemaCache);
     }
 
     // _______________________________________________________________________
@@ -1147,7 +1148,6 @@ export class ProfileInfo {
             // for old school profiles, there is only one schema per profile type
             schemaMapKey = profile.profType;
         }
-
         if (schemaMapKey != null && this.mProfileSchemaCache.has(schemaMapKey)) {
             return this.mProfileSchemaCache.get(schemaMapKey);
         }

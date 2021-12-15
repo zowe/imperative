@@ -356,6 +356,10 @@ describe("Imperative", () => {
                     envConfig = mocks.EnvironmentalVariableSettings.read(Imperative.envVariablePrefix);
                 });
 
+                it("should know what the envVariablePrefix is [DEPRECATED]", async () => {
+                    expect(Imperative.envVariablePrefix).toEqual(defaultConfig.name);
+                });
+
                 it("should handle a valid imperative log level", async () => {
                     envConfig.imperativeLogLevel.value = goodLevel;
                     loggingConfig.log4jsConfig.categories[mocks.Logger.DEFAULT_IMPERATIVE_NAME].level = goodLevel;

@@ -20,7 +20,8 @@
     "sourceMap": true,
     "newLine": "lf",
     "rootDir": "packages",
-    "composite": true
+    "composite": true,
+    "stripInternal": true
   },
   "typeRoots": [
     "./node_modules/@types"
