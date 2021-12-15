@@ -12,6 +12,7 @@
 jest.mock("../../../profiles/src/BasicProfileManager");
 jest.mock("../../../profiles/src/BasicProfileManagerFactory");
 jest.mock("../../../utilities/src/ImperativeConfig");
+jest.mock("../../../logger/src/LoggerUtils");
 import { CommandProfileLoader } from "../../src/profiles/CommandProfileLoader";
 import { ICommandDefinition } from "../../src/doc/ICommandDefinition";
 import { BasicProfileManager } from "../../../profiles/src/BasicProfileManager";
