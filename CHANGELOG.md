@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed config auto-store may store secure properties in plain text if secure array is outside of subprofile in team config. [#709](https://github.com/zowe/imperative/issues/709)
+
 ## `5.0.0-next.202112151934`
 
 - BugFix: Removed `@internal` methods from type declarations so they don't appear in IntelliSense. [#679](https://github.com/zowe/imperative/issues/679)
