@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Added `delete` option to `config convert-profiles` command.
+
 ## `5.0.0-next.202112151934`
 
 - Enhancement: Added `config convert-profiles` command that converts v1 profiles to team config. [zowe/zowe-cli#896](https://github.com/zowe/zowe-cli/issues/896)

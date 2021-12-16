@@ -22,9 +22,21 @@ import { PluginIssues } from "../../../plugins/utilities/PluginIssues";
 import { uninstall as uninstallPlugin } from "../../../plugins/utilities/npm-interface";
 import { OverridesLoader } from "../../../OverridesLoader";
 
+/**
+ * Info for obsolete CLI plug-in to be uninstalled
+ */
 interface IPluginToUninstall {
+    /**
+     * Name of plug-in to uninstall
+     */
     name: string;
+    /**
+     * Callback to be run before uninstall
+     */
     preUninstall?: () => void | Promise<void>;
+    /**
+     * Callback to be run after uninstall
+     */
     postUninstall?: () => void | Promise<void>;
 }
 
@@ -37,8 +49,11 @@ export default class ConvertProfilesHandler implements ICommandHandler {
     private readonly ZOWE_CLI_SECURE_PLUGIN_NAME = "@zowe/secure-credential-store-for-zowe-cli";
 
     /**
-     * The process command handler for the "config convert-profiles" command.
-     * @return {Promise<ICommandResponse>}: The promise to fulfill when complete.
+     * Process the command and input.
+     *
+     * @param {IHandlerParameters} params Parameters supplied by yargs
+     *
+     * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
         const profilesRootDir = ProfileUtils.constructProfilesRootDirectory(ImperativeConfig.instance.cliHome);
@@ -148,6 +163,13 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         }
     }
 
+    /**
+     * Retrieve list of obsolete CLI plug-ins that should be uninstalled.
+     * @returns List of plugins to uninstall containing the following properties:
+     *  - `name` - Name of plugin to uninstall
+     *  - `preuninstall` - Optional callback to be run before uninstall
+     *  - `postuninstall` - Optional callback to be run after uninstall
+     */
     private getObsoletePlugins(): IPluginToUninstall[] {
         const obsoletePlugins: IPluginToUninstall[] = [];
 
@@ -165,6 +187,11 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         return obsoletePlugins;
     }
 
+    /**
+     * Get the number of old profiles present in the CLI home dir.
+     * @param profilesRootDir Root profiles directory
+     * @returns Number of old profiles found
+     */
     private getOldProfileCount(profilesRootDir: string): number {
         const profileTypes = ProfileIO.getAllProfileDirectories(profilesRootDir);
         let oldProfileCount = 0;
@@ -176,6 +203,10 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         return oldProfileCount;
     }
 
+    /**
+     * Disable the CredentialManager override in app settings. This is called
+     * before uninstalling `ZOWE_CLI_SECURE_PLUGIN_NAME`.
+     */
     private disableCredentialManager() {
         AppSettings.instance.set("overrides", "CredentialManager", ImperativeConfig.instance.hostPackageName);
         if (ImperativeConfig.instance.loadedConfig.overrides.CredentialManager != null) {
@@ -183,6 +214,10 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         }
     }
 
+    /**
+     * Uninstall a CLI plug-in if it is installed, otherwise do nothing.
+     * @param pluginName Name of plug-in to uninstall
+     */
     private uninstallPlugin(pluginName: string): void {
         if (Object.keys(PluginIssues.instance.getInstalledPlugins()).includes(pluginName)) {
             uninstallPlugin(pluginName);
