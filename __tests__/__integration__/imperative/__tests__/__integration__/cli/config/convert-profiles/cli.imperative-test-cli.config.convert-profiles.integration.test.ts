@@ -32,11 +32,11 @@ describe("imperative-test-cli config convert-profiles", () => {
     });
 
     beforeEach(() => {
-        runCliScript(__dirname + "/__scripts__/create_profiles.sh", TEST_ENVIRONMENT.workingDir);
+        runCliScript(__dirname + "/__scripts__/create_profiles_secured_and_base.sh", TEST_ENVIRONMENT.workingDir);
     });
 
     afterEach(() => {
-        runCliScript(__dirname + "/__scripts__/delete_profiles.sh", TEST_ENVIRONMENT.workingDir);
+        runCliScript(__dirname + "/__scripts__/delete_profiles_secured_and_base.sh", TEST_ENVIRONMENT.workingDir);
         if (fs.existsSync(configJsonPath)) {
             fs.unlinkSync(configJsonPath);
         }

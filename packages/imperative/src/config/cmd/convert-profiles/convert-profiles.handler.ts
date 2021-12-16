@@ -175,6 +175,10 @@ export default class ConvertProfilesHandler implements ICommandHandler {
     /**
      * Disable the CredentialManager override in app settings. This is called
      * before uninstalling `ZOWE_CLI_SECURE_PLUGIN_NAME`.
+     * This method is private because only the convert-profiles command is able
+     * to disable the credential manager and reload it. For all other commands,
+     * the credential manager is loaded in `Imperative.init` and frozen with
+     * `Object.freeze` so cannot be modified later on.
      */
     private disableCredentialManager() {
         AppSettings.instance.set("overrides", "CredentialManager", ImperativeConfig.instance.hostPackageName);
@@ -184,7 +188,9 @@ export default class ConvertProfilesHandler implements ICommandHandler {
     }
 
     /**
-     * Uninstall a CLI plug-in if it is installed, otherwise do nothing.
+     * Uninstall a CLI plug-in if it is installed, otherwise do nothing. This
+     * overrides the default behavior of the plugin uninstall helper method
+     * which throws an error if the plugin is not installed.
      * @param pluginName Name of plug-in to uninstall
      */
     private uninstallPlugin(pluginName: string): void {
