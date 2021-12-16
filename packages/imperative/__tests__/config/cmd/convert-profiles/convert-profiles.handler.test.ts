@@ -11,6 +11,7 @@
 
 import * as fs from "fs";
 import * as keytar from "keytar";
+import * as rimraf from "rimraf";
 import { Config, ConfigBuilder, ConfigSchema } from "../../../../../config";
 import { IHandlerParameters } from "../../../../../cmd";
 import { ProfileIO } from "../../../../../profiles";
@@ -188,6 +189,188 @@ describe("Configuration Convert Profiles command handler", () => {
         expect(stderr).toBe("");
         expect(uninstallSpy).not.toHaveBeenCalled();
         expect(configConvertSpy).not.toHaveBeenCalled();
+    });
+
+    it("should remove existing profiles and delete secure properties", async () => {
+        const metaError = new Error("invalid meta file");
+        jest.spyOn(ConfigBuilder, "convert").mockResolvedValueOnce({
+            config: Config.empty(),
+            profilesConverted: {
+                fruit: ["apple", "coconut", "banana"]
+            },
+            profilesFailed: []
+        });
+        const updateSchemaSpy = jest.spyOn(ConfigSchema, "updateSchema").mockReturnValueOnce(undefined);
+        jest.spyOn(fs, "renameSync").mockReturnValueOnce();
+        jest.spyOn(keytar, "findCredentials").mockResolvedValue([
+            {account: "testAcct", password: "testPassword"}
+        ]);
+        jest.spyOn(keytar, "deletePassword").mockResolvedValue(true);
+        const rimrafSpy = jest.spyOn(rimraf, "sync").mockImplementation(() => {
+            return true;
+        });
+
+        const handler = new ConvertProfilesHandler();
+        jest.spyOn(handler as any, "getObsoletePlugins").mockReturnValueOnce([]);
+        jest.spyOn(handler as any, "getOldProfileCount").mockReturnValueOnce(3);
+        const findOldSecurePropsSpy = jest.spyOn(handler as any, "findOldSecureProps");
+        const deleteOldSecurePropsSpy = jest.spyOn(handler as any, "deleteOldSecureProps");
+
+        const params = getIHandlerParametersObject();
+        params.arguments.force = true;
+        params.arguments.delete = true;
+        params.arguments.forSure = true;
+
+        await handler.process(params);
+        expect(stdout).toContain("Detected 3 old profile(s)");
+        expect(stdout).toContain("Converted fruit profiles: apple, coconut, banana");
+        expect(stdout).toContain("Deleting the profiles directory");
+        expect(stdout).toContain("Deleting secure value for \"@brightside/core/testAcct\"");
+        expect(stdout).toContain("Deleting secure value for \"@zowe/cli/testAcct\"");
+        expect(stdout).toContain("Deleting secure value for \"Zowe-Plugin/testAcct\"");
+        expect(stdout).toContain("Deleting secure value for \"Broadcom-Plugin/testAcct\"");
+        expect(stdout).toContain("Deleting secure value for \"Zowe/testAcct\"");
+        expect(updateSchemaSpy).toHaveBeenCalled();
+        expect(mockImperativeConfig.config.save).toHaveBeenCalled();
+        expect(rimrafSpy).toHaveBeenCalledTimes(1);
+        expect(findOldSecurePropsSpy).toHaveBeenCalledTimes(5);
+        expect(deleteOldSecurePropsSpy).toHaveBeenCalledTimes(5);
+    });
+
+    it("should remove existing profiles and delete secure properties except secure_config_props", async () => {
+        const metaError = new Error("invalid meta file");
+        jest.spyOn(ConfigBuilder, "convert").mockResolvedValueOnce({
+            config: Config.empty(),
+            profilesConverted: {
+                fruit: ["apple", "coconut", "banana"]
+            },
+            profilesFailed: []
+        });
+        const updateSchemaSpy = jest.spyOn(ConfigSchema, "updateSchema").mockReturnValueOnce(undefined);
+        jest.spyOn(fs, "renameSync").mockReturnValueOnce();
+        jest.spyOn(keytar, "findCredentials").mockResolvedValue([
+            {account: "testAcct", password: "testPassword"},
+            {account: "secure_config_props", password: "testPassword"},
+            {account: "secure_config_props_1", password: "testPassword"}
+        ]);
+        jest.spyOn(keytar, "deletePassword").mockResolvedValue(true);
+        const rimrafSpy = jest.spyOn(rimraf, "sync").mockImplementation(() => {
+            return true;
+        });
+
+        const handler = new ConvertProfilesHandler();
+        jest.spyOn(handler as any, "getObsoletePlugins").mockReturnValueOnce([]);
+        jest.spyOn(handler as any, "getOldProfileCount").mockReturnValueOnce(3);
+        const findOldSecurePropsSpy = jest.spyOn(handler as any, "findOldSecureProps");
+        const deleteOldSecurePropsSpy = jest.spyOn(handler as any, "deleteOldSecureProps");
+
+        const params = getIHandlerParametersObject();
+        params.arguments.force = true;
+        params.arguments.delete = true;
+        params.arguments.forSure = true;
+
+        await handler.process(params);
+        expect(stdout).toContain("Detected 3 old profile(s)");
+        expect(stdout).toContain("Converted fruit profiles: apple, coconut, banana");
+        expect(stdout).toContain("Deleting the profiles directory");
+        expect(stdout).toContain("Deleting secure value for \"@brightside/core/testAcct\"");
+        expect(stdout).toContain("Deleting secure value for \"@zowe/cli/testAcct\"");
+        expect(stdout).toContain("Deleting secure value for \"Zowe-Plugin/testAcct\"");
+        expect(stdout).toContain("Deleting secure value for \"Broadcom-Plugin/testAcct\"");
+        expect(stdout).toContain("Deleting secure value for \"Zowe/testAcct\"");
+        expect(updateSchemaSpy).toHaveBeenCalled();
+        expect(mockImperativeConfig.config.save).toHaveBeenCalled();
+        expect(rimrafSpy).toHaveBeenCalledTimes(1);
+        expect(findOldSecurePropsSpy).toHaveBeenCalledTimes(5);
+        expect(deleteOldSecurePropsSpy).toHaveBeenCalledTimes(5);
+    });
+
+    it("should remove existing profiles, delete secure properties, and handle a rimraf delete error", async () => {
+        const metaError = new Error("invalid meta file");
+        jest.spyOn(ConfigBuilder, "convert").mockResolvedValueOnce({
+            config: Config.empty(),
+            profilesConverted: {
+                fruit: ["apple", "coconut", "banana"]
+            },
+            profilesFailed: []
+        });
+        const updateSchemaSpy = jest.spyOn(ConfigSchema, "updateSchema").mockReturnValueOnce(undefined);
+        jest.spyOn(fs, "renameSync").mockReturnValueOnce();
+        jest.spyOn(keytar, "findCredentials").mockResolvedValue([
+            {account: "testAcct", password: "testPassword"}
+        ]);
+        jest.spyOn(keytar, "deletePassword").mockResolvedValue(true);
+        const rimrafSpy = jest.spyOn(rimraf, "sync").mockImplementation(() => {
+            throw new Error("test error");
+        });
+
+        const handler = new ConvertProfilesHandler();
+        jest.spyOn(handler as any, "getObsoletePlugins").mockReturnValueOnce([]);
+        jest.spyOn(handler as any, "getOldProfileCount").mockReturnValueOnce(3);
+        const findOldSecurePropsSpy = jest.spyOn(handler as any, "findOldSecureProps");
+        const deleteOldSecurePropsSpy = jest.spyOn(handler as any, "deleteOldSecureProps");
+
+        const params = getIHandlerParametersObject();
+        params.arguments.force = true;
+        params.arguments.delete = true;
+        params.arguments.forSure = true;
+
+        await handler.process(params);
+        expect(stdout).toContain("Detected 3 old profile(s)");
+        expect(stdout).toContain("Converted fruit profiles: apple, coconut, banana");
+        expect(stdout).toContain("Deleting secure value for \"@brightside/core/testAcct\"");
+        expect(stdout).toContain("Deleting secure value for \"@zowe/cli/testAcct\"");
+        expect(stdout).toContain("Deleting secure value for \"Zowe-Plugin/testAcct\"");
+        expect(stdout).toContain("Deleting secure value for \"Broadcom-Plugin/testAcct\"");
+        expect(stdout).toContain("Deleting secure value for \"Zowe/testAcct\"");
+        expect(stderr).toContain("Failed to delete the profiles directory");
+        expect(updateSchemaSpy).toHaveBeenCalled();
+        expect(mockImperativeConfig.config.save).toHaveBeenCalled();
+        expect(rimrafSpy).toHaveBeenCalledTimes(1);
+        expect(findOldSecurePropsSpy).toHaveBeenCalledTimes(5);
+        expect(deleteOldSecurePropsSpy).toHaveBeenCalledTimes(5);
+    });
+
+    it("should throw an error if keytar unavailable", async () => {
+        const metaError = new Error("invalid meta file");
+        jest.spyOn(ConfigBuilder, "convert").mockResolvedValueOnce({
+            config: Config.empty(),
+            profilesConverted: {
+                fruit: ["apple", "coconut", "banana"]
+            },
+            profilesFailed: []
+        });
+        const updateSchemaSpy = jest.spyOn(ConfigSchema, "updateSchema").mockReturnValueOnce(undefined);
+        jest.spyOn(fs, "renameSync").mockReturnValueOnce();
+        jest.spyOn(keytar, "findCredentials").mockImplementation(() => {
+            throw new Error("test error");
+        });
+        const rimrafSpy = jest.spyOn(rimraf, "sync").mockImplementation(() => {
+            return true;
+        });
+
+        const handler = new ConvertProfilesHandler();
+        jest.spyOn(handler as any, "getObsoletePlugins").mockReturnValueOnce([]);
+        jest.spyOn(handler as any, "getOldProfileCount").mockReturnValueOnce(3);
+
+        const params = getIHandlerParametersObject();
+        params.arguments.force = true;
+        params.arguments.delete = true;
+        params.arguments.forSure = true;
+
+        await handler.process(params);
+        expect(stdout).toContain("Detected 3 old profile(s)");
+        expect(stdout).toContain("Converted fruit profiles: apple, coconut, banana");
+        expect(stdout).toContain("Deleting the profiles directory");
+        expect(stderr).toContain("Keytar or the credential vault are unavailable.");
+        expect(stdout).not.toContain("Deleting secure value for \"@brightside/core/testAcct\"");
+        expect(stdout).not.toContain("Deleting secure value for \"@zowe/cli/testAcct\"");
+        expect(stdout).not.toContain("Deleting secure value for \"Zowe-Plugin/testAcct\"");
+        expect(stdout).not.toContain("Deleting secure value for \"Broadcom-Plugin/testAcct\"");
+        expect(stdout).not.toContain("Deleting secure value for \"Zowe/testAcct\"");
+        expect(updateSchemaSpy).toHaveBeenCalled();
+        expect(mockImperativeConfig.config.save).toHaveBeenCalled();
+        expect(rimrafSpy).toHaveBeenCalledTimes(1);
     });
 
     describe("getObsoletePlugins", () => {
