@@ -28,6 +28,16 @@ export const convertProfilesDefinition: ICommandDefinition = {
         name: "force",
         description: "Bypass prompt for user confirmation before profile conversion.",
         type: "boolean"
+    }, {
+        name: "delete",
+        description: "Delete the existing profiles on disk and any securely stored secrets.",
+        type: "boolean",
+        implies: ["for-sure"]
+    }, {
+        name: "for-sure",
+        aliases: ["f"],
+        description: "Confirmation for the delete option, to prevent accidental deletion of migrated profiles.",
+        type: "boolean"
     }],
     examples: [{
         description: "Convert profiles to team config without prompting",

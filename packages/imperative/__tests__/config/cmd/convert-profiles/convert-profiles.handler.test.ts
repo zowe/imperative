@@ -10,6 +10,7 @@
 */
 
 import * as fs from "fs";
+import * as keytar from "keytar";
 import { Config, ConfigBuilder, ConfigSchema } from "../../../../../config";
 import { IHandlerParameters } from "../../../../../cmd";
 import { ProfileIO } from "../../../../../profiles";
@@ -221,6 +222,103 @@ describe("Configuration Convert Profiles command handler", () => {
             expect(result.length).toBe(1);
             expect(result[0].name).toBe("ABC");
             expect(result[0].preUninstall).toBeDefined();
+        });
+    });
+
+    describe("checkKeytarAvailable", () => {
+        it("should return true if keytar does not error out", async () => {
+            const findCredentialsSpy = jest.spyOn(keytar, "findCredentials").mockResolvedValue([{account: "fake", password: "fake"}]);
+
+            const handler = new ConvertProfilesHandler();
+            const result = await (handler as any).checkKeytarAvailable();
+            expect(result).toEqual(true);
+            expect(findCredentialsSpy).toHaveBeenCalledWith("@zowe/cli");
+        });
+        it("should return false if keytar errors out", async () => {
+            jest.spyOn(keytar, "findCredentials").mockImplementation(() => {
+                throw new Error("fake error");
+            });
+
+            const handler = new ConvertProfilesHandler();
+            const result = await (handler as any).checkKeytarAvailable();
+            expect(result).toEqual(false);
+        });
+    });
+
+    describe("findOldSecureProps", () => {
+        it("should find existing Zowe accounts", async () => {
+            const findCredentialsSpy = jest.spyOn(keytar, "findCredentials").mockResolvedValue([
+                {account: "fake1", password: "fakePass1"},
+                {account: "fake2", password: "fakePass2"},
+                {account: "fake3", password: "fakePass3"},
+                {account: "fake4", password: "fakePass4"}
+            ]);
+
+            const handler = new ConvertProfilesHandler();
+            const handlerParmsObj = getIHandlerParametersObject();
+            const result = await (handler as any).findOldSecureProps("Zowe", handlerParmsObj);
+            expect(result).toEqual(["fake1", "fake2", "fake3", "fake4"]);
+            expect(findCredentialsSpy).toHaveBeenCalledWith("Zowe");
+            expect(handlerParmsObj.response.console.error).toHaveBeenCalledTimes(0);
+        });
+        it("should not find existing Zowe accounts", async () => {
+            const findCredentialsSpy = jest.spyOn(keytar, "findCredentials").mockResolvedValue([]);
+
+            const handler = new ConvertProfilesHandler();
+            const handlerParmsObj = getIHandlerParametersObject();
+            const result = await (handler as any).findOldSecureProps("Zowe", handlerParmsObj);
+            expect(result).toEqual([]);
+            expect(findCredentialsSpy).toHaveBeenCalledWith("Zowe");
+            expect(handlerParmsObj.response.console.error).toHaveBeenCalledTimes(0);
+        });
+        it("should error while finding existing Zowe accounts and catch error", async () => {
+            const findCredentialsSpy = jest.spyOn(keytar, "findCredentials").mockImplementation(() => {
+                throw new Error("test error");
+            });
+
+            const handler = new ConvertProfilesHandler();
+            const handlerParmsObj = getIHandlerParametersObject();
+            const result = await (handler as any).findOldSecureProps("Zowe", handlerParmsObj);
+            expect(result).toEqual([]);
+            expect(findCredentialsSpy).toHaveBeenCalledWith("Zowe");
+            expect(handlerParmsObj.response.console.error).toHaveBeenCalledTimes(1);
+            expect(stderr).toContain("Encountered an error while gathering profiles for service");
+        });
+    });
+
+    describe("deleteOldSecureProps", () => {
+        it("should properly delete a credential and return success", async() => {
+            const findCredentialsSpy = jest.spyOn(keytar, "deletePassword").mockResolvedValue(true);
+
+            const handler = new ConvertProfilesHandler();
+            const handlerParmsObj = getIHandlerParametersObject();
+            const result = await (handler as any).deleteOldSecureProps("Zowe", "zosmf_test_user", handlerParmsObj);
+            expect(result).toEqual(true);
+            expect(findCredentialsSpy).toHaveBeenCalledWith("Zowe", "zosmf_test_user");
+            expect(handlerParmsObj.response.console.error).toHaveBeenCalledTimes(0);
+        });
+        it("should not properly delete a credential and return failure", async() => {
+            const findCredentialsSpy = jest.spyOn(keytar, "deletePassword").mockResolvedValue(false);
+
+            const handler = new ConvertProfilesHandler();
+            const handlerParmsObj = getIHandlerParametersObject();
+            const result = await (handler as any).deleteOldSecureProps("Zowe", "zosmf_test_user", handlerParmsObj);
+            expect(result).toEqual(false);
+            expect(findCredentialsSpy).toHaveBeenCalledWith("Zowe", "zosmf_test_user");
+            expect(handlerParmsObj.response.console.error).toHaveBeenCalledTimes(0);
+        });
+        it("should error while deleting a credential and return failure", async() => {
+            const findCredentialsSpy = jest.spyOn(keytar, "deletePassword").mockImplementation(() => {
+                throw new Error("test error");
+            });
+
+            const handler = new ConvertProfilesHandler();
+            const handlerParmsObj = getIHandlerParametersObject();
+            const result = await (handler as any).deleteOldSecureProps("Zowe", "zosmf_test_user", handlerParmsObj);
+            expect(result).toEqual(false);
+            expect(findCredentialsSpy).toHaveBeenCalledWith("Zowe", "zosmf_test_user");
+            expect(handlerParmsObj.response.console.error).toHaveBeenCalledTimes(1);
+            expect(stderr).toContain("Encountered an error while deleting secure data for service");
         });
     });
 

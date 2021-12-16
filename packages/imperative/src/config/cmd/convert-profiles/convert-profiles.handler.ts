@@ -11,6 +11,8 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import * as keytar from "keytar";
+import * as rimraf from "rimraf";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ConfigBuilder, ConfigSchema } from "../../../../../config";
 import { ProfileIO, ProfileUtils } from "../../../../../profiles";
@@ -112,9 +114,38 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         const cliBin = ImperativeConfig.instance.rootCommandName;
         // TODO Implement config edit command
         params.response.console.log(`Your new profiles have been saved to ${teamConfig.layerActive().path}.\n` +
-            `Run "${cliBin} config edit --global-config" to open this file in your default editor.\n\n` +
-            `Your old profiles have been moved to ${oldProfilesDir}.\n` +
-            `Run "${cliBin} config convert-profiles --delete" if you want to completely remove them.`);
+            `Run "${cliBin} config edit --global-config" to open this file in your default editor.\n\n`);
+
+        if (params.arguments.delete == null || params.arguments.delete === false ||
+            params.arguments.forSure == null || params.arguments.forSure === false) {
+            params.response.console.log(`Your old profiles have been moved to ${oldProfilesDir}.\n` +
+                `Run "${cliBin} config convert-profiles --delete" if you want to completely remove them.`);
+        } else {
+            // Delete the profiles directory
+            try {
+                rimraf.sync(oldProfilesDir);
+                params.response.console.log(`Deleting the profiles directory '${oldProfilesDir}'... done`);
+            } catch (err) {
+                params.response.console.error(`Failed to delete the profiles directory '${oldProfilesDir}':\n    ${err}`);
+            }
+
+            // Delete the securely stored credentials
+            const keytarAvailable = await this.checkKeytarAvailable();
+            if (keytarAvailable) {
+                const knownServices = ["@brightside/core", "@zowe/cli", "Zowe-Plugin", "Broadcom-Plugin", "Zowe"];
+                for (const service of knownServices) {
+                    const accounts = await this.findOldSecureProps(service, params);
+                    for (const account of accounts) {
+                        if (!account.includes("secure_config_props")) {
+                            const success = this.deleteOldSecureProps(service, account, params);
+                            params.response.console.log(`Deleting secure value for "${service}/${account}"... ${success ? "done" : "failed"}`);
+                        }
+                    }
+                }
+            } else {
+                params.response.console.error(`Keytar or the credential vault are unavailable. Unable to delete old secure values.`);
+            }
+        }
     }
 
     private getObsoletePlugins(): IPluginToUninstall[] {
@@ -156,5 +187,40 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         if (Object.keys(PluginIssues.instance.getInstalledPlugins()).includes(pluginName)) {
             uninstallPlugin(pluginName);
         }
+    }
+
+    private async checkKeytarAvailable(): Promise<boolean> {
+        let success: boolean = undefined;
+        try {
+            await keytar.findCredentials('@zowe/cli');
+            success = true;
+        } catch (err) {
+            success = false;
+        }
+        return success;
+    }
+
+    private async findOldSecureProps(acct: string, params: IHandlerParameters): Promise<string[]> {
+        const oldSecurePropNames: string[] = [];
+        try {
+            const credentialsArray = await keytar.findCredentials(acct);
+            for (const element of credentialsArray) {
+                oldSecurePropNames.push(element.account);
+            }
+        } catch (err) {
+            params.response.console.error(`Encountered an error while gathering profiles for service '${acct}':\n    ${err}`);
+        }
+        return oldSecurePropNames;
+    }
+
+    private async deleteOldSecureProps(acct: string, propName: string, params: IHandlerParameters): Promise<boolean> {
+        let success = false;
+        try {
+            success = await keytar.deletePassword(acct, propName);
+        } catch (err) {
+            params.response.console.error(`Encountered an error while deleting secure data for service '${acct}/${propName}':\n    ${err}`);
+            success = false;
+        }
+        return success;
     }
 }
