@@ -6,6 +6,12 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: Added `config convert-profiles` command that converts v1 profiles to team config. [zowe/zowe-cli#896](https://github.com/zowe/zowe-cli/issues/896)
 
+## `5.0.0-next.202112151934`
+
+- BugFix: Removed `@internal` methods from type declarations so they don't appear in IntelliSense. [#679](https://github.com/zowe/imperative/issues/679)
+- BugFix: Made the `ProfileInfo.initSessCfg` method public for easier instantiation of classes that extend AbstractSession.
+- Deprecated: All methods in the `IHandlerParameters.profiles` class. Use the `ConfigProfiles` API for team config instead.
+
 ## `5.0.0-next.202112132158`
 
 - Enhancement: Added an environment variable to control whether or not sensitive data will be masked in the console output.<br/>
