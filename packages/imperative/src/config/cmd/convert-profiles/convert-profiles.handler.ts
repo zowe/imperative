@@ -62,7 +62,11 @@ export default class ConvertProfilesHandler implements ICommandHandler {
 
         if (obsoletePlugins.length == 0 && oldProfileCount === 0) {
             params.response.console.log("No old profiles were found to convert from Zowe v1 to v2.");
-            return;
+            // Exit if we're not deleting
+            if (!(params.arguments.delete != null && params.arguments.delete === true &&
+                  params.arguments.forSure != null && params.arguments.forSure === true)) {
+                return;
+            }
         }
 
         const listToConvert = [];
@@ -232,7 +236,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
     private async checkKeytarAvailable(): Promise<boolean> {
         let success: boolean = undefined;
         try {
-            await keytar.findCredentials('@zowe/cli');
+            await keytar.findCredentials(this.ZOWE_CLI_PACKAGE_NAME);
             success = true;
         } catch (err) {
             success = false;

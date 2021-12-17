@@ -251,7 +251,7 @@ describe("Configuration Convert Profiles command handler", () => {
         jest.spyOn(keytar, "findCredentials").mockResolvedValue([
             {account: "testAcct", password: "testPassword"},
             {account: "secure_config_props", password: "testPassword"},
-            {account: "secure_config_props_1", password: "testPassword"}
+            {account: "secure_config_props-1", password: "testPassword"}
         ]);
         jest.spyOn(keytar, "deletePassword").mockResolvedValue(true);
         const rimrafSpy = jest.spyOn(rimraf, "sync").mockImplementation(() => {
