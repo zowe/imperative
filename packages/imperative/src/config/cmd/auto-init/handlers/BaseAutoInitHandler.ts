@@ -13,10 +13,9 @@ import { ICommandHandler, IHandlerParameters, ICommandArguments, IHandlerRespons
 import { ISession, ConnectionPropsForSessCfg, Session, AbstractSession } from "../../../../../../rest";
 import { ConfigConstants, ConfigSchema, IConfig } from "../../../../../../config";
 import { diff } from "jest-diff";
-import * as open from "open";
 import * as JSONC from "comment-json";
 import * as lodash from "lodash";
-import { ImperativeConfig, TextUtils } from "../../../../../../utilities";
+import { ImperativeConfig, ProcessUtils, TextUtils } from "../../../../../../utilities";
 import { OverridesLoader } from "../../../../OverridesLoader";
 
 import stripAnsi = require("strip-ansi");
@@ -152,10 +151,6 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
 
             params.response.console.log(jsonDiff);
             params.response.data.setObj(jsonDiff);
-        } else if (params.arguments.edit && params.arguments.edit === true) {
-            // Open in the default editor
-            // TODO make this work in an environment without a GUI
-            await open(ImperativeConfig.instance.config.api.layers.get().path, {wait: true});
         } else if (params.arguments.overwrite && params.arguments.overwrite === true) {
             if (params.arguments.forSure && params.arguments.forSure === true) {
                 // Clear layer, merge, generate schema, and save
@@ -178,6 +173,10 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
         // we only display changes if we made changes
         if (!params.arguments.dryRun || params.arguments.dryRun === false) {
             this.displayAutoInitChanges(params.response);
+
+            if (params.arguments.edit && params.arguments.edit === true) {
+                await ProcessUtils.openInEditor(ImperativeConfig.instance.config.api.layers.get().path);
+            }
         }
     }
 }

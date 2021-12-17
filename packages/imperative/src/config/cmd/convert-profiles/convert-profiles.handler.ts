@@ -125,7 +125,6 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         }
 
         const cliBin = ImperativeConfig.instance.rootCommandName;
-        // TODO Implement config edit command
         params.response.console.log(`Your new profiles have been saved to ${teamConfig.layerActive().path}.\n` +
             `Run "${cliBin} config edit --global-config" to open this file in your default editor.\n\n` +
             `Your old profiles have been moved to ${oldProfilesDir}.\n` +

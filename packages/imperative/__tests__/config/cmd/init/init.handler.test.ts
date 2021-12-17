@@ -12,7 +12,7 @@
 import { IHandlerParameters } from "../../../../..";
 import { Config } from "../../../../../config/src/Config";
 import { ConfigConstants } from "../../../../../config/src/ConfigConstants";
-import { ImperativeConfig } from "../../../../../utilities";
+import { ImperativeConfig, ProcessUtils } from "../../../../../utilities";
 import { IImperativeConfig } from "../../../../src/doc/IImperativeConfig";
 import { expectedSchemaObjectNoBase } from
     "../../../../../../__tests__/__integration__/imperative/__tests__/__integration__/cli/config/__resources__/expectedObjects";
@@ -66,6 +66,7 @@ describe("Configuration Initialization command handler", () => {
     let existsSyncSpy: any;
     let searchSpy: any;
     let setSchemaSpy: any;
+    let editFileSpy: any;
 
     beforeEach( async () => {
         jest.resetAllMocks();
@@ -75,6 +76,7 @@ describe("Configuration Initialization command handler", () => {
         writeFileSyncSpy = jest.spyOn(fs, "writeFileSync");
         existsSyncSpy = jest.spyOn(fs, "existsSync");
         searchSpy = jest.spyOn(Config, "search");
+        editFileSpy = jest.spyOn(ProcessUtils, "openInEditor");
     });
 
     afterAll( () => {
@@ -122,6 +124,7 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
         expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+        expect(editFileSpy).not.toHaveBeenCalled();
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
@@ -213,6 +216,7 @@ describe("Configuration Initialization command handler", () => {
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // User config is a skeleton - no prompting should occur
+        expect(editFileSpy).not.toHaveBeenCalled();
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
@@ -301,6 +305,7 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
         // Prompting for secure property
         expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
+        expect(editFileSpy).not.toHaveBeenCalled();
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
@@ -394,6 +399,7 @@ describe("Configuration Initialization command handler", () => {
         expect(setSchemaSpy).toHaveBeenCalledWith(expectedSchemaObjectNoBase);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // User config is a skeleton - no prompting should occur
+        expect(editFileSpy).not.toHaveBeenCalled();
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
@@ -1127,6 +1133,41 @@ describe("Configuration Initialization command handler", () => {
         expect(initForDryRunSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig);
 
         expect(writeFileSyncSpy).not.toHaveBeenCalled();
+    });
+
+    it("should initialize project configuration and then edit it", async () => {
+        const handler = new InitHandler();
+        const params = getIHandlerParametersObject();
+        params.arguments.userConfig = false;
+        params.arguments.globalConfig = false;
+        params.arguments.prompt = true;
+        params.arguments.dryRun = false;
+        params.arguments.edit = true;
+
+        existsSyncSpy.mockReturnValue(false); // No files exist
+        searchSpy.mockReturnValueOnce(fakeProjUserPath).mockReturnValueOnce(fakeProjPath); // Give search something to return
+        await setupConfigToLoad(); // Setup the config
+
+        const ensureCredMgrSpy = jest.spyOn(OverridesLoader, "ensureCredentialManagerLoaded");
+        setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
+
+        // We aren't testing the config initialization - clear the spies
+        existsSyncSpy.mockClear();
+        searchSpy.mockClear();
+
+        // initWithSchema
+        const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
+        (params.response.console as any).prompt = promptWithTimeoutSpy;
+        writeFileSyncSpy.mockImplementation(); // Don't actually write files
+
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
+        await handler.process(params as IHandlerParameters);
+
+        expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
+        expect(setSchemaSpy).toHaveBeenCalledTimes(1);
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        expect(editFileSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config.layerActive().path);
+        expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
     });
 
     it("should display warning if unable to securely save credentials", async () => {
