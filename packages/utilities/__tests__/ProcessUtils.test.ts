@@ -9,7 +9,11 @@
 *
 */
 
-import { GuiResult, ProcessUtils } from "../../utilities";
+import * as childProcess from "child_process";
+import { GuiResult, ImperativeConfig, ProcessUtils } from "../../utilities";
+
+jest.mock("child_process");
+jest.mock("opener");
 
 describe("ProcessUtils tests", () => {
     describe("nextTick", () => {
@@ -216,6 +220,54 @@ describe("ProcessUtils tests", () => {
             Object.defineProperty(process, "platform", { value: "win32" });
             Object.defineProperty(process, "arch", { value: "x64" });
             expect(ProcessUtils.getBasicSystemInfo()).toEqual({arch: "x64", platform: "win32"});
+        });
+    });
+
+    describe("openInDefaultApp", () => {
+        it("should open file path in default app", () => {
+            const mockOpener = require("opener");
+            ProcessUtils.openInDefaultApp(__filename);
+            expect(mockOpener).toHaveBeenCalledWith(__filename);
+        });
+
+        it("should open Internet URL in default app", () => {
+            const mockOpener = require("opener");
+            ProcessUtils.openInDefaultApp("https://example.com");
+            expect(mockOpener).toHaveBeenCalledWith("https://example.com");
+        });
+    });
+
+    describe("openInEditor", () => {
+        it("should open file in graphical editor", async () => {
+            jest.spyOn(ProcessUtils, "isGuiAvailable").mockReturnValueOnce(GuiResult.GUI_AVAILABLE);
+            const mockOpener = require("opener");
+            await ProcessUtils.openInEditor("filePath");
+            expect(mockOpener).toHaveBeenCalledWith("filePath");
+        });
+
+        it("should open file in custom command-line editor", async () => {
+            jest.spyOn(ProcessUtils, "isGuiAvailable").mockReturnValueOnce(GuiResult.NO_GUI_NO_DISPLAY);
+            jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
+                loadedConfig: {
+                    envVariablePrefix: "TEST_CLI"
+                }
+            } as any);
+            try {
+                process.env.TEST_CLI_EDITOR = "fakeEdit";
+                await ProcessUtils.openInEditor("filePath");
+            } finally {
+                delete process.env.TEST_CLI_EDITOR;
+            }
+            expect(childProcess.spawn).toHaveBeenCalledWith("fakeEdit", ["filePath"], { stdio: "inherit" });
+        });
+
+        it("should open file in default command-line editor", async () => {
+            jest.spyOn(ProcessUtils, "isGuiAvailable").mockReturnValueOnce(GuiResult.NO_GUI_NO_DISPLAY);
+            jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
+                loadedConfig: {}
+            } as any);
+            await ProcessUtils.openInEditor("filePath");
+            expect(childProcess.spawn).toHaveBeenCalledWith("vi", ["filePath"], { stdio: "inherit" });
         });
     });
 });

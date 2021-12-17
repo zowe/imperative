@@ -191,7 +191,7 @@ export const validateProfileCommandDesc: IMessageDefinition = {
 };
 
 export const validateProfileOptionDesc: IMessageDefinition = {
-    message: `Validate the state of a  group.`,
+    message: `Validate the state of a group.`,
 };
 
 export const detailProfileCommandDesc: IMessageDefinition = {

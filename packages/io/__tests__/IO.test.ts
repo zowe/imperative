@@ -14,6 +14,7 @@ import Mock = jest.Mock;
 jest.mock("fs");
 jest.mock("path");
 import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 import { IO } from "../../io";
 
@@ -457,5 +458,25 @@ describe("IO tests", () => {
             error = thrownError;
         }
         expect(error.message).toMatchSnapshot();
+    });
+
+    describe("getDefaultTextEditor", () => {
+        it("should use Notepad on Windows", () => {
+            jest.spyOn(os, "platform").mockReturnValueOnce(IO.OS_WIN32);
+            const editor = IO.getDefaultTextEditor();
+            expect(editor).toBe("notepad");
+        });
+
+        it("should use TextEdit on macOS", () => {
+            jest.spyOn(os, "platform").mockReturnValueOnce(IO.OS_MAC);
+            const editor = IO.getDefaultTextEditor();
+            expect(editor).toContain("TextEdit");
+        });
+
+        it("should use GEdit on Linux", () => {
+            jest.spyOn(os, "platform").mockReturnValueOnce(IO.OS_LINUX);
+            const editor = IO.getDefaultTextEditor();
+            expect(editor).toBe("gedit");
+        });
     });
 });
