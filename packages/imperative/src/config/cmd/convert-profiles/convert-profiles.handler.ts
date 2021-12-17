@@ -137,7 +137,9 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         if (params.arguments.delete == null || params.arguments.delete === false ||
             params.arguments.forSure == null || params.arguments.forSure === false) {
             params.response.console.log(`Your old profiles have been moved to ${oldProfilesDir}.\n` +
-                `Run "${cliBin} config convert-profiles --delete" if you want to completely remove them.`);
+                `Run "${cliBin} config convert-profiles --delete" if you want to completely remove them.\n\n` +
+                `If you would like to revert back to v1 profiles, rename the 'profiles-old' directory to 'profiles'\n` +
+                `and delete the new config file located at ${teamConfig.layerActive().path}.`);
         } else {
             // Delete the profiles directory
             try {
