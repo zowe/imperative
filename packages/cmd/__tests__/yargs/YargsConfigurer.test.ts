@@ -9,7 +9,11 @@
 *
 */
 
+import { CommandProcessor } from "../../src/CommandProcessor";
 import { ImperativeConfig, YargsConfigurer } from "../../..";
+
+jest.mock("yargs");
+jest.mock("../../src/CommandProcessor");
 
 describe("YargsConfigurer tests", () => {
     it("should build a failure message", () => {
@@ -24,4 +28,64 @@ describe("YargsConfigurer tests", () => {
 
     });
 
+    describe("should handle failure for current command line arguments", () => {
+        let buildFailedCmdDefSpy: any;
+        let mockedYargs: any;
+
+        /**
+         * Helper method to configure yargs twice with different command line arguments
+         */
+        const configureYargsTwice = () => {
+            const config = new YargsConfigurer({ name: "any", description: "any", type: "command", children: []},
+                mockedYargs, undefined, undefined, { getHelpGenerator: jest.fn() }, undefined, "fake", "fake", "ZOWE", "fake");
+            buildFailedCmdDefSpy = jest.spyOn(config as any, "buildFailedCommandDefinition");
+
+            ImperativeConfig.instance.commandLine = "first-command";
+            config.configure();
+            ImperativeConfig.instance.commandLine = "second-command";
+            config.configure();
+        };
+
+        beforeEach(() => {
+            mockedYargs = require("yargs");
+            jest.spyOn(CommandProcessor.prototype, "invoke").mockResolvedValue(undefined);
+        });
+
+        afterEach(() => {
+            jest.resetAllMocks();
+        });
+
+        it("in yargs command handler", () => {
+            jest.spyOn(mockedYargs, "command").mockImplementation((obj: any) => {
+                obj.handler({ _: ["abc"] });
+            });
+            configureYargsTwice();
+
+            expect(buildFailedCmdDefSpy).toHaveBeenCalledTimes(2);
+            expect(buildFailedCmdDefSpy.mock.results[0].value.name).toBe("fake first-command");
+            expect(buildFailedCmdDefSpy.mock.results[1].value.name).toBe("fake second-command");
+        });
+
+        it("in yargs fail handler", () => {
+            jest.spyOn(mockedYargs, "fail").mockImplementation((callback: any) => {
+                callback("error");
+            });
+            configureYargsTwice();
+
+            expect(buildFailedCmdDefSpy).toHaveBeenCalledTimes(2);
+            expect(buildFailedCmdDefSpy.mock.results[0].value.name).toBe("fake first-command");
+            expect(buildFailedCmdDefSpy.mock.results[1].value.name).toBe("fake second-command");
+        });
+
+        it("in uncaught exception handler", () => {
+            jest.spyOn(process, "on").mockImplementation((_: string, callback: any): any => {
+                callback(new Error());
+            });
+            configureYargsTwice();
+
+            expect(buildFailedCmdDefSpy).toHaveBeenCalledTimes(2);
+            expect(buildFailedCmdDefSpy.mock.results[0].value.name).toBe("fake first-command");
+            expect(buildFailedCmdDefSpy.mock.results[1].value.name).toBe("fake second-command");
+        });
+    });
 });

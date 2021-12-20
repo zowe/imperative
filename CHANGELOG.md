@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed inconsistent error message when invalid CLI command is run in daemon mode. [zowe/zowe-cli#1081](https://github.com/zowe/zowe-cli/issues/1081)
+
 ## `5.0.0-next.202112171553`
 
 - Enhancement: Added `config convert-profiles` command that converts v1 profiles to team config. [zowe/zowe-cli#896](https://github.com/zowe/zowe-cli/issues/896)
