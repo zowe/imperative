@@ -38,7 +38,9 @@ Object {
         "dr",
         "dry",
       ],
-      "defaultValue": false,
+      "conflictsWith": Array [
+        "edit",
+      ],
       "description": "Display the outcome of the initialization without saving",
       "group": "Automatic Config Initialization Options",
       "name": "dry-run",
@@ -48,8 +50,10 @@ Object {
       "aliases": Array [
         "e",
       ],
-      "defaultValue": false,
-      "description": "Open an editor for the configuration",
+      "conflictsWith": Array [
+        "dry-run",
+      ],
+      "description": "Open in editor after initializing the configuration",
       "group": "Automatic Config Initialization Options",
       "name": "edit",
       "type": "boolean",
