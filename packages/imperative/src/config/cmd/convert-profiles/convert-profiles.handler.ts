@@ -242,6 +242,11 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         }
     }
 
+    /**
+     * Lazy load keytar, and verify that the credential vault is able to be accessed,
+     * or whether there is a problem.
+     * @returns true if credential vault is available, false if it is not
+     */
     private async checkKeytarAvailable(): Promise<boolean> {
         let success: boolean = false;
         const requireOpts: any = {};
@@ -259,6 +264,13 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         return success;
     }
 
+    /**
+     * Locate the names of secured properties stored under an account in the operating
+     * system's credential vault.
+     * @param acct The account to search for in the credential store
+     * @param params The parameters and response console APIs
+     * @returns a list of secured properties stored under the specified account
+     */
     private async findOldSecureProps(acct: string, params: IHandlerParameters): Promise<string[]> {
         const oldSecurePropNames: string[] = [];
         try {
@@ -272,6 +284,13 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         return oldSecurePropNames;
     }
 
+    /**
+     * Delete the secure property specified from the operating system credential vault.
+     * @param acct The account the property is stored under
+     * @param propName The name of the property to delete
+     * @param params The parameters and response console APIs
+     * @returns true if the property was deleted successfully
+     */
     private async deleteOldSecureProps(acct: string, propName: string, params: IHandlerParameters): Promise<boolean> {
         let success = false;
         try {
