@@ -480,6 +480,7 @@ describe("Configuration Convert Profiles command handler", () => {
             ]);
 
             const handler = new ConvertProfilesHandler();
+            Object.defineProperty(handler, "keytar", {writable: false, value: keytar});
             const handlerParmsObj = getIHandlerParametersObject();
             const result = await (handler as any).findOldSecureProps("Zowe", handlerParmsObj);
             expect(result).toEqual(["fake1", "fake2", "fake3", "fake4"]);
@@ -490,6 +491,7 @@ describe("Configuration Convert Profiles command handler", () => {
             const findCredentialsSpy = jest.spyOn(keytar, "findCredentials").mockResolvedValue([]);
 
             const handler = new ConvertProfilesHandler();
+            Object.defineProperty(handler, "keytar", {writable: false, value: keytar});
             const handlerParmsObj = getIHandlerParametersObject();
             const result = await (handler as any).findOldSecureProps("Zowe", handlerParmsObj);
             expect(result).toEqual([]);
@@ -502,6 +504,7 @@ describe("Configuration Convert Profiles command handler", () => {
             });
 
             const handler = new ConvertProfilesHandler();
+            Object.defineProperty(handler, "keytar", {writable: false, value: keytar});
             const handlerParmsObj = getIHandlerParametersObject();
             const result = await (handler as any).findOldSecureProps("Zowe", handlerParmsObj);
             expect(result).toEqual([]);
@@ -516,6 +519,7 @@ describe("Configuration Convert Profiles command handler", () => {
             const findCredentialsSpy = jest.spyOn(keytar, "deletePassword").mockResolvedValue(true);
 
             const handler = new ConvertProfilesHandler();
+            Object.defineProperty(handler, "keytar", {writable: false, value: keytar});
             const handlerParmsObj = getIHandlerParametersObject();
             const result = await (handler as any).deleteOldSecureProps("Zowe", "zosmf_test_user", handlerParmsObj);
             expect(result).toEqual(true);
@@ -526,6 +530,7 @@ describe("Configuration Convert Profiles command handler", () => {
             const findCredentialsSpy = jest.spyOn(keytar, "deletePassword").mockResolvedValue(false);
 
             const handler = new ConvertProfilesHandler();
+            Object.defineProperty(handler, "keytar", {writable: false, value: keytar});
             const handlerParmsObj = getIHandlerParametersObject();
             const result = await (handler as any).deleteOldSecureProps("Zowe", "zosmf_test_user", handlerParmsObj);
             expect(result).toEqual(false);
@@ -538,6 +543,7 @@ describe("Configuration Convert Profiles command handler", () => {
             });
 
             const handler = new ConvertProfilesHandler();
+            Object.defineProperty(handler, "keytar", {writable: false, value: keytar});
             const handlerParmsObj = getIHandlerParametersObject();
             const result = await (handler as any).deleteOldSecureProps("Zowe", "zosmf_test_user", handlerParmsObj);
             expect(result).toEqual(false);

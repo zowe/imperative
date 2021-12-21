@@ -45,8 +45,8 @@ interface IPluginToUninstall {
  */
 export default class ConvertProfilesHandler implements ICommandHandler {
     private readonly ZOWE_CLI_PACKAGE_NAME = "@zowe/cli";
-
     private readonly ZOWE_CLI_SECURE_PLUGIN_NAME = "@zowe/secure-credential-store-for-zowe-cli";
+    private keytar: typeof keytar = undefined;
 
     /**
      * Process the command and input.
@@ -243,9 +243,15 @@ export default class ConvertProfilesHandler implements ICommandHandler {
     }
 
     private async checkKeytarAvailable(): Promise<boolean> {
-        let success: boolean = undefined;
+        let success: boolean = false;
+        const requireOpts: any = {};
+        if (process.mainModule?.filename != null) {
+            requireOpts.paths = [process.mainModule.filename];
+        }
         try {
-            await keytar.findCredentials(this.ZOWE_CLI_PACKAGE_NAME);
+            const keytarPath = require.resolve("keytar", requireOpts);
+            this.keytar = await import(keytarPath);
+            await this.keytar.findCredentials(this.ZOWE_CLI_PACKAGE_NAME);
             success = true;
         } catch (err) {
             success = false;
@@ -256,7 +262,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
     private async findOldSecureProps(acct: string, params: IHandlerParameters): Promise<string[]> {
         const oldSecurePropNames: string[] = [];
         try {
-            const credentialsArray = await keytar.findCredentials(acct);
+            const credentialsArray = await this.keytar.findCredentials(acct);
             for (const element of credentialsArray) {
                 oldSecurePropNames.push(element.account);
             }
@@ -269,7 +275,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
     private async deleteOldSecureProps(acct: string, propName: string, params: IHandlerParameters): Promise<boolean> {
         let success = false;
         try {
-            success = await keytar.deletePassword(acct, propName);
+            success = await this.keytar.deletePassword(acct, propName);
         } catch (err) {
             params.response.console.error(`Encountered an error while deleting secure data for service '${acct}/${propName}':\n    ${err}`);
             success = false;
