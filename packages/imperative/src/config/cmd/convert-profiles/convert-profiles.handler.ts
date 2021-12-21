@@ -63,8 +63,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         if (obsoletePlugins.length == 0 && oldProfileCount === 0) {
             params.response.console.log("No old profiles were found to convert from Zowe v1 to v2.");
             // Exit if we're not deleting
-            if (!(params.arguments.delete != null && params.arguments.delete === true &&
-                  params.arguments.forSure != null && params.arguments.forSure === true)) {
+            if (!(params.arguments.delete != null && params.arguments.delete === true)) {
                 return;
             }
         }
@@ -78,7 +77,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         }
         params.response.console.log(`Detected ${listToConvert.join(" and ")} to convert from Zowe v1 to v2.\n`);
 
-        if (!params.arguments.force) {
+        if (params.arguments.prompt == null || params.arguments.prompt === true) {
             const answer = await params.response.console.prompt("Are you sure you want to continue? [y/N]: ");
             if (answer == null || !(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
                 return;
@@ -132,15 +131,23 @@ export default class ConvertProfilesHandler implements ICommandHandler {
 
         const cliBin = ImperativeConfig.instance.rootCommandName;
         params.response.console.log(`Your new profiles have been saved to ${teamConfig.layerActive().path}.\n` +
-            `Run "${cliBin} config edit --global-config" to open this file in your default editor.\n\n`);
+            `Run "${cliBin} config edit --global-config" to open this file in your default editor.\n`);
 
-        if (params.arguments.delete == null || params.arguments.delete === false ||
-            params.arguments.forSure == null || params.arguments.forSure === false) {
+        if (params.arguments.delete == null || params.arguments.delete === false) {
             params.response.console.log(`Your old profiles have been moved to ${oldProfilesDir}.\n` +
                 `Run "${cliBin} config convert-profiles --delete" if you want to completely remove them.\n\n` +
                 `If you would like to revert back to v1 profiles, rename the 'profiles-old' directory to 'profiles'\n` +
                 `and delete the new config file located at ${teamConfig.layerActive().path}.`);
         } else {
+
+            if (params.arguments.prompt == null || params.arguments.prompt === true) {
+                const answer = await params.response.console.prompt("Profile migration has been completed. " +
+                "Are you sure you want to delete your v1 profiles? [y/N]: ");
+                if (answer == null || !(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
+                    return;
+                }
+            }
+
             // Delete the profiles directory
             try {
                 rimraf.sync(oldProfilesDir);
