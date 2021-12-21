@@ -259,7 +259,7 @@ describe("Configuration Convert Profiles command handler", () => {
         });
 
         const handler = new ConvertProfilesHandler();
-        jest.spyOn(handler as any, "getObsoletePlugins").mockReturnValueOnce([]);
+        jest.spyOn(handler as any, "getOldPluginInfo").mockReturnValueOnce({ plugins: [], overrides: [] });
         jest.spyOn(handler as any, "getOldProfileCount").mockReturnValueOnce(3);
         const findOldSecurePropsSpy = jest.spyOn(handler as any, "findOldSecureProps");
         const deleteOldSecurePropsSpy = jest.spyOn(handler as any, "deleteOldSecureProps");
@@ -305,7 +305,7 @@ describe("Configuration Convert Profiles command handler", () => {
         });
 
         const handler = new ConvertProfilesHandler();
-        jest.spyOn(handler as any, "getObsoletePlugins").mockReturnValueOnce([]);
+        jest.spyOn(handler as any, "getOldPluginInfo").mockReturnValueOnce({ plugins: [], overrides: [] });
         jest.spyOn(handler as any, "getOldProfileCount").mockReturnValueOnce(3);
         const findOldSecurePropsSpy = jest.spyOn(handler as any, "findOldSecureProps");
         const deleteOldSecurePropsSpy = jest.spyOn(handler as any, "deleteOldSecureProps");

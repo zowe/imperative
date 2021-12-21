@@ -169,7 +169,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
     }
 
     /**
-     * Retrieves info about old plug-ins and their overrides.
+     * Retrieve info about old plug-ins and their overrides.
      *  - `plugins` - List of CLI plug-ins to uninstall
      *  - `overrides` - List of overrides to remove from app settings
      */
