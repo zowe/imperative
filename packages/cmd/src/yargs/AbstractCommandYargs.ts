@@ -295,7 +295,8 @@ export abstract class AbstractCommandYargs {
                 rootCommandName: this.rootCommandName,
                 commandLine: this.commandLine,
                 envVariablePrefix: this.envVariablePrefix,
-                promptPhrase: this.promptPhrase
+                promptPhrase: this.promptPhrase,
+                daemonResponse: args.daemonResponse
             }).help(new CommandResponse({
                 silent: false,
                 responseFormat: (args[Constants.JSON_OPTION] || false) ? "json" : "default",
@@ -406,7 +407,8 @@ export abstract class AbstractCommandYargs {
                 rootCommandName: this.rootCommandName,
                 commandLine: this.commandLine,
                 envVariablePrefix: this.envVariablePrefix,
-                promptPhrase: this.promptPhrase
+                promptPhrase: this.promptPhrase,
+                daemonResponse: args.daemonResponse
             }).webHelp(fullCommandName + "_" + this.definition.name,
                 new CommandResponse({
                     silent: false,

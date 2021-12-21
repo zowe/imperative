@@ -10,7 +10,7 @@
 */
 
 import * as net from "net";
-
+import { IDaemonResponse } from "../../..";
 
 /**
  * Allow for passing our own "context" / user data through yargs
@@ -32,4 +32,6 @@ export interface IYargsContext {
      * @memberof IYargsContext
      */
     cwd?: string;
+
+    daemonResponse?: IDaemonResponse;
 }

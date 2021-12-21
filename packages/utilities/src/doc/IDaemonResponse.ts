@@ -16,18 +16,9 @@
  * @interface IDaemonResponse
  */
 export interface IDaemonResponse {
-
-    /**
-     * Content is from daemon client, not an interactive user
-     * @type {string}
-     * @memberof IDaemonResponse
-     */
-    id: string;
-
-    /**
-     * Content is reply from daemon
-     * @type {string}
-     * @memberof IDaemonResponse
-     */
-    reply?: string;
+    argv?: string[],
+    cwd?: string;
+    env?: Record<string, string>;
+    stdinLength?: number;
+    stdin?: string;
 }

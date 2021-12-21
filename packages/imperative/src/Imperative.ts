@@ -365,7 +365,7 @@ export class Imperative {
      * Parse command line arguments and issue the user's specified command
      * @returns {Imperative} this, for chaining syntax
      */
-    public static parse(args?: string, context?: IYargsContext): Imperative {
+    public static parse(args?: string | string[], context?: IYargsContext): Imperative {
 
         const timingApi = PerfTiming.api;
 
