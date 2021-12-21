@@ -81,7 +81,7 @@ describe("Configuration Convert Profiles command handler", () => {
 
     it("should do nothing if there are no old plug-ins or profiles", async () => {
         const handler = new ConvertProfilesHandler();
-        jest.spyOn(handler as any, "getObsoletePlugins").mockReturnValueOnce([]);
+        jest.spyOn(handler as any, "getOldPluginInfo").mockReturnValueOnce({ plugins: [], overrides: [] });
         jest.spyOn(handler as any, "getOldProfileCount").mockReturnValueOnce(0);
         const params = getIHandlerParametersObject();
 
@@ -91,14 +91,18 @@ describe("Configuration Convert Profiles command handler", () => {
     });
 
     it("should remove obsolete plug-ins", async () => {
-        const obsoletePlugins = [
-            { name: "pluginA" },
-            { name: "pluginB", preUninstall: jest.fn(), postUninstall: jest.fn() }
-        ];
+        const oldPluginInfo = {
+            plugins: ["pluginA", "pluginB"],
+            overrides: ["overrideX"]
+        };
         const handler = new ConvertProfilesHandler();
-        jest.spyOn(handler as any, "getObsoletePlugins").mockReturnValueOnce(obsoletePlugins);
+        jest.spyOn(handler as any, "getOldPluginInfo").mockReturnValueOnce(oldPluginInfo);
         jest.spyOn(handler as any, "getOldProfileCount").mockReturnValueOnce(0);
-        jest.spyOn(handler as any, "uninstallPlugin")
+        jest.spyOn(PluginIssues, "instance", "get").mockReturnValue({
+            getInstalledPlugins: jest.fn().mockReturnValue({ "pluginA": null, "pluginB": null })
+        } as any);
+        const removeOverrideSpy = jest.spyOn(handler as any, "removeOverride").mockImplementation();
+        const uninstallSpy = jest.spyOn(npmInterface, "uninstall")
             .mockImplementationOnce(() => { throw new Error("invalid plugin"); })
             .mockImplementation();
         const params = getIHandlerParametersObject();
@@ -108,8 +112,8 @@ describe("Configuration Convert Profiles command handler", () => {
         expect(stdout).toContain("Detected 2 obsolete plug-in(s)");
         expect(stdout).toContain("Removed obsolete plug-in: pluginB");
         expect(stderr).toContain("Failed to uninstall plug-in \"pluginA\"");
-        expect(obsoletePlugins[1].preUninstall).toHaveBeenCalled();
-        expect(obsoletePlugins[1].postUninstall).toHaveBeenCalled();
+        expect(removeOverrideSpy).toHaveBeenCalledWith("overrideX", 0, ["overrideX"]);
+        expect(uninstallSpy).toHaveBeenCalledTimes(2);
     });
 
     it("should convert old profiles", async () => {
@@ -129,7 +133,7 @@ describe("Configuration Convert Profiles command handler", () => {
         jest.spyOn(fs, "renameSync").mockReturnValueOnce();
 
         const handler = new ConvertProfilesHandler();
-        jest.spyOn(handler as any, "getObsoletePlugins").mockReturnValueOnce([]);
+        jest.spyOn(handler as any, "getOldPluginInfo").mockReturnValueOnce({ plugins: [], overrides: [] });
         jest.spyOn(handler as any, "getOldProfileCount").mockReturnValueOnce(3);
         const params = getIHandlerParametersObject();
         params.arguments.force = true;
@@ -155,11 +159,12 @@ describe("Configuration Convert Profiles command handler", () => {
         jest.spyOn(fs, "renameSync").mockReturnValueOnce();
 
         const handler = new ConvertProfilesHandler();
-        jest.spyOn(handler as any, "getObsoletePlugins").mockReturnValueOnce([
-            { name: "fake-plugin" }
-        ]);
+        jest.spyOn(handler as any, "getOldPluginInfo").mockReturnValueOnce({ plugins: ["fake-plugin"], overrides: [] });
         jest.spyOn(handler as any, "getOldProfileCount").mockReturnValueOnce(1);
-        const uninstallSpy = jest.spyOn(handler as any, "uninstallPlugin").mockImplementation();
+        jest.spyOn(PluginIssues, "instance", "get").mockReturnValue({
+            getInstalledPlugins: jest.fn().mockReturnValue({ "fake-plugin": null })
+        } as any);
+        const uninstallSpy = jest.spyOn(npmInterface, "uninstall").mockImplementation();
         const params = getIHandlerParametersObject();
         (params.response.console.prompt as any).mockResolvedValueOnce("y");
 
@@ -176,11 +181,9 @@ describe("Configuration Convert Profiles command handler", () => {
         const configConvertSpy = jest.spyOn(ConfigBuilder, "convert");
 
         const handler = new ConvertProfilesHandler();
-        jest.spyOn(handler as any, "getObsoletePlugins").mockReturnValueOnce([
-            { name: "fake-plugin" }
-        ]);
+        jest.spyOn(handler as any, "getOldPluginInfo").mockReturnValueOnce({ plugins: ["fake-plugin"], overrides: [] });
         jest.spyOn(handler as any, "getOldProfileCount").mockReturnValueOnce(1);
-        const uninstallSpy = jest.spyOn(handler as any, "uninstallPlugin");
+        const uninstallSpy = jest.spyOn(npmInterface, "uninstall");
         const params = getIHandlerParametersObject();
         (params.response.console.prompt as any).mockResolvedValueOnce("n");
 
@@ -211,7 +214,7 @@ describe("Configuration Convert Profiles command handler", () => {
         });
 
         const handler = new ConvertProfilesHandler();
-        jest.spyOn(handler as any, "getObsoletePlugins").mockReturnValueOnce([]);
+        jest.spyOn(handler as any, "getOldPluginInfo").mockReturnValueOnce({ plugins: [], overrides: [] });
         jest.spyOn(handler as any, "getOldProfileCount").mockReturnValueOnce(3);
         const findOldSecurePropsSpy = jest.spyOn(handler as any, "findOldSecureProps");
         const deleteOldSecurePropsSpy = jest.spyOn(handler as any, "deleteOldSecureProps");
@@ -259,7 +262,7 @@ describe("Configuration Convert Profiles command handler", () => {
         });
 
         const handler = new ConvertProfilesHandler();
-        jest.spyOn(handler as any, "getObsoletePlugins").mockReturnValueOnce([]);
+        jest.spyOn(handler as any, "getOldPluginInfo").mockReturnValueOnce({ plugins: [], overrides: [] });
         jest.spyOn(handler as any, "getOldProfileCount").mockReturnValueOnce(3);
         const findOldSecurePropsSpy = jest.spyOn(handler as any, "findOldSecureProps");
         const deleteOldSecurePropsSpy = jest.spyOn(handler as any, "deleteOldSecureProps");
@@ -305,7 +308,7 @@ describe("Configuration Convert Profiles command handler", () => {
         });
 
         const handler = new ConvertProfilesHandler();
-        jest.spyOn(handler as any, "getObsoletePlugins").mockReturnValueOnce([]);
+        jest.spyOn(handler as any, "getOldPluginInfo").mockReturnValueOnce({ plugins: [], overrides: [] });
         jest.spyOn(handler as any, "getOldProfileCount").mockReturnValueOnce(3);
         const findOldSecurePropsSpy = jest.spyOn(handler as any, "findOldSecureProps");
         const deleteOldSecurePropsSpy = jest.spyOn(handler as any, "deleteOldSecureProps");
@@ -350,7 +353,7 @@ describe("Configuration Convert Profiles command handler", () => {
         });
 
         const handler = new ConvertProfilesHandler();
-        jest.spyOn(handler as any, "getObsoletePlugins").mockReturnValueOnce([]);
+        jest.spyOn(handler as any, "getOldPluginInfo").mockReturnValueOnce({ plugins: [], overrides: [] });
         jest.spyOn(handler as any, "getOldProfileCount").mockReturnValueOnce(3);
 
         const params = getIHandlerParametersObject();
@@ -373,38 +376,97 @@ describe("Configuration Convert Profiles command handler", () => {
         expect(rimrafSpy).toHaveBeenCalledTimes(1);
     });
 
-    describe("getObsoletePlugins", () => {
+    describe("getOldPluginInfo", () => {
         it("should return empty list", () => {
             const handler = new ConvertProfilesHandler();
             mockImperativeConfig.hostPackageName = "fake-cli";
-            const result = (handler as any).getObsoletePlugins();
-            expect(result).toEqual([]);
+            const result = (handler as any).getOldPluginInfo();
+            expect(result).toMatchObject({ plugins: [], overrides: [] });
         });
 
-        it("should return default credential manager for Zowe CLI", () => {
+        it("should return default credential manager with override for Zowe CLI v1", () => {
+            mockImperativeConfig.hostPackageName = "@zowe/cli";
+            const pluginName = "@zowe/secure-credential-store-for-zowe-cli";
+            jest.spyOn(AppSettings, "instance", "get").mockReturnValue({
+                get: jest.fn().mockReturnValue(pluginName)
+            } as any);
+            jest.spyOn(PluginIssues, "instance", "get").mockReturnValue({
+                getInstalledPlugins: jest.fn().mockReturnValue({ [pluginName]: null })
+            } as any);
+
+            const handler = new ConvertProfilesHandler();
+            const result = (handler as any).getOldPluginInfo();
+            expect(result).toMatchObject({
+                plugins: [pluginName],
+                overrides: ["CredentialManager"]
+            });
+        });
+
+        it("should return default credential manager without override for Zowe CLI v1", () => {
+            mockImperativeConfig.hostPackageName = "@zowe/cli";
+            const pluginName = "@zowe/secure-credential-store-for-zowe-cli";
+            jest.spyOn(AppSettings, "instance", "get").mockReturnValue({
+                get: jest.fn().mockReturnValue(false)
+            } as any);
+            jest.spyOn(PluginIssues, "instance", "get").mockReturnValue({
+                getInstalledPlugins: jest.fn().mockReturnValue({ [pluginName]: null })
+            } as any);
+
+            const handler = new ConvertProfilesHandler();
+            const result = (handler as any).getOldPluginInfo();
+            expect(result).toMatchObject({
+                plugins: [pluginName],
+                overrides: []
+            });
+        });
+
+        it("should return old credential manager plug-in for Zowe CLI v2", () => {
+            mockImperativeConfig.hostPackageName = "@zowe/cli";
+            const pluginName = "@zowe/secure-credential-store-for-zowe-cli";
+            jest.spyOn(AppSettings, "instance", "get").mockReturnValue({
+                get: jest.fn().mockReturnValue("@zowe/cli")
+            } as any);
+            jest.spyOn(PluginIssues, "instance", "get").mockReturnValue({
+                getInstalledPlugins: jest.fn().mockReturnValue({ [pluginName]: null })
+            } as any);
+
+            const handler = new ConvertProfilesHandler();
+            const result = (handler as any).getOldPluginInfo();
+            expect(result).toMatchObject({
+                plugins: [pluginName],
+                overrides: []
+            });
+        });
+
+        it("should not return default credential manager for Zowe CLI v2", () => {
             mockImperativeConfig.hostPackageName = "@zowe/cli";
             jest.spyOn(AppSettings, "instance", "get").mockReturnValue({
                 get: jest.fn().mockReturnValue("@zowe/cli")
             } as any);
+            jest.spyOn(PluginIssues, "instance", "get").mockReturnValue({
+                getInstalledPlugins: jest.fn().mockReturnValue({})
+            } as any);
 
             const handler = new ConvertProfilesHandler();
-            const result = (handler as any).getObsoletePlugins();
-            expect(result.length).toBe(1);
-            expect(result[0].name).toBe("@zowe/secure-credential-store-for-zowe-cli");
-            expect(result[0].preUninstall).toBeUndefined();
+            const result = (handler as any).getOldPluginInfo();
+            expect(result).toMatchObject({ plugins: [], overrides: [] });
         });
 
-        it("should return custom credential manager for Zowe CLI", () => {
+        it("should return custom credential manager override for Zowe CLI", () => {
             mockImperativeConfig.hostPackageName = "@zowe/cli";
             jest.spyOn(AppSettings, "instance", "get").mockReturnValue({
                 get: jest.fn().mockReturnValue("ABC")
             } as any);
+            jest.spyOn(PluginIssues, "instance", "get").mockReturnValue({
+                getInstalledPlugins: jest.fn().mockReturnValue({})
+            } as any);
 
             const handler = new ConvertProfilesHandler();
-            const result = (handler as any).getObsoletePlugins();
-            expect(result.length).toBe(1);
-            expect(result[0].name).toBe("ABC");
-            expect(result[0].preUninstall).toBeDefined();
+            const result = (handler as any).getOldPluginInfo();
+            expect(result).toMatchObject({
+                plugins: [],
+                overrides: ["CredentialManager"]
+            });
         });
     });
 
@@ -516,7 +578,7 @@ describe("Configuration Convert Profiles command handler", () => {
         expect(result).toBe(6);
     });
 
-    it("disableCredentialManager should reset CredentialManager override", () => {
+    it("removeOverride should reset CredentialManager override", () => {
         const mockSetOverride = jest.fn();
         jest.spyOn(AppSettings, "instance", "get").mockReturnValue({
             set: mockSetOverride
@@ -529,21 +591,8 @@ describe("Configuration Convert Profiles command handler", () => {
         };
 
         const handler = new ConvertProfilesHandler();
-        (handler as any).disableCredentialManager();
+        (handler as any).removeOverride("CredentialManager");
         expect(mockSetOverride).toHaveBeenCalledWith("overrides", "CredentialManager", "fake-cli");
         expect(mockImperativeConfig.loadedConfig.overrides.CredentialManager).toBeUndefined();
-    });
-
-    it("uninstallPlugin should uninstall plugin if it exists", () => {
-        jest.spyOn(PluginIssues, "instance", "get").mockReturnValue({
-            getInstalledPlugins: jest.fn().mockReturnValue({ "real-plugin": null })
-        } as any);
-        const uninstallSpy = jest.spyOn(npmInterface, "uninstall");
-
-        const handler = new ConvertProfilesHandler();
-        (handler as any).uninstallPlugin("fake-plugin");
-        expect(uninstallSpy).not.toHaveBeenCalled();
-        (handler as any).uninstallPlugin("real-plugin");
-        expect(uninstallSpy).toHaveBeenCalledWith("real-plugin");
     });
 });

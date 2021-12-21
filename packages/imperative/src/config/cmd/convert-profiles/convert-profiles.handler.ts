@@ -21,23 +21,17 @@ import { AppSettings } from "../../../../../settings";
 import { PluginIssues } from "../../../plugins/utilities/PluginIssues";
 import { uninstall as uninstallPlugin } from "../../../plugins/utilities/npm-interface";
 import { OverridesLoader } from "../../../OverridesLoader";
+import { IImperativeOverrides } from "../../../doc/IImperativeOverrides";
 
-/**
- * Info for obsolete CLI plug-in to be uninstalled
- */
-interface IPluginToUninstall {
+interface IOldPluginInfo {
     /**
-     * Name of plug-in to uninstall
+     * List of CLI plug-ins to uninstall
      */
-    name: string;
+    plugins: string[];
     /**
-     * Callback to be run before uninstall
+     * List of overrides to remove from app settings
      */
-    preUninstall?: () => void | Promise<void>;
-    /**
-     * Callback to be run after uninstall
-     */
-    postUninstall?: () => void | Promise<void>;
+    overrides: (keyof IImperativeOverrides)[];
 }
 
 /**
@@ -57,10 +51,10 @@ export default class ConvertProfilesHandler implements ICommandHandler {
      */
     public async process(params: IHandlerParameters): Promise<void> {
         const profilesRootDir = ProfileUtils.constructProfilesRootDirectory(ImperativeConfig.instance.cliHome);
-        const obsoletePlugins = this.getObsoletePlugins();
+        const oldPluginInfo = this.getOldPluginInfo();
         const oldProfileCount = this.getOldProfileCount(profilesRootDir);
 
-        if (obsoletePlugins.length == 0 && oldProfileCount === 0) {
+        if (oldPluginInfo.plugins.length == 0 && oldProfileCount === 0) {
             params.response.console.log("No old profiles were found to convert from Zowe v1 to v2.");
             // Exit if we're not deleting
             if (!(params.arguments.delete != null && params.arguments.delete === true &&
@@ -70,8 +64,8 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         }
 
         const listToConvert = [];
-        if (obsoletePlugins.length > 0) {
-            listToConvert.push(`${obsoletePlugins.length} obsolete plug-in(s)`);
+        if (oldPluginInfo.plugins.length > 0) {
+            listToConvert.push(`${oldPluginInfo.plugins.length} obsolete plug-in(s)`);
         }
         if (oldProfileCount > 0) {
             listToConvert.push(`${oldProfileCount} old profile(s)`);
@@ -86,15 +80,14 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         }
 
         params.response.console.log("");
-        for (const pluginInfo of obsoletePlugins) {
-            if (pluginInfo.preUninstall) await pluginInfo.preUninstall();
+        oldPluginInfo.overrides.forEach(this.removeOverride);
+        for (const pluginName of oldPluginInfo.plugins) {
             try {
-                this.uninstallPlugin(pluginInfo.name);
-                params.response.console.log(`Removed obsolete plug-in: ${pluginInfo.name}`);
+                uninstallPlugin(pluginName);
+                params.response.console.log(`Removed obsolete plug-in: ${pluginName}`);
             } catch (error) {
-                params.response.console.error(`Failed to uninstall plug-in "${pluginInfo.name}":\n    ${error}`);
+                params.response.console.error(`Failed to uninstall plug-in "${pluginName}":\n    ${error}`);
             }
-            if (pluginInfo.postUninstall) await pluginInfo.postUninstall();
         }
 
         if (oldProfileCount == 0) return;
@@ -169,27 +162,34 @@ export default class ConvertProfilesHandler implements ICommandHandler {
     }
 
     /**
-     * Retrieve list of obsolete CLI plug-ins that should be uninstalled.
-     * @returns List of plugins to uninstall containing the following properties:
-     *  - `name` - Name of plugin to uninstall
-     *  - `preuninstall` - Optional callback to be run before uninstall
-     *  - `postuninstall` - Optional callback to be run after uninstall
+     * Retrieves info about old plug-ins and their overrides.
+     *  - `plugins` - List of CLI plug-ins to uninstall
+     *  - `overrides` - List of overrides to remove from app settings
      */
-    private getObsoletePlugins(): IPluginToUninstall[] {
-        const obsoletePlugins: IPluginToUninstall[] = [];
+    private getOldPluginInfo(): IOldPluginInfo {
+        const pluginInfo: IOldPluginInfo = {
+            plugins: [],
+            overrides: []
+        };
 
         if (ImperativeConfig.instance.hostPackageName === this.ZOWE_CLI_PACKAGE_NAME) {
-            let credMgrSetting = AppSettings.instance.get("overrides", "CredentialManager");
-            if (credMgrSetting === ImperativeConfig.instance.hostPackageName) {
-                credMgrSetting = undefined;
+            let oldCredMgr = AppSettings.instance.get("overrides", "CredentialManager");
+
+            if (typeof oldCredMgr !== "string" || oldCredMgr === ImperativeConfig.instance.hostPackageName) {
+                // Fall back to default plug-in name because CredentialManager override is not set
+                oldCredMgr = this.ZOWE_CLI_SECURE_PLUGIN_NAME;
+            } else {
+                // Need to remove CredentialManager override because it is a plug-in name
+                pluginInfo.overrides.push("CredentialManager");
             }
-            obsoletePlugins.push({
-                name: typeof credMgrSetting === "string" ? credMgrSetting : this.ZOWE_CLI_SECURE_PLUGIN_NAME,
-                preUninstall: credMgrSetting ? this.disableCredentialManager : undefined
-            });
+
+            // Only uninstall plug-in if it is currently installed
+            if (oldCredMgr in PluginIssues.instance.getInstalledPlugins()) {
+                pluginInfo.plugins.push(oldCredMgr);
+            }
         }
 
-        return obsoletePlugins;
+        return pluginInfo;
     }
 
     /**
@@ -209,29 +209,22 @@ export default class ConvertProfilesHandler implements ICommandHandler {
     }
 
     /**
-     * Disable the CredentialManager override in app settings. This is called
-     * before uninstalling `ZOWE_CLI_SECURE_PLUGIN_NAME`.
+     * Remove obsolete Imperative overrides from app settings. This method is
+     * called before uninstalling old plug-ins.
+     *
      * This method is private because only the convert-profiles command is able
      * to disable the credential manager and reload it. For all other commands,
      * the credential manager is loaded in `Imperative.init` and frozen with
      * `Object.freeze` so cannot be modified later on.
      */
-    private disableCredentialManager() {
-        AppSettings.instance.set("overrides", "CredentialManager", ImperativeConfig.instance.hostPackageName);
-        if (ImperativeConfig.instance.loadedConfig.overrides.CredentialManager != null) {
-            delete ImperativeConfig.instance.loadedConfig.overrides.CredentialManager;
-        }
-    }
-
-    /**
-     * Uninstall a CLI plug-in if it is installed, otherwise do nothing. This
-     * overrides the default behavior of the plugin uninstall helper method
-     * which throws an error if the plugin is not installed.
-     * @param pluginName Name of plug-in to uninstall
-     */
-    private uninstallPlugin(pluginName: string): void {
-        if (Object.keys(PluginIssues.instance.getInstalledPlugins()).includes(pluginName)) {
-            uninstallPlugin(pluginName);
+    private removeOverride(override: keyof IImperativeOverrides) {
+        switch (override) {
+            case "CredentialManager":
+                AppSettings.instance.set("overrides", "CredentialManager", ImperativeConfig.instance.hostPackageName);
+                if (ImperativeConfig.instance.loadedConfig.overrides.CredentialManager != null) {
+                    delete ImperativeConfig.instance.loadedConfig.overrides.CredentialManager;
+                }
+                break;
         }
     }
 
