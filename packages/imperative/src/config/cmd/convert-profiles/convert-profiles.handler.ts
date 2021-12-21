@@ -39,8 +39,8 @@ interface IOldPluginInfo {
  */
 export default class ConvertProfilesHandler implements ICommandHandler {
     private readonly ZOWE_CLI_PACKAGE_NAME = "@zowe/cli";
-
     private readonly ZOWE_CLI_SECURE_PLUGIN_NAME = "@zowe/secure-credential-store-for-zowe-cli";
+    private keytar: typeof keytar = undefined;
 
     /**
      * Process the command and input.
@@ -57,8 +57,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         if (oldPluginInfo.plugins.length == 0 && oldProfileCount === 0) {
             params.response.console.log("No old profiles were found to convert from Zowe v1 to v2.");
             // Exit if we're not deleting
-            if (!(params.arguments.delete != null && params.arguments.delete === true &&
-                  params.arguments.forSure != null && params.arguments.forSure === true)) {
+            if (!(params.arguments.delete != null && params.arguments.delete === true)) {
                 return;
             }
         }
@@ -72,7 +71,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         }
         params.response.console.log(`Detected ${listToConvert.join(" and ")} to convert from Zowe v1 to v2.\n`);
 
-        if (!params.arguments.force) {
+        if (params.arguments.prompt == null || params.arguments.prompt === true) {
             const answer = await params.response.console.prompt("Are you sure you want to continue? [y/N]: ");
             if (answer == null || !(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
                 return;
@@ -125,15 +124,23 @@ export default class ConvertProfilesHandler implements ICommandHandler {
 
         const cliBin = ImperativeConfig.instance.rootCommandName;
         params.response.console.log(`Your new profiles have been saved to ${teamConfig.layerActive().path}.\n` +
-            `Run "${cliBin} config edit --global-config" to open this file in your default editor.\n\n`);
+            `Run "${cliBin} config edit --global-config" to open this file in your default editor.\n`);
 
-        if (params.arguments.delete == null || params.arguments.delete === false ||
-            params.arguments.forSure == null || params.arguments.forSure === false) {
+        if (params.arguments.delete == null || params.arguments.delete === false) {
             params.response.console.log(`Your old profiles have been moved to ${oldProfilesDir}.\n` +
                 `Run "${cliBin} config convert-profiles --delete" if you want to completely remove them.\n\n` +
                 `If you would like to revert back to v1 profiles, rename the 'profiles-old' directory to 'profiles'\n` +
                 `and delete the new config file located at ${teamConfig.layerActive().path}.`);
         } else {
+
+            if (params.arguments.prompt == null || params.arguments.prompt === true) {
+                const answer = await params.response.console.prompt("Profile migration has been completed. " +
+                "Are you sure you want to delete your v1 profiles? [y/N]: ");
+                if (answer == null || !(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
+                    return;
+                }
+            }
+
             // Delete the profiles directory
             try {
                 rimraf.sync(oldProfilesDir);
@@ -228,10 +235,21 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         }
     }
 
+    /**
+     * Lazy load keytar, and verify that the credential vault is able to be accessed,
+     * or whether there is a problem.
+     * @returns true if credential vault is available, false if it is not
+     */
     private async checkKeytarAvailable(): Promise<boolean> {
-        let success: boolean = undefined;
+        let success: boolean = false;
+        const requireOpts: any = {};
+        if (process.mainModule?.filename != null) {
+            requireOpts.paths = [process.mainModule.filename];
+        }
         try {
-            await keytar.findCredentials(this.ZOWE_CLI_PACKAGE_NAME);
+            const keytarPath = require.resolve("keytar", requireOpts);
+            this.keytar = await import(keytarPath);
+            await this.keytar.findCredentials(this.ZOWE_CLI_PACKAGE_NAME);
             success = true;
         } catch (err) {
             success = false;
@@ -239,10 +257,17 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         return success;
     }
 
+    /**
+     * Locate the names of secured properties stored under an account in the operating
+     * system's credential vault.
+     * @param acct The account to search for in the credential store
+     * @param params The parameters and response console APIs
+     * @returns a list of secured properties stored under the specified account
+     */
     private async findOldSecureProps(acct: string, params: IHandlerParameters): Promise<string[]> {
         const oldSecurePropNames: string[] = [];
         try {
-            const credentialsArray = await keytar.findCredentials(acct);
+            const credentialsArray = await this.keytar.findCredentials(acct);
             for (const element of credentialsArray) {
                 oldSecurePropNames.push(element.account);
             }
@@ -252,10 +277,17 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         return oldSecurePropNames;
     }
 
+    /**
+     * Delete the secure property specified from the operating system credential vault.
+     * @param acct The account the property is stored under
+     * @param propName The name of the property to delete
+     * @param params The parameters and response console APIs
+     * @returns true if the property was deleted successfully
+     */
     private async deleteOldSecureProps(acct: string, propName: string, params: IHandlerParameters): Promise<boolean> {
         let success = false;
         try {
-            success = await keytar.deletePassword(acct, propName);
+            success = await this.keytar.deletePassword(acct, propName);
         } catch (err) {
             params.response.console.error(`Encountered an error while deleting secure data for service '${acct}/${propName}':\n    ${err}`);
             success = false;

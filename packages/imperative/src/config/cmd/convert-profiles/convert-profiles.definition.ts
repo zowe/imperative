@@ -25,22 +25,20 @@ export const convertProfilesDefinition: ICommandDefinition = {
     summary: "Convert profiles to team config",
     description: `Convert v1 profiles to a global ${ImperativeConfig.instance.rootCommandName}.config.json file.`,
     options: [{
-        name: "force",
-        description: "Bypass prompt for user confirmation before profile conversion.",
-        type: "boolean"
+        name: "prompt",
+        description: "Prompt for confirmation. Use --no-prompt to disable prompting.",
+        type: "boolean",
+        defaultValue: true
     }, {
         name: "delete",
         description: "Delete the existing profiles on disk and any securely stored secrets.",
-        type: "boolean",
-        implies: ["for-sure"]
-    }, {
-        name: "for-sure",
-        aliases: ["f"],
-        description: "Confirmation for the delete option, to prevent accidental deletion of migrated profiles.",
         type: "boolean"
     }],
     examples: [{
         description: "Convert profiles to team config without prompting",
-        options: "--force"
+        options: "--no-prompt"
+    }, {
+        description: "Convert profiles to team config and delete the old profiles",
+        options: "--delete"
     }]
 };
