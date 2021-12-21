@@ -53,89 +53,96 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         const profilesRootDir = ProfileUtils.constructProfilesRootDirectory(ImperativeConfig.instance.cliHome);
         const oldPluginInfo = this.getOldPluginInfo();
         const oldProfileCount = this.getOldProfileCount(profilesRootDir);
+        const oldProfilesDir = `${profilesRootDir.replace(/[\\/]$/, "")}-old`;
+        let skipConversion = false;
 
         if (oldPluginInfo.plugins.length == 0 && oldProfileCount === 0) {
-            params.response.console.log("No old profiles were found to convert from Zowe v1 to v2.");
+            params.response.console.log("No old profiles or plug-ins were found to convert from Zowe v1 to v2.");
             // Exit if we're not deleting
             if (!(params.arguments.delete != null && params.arguments.delete === true)) {
                 return;
+            } else {
+                skipConversion = true;
             }
         }
 
-        const listToConvert = [];
-        if (oldPluginInfo.plugins.length > 0) {
-            listToConvert.push(`${oldPluginInfo.plugins.length} obsolete plug-in(s)`);
-        }
-        if (oldProfileCount > 0) {
-            listToConvert.push(`${oldProfileCount} old profile(s)`);
-        }
-        params.response.console.log(`Detected ${listToConvert.join(" and ")} to convert from Zowe v1 to v2.\n`);
-
-        if (params.arguments.prompt == null || params.arguments.prompt === true) {
-            const answer = await params.response.console.prompt("Are you sure you want to continue? [y/N]: ");
-            if (answer == null || !(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
-                return;
+        // If this is true, then we know that we want to delete, but there is nothing to convert first.
+        if (!skipConversion) {
+            const listToConvert = [];
+            if (oldPluginInfo.plugins.length > 0) {
+                listToConvert.push(`${oldPluginInfo.plugins.length} obsolete plug-in(s)`);
             }
-        }
-
-        params.response.console.log("");
-        oldPluginInfo.overrides.forEach(this.removeOverride);
-        for (const pluginName of oldPluginInfo.plugins) {
-            try {
-                uninstallPlugin(pluginName);
-                params.response.console.log(`Removed obsolete plug-in: ${pluginName}`);
-            } catch (error) {
-                params.response.console.error(`Failed to uninstall plug-in "${pluginName}":\n    ${error}`);
+            if (oldProfileCount > 0) {
+                listToConvert.push(`${oldProfileCount} old profile(s)`);
             }
-        }
+            params.response.console.log(`Detected ${listToConvert.join(" and ")} to convert from Zowe v1 to v2.\n`);
 
-        if (oldProfileCount == 0) return;
-        await OverridesLoader.ensureCredentialManagerLoaded();
+            if (params.arguments.prompt == null || params.arguments.prompt === true) {
+                const answer = await params.response.console.prompt("Are you sure you want to continue? [y/N]: ");
+                if (answer == null || !(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
+                    return;
+                }
+            }
 
-        const convertResult = await ConfigBuilder.convert(profilesRootDir);
-        for (const [k, v] of Object.entries(convertResult.profilesConverted)) {
-            params.response.console.log(`Converted ${k} profiles: ${v.join(", ")}`);
-        }
-        if (convertResult.profilesFailed.length > 0) {
             params.response.console.log("");
-            params.response.console.errorHeader(`Failed to convert ${convertResult.profilesFailed.length} profile(s). See details below`);
-            for (const { name, type, error } of convertResult.profilesFailed) {
-                if (name != null) {
-                    params.response.console.error(`Failed to load ${type} profile "${name}":\n    ${error}`);
-                } else {
-                    params.response.console.error(`Failed to find default ${type} profile:\n    ${error}`);
+            oldPluginInfo.overrides.forEach(this.removeOverride);
+            for (const pluginName of oldPluginInfo.plugins) {
+                try {
+                    uninstallPlugin(pluginName);
+                    params.response.console.log(`Removed obsolete plug-in: ${pluginName}`);
+                } catch (error) {
+                    params.response.console.error(`Failed to uninstall plug-in "${pluginName}":\n    ${error}`);
+                }
+            }
+
+            if (oldProfileCount != 0) {
+                await OverridesLoader.ensureCredentialManagerLoaded();
+
+                const convertResult = await ConfigBuilder.convert(profilesRootDir);
+                for (const [k, v] of Object.entries(convertResult.profilesConverted)) {
+                    params.response.console.log(`Converted ${k} profiles: ${v.join(", ")}`);
+                }
+                if (convertResult.profilesFailed.length > 0) {
+                    params.response.console.log("");
+                    params.response.console.errorHeader(`Failed to convert ${convertResult.profilesFailed.length} profile(s). See details below`);
+                    for (const { name, type, error } of convertResult.profilesFailed) {
+                        if (name != null) {
+                            params.response.console.error(`Failed to load ${type} profile "${name}":\n    ${error}`);
+                        } else {
+                            params.response.console.error(`Failed to find default ${type} profile:\n    ${error}`);
+                        }
+                    }
+                }
+
+                params.response.console.log("");
+                const teamConfig = ImperativeConfig.instance.config;
+                teamConfig.api.layers.activate(false, true);
+                teamConfig.api.layers.merge(convertResult.config);
+                ConfigSchema.updateSchema();
+                await teamConfig.save(false);
+
+                try {
+                    fs.renameSync(profilesRootDir, oldProfilesDir);
+                } catch (error) {
+                    params.response.console.error(`Failed to rename profiles directory to ${oldProfilesDir}:\n    ${error}`);
+                }
+
+                const cliBin = ImperativeConfig.instance.rootCommandName;
+                params.response.console.log(`Your new profiles have been saved to ${teamConfig.layerActive().path}.\n` +
+                    `Run "${cliBin} config edit --global-config" to open this file in your default editor.\n`);
+
+                if (params.arguments.delete == null || params.arguments.delete === false) {
+                    params.response.console.log(`Your old profiles have been moved to ${oldProfilesDir}.\n` +
+                    `Run "${cliBin} config convert-profiles --delete" if you want to completely remove them.\n\n` +
+                    `If you would like to revert back to v1 profiles, rename the 'profiles-old' directory to 'profiles'\n` +
+                    `and delete the new config file located at ${teamConfig.layerActive().path}.`);
                 }
             }
         }
 
-        params.response.console.log("");
-        const teamConfig = ImperativeConfig.instance.config;
-        teamConfig.api.layers.activate(false, true);
-        teamConfig.api.layers.merge(convertResult.config);
-        ConfigSchema.updateSchema();
-        await teamConfig.save(false);
-
-        const oldProfilesDir = `${profilesRootDir.replace(/[\\/]$/, "")}-old`;
-        try {
-            fs.renameSync(profilesRootDir, oldProfilesDir);
-        } catch (error) {
-            params.response.console.error(`Failed to rename profiles directory to ${oldProfilesDir}:\n    ${error}`);
-        }
-
-        const cliBin = ImperativeConfig.instance.rootCommandName;
-        params.response.console.log(`Your new profiles have been saved to ${teamConfig.layerActive().path}.\n` +
-            `Run "${cliBin} config edit --global-config" to open this file in your default editor.\n`);
-
-        if (params.arguments.delete == null || params.arguments.delete === false) {
-            params.response.console.log(`Your old profiles have been moved to ${oldProfilesDir}.\n` +
-                `Run "${cliBin} config convert-profiles --delete" if you want to completely remove them.\n\n` +
-                `If you would like to revert back to v1 profiles, rename the 'profiles-old' directory to 'profiles'\n` +
-                `and delete the new config file located at ${teamConfig.layerActive().path}.`);
-        } else {
-
+        if (params.arguments.delete != null && params.arguments.delete === true) {
             if (params.arguments.prompt == null || params.arguments.prompt === true) {
-                const answer = await params.response.console.prompt("Profile migration has been completed. " +
-                "Are you sure you want to delete your v1 profiles? [y/N]: ");
+                const answer = await params.response.console.prompt("Are you sure you want to delete your v1 profiles? [y/N]: ");
                 if (answer == null || !(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
                     return;
                 }
