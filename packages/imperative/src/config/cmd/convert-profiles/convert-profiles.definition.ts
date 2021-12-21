@@ -32,8 +32,7 @@ export const convertProfilesDefinition: ICommandDefinition = {
     }, {
         name: "delete",
         description: "Delete the existing profiles on disk and any securely stored secrets.",
-        type: "boolean",
-        implies: ["for-sure"]
+        type: "boolean"
     }],
     examples: [{
         description: "Convert profiles to team config without prompting",
