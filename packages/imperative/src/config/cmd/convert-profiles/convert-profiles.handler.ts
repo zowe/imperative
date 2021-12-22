@@ -11,6 +11,8 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import * as keytar from "keytar";
+import * as rimraf from "rimraf";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { ConfigBuilder, ConfigSchema } from "../../../../../config";
 import { ProfileIO, ProfileUtils } from "../../../../../profiles";
@@ -19,23 +21,17 @@ import { AppSettings } from "../../../../../settings";
 import { PluginIssues } from "../../../plugins/utilities/PluginIssues";
 import { uninstall as uninstallPlugin } from "../../../plugins/utilities/npm-interface";
 import { OverridesLoader } from "../../../OverridesLoader";
+import { IImperativeOverrides } from "../../../doc/IImperativeOverrides";
 
-/**
- * Info for obsolete CLI plug-in to be uninstalled
- */
-interface IPluginToUninstall {
+interface IOldPluginInfo {
     /**
-     * Name of plug-in to uninstall
+     * List of CLI plug-ins to uninstall
      */
-    name: string;
+    plugins: string[];
     /**
-     * Callback to be run before uninstall
+     * List of overrides to remove from app settings
      */
-    preUninstall?: () => void | Promise<void>;
-    /**
-     * Callback to be run after uninstall
-     */
-    postUninstall?: () => void | Promise<void>;
+    overrides: (keyof IImperativeOverrides)[];
 }
 
 /**
@@ -43,8 +39,8 @@ interface IPluginToUninstall {
  */
 export default class ConvertProfilesHandler implements ICommandHandler {
     private readonly ZOWE_CLI_PACKAGE_NAME = "@zowe/cli";
-
     private readonly ZOWE_CLI_SECURE_PLUGIN_NAME = "@zowe/secure-credential-store-for-zowe-cli";
+    private keytar: typeof keytar = undefined;
 
     /**
      * Process the command and input.
@@ -54,105 +50,169 @@ export default class ConvertProfilesHandler implements ICommandHandler {
      * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
+        const cliBin = ImperativeConfig.instance.rootCommandName;
         const profilesRootDir = ProfileUtils.constructProfilesRootDirectory(ImperativeConfig.instance.cliHome);
-        const obsoletePlugins = this.getObsoletePlugins();
-        const oldProfileCount = this.getOldProfileCount(profilesRootDir);
+        const configExists = ImperativeConfig.instance.config?.exists;
+        const oldPluginInfo = this.getOldPluginInfo();
 
-        if (obsoletePlugins.length == 0 && oldProfileCount === 0) {
-            params.response.console.log("No old profiles were found to convert from Zowe v1 to v2.");
-            return;
+        // Cannot do profiles operations w/ team config
+        const oldProfileCount = configExists ? 0 : this.getOldProfileCount(profilesRootDir);
+        const oldProfilesDir = `${profilesRootDir.replace(/[\\/]$/, "")}-old`;
+        let skipConversion = false;
+
+        if (configExists) {
+            // Warn that a team config was detected
+            params.response.console.log(`A team configuration file was detected. V1 profiles cannot be loaded for conversion.\n` +
+            `Run '${cliBin} config list --locations --root' for team configuration file locations.\n`);
         }
 
-        const listToConvert = [];
-        if (obsoletePlugins.length > 0) {
-            listToConvert.push(`${obsoletePlugins.length} obsolete plug-in(s)`);
-        }
-        if (oldProfileCount > 0) {
-            listToConvert.push(`${oldProfileCount} old profile(s)`);
-        }
-        params.response.console.log(`Detected ${listToConvert.join(" and ")} to convert from Zowe v1 to v2.\n`);
-
-        if (!params.arguments.force) {
-            const answer = await params.response.console.prompt("Are you sure you want to continue? [y/N]: ");
-            if (answer == null || !(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
+        if (oldPluginInfo.plugins.length == 0 && oldProfileCount === 0) {
+            params.response.console.log("No old profiles or plug-ins were found to convert from Zowe v1 to v2.");
+            // Exit if we're not deleting
+            if (!(params.arguments.delete != null && params.arguments.delete === true)) {
                 return;
+            } else {
+                skipConversion = true;
             }
         }
 
-        params.response.console.log("");
-        for (const pluginInfo of obsoletePlugins) {
-            if (pluginInfo.preUninstall) await pluginInfo.preUninstall();
-            try {
-                this.uninstallPlugin(pluginInfo.name);
-                params.response.console.log(`Removed obsolete plug-in: ${pluginInfo.name}`);
-            } catch (error) {
-                params.response.console.error(`Failed to uninstall plug-in "${pluginInfo.name}":\n    ${error}`);
+        // If this is true, then we know that we want to delete, but there is nothing to convert first.
+        if (!skipConversion) {
+            const listToConvert = [];
+            if (oldPluginInfo.plugins.length > 0) {
+                listToConvert.push(`${oldPluginInfo.plugins.length} obsolete plug-in(s)`);
             }
-            if (pluginInfo.postUninstall) await pluginInfo.postUninstall();
-        }
+            if (oldProfileCount > 0) {
+                listToConvert.push(`${oldProfileCount} old profile(s)`);
+            }
+            params.response.console.log(`Detected ${listToConvert.join(" and ")} to convert from Zowe v1 to v2.\n`);
 
-        if (oldProfileCount == 0) return;
-        await OverridesLoader.ensureCredentialManagerLoaded();
+            if (params.arguments.prompt == null || params.arguments.prompt === true) {
+                const answer = await params.response.console.prompt("Are you sure you want to continue? [y/N]: ");
+                if (answer == null || !(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
+                    return;
+                }
+            }
 
-        const convertResult = await ConfigBuilder.convert(profilesRootDir);
-        for (const [k, v] of Object.entries(convertResult.profilesConverted)) {
-            params.response.console.log(`Converted ${k} profiles: ${v.join(", ")}`);
-        }
-        if (convertResult.profilesFailed.length > 0) {
             params.response.console.log("");
-            params.response.console.errorHeader(`Failed to convert ${convertResult.profilesFailed.length} profile(s). See details below`);
-            for (const { name, type, error } of convertResult.profilesFailed) {
-                if (name != null) {
-                    params.response.console.error(`Failed to load ${type} profile "${name}":\n    ${error}`);
-                } else {
-                    params.response.console.error(`Failed to find default ${type} profile:\n    ${error}`);
+            oldPluginInfo.overrides.forEach(this.removeOverride);
+            for (const pluginName of oldPluginInfo.plugins) {
+                try {
+                    uninstallPlugin(pluginName);
+                    params.response.console.log(`Removed obsolete plug-in: ${pluginName}`);
+                } catch (error) {
+                    params.response.console.error(`Failed to uninstall plug-in "${pluginName}":\n    ${error}`);
+                }
+            }
+
+            if (oldProfileCount != 0) {
+                await OverridesLoader.ensureCredentialManagerLoaded();
+
+                const convertResult = await ConfigBuilder.convert(profilesRootDir);
+                for (const [k, v] of Object.entries(convertResult.profilesConverted)) {
+                    params.response.console.log(`Converted ${k} profiles: ${v.join(", ")}`);
+                }
+                if (convertResult.profilesFailed.length > 0) {
+                    params.response.console.log("");
+                    params.response.console.errorHeader(`Failed to convert ${convertResult.profilesFailed.length} profile(s). See details below`);
+                    for (const { name, type, error } of convertResult.profilesFailed) {
+                        if (name != null) {
+                            params.response.console.error(`Failed to load ${type} profile "${name}":\n    ${error}`);
+                        } else {
+                            params.response.console.error(`Failed to find default ${type} profile:\n    ${error}`);
+                        }
+                    }
+                }
+
+                params.response.console.log("");
+                const teamConfig = ImperativeConfig.instance.config;
+                teamConfig.api.layers.activate(false, true);
+                teamConfig.api.layers.merge(convertResult.config);
+                ConfigSchema.updateSchema();
+                await teamConfig.save(false);
+
+                try {
+                    fs.renameSync(profilesRootDir, oldProfilesDir);
+                } catch (error) {
+                    params.response.console.error(`Failed to rename profiles directory to ${oldProfilesDir}:\n    ${error}`);
+                }
+
+                params.response.console.log(`Your new profiles have been saved to ${teamConfig.layerActive().path}.\n` +
+                    `Run "${cliBin} config edit --global-config" to open this file in your default editor.\n`);
+
+                if (params.arguments.delete == null || params.arguments.delete === false) {
+                    params.response.console.log(`Your old profiles have been moved to ${oldProfilesDir}.\n` +
+                    `Run "${cliBin} config convert-profiles --delete" if you want to completely remove them.\n\n` +
+                    `If you would like to revert back to v1 profiles, or convert your v1 profiles again, rename the 'profiles-old'\n` +
+                    `directory to 'profiles' and delete the new config file located at ${teamConfig.layerActive().path}.`);
                 }
             }
         }
 
-        params.response.console.log("");
-        const teamConfig = ImperativeConfig.instance.config;
-        teamConfig.api.layers.activate(false, true);
-        teamConfig.api.layers.merge(convertResult.config);
-        ConfigSchema.updateSchema();
-        await teamConfig.save(false);
+        if (params.arguments.delete != null && params.arguments.delete === true) {
+            if (params.arguments.prompt == null || params.arguments.prompt === true) {
+                const answer = await params.response.console.prompt("Are you sure you want to delete your v1 profiles? [y/N]: ");
+                if (answer == null || !(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes")) {
+                    return;
+                }
+            }
 
-        const oldProfilesDir = `${profilesRootDir.replace(/[\\/]$/, "")}-old`;
-        try {
-            fs.renameSync(profilesRootDir, oldProfilesDir);
-        } catch (error) {
-            params.response.console.error(`Failed to rename profiles directory to ${oldProfilesDir}:\n    ${error}`);
+            // Delete the profiles directory
+            try {
+                rimraf.sync(oldProfilesDir);
+                params.response.console.log(`Deleting the profiles directory '${oldProfilesDir}'... done`);
+            } catch (err) {
+                params.response.console.error(`Failed to delete the profiles directory '${oldProfilesDir}':\n    ${err}`);
+            }
+
+            // Delete the securely stored credentials
+            const keytarAvailable = await this.checkKeytarAvailable();
+            if (keytarAvailable) {
+                const knownServices = ["@brightside/core", "@zowe/cli", "Zowe-Plugin", "Broadcom-Plugin", "Zowe"];
+                for (const service of knownServices) {
+                    const accounts = await this.findOldSecureProps(service, params);
+                    for (const account of accounts) {
+                        if (!account.includes("secure_config_props")) {
+                            const success = this.deleteOldSecureProps(service, account, params);
+                            params.response.console.log(`Deleting secure value for "${service}/${account}"... ${success ? "done" : "failed"}`);
+                        }
+                    }
+                }
+            } else {
+                params.response.console.error(`Keytar or the credential vault are unavailable. Unable to delete old secure values.`);
+            }
         }
-
-        const cliBin = ImperativeConfig.instance.rootCommandName;
-        params.response.console.log(`Your new profiles have been saved to ${teamConfig.layerActive().path}.\n` +
-            `Run "${cliBin} config edit --global-config" to open this file in your default editor.\n\n` +
-            `Your old profiles have been moved to ${oldProfilesDir}.\n` +
-            `Run "${cliBin} config convert-profiles --delete" if you want to completely remove them.`);
     }
 
     /**
-     * Retrieve list of obsolete CLI plug-ins that should be uninstalled.
-     * @returns List of plugins to uninstall containing the following properties:
-     *  - `name` - Name of plugin to uninstall
-     *  - `preuninstall` - Optional callback to be run before uninstall
-     *  - `postuninstall` - Optional callback to be run after uninstall
+     * Retrieve info about old plug-ins and their overrides.
+     *  - `plugins` - List of CLI plug-ins to uninstall
+     *  - `overrides` - List of overrides to remove from app settings
      */
-    private getObsoletePlugins(): IPluginToUninstall[] {
-        const obsoletePlugins: IPluginToUninstall[] = [];
+    private getOldPluginInfo(): IOldPluginInfo {
+        const pluginInfo: IOldPluginInfo = {
+            plugins: [],
+            overrides: []
+        };
 
         if (ImperativeConfig.instance.hostPackageName === this.ZOWE_CLI_PACKAGE_NAME) {
-            let credMgrSetting = AppSettings.instance.get("overrides", "CredentialManager");
-            if (credMgrSetting === ImperativeConfig.instance.hostPackageName) {
-                credMgrSetting = undefined;
+            let oldCredMgr = AppSettings.instance.get("overrides", "CredentialManager");
+
+            if (typeof oldCredMgr !== "string" || oldCredMgr === ImperativeConfig.instance.hostPackageName) {
+                // Fall back to default plug-in name because CredentialManager override is not set
+                oldCredMgr = this.ZOWE_CLI_SECURE_PLUGIN_NAME;
+            } else {
+                // Need to remove CredentialManager override because it is a plug-in name
+                pluginInfo.overrides.push("CredentialManager");
             }
-            obsoletePlugins.push({
-                name: typeof credMgrSetting === "string" ? credMgrSetting : this.ZOWE_CLI_SECURE_PLUGIN_NAME,
-                preUninstall: credMgrSetting ? this.disableCredentialManager : undefined
-            });
+
+            // Only uninstall plug-in if it is currently installed
+            if (oldCredMgr in PluginIssues.instance.getInstalledPlugins()) {
+                pluginInfo.plugins.push(oldCredMgr);
+            }
         }
 
-        return obsoletePlugins;
+        return pluginInfo;
     }
 
     /**
@@ -172,29 +232,82 @@ export default class ConvertProfilesHandler implements ICommandHandler {
     }
 
     /**
-     * Disable the CredentialManager override in app settings. This is called
-     * before uninstalling `ZOWE_CLI_SECURE_PLUGIN_NAME`.
+     * Remove obsolete Imperative overrides from app settings. This method is
+     * called before uninstalling old plug-ins.
+     *
      * This method is private because only the convert-profiles command is able
      * to disable the credential manager and reload it. For all other commands,
      * the credential manager is loaded in `Imperative.init` and frozen with
      * `Object.freeze` so cannot be modified later on.
      */
-    private disableCredentialManager() {
-        AppSettings.instance.set("overrides", "CredentialManager", ImperativeConfig.instance.hostPackageName);
-        if (ImperativeConfig.instance.loadedConfig.overrides.CredentialManager != null) {
-            delete ImperativeConfig.instance.loadedConfig.overrides.CredentialManager;
+    private removeOverride(override: keyof IImperativeOverrides) {
+        switch (override) {
+            case "CredentialManager":
+                AppSettings.instance.set("overrides", "CredentialManager", ImperativeConfig.instance.hostPackageName);
+                if (ImperativeConfig.instance.loadedConfig.overrides.CredentialManager != null) {
+                    delete ImperativeConfig.instance.loadedConfig.overrides.CredentialManager;
+                }
+                break;
         }
     }
 
     /**
-     * Uninstall a CLI plug-in if it is installed, otherwise do nothing. This
-     * overrides the default behavior of the plugin uninstall helper method
-     * which throws an error if the plugin is not installed.
-     * @param pluginName Name of plug-in to uninstall
+     * Lazy load keytar, and verify that the credential vault is able to be accessed,
+     * or whether there is a problem.
+     * @returns true if credential vault is available, false if it is not
      */
-    private uninstallPlugin(pluginName: string): void {
-        if (Object.keys(PluginIssues.instance.getInstalledPlugins()).includes(pluginName)) {
-            uninstallPlugin(pluginName);
+    private async checkKeytarAvailable(): Promise<boolean> {
+        let success: boolean = false;
+        const requireOpts: any = {};
+        if (process.mainModule?.filename != null) {
+            requireOpts.paths = [process.mainModule.filename];
         }
+        try {
+            const keytarPath = require.resolve("keytar", requireOpts);
+            this.keytar = await import(keytarPath);
+            await this.keytar.findCredentials(this.ZOWE_CLI_PACKAGE_NAME);
+            success = true;
+        } catch (err) {
+            success = false;
+        }
+        return success;
+    }
+
+    /**
+     * Locate the names of secured properties stored under an account in the operating
+     * system's credential vault.
+     * @param acct The account to search for in the credential store
+     * @param params The parameters and response console APIs
+     * @returns a list of secured properties stored under the specified account
+     */
+    private async findOldSecureProps(acct: string, params: IHandlerParameters): Promise<string[]> {
+        const oldSecurePropNames: string[] = [];
+        try {
+            const credentialsArray = await this.keytar.findCredentials(acct);
+            for (const element of credentialsArray) {
+                oldSecurePropNames.push(element.account);
+            }
+        } catch (err) {
+            params.response.console.error(`Encountered an error while gathering profiles for service '${acct}':\n    ${err}`);
+        }
+        return oldSecurePropNames;
+    }
+
+    /**
+     * Delete the secure property specified from the operating system credential vault.
+     * @param acct The account the property is stored under
+     * @param propName The name of the property to delete
+     * @param params The parameters and response console APIs
+     * @returns true if the property was deleted successfully
+     */
+    private async deleteOldSecureProps(acct: string, propName: string, params: IHandlerParameters): Promise<boolean> {
+        let success = false;
+        try {
+            success = await this.keytar.deletePassword(acct, propName);
+        } catch (err) {
+            params.response.console.error(`Encountered an error while deleting secure data for service '${acct}/${propName}':\n    ${err}`);
+            success = false;
+        }
+        return success;
     }
 }
