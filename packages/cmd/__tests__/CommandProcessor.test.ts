@@ -1371,7 +1371,7 @@ describe("Command Processor", () => {
         expect(commandResponse).toMatchSnapshot();
     });
 
-    it("should invoke the handler and process chdir with hidden option and then return success=true if the handler was successful", async () => {
+    it("should invoke the handler and process daemon response and then return success=true if the handler was successful", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
             envVariablePrefix: ENV_VAR_PREFIX,
@@ -1381,7 +1381,11 @@ describe("Command Processor", () => {
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
             commandLine: "",
-            promptPhrase: "dummydummy"
+            promptPhrase: "dummydummy",
+            daemonResponse: {
+                cwd: process.cwd(),
+                env: { FRUIT_ENV: "test" }
+            }
         });
 
         // Mock read stdin
@@ -1398,6 +1402,7 @@ describe("Command Processor", () => {
             };
         });
 
+        jest.spyOn(process, "chdir");
         const mockConfigReload = jest.fn();
         jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
             config: { reload: mockConfigReload }
@@ -1407,14 +1412,16 @@ describe("Command Processor", () => {
             arguments: {
                 _: ["check", "for", "banana"],
                 $0: "",
-                valid: true,
-                dcd: process.cwd()
+                valid: true
             },
             silent: true
         };
+        expect(process.env.FRUIT_ENV).toBeUndefined();
         const commandResponse: ICommandResponse = await processor.invoke(parms);
         expect(commandResponse).toBeDefined();
         expect(commandResponse).toMatchSnapshot();
+        expect(process.chdir).toHaveBeenCalledTimes(1);
+        expect(process.env.FRUIT_ENV).toBe("test");
         expect(mockConfigReload).toHaveBeenCalledTimes(1);
     });
 

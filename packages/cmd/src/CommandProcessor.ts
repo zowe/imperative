@@ -402,11 +402,13 @@ export class CommandProcessor {
                     process.chdir(this.mDaemonResponse.cwd);
                 }
 
-                for (const envVarName in Object.keys(process.env)) {
+                // Delete environment variables that start with our prefix
+                for (const envVarName of Object.keys(process.env)) {
                     if (envVarName.startsWith(`${this.mEnvVariablePrefix}_`)) {
                         delete process.env[envVarName];
                     }
                 }
+                // Define environment variables received by daemon
                 if (this.mDaemonResponse.env != null) {
                     process.env = { ...process.env, ...this.mDaemonResponse.env };
                 }

@@ -42,14 +42,6 @@ Object {
       "type": "boolean",
     },
     Object {
-      "aliases": Array [],
-      "description": "Daemon client directory",
-      "group": "Global options",
-      "hidden": true,
-      "name": "dcd",
-      "type": "string",
-    },
-    Object {
       "aliases": Array [
         "rff",
       ],
@@ -165,14 +157,6 @@ Object {
       "type": "boolean",
     },
     Object {
-      "aliases": Array [],
-      "description": "Daemon client directory",
-      "group": "Global options",
-      "hidden": true,
-      "name": "dcd",
-      "type": "string",
-    },
-    Object {
       "aliases": Array [
         "apple-p",
       ],
@@ -244,14 +228,6 @@ Object {
       "type": "boolean",
     },
     Object {
-      "aliases": Array [],
-      "description": "Daemon client directory",
-      "group": "Global options",
-      "hidden": true,
-      "name": "dcd",
-      "type": "string",
-    },
-    Object {
       "aliases": Array [
         "fruit-p",
       ],
@@ -321,14 +297,6 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
-    },
-    Object {
-      "aliases": Array [],
-      "description": "Daemon client directory",
-      "group": "Global options",
-      "hidden": true,
-      "name": "dcd",
-      "type": "string",
     },
     Object {
       "aliases": Array [
@@ -431,14 +399,6 @@ Object {
               "name": "help-web",
               "type": "boolean",
             },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
           ],
           "passOn": Array [],
           "positionals": Array [
@@ -503,14 +463,6 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
-            },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
             },
           ],
           "passOn": Array [],
@@ -577,14 +529,6 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
-            },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
             },
             Object {
               "aliases": Array [
@@ -655,14 +599,6 @@ Object {
           "name": "help-web",
           "type": "boolean",
         },
-        Object {
-          "aliases": Array [],
-          "description": "Daemon client directory",
-          "group": "Global options",
-          "hidden": true,
-          "name": "dcd",
-          "type": "string",
-        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -705,14 +641,6 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
-    },
-    Object {
-      "aliases": Array [],
-      "description": "Daemon client directory",
-      "group": "Global options",
-      "hidden": true,
-      "name": "dcd",
-      "type": "string",
     },
   ],
   "passOn": Array [],
@@ -782,14 +710,6 @@ Object {
               "name": "help-web",
               "type": "boolean",
             },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
           ],
           "passOn": Array [],
           "positionals": Array [
@@ -854,14 +774,6 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
-            },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
             },
           ],
           "passOn": Array [],
@@ -930,14 +842,6 @@ Object {
               "type": "boolean",
             },
             Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
-            Object {
               "aliases": Array [
                 "apple-p",
               ],
@@ -1000,14 +904,6 @@ Object {
           "name": "help-web",
           "type": "boolean",
         },
-        Object {
-          "aliases": Array [],
-          "description": "Daemon client directory",
-          "group": "Global options",
-          "hidden": true,
-          "name": "dcd",
-          "type": "string",
-        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -1057,14 +953,6 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
-    },
-    Object {
-      "aliases": Array [],
-      "description": "Daemon client directory",
-      "group": "Global options",
-      "hidden": true,
-      "name": "dcd",
-      "type": "string",
     },
   ],
   "passOn": Array [
@@ -1153,14 +1041,6 @@ Object {
               "type": "boolean",
             },
             Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
-            Object {
               "aliases": Array [
                 "pipe",
               ],
@@ -1234,14 +1114,6 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
-            },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
             },
             Object {
               "aliases": Array [
@@ -1319,14 +1191,6 @@ Object {
               "type": "boolean",
             },
             Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
-            Object {
               "aliases": Array [
                 "apple-p",
               ],
@@ -1400,14 +1264,6 @@ Object {
           "type": "boolean",
         },
         Object {
-          "aliases": Array [],
-          "description": "Daemon client directory",
-          "group": "Global options",
-          "hidden": true,
-          "name": "dcd",
-          "type": "string",
-        },
-        Object {
           "aliases": Array [
             "pipe",
           ],
@@ -1465,14 +1321,6 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
-    },
-    Object {
-      "aliases": Array [],
-      "description": "Daemon client directory",
-      "group": "Global options",
-      "hidden": true,
-      "name": "dcd",
-      "type": "string",
     },
   ],
   "passOn": Array [
@@ -1546,14 +1394,6 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
-            },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
             },
             Object {
               "aliases": Array [
@@ -1633,14 +1473,6 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
-            },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
             },
             Object {
               "aliases": Array [
@@ -1723,14 +1555,6 @@ Object {
               "type": "boolean",
             },
             Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
-            Object {
               "aliases": Array [
                 "banana-p",
               ],
@@ -1792,14 +1616,6 @@ Object {
           "group": "Global options",
           "name": "help-web",
           "type": "boolean",
-        },
-        Object {
-          "aliases": Array [],
-          "description": "Daemon client directory",
-          "group": "Global options",
-          "hidden": true,
-          "name": "dcd",
-          "type": "string",
         },
         Object {
           "aliases": Array [
@@ -1864,14 +1680,6 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
-    },
-    Object {
-      "aliases": Array [],
-      "description": "Daemon client directory",
-      "group": "Global options",
-      "hidden": true,
-      "name": "dcd",
-      "type": "string",
     },
   ],
   "passOn": Array [
@@ -1951,14 +1759,6 @@ Object {
               "type": "boolean",
             },
             Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
-            Object {
               "aliases": Array [
                 "banana-p",
               ],
@@ -2036,14 +1836,6 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
-            },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
             },
             Object {
               "aliases": Array [
@@ -2126,14 +1918,6 @@ Object {
               "type": "boolean",
             },
             Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
-            Object {
               "aliases": Array [
                 "banana-p",
               ],
@@ -2196,14 +1980,6 @@ Object {
           "name": "help-web",
           "type": "boolean",
         },
-        Object {
-          "aliases": Array [],
-          "description": "Daemon client directory",
-          "group": "Global options",
-          "hidden": true,
-          "name": "dcd",
-          "type": "string",
-        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -2253,14 +2029,6 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
-    },
-    Object {
-      "aliases": Array [],
-      "description": "Daemon client directory",
-      "group": "Global options",
-      "hidden": true,
-      "name": "dcd",
-      "type": "string",
     },
   ],
   "passOn": Array [
@@ -2345,14 +2113,6 @@ Object {
               "type": "boolean",
             },
             Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
-            Object {
               "aliases": Array [
                 "banana-p",
               ],
@@ -2430,14 +2190,6 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
-            },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
             },
             Object {
               "aliases": Array [
@@ -2520,14 +2272,6 @@ Object {
               "type": "boolean",
             },
             Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
-            Object {
               "aliases": Array [
                 "banana-p",
               ],
@@ -2589,14 +2333,6 @@ Object {
           "group": "Global options",
           "name": "help-web",
           "type": "boolean",
-        },
-        Object {
-          "aliases": Array [],
-          "description": "Daemon client directory",
-          "group": "Global options",
-          "hidden": true,
-          "name": "dcd",
-          "type": "string",
         },
         Object {
           "aliases": Array [
@@ -2661,14 +2397,6 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
-    },
-    Object {
-      "aliases": Array [],
-      "description": "Daemon client directory",
-      "group": "Global options",
-      "hidden": true,
-      "name": "dcd",
-      "type": "string",
     },
   ],
   "passOn": Array [
@@ -2760,14 +2488,6 @@ Object {
               "name": "help-web",
               "type": "boolean",
             },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
           ],
           "passOn": Array [],
           "positionals": Array [
@@ -2839,14 +2559,6 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
-            },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
             },
           ],
           "passOn": Array [],
@@ -2922,14 +2634,6 @@ Object {
               "type": "boolean",
             },
             Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
-            Object {
               "aliases": Array [
                 "apple-p",
               ],
@@ -2999,14 +2703,6 @@ Object {
           "name": "help-web",
           "type": "boolean",
         },
-        Object {
-          "aliases": Array [],
-          "description": "Daemon client directory",
-          "group": "Global options",
-          "hidden": true,
-          "name": "dcd",
-          "type": "string",
-        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -3056,14 +2752,6 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
-    },
-    Object {
-      "aliases": Array [],
-      "description": "Daemon client directory",
-      "group": "Global options",
-      "hidden": true,
-      "name": "dcd",
-      "type": "string",
     },
   ],
   "passOn": Array [
@@ -3152,14 +2840,6 @@ Object {
               "name": "help-web",
               "type": "boolean",
             },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
           ],
           "passOn": Array [],
           "positionals": Array [
@@ -3231,14 +2911,6 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
-            },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
             },
           ],
           "passOn": Array [],
@@ -3314,14 +2986,6 @@ Object {
               "type": "boolean",
             },
             Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
-            Object {
               "aliases": Array [
                 "apple-p",
               ],
@@ -3384,14 +3048,6 @@ Object {
           "name": "help-web",
           "type": "boolean",
         },
-        Object {
-          "aliases": Array [],
-          "description": "Daemon client directory",
-          "group": "Global options",
-          "hidden": true,
-          "name": "dcd",
-          "type": "string",
-        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -3441,14 +3097,6 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
-    },
-    Object {
-      "aliases": Array [],
-      "description": "Daemon client directory",
-      "group": "Global options",
-      "hidden": true,
-      "name": "dcd",
-      "type": "string",
     },
   ],
   "passOn": Array [
@@ -3542,14 +3190,6 @@ Object {
               "name": "help-web",
               "type": "boolean",
             },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
           ],
           "passOn": Array [],
           "positionals": Array [
@@ -3621,14 +3261,6 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
-            },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
             },
           ],
           "passOn": Array [],
@@ -3704,14 +3336,6 @@ Object {
               "type": "boolean",
             },
             Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
-            Object {
               "aliases": Array [
                 "apple-p",
               ],
@@ -3781,14 +3405,6 @@ Object {
           "name": "help-web",
           "type": "boolean",
         },
-        Object {
-          "aliases": Array [],
-          "description": "Daemon client directory",
-          "group": "Global options",
-          "hidden": true,
-          "name": "dcd",
-          "type": "string",
-        },
       ],
       "passOn": Array [],
       "positionals": Array [],
@@ -3838,14 +3454,6 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
-    },
-    Object {
-      "aliases": Array [],
-      "description": "Daemon client directory",
-      "group": "Global options",
-      "hidden": true,
-      "name": "dcd",
-      "type": "string",
     },
   ],
   "passOn": Array [
@@ -3928,14 +3536,6 @@ Object {
               "type": "boolean",
             },
             Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
-            Object {
               "aliases": Array [
                 "banana-p",
               ],
@@ -4013,14 +3613,6 @@ Object {
               "group": "Global options",
               "name": "help-web",
               "type": "boolean",
-            },
-            Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
             },
             Object {
               "aliases": Array [
@@ -4103,14 +3695,6 @@ Object {
               "type": "boolean",
             },
             Object {
-              "aliases": Array [],
-              "description": "Daemon client directory",
-              "group": "Global options",
-              "hidden": true,
-              "name": "dcd",
-              "type": "string",
-            },
-            Object {
               "aliases": Array [
                 "apple-p",
               ],
@@ -4172,14 +3756,6 @@ Object {
           "group": "Global options",
           "name": "help-web",
           "type": "boolean",
-        },
-        Object {
-          "aliases": Array [],
-          "description": "Daemon client directory",
-          "group": "Global options",
-          "hidden": true,
-          "name": "dcd",
-          "type": "string",
         },
         Object {
           "aliases": Array [
@@ -4245,14 +3821,6 @@ Object {
       "name": "help-web",
       "type": "boolean",
     },
-    Object {
-      "aliases": Array [],
-      "description": "Daemon client directory",
-      "group": "Global options",
-      "hidden": true,
-      "name": "dcd",
-      "type": "string",
-    },
   ],
   "passOn": Array [
     Object {
@@ -4314,14 +3882,6 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
-    },
-    Object {
-      "aliases": Array [],
-      "description": "Daemon client directory",
-      "group": "Global options",
-      "hidden": true,
-      "name": "dcd",
-      "type": "string",
     },
     Object {
       "aliases": Array [
@@ -4402,14 +3962,6 @@ Object {
           "type": "boolean",
         },
         Object {
-          "aliases": Array [],
-          "description": "Daemon client directory",
-          "group": "Global options",
-          "hidden": true,
-          "name": "dcd",
-          "type": "string",
-        },
-        Object {
           "aliases": Array [
             "banana-p",
           ],
@@ -4466,14 +4018,6 @@ Object {
       "group": "Global options",
       "name": "help-web",
       "type": "boolean",
-    },
-    Object {
-      "aliases": Array [],
-      "description": "Daemon client directory",
-      "group": "Global options",
-      "hidden": true,
-      "name": "dcd",
-      "type": "string",
     },
   ],
   "passOn": Array [],
