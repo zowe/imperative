@@ -169,6 +169,7 @@ describe("Configuration Convert Profiles command handler", () => {
         params.arguments.prompt = false;
 
         await handler.process(params);
+        expect(stdout).toContain("A team configuration file was detected");
         expect(stdout).toContain("No old profiles or plug-ins were found");
         expect(stdout).not.toContain("Converted fruit profiles: apple, coconut");
         expect(updateSchemaSpy).not.toHaveBeenCalled();

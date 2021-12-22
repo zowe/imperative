@@ -50,13 +50,21 @@ export default class ConvertProfilesHandler implements ICommandHandler {
      * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
+        const cliBin = ImperativeConfig.instance.rootCommandName;
         const profilesRootDir = ProfileUtils.constructProfilesRootDirectory(ImperativeConfig.instance.cliHome);
+        const configExists = ImperativeConfig.instance.config?.exists;
         const oldPluginInfo = this.getOldPluginInfo();
 
         // Cannot do profiles operations w/ team config
-        const oldProfileCount = ImperativeConfig.instance.config?.exists ? 0 : this.getOldProfileCount(profilesRootDir);
+        const oldProfileCount = configExists ? 0 : this.getOldProfileCount(profilesRootDir);
         const oldProfilesDir = `${profilesRootDir.replace(/[\\/]$/, "")}-old`;
         let skipConversion = false;
+
+        if (configExists) {
+            // Warn that a team config was detected
+            params.response.console.log(`A team configuration file was detected. V1 profiles cannot be loaded for conversion.\n` +
+            `Run '${cliBin} config list --locations --root' for team configuration file locations.\n`);
+        }
 
         if (oldPluginInfo.plugins.length == 0 && oldProfileCount === 0) {
             params.response.console.log("No old profiles or plug-ins were found to convert from Zowe v1 to v2.");
@@ -129,15 +137,14 @@ export default class ConvertProfilesHandler implements ICommandHandler {
                     params.response.console.error(`Failed to rename profiles directory to ${oldProfilesDir}:\n    ${error}`);
                 }
 
-                const cliBin = ImperativeConfig.instance.rootCommandName;
                 params.response.console.log(`Your new profiles have been saved to ${teamConfig.layerActive().path}.\n` +
                     `Run "${cliBin} config edit --global-config" to open this file in your default editor.\n`);
 
                 if (params.arguments.delete == null || params.arguments.delete === false) {
                     params.response.console.log(`Your old profiles have been moved to ${oldProfilesDir}.\n` +
                     `Run "${cliBin} config convert-profiles --delete" if you want to completely remove them.\n\n` +
-                    `If you would like to revert back to v1 profiles, rename the 'profiles-old' directory to 'profiles'\n` +
-                    `and delete the new config file located at ${teamConfig.layerActive().path}.`);
+                    `If you would like to revert back to v1 profiles, or convert your v1 profiles again, rename the 'profiles-old'\n` +
+                    `directory to 'profiles' and delete the new config file located at ${teamConfig.layerActive().path}.`);
                 }
             }
         }
