@@ -68,7 +68,8 @@ describe("Configuration Convert Profiles command handler", () => {
                     }
                 },
                 layerActive: jest.fn().mockReturnValue({}),
-                save: jest.fn()
+                save: jest.fn(),
+                exists: false
             }
         };
         stdout = stderr = "";
@@ -147,6 +148,31 @@ describe("Configuration Convert Profiles command handler", () => {
         expect(stderr).toContain(metaError.message);
         expect(updateSchemaSpy).toHaveBeenCalled();
         expect(mockImperativeConfig.config.save).toHaveBeenCalled();
+    });
+
+    it("should not convert old profiles if team config already exists", async () => {
+        jest.spyOn(ConfigBuilder, "convert").mockResolvedValueOnce({
+            config: Config.empty(),
+            profilesConverted: {
+                fruit: ["apple", "coconut", "banana"]
+            },
+            profilesFailed: []
+        });
+        mockImperativeConfig.config.exists = true;
+        const updateSchemaSpy = jest.spyOn(ConfigSchema, "updateSchema").mockReturnValueOnce(undefined);
+        jest.spyOn(fs, "renameSync").mockReturnValueOnce();
+
+        const handler = new ConvertProfilesHandler();
+        jest.spyOn(handler as any, "getOldPluginInfo").mockReturnValueOnce({ plugins: [], overrides: [] });
+        jest.spyOn(handler as any, "getOldProfileCount").mockReturnValueOnce(3);
+        const params = getIHandlerParametersObject();
+        params.arguments.prompt = false;
+
+        await handler.process(params);
+        expect(stdout).toContain("No old profiles or plug-ins were found");
+        expect(stdout).not.toContain("Converted fruit profiles: apple, coconut");
+        expect(updateSchemaSpy).not.toHaveBeenCalled();
+        expect(mockImperativeConfig.config.save).not.toHaveBeenCalled();
     });
 
     it("should remove plug-ins and convert profiles if prompt is accepted", async () => {

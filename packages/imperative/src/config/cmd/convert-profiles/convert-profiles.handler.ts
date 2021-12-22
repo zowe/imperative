@@ -52,7 +52,9 @@ export default class ConvertProfilesHandler implements ICommandHandler {
     public async process(params: IHandlerParameters): Promise<void> {
         const profilesRootDir = ProfileUtils.constructProfilesRootDirectory(ImperativeConfig.instance.cliHome);
         const oldPluginInfo = this.getOldPluginInfo();
-        const oldProfileCount = this.getOldProfileCount(profilesRootDir);
+
+        // Cannot do profiles operations w/ team config
+        const oldProfileCount = ImperativeConfig.instance.config?.exists ? 0 : this.getOldProfileCount(profilesRootDir);
         const oldProfilesDir = `${profilesRootDir.replace(/[\\/]$/, "")}-old`;
         let skipConversion = false;
 
