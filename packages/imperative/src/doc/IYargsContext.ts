@@ -10,7 +10,7 @@
 */
 
 import * as net from "net";
-import { IDaemonResponse } from "../../..";
+import { IDaemonResponse } from "../../../utilities";
 
 /**
  * Allow for passing our own "context" / user data through yargs
@@ -27,11 +27,9 @@ export interface IYargsContext {
     stream?: net.Socket;
 
     /**
-     * Current working directory from socket client
-     * @type {string}
+     * Daemon response object from socket client
+     * @type {IDaemonResponse}
      * @memberof IYargsContext
      */
-    cwd?: string;
-
     daemonResponse?: IDaemonResponse;
 }
