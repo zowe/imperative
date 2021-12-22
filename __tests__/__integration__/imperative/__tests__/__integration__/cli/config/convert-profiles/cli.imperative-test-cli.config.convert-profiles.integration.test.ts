@@ -36,7 +36,7 @@ describe("imperative-test-cli config convert-profiles", () => {
     });
 
     afterEach(() => {
-        runCliScript(__dirname + "/__scripts__/delete_profiles_secured_and_base.sh", TEST_ENVIRONMENT.workingDir);
+        runCliScript(__dirname + "/__scripts__/delete_profiles_secured_and_base_noerr.sh", TEST_ENVIRONMENT.workingDir);
         if (fs.existsSync(configJsonPath)) {
             fs.unlinkSync(configJsonPath);
         }
@@ -108,6 +108,21 @@ describe("imperative-test-cli config convert-profiles", () => {
             expect(response.stdout.toString()).not.toContain("Your new profiles have been saved");
             expect(response.stdout.toString()).not.toContain("Your old profiles have been moved");
             expect(response.stderr.toString()).toEqual("");
+            expect(fs.existsSync(configJsonPath)).toBe(false);
+        });
+        it("should not delete profiles if prompt is rejected", () => {
+            runCliScript(__dirname + "/__scripts__/delete_profiles_secured_and_base.sh", TEST_ENVIRONMENT.workingDir);
+
+            const response = runCliScript(__dirname + "/__scripts__/convert_profiles_delete.sh", TEST_ENVIRONMENT.workingDir, ["n"]);
+            expect(response.status).toBe(0);
+            expect(response.stdout.toString()).toContain("No old profiles or plug-ins were found");
+            expect(response.stdout.toString()).toContain("Are you sure you want to delete your v1 profiles?");
+            expect(response.stdout.toString()).not.toContain("Your new profiles have been saved");
+            expect(response.stdout.toString()).not.toContain("Your old profiles have been moved");
+            expect(response.stdout.toString()).not.toContain("Deleting the profiles directory");
+            expect(response.stderr.toString()).not.toContain("Failed to delete the profiles directory");
+            expect(response.stderr.toString()).not.toContain("Deleting secure value for");
+            expect(response.stderr.toString()).not.toContain("Keytar or the credential vault are unavailable");
             expect(fs.existsSync(configJsonPath)).toBe(false);
         });
     });

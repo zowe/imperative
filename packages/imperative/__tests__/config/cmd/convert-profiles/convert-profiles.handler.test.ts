@@ -76,7 +76,7 @@ describe("Configuration Convert Profiles command handler", () => {
     });
 
     afterEach(() => {
-        jest.clearAllMocks();
+        jest.resetAllMocks();
     });
 
     it("should do nothing if there are no old plug-ins or profiles", async () => {
@@ -379,7 +379,7 @@ describe("Configuration Convert Profiles command handler", () => {
     });
 
     it("should handle no profiles and delete secure properties except secure_config_props with prompt", async () => {
-        jest.spyOn(ConfigBuilder, "convert").mockResolvedValueOnce({
+        const configBuilderConvertSpy = jest.spyOn(ConfigBuilder, "convert").mockResolvedValueOnce({
             config: Config.empty(),
             profilesConverted: {},
             profilesFailed: []
@@ -415,6 +415,7 @@ describe("Configuration Convert Profiles command handler", () => {
         expect(stdout).toContain("Deleting secure value for \"Zowe-Plugin/testAcct\"");
         expect(stdout).toContain("Deleting secure value for \"Broadcom-Plugin/testAcct\"");
         expect(stdout).toContain("Deleting secure value for \"Zowe/testAcct\"");
+        expect(configBuilderConvertSpy).not.toHaveBeenCalled();
         expect(updateSchemaSpy).not.toHaveBeenCalled();
         expect(mockImperativeConfig.config.save).not.toHaveBeenCalled();
         expect(rimrafSpy).toHaveBeenCalledTimes(1);
