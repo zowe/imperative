@@ -64,7 +64,7 @@ export const initDefinition: ICommandDefinition = {
         },
         {
             name: "dry-run",
-            description: "Display the outcome of the initialization without saving.",
+            description: "Display the outcome of the initialization without saving it.",
             aliases: ["dr", "dry"],
             type: "boolean",
             conflictsWith: ["overwrite"]
