@@ -10,12 +10,11 @@
 */
 
 import { IHandlerParameters } from "../../../../../cmd";
-import { ImperativeConfig } from "../../../../../utilities";
+import { ImperativeConfig, ProcessUtils } from "../../../../../utilities";
 import { FakeAutoInitHandler } from "./__data__/FakeAutoInitHandler";
 import * as lodash from "lodash";
-import * as jestdiff from "jest-diff";
+import * as jestDiff from "jest-diff";
 import * as stripAnsi from "strip-ansi";
-import * as open from "open";
 import { ConfigSchema } from "../../../../../config";
 import { CredentialManagerFactory } from "../../../../../security";
 import { SessConstants } from "../../../../../rest";
@@ -323,7 +322,8 @@ describe("BaseAutoInitHandler", () => {
                 findSecure: mockFindSecure
             }
         };
-        const diffSpy = jest.spyOn(jestdiff, 'diff');
+        const diffSpy = jest.spyOn(jestDiff, 'diff');
+        const editFileSpy = jest.spyOn(ProcessUtils, "openInEditor");
 
         jest.mock("strip-ansi");
         const stripAnsiSpy = jest.spyOn(stripAnsi, "default");
@@ -356,6 +356,7 @@ describe("BaseAutoInitHandler", () => {
         expect(stripAnsiSpy).toHaveBeenCalledTimes(1);
         expect(mockMerge).toHaveBeenCalledWith(undefined, true);
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
+        expect(editFileSpy).toHaveBeenCalledTimes(0);
         expect(displayAutoInitChangesSpy).toHaveBeenCalledTimes(0);
     });
 
@@ -387,6 +388,8 @@ describe("BaseAutoInitHandler", () => {
         const mockMerge = jest.fn();
         const mockWrite = jest.fn();
         const mockSave = jest.fn();
+        const mockSet = jest.fn();
+        const mockSetSchema = jest.fn();
         const mockGet = jest.fn().mockReturnValue({
             exists: true,
             properties: {}
@@ -401,12 +404,16 @@ describe("BaseAutoInitHandler", () => {
                 get: mockGet
             }
         };
-        jest.mock('open');
+        const editFileSpy = jest.spyOn(ProcessUtils, "openInEditor").mockResolvedValueOnce();
 
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
             config: {
                 api: mockImperativeConfigApi,
-                save: mockSave
+                save: mockSave,
+                setSchema: mockSetSchema
+            },
+            loadedConfig: {
+                profiles: []
             }
         });
 
@@ -423,12 +430,14 @@ describe("BaseAutoInitHandler", () => {
         expect(processAutoInitSpy).toBeCalledTimes(1);
         expect(createSessCfgFromArgsSpy).toBeCalledTimes(1);
         expect(mockActivate).toHaveBeenCalledTimes(1);
-        expect(mockMerge).toHaveBeenCalledTimes(0);
+        expect(mockMerge).toHaveBeenCalledTimes(1);
         expect(mockWrite).toHaveBeenCalledTimes(0);
-        expect(mockSave).toHaveBeenCalledTimes(0);
-        expect(mockGet).toHaveBeenCalledTimes(1);
+        expect(mockSave).toHaveBeenCalledTimes(1);
+        expect(mockGet).toHaveBeenCalledTimes(2);
+        expect(mockSetSchema).toHaveBeenCalledTimes(1);
+        expect(mockSet).toHaveBeenCalledTimes(0);
         expect(ensureCredMgrSpy).toHaveBeenCalledTimes(1);
-        expect(open).toHaveBeenCalledTimes(1);
+        expect(editFileSpy).toHaveBeenCalledTimes(1);
         expect(displayAutoInitChangesSpy).toHaveBeenCalledTimes(1);
     });
 
@@ -478,7 +487,6 @@ describe("BaseAutoInitHandler", () => {
                 set: mockSet
             }
         };
-        jest.mock('open');
 
         jest.spyOn(ImperativeConfig, 'instance', "get").mockReturnValue({
             config: {
@@ -578,7 +586,7 @@ describe("BaseAutoInitHandler", () => {
                 findSecure: mockFindSecure
             }
         };
-        const diffSpy = jest.spyOn(jestdiff, 'diff');
+        const diffSpy = jest.spyOn(jestDiff, 'diff');
         const unsetSpy = jest.spyOn(lodash, "unset");
         jest.mock("strip-ansi");
         const stripAnsiSpy = jest.spyOn(stripAnsi, 'default');

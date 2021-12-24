@@ -9,9 +9,9 @@
 *
 */
 
-import { IImperativeConfig } from "../..";
+import { CredentialManagerFactory, IImperativeConfig } from "../..";
 import { Config, ConfigBuilder, IConfig } from "../";
-import { IProfileProperty } from "../../profiles";
+import { IProfileProperty, ProfileIO } from "../../profiles";
 import * as config from "../../../__tests__/__integration__/imperative/src/imperative";
 import * as lodash from "lodash";
 
@@ -243,6 +243,118 @@ describe("Config Builder tests", () => {
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(5); // Populating default value for info and host of each profile
             expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1); // Hoisting host property from base profile
             expect(builtConfig).toEqual(expectedConfig);
+        });
+    });
+
+    describe("convert", () => {
+        const mockSecureLoad = jest.fn().mockReturnValue("\"area51\"");
+
+        beforeAll(() => {
+            jest.spyOn(CredentialManagerFactory, "manager", "get").mockReturnValue({
+                load: mockSecureLoad
+            } as any);
+        });
+
+        it("should successfully convert multiple v1 profiles to config object", async () => {
+            jest.spyOn(ProfileIO, "getAllProfileDirectories").mockReturnValueOnce(["fruit", "nut"]);
+            jest.spyOn(ProfileIO, "getAllProfileNames")
+                .mockReturnValueOnce(["apple", "banana", "coconut"])
+                .mockReturnValueOnce(["almond", "brazil", "cashew"]);
+            jest.spyOn(ProfileIO, "readMetaFile")
+                .mockReturnValueOnce({ defaultProfile: "apple" } as any)
+                .mockReturnValueOnce({ defaultProfile: "brazil" } as any);
+            jest.spyOn(ProfileIO, "readProfileFile")
+                .mockReturnValueOnce({ color: "green", secret: "managed by A" })
+                .mockReturnValueOnce({ color: "yellow", secret: "managed by B" })
+                .mockReturnValueOnce({ color: "brown", secret: "managed by C" })
+                .mockReturnValueOnce({ unitPrice: 1 })
+                .mockReturnValueOnce({ unitPrice: 5 })
+                .mockReturnValueOnce({ unitPrice: 2 });
+            const convertResult = await ConfigBuilder.convert(__dirname);
+            expect(convertResult.config).toMatchObject({
+                profiles: {
+                    fruit_apple: {
+                        type: "fruit",
+                        properties: { color: "green", secret: "area51" },
+                        secure: ["secret"]
+                    },
+                    fruit_banana: {
+                        type: "fruit",
+                        properties: { color: "yellow", secret: "area51" },
+                        secure: ["secret"]
+                    },
+                    fruit_coconut: {
+                        type: "fruit",
+                        properties: { color: "brown", secret: "area51" },
+                        secure: ["secret"]
+                    },
+                    nut_almond: {
+                        type: "nut",
+                        properties: { unitPrice: 1 },
+                        secure: []
+                    },
+                    nut_brazil: {
+                        type: "nut",
+                        properties: { unitPrice: 5 },
+                        secure: []
+                    },
+                    nut_cashew: {
+                        type: "nut",
+                        properties: { unitPrice: 2 },
+                        secure: []
+                    }
+                },
+                defaults: {
+                    fruit: "fruit_apple",
+                    nut: "nut_brazil"
+                },
+                autoStore: true
+            });
+            expect(Object.keys(convertResult.profilesConverted).length).toBe(2);
+            expect(convertResult.profilesFailed.length).toBe(0);
+        });
+
+        it("should fail to convert invalid v1 profiles to config object", async () => {
+            mockSecureLoad.mockReturnValueOnce(null);
+            const metaError = new Error("invalid meta file");
+            const profileError = new Error("invalid profile file");
+            jest.spyOn(ProfileIO, "getAllProfileDirectories").mockReturnValueOnce(["fruit", "nut"]);
+            jest.spyOn(ProfileIO, "getAllProfileNames")
+                .mockReturnValueOnce(["apple", "banana", "coconut"])
+                .mockReturnValueOnce([]);
+            jest.spyOn(ProfileIO, "readMetaFile").mockImplementationOnce(() => { throw metaError; });
+            jest.spyOn(ProfileIO, "readProfileFile")
+                .mockImplementationOnce(() => ({ color: "green", secret: "managed by A" }))
+                .mockImplementationOnce(() => { throw profileError; })
+                .mockImplementationOnce(() => ({ color: "brown", secret: "managed by C" }));
+            const convertResult = await ConfigBuilder.convert(__dirname);
+            expect(convertResult.config).toMatchObject({
+                profiles: {
+                    fruit_apple: {
+                        type: "fruit",
+                        properties: { color: "green" },
+                        secure: []
+                    },
+                    fruit_coconut: {
+                        type: "fruit",
+                        properties: { color: "brown", secret: "area51" },
+                        secure: ["secret"]
+                    }
+                },
+                defaults: {},
+                autoStore: true
+            });
+            expect(Object.keys(convertResult.profilesConverted).length).toBe(1);
+            expect(convertResult.profilesFailed.length).toBe(2);
+            expect(convertResult.profilesFailed[0]).toMatchObject({
+                name: "banana",
+                type: "fruit",
+                error: profileError
+            });
+            expect(convertResult.profilesFailed[1]).toMatchObject({
+                type: "fruit",
+                error: metaError
+            });
         });
     });
 });

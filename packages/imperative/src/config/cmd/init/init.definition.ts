@@ -67,7 +67,14 @@ export const initDefinition: ICommandDefinition = {
             description: "Display the outcome of the initialization without saving it.",
             aliases: ["dr", "dry"],
             type: "boolean",
-            conflictsWith: ["overwrite"]
+            conflictsWith: ["overwrite", "edit"]
+        },
+        {
+            name: "edit",
+            aliases: ["e"],
+            description: "Open in editor after initializing the configuration",
+            type: "boolean",
+            conflictsWith: ["dry-run"]
         }
     ],
     examples: [

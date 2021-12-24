@@ -9,6 +9,7 @@
 *
 */
 
+jest.mock("../../logger/src/LoggerUtils");
 import { AbstractAuthHandler } from "../../imperative";
 import { SessConstants } from "../../rest";
 import { ImperativeConfig } from "../../utilities";
@@ -29,6 +30,7 @@ describe("ConfigAutoStore tests", () => {
                     host: { type: "string" },
                     user: { type: "string", secure: true },
                     password: { type: "string", secure: true },
+                    protocol: { type: "string" },
                     tokenType: { type: "string" },
                     tokenValue: { type: "string", secure: true }
                 }
@@ -177,154 +179,279 @@ describe("ConfigAutoStore tests", () => {
             jest.clearAllMocks();
         });
 
-        it("should store user and password in base profile for basic auth", async () => {
-            await setupConfigToLoad({
-                profiles: {
-                    fruit: {
-                        type: "fruit",
-                        properties: {},
-                    },
-                    base: {
-                        type: "base",
-                        properties: {
-                            host: "example.com"
+        describe("basic auth", () => {
+            it("should store user and password in base profile with secure array", async () => {
+                await setupConfigToLoad({
+                    profiles: {
+                        fruit: {
+                            type: "fruit",
+                            properties: {},
                         },
-                        secure: ["user", "password"]
-                    }
-                },
-                defaults: { fruit: "fruit", base: "base" },
-                autoStore: true
-            });
-            ImperativeConfig.instance.config.save = jest.fn();
-
-            const propsToAdd = {
-                user: "admin",
-                password: "123456"
-            };
-            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
-                hostname: "example.com",
-                type: SessConstants.AUTH_TYPE_BASIC,
-                ...propsToAdd
-            }, ["user", "password"]);
-
-            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
-            expect(ImperativeConfig.instance.config.properties.profiles.base.properties).toMatchObject({
-                host: "example.com",
-                ...propsToAdd
-            });
-        });
-
-        it("should store user and password in base profile for basic auth 2", async () => {
-            await setupConfigToLoad({
-                profiles: {
-                    base: {
-                        type: "base",
-                        properties: {}
-                    }
-                },
-                defaults: { base: "base" },
-                autoStore: true
-            });
-            ImperativeConfig.instance.config.save = jest.fn();
-
-            const propsToAdd = {
-                user: "admin",
-                password: "123456"
-            };
-            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
-                hostname: "example.com",
-                type: SessConstants.AUTH_TYPE_BASIC,
-                ...propsToAdd
-            }, ["user", "password"]);
-
-            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
-            expect(ImperativeConfig.instance.config.properties.profiles.base.properties).toMatchObject(propsToAdd);
-        });
-
-        it("should store user and password in service profile for basic auth", async () => {
-            await setupConfigToLoad({
-                profiles: {
-                    fruit: {
-                        type: "fruit",
-                        properties: {},
-                        secure: ["user", "password"]
-                    },
-                    base: {
-                        type: "base",
-                        properties: {
-                            host: "example.com"
+                        base: {
+                            type: "base",
+                            properties: {
+                                host: "example.com"
+                            },
+                            secure: ["user", "password"]
                         }
-                    }
-                },
-                defaults: { fruit: "fruit", base: "base" },
-                autoStore: true
+                    },
+                    defaults: { fruit: "fruit", base: "base" },
+                    autoStore: true
+                });
+                ImperativeConfig.instance.config.save = jest.fn();
+
+                const propsToAdd = {
+                    user: "admin",
+                    password: "123456"
+                };
+                await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                    hostname: "example.com",
+                    type: SessConstants.AUTH_TYPE_BASIC,
+                    ...propsToAdd
+                }, ["user", "password"]);
+
+                expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+                expect(ImperativeConfig.instance.config.properties.profiles.base.properties).toMatchObject({
+                    host: "example.com",
+                    ...propsToAdd
+                });
             });
-            ImperativeConfig.instance.config.save = jest.fn();
 
-            const propsToAdd = {
-                user: "admin",
-                password: "123456"
-            };
-            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
-                hostname: "example.com",
-                type: SessConstants.AUTH_TYPE_BASIC,
-                ...propsToAdd
-            }, ["user", "password"]);
+            it("should store user and password in base profile without secure array", async () => {
+                await setupConfigToLoad({
+                    profiles: {
+                        base: {
+                            type: "base",
+                            properties: {}
+                        }
+                    },
+                    defaults: { base: "base" },
+                    autoStore: true
+                });
+                ImperativeConfig.instance.config.save = jest.fn();
 
-            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
-            expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject(propsToAdd);
+                const propsToAdd = {
+                    user: "admin",
+                    password: "123456"
+                };
+                await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                    hostname: "example.com",
+                    type: SessConstants.AUTH_TYPE_BASIC,
+                    ...propsToAdd
+                }, ["user", "password"]);
+
+                expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+                expect(ImperativeConfig.instance.config.properties.profiles.base.properties).toMatchObject(propsToAdd);
+            });
+
+            it("should store user and password in service profile with secure array", async () => {
+                await setupConfigToLoad({
+                    profiles: {
+                        fruit: {
+                            type: "fruit",
+                            properties: {},
+                            secure: ["user", "password"]
+                        },
+                        base: {
+                            type: "base",
+                            properties: {
+                                host: "example.com"
+                            }
+                        }
+                    },
+                    defaults: { fruit: "fruit", base: "base" },
+                    autoStore: true
+                });
+                ImperativeConfig.instance.config.save = jest.fn();
+
+                const propsToAdd = {
+                    user: "admin",
+                    password: "123456"
+                };
+                await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                    hostname: "example.com",
+                    type: SessConstants.AUTH_TYPE_BASIC,
+                    ...propsToAdd
+                }, ["user", "password"]);
+
+                expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+                expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject(propsToAdd);
+            });
+
+            it("should store user and password in service profile without secure array", async () => {
+                await setupConfigToLoad({
+                    profiles: {
+                        fruit: {
+                            type: "fruit",
+                            properties: {}
+                        }
+                    },
+                    defaults: { fruit: "fruit" },
+                    autoStore: true
+                });
+                ImperativeConfig.instance.config.save = jest.fn();
+
+                const propsToAdd = {
+                    user: "admin",
+                    password: "123456"
+                };
+                await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                    hostname: "example.com",
+                    type: SessConstants.AUTH_TYPE_BASIC,
+                    ...propsToAdd
+                }, ["user", "password"]);
+
+                expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+                expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject(propsToAdd);
+            });
+
+            it("should store user and password in service profile when config is empty", async () => {
+                await setupConfigToLoad({
+                    profiles: {},
+                    defaults: {},
+                    autoStore: true
+                });
+                ImperativeConfig.instance.config.save = jest.fn();
+
+                const propsToAdd = {
+                    user: "admin",
+                    password: "123456"
+                };
+                await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                    hostname: "example.com",
+                    type: SessConstants.AUTH_TYPE_BASIC,
+                    ...propsToAdd
+                }, ["user", "password"]);
+
+                expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+                expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject(propsToAdd);
+            });
+
+            it("should store user and password in top level profile", async () => {
+                await setupConfigToLoad({
+                    profiles: {
+                        fruit: {
+                            type: "fruit",
+                            profiles: {
+                                apple: {
+                                    type: "apple",
+                                    properties: {}
+                                }
+                            },
+                            properties: {},
+                            secure: ["user", "password"]
+                        },
+                        base: {
+                            type: "base",
+                            properties: {
+                                host: "example.com"
+                            }
+                        }
+                    },
+                    defaults: { fruit: "fruit.apple", base: "base" },
+                    autoStore: true
+                });
+                ImperativeConfig.instance.config.save = jest.fn();
+
+                const propsToAdd = {
+                    user: "admin",
+                    password: "123456"
+                };
+                await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                    hostname: "example.com",
+                    type: SessConstants.AUTH_TYPE_BASIC,
+                    ...propsToAdd
+                }, ["user", "password"]);
+
+                expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+                expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject(propsToAdd);
+            });
         });
 
-        it("should store user and password in service profile for basic auth 2", async () => {
-            await setupConfigToLoad({
-                profiles: {
-                    fruit: {
-                        type: "fruit",
-                        properties: {}
-                    }
-                },
-                defaults: { fruit: "fruit" },
-                autoStore: true
+        describe("token auth", () => {
+            it("should store token value in base profile", async () => {
+                await setupConfigToLoad({
+                    profiles: {
+                        fruit: {
+                            type: "fruit",
+                            properties: {
+                                basePath: "/apple/api/v1"
+                            },
+                        },
+                        base: {
+                            type: "base",
+                            properties: {
+                                host: "example.com",
+                                tokenType: SessConstants.TOKEN_TYPE_JWT
+                            },
+                            secure: ["tokenValue"]
+                        }
+                    },
+                    defaults: { fruit: "fruit", base: "base" },
+                    autoStore: true
+                });
+                ImperativeConfig.instance.config.save = jest.fn();
+
+                const propsToAdd = {
+                    user: "admin",
+                    password: "123456"
+                };
+                await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                    hostname: "example.com",
+                    type: SessConstants.AUTH_TYPE_BASIC,
+                    ...propsToAdd
+                }, ["user", "password"]);
+
+                expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+                expect(ImperativeConfig.instance.config.properties.profiles.base.properties).toMatchObject({
+                    host: "example.com",
+                    tokenType: SessConstants.TOKEN_TYPE_JWT,
+                    tokenValue: "fakeToken"
+                });
             });
-            ImperativeConfig.instance.config.save = jest.fn();
 
-            const propsToAdd = {
-                user: "admin",
-                password: "123456"
-            };
-            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
-                hostname: "example.com",
-                type: SessConstants.AUTH_TYPE_BASIC,
-                ...propsToAdd
-            }, ["user", "password"]);
+            it("should store token value in service profile", async () => {
+                await setupConfigToLoad({
+                    profiles: {
+                        fruit: {
+                            type: "fruit",
+                            properties: {
+                                basePath: "/apple/api/v1",
+                                tokenType: SessConstants.TOKEN_TYPE_JWT
+                            },
+                        },
+                        base: {
+                            type: "base",
+                            properties: {
+                                host: "example.com"
+                            }
+                        }
+                    },
+                    defaults: { fruit: "fruit", base: "base" },
+                    autoStore: true
+                });
+                ImperativeConfig.instance.config.save = jest.fn();
 
-            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
-            expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject(propsToAdd);
+                const propsToAdd = {
+                    user: "admin",
+                    password: "123456"
+                };
+                await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
+                    hostname: "example.com",
+                    type: SessConstants.AUTH_TYPE_BASIC,
+                    ...propsToAdd
+                }, ["user", "password"]);
+
+                expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
+                expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject({
+                    tokenType: SessConstants.TOKEN_TYPE_JWT,
+                    tokenValue: "fakeToken"
+                });
+                expect(ImperativeConfig.instance.config.properties.profiles.fruit.secure).toEqual(["tokenValue"]);
+            });
         });
 
-        it("should store user and password in service profile for basic auth 3", async () => {
-            await setupConfigToLoad({
-                profiles: {},
-                defaults: {},
-                autoStore: true
-            });
-            ImperativeConfig.instance.config.save = jest.fn();
-
-            const propsToAdd = {
-                user: "admin",
-                password: "123456"
-            };
-            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
-                hostname: "example.com",
-                type: SessConstants.AUTH_TYPE_BASIC,
-                ...propsToAdd
-            }, ["user", "password"]);
-
-            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
-            expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject(propsToAdd);
-        });
-
-        it("should store user and password in top level profile for basic auth", async () => {
+        it("should store host securely in top level profile", async () => {
             await setupConfigToLoad({
                 profiles: {
                     fruit: {
@@ -336,113 +463,23 @@ describe("ConfigAutoStore tests", () => {
                             }
                         },
                         properties: {},
-                        secure: ["user", "password"]
-                    },
-                    base: {
-                        type: "base",
-                        properties: {
-                            host: "example.com"
-                        }
+                        secure: ["host"]
                     }
                 },
-                defaults: { fruit: "fruit.apple", base: "base" },
+                defaults: { fruit: "fruit.apple" },
                 autoStore: true
             });
             ImperativeConfig.instance.config.save = jest.fn();
 
-            const propsToAdd = {
-                user: "admin",
-                password: "123456"
-            };
             await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
                 hostname: "example.com",
                 type: SessConstants.AUTH_TYPE_BASIC,
-                ...propsToAdd
-            }, ["user", "password"]);
+                protocol: "https"
+            }, ["hostname", "protocol"]);
 
             expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
-            expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject(propsToAdd);
-        });
-
-        it("should store token value in base profile for token auth", async () => {
-            await setupConfigToLoad({
-                profiles: {
-                    fruit: {
-                        type: "fruit",
-                        properties: {
-                            basePath: "/apple/api/v1"
-                        },
-                    },
-                    base: {
-                        type: "base",
-                        properties: {
-                            host: "example.com",
-                            tokenType: SessConstants.TOKEN_TYPE_JWT
-                        },
-                        secure: ["tokenValue"]
-                    }
-                },
-                defaults: { fruit: "fruit", base: "base" },
-                autoStore: true
-            });
-            ImperativeConfig.instance.config.save = jest.fn();
-
-            const propsToAdd = {
-                user: "admin",
-                password: "123456"
-            };
-            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
-                hostname: "example.com",
-                type: SessConstants.AUTH_TYPE_BASIC,
-                ...propsToAdd
-            }, ["user", "password"]);
-
-            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
-            expect(ImperativeConfig.instance.config.properties.profiles.base.properties).toMatchObject({
-                host: "example.com",
-                tokenType: SessConstants.TOKEN_TYPE_JWT,
-                tokenValue: "fakeToken"
-            });
-        });
-
-        it("should store token value in service profile for token auth", async () => {
-            await setupConfigToLoad({
-                profiles: {
-                    fruit: {
-                        type: "fruit",
-                        properties: {
-                            basePath: "/apple/api/v1",
-                            tokenType: SessConstants.TOKEN_TYPE_JWT
-                        },
-                    },
-                    base: {
-                        type: "base",
-                        properties: {
-                            host: "example.com"
-                        }
-                    }
-                },
-                defaults: { fruit: "fruit", base: "base" },
-                autoStore: true
-            });
-            ImperativeConfig.instance.config.save = jest.fn();
-
-            const propsToAdd = {
-                user: "admin",
-                password: "123456"
-            };
-            await ConfigAutoStore.storeSessCfgProps(handlerParams as any, {
-                hostname: "example.com",
-                type: SessConstants.AUTH_TYPE_BASIC,
-                ...propsToAdd
-            }, ["user", "password"]);
-
-            expect(ImperativeConfig.instance.config.save).toHaveBeenCalled();
-            expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject({
-                tokenType: SessConstants.TOKEN_TYPE_JWT,
-                tokenValue: "fakeToken"
-            });
-            expect(ImperativeConfig.instance.config.properties.profiles.fruit.secure).toEqual(["tokenValue"]);
+            expect(ImperativeConfig.instance.config.properties.profiles.fruit.properties).toMatchObject({ host: "example.com" });
+            expect(ImperativeConfig.instance.config.properties.profiles.fruit.profiles.apple.properties).toMatchObject({ protocol: "https" });
         });
 
         it("should do nothing if property list is empty", async () => {

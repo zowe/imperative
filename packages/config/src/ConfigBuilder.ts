@@ -9,12 +9,16 @@
 *
 */
 
+import * as path from "path";
 import * as lodash from "lodash";
+import { ProfileIO, ProfilesConstants, ProfileUtils } from "../../profiles";
 import { IImperativeConfig } from "../../imperative";
 import { Config } from "./Config";
 import { IConfig } from "./doc/IConfig";
 import { IConfigBuilderOpts } from "./doc/IConfigBuilderOpts";
 import { IConfigProfile } from "./doc/IConfigProfile";
+import { CredentialManagerFactory } from "../../security";
+import { IConfigConvertResult } from "./doc/IConfigConvertResult";
 
 export class ConfigBuilder {
     /**
@@ -69,6 +73,71 @@ export class ConfigBuilder {
         }
 
         return { ...config, autoStore: true };
+    }
+
+    /**
+     * Convert existing v1 profiles to a Config object and report any conversion failures.
+     * @param profilesRootDir Root directory where v1 profiles are stored.
+     * @returns Results object including new config and error details for profiles that failed to convert.
+     */
+    public static async convert(profilesRootDir: string): Promise<IConfigConvertResult> {
+        const result: IConfigConvertResult = {
+            config: Config.empty(),
+            profilesConverted: {},
+            profilesFailed: []
+        };
+
+        for (const profileType of ProfileIO.getAllProfileDirectories(profilesRootDir)) {
+            const profileTypeDir = path.join(profilesRootDir, profileType);
+            const profileNames = ProfileIO.getAllProfileNames(profileTypeDir, ".yaml", `${profileType}_meta`);
+            if (profileNames.length === 0) {
+                continue;
+            }
+
+            for (const profileName of profileNames) {
+                try {
+                    const profileFilePath = path.join(profileTypeDir, `${profileName}.yaml`);
+                    const profileProps = ProfileIO.readProfileFile(profileFilePath, profileType);
+                    const secureProps = [];
+
+                    for (const [key, value] of Object.entries(profileProps)) {
+                        if (value.toString().startsWith(ProfilesConstants.PROFILES_OPTION_SECURELY_STORED)) {
+                            const secureValue = await CredentialManagerFactory.manager.load(
+                                ProfileUtils.getProfilePropertyKey(profileType, profileName, key), true);
+                            if (secureValue != null) {
+                                profileProps[key] = JSON.parse(secureValue);
+                                secureProps.push(key);
+                            } else {
+                                delete profileProps[key];
+                            }
+                        }
+                    }
+
+                    result.config.profiles[ProfileUtils.getProfileMapKey(profileType, profileName)] = {
+                        type: profileType,
+                        properties: profileProps,
+                        secure: secureProps
+                    };
+
+                    result.profilesConverted[profileType] = [...(result.profilesConverted[profileType] || []), profileName];
+                } catch (error) {
+                    result.profilesFailed.push({ name: profileName, type: profileType, error });
+                }
+            }
+
+            try {
+                const metaFilePath = path.join(profileTypeDir, `${profileType}_meta.yaml`);
+                const profileMetaFile = ProfileIO.readMetaFile(metaFilePath);
+                if (profileMetaFile.defaultProfile != null) {
+                    result.config.defaults[profileType] = ProfileUtils.getProfileMapKey(profileType, profileMetaFile.defaultProfile);
+                }
+            } catch (error) {
+                result.profilesFailed.push({ type: profileType, error });
+            }
+        }
+
+        result.config.autoStore = true;
+        return result;
     }
 
     /**

@@ -11,6 +11,7 @@
 
 import { IImperativeEnvironmentalVariableSettings } from "../doc/IImperativeEnvironmentalVariableSettings";
 import { ImperativeExpect } from "../../../expect";
+import { Constants } from "../../../constants/src/Constants";
 
 /**
  * Service for reading environmental variable settings
@@ -36,6 +37,13 @@ export class EnvironmentalVariableSettings {
      */
     public static readonly APP_LOG_LEVEL_KEY_SUFFIX = "_APP_LOG_LEVEL";
 
+    /**
+     * The end of the environmental variable for configuring the ability to mask output of your CLI
+     * The prefix will be added to the beginning of this value to construct the full key
+     * @type {string}
+     * @memberof EnvironmentalVariableSettings
+     */
+    public static readonly APP_MASK_OUTPUT_SUFFIX = "_APP_MASK_OUTPUT";
 
     /**
      * The end of the environmental variable for configuring the home directory for your CLI
@@ -66,8 +74,8 @@ export class EnvironmentalVariableSettings {
         ImperativeExpect.toBeDefinedAndNonBlank(prefix, "prefix", "You must specify the environmental variable prefix.");
 
         // helper to create an object matching IImperativeEnvironmentalVariableSetting from a key
-        const getSetting = (key: string) => {
-            return {key, value: process.env[key]};
+        const getSetting = (key: string, defaultValue?: string) => {
+            return {key, value: process.env[key] || defaultValue };
         };
         return {
             imperativeLogLevel:
@@ -76,8 +84,10 @@ export class EnvironmentalVariableSettings {
                 getSetting(prefix + this.APP_LOG_LEVEL_KEY_SUFFIX),
             cliHome:
                 getSetting(prefix + this.CLI_HOME_SUFFIX),
-            promptPhrase:
-                getSetting(prefix + this.PROMPT_PHRASE_SUFFIX)
+            promptPhrase: // Maybe this could default to Constants.DEFAULT_PROMPT_PHRASE
+                getSetting(prefix + this.PROMPT_PHRASE_SUFFIX),
+            maskOutput:
+                getSetting(prefix + this.APP_MASK_OUTPUT_SUFFIX, Constants.DEFAULT_MASK_OUTPUT),
         };
     }
 }
