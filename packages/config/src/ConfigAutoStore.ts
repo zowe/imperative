@@ -138,6 +138,7 @@ export class ConfigAutoStore {
 
         for (const propName of profileProps) {
             let propProfilePath = profilePath;
+            let isSecureProp = profileSchema.properties[propName].secure || profileSecureProps.includes(propName);
             /* If any of the following is true, then property should be stored in base profile:
                 (1) Service profile does not exist, but base profile does
                 (2) Property is missing from service profile properties/secure objects, but present in base profile
@@ -149,20 +150,20 @@ export class ConfigAutoStore {
                 (propName === "tokenValue" && profileObj.tokenType == null && baseProfileObj.tokenType != null)
             ) {
                 propProfilePath = config.api.profiles.expandPath(baseProfileName);
+                isSecureProp = baseProfileSchema.properties[propName].secure || baseProfileSecureProps.includes(propName);
             }
 
-            const sessCfgPropName = propName === "host" ? "hostname" : propName;
-            const propDefinition = profileSchema.properties[propName] || baseProfileSchema.properties[propName];
             // If secure array at higher level includes this property, then property should be stored at higher level
-            if (propDefinition.secure) {
+            if (isSecureProp) {
                 const secureProfilePath = config.api.secure.secureInfoForProp(`${propProfilePath}.properties.${propName}`, true).path;
                 if (secureProfilePath.split(".").length < propProfilePath.split(".").length) {
-                    propProfilePath = secureProfilePath.substr(0, secureProfilePath.lastIndexOf("."));
+                    propProfilePath = secureProfilePath.slice(0, secureProfilePath.lastIndexOf("."));
                 }
             }
 
+            const sessCfgPropName = propName === "host" ? "hostname" : propName;
             config.set(`${propProfilePath}.properties.${propName}`, sessCfg[sessCfgPropName], {
-                secure: propDefinition.secure
+                secure: isSecureProp
             });
         }
 

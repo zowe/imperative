@@ -297,7 +297,7 @@ export class CliUtils {
      *      myEnv-Prefix_SOME_OPTION_NAME
      *
      * @param {string} envPrefix - The prefix for environment variables for this CLI.
-     *      Our caller can use the value obtained by Imperative.envVariablePrefix(),
+     *      Our caller can use the value obtained by ImperativeConfig.instance.envVariablePrefix,
      *      which will use the envVariablePrefix from the Imperative config object,
      *      and will use the rootCommandName as a fallback value.
      *

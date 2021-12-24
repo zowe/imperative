@@ -6,6 +6,37 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: Added `overwrite` option for `zowe config init` command to overwrite config files instead of merging new changes. [#1036](https://github.com/zowe/zowe-cli/issues/1036)
 
+## `5.0.0-next.202112221912`
+
+- Enhancement: Added `delete` option to `config convert-profiles` command.
+
+## `5.0.0-next.202112201553`
+
+- BugFix: Fixed config auto-store may store secure properties in plain text if secure array is outside of subprofile in team config. [#709](https://github.com/zowe/imperative/issues/709)
+
+## `5.0.0-next.202112171553`
+
+- Enhancement: Added `config convert-profiles` command that converts v1 profiles to team config. [zowe/zowe-cli#896](https://github.com/zowe/zowe-cli/issues/896)
+- Enhancement: Added `config edit` command that opens config JSON file in default text editor. [zowe/zowe-cli#1072](https://github.com/zowe/zowe-cli/issues/1072)
+
+## `5.0.0-next.202112151934`
+
+- BugFix: Removed `@internal` methods from type declarations so they don't appear in IntelliSense. [#679](https://github.com/zowe/imperative/issues/679)
+- BugFix: Made the `ProfileInfo.initSessCfg` method public for easier instantiation of classes that extend AbstractSession.
+- Deprecated: All methods in the `IHandlerParameters.profiles` class. Use the `ConfigProfiles` API for team config instead.
+
+## `5.0.0-next.202112132158`
+
+- Enhancement: Added an environment variable to control whether or not sensitive data will be masked in the console output.<br/>
+    This behavior excludes any TRACE level logs for both, Imperative.log and AppName.log.<br/>
+    This behavior also excludes properties defined as secure by the plugin developers.<br/>
+    If the schema definition is not found, we will exclude the following properties: user, password, tokenValue, and keyPassphrase.<br/>
+    More information: [zowe/zowe-cli #1106](https://github.com/zowe/zowe-cli/issues/1106)
+
+## `5.0.0-next.202112101814`
+
+- BugFix: Fixed daemon mode not loading secure properties in team config. [zowe/zowe-cli#1232](https://github.com/zowe/zowe-cli/issues/1232)
+
 ## `5.0.0-next.202112021611`
 
 - BugFix: Fixed `config import` and `config init` behaving incorrectly when config JSON exists in higher level directory. [zowe/zowe-cli#1218](https://github.com/zowe/zowe-cli/issues/1218)

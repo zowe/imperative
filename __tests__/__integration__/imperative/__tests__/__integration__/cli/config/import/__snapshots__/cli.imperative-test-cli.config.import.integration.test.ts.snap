@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`imperative-test-cli config import success scenarios should fail to import if location is not specified 1`] = `
+exports[`imperative-test-cli config import failure scenarios should fail to import if location is not specified 1`] = `
 "
 Syntax Error:
 Missing Positional Argument: location

@@ -9,6 +9,7 @@
 *
 */
 
+jest.mock("../../../../logger/src/LoggerUtils");
 import * as fs from "fs";
 import * as path from "path";
 import * as lodash from "lodash";

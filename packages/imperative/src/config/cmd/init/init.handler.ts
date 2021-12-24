@@ -10,7 +10,7 @@
 */
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { ImperativeConfig, TextUtils } from "../../../../../utilities";
+import { ImperativeConfig, ProcessUtils, TextUtils } from "../../../../../utilities";
 import { Config, ConfigConstants, ConfigSchema, IConfig } from "../../../../../config";
 import { IProfileProperty } from "../../../../../profiles";
 import { ConfigBuilder } from "../../../../../config/src/ConfigBuilder";
@@ -108,6 +108,10 @@ export default class InitHandler implements ICommandHandler {
             // Write the active created/updated config layer
             await config.save(false);
             params.response.console.log(`Saved config template to ${layer.path}`);
+
+            if (params.arguments.edit && params.arguments.edit === true) {
+                await ProcessUtils.openInEditor(ImperativeConfig.instance.config.api.layers.get().path);
+            }
         }
     }
 
