@@ -177,7 +177,7 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).not.toHaveBeenCalled();
     });
 
-    /*it("should attempt to overwrite the project configuration", async () => {
+    it("should attempt to overwrite the project configuration", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = false;
@@ -224,8 +224,8 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
+        // expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
+        // expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual("fakeValue");
@@ -234,7 +234,7 @@ describe("Configuration Initialization command handler", () => {
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
             params.arguments.overwrite, params.arguments.forSure);
-    });*/
+    });
 
     it("should attempt to initialize the project user configuration", async () => {
         const handler = new InitHandler();
@@ -323,7 +323,7 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).not.toHaveBeenCalled();
     });
 
-    /*it("should attempt to overwrite the project user configuration", async () => {
+    it("should attempt to overwrite the project user configuration", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = true;
@@ -368,14 +368,14 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
+        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
+        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
             params.arguments.overwrite, params.arguments.forSure);
-    });*/
+    });
 
     it("should attempt to initialize the global project configuration", async () => {
         const handler = new InitHandler();
@@ -760,7 +760,7 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).not.toHaveBeenCalled();
     });
 
-    /*it("should attempt to overwrite the project configuration with prompt flag false", async () => {
+    it("should attempt to overwrite the project configuration with prompt flag false", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = false;
@@ -803,14 +803,14 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
+        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
+        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
             params.arguments.overwrite, params.arguments.forSure);
-    });*/
+    });
 
     it("should attempt to initialize the project user configuration with prompting disabled", async () => {
         const handler = new InitHandler();
@@ -893,7 +893,7 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).not.toHaveBeenCalled();
     });
 
-    /*it("should attempt to overwrite the project user configuration with prompting disabled", async () => {
+    it("should attempt to overwrite the project user configuration with prompting disabled", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = true;
@@ -936,14 +936,14 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
+        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
+        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
             params.arguments.overwrite, params.arguments.forSure);
-    });*/
+    });
 
     it("should attempt to initialize the global project configuration with prompt flag false", async () => {
         const handler = new InitHandler();
@@ -1307,7 +1307,7 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).not.toHaveBeenCalled();
     });
 
-    /*it("should attempt to overwrite the project configuration and use boolean true for the prompt", async () => {
+    it("should attempt to overwrite the project configuration and use boolean true for the prompt", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = false;
@@ -1352,8 +1352,8 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
+        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
+        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(true);
@@ -1362,7 +1362,7 @@ describe("Configuration Initialization command handler", () => {
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
             params.arguments.overwrite, params.arguments.forSure);
-    });*/
+    });
 
     it("should attempt to initialize the project configuration and use boolean false for the prompt", async () => {
         const handler = new InitHandler();
@@ -1452,7 +1452,7 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).not.toHaveBeenCalled();
     });
 
-    /*it("should attempt to overwrite the project configuration and use boolean false for the prompt", async () => {
+    it("should attempt to overwrite the project configuration and use boolean false for the prompt", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = false;
@@ -1497,8 +1497,8 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
+        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
+        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(false);
@@ -1507,7 +1507,7 @@ describe("Configuration Initialization command handler", () => {
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
             params.arguments.overwrite, params.arguments.forSure);
-    });*/
+    });
 
     it("should attempt to initialize the project configuration and use a number for the prompt", async () => {
         const handler = new InitHandler();
@@ -1601,7 +1601,7 @@ describe("Configuration Initialization command handler", () => {
         expect(writeFileSyncSpy).not.toHaveBeenCalled();
     });
 
-    /*it("should attempt to overwrite the project configuration and use a number for the prompt", async () => {
+    it("should attempt to overwrite the project configuration and use a number for the prompt", async () => {
         const handler = new InitHandler();
         const params = getIHandlerParametersObject();
         params.arguments.userConfig = false;
@@ -1648,8 +1648,8 @@ describe("Configuration Initialization command handler", () => {
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
         // Schema
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
-        expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
+        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
+        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(randomValueNumber);
@@ -1658,7 +1658,7 @@ describe("Configuration Initialization command handler", () => {
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
             params.arguments.overwrite, params.arguments.forSure);
-    });*/
+    });
 
     it("should attempt to initialize the project configuration and handle getting nothing from the prompt", async () => {
         const handler = new InitHandler();
