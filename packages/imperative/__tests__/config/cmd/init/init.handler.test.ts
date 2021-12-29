@@ -197,8 +197,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        // osHomedirSpy.mockClear();
-        // currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -223,9 +221,6 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // Schema
-        // expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
-        // expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual("fakeValue");
@@ -343,8 +338,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        // osHomedirSpy.mockClear();
-        // currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -367,9 +360,6 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // User config is a skeleton - no prompting should occur
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // Schema
-        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
-        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
@@ -493,8 +483,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        // osHomedirSpy.mockClear();
-        // currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -643,8 +631,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        // osHomedirSpy.mockClear();
-        // currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -779,8 +765,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        // osHomedirSpy.mockClear();
-        // currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -802,9 +786,6 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // Schema
-        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
-        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
@@ -912,8 +893,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        // osHomedirSpy.mockClear();
-        // currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -935,9 +914,6 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // Schema
-        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
-        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjUserPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
@@ -962,8 +938,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        // osHomedirSpy.mockClear();
-        // currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -1009,8 +983,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        // osHomedirSpy.mockClear();
-        // currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -1049,8 +1021,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        // osHomedirSpy.mockClear();
-        // currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "fakeValue");
@@ -1326,8 +1296,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        // osHomedirSpy.mockClear();
-        // currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "true");
@@ -1351,9 +1319,6 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // Schema
-        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
-        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(true);
@@ -1471,8 +1436,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        // osHomedirSpy.mockClear();
-        // currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const promptWithTimeoutSpy = jest.fn(() => "false");
@@ -1496,9 +1459,6 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // Schema
-        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
-        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(false);
@@ -1620,8 +1580,6 @@ describe("Configuration Initialization command handler", () => {
         // We aren't testing the config initialization - clear the spies
         existsSyncSpy.mockClear();
         searchSpy.mockClear();
-        // osHomedirSpy.mockClear();
-        // currentWorkingDirectorySpy.mockClear();
 
         // initWithSchema
         const randomValueString = "9001";
@@ -1647,9 +1605,6 @@ describe("Configuration Initialization command handler", () => {
         expect(promptWithTimeoutSpy).toHaveBeenCalledWith(expect.stringContaining("blank to skip:"), {"hideText": true});
 
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(2);
-        // Schema
-        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeSchemaPath, JSON.stringify(expectedSchemaObjectNoBase, null, ConfigConstants.INDENT));
-        //expect(writeFileSyncSpy).toHaveBeenNthCalledWith(2, fakeProjPath, JSON.stringify(compObj, null, ConfigConstants.INDENT)); // Config
 
         // Secure value supplied during prompting should be on properties
         expect(ImperativeConfig.instance.config.properties.profiles.secured.properties.secret).toEqual(randomValueNumber);
