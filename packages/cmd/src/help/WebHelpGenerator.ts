@@ -196,7 +196,7 @@ export class WebHelpGenerator {
      */
     private renderMarkdown(markdownContent: string): string {
         if (this.markdownIt == null) {
-            this.markdownIt = require("markdown-it")({ html: true, linkify: true });
+            this.markdownIt = require("markdown-it")({ html: true, linkify: true, breaks: true });
         }
 
         const sanitizeHtml = require("sanitize-html");
