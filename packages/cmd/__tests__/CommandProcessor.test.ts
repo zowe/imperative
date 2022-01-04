@@ -1384,7 +1384,7 @@ describe("Command Processor", () => {
             promptPhrase: "dummydummy",
             daemonResponse: {
                 cwd: process.cwd(),
-                env: { FRUIT_ENV: "test" }
+                env: { UNIT_TEST_ENV: "new" }
             }
         });
 
@@ -1416,13 +1416,19 @@ describe("Command Processor", () => {
             },
             silent: true
         };
-        expect(process.env.FRUIT_ENV).toBeUndefined();
-        const commandResponse: ICommandResponse = await processor.invoke(parms);
-        expect(commandResponse).toBeDefined();
-        expect(commandResponse).toMatchSnapshot();
-        expect(process.chdir).toHaveBeenCalledTimes(1);
-        expect(process.env.FRUIT_ENV).toBe("test");
-        expect(mockConfigReload).toHaveBeenCalledTimes(1);
+        process.env.UNIT_TEST_ENV = "old";
+        try {
+            const envVarCount = Object.keys(process.env).length;
+            const commandResponse: ICommandResponse = await processor.invoke(parms);
+            expect(commandResponse).toBeDefined();
+            expect(commandResponse).toMatchSnapshot();
+            expect(process.chdir).toHaveBeenCalledTimes(1);
+            expect(process.env.UNIT_TEST_ENV).toBe("new");
+            expect(Object.keys(process.env).length).toBe(envVarCount);  // Ensure that env vars were preserved
+            expect(mockConfigReload).toHaveBeenCalledTimes(1);
+        } finally {
+            delete process.env.UNIT_TEST_ENV;
+        }
     });
 
     it("should extract arguments not specified on invoke from a profile and merge with args", async () => {
