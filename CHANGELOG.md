@@ -2,6 +2,13 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Replaced hidden `--dcd` option used by CommandProcessor in daemon mode with IDaemonResponse object.
+- **Next Breaking**
+    - Changed the "args" type on the `Imperative.parse` method to allow a string array.
+    - Renamed the "reply" property to "stdin" on the IDaemonResponse interface.
+
 ## `5.0.0-next.202112221912`
 
 - Enhancement: Added `delete` option to `config convert-profiles` command.
