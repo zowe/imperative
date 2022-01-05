@@ -59,13 +59,6 @@ export class YargsConfigurer {
             const jsonOptionName: string = Constants.JSON_OPTION;
             jsonArg[jsonOptionName] = true;
         }
-        const failedCommandHandler = __dirname + "/../handlers/FailedCommandHandler";
-        const failedCommandDefinition: ICommandDefinition = {
-            name: this.rootCommandName + " " + ImperativeConfig.instance.commandLine,
-            handler: failedCommandHandler,
-            type: "command",
-            description: "The command you tried to invoke failed"
-        };
         this.yargs.help(false);
         this.yargs.version(false);
         this.yargs.showHelpOnFail(false);
@@ -110,6 +103,7 @@ export class YargsConfigurer {
                     const closestCommand = this.getClosestCommand(attemptedCommand);
 
                     argv.failureMessage = this.buildFailureMessage(closestCommand);
+                    const failedCommandDefinition = this.buildFailedCommandDefinition();
 
                     // Allocate a help generator from the factory
                     const rootHelpGenerator = this.helpGeneratorFactory.getHelpGenerator({
@@ -145,6 +139,7 @@ export class YargsConfigurer {
             process.exitCode = Constants.ERROR_EXIT_CODE;
             AbstractCommandYargs.STOP_YARGS = true; // todo: figure out a better way
             error = error || new Error(msg);
+            const failedCommandDefinition = this.buildFailedCommandDefinition();
 
             // Allocate a help generator from the factory
             const failHelpGenerator = this.helpGeneratorFactory.getHelpGenerator({
@@ -186,6 +181,7 @@ export class YargsConfigurer {
         });
         process.on("uncaughtException", (error: Error) => {
             process.exitCode = Constants.ERROR_EXIT_CODE;
+            const failedCommandDefinition = this.buildFailedCommandDefinition();
 
             // Allocate a help generator from the factory
             const failHelpGenerator = this.helpGeneratorFactory.getHelpGenerator({
@@ -281,6 +277,19 @@ export class YargsConfigurer {
         }
         failureMessage += `\nUse "${this.rootCommandName}${groups}--help" to view groups, commands, and options.`;
         return failureMessage;
+    }
+
+    /**
+     * Define failed command with the current command line arguments.
+     * @returns Failed command definition object
+     */
+    private buildFailedCommandDefinition(): ICommandDefinition {
+        return {
+            name: this.rootCommandName + " " + ImperativeConfig.instance.commandLine,
+            handler: __dirname + "/../handlers/FailedCommandHandler",
+            type: "command",
+            description: "The command you tried to invoke failed"
+        };
     }
 
     // /**
