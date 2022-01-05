@@ -97,7 +97,7 @@ export default class InitHandler implements ICommandHandler {
             params.response.console.log(jsonDiff);
             params.response.data.setObj(jsonDiff);
         } else {
-            await this.initWithSchema(config, params.arguments.userConfig, params.arguments.overwrite, params.arguments.forSure);
+            await this.initWithSchema(config, params.arguments.userConfig, params.arguments.overwrite && params.arguments.forSure);
 
             if (params.arguments.prompt !== false && config.api.secure.loadFailed && config.api.secure.secureFields().length > 0) {
                 const warning = secureSaveError();
@@ -121,7 +121,7 @@ export default class InitHandler implements ICommandHandler {
      * @param config Config object to be populated
      * @param user If true, properties will be left empty for user config
      */
-    private async initWithSchema(config: Config, user: boolean, overwrite: boolean, forSure: boolean): Promise<void> {
+    private async initWithSchema(config: Config, user: boolean, overwrite: boolean): Promise<void> {
         const opts: IConfigBuilderOpts = {};
         if (!user) {
             opts.populateProperties = true;
@@ -130,7 +130,7 @@ export default class InitHandler implements ICommandHandler {
 
         // Build new config and merge with existing layer or overwrite it if overwrite & forSure options are present
         const newConfig: IConfig = await ConfigBuilder.build(ImperativeConfig.instance.loadedConfig, opts);
-        if (overwrite && forSure) {
+        if (overwrite) {
             config.api.layers.set(newConfig);
         } else {
             config.api.layers.merge(newConfig);

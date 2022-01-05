@@ -228,7 +228,7 @@ describe("Configuration Initialization command handler", () => {
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
-            params.arguments.overwrite, params.arguments.forSure);
+            params.arguments.overwrite && params.arguments.forSure);
     });
 
     it("should attempt to initialize the project user configuration", async () => {
@@ -364,7 +364,7 @@ describe("Configuration Initialization command handler", () => {
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
-            params.arguments.overwrite, params.arguments.forSure);
+            params.arguments.overwrite && params.arguments.forSure);
     });
 
     it("should attempt to initialize the global project configuration", async () => {
@@ -519,7 +519,7 @@ describe("Configuration Initialization command handler", () => {
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
-            params.arguments.overwrite, params.arguments.forSure);
+            params.arguments.overwrite && params.arguments.forSure);
     });
 
     it("should attempt to initialize the global project user configuration", async () => {
@@ -662,7 +662,7 @@ describe("Configuration Initialization command handler", () => {
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
-            params.arguments.overwrite, params.arguments.forSure);
+            params.arguments.overwrite && params.arguments.forSure);
     });
 
     it("should attempt to initialize the project configuration with prompt flag false", async () => {
@@ -790,7 +790,7 @@ describe("Configuration Initialization command handler", () => {
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
-            params.arguments.overwrite, params.arguments.forSure);
+            params.arguments.overwrite && params.arguments.forSure);
     });
 
     it("should attempt to initialize the project user configuration with prompting disabled", async () => {
@@ -918,7 +918,7 @@ describe("Configuration Initialization command handler", () => {
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
-            params.arguments.overwrite, params.arguments.forSure);
+            params.arguments.overwrite && params.arguments.forSure);
     });
 
     it("should attempt to initialize the global project configuration with prompt flag false", async () => {
@@ -944,6 +944,7 @@ describe("Configuration Initialization command handler", () => {
         (params.response.console as any).prompt = promptWithTimeoutSpy;
         writeFileSyncSpy.mockImplementation(); // Don't actually write files
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         const compObj: any = {};
@@ -992,6 +993,7 @@ describe("Configuration Initialization command handler", () => {
         // initForDryRun
         const initForDryRunSpy = jest.spyOn(handler as any, "initForDryRun");
 
+        jest.spyOn(process, "cwd").mockReturnValueOnce(__dirname);
         await handler.process(params as IHandlerParameters);
 
         expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(0); // CI flag should not prompt
@@ -1051,7 +1053,7 @@ describe("Configuration Initialization command handler", () => {
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
-            params.arguments.overwrite, params.arguments.forSure);
+            params.arguments.overwrite && params.arguments.forSure);
     });
 
     it("should attempt to initialize the global project user configuration with prompting disabled", async () => {
@@ -1326,7 +1328,7 @@ describe("Configuration Initialization command handler", () => {
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
-            params.arguments.overwrite, params.arguments.forSure);
+            params.arguments.overwrite && params.arguments.forSure);
     });
 
     it("should attempt to initialize the project configuration and use boolean false for the prompt", async () => {
@@ -1466,7 +1468,7 @@ describe("Configuration Initialization command handler", () => {
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
-            params.arguments.overwrite, params.arguments.forSure);
+            params.arguments.overwrite && params.arguments.forSure);
     });
 
     it("should attempt to initialize the project configuration and use a number for the prompt", async () => {
@@ -1612,7 +1614,7 @@ describe("Configuration Initialization command handler", () => {
         // initWithSchema called with the correct parameters
         expect(initWithSchemaSpy).toHaveBeenCalledTimes(1);
         expect(initWithSchemaSpy).toHaveBeenCalledWith(ImperativeConfig.instance.config, params.arguments.userConfig,
-            params.arguments.overwrite, params.arguments.forSure);
+            params.arguments.overwrite && params.arguments.forSure);
     });
 
     it("should attempt to initialize the project configuration and handle getting nothing from the prompt", async () => {
