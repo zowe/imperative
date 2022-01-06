@@ -45,6 +45,7 @@ export default class InitHandler implements ICommandHandler {
         config.api.layers.activate(params.arguments.userConfig, params.arguments.globalConfig, configDir);
         const layer = config.api.layers.get();
 
+        // Do a dry run if dryRun flag is present. Otherwise, initialize or overwrite the config
         if (params.arguments.dryRun && params.arguments.dryRun === true) {
             let dryRun = await this.initForDryRun(config, params.arguments.userConfig);
 
@@ -96,7 +97,7 @@ export default class InitHandler implements ICommandHandler {
             params.response.console.log(jsonDiff);
             params.response.data.setObj(jsonDiff);
         } else {
-            await this.initWithSchema(config, params.arguments.userConfig);
+            await this.initWithSchema(config, params.arguments.userConfig, params.arguments.overwrite && params.arguments.forSure);
 
             if (params.arguments.prompt !== false && config.api.secure.loadFailed && config.api.secure.secureFields().length > 0) {
                 const warning = secureSaveError();
@@ -120,19 +121,23 @@ export default class InitHandler implements ICommandHandler {
      * @param config Config object to be populated
      * @param user If true, properties will be left empty for user config
      */
-    private async initWithSchema(config: Config, user: boolean): Promise<void> {
-        // Build the schema and write it to disk
-        ConfigSchema.updateSchema();
-
+    private async initWithSchema(config: Config, user: boolean, overwrite: boolean): Promise<void> {
         const opts: IConfigBuilderOpts = {};
         if (!user) {
             opts.populateProperties = true;
             opts.getSecureValue = this.promptForProp.bind(this);
         }
 
-        // Build new config and merge with existing layer
+        // Build new config and merge with existing layer or overwrite it if overwrite & forSure options are present
         const newConfig: IConfig = await ConfigBuilder.build(ImperativeConfig.instance.loadedConfig, opts);
-        config.api.layers.merge(newConfig);
+        if (overwrite) {
+            config.api.layers.set(newConfig);
+        } else {
+            config.api.layers.merge(newConfig);
+        }
+
+        // Build the schema and write it to disk
+        ConfigSchema.updateSchema();
     }
 
     /**

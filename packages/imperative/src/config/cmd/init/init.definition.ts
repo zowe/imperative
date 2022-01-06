@@ -48,8 +48,23 @@ export const initDefinition: ICommandDefinition = {
             defaultValue: true
         },
         {
+            name: "overwrite",
+            description: "Replace existing config files instead of merging the new changes.",
+            aliases: ["ow"],
+            type: "boolean",
+            conflictsWith: ["dry-run"],
+            implies: ["for-sure"]
+        },
+        {
+            name: "for-sure",
+            aliases: ["fs"],
+            description: "Confirms the overwrite option.",
+            type: "boolean",
+            defaultValue: false
+        },
+        {
             name: "dry-run",
-            description: "Display the outcome of the initialization without saving.",
+            description: "Display the outcome of the initialization without saving it.",
             aliases: ["dr", "dry"],
             type: "boolean",
             conflictsWith: ["overwrite", "edit"]
@@ -59,7 +74,7 @@ export const initDefinition: ICommandDefinition = {
             aliases: ["e"],
             description: "Open in editor after initializing the configuration",
             type: "boolean",
-            conflictsWith: ["dry-run"],
+            conflictsWith: ["dry-run"]
         }
     ],
     examples: [
@@ -82,6 +97,14 @@ export const initDefinition: ICommandDefinition = {
         {
             description: "Do a dry run of initializing the user config files and do not prompt for secure values.",
             options: "--user-config --prompt false --dry-run"
+        },
+        {
+            description: "Overwrite any existing global config files.",
+            options: "--global-config --overwrite --for-sure"
+        },
+        {
+            description: "Overwrite any existing user config files.",
+            options: "--user-config --overwrite --for-sure"
         }
     ]
 };
