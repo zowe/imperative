@@ -10,6 +10,7 @@
 */
 
 import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 import * as findUp from "find-up";
 import { ImperativeError } from "../../error/src/ImperativeError";
@@ -213,6 +214,7 @@ describe("Config tests", () => {
             .mockReturnValueOnce(true)      // Project layer
             .mockReturnValueOnce(false)     // User layer
             .mockReturnValueOnce(false);    // Global layer
+        const homedirSpy = jest.spyOn(os, "homedir");
         const config = await Config.load(MY_APP);
         expect(config.properties.profiles.fruit.profiles.orange).toBeDefined();
         expect(config.properties.profiles.vegetable).toBeUndefined();
@@ -232,6 +234,7 @@ describe("Config tests", () => {
         await config.reload();
         expect(config.properties.profiles.fruit.profiles.banana).toBeDefined();
         expect(config.properties.profiles.vegetable).toBeDefined();
+        expect(homedirSpy).toHaveBeenCalledTimes(1);
         expect(layerReadSpy).toHaveBeenCalledTimes(4);
         expect(secureLoadSpy).not.toHaveBeenCalled();
     });
@@ -246,6 +249,7 @@ describe("Config tests", () => {
             .mockReturnValueOnce(true)      // Project layer
             .mockReturnValueOnce(false)     // User layer
             .mockReturnValueOnce(false);    // Global layer
+        const homedirSpy = jest.spyOn(os, "homedir");
         const config = await Config.load(MY_APP);
         expect(config.properties.profiles.fruit.profiles.orange).toBeDefined();
         expect(config.properties.profiles.vegetable).toBeUndefined();
@@ -265,6 +269,7 @@ describe("Config tests", () => {
         await config.reload();
         expect(config.properties.profiles.fruit.profiles.banana).toBeDefined();
         expect(config.properties.profiles.vegetable).toBeDefined();
+        expect(homedirSpy).toHaveBeenCalledTimes(1);
         expect(layerReadSpy).toHaveBeenCalledTimes(4);
         expect(secureLoadSpy).toHaveBeenCalledTimes(1);
     });

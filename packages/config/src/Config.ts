@@ -165,7 +165,7 @@ export class Config {
      */
     public async reload(opts?: IConfigOpts) {
         this.mLayers = [];
-        this.mHomeDir = opts?.homeDir || path.join(os.homedir(), `.${this.mApp}`);
+        this.mHomeDir = opts?.homeDir || this.mHomeDir || path.join(os.homedir(), `.${this.mApp}`);
         this.mProjectDir = opts?.projectDir || process.cwd();
 
         // Populate configuration file layers
