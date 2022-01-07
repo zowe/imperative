@@ -9,6 +9,10 @@ All notable changes to the Imperative package will be documented in this file.
     - Changed the "args" type on the `Imperative.parse` method to allow a string array.
     - Restructured the IDaemonResponse interface to provide information to CommandProcessor.
 
+## `5.0.0-next.202201061509`
+
+- Enhancement: Added `overwrite` option for `zowe config init` command to overwrite config files instead of merging new changes. [#1036](https://github.com/zowe/zowe-cli/issues/1036)
+
 ## `5.0.0-next.202201051456`
 
 - BugFix: Fixed inconsistent error message when invalid CLI command is run in daemon mode. [zowe/zowe-cli#1081](https://github.com/zowe/zowe-cli/issues/1081)
