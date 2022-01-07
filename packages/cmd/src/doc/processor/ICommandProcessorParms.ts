@@ -14,6 +14,8 @@ import { IHelpGenerator } from "../../help/doc/IHelpGenerator";
 import { IProfileManagerFactory } from "../../../../profiles";
 import { ICommandProfileTypeConfiguration } from "../../../src/doc/profiles/definition/ICommandProfileTypeConfiguration";
 import { Config } from "../../../../config";
+import { IDaemonResponse } from "../../../..";
+
 /**
  * Parameters to create an instance of the Command Processor. Contains the command definition (for the command
  * being executed) and help, profiles, etc.
@@ -78,4 +80,10 @@ export interface ICommandProcessorParms {
      */
     // TODO Should we make this property required? (breaking change)
     config?: Config;
+    /**
+     * Daemon response object containing process info.
+     * @type {IDaemonResponse}
+     * @memberof ICommandProcessorParms
+     */
+    daemonResponse?: IDaemonResponse;
 }

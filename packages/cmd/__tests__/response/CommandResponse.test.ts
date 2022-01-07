@@ -367,7 +367,7 @@ describe("Command Response", () => {
         const responseMessage = "daemon response";
 
         // construct the response in a proper protocol header (see DaemonUtils.ts)
-        const daemonResponse: IDaemonResponse = { id: "test", reply: responseMessage };
+        const daemonResponse: IDaemonResponse = { stdin: responseMessage };
 
         // simulate a .on(data...) method
         const eventStream = jest.fn((event: string, func: (data: any) => void) => {

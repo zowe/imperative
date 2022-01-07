@@ -1371,7 +1371,7 @@ describe("Command Processor", () => {
         expect(commandResponse).toMatchSnapshot();
     });
 
-    it("should invoke the handler and process chdir with hidden option and then return success=true if the handler was successful", async () => {
+    it("should invoke the handler and process daemon response and then return success=true if the handler was successful", async () => {
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
             envVariablePrefix: ENV_VAR_PREFIX,
@@ -1381,7 +1381,11 @@ describe("Command Processor", () => {
             profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
             rootCommandName: SAMPLE_ROOT_COMMAND,
             commandLine: "",
-            promptPhrase: "dummydummy"
+            promptPhrase: "dummydummy",
+            daemonResponse: {
+                cwd: process.cwd(),
+                env: { UNIT_TEST_ENV: "new" }
+            }
         });
 
         // Mock read stdin
@@ -1398,6 +1402,7 @@ describe("Command Processor", () => {
             };
         });
 
+        jest.spyOn(process, "chdir");
         const mockConfigReload = jest.fn();
         jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
             config: { reload: mockConfigReload }
@@ -1407,15 +1412,23 @@ describe("Command Processor", () => {
             arguments: {
                 _: ["check", "for", "banana"],
                 $0: "",
-                valid: true,
-                dcd: process.cwd()
+                valid: true
             },
             silent: true
         };
-        const commandResponse: ICommandResponse = await processor.invoke(parms);
-        expect(commandResponse).toBeDefined();
-        expect(commandResponse).toMatchSnapshot();
-        expect(mockConfigReload).toHaveBeenCalledTimes(1);
+        process.env.UNIT_TEST_ENV = "old";
+        try {
+            const envVarCount = Object.keys(process.env).length;
+            const commandResponse: ICommandResponse = await processor.invoke(parms);
+            expect(commandResponse).toBeDefined();
+            expect(commandResponse).toMatchSnapshot();
+            expect(process.chdir).toHaveBeenCalledTimes(1);
+            expect(process.env.UNIT_TEST_ENV).toBe("new");
+            expect(Object.keys(process.env).length).toBe(envVarCount);  // Ensure that env vars were preserved
+            expect(mockConfigReload).toHaveBeenCalledTimes(1);
+        } finally {
+            delete process.env.UNIT_TEST_ENV;
+        }
     });
 
     it("should extract arguments not specified on invoke from a profile and merge with args", async () => {

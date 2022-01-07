@@ -451,14 +451,6 @@ export class CommandPreparer {
             type: "boolean"
         });
 
-        definition.options.push({
-            name: Constants.DAEMON_CLIENT_DIRECTORY,
-            group: Constants.GLOBAL_GROUP,
-            description: "Daemon client directory",
-            type: "string",
-            hidden: true
-        });
-
         /**
          * Append any profile related options
          */

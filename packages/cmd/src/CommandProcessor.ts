@@ -43,6 +43,8 @@ import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "./help/WebHelpManager";
 import { ICommandProfile } from "./doc/profiles/definition/ICommandProfile";
 import { Config } from "../../config/src/Config";
+import { IDaemonResponse } from "../../utilities/src/doc/IDaemonResponse";
+
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
  * response object and validates syntax, loads profiles, instantiates handlers, & invokes the handlers.
@@ -129,6 +131,13 @@ export class CommandProcessor {
      * @memberof CommandProcessor
      */
     private mConfig: Config;
+    /**
+     * Daemon response object containing process info.
+     * @private
+     * @type {IDaemonResponse}
+     * @memberof CommandProcessor
+     */
+    private mDaemonResponse?: IDaemonResponse;
 
     /**
      * Creates an instance of CommandProcessor.
@@ -154,6 +163,7 @@ export class CommandProcessor {
         this.mEnvVariablePrefix = params.envVariablePrefix;
         this.mPromptPhrase = params.promptPhrase;
         this.mConfig = params.config;
+        this.mDaemonResponse = params.daemonResponse;
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["promptPhrase"], `${CommandProcessor.ERROR_TAG} No prompt phrase supplied.`);
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["rootCommandName"], `${CommandProcessor.ERROR_TAG} No root command supplied.`);
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["envVariablePrefix"], `${CommandProcessor.ERROR_TAG} No ENV variable prefix supplied.`);
@@ -384,11 +394,25 @@ export class CommandProcessor {
         try {
             // Build the response object, base args object, and the entire array of options for this command
             // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
-            if (params.arguments.dcd) {
+            if (this.mDaemonResponse != null) {
                 // NOTE(Kelosky): we adjust `cwd` and do not restore it, so that multiple simultaneous requests from the same
                 // directory will operate without unexpected chdir taking place.  Multiple simultaneous requests from different
                 // directories may cause unpredictable results
-                process.chdir(params.arguments.dcd as string);
+                if (this.mDaemonResponse.cwd != null) {
+                    process.chdir(this.mDaemonResponse.cwd);
+                }
+
+                // Define environment variables received from daemon
+                if (this.mDaemonResponse.env != null) {
+                    // Delete environment variables that start with CLI prefix
+                    for (const envVarName of Object.keys(process.env)) {
+                        if (envVarName.startsWith(`${this.mEnvVariablePrefix}_`)) {
+                            delete process.env[envVarName];
+                        }
+                    }
+                    // Load new environment variables
+                    process.env = { ...process.env, ...this.mDaemonResponse.env };
+                }
 
                 // reload config for daemon client directory
                 await ImperativeConfig.instance.config.reload();

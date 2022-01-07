@@ -9,25 +9,37 @@
 *
 */
 
-
 /**
  * Option interface to construct response from daemon client
  * @export
  * @interface IDaemonResponse
  */
 export interface IDaemonResponse {
+    /**
+     * List of CLI arguments received from the daemon client.
+     */
+    argv?: string[];
 
     /**
-     * Content is from daemon client, not an interactive user
-     * @type {string}
-     * @memberof IDaemonResponse
+     * Current working directory received from the daemon client.
      */
-    id: string;
+    cwd?: string;
 
     /**
-     * Content is reply from daemon
-     * @type {string}
-     * @memberof IDaemonResponse
+     * Environment variables with CLI prefix received from the daemon client.
      */
-    reply?: string;
+    env?: Record<string, string>;
+
+    /**
+     * Length of stdin data received from the daemon client.
+     * The client sends binary stdin data as a multipart request, that contains
+     * a JSON body with `stdinLength` defined, followed by the raw binary data.
+     */
+    stdinLength?: number;
+
+    /**
+     * Stdin text received from the daemon client.
+     * This is used for plain text stdin data like replies to prompts.
+     */
+    stdin?: string;
 }
