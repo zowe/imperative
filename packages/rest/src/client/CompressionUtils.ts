@@ -58,7 +58,7 @@ export class CompressionUtils {
 
         try {
             // First transform handles decompression
-            const transforms = [this.zlibTransform(encoding)];
+            const transforms = [this.zlibTransform(encoding, !normalizeNewLines)];
 
             // Second transform is optional and processes line endings
             if (normalizeNewLines) {
@@ -105,11 +105,15 @@ export class CompressionUtils {
      * Return zlib transform for the specified decompression algorithm.
      * @param encoding Value of Content-Encoding header
      */
-    private static zlibTransform(encoding: ContentEncoding): Transform {
+    private static zlibTransform(encoding: ContentEncoding, binary: boolean): Transform {
+        const opts: zlib.ZlibOptions = {};
+        if (binary) {
+            opts.finishFlush = encoding === "br" ? zlib.constants.BROTLI_OPERATION_FLUSH : zlib.constants.Z_SYNC_FLUSH;
+        }
         switch (encoding) {
-            case "br":      return zlib.createBrotliDecompress();
-            case "deflate": return zlib.createInflate();
-            case "gzip":    return zlib.createGunzip();
+            case "br":      return zlib.createBrotliDecompress(opts);
+            case "deflate": return zlib.createInflate(opts);
+            case "gzip":    return zlib.createGunzip(opts);
         }
     }
 }
