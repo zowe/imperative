@@ -926,7 +926,7 @@ Object {
 }
 `;
 
-exports[`Command Processor should invoke the handler and process chdir with hidden option and then return success=true if the handler was successful 1`] = `
+exports[`Command Processor should invoke the handler and process daemon response and then return success=true if the handler was successful 1`] = `
 Object {
   "data": Object {},
   "error": undefined,

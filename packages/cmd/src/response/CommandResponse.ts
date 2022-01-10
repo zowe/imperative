@@ -613,7 +613,7 @@ export class CommandResponse implements ICommandResponseApi {
 
                                 // strip response header and give to content the waiting handler
                                 const response: IDaemonResponse = JSON.parse(data.toString());
-                                resolve(response.reply.trim());
+                                resolve(response.stdin.trim());
                             });
                         });
                     } else {

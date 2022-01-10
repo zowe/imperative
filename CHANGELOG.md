@@ -6,6 +6,13 @@ All notable changes to the Imperative package will be documented in this file.
 
 - BugFix: Fixed ZOWE_CLI_HOME environment variable not respected by team config in daemon mode. [zowe/zowe-cli#1240](https://github.com/zowe/zowe-cli/issues/1240)
 
+## `5.0.0-next.202201071721`
+
+- Enhancement: Replaced hidden `--dcd` option used by CommandProcessor in daemon mode with IDaemonResponse object.
+- **Next Breaking**
+    - Changed the "args" type on the `Imperative.parse` method to allow a string array.
+    - Restructured the IDaemonResponse interface to provide information to CommandProcessor.
+
 ## `5.0.0-next.202201061509`
 
 - Enhancement: Added `overwrite` option for `zowe config init` command to overwrite config files instead of merging new changes. [#1036](https://github.com/zowe/zowe-cli/issues/1036)
@@ -211,6 +218,11 @@ All notable changes to the Imperative package will be documented in this file.
 ## `5.0.0-next.202009251501`
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
+
+## `4.17.2`
+
+- BugFix: Updated prettyjson and cli-table3 in order to lockdown the `colors` package. [#719](https://github.com/zowe/imperative/issues/719)
+- BugFix: Updated markdown-it to address a vulnerability. [Snyk Report](https://security.snyk.io/vuln/SNYK-JS-MARKDOWNIT-2331914)
 
 ## `4.17.1`
 
