@@ -42,4 +42,9 @@ export interface IDaemonResponse {
      * This is used for plain text stdin data like replies to prompts.
      */
     stdin?: string;
+
+    /**
+     * The user that initiated the request from the daemon client.
+     */
+    user?: string;
 }
