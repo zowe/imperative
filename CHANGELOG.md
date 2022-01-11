@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed AbstractRestClient silently failing to decompress last chunk of gzip-compressed binary data that is truncated.
+
 ## `4.17.2`
 
 - BugFix: Updated prettyjson and cli-table3 in order to lockdown the `colors` package. [#719](https://github.com/zowe/imperative/issues/719)
