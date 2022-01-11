@@ -108,6 +108,8 @@ export class CompressionUtils {
     private static zlibTransform(encoding: ContentEncoding, binary: boolean): Transform {
         const opts: zlib.ZlibOptions = {};
         if (binary) {
+            // Handle binary data that may be truncated or missing the GZIP end of file sequence.
+            // See https://nodejs.org/api/zlib.html#compressing-http-requests-and-responses
             opts.finishFlush = encoding === "br" ? zlib.constants.BROTLI_OPERATION_FLUSH : zlib.constants.Z_SYNC_FLUSH;
         }
         switch (encoding) {
