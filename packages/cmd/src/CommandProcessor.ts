@@ -614,7 +614,11 @@ export class CommandProcessor {
                 fullDefinition: this.fullDefinition
             };
             try {
-                await handler.process(handlerParms);
+                if (handlerParms.arguments.showResolvedArgs) {
+                    this.dryRun(handlerParms);
+                } else {
+                    await handler.process(handlerParms);
+                }
             } catch (processErr) {
 
                 this.handleHandlerError(processErr, response, this.definition.handler);
@@ -716,6 +720,40 @@ export class CommandProcessor {
             return this.finishResponse(chainedResponse);
         }
 
+    }
+
+    /**
+     * Print parameters in place for --dry-run in effect
+     * @private
+     * @param {IHandlerParameters} commandParameters
+     * @returns
+     * @memberof CommandProcessor
+     */
+    private dryRun(commandParameters: IHandlerParameters) {
+        interface IDryRunResponse {
+            commandValues?: ICommandArguments;
+            requiredProfiles?: string[];
+            optionalProfiles?: string[];
+        }
+
+        const commandValues = {};
+        const dryRun: IDryRunResponse = {commandValues: commandValues as ICommandArguments};
+
+        for (let i = 0; i < commandParameters.definition.options.length; i++) {
+            const name = commandParameters.definition.options[i].name;
+            if (commandParameters.arguments[name] != null) {
+                dryRun.commandValues[name] = commandParameters.arguments[name];
+            }
+
+        }
+
+        dryRun.requiredProfiles = commandParameters.definition.profile.required;
+        dryRun.optionalProfiles = commandParameters.definition.profile.optional;
+
+        commandParameters.response.console.log(TextUtils.prettyJson(dryRun).trim());
+        commandParameters.response.data.setObj(dryRun);
+
+        return;
     }
 
     /**

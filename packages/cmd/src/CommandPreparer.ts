@@ -451,6 +451,15 @@ export class CommandPreparer {
             type: "boolean"
         });
 
+        // show resolved arguments
+        definition.options.push({
+            name: "show-resolved-args",
+            group: Constants.GLOBAL_GROUP,
+            description: "Show resolved arguments",
+            type: "boolean",
+            hidden: true
+        });
+
         /**
          * Append any profile related options
          */
