@@ -705,7 +705,7 @@ export abstract class AbstractRestClient {
                 causeErrors: this.dataString,
                 source: "http"
             }));
-        } else if (this.mResponseStream != null) {
+        } else if (this.mResponseStream != null && !this.mResponseStream.writableFinished) {
             this.mResponseStream.on("finish", () => this.mResolve(this.dataString));
         } else {
             this.mResolve(this.dataString);
