@@ -357,7 +357,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
             description = this.escapeMarkdown(description);  // escape Markdown special characters
         }
         if (this.skipTextWrap) {
-            descriptionForHelp += (this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT) + description;
+            descriptionForHelp += TextUtils.indentLines(description, this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT);
         } else {
             descriptionForHelp += TextUtils.wordWrap(description,
                 undefined,
@@ -443,7 +443,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
             description = this.escapeMarkdown(description);  // escape Markdown special characters
         }
         if (this.skipTextWrap) {
-            description = DefaultHelpGenerator.HELP_INDENT + DefaultHelpGenerator.HELP_INDENT + description.trim()
+            description = TextUtils.indentLines(description.trim(), DefaultHelpGenerator.HELP_INDENT + DefaultHelpGenerator.HELP_INDENT);
         } else {
             description = TextUtils.wordWrap(description.trim(),
                 undefined,
@@ -494,7 +494,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
                 const description = this.mProduceMarkdown ? this.escapeMarkdown(example.description) : example.description;
                 let exampleText = "{{bullet}}" + exampleHyphen + " {{space}}" + description + ":\n\n";
                 if (this.skipTextWrap) {
-                    exampleText = (this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT) + exampleText;
+                    exampleText = TextUtils.indentLines(exampleText, this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT);
                 } else {
                     exampleText = TextUtils.wordWrap(exampleText,
                         undefined,
@@ -527,7 +527,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         experimentalSection += DefaultHelpGenerator.formatHelpHeader("About Experimental Commands",
             undefined, this.mPrimaryHighlightColor);
         if (this.skipTextWrap) {
-            experimentalSection += DefaultHelpGenerator.HELP_INDENT + this.mExperimentalCommandDescription;
+            experimentalSection += TextUtils.indentLines(this.mExperimentalCommandDescription, DefaultHelpGenerator.HELP_INDENT);
         } else {
             experimentalSection += "\n\n" + TextUtils.wordWrap(this.mExperimentalCommandDescription,
                 undefined, DefaultHelpGenerator.HELP_INDENT) + "\n\n";

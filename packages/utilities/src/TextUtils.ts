@@ -236,7 +236,17 @@ export class TextUtils {
     public static wordWrap(text: string, width?: number,
         indent: string = "", hardWrap: boolean = false, trim: boolean = true): string {
         const wrappedText = require("wrap-ansi")(text, this.getRecommendedWidth(width), {hard: hardWrap, trim});
-        return wrappedText.split(/\n/g).map((line: string) => {
+        return TextUtils.indentLines(wrappedText, indent);
+    }
+
+    /**
+     * Indent some text
+     * @param {string} text The text you would like to indent
+     * @param {string} indent - Add this string to every line of the result
+     * @returns {string}
+     */
+    public static indentLines(text: string, indent: string = ""): string {
+        return text.split(/\n/g).map((line: string) => {
             if (line.length === 0) {
                 return line;
             }
