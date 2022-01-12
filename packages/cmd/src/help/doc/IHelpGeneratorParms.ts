@@ -39,5 +39,5 @@ export interface IHelpGeneratorParms {
      * @type {boolean}
      * @memberof IHelpGeneratorParms
      */
-    shouldSkipTextWrap?: boolean;
+    skipTextWrap?: boolean;
 }

@@ -50,7 +50,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
      * @type {boolean}
      * @memberof IHelpGeneratorParms
      */
-    private shouldSkipTextWrap: boolean = false;
+    private skipTextWrap: boolean = false;
 
     /**
      * Creates an instance of DefaultHelpGenerator.
@@ -60,7 +60,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
      */
     constructor(defaultParms: IHelpGeneratorFactoryParms, commandParms: IHelpGeneratorParms) {
         super(defaultParms, commandParms);
-        this.shouldSkipTextWrap = commandParms.shouldSkipTextWrap ?? false;
+        this.skipTextWrap = commandParms.skipTextWrap ?? false;
         this.buildOptionMaps();
     }
 
@@ -356,7 +356,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         if (this.mProduceMarkdown) {
             description = this.escapeMarkdown(description);  // escape Markdown special characters
         }
-        if (this.shouldSkipTextWrap) {
+        if (this.skipTextWrap) {
             descriptionForHelp += (this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT) + description;
         } else {
             descriptionForHelp += TextUtils.wordWrap(description,
@@ -442,7 +442,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         if (this.mProduceMarkdown) {
             description = this.escapeMarkdown(description);  // escape Markdown special characters
         }
-        if (this.shouldSkipTextWrap) {
+        if (this.skipTextWrap) {
             description = DefaultHelpGenerator.HELP_INDENT + DefaultHelpGenerator.HELP_INDENT + description.trim()
         } else {
             description = TextUtils.wordWrap(description.trim(),
@@ -493,7 +493,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
                 const options = (example.options.length > 0) ? ` ${example.options}` : "";
                 const description = this.mProduceMarkdown ? this.escapeMarkdown(example.description) : example.description;
                 let exampleText = "{{bullet}}" + exampleHyphen + " {{space}}" + description + ":\n\n";
-                if (this.shouldSkipTextWrap) {
+                if (this.skipTextWrap) {
                     exampleText = (this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT) + exampleText;
                 } else {
                     exampleText = TextUtils.wordWrap(exampleText,
@@ -526,7 +526,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         let experimentalSection = "";
         experimentalSection += DefaultHelpGenerator.formatHelpHeader("About Experimental Commands",
             undefined, this.mPrimaryHighlightColor);
-        if (this.shouldSkipTextWrap) {
+        if (this.skipTextWrap) {
             experimentalSection += DefaultHelpGenerator.HELP_INDENT + this.mExperimentalCommandDescription;
         } else {
             experimentalSection += "\n\n" + TextUtils.wordWrap(this.mExperimentalCommandDescription,
