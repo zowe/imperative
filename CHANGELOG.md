@@ -6,6 +6,15 @@ All notable changes to the Imperative package will be documented in this file.
 
 - BugFix: Fixed --hw not adding new lines when `\n` is present in the text. [#715](https://github.com/zowe/imperative/issues/715)
 
+## `4.17.3`
+
+- BugFix: Fixed AbstractRestClient silently failing to decompress last chunk of gzip-compressed binary data that is truncated.
+
+## `4.17.2`
+
+- BugFix: Updated prettyjson and cli-table3 in order to lockdown the `colors` package. [#719](https://github.com/zowe/imperative/issues/719)
+- BugFix: Updated markdown-it to address a vulnerability. [Snyk Report](https://security.snyk.io/vuln/SNYK-JS-MARKDOWNIT-2331914)
+
 ## `4.17.1`
 
 - BugFix: Fixed an issue where plugin install and uninstall did not work with NPM version 8. [#683](https://github.com/zowe/imperative/issues/683)
