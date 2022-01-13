@@ -299,7 +299,7 @@ export class YargsConfigurer {
     // }
 
     private getClosestCommand(attemptedCommand: string) {
-        const commandTree = CommandUtils.flattenCommandTreeWithAliases(this.rootCommand);
+        const commandTree = CommandUtils.flattenCommandTree(this.rootCommand, true);
         const commands: string[] = [];
 
         for (const commandEntry of commandTree) {
