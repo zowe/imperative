@@ -135,6 +135,23 @@ export class SyntaxValidator {
             }
         }
 
+        const expectedUnderscoreLength = fullCommandName.split(" ").length;
+        /**
+         * Reject unknown positional arguments
+         * TODO Investigate removing this because currently it is not being used. After updating
+         * yargs to version >14, it handles unknown positionals automatically in strict mode, before
+         * Imperative gets a chance to detect them.
+         */
+        if (this.mCommandDefinition.type === "command" &&
+            !isNullOrUndefined(this.mCommandDefinition.name) &&
+            commandArguments._.length > expectedUnderscoreLength) {
+            valid = false;
+            this.unknownPositionalError(responseObject, commandArguments, expectedUnderscoreLength);
+        } else {
+            this.mLogger.trace("no unknown positionals. Length of positional arguments was: %s. Contents of _ were %s, Expected " +
+                "\"_\" to have length of %s", commandArguments._.length, commandArguments._, expectedUnderscoreLength);
+        }
+
         /**
          * If there is a set of options of which at least one must be specified,
          * make sure at least one of them was specified by the user.

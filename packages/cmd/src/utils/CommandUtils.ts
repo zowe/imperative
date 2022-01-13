@@ -128,14 +128,14 @@ export class CommandUtils {
     private static addChildAndDescendantsToSearch(prefix: string, child: ICommandDefinition, includeAliases: boolean = false,
         _result: ICommandTreeEntry[] = [], _tree: ICommandDefinition = child) {
         _result.push({
-            fullName: prefix + child.name,
+            fullName: (prefix + child.name).trim(),
             tree: _tree,
             command: child
         });
         if (includeAliases) {
             for (const alias of child.aliases || []) {
                 _result.push({
-                    fullName: prefix + alias,
+                    fullName: (prefix + alias).trim(),
                     tree: _tree,
                     command: child
                 });
@@ -143,7 +143,7 @@ export class CommandUtils {
         }
         for (const descendant of child.children || []) {
             _result.concat(CommandUtils.addChildAndDescendantsToSearch(
-                prefix + (child.name ? child.name + " " : ""), descendant, includeAliases, _result, _tree
+                prefix + child.name + " ", descendant, includeAliases, _result, _tree
             ));
             if (includeAliases) {
                 for (const alias of child.aliases || []) {
