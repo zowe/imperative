@@ -260,7 +260,6 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
     public buildUsageDiagram(): string {
         let usage: string = /* binary name */ this.mRootCommandName + " "
             + CommandUtils.getFullCommandName(this.mCommandDefinition, this.mDefinitionTree);
-
         // For a command, build the usage diagram with positional and options.
         if (this.mCommandDefinition.type === "command") {
             // Place the positional parameters.
