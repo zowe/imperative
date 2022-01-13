@@ -15,7 +15,7 @@ const tableObjects = [
     { header1: "value1", 2: "value2", header3: "value3" },
 ];
 
-import { TextUtils } from "../../../../packages/utilities";
+import { TextUtils } from "../src/TextUtils";
 
 describe("TextUtils", () => {
 
