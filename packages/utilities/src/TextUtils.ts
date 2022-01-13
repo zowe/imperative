@@ -225,7 +225,7 @@ export class TextUtils {
     }
 
     /**
-     * Wrap some text so that it fits within a certain width with teh wrap-ansi package
+     * Wrap some text so that it fits within a certain width with the wrap-ansi package
      * @param {string} text The text you would like to wrap
      * @param {number} width - The width you would like to wrap to - we'll try to determine the
      *                  optimal width based on this (the resulting wrap may be wrapped to fewer columns, but not more)
