@@ -157,7 +157,7 @@ export class WebHelpGenerator {
         rootHelpContent += `<h2><a href="${rootCommandName}.html" name="${rootCommandName}">${rootCommandName}</a>${this.genPrintButton()}</h2>\n`;
         rootHelpContent += this.renderMarkdown(this.mConfig.loadedConfig.rootCommandDescription) + "\n";
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
-            { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions });
+            { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions, skipTextWrap: true });
         rootHelpContent += this.renderMarkdown(this.buildChildrenSummaryTables(helpGen, rootCommandName) + "\n\n" +
             helpGen.buildGlobalOptionsSection().replace(/Global options/, "Global Options"));
         this.singlePageHtml = rootHelpContent.replace(/<h4>Groups.+?<\/ul>/s, "");
@@ -196,7 +196,7 @@ export class WebHelpGenerator {
      */
     private renderMarkdown(markdownContent: string): string {
         if (this.markdownIt == null) {
-            this.markdownIt = require("markdown-it")({ html: true, linkify: true });
+            this.markdownIt = require("markdown-it")({ html: true, linkify: true, breaks: true });
         }
 
         const sanitizeHtml = require("sanitize-html");
@@ -317,7 +317,7 @@ export class WebHelpGenerator {
     private genCommandHelpPage(definition: ICommandDefinition, fullCommandName: string, docsDir: string, parentNode: IWebHelpTreeNode) {
         const rootCommandName: string = this.treeNodes[0].text;
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
-            { commandDefinition: definition, fullCommandTree: this.mFullCommandTree });
+            { commandDefinition: definition, fullCommandTree: this.mFullCommandTree, skipTextWrap: true });
 
         let markdownContent = helpGen.buildHelp() + "\n";
         markdownContent = markdownContent.replace(/</g, "&lt;").replace(/>/g, "&gt;");
