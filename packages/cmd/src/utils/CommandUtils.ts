@@ -142,12 +142,10 @@ export class CommandUtils {
             }
         }
         for (const descendant of child.children || []) {
-            _result.concat(CommandUtils.addChildAndDescendantsToSearch(
-                prefix + child.name + " ", descendant, includeAliases, _result, _tree
-            ));
+            CommandUtils.addChildAndDescendantsToSearch(prefix + child.name + " ", descendant, includeAliases, _result, _tree);
             if (includeAliases) {
                 for (const alias of child.aliases || []) {
-                    _result.concat(CommandUtils.addChildAndDescendantsToSearch(prefix + alias + " ", descendant, true, _result, _tree));
+                    CommandUtils.addChildAndDescendantsToSearch(prefix + alias + " ", descendant, true, _result, _tree);
                 }
             }
         }
