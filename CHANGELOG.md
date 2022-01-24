@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Updated log4js for improved security.
+
 ## `4.17.4`
 
 - BugFix: Fixed --hw not adding new lines when `\n` is present in the text. [#715](https://github.com/zowe/imperative/issues/715)
