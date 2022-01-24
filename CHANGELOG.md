@@ -4,7 +4,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
-- BugFix: Updated log4js for improved security.
+- BugFix: Updated log4js and nanoid for improved security.
 
 ## `4.17.4`
 
