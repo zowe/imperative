@@ -225,7 +225,7 @@ export class TextUtils {
     }
 
     /**
-     * Wrap some text so that it fits within a certain width with teh wrap-ansi package
+     * Wrap some text so that it fits within a certain width with the wrap-ansi package
      * @param {string} text The text you would like to wrap
      * @param {number} width - The width you would like to wrap to - we'll try to determine the
      *                  optimal width based on this (the resulting wrap may be wrapped to fewer columns, but not more)
@@ -236,7 +236,17 @@ export class TextUtils {
     public static wordWrap(text: string, width?: number,
         indent: string = "", hardWrap: boolean = false, trim: boolean = true): string {
         const wrappedText = require("wrap-ansi")(text, this.getRecommendedWidth(width), {hard: hardWrap, trim});
-        return wrappedText.split(/\n/g).map((line: string) => {
+        return TextUtils.indentLines(wrappedText, indent);
+    }
+
+    /**
+     * Indent some text
+     * @param {string} text The text you would like to indent
+     * @param {string} indent - Add this string to every line of the result
+     * @returns {string}
+     */
+    public static indentLines(text: string, indent: string = ""): string {
+        return text.split(/\n/g).map((line: string) => {
             if (line.length === 0) {
                 return line;
             }

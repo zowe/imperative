@@ -44,9 +44,7 @@ describe("Logger tests", () => {
             }
 
             public get level(): any {
-                return {
-                    levelStr: this.mLevel
-                };
+                return this.mLevel;
             }
         }
 
@@ -157,9 +155,9 @@ describe("Logger tests", () => {
         const logger = Logger.initLogger(config);
         const level = logger.level;
 
-        expect((level as any).levelStr.toUpperCase()).toEqual("DEBUG");
+        expect((level as any).toUpperCase()).toMatchSnapshot();
         logger.level = "trace";
-        expect((logger.level as any).levelStr.toUpperCase()).toEqual("TRACE");
+        expect((logger.level as any).toUpperCase()).toMatchSnapshot();
     });
 
     it("Should call underlying services for logError function", () => {
@@ -205,11 +203,11 @@ describe("Logger tests", () => {
         const console = Logger.getConsoleLogger();
 
         // these should match config
-        expect((imperative.level as any).levelStr.toUpperCase()).toEqual("ERROR");
-        expect((app.level as any).levelStr.toUpperCase()).toEqual("TRACE");
+        expect((imperative.level as any).toUpperCase()).toMatchSnapshot();
+        expect((app.level as any).toUpperCase()).toMatchSnapshot();
 
         // this should be identical to imperative
-        expect((imperative.level as any).levelStr.toUpperCase()).toBe((imperativeCategory.level as any).levelStr.toUpperCase());
+        expect((imperative.level as any).toUpperCase()).toBe((imperativeCategory.level as any).toUpperCase());
     });
 
     it("Should allow enable logging in memory when logger is not configured", () => {

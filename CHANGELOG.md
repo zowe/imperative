@@ -219,6 +219,14 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
 
+## `4.17.5`
+
+- BugFix: Updated log4js and nanoid for improved security.
+
+## `4.17.4`
+
+- BugFix: Fixed --hw not adding new lines when `\n` is present in the text. [#715](https://github.com/zowe/imperative/issues/715)
+
 ## `4.17.3`
 
 - BugFix: Fixed AbstractRestClient silently failing to decompress last chunk of gzip-compressed binary data that is truncated.
