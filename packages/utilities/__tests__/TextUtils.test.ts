@@ -46,4 +46,20 @@ describe("TextUtils", () => {
         const table = TextUtils.getTable(tableObjects, color, Infinity, true, false, false, headers);
         expect(table).toMatchSnapshot();
     });
+
+    it(".wordWrap should properly wrap any given text", () => {
+        TextUtils.chalk.level = 0; // turn off color
+        const text = "testing can be interesting";
+        const expected = "++testing\n++can be\n++interesting";
+        const results = TextUtils.wordWrap(text, 10, "++");
+        expect(results).toEqual(expected);
+    });
+
+    it(".indentLines should properly indent any given text", () => {
+        TextUtils.chalk.level = 0; // turn off color
+        const text = "testing\ncan be\ninteresting";
+        const expected = "----testing\n----can be\n----interesting";
+        const results = TextUtils.indentLines(text, "----");
+        expect(results).toEqual(expected);
+    });
 });

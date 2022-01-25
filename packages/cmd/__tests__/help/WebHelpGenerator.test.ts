@@ -28,6 +28,7 @@ describe("WebHelpGenerator", () => {
         let configForHelp: IImperativeConfig;
         let webHelpDirNm: string;
         let rimraf: any;
+        let lorenIpsum: string;
 
         beforeAll( async () => {
             rimraf = require("rimraf");
@@ -37,6 +38,10 @@ describe("WebHelpGenerator", () => {
             cliHome = "packages/__tests__/fakeCliHome";
             webHelpDirNm = path.join(cliHome, "web-help");
 
+            lorenIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore\n" +
+            "et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo\n" +
+            "consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n"+
+            "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
             const exampleCommand: ICommandDefinition = {
                 name: "world",
                 type: "command",
@@ -58,6 +63,24 @@ describe("WebHelpGenerator", () => {
                                 options: [],
                                 description: "my subgroup",
                                 children: [exampleCommand]
+                            },
+                            {
+                                name: "wordWrap",
+                                aliases: ["ww"],
+                                type: "command",
+                                options: [
+                                    {
+                                        name: "test-option",
+                                        aliases: ["to"],
+                                        type: "string",
+                                        description: lorenIpsum,
+                                        allowableValues: {
+                                            values: ["banana", "coconut"]
+                                        },
+                                        defaultValue: "banana"
+                                    }
+                                ],
+                                description: "this is a test for wordwrap and default/allowed values"
                             }
                         ]
                     }
@@ -124,9 +147,23 @@ describe("WebHelpGenerator", () => {
             expect(fileText).toContain("<h4>Commands</h4>");
             expect(fileText).toContain("<h4>Groups</h4>");
 
+            fileNmToTest = webHelpDocsDirNm + "/" + moduleFileNm + "_hello_wordWrap.html";
+            fileText = fs.readFileSync(fileNmToTest, "utf8");
+            expect(fileText).toContain("<h4>Usage</h4>");
+            // Single space after the binary/cli name
+            expect(fileText).toContain(`<p>${moduleFileNm} hello wordWrap [options]</p>`);
+            expect(fileText).toContain(`
+<li>
+<p>${lorenIpsum.split("\n").join("<br>\n")}</p>
+<p>Default value: banana</p>
+<p>Allowed values: banana, coconut</p>
+</li>
+`);
+
             // do a reasonable set of generated files exist?
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + ".html")).toBe(true);
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_config.html")).toBe(true);
+            expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello_wordWrap.html")).toBe(true);
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello_universe.html")).toBe(true);
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_hello_world.html")).toBe(true);
             expect(fs.existsSync(webHelpDocsDirNm + "/" + moduleFileNm + "_plugins_install.html")).toBe(true);

@@ -379,7 +379,7 @@ export class Logger {
      * @return {string} - level of current log setting
      */
     get level() {
-        return this.logService.level;
+        return this.logService.level.toString();
     }
 
     /**
