@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed useful debugging information missing from error message when Keytar module fails to load.
+
 ## `5.0.0-next.202201102100`
 
 - BugFix: Fixed ZOWE_CLI_HOME environment variable not respected by team config in daemon mode. [zowe/zowe-cli#1240](https://github.com/zowe/zowe-cli/issues/1240)
