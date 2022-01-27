@@ -17,6 +17,7 @@ import { TestLogger } from "../../../../__tests__/TestLogger";
 import { inspect } from "util";
 import { UnitTestUtils } from "../../../../__tests__/src/UnitTestUtils";
 import { CommandUtils, ICommandTreeEntry } from "../../";
+import { cloneDeep } from "lodash";
 UnitTestUtils.replaceIt();
 
 describe("Command Utils", () => {
@@ -71,6 +72,13 @@ describe("Command Utils", () => {
 
     it("We should be able get the full command name from the flattened tree", () => {
         const fullCommand: string = CommandUtils.getFullCommandName(COMPLEX_COMMAND.children[0], MULTIPLE_GROUPS);
+        expect(fullCommand).toMatchSnapshot();
+    });
+
+    it("We should not be able get the full command name from the flattened tree", () => {
+        const child = cloneDeep(COMPLEX_COMMAND.children[0]);
+        child.description = "Description mismatch";
+        const fullCommand: string = CommandUtils.getFullCommandName(child, MULTIPLE_GROUPS);
         expect(fullCommand).toMatchSnapshot();
     });
 
