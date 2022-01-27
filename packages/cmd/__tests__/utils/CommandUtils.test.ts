@@ -75,9 +75,16 @@ describe("Command Utils", () => {
         expect(fullCommand).toMatchSnapshot();
     });
 
-    it("We should not be able get the full command name from the flattened tree", () => {
+    it("We should not be able get the full command name from the flattened tree 1", () => {
         const child = cloneDeep(COMPLEX_COMMAND.children[0]);
         child.description = "Description mismatch";
+        const fullCommand: string = CommandUtils.getFullCommandName(child, MULTIPLE_GROUPS);
+        expect(fullCommand).toMatchSnapshot();
+    });
+
+    it("We should not be able get the full command name from the flattened tree 2", () => {
+        const child = cloneDeep(COMPLEX_COMMAND.children[0]);
+        child.aliases = ["mma"];
         const fullCommand: string = CommandUtils.getFullCommandName(child, MULTIPLE_GROUPS);
         expect(fullCommand).toMatchSnapshot();
     });
