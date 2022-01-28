@@ -244,7 +244,8 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
                 return DefaultHelpGenerator.HELP_INDENT + line; // indent the table
             }).join("\n");
 
-            fullTableText += this.renderHelp(this.buildHeader(type + "S") + tableText + "\n\n");
+            const properCaseType = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+            fullTableText += this.renderHelp(this.buildHeader(properCaseType + "s") + tableText + "\n\n");
         });
 
         // Return all the table tests

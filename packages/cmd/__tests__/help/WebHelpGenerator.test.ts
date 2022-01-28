@@ -155,8 +155,8 @@ describe("WebHelpGenerator", () => {
             expect(fileText).toContain(`
 <li>
 <p>${lorenIpsum.split("\n").join("<br>\n")}</p>
-<p>Default value: banana</p>
-<p>Allowed values: banana, coconut</p>
+<p>Default value: banana<br>
+Allowed values: banana, coconut</p>
 </li>
 `);
 

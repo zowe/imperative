@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed web help wrongly escaping characters inside code blocks. [#730](https://github.com/zowe/imperative/issues/730)
+
 ## `4.17.5`
 
 - BugFix: Updated log4js and nanoid for improved security.
