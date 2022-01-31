@@ -15,6 +15,7 @@ import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { ICommandOptionDefinition } from "../doc/option/ICommandOptionDefinition";
 import { CliUtils } from "../../../utilities/src/CliUtils";
 import { ICommandArguments } from "../doc/args/ICommandArguments";
+import { isEqual, omit } from "lodash";
 
 /**
  * Command tree entry describes an entry of a command in the full command tree - used when flattening the command
@@ -186,15 +187,11 @@ export class CommandUtils {
      * @returns {string}
      * @memberof CommandUtils
      */
-    public static getFullCommandName(commandDef: ICommandDefinition,
-        commandTree: ICommandDefinition): string {
+    public static getFullCommandName(commandDef: ICommandDefinition, commandTree: ICommandDefinition): string {
+        const command = omit(commandDef, "children");
         for (const treeEntry of CommandUtils.flattenCommandTree(commandTree)) {
-            const def = treeEntry.command;
-            if (def.name === commandDef.name &&
-                def.description === commandDef.description &&
-                def.handler === commandDef.handler) {
-                return treeEntry.fullName;
-            }
+            const def = omit(treeEntry.command, "children");
+            if (isEqual(def, command)) { return treeEntry.fullName; }
         }
         // otherwise, couldn't find it, just return the current name
         return commandDef.name;
