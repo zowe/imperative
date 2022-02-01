@@ -106,7 +106,7 @@ export default class InitHandler implements ICommandHandler {
             }
 
             // Write the active created/updated config layer
-            await config.save(false);
+            await config.save();
             params.response.console.log(`Saved config template to ${layer.path}`);
 
             if (params.arguments.edit && params.arguments.edit === true) {

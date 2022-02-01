@@ -86,8 +86,7 @@ export class ConfigSecure extends ConfigApi {
      * Save the secure application properties into secure storage using
      * the vault interface from our config object.
      *
-     * @param allLayers Save all Config layers when true.
-     *                  Only save the active layer when false.
+     * @param allLayers Specify true to save all config layers instead of only the active one
      */
     public async save(allLayers?: boolean) {
         if (this.mConfig.mVault == null) return;
@@ -95,7 +94,7 @@ export class ConfigSecure extends ConfigApi {
 
         // Build the entries for each layer
         for (const layer of this.mConfig.mLayers) {
-            if ((allLayers === false) && (layer.user !== this.mConfig.mActive.user || layer.global !== this.mConfig.mActive.global)) {
+            if (!allLayers && (layer.user !== this.mConfig.mActive.user || layer.global !== this.mConfig.mActive.global)) {
                 continue;
             }
 

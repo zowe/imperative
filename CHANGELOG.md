@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- **Next Breaking**: Changed the default behavior of `Config.save` and `ConfigSecure.save` APIs to save only the active config layer. [#732](https://github.com/zowe/imperative/issues/732)
+
 ## `5.0.0-next.202201311918`
 
 - BugFix: Fixed useful debugging information missing from error message when Keytar module fails to load.
