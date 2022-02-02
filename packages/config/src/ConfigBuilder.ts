@@ -157,7 +157,7 @@ export class ConfigBuilder {
             ["token", "tokenValue"]
         ];
 
-        // interate through all of the recored profiles
+        // interate through all of the recorded profiles
         for (const currProfNm of Object.keys(conversionResult.config.profiles)) {
             // iterate through the non-secure properties of the current profile
             const profPropsToConvert = [];
