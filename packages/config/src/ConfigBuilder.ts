@@ -136,9 +136,74 @@ export class ConfigBuilder {
             }
         }
 
+        // convert profile property names that have been changed for V2
+        ConfigBuilder.convertPropNames(result);
         result.config.autoStore = true;
         return result;
     }
+
+    /**
+     * Convert a set of known property names that have been renamed for
+     * V2 conformance to their new names.
+     *
+     * @param conversionResult The conversion result structure in which we shall
+     *      rename obsolete property names to their V2-compliant names.
+     */
+    private static convertPropNames(conversionResult: IConfigConvertResult): void {
+        const nameConversions = [
+            ["hostname", "host"],
+            ["username", "user"],
+            ["pass", "password"],
+            ["token", "tokenValue"]
+        ];
+
+        // interate through all of the recored profiles
+        for (const currProfNm of Object.keys(conversionResult.config.profiles)) {
+            // iterate through the non-secure properties of the current profile
+            const profPropsToConvert = [];
+            const currProps = conversionResult.config.profiles[currProfNm].properties;
+            for (const [currPropName, currPropVal] of Object.entries(currProps)) {
+                // iterate through the set of names that we must convert
+                for (const [oldPropName, newPropName] of nameConversions) {
+                    if (currPropName === oldPropName) {
+                        /* Store the property conversion info for later replacement.
+                         * We do not want to add and delete properties while
+                         * we are iterating the properties.
+                         */
+                        const propToConvert = [oldPropName, newPropName, currPropVal];
+                        profPropsToConvert.push(propToConvert);
+
+                        /* We recorded the replacement for this property name.
+                         * No need to look for more name conversions on this name.
+                         */
+                        break;
+                    }
+                }
+            } // end for all properties
+
+            // convert the non-secure property names for the current profile
+            for (const [oldPropName, newPropName, propValue] of profPropsToConvert) {
+                delete currProps[oldPropName];
+                currProps[newPropName] = propValue;
+            }
+
+            // iterate through the secure property names of the current profile
+            const currSecProps = conversionResult.config.profiles[currProfNm].secure;
+            for (let secInx = 0; secInx < currSecProps.length; secInx++) {
+                // iterate through the set of names that we must convert
+                for (const [oldPropName, newPropName] of nameConversions) {
+                    if (currSecProps[secInx] === oldPropName) {
+                        currSecProps[secInx] = newPropName;
+
+                        /* We replaced this secure property name.
+                         * No need to look for more name conversions on this name.
+                         */
+                        break;
+                    }
+                }
+            }
+        } // end for all profiles
+    } // end convertPropNames
 
     /**
      * Returns empty value that is appropriate for the property type.
