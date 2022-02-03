@@ -3892,3 +3892,7 @@ Array [
   },
 ]
 `;
+
+exports[`Command Utils We should not be able get the full command name from the flattened tree 1 1`] = `"test-command"`;
+
+exports[`Command Utils We should not be able get the full command name from the flattened tree 2 1`] = `"test-command"`;
