@@ -34,4 +34,10 @@ export interface IHelpGeneratorParms {
      * @memberof IHelpGeneratorParms
      */
     experimentalCommandsDescription?: string;
+    /**
+     * The indicator that the given help generator should skip introducing breaks based on terminal width
+     * @type {boolean}
+     * @memberof IHelpGeneratorParms
+     */
+    skipTextWrap?: boolean;
 }

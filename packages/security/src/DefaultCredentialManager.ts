@@ -124,12 +124,14 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
                 requireOpts.paths = [process.mainModule.filename];
             }
             const keytarPath = require.resolve("keytar", requireOpts);
+            Logger.getImperativeLogger().debug("Loading Keytar module from", keytarPath);
             this.keytar = await import(keytarPath);
         } catch (error) {
             this.loadError = new ImperativeError({
-                msg: "Failed to load Keytar module",
+                msg: `Failed to load Keytar module: ${error.message}`,
                 causeErrors: error
             });
+            Logger.getImperativeLogger().debug("Failed to load Keytar module:\n", error.stack);
         }
     }
 
@@ -256,7 +258,7 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
      * @returns A promise for the credential string.
      */
     private async getCredentialsHelper(service: string, account: string): Promise<SecureCredential> {
-    // Try to load single-field value from vault
+        // Try to load single-field value from vault
         let value = await this.keytar.getPassword(service, account);
 
         // If not found, try to load multiple-field value on Windows
@@ -289,7 +291,7 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
      * @param value The string credential.
      */
     private async setCredentialsHelper(service: string, account: string, value: SecureCredential): Promise<void> {
-    // On Windows, save value across multiple fields if needed
+        // On Windows, save value across multiple fields if needed
         if (process.platform === "win32" && value.length > this.WIN32_CRED_MAX_STRING_LENGTH) {
             // First delete any fields previously used to store this value
             await this.keytar.deletePassword(service, account);

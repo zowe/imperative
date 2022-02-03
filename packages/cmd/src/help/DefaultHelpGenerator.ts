@@ -46,6 +46,13 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
     private static readonly ERROR_TAG: string = "Help Generator Error:";
 
     /**
+     * Indicates that the help generator should skip introducing breaks based on terminal width
+     * @type {boolean}
+     * @memberof IHelpGeneratorParms
+     */
+    private skipTextWrap: boolean = false;
+
+    /**
      * Creates an instance of DefaultHelpGenerator.
      * @param {IHelpGeneratorFactoryParms} defaultParms - Imperative config parameters for help generation - See interface for details
      * @param {IHelpGeneratorParms} commandParms - The command definitions for generating help - See interface for details
@@ -53,6 +60,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
      */
     constructor(defaultParms: IHelpGeneratorFactoryParms, commandParms: IHelpGeneratorParms) {
         super(defaultParms, commandParms);
+        this.skipTextWrap = commandParms.skipTextWrap ?? false;
         this.buildOptionMaps();
     }
 
@@ -255,7 +263,6 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
     public buildUsageDiagram(): string {
         let usage: string = /* binary name */ this.mRootCommandName + " "
             + CommandUtils.getFullCommandName(this.mCommandDefinition, this.mDefinitionTree);
-
         // For a command, build the usage diagram with positional and options.
         if (this.mCommandDefinition.type === "command") {
             // Place the positional parameters.
@@ -361,10 +368,14 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         if (this.mProduceMarkdown) {
             description = this.escapeMarkdown(description);  // escape Markdown special characters
         }
-        descriptionForHelp += TextUtils.wordWrap(description,
-            undefined,
-            this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT
-        );
+        if (this.skipTextWrap) {
+            descriptionForHelp += TextUtils.indentLines(description, this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT);
+        } else {
+            descriptionForHelp += TextUtils.wordWrap(description,
+                undefined,
+                this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT
+            );
+        }
         return this.renderHelp(descriptionForHelp + "\n\n");
     }
 
@@ -443,10 +454,14 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         if (this.mProduceMarkdown) {
             description = this.escapeMarkdown(description);  // escape Markdown special characters
         }
-        description = TextUtils.wordWrap(description.trim(),
-            undefined,
-            DefaultHelpGenerator.HELP_INDENT + DefaultHelpGenerator.HELP_INDENT
-        );
+        if (this.skipTextWrap) {
+            description = TextUtils.indentLines(description.trim(), DefaultHelpGenerator.HELP_INDENT + DefaultHelpGenerator.HELP_INDENT);
+        } else {
+            description = TextUtils.wordWrap(description.trim(),
+                undefined,
+                DefaultHelpGenerator.HELP_INDENT + DefaultHelpGenerator.HELP_INDENT
+            );
+        }
         if (this.mProduceMarkdown) {
             // for markdown, remove leading spaces from the description so that the first line
             // is not indented
@@ -489,9 +504,14 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
                 const exampleHyphen = this.mProduceMarkdown ? "" : "-";
                 const options = (example.options.length > 0) ? ` ${example.options}` : "";
                 const description = this.mProduceMarkdown ? this.escapeMarkdown(example.description) : example.description;
-                let exampleText = TextUtils.wordWrap("{{bullet}}" + exampleHyphen + " {{space}}" + description + ":\n\n",
-                    undefined,
-                    this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT);
+                let exampleText = "{{bullet}}" + exampleHyphen + " {{space}}" + description + ":\n\n";
+                if (this.skipTextWrap) {
+                    exampleText = TextUtils.indentLines(exampleText, this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT);
+                } else {
+                    exampleText = TextUtils.wordWrap(exampleText,
+                        undefined,
+                        this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT);
+                }
                 exampleText += "      {{bullet}}{{space}}{{codeBegin}}$ {{space}}" +
                     prefix +
                     this.mRootCommandName + " " +
@@ -518,19 +538,13 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         let experimentalSection = "";
         experimentalSection += DefaultHelpGenerator.formatHelpHeader("About Experimental Commands",
             undefined, this.mPrimaryHighlightColor);
-        experimentalSection += "\n\n" + TextUtils.wordWrap(this.mExperimentalCommandDescription,
-            undefined, DefaultHelpGenerator.HELP_INDENT) + "\n\n";
+        if (this.skipTextWrap) {
+            experimentalSection += TextUtils.indentLines(this.mExperimentalCommandDescription, DefaultHelpGenerator.HELP_INDENT);
+        } else {
+            experimentalSection += "\n\n" + TextUtils.wordWrap(this.mExperimentalCommandDescription,
+                undefined, DefaultHelpGenerator.HELP_INDENT) + "\n\n";
+        }
         return this.renderHelp(experimentalSection);
-    }
-
-    /**
-     * Utility function to word wrap help.
-     * @param {string} text - The text to wrap
-     * @return {string} - the word wrapped string
-     */
-    private wordWrapHelp(text: string): string {
-        return TextUtils.wordWrap(text, undefined,
-            this.mProduceMarkdown ? "" : DefaultHelpGenerator.HELP_INDENT);
     }
 
     /**
