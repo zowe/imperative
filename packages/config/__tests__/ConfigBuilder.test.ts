@@ -357,4 +357,42 @@ describe("Config Builder tests", () => {
             });
         });
     });
+
+    it("should convert v1 property names to v2 names", async () => {
+        jest.spyOn(ProfileIO, "getAllProfileDirectories").mockReturnValueOnce(["zosmf"]);
+        jest.spyOn(ProfileIO, "getAllProfileNames")
+            .mockReturnValueOnce(["LPAR1"]);
+        jest.spyOn(ProfileIO, "readMetaFile")
+            .mockReturnValueOnce({ defaultProfile: "LPAR1" } as any);
+        jest.spyOn(ProfileIO, "readProfileFile")
+            .mockReturnValueOnce({
+                hostname: "should change to host",
+                username: "should change to user",
+                pass: "managed by A",
+                token: "managed by A"
+            });
+
+        const convertResult = await ConfigBuilder.convert(__dirname);
+
+        expect(convertResult.config).toMatchObject({
+            profiles: {
+                zosmf_LPAR1: {
+                    type: "zosmf",
+                    properties: {
+                        host: "should change to host",
+                        user: "should change to user",
+                        password: "area51",
+                        tokenValue: "area51"
+                    },
+                    secure: ["password", "tokenValue"]
+                }
+            },
+            defaults: {
+                zosmf: "zosmf_LPAR1"
+            },
+            autoStore: true
+        });
+        expect(Object.keys(convertResult.profilesConverted).length).toBe(1);
+        expect(convertResult.profilesFailed.length).toBe(0);
+    });
 });
