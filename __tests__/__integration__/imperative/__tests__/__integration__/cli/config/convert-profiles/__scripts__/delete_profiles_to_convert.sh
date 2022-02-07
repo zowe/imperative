@@ -7,4 +7,10 @@ then
 fi
 
 imperative-test-cli profiles delete base test
+if [ $? -gt 0 ]
+then
+    exit $?
+fi
+
+imperative-test-cli profiles delete oldNameProf myOldProf
 exit $?

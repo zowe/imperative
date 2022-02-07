@@ -32,11 +32,11 @@ describe("imperative-test-cli config convert-profiles", () => {
     });
 
     beforeEach(() => {
-        runCliScript(__dirname + "/__scripts__/create_profiles_secured_and_base.sh", TEST_ENVIRONMENT.workingDir);
+        runCliScript(__dirname + "/__scripts__/create_profiles_to_convert.sh", TEST_ENVIRONMENT.workingDir);
     });
 
     afterEach(() => {
-        runCliScript(__dirname + "/__scripts__/delete_profiles_secured_and_base_noerr.sh", TEST_ENVIRONMENT.workingDir);
+        runCliScript(__dirname + "/__scripts__/delete_profiles_to_convert_noerr.sh", TEST_ENVIRONMENT.workingDir);
         if (fs.existsSync(configJsonPath)) {
             fs.unlinkSync(configJsonPath);
         }
@@ -53,7 +53,7 @@ describe("imperative-test-cli config convert-profiles", () => {
         it("should convert profiles to team config", async () => {
             const response = runCliScript(__dirname + "/__scripts__/convert_profiles.sh", TEST_ENVIRONMENT.workingDir, ["y"]);
             expect(response.status).toBe(0);
-            expect(response.stdout.toString()).toContain("Detected 2 old profile(s) to convert");
+            expect(response.stdout.toString()).toContain("Detected 3 old profile(s) to convert");
             expect(response.stdout.toString()).toContain("Your new profiles have been saved");
             expect(response.stdout.toString()).toContain("Your old profiles have been moved");
             expect(response.stderr.toString()).toEqual("");
@@ -75,11 +75,21 @@ describe("imperative-test-cli config convert-profiles", () => {
                             host: "example.com"
                         },
                         secure: []
-                    }
+                    },
+                    oldNameProf_myOldProf: {
+                        type: "oldNameProf",
+                        properties: {
+                            host: "ConvertToHost.com",
+                            user: "ConvertToUser",
+                            tokenValue: "ConvertToTokenValue"
+                        },
+                        secure: ["password"]
+                    },
                 },
                 defaults: {
                     secured: "secured_test",
-                    base: "base_test"
+                    base: "base_test",
+                    oldNameProf: "oldNameProf_myOldProf"
                 },
                 autoStore: true
             });
@@ -89,7 +99,8 @@ describe("imperative-test-cli config convert-profiles", () => {
             const secureConfigProps = JSON.parse(Buffer.from(securedValue, "base64").toString());
             expect(secureConfigProps).toMatchObject({
                 [configJsonPath]: {
-                    "profiles.secured_test.properties.secret": "world"
+                    "profiles.secured_test.properties.secret": "world",
+                    "profiles.oldNameProf_myOldProf.properties.password": "ConvertToPassword"
                 }
             });
 
@@ -104,14 +115,14 @@ describe("imperative-test-cli config convert-profiles", () => {
         it("should not convert profiles if prompt is rejected", () => {
             const response = runCliScript(__dirname + "/__scripts__/convert_profiles.sh", TEST_ENVIRONMENT.workingDir, ["n"]);
             expect(response.status).toBe(0);
-            expect(response.stdout.toString()).toContain("Detected 2 old profile(s) to convert");
+            expect(response.stdout.toString()).toContain("Detected 3 old profile(s) to convert");
             expect(response.stdout.toString()).not.toContain("Your new profiles have been saved");
             expect(response.stdout.toString()).not.toContain("Your old profiles have been moved");
             expect(response.stderr.toString()).toEqual("");
             expect(fs.existsSync(configJsonPath)).toBe(false);
         });
         it("should not delete profiles if prompt is rejected", () => {
-            runCliScript(__dirname + "/__scripts__/delete_profiles_secured_and_base.sh", TEST_ENVIRONMENT.workingDir);
+            runCliScript(__dirname + "/__scripts__/delete_profiles_to_convert.sh", TEST_ENVIRONMENT.workingDir);
 
             const response = runCliScript(__dirname + "/__scripts__/convert_profiles_delete.sh", TEST_ENVIRONMENT.workingDir, ["n"]);
             expect(response.status).toBe(0);
