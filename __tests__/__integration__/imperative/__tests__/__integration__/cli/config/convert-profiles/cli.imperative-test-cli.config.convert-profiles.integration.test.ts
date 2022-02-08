@@ -10,6 +10,7 @@
 */
 
 import * as fs from "fs";
+import * as fsExtra from "fs-extra";
 import * as path from "path";
 import * as keytar from "keytar";
 import { ITestEnvironment } from "../../../../../../../__src__/environment/doc/response/ITestEnvironment";
@@ -32,14 +33,15 @@ describe("imperative-test-cli config convert-profiles", () => {
     });
 
     beforeEach(() => {
-        runCliScript(__dirname + "/__scripts__/create_profiles_to_convert.sh", TEST_ENVIRONMENT.workingDir);
+        runCliScript(__dirname + "/__scripts__/create_profiles_secured_and_base.sh", TEST_ENVIRONMENT.workingDir);
     });
 
     afterEach(() => {
-        runCliScript(__dirname + "/__scripts__/delete_profiles_to_convert_noerr.sh", TEST_ENVIRONMENT.workingDir);
+        runCliScript(__dirname + "/__scripts__/delete_profiles_secured_and_base_noerr.sh", TEST_ENVIRONMENT.workingDir);
         if (fs.existsSync(configJsonPath)) {
             fs.unlinkSync(configJsonPath);
         }
+        fsExtra.removeSync(TEST_ENVIRONMENT.workingDir + "/profiles-old");
     });
 
     describe("success scenarios", () => {
@@ -53,7 +55,7 @@ describe("imperative-test-cli config convert-profiles", () => {
         it("should convert profiles to team config", async () => {
             const response = runCliScript(__dirname + "/__scripts__/convert_profiles.sh", TEST_ENVIRONMENT.workingDir, ["y"]);
             expect(response.status).toBe(0);
-            expect(response.stdout.toString()).toContain("Detected 3 old profile(s) to convert");
+            expect(response.stdout.toString()).toContain("Detected 2 old profile(s) to convert");
             expect(response.stdout.toString()).toContain("Your new profiles have been saved");
             expect(response.stdout.toString()).toContain("Your old profiles have been moved");
             expect(response.stderr.toString()).toEqual("");
@@ -76,20 +78,10 @@ describe("imperative-test-cli config convert-profiles", () => {
                         },
                         secure: []
                     },
-                    oldNameProf_myOldProf: {
-                        type: "oldNameProf",
-                        properties: {
-                            host: "ConvertToHost.com",
-                            user: "ConvertToUser",
-                            tokenValue: "ConvertToTokenValue"
-                        },
-                        secure: ["password"]
-                    },
                 },
                 defaults: {
                     secured: "secured_test",
-                    base: "base_test",
-                    oldNameProf: "oldNameProf_myOldProf"
+                    base: "base_test"
                 },
                 autoStore: true
             });
@@ -99,8 +91,7 @@ describe("imperative-test-cli config convert-profiles", () => {
             const secureConfigProps = JSON.parse(Buffer.from(securedValue, "base64").toString());
             expect(secureConfigProps).toMatchObject({
                 [configJsonPath]: {
-                    "profiles.secured_test.properties.secret": "world",
-                    "profiles.oldNameProf_myOldProf.properties.password": "ConvertToPassword"
+                    "profiles.secured_test.properties.secret": "world"
                 }
             });
 
@@ -111,18 +102,56 @@ describe("imperative-test-cli config convert-profiles", () => {
         });
     });
 
+    it("should convert v1 profile property names to v2 names", async () => {
+        // we don't want the profiles created by beforeEach(). We only want an old profile.
+        runCliScript(__dirname + "/__scripts__/delete_profiles_secured_and_base_noerr.sh", TEST_ENVIRONMENT.workingDir);
+        fsExtra.copySync(__dirname + "/../../config/__resources__/profiles_with_v1_names", TEST_ENVIRONMENT.workingDir + "/profiles");
+
+        const response = runCliScript(__dirname + "/__scripts__/convert_profiles.sh", TEST_ENVIRONMENT.workingDir, ["y"]);
+        expect(response.status).toBe(0);
+        expect(response.stdout.toString()).toContain("Detected 1 old profile(s) to convert");
+        expect(response.stdout.toString()).toContain("Your new profiles have been saved");
+        expect(response.stdout.toString()).toContain("Your old profiles have been moved");
+        expect(response.stderr.toString()).toEqual("");
+
+        // Check contents of config JSON
+        const configJson = JSON.parse(fs.readFileSync(configJsonPath, "utf-8"));
+        expect(configJson).toMatchObject({
+            profiles: {
+                v1profile_myv1profile: {
+                    type: "v1profile",
+                    properties: {
+                        host: "convert hostname to host",
+                        user: "convert username to user",
+                        password: "convert pass to password",
+                        tokenValue: "convert token to takenValue"
+                    },
+                }
+            },
+            defaults: {
+                v1profile: "v1profile_myv1profile"
+            },
+            autoStore: true
+        });
+
+        // Ensure that profiles directory was renamed
+        const cliHomeDirContents = fs.readdirSync(process.env.IMPERATIVE_TEST_CLI_CLI_HOME);
+        expect(cliHomeDirContents.includes("profiles")).toBe(false);
+        expect(cliHomeDirContents.includes("profiles-old")).toBe(true);
+    });
+
     describe("failure scenarios", () => {
         it("should not convert profiles if prompt is rejected", () => {
             const response = runCliScript(__dirname + "/__scripts__/convert_profiles.sh", TEST_ENVIRONMENT.workingDir, ["n"]);
             expect(response.status).toBe(0);
-            expect(response.stdout.toString()).toContain("Detected 3 old profile(s) to convert");
+            expect(response.stdout.toString()).toContain("Detected 2 old profile(s) to convert");
             expect(response.stdout.toString()).not.toContain("Your new profiles have been saved");
             expect(response.stdout.toString()).not.toContain("Your old profiles have been moved");
             expect(response.stderr.toString()).toEqual("");
             expect(fs.existsSync(configJsonPath)).toBe(false);
         });
         it("should not delete profiles if prompt is rejected", () => {
-            runCliScript(__dirname + "/__scripts__/delete_profiles_to_convert.sh", TEST_ENVIRONMENT.workingDir);
+            runCliScript(__dirname + "/__scripts__/delete_profiles_secured_and_base.sh", TEST_ENVIRONMENT.workingDir);
 
             const response = runCliScript(__dirname + "/__scripts__/convert_profiles_delete.sh", TEST_ENVIRONMENT.workingDir, ["n"]);
             expect(response.status).toBe(0);

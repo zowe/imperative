@@ -31,12 +31,6 @@ const hostOption: ICommandOptionDefinition = {
     type: "string"
 };
 
-const hostNameOption: ICommandOptionDefinition = {
-    name: "hostname",
-    description: "hostname should be converted to host in v2",
-    type: "string"
-};
-
 const portOption: ICommandOptionDefinition = {
     name: "port",
     description: "Fruit port",
@@ -49,21 +43,9 @@ const userOption: ICommandOptionDefinition = {
     type: "string"
 };
 
-const userNameOption: ICommandOptionDefinition = {
-    name: "username",
-    description: "username should be converted to user in v2",
-    type: "string"
-};
-
 const passwordOption: ICommandOptionDefinition = {
     name: "password",
     description: "Fruit password",
-    type: "string"
-};
-
-const passOption: ICommandOptionDefinition = {
-    name: "pass",
-    description: "pass should be converted to password in v2",
     type: "string"
 };
 
@@ -76,12 +58,6 @@ const tokenTypeOption: ICommandOptionDefinition = {
 const tokenValueOption: ICommandOptionDefinition = {
     name: "token-value",
     description: "Fruit token value",
-    type: "string"
-};
-
-const tokenOption: ICommandOptionDefinition = {
-    name: "token",
-    description: "token should be converted to tokenValue in v2",
     type: "string"
 };
 
@@ -309,33 +285,6 @@ export const config: IImperativeConfig = {
                             type: "string",
                             required: true,
                         }
-                    }
-                }
-            }
-        },
-        {
-            type: "oldNameProf",
-            schema: {
-                type: "object",
-                title: "Profile with old names",
-                description: "Profile with old names",
-                properties: {
-                    hostname: {
-                        type: "string",
-                        optionDefinition: {...hostNameOption, required: true}
-                    },
-                    username: {
-                        type: "string",
-                        optionDefinition: {...userNameOption, required: true}
-                    },
-                    pass: {
-                        type: "string",
-                        secure: true,
-                        optionDefinition: {...passOption, required: true}
-                    },
-                    token: {
-                        type: "string",
-                        optionDefinition: {...tokenOption, required: true}
                     }
                 }
             }

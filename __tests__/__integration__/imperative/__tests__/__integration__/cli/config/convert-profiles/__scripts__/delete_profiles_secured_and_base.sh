@@ -12,5 +12,5 @@ then
     exit $?
 fi
 
-imperative-test-cli profiles delete oldNameProf myOldProf
+imperative-test-cli profiles delete v1profile myv1profile
 exit $?
