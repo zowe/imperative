@@ -45,6 +45,10 @@ import { ICommandProfile } from "./doc/profiles/definition/ICommandProfile";
 import { Config } from "../../config/src/Config";
 import { IDaemonResponse } from "../../utilities/src/doc/IDaemonResponse";
 
+interface ShowInputsOnlyOptions {
+    showSecure: boolean;
+}
+
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
  * response object and validates syntax, loads profiles, instantiates handlers, & invokes the handlers.
@@ -614,8 +618,22 @@ export class CommandProcessor {
                 fullDefinition: this.fullDefinition
             };
             try {
-                if (handlerParms.arguments.showResolvedArgs) {
-                    this.dryRun(handlerParms);
+                if (handlerParms.arguments.showInputsOnly) {
+
+                    const SECRETS_ENV = `ZOWE_SHOW_SECURE_ARGS`;
+                    const env = (process.env[SECRETS_ENV] || "false").toUpperCase();
+
+                    if (env === "TRUE" || env === "1") {
+                        this.showInputsOnly(handlerParms, { showSecure: true });
+                    } else {
+                        response.console.errorHeader("Some inputs are not displayed");
+                        response.console.error(
+                            "Displayed inputs below may contain sensitive data such as user IDs and passwords in plain text.\n\n" +
+                            "Set the environment variable " +
+                            `${SECRETS_ENV} to 'true' to display secure values in plain text.\n`);
+                        this.showInputsOnly(handlerParms);
+                    }
+
                 } else {
                     await handler.process(handlerParms);
                 }
@@ -729,29 +747,39 @@ export class CommandProcessor {
      * @returns
      * @memberof CommandProcessor
      */
-    private dryRun(commandParameters: IHandlerParameters) {
-        interface IDryRunResponse {
+    private showInputsOnly(commandParameters: IHandlerParameters, options?: ShowInputsOnlyOptions) {
+
+        const secureInputs: Set<string> = new Set(["user", "password", "tokenValue", "passphrase"]);
+
+        interface IResolvedArgsResponse {
             commandValues?: ICommandArguments;
             requiredProfiles?: string[];
             optionalProfiles?: string[];
         }
 
         const commandValues = {};
-        const dryRun: IDryRunResponse = {commandValues: commandValues as ICommandArguments};
+        const showInputsOnly: IResolvedArgsResponse = { commandValues: commandValues as ICommandArguments };
 
+
+        // only attempt to show the input if it is in the command definition
         for (let i = 0; i < commandParameters.definition.options.length; i++) {
             const name = commandParameters.definition.options[i].name;
-            if (commandParameters.arguments[name] != null) {
-                dryRun.commandValues[name] = commandParameters.arguments[name];
-            }
 
+            if (commandParameters.arguments[name] != null) {
+
+                if (options?.showSecure || !secureInputs.has(name)) {
+                    showInputsOnly.commandValues[name] = commandParameters.arguments[name];
+                } else {
+                    showInputsOnly.commandValues[name] = `****`;
+                }
+            }
         }
 
-        dryRun.requiredProfiles = commandParameters.definition.profile.required;
-        dryRun.optionalProfiles = commandParameters.definition.profile.optional;
+        showInputsOnly.requiredProfiles = commandParameters.definition.profile.required;
+        showInputsOnly.optionalProfiles = commandParameters.definition.profile.optional;
 
-        commandParameters.response.console.log(TextUtils.prettyJson(dryRun).trim());
-        commandParameters.response.data.setObj(dryRun);
+        commandParameters.response.console.log(TextUtils.prettyJson(showInputsOnly).trim());
+        commandParameters.response.data.setObj(showInputsOnly);
 
         return;
     }

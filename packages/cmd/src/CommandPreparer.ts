@@ -451,11 +451,11 @@ export class CommandPreparer {
             type: "boolean"
         });
 
-        // show resolved arguments
+        // show input command arguments only
         definition.options.push({
-            name: "show-resolved-args",
+            name: "show-inputs-only",
             group: Constants.GLOBAL_GROUP,
-            description: "Show resolved arguments",
+            description: "Show command inputs and do not run the command",
             type: "boolean",
             hidden: true
         });
