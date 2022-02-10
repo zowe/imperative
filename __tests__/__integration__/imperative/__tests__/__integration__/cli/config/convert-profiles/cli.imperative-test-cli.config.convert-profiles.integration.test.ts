@@ -123,8 +123,7 @@ describe("imperative-test-cli config convert-profiles", () => {
                     properties: {
                         host: "convert hostname to host",
                         user: "convert username to user",
-                        password: "convert pass to password",
-                        tokenValue: "convert token to takenValue"
+                        password: "convert pass to password"
                     },
                 }
             },

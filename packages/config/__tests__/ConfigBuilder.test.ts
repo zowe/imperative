@@ -368,8 +368,7 @@ describe("Config Builder tests", () => {
             .mockReturnValueOnce({
                 hostname: "should change to host",
                 username: "should change to user",
-                pass: "managed by A",
-                token: "managed by A"
+                pass: "managed by A"
             });
 
         const convertResult = await ConfigBuilder.convert(__dirname);
@@ -381,10 +380,9 @@ describe("Config Builder tests", () => {
                     properties: {
                         host: "should change to host",
                         user: "should change to user",
-                        password: "area51",
-                        tokenValue: "area51"
+                        password: "area51"
                     },
-                    secure: ["password", "tokenValue"]
+                    secure: ["password"]
                 }
             },
             defaults: {

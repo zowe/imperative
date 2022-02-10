@@ -153,8 +153,7 @@ export class ConfigBuilder {
         const nameConversions = [
             ["hostname", "host"],
             ["username", "user"],
-            ["pass", "password"],
-            ["token", "tokenValue"]
+            ["pass", "password"]
         ];
 
         // interate through all of the recorded profiles
