@@ -4,7 +4,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
-- Enhancement: Convert previously used profile property names into V2-compliant property names during the `zowe config convert-profiles` command. Conversions are: hostname -> host, username -> user, pass -> password, token -> tokenValue.
+- Enhancement: Convert previously used profile property names into V2-compliant property names during the `zowe config convert-profiles` command. Conversions are: hostname -> host, username -> user, pass -> password.
 
 ## `5.0.0-next.202201311918`
 
