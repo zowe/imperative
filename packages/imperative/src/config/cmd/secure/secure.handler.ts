@@ -75,7 +75,7 @@ export default class SecureHandler implements ICommandHandler {
         }
 
         // Write the config layer
-        await config.save(false);
+        await config.save();
     }
 
     /**

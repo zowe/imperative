@@ -129,7 +129,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
                 teamConfig.api.layers.activate(false, true);
                 teamConfig.api.layers.merge(convertResult.config);
                 ConfigSchema.updateSchema();
-                await teamConfig.save(false);
+                await teamConfig.save();
 
                 try {
                     fs.renameSync(profilesRootDir, oldProfilesDir);
