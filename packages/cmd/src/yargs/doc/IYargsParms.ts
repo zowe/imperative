@@ -15,6 +15,8 @@ import { GroupCommandYargs } from "../GroupCommandYargs";
 import { ICommandResponseParms } from "../../doc/response/parms/ICommandResponseParms";
 import { IProfileManagerFactory } from "../../../../profiles";
 import { IHelpGeneratorFactory } from "../../help/doc/IHelpGeneratorFactory";
+import { IDaemonContext } from "../../../../imperative/src/doc/IDaemonContext";
+
 /**
  * Imperative Yargs parameters - used to define imperative commands to Yargs and provides guidance/parameters for
  * how response objects should be handled when yargs invokes the handlers.
@@ -87,7 +89,13 @@ export interface IYargsParms {
     /**
      * The phrase used to indicate the user wants to enter the value of an argument in a hidden text prompt
      * @type {string}
-     * @memberof ICommandProcessorParms
+     * @memberof IYargsParms
      */
     promptPhrase: string;
+    /**
+     * The context object defined when in daemon mode.
+     * @type {IDaemonContext}
+     * @memberof IYargsParms
+     */
+    daemonContext?: IDaemonContext;
 }

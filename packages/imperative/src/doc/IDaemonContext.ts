@@ -10,26 +10,34 @@
 */
 
 import * as net from "net";
+import * as stream from "stream";
 import { IDaemonResponse } from "../../../utilities";
 
 /**
- * Allow for passing our own "context" / user data through yargs
+ * Allow for passing our own "context" / user data to the Imperative parser
  * @export
- * @interface IYargsContext
+ * @interface IDaemonContext
  */
-export interface IYargsContext {
+export interface IDaemonContext {
 
     /**
      * Stream to write response to
      * @type {net.Socket}
-     * @memberof IYargsContext
+     * @memberof IDaemonContext
      */
     stream?: net.Socket;
 
     /**
+     * Stream to read input from
+     * @type {stream.Readable}
+     * @memberof IDaemonContext
+     */
+    stdinStream?: stream.Readable;
+
+    /**
      * Daemon response object from socket client
      * @type {IDaemonResponse}
-     * @memberof IYargsContext
+     * @memberof IDaemonContext
      */
-    daemonResponse?: IDaemonResponse;
+    request?: IDaemonResponse;
 }

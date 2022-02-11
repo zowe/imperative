@@ -14,7 +14,7 @@ import { IHelpGenerator } from "../../help/doc/IHelpGenerator";
 import { IProfileManagerFactory } from "../../../../profiles";
 import { ICommandProfileTypeConfiguration } from "../../../src/doc/profiles/definition/ICommandProfileTypeConfiguration";
 import { Config } from "../../../../config";
-import { IDaemonResponse } from "../../../..";
+import { IDaemonContext } from "../../../../imperative/src/doc/IDaemonContext";
 
 /**
  * Parameters to create an instance of the Command Processor. Contains the command definition (for the command
@@ -81,9 +81,9 @@ export interface ICommandProcessorParms {
     // TODO Should we make this property required? (breaking change)
     config?: Config;
     /**
-     * Daemon response object containing process info.
-     * @type {IDaemonResponse}
+     * The context object defined when in daemon mode.
+     * @type {IDaemonContext}
      * @memberof ICommandProcessorParms
      */
-    daemonResponse?: IDaemonResponse;
+    daemonContext?: IDaemonContext;
 }
