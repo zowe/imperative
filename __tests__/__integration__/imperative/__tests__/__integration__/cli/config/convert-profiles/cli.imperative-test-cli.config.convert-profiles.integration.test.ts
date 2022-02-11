@@ -10,6 +10,7 @@
 */
 
 import * as fs from "fs";
+import * as fsExtra from "fs-extra";
 import * as path from "path";
 import * as keytar from "keytar";
 import { ITestEnvironment } from "../../../../../../../__src__/environment/doc/response/ITestEnvironment";
@@ -40,6 +41,7 @@ describe("imperative-test-cli config convert-profiles", () => {
         if (fs.existsSync(configJsonPath)) {
             fs.unlinkSync(configJsonPath);
         }
+        fsExtra.removeSync(TEST_ENVIRONMENT.workingDir + "/profiles-old");
     });
 
     describe("success scenarios", () => {
@@ -75,7 +77,7 @@ describe("imperative-test-cli config convert-profiles", () => {
                             host: "example.com"
                         },
                         secure: []
-                    }
+                    },
                 },
                 defaults: {
                     secured: "secured_test",
@@ -98,6 +100,43 @@ describe("imperative-test-cli config convert-profiles", () => {
             expect(cliHomeDirContents.includes("profiles")).toBe(false);
             expect(cliHomeDirContents.includes("profiles-old")).toBe(true);
         });
+    });
+
+    it("should convert v1 profile property names to v2 names", async () => {
+        // we don't want the profiles created by beforeEach(). We only want an old profile.
+        runCliScript(__dirname + "/__scripts__/delete_profiles_secured_and_base_noerr.sh", TEST_ENVIRONMENT.workingDir);
+        fsExtra.copySync(__dirname + "/../../config/__resources__/profiles_with_v1_names", TEST_ENVIRONMENT.workingDir + "/profiles");
+
+        const response = runCliScript(__dirname + "/__scripts__/convert_profiles.sh", TEST_ENVIRONMENT.workingDir, ["y"]);
+        expect(response.status).toBe(0);
+        expect(response.stdout.toString()).toContain("Detected 1 old profile(s) to convert");
+        expect(response.stdout.toString()).toContain("Your new profiles have been saved");
+        expect(response.stdout.toString()).toContain("Your old profiles have been moved");
+        expect(response.stderr.toString()).toEqual("");
+
+        // Check contents of config JSON
+        const configJson = JSON.parse(fs.readFileSync(configJsonPath, "utf-8"));
+        expect(configJson).toMatchObject({
+            profiles: {
+                v1profile_myv1profile: {
+                    type: "v1profile",
+                    properties: {
+                        host: "convert hostname to host",
+                        user: "convert username to user",
+                        password: "convert pass to password"
+                    },
+                }
+            },
+            defaults: {
+                v1profile: "v1profile_myv1profile"
+            },
+            autoStore: true
+        });
+
+        // Ensure that profiles directory was renamed
+        const cliHomeDirContents = fs.readdirSync(process.env.IMPERATIVE_TEST_CLI_CLI_HOME);
+        expect(cliHomeDirContents.includes("profiles")).toBe(false);
+        expect(cliHomeDirContents.includes("profiles-old")).toBe(true);
     });
 
     describe("failure scenarios", () => {
