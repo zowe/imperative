@@ -216,7 +216,7 @@ export class Config {
     // _______________________________________________________________________
     /**
      * Save config files to disk and store secure properties in vault.
-     * @param allLayers Specify false to save only the active config layer
+     * @param allLayers Specify true to save all config layers instead of only the active one
      */
     public async save(allLayers?: boolean) {
         // Save secure fields
@@ -224,8 +224,7 @@ export class Config {
 
         try {
             for (const currLayer of this.mLayers) {
-                if ((allLayers !== false) ||
-                    (currLayer.user === this.mActive.user && currLayer.global === this.mActive.global)) {
+                if (allLayers || (currLayer.user === this.mActive.user && currLayer.global === this.mActive.global)) {
                     await this.api.layers.write(currLayer);
                 }
             }

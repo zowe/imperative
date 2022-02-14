@@ -2,6 +2,14 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `5.0.0-next.202202111730`
+
+- **Next Breaking**: Changed the default behavior of `Config.save` and `ConfigSecure.save` APIs to save only the active config layer. [#732](https://github.com/zowe/imperative/issues/732)
+
+## `5.0.0-next.202202111433`
+
+- Enhancement: Convert previously used profile property names into V2-compliant property names during the `zowe config convert-profiles` command. Conversions are: hostname -> host, username -> user, pass -> password.
+
 ## `5.0.0-next.202201311918`
 
 - BugFix: Fixed useful debugging information missing from error message when Keytar module fails to load.
