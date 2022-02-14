@@ -1382,9 +1382,11 @@ describe("Command Processor", () => {
             rootCommandName: SAMPLE_ROOT_COMMAND,
             commandLine: "",
             promptPhrase: "dummydummy",
-            daemonResponse: {
-                cwd: process.cwd(),
-                env: { UNIT_TEST_ENV: "new" }
+            daemonContext: {
+                request: {
+                    cwd: process.cwd(),
+                    env: { UNIT_TEST_ENV: "new" }
+                }
             }
         });
 
