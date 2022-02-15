@@ -39,5 +39,5 @@ export interface IDaemonContext {
      * @type {IDaemonResponse}
      * @memberof IDaemonContext
      */
-    request?: IDaemonResponse;
+    response?: IDaemonResponse;
 }

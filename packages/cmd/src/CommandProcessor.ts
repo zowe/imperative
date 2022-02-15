@@ -395,16 +395,16 @@ export class CommandProcessor {
         try {
             // Build the response object, base args object, and the entire array of options for this command
             // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
-            if (this.mDaemonContext?.request != null) {
+            if (this.mDaemonContext?.response != null) {
                 // NOTE(Kelosky): we adjust `cwd` and do not restore it, so that multiple simultaneous requests from the same
                 // directory will operate without unexpected chdir taking place.  Multiple simultaneous requests from different
                 // directories may cause unpredictable results
-                if (this.mDaemonContext.request.cwd != null) {
-                    process.chdir(this.mDaemonContext.request.cwd);
+                if (this.mDaemonContext.response.cwd != null) {
+                    process.chdir(this.mDaemonContext.response.cwd);
                 }
 
                 // Define environment variables received from daemon
-                if (this.mDaemonContext.request.env != null) {
+                if (this.mDaemonContext.response.env != null) {
                     // Delete environment variables that start with CLI prefix
                     for (const envVarName of Object.keys(process.env)) {
                         if (envVarName.startsWith(`${this.mEnvVariablePrefix}_`)) {
@@ -412,7 +412,7 @@ export class CommandProcessor {
                         }
                     }
                     // Load new environment variables
-                    process.env = { ...process.env, ...this.mDaemonContext.request.env };
+                    process.env = { ...process.env, ...this.mDaemonContext.response.env };
                 }
 
                 // reload config for daemon client directory

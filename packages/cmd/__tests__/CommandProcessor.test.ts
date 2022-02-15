@@ -1383,7 +1383,7 @@ describe("Command Processor", () => {
             commandLine: "",
             promptPhrase: "dummydummy",
             daemonContext: {
-                request: {
+                response: {
                     cwd: process.cwd(),
                     env: { UNIT_TEST_ENV: "new" }
                 }
