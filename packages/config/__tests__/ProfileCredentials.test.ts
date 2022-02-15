@@ -118,7 +118,7 @@ describe("ProfileCredentials tests", () => {
             }
 
             expect(caughtError).toBeDefined();
-            expect(caughtError.message).toBe("Failed to load CredentialManager class");
+            expect(caughtError.message).toMatch(/^Failed to load CredentialManager class:/);
             expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
         });
 
@@ -164,7 +164,7 @@ describe("ProfileCredentials tests", () => {
             }
 
             expect(caughtError).toBeDefined();
-            expect(caughtError.message).toBe("Failed to load Keytar module");
+            expect(caughtError.message).toMatch(/^Failed to load Keytar module:/);
             expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
             expect(requireKeytar).toHaveBeenCalledTimes(1);
         });

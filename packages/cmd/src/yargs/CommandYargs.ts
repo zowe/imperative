@@ -147,7 +147,7 @@ export class CommandYargs extends AbstractCommandYargs {
                                     `Error in command ${this.definition.name}`,
                                     "command handler invoked", errorResponses);
                                 this.log.error(`Error in command ${this.definition.name}`);
-                                this.log.error(inspect(errorResponses));
+                                this.log.error(inspect(errorResponses, { depth: null }));
                                 commandExecuted(argsForHandler, response);
                             });
                     } else {

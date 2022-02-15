@@ -137,7 +137,7 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
             config.set(`${profilePath}.properties.tokenType`, this.mSession.ISession.tokenType);
             config.set(`${profilePath}.properties.tokenValue`, tokenValue, { secure: true });
 
-            await config.save(false);
+            await config.save();
             // Restore original active layer
             config.api.layers.activate(beforeLayer.user, beforeLayer.global);
 
@@ -213,7 +213,7 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
                 config.delete(`${profilePath}.properties.tokenType`);
                 config.delete(`${profilePath}.properties.tokenValue`);
 
-                await config.save(false);
+                await config.save();
                 profileWithToken = profileName;
             }
 

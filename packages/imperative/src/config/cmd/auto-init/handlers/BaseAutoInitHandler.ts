@@ -157,7 +157,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
                 ImperativeConfig.instance.config.api.layers.set(profileConfig);
                 const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
                 ImperativeConfig.instance.config.setSchema(schema);
-                await ImperativeConfig.instance.config.save(false);
+                await ImperativeConfig.instance.config.save();
             }
         } else {
             // Merge, generate schema, and save
@@ -167,7 +167,7 @@ export abstract class BaseAutoInitHandler implements ICommandHandler {
                 const schema = ConfigSchema.buildSchema(ImperativeConfig.instance.loadedConfig.profiles);
                 ImperativeConfig.instance.config.setSchema(schema);
             }
-            await ImperativeConfig.instance.config.save(false);
+            await ImperativeConfig.instance.config.save();
         }
 
         // we only display changes if we made changes

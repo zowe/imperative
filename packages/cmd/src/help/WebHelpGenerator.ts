@@ -157,9 +157,9 @@ export class WebHelpGenerator {
         rootHelpContent += `<h2><a href="${rootCommandName}.html" name="${rootCommandName}">${rootCommandName}</a>${this.genPrintButton()}</h2>\n`;
         rootHelpContent += this.renderMarkdown(this.mConfig.loadedConfig.rootCommandDescription) + "\n";
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
-            { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions });
+            { commandDefinition: uniqueDefinitions, fullCommandTree: uniqueDefinitions, skipTextWrap: true });
         rootHelpContent += this.renderMarkdown(this.buildChildrenSummaryTables(helpGen, rootCommandName) + "\n\n" +
-            helpGen.buildGlobalOptionsSection().replace(/Global options/, "Global Options"));
+            helpGen.buildGlobalOptionsSection().replace("# Global options", "# Global Options"));
         this.singlePageHtml = rootHelpContent.replace(/<h4>Groups.+?<\/ul>/s, "");
         rootHelpContent += this.genDocsFooter();
         fs.writeFileSync(rootHelpHtmlPath, rootHelpContent);
@@ -189,18 +189,17 @@ export class WebHelpGenerator {
     }
 
     /**
-     * Converts Markdown string to HTML string. Any HTML contained in the
-     * input Markdown string will be sanitized.
+     * Converts Markdown string to HTML string. Any HTML tags contained in the
+     * input Markdown string will be escaped.
      * @param markdownContent String containing Markdown content
      * @returns String containing HTML content
      */
     private renderMarkdown(markdownContent: string): string {
         if (this.markdownIt == null) {
-            this.markdownIt = require("markdown-it")({ html: true, linkify: true });
+            this.markdownIt = require("markdown-it")({ breaks: true, linkify: true });
         }
 
-        const sanitizeHtml = require("sanitize-html");
-        return this.markdownIt.render(sanitizeHtml(markdownContent));
+        return this.markdownIt.render(markdownContent);
     }
 
     /**
@@ -264,18 +263,14 @@ export class WebHelpGenerator {
     private buildChildrenSummaryTables(helpGen: DefaultHelpGenerator, fullCommandName: string): string {
         const hrefPrefix = fullCommandName + "_";
         return helpGen.buildChildrenSummaryTables().split(/\r?\n/g)
-            .map((line: string, index: number) => {
+            .map((line: string) => {
                 // Wrap group/command names inside links
                 const match = line.match(/^\s{0,4}([a-z0-9-]+(?:\s\|\s[a-z0-9-]+)*)\s+\S/i);
                 if (match) {
                     const href = `${hrefPrefix}${match[1].split(" ")[0]}.html`;
-                    return `\n* <a href="${href}">${match[1]}</a> -` + line.slice(match[0].length - 2);
-                } else if (/^\s*#{4}\s*COMMANDS\s*$/i.test(line)) {
-                    return `${(index > 0) ? "\n" : ""}<h4>Commands</h4>\n`;
-                } else if (/^\s*#{4}\s*GROUPS\s*$/i.test(line)) {
-                    return `${(index > 0) ? "\n" : ""}<h4>Groups</h4>\n`;
+                    return `\n* [${match[1]}](${href}) -` + line.slice(match[0].length - 2);
                 }
-                return " " + line.trim();
+                return (line.startsWith("#### ") ? "\n" : " ") + line.trim();
             }).join("");
     }
 
@@ -317,19 +312,15 @@ export class WebHelpGenerator {
     private genCommandHelpPage(definition: ICommandDefinition, fullCommandName: string, docsDir: string, parentNode: IWebHelpTreeNode) {
         const rootCommandName: string = this.treeNodes[0].text;
         const helpGen = new DefaultHelpGenerator({ produceMarkdown: true, rootCommandName } as any,
-            { commandDefinition: definition, fullCommandTree: this.mFullCommandTree });
+            { commandDefinition: definition, fullCommandTree: this.mFullCommandTree, skipTextWrap: true });
 
         let markdownContent = helpGen.buildHelp() + "\n";
-        markdownContent = markdownContent.replace(/</g, "&lt;").replace(/>/g, "&gt;");
         if (definition.type === "group") {
             // this is disabled for the CLIReadme.md but we want to show children here
             // so we'll call the help generator's children summary function even though
             // it's usually skipped when producing markdown
             markdownContent += this.buildChildrenSummaryTables(helpGen, rootCommandName + "_" + fullCommandName);
         }
-
-        // Prevent line breaks from being lost during Markdown to HTML conversion
-        markdownContent = markdownContent.replace(/^(\s+Default value:.+$)(\s+Allowed values:.+$)/gm, "$1\n$2");
 
         let htmlContent = "<h2>" + this.genBreadcrumb(rootCommandName, fullCommandName) + this.genPrintButton() + "</h2>\n";
         htmlContent += this.renderMarkdown(markdownContent);
