@@ -115,7 +115,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## `5.0.0-next.202110191937`
 
-- **Breaking**: Added the new, required, abstract method 'displayAutoInitChanges' to the 'BaseAutoInitHandler' class.
+- **Next Breaking**: Added the new, required, abstract method 'displayAutoInitChanges' to the 'BaseAutoInitHandler' class.
 
 ## `5.0.0-next.202110071645`
 
@@ -126,7 +126,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## `5.0.0-next.202110011948`
 
-- Breaking: Changed default log level from DEBUG to WARN for Imperative logger and app logger to reduce the volume of logs written to disk. [#634](https://github.com/zowe/imperative/issues/634)
+- **LTS Breaking**: Changed default log level from DEBUG to WARN for Imperative logger and app logger to reduce the volume of logs written to disk. [#634](https://github.com/zowe/imperative/issues/634)
 
 ## `5.0.0-next.202109281439`
 
@@ -139,12 +139,12 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## `5.0.0-next.202108181618`
 
-- Breaking: Make `fail-on-error` option true by default on `zowe plugins validate` command.
+- **LTS Breaking**: Make `fail-on-error` option true by default on `zowe plugins validate` command.
 
 ## `5.0.0-next.202108121732`
 
 - Enhancement: Flattened the default profiles structure created by the `config init` command.
-- Breaking: Split up authToken property in team config into tokenType and tokenValue properties to be consistent with Zowe v1 profiles.
+- **Next Breaking**: Split up authToken property in team config into tokenType and tokenValue properties to be consistent with Zowe v1 profiles.
 
 ## `5.0.0-next.202108062025`
 
@@ -175,7 +175,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## `5.0.0-next.202106041929`
 
-- **Breaking**: Removed the following previously deprecated items:
+- **LTS Breaking**: Removed the following previously deprecated items:
     - ICliLoadProfile.ICliILoadProfile -- use ICliLoadProfile.ICliLoadProfile
     - IImperativeErrorParms.suppressReport -- has not been used since 10/17/2018
     - IImperativeConfig.pluginBaseCliVersion -- has not been used since version 1.0.1
@@ -190,7 +190,7 @@ All notable changes to the Imperative package will be documented in this file.
 ## `5.0.0-next.202104262004`
 
 - Enhancement: Remove message about NPM peer dep warnings that no longer applies to npm@7.
-- **Breaking:** Imperative no longer requires plug-ins to include CLI package as a peer dependency. It is recommended that CLI plug-ins remove their peer dependency on @zowe/cli for improved compatibility with npm@7. This is a breaking change for plug-ins, as older versions of Imperative will fail to install a plug-in that lacks the CLI peer dependency.
+- **LTS Breaking**: Imperative no longer requires plug-ins to include CLI package as a peer dependency. It is recommended that CLI plug-ins remove their peer dependency on @zowe/cli for improved compatibility with npm@7. This is a breaking change for plug-ins, as older versions of Imperative will fail to install a plug-in that lacks the CLI peer dependency.
 
 ## `5.0.0-next.202104140156`
 
@@ -221,7 +221,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: Added new config API intended to replace the profiles API, and new "config" command group to manage config JSON files. The new API makes it easier for users to create, share, and switch between profile configurations.
 - Deprecated: The "profiles" command group for managing global profiles in "{cliHome}/profiles". Use the new "config" command group instead.
-- **Breaking**: Removed "config" command group for managing app settings in "{cliHome}/imperative/settings.json". If app settings already exist they are still loaded for backwards compatibility. For storing app settings use the new config API instead.
+- **LTS Breaking**: Removed "config" command group for managing app settings in "{cliHome}/imperative/settings.json". If app settings already exist they are still loaded for backwards compatibility. For storing app settings use the new config API instead.
 - Enhancement: Added support for secure credential storage without any plug-ins required. Include the "keytar" package as a dependency in your CLI to make use of it.
 - Enhancement: Added `deprecatedReplacement` property to `ICommandDefinition` to deprecate a command.
 
