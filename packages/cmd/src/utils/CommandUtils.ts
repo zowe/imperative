@@ -15,6 +15,7 @@ import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { ICommandOptionDefinition } from "../doc/option/ICommandOptionDefinition";
 import { CliUtils } from "../../../utilities/src/CliUtils";
 import { ICommandArguments } from "../doc/args/ICommandArguments";
+import { isEqual, omit } from "lodash";
 
 /**
  * Command tree entry describes an entry of a command in the full command tree - used when flattening the command
@@ -117,71 +118,63 @@ export class CommandUtils {
     }
 
     /**
+     * Helper recursive function for flattening a given tree definition
+     * @param prefix Previous command objects to prepend to the given child name
+     * @param child Tree definition to use when searching for descendants
+     * @param includeAliases Indicates whether or not we should include aliases in the recursion
+     * @param _result (recursion) resulting list of flattened descendants
+     * @param _tree (recursion) Initial tree definition
+     * @returns Concatenated list of flattened descendants
+     */
+    private static addChildAndDescendantsToSearch(prefix: string, child: ICommandDefinition, includeAliases: boolean = false,
+        _result: ICommandTreeEntry[] = [], _tree: ICommandDefinition = child) {
+        _result.push({
+            fullName: (prefix + child.name).trim(),
+            tree: _tree,
+            command: child
+        });
+        if (includeAliases) {
+            for (const alias of child.aliases || []) {
+                _result.push({
+                    fullName: (prefix + alias).trim(),
+                    tree: _tree,
+                    command: child
+                });
+            }
+        }
+        for (const descendant of child.children || []) {
+            CommandUtils.addChildAndDescendantsToSearch(prefix + child.name + " ", descendant, includeAliases, _result, _tree);
+            if (includeAliases) {
+                for (const alias of child.aliases || []) {
+                    CommandUtils.addChildAndDescendantsToSearch(prefix + alias + " ", descendant, true, _result, _tree);
+                }
+            }
+        }
+        return _result;
+    }
+
+    /**
      * Accepts the command definition document tree and flattens to a single level. This is used to make searching
      * commands and others easily.
      * @param {ICommandDefinition} tree - The command document tree
+     * @param includeAliases Indicates whether or not we should include aliases in the flattened command tree
      * @return {ICommandTreeEntry[]} - The flattened document tree
      */
-    public static flattenCommandTree(tree: ICommandDefinition): ICommandTreeEntry[] {
-        const result: ICommandTreeEntry[] = [];
-        const addChildAndDescendantsToSearch = (prefix: string, child: ICommandDefinition) => {
-            result.push(
-                {
-                    fullName: prefix + child.name,
-                    tree,
-                    command: child
-                });
-            if (!isNullOrUndefined(child.children)) {
-                for (const descendant of child.children) {
-                    addChildAndDescendantsToSearch(prefix + child.name + " ", descendant);
-                }
-            }
-        };
-        addChildAndDescendantsToSearch("", tree);
-        result.sort((a, b) => {
+    public static flattenCommandTree(tree: ICommandDefinition, includeAliases: boolean = false): ICommandTreeEntry[] {
+        return CommandUtils.addChildAndDescendantsToSearch("", tree, includeAliases).sort((a, b) => {
             return a.fullName.localeCompare(b.fullName);
         });
-        return result;
     }
 
     /**
      * Accepts the command definition document tree and flattens to a single level, including aliases. This is used to make searching
      * commands and others easily.
      * @param {ICommandDefinition} tree - The command document tree
+     * @deprecated Use CommandUtils.flattenCommandTree instead
      * @return {ICommandTreeEntry[]} - The flattened document tree
      */
     public static flattenCommandTreeWithAliases(tree: ICommandDefinition): ICommandTreeEntry[] {
-        const result: ICommandTreeEntry[] = [];
-        const addChildAndDescendantsToSearch = (prefix: string, child: ICommandDefinition) => {
-            result.push(
-                {
-                    fullName: prefix + child.name,
-                    tree,
-                    command: child
-                });
-            for (const alias of (child.aliases || [])) {
-                result.push(
-                    {
-                        fullName: prefix + alias,
-                        tree,
-                        command: child
-                    }
-                );
-            }
-            if (child.children != null) {
-                for (const descendant of child.children) {
-                    addChildAndDescendantsToSearch(prefix + child.name + " ", descendant);
-                    for (const alias of (child.aliases || [])) {
-                        addChildAndDescendantsToSearch(prefix + alias + " ", descendant);
-                    }
-                }
-            }
-        };
-        addChildAndDescendantsToSearch("", tree);
-        result.sort((a, b) => {
-            return a.fullName.localeCompare(b.fullName);
-        });
-        return result;
+        return CommandUtils.flattenCommandTree(tree, true);
     }
 
     /**
@@ -194,15 +187,11 @@ export class CommandUtils {
      * @returns {string}
      * @memberof CommandUtils
      */
-    public static getFullCommandName(commandDef: ICommandDefinition,
-        commandTree: ICommandDefinition): string {
+    public static getFullCommandName(commandDef: ICommandDefinition, commandTree: ICommandDefinition): string {
+        const command = omit(commandDef, "children");
         for (const treeEntry of CommandUtils.flattenCommandTree(commandTree)) {
-            const def = treeEntry.command;
-            if (def.name === commandDef.name &&
-                def.description === commandDef.description &&
-                def.handler === commandDef.handler) {
-                return treeEntry.fullName;
-            }
+            const def = omit(treeEntry.command, "children");
+            if (isEqual(def, command)) { return treeEntry.fullName; }
         }
         // otherwise, couldn't find it, just return the current name
         return commandDef.name;

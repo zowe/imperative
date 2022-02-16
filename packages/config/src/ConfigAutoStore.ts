@@ -167,7 +167,7 @@ export class ConfigAutoStore {
             });
         }
 
-        await config.save(false);
+        await config.save();
         params.response.console.log(`Stored properties in ${config.layerActive().path}: ${profileProps.join(", ")}`);
         // Restore original active layer
         config.api.layers.activate(beforeLayer.user, beforeLayer.global);

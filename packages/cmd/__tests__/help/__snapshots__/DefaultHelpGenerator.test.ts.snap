@@ -415,7 +415,7 @@ exports[`Default Help Generator help text builder should getCommandHelpText with
  USAGE
  -----
 
-   test-help a_experimental_parent hello [options]
+   test-help hello [options]
 
  GLOBAL OPTIONS
  --------------

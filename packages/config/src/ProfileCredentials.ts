@@ -55,7 +55,7 @@ export class ProfileCredentials {
                         (DefaultCredentialManager.prototype as any).keytar = this.mRequireKeytar.bind(this)();
                     } catch (error) {
                         throw new ImperativeError({
-                            msg: "Failed to load Keytar module",
+                            msg: `Failed to load Keytar module: ${error.message}`,
                             causeErrors: error
                         });
                     }
@@ -68,7 +68,7 @@ export class ProfileCredentials {
                 await CredentialManagerFactory.initialize({ service: null });
             } catch (error) {
                 throw (error instanceof ImperativeError) ? error : new ImperativeError({
-                    msg: "Failed to load CredentialManager class",
+                    msg: `Failed to load CredentialManager class: ${error.message}`,
                     causeErrors: error
                 });
             }
