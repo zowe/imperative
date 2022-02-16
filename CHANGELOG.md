@@ -2,6 +2,12 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Added `stdin` property to `IHandlerParameters` which defaults to `process.stdin` and can be overridden with another readable stream in daemon mode.
+  - This may be a breaking change for unit tests that mock the `IHandlerParameters` interface since a required property has been added.
+- **Next Breaking**: Replaced `IYargsContext` interface with `IDaemonContext` and renamed `yargsContext` property of `ImperativeConfig.instance` to `daemonContext`. A context object is no longer supplied to `yargs` since it gets parsed as CLI arguments which is undesired behavior.
+
 ## `5.0.0-next.202202111730`
 
 - **Next Breaking**: Changed the default behavior of `Config.save` and `ConfigSecure.save` APIs to save only the active config layer. [#732](https://github.com/zowe/imperative/issues/732)
