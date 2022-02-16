@@ -2,6 +2,11 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Introduce hidden flag `--show-inputs-only` to show the inputs of the command
+that would be used if a command were executed.
+
 ## `5.0.0-next.202202111730`
 
 - **Next Breaking**: Changed the default behavior of `Config.save` and `ConfigSecure.save` APIs to save only the active config layer. [#732](https://github.com/zowe/imperative/issues/732)

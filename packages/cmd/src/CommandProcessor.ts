@@ -46,10 +46,6 @@ import { Config } from "../../config/src/Config";
 import { IDaemonResponse } from "../../utilities/src/doc/IDaemonResponse";
 import { IHandlerResponseApi } from "../..";
 
-interface ShowInputsOnlyOptions {
-    showSecure: boolean;
-}
-
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
  * response object and validates syntax, loads profiles, instantiates handlers, & invokes the handlers.
