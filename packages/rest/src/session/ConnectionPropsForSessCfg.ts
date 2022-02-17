@@ -290,8 +290,11 @@ export class ConnectionPropsForSessCfg {
     /**
      * List of properties on `sessCfg` object that should be kept secret and
      * may not appear in Imperative log files.
+     *
+     * NOTE(Kelosky): redundant from LoggerUtils.SECURE_PROMPT_OPTIONS - leaving
+     * for future date to consolidate
      */
-    private static secureSessCfgProps: Set<string> = new Set(LoggerUtils.SECURE_PROMPT_OPTIONS);
+    private static secureSessCfgProps: Set<string> = new Set(["user", "password", "tokenValue", "passphrase"]);
 
     /**
      * List of prompt messages that is used when the CLI prompts for session

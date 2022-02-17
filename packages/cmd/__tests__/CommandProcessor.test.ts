@@ -1474,7 +1474,7 @@ describe("Command Processor", () => {
             silent: true
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
-        expect(commandResponse.data.locations[0]).toBe('\\home');
+        expect(commandResponse.data.locations[0]).toContain('home');
         expect(commandResponse.data.profileVersion).toBe('v1');
     });
 
