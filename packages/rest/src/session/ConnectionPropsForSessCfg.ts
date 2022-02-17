@@ -13,7 +13,7 @@ import { CliUtils, ImperativeConfig } from "../../../utilities";
 import { ICommandArguments, IHandlerParameters } from "../../../cmd";
 import { ImperativeError } from "../../../error";
 import { IOptionsForAddConnProps } from "./doc/IOptionsForAddConnProps";
-import { Logger } from "../../../logger";
+import { Logger, LoggerUtils } from "../../../logger";
 import * as SessConstants from "./SessConstants";
 import { IPromptOptions } from "../../../cmd/src/doc/response/api/handler/IPromptOptions";
 import { ISession } from "./doc/ISession";
@@ -291,7 +291,7 @@ export class ConnectionPropsForSessCfg {
      * List of properties on `sessCfg` object that should be kept secret and
      * may not appear in Imperative log files.
      */
-    private static secureSessCfgProps: Set<string> = new Set(["user", "password", "tokenValue", "passphrase"]);
+    private static secureSessCfgProps: Set<string> = new Set(LoggerUtils.SECURE_PROMPT_OPTIONS);
 
     /**
      * List of prompt messages that is used when the CLI prompts for session

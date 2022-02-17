@@ -763,7 +763,7 @@ export class CommandProcessor {
         const secureInputs: Set<string> =
             useConfig ?
                 new Set(this.mConfig.api.secure.secureFields().map(v => v.split('.').slice(-1)[0])) :
-                new Set(["user", "password", "tokenValue", "passphrase"]); // from ConnectionPropsForSessCfg
+                new Set([...LoggerUtils.CENSORED_OPTIONS, ...LoggerUtils.SECURE_PROMPT_OPTIONS]);
         interface IResolvedArgsResponse {
             commandValues?: ICommandArguments;
             profileVersion?: `v1` | `v2`;
