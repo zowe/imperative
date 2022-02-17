@@ -54,6 +54,13 @@ import { IHandlerResponseApi } from "../..";
  */
 export class CommandProcessor {
     /**
+     * Show secure fields in the output of the command ENV var suffix
+     * @private
+     * @static
+     * @memberof CommandProcessor
+     */
+    private static readonly ENV_SHOW_SECURE_SUFFIX = `_SHOW_SECURE_ARGS`;
+    /**
      * The error tag for imperative errors.
      * @private
      * @static
@@ -740,7 +747,8 @@ export class CommandProcessor {
          */
         let showSecure = false;
 
-        const SECRETS_ENV = `ZOWE_SHOW_SECURE_ARGS`;
+        // ZOWE_SHOW_SECURE_ARGS
+        const SECRETS_ENV = `${ImperativeConfig.instance.envVariablePrefix}${CommandProcessor.ENV_SHOW_SECURE_SUFFIX}`;
         const env = (process.env[SECRETS_ENV] || "false").toUpperCase();
 
         if (env === "TRUE" || env === "1") {
@@ -749,7 +757,7 @@ export class CommandProcessor {
 
         // if config exists and a layer exists
         let useConfig = false;
-        this.mConfig.layers.forEach((layer) => {
+        this.mConfig?.layers.forEach((layer) => {
             if (layer.exists) {
                 useConfig = true;
             }
@@ -785,7 +793,7 @@ export class CommandProcessor {
         let censored = false;
 
         // only attempt to show the input if it is in the command definition
-        for (let i = 0; i < commandParameters.definition.options.length; i++) {
+        for (let i = 0; i < commandParameters.definition.options?.length; i++) {
             const name = commandParameters.definition.options[i].name;
 
             if (commandParameters.arguments[name] != null) {
@@ -802,8 +810,8 @@ export class CommandProcessor {
         /**
          * Append profile information
          */
-        showInputsOnly.requiredProfiles = commandParameters.definition.profile.required;
-        showInputsOnly.optionalProfiles = commandParameters.definition.profile.optional;
+        showInputsOnly.requiredProfiles = commandParameters.definition.profile?.required;
+        showInputsOnly.optionalProfiles = commandParameters.definition.profile?.optional;
         showInputsOnly.locations = [];
 
         if (useConfig) {
@@ -814,7 +822,7 @@ export class CommandProcessor {
                 }
             });
         } else {
-            showInputsOnly.locations.push(nodePath.normalize(this.mConfig.mHomeDir));
+            showInputsOnly.locations.push(nodePath.normalize(ImperativeConfig.instance.cliHome));
         }
 
         /**
