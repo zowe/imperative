@@ -930,6 +930,12 @@ export class CommandProcessor {
         });
     }
 
+    /**
+     * Get stdin stream for the command handler to use. In daemon mode this is
+     * a stream of data received from the daemon client. Otherwise it defaults
+     * to `process.stdin`.
+     * @returns Readable stream containing stdin data
+     */
     private getStdinStream(): stream.Readable {
         return this.mDaemonContext?.stdinStream || process.stdin;
     }
