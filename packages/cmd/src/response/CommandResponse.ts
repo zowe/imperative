@@ -606,11 +606,7 @@ export class CommandResponse implements ICommandResponseApi {
                             outer.writeStream(daemonRequest);
 
                             // wait for a response here
-                            outer.mStream.on("data", function listener(data) {
-
-                                // remove this listener
-                                outer.mStream.removeListener("data", listener);
-
+                            outer.mStream.once("data", (data) => {
                                 // strip response header and give to content the waiting handler
                                 const response: IDaemonResponse = JSON.parse(data.toString());
                                 resolve(response.stdin.trim());

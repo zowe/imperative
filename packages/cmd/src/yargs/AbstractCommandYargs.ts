@@ -25,7 +25,7 @@ import { IHelpGeneratorFactory } from "../help/doc/IHelpGeneratorFactory";
 import { CommandResponse } from "../response/CommandResponse";
 import { ICommandResponse } from "../../src/doc/response/response/ICommandResponse";
 import { ICommandExampleDefinition } from "../..";
-import { IDaemonContext } from "../../../imperative/src/doc/IDaemonContext";
+import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
 
 /**
  * Callback that is invoked when a command defined to yargs completes execution.
@@ -109,14 +109,6 @@ export abstract class AbstractCommandYargs {
     private mPromptPhrase: string;
 
     /**
-     * The context object defined when in daemon mode.
-     * @private
-     * @type {IDaemonContext}
-     * @memberof CommandProcessor
-     */
-    private mDaemonContext?: IDaemonContext;
-
-    /**
      * Construct the yargs command instance for imperative. Provides the ability to define Imperative commands to Yargs.
      * @param {IYargsParms} yargsParms - Parameter object contains parms for Imperative/Yargs and command response objects
      */
@@ -131,7 +123,6 @@ export abstract class AbstractCommandYargs {
         this.mCommandLine = yargsParms.commandLine;
         this.mEnvVariablePrefix = yargsParms.envVariablePrefix;
         this.mPromptPhrase = yargsParms.promptPhrase;
-        this.mDaemonContext = yargsParms.daemonContext;
     }
 
     /**
@@ -166,6 +157,12 @@ export abstract class AbstractCommandYargs {
         return this.mEnvVariablePrefix;
     }
 
+    /**
+     * Accessor for the CLI prompt phrase
+     * @readonly
+     * @type {string}
+     * @memberof AbstractCommandYargs
+     */
     protected get promptPhrase(): string {
         return this.mPromptPhrase;
     }
@@ -305,11 +302,11 @@ export abstract class AbstractCommandYargs {
                 commandLine: this.commandLine,
                 envVariablePrefix: this.envVariablePrefix,
                 promptPhrase: this.promptPhrase,
-                daemonContext: this.mDaemonContext
+                daemonContext: ImperativeConfig.instance.daemonContext
             }).help(new CommandResponse({
                 silent: false,
                 responseFormat: (args[Constants.JSON_OPTION] || false) ? "json" : "default",
-                stream: this.mDaemonContext?.stream
+                stream: ImperativeConfig.instance.daemonContext?.stream
             }));
         } catch (helpErr) {
             const errorResponse: IYargsResponse = this.getBrightYargsResponse(false,
@@ -417,12 +414,12 @@ export abstract class AbstractCommandYargs {
                 commandLine: this.commandLine,
                 envVariablePrefix: this.envVariablePrefix,
                 promptPhrase: this.promptPhrase,
-                daemonContext: this.mDaemonContext
+                daemonContext: ImperativeConfig.instance.daemonContext
             }).webHelp(fullCommandName + "_" + this.definition.name,
                 new CommandResponse({
                     silent: false,
                     responseFormat: (args[Constants.JSON_OPTION] || false) ? "json" : "default",
-                    stream: this.mDaemonContext?.stream
+                    stream: ImperativeConfig.instance.daemonContext?.stream
                 })
             );
         } catch (helpErr) {

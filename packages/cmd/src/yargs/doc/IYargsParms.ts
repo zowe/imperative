@@ -15,7 +15,6 @@ import { GroupCommandYargs } from "../GroupCommandYargs";
 import { ICommandResponseParms } from "../../doc/response/parms/ICommandResponseParms";
 import { IProfileManagerFactory } from "../../../../profiles";
 import { IHelpGeneratorFactory } from "../../help/doc/IHelpGeneratorFactory";
-import { IDaemonContext } from "../../../../imperative/src/doc/IDaemonContext";
 
 /**
  * Imperative Yargs parameters - used to define imperative commands to Yargs and provides guidance/parameters for
@@ -92,10 +91,4 @@ export interface IYargsParms {
      * @memberof IYargsParms
      */
     promptPhrase: string;
-    /**
-     * The context object defined when in daemon mode.
-     * @type {IDaemonContext}
-     * @memberof IYargsParms
-     */
-    daemonContext?: IDaemonContext;
 }
