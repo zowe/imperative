@@ -606,11 +606,7 @@ export class CommandResponse implements ICommandResponseApi {
                             outer.writeStream(daemonRequest);
 
                             // wait for a response here
-                            outer.mStream.on("data", function listener(data) {
-
-                                // remove this listener
-                                outer.mStream.removeListener("data", listener);
-
+                            outer.mStream.once("data", (data) => {
                                 // strip response header and give to content the waiting handler
                                 const response: IDaemonResponse = JSON.parse(data.toString());
                                 resolve(response.stdin.trim());
@@ -793,7 +789,7 @@ export class CommandResponse implements ICommandResponseApi {
 
                         // NOTE(Kelosky): ansi escape codes for progress bar cursor and line clearing are written on the socket
                         // so we need to ensure they're emptied out before we write to the stream.
-                        if (this.mIsDaemon) outer.writeStream(DaemonRequest.EOW_DELIMITER);
+                        if (this.mIsDaemon) outer.writeStream(DaemonRequest.EOW_DELIMITER + DaemonRequest.create({ progress: false }));
 
                         outer.writeStdout(outer.mStdout.subarray(this.mProgressBarStdoutStartIndex));
                         outer.writeStderr(outer.mStderr.subarray(this.mProgressBarStderrStartIndex));

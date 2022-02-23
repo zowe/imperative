@@ -59,7 +59,7 @@ import { dirname, join } from "path";
 
 import { Console } from "../../console/src/Console";
 import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
-import { IYargsContext } from "./doc/IYargsContext";
+import { IDaemonContext } from "./doc/IDaemonContext";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
 import { ImperativeExpect } from "../../expect/src/ImperativeExpect";
 import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
@@ -365,7 +365,7 @@ export class Imperative {
      * Parse command line arguments and issue the user's specified command
      * @returns {Imperative} this, for chaining syntax
      */
-    public static parse(args?: string | string[], context?: IYargsContext): Imperative {
+    public static parse(args?: string | string[], context?: IDaemonContext): Imperative {
 
         const timingApi = PerfTiming.api;
 
@@ -374,10 +374,10 @@ export class Imperative {
             timingApi.mark("START_IMP_PARSE");
         }
 
-        ImperativeConfig.instance.yargsContext = context;
+        ImperativeConfig.instance.daemonContext = context;
         AbstractCommandYargs.STOP_YARGS = false;
 
-        yargs.parse(args, context);
+        yargs.parse(args);
 
         if (PerfTiming.isEnabled) {
             // Marks point END

@@ -71,7 +71,7 @@ export class YargsDefiner {
         this.mHelpFactory = helpGeneratorFactory;
         this.mProfileManagerFactory = profileManagerFactory;
         this.mExperimentalCommandDescription = experimentalCommandDescription;
-        this.mPromptPhrase= promptPhrase;
+        this.mPromptPhrase = promptPhrase;
     }
 
     /**
@@ -89,7 +89,7 @@ export class YargsDefiner {
         this.log.trace("Defining a new definition to Yargs:");
         this.log.trace(inspect(definition));
         switch (definition.type) {
-        // case "provider":
+            // case "provider":
             case "group":
                 new GroupCommandYargs({
                     yargsInstance: this.mYargsInstance,

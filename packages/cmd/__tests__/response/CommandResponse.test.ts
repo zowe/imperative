@@ -380,17 +380,12 @@ describe("Command Response", () => {
             // do nothing
         });
 
-        // we remove a listener after we add one
-        const removeListener = jest.fn((event: string, func: (data: any) => void) => {
-            // do nothing
-        });
-
         const endStream = jest.fn(() => {
             // do nothing
         });
 
         // build our pseudo socket object
-        const socket: any = {on: eventStream, write: writeStream, removeListener, end: endStream};
+        const socket: any = {once: eventStream, write: writeStream, end: endStream};
 
         // create response object
         const response = new CommandResponse({stream: socket});
@@ -411,7 +406,6 @@ describe("Command Response", () => {
 
         expect(write).not.toHaveBeenCalled();
         expect(writeStream).toHaveBeenCalled();
-        expect(removeListener).toHaveBeenCalled();
         expect(endStream).toHaveBeenCalled();
         expect(answer).toBe(responseMessage);
     });
