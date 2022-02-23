@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.0.0-next.202202232039`
 
 - Enhancement: Added `stdin` property to `IHandlerParameters` which defaults to `process.stdin` and can be overridden with another readable stream in daemon mode.
   - This may be a breaking change for unit tests that mock the `IHandlerParameters` interface since a required property has been added.
