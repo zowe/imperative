@@ -789,7 +789,7 @@ export class CommandResponse implements ICommandResponseApi {
 
                         // NOTE(Kelosky): ansi escape codes for progress bar cursor and line clearing are written on the socket
                         // so we need to ensure they're emptied out before we write to the stream.
-                        if (this.mIsDaemon) outer.writeStream(DaemonRequest.create({ progress: false }));
+                        if (this.mIsDaemon) outer.writeStream(DaemonRequest.EOW_DELIMITER + DaemonRequest.create({ progress: false }));
 
                         outer.writeStdout(outer.mStdout.subarray(this.mProgressBarStdoutStartIndex));
                         outer.writeStderr(outer.mStderr.subarray(this.mProgressBarStderrStartIndex));
