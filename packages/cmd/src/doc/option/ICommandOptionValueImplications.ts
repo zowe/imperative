@@ -17,7 +17,7 @@ export interface ICommandOptionValueImplications {
     /**
      * What option names are implied if the value in question is specified
      * @type {string[]}
-     * @memberOf ICommandOptionValueImplications
+     * @memberof ICommandOptionValueImplications
      */
     impliedOptionNames: string[];
     /**
@@ -25,7 +25,7 @@ export interface ICommandOptionValueImplications {
      * If yes, the strings will be compared with "===".
      * Otherwise they will be uppercased before comparing
      * @type {boolean}
-     * @memberOf ICommandOptionValueImplications
+     * @memberof ICommandOptionValueImplications
      */
     isCaseSensitive?: boolean;
 }

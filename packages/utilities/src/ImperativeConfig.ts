@@ -14,7 +14,7 @@ import { join } from "path";
 import { IImperativeConfig } from "../../imperative/src/doc/IImperativeConfig";
 import { ImperativeError } from "../../error";
 import { EnvironmentalVariableSettings } from "../../imperative/src/env/EnvironmentalVariableSettings";
-import { IYargsContext } from "../../imperative/src/doc/IYargsContext";
+import { IDaemonContext } from "../../imperative/src/doc/IDaemonContext";
 import { ICommandProfileSchema } from "../../cmd";
 import { Config } from "../../config";
 
@@ -31,13 +31,13 @@ export class ImperativeConfig {
     private static mInstance: ImperativeConfig = null;
 
     /**
-     * This is the yargs context needed to pass to `yargs.fail()` in the event that we cannot extract
+     * This is the daemon context needed to pass to `yargs.fail()` in the event that we cannot extract
      * context through a `yargs.parse()` call.
      * @private
-     * @type {IYargsContext}
+     * @type {IDaemonContext}
      * @memberof ImperativeConfig
      */
-    private mYargsContext: IYargsContext;
+    private mDaemonContext: IDaemonContext;
 
     /**
      * This parameter is used as the container of all loaded configuration for
@@ -234,20 +234,20 @@ export class ImperativeConfig {
     }
 
     /**
-     * Set context for yargs to retrieve if no handler is called.
-     * @type {IYargsContext}
+     * Set context for daemon to retrieve if no handler is called.
+     * @type {IDaemonContext}
      * @memberof ImperativeConfig
      */
-    public get yargsContext(): IYargsContext {
-        return this.mYargsContext;
+    public get daemonContext(): IDaemonContext {
+        return this.mDaemonContext;
     }
 
     /**
-     * Context for yargs when no handler is invoked.
+     * Context for daemon when no handler is invoked.
      * @memberof ImperativeConfig
      */
-    public set yargsContext(context: IYargsContext) {
-        this.mYargsContext = context;
+    public set daemonContext(context: IDaemonContext) {
+        this.mDaemonContext = context;
     }
 
     /**

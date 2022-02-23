@@ -22,7 +22,7 @@ export interface IChainedHandlerEntry {
      * String path to a module containing a command handler.
      * exports.default (export default class in Typescript) should be the command handler
      * @type {string}
-     * @memberOf IChainedHandlerEntry
+     * @memberof IChainedHandlerEntry
      */
     handler: string;
     /**
@@ -30,14 +30,14 @@ export interface IChainedHandlerEntry {
      * If you do, you can map properties of that object to arguments for the next handler,
      * or a handler further down the chain. See the below interface for more details.
      * @type {IChainedHandlerArgumentMapping[]}
-     * @memberOf IChainedHandlerEntry
+     * @memberof IChainedHandlerEntry
      */
     mapping?: IChainedHandlerArgumentMapping[];
     /**
      * If you set this to true, this handler will produce no output.
      * Note: if you specify "true" for the last handler in a chain, the command will not produce the final output.
      * @type {boolean}
-     * @memberOf IChainedHandlerEntry
+     * @memberof IChainedHandlerEntry
      */
     silent?: boolean;
 }
