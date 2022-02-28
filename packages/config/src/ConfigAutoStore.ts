@@ -20,6 +20,12 @@ import { ISession } from "../../rest/src/session/doc/ISession";
 import { Session } from "../../rest/src/session/Session";
 import { AUTH_TYPE_TOKEN } from "../../rest/src/session/SessConstants";
 import { Logger } from "../../logger";
+import {
+    IConfigAutoStoreFindActiveProfileOpts,
+    IConfigAutoStoreFindAuthHandlerForProfileOpts,
+    IConfigAutoStoreStoreSessCfgPropsOpts
+} from "./doc/IConfigAutoStoreOpts";
+import _ = require("lodash");
 
 /**
  * Class to manage automatic storage of properties in team config.
@@ -33,15 +39,18 @@ export class ConfigAutoStore {
      *          profile was found
      */
     public static findActiveProfile(params: IHandlerParameters, profileProps: string[]): [string, string] | undefined {
-        const profileTypes = [
-            ...(params.definition.profile?.required || []),
-            ...(params.definition.profile?.optional || [])
-        ];
+        return this._findActiveProfile({ params, profileProps });
+    }
+    private static _findActiveProfile(opts: IConfigAutoStoreFindActiveProfileOpts): [string, string] | undefined {
+        const profileTypes = typeof opts.params !== "undefined" ? [
+            ...(opts.params.definition.profile?.required || []),
+            ...(opts.params.definition.profile?.optional || [])
+        ] : opts.profileTypes || []
 
         for (const profType of profileTypes) {
             const profileMatch = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profType);
-            if (profileMatch != null && profileProps.every(propName => propName in profileMatch.schema.properties)) {
-                return [profType, ConfigUtils.getActiveProfileName(profType, params.arguments)];
+            if (profileMatch != null && opts.profileProps.every(propName => propName in profileMatch.schema.properties)) {
+                return [profType, ConfigUtils.getActiveProfileName(profType, opts.params?.arguments, opts.defaultProfileName)];
             }
         }
     }
@@ -53,9 +62,12 @@ export class ConfigAutoStore {
      * @returns Auth handler class or undefined if none was found
      */
     public static findAuthHandlerForProfile(profilePath: string, cmdArguments: ICommandArguments): AbstractAuthHandler | undefined {
+        return this._findAuthHandlerForProfile({ profilePath, cmdArguments });
+    }
+    private static _findAuthHandlerForProfile(opts: IConfigAutoStoreFindAuthHandlerForProfileOpts): AbstractAuthHandler | undefined {
         const config = ImperativeConfig.instance.config;
-        const profileType = lodash.get(config.properties, `${profilePath}.type`);
-        const profile = config.api.profiles.get(profilePath.replace(/profiles\./g, ""));
+        const profileType = lodash.get(config.properties, `${opts.profilePath}.type`);
+        const profile = config.api.profiles.get(opts.profilePath.replace(/profiles\./g, ""));
 
         if (profile == null || profileType == null) {  // Profile must exist and have type defined
             return;
@@ -67,8 +79,8 @@ export class ConfigAutoStore {
             if (profile.basePath == null) {  // Service profiles must have basePath defined
                 return;
             } else if (profile.tokenType == null) {  // If tokenType undefined in service profile, fall back to base profile
-                const baseProfileName = ConfigUtils.getActiveProfileName("base", cmdArguments);
-                return this.findAuthHandlerForProfile(config.api.profiles.expandPath(baseProfileName), cmdArguments);
+                const baseProfileName = ConfigUtils.getActiveProfileName("base", opts.cmdArguments, opts.defaultBaseProfileName);
+                return this._findAuthHandlerForProfile({ ...opts, profilePath: config.api.profiles.expandPath(baseProfileName) });
             }
         }
 
@@ -100,23 +112,26 @@ export class ConfigAutoStore {
      * @param propsToStore Names of properties that should be stored
      */
     public static async storeSessCfgProps(params: IHandlerParameters, sessCfg: { [key: string]: any }, propsToStore: string[]): Promise<void> {
+        return this._storeSessCfgProps({ params, sessCfg, propsToStore });
+    }
+
+    public static async _storeSessCfgProps(opts: IConfigAutoStoreStoreSessCfgPropsOpts): Promise<void> {
         const config = ImperativeConfig.instance.config;
         // TODO Which autoStore value should take priority if it conflicts between layers
-        if (propsToStore.length == 0 || !config?.exists || !config.properties.autoStore) {
+        if (opts.propsToStore.length == 0 || !config?.exists || !config.properties.autoStore) {
             return;
         }
 
-        let profileProps = propsToStore.map(propName => propName === "hostname" ? "host" : propName);
-        const profileData = this.findActiveProfile(params, profileProps);
-        if (profileData == null) {
+        let profileProps = opts.propsToStore.map(propName => propName === "hostname" ? "host" : propName);
+        const profileData = this._findActiveProfile({ ...opts, profileProps });
+        if (profileData == null && opts.profileName == null && opts.profileType == null) {
             return;
         }
-        const [profileType, profileName] = profileData;
+        const [profileType, profileName] = profileData ?? [opts.profileName, opts.profileType];
         const profilePath = config.api.profiles.expandPath(profileName);
 
         // Replace user and password with tokenValue if tokenType is defined in config
-        if (profileProps.includes("user") && profileProps.includes("password") &&
-            await this.fetchTokenForSessCfg(params, sessCfg, profilePath)) {
+        if (profileProps.includes("user") && profileProps.includes("password") && await this._fetchTokenForSessCfg({ ...opts, profilePath })) {
             profileProps = profileProps.filter(propName => propName !== "user" && propName !== "password");
             profileProps.push("tokenValue");
         }
@@ -128,10 +143,11 @@ export class ConfigAutoStore {
         }
 
         const profileObj = config.api.profiles.get(profileName);
+        console.log(ImperativeConfig.instance.loadedConfig)
         const profileSchema = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profileType).schema;
         const profileSecureProps = config.api.secure.securePropsForProfile(profileName);
 
-        const baseProfileName = ConfigUtils.getActiveProfileName("base", params.arguments);
+        const baseProfileName = ConfigUtils.getActiveProfileName("base", opts.params?.arguments, opts.defaultBaseProfileName);
         const baseProfileObj = config.api.profiles.get(baseProfileName);
         const baseProfileSchema = ImperativeConfig.instance.loadedConfig.baseProfile.schema;
         const baseProfileSecureProps = config.api.secure.securePropsForProfile(baseProfileName);
@@ -146,7 +162,7 @@ export class ConfigAutoStore {
             */
             if ((!config.api.profiles.exists(profileName) && config.api.profiles.exists(baseProfileName)) ||
                 (profileObj[propName] == null && !profileSecureProps.includes(propName) &&
-                (baseProfileObj[propName] != null || baseProfileSecureProps.includes(propName))) ||
+                    (baseProfileObj[propName] != null || baseProfileSecureProps.includes(propName))) ||
                 (propName === "tokenValue" && profileObj.tokenType == null && baseProfileObj.tokenType != null)
             ) {
                 propProfilePath = config.api.profiles.expandPath(baseProfileName);
@@ -162,13 +178,18 @@ export class ConfigAutoStore {
             }
 
             const sessCfgPropName = propName === "host" ? "hostname" : propName;
-            config.set(`${propProfilePath}.properties.${propName}`, sessCfg[sessCfgPropName], {
+            config.set(`${propProfilePath}.properties.${propName}`, opts.sessCfg[sessCfgPropName], {
                 secure: isSecureProp
             });
         }
 
         await config.save();
-        params.response.console.log(`Stored properties in ${config.layerActive().path}: ${profileProps.join(", ")}`);
+        const storedMsg = `Stored properties in ${config.layerActive().path}: ${profileProps.join(", ")}`;
+        if (opts.params) {
+            opts.params.response.console.log(storedMsg);
+        } else {
+            Logger.getAppLogger().info(storedMsg);
+        }
         // Restore original active layer
         config.api.layers.activate(beforeLayer.user, beforeLayer.global);
     }
@@ -181,26 +202,29 @@ export class ConfigAutoStore {
      * @returns True if auth handler was found and token was fetched
      */
     private static async fetchTokenForSessCfg(params: IHandlerParameters, sessCfg: { [key: string]: any }, profilePath: string): Promise<boolean> {
-        const authHandlerClass = this.findAuthHandlerForProfile(profilePath, params.arguments);
+        return this._fetchTokenForSessCfg({ params, sessCfg, profilePath });
+    }
+    private static async _fetchTokenForSessCfg(opts: IConfigAutoStoreStoreSessCfgPropsOpts): Promise<boolean> {
+        const authHandlerClass = this._findAuthHandlerForProfile(opts);
 
         if (authHandlerClass == null) {
             return false;
         }
 
         const [promptParams, loginHandler] = authHandlerClass.getPromptParams();
-        sessCfg.type = AUTH_TYPE_TOKEN;
-        sessCfg.tokenType = promptParams.defaultTokenType;
-        const baseSessCfg: ISession = { type: sessCfg.type };
+        opts.sessCfg.type = AUTH_TYPE_TOKEN;
+        opts.sessCfg.tokenType = promptParams.defaultTokenType;
+        const baseSessCfg: ISession = { type: opts.sessCfg.type };
 
         for (const propName of Object.keys(ImperativeConfig.instance.loadedConfig.baseProfile.schema.properties)) {
             const sessCfgPropName = propName === "host" ? "hostname" : propName;
-            if (sessCfg[sessCfgPropName] != null) {
-                (baseSessCfg as any)[sessCfgPropName] = sessCfg[sessCfgPropName];
+            if (opts.sessCfg[sessCfgPropName] != null) {
+                (baseSessCfg as any)[sessCfgPropName] = opts.sessCfg[sessCfgPropName];
             }
         }
 
-        Logger.getAppLogger().info(`Fetching ${sessCfg.tokenType} for ${profilePath}`);
-        sessCfg.tokenValue = await loginHandler(new Session(baseSessCfg));
+        Logger.getAppLogger().info(`Fetching ${opts.sessCfg.tokenType} for ${opts.profilePath}`);
+        opts.sessCfg.tokenValue = await loginHandler(new Session(baseSessCfg));
         return true;
     }
 }

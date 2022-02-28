@@ -761,7 +761,6 @@ export class CommandProcessor {
      * @return {Promise<CommandResponse>}: Promise to fulfill when complete.
      */
     private async prepare(response: CommandResponse, commandArguments: Arguments): Promise<ICommandPrepared> {
-
         // Construct the imperative arguments - replacement/wrapper for Yargs to insulate handlers against any
         // changes made to Yargs
         let args: ICommandArguments = CliUtils.buildBaseArgs(commandArguments);
@@ -798,7 +797,6 @@ export class CommandProcessor {
         if (this.mConfig != null) {
             for (const profileType of allTypes) {
                 const opt = ProfileUtils.getProfileOptionAndAlias(profileType)[0];
-
                 // If the config contains the requested profiles, then "remember"
                 // that this type has been fulfilled - so that we do NOT load from
                 // the traditional profile location

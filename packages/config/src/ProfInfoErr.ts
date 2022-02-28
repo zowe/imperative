@@ -67,6 +67,12 @@ export class ProfInfoErr extends ImperativeError {
     public static readonly PROP_NOT_IN_PROFILE: string = "PropNotInProfile";
 
     /**
+     * A specified property that is expected to exist in the merged arguments
+     * does not exist.
+     */
+     public static readonly PROP_NOT_FOUND_IN_MERGED_ARGS: string = "PropNotFoundInMergedArguments";
+
+    /**
      * A specified property that is expected to exist in a specified profile
      * does not have OS and JSON locations defined.
      */

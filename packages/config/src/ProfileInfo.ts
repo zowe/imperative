@@ -17,7 +17,7 @@ import * as jsonfile from "jsonfile";
 import * as lodash from "lodash";
 
 // for ProfileInfo structures
-import { IProfArgAttrs } from "./doc/IProfArgAttrs";
+import { IProfArgAttrs, IProfArgValue } from "./doc/IProfArgAttrs";
 import { IProfAttrs } from "./doc/IProfAttrs";
 import { IProfLoc, ProfLocType } from "./doc/IProfLoc";
 import { IProfMergeArgOpts } from "./doc/IProfMergeArgOpts";
@@ -34,7 +34,7 @@ import { IConfigOpts } from "./doc/IConfigOpts";
 // for old-school profile operations
 import { AbstractProfileManager } from "../../profiles/src/abstract/AbstractProfileManager";
 import { CliProfileManager, ICommandProfileProperty, ICommandArguments } from "../../cmd";
-import { IProfileLoaded, IProfileSchema, ProfileIO } from "../../profiles";
+import { IProfileLoaded, IProfileSchema, ProfileIO, ProfileUtils } from "../../profiles";
 
 // for imperative operations
 import { EnvironmentalVariableSettings } from "../../imperative/src/env/EnvironmentalVariableSettings";
@@ -46,6 +46,8 @@ import { LoggerManager } from "../../logger/src/LoggerManager";
 import {
     IOptionsForAddConnProps, ISession, Session, SessConstants, ConnectionPropsForSessCfg
 } from "../../rest";
+import { IProfInfoUpdatePropOpts } from "./doc/IProfInfoUpdatePropOpts";
+import { ConfigAutoStore } from "./ConfigAutoStore";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -143,7 +145,7 @@ export class ProfileInfo {
     private mImpLogger: Logger = null;
     private mOldSchoolProfileCache: IProfileLoaded[] = null;
     private mOldSchoolProfileRootDir: string = null;
-    private mOldSchoolProfileDefaults: {[key: string]: string} = null;
+    private mOldSchoolProfileDefaults: { [key: string]: string } = null;
     private mOverrideWithEnv: boolean = false;
     /**
      * Cache of profile schema objects mapped by profile type and config path
@@ -177,6 +179,67 @@ export class ProfileInfo {
 
         // do enough Imperative stuff to let imperative utilities work
         this.initImpUtils();
+    }
+
+    public async updateProperty(options: IProfInfoUpdatePropOpts): Promise<void> {
+        const desiredProfile = this.getAllProfiles(options.profileType).find(v => v.profName === options.profileName);
+        const mergedArgs = this.mergeArgsForProfile(desiredProfile, { getSecureVals: false });
+        if (!(await this.updateKnownProperty(mergedArgs, options.property, options.value))) {
+            // AutoStore
+            console.log(`Set ${options.property} = ${options.value}`);
+            // ConfigAutoStore._storeSessCfgProps({
+            //     defaultBaseProfileName: this.mLoadedConfig?.properties.defaults.base,
+            //     propsToStore: [options.property],
+            //     profileName: options.profileName,
+            //     profileType: options.profileType
+            // })
+        }
+    }
+
+    // _______________________________________________________________________
+    /**
+     * Update a given property with the value provided.
+     * @param mergedArgs List of merged arguments to determine where the update must happen
+     * @param property Property to be updated with the given value
+     * @param value Value to be assigned when updating the given property
+     */
+    public async updateKnownProperty(mergedArgs: IProfMergedArg, property: string, value: IProfArgValue): Promise<boolean> {
+        const toUpdate = mergedArgs.knownArgs.find((v => v.argName === property)) ||
+            mergedArgs.missingArgs.find((v => v.argName === property));
+
+        if (toUpdate == null) {
+            throw new ProfInfoErr({
+                errorCode: ProfInfoErr.PROP_NOT_FOUND_IN_MERGED_ARGS,
+                msg: `Failed to find property ${property} in the merged arguments`
+            });
+        }
+
+        switch (toUpdate.argLoc.locType) {
+            case ProfLocType.OLD_PROFILE:
+                const filePath = toUpdate.argLoc.osLoc;
+                const profileName = ProfileIO.fileToProfileName(filePath[0], filePath[0].split(".").slice(-1)[0]);
+                const profileManager = new CliProfileManager({ profileRootDirectory: this.mOldSchoolProfileRootDir, type: "zosmf" });
+                await profileManager.update({
+                    name: profileName,
+                    merge: true,
+                    profile: { [property]: value }
+                });
+                break;
+            case ProfLocType.TEAM_CONFIG:
+                this.getTeamConfig().set(toUpdate.argLoc.jsonLoc, value);
+                this.getTeamConfig().save(false);
+                break;
+            case ProfLocType.ENV:
+            case ProfLocType.DEFAULT:
+                return false;
+                break;
+            default:
+                throw new ProfInfoErr({
+                    errorCode: ProfInfoErr.INVALID_PROF_LOC_TYPE,
+                    msg: "Invalid profile location type: " + ProfLocType[toUpdate.argLoc.locType]
+                });
+        }
+        return true;
     }
 
     // _______________________________________________________________________
@@ -236,7 +299,7 @@ export class ProfileInfo {
                 if (!profileType || profileType === loadedProfile.type) {
                     const typeDefaultProfile = this.getDefaultProfile(loadedProfile.type);
                     let defaultProfile = false;
-                    if (typeDefaultProfile && typeDefaultProfile.profName === loadedProfile.name) {defaultProfile = true;}
+                    if (typeDefaultProfile && typeDefaultProfile.profName === loadedProfile.name) { defaultProfile = true; }
                     profiles.push({
                         profName: loadedProfile.name,
                         profType: loadedProfile.type,
@@ -387,10 +450,10 @@ export class ProfileInfo {
         connOpts: IOptionsForAddConnProps = {}
     ): Session {
         // initialize a session config with arguments from profile arguments
-        const sessCfg : ISession = ProfileInfo.initSessCfg(profArgs);
+        const sessCfg: ISession = ProfileInfo.initSessCfg(profArgs);
 
         // we have no command arguments, so just supply an empty object
-        const cmdArgs: ICommandArguments = {$0: "", _: []};
+        const cmdArgs: ICommandArguments = { $0: "", _: [] };
 
         // resolve the choices among various session config properties
         ConnectionPropsForSessCfg.resolveSessCfgProps(sessCfg, cmdArgs, connOpts);
@@ -430,7 +493,7 @@ export class ProfileInfo {
      */
     public mergeArgsForProfile(
         profile: IProfAttrs,
-        mergeOpts: IProfMergeArgOpts = {getSecureVals: false}
+        mergeOpts: IProfMergeArgOpts = { getSecureVals: false }
     ): IProfMergedArg {
         const mergedArgs: IProfMergedArg = {
             knownArgs: [],
@@ -442,13 +505,16 @@ export class ProfileInfo {
                 // Load args from service profile if one exists
                 const serviceProfile = this.mLoadedConfig.api.profiles.get(profile.profName);
                 for (const [propName, propVal] of Object.entries(serviceProfile)) {
+                    const [argLoc, secure] = this.argTeamConfigLoc(profile.profName, propName);
                     mergedArgs.knownArgs.push({
                         argName: CliUtils.getOptionFormat(propName).camelCase,
                         dataType: this.argDataType(typeof propVal),  // TODO Is using `typeof` bad for "null" values that may be int or bool?
                         argValue: propVal,
-                        argLoc: this.argTeamConfigLoc(profile.profName, propName)
+                        argLoc,
+                        secure
                     });
                 }
+                // const secFields = this.getTeamConfig().api.secure.secureFields();
             }
 
             const baseProfile = this.mLoadedConfig.api.profiles.defaultGet("base");
@@ -459,11 +525,13 @@ export class ProfileInfo {
                     const argName = CliUtils.getOptionFormat(propName).camelCase;
                     // Skip properties already loaded from service profile
                     if (!mergedArgs.knownArgs.find((arg) => arg.argName === argName)) {
+                        const [argLoc, secure] = this.argTeamConfigLoc(baseProfileName, propName);
                         mergedArgs.knownArgs.push({
                             argName,
                             dataType: this.argDataType(typeof propVal),
                             argValue: propVal,
-                            argLoc: this.argTeamConfigLoc(baseProfileName, propName)
+                            argLoc,
+                            secure
                         });
                     }
                 }
@@ -524,19 +592,52 @@ export class ProfileInfo {
         if (profSchema != null) {
             const missingRequired: string[] = [];
 
-            for (const [propName, propObj] of Object.entries(profSchema.properties || {})) {
+            for (const [propName, propInfoInSchema] of Object.entries(profSchema.properties || {})) {
                 // Check if property in schema is missing from known args
                 const knownArg = mergedArgs.knownArgs.find((arg) => arg.argName === propName);
                 if (knownArg == null) {
-                    mergedArgs.missingArgs.push({
-                        argName: propName,
-                        dataType: this.argDataType(propObj.type),
-                        argValue: (propObj as ICommandProfileProperty).optionDefinition?.defaultValue,
-                        argLoc: { locType: ProfLocType.DEFAULT },
-                        secure: propObj.secure
-                    });
+                    let argFound = false;
+                    if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
+                        let [argLoc, foundInSecureArray]: [IProfLoc, boolean] = [null, false];
+                        try {
+                            [argLoc, foundInSecureArray] = this.argTeamConfigLoc(profile.profName, propName);
+                            argFound = true;
+                        } catch (_argNotFoundInServiceProfile) {
+                            if (this.mLoadedConfig.api.profiles.defaultGet("base")) {
+                                try {
+                                    [argLoc, foundInSecureArray] = this.argTeamConfigLoc(this.mLoadedConfig.properties.defaults.base, propName);
+                                    argFound = true;
+                                } catch (_argNotFoundInBaseProfile) { }
+                            }
+                        }
+                        if (argFound) {
+                            const newArg: IProfArgAttrs = {
+                                argName: propName,
+                                dataType: this.argDataType(propInfoInSchema.type),
+                                argValue: (propInfoInSchema as ICommandProfileProperty).optionDefinition?.defaultValue,
+                                argLoc,
+                                // See https://github.com/zowe/imperative/issues/739
+                                secure: foundInSecureArray || propInfoInSchema.secure
+                            };
+                            try {
+                                this.loadSecureArg({ argLoc, argName: propName } as any);
+                                mergedArgs.knownArgs.push(newArg);
+                            } catch (_secureValueNotFound) {
+                                mergedArgs.missingArgs.push(newArg);
+                            }
+                        }
+                    }
+                    if (!argFound) {
+                        mergedArgs.missingArgs.push({
+                            argName: propName,
+                            dataType: this.argDataType(propInfoInSchema.type),
+                            argValue: (propInfoInSchema as ICommandProfileProperty).optionDefinition?.defaultValue,
+                            argLoc: { locType: ProfLocType.DEFAULT },
+                            secure: propInfoInSchema.secure
+                        });
+                    }
                 } else {
-                    knownArg.secure = propObj.secure;
+                    knownArg.secure = knownArg.secure || propInfoInSchema.secure;
                     if (knownArg.secure) {
                         delete knownArg.argValue;
                     }
@@ -596,7 +697,7 @@ export class ProfileInfo {
      */
     public mergeArgsForProfileType(
         profileType: string,
-        mergeOpts: IProfMergeArgOpts = {getSecureVals: false}
+        mergeOpts: IProfMergeArgOpts = { getSecureVals: false }
     ): IProfMergedArg {
         return this.mergeArgsForProfile(
             {
@@ -680,6 +781,7 @@ export class ProfileInfo {
      */
     public async readProfilesFromDisk(teamCfgOpts?: IConfigOpts) {
         this.mLoadedConfig = await Config.load(this.mAppName, teamCfgOpts);
+        if (ImperativeConfig.instance.config == null) { ImperativeConfig.instance.config = this.mLoadedConfig; }
         this.mUsingTeamConfig = this.mLoadedConfig.exists;
 
         try {
@@ -704,13 +806,13 @@ export class ProfileInfo {
             // Iterate over the types
             for (const profType of profTypes) {
                 // Set up the profile manager and list of profile names
-                const profileManager = new CliProfileManager({profileRootDirectory: this.mOldSchoolProfileRootDir, type: profType});
+                const profileManager = new CliProfileManager({ profileRootDirectory: this.mOldSchoolProfileRootDir, type: profType });
                 const profileList = profileManager.getAllProfileNames();
                 // Iterate over them all
                 for (const prof of profileList) {
                     // Load and add to the list
                     try {
-                        const loadedProfile = await profileManager.load({name: prof});
+                        const loadedProfile = await profileManager.load({ name: prof });
                         this.mOldSchoolProfileCache.push(loadedProfile);
                     } catch (err) {
                         this.mImpLogger.warn(err.message);
@@ -718,8 +820,8 @@ export class ProfileInfo {
                 }
 
                 try {
-                    const defaultProfile = await profileManager.load({loadDefault: true});
-                    if (defaultProfile) {this.mOldSchoolProfileDefaults[profType] = defaultProfile.name;}
+                    const defaultProfile = await profileManager.load({ loadDefault: true });
+                    if (defaultProfile) { this.mOldSchoolProfileDefaults[profType] = defaultProfile.name; }
                 } catch (err) {
                     this.mImpLogger.warn(err.message);
                 }
@@ -808,7 +910,7 @@ export class ProfileInfo {
             "protocol", "basePath", "tokenType", "tokenValue"
         ];
 
-        for(const profArgNm of profArgNames) {
+        for (const profArgNm of profArgNames) {
             // map profile argument name into a sess config property name
             let sessCfgNm: string;
             if (profArgNm === "host") {
@@ -818,7 +920,7 @@ export class ProfileInfo {
             }
 
             // for each profile argument found, place its value into sessCfg
-            const profArg = lodash.find(profArgs, {"argName": profArgNm});
+            const profArg = lodash.find(profArgs, { "argName": profArgNm });
             if (profArg === undefined) {
                 // we have a default for protocol
                 if (sessCfgNm === "protocol") {
@@ -1068,10 +1170,13 @@ export class ProfileInfo {
      * @param profileName Name of a team config profile (e.g., LPAR1.zosmf)
      * @param propName Name of a team config property (e.g., host)
      */
-    private argTeamConfigLoc(profileName: string, propName: string): IProfLoc {
+    private argTeamConfigLoc(profileName: string, propName: string): [IProfLoc, boolean] {
         const segments = this.mLoadedConfig.api.profiles.expandPath(profileName).split(".profiles.");
+        const secFields = this.getTeamConfig().api.secure.secureFields();
         const buildPath = (ps: string[], p: string) => `${ps.join(".profiles.")}.properties.${p}`;
-        while (segments.length > 0 && lodash.get(this.mLoadedConfig.properties, buildPath(segments, propName)) === undefined) {
+        while (segments.length > 0 &&
+            lodash.get(this.mLoadedConfig.properties, buildPath(segments, propName)) === undefined &&
+            secFields.indexOf(buildPath(segments, propName)) === -1) {
             // Drop segment from end of path if property not found
             segments.pop();
         }
@@ -1083,20 +1188,22 @@ export class ProfileInfo {
             });
         }
 
+        const foundInSecureArray = secFields.indexOf(buildPath(segments, propName)) >= 0;
         let filePath: string;
         for (const layer of this.mLoadedConfig.layers) {
             // Find the first layer that includes the JSON path
-            if (lodash.get(layer.properties, jsonPath) !== undefined) {
+            if (lodash.get(layer.properties, jsonPath) !== undefined ||
+                (foundInSecureArray && lodash.get(layer.properties, jsonPath.split(`.properties.${propName}`)[0]) !== undefined)) {
                 filePath = layer.path;
                 break;
             }
         }
 
-        return {
+        return [{
             locType: ProfLocType.TEAM_CONFIG,
             osLoc: [filePath],
             jsonLoc: jsonPath
-        };
+        }, foundInSecureArray];
     }
 
     /**

@@ -38,12 +38,12 @@ export function coercePropValue(value: any) {
  *                           not specified, the profile type will be used.
  * @returns The profile name
  */
-export function getActiveProfileName(profileType: string, cmdArguments: ICommandArguments, defaultProfileName?: string): string {
+export function getActiveProfileName(profileType: string, cmdArguments?: ICommandArguments, defaultProfileName?: string): string {
     // Look for profile name first in command line arguments, second in
     // default profiles defined in config, and finally fall back to using
     // the profile type as the profile name.
-    return cmdArguments[`${profileType}-profile`] ||
-        ImperativeConfig.instance.config.properties.defaults[profileType] ||
+    return (cmdArguments && cmdArguments[`${profileType}-profile`]) ||
+        ImperativeConfig.instance.config?.properties.defaults[profileType] ||
         defaultProfileName || profileType;
 }
 

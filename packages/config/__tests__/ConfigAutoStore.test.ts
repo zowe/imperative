@@ -172,7 +172,7 @@ describe("ConfigAutoStore tests", () => {
         let findActiveProfileSpy: any;
 
         beforeEach(() => {
-            findActiveProfileSpy = jest.spyOn(ConfigAutoStore, "findActiveProfile");
+            findActiveProfileSpy = jest.spyOn(ConfigAutoStore as any, "_findActiveProfile");
         });
 
         afterEach(() => {
@@ -631,7 +631,7 @@ describe("ConfigAutoStore tests", () => {
     describe("fetchTokenForSessCfg", () => {
         it("should fetch token when auth handler is found", async () => {
             const mockLoginHandler = jest.fn();
-            jest.spyOn(ConfigAutoStore, "findAuthHandlerForProfile").mockReturnValueOnce({
+            jest.spyOn(ConfigAutoStore as any, "_findAuthHandlerForProfile").mockReturnValueOnce({
                 getPromptParams: () => [
                     { defaultTokenType: SessConstants.TOKEN_TYPE_JWT },
                     mockLoginHandler
@@ -654,7 +654,7 @@ describe("ConfigAutoStore tests", () => {
         });
 
         it("should do nothing when auth handler is not found", async () => {
-            jest.spyOn(ConfigAutoStore, "findAuthHandlerForProfile").mockReturnValueOnce(undefined);
+            jest.spyOn(ConfigAutoStore as any, "_findAuthHandlerForProfile").mockReturnValueOnce(undefined);
 
             const fetched = await (ConfigAutoStore as any).fetchTokenForSessCfg({}, {}, null);
 
