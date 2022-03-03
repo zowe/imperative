@@ -174,7 +174,7 @@ export default class InitHandler implements ICommandHandler {
             propName = `${propName} (${(property as any).optionDefinition.description})`;
         }
 
-        const propValue: any = await this.params.response.console.prompt(`${propName} - blank to skip: `, {hideText: property.secure});
+        const propValue: any = await this.params.response.console.prompt(`Enter ${propName} - blank to skip: `, {hideText: property.secure});
 
         // coerce to correct type
         if (propValue && propValue.trim().length > 0) {

@@ -99,6 +99,7 @@ export const config: IImperativeConfig = {
                     secret: {
                         type: "string",
                         secure: true,
+                        includeInTemplate: true,
                         optionDefinition: {...secretOption, required: true}
                     }
                 }
@@ -119,7 +120,6 @@ export const config: IImperativeConfig = {
                 secret: {
                     type: "string",
                     secure: true,
-                    includeInTemplate: true,
                     optionDefinition: secretOption
                 },
                 host: {
