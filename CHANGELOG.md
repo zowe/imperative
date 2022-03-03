@@ -5,6 +5,7 @@ All notable changes to the Imperative package will be documented in this file.
 ## Recent Changes
 
 - BugFix: Fixed single character options rendered in help with double dash instead of single dash. [#638](https://github.com/zowe/imperative/issues/638)
+- BugFix: Removed extra space in help text following option name [#745](https://github.com/zowe/imperative/issues/745).
 
 ## `5.0.0-next.202202232039`
 
