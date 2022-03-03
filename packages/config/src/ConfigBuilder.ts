@@ -37,11 +37,6 @@ export class ConfigBuilder {
                 if (opts.populateProperties && v.includeInTemplate) {
                     if (v.secure) {
                         secureProps.push(k);
-                        const propValue = opts.getSecureValue ? await opts.getSecureValue(k, v) : null;
-                        if (propValue != null) {
-                            // Save this value to be stored securely after profile is built
-                            properties[k] = propValue;
-                        }
                     } else {
                         if ((v as any).optionDefinition != null) {
                             // Use default value of ICommandOptionDefinition if present
@@ -69,7 +64,15 @@ export class ConfigBuilder {
 
         // Hoist duplicate default properties
         if (config.profiles != null && impConfig.baseProfile != null) {
-            this.hoistTemplateProperties(config.profiles, impConfig.baseProfile.type);
+            const hoistedProps = this.hoistTemplateProperties(config.profiles, impConfig.baseProfile.type);
+
+            if (opts.getValueBack != null) {
+                for (const [k, v] of Object.entries(impConfig.baseProfile.schema.properties)) {
+                    if (hoistedProps.includes(k) || (v.includeInTemplate && v.secure)) {
+                        lodash.set(config, `profiles.base.properties.${k}`, await opts.getValueBack(k, v));
+                    }
+                }
+            }
         }
 
         return { ...config, autoStore: true };
@@ -229,8 +232,9 @@ export class ConfigBuilder {
      * profile.
      * @param profiles The profiles object of the config JSON
      * @param baseProfileType The type of the base profile
+     * @returns Names of properties that were hoisted
      */
-    private static hoistTemplateProperties(profiles: { [key: string]: IConfigProfile }, baseProfileType: string): void {
+    private static hoistTemplateProperties(profiles: { [key: string]: IConfigProfile }, baseProfileType: string): string[] {
         // Flatten properties into object that maps property name to list of values
         const flattenedProps: { [key: string]: any[] } = {};
         for (const childProfile of Object.values(profiles).filter(({ type }) => type !== baseProfileType)) {
@@ -255,5 +259,6 @@ export class ConfigBuilder {
                 delete childProfile.properties[propName];
             }
         }
+        return duplicateProps;
     }
 }

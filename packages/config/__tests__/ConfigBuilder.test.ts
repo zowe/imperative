@@ -83,8 +83,7 @@ describe("Config Builder tests", () => {
         it("should build a config and populate properties", async () => {
             const builtConfig = await ConfigBuilder.build(testConfig, {populateProperties: true});
             expectedConfig.profiles.secured.properties.info = "";
-            expectedConfig.profiles.secured.secure.push("secret");
-            expectedConfig.defaults.secured = "secured";
+            expectedConfig.defaults = { secured: "secured" };
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(1); // Populating default value for info
             expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1);
@@ -92,17 +91,18 @@ describe("Config Builder tests", () => {
         });
 
         it("should build a config, populate properties, and securely load a file", async () => {
+            testConfig.profiles[0].schema.properties.secret.includeInTemplate = true;
             let builtConfig;
             let caughtError;
             try {
-                builtConfig = await ConfigBuilder.build(testConfig, {populateProperties: true, getSecureValue: promptForProp});
+                builtConfig = await ConfigBuilder.build(testConfig, {populateProperties: true, getValueBack: promptForProp});
             } catch (error) {
                 caughtError = error;
             }
             expectedConfig.profiles.secured.properties.info = "";
             expectedConfig.profiles.secured.properties.secret = "fake value";
             expectedConfig.profiles.secured.secure.push("secret");
-            expectedConfig.defaults.secured = "secured";
+            expectedConfig.defaults = { secured: "secured" };
             expect(caughtError).toBeUndefined();
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(1); // Populating default value for info
@@ -115,8 +115,7 @@ describe("Config Builder tests", () => {
             const builtConfig = await ConfigBuilder.build(testConfig, {populateProperties: true});
             expectedConfig.profiles.secured.properties.info = "";
             expectedConfig.profiles.secured.properties.fakestr = "";
-            expectedConfig.profiles.secured.secure.push("secret");
-            expectedConfig.defaults.secured = "secured";
+            expectedConfig.defaults = { secured: "secured" };
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(2); // Populating default value for info, fakestr
             expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1);
@@ -139,8 +138,7 @@ describe("Config Builder tests", () => {
             expectedConfig.profiles.secured.properties.fakearr = [];
             expectedConfig.profiles.secured.properties.fakebool = false;
             expectedConfig.profiles.secured.properties.fakedflt = null;
-            expectedConfig.profiles.secured.secure.push("secret");
-            expectedConfig.defaults.secured = "secured";
+            expectedConfig.defaults = { secured: "secured" };
 
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(7); // Populating default value for info, fakestr, fakenum, fakeobj, fakearr, fakebool
@@ -154,8 +152,7 @@ describe("Config Builder tests", () => {
             const builtConfig = await ConfigBuilder.build(testConfig, {populateProperties: true});
             expectedConfig.profiles.secured.properties.info = "";
             expectedConfig.profiles.secured.properties.fakestr = "";
-            expectedConfig.profiles.secured.secure.push("secret");
-            expectedConfig.defaults.secured = "secured";
+            expectedConfig.defaults = { secured: "secured" };
 
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(2); // Populating default value for info, fakestr
@@ -181,18 +178,17 @@ describe("Config Builder tests", () => {
                     properties: {
                         info: ""
                     },
-                    secure: ["secret"]
+                    secure: []
                 },
                 base: {
                     type: "base",
                     properties: {
                         host: ""
                     },
-                    secure: []
+                    secure: ["secret"]
                 }
             };
-            expectedConfig.defaults.secured = "secured";
-            expectedConfig.defaults.base = "base";
+            expectedConfig.defaults = { base: "base", secured: "secured" };
 
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(2); // Populating default value for host and info
@@ -219,12 +215,12 @@ describe("Config Builder tests", () => {
                 secured: {
                     type: "secured",
                     properties: {},
-                    secure: ["secret"]
+                    secure: []
                 },
                 securedClone: {
                     type: "securedClone",
                     properties: {},
-                    secure: ["secret"]
+                    secure: []
                 },
                 base: {
                     type: "base",
@@ -232,12 +228,10 @@ describe("Config Builder tests", () => {
                         host: "",
                         info: ""
                     },
-                    secure: []
+                    secure: ["secret"]
                 }
             };
-            expectedConfig.defaults.secured = "secured";
-            expectedConfig.defaults.securedClone = "securedClone";
-            expectedConfig.defaults.base = "base";
+            expectedConfig.defaults = { base: "base", secured: "secured", securedClone: "securedClone" };
 
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(5); // Populating default value for info and host of each profile

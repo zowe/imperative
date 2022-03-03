@@ -125,7 +125,7 @@ export default class InitHandler implements ICommandHandler {
         const opts: IConfigBuilderOpts = {};
         if (!user) {
             opts.populateProperties = true;
-            opts.getSecureValue = this.promptForProp.bind(this);
+            opts.getValueBack = this.promptForProp.bind(this);
         }
 
         // Build new config and merge with existing layer or overwrite it if overwrite & forSure options are present
@@ -150,7 +150,6 @@ export default class InitHandler implements ICommandHandler {
         const opts: IConfigBuilderOpts = {};
         if (!user) {
             opts.populateProperties = true;
-            opts.getSecureValue = this.promptForProp.bind(this);
         }
 
         // Build new config and merge with existing layer
