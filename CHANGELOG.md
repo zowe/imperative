@@ -2,9 +2,14 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Sorted output of `plugins list` command in alphabetical order to make it easier to read. [#489](https://github.com/zowe/imperative/issues/489)
+- Enhancement: Added `--short` option to `plugins list` command to abbreviate its output. [#743](https://github.com/zowe/imperative/issues/743)
+
 ## `4.17.6`
 
-- BugFix: Fixes an error where, in certain situations, the web help displays data for another command with the same name. [#728](https://github.com/zowe/imperative/issues/728)
+- BugFix: Fixed an error where, in certain situations, the web help displays data for another command with the same name. [#728](https://github.com/zowe/imperative/issues/728)
 - BugFix: Fixed web help wrongly escaping characters inside code blocks. [#730](https://github.com/zowe/imperative/issues/730)
 
 ## `4.17.5`

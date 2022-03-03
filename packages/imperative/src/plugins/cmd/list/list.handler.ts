@@ -48,21 +48,25 @@ export default class ListHandler implements ICommandHandler {
         let listOutput: string = "";
         let firstTime = true;
 
-        for (const pluginName in installedPlugins) {
+        for (const pluginName of Object.keys(installedPlugins).sort((a, b) => a.localeCompare(b))) {
             if (Object.prototype.hasOwnProperty.call(installedPlugins, pluginName)) {
                 // Build the console output
-                if (firstTime) {
-                    listOutput = `\n${chalk.yellow.bold("Installed plugins:")} \n\n`;
-                }
+                if (!params.arguments.short) {
+                    if (firstTime) {
+                        listOutput = `\n${chalk.yellow.bold("Installed plugins:")} \n\n`;
+                    }
 
-                listOutput = listOutput + `${chalk.yellow.bold(" -- pluginName: ")}` +
-                  `${chalk.red.bold(pluginName)} \n`;
-                listOutput = listOutput + `${chalk.yellow.bold(" -- package: ")}` +
-                  `${chalk.red.bold(installedPlugins[pluginName].package)} \n`;
-                listOutput = listOutput + `${chalk.yellow.bold(" -- version: ")}` +
-                  `${chalk.red.bold(installedPlugins[pluginName].version)} \n`;
-                listOutput = listOutput + `${chalk.yellow.bold(" -- registry: ")}` +
-                  installedPlugins[pluginName].registry + "\n\n";
+                    listOutput = listOutput + `${chalk.yellow.bold(" -- pluginName: ")}` +
+                        `${chalk.red.bold(pluginName)} \n`;
+                    listOutput = listOutput + `${chalk.yellow.bold(" -- package: ")}` +
+                        `${chalk.red.bold(installedPlugins[pluginName].package)} \n`;
+                    listOutput = listOutput + `${chalk.yellow.bold(" -- version: ")}` +
+                        `${chalk.red.bold(installedPlugins[pluginName].version)} \n`;
+                    listOutput = listOutput + `${chalk.yellow.bold(" -- registry: ")}` +
+                        installedPlugins[pluginName].registry + "\n\n";
+                } else {
+                    listOutput += `${chalk.yellow(pluginName)}@${installedPlugins[pluginName].version}\n`;
+                }
 
                 // Write to the log file
                 if (firstTime) {
