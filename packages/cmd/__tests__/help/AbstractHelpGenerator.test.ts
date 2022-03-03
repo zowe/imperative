@@ -124,11 +124,17 @@ describe("Abstract Help Generator Unit Tests", () => {
             description: "option_description",
             type: "string",
         };
+        const goodOptionSingleChar: ICommandOptionDefinition = {
+            name: "o",
+            description: "option_description",
+            type: "string",
+        };
         expect(abstractHelpGenerator.getOptionAndAliasesString(goodOptionMultipleAliases)).toMatchSnapshot("Good Option, multiple alias");
         goodOptionMultipleAliases.required = true;
         expect(abstractHelpGenerator.getOptionAndAliasesString(goodOptionMultipleAliases)).toMatchSnapshot("Good option, multiple alias, required");
         expect(abstractHelpGenerator.getOptionAndAliasesString(goodOptionSingleAlias)).toMatchSnapshot("Good option, single alias");
         expect(abstractHelpGenerator.getOptionAndAliasesString(goodOptionNoAlias)).toMatchSnapshot("Good option, no alias present");
+        expect(abstractHelpGenerator.getOptionAndAliasesString(goodOptionSingleChar)).toMatchSnapshot("Good option, single char");
 
         const badOptionAliasEdgeCases: ICommandOptionDefinition = {
             name: "my_option",

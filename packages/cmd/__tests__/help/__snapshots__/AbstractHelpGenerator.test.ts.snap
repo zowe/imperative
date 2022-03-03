@@ -201,6 +201,8 @@ exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Good
 
 exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Good option, single alias 1`] = `"--my_option  | --my_opt (string)"`;
 
+exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Good option, single char 1`] = `"-o  (string)"`;
+
 exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Non-existent type 1`] = `"--good_name  (notexist)"`;
 
 exports[`Abstract Help Generator Unit Tests getOptionAndAliasesString test: Null name 1`] = `"--null  (string)"`;
