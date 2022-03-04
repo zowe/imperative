@@ -220,7 +220,6 @@ describe("Config Builder tests", () => {
         });
 
         it("should build a config with a base profile and secure value included in template", async () => {
-            testConfig.baseProfile.schema.properties.secret.includeInTemplate = true;
             testConfig.profiles.push(testConfig.baseProfile);
             expectedConfig.profiles = {
                 secured: {

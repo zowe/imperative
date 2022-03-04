@@ -69,7 +69,10 @@ export class ConfigBuilder {
             if (opts.getValueBack != null) {
                 for (const [k, v] of Object.entries(impConfig.baseProfile.schema.properties)) {
                     if (hoistedProps.includes(k) || (v.includeInTemplate && v.secure)) {
-                        lodash.set(config, `profiles.base.properties.${k}`, await opts.getValueBack(k, v));
+                        const propValue = await opts.getValueBack(k, v);
+                        if (propValue != null) {
+                            lodash.set(config, `profiles.base.properties.${k}`, propValue);
+                        }
                     }
                 }
             }
