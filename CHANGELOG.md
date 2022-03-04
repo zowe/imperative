@@ -4,6 +4,8 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
+- Enhancement: Sorted output of `plugins list` command in alphabetical order to make it easier to read. [#489](https://github.com/zowe/imperative/issues/489)
+- Enhancement: Added `--short` option to `plugins list` command to abbreviate its output. [#743](https://github.com/zowe/imperative/issues/743)
 - BugFix: Fixed single character options rendered in help with double dash instead of single dash. [#638](https://github.com/zowe/imperative/issues/638)
 
 ## `4.17.6`

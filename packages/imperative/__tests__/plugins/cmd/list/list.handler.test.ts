@@ -24,6 +24,7 @@ import { IPluginJson } from "../../../../src/plugins/doc/IPluginJson";
 import ListHandler from "../../../../src/plugins/cmd/list/list.handler";
 import { Logger } from "../../../../../logger/";
 import { readFileSync } from "jsonfile";
+import stripAnsi = require("strip-ansi");
 
 describe("Plugin Management Facility list handler", () => {
 
@@ -59,6 +60,7 @@ describe("Plugin Management Facility list handler", () => {
    */
     const wasListSuccessful = (params: IHandlerParameters) => {
         expect(params.response.console.log).toHaveBeenCalled();
+        expect(stripAnsi((params.response.console.log as any).mock.calls[0][0])).toMatchSnapshot();
     };
 
     /**
@@ -83,17 +85,17 @@ describe("Plugin Management Facility list handler", () => {
 
     test("list packages", async () => {
 
-        // plugin definitions mocking file contents
+        // plugin definitions mocking unsorted file contents
         const fileJson: IPluginJson = {
-            a: {
-                package: packageName,
-                registry: packageRegistry,
-                version: packageVersion
-            },
             plugin1: {
                 package: packageName2,
                 registry: packageRegistry2,
                 version: packageVersion2
+            },
+            a: {
+                package: packageName,
+                registry: packageRegistry,
+                version: packageVersion
             }
         };
 
@@ -103,6 +105,36 @@ describe("Plugin Management Facility list handler", () => {
         const handler = new ListHandler();
 
         const params = getIHandlerParametersObject();
+
+        await handler.process(params as IHandlerParameters);
+
+        wasListSuccessful(params);
+
+    });
+
+    test("list packages short", async () => {
+
+        // plugin definitions mocking unsorted file contents
+        const fileJson: IPluginJson = {
+            plugin1: {
+                package: packageName2,
+                registry: packageRegistry2,
+                version: packageVersion2
+            },
+            a: {
+                package: packageName,
+                registry: packageRegistry,
+                version: packageVersion
+            }
+        };
+
+        // Override the return value for this test only
+        mocks.readFileSync.mockReturnValueOnce(fileJson);
+
+        const handler = new ListHandler();
+
+        const params = getIHandlerParametersObject();
+        params.arguments.short = true;
 
         await handler.process(params as IHandlerParameters);
 
