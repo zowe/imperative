@@ -150,7 +150,7 @@ export abstract class AbstractHelpGenerator implements IHelpGenerator {
         if (caseSensitive) {
             aliasString += " {{italic}}" + this.dimGrey("(case sensitive)") + "{{italic}}";
         }
-        return this.renderHelp(format("{{codeBegin}}--%s{{codeEnd}} %s", option.name, aliasString));
+        return this.renderHelp(format("{{codeBegin}}%s{{codeEnd}} %s", (option.name?.length === 1 ? "-" : "--") + option.name, aliasString));
     }
 
     public abstract buildFullCommandHelpText(includeGlobalOptions: boolean): string;
