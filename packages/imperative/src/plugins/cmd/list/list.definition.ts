@@ -25,7 +25,7 @@ export const listDefinition: ICommandDefinition = {
     options: [
         {
             name: "short",
-            aliases: ["-s"],
+            aliases: ["s"],
             description: "Show output in abbreviated format",
             type: "boolean"
         }
