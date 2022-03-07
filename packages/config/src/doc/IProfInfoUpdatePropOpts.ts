@@ -21,4 +21,5 @@ export interface IProfInfoUpdatePropOpts  {
     value: IProfArgValue;
     profileType: string;
     profileName: string;
+    unknown?: boolean;
 }

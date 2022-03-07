@@ -127,7 +127,7 @@ export class ConfigAutoStore {
         if (profileData == null && opts.profileName == null && opts.profileType == null) {
             return;
         }
-        const [profileType, profileName] = profileData ?? [opts.profileName, opts.profileType];
+        const [profileType, profileName] = profileData ?? [opts.profileType, opts.profileName];
         const profilePath = config.api.profiles.expandPath(profileName);
 
         // Replace user and password with tokenValue if tokenType is defined in config
@@ -143,7 +143,6 @@ export class ConfigAutoStore {
         }
 
         const profileObj = config.api.profiles.get(profileName);
-        console.log(ImperativeConfig.instance.loadedConfig)
         const profileSchema = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profileType).schema;
         const profileSecureProps = config.api.secure.securePropsForProfile(profileName);
 

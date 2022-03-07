@@ -183,16 +183,30 @@ export class ProfileInfo {
 
     public async updateProperty(options: IProfInfoUpdatePropOpts): Promise<void> {
         const desiredProfile = this.getAllProfiles(options.profileType).find(v => v.profName === options.profileName);
+        if (desiredProfile == null) {
+            throw new ProfInfoErr({
+                errorCode: ProfInfoErr.PROF_NOT_FOUND,
+                msg: `Failed to find profile ${options.profileName} of type ${options.profileType}`
+            });
+        }
+
         const mergedArgs = this.mergeArgsForProfile(desiredProfile, { getSecureVals: false });
-        if (!(await this.updateKnownProperty(mergedArgs, options.property, options.value))) {
-            // AutoStore
-            console.log(`Set ${options.property} = ${options.value}`);
-            // ConfigAutoStore._storeSessCfgProps({
-            //     defaultBaseProfileName: this.mLoadedConfig?.properties.defaults.base,
-            //     propsToStore: [options.property],
-            //     profileName: options.profileName,
-            //     profileType: options.profileType
-            // })
+        if (options.unknown || !(await this.updateKnownProperty(mergedArgs, options.property, options.value))) {
+            if (this.usingTeamConfig) {
+                ConfigAutoStore._storeSessCfgProps({
+                    defaultBaseProfileName: this.mLoadedConfig?.properties.defaults.base,
+                    sessCfg: {
+                        [options.property === "host" ? "hostname" : options.property]: options.value
+                    },
+                    propsToStore: [options.property],
+                    profileName: options.profileName,
+                    profileType: options.profileType
+                });
+            } else {
+                const profMgr = new CliProfileManager({ profileRootDirectory: this.mOldSchoolProfileRootDir, type: options.profileType });
+                // Add new property
+                await profMgr.update({ name: options.profileName, merge: true, profile: { [options.property]: options.value } });
+            }
         }
     }
 
@@ -217,13 +231,19 @@ export class ProfileInfo {
         switch (toUpdate.argLoc.locType) {
             case ProfLocType.OLD_PROFILE:
                 const filePath = toUpdate.argLoc.osLoc;
-                const profileName = ProfileIO.fileToProfileName(filePath[0], filePath[0].split(".").slice(-1)[0]);
-                const profileManager = new CliProfileManager({ profileRootDirectory: this.mOldSchoolProfileRootDir, type: "zosmf" });
-                await profileManager.update({
-                    name: profileName,
-                    merge: true,
-                    profile: { [property]: value }
-                });
+                const profileName = ProfileIO.fileToProfileName(filePath[0], "." + filePath[0].split(".").slice(-1)[0]);
+                const profileType = filePath[0].substring(this.mOldSchoolProfileRootDir.length + 1).split("/")[0];
+                const profMgr = new CliProfileManager({ profileRootDirectory: this.mOldSchoolProfileRootDir, type: profileType });
+                if (value != null) {
+                    await profMgr.update({ name: profileName, merge: true, profile: { [property]: value } });
+                } else {
+                    // Remove existing property (or don't do anything)
+                    const oldProf = await profMgr.load({ name: profileName, failNotFound: false });
+                    if (oldProf && oldProf.profile && oldProf.profile[property]) {
+                        delete oldProf.profile[property];
+                        await profMgr.save({ name: profileName, profile: oldProf.profile, overwrite: true, type: profileType });
+                    }
+                }
                 break;
             case ProfLocType.TEAM_CONFIG:
                 this.getTeamConfig().set(toUpdate.argLoc.jsonLoc, value);
