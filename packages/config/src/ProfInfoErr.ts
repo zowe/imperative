@@ -83,6 +83,11 @@ export class ProfInfoErr extends ImperativeError {
      */
     public static readonly PROF_NOT_FOUND: string = "ProfileNotFound";
 
+    /**
+     * The loadedConfig.profiles or the loadedConfig.baseProfile was not defined
+     */
+    public static readonly MISSING_PROFILE_SCHEMA_DEFINITION: string = "MissingProfileSchemaDefinition";
+
     // _______________________________________________________________________
 
     /**
