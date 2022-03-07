@@ -4,7 +4,6 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
-- BugFix: Fixed single character options rendered in help with double dash instead of single dash. [#638](https://github.com/zowe/imperative/issues/638)
 - BugFix: Removed extra space in help text following option name [#745](https://github.com/zowe/imperative/issues/745).
 - BugFix: Fixed Ctrl+C (SIGINT) response to CLI prompts throwing an error rather than exiting silently.
 
@@ -242,6 +241,12 @@ All notable changes to the Imperative package will be documented in this file.
 ## `5.0.0-next.202009251501`
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
+
+## `4.18.0`
+
+- Enhancement: Sorted output of `plugins list` command in alphabetical order to make it easier to read. [#489](https://github.com/zowe/imperative/issues/489)
+- Enhancement: Added `--short` option to `plugins list` command to abbreviate its output. [#743](https://github.com/zowe/imperative/issues/743)
+- BugFix: Fixed single character options rendered in help with double dash instead of single dash. [#638](https://github.com/zowe/imperative/issues/638)
 
 ## `4.17.6`
 
