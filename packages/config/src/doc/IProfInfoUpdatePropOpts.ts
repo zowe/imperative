@@ -10,7 +10,6 @@
 */
 
 import { IProfArgValue } from "./IProfArgAttrs";
-import { IProfMergedArg } from "./IProfMergedArg";
 
 /**
  * Options that will affect the behavior of the ProfileInfo class.

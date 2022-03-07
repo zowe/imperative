@@ -464,7 +464,7 @@ export class ConnectionPropsForSessCfg {
         const config = ImperativeConfig.instance.config;
         const baseProfileName = ConfigUtils.getActiveProfileName("base", params.arguments);
         for (const secureProp of [...config.api.secure.securePropsForProfile(profileData[1]),
-        ...config.api.secure.securePropsForProfile(baseProfileName)]) {
+            ...config.api.secure.securePropsForProfile(baseProfileName)]) {
             this.secureSessCfgProps.add(secureProp === "host" ? "hostname" : secureProp);
         }
     }

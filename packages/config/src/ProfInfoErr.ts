@@ -70,7 +70,7 @@ export class ProfInfoErr extends ImperativeError {
      * A specified property that is expected to exist in the merged arguments
      * does not exist.
      */
-     public static readonly PROP_NOT_FOUND_IN_MERGED_ARGS: string = "PropNotFoundInMergedArguments";
+    public static readonly PROP_NOT_FOUND_IN_MERGED_ARGS: string = "PropNotFoundInMergedArguments";
 
     /**
      * A specified property that is expected to exist in a specified profile

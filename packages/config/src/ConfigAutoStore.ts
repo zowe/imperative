@@ -25,7 +25,6 @@ import {
     IConfigAutoStoreFindAuthHandlerForProfileOpts,
     IConfigAutoStoreStoreSessCfgPropsOpts
 } from "./doc/IConfigAutoStoreOpts";
-import _ = require("lodash");
 
 /**
  * Class to manage automatic storage of properties in team config.
@@ -45,7 +44,7 @@ export class ConfigAutoStore {
         const profileTypes = typeof opts.params !== "undefined" ? [
             ...(opts.params.definition.profile?.required || []),
             ...(opts.params.definition.profile?.optional || [])
-        ] : opts.profileTypes || []
+        ] : opts.profileTypes || [];
 
         for (const profType of profileTypes) {
             const profileMatch = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profType);

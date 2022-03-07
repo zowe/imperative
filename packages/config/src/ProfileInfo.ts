@@ -34,7 +34,7 @@ import { IConfigOpts } from "./doc/IConfigOpts";
 // for old-school profile operations
 import { AbstractProfileManager } from "../../profiles/src/abstract/AbstractProfileManager";
 import { CliProfileManager, ICommandProfileProperty, ICommandArguments } from "../../cmd";
-import { IProfileLoaded, IProfileSchema, ProfileIO, ProfileUtils } from "../../profiles";
+import { IProfileLoaded, IProfileSchema, ProfileIO } from "../../profiles";
 
 // for imperative operations
 import { EnvironmentalVariableSettings } from "../../imperative/src/env/EnvironmentalVariableSettings";
@@ -193,6 +193,19 @@ export class ProfileInfo {
         const mergedArgs = this.mergeArgsForProfile(desiredProfile, { getSecureVals: false });
         if (options.unknown || !(await this.updateKnownProperty(mergedArgs, options.property, options.value))) {
             if (this.usingTeamConfig) {
+                if (ImperativeConfig.instance.loadedConfig?.profiles?.find(p => p.type === options.profileType).schema == null) {
+                    throw new ProfInfoErr({
+                        errorCode: ProfInfoErr.MISSING_PROFILE_SCHEMA_DEFINITION,
+                        msg: `Please ensure that ImperativeConfig.instance.loadedConfig.profiles[<type>].schema is defined`
+                    });
+                }
+                if (ImperativeConfig.instance.loadedConfig?.baseProfile?.schema == null) {
+                    throw new ProfInfoErr({
+                        errorCode: ProfInfoErr.MISSING_PROFILE_SCHEMA_DEFINITION,
+                        msg: `Please ensure that ImperativeConfig.instance.loadedConfig.baseProfile.schema is defined`
+                    });
+                }
+
                 ConfigAutoStore._storeSessCfgProps({
                     defaultBaseProfileName: this.mLoadedConfig?.properties.defaults.base,
                     sessCfg: {
@@ -229,7 +242,7 @@ export class ProfileInfo {
         }
 
         switch (toUpdate.argLoc.locType) {
-            case ProfLocType.OLD_PROFILE:
+            case ProfLocType.OLD_PROFILE: {
                 const filePath = toUpdate.argLoc.osLoc;
                 const profileName = ProfileIO.fileToProfileName(filePath[0], "." + filePath[0].split(".").slice(-1)[0]);
                 const profileType = filePath[0].substring(this.mOldSchoolProfileRootDir.length + 1).split("/")[0];
@@ -245,19 +258,22 @@ export class ProfileInfo {
                     }
                 }
                 break;
-            case ProfLocType.TEAM_CONFIG:
+            }
+            case ProfLocType.TEAM_CONFIG: {
                 this.getTeamConfig().set(toUpdate.argLoc.jsonLoc, value);
                 this.getTeamConfig().save(false);
                 break;
+            }
             case ProfLocType.ENV:
             case ProfLocType.DEFAULT:
                 return false;
                 break;
-            default:
+            default: {
                 throw new ProfInfoErr({
                     errorCode: ProfInfoErr.INVALID_PROF_LOC_TYPE,
                     msg: "Invalid profile location type: " + ProfLocType[toUpdate.argLoc.locType]
                 });
+            }
         }
         return true;
     }
@@ -627,7 +643,9 @@ export class ProfileInfo {
                                 try {
                                     [argLoc, foundInSecureArray] = this.argTeamConfigLoc(this.mLoadedConfig.properties.defaults.base, propName);
                                     argFound = true;
-                                } catch (_argNotFoundInBaseProfile) { }
+                                } catch (_argNotFoundInBaseProfile) {
+                                    // Do nothing
+                                }
                             }
                         }
                         if (argFound) {
