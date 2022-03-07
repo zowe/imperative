@@ -167,7 +167,8 @@ describe("Configuration Secure command handler", () => {
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         delete fakeSecureDataExpectedJson[fakeProjPath];
         fakeSecureDataExpectedJson[fakeProjPath] = {
-            "profiles.secured.properties.secret": "fakePromptingData"
+            "profiles.secured.properties.secret": "fakePromptingData",
+            "profiles.base.properties.secret": "fakePromptingData"
         };
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -176,7 +177,7 @@ describe("Configuration Secure command handler", () => {
         compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.base.properties.secret; // Delete the base secret
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -185,7 +186,7 @@ describe("Configuration Secure command handler", () => {
         }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
-        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(2); // Secured and base profiles
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjPath, JSON.stringify(compObj, null, 4)); // Config
@@ -231,7 +232,8 @@ describe("Configuration Secure command handler", () => {
 
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         fakeSecureDataExpectedJson[fakeProjUserPath] = {
-            "profiles.secured.properties.secret": "fakePromptingData"
+            "profiles.secured.properties.secret": "fakePromptingData",
+            "profiles.base.properties.secret": "fakePromptingData"
         };
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
@@ -240,7 +242,7 @@ describe("Configuration Secure command handler", () => {
         compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.base.properties.secret; // Delete the base secret
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -249,7 +251,7 @@ describe("Configuration Secure command handler", () => {
         }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
-        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(2); // Secured and base profiles
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeProjUserPath, JSON.stringify(compObj, null, 4)); // Config
@@ -296,7 +298,10 @@ describe("Configuration Secure command handler", () => {
 
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         delete fakeSecureDataExpectedJson[fakeGblProjPath];
-        fakeSecureDataExpectedJson[fakeGblProjPath] = {"profiles.secured.properties.secret": "fakePromptingData"};
+        fakeSecureDataExpectedJson[fakeGblProjPath] = {
+            "profiles.secured.properties.secret": "fakePromptingData",
+            "profiles.base.properties.secret": "fakePromptingData"
+        };
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
         const compObj: any = {};
@@ -304,7 +309,7 @@ describe("Configuration Secure command handler", () => {
         compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.base.properties.secret; // Delete the base secret
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -313,7 +318,7 @@ describe("Configuration Secure command handler", () => {
         }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
-        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(2); // Secured and base profiles
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblProjPath, JSON.stringify(compObj, null, 4)); // Config
@@ -361,7 +366,10 @@ describe("Configuration Secure command handler", () => {
 
         const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
         delete fakeSecureDataExpectedJson[fakeGblProjUserPath];
-        fakeSecureDataExpectedJson[fakeGblProjUserPath] = {"profiles.secured.properties.secret": "fakePromptingData"};
+        fakeSecureDataExpectedJson[fakeGblProjUserPath] = {
+            "profiles.secured.properties.secret": "fakePromptingData",
+            "profiles.base.properties.secret": "fakePromptingData"
+        };
         const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
 
         const compObj: any = {};
@@ -369,7 +377,7 @@ describe("Configuration Secure command handler", () => {
         compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
+        delete compObj.profiles.base.properties.secret; // Delete the base secret
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -378,7 +386,7 @@ describe("Configuration Secure command handler", () => {
         }
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
         expect(keytarSetPasswordSpy).toHaveBeenCalledTimes(1);
-        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(1);
+        expect(promptWithTimeoutSpy).toHaveBeenCalledTimes(2); // Secured and base profiles
         expect(keytarSetPasswordSpy).toHaveBeenCalledWith("Zowe", "secure_config_props", fakeSecureDataExpected);
         expect(writeFileSyncSpy).toHaveBeenCalledTimes(1);
         expect(writeFileSyncSpy).toHaveBeenNthCalledWith(1, fakeGblProjUserPath, JSON.stringify(compObj, null, 4)); // Config
@@ -422,17 +430,6 @@ describe("Configuration Secure command handler", () => {
         setSchemaSpy = jest.spyOn(ImperativeConfig.instance.config, "setSchema");
 
         await handler.process(params);
-
-        const fakeSecureDataExpectedJson = lodash.cloneDeep(fakeSecureDataJson);
-        fakeSecureDataExpectedJson[fakeGblProjUserPath] = {"profiles.secured.properties.secret": "fakePromptingData"};
-        const fakeSecureDataExpected = Buffer.from(JSON.stringify(fakeSecureDataExpectedJson)).toString("base64");
-
-        const compObj: any = {};
-        // Make changes to satisfy what would be stored on the JSON
-        compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
-        lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        delete compObj.profiles.secured.properties.secret; // Delete the secret
-        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(0);
         expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
@@ -541,7 +538,6 @@ describe("Configuration Secure command handler", () => {
             compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
             lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
             delete compObj.profiles.base.properties.tokenValue;  // Delete the secret
-            compObj.profiles.base.secure = ["tokenValue"];  // Add the secret field to the secrets
 
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(process.platform === "win32" ? 4 : 3);
             expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
@@ -577,7 +573,6 @@ describe("Configuration Secure command handler", () => {
             compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
             lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
             delete compObj.profiles.base.properties.tokenValue;  // Delete the secret
-            compObj.profiles.base.secure = ["tokenValue"];  // Add the secret field to the secrets
 
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(process.platform === "win32" ? 4 : 3);
             expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
@@ -613,7 +608,6 @@ describe("Configuration Secure command handler", () => {
             compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
             lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
             delete compObj.profiles.base.properties.tokenValue;  // Delete the secret
-            compObj.profiles.base.secure = ["tokenValue"];  // Add the secret field to the secrets
 
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(process.platform === "win32" ? 4 : 3);
             expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
@@ -656,7 +650,6 @@ describe("Configuration Secure command handler", () => {
             compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
             lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
             delete compObj.profiles.base.properties.tokenValue;  // Delete the secret
-            compObj.profiles.base.secure = ["tokenValue"];  // Add the secret field to the secrets
 
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(process.platform === "win32" ? 4 : 3);
             expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);
@@ -700,7 +693,6 @@ describe("Configuration Secure command handler", () => {
             compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
             lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
             delete compObj.profiles.base.properties.tokenValue;  // Delete the secret
-            compObj.profiles.base.secure = ["tokenValue"];  // Add the secret field to the secrets
 
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(process.platform === "win32" ? 4 : 3);
             expect(keytarGetPasswordSpy).toHaveBeenCalledTimes(1);

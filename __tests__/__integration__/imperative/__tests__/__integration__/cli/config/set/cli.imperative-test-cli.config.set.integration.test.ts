@@ -12,12 +12,11 @@
 import { ITestEnvironment } from "../../../../../../../__src__/environment/doc/response/ITestEnvironment";
 import { SetupTestEnvironment } from "../../../../../../../__src__/environment/SetupTestEnvironment";
 import { runCliScript } from "../../../../../../../src/TestUtil";
-import { expectedConfigObject } from "../__resources__/expectedObjects";
+import { expectedConfigObject, expectedUserConfigObject } from "../__resources__/expectedObjects";
 import * as fs from "fs";
 import * as path from "path";
 import * as keytar from "keytar";
 import * as lodash from "lodash";
-
 
 // Test Environment populated in the beforeAll();
 let TEST_ENVIRONMENT: ITestEnvironment;
@@ -32,13 +31,13 @@ describe("imperative-test-cli config set", () => {
     const expectedJson = lodash.cloneDeep(expectedConfigObject);
     delete expectedJson.$schema;
     expectedJson.profiles.secured.properties.info = "(secure value)";
-    expectedJson.profiles.secured.properties.secret = "(secure value)";
     expectedJson.profiles.secured.secure = ["secret", "info"];
+    expectedJson.profiles.base.properties.secret = "(secure value)";
 
-    const expectedUserJson = lodash.cloneDeep(expectedJson);
-    delete expectedUserJson.profiles.secured.properties.secret;
+    const expectedUserJson = lodash.cloneDeep(expectedUserConfigObject);
+    delete expectedUserJson.$schema;
+    expectedUserJson.profiles.secured.properties.info = "(secure value)";
     expectedUserJson.profiles.secured.secure = ["info"];
-    expectedUserJson.defaults = {};
 
     // Create the test environment
     beforeAll(async () => {
@@ -105,7 +104,7 @@ describe("imperative-test-cli config set", () => {
             const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
             const expectedSecuredValueJson = {};
             expectedSecuredValueJson[expectedProjectConfigLocation] = {
-                "profiles.secured.properties.secret": "fakeValue",
+                "profiles.base.properties.secret": "fakeValue",
                 "profiles.secured.properties.info": "some_fake_information"
             };
 
@@ -152,7 +151,7 @@ describe("imperative-test-cli config set", () => {
             const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
             const expectedSecuredValueJson = {};
             expectedSecuredValueJson[expectedGlobalProjectConfigLocation] = {
-                "profiles.secured.properties.secret": "fakeValue",
+                "profiles.base.properties.secret": "fakeValue",
                 "profiles.secured.properties.info": "some_fake_information"
             };
 
@@ -228,6 +227,7 @@ describe("imperative-test-cli config set", () => {
             const securedValueJson = JSON.parse(Buffer.from(securedValue, "base64").toString());
             const expectedSecuredValueJson = {};
             expectedSecuredValueJson[expectedProjectConfigLocation] = {
+                "profiles.base.properties.secret": "fakeValue",
                 "profiles.secured.properties.secret": "area51"
             };
 

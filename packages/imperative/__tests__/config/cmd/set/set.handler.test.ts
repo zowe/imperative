@@ -176,7 +176,6 @@ describe("Configuration Set command handler", () => {
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         delete compObj.profiles.secured.properties.testProperty; // Delete the new secret
-        compObj.profiles.secured.secure = ["secret", "testProperty"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -241,7 +240,6 @@ describe("Configuration Set command handler", () => {
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         delete compObj.profiles.secured.properties.testProperty; // Delete the new secret
-        compObj.profiles.secured.secure = ["testProperty"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -309,7 +307,6 @@ describe("Configuration Set command handler", () => {
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         delete compObj.profiles.secured.properties.testProperty; // Delete the new secret
-        compObj.profiles.secured.secure = ["secret", "testProperty"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -375,7 +372,6 @@ describe("Configuration Set command handler", () => {
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret; // Delete the secret
         delete compObj.profiles.secured.properties.testProperty; // Delete the new secret
-        compObj.profiles.secured.secure = ["testProperty"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -436,7 +432,6 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -496,7 +491,6 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -558,7 +552,6 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -619,7 +612,6 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -686,7 +678,6 @@ describe("Configuration Set command handler", () => {
         // Make changes to satisfy what would be stored on the JSON
         compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
-        compObj.profiles.secured.secure = []; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -755,7 +746,6 @@ describe("Configuration Set command handler", () => {
         compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret;
-        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -822,7 +812,6 @@ describe("Configuration Set command handler", () => {
         compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret;
-        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -888,7 +877,6 @@ describe("Configuration Set command handler", () => {
         compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret;
-        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -955,7 +943,6 @@ describe("Configuration Set command handler", () => {
         compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret;
-        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         if (process.platform === "win32") {
             expect(keytarDeletePasswordSpy).toHaveBeenCalledTimes(4);
@@ -1019,7 +1006,6 @@ describe("Configuration Set command handler", () => {
         compObj.$schema = "./fakeapp.schema.json"; // Fill in the name of the schema file, and make it first
         lodash.merge(compObj, ImperativeConfig.instance.config.properties); // Add the properties from the config
         delete compObj.profiles.secured.properties.secret;
-        compObj.profiles.secured.secure = ["secret"]; // Add the secret field to the secrets
 
         expect(error).toBeDefined();
         expect(error.message).toContain("could not parse JSON value");

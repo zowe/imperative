@@ -5,7 +5,9 @@ All notable changes to the Imperative package will be documented in this file.
 ## Recent Changes
 
 - Enhancement: Added prompt for base profile host property to `zowe config init`. [zowe/zowe-cli#1219](https://github.com/zowe/zowe-cli/issues/1219)
-- **Next Breaking**: If your plug-in defines profile properties with `includeInTemplate` and `secure` both true, the `config init` command no longer prompts for their values.
+- **Next Breaking**
+  - The `getSecureValue` callback property has been renamed to `getValueBack` on the `IConfigBuilderOpts` interface.
+  - If your plug-in defines profile properties with `includeInTemplate` and `secure` both true, the `config init` command no longer prompts for their values.
 
 ## `5.0.0-next.202202232039`
 
