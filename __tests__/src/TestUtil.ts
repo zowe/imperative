@@ -450,7 +450,7 @@ export function runCliScript(scriptPath: string, cwd: string, args: any = [], en
  * @param opts Options to pass to Config.load
  */
 export async function setupConfigToLoad(properties?: IConfig, opts: IConfigOpts = {}): Promise<void> {
-    const dirname = nodePath.dirname((jasmine as any).testPath); // Get __dirname for current test suite
+    const dirname = nodePath.dirname(expect.getState().testPath); // Get __dirname for current test suite
     const osHomedirSpy = jest.spyOn(os, "homedir").mockReturnValue(dirname); // Pretend the current directory is the homedir
     const processCwdSpy = jest.spyOn(process, "cwd").mockReturnValue(dirname); // Pretend the current directory is where the command was invoked
     let existsSyncSpy;
