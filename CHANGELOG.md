@@ -9,6 +9,11 @@ All notable changes to the Imperative package will be documented in this file.
   - The `getSecureValue` callback property has been renamed to `getValueBack` on the `IConfigBuilderOpts` interface.
   - If your plug-in defines profile properties with `includeInTemplate` and `secure` both true, the `config init` command no longer prompts for their values.
 
+## `5.0.0-next.202203072228`
+
+- BugFix: Removed extra space in help text following option name [#745](https://github.com/zowe/imperative/issues/745).
+- BugFix: Fixed Ctrl+C (SIGINT) response to CLI prompts throwing an error rather than exiting silently.
+
 ## `5.0.0-next.202202232039`
 
 - Enhancement: Added `stdin` property to `IHandlerParameters` which defaults to `process.stdin` and can be overridden with another readable stream in daemon mode.
@@ -244,9 +249,15 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
 
+## `4.18.0`
+
+- Enhancement: Sorted output of `plugins list` command in alphabetical order to make it easier to read. [#489](https://github.com/zowe/imperative/issues/489)
+- Enhancement: Added `--short` option to `plugins list` command to abbreviate its output. [#743](https://github.com/zowe/imperative/issues/743)
+- BugFix: Fixed single character options rendered in help with double dash instead of single dash. [#638](https://github.com/zowe/imperative/issues/638)
+
 ## `4.17.6`
 
-- BugFix: Fixes an error where, in certain situations, the web help displays data for another command with the same name. [#728](https://github.com/zowe/imperative/issues/728)
+- BugFix: Fixed an error where, in certain situations, the web help displays data for another command with the same name. [#728](https://github.com/zowe/imperative/issues/728)
 - BugFix: Fixed web help wrongly escaping characters inside code blocks. [#730](https://github.com/zowe/imperative/issues/730)
 
 ## `4.17.5`

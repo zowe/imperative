@@ -21,5 +21,13 @@ export const listDefinition: ICommandDefinition = {
     type: "command",
     summary: "List installed plug-ins",
     description: "List all plug-ins installed.",
-    handler: join(__dirname, "list.handler")
+    handler: join(__dirname, "list.handler"),
+    options: [
+        {
+            name: "short",
+            aliases: ["s"],
+            description: "Show output in abbreviated format",
+            type: "boolean"
+        }
+    ]
 };
