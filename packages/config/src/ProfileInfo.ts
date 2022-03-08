@@ -193,17 +193,18 @@ export class ProfileInfo {
         const mergedArgs = this.mergeArgsForProfile(desiredProfile, { getSecureVals: false });
         if (options.unknown || !(await this.updateKnownProperty(mergedArgs, options.property, options.value))) {
             if (this.usingTeamConfig) {
-                if (ImperativeConfig.instance.loadedConfig?.profiles?.find(p => p.type === options.profileType).schema == null) {
-                    throw new ProfInfoErr({
-                        errorCode: ProfInfoErr.MISSING_PROFILE_SCHEMA_DEFINITION,
-                        msg: `Please ensure that ImperativeConfig.instance.loadedConfig.profiles[<type>].schema is defined`
-                    });
-                }
-                if (ImperativeConfig.instance.loadedConfig?.baseProfile?.schema == null) {
-                    throw new ProfInfoErr({
-                        errorCode: ProfInfoErr.MISSING_PROFILE_SCHEMA_DEFINITION,
-                        msg: `Please ensure that ImperativeConfig.instance.loadedConfig.baseProfile.schema is defined`
-                    });
+                if (ImperativeConfig.instance.loadedConfig?.profiles?.find(p => p.type === options.profileType).schema == null ||
+                    ImperativeConfig.instance.loadedConfig?.baseProfile?.schema == null) {
+                    const loadedConfig = ImperativeConfig.instance.loadedConfig;
+                    if (!loadedConfig.profiles) loadedConfig.profiles = [];
+                    this.mProfileSchemaCache.forEach((value: IProfileSchema, key: string) => {
+                        if (key.indexOf(":base") > 0 && loadedConfig.baseProfile == null) {
+                            loadedConfig.baseProfile = { type: "base", schema: value };
+                        } else if (key.indexOf(":base") < 0 && !loadedConfig.profiles.find(p => p.type === key.split(":")[1])) {
+                            loadedConfig.profiles.push({ type: key.split(":")[1], schema: value });
+                        }
+                    })
+                    ImperativeConfig.instance.loadedConfig = loadedConfig;
                 }
 
                 ConfigAutoStore._storeSessCfgProps({
