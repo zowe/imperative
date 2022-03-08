@@ -172,7 +172,7 @@ export const expectedConfigObject: IConfig = {
             properties: {
                 info: ""
             },
-            secure: ["secret"]
+            secure: []
         },
         base: {
             type: "base",

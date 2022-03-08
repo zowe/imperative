@@ -72,16 +72,14 @@ describe("imperative-test-cli config list", () => {
                     base: {
                         properties: {},
                         type: "base",
-                        secure: []
+                        secure: ["secret"]
                     },
                     secured: {
                         type: "secured",
                         properties: {
                             info: ""
                         },
-                        secure: [
-                            "secret"
-                        ]
+                        secure: []
                     }
                 },
                 defaults: {
@@ -183,7 +181,7 @@ describe("imperative-test-cli config list", () => {
         expect(response.error).not.toBeDefined();
     });
     it("should list the configuration without showing secure values", () => {
-        runCliScript(__dirname + "/../set/__scripts__/set_secure.sh", TEST_ENVIRONMENT.workingDir, ["profiles.secured.properties.secret", "area51"]);
+        runCliScript(__dirname + "/../set/__scripts__/set_secure.sh", TEST_ENVIRONMENT.workingDir, ["profiles.base.properties.secret", "area51"]);
         const response = runCliScript(__dirname + "/__scripts__/list_config.sh", TEST_ENVIRONMENT.workingDir, [""]);
         expect(response.stdout.toString()).toMatchSnapshot();
         expect(response.stdout.toString()).toContain("secured: secured");

@@ -64,6 +64,7 @@ describe("Config Builder tests", () => {
         hoistTemplatePropertiesSpy = jest.spyOn(ConfigBuilder as any, "hoistTemplateProperties");
         expectedConfig = lodash.cloneDeep(expectedConfigObject);
         testConfig = lodash.cloneDeep(config as IImperativeConfig);
+        testConfig.profiles[0].schema.properties.secret.includeInTemplate = true;
     });
 
     describe("build", () => {
