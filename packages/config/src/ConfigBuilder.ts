@@ -16,7 +16,6 @@ import { IImperativeConfig } from "../../imperative";
 import { Config } from "./Config";
 import { IConfig } from "./doc/IConfig";
 import { IConfigBuilderOpts } from "./doc/IConfigBuilderOpts";
-import { IConfigProfile } from "./doc/IConfigProfile";
 import { CredentialManagerFactory } from "../../security";
 import { IConfigConvertResult } from "./doc/IConfigConvertResult";
 
@@ -38,9 +37,9 @@ export class ConfigBuilder {
                     if (v.secure) {
                         secureProps.push(k);
                     } else {
-                        if ((v as any).optionDefinition != null) {
+                        if (v.optionDefinition != null) {
                             // Use default value of ICommandOptionDefinition if present
-                            properties[k] = (v as any).optionDefinition.defaultValue;
+                            properties[k] = v.optionDefinition.defaultValue;
                         }
                         if (properties[k] === undefined) {
                             // Fall back to an empty value
@@ -62,17 +61,13 @@ export class ConfigBuilder {
             }
         }
 
-        // Hoist duplicate default properties
-        if (config.profiles != null && impConfig.baseProfile != null) {
-            const hoistedProps = this.hoistTemplateProperties(config.profiles, impConfig.baseProfile.type);
-
-            if (opts.getValueBack != null) {
-                for (const [k, v] of Object.entries(impConfig.baseProfile.schema.properties)) {
-                    if (hoistedProps.includes(k) || (v.includeInTemplate && v.secure)) {
-                        const propValue = await opts.getValueBack(k, v);
-                        if (propValue != null) {
-                            lodash.set(config, `profiles.base.properties.${k}`, propValue);
-                        }
+        // Prompt for properties missing from base profile
+        if (impConfig.baseProfile != null && opts.getValueBack != null) {
+            for (const [k, v] of Object.entries(impConfig.baseProfile.schema.properties)) {
+                if (v.includeInTemplate && v.optionDefinition?.defaultValue == null) {
+                    const propValue = await opts.getValueBack(k, v);
+                    if (propValue != null) {
+                        lodash.set(config, `profiles.${impConfig.baseProfile.type}.properties.${k}`, propValue);
                     }
                 }
             }
@@ -228,40 +223,5 @@ export class ConfigBuilder {
             case "boolean": return false;
             default:        return null;
         }
-    }
-
-    /**
-     * Moves duplicate default properties across child profiles into a base
-     * profile.
-     * @param profiles The profiles object of the config JSON
-     * @param baseProfileType The type of the base profile
-     * @returns Names of properties that were hoisted
-     */
-    private static hoistTemplateProperties(profiles: { [key: string]: IConfigProfile }, baseProfileType: string): string[] {
-        // Flatten properties into object that maps property name to list of values
-        const flattenedProps: { [key: string]: any[] } = {};
-        for (const childProfile of Object.values(profiles).filter(({ type }) => type !== baseProfileType)) {
-            for (const [k, v] of Object.entries(childProfile.properties)) {
-                flattenedProps[k] = [...(flattenedProps[k] || []), v];
-            }
-        }
-        // List property names defined multiple times with the same value
-        const duplicateProps: string[] = [];
-        for (const [k, v] of Object.entries(flattenedProps)) {
-            if (v.length > 1 && (new Set(v)).size === 1) {
-                duplicateProps.push(k);
-            }
-        }
-        // Remove duplicate properties from child profiles and store them in root profile
-        for (const propName of duplicateProps) {
-            profiles[baseProfileType].properties = {
-                [propName]: flattenedProps[propName][0],
-                ...profiles[baseProfileType].properties
-            };
-            for (const childProfile of Object.values(profiles).filter(({ type }) => type !== baseProfileType)) {
-                delete childProfile.properties[propName];
-            }
-        }
-        return duplicateProps;
     }
 }
