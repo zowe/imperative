@@ -183,7 +183,8 @@
     "globals": {
       "ts-jest": {
         "diagnostics": false,
-        "disableSourceMapSupport": true
+        "disableSourceMapSupport": true,
+        "tsconfig": "tsconfig-tests.json"
       }
     },
     "watchPathIgnorePatterns": [

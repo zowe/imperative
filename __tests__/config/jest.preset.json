@@ -1,7 +1,8 @@
 {
     "globals": {
         "ts-jest": {
-            "diagnostics": false
+            "diagnostics": false,
+            "tsconfig": "tsconfig-tests.json"
         }
     },
     "moduleFileExtensions": ["ts","js"],
