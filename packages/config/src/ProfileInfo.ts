@@ -207,7 +207,7 @@ export class ProfileInfo {
                     ImperativeConfig.instance.loadedConfig = loadedConfig;
                 }
 
-                ConfigAutoStore._storeSessCfgProps({
+                await ConfigAutoStore._storeSessCfgProps({
                     defaultBaseProfileName: this.mLoadedConfig?.properties.defaults.base,
                     sessCfg: {
                         [options.property === "host" ? "hostname" : options.property]: options.value
@@ -262,7 +262,7 @@ export class ProfileInfo {
             }
             case ProfLocType.TEAM_CONFIG: {
                 this.getTeamConfig().set(toUpdate.argLoc.jsonLoc, value);
-                this.getTeamConfig().save(false);
+                await this.getTeamConfig().save(false);
                 break;
             }
             case ProfLocType.ENV:
