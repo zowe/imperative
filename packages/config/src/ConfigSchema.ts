@@ -330,7 +330,7 @@ export class ConfigSchema {
                                     },
                                     then: {
                                         properties: {
-                                            properties: { title: "Unknown profile type" }
+                                            properties: { title: "Missing profile type" }
                                         }
                                     }
                                 },
@@ -343,8 +343,17 @@ export class ConfigSchema {
                     type: "object",
                     description: "Mapping of profile types to default profile names",
                     properties: defaultProperties
-                }
-                // TODO Add autoStore and plugins?
+                },
+                autoStore: {
+                    type: "boolean",
+                    description: "If true, values you enter when prompted are stored for future use"
+                },
+                // plugins: {
+                //     description: "CLI plug-in names to load from node_modules (experimental)",
+                //     type: "array",
+                //     items: { type: "string" },
+                //     uniqueItems: true
+                // }
             }
         };
     }

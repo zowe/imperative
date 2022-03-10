@@ -18,6 +18,16 @@ import * as path from "path";
 
 describe("Config Schema", () => {
     const schema = ConfigSchema;
+    const missingProfileTypeEntry = {
+        if: {
+            properties: { type: false }
+        },
+        then: {
+            properties: {
+                properties: { title: "Missing profile type" }
+            }
+        }
+    };
     const testProfileConfiguration: IProfileTypeConfiguration[] = [
         {
             type: "zosmf",
@@ -97,16 +107,7 @@ describe("Config Schema", () => {
     it("should be able to successfully build with no profile type configuration", () => {
         const testConfig: IProfileTypeConfiguration[] = [];
         const returnedSchema = schema.buildSchema(testConfig);
-        const expectedAllOf: any = [{
-            if: {
-                properties: { type: false }
-            },
-            then: {
-                properties: {
-                    properties: { title: "Unknown profile type" }
-                }
-            }
-        }];
+        const expectedAllOf: any = [missingProfileTypeEntry];
         expect(returnedSchema).toMatchSnapshot();
         expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf);
     });
@@ -116,16 +117,7 @@ describe("Config Schema", () => {
         testConfig.pop();
         const returnedSchema = schema.buildSchema(testConfig);
         const expectedAllOf: any[] = [
-            {
-                if: {
-                    properties: { type: false }
-                },
-                then: {
-                    properties: {
-                        properties: { title: "Unknown profile type" }
-                    }
-                }
-            },
+            missingProfileTypeEntry,
             {
                 if: {
                     properties: {
@@ -159,20 +151,7 @@ describe("Config Schema", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfiguration);
         const returnedSchema = schema.buildSchema(testConfig);
         const expectedAllOf: any[] = [
-            {
-                if: {
-                    properties: {
-                        type: false
-                    }
-                },
-                then: {
-                    properties: {
-                        properties: {
-                            title: "Unknown profile type"
-                        }
-                    }
-                }
-            },
+            missingProfileTypeEntry,
             {
                 if: {
                     properties: {
@@ -230,20 +209,7 @@ describe("Config Schema", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfigurationSecure);
         const returnedSchema = schema.buildSchema(testConfig);
         const expectedAllOf: any[] = [
-            {
-                if: {
-                    properties: {
-                        type: false
-                    }
-                },
-                then: {
-                    properties: {
-                        properties: {
-                            title: "Unknown profile type"
-                        }
-                    }
-                }
-            },
+            missingProfileTypeEntry,
             {
                 if: {
                     properties: {
@@ -282,20 +248,7 @@ describe("Config Schema", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfigurationOptionDefinition);
         const returnedSchema = schema.buildSchema(testConfig);
         const expectedAllOf: any[] = [
-            {
-                if: {
-                    properties: {
-                        type: false
-                    }
-                },
-                then: {
-                    properties: {
-                        properties: {
-                            title: "Unknown profile type"
-                        }
-                    }
-                }
-            },
+            missingProfileTypeEntry,
             {
                 if: {
                     properties: {

@@ -6,6 +6,10 @@ Object {
   "$version": 0.4,
   "description": "Zowe configuration",
   "properties": Object {
+    "autoStore": Object {
+      "description": "If true, values you enter when prompted are stored for future use",
+      "type": "boolean",
+    },
     "defaults": Object {
       "description": "Mapping of profile types to default profile names",
       "properties": Object {
@@ -30,7 +34,7 @@ Object {
               "then": Object {
                 "properties": Object {
                   "properties": Object {
-                    "title": "Unknown profile type",
+                    "title": "Missing profile type",
                   },
                 },
               },
@@ -109,6 +113,10 @@ Object {
   "$version": 0.4,
   "description": "Zowe configuration",
   "properties": Object {
+    "autoStore": Object {
+      "description": "If true, values you enter when prompted are stored for future use",
+      "type": "boolean",
+    },
     "defaults": Object {
       "description": "Mapping of profile types to default profile names",
       "properties": Object {
@@ -133,7 +141,7 @@ Object {
               "then": Object {
                 "properties": Object {
                   "properties": Object {
-                    "title": "Unknown profile type",
+                    "title": "Missing profile type",
                   },
                 },
               },
@@ -213,6 +221,10 @@ Object {
   "$version": 0.4,
   "description": "Zowe configuration",
   "properties": Object {
+    "autoStore": Object {
+      "description": "If true, values you enter when prompted are stored for future use",
+      "type": "boolean",
+    },
     "defaults": Object {
       "description": "Mapping of profile types to default profile names",
       "properties": Object {
@@ -237,7 +249,7 @@ Object {
               "then": Object {
                 "properties": Object {
                   "properties": Object {
-                    "title": "Unknown profile type",
+                    "title": "Missing profile type",
                   },
                 },
               },
@@ -310,6 +322,10 @@ Object {
   "$version": 0.4,
   "description": "Zowe configuration",
   "properties": Object {
+    "autoStore": Object {
+      "description": "If true, values you enter when prompted are stored for future use",
+      "type": "boolean",
+    },
     "defaults": Object {
       "description": "Mapping of profile types to default profile names",
       "properties": Object {},
@@ -329,7 +345,7 @@ Object {
               "then": Object {
                 "properties": Object {
                   "properties": Object {
-                    "title": "Unknown profile type",
+                    "title": "Missing profile type",
                   },
                 },
               },
@@ -376,6 +392,10 @@ Object {
   "$version": 0.4,
   "description": "Zowe configuration",
   "properties": Object {
+    "autoStore": Object {
+      "description": "If true, values you enter when prompted are stored for future use",
+      "type": "boolean",
+    },
     "defaults": Object {
       "description": "Mapping of profile types to default profile names",
       "properties": Object {
@@ -404,7 +424,7 @@ Object {
               "then": Object {
                 "properties": Object {
                   "properties": Object {
-                    "title": "Unknown profile type",
+                    "title": "Missing profile type",
                   },
                 },
               },
