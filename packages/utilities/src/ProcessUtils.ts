@@ -125,17 +125,19 @@ export class ProcessUtils {
      * @param filePath File path to edit
      */
     public static async openInEditor(filePath: string) {
+        let editor;
+        if (ImperativeConfig.instance.loadedConfig.envVariablePrefix != null) {
+            const editorEnvVar = `${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_EDITOR`;
+            if (process.env[editorEnvVar] != null) { editor = process.env[editorEnvVar]; }
+        }
+
         if (ProcessUtils.isGuiAvailable() === GuiResult.GUI_AVAILABLE) {
             Logger.getImperativeLogger().info(`Opening ${filePath} in graphical editor`);
-            this.openInDefaultApp(filePath);
+            if (editor != null) { await require("child_process").spawn(editor, [filePath], { stdio: "inherit" }); }
+            else { this.openInDefaultApp(filePath); }
+
         } else {
-            let editor = "vi";
-            if (ImperativeConfig.instance.loadedConfig.envVariablePrefix != null) {
-                const editorEnvVar = `${ImperativeConfig.instance.loadedConfig.envVariablePrefix}_EDITOR`;
-                if (process.env[editorEnvVar] != null) {
-                    editor = process.env[editorEnvVar];
-                }
-            }
+            if (editor == null) { editor = "vi"; }
             Logger.getImperativeLogger().info(`Opening ${filePath} in command-line editor ${editor}`);
             await require("child_process").spawn(editor, [filePath], { stdio: "inherit" });
         }
