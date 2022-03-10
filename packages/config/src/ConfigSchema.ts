@@ -32,7 +32,7 @@ export class ConfigSchema {
      * @readonly
      * @memberof ConfigSchema
      */
-    private static readonly SCHEMA_VERSION = 4;
+    private static readonly SCHEMA_VERSION = 0.4;
 
     /**
      * Pretty explanation of the schema objects
@@ -107,7 +107,8 @@ export class ConfigSchema {
         const properties: { [key: string]: IProfileProperty } = {};
         for (const [k, v] of Object.entries((schema.properties.properties || {}) as { [key: string]: any })) {
             properties[k] = { type: v.type };
-            if (schema.secure?.items.enum.includes(k)) {
+            // Backward compatibility for schema versions <0.4 (prefixItems -> items)
+            if ((schema.secure?.items || schema.secure?.prefixItems)?.enum.includes(k)) {
                 properties[k].secure = true;
             }
             if (v.description != null || v.default != null || v.enum != null) {
