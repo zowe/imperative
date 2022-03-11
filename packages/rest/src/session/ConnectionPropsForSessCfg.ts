@@ -13,7 +13,7 @@ import { CliUtils, ImperativeConfig } from "../../../utilities";
 import { ICommandArguments, IHandlerParameters } from "../../../cmd";
 import { ImperativeError } from "../../../error";
 import { IOptionsForAddConnProps } from "./doc/IOptionsForAddConnProps";
-import { Logger, LoggerUtils } from "../../../logger";
+import { Logger } from "../../../logger";
 import * as SessConstants from "./SessConstants";
 import { IPromptOptions } from "../../../cmd/src/doc/response/api/handler/IPromptOptions";
 import { ISession } from "./doc/ISession";

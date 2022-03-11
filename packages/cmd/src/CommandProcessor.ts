@@ -47,6 +47,49 @@ import { Config } from "../../config/src/Config";
 import { IDaemonContext } from "../../imperative/src/doc/IDaemonContext";
 import { IHandlerResponseApi } from "../..";
 
+
+/**
+ * Internal interface for the command processor that is used by the CLI for `--show-resolved-args`
+ * @interface IResolvedArgsResponse
+ */
+interface IResolvedArgsResponse {
+
+    /**
+     * All command values
+     * @type {ICommandArguments}
+     * @memberof IResolvedArgsResponse
+     */
+    commandValues?: ICommandArguments;
+
+    /**
+     * Whether we're using old profiles or config
+     * @type {(`v1` | `v2`)}
+     * @memberof IResolvedArgsResponse
+     */
+    profileVersion?: `v1` | `v2`;
+
+    /**
+     * The profiles that are required
+     * @type {string[]}
+     * @memberof IResolvedArgsResponse
+     */
+    requiredProfiles?: string[];
+
+    /**
+     * The profiles that are optional
+     * @type {string[]}
+     * @memberof IResolvedArgsResponse
+     */
+    optionalProfiles?: string[];
+
+    /**
+     * Location of the profiles
+     * @type {string[]}
+     * @memberof IResolvedArgsResponse
+     */
+    locations?: string[]
+}
+
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
  * response object and validates syntax, loads profiles, instantiates handlers, & invokes the handlers.
@@ -775,13 +818,6 @@ export class CommandProcessor {
             useConfig ?
                 new Set(this.mConfig.api.secure.secureFields().map(v => v.split('.').slice(-1)[0])) :
                 new Set([...LoggerUtils.CENSORED_OPTIONS, ...LoggerUtils.SECURE_PROMPT_OPTIONS]);
-        interface IResolvedArgsResponse {
-            commandValues?: ICommandArguments;
-            profileVersion?: `v1` | `v2`;
-            requiredProfiles?: string[];
-            optionalProfiles?: string[];
-            locations?: string[]
-        }
 
         /**
          * Build a list of arguments that will be displayed to the user and note
