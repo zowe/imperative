@@ -34,12 +34,16 @@ export class ConfigAutoStore {
      * Finds the profile where auto-store properties should be saved.
      * @param params CLI handler parameters object
      * @param profileProps List of properties required in the profile schema
-     * @returns Tuple containing profile type and name, or undefined if no
-     *          profile was found
+     * @returns Tuple containing profile type and name, or undefined if no profile was found
      */
     public static findActiveProfile(params: IHandlerParameters, profileProps: string[]): [string, string] | undefined {
         return this._findActiveProfile({ params, profileProps });
     }
+    /**
+     * Helper method to find an active profile based on the optional CLI handler parameters
+     * @param opts Set of options required to find an active profile
+     * @returns Tuple containing profile type and name, or undefined if no profile was found
+     */
     private static _findActiveProfile(opts: IConfigAutoStoreFindActiveProfileOpts): [string, string] | undefined {
         const profileTypes = typeof opts.params !== "undefined" ? [
             ...(opts.params.definition.profile?.required || []),
@@ -63,6 +67,12 @@ export class ConfigAutoStore {
     public static findAuthHandlerForProfile(profilePath: string, cmdArguments: ICommandArguments): AbstractAuthHandler | undefined {
         return this._findAuthHandlerForProfile({ profilePath, cmdArguments });
     }
+
+    /**
+     * Helper method that finds the token auth handler class for a team config profile
+     * @param opts Set of options required to find the auth handler for a given profile path
+     * @returns Auth handler class or undefined if none was found
+     */
     private static _findAuthHandlerForProfile(opts: IConfigAutoStoreFindAuthHandlerForProfileOpts): AbstractAuthHandler | undefined {
         const config = ImperativeConfig.instance.config;
         const profileType = lodash.get(config.properties, `${opts.profilePath}.type`);
@@ -114,6 +124,10 @@ export class ConfigAutoStore {
         return this._storeSessCfgProps({ params, sessCfg, propsToStore });
     }
 
+    /**
+     * Stores session config properties into a team config profile.
+     * @param opts Set of options required to store session config properties
+     */
     public static async _storeSessCfgProps(opts: IConfigAutoStoreStoreSessCfgPropsOpts): Promise<void> {
         const config = ImperativeConfig.instance.config;
         // TODO Which autoStore value should take priority if it conflicts between layers

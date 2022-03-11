@@ -181,6 +181,11 @@ export class ProfileInfo {
         this.initImpUtils();
     }
 
+    /**
+     * Update a given property regardless of whether it's found in the config file or not
+     * This function supports v1 profiles
+     * @param options Set of options needed to update a given property
+     */
     public async updateProperty(options: IProfInfoUpdatePropOpts): Promise<void> {
         const desiredProfile = this.getAllProfiles(options.profileType).find(v => v.profName === options.profileName);
         if (desiredProfile == null) {
@@ -191,19 +196,22 @@ export class ProfileInfo {
         }
 
         const mergedArgs = this.mergeArgsForProfile(desiredProfile, { getSecureVals: false });
-        if (options.unknown || !(await this.updateKnownProperty(mergedArgs, options.property, options.value))) {
+        if (!(await this.updateKnownProperty(mergedArgs, options.property, options.value))) {
             if (this.usingTeamConfig) {
-                if (ImperativeConfig.instance.loadedConfig?.profiles?.find(p => p.type === options.profileType).schema == null ||
+                // Check to see if loadedConfig already contains the schema for the specified profile type
+                if (ImperativeConfig.instance.loadedConfig?.profiles?.find(p => p.type === options.profileType)?.schema == null ||
                     ImperativeConfig.instance.loadedConfig?.baseProfile?.schema == null) {
+
                     const loadedConfig = ImperativeConfig.instance.loadedConfig;
                     if (!loadedConfig.profiles) loadedConfig.profiles = [];
                     this.mProfileSchemaCache.forEach((value: IProfileSchema, key: string) => {
                         if (key.indexOf(":base") > 0 && loadedConfig.baseProfile == null) {
                             loadedConfig.baseProfile = { type: "base", schema: value };
                         } else if (key.indexOf(":base") < 0 && !loadedConfig.profiles.find(p => p.type === key.split(":")[1])) {
+                            // Add the schema corresponding to the given profile type
                             loadedConfig.profiles.push({ type: key.split(":")[1], schema: value });
                         }
-                    })
+                    });
                     ImperativeConfig.instance.loadedConfig = loadedConfig;
                 }
 
@@ -224,9 +232,11 @@ export class ProfileInfo {
         }
     }
 
-    // _______________________________________________________________________
     /**
      * Update a given property with the value provided.
+     * This function only works for properties that can be found in the config files (including secure arrays).
+     * If the property cannot be found, this function will resolve to false
+     * This function supports v1 profiles
      * @param mergedArgs List of merged arguments to determine where the update must happen
      * @param property Property to be updated with the given value
      * @param value Value to be assigned when updating the given property

@@ -16,9 +16,23 @@ import { IProfArgValue } from "./IProfArgAttrs";
  * They are supplied on the ProfileInfo constructor.
  */
 export interface IProfInfoUpdatePropOpts  {
+    /**
+     * Property to update
+     */
     property: string;
+
+    /**
+     * Value to use when updating the given property
+     */
     value: IProfArgValue;
+
+    /**
+     * Type of the active profile
+     */
     profileType: string;
+
+    /**
+     * Name of the active profile
+     */
     profileName: string;
-    unknown?: boolean;
 }
