@@ -7,8 +7,6 @@ All notable changes to the Imperative package will be documented in this file.
 - Enhancement: Introduce hidden flag `--show-inputs-only` to show the inputs of the command
 that would be used if a command were executed.
 
-packages\imperative\src\config\cmd\convert-profiles\convert-profiles.handler.ts
-
 ## `5.0.0-next.202203091934`
 
 - Enhancement: Added prompt for base profile host property to `zowe config init`. [zowe/zowe-cli#1219](https://github.com/zowe/zowe-cli/issues/1219)
