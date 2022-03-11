@@ -46,10 +46,11 @@ import { ICommandProfile } from "./doc/profiles/definition/ICommandProfile";
 import { Config } from "../../config/src/Config";
 import { IDaemonContext } from "../../imperative/src/doc/IDaemonContext";
 import { IHandlerResponseApi } from "../..";
+import { ConfigConstants } from "../../config";
 
 
 /**
- * Internal interface for the command processor that is used by the CLI for `--show-resolved-args`
+ * Internal interface for the command processor that is used by the CLI for `--show-inputs-only`
  * @interface IResolvedArgsResponse
  */
 interface IResolvedArgsResponse {
@@ -840,7 +841,7 @@ export class CommandProcessor {
                 if (showSecure || !secureInputs.has(name)) {
                     showInputsOnly.commandValues[name] = commandParameters.arguments[name];
                 } else {
-                    showInputsOnly.commandValues[name] = LoggerUtils.CENSOR_RESPONSE;
+                    showInputsOnly.commandValues[name] = ConfigConstants.SECURE_VALUE;
                     censored = true;
                 }
             }
