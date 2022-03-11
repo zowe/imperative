@@ -729,6 +729,21 @@ describe("ProfileInfo tests", () => {
                 expect(caughtError.message).toContain("invalid schema file");
             });
         });
+
+        describe("updateProperty", () => {
+            it("should throw and error if the desired profile is not found", () => {});
+            it("should succeed if the property was updated with updateKnownProperty", () => {});
+            it("should attempt to store session config properties without adding profile types to the loadedConfig", () => {});
+            it("should add the missing profile type (and its schema) to loadedConfig before attempting to store session config properties", () => {});
+        });
+
+        describe("updateKnownProperty", () => {
+            it("should throw an error if the property is not found in the merged args", () => {});
+            it("should throw and error if the property location type is invalid", () => {});
+            it("should resolve to false if the property location cannot be determined", () => {});
+            it("should update the given property and return true", () => {});
+            it("should remove the given property if the value specified if undefined", () => {});
+        });
     });
 
     describe("Old-school Profile Tests", () => {
@@ -1085,6 +1100,16 @@ describe("ProfileInfo tests", () => {
                 expect(caughtError.message).toContain("Failed to load schema for profile type");
                 expect(caughtError.message).toContain("invalid meta file");
             });
+        });
+
+        describe("updateProperty", () => {
+            it("should succeed if the property is known", () => {});
+            it("should add a new property if it does not exist in the profile", () => {});
+        });
+
+        describe("updateKnownProperty", () => {
+            it("should attempt to update the given property and return true", () => {});
+            it("should attempt to remove the given property if the value provided is undefined", () => {});
         });
     });
 

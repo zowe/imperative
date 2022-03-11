@@ -216,6 +216,12 @@ export class ConfigAutoStore {
     private static async fetchTokenForSessCfg(params: IHandlerParameters, sessCfg: { [key: string]: any }, profilePath: string): Promise<boolean> {
         return this._fetchTokenForSessCfg({ params, sessCfg, profilePath });
     }
+
+    /**
+     * Helper function that retrieves token value that will be auto-stored into session config
+     * @param opts Set of options required to fetch the token value to be auto-stored
+     * @returns True if auth handler was found and token was fetched
+     */
     private static async _fetchTokenForSessCfg(opts: IConfigAutoStoreStoreSessCfgPropsOpts): Promise<boolean> {
         const authHandlerClass = this._findAuthHandlerForProfile(opts);
 
