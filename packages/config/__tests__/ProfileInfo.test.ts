@@ -22,6 +22,8 @@ import { IConfigOpts } from "../src/doc/IConfigOpts";
 import { ProfLocType } from "../src/doc/IProfLoc";
 import { IProfileSchema, ProfileIO } from "../../profiles";
 import { AbstractSession, SessConstants } from "../../rest";
+import { ConfigAutoStore } from "../src/ConfigAutoStore";
+import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
 
 const testAppNm = "ProfInfoApp";
 const testEnvPrefix = testAppNm.toUpperCase();
@@ -40,7 +42,7 @@ describe("ProfileInfo tests", () => {
     const tsoName = "tsoProfName";
     const tsoProfName = "LPAR1.tsoProfName";
     const tsoJsonLoc = "profiles.LPAR1.profiles." + tsoName;
-    const testDir = path.join(__dirname,  "__resources__");
+    const testDir = path.join(__dirname, "__resources__");
     const teamProjDir = path.join(testDir, testAppNm + "_team_config_proj");
     const homeDirPath = path.join(testDir, testAppNm + "_home");
     const homeDirPathTwo = path.join(testDir, testAppNm + "_home_two");
@@ -236,7 +238,7 @@ describe("ProfileInfo tests", () => {
                 // ensure that we are not in the team project directory
                 const profInfo = createNewProfInfo(origDir);
 
-                const teamCfgOpts:IConfigOpts = { projectDir: teamProjDir };
+                const teamCfgOpts: IConfigOpts = { projectDir: teamProjDir };
                 await profInfo.readProfilesFromDisk(teamCfgOpts);
 
                 expect(profInfo.usingTeamConfig).toBe(true);
@@ -294,7 +296,7 @@ describe("ProfileInfo tests", () => {
                 for (const prof of profAttrs) {
                     if (prof.isDefaultProfile) {
                         let expectedName = "";
-                        switch(prof.profType) {
+                        switch (prof.profType) {
                             case "zosmf": expectedName = expectedDefaultProfileNameZosmf; break;
                             case "tso": expectedName = expectedDefaultProfileNameTso; break;
                             case "base": expectedName = expectedDefaultProfileNameBase; break;
@@ -383,7 +385,7 @@ describe("ProfileInfo tests", () => {
                     ...profSchema.properties,
                     protocol: { type: "string" }
                 },
-                required: [ "protocol" ]
+                required: ["protocol"]
             };
 
             it("should find known args in simple service profile: TeamConfig", async () => {
@@ -473,7 +475,7 @@ describe("ProfileInfo tests", () => {
                 process.env[envRFH] = "false";
                 process.env[envArray] = "val1 'val 2' 'val \\' 3'"; // ["val1", "val 2", "val ' 3"]
 
-                const profInfo = createNewProfInfo(teamProjDir, {overrideWithEnv: true});
+                const profInfo = createNewProfInfo(teamProjDir, { overrideWithEnv: true });
                 await profInfo.readProfilesFromDisk();
                 const profAttrs = profInfo.getDefaultProfile("dummy");
                 delete profInfo.getTeamConfig().layerActive().properties.defaults.base;
@@ -731,18 +733,99 @@ describe("ProfileInfo tests", () => {
         });
 
         describe("updateProperty", () => {
-            it("should throw and error if the desired profile is not found", () => {});
-            it("should succeed if the property was updated with updateKnownProperty", () => {});
-            it("should attempt to store session config properties without adding profile types to the loadedConfig", () => {});
-            it("should add the missing profile type (and its schema) to loadedConfig before attempting to store session config properties", () => {});
+            it("should throw and error if the desired profile is not found", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                jest.spyOn(profInfo as any, "getAllProfiles").mockReturnValue([]);
+                let caughtError;
+                try {
+                    await profInfo.updateProperty({ profileName: "test", profileType: "base", property: "host", value: "test" });
+                } catch (error) {
+                    caughtError = error;
+                }
+
+                expect(caughtError).toBeDefined();
+                expect(caughtError.errorCode).toBe(ProfInfoErr.PROF_NOT_FOUND);
+                expect(caughtError.message).toContain("Failed to find profile");
+            });
+
+            it("should succeed if the property was updated with updateKnownProperty", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                jest.spyOn(profInfo as any, "getAllProfiles").mockReturnValue([{ profName: "test" }]);
+                jest.spyOn(profInfo as any, "mergeArgsForProfile").mockReturnValue({});
+                const updateKnownPropertySpy = jest.spyOn(profInfo as any, "updateKnownProperty").mockResolvedValue(true);
+                let caughtError;
+                try {
+                    await profInfo.updateProperty({ profileName: "test", profileType: "base", property: "host", value: "test" });
+                } catch (error) {
+                    caughtError = error;
+                }
+                expect(caughtError).toBeUndefined();
+                expect(updateKnownPropertySpy).toHaveBeenCalledWith({}, "host", "test");
+            });
+
+            it("should attempt to store session config properties without adding profile types to the loadedConfig", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                jest.spyOn(profInfo as any, "updateKnownProperty").mockResolvedValue(false);
+                const storageSpy = jest.spyOn(ConfigAutoStore as any, "_storeSessCfgProps").mockResolvedValue(undefined);
+                const profiles = [{type: "dummy", schema: {} as any}];
+                ImperativeConfig.instance.loadedConfig.profiles = profiles;
+                ImperativeConfig.instance.loadedConfig.baseProfile = profiles[0];
+
+                let caughtError;
+                try {
+                    await profInfo.updateProperty({ profileName: "LPAR4", profileType: "dummy", property: "host", value: "test" });
+                } catch (error) {
+                    caughtError = error;
+                }
+                expect(caughtError).toBeUndefined();
+                expect(ImperativeConfig.instance.loadedConfig.profiles).toEqual(profiles);
+                expect(ImperativeConfig.instance.loadedConfig.baseProfile).toEqual(profiles[0]);
+                expect(storageSpy).toHaveBeenCalledWith({
+                    defaultBaseProfileName: "base_glob",
+                    sessCfg: { hostname: "test" },
+                    propsToStore: ["host"],
+                    profileName: "LPAR4",
+                    profileType: "dummy"
+                });
+            });
+
+            it("should add the missing profile type (and its schema) to loadedConfig before attempting to store session config properties", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                jest.spyOn(profInfo as any, "updateKnownProperty").mockResolvedValue(false);
+                const storageSpy = jest.spyOn(ConfigAutoStore as any, "_storeSessCfgProps").mockResolvedValue(undefined);
+                const profiles = [{type: "test", schema: {} as any}];
+                ImperativeConfig.instance.loadedConfig.profiles = profiles;
+                ImperativeConfig.instance.loadedConfig.baseProfile = null;
+
+                let caughtError;
+                try {
+                    await profInfo.updateProperty({ profileName: "LPAR4", profileType: "dummy", property: "host", value: "test" });
+                } catch (error) {
+                    caughtError = error;
+                }
+                expect(caughtError).toBeUndefined();
+                expect(ImperativeConfig.instance.loadedConfig.profiles).toContain(profiles[0]);
+                expect(ImperativeConfig.instance.loadedConfig.baseProfile).toBeDefined();
+                expect(storageSpy).toHaveBeenCalledWith({
+                    defaultBaseProfileName: "base_glob",
+                    sessCfg: { hostname: "test" },
+                    propsToStore: ["host"],
+                    profileName: "LPAR4",
+                    profileType: "dummy"
+                });
+            });
         });
 
         describe("updateKnownProperty", () => {
-            it("should throw an error if the property is not found in the merged args", () => {});
-            it("should throw and error if the property location type is invalid", () => {});
-            it("should resolve to false if the property location cannot be determined", () => {});
-            it("should update the given property and return true", () => {});
-            it("should remove the given property if the value specified if undefined", () => {});
+            it("should throw an error if the property is not found in the merged args", async () => { });
+            it("should throw and error if the property location type is invalid", async () => { });
+            it("should resolve to false if the property location cannot be determined", async () => { });
+            it("should update the given property and return true", async () => { });
+            it("should remove the given property if the value specified if undefined", async () => { });
         });
     });
 
@@ -827,7 +910,7 @@ describe("ProfileInfo tests", () => {
                 for (const prof of profAttrs) {
                     if (prof.isDefaultProfile) {
                         let expectedName = "";
-                        switch(prof.profType) {
+                        switch (prof.profType) {
                             case "zosmf": expectedName = expectedDefaultProfileNameZosmf; break;
                             case "tso": expectedName = expectedDefaultProfileNameTso; break;
                             case "base": expectedName = expectedDefaultProfileNameBase; break;
@@ -898,7 +981,7 @@ describe("ProfileInfo tests", () => {
                     ...profSchema.properties,
                     protocol: { type: "string" }
                 },
-                required: [ "protocol" ]
+                required: ["protocol"]
             };
 
             it("should find known args in simple service profile: oldSchool", async () => {
@@ -1103,13 +1186,13 @@ describe("ProfileInfo tests", () => {
         });
 
         describe("updateProperty", () => {
-            it("should succeed if the property is known", () => {});
-            it("should add a new property if it does not exist in the profile", () => {});
+            it("should succeed if the property is known", async () => { });
+            it("should add a new property if it does not exist in the profile", async () => { });
         });
 
         describe("updateKnownProperty", () => {
-            it("should attempt to update the given property and return true", () => {});
-            it("should attempt to remove the given property if the value provided is undefined", () => {});
+            it("should attempt to update the given property and return true", async () => { });
+            it("should attempt to remove the given property if the value provided is undefined", async () => { });
         });
     });
 
@@ -1133,7 +1216,7 @@ describe("ProfileInfo tests", () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
             const profAttrs = profInfo.getDefaultProfile("zosmf");
-            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs, {getSecureVals: true});
+            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs, { getSecureVals: true });
 
             const userArg = mergedArgs.knownArgs.find((arg) => arg.argName === "user");
             expect(userArg.argValue).toBe("userNameBase");
@@ -1161,7 +1244,7 @@ describe("ProfileInfo tests", () => {
             const profInfo = createNewProfInfo(homeDirPath);
             await profInfo.readProfilesFromDisk();
             const profAttrs = profInfo.getDefaultProfile("zosmf");
-            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs, {getSecureVals: true});
+            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs, { getSecureVals: true });
 
             const userArg = mergedArgs.knownArgs.find((arg) => arg.argName === "user");
             expect(userArg.argValue).toBe("someUser");
