@@ -125,7 +125,7 @@ export default class InitHandler implements ICommandHandler {
         const opts: IConfigBuilderOpts = {};
         if (!user) {
             opts.populateProperties = true;
-            opts.getSecureValue = this.promptForProp.bind(this);
+            opts.getValueBack = this.promptForProp.bind(this);
         }
 
         // Build new config and merge with existing layer or overwrite it if overwrite & forSure options are present
@@ -150,7 +150,6 @@ export default class InitHandler implements ICommandHandler {
         const opts: IConfigBuilderOpts = {};
         if (!user) {
             opts.populateProperties = true;
-            opts.getSecureValue = this.promptForProp.bind(this);
         }
 
         // Build new config and merge with existing layer
@@ -175,7 +174,7 @@ export default class InitHandler implements ICommandHandler {
             propName = `${propName} (${(property as any).optionDefinition.description})`;
         }
 
-        const propValue: any = await this.params.response.console.prompt(`${propName} - blank to skip: `, {hideText: property.secure});
+        const propValue: any = await this.params.response.console.prompt(`Enter ${propName} - blank to skip: `, {hideText: property.secure});
 
         // coerce to correct type
         if (propValue && propValue.trim().length > 0) {

@@ -20,7 +20,7 @@ exports[`cmd-cli gen-help example-test should display the help with allowable op
  OPTIONS
  -------
 
-   --Sample Option  (string)
+   --Sample Option (string)
 
       has some allowable options and a default Lorem ipsum dolor sit amet, consectetur
       adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna
@@ -35,19 +35,19 @@ exports[`cmd-cli gen-help example-test should display the help with allowable op
  GLOBAL OPTIONS
  --------------
 
-   --response-format-json  | --rfj (boolean)
+   --response-format-json | --rfj (boolean)
 
       Produce JSON formatted data from a command
 
-   --help  | -h (boolean)
+   --help | -h (boolean)
 
       Display help text
 
-   --help-examples  (boolean)
+   --help-examples (boolean)
 
       Display examples for all the commands in a group
 
-   --help-web  | --hw (boolean)
+   --help-web | --hw (boolean)
 
       Display HTML help in browser
 

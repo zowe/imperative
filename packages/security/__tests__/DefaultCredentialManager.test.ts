@@ -242,14 +242,14 @@ describe("DefaultCredentialManager", () => {
             });
 
             describe("Windows credential management", () => {
-                const oldPlatform = process.platform;
+                const realPlatform = process.platform;
 
                 beforeAll(() => {
-                    Object.defineProperty(process, "platform", { get: () => "win32" });
+                    Object.defineProperty(process, "platform", { value: "win32" });
                 });
 
                 afterAll(() => {
-                    Object.defineProperty(process, "platform", oldPlatform);
+                    Object.defineProperty(process, "platform", { value: realPlatform });
                 });
 
                 it("should load credentials that exceed max length", async () => {

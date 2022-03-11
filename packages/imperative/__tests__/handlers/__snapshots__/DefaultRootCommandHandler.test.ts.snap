@@ -246,30 +246,30 @@ exports[`Default Root Command Handler should display the help if no options are 
  OPTIONS
  -------
 
-   --test-option  (string)
+   --test-option (string)
 
       the option
 
-   --test-boolean  (boolean)
+   --test-boolean (boolean)
 
       the boolean option
 
  GLOBAL OPTIONS
  --------------
 
-   --response-format-json  | --rfj (boolean)
+   --response-format-json | --rfj (boolean)
 
       Produce JSON formatted data from a command
 
-   --help  | -h (boolean)
+   --help | -h (boolean)
 
       Display help text
 
-   --help-examples  (boolean)
+   --help-examples (boolean)
 
       Display examples for all the commands in a group
 
-   --help-web  | --hw (boolean)
+   --help-web | --hw (boolean)
 
       Display HTML help in browser
 

@@ -11,7 +11,7 @@
 
 jest.mock("../../../../../utilities/src/ImperativeConfig");
 
-import { Config, IConfig, IConfigLayer } from "../../../../../config";
+import { Config, ConfigConstants, IConfig, IConfigLayer } from "../../../../../config";
 import { ImperativeConfig } from "../../../../../utilities";
 import ListHandler from "../../../../src/config/cmd/list/list.handler";
 
@@ -76,7 +76,7 @@ const configLayers: IConfigLayer[] = [
 ];
 
 const configMaskedProps: IConfig = configLayers[0].properties;
-configMaskedProps.profiles.email.properties.user = "(secure value)";
+configMaskedProps.profiles.email.properties.user = ConfigConstants.SECURE_VALUE;
 
 describe("Configuration List command handler", () => {
     const fakeConfig: Config = new (Config as any)();
@@ -112,7 +112,7 @@ describe("Configuration List command handler", () => {
         await (new ListHandler()).process(handlerParms);
         expect(errorText).toBeNull();
         expect(dataObj).toEqual(configMaskedProps);
-        expect(dataObj.profiles.email.properties.user).toBe("(secure value)");
+        expect(dataObj.profiles.email.properties.user).toBe(ConfigConstants.SECURE_VALUE);
         expect(dataObj.profiles.email.properties.password).toBeUndefined();
         expect(formatObj).toEqual(dataObj);
     });
@@ -134,7 +134,7 @@ describe("Configuration List command handler", () => {
         await (new ListHandler()).process(handlerParms);
         expect(errorText).toBeNull();
         expect(dataObj.fakePath).toEqual(configMaskedProps);
-        expect(dataObj.fakePath.profiles.email.properties.user).toBe("(secure value)");
+        expect(dataObj.fakePath.profiles.email.properties.user).toBe(ConfigConstants.SECURE_VALUE);
         expect(dataObj.fakePath.profiles.email.properties.password).toBeUndefined();
         expect(formatObj).toEqual(dataObj);
     });

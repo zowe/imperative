@@ -109,46 +109,46 @@ exports[`cmd-cli respond with-mixed-responses should display the help 1`] = `
  REQUIRED OPTIONS
  ----------------
 
-   --data-object  | --da (json)
+   --data-object | --da (json)
 
       An well-formed JSON object to place in the command response.
 
-   --message-for-response  | --mfr (string)
+   --message-for-response | --mfr (string)
 
       The message that will be placed in the output object.
 
-   --error-format-string  | --efs (string)
+   --error-format-string | --efs (string)
 
       A format string that will be used to create a message
 
-   --error-format-values  | --efv (array)
+   --error-format-values | --efv (array)
 
       The set of values to use in the format string.
 
-   --log-format-string  | --lfs (string)
+   --log-format-string | --lfs (string)
 
       A format string that will be used to create a message
 
-   --log-format-values  | --lfv (array)
+   --log-format-values | --lfv (array)
 
       The set of values to use in the format string.
 
  GLOBAL OPTIONS
  --------------
 
-   --response-format-json  | --rfj (boolean)
+   --response-format-json | --rfj (boolean)
 
       Produce JSON formatted data from a command
 
-   --help  | -h (boolean)
+   --help | -h (boolean)
 
       Display help text
 
-   --help-examples  (boolean)
+   --help-examples (boolean)
 
       Display examples for all the commands in a group
 
-   --help-web  | --hw (boolean)
+   --help-web | --hw (boolean)
 
       Display HTML help in browser
 
@@ -156,8 +156,8 @@ exports[`cmd-cli respond with-mixed-responses should display the help 1`] = `
   \\"success\\": true,
   \\"exitCode\\": 0,
   \\"message\\": \\"The help was constructed for command: with-mixed-responses.\\",
-  \\"stdout\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-mixed-responses\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Responds with error, headers, messages, data, etc. (all handler response APIs,\\\\n   except progress)\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-mixed-responses [options]\\\\n\\\\n REQUIRED OPTIONS\\\\n ----------------\\\\n\\\\n   --data-object  | --da (json)\\\\n\\\\n      An well-formed JSON object to place in the command response.\\\\n\\\\n   --message-for-response  | --mfr (string)\\\\n\\\\n      The message that will be placed in the output object.\\\\n\\\\n   --error-format-string  | --efs (string)\\\\n\\\\n      A format string that will be used to create a message\\\\n\\\\n   --error-format-values  | --efv (array)\\\\n\\\\n      The set of values to use in the format string.\\\\n\\\\n   --log-format-string  | --lfs (string)\\\\n\\\\n      A format string that will be used to create a message\\\\n\\\\n   --log-format-values  | --lfv (array)\\\\n\\\\n      The set of values to use in the format string.\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n   --help-examples  (boolean)\\\\n\\\\n      Display examples for all the commands in a group\\\\n\\\\n   --help-web  | --hw (boolean)\\\\n\\\\n      Display HTML help in browser\\\\n\\\\n\\",
+  \\"stdout\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-mixed-responses\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Responds with error, headers, messages, data, etc. (all handler response APIs,\\\\n   except progress)\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-mixed-responses [options]\\\\n\\\\n REQUIRED OPTIONS\\\\n ----------------\\\\n\\\\n   --data-object | --da (json)\\\\n\\\\n      An well-formed JSON object to place in the command response.\\\\n\\\\n   --message-for-response | --mfr (string)\\\\n\\\\n      The message that will be placed in the output object.\\\\n\\\\n   --error-format-string | --efs (string)\\\\n\\\\n      A format string that will be used to create a message\\\\n\\\\n   --error-format-values | --efv (array)\\\\n\\\\n      The set of values to use in the format string.\\\\n\\\\n   --log-format-string | --lfs (string)\\\\n\\\\n      A format string that will be used to create a message\\\\n\\\\n   --log-format-values | --lfv (array)\\\\n\\\\n      The set of values to use in the format string.\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n   --help-examples (boolean)\\\\n\\\\n      Display examples for all the commands in a group\\\\n\\\\n   --help-web | --hw (boolean)\\\\n\\\\n      Display HTML help in browser\\\\n\\\\n\\",
   \\"stderr\\": \\"\\",
-  \\"data\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-mixed-responses\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Responds with error, headers, messages, data, etc. (all handler response APIs,\\\\n   except progress)\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-mixed-responses [options]\\\\n\\\\n REQUIRED OPTIONS\\\\n ----------------\\\\n\\\\n   --data-object  | --da (json)\\\\n\\\\n      An well-formed JSON object to place in the command response.\\\\n\\\\n   --message-for-response  | --mfr (string)\\\\n\\\\n      The message that will be placed in the output object.\\\\n\\\\n   --error-format-string  | --efs (string)\\\\n\\\\n      A format string that will be used to create a message\\\\n\\\\n   --error-format-values  | --efv (array)\\\\n\\\\n      The set of values to use in the format string.\\\\n\\\\n   --log-format-string  | --lfs (string)\\\\n\\\\n      A format string that will be used to create a message\\\\n\\\\n   --log-format-values  | --lfv (array)\\\\n\\\\n      The set of values to use in the format string.\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json  | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help  | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n   --help-examples  (boolean)\\\\n\\\\n      Display examples for all the commands in a group\\\\n\\\\n   --help-web  | --hw (boolean)\\\\n\\\\n      Display HTML help in browser\\\\n\\\\n\\"
+  \\"data\\": \\"\\\\n COMMAND NAME\\\\n ------------\\\\n\\\\n   with-mixed-responses\\\\n\\\\n DESCRIPTION\\\\n -----------\\\\n\\\\n   Responds with error, headers, messages, data, etc. (all handler response APIs,\\\\n   except progress)\\\\n\\\\n USAGE\\\\n -----\\\\n\\\\n   cmd-cli respond with-mixed-responses [options]\\\\n\\\\n REQUIRED OPTIONS\\\\n ----------------\\\\n\\\\n   --data-object | --da (json)\\\\n\\\\n      An well-formed JSON object to place in the command response.\\\\n\\\\n   --message-for-response | --mfr (string)\\\\n\\\\n      The message that will be placed in the output object.\\\\n\\\\n   --error-format-string | --efs (string)\\\\n\\\\n      A format string that will be used to create a message\\\\n\\\\n   --error-format-values | --efv (array)\\\\n\\\\n      The set of values to use in the format string.\\\\n\\\\n   --log-format-string | --lfs (string)\\\\n\\\\n      A format string that will be used to create a message\\\\n\\\\n   --log-format-values | --lfv (array)\\\\n\\\\n      The set of values to use in the format string.\\\\n\\\\n GLOBAL OPTIONS\\\\n --------------\\\\n\\\\n   --response-format-json | --rfj (boolean)\\\\n\\\\n      Produce JSON formatted data from a command\\\\n\\\\n   --help | -h (boolean)\\\\n\\\\n      Display help text\\\\n\\\\n   --help-examples (boolean)\\\\n\\\\n      Display examples for all the commands in a group\\\\n\\\\n   --help-web | --hw (boolean)\\\\n\\\\n      Display HTML help in browser\\\\n\\\\n\\"
 }"
 `;

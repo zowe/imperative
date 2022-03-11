@@ -11,7 +11,7 @@
 
 import { CredentialManagerFactory, IImperativeConfig } from "../..";
 import { Config, ConfigBuilder, IConfig } from "../";
-import { IProfileProperty, ProfileIO } from "../../profiles";
+import { ProfileIO } from "../../profiles";
 import * as config from "../../../__tests__/__integration__/imperative/src/imperative";
 import * as lodash from "lodash";
 
@@ -27,11 +27,7 @@ const expectedConfigObject: IConfig = {
     }
 };
 
-function promptForProp(propName: string, property: IProfileProperty): Promise<any> {
-    return new Promise((resolve, reject) => {
-        resolve("fake value");
-    });
-}
+const getValueBack = () => Promise.resolve("fake value");
 
 function buildProfileProperty(name: string, type: string | Array<string>, missingOptDef: boolean = false) {
     if (missingOptDef === true) {
@@ -57,7 +53,6 @@ function buildProfileProperty(name: string, type: string | Array<string>, missin
 describe("Config Builder tests", () => {
     let configEmptySpy: any;
     let getDefaultValueSpy: any;
-    let hoistTemplatePropertiesSpy: any;
     let expectedConfig: any;
     let testConfig: any;
 
@@ -65,9 +60,9 @@ describe("Config Builder tests", () => {
         jest.clearAllMocks();
         configEmptySpy = jest.spyOn(Config, "empty");
         getDefaultValueSpy = jest.spyOn(ConfigBuilder as any, "getDefaultValue");
-        hoistTemplatePropertiesSpy = jest.spyOn(ConfigBuilder as any, "hoistTemplateProperties");
         expectedConfig = lodash.cloneDeep(expectedConfigObject);
         testConfig = lodash.cloneDeep(config as IImperativeConfig);
+        testConfig.profiles[0].schema.properties.secret.includeInTemplate = true;
     });
 
     describe("build", () => {
@@ -76,7 +71,6 @@ describe("Config Builder tests", () => {
             const builtConfig = await ConfigBuilder.build(testConfig);
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(0); // Not populating any properties
-            expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1);
             expect(builtConfig).toEqual(expectedConfig);
         });
 
@@ -84,29 +78,9 @@ describe("Config Builder tests", () => {
             const builtConfig = await ConfigBuilder.build(testConfig, {populateProperties: true});
             expectedConfig.profiles.secured.properties.info = "";
             expectedConfig.profiles.secured.secure.push("secret");
-            expectedConfig.defaults.secured = "secured";
+            expectedConfig.defaults = { secured: "secured" };
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(1); // Populating default value for info
-            expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1);
-            expect(builtConfig).toEqual(expectedConfig);
-        });
-
-        it("should build a config, populate properties, and securely load a file", async () => {
-            let builtConfig;
-            let caughtError;
-            try {
-                builtConfig = await ConfigBuilder.build(testConfig, {populateProperties: true, getSecureValue: promptForProp});
-            } catch (error) {
-                caughtError = error;
-            }
-            expectedConfig.profiles.secured.properties.info = "";
-            expectedConfig.profiles.secured.properties.secret = "fake value";
-            expectedConfig.profiles.secured.secure.push("secret");
-            expectedConfig.defaults.secured = "secured";
-            expect(caughtError).toBeUndefined();
-            expect(configEmptySpy).toHaveBeenCalledTimes(1);
-            expect(getDefaultValueSpy).toHaveBeenCalledTimes(1); // Populating default value for info
-            expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1);
             expect(builtConfig).toEqual(expectedConfig);
         });
 
@@ -116,10 +90,9 @@ describe("Config Builder tests", () => {
             expectedConfig.profiles.secured.properties.info = "";
             expectedConfig.profiles.secured.properties.fakestr = "";
             expectedConfig.profiles.secured.secure.push("secret");
-            expectedConfig.defaults.secured = "secured";
+            expectedConfig.defaults = { secured: "secured" };
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(2); // Populating default value for info, fakestr
-            expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1);
             expect(builtConfig).toEqual(expectedConfig);
         });
 
@@ -140,11 +113,10 @@ describe("Config Builder tests", () => {
             expectedConfig.profiles.secured.properties.fakebool = false;
             expectedConfig.profiles.secured.properties.fakedflt = null;
             expectedConfig.profiles.secured.secure.push("secret");
-            expectedConfig.defaults.secured = "secured";
+            expectedConfig.defaults = { secured: "secured" };
 
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(7); // Populating default value for info, fakestr, fakenum, fakeobj, fakearr, fakebool
-            expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1);
             expect(builtConfig).toEqual(expectedConfig);
         });
 
@@ -155,11 +127,10 @@ describe("Config Builder tests", () => {
             expectedConfig.profiles.secured.properties.info = "";
             expectedConfig.profiles.secured.properties.fakestr = "";
             expectedConfig.profiles.secured.secure.push("secret");
-            expectedConfig.defaults.secured = "secured";
+            expectedConfig.defaults = { secured: "secured" };
 
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(2); // Populating default value for info, fakestr
-            expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1);
             expect(builtConfig).toEqual(expectedConfig);
         });
 
@@ -191,16 +162,14 @@ describe("Config Builder tests", () => {
                     secure: []
                 }
             };
-            expectedConfig.defaults.secured = "secured";
-            expectedConfig.defaults.base = "base";
+            expectedConfig.defaults = { base: "base", secured: "secured" };
 
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
             expect(getDefaultValueSpy).toHaveBeenCalledTimes(2); // Populating default value for host and info
-            expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1); // Hoisting host property from base profile
             expect(builtConfig).toEqual(expectedConfig);
         });
 
-        it("should build a config with a base profile and profiles with a duplicated property", async () => {
+        it("should build a config with a base profile and prompt for missing property", async () => {
             testConfig.baseProfile = {
                 type: "base",
                 schema: {
@@ -210,38 +179,60 @@ describe("Config Builder tests", () => {
                     properties: {host: buildProfileProperty("host", "string")}
                 }
             };
-            testConfig.profiles[0].schema.properties.host = buildProfileProperty("host", "string");
-            testConfig.profiles[1] = lodash.cloneDeep(testConfig.profiles[0]);
-            testConfig.profiles[1].type = "securedClone";
             testConfig.profiles.push(testConfig.baseProfile);
-            const builtConfig = await ConfigBuilder.build(testConfig, {populateProperties: true});
+            const builtConfig = await ConfigBuilder.build(testConfig, {populateProperties: true, getValueBack});
             expectedConfig.profiles = {
                 secured: {
                     type: "secured",
-                    properties: {},
-                    secure: ["secret"]
-                },
-                securedClone: {
-                    type: "securedClone",
-                    properties: {},
+                    properties: {
+                        info: ""
+                    },
                     secure: ["secret"]
                 },
                 base: {
                     type: "base",
                     properties: {
-                        host: "",
-                        info: ""
+                        host: "fake value",
                     },
                     secure: []
                 }
             };
-            expectedConfig.defaults.secured = "secured";
-            expectedConfig.defaults.securedClone = "securedClone";
-            expectedConfig.defaults.base = "base";
+            expectedConfig.defaults = { base: "base", secured: "secured" };
 
             expect(configEmptySpy).toHaveBeenCalledTimes(1);
-            expect(getDefaultValueSpy).toHaveBeenCalledTimes(5); // Populating default value for info and host of each profile
-            expect(hoistTemplatePropertiesSpy).toHaveBeenCalledTimes(1); // Hoisting host property from base profile
+            expect(getDefaultValueSpy).toHaveBeenCalledTimes(2); // Populating default value for host and info
+            expect(builtConfig).toEqual(expectedConfig);
+        });
+
+        it("should build a config with a base profile and prompt for missing secure property", async () => {
+            testConfig.profiles.push(testConfig.baseProfile);
+            expectedConfig.profiles = {
+                secured: {
+                    type: "secured",
+                    properties: {
+                        info: ""
+                    },
+                    secure: ["secret"]
+                },
+                base: {
+                    type: "base",
+                    properties: {
+                        secret: "fake value"
+                    },
+                    secure: ["secret"]
+                }
+            };
+            expectedConfig.defaults = { base: "base", secured: "secured" };
+            let builtConfig;
+            let caughtError;
+            try {
+                builtConfig = await ConfigBuilder.build(testConfig, {populateProperties: true, getValueBack});
+            } catch (error) {
+                caughtError = error;
+            }
+            expect(caughtError).toBeUndefined();
+            expect(configEmptySpy).toHaveBeenCalledTimes(1);
+            expect(getDefaultValueSpy).toHaveBeenCalledTimes(1); // Populating default value for info
             expect(builtConfig).toEqual(expectedConfig);
         });
     });
