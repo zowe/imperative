@@ -821,7 +821,7 @@ describe("ProfileInfo tests", () => {
         });
 
         describe("updateKnownProperty", () => {
-            it("should throw an error if the property is not found in the merged args", async () => {
+            it.skip("should throw an error if the property is not found in the merged args", async () => {
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
                 const prof = profInfo.mergeArgsForProfileType("dummy");
@@ -1259,14 +1259,43 @@ describe("ProfileInfo tests", () => {
             });
         });
 
-        describe("updateProperty", () => {
-            it("should succeed if the property is known", async () => { });
-            it("should add a new property if it does not exist in the profile", async () => { });
-        });
+        describe("updateProperty and updateKnownProperty", () => {
+            it("should succeed if the property is known", async () => {
+                const testProf = "lpar4_zosmf";
+                const testHost = "lpar4.fakehost.com";
+                const profInfo = createNewProfInfo(homeDirPath);
+                await profInfo.readProfilesFromDisk();
+                const before = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
+                await profInfo.updateProperty({ profileName: testProf, profileType: "zosmf", property: "host", value: "example.com" });
+                await profInfo.readProfilesFromDisk();
+                const after = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
 
-        describe("updateKnownProperty", () => {
-            it("should attempt to update the given property and return true", async () => { });
-            it("should attempt to remove the given property if the value provided is undefined", async () => { });
+                expect(before.knownArgs.find(v => v.argName === "host").argValue).toEqual(testHost);
+                expect(after.knownArgs.find(v => v.argName === "host").argValue).toEqual("example.com");
+
+                await profInfo.updateProperty({ profileName: testProf, profileType: "zosmf", property: "host", value: testHost });
+                await profInfo.readProfilesFromDisk();
+                const afterTests = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
+                expect(afterTests.knownArgs.find(v => v.argName === "host").argValue).toEqual(testHost);
+            });
+
+            it("should add a new property if it does not exist in the profile then remove it if undefined is specified", async () => {
+                const profInfo = createNewProfInfo(homeDirPath);
+                await profInfo.readProfilesFromDisk();
+                const testProf = "lpar4_zosmf";
+                const before = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
+                await profInfo.updateProperty({ profileName: testProf, profileType: "zosmf", property: "dummy", value: "example.com" });
+                await profInfo.readProfilesFromDisk();
+                const after = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
+
+                expect(before.knownArgs.find(v => v.argName === "dummy")).toBeUndefined();
+                expect(after.knownArgs.find(v => v.argName === "dummy").argValue).toEqual("example.com");
+
+                await profInfo.updateProperty({ profileName: testProf, profileType: "zosmf", property: "dummy", value: undefined });
+                await profInfo.readProfilesFromDisk();
+                const removed = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
+                expect(removed.knownArgs.find(v => v.argName === "dummy")).toBeUndefined();
+            });
         });
     });
 

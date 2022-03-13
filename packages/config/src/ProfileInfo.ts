@@ -246,10 +246,11 @@ export class ProfileInfo {
             mergedArgs.missingArgs.find((v => v.argName === property));
 
         if (toUpdate == null) {
-            throw new ProfInfoErr({
-                errorCode: ProfInfoErr.PROP_NOT_FOUND_IN_MERGED_ARGS,
-                msg: `Failed to find property ${property} in the merged arguments`
-            });
+            // throw new ProfInfoErr({
+            //     errorCode: ProfInfoErr.PROP_NOT_FOUND_IN_MERGED_ARGS,
+            //     msg: `Failed to find property ${property} in the merged arguments`
+            // });
+            return false;
         }
 
         switch (toUpdate.argLoc.locType) {
