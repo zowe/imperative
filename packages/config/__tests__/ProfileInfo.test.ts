@@ -770,7 +770,7 @@ describe("ProfileInfo tests", () => {
                 await profInfo.readProfilesFromDisk();
                 jest.spyOn(profInfo as any, "updateKnownProperty").mockResolvedValue(false);
                 const storageSpy = jest.spyOn(ConfigAutoStore as any, "_storeSessCfgProps").mockResolvedValue(undefined);
-                const profiles = [{type: "dummy", schema: {} as any}];
+                const profiles = [{ type: "dummy", schema: {} as any }];
                 ImperativeConfig.instance.loadedConfig.profiles = profiles;
                 ImperativeConfig.instance.loadedConfig.baseProfile = profiles[0];
 
@@ -797,7 +797,7 @@ describe("ProfileInfo tests", () => {
                 await profInfo.readProfilesFromDisk();
                 jest.spyOn(profInfo as any, "updateKnownProperty").mockResolvedValue(false);
                 const storageSpy = jest.spyOn(ConfigAutoStore as any, "_storeSessCfgProps").mockResolvedValue(undefined);
-                const profiles = [{type: "test", schema: {} as any}];
+                const profiles = [{ type: "test", schema: {} as any }];
                 ImperativeConfig.instance.loadedConfig.profiles = profiles;
                 ImperativeConfig.instance.loadedConfig.baseProfile = null;
 
@@ -821,11 +821,85 @@ describe("ProfileInfo tests", () => {
         });
 
         describe("updateKnownProperty", () => {
-            it("should throw an error if the property is not found in the merged args", async () => { });
-            it("should throw and error if the property location type is invalid", async () => { });
-            it("should resolve to false if the property location cannot be determined", async () => { });
-            it("should update the given property and return true", async () => { });
-            it("should remove the given property if the value specified if undefined", async () => { });
+            it("should throw an error if the property is not found in the merged args", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                const prof = profInfo.mergeArgsForProfileType("dummy");
+                let caughtError;
+                try {
+                    await profInfo.updateKnownProperty(prof, "unknown", "test");
+                } catch (error) {
+                    caughtError = error;
+                }
+
+                expect(caughtError).toBeDefined();
+                expect(caughtError.errorCode).toBe(ProfInfoErr.PROP_NOT_FOUND_IN_MERGED_ARGS);
+                expect(caughtError.message).toContain("Failed to find property");
+            });
+
+            it("should throw and error if the property location type is invalid", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                let caughtError;
+                try {
+                    await profInfo.updateKnownProperty({
+                        knownArgs: [{ argName: "test", argLoc: { locType: 123 } }]
+                    } as any, "test", "test");
+                } catch (error) {
+                    caughtError = error;
+                }
+
+                expect(caughtError).toBeDefined();
+                expect(caughtError.errorCode).toBe(ProfInfoErr.INVALID_PROF_LOC_TYPE);
+                expect(caughtError.message).toContain("Invalid profile location type: 123");
+            });
+
+            it("should resolve to false if the property location cannot be determined", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+                expect(await profInfo.updateKnownProperty({
+                    knownArgs: [{
+                        argName: "test", argLoc: {
+                            locType: ProfLocType.ENV
+                        }
+                    }]
+                } as any, "test", "test")).toBe(false);
+
+                expect(await profInfo.updateKnownProperty({
+                    knownArgs: [{
+                        argName: "test", argLoc: {
+                            locType: ProfLocType.DEFAULT
+                        }
+                    }]
+                } as any, "test", "test")).toBe(false);
+            });
+
+            it("should update the given property and return true", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+
+                const prof = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("dummy")[0]);
+                const ret = await profInfo.updateKnownProperty(prof, "host", "example.com");
+                const newHost = profInfo.getTeamConfig().api.layers.get().properties.profiles.LPAR4.properties.host;
+
+                expect(newHost).toEqual("example.com");
+                expect(ret).toBe(true);
+            });
+
+            it("should remove the given property if the value specified if undefined", async () => {
+                const profInfo = createNewProfInfo(teamProjDir);
+                await profInfo.readProfilesFromDisk();
+
+                const prof = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("dummy")[0]);
+                const ret = await profInfo.updateKnownProperty(prof, "host", undefined);
+                const newHost = profInfo.getTeamConfig().api.layers.get().properties.profiles.LPAR4.properties.host;
+
+                expect(newHost).toBeUndefined();
+                expect(ret).toBe(true);
+
+                // back to original host
+                await profInfo.updateKnownProperty(prof, "host", "LPAR4.your.domain.net");
+            });
         });
     });
 

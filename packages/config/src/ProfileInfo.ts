@@ -282,7 +282,7 @@ export class ProfileInfo {
             default: {
                 throw new ProfInfoErr({
                     errorCode: ProfInfoErr.INVALID_PROF_LOC_TYPE,
-                    msg: "Invalid profile location type: " + ProfLocType[toUpdate.argLoc.locType]
+                    msg: "Invalid profile location type: " + toUpdate.argLoc.locType
                 });
             }
         }
