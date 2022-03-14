@@ -557,36 +557,35 @@ export abstract class AbstractRestClient {
         this.mResponse = res;
         this.mContentEncoding = null;
 
-        if (this.requestSuccess) {
+        if (this.response.headers != null) {
             // This is not ideal, but is the only way to avoid introducing a breaking change.
             if (this.session.ISession.type === SessConstants.AUTH_TYPE_TOKEN || this.session.ISession.storeCookie === true) {
                 if (RestConstants.PROP_COOKIE in this.response.headers) {
                     this.session.storeCookie(this.response.headers[RestConstants.PROP_COOKIE]);
                 }
             }
-            if (this.response.headers != null) {
-                if (Headers.CONTENT_LENGTH in this.response.headers) {
-                    this.mContentLength = this.response.headers[Headers.CONTENT_LENGTH];
-                    this.log.debug("Content length of response is: " + this.mContentLength);
-                }
-                if (Headers.CONTENT_LENGTH.toLowerCase() in this.response.headers) {
-                    this.mContentLength = this.response.headers[Headers.CONTENT_LENGTH.toLowerCase()];
-                    this.log.debug("Content length of response is: " + this.mContentLength);
-                }
 
-                let encoding: string;
-                if (Headers.CONTENT_ENCODING in this.response.headers) {
-                    encoding = this.response.headers[Headers.CONTENT_ENCODING];
-                }
-                if (Headers.CONTENT_ENCODING.toLowerCase() in this.response.headers) {
-                    encoding = this.response.headers[Headers.CONTENT_ENCODING.toLowerCase()];
-                }
-                if (typeof encoding === "string" && Headers.CONTENT_ENCODING_TYPES.find((x) => x === encoding)) {
-                    this.log.debug("Content encoding of response is: " + encoding as ContentEncoding);
-                    if (this.mDecode) {
-                        this.mContentEncoding = encoding as ContentEncoding;
-                        this.log.debug("Using encoding: " + this.mContentEncoding);
-                    }
+            if (Headers.CONTENT_LENGTH in this.response.headers) {
+                this.mContentLength = this.response.headers[Headers.CONTENT_LENGTH];
+                this.log.debug("Content length of response is: " + this.mContentLength);
+            }
+            if (Headers.CONTENT_LENGTH.toLowerCase() in this.response.headers) {
+                this.mContentLength = this.response.headers[Headers.CONTENT_LENGTH.toLowerCase()];
+                this.log.debug("Content length of response is: " + this.mContentLength);
+            }
+
+            let encoding: string;
+            if (Headers.CONTENT_ENCODING in this.response.headers) {
+                encoding = this.response.headers[Headers.CONTENT_ENCODING];
+            }
+            if (Headers.CONTENT_ENCODING.toLowerCase() in this.response.headers) {
+                encoding = this.response.headers[Headers.CONTENT_ENCODING.toLowerCase()];
+            }
+            if (typeof encoding === "string" && Headers.CONTENT_ENCODING_TYPES.find((x) => x === encoding)) {
+                this.log.debug("Content encoding of response is: " + encoding as ContentEncoding);
+                if (this.mDecode) {
+                    this.mContentEncoding = encoding as ContentEncoding;
+                    this.log.debug("Using encoding: " + this.mContentEncoding);
                 }
             }
         }
@@ -689,7 +688,8 @@ export abstract class AbstractRestClient {
         if (this.mResponseStream != null) {
             this.log.debug("Ending response stream");
             this.mResponseStream.end();
-        } else if (this.mContentEncoding != null) {
+        }
+        if (this.mContentEncoding != null && this.mData.length > 0) {
             this.log.debug("Decompressing encoded response");
             try {
                 this.mData = CompressionUtils.decompressBuffer(this.mData, this.mContentEncoding);
