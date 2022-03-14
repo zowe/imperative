@@ -792,7 +792,7 @@ describe("ProfileInfo tests", () => {
                 });
             });
 
-            it("should add the missing profile type (and its schema) to loadedConfig before attempting to store session config properties", async () => {
+            it("should add the missing profile type (and schema) to loadedConfig before attempting to store session config properties", async () => {
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
                 jest.spyOn(profInfo as any, "updateKnownProperty").mockResolvedValue(false);
@@ -821,22 +821,6 @@ describe("ProfileInfo tests", () => {
         });
 
         describe("updateKnownProperty", () => {
-            it.skip("should throw an error if the property is not found in the merged args", async () => {
-                const profInfo = createNewProfInfo(teamProjDir);
-                await profInfo.readProfilesFromDisk();
-                const prof = profInfo.mergeArgsForProfileType("dummy");
-                let caughtError;
-                try {
-                    await profInfo.updateKnownProperty(prof, "unknown", "test");
-                } catch (error) {
-                    caughtError = error;
-                }
-
-                expect(caughtError).toBeDefined();
-                expect(caughtError.errorCode).toBe(ProfInfoErr.PROP_NOT_FOUND_IN_MERGED_ARGS);
-                expect(caughtError.message).toContain("Failed to find property");
-            });
-
             it("should throw and error if the property location type is invalid", async () => {
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
@@ -1267,14 +1251,12 @@ describe("ProfileInfo tests", () => {
                 await profInfo.readProfilesFromDisk();
                 const before = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
                 await profInfo.updateProperty({ profileName: testProf, profileType: "zosmf", property: "host", value: "example.com" });
-                await profInfo.readProfilesFromDisk();
                 const after = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
 
                 expect(before.knownArgs.find(v => v.argName === "host").argValue).toEqual(testHost);
                 expect(after.knownArgs.find(v => v.argName === "host").argValue).toEqual("example.com");
 
                 await profInfo.updateProperty({ profileName: testProf, profileType: "zosmf", property: "host", value: testHost });
-                await profInfo.readProfilesFromDisk();
                 const afterTests = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
                 expect(afterTests.knownArgs.find(v => v.argName === "host").argValue).toEqual(testHost);
             });
@@ -1285,14 +1267,12 @@ describe("ProfileInfo tests", () => {
                 const testProf = "lpar4_zosmf";
                 const before = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
                 await profInfo.updateProperty({ profileName: testProf, profileType: "zosmf", property: "dummy", value: "example.com" });
-                await profInfo.readProfilesFromDisk();
                 const after = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
 
                 expect(before.knownArgs.find(v => v.argName === "dummy")).toBeUndefined();
                 expect(after.knownArgs.find(v => v.argName === "dummy").argValue).toEqual("example.com");
 
                 await profInfo.updateProperty({ profileName: testProf, profileType: "zosmf", property: "dummy", value: undefined });
-                await profInfo.readProfilesFromDisk();
                 const removed = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("zosmf").find(v => v.profName === testProf));
                 expect(removed.knownArgs.find(v => v.argName === "dummy")).toBeUndefined();
             });

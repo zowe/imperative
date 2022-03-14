@@ -228,6 +228,9 @@ export class ProfileInfo {
                 const profMgr = new CliProfileManager({ profileRootDirectory: this.mOldSchoolProfileRootDir, type: options.profileType });
                 // Add new property
                 await profMgr.update({ name: options.profileName, merge: true, profile: { [options.property]: options.value } });
+
+                // Update mOldSchoolProfileCache to get mergedArgs updated
+                this.mOldSchoolProfileCache.find(v => v.name === options.profileName).profile[options.property] = options.value;
             }
         }
     }
@@ -269,6 +272,9 @@ export class ProfileInfo {
                         await profMgr.save({ name: profileName, profile: oldProf.profile, overwrite: true, type: profileType });
                     }
                 }
+
+                // Update mOldSchoolProfileCache to get mergedArgs updated
+                this.mOldSchoolProfileCache.find(v => v.name === profileName).profile[property] = value;
                 break;
             }
             case ProfLocType.TEAM_CONFIG: {
