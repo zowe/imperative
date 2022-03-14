@@ -1560,7 +1560,7 @@ describe("Command Processor", () => {
         // values to test
         const parm1Key = `user`;
         const parm1Value = `secret`;
-        const secure = `****`;
+        const secure = `(secure value)`;
 
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
