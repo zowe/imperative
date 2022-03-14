@@ -46,7 +46,7 @@ import { ICommandProfile } from "./doc/profiles/definition/ICommandProfile";
 import { Config } from "../../config/src/Config";
 import { IDaemonContext } from "../../imperative/src/doc/IDaemonContext";
 import { IHandlerResponseApi } from "../..";
-import { ConfigConstants } from "../../config";
+import { ConfigConstants } from "../../config/src/ConfigConstants";
 
 
 /**
