@@ -74,7 +74,7 @@ Object {
           "properties": Object {
             "profiles": Object {
               "$ref": "#/properties/profiles",
-              "description": "Optional sub-profile configurations",
+              "description": "Optional subprofile configurations",
               "type": "object",
             },
             "properties": Object {
@@ -182,7 +182,7 @@ Object {
           "properties": Object {
             "profiles": Object {
               "$ref": "#/properties/profiles",
-              "description": "Optional sub-profile configurations",
+              "description": "Optional subprofile configurations",
               "type": "object",
             },
             "properties": Object {
@@ -283,7 +283,7 @@ Object {
           "properties": Object {
             "profiles": Object {
               "$ref": "#/properties/profiles",
-              "description": "Optional sub-profile configurations",
+              "description": "Optional subprofile configurations",
               "type": "object",
             },
             "properties": Object {
@@ -355,7 +355,7 @@ Object {
           "properties": Object {
             "profiles": Object {
               "$ref": "#/properties/profiles",
-              "description": "Optional sub-profile configurations",
+              "description": "Optional subprofile configurations",
               "type": "object",
             },
             "properties": Object {
@@ -482,7 +482,7 @@ Object {
           "properties": Object {
             "profiles": Object {
               "$ref": "#/properties/profiles",
-              "description": "Optional sub-profile configurations",
+              "description": "Optional subprofile configurations",
               "type": "object",
             },
             "properties": Object {

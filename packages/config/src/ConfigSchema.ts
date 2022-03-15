@@ -312,7 +312,7 @@ export class ConfigSchema {
                                     type: "object"
                                 },
                                 profiles: {
-                                    description: "Optional sub-profile configurations",
+                                    description: "Optional subprofile configurations",
                                     type: "object",
                                     $ref: "#/properties/profiles"
                                 },
