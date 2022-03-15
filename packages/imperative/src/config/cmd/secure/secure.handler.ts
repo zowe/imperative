@@ -56,7 +56,7 @@ export default class SecureHandler implements ICommandHandler {
                 continue;
             }
 
-            const propValue = await params.response.console.prompt(`Please enter ${propName}: `, {hideText: true});
+            const propValue = await params.response.console.prompt(`Enter ${propName} - blank to skip: `, {hideText: true});
 
             // Save the value in the config securely
             if (propValue) {
@@ -66,7 +66,7 @@ export default class SecureHandler implements ICommandHandler {
 
         if (authTokenProp != null) {
             const propValue = await this.handlePromptForAuthToken(config, authTokenProp) ||
-                await params.response.console.prompt(`Please enter ${authTokenProp}: `, {hideText: true});
+                await params.response.console.prompt(`Enter ${authTokenProp} - blank to skip: `, {hideText: true});
 
             // Save the value in the config securely
             if (propValue) {

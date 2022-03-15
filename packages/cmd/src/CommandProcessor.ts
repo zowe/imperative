@@ -30,10 +30,11 @@ import { Logger } from "../../logger";
 import { IInvokeCommandParms } from "./doc/parms/IInvokeCommandParms";
 import { ICommandProcessorParms } from "./doc/processor/ICommandProcessorParms";
 import { ImperativeExpect } from "../../expect";
-import { inspect, isString } from "util";
+import { inspect } from "util";
 import { ImperativeConfig, TextUtils } from "../../utilities";
 import * as nodePath from "path";
 import * as os from "os";
+import * as stream from "stream";
 import { ICommandHandlerRequire } from "./doc/handler/ICommandHandlerRequire";
 import { IHandlerParameters } from "../../cmd";
 import { ChainedHandlerService } from "./ChainedHandlerUtils";
@@ -43,7 +44,7 @@ import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "./help/WebHelpManager";
 import { ICommandProfile } from "./doc/profiles/definition/ICommandProfile";
 import { Config } from "../../config/src/Config";
-import { IDaemonResponse } from "../../utilities/src/doc/IDaemonResponse";
+import { IDaemonContext } from "../../imperative/src/doc/IDaemonContext";
 
 /**
  * The command processor for imperative - accepts the command definition for the command being issued (and a pre-built)
@@ -132,12 +133,12 @@ export class CommandProcessor {
      */
     private mConfig: Config;
     /**
-     * Daemon response object containing process info.
+     * The context object defined when in daemon mode.
      * @private
-     * @type {IDaemonResponse}
+     * @type {IDaemonContext}
      * @memberof CommandProcessor
      */
-    private mDaemonResponse?: IDaemonResponse;
+    private mDaemonContext?: IDaemonContext;
 
     /**
      * Creates an instance of CommandProcessor.
@@ -163,7 +164,7 @@ export class CommandProcessor {
         this.mEnvVariablePrefix = params.envVariablePrefix;
         this.mPromptPhrase = params.promptPhrase;
         this.mConfig = params.config;
-        this.mDaemonResponse = params.daemonResponse;
+        this.mDaemonContext = params.daemonContext;
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["promptPhrase"], `${CommandProcessor.ERROR_TAG} No prompt phrase supplied.`);
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["rootCommandName"], `${CommandProcessor.ERROR_TAG} No root command supplied.`);
         ImperativeExpect.keysToBeDefinedAndNonBlank(params, ["envVariablePrefix"], `${CommandProcessor.ERROR_TAG} No ENV variable prefix supplied.`);
@@ -394,16 +395,16 @@ export class CommandProcessor {
         try {
             // Build the response object, base args object, and the entire array of options for this command
             // Assume that the command succeed, it will be marked otherwise under the appropriate failure conditions
-            if (this.mDaemonResponse != null) {
+            if (this.mDaemonContext?.response != null) {
                 // NOTE(Kelosky): we adjust `cwd` and do not restore it, so that multiple simultaneous requests from the same
                 // directory will operate without unexpected chdir taking place.  Multiple simultaneous requests from different
                 // directories may cause unpredictable results
-                if (this.mDaemonResponse.cwd != null) {
-                    process.chdir(this.mDaemonResponse.cwd);
+                if (this.mDaemonContext.response.cwd != null) {
+                    process.chdir(this.mDaemonContext.response.cwd);
                 }
 
                 // Define environment variables received from daemon
-                if (this.mDaemonResponse.env != null) {
+                if (this.mDaemonContext.response.env != null) {
                     // Delete environment variables that start with CLI prefix
                     for (const envVarName of Object.keys(process.env)) {
                         if (envVarName.startsWith(`${this.mEnvVariablePrefix}_`)) {
@@ -411,7 +412,7 @@ export class CommandProcessor {
                         }
                     }
                     // Load new environment variables
-                    process.env = { ...process.env, ...this.mDaemonResponse.env };
+                    process.env = { ...process.env, ...this.mDaemonContext.response.env };
                 }
 
                 // reload config for daemon client directory
@@ -467,8 +468,8 @@ export class CommandProcessor {
                         // check if value provided
                         if (prepared.args[positionalName] != null) {
                             // string processing
-                            if ((isString(prepared.args[positionalName]) &&
-                                prepared.args[positionalName].toUpperCase() === this.promptPhrase.toUpperCase())) {
+                            if (typeof prepared.args[positionalName] === "string" &&
+                                prepared.args[positionalName].toUpperCase() === this.promptPhrase.toUpperCase()) {
                                 // prompt has been requested for a positional
                                 this.log.debug("Prompting for positional %s which was requested by passing the value %s",
                                     positionalName, this.promptPhrase);
@@ -482,7 +483,7 @@ export class CommandProcessor {
                                 if ((prepared.args[positionalName] != null &&
                                     (Array.isArray(prepared.args[positionalName])) &&
                                     prepared.args[positionalName][0] != null &&
-                                    isString(prepared.args[positionalName][0]) &&
+                                    typeof prepared.args[positionalName][0] === "string" &&
                                     (prepared.args[positionalName][0].toUpperCase() === this.promptPhrase.toUpperCase()))) {
                                     // prompt has been requested for a positional
                                     this.log.debug("Prompting for positional %s which was requested by passing the value %s",
@@ -506,8 +507,8 @@ export class CommandProcessor {
                         // check if value provided
                         if (prepared.args[option.name] != null) {
                             // string processing
-                            if ((isString(prepared.args[option.name]) &&
-                                prepared.args[option.name].toUpperCase() === this.promptPhrase.toUpperCase())) {
+                            if (typeof prepared.args[option.name] === "string" &&
+                                prepared.args[option.name].toUpperCase() === this.promptPhrase.toUpperCase()) {
                                 // prompt has been requested for an --option
                                 this.log.debug("Prompting for option %s which was requested by passing the value %s",
                                     option.name, this.promptPhrase);
@@ -528,7 +529,7 @@ export class CommandProcessor {
                             else {
                                 if (((Array.isArray(prepared.args[option.name])) &&
                                     prepared.args[option.name][0] != null &&
-                                    isString(prepared.args[option.name][0]) &&
+                                    typeof prepared.args[option.name][0] === "string" &&
                                     (prepared.args[option.name][0].toUpperCase() === this.promptPhrase.toUpperCase()))) {
                                     // prompt has been requested for an --option
                                     this.log.debug("Prompting for option %s which was requested by passing the value %s",
@@ -611,7 +612,8 @@ export class CommandProcessor {
                 arguments: prepared.args,
                 positionals: prepared.args._,
                 definition: this.definition,
-                fullDefinition: this.fullDefinition
+                fullDefinition: this.fullDefinition,
+                stdin: this.getStdinStream()
             };
             try {
                 await handler.process(handlerParms);
@@ -686,6 +688,7 @@ export class CommandProcessor {
                         positionals: prepared.args._,
                         definition: this.definition,
                         fullDefinition: this.fullDefinition,
+                        stdin: this.getStdinStream(),
                         isChained: true
                     });
                     const builtResponse = chainedResponse.buildJsonResponse();
@@ -921,8 +924,18 @@ export class CommandProcessor {
             args: params.arguments,
             silent: (params.silent == null) ? false : params.silent,
             responseFormat: params.responseFormat,
-            stream: params.arguments.stream
+            stream: ImperativeConfig.instance.daemonContext?.stream
         });
+    }
+
+    /**
+     * Get stdin stream for the command handler to use. In daemon mode this is
+     * a stream of data received from the daemon client. Otherwise it defaults
+     * to `process.stdin`.
+     * @returns Readable stream containing stdin data
+     */
+    private getStdinStream(): stream.Readable {
+        return this.mDaemonContext?.stdinStream || process.stdin;
     }
 
     /**

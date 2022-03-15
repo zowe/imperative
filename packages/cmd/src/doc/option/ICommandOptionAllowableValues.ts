@@ -20,13 +20,13 @@ export interface ICommandOptionAllowableValues {
      * new RegExp(value).test(theValueSpecifiedByUser) will be called during syntax validation.
      * If none of the values match, the user will get a syntax error.
      * @type {string[]}
-     * @memberOf ICommandOptionAllowableValues
+     * @memberof ICommandOptionAllowableValues
      */
     values: string[];
     /**
      * Should these values be compared in a case sensitive manner?
      * @type {boolean}
-     * @memberOf ICommandOptionAllowableValues
+     * @memberof ICommandOptionAllowableValues
      */
     caseSensitive?: boolean;
 }

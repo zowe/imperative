@@ -157,7 +157,8 @@ export class YargsConfigurer {
                 rootCommandName: this.rootCommandName,
                 commandLine: this.commandLine,
                 envVariablePrefix: this.envVariablePrefix,
-                promptPhrase: this.promptPhrase
+                promptPhrase: this.promptPhrase,
+                daemonContext: ImperativeConfig.instance.daemonContext
             });
 
             const failureMessage = this.buildFailureMessage();
@@ -167,8 +168,7 @@ export class YargsConfigurer {
                 failureMessage,
                 error,
                 _: [],
-                $0: Constants.PRIMARY_COMMAND,
-                stream: ImperativeConfig.instance.yargsContext?.stream
+                $0: Constants.PRIMARY_COMMAND
             };
 
             // Invoke the fail command

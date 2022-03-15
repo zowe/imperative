@@ -29,19 +29,19 @@ exports[`cmd-cli nested first-group should display both groups and commands in t
  GLOBAL OPTIONS
  --------------
 
-   --response-format-json  | --rfj (boolean)
+   --response-format-json | --rfj (boolean)
 
       Produce JSON formatted data from a command
 
-   --help  | -h (boolean)
+   --help | -h (boolean)
 
       Display help text
 
-   --help-examples  (boolean)
+   --help-examples (boolean)
 
       Display examples for all the commands in a group
 
-   --help-web  | --hw (boolean)
+   --help-web | --hw (boolean)
 
       Display HTML help in browser
 

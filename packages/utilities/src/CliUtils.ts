@@ -595,6 +595,8 @@ export class CliUtils {
             }, (error: any, result: string) => {
                 if (error == null) {
                     resolve(result);
+                } else if (error.message === "canceled") {
+                    process.exit(2);
                 } else if (error.message === "timed out") {
                     resolve(null);
                 } else {

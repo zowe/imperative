@@ -229,7 +229,7 @@ export class CommandYargs extends AbstractCommandYargs {
                             envVariablePrefix: this.envVariablePrefix,
                             promptPhrase: this.promptPhrase,
                             config: ImperativeConfig.instance.config,
-                            daemonResponse: argsForHandler.daemonResponse
+                            daemonContext: ImperativeConfig.instance.daemonContext
                         }).invoke({
                             arguments: argsForHandler,
                             silent: false,
@@ -260,7 +260,7 @@ export class CommandYargs extends AbstractCommandYargs {
                         const response = new CommandResponse({
                             silent: false,
                             responseFormat: (printJson) ? "json" : "default",
-                            stream: argsForHandler.stream
+                            stream: ImperativeConfig.instance.daemonContext?.stream
                         });
                         response.failed();
                         response.console.errorHeader("Internal Command Error");

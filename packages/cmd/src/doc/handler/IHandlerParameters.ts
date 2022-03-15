@@ -9,6 +9,7 @@
 *
 */
 
+import * as stream from "stream";
 import { ICommandDefinition } from "../ICommandDefinition";
 import { CommandProfiles } from "../../profiles/CommandProfiles";
 import { IHandlerResponseApi } from "../../doc/response/api/handler/IHandlerResponseApi";
@@ -74,6 +75,13 @@ export interface IHandlerParameters {
      * @memberof IHandlerParameters
      */
     fullDefinition: ICommandDefinition;
+
+    /**
+     * The input stream that can be used by the command being issued.
+     * @type {stream.Readable}
+     * @memberof IHandlerParameters
+     */
+    stdin: stream.Readable;
 
     /**
      * Has your command been invoked from a chained handler? (see ICommandDefinition.chainedHandlers)

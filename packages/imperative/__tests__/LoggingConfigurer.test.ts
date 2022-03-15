@@ -18,10 +18,15 @@ jest.mock("path");
 const fakeHome = "./someHome";
 const name = "sample";
 
-(os.homedir as any) = jest.fn(() => "./someHome");
-(path.normalize as any) = jest.fn((p: string) => p);
-
 describe("LoggingConfigurer tests", () => {
+    beforeAll(() => {
+        jest.spyOn(os, "homedir").mockImplementation(() => fakeHome);
+        jest.spyOn(path, "normalize").mockImplementation((p: string) => p);
+    });
+
+    afterAll(() => {
+        jest.restoreAllMocks();
+    });
 
     it("Should reject configurations that don't contain a \"name\" field", () => {
         expect(() => {
