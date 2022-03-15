@@ -87,5 +87,10 @@ export interface IConfigAutoStoreStoreSessCfgPropsOpts extends IConfigAutoStoreF
      * Used if params == null
      */
     profileType?: string;
+
+    /**
+     * Indicates whether or not the property should be stored securely
+     */
+    setSecure?: boolean;
 }
 

@@ -46,7 +46,7 @@ import { LoggerManager } from "../../logger/src/LoggerManager";
 import {
     IOptionsForAddConnProps, ISession, Session, SessConstants, ConnectionPropsForSessCfg
 } from "../../rest";
-import { IProfInfoUpdatePropOpts } from "./doc/IProfInfoUpdatePropOpts";
+import { IProfInfoUpdateKnownPropOpts, IProfInfoUpdatePropOpts } from "./doc/IProfInfoUpdatePropOpts";
 import { ConfigAutoStore } from "./ConfigAutoStore";
 
 /**
@@ -196,7 +196,7 @@ export class ProfileInfo {
         }
 
         const mergedArgs = this.mergeArgsForProfile(desiredProfile, { getSecureVals: false });
-        if (!(await this.updateKnownProperty(mergedArgs, options.property, options.value))) {
+        if (!(await this.updateKnownProperty({ mergedArgs, property: options.property, value: options.value, setSecure: options.setSecure }))) {
             if (this.usingTeamConfig) {
                 // Check to see if loadedConfig already contains the schema for the specified profile type
                 if (ImperativeConfig.instance.loadedConfig?.profiles?.find(p => p.type === options.profileType)?.schema == null ||
@@ -222,7 +222,8 @@ export class ProfileInfo {
                     },
                     propsToStore: [options.property],
                     profileName: options.profileName,
-                    profileType: options.profileType
+                    profileType: options.profileType,
+                    setSecure: options.setSecure
                 });
             } else {
                 const profMgr = new CliProfileManager({ profileRootDirectory: this.mOldSchoolProfileRootDir, type: options.profileType });
@@ -240,19 +241,13 @@ export class ProfileInfo {
      * This function only works for properties that can be found in the config files (including secure arrays).
      * If the property cannot be found, this function will resolve to false
      * This function supports v1 profiles
-     * @param mergedArgs List of merged arguments to determine where the update must happen
-     * @param property Property to be updated with the given value
-     * @param value Value to be assigned when updating the given property
+     * @param options Set of options required to update a known property
      */
-    public async updateKnownProperty(mergedArgs: IProfMergedArg, property: string, value: IProfArgValue): Promise<boolean> {
-        const toUpdate = mergedArgs.knownArgs.find((v => v.argName === property)) ||
-            mergedArgs.missingArgs.find((v => v.argName === property));
+    public async updateKnownProperty(options: IProfInfoUpdateKnownPropOpts): Promise<boolean> {
+        const toUpdate = options.mergedArgs.knownArgs.find((v => v.argName === options.property)) ||
+            options.mergedArgs.missingArgs.find((v => v.argName === options.property));
 
         if (toUpdate == null) {
-            // throw new ProfInfoErr({
-            //     errorCode: ProfInfoErr.PROP_NOT_FOUND_IN_MERGED_ARGS,
-            //     msg: `Failed to find property ${property} in the merged arguments`
-            // });
             return false;
         }
 
@@ -262,23 +257,23 @@ export class ProfileInfo {
                 const profileName = ProfileIO.fileToProfileName(filePath[0], "." + filePath[0].split(".").slice(-1)[0]);
                 const profileType = filePath[0].substring(this.mOldSchoolProfileRootDir.length + 1).split("/")[0];
                 const profMgr = new CliProfileManager({ profileRootDirectory: this.mOldSchoolProfileRootDir, type: profileType });
-                if (value != null) {
-                    await profMgr.update({ name: profileName, merge: true, profile: { [property]: value } });
+                if (options.value != null) {
+                    await profMgr.update({ name: profileName, merge: true, profile: { [options.property]: options.value } });
                 } else {
                     // Remove existing property (or don't do anything)
                     const oldProf = await profMgr.load({ name: profileName, failNotFound: false });
-                    if (oldProf && oldProf.profile && oldProf.profile[property]) {
-                        delete oldProf.profile[property];
+                    if (oldProf && oldProf.profile && oldProf.profile[options.property]) {
+                        delete oldProf.profile[options.property];
                         await profMgr.save({ name: profileName, profile: oldProf.profile, overwrite: true, type: profileType });
                     }
                 }
 
                 // Update mOldSchoolProfileCache to get mergedArgs updated
-                this.mOldSchoolProfileCache.find(v => v.name === profileName).profile[property] = value;
+                this.mOldSchoolProfileCache.find(v => v.name === profileName).profile[options.property] = options.value;
                 break;
             }
             case ProfLocType.TEAM_CONFIG: {
-                this.getTeamConfig().set(toUpdate.argLoc.jsonLoc, value);
+                this.getTeamConfig().set(toUpdate.argLoc.jsonLoc, options.value, { secure: options.setSecure });
                 await this.getTeamConfig().save(false);
                 break;
             }
@@ -693,7 +688,7 @@ export class ProfileInfo {
                         });
                     }
                 } else {
-                    knownArg.secure = knownArg.secure || propInfoInSchema.secure;
+                    knownArg.secure = knownArg.secure ?? propInfoInSchema.secure;
                     if (knownArg.secure) {
                         delete knownArg.argValue;
                     }

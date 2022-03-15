@@ -10,12 +10,12 @@
 */
 
 import { IProfArgValue } from "./IProfArgAttrs";
+import { IProfMergedArg } from "./IProfMergedArg";
 
 /**
- * Options that will affect the behavior of the ProfileInfo class.
- * They are supplied on the ProfileInfo constructor.
+ * Required options to update any property from the ProfileInfo class.
  */
-export interface IProfInfoUpdatePropOpts  {
+ export interface IProfInfoUpdatePropOpts  {
     /**
      * Property to update
      */
@@ -35,4 +35,34 @@ export interface IProfInfoUpdatePropOpts  {
      * Name of the active profile
      */
     profileName: string;
+
+    /**
+     * Specifies if the property should be stored securely or not
+     */
+    setSecure?: boolean;
+}
+
+/**
+ * Required options to update known properties from the ProfileInfo class.
+ */
+ export interface IProfInfoUpdateKnownPropOpts  {
+    /**
+     * Merged arguments object describing the location of the property to update
+     */
+    mergedArgs: IProfMergedArg;
+
+    /**
+     * Property to update
+     */
+    property: string;
+
+    /**
+     * Value to use when updating the given property
+     */
+    value: IProfArgValue;
+
+    /**
+     * Specifies if the property should be stored securely or not
+     */
+    setSecure?: boolean;
 }
