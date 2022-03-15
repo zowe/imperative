@@ -563,7 +563,6 @@ export class ProfileInfo {
                         secure
                     });
                 }
-                // const secFields = this.getTeamConfig().api.secure.secureFields();
             }
 
             const baseProfile = this.mLoadedConfig.api.profiles.defaultGet("base");

@@ -889,11 +889,13 @@ describe("ProfileInfo tests", () => {
             const mergedArgs = profInfo.mergeArgsForProfile(profAttrs);
 
             const userArg = mergedArgs.knownArgs.find((arg) => arg.argName === "user");
-            expect(userArg.argValue).toBeUndefined();
+            // expect(userArg.argValue).toBeUndefined(); // See zowe/imperative#755
+            expect(userArg.argValue).toBe("userNameBase"); // See zowe/imperative#755
             expect(profInfo.loadSecureArg(userArg)).toBe("userNameBase");
 
             const passwordArg = mergedArgs.knownArgs.find((arg) => arg.argName === "password");
-            expect(passwordArg.argValue).toBeUndefined();
+            // expect(passwordArg.argValue).toBeUndefined(); // See zowe/imperative#755
+            expect(passwordArg.argValue).toBe("passwordBase"); // See zowe/imperative#755
             expect(profInfo.loadSecureArg(passwordArg)).toBe("passwordBase");
         });
 
