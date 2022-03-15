@@ -758,7 +758,7 @@ describe("ProfileInfo tests", () => {
                     caughtError = error;
                 }
                 expect(caughtError).toBeUndefined();
-                expect(updateKnownPropertySpy).toHaveBeenCalledWith({}, "host", "test");
+                expect(updateKnownPropertySpy).toHaveBeenCalledWith({ mergedArgs: {}, property: "host", value: "test" });
             });
 
             it("should attempt to store session config properties without adding profile types to the loadedConfig", async () => {
@@ -823,8 +823,10 @@ describe("ProfileInfo tests", () => {
                 let caughtError;
                 try {
                     await profInfo.updateKnownProperty({
-                        knownArgs: [{ argName: "test", argLoc: { locType: 123 } }]
-                    } as any, "test", "test");
+                        mergedArgs: {
+                            knownArgs: [{ argName: "test", argLoc: { locType: 123 } }]
+                        } as any, property: "test", value: "test"
+                    });
                 } catch (error) {
                     caughtError = error;
                 }
@@ -838,20 +840,16 @@ describe("ProfileInfo tests", () => {
                 const profInfo = createNewProfInfo(teamProjDir);
                 await profInfo.readProfilesFromDisk();
                 expect(await profInfo.updateKnownProperty({
-                    knownArgs: [{
-                        argName: "test", argLoc: {
-                            locType: ProfLocType.ENV
-                        }
-                    }]
-                } as any, "test", "test")).toBe(false);
+                    mergedArgs: {
+                        knownArgs: [{ argName: "test", argLoc: { locType: ProfLocType.ENV } }]
+                    } as any, property: "test", value: "test"
+                })).toBe(false);
 
                 expect(await profInfo.updateKnownProperty({
-                    knownArgs: [{
-                        argName: "test", argLoc: {
-                            locType: ProfLocType.DEFAULT
-                        }
-                    }]
-                } as any, "test", "test")).toBe(false);
+                    mergedArgs: {
+                        knownArgs: [{ argName: "test", argLoc: { locType: ProfLocType.DEFAULT } }]
+                    } as any, property: "test", value: "test"
+                })).toBe(false);
             });
 
             it("should update the given property and return true", async () => {
@@ -859,7 +857,7 @@ describe("ProfileInfo tests", () => {
                 await profInfo.readProfilesFromDisk();
 
                 const prof = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("dummy")[0]);
-                const ret = await profInfo.updateKnownProperty(prof, "host", "example.com");
+                const ret = await profInfo.updateKnownProperty({ mergedArgs: prof, property: "host", value: "example.com" });
                 const newHost = profInfo.getTeamConfig().api.layers.get().properties.profiles.LPAR4.properties.host;
 
                 expect(newHost).toEqual("example.com");
@@ -871,14 +869,14 @@ describe("ProfileInfo tests", () => {
                 await profInfo.readProfilesFromDisk();
 
                 const prof = profInfo.mergeArgsForProfile(profInfo.getAllProfiles("dummy")[0]);
-                const ret = await profInfo.updateKnownProperty(prof, "host", undefined);
+                const ret = await profInfo.updateKnownProperty({ mergedArgs: prof, property: "host", value: undefined });
                 const newHost = profInfo.getTeamConfig().api.layers.get().properties.profiles.LPAR4.properties.host;
 
                 expect(newHost).toBeUndefined();
                 expect(ret).toBe(true);
 
                 // back to original host
-                await profInfo.updateKnownProperty(prof, "host", "LPAR4.your.domain.net");
+                await profInfo.updateKnownProperty({ mergedArgs: prof, property: "host", value: "LPAR4.your.domain.net" });
             });
         });
     });

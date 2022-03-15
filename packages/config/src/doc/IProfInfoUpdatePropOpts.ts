@@ -15,7 +15,7 @@ import { IProfMergedArg } from "./IProfMergedArg";
 /**
  * Required options to update any property from the ProfileInfo class.
  */
- export interface IProfInfoUpdatePropOpts  {
+export interface IProfInfoUpdatePropOpts  {
     /**
      * Property to update
      */
@@ -45,7 +45,7 @@ import { IProfMergedArg } from "./IProfMergedArg";
 /**
  * Required options to update known properties from the ProfileInfo class.
  */
- export interface IProfInfoUpdateKnownPropOpts  {
+export interface IProfInfoUpdateKnownPropOpts  {
     /**
      * Merged arguments object describing the location of the property to update
      */

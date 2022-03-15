@@ -17,7 +17,7 @@ import * as jsonfile from "jsonfile";
 import * as lodash from "lodash";
 
 // for ProfileInfo structures
-import { IProfArgAttrs, IProfArgValue } from "./doc/IProfArgAttrs";
+import { IProfArgAttrs } from "./doc/IProfArgAttrs";
 import { IProfAttrs } from "./doc/IProfAttrs";
 import { IProfLoc, ProfLocType } from "./doc/IProfLoc";
 import { IProfMergeArgOpts } from "./doc/IProfMergeArgOpts";
