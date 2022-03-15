@@ -4,7 +4,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
-- BugFix: Fixed a bug where the EDITOR environment variable was not being respected in a graphical environment [zowe/zowe-cli#1335](https://github.com/zowe/zowe-cli/issues/1335)
+- BugFix: Fixed a bug where the `<APP>_EDITOR` environment variable was not being respected in a graphical environment [zowe/zowe-cli#1335](https://github.com/zowe/zowe-cli/issues/1335)
 
 ## `5.0.0-next.202203091934`
 
