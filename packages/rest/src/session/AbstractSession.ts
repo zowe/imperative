@@ -141,6 +141,7 @@ export abstract class AbstractSession {
      * @memberof AbstractSession
      */
     public static readonly DEFAULT_SECURE_PROTOCOL = "SSLv23_method";
+    // TODO: Investigate - this does not seem to do anything, and Node defaults to TLS_method w/ TLS 1.3 support
 
     /**
      * Regex to extract basic from base64 encoded auth

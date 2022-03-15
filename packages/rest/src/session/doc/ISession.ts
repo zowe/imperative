@@ -162,6 +162,7 @@ export interface ISession {
      * @memberof ISession
      */
     secureProtocol?: string;
+    // TODO: Investigate - this does not seem to do anything, and Node defaults to TLS_method w/ TLS 1.3 support
 
     /**
      * Decide whether or not to store a returned cookie.
