@@ -26,7 +26,6 @@ import * as streamToString from "stream-to-string";
 import { AbstractRestClient } from "../../src/client/AbstractRestClient";
 import { join } from "path";
 
-
 /**
  * To test the AbstractRestClient, we use the existing default RestClient which
  * extends AbstractRestClient to use as a __model__.
@@ -934,6 +933,46 @@ describe("AbstractRestClient tests", () => {
 
             expect(caughtError instanceof ImperativeError).toBe(true);
             expect(caughtError.message).toMatchSnapshot();
+        });
+
+        it("should decompress error message for streamed request", async () => {
+            const emitter = new MockHttpRequestResponse();
+            const requestFnc = jest.fn((options, callback) => {
+                ProcessUtils.nextTick(async () => {
+
+                    const newEmit = new MockHttpRequestResponse();
+                    newEmit.headers = { "Content-Encoding": "gzip" };
+                    callback(newEmit);
+
+                    await ProcessUtils.nextTick(() => {
+                        newEmit.emit("data", gzipBuffer);
+                    });
+
+                    await ProcessUtils.nextTick(() => {
+                        newEmit.emit("end");
+                    });
+                });
+
+                return emitter;
+            });
+
+            (https.request as any) = requestFnc;
+            (AbstractRestClient.prototype as any).mDecode = true;
+            jest.spyOn(AbstractRestClient.prototype, "requestFailure", "get").mockReturnValue(true);
+            const responseStream = new PassThrough();
+            let caughtError;
+
+            try {
+                await RestClient.getStreamed(new Session({
+                    hostname: "test"
+                }), "/resource", [], responseStream);
+                await streamToString(responseStream);
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError instanceof ImperativeError).toBe(true);
+            expect(caughtError.causeErrors).toContain(responseText);
         });
     });
 });
