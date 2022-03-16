@@ -752,6 +752,36 @@ describe("AbstractRestClient tests", () => {
             expect(result).toBe(responseText);
         });
 
+        it("should not error when decompressing gzip buffer with lowercase header", async () => {
+            const emitter = new MockHttpRequestResponse();
+            const requestFnc = jest.fn((options, callback) => {
+                ProcessUtils.nextTick(async () => {
+
+                    const newEmit = new MockHttpRequestResponse();
+                    newEmit.headers = { "content-encoding": "gzip" };
+                    callback(newEmit);
+
+                    await ProcessUtils.nextTick(() => {
+                        newEmit.emit("data", gzipBuffer);
+                    });
+
+                    await ProcessUtils.nextTick(() => {
+                        newEmit.emit("end");
+                    });
+                });
+
+                return emitter;
+            });
+
+            (https.request as any) = requestFnc;
+            (AbstractRestClient.prototype as any).mDecode = true;
+
+            const result = await RestClient.getExpectString(new Session({
+                hostname: "test"
+            }), "/resource");
+            expect(result).toBe(responseText);
+        });
+
         it("should not error when decompressing gzip stream", async () => {
             const emitter = new MockHttpRequestResponse();
             const requestFnc = jest.fn((options, callback) => {
