@@ -530,26 +530,21 @@ export abstract class AbstractRestClient {
                 }
             }
 
-            if (Headers.CONTENT_LENGTH in this.response.headers) {
-                this.mContentLength = this.response.headers[Headers.CONTENT_LENGTH];
-                this.log.debug("Content length of response is: " + this.mContentLength);
-            }
-            if (Headers.CONTENT_LENGTH.toLowerCase() in this.response.headers) {
-                this.mContentLength = this.response.headers[Headers.CONTENT_LENGTH.toLowerCase()];
+            const getHeaderCaseInsensitive = (key: string) => {
+                return this.response.headers[key] ?? this.response.headers[key.toLowerCase()];
+            };
+
+            const tempLength: number = getHeaderCaseInsensitive(Headers.CONTENT_LENGTH);
+            if (tempLength != null) {
+                this.mContentLength = tempLength;
                 this.log.debug("Content length of response is: " + this.mContentLength);
             }
 
-            let encoding: string;
-            if (Headers.CONTENT_ENCODING in this.response.headers) {
-                encoding = this.response.headers[Headers.CONTENT_ENCODING];
-            }
-            if (Headers.CONTENT_ENCODING.toLowerCase() in this.response.headers) {
-                encoding = this.response.headers[Headers.CONTENT_ENCODING.toLowerCase()];
-            }
-            if (typeof encoding === "string" && Headers.CONTENT_ENCODING_TYPES.find((x) => x === encoding)) {
-                this.log.debug("Content encoding of response is: " + encoding as ContentEncoding);
+            const tempEncoding: string = getHeaderCaseInsensitive(Headers.CONTENT_ENCODING);
+            if (typeof tempEncoding === "string" && Headers.CONTENT_ENCODING_TYPES.find((x) => x === tempEncoding)) {
+                this.log.debug("Content encoding of response is: " + tempEncoding as ContentEncoding);
                 if (this.mDecode) {
-                    this.mContentEncoding = encoding as ContentEncoding;
+                    this.mContentEncoding = tempEncoding as ContentEncoding;
                     this.log.debug("Using encoding: " + this.mContentEncoding);
                 }
             }
