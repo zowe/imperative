@@ -257,7 +257,7 @@ export class ProfileInfo {
                 const profileName = ProfileIO.fileToProfileName(filePath[0], "." + filePath[0].split(".").slice(-1)[0]);
                 const profileType = filePath[0].substring(this.mOldSchoolProfileRootDir.length + 1).split("/")[0];
                 const profMgr = new CliProfileManager({ profileRootDirectory: this.mOldSchoolProfileRootDir, type: profileType });
-                if (options.value != null) {
+                if (options.value !== undefined) {
                     await profMgr.update({ name: profileName, merge: true, profile: { [options.property]: options.value } });
                 } else {
                     // Remove existing property (or don't do anything)

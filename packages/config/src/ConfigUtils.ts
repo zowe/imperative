@@ -42,7 +42,7 @@ export function getActiveProfileName(profileType: string, cmdArguments?: IComman
     // Look for profile name first in command line arguments, second in
     // default profiles defined in config, and finally fall back to using
     // the profile type as the profile name.
-    return (cmdArguments && cmdArguments[`${profileType}-profile`]) ||
+    return cmdArguments?.[`${profileType}-profile`] ||
         ImperativeConfig.instance.config?.properties.defaults[profileType] ||
         defaultProfileName || profileType;
 }
