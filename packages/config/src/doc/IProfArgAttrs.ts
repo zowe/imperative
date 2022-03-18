@@ -15,7 +15,7 @@ import { IProfLoc } from "./IProfLoc";
 export type IProfDataType = "string" | "number" | "boolean" | "array" | "object";
 
 /** The value for the argument */
-export type IProfArgValue = string | number | boolean | any[] | object;
+export type IProfArgValue = string | number | boolean | string[] | object;
 
 /**
  * The attributes of a profile argument.

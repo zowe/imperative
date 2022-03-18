@@ -280,7 +280,6 @@ export class ProfileInfo {
             case ProfLocType.ENV:
             case ProfLocType.DEFAULT:
                 return false;
-                break;
             default: {
                 throw new ProfInfoErr({
                     errorCode: ProfInfoErr.INVALID_PROF_LOC_TYPE,
