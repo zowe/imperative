@@ -1290,7 +1290,7 @@ export class ProfileInfo {
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
             if (profile.profLoc.osLoc != null) {
                 // the profile exists, so use schema associated with its config JSON file
-                schemaMapKey = `${profile.profLoc.osLoc}:${profile.profType}`;
+                schemaMapKey = `${profile.profLoc.osLoc[0]}:${profile.profType}`;
             } else {
                 // no profile exists, so loop through layers and use the first schema found
                 for (const layer of this.mLoadedConfig.layers) {

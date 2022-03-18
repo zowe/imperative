@@ -1,0 +1,86 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$version": 2,
+    "type": "object",
+    "description": "config",
+    "properties": {
+        "profiles": {
+            "type": "object",
+            "description": "named profiles config",
+            "patternProperties": {
+                "^\\S*$": {
+                    "type": "object",
+                    "description": "a profile",
+                    "properties": {
+                        "type": {
+                            "description": "the profile type",
+                            "type": "string"
+                        },
+                        "properties": {
+                            "description": "the profile properties",
+                            "type": "object"
+                        },
+                        "profiles": {
+                            "description": "additional sub-profiles",
+                            "type": "object",
+                            "$ref": "#/properties/profiles"
+                        },
+                        "secure": {
+                            "description": "secure property names",
+                            "type": "array",
+                            "prefixItems": {
+                                "type": "string"
+                            },
+                            "uniqueItems": true
+                        }
+                    },
+                    "allOf": [
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "zosmf"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "properties": {
+                                    "properties": {
+                                        "type": "object",
+                                        "title": "z/OSMF Profile",
+                                        "description": "z/OSMF Profile",
+                                        "properties": {
+                                            "port": {
+                                                "type": "number",
+                                                "description": "The z/OSMF server port.",
+                                                "default": 1
+                                            }
+                                        },
+                                        "required": []
+                                    },
+                                    "secure": {
+                                        "prefixItems": {
+                                            "enum": [
+                                                "user",
+                                                "password"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "defaults": {
+            "type": "object",
+            "description": "default profiles config",
+            "properties": {
+                "zosmf": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

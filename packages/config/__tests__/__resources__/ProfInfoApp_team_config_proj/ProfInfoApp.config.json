@@ -42,7 +42,7 @@
         "LPAR2": {
             "type": "zosmf",
             "properties": {
-                "host": "LPAR1.your.domain.net",
+                "host": "LPAR2.your.domain.net",
                 "port": 6789,
                 "responseFormatHeader": true
             }
@@ -50,7 +50,7 @@
         "LPAR3": {
             "type": "zosmf",
             "properties": {
-                "host": "LPAR1.your.domain.net",
+                "host": "LPAR3.your.domain.net",
                 "port": 456
             }
         },

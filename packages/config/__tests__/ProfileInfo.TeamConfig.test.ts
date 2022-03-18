@@ -44,6 +44,7 @@ describe("TeamConfig ProfileInfo tests", () => {
     const tsoJsonLoc = "profiles.LPAR1.profiles." + tsoName;
     const testDir = path.join(__dirname, "__resources__");
     const teamProjDir = path.join(testDir, testAppNm + "_team_config_proj");
+    const userTeamProjDir = path.join(testDir, testAppNm + "_user_and_team_config_proj");
     let origDir: string;
 
     const envHost = testEnvPrefix + "_OPT_HOST";
@@ -203,6 +204,23 @@ describe("TeamConfig ProfileInfo tests", () => {
     });
 
     describe("readProfilesFromDisk", () => {
+        it("should throw if secure credentials fail to load", async () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            jest.spyOn((profInfo as any).mCredentials, "isSecured", "get").mockReturnValueOnce(true);
+            jest.spyOn((profInfo as any).mCredentials, "loadManager").mockImplementationOnce(async () => {
+                throw new Error("bad credential manager");
+            });
+            let caughtError;
+
+            try {
+                await profInfo.readProfilesFromDisk();
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeDefined();
+            expect(caughtError.message).toBe("Failed to initialize secure credential manager");
+        });
 
         it("should throw exception if readProfilesFromDisk not called", async () => {
             let caughtErr: ProfInfoErr;
@@ -553,6 +571,27 @@ describe("TeamConfig ProfileInfo tests", () => {
             expect(caughtError.message).toContain("Failed to find property fake in the profile doesNotExist");
         });
 
+        it("should throw if profile location type is invalid", () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            let caughtError;
+
+            try {
+                profInfo.mergeArgsForProfile({
+                    profName: null,
+                    profType: "test",
+                    isDefaultProfile: false,
+                    profLoc: { locType: ProfLocType.DEFAULT }
+                });
+            } catch (error) {
+                expect(error instanceof ProfInfoErr).toBe(true);
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeDefined();
+            expect(caughtError.errorCode).toBe(ProfInfoErr.INVALID_PROF_LOC_TYPE);
+            expect(caughtError.message).toContain("Invalid profile location type: DEFAULT");
+        });
+
         it("should list optional args missing in service profile", async () => {
             const profInfo = createNewProfInfo(teamProjDir);
             await profInfo.readProfilesFromDisk();
@@ -682,6 +721,45 @@ describe("TeamConfig ProfileInfo tests", () => {
                 expect(arg).toMatchObject(expectedArgs[idx]);
                 expect(arg.argLoc.locType).toBe(ProfLocType.DEFAULT);
             }
+        });
+    });
+
+    describe("loadSchema", () => {
+        it("should return null if schema is not found", () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            let schema: IProfileSchema;
+            let caughtError;
+
+            try {
+                schema = (profInfo as any).loadSchema({
+                    profName: "fake",
+                    profType: "test",
+                    isDefaultProfile: false,
+                    profLoc: { locType: ProfLocType.DEFAULT }
+                });
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeUndefined();
+            expect(schema).toBeNull();
+        });
+
+        it("should return the schema defined by the user config", async () => {
+            const profInfo = createNewProfInfo(userTeamProjDir);
+            await profInfo.readProfilesFromDisk();
+            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            let schema: IProfileSchema;
+            let caughtError;
+
+            try {
+                schema = (profInfo as any).loadSchema(profAttrs);
+            } catch (error) {
+                caughtError = error;
+            }
+
+            expect(caughtError).toBeUndefined();
+            expect((schema?.properties.port as any)?.optionDefinition.defaultValue).toEqual(1);
         });
     });
 
@@ -938,67 +1016,6 @@ describe("TeamConfig ProfileInfo tests", () => {
 
             expect(caughtError).toBeDefined();
             expect(caughtError.message).toBe("Failed to locate the property test");
-        });
-    });
-
-    describe("failure cases", () => {
-        it("readProfilesFromDisk should throw if secure credentials fail to load", async () => {
-            const profInfo = createNewProfInfo(teamProjDir);
-            jest.spyOn((profInfo as any).mCredentials, "isSecured", "get").mockReturnValueOnce(true);
-            jest.spyOn((profInfo as any).mCredentials, "loadManager").mockImplementationOnce(async () => {
-                throw new Error("bad credential manager");
-            });
-            let caughtError;
-
-            try {
-                await profInfo.readProfilesFromDisk();
-            } catch (error) {
-                caughtError = error;
-            }
-
-            expect(caughtError).toBeDefined();
-            expect(caughtError.message).toBe("Failed to initialize secure credential manager");
-        });
-
-        it("mergeArgsForProfile should throw if profile location type is invalid", () => {
-            const profInfo = createNewProfInfo(teamProjDir);
-            let caughtError;
-
-            try {
-                profInfo.mergeArgsForProfile({
-                    profName: null,
-                    profType: "test",
-                    isDefaultProfile: false,
-                    profLoc: { locType: ProfLocType.DEFAULT }
-                });
-            } catch (error) {
-                expect(error instanceof ProfInfoErr).toBe(true);
-                caughtError = error;
-            }
-
-            expect(caughtError).toBeDefined();
-            expect(caughtError.errorCode).toBe(ProfInfoErr.INVALID_PROF_LOC_TYPE);
-            expect(caughtError.message).toContain("Invalid profile location type: DEFAULT");
-        });
-
-        it("loadSchema should return null if schema is not found", () => {
-            const profInfo = createNewProfInfo(teamProjDir);
-            let schema: IProfileSchema;
-            let caughtError;
-
-            try {
-                schema = (profInfo as any).loadSchema({
-                    profName: "fake",
-                    profType: "test",
-                    isDefaultProfile: false,
-                    profLoc: { locType: ProfLocType.DEFAULT }
-                });
-            } catch (error) {
-                caughtError = error;
-            }
-
-            expect(caughtError).toBeUndefined();
-            expect(schema).toBeNull();
         });
     });
 });
