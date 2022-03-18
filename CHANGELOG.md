@@ -11,6 +11,7 @@ All notable changes to the Imperative package will be documented in this file.
 - Enhancement: Allowed properties to be stored securely from the ProfileInfo class. `v2 profiles only`
 - BugFix: Removed user-defined secure properties if `getSecureValues: false`. [#738](https://github.com/zowe/imperative/issues/738)
 - BugFix: Removed strict requirement of `IHandlerParameter` from the `ConfigAutoStore` class by implementing helper methods.
+- BugFix: Allowed `private loadSchema` function to return the corresponding schema for a user config. [#758](https://github.com/zowe/imperative/issues/758)
 
 ## `5.0.0-next.202203091934`
 
