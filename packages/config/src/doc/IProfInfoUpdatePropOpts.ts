@@ -15,17 +15,7 @@ import { IProfMergedArg } from "./IProfMergedArg";
 /**
  * Required options to update any property from the ProfileInfo class.
  */
-export interface IProfInfoUpdatePropOpts  {
-    /**
-     * Property to update
-     */
-    property: string;
-
-    /**
-     * Value to use when updating the given property
-     */
-    value: IProfArgValue;
-
+export interface IProfInfoUpdatePropOpts extends IProfInfoUpdatePropCommonOpts {
     /**
      * Type of the active profile
      */
@@ -35,22 +25,19 @@ export interface IProfInfoUpdatePropOpts  {
      * Name of the active profile
      */
     profileName: string;
-
-    /**
-     * Specifies if the property should be stored securely or not
-     */
-    setSecure?: boolean;
 }
 
 /**
  * Required options to update known properties from the ProfileInfo class.
  */
-export interface IProfInfoUpdateKnownPropOpts  {
+export interface IProfInfoUpdateKnownPropOpts extends IProfInfoUpdatePropCommonOpts  {
     /**
      * Merged arguments object describing the location of the property to update
      */
     mergedArgs: IProfMergedArg;
+}
 
+export interface IProfInfoUpdatePropCommonOpts {
     /**
      * Property to update
      */
