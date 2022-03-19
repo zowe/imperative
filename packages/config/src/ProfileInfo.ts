@@ -11,7 +11,7 @@
 
 import * as fs from "fs";
 import * as os from "os";
-import * as nodeJsPath from "path";
+import * as path from "path";
 import * as url from "url";
 import * as jsonfile from "jsonfile";
 import * as lodash from "lodash";
@@ -255,7 +255,7 @@ export class ProfileInfo {
             case ProfLocType.OLD_PROFILE: {
                 const filePath = toUpdate.argLoc.osLoc;
                 const profileName = ProfileIO.fileToProfileName(filePath[0], "." + filePath[0].split(".").slice(-1)[0]);
-                const profileType = filePath[0].substring(this.mOldSchoolProfileRootDir.length + 1).split("/")[0];
+                const profileType = filePath[0].substring(this.mOldSchoolProfileRootDir.length + 1).split(path.sep)[0];
                 const profMgr = new CliProfileManager({ profileRootDirectory: this.mOldSchoolProfileRootDir, type: profileType });
                 if (options.value !== undefined) {
                     await profMgr.update({ name: profileName, merge: true, profile: { [options.property]: options.value } });
@@ -850,7 +850,7 @@ export class ProfileInfo {
             this.mOldSchoolProfileCache = [];
             this.mOldSchoolProfileDefaults = {};
             // Try to get profiles and types
-            this.mOldSchoolProfileRootDir = nodeJsPath.join(ImperativeConfig.instance.cliHome, "profiles");
+            this.mOldSchoolProfileRootDir = path.join(ImperativeConfig.instance.cliHome, "profiles");
             const profTypes = ProfileIO.getAllProfileDirectories(this.mOldSchoolProfileRootDir);
             // Iterate over the types
             for (const profType of profTypes) {
@@ -1010,10 +1010,10 @@ export class ProfileInfo {
             const envVarNm = envVarPrefix + EnvironmentalVariableSettings.CLI_HOME_SUFFIX;
             if (process.env[envVarNm] === undefined) {
                 // use OS home directory
-                homeDir = nodeJsPath.join(os.homedir(), "." + this.mAppName.toLowerCase());
+                homeDir = path.join(os.homedir(), "." + this.mAppName.toLowerCase());
             } else {
                 // use the available environment variable
-                homeDir = nodeJsPath.normalize(process.env[envVarNm]);
+                homeDir = path.normalize(process.env[envVarNm]);
             }
             ImperativeConfig.instance.loadedConfig = {
                 name: this.mAppName,
@@ -1275,7 +1275,7 @@ export class ProfileInfo {
      * @param profileType Type of an old school profile (e.g., zosmf)
      */
     private oldProfileFilePath(profileType: string, profileName: string) {
-        return nodeJsPath.join(this.mOldSchoolProfileRootDir, profileType, profileName + AbstractProfileManager.PROFILE_EXTENSION);
+        return path.join(this.mOldSchoolProfileRootDir, profileType, profileName + AbstractProfileManager.PROFILE_EXTENSION);
     }
 
     /**
