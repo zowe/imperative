@@ -13,6 +13,11 @@ All notable changes to the Imperative package will be documented in this file.
 - BugFix: Removed strict requirement of `IHandlerParameter` from the `ConfigAutoStore` class by implementing helper methods.
 - BugFix: Allowed `private loadSchema` function to return the corresponding schema for a user config. [#758](https://github.com/zowe/imperative/issues/758)
 
+## `5.0.0-next.202203181826`
+
+- BugFix: Fixed a bug where the `<APP>_EDITOR` environment variable was not being respected in a graphical environment [zowe/zowe-cli#1335](https://github.com/zowe/zowe-cli/issues/1335)
+- BugFix: Fixed AbstractRestClient returning compressed data in `causeErrors` property for streamed responses. [#753](https://github.com/zowe/imperative/issues/753)
+
 ## `5.0.0-next.202203091934`
 
 - Enhancement: Added prompt for base profile host property to `zowe config init`. [zowe/zowe-cli#1219](https://github.com/zowe/zowe-cli/issues/1219)
