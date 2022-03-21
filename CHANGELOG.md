@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.0.0-next.202203211501`
 
 - Enhancement: Enhanced secure ProfileInfo APIs with user-defined secure properties. [#739](https://github.com/zowe/imperative/issues/739)
 - Enhancement: Introduced `updateKnownProperty` which will update a given property in most cases and `resolve(false)` otherwise.
