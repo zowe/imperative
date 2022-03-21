@@ -1,0 +1,186 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$version": 2,
+    "type": "object",
+    "description": "config",
+    "properties": {
+        "profiles": {
+            "type": "object",
+            "description": "named profiles config",
+            "patternProperties": {
+                "^\\S*$": {
+                    "type": "object",
+                    "description": "a profile",
+                    "properties": {
+                        "type": {
+                            "description": "the profile type",
+                            "type": "string"
+                        },
+                        "properties": {
+                            "description": "the profile properties",
+                            "type": "object"
+                        },
+                        "profiles": {
+                            "description": "additional sub-profiles",
+                            "type": "object",
+                            "$ref": "#/properties/profiles"
+                        },
+                        "secure": {
+                            "description": "secure property names",
+                            "type": "array",
+                            "prefixItems": {
+                                "type": "string"
+                            },
+                            "uniqueItems": true
+                        }
+                    },
+                    "allOf": [
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "zosmf"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "properties": {
+                                    "properties": {
+                                        "type": "object",
+                                        "title": "z/OSMF Profile",
+                                        "description": "z/OSMF Profile",
+                                        "properties": {
+                                            "host": {
+                                                "type": "string",
+                                                "description": "The z/OSMF server host name."
+                                            },
+                                            "port": {
+                                                "type": "number",
+                                                "description": "The z/OSMF server port.",
+                                                "default": 443
+                                            },
+                                            "user": {
+                                                "type": "string",
+                                                "description": "Mainframe (z/OSMF) user name, which can be the same as your TSO login."
+                                            },
+                                            "password": {
+                                                "type": "string",
+                                                "description": "Mainframe (z/OSMF) password, which can be the same as your TSO password."
+                                            },
+                                            "rejectUnauthorized": {
+                                                "type": "boolean",
+                                                "description": "Reject self-signed certificates.",
+                                                "default": true
+                                            },
+                                            "basePath": {
+                                                "type": "string",
+                                                "description": "The base path for your API mediation layer instance. Specify this option to prepend the base path to all z/OSMF resources when making REST requests. Do not specify this option if you are not using an API mediation layer."
+                                            },
+                                            "protocol": {
+                                                "type": "string",
+                                                "description": "The protocol used (HTTP or HTTPS)",
+                                                "default": "https",
+                                                "enum": [
+                                                    "http",
+                                                    "https"
+                                                ]
+                                            },
+                                            "encoding": {
+                                                "type": "number",
+                                                "description": "The encoding for download and upload of z/OS data set and USS files. The default encoding if not specified is 1047."
+                                            },
+                                            "responseTimeout": {
+                                                "type": "number",
+                                                "description": "The maximum amount of time in seconds the z/OSMF Files TSO servlet should run before returning a response. Any request exceeding this amount of time will be terminated and return an error. Allowed values: 5 - 600"
+                                            }
+                                        },
+                                        "required": []
+                                    },
+                                    "secure": {
+                                        "prefixItems": {
+                                            "enum": [
+                                                "user",
+                                                "password"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": {
+                                        "const": "base"
+                                    }
+                                }
+                            },
+                            "then": {
+                                "properties": {
+                                    "properties": {
+                                        "type": "object",
+                                        "title": "Base Profile",
+                                        "description": "Base profile that stores values shared by multiple service profiles",
+                                        "properties": {
+                                            "host": {
+                                                "type": "string",
+                                                "description": "Host name of service on the mainframe."
+                                            },
+                                            "port": {
+                                                "type": "number",
+                                                "description": "Port number of service on the mainframe."
+                                            },
+                                            "user": {
+                                                "type": "string",
+                                                "description": "User name to authenticate to service on the mainframe."
+                                            },
+                                            "password": {
+                                                "type": "string",
+                                                "description": "Password to authenticate to service on the mainframe."
+                                            },
+                                            "rejectUnauthorized": {
+                                                "type": "boolean",
+                                                "description": "Reject self-signed certificates.",
+                                                "default": true
+                                            },
+                                            "tokenType": {
+                                                "type": "string",
+                                                "description": "The type of token to get and use for the API. Omit this option to use the default token type, which is provided by 'zowe auth login'."
+                                            },
+                                            "tokenValue": {
+                                                "type": "string",
+                                                "description": "The value of the token to pass to the API."
+                                            }
+                                        },
+                                        "required": []
+                                    },
+                                    "secure": {
+                                        "prefixItems": {
+                                            "enum": [
+                                                "user",
+                                                "password",
+                                                "tokenValue"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "defaults": {
+            "type": "object",
+            "description": "default profiles config",
+            "properties": {
+                "zosmf": {
+                    "type": "string"
+                },
+                "base": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
