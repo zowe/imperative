@@ -842,6 +842,9 @@ describe("AbstractRestClient tests", () => {
                 return emitter;
             });
 
+            (https.request as any) = requestFnc;
+            (AbstractRestClient.prototype as any).mDecode = true;
+
             const responseStream = new PassThrough();
             await RestClient.getStreamed(new Session({
                 hostname: "test"
