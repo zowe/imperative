@@ -11,6 +11,7 @@
 
 jest.mock("keytar");
 
+import * as path from "path";
 import { DefaultCredentialManager } from "..";
 import * as keytar from "keytar";
 import { ImperativeError } from "../../error";
@@ -33,13 +34,13 @@ describe("DefaultCredentialManager", () => {
         const service = DefaultCredentialManager.SVC_NAME;
 
         /**
-     * Use this manager as classes should use it.
-     */
+         * Use this manager as classes should use it.
+         */
         let manager: DefaultCredentialManager;
 
         /**
-     * Use only to access private methods/functions of the manager
-     */
+         * Use only to access private methods/functions of the manager
+         */
         let privateManager: any;
 
         beforeEach(() => {
@@ -76,6 +77,7 @@ describe("DefaultCredentialManager", () => {
                 // fail the import and look for module path in the error message
                 const fakeCliPath = "/root/fakeCli";
                 process.mainModule = { filename: fakeCliPath } as any;
+                const pathResolveSpy = jest.spyOn(path, "resolve").mockReturnValueOnce(path.parse(__dirname).root);
 
                 // Force enter the try catch
                 Object.defineProperty(manager, "keytar", {
@@ -93,16 +95,38 @@ describe("DefaultCredentialManager", () => {
                     expect(error.message).toContain(fakeCliPath);
                 } finally {
                     delete process.mainModule;
+                    pathResolveSpy.mockRestore();
+                }
+            });
+
+            it("should look for keytar in local node_modules folder", async () => {
+                process.mainModule = { filename: "/root/fakeCli" } as any;
+
+                // Force enter the try catch
+                Object.defineProperty(manager, "keytar", {
+                    writable: false
+                });
+
+                try {
+                    await manager.initialize();
+
+                    expect(privateManager.keytar).toBeUndefined();
+                    expect(privateManager.loadError).toBeInstanceOf(ImperativeError);
+                    const error: Error = privateManager.loadError.causeErrors;
+                    expect(error).toBeDefined();
+                    expect(error.message).toContain("Cannot assign to read only property");
+                } finally {
+                    delete process.mainModule;
                 }
             });
         });
 
         describe("methods after initialize", () => {
             /**
-       * Values used by the tests below
-       *
-       * @type {{account: string; credentials: string}}
-       */
+             * Values used by the tests below
+             *
+             * @type {{account: string; credentials: string}}
+             */
             const values = {
                 account: "test",
                 credentials: "someUser:somePassword"
