@@ -18,6 +18,7 @@ import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
 import { Logger } from "../../logger/src/Logger";
 import { Config } from "./Config";
 import { ImperativeError } from "../../error/src/ImperativeError";
+
 export class ConfigSchema {
     /**
      * JSON schema URI stored in $schema property of the schema
@@ -31,7 +32,7 @@ export class ConfigSchema {
      * @readonly
      * @memberof ConfigSchema
      */
-    private static readonly SCHEMA_VERSION = 3;
+    private static readonly SCHEMA_VERSION = 0.4;
 
     /**
      * Pretty explanation of the schema objects
@@ -87,9 +88,7 @@ export class ConfigSchema {
         }
 
         const secureSchema: any = {
-            prefixItems: {
-                enum: secureProps
-            }
+            items: { enum: secureProps }
         };
 
         if (secureProps.length > 0) {
@@ -108,7 +107,8 @@ export class ConfigSchema {
         const properties: { [key: string]: IProfileProperty } = {};
         for (const [k, v] of Object.entries((schema.properties.properties || {}) as { [key: string]: any })) {
             properties[k] = { type: v.type };
-            if (schema.secure?.prefixItems.enum.includes(k)) {
+            // Backward compatibility for schema versions <0.4 (prefixItems -> items)
+            if ((schema.secure?.items || schema.secure?.prefixItems)?.enum.includes(k)) {
                 properties[k].secure = true;
             }
             if (v.description != null || v.default != null || v.enum != null) {
@@ -270,60 +270,90 @@ export class ConfigSchema {
      * @returns JSON schema for all supported profile types
      */
     public static buildSchema(profiles: IProfileTypeConfiguration[]): IConfigSchema {
-        const entries: any[] = [];
+        const andEntries: any[] = [];
         const defaultProperties: { [key: string]: any } = {};
         profiles.forEach((profile: { type: string, schema: IProfileSchema }) => {
-            entries.push({
-                if: { properties: { type: { const: profile.type } } },
-                then: { properties: this.generateSchema(profile.schema) }
+            andEntries.push({
+                if: {
+                    properties: {
+                        type: { const: profile.type }
+                    }
+                },
+                then: {
+                    properties: this.generateSchema(profile.schema)
+                }
             });
-            defaultProperties[profile.type] = { type: "string" };
+            defaultProperties[profile.type] = {
+                description: `Default ${profile.type} profile`,
+                type: "string"
+            };
         });
         return {
             $schema: ConfigSchema.JSON_SCHEMA,
             $version: ConfigSchema.SCHEMA_VERSION,
             type: "object",
-            description: "config",
+            description: "Zowe configuration",
             properties: {
                 profiles: {
                     type: "object",
-                    description: "named profiles config",
+                    description: "Mapping of profile names to profile configurations",
                     patternProperties: {
                         "^\\S*$": {
                             type: "object",
-                            description: "a profile",
+                            description: "Profile configuration object",
                             properties: {
                                 type: {
-                                    description: "the profile type",
-                                    type: "string"
+                                    description: "Profile type",
+                                    type: "string",
+                                    enum: Object.keys(defaultProperties)
                                 },
                                 properties: {
-                                    description: "the profile properties",
+                                    description: "Profile properties object",
                                     type: "object"
                                 },
                                 profiles: {
-                                    description: "additional sub-profiles",
+                                    description: "Optional subprofile configurations",
                                     type: "object",
                                     $ref: "#/properties/profiles"
                                 },
                                 secure: {
-                                    description: "secure property names",
+                                    description: "Secure property names",
                                     type: "array",
-                                    prefixItems: {
-                                        type: "string"
-                                    },
+                                    items: { type: "string" },
                                     uniqueItems: true
                                 }
                             },
-                            allOf: entries
+                            allOf: [
+                                {
+                                    if: {
+                                        properties: { type: false }
+                                    },
+                                    then: {
+                                        properties: {
+                                            properties: { title: "Missing profile type" }
+                                        }
+                                    }
+                                },
+                                ...andEntries
+                            ]
                         }
                     }
                 },
                 defaults: {
                     type: "object",
-                    description: "default profiles config",
+                    description: "Mapping of profile types to default profile names",
                     properties: defaultProperties
-                }
+                },
+                autoStore: {
+                    type: "boolean",
+                    description: "If true, values you enter when prompted are stored for future use"
+                },
+                // plugins: {
+                //     description: "CLI plug-in names to load from node_modules (experimental)",
+                //     type: "array",
+                //     items: { type: "string" },
+                //     uniqueItems: true
+                // }
             }
         };
     }
@@ -336,10 +366,12 @@ export class ConfigSchema {
         const patternName = Object.keys(schema.properties.profiles.patternProperties)[0];
         const profileSchemas: IProfileTypeConfiguration[] = [];
         for (const obj of schema.properties.profiles.patternProperties[patternName].allOf) {
-            profileSchemas.push({
-                type: obj.if.properties.type.const,
-                schema: this.parseSchema(obj.then.properties)
-            });
+            if (obj.if.properties.type) {
+                profileSchemas.push({
+                    type: obj.if.properties.type.const,
+                    schema: this.parseSchema(obj.then.properties)
+                });
+            }
         }
         return profileSchemas;
     }

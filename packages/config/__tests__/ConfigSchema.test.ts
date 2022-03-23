@@ -18,6 +18,16 @@ import * as path from "path";
 
 describe("Config Schema", () => {
     const schema = ConfigSchema;
+    const missingProfileTypeEntry = {
+        if: {
+            properties: { type: false }
+        },
+        then: {
+            properties: {
+                properties: { title: "Missing profile type" }
+            }
+        }
+    };
     const testProfileConfiguration: IProfileTypeConfiguration[] = [
         {
             type: "zosmf",
@@ -97,7 +107,7 @@ describe("Config Schema", () => {
     it("should be able to successfully build with no profile type configuration", () => {
         const testConfig: IProfileTypeConfiguration[] = [];
         const returnedSchema = schema.buildSchema(testConfig);
-        const expectedAllOf: any = [];
+        const expectedAllOf: any = [missingProfileTypeEntry];
         expect(returnedSchema).toMatchSnapshot();
         expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf);
     });
@@ -106,30 +116,33 @@ describe("Config Schema", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfiguration);
         testConfig.pop();
         const returnedSchema = schema.buildSchema(testConfig);
-        const expectedAllOf: any[] = [{
-            if: {
-                properties: {
-                    type: {
-                        const: "zosmf"
-                    }
-                }
-            },
-            then: {
-                properties: {
+        const expectedAllOf: any[] = [
+            missingProfileTypeEntry,
+            {
+                if: {
                     properties: {
-                        description: "A fake zosmf profile",
+                        type: {
+                            const: "zosmf"
+                        }
+                    }
+                },
+                then: {
+                    properties: {
                         properties: {
-                            host: {
-                                type: "string"
+                            description: "A fake zosmf profile",
+                            properties: {
+                                host: {
+                                    type: "string"
+                                },
                             },
-                        },
-                        required: [],
-                        title: "zosmf",
-                        type: "object"
+                            required: [],
+                            title: "zosmf",
+                            type: "object"
+                        }
                     }
                 }
             }
-        }];
+        ];
         expect(returnedSchema).toMatchSnapshot();
         expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf);
     });
@@ -138,6 +151,7 @@ describe("Config Schema", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfiguration);
         const returnedSchema = schema.buildSchema(testConfig);
         const expectedAllOf: any[] = [
+            missingProfileTypeEntry,
             {
                 if: {
                     properties: {
@@ -194,37 +208,38 @@ describe("Config Schema", () => {
     it("should be able to successfully build with a secure single profile type configuration", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfigurationSecure);
         const returnedSchema = schema.buildSchema(testConfig);
-        const expectedAllOf: any[] = [{
-            if: {
-                properties: {
-                    type: {
-                        const: "zosmf"
-                    }
-                }
-            },
-            then: {
-                properties: {
+        const expectedAllOf: any[] = [
+            missingProfileTypeEntry,
+            {
+                if: {
                     properties: {
-                        description: "A fake zosmf profile",
+                        type: {
+                            const: "zosmf"
+                        }
+                    }
+                },
+                then: {
+                    properties: {
                         properties: {
-                            host: {
-                                type: "string"
+                            description: "A fake zosmf profile",
+                            properties: {
+                                host: {
+                                    type: "string"
+                                },
                             },
+                            required: [],
+                            title: "zosmf",
+                            type: "object"
                         },
-                        required: [],
-                        title: "zosmf",
-                        type: "object"
-                    },
-                    secure: {
-                        prefixItems: {
-                            enum: [
-                                "host"
-                            ]
+                        secure: {
+                            items: {
+                                enum: ["host"]
+                            }
                         }
                     }
                 }
             }
-        }];
+        ];
         expect(returnedSchema).toMatchSnapshot();
         expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf);
     });
@@ -232,33 +247,36 @@ describe("Config Schema", () => {
     it("should be able to successfully build with a complex single profile type configuration", () => {
         const testConfig: IProfileTypeConfiguration[] = cloneDeep(testProfileConfigurationOptionDefinition);
         const returnedSchema = schema.buildSchema(testConfig);
-        const expectedAllOf: any[] = [{
-            if: {
-                properties: {
-                    type: {
-                        const: "zosmf"
-                    }
-                }
-            },
-            then: {
-                properties: {
+        const expectedAllOf: any[] = [
+            missingProfileTypeEntry,
+            {
+                if: {
                     properties: {
-                        description: "A fake zosmf profile",
+                        type: {
+                            const: "zosmf"
+                        }
+                    }
+                },
+                then: {
+                    properties: {
                         properties: {
-                            host: {
-                                type: "string",
-                                default: "fake",
-                                description: "The fake host to connect to",
-                                enum: ["fake", "real"]
+                            description: "A fake zosmf profile",
+                            properties: {
+                                host: {
+                                    type: "string",
+                                    default: "fake",
+                                    description: "The fake host to connect to",
+                                    enum: ["fake", "real"]
+                                },
                             },
-                        },
-                        required: [],
-                        title: "zosmf",
-                        type: "object"
+                            required: [],
+                            title: "zosmf",
+                            type: "object"
+                        }
                     }
                 }
             }
-        }];
+        ];
         expect(returnedSchema).toMatchSnapshot();
         expect(returnedSchema.properties.profiles.patternProperties["^\\S*$"].allOf).toEqual(expectedAllOf);
     });

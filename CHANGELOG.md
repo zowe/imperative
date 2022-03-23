@@ -7,6 +7,12 @@ All notable changes to the Imperative package will be documented in this file.
 - Enhancement: Introduce flag `--show-inputs-only` to show the inputs of the command
 that would be used if a command were executed.
 
+## `5.0.0-next.202203231534`
+
+- Enhancement: Added JSON property autocompletion to `secure` array in team config files. [zowe/zowe-cli#1187](https://github.com/zowe/zowe-cli/issues/1187)
+- BugFix: Fixed incorrect description for untyped profiles in team config files. [zowe/zowe-cli#1303](https://github.com/zowe/zowe-cli/issues/1303)
+- **Next Breaking**: Schema files created or updated with the above changes are not backward compatible with older versions of Imperative.
+
 ## `5.0.0-next.202203222132`
 
 - BugFix: Reverted unintentional breaking change that prevented `DefaultCredentialManager` from finding Keytar outside of calling CLI's node_modules folder.
