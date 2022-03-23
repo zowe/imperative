@@ -11,6 +11,12 @@
 
 import { IProfLoc } from "./IProfLoc";
 
+/** The type of data for this property */
+export type IProfDataType = "string" | "number" | "boolean" | "array" | "object";
+
+/** The value for the argument */
+export type IProfArgValue = string | number | boolean | string[] | object;
+
 /**
  * The attributes of a profile argument.
  */
@@ -19,10 +25,10 @@ export interface IProfArgAttrs {
     argName: string;
 
     /** The type of data for this property */
-    dataType: "string" | "number" | "boolean" | "array" | "object";
+    dataType: IProfDataType;
 
     /** The value for the argument */
-    argValue: string | number | boolean | string[] | object;
+    argValue: IProfArgValue;
 
     /** The location of this argument */
     argLoc: IProfLoc;

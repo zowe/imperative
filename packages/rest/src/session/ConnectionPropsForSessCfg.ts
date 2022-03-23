@@ -125,8 +125,7 @@ export class ConnectionPropsForSessCfg {
         }
 
         if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.tokenValue) === false &&
-            ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.cert) === false)
-        {
+            ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.cert) === false) {
             if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.user) === false) {
                 promptForValues.push("user");
             }
@@ -193,7 +192,7 @@ export class ConnectionPropsForSessCfg {
      */
     public static resolveSessCfgProps<SessCfgType extends ISession>(
         sessCfg: SessCfgType,
-        cmdArgs: ICommandArguments = {$0: "", _: []},
+        cmdArgs: ICommandArguments = { $0: "", _: [] },
         connOpts: IOptionsForAddConnProps = {}
     ) {
         const impLogger = Logger.getImperativeLogger();
@@ -229,9 +228,8 @@ export class ConnectionPropsForSessCfg {
             // deleting any tokenValue, ensures that basic creds are used to authenticate and get token
             delete sessCfg.tokenValue;
         } else if (ConnectionPropsForSessCfg.propHasValue(sessCfg.user) === false &&
-                   ConnectionPropsForSessCfg.propHasValue(sessCfg.password) === false &&
-                   ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenValue))
-        {
+            ConnectionPropsForSessCfg.propHasValue(sessCfg.password) === false &&
+            ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenValue)) {
             // set tokenValue if token is in args, and user and password are NOT supplied.
             sessCfg.tokenValue = cmdArgs.tokenValue;
         }
@@ -240,8 +238,7 @@ export class ConnectionPropsForSessCfg {
         if (ConnectionPropsForSessCfg.propHasValue(sessCfg.user) === false &&
             ConnectionPropsForSessCfg.propHasValue(sessCfg.password) === false &&
             ConnectionPropsForSessCfg.propHasValue(sessCfg.tokenValue) === false &&
-            ConnectionPropsForSessCfg.propHasValue(cmdArgs.certFile))
-        {
+            ConnectionPropsForSessCfg.propHasValue(cmdArgs.certFile)) {
             if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.certKeyFile)) {
                 sessCfg.cert = cmdArgs.certFile;
                 sessCfg.certKey = cmdArgs.certKeyFile;
