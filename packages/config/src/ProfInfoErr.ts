@@ -72,6 +72,11 @@ export class ProfInfoErr extends ImperativeError {
      */
     public static readonly UNKNOWN_PROP_LOCATION: string = "UnknownPropLocation";
 
+    /**
+     * A specified profile was not found (V1)
+     */
+    public static readonly PROF_NOT_FOUND: string = "ProfileNotFound";
+
     // _______________________________________________________________________
 
     /**

@@ -8,6 +8,26 @@ All notable changes to the Imperative package will be documented in this file.
 - BugFix: Fixed incorrect description for untyped profiles in team config files. [zowe/zowe-cli#1303](https://github.com/zowe/zowe-cli/issues/1303)
 - **Next Breaking**: Schema files created or updated with the above changes are not backward compatible with older versions of Imperative.
 
+## `5.0.0-next.202203222132`
+
+- BugFix: Reverted unintentional breaking change that prevented `DefaultCredentialManager` from finding Keytar outside of calling CLI's node_modules folder.
+
+## `5.0.0-next.202203211501`
+
+- Enhancement: Enhanced secure ProfileInfo APIs with user-defined secure properties. [#739](https://github.com/zowe/imperative/issues/739)
+- Enhancement: Introduced `updateKnownProperty` which will update a given property in most cases and `resolve(false)` otherwise.
+- Enhancement: Introduced `updateProperty` which takes care of special cases where the property is not found.
+- Enhancement: Allowed adding and removing properties from the ProfileInfo class.
+- Enhancement: Allowed properties to be stored securely from the ProfileInfo class. `v2 profiles only`
+- BugFix: Removed user-defined secure properties if `getSecureValues: false`. [#738](https://github.com/zowe/imperative/issues/738)
+- BugFix: Removed strict requirement of `IHandlerParameter` from the `ConfigAutoStore` class by implementing helper methods.
+- BugFix: Allowed `private loadSchema` function to return the corresponding schema for a user config. [#758](https://github.com/zowe/imperative/issues/758)
+
+## `5.0.0-next.202203181826`
+
+- BugFix: Fixed a bug where the `<APP>_EDITOR` environment variable was not being respected in a graphical environment [zowe/zowe-cli#1335](https://github.com/zowe/zowe-cli/issues/1335)
+- BugFix: Fixed AbstractRestClient returning compressed data in `causeErrors` property for streamed responses. [#753](https://github.com/zowe/imperative/issues/753)
+
 ## `5.0.0-next.202203091934`
 
 - Enhancement: Added prompt for base profile host property to `zowe config init`. [zowe/zowe-cli#1219](https://github.com/zowe/zowe-cli/issues/1219)
@@ -254,6 +274,10 @@ All notable changes to the Imperative package will be documented in this file.
 ## `5.0.0-next.202009251501`
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
+
+## `4.18.1`
+
+- BugFix: Fixed AbstractRestClient returning compressed data in `causeErrors` property for streamed responses. [#753](https://github.com/zowe/imperative/issues/753)
 
 ## `4.18.0`
 

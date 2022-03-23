@@ -121,7 +121,7 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
             // within our caller's path.
             const requireOpts: any = {};
             if (process.mainModule?.filename != null) {
-                requireOpts.paths = [process.mainModule.filename];
+                requireOpts.paths = [process.mainModule.filename, ...require.resolve.paths("keytar")];
             }
             const keytarPath = require.resolve("keytar", requireOpts);
             Logger.getImperativeLogger().debug("Loading Keytar module from", keytarPath);
