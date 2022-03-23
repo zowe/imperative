@@ -1098,7 +1098,7 @@ export class ProfileInfo {
 
     // _______________________________________________________________________
     /**
-     * Get all of the sub-profiles in the configuration.
+     * Get all of the subprofiles in the configuration.
      *
      * @param path
      *          The short form profile name dotted path
@@ -1106,7 +1106,7 @@ export class ProfileInfo {
      *          The long form profile dotted path
      * @param profObj
      *          The profiles object from the parent profile.
-     *          Contains the sub-profiles to search through.
+     *          Contains the subprofiles to search through.
      * @param profileType
      *          Limit selection to only profiles of the specified type.
      *          If not supplied, the names of all typed profiles are returned.

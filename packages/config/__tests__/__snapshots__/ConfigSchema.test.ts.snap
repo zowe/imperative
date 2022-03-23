@@ -3,23 +3,42 @@
 exports[`Config Schema should be able to successfully build with a complex single profile type configuration 1`] = `
 Object {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$version": 3,
-  "description": "config",
+  "$version": 0.4,
+  "description": "Zowe configuration",
   "properties": Object {
+    "autoStore": Object {
+      "description": "If true, values you enter when prompted are stored for future use",
+      "type": "boolean",
+    },
     "defaults": Object {
-      "description": "default profiles config",
+      "description": "Mapping of profile types to default profile names",
       "properties": Object {
         "zosmf": Object {
+          "description": "Default zosmf profile",
           "type": "string",
         },
       },
       "type": "object",
     },
     "profiles": Object {
-      "description": "named profiles config",
+      "description": "Mapping of profile names to profile configurations",
       "patternProperties": Object {
         "^\\\\S*$": Object {
           "allOf": Array [
+            Object {
+              "if": Object {
+                "properties": Object {
+                  "type": false,
+                },
+              },
+              "then": Object {
+                "properties": Object {
+                  "properties": Object {
+                    "title": "Missing profile type",
+                  },
+                },
+              },
+            },
             Object {
               "if": Object {
                 "properties": Object {
@@ -51,27 +70,30 @@ Object {
               },
             },
           ],
-          "description": "a profile",
+          "description": "Profile configuration object",
           "properties": Object {
             "profiles": Object {
               "$ref": "#/properties/profiles",
-              "description": "additional sub-profiles",
+              "description": "Optional subprofile configurations",
               "type": "object",
             },
             "properties": Object {
-              "description": "the profile properties",
+              "description": "Profile properties object",
               "type": "object",
             },
             "secure": Object {
-              "description": "secure property names",
-              "prefixItems": Object {
+              "description": "Secure property names",
+              "items": Object {
                 "type": "string",
               },
               "type": "array",
               "uniqueItems": true,
             },
             "type": Object {
-              "description": "the profile type",
+              "description": "Profile type",
+              "enum": Array [
+                "zosmf",
+              ],
               "type": "string",
             },
           },
@@ -88,23 +110,42 @@ Object {
 exports[`Config Schema should be able to successfully build with a secure single profile type configuration 1`] = `
 Object {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$version": 3,
-  "description": "config",
+  "$version": 0.4,
+  "description": "Zowe configuration",
   "properties": Object {
+    "autoStore": Object {
+      "description": "If true, values you enter when prompted are stored for future use",
+      "type": "boolean",
+    },
     "defaults": Object {
-      "description": "default profiles config",
+      "description": "Mapping of profile types to default profile names",
       "properties": Object {
         "zosmf": Object {
+          "description": "Default zosmf profile",
           "type": "string",
         },
       },
       "type": "object",
     },
     "profiles": Object {
-      "description": "named profiles config",
+      "description": "Mapping of profile names to profile configurations",
       "patternProperties": Object {
         "^\\\\S*$": Object {
           "allOf": Array [
+            Object {
+              "if": Object {
+                "properties": Object {
+                  "type": false,
+                },
+              },
+              "then": Object {
+                "properties": Object {
+                  "properties": Object {
+                    "title": "Missing profile type",
+                  },
+                },
+              },
+            },
             Object {
               "if": Object {
                 "properties": Object {
@@ -127,7 +168,7 @@ Object {
                     "type": "object",
                   },
                   "secure": Object {
-                    "prefixItems": Object {
+                    "items": Object {
                       "enum": Array [
                         "host",
                       ],
@@ -137,27 +178,30 @@ Object {
               },
             },
           ],
-          "description": "a profile",
+          "description": "Profile configuration object",
           "properties": Object {
             "profiles": Object {
               "$ref": "#/properties/profiles",
-              "description": "additional sub-profiles",
+              "description": "Optional subprofile configurations",
               "type": "object",
             },
             "properties": Object {
-              "description": "the profile properties",
+              "description": "Profile properties object",
               "type": "object",
             },
             "secure": Object {
-              "description": "secure property names",
-              "prefixItems": Object {
+              "description": "Secure property names",
+              "items": Object {
                 "type": "string",
               },
               "type": "array",
               "uniqueItems": true,
             },
             "type": Object {
-              "description": "the profile type",
+              "description": "Profile type",
+              "enum": Array [
+                "zosmf",
+              ],
               "type": "string",
             },
           },
@@ -174,23 +218,42 @@ Object {
 exports[`Config Schema should be able to successfully build with a single profile type configuration 1`] = `
 Object {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$version": 3,
-  "description": "config",
+  "$version": 0.4,
+  "description": "Zowe configuration",
   "properties": Object {
+    "autoStore": Object {
+      "description": "If true, values you enter when prompted are stored for future use",
+      "type": "boolean",
+    },
     "defaults": Object {
-      "description": "default profiles config",
+      "description": "Mapping of profile types to default profile names",
       "properties": Object {
         "zosmf": Object {
+          "description": "Default zosmf profile",
           "type": "string",
         },
       },
       "type": "object",
     },
     "profiles": Object {
-      "description": "named profiles config",
+      "description": "Mapping of profile names to profile configurations",
       "patternProperties": Object {
         "^\\\\S*$": Object {
           "allOf": Array [
+            Object {
+              "if": Object {
+                "properties": Object {
+                  "type": false,
+                },
+              },
+              "then": Object {
+                "properties": Object {
+                  "properties": Object {
+                    "title": "Missing profile type",
+                  },
+                },
+              },
+            },
             Object {
               "if": Object {
                 "properties": Object {
@@ -216,27 +279,30 @@ Object {
               },
             },
           ],
-          "description": "a profile",
+          "description": "Profile configuration object",
           "properties": Object {
             "profiles": Object {
               "$ref": "#/properties/profiles",
-              "description": "additional sub-profiles",
+              "description": "Optional subprofile configurations",
               "type": "object",
             },
             "properties": Object {
-              "description": "the profile properties",
+              "description": "Profile properties object",
               "type": "object",
             },
             "secure": Object {
-              "description": "secure property names",
-              "prefixItems": Object {
+              "description": "Secure property names",
+              "items": Object {
                 "type": "string",
               },
               "type": "array",
               "uniqueItems": true,
             },
             "type": Object {
-              "description": "the profile type",
+              "description": "Profile type",
+              "enum": Array [
+                "zosmf",
+              ],
               "type": "string",
             },
           },
@@ -253,40 +319,60 @@ Object {
 exports[`Config Schema should be able to successfully build with no profile type configuration 1`] = `
 Object {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$version": 3,
-  "description": "config",
+  "$version": 0.4,
+  "description": "Zowe configuration",
   "properties": Object {
+    "autoStore": Object {
+      "description": "If true, values you enter when prompted are stored for future use",
+      "type": "boolean",
+    },
     "defaults": Object {
-      "description": "default profiles config",
+      "description": "Mapping of profile types to default profile names",
       "properties": Object {},
       "type": "object",
     },
     "profiles": Object {
-      "description": "named profiles config",
+      "description": "Mapping of profile names to profile configurations",
       "patternProperties": Object {
         "^\\\\S*$": Object {
-          "allOf": Array [],
-          "description": "a profile",
+          "allOf": Array [
+            Object {
+              "if": Object {
+                "properties": Object {
+                  "type": false,
+                },
+              },
+              "then": Object {
+                "properties": Object {
+                  "properties": Object {
+                    "title": "Missing profile type",
+                  },
+                },
+              },
+            },
+          ],
+          "description": "Profile configuration object",
           "properties": Object {
             "profiles": Object {
               "$ref": "#/properties/profiles",
-              "description": "additional sub-profiles",
+              "description": "Optional subprofile configurations",
               "type": "object",
             },
             "properties": Object {
-              "description": "the profile properties",
+              "description": "Profile properties object",
               "type": "object",
             },
             "secure": Object {
-              "description": "secure property names",
-              "prefixItems": Object {
+              "description": "Secure property names",
+              "items": Object {
                 "type": "string",
               },
               "type": "array",
               "uniqueItems": true,
             },
             "type": Object {
-              "description": "the profile type",
+              "description": "Profile type",
+              "enum": Array [],
               "type": "string",
             },
           },
@@ -303,26 +389,46 @@ Object {
 exports[`Config Schema should be able to successfully build with two profile type configurations 1`] = `
 Object {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$version": 3,
-  "description": "config",
+  "$version": 0.4,
+  "description": "Zowe configuration",
   "properties": Object {
+    "autoStore": Object {
+      "description": "If true, values you enter when prompted are stored for future use",
+      "type": "boolean",
+    },
     "defaults": Object {
-      "description": "default profiles config",
+      "description": "Mapping of profile types to default profile names",
       "properties": Object {
         "base": Object {
+          "description": "Default base profile",
           "type": "string",
         },
         "zosmf": Object {
+          "description": "Default zosmf profile",
           "type": "string",
         },
       },
       "type": "object",
     },
     "profiles": Object {
-      "description": "named profiles config",
+      "description": "Mapping of profile names to profile configurations",
       "patternProperties": Object {
         "^\\\\S*$": Object {
           "allOf": Array [
+            Object {
+              "if": Object {
+                "properties": Object {
+                  "type": false,
+                },
+              },
+              "then": Object {
+                "properties": Object {
+                  "properties": Object {
+                    "title": "Missing profile type",
+                  },
+                },
+              },
+            },
             Object {
               "if": Object {
                 "properties": Object {
@@ -372,27 +478,31 @@ Object {
               },
             },
           ],
-          "description": "a profile",
+          "description": "Profile configuration object",
           "properties": Object {
             "profiles": Object {
               "$ref": "#/properties/profiles",
-              "description": "additional sub-profiles",
+              "description": "Optional subprofile configurations",
               "type": "object",
             },
             "properties": Object {
-              "description": "the profile properties",
+              "description": "Profile properties object",
               "type": "object",
             },
             "secure": Object {
-              "description": "secure property names",
-              "prefixItems": Object {
+              "description": "Secure property names",
+              "items": Object {
                 "type": "string",
               },
               "type": "array",
               "uniqueItems": true,
             },
             "type": Object {
-              "description": "the profile type",
+              "description": "Profile type",
+              "enum": Array [
+                "zosmf",
+                "base",
+              ],
               "type": "string",
             },
           },

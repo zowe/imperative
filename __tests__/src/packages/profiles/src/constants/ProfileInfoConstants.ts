@@ -131,41 +131,58 @@ export const test_appConfigJson: IConfig = {
 
 export const test_appSchemaJson: IConfigSchema = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$version": 3,
+    "$version": 0.4,
     "type": "object",
-    "description": "config",
+    "description": "Zowe configuration",
     "properties": {
         "profiles": {
             "type": "object",
-            "description": "named profiles config",
+            "description": "Mapping of profile names to profile configurations",
             "patternProperties": {
                 "^\\S*$": {
                     "type": "object",
-                    "description": "a profile",
+                    "description": "Profile configuration object",
                     "properties": {
                         "type": {
-                            "description": "the profile type",
-                            "type": "string"
+                            "description": "Profile type",
+                            "type": "string",
+                            "enum": [
+                                "test_app"
+                            ]
                         },
                         "properties": {
-                            "description": "the profile properties",
+                            "description": "Profile properties object",
                             "type": "object"
                         },
                         "profiles": {
-                            "description": "additional sub-profiles",
+                            "description": "Optional subprofile configurations",
                             "type": "object",
                             "$ref": "#/properties/profiles"
                         },
                         "secure": {
-                            "description": "secure property names",
+                            "description": "Secure property names",
                             "type": "array",
-                            "prefixItems": {
+                            "items": {
                                 "type": "string"
                             },
                             "uniqueItems": true
                         }
                     },
                     "allOf": [
+                        {
+                            "if": {
+                                "properties": {
+                                    "type": false
+                                }
+                            },
+                            "then": {
+                                "properties": {
+                                    "properties": {
+                                        "title": "Missing profile type"
+                                    }
+                                }
+                            }
+                        },
                         {
                             "if": {
                                 "properties": {
@@ -206,7 +223,7 @@ export const test_appSchemaJson: IConfigSchema = {
                                         "required": []
                                     },
                                     "secure": {
-                                        "prefixItems": {
+                                        "items": {
                                             "enum": [
                                                 "secure",
                                                 "nested.nested-secure"
@@ -222,12 +239,17 @@ export const test_appSchemaJson: IConfigSchema = {
         },
         "defaults": {
             "type": "object",
-            "description": "default profiles config",
+            "description": "Mapping of profile types to default profile names",
             "properties": {
                 "test_app": {
+                    "description": "Default test_app profile",
                     "type": "string"
                 }
             }
+        },
+        "autoStore": {
+            "type": "boolean",
+            "description": "If true, values you enter when prompted are stored for future use"
         }
     }
 };
