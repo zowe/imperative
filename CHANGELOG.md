@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-# Recent Changes
+## Recent Changes
 
 - Enhancement: Introduce flag `--show-inputs-only` to show the inputs of the command
 that would be used if a command were executed.
