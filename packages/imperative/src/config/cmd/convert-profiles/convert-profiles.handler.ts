@@ -67,7 +67,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
         }
 
         if (oldPluginInfo.plugins.length == 0 && oldProfileCount === 0) {
-            params.response.console.log("No old profiles or plug-ins were found to convert from Zowe v1 to v2.");
+            params.response.console.log("No old profiles were found to convert from Zowe v1 to v2.");
             // Exit if we're not deleting
             if (!(params.arguments.delete != null && params.arguments.delete === true)) {
                 return;
@@ -78,14 +78,14 @@ export default class ConvertProfilesHandler implements ICommandHandler {
 
         // If this is true, then we know that we want to delete, but there is nothing to convert first.
         if (!skipConversion) {
-            const listToConvert = [];
-            if (oldPluginInfo.plugins.length > 0) {
-                listToConvert.push(`${oldPluginInfo.plugins.length} obsolete plug-in(s)`);
-            }
             if (oldProfileCount > 0) {
-                listToConvert.push(`${oldProfileCount} old profile(s)`);
+                params.response.console.log(`Detected ${oldProfileCount} old profile(s) to convert from Zowe v1 to v2.\n`);
             }
-            params.response.console.log(`Detected ${listToConvert.join(" and ")} to convert from Zowe v1 to v2.\n`);
+
+            if (oldPluginInfo.plugins.length > 0) {
+                params.response.console.log(`The following plug-ins will be removed because they are now part of the core CLI and no longer ` +
+                    `needed:\n\t${oldPluginInfo.plugins.join("\n\t")}\n`);
+            }
 
             if (params.arguments.prompt == null || params.arguments.prompt === true) {
                 const answer = await params.response.console.prompt("Are you sure you want to continue? [y/N]: ");
@@ -99,7 +99,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
             for (const pluginName of oldPluginInfo.plugins) {
                 try {
                     uninstallPlugin(pluginName);
-                    params.response.console.log(`Removed obsolete plug-in: ${pluginName}`);
+                    params.response.console.log(`Uninstalled plug-in: ${pluginName}`);
                 } catch (error) {
                     params.response.console.error(`Failed to uninstall plug-in "${pluginName}":\n    ${error}`);
                 }
