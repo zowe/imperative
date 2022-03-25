@@ -803,10 +803,15 @@ export class CommandProcessor {
                 // If the config contains the requested profiles, then "remember"
                 // that this type has been fulfilled - so that we do NOT load from
                 // the traditional profile location
+                const profileTypePrefix = profileType + "_";
                 let p: any = {};
                 if (args[opt] != null && this.mConfig.api.profiles.exists(args[opt])) {
                     fulfilled.push(profileType);
                     p = this.mConfig.api.profiles.get(args[opt]);
+                } else if (args[opt] != null && !args[opt].startsWith(profileTypePrefix) &&
+                    this.mConfig.api.profiles.exists(profileTypePrefix + args[opt])) {
+                    fulfilled.push(profileType);
+                    p = this.mConfig.api.profiles.get(profileTypePrefix + args[opt]);
                 } else if (args[opt] == null &&
                     this.mConfig.properties.defaults[profileType] != null &&
                     this.mConfig.api.profiles.exists(this.mConfig.properties.defaults[profileType])) {

@@ -23,6 +23,7 @@ import { CommandProfileLoader } from "../src/profiles/CommandProfileLoader";
 import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "../src/help/WebHelpManager";
 import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
+import { setupConfigToLoad } from "../../../__tests__/src/TestUtil";
 
 jest.mock("../src/syntax/SyntaxValidator");
 jest.mock("../src/utils/SharedOptions");
@@ -1939,6 +1940,70 @@ describe("Command Processor", () => {
             // If we've gotten here then all the important checks have passed, this
             // will just check that the syntax generated hasn't changed.
             expect(getConsoleErrorFromMock(dummyResponseObject)).toMatchSnapshot();
+        });
+    });
+
+    describe("profiles", () => {
+        let processor: CommandProcessor;
+
+        beforeEach(async () => {
+            // Create fake profile config
+            await setupConfigToLoad({
+                profiles: {
+                    fresh: {
+                        type: "banana",
+                        properties: {
+                            color: "green"
+                        }
+                    },
+                    ripe: {
+                        type: "banana",
+                        properties: {
+                            color: "yellow"
+                        }
+                    },
+                    banana_old: {
+                        type: "banana",
+                        properties: {
+                            color: "brown"
+                        }
+                    },
+                },
+                defaults: {
+                    banana: "fresh"
+                }
+            });
+
+            // Allocate the command processor
+            processor = new CommandProcessor({
+                envVariablePrefix: ENV_VAR_PREFIX,
+                definition: SAMPLE_COMMAND_REAL_HANDLER_WITH_OPT,
+                helpGenerator: FAKE_HELP_GENERATOR,
+                profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+                rootCommandName: SAMPLE_ROOT_COMMAND,
+                commandLine: "",
+                promptPhrase: "dummydummy",
+                config: ImperativeConfig.instance.config
+            });
+        });
+
+        it("should find profile that matches name specified in arguments", async () => {
+            const commandPrepared = await (processor as any).prepare(null, {
+                "banana-profile": "ripe"
+            });
+            expect(commandPrepared.args.color).toBe("yellow");
+        });
+
+        it("should find profile with type prefix that matches name specified in arguments", async () => {
+            const commandPrepared = await (processor as any).prepare(null, {
+                "banana-profile": "old"
+            });
+            expect(commandPrepared.args.color).toBe("brown");
+        });
+
+        it("should find default profile that matches type", async () => {
+            const commandPrepared = await (processor as any).prepare(null, {});
+            expect(commandPrepared.args.color).toBe("green");
         });
     });
 });
