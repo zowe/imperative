@@ -29,10 +29,11 @@ export class ProfileCredentials {
      * in the Imperative settings.json file.
      */
     public get isSecured(): boolean {
+        console.log("before - this.mSecured", this.mSecured);
         if (this.mSecured == null) {
-            this.mSecured = this.mProfileInfo.usingTeamConfig || this.isCredentialManagerInAppSettings();
+            this.mSecured = this.isTeamConfigSecure() || this.isCredentialManagerInAppSettings();
         }
-
+        console.log("after - this.mSecured ", this.mSecured);
         return this.mSecured;
     }
 
@@ -84,6 +85,16 @@ export class ProfileCredentials {
                 })
             });
         }
+    }
+
+    /**
+     * Check whether a teamConfig is secure or not
+     * @returns False if not using teamConfig
+     */
+    private isTeamConfigSecure(): boolean {
+        if (!this.mProfileInfo.usingTeamConfig) return false;
+        if (this.mProfileInfo.getTeamConfig().api.secure.secureFields().length === 0) return false;
+        return true;
     }
 
     /**
