@@ -29,11 +29,9 @@ export class ProfileCredentials {
      * in the Imperative settings.json file.
      */
     public get isSecured(): boolean {
-        console.log("before - this.mSecured", this.mSecured);
         if (this.mSecured == null) {
             this.mSecured = this.isTeamConfigSecure() || this.isCredentialManagerInAppSettings();
         }
-        console.log("after - this.mSecured ", this.mSecured);
         return this.mSecured;
     }
 
