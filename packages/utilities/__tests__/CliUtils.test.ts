@@ -127,7 +127,7 @@ describe("CliUtils", () => {
     describe("promptForInput", () => {
         it("should return the mocked value", () => {
             const mockedPromptValue = "My value is here ";
-            (prompt as any).question= jest.fn(()=>{
+            (prompt as any).question = jest.fn(() => {
                 return mockedPromptValue;
             });
             const value = CliUtils.promptForInput("my message goes here:");
@@ -136,7 +136,7 @@ describe("CliUtils", () => {
     });
 
     describe("sleep", () => {
-        it("should sleep for 1 second", async() => {
+        it("should sleep for 1 second", async () => {
             const startTime = Date.now();
             const oneSec = 1000;
             const minElapsedTime = 990; // sometimes the OS returns in slightly less than one second
@@ -153,7 +153,7 @@ describe("CliUtils", () => {
 
         beforeEach(() => {
             readlineReal = readline;
-            readline.createInterface = jest.fn(()=> {
+            readline.createInterface = jest.fn(() => {
                 return {
                     prompt: jest.fn(() => {
                         // do nothing
@@ -175,7 +175,7 @@ describe("CliUtils", () => {
                             // do nothing
                         })
                     },
-                    close: jest.fn( () => {
+                    close: jest.fn(() => {
                         // do nothing
                     })
                 };
@@ -186,17 +186,17 @@ describe("CliUtils", () => {
             readline = readlineReal;
         });
 
-        it("should return the user's answer", async() => {
+        it("should return the user's answer", async () => {
             const answer = await CliUtils.promptWithTimeout("Question to be asked: ");
             expect(answer).toEqual(mockedAnswer);
         });
 
-        it("should accept a hideText parameter", async() => {
+        it("should accept a hideText parameter", async () => {
             const answer = await CliUtils.promptWithTimeout("Should we hide your answer: ", true);
             expect(answer).toEqual(mockedAnswer);
         });
 
-        it("should accept a secToWait parameter", async() => {
+        it("should accept a secToWait parameter", async () => {
             const secToWait = 15;
             const answer = await CliUtils.promptWithTimeout("Should wait your amount of time: ",
                 false, secToWait
@@ -204,7 +204,7 @@ describe("CliUtils", () => {
             expect(answer).toEqual(mockedAnswer);
         });
 
-        it("should limit to a max secToWait", async() => {
+        it("should limit to a max secToWait", async () => {
             const tooLong = 1000;
             const answer = await CliUtils.promptWithTimeout("Should wait your amount of time: ",
                 false, tooLong
@@ -221,7 +221,7 @@ describe("CliUtils", () => {
 
         beforeEach(() => {
             readlineReal = readline;
-            readline.createInterface = jest.fn(()=> {
+            readline.createInterface = jest.fn(() => {
                 return {
                     prompt: jest.fn(() => {
                         // do nothing
@@ -244,7 +244,7 @@ describe("CliUtils", () => {
                             // do nothing
                         })
                     },
-                    close: jest.fn( () => {
+                    close: jest.fn(() => {
                         // do nothing
                     })
                 };
@@ -255,17 +255,17 @@ describe("CliUtils", () => {
             readline = readlineReal;
         });
 
-        it("should return the user's answer", async() => {
+        it("should return the user's answer", async () => {
             const answer = await CliUtils.readPrompt("Question to be asked: ");
             expect(answer).toEqual(mockedAnswer);
         });
 
-        it("should accept a hideText parameter", async() => {
+        it("should accept a hideText parameter", async () => {
             const answer = await CliUtils.readPrompt("Should we hide your answer: ", { hideText: true });
             expect(answer).toEqual(mockedAnswer);
         });
 
-        it("should accept a secToWait parameter", async() => {
+        it("should accept a secToWait parameter", async () => {
             const secToWait = 15;
             const answer = await CliUtils.readPrompt("Should wait your amount of time: ",
                 { hideText: false, secToWait }
@@ -273,7 +273,7 @@ describe("CliUtils", () => {
             expect(answer).toEqual(mockedAnswer);
         });
 
-        it("should limit to a max secToWait", async() => {
+        it("should limit to a max secToWait", async () => {
             const tooLong = 1000;
             const answer = await CliUtils.readPrompt("Should wait your amount of time: ",
                 { hideText: false, secToWait: tooLong }
@@ -281,7 +281,7 @@ describe("CliUtils", () => {
             expect(answer).toEqual(mockedAnswer);
         });
 
-        it("should accept a maskChar parameter", async() => {
+        it("should accept a maskChar parameter", async () => {
             const answer = await CliUtils.readPrompt("Should we hide your answer: ",
                 { hideText: true, maskChar: "*" });
             expect(answer).toEqual(mockedAnswer);
@@ -304,7 +304,7 @@ describe("CliUtils", () => {
             response: {
                 console: {
                     // any error response is just stored in a variable
-                    error: jest.fn((msgText)=> {
+                    error: jest.fn((msgText) => {
                         responseErrText = msgText;
                     })
                 }
@@ -379,6 +379,12 @@ describe("CliUtils", () => {
             description: "a fake opt",
             type: "string",
             aliases: ["w"]
+        },
+        {
+            name: "user",
+            description: "a fake opt",
+            type: "string",
+            aliases: ["username"]
         }];
 
         it("should throw an imperative error if a required profile is not present", () => {
@@ -484,6 +490,20 @@ describe("CliUtils", () => {
                 { optional: ["banana"] },
                 FAKE_OPTS);
             expect(args).toMatchSnapshot();
+        });
+
+        it("should return args if extracted option from a profile is only available as an alias", () => {
+            const map = new Map<string, IProfile[]>();
+            map.set("banana", [{
+                type: "banana",
+                name: "fakebanana",
+                username: "fake"
+            }]);
+            const args = CliUtils.getOptValueFromProfiles(
+                new CommandProfiles(map),
+                { optional: ["banana"] },
+                FAKE_OPTS);
+            expect(args).toEqual({ user: "fake", username: "fake" });
         });
     });
 
