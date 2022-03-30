@@ -221,8 +221,17 @@ export class CliUtils {
         let args: ICommandArguments["args"] = {};
         options.forEach((opt) => {
             let envValue: any = CliUtils.getEnvValForOption(envPrefix, opt.name);
-            if (envValue != null) {
 
+            if (envValue == null) {
+                // Use aliases for backwards compatibility
+                // Search for first alias available in the process.env
+                if ("aliases" in opt) {
+                    const oldOption = opt.aliases.find(o => CliUtils.getEnvValForOption(envPrefix, o) != null);
+                    if (oldOption) envValue = CliUtils.getEnvValForOption(envPrefix, oldOption);
+                }
+            }
+
+            if (envValue != null) {
                 // Perform the proper conversion if necessary for the type
                 // ENV vars are extracted as strings
                 switch (opt.type) {
