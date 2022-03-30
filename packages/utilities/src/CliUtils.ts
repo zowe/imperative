@@ -143,9 +143,20 @@ export class CliUtils {
             } else if (profile != null) {
                 // For each option - extract the value if that exact property exists
                 options.forEach((opt) => {
-
                     // Get the camel an kebab case
-                    const cases = CliUtils.getOptionFormat(opt.name);
+                    let cases;
+                    if (profile[opt.name] == null) {
+                        // Use aliases for backwards compatibility
+                        // Search for first alias available in the profile
+                        if ("aliases" in opt) {
+                            const oldOption = opt.aliases.find(o => profile[o] != null);
+                            if (oldOption) cases = CliUtils.getOptionFormat(oldOption);
+                        }
+                    }
+
+                    if (cases == null) {
+                        cases = CliUtils.getOptionFormat(opt.name);
+                    }
 
                     // We have to "deal" with the situation that the profile contains both cases - camel and kebab.
                     // This is to support where the profile options have "-", but the properties are camel case in the
