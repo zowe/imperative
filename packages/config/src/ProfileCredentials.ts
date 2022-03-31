@@ -87,7 +87,7 @@ export class ProfileCredentials {
 
     /**
      * Check whether a teamConfig is secure or not
-     * @returns False if not using teamConfig
+     * @returns False if not using teamConfig or there are no secure fields
      */
     private isTeamConfigSecure(): boolean {
         if (!this.mProfileInfo.usingTeamConfig) return false;
