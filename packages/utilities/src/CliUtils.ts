@@ -143,15 +143,13 @@ export class CliUtils {
             } else if (profile != null) {
                 // For each option - extract the value if that exact property exists
                 options.forEach((opt) => {
-                    // Get the camel an kebab case
                     let cases;
-                    if (profile[opt.name] == null) {
+                    if (profile[opt.name] == null && "aliases" in opt) {
                         // Use aliases for backwards compatibility
                         // Search for first alias available in the profile
-                        if ("aliases" in opt) {
-                            const oldOption = opt.aliases.find(o => profile[o] != null);
-                            if (oldOption) cases = CliUtils.getOptionFormat(oldOption);
-                        }
+                        const oldOption = opt.aliases.find(o => profile[o] != null);
+                        // Get the camel an kebab case
+                        if (oldOption) cases = CliUtils.getOptionFormat(oldOption);
                     }
 
                     if (cases == null) {
@@ -222,13 +220,12 @@ export class CliUtils {
         options.forEach((opt) => {
             let envValue: any = CliUtils.getEnvValForOption(envPrefix, opt.name);
 
-            if (envValue == null) {
-                // Use aliases for backwards compatibility
-                // Search for first alias available in the process.env
-                if ("aliases" in opt) {
-                    const oldOption = opt.aliases.find(o => CliUtils.getEnvValForOption(envPrefix, o) != null);
-                    if (oldOption) envValue = CliUtils.getEnvValForOption(envPrefix, oldOption);
-                }
+            // Use aliases for backwards compatibility
+            // Search for first alias available in the process.env
+            if (envValue == null && "aliases" in opt) {
+                let oldEnvValue: string;
+                opt.aliases.find(o => (oldEnvValue = CliUtils.getEnvValForOption(envPrefix, o)) != null);
+                if (oldEnvValue) envValue = oldEnvValue;
             }
 
             if (envValue != null) {
