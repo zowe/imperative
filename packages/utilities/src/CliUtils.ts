@@ -220,14 +220,6 @@ export class CliUtils {
         options.forEach((opt) => {
             let envValue: any = CliUtils.getEnvValForOption(envPrefix, opt.name);
 
-            // Use aliases for backwards compatibility
-            // Search for first alias available in the process.env
-            if (envValue == null && "aliases" in opt) {
-                let oldEnvValue: string;
-                opt.aliases.find(o => (oldEnvValue = CliUtils.getEnvValForOption(envPrefix, o)) != null);
-                if (oldEnvValue) envValue = oldEnvValue;
-            }
-
             if (envValue != null) {
                 // Perform the proper conversion if necessary for the type
                 // ENV vars are extracted as strings
