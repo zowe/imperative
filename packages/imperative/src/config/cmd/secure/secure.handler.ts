@@ -10,8 +10,8 @@
 */
 
 import { ICommandArguments, ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { Config, ConfigAutoStore } from "../../../../../config";
-import { secureSaveError } from "../../../../../config/src/ConfigUtils";
+import { Config, ConfigAutoStore, ConfigSchema } from "../../../../../config";
+import { coercePropValue, secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { ImperativeError } from "../../../../../error";
 import { Logger } from "../../../../../logger";
 import { ConnectionPropsForSessCfg, ISession, Session } from "../../../../../rest";
@@ -56,11 +56,12 @@ export default class SecureHandler implements ICommandHandler {
                 continue;
             }
 
-            const propValue = await params.response.console.prompt(`Enter ${propName} - blank to skip: `, {hideText: true});
+            let propValue = await params.response.console.prompt(`Enter ${propName} - blank to skip: `, { hideText: true });
 
             // Save the value in the config securely
             if (propValue) {
-                config.set(propName, propValue, { parseString: true, secure: true });
+                propValue = coercePropValue(propValue, ConfigSchema.findPropertyType(propName, config.properties));
+                config.set(propName, propValue, { secure: true });
             }
         }
 

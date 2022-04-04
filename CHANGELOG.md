@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed `config set` command not respecting the property type defined in the schema. [#772](https://github.com/zowe/imperative/issues/772)
+
 ## `5.0.0-next.202203311701`
 
 - BugFix: Allowed `ProfileCredentials.isSecured` to be insecure on teamConfig based on existing secure fields. [#762](https://github.com/zowe/imperative/issues/762)
