@@ -436,7 +436,7 @@ export class ConfigSchema {
 
         const pathSegments = path.split(".");
         const propertyName = pathSegments.pop();
-        const profilePath = pathSegments.slice(0, -1).join(".");  // eslint-disable-line @typescript-eslint/no-magic-numbers
+        const profilePath = pathSegments.slice(0, -1).join(".");
         const profileType: string = lodash.get(config, `${profilePath}.type`);
         if (profileType == null) {
             return;
