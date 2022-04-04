@@ -4,7 +4,7 @@ All notable changes to the Imperative package will be documented in this file.
 
 ## Recent Changes
 
-- BugFix: Added the ability to read option values from aliases. Enhanced backward compatibility with V1 profiles. _Reported on Slack_
+- BugFix: Added the ability to read option values from aliases. Enhanced backward compatibility with V1 profiles. [#770](https://github.com/zowe/imperative/issues/770)
 
 ## `5.0.0-next.202203311701`
 
