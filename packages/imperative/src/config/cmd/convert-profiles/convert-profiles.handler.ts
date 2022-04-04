@@ -83,7 +83,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
             }
 
             if (oldPluginInfo.plugins.length > 0) {
-                params.response.console.log(`The following plug-ins will be removed because they are now part of the core CLI and no longer ` +
+                params.response.console.log(`The following plug-ins will be removed because they are now part of the core CLI and are no longer ` +
                     `needed:\n\t${oldPluginInfo.plugins.join("\n\t")}\n`);
             }
 
@@ -143,7 +143,7 @@ export default class ConvertProfilesHandler implements ICommandHandler {
                 if (params.arguments.delete == null || params.arguments.delete === false) {
                     params.response.console.log(`Your old profiles have been moved to ${oldProfilesDir}.\n` +
                     `Run "${cliBin} config convert-profiles --delete" if you want to completely remove them.\n\n` +
-                    `If you would like to revert back to v1 profiles, or convert your v1 profiles again, rename the 'profiles-old'\n` +
+                    `If you would like to revert back to v1 profiles, or convert your v1 profiles again, rename the 'profiles-old' ` +
                     `directory to 'profiles' and delete the new config file located at ${teamConfig.layerActive().path}.`);
                 }
             }
