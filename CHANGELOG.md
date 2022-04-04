@@ -9,6 +9,10 @@ All notable changes to the Imperative package will be documented in this file.
 - BugFix: Made `--dry-run` and `--prompt` options mutually exclusive on `config init` command.
 - **Next Breaking**: The team config API method `config.api.profiles.get` now returns `null` if a profile doesn't exist unless `mustExist` is false. [#518](https://github.com/zowe/imperative/issues/518)
 
+## `5.0.0-next.202203311701`
+
+- BugFix: Allowed `ProfileCredentials.isSecured` to be insecure on teamConfig based on existing secure fields. [#762](https://github.com/zowe/imperative/issues/762)
+
 ## `5.0.0-next.202203231534`
 
 - Enhancement: Added JSON property autocompletion to `secure` array in team config files. [zowe/zowe-cli#1187](https://github.com/zowe/zowe-cli/issues/1187)

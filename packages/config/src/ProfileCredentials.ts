@@ -30,9 +30,8 @@ export class ProfileCredentials {
      */
     public get isSecured(): boolean {
         if (this.mSecured == null) {
-            this.mSecured = this.mProfileInfo.usingTeamConfig || this.isCredentialManagerInAppSettings();
+            this.mSecured = this.isTeamConfigSecure() || this.isCredentialManagerInAppSettings();
         }
-
         return this.mSecured;
     }
 
@@ -84,6 +83,16 @@ export class ProfileCredentials {
                 })
             });
         }
+    }
+
+    /**
+     * Check whether a teamConfig is secure or not
+     * @returns False if not using teamConfig or there are no secure fields
+     */
+    private isTeamConfigSecure(): boolean {
+        if (!this.mProfileInfo.usingTeamConfig) return false;
+        if (this.mProfileInfo.getTeamConfig().api.secure.secureFields().length === 0) return false;
+        return true;
     }
 
     /**
