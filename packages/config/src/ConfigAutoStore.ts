@@ -76,7 +76,7 @@ export class ConfigAutoStore {
     private static _findAuthHandlerForProfile(opts: IConfigAutoStoreFindAuthHandlerForProfileOpts): AbstractAuthHandler | undefined {
         const config = ImperativeConfig.instance.config;
         const profileType = lodash.get(config.properties, `${opts.profilePath}.type`);
-        const profile = config.api.profiles.get(opts.profilePath.replace(/profiles\./g, ""));
+        const profile = config.api.profiles.get(opts.profilePath.replace(/profiles\./g, ""), false);
 
         if (profile == null || profileType == null) {  // Profile must exist and have type defined
             return;
@@ -155,12 +155,12 @@ export class ConfigAutoStore {
             config.api.layers.activate(user, global);
         }
 
-        const profileObj = config.api.profiles.get(profileName);
+        const profileObj = config.api.profiles.get(profileName, false);
         const profileSchema = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profileType).schema;
         const profileSecureProps = config.api.secure.securePropsForProfile(profileName);
 
         const baseProfileName = ConfigUtils.getActiveProfileName("base", opts.params?.arguments, opts.defaultBaseProfileName);
-        const baseProfileObj = config.api.profiles.get(baseProfileName);
+        const baseProfileObj = config.api.profiles.get(baseProfileName, false);
         const baseProfileSchema = ImperativeConfig.instance.loadedConfig.baseProfile.schema;
         const baseProfileSecureProps = config.api.secure.securePropsForProfile(baseProfileName);
 

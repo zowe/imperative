@@ -149,6 +149,11 @@ describe("Config API tests", () => {
             it("should fail to get a profile that doesn't exist", async () => {
                 const config = await Config.load(MY_APP);
                 const profile = config.api.profiles.get("vegetable");
+                expect(profile).toEqual(null);
+            });
+            it("should return empty object if optional profile doesn't exist", async () => {
+                const config = await Config.load(MY_APP);
+                const profile = config.api.profiles.get("vegetable", false);
                 expect(profile).toEqual({});
             });
         });

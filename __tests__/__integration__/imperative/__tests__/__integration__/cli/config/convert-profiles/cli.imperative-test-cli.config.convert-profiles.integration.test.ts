@@ -154,7 +154,7 @@ describe("imperative-test-cli config convert-profiles", () => {
 
             const response = runCliScript(__dirname + "/__scripts__/convert_profiles_delete.sh", TEST_ENVIRONMENT.workingDir, ["n"]);
             expect(response.status).toBe(0);
-            expect(response.stdout.toString()).toContain("No old profiles or plug-ins were found");
+            expect(response.stdout.toString()).toContain("No old profiles were found");
             expect(response.stdout.toString()).toContain("Are you sure you want to delete your v1 profiles?");
             expect(response.stdout.toString()).not.toContain("Your new profiles have been saved");
             expect(response.stdout.toString()).not.toContain("Your old profiles have been moved");
