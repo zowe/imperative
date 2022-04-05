@@ -8,6 +8,7 @@ All notable changes to the Imperative package will be documented in this file.
 - BugFix: Reworded potentially misleading output of `config convert-profiles` command mentioning obsolete plug-ins.
 - BugFix: Made `--dry-run` and `--prompt` options mutually exclusive on `config init` command.
 - **Next Breaking**: The team config API method `config.api.profiles.get` now returns `null` if a profile doesn't exist unless `mustExist` is false. [#518](https://github.com/zowe/imperative/issues/518)
+- BugFix: Added the ability to read option values from aliases. Enhanced backward compatibility with V1 profiles. [#770](https://github.com/zowe/imperative/issues/770)
 
 ## `5.0.0-next.202203311701`
 
