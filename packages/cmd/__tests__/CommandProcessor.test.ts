@@ -24,6 +24,7 @@ import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "../src/help/WebHelpManager";
 import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
 import { setupConfigToLoad } from "../../../__tests__/src/TestUtil";
+import { Config } from "../../config/src/Config";
 import * as fs from "fs";
 
 jest.mock("../src/syntax/SyntaxValidator");
