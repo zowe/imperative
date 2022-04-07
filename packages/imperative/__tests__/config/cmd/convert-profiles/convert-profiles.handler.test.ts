@@ -87,7 +87,7 @@ describe("Configuration Convert Profiles command handler", () => {
         const params = getIHandlerParametersObject();
 
         await handler.process(params);
-        expect(stdout).toContain("No old profiles or plug-ins were found");
+        expect(stdout).toContain("No old profiles were found");
         expect(stderr).toBe("");
     });
 
@@ -110,8 +110,8 @@ describe("Configuration Convert Profiles command handler", () => {
         params.arguments.prompt = false;
 
         await handler.process(params);
-        expect(stdout).toContain("Detected 2 obsolete plug-in(s)");
-        expect(stdout).toContain("Removed obsolete plug-in: pluginB");
+        expect(stdout).toContain("The following plug-ins will be removed");
+        expect(stdout).toContain("Uninstalled plug-in: pluginB");
         expect(stderr).toContain("Failed to uninstall plug-in \"pluginA\"");
         expect(removeOverrideSpy).toHaveBeenCalledWith("overrideX", 0, ["overrideX"]);
         expect(uninstallSpy).toHaveBeenCalledTimes(2);
@@ -170,7 +170,7 @@ describe("Configuration Convert Profiles command handler", () => {
 
         await handler.process(params);
         expect(stdout).toContain("A team configuration file was detected");
-        expect(stdout).toContain("No old profiles or plug-ins were found");
+        expect(stdout).toContain("No old profiles were found");
         expect(stdout).not.toContain("Converted fruit profiles: apple, coconut");
         expect(updateSchemaSpy).not.toHaveBeenCalled();
         expect(mockImperativeConfig.config.save).not.toHaveBeenCalled();
@@ -196,7 +196,8 @@ describe("Configuration Convert Profiles command handler", () => {
         (params.response.console.prompt as any).mockResolvedValueOnce("y");
 
         await handler.process(params);
-        expect(stdout).toContain("Detected 1 obsolete plug-in(s) and 1 old profile(s)");
+        expect(stdout).toContain("Detected 1 old profile(s)");
+        expect(stdout).toContain("The following plug-ins will be removed");
         expect(stdout).toContain("Your new profiles have been saved");
         expect(stdout).toContain("Your old profiles have been moved");
         expect(stderr).toBe("");
@@ -215,7 +216,8 @@ describe("Configuration Convert Profiles command handler", () => {
         (params.response.console.prompt as any).mockResolvedValueOnce("n");
 
         await handler.process(params);
-        expect(stdout).toContain("Detected 1 obsolete plug-in(s) and 1 old profile(s)");
+        expect(stdout).toContain("Detected 1 old profile(s)");
+        expect(stdout).toContain("The following plug-ins will be removed");
         expect(stderr).toBe("");
         expect(uninstallSpy).not.toHaveBeenCalled();
         expect(configConvertSpy).not.toHaveBeenCalled();
@@ -435,7 +437,7 @@ describe("Configuration Convert Profiles command handler", () => {
         params.arguments.delete = true;
 
         await handler.process(params);
-        expect(stdout).toContain("No old profiles or plug-ins were found");
+        expect(stdout).toContain("No old profiles were found");
         expect(stdout).toContain("Deleting the profiles directory");
         expect(stdout).toContain("Deleting secure value for \"@brightside/core/testAcct\"");
         expect(stdout).toContain("Deleting secure value for \"@zowe/cli/testAcct\"");

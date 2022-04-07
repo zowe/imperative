@@ -48,12 +48,13 @@ export class ConfigProfiles extends ConfigApi {
     /**
      * Get the profile object located at the specified location.
      *
-     * TODO: If asked for inner layer profile, if profile doesn't exist,
-     *       returns outer layer profile values (bug?)
-     *
      * @param path The dotted path of the location at which to set the profile.
+     * @param mustExist If false, outer layer profile values will still be
+     *        returned when the dotted path does not exist. Default is true.
      */
-    public get(path: string): { [key: string]: string } {
+    public get(path: string, mustExist?: boolean): { [key: string]: string } {
+        if (mustExist !== false && !this.exists(path))
+            return null;
         return this.buildProfile(path, JSONC.parse(JSONC.stringify(this.mConfig.properties.profiles, null, ConfigConstants.INDENT)));
     }
 
@@ -93,9 +94,7 @@ export class ConfigProfiles extends ConfigApi {
      */
     public defaultGet(profileType: string): { [key: string]: string } {
         const dflt = this.mConfig.properties.defaults[profileType];
-        if (dflt == null || !this.exists(dflt))
-            return null;
-        return this.get(dflt);
+        return dflt != null ? this.get(dflt) : null;
     }
 
     // _______________________________________________________________________
