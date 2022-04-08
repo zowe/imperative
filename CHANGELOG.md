@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Updated `moment` dependency.
+
 ## `5.0.0-next.202204081605`
 
 - BugFix: Fixed `config set` command not respecting the property type defined in the schema. [#772](https://github.com/zowe/imperative/issues/772)
