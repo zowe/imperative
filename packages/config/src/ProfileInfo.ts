@@ -551,7 +551,7 @@ export class ProfileInfo {
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
             if (profile.profName != null) {
                 // Load args from service profile if one exists
-                const serviceProfile = this.mLoadedConfig.api.profiles.get(profile.profName);
+                const serviceProfile = this.mLoadedConfig.api.profiles.get(profile.profName, false);
                 for (const [propName, propVal] of Object.entries(serviceProfile)) {
                     const [argLoc, secure] = this.argTeamConfigLoc(profile.profName, propName);
                     mergedArgs.knownArgs.push({

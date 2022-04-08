@@ -101,7 +101,7 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
             // TODO Should config be added to IHandlerParameters?
             const config = ImperativeConfig.instance.config;
             let profileName = this.getBaseProfileName(params);
-            const profileProps = Object.keys(config.api.profiles.get(profileName));
+            const profileProps = Object.keys(config.api.profiles.get(profileName, false));
             let profileExists = config.api.profiles.exists(profileName) && profileProps.length > 0;
             profileProps.push(...config.api.secure.securePropsForProfile(profileName));
             const beforeLayer = config.api.layers.get();
@@ -203,7 +203,7 @@ export abstract class BaseAuthHandler extends AbstractAuthHandler {
         } else {
             const config = ImperativeConfig.instance.config;
             const profileName = this.getBaseProfileName(params);
-            const profileProps = config.api.profiles.get(profileName);
+            const profileProps = config.api.profiles.get(profileName, false);
             let profileWithToken: string = null;
 
             // If you specified a token on the command line, then don't delete the one in the profile if it doesn't match

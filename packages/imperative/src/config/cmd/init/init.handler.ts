@@ -49,12 +49,6 @@ export default class InitHandler implements ICommandHandler {
         if (params.arguments.dryRun && params.arguments.dryRun === true) {
             let dryRun = await this.initForDryRun(config, params.arguments.userConfig);
 
-            if (params.arguments.prompt !== false && config.api.secure.loadFailed && config.api.secure.secureFields().length > 0) {
-                const warning = secureSaveError();
-                params.response.console.log(TextUtils.chalk.yellow("Warning:\n") +
-                    `${warning.message} Skipped prompting for credentials.\n\n${warning.additionalDetails}\n`);
-            }
-
             // Merge and display, do not save
             // Handle if the file doesn't actually exist
             let original: any = layer;

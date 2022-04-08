@@ -43,7 +43,7 @@ export const initDefinition: ICommandDefinition = {
         },
         {
             name: "prompt",
-            description: "Prompt for secure values. Useful for disabling prompting in CI environments.",
+            description: "Prompt for missing values in the base profile. Useful for disabling prompting in CI environments.",
             type: "boolean",
             defaultValue: true
         },
@@ -67,7 +67,7 @@ export const initDefinition: ICommandDefinition = {
             description: "Display the outcome of the initialization without saving it.",
             aliases: ["dr", "dry"],
             type: "boolean",
-            conflictsWith: ["overwrite", "edit"]
+            conflictsWith: ["edit", "overwrite", "prompt"]
         },
         {
             name: "edit",

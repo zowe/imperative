@@ -98,7 +98,7 @@ export default class SecureHandler implements ICommandHandler {
                 this.params.response.console.log(`Logging in to ${promptParams.serviceDescription}`);
             }
 
-            const profile = config.api.profiles.get(profilePath.replace(/profiles\./g, ""));
+            const profile = config.api.profiles.get(profilePath.replace(/profiles\./g, ""), false);
             const sessCfg: ISession = await ConnectionPropsForSessCfg.addPropsOrPrompt({}, profile as ICommandArguments,
                 { parms: this.params, doPrompting: true, requestToken: true, ...promptParams });
             Logger.getAppLogger().info(`Fetching ${profile.tokenType} for ${propPath}`);
