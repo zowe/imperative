@@ -11,7 +11,8 @@
 
 import * as JSONC from "comment-json";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { secureSaveError } from "../../../../../config/src/ConfigUtils";
+import { ConfigSchema } from "../../../../../config";
+import { coercePropValue, secureSaveError } from "../../../../../config/src/ConfigUtils";
 import { ImperativeError } from "../../../../../error";
 import { ImperativeConfig } from "../../../../../utilities";
 
@@ -46,7 +47,7 @@ export default class SetHandler implements ICommandHandler {
         if (params.arguments.value) {
             value = params.arguments.value;
         } else {
-            value = await params.response.console.prompt(`Please enter the value for ${params.arguments.property}: `, {hideText: secure});
+            value = await params.response.console.prompt(`Please enter the value for ${params.arguments.property}: `, { hideText: secure });
         }
 
         if (params.arguments.json) {
@@ -55,10 +56,12 @@ export default class SetHandler implements ICommandHandler {
             } catch (e) {
                 throw new ImperativeError({ msg: `could not parse JSON value: ${e.message}` });
             }
+        } else {
+            value = coercePropValue(value, ConfigSchema.findPropertyType(params.arguments.property, config.properties));
         }
 
         // Set the value in the config, save the secure values, write the config layer
-        config.set(params.arguments.property, value, { parseString: true, secure });
+        config.set(params.arguments.property, value, { secure });
 
         await config.save();
     }

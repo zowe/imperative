@@ -10,6 +10,7 @@
 */
 
 import * as path from "path";
+import * as lodash from "lodash";
 import { IExplanationMap, TextUtils } from "../../utilities/src/TextUtils";
 import { ICommandProfileProperty } from "../../cmd";
 import { IProfileProperty, IProfileSchema, IProfileTypeConfiguration } from "../../profiles";
@@ -18,6 +19,7 @@ import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
 import { Logger } from "../../logger/src/Logger";
 import { Config } from "./Config";
 import { ImperativeError } from "../../error/src/ImperativeError";
+import { IConfig } from "./doc/IConfig";
 
 export class ConfigSchema {
     /**
@@ -419,5 +421,35 @@ export class ConfigSchema {
             }
         }
         return updatedPaths;
+    }
+
+    /**
+     * Find the type of a property based on schema info.
+     * @param path Path to JSON property in config JSON
+     * @param config Team config properties
+     * @param schema Config schema definition. Defaults to profile schemas defined in Imperative config.
+     */
+    public static findPropertyType(path: string, config: IConfig, schema?: IConfigSchema): string | undefined {
+        if (!path.includes(".properties.")) {
+            return;
+        }
+
+        const pathSegments = path.split(".");
+        const propertyName = pathSegments.pop();
+        const profilePath = pathSegments.slice(0, -1).join(".");
+        const profileType: string = lodash.get(config, `${profilePath}.type`);
+        if (profileType == null) {
+            return;
+        }
+
+        const profileSchemas = schema ? this.loadSchema(schema) : ImperativeConfig.instance.loadedConfig.profiles;
+        const profileSchema = profileSchemas.find(p => p.type === profileType)?.schema;
+        if (profileSchema?.properties[propertyName] == null) {
+            return;
+        }
+
+        // TODO How to handle profile property with multiple types
+        const propertyType = profileSchema.properties[propertyName].type;
+        return Array.isArray(propertyType) ? propertyType[0] : propertyType;
     }
 }

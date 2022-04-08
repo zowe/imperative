@@ -13,7 +13,7 @@ import { IProfileTypeConfiguration } from "../../profiles";
 import { ConfigSchema } from "../src/ConfigSchema";
 import { cloneDeep } from "lodash";
 import { ICommandProfileTypeConfiguration, ImperativeConfig, Logger } from "../..";
-import { Config, IConfigLayer, IConfigUpdateSchemaHelperOptions } from "..";
+import { Config, IConfig, IConfigLayer, IConfigUpdateSchemaHelperOptions } from "..";
 import * as path from "path";
 
 describe("Config Schema", () => {
@@ -303,7 +303,7 @@ describe("Config Schema", () => {
         expect(testConfig[0].schema).toMatchObject(origSchemas[0].schema);
     });
 
-    describe("Function: updateSchema;", () => {
+    describe("Function: updateSchema", () => {
         const fakeUserPath = "/fake/path/user/fake.config.user.json";
         const fakeProjPath = "/fake/path/proj/fake.config.json";
         const fakeSchema: any = "this is a fake schema, how cool is that?";
@@ -353,14 +353,15 @@ describe("Config Schema", () => {
         const originalImperativeConfig = cloneDeep(ImperativeConfig.instance);
 
         beforeEach(() => {
-            jest.clearAllMocks();
-            jest.restoreAllMocks();
-
             jest.spyOn(ConfigSchema, "buildSchema").mockReturnValue(fakeSchema);
             jest.spyOn(Logger, "getAppLogger").mockReturnValue({ debug: jest.fn() } as any);
             Object.defineProperty(ImperativeConfig, "instance", {
                 get: () => fakeInstance
             });
+        });
+        afterEach(() => {
+            jest.clearAllMocks();
+            jest.restoreAllMocks();
         });
         afterAll(() => {
             Object.defineProperty(ImperativeConfig, "instance", {
@@ -558,6 +559,70 @@ describe("Config Schema", () => {
                 expect(spyActive).toHaveBeenCalledTimes(3);
                 expect(spyConfigApiLayersActivate).toHaveBeenCalledTimes(4);
             });
+        });
+    });
+
+    describe("Function: findPropertyType", () => {
+        const configProps: IConfig = {
+            profiles: {
+                banana: {
+                    type: "fruit",
+                    properties: {}
+                }
+            },
+            defaults: {}
+        };
+        const profileSchemas = [
+            {
+                type: "fruit",
+                schema: {
+                    properties: {
+                        color: { type: "string" }
+                    }
+                }
+            }
+        ];
+
+        it("should find property type defined in ImperativeConfig profile schema", () => {
+            jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValueOnce({
+                loadedConfig: { profiles: profileSchemas }
+            } as any);
+            const propType = ConfigSchema.findPropertyType("profiles.banana.properties.color", configProps);
+            expect(propType).toBe("string");
+        });
+
+        it("should find property type defined in schema JSON file", () => {
+            const configSchema = ConfigSchema.buildSchema(profileSchemas as any);
+            const propType = ConfigSchema.findPropertyType("profiles.banana.properties.color", configProps, configSchema);
+            expect(propType).toBe("string");
+        });
+
+        it("should not return type if JSON path is not a property", () => {
+            const configSchema = ConfigSchema.buildSchema(profileSchemas as any);
+            const propType = ConfigSchema.findPropertyType("profiles.banana", configProps, configSchema);
+            expect(propType).toBeUndefined();
+        });
+
+        it("should not return type if profile type is undefined", () => {
+            const configPropsCopy = JSON.parse(JSON.stringify(configProps));
+            delete configPropsCopy.profiles.banana.type;
+            const configSchema = ConfigSchema.buildSchema(profileSchemas as any);
+            const propType = ConfigSchema.findPropertyType("profiles.banana.properties.color", configPropsCopy, configSchema);
+            expect(propType).toBeUndefined();
+        });
+
+        it("should not return type if profile schema is missing", () => {
+            const configSchema = ConfigSchema.buildSchema([]);
+            const propType = ConfigSchema.findPropertyType("profiles.banana.properties.color", configProps, configSchema);
+            expect(propType).toBeUndefined();
+        });
+
+        it("should not return type if property is missing from profile schema", () => {
+            const profileSchemasCopy = JSON.parse(JSON.stringify(profileSchemas));
+            profileSchemasCopy[0].schema.properties = {};
+            const configSchema = ConfigSchema.buildSchema(profileSchemasCopy);
+            const propType = ConfigSchema.findPropertyType("profiles.banana.properties.color", configProps, configSchema);
+            expect(propType).toBeUndefined();
         });
     });
 });

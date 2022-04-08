@@ -17,16 +17,24 @@ import { ImperativeError } from "../../error";
 /**
  * Coeerces string property value to a boolean or number type.
  * @param value String value
+ * @param type Property type defined in the schema
  * @returns Boolean, number, or string
  */
-export function coercePropValue(value: any) {
-    if (value === "true")
-        return true;
-    if (value === "false")
-        return false;
-    if (!isNaN(value) && !isNaN(parseFloat(value)))
-        return parseInt(value, 10);
-    return value;
+export function coercePropValue(value: any, type?: string) {
+    if (type === "boolean" || type === "number") {
+        // For boolean or number, parse the string and throw on failure
+        return JSON.parse(value);
+    } else if (type == null) {
+        // For unknown type, try to parse the string and ignore failure
+        try {
+            return JSON.parse(value);
+        } catch {
+            return value;
+        }
+    } else {
+        // For string or other type, don't do any parsing
+        return value.toString();
+    }
 }
 
 /**
