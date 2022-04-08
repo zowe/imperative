@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Updated `moment` dependency.
+
 ## `4.18.1`
 
 - BugFix: Fixed AbstractRestClient returning compressed data in `causeErrors` property for streamed responses. [#753](https://github.com/zowe/imperative/issues/753)
