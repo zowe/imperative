@@ -34,7 +34,7 @@ export class ConfigSchema {
      * @readonly
      * @memberof ConfigSchema
      */
-    private static readonly SCHEMA_VERSION = 1.0;
+    private static readonly SCHEMA_VERSION = "1.0";
 
     /**
      * Pretty explanation of the schema objects
