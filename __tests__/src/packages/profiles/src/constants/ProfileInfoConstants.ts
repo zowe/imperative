@@ -131,7 +131,7 @@ export const test_appConfigJson: IConfig = {
 
 export const test_appSchemaJson: IConfigSchema = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$version": 0.4,
+    "$version": 1.0,
     "type": "object",
     "description": "Zowe configuration",
     "properties": {
