@@ -45,6 +45,7 @@ describe("TeamConfig ProfileInfo tests", () => {
     const testDir = path.join(__dirname, "__resources__");
     const teamProjDir = path.join(testDir, testAppNm + "_team_config_proj");
     const userTeamProjDir = path.join(testDir, testAppNm + "_user_and_team_config_proj");
+    const teamHomeProjDir = path.join(testDir, testAppNm + "_home_team_config_proj");
     let origDir: string;
 
     const envHost = testEnvPrefix + "_OPT_HOST";
@@ -336,18 +337,17 @@ describe("TeamConfig ProfileInfo tests", () => {
         });
 
         it("should return some profiles if a type is specified", async () => {
-            const length = 3;
             const desiredProfType = "zosmf";
             const expectedName = "LPAR1";
             const expectedDefaultProfiles = 1;
-            let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3"];
+            let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3", "LPAR2_home"];
             let actualDefaultProfiles = 0;
 
             const profInfo = createNewProfInfo(teamProjDir);
-            await profInfo.readProfilesFromDisk();
+            await profInfo.readProfilesFromDisk({homeDir: teamHomeProjDir});
             const profAttrs = profInfo.getAllProfiles(desiredProfType);
 
-            expect(profAttrs.length).toEqual(length);
+            expect(profAttrs.length).toEqual(expectedProfileNames.length);
             for (const prof of profAttrs) {
                 if (prof.isDefaultProfile) {
                     expect(prof.profName).toEqual(expectedName);
@@ -358,10 +358,10 @@ describe("TeamConfig ProfileInfo tests", () => {
                 expect(prof.profLoc.locType).toEqual(ProfLocType.TEAM_CONFIG);
                 expect(prof.profLoc.osLoc).toBeDefined();
                 expect(prof.profLoc.osLoc.length).toEqual(1);
-                expect(prof.profLoc.osLoc[0]).toEqual(path.join(teamProjDir, testAppNm + ".config.json"));
+                const profDir = path.join(prof.profName === "LPAR2_home" ? teamHomeProjDir : teamProjDir, testAppNm + ".config.json");
+                expect(prof.profLoc.osLoc[0]).toEqual(profDir);
                 expect(prof.profLoc.jsonLoc).toBeDefined();
-
-                const propertiesJson = jsonfile.readFileSync(path.join(teamProjDir, testAppNm + ".config.json"));
+                const propertiesJson = jsonfile.readFileSync(profDir);
                 expect(lodash.get(propertiesJson, prof.profLoc.jsonLoc)).toBeDefined();
 
                 expectedProfileNames = expectedProfileNames.filter(obj => obj !== prof.profName);
