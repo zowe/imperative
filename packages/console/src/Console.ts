@@ -224,7 +224,7 @@ export class Console implements IConsole {
         // eslint-disable-next-line @typescript-eslint/no-magic-numbers
         const tzOffset = new Date().getTimezoneOffset() * 60000;
         const dateString = new Date(Date.now() - tzOffset).toISOString()
-            .replace(/(\d+)-(\d+)-(\d+)T([^Z]+)Z/, "$1/$2/$3 $4");
+            .replace(/(\d{4})-(\d{2})-(\d{2})T([^Z]+)Z/, "$1/$2/$3 $4");
         return "[" + dateString + "]" + " " + "[" + type + "]" + " ";
     }
 
