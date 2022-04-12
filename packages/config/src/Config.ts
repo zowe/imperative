@@ -405,15 +405,6 @@ export class Config {
         return this.layerMerge(true);
     }
 
-    /**
-     * Helper function to get masked properties and exclude the global layer
-     * @param excludeGlobal Indicates whether or not to exclude the global layer
-     * @returns Same as this.maskedProperties
-     */
-    public getMaskedProperties(excludeGlobal?: boolean): IConfig {
-        return this.layerMerge(true, excludeGlobal);
-    }
-
     // _______________________________________________________________________
     /**
      * Set value of a property in the active config layer.
@@ -521,7 +512,7 @@ export class Config {
      *
      * @returns The resulting Config object
      */
-    private layerMerge(maskSecure?: boolean, excludeGlobalLayer?: boolean): IConfig {
+    public layerMerge(maskSecure?: boolean, excludeGlobalLayer?: boolean): IConfig {
         // config starting point
         // NOTE: "properties" and "secure" only apply to the individual layers
         // NOTE: they will be blank for the merged config

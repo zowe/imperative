@@ -314,7 +314,7 @@ export class ProfileInfo {
 
         // Do we have team config profiles?
         if (this.mUsingTeamConfig) {
-            const teamConfigProfs = this.mLoadedConfig.getMaskedProperties(options?.excludeHomeDir).profiles;
+            const teamConfigProfs = this.mLoadedConfig.layerMerge(true, options?.excludeHomeDir).profiles;
             // Iterate over them
             for (const prof in teamConfigProfs) {
                 // Check if the profile has a type
