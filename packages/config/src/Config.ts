@@ -531,8 +531,8 @@ export class Config {
                 c.defaults[name] = c.defaults[name] || value;
             }
 
-            if (layer.properties.autoStore) {
-                c.autoStore = true;
+            if (c.autoStore == null && layer.properties.autoStore != null) {
+                c.autoStore = layer.properties.autoStore;
             }
         });
 

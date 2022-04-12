@@ -26,5 +26,6 @@
     "defaults": {
         "fruit": "fruit.orange"
     },
-    "plugins": []
+    "plugins": [],
+    "autoStore": true
 }

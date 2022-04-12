@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed `autoStore` property not being merged properly between team config layers.
+
 ## `5.0.0-next.202204111131`
 
 - BugFix: Updated `moment` dependency.
