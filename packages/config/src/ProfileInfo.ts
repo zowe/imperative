@@ -1187,8 +1187,7 @@ export class ProfileInfo {
         const files: string[] = [];
         const layers = this.mLoadedConfig.layers;
         for (const layer of layers) {
-            if (lodash.get(layer.properties, jsonPath) !== undefined &&
-                this.mLoadedConfig.mActive.global === layer.global) {
+            if (lodash.get(layer.properties, jsonPath) !== undefined) {
                 files.push(layer.path);
             }
         }
