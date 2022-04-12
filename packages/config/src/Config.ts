@@ -405,6 +405,15 @@ export class Config {
         return this.layerMerge(true);
     }
 
+    /**
+     * Helper function to get masked properties and exclude the global layer
+     * @param excludeGlobal Indicates whether or not to exclude the global layer
+     * @returns Same as this.maskedProperties
+     */
+    public getMaskedProperties(excludeGlobal?: boolean): IConfig {
+        return this.layerMerge(true, excludeGlobal);
+    }
+
     // _______________________________________________________________________
     /**
      * Set value of a property in the active config layer.
@@ -508,10 +517,11 @@ export class Config {
      *
      * @internal
      * @param maskSecure Indicates whether we should mask off secure properties.
+     * @param excludeGlobalLayer Indicates whether we should exclude global layers.
      *
      * @returns The resulting Config object
      */
-    private layerMerge(maskSecure?: boolean): IConfig {
+    private layerMerge(maskSecure?: boolean, excludeGlobalLayer?: boolean): IConfig {
         // config starting point
         // NOTE: "properties" and "secure" only apply to the individual layers
         // NOTE: they will be blank for the merged config
@@ -548,9 +558,11 @@ export class Config {
 
         // Traverse all the global profiles merging any missing from project profiles
         c.profiles = proj;
-        for (const [n, p] of Object.entries(glbl)) {
-            if (c.profiles[n] == null)
-                c.profiles[n] = p;
+        if (!excludeGlobalLayer) {
+            for (const [n, p] of Object.entries(glbl)) {
+                if (c.profiles[n] == null)
+                    c.profiles[n] = p;
+            }
         }
 
         return c;
