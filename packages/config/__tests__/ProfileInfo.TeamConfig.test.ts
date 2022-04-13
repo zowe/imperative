@@ -1018,4 +1018,31 @@ describe("TeamConfig ProfileInfo tests", () => {
             expect(caughtError.message).toBe("Failed to locate the property test");
         });
     });
+
+    describe("getOsLocInfo", () => {
+        it("should return undefined if no osLoc is present", () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            const prof = { profName: "test", profLoc: { locType: 1 }, profType: "test", isDefaultProfile: false };
+            expect(profInfo.getOsLocInfo(prof)).toBeUndefined();
+            expect(profInfo.getOsLocInfo({...prof, profLoc: {locType: 1, osLoc: []}})).toBeUndefined();
+        });
+
+        it("should return basic osLoc information for a unique profile", async () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk();
+            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const osLocInfo = profInfo.getOsLocInfo(profAttrs);
+            expect(osLocInfo).toBeDefined();
+            expect(osLocInfo.length).toBe(1);
+            expect(osLocInfo[0].name).toEqual(profAttrs.profName);
+            expect(osLocInfo[0].path).toEqual(profAttrs.profLoc.osLoc[0]);
+            expect(osLocInfo[0].user).toBe(false);
+            expect(osLocInfo[0].global).toBe(false);
+        });
+
+        // TODO (zFernand0): Will leverage the profile added in the excludeHomeDir PR for this test
+        // it("should return osLoc information for a profile name that exists in project and global config", async () => {
+
+        // });
+    });
 });
