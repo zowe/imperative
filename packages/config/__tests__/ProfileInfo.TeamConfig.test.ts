@@ -79,7 +79,7 @@ describe("TeamConfig ProfileInfo tests", () => {
                 profType: "profType1",
                 profLoc: {
                     locType: ProfLocType.TEAM_CONFIG,
-                    osLoc: ["somewhere in the OS 1", "somewhere in the OS 2"],
+                    osLoc: [{ path: "somewhere in the OS 1" }, { path: "somewhere in the OS 2" }],
                     jsonLoc: "somewhere in the JSON file"
                 },
                 isDefaultProfile: true
@@ -95,8 +95,8 @@ describe("TeamConfig ProfileInfo tests", () => {
                 expect(profLoaded.profile.profName).toBe(profAttrs.profName);
                 expect(profLoaded.profile.profType).toBe(profAttrs.profType);
                 expect(profLoaded.profile.profLoc.locType).toBe(profAttrs.profLoc.locType);
-                expect(profLoaded.profile.profLoc.osLoc[0]).toBe(profAttrs.profLoc.osLoc[0]);
-                expect(profLoaded.profile.profLoc.osLoc[1]).toBe(profAttrs.profLoc.osLoc[1]);
+                expect(profLoaded.profile.profLoc.osLoc[0].path).toBe(profAttrs.profLoc.osLoc[0].path);
+                expect(profLoaded.profile.profLoc.osLoc[1].path).toBe(profAttrs.profLoc.osLoc[1].path);
                 expect(profLoaded.profile.profLoc.jsonLoc).toBe(profAttrs.profLoc.jsonLoc);
                 expect(profLoaded.profile.isDefaultProfile).toBe(profAttrs.isDefaultProfile);
             });
@@ -119,8 +119,8 @@ describe("TeamConfig ProfileInfo tests", () => {
                 expect(profLoaded.profile.profName).toBe(profAttrs.profName);
                 expect(profLoaded.profile.profType).toBe(profAttrs.profType);
                 expect(profLoaded.profile.profLoc.locType).toBe(profAttrs.profLoc.locType);
-                expect(profLoaded.profile.profLoc.osLoc[0]).toBe(profAttrs.profLoc.osLoc[0]);
-                expect(profLoaded.profile.profLoc.osLoc[1]).toBe(profAttrs.profLoc.osLoc[1]);
+                expect(profLoaded.profile.profLoc.osLoc[0].path).toBe(profAttrs.profLoc.osLoc[0].path);
+                expect(profLoaded.profile.profLoc.osLoc[1].path).toBe(profAttrs.profLoc.osLoc[1].path);
                 expect(profLoaded.profile.profLoc.jsonLoc).toBe(profAttrs.profLoc.jsonLoc);
                 expect(profLoaded.profile.isDefaultProfile).toBe(profAttrs.isDefaultProfile);
             });
@@ -132,7 +132,7 @@ describe("TeamConfig ProfileInfo tests", () => {
                 profType: "zosmf",
                 profLoc: {
                     locType: ProfLocType.TEAM_CONFIG,
-                    osLoc: ["somewhere in the OS 1", "somewhere in the OS 1A"],
+                    osLoc: [{ path: "somewhere in the OS 1" }, { path: "somewhere in the OS 1A" }],
                     jsonLoc: "somewhere in the JSON file 1"
                 },
                 isDefaultProfile: true
@@ -152,7 +152,7 @@ describe("TeamConfig ProfileInfo tests", () => {
                     argName: "host", dataType: "string", argValue: "testHostName",
                     argLoc: {
                         locType: ProfLocType.TEAM_CONFIG,
-                        osLoc: ["somewhere in the OS 2", "somewhere in the OS 2A"],
+                        osLoc: [{ path: "somewhere in the OS 2" }, { path: "somewhere in the OS 2A" }],
                         jsonLoc: "somewhere in the JSON file 2"
                     },
                     secure: false
@@ -161,7 +161,7 @@ describe("TeamConfig ProfileInfo tests", () => {
                     argName: "port", dataType: "number", argValue: 12345,
                     argLoc: {
                         locType: ProfLocType.TEAM_CONFIG,
-                        osLoc: ["somewhere in the OS 3", "somewhere in the OS 3A"],
+                        osLoc: [{ path: "somewhere in the OS 3" }, { path: "somewhere in the OS 3A" }],
                         jsonLoc: "somewhere in the JSON file 3"
                     },
                     secure: false
@@ -283,7 +283,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             expect(profAttrs.profType).toBe(desiredProfType);
             expect(profAttrs.profLoc.locType).not.toBeNull();
 
-            const retrievedOsLoc = path.normalize(profAttrs.profLoc.osLoc[0]);
+            const retrievedOsLoc = path.normalize(profAttrs.profLoc.osLoc[0].path);
             const expectedOsLoc = path.join(teamProjDir, testAppNm + ".config.json");
             expect(retrievedOsLoc).toBe(expectedOsLoc);
 
@@ -324,7 +324,7 @@ describe("TeamConfig ProfileInfo tests", () => {
                 expect(prof.profLoc.locType).toEqual(ProfLocType.TEAM_CONFIG);
                 expect(prof.profLoc.osLoc).toBeDefined();
                 expect(prof.profLoc.osLoc.length).toEqual(1);
-                expect(prof.profLoc.osLoc[0]).toEqual(path.join(teamProjDir, testAppNm + ".config.json"));
+                expect(prof.profLoc.osLoc[0].path).toEqual(path.join(teamProjDir, testAppNm + ".config.json"));
                 expect(prof.profLoc.jsonLoc).toBeDefined();
 
                 const propertiesJson = jsonfile.readFileSync(path.join(teamProjDir, testAppNm + ".config.json"));
@@ -344,7 +344,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             let actualDefaultProfiles = 0;
 
             const profInfo = createNewProfInfo(teamProjDir);
-            await profInfo.readProfilesFromDisk({homeDir: teamHomeProjDir});
+            await profInfo.readProfilesFromDisk({ homeDir: teamHomeProjDir });
             const profAttrs = profInfo.getAllProfiles(desiredProfType);
 
             expect(profAttrs.length).toEqual(expectedProfileNames.length);
@@ -359,7 +359,7 @@ describe("TeamConfig ProfileInfo tests", () => {
                 expect(prof.profLoc.osLoc).toBeDefined();
                 expect(prof.profLoc.osLoc.length).toEqual(1);
                 const profDir = path.join(prof.profName === "LPAR2_home" ? teamHomeProjDir : teamProjDir, testAppNm + ".config.json");
-                expect(prof.profLoc.osLoc[0]).toEqual(profDir);
+                expect(prof.profLoc.osLoc[0].path).toEqual(profDir);
                 expect(prof.profLoc.jsonLoc).toBeDefined();
                 const propertiesJson = jsonfile.readFileSync(profDir);
                 expect(lodash.get(propertiesJson, prof.profLoc.jsonLoc)).toBeDefined();
@@ -420,7 +420,7 @@ describe("TeamConfig ProfileInfo tests", () => {
                 expect(arg.argValue).toBeDefined();
                 expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
                 expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.LPAR1\.properties\./);
-                expect(arg.argLoc.osLoc[0]).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                expect(arg.argLoc.osLoc[0].path).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
             }
         });
 
@@ -450,7 +450,7 @@ describe("TeamConfig ProfileInfo tests", () => {
                 expect(arg.argValue).toBeDefined();
                 expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
                 expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.LPAR1\.(profiles|properties)\./);
-                expect(arg.argLoc.osLoc[0]).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                expect(arg.argLoc.osLoc[0].path).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
             }
         });
 
@@ -475,7 +475,7 @@ describe("TeamConfig ProfileInfo tests", () => {
                 expect(arg.secure || arg.argValue).toBeDefined();
                 expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
                 expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.(base_glob|LPAR1)\.properties\./);
-                expect(arg.argLoc.osLoc[0]).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                expect(arg.argLoc.osLoc[0].path).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
             }
         });
 
@@ -550,7 +550,7 @@ describe("TeamConfig ProfileInfo tests", () => {
                 expect(arg.argValue).toBeDefined();
                 expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
                 expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.LPAR1\.properties\./);
-                expect(arg.argLoc.osLoc[0]).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                expect(arg.argLoc.osLoc[0].path).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
             }
         });
 
@@ -699,7 +699,7 @@ describe("TeamConfig ProfileInfo tests", () => {
                 expect(arg.argValue).toBeDefined();
                 expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
                 expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.base_glob\.properties\./);
-                expect(arg.argLoc.osLoc[0]).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+                expect(arg.argLoc.osLoc[0].path).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
             }
         });
 

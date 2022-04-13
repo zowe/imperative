@@ -9,6 +9,8 @@
 *
 */
 
+import { IConfigLayerLoc } from "./IConfigLayer";
+
 /**
  * This enum represents the type of location for a property.
  * Note that properties with location types of ENV and DEFAULT
@@ -35,7 +37,7 @@ export interface IProfLoc {
      * For ENV, this is the name of the environment variable.
      * This is not used for DEFAULT.
      */
-    osLoc?: string[];
+    osLoc?: IConfigLayerLoc[];
 
     /**
      * For SOURCE_TEAM_CONFIG, this is the dotted path into

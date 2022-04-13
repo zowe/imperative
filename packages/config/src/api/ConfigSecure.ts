@@ -17,6 +17,7 @@ import { IConfigSecureProperties } from "../doc/IConfigSecure";
 import { ConfigConstants } from "../ConfigConstants";
 import { IConfigProfile } from "../doc/IConfigProfile";
 import { CredentialManagerFactory } from "../../../security";
+import { IConfigLayerInfo } from "../doc/IConfigLayer";
 
 /**
  * API Class for manipulating config layers.
@@ -139,7 +140,7 @@ export class ConfigSecure extends ConfigApi {
      * @returns Array of secure property paths
      *          (e.g., "profiles.lpar1.properties.password")
      */
-    public secureFields(opts?: { user: boolean; global: boolean }): string[] {
+    public secureFields(opts?: IConfigLayerInfo): string[] {
         const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
         return this.findSecure(layer.properties.profiles, "profiles");
     }

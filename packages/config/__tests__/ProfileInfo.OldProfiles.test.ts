@@ -107,7 +107,7 @@ describe("Old-school ProfileInfo tests", () => {
             expect(profAttrs.profType).toBe(desiredProfType);
             expect(profAttrs.profLoc.locType).not.toBeNull();
 
-            const retrievedOsLoc = path.normalize(profAttrs.profLoc.osLoc[0]);
+            const retrievedOsLoc = path.normalize(profAttrs.profLoc.osLoc[0].path);
             const expectedOsLoc = path.join(homeDirPath, "profiles",
                 desiredProfType, profAttrs.profName + ".yaml"
             );
@@ -149,7 +149,7 @@ describe("Old-school ProfileInfo tests", () => {
                 expect(prof.profLoc.locType).toEqual(ProfLocType.OLD_PROFILE);
                 expect(prof.profLoc.osLoc).toBeDefined();
                 expect(prof.profLoc.osLoc.length).toEqual(1);
-                expect(prof.profLoc.osLoc[0]).toEqual(path.join(homeDirPath, "profiles", prof.profType, prof.profName + ".yaml"));
+                expect(prof.profLoc.osLoc[0].path).toEqual(path.join(homeDirPath, "profiles", prof.profType, prof.profName + ".yaml"));
                 expectedProfileNames = expectedProfileNames.filter(obj => obj !== prof.profName);
             }
             expect(actualDefaultProfiles).toEqual(expectedDefaultProfiles);
@@ -179,7 +179,7 @@ describe("Old-school ProfileInfo tests", () => {
                 expect(prof.profLoc.locType).toEqual(ProfLocType.OLD_PROFILE);
                 expect(prof.profLoc.osLoc).toBeDefined();
                 expect(prof.profLoc.osLoc.length).toEqual(1);
-                expect(prof.profLoc.osLoc[0]).toEqual(path.join(homeDirPath, "profiles", prof.profType, prof.profName + ".yaml"));
+                expect(prof.profLoc.osLoc[0].path).toEqual(path.join(homeDirPath, "profiles", prof.profType, prof.profName + ".yaml"));
                 expectedProfileNames = expectedProfileNames.filter(obj => obj !== prof.profName);
             }
             expect(actualDefaultProfiles).toEqual(expectedDefaultProfiles);
@@ -230,7 +230,7 @@ describe("Old-school ProfileInfo tests", () => {
                 expect(arg).toMatchObject(expectedArgs[idx]);
                 expect(arg.secure || arg.argValue).toBeDefined();
                 expect(arg.argLoc.locType).toBe(ProfLocType.OLD_PROFILE);
-                expect(arg.argLoc.osLoc[0]).toMatch(/lpar1_zosmf\.yaml$/);
+                expect(arg.argLoc.osLoc[0].path).toMatch(/lpar1_zosmf\.yaml$/);
             }
         });
 
@@ -256,7 +256,7 @@ describe("Old-school ProfileInfo tests", () => {
                 expect(arg).toMatchObject(expectedArgs[idx]);
                 expect(arg.secure || arg.argValue).toBeDefined();
                 expect(arg.argLoc.locType).toBe(ProfLocType.OLD_PROFILE);
-                expect(arg.argLoc.osLoc[0]).toMatch(/(base_apiml|lpar1_zosmf)\.yaml$/);
+                expect(arg.argLoc.osLoc[0].path).toMatch(/(base_apiml|lpar1_zosmf)\.yaml$/);
             }
         });
 
@@ -280,7 +280,7 @@ describe("Old-school ProfileInfo tests", () => {
                 expect(arg).toMatchObject(expectedArgs[idx]);
                 expect(arg.secure || arg.argValue).toBeDefined();
                 expect(arg.argLoc.locType).toBe(ProfLocType.OLD_PROFILE);
-                expect(arg.argLoc.osLoc[0]).toMatch(/lpar2_zosmf\.yaml$/);
+                expect(arg.argLoc.osLoc[0].path).toMatch(/lpar2_zosmf\.yaml$/);
             }
         });
 
@@ -383,7 +383,7 @@ describe("Old-school ProfileInfo tests", () => {
                 expect(arg).toMatchObject(expectedArgs[idx]);
                 expect(arg.argValue).toBeDefined();
                 expect(arg.argLoc.locType).toBe(ProfLocType.OLD_PROFILE);
-                expect(arg.argLoc.osLoc[0]).toMatch(/base_for_userNm\.yaml$/);
+                expect(arg.argLoc.osLoc[0].path).toMatch(/base_for_userNm\.yaml$/);
             }
         });
     });

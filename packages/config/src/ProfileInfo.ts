@@ -48,6 +48,7 @@ import {
 } from "../../rest";
 import { IProfInfoUpdateKnownPropOpts, IProfInfoUpdatePropOpts } from "./doc/IProfInfoUpdatePropOpts";
 import { ConfigAutoStore } from "./ConfigAutoStore";
+import { IConfigLayerLoc } from "./doc/IConfigLayer";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -253,9 +254,9 @@ export class ProfileInfo {
 
         switch (toUpdate.argLoc.locType) {
             case ProfLocType.OLD_PROFILE: {
-                const filePath = toUpdate.argLoc.osLoc;
-                const profileName = ProfileIO.fileToProfileName(filePath[0], "." + filePath[0].split(".").slice(-1)[0]);
-                const profileType = filePath[0].substring(this.mOldSchoolProfileRootDir.length + 1).split(path.sep)[0];
+                const filePath = toUpdate.argLoc.osLoc[0].path;
+                const profileName = ProfileIO.fileToProfileName(filePath, "." + filePath.split(".").slice(-1)[0]);
+                const profileType = filePath.substring(this.mOldSchoolProfileRootDir.length + 1).split(path.sep)[0];
                 const profMgr = new CliProfileManager({ profileRootDirectory: this.mOldSchoolProfileRootDir, type: profileType });
                 if (options.value !== undefined) {
                     await profMgr.update({ name: profileName, merge: true, profile: { [options.property]: options.value } });
@@ -319,7 +320,7 @@ export class ProfileInfo {
                 // Check if the profile has a type
                 if (teamConfigProfs[prof].type && (profileType == null || teamConfigProfs[prof].type === profileType)) {
                     const jsonLocation: string = "profiles." + prof;
-                    const teamOsLocation: string[] = this.findTeamOsLocation(jsonLocation);
+                    const teamOsLocation: IConfigLayerLoc[] = this.findTeamOsLocation(jsonLocation);
                     const profAttrs: IProfAttrs = {
                         profName: prof,
                         profType: teamConfigProfs[prof].type,
@@ -354,7 +355,7 @@ export class ProfileInfo {
                         isDefaultProfile: defaultProfile,
                         profLoc: {
                             locType: ProfLocType.OLD_PROFILE,
-                            osLoc: [this.oldProfileFilePath(loadedProfile.type, loadedProfile.name)],
+                            osLoc: [{ path: this.oldProfileFilePath(loadedProfile.type, loadedProfile.name) }],
                             jsonLoc: undefined
                         }
                     });
@@ -401,7 +402,7 @@ export class ProfileInfo {
 
             // for a team config, we use the last node of the jsonLoc as the name
             const foundJson = this.mLoadedConfig.api.profiles.expandPath(foundProfNm);
-            const teamOsLocation: string[] = this.findTeamOsLocation(foundJson);
+            const teamOsLocation: IConfigLayerLoc[] = this.findTeamOsLocation(foundJson);
 
             // assign the required poperties to defaultProfile
             defaultProfile.profName = foundProfNm;
@@ -447,7 +448,7 @@ export class ProfileInfo {
             defaultProfile.profName = loadedProfile.name;
             defaultProfile.profLoc = {
                 locType: ProfLocType.OLD_PROFILE,
-                osLoc: [this.oldProfileFilePath(profileType, loadedProfile.name)]
+                osLoc: [{ path: this.oldProfileFilePath(profileType, loadedProfile.name) }]
             };
         }
         return defaultProfile;
@@ -905,7 +906,7 @@ export class ProfileInfo {
             case ProfLocType.TEAM_CONFIG:
                 if (arg.argLoc.osLoc?.length > 0 && arg.argLoc.jsonLoc != null) {
                     for (const layer of this.mLoadedConfig.layers) {
-                        if (layer.path === arg.argLoc.osLoc[0]) {
+                        if (layer.path === arg.argLoc.osLoc[0].path) {
                             // we found the config layer matching arg.osLoc
                             argValue = lodash.get(layer.properties, arg.argLoc.jsonLoc);
                             break;
@@ -917,7 +918,7 @@ export class ProfileInfo {
                 if (arg.argLoc.osLoc?.length > 0) {
                     for (const loadedProfile of this.mOldSchoolProfileCache) {
                         const profilePath = this.oldProfileFilePath(loadedProfile.type, loadedProfile.name);
-                        if (profilePath === arg.argLoc.osLoc[0]) {
+                        if (profilePath === arg.argLoc.osLoc[0].path) {
                             // we found the loaded profile matching arg.osLoc
                             argValue = loadedProfile.profile[arg.argName];
                             break;
@@ -1183,12 +1184,12 @@ export class ProfileInfo {
      *              The long form JSON path of the profile we are searching for.
      * @returns A string array containing the location of all files containing the specified team profile
      */
-    private findTeamOsLocation(jsonPath: string): string[] {
-        const files: string[] = [];
+    private findTeamOsLocation(jsonPath: string): IConfigLayerLoc[] {
+        const files: IConfigLayerLoc[] = [];
         const layers = this.mLoadedConfig.layers;
         for (const layer of layers) {
             if (lodash.get(layer.properties, jsonPath) !== undefined) {
-                files.push(layer.path);
+                files.push({ path: layer.path, user: layer.user, global: layer.global });
             }
         }
         return files;
@@ -1237,12 +1238,12 @@ export class ProfileInfo {
         }
 
         const foundInSecureArray = secFields.indexOf(buildPath(segments, propName)) >= 0;
-        let filePath: string;
+        let filePath: IConfigLayerLoc;
         for (const layer of this.mLoadedConfig.layers) {
             // Find the first layer that includes the JSON path
             if (lodash.get(layer.properties, jsonPath) !== undefined ||
                 (foundInSecureArray && lodash.get(layer.properties, jsonPath.split(`.properties.${propName}`)[0]) !== undefined)) {
-                filePath = layer.path;
+                filePath = { path: layer.path, user: layer.user, global: layer.global };
                 break;
             }
         }
@@ -1263,7 +1264,7 @@ export class ProfileInfo {
     private argOldProfileLoc(profileName: string, profileType: string): IProfLoc {
         return {
             locType: ProfLocType.OLD_PROFILE,
-            osLoc: [this.oldProfileFilePath(profileType, profileName)]
+            osLoc: [{ path: this.oldProfileFilePath(profileType, profileName) }]
         };
     }
 
@@ -1288,7 +1289,7 @@ export class ProfileInfo {
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
             if (profile.profLoc.osLoc != null) {
                 // the profile exists, so use schema associated with its config JSON file
-                schemaMapKey = `${profile.profLoc.osLoc[0]}:${profile.profType}`;
+                schemaMapKey = `${profile.profLoc.osLoc[0].path}:${profile.profType}`;
             } else {
                 // no profile exists, so loop through layers and use the first schema found
                 for (const layer of this.mLoadedConfig.layers) {

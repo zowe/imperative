@@ -11,10 +11,19 @@
 
 import { IConfig } from "./IConfig";
 
-export interface IConfigLayer {
+export interface IConfigLayerInfo {
+    global: boolean;
+    user: boolean;
+}
+
+export interface IConfigLayerLoc {
+    global?: boolean;
+    user?: boolean;
+    path: string;
+}
+
+export interface IConfigLayer extends IConfigLayerInfo {
     path: string;
     exists: boolean;
     properties: IConfig;
-    global: boolean;
-    user: boolean;
 }

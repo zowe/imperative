@@ -15,7 +15,7 @@ import * as JSONC from "comment-json";
 import * as lodash from "lodash";
 import { ImperativeError } from "../../../error";
 import { ConfigConstants } from "../ConfigConstants";
-import { IConfigLayer } from "../doc/IConfigLayer";
+import { IConfigLayer, IConfigLayerInfo } from "../doc/IConfigLayer";
 import { ConfigApi } from "./ConfigApi";
 import { IConfig } from "../doc/IConfig";
 
@@ -31,7 +31,7 @@ export class ConfigLayers extends ConfigApi {
      * @param opts The user and global flags that indicate which of the four
      *             config files (aka layers) is to be read.
      */
-    public async read(opts?: { user: boolean; global: boolean }) {
+    public async read(opts?: IConfigLayerInfo) {
         // Attempt to populate the layer
         const layer = opts ? this.mConfig.findLayer(opts.user, opts.global) : this.mConfig.layerActive();
         if (fs.existsSync(layer.path)) {
@@ -71,7 +71,7 @@ export class ConfigLayers extends ConfigApi {
      * @param opts The user and global flags that indicate which of the four
      *             config files (aka layers) is to be written.
      */
-    public async write(opts?: { user: boolean; global: boolean }) {
+    public async write(opts?: IConfigLayerInfo) {
         // TODO: should we prevent a write if there is no vault
         // TODO: specified and there are secure fields??
 
@@ -203,7 +203,7 @@ export class ConfigLayers extends ConfigApi {
      * @param profileName Profile name to search for
      * @returns User and global properties, or undefined if profile does not exist
      */
-    public find(profileName: string): { user: boolean, global: boolean } {
+    public find(profileName: string): IConfigLayer {
         const profilePath = this.mConfig.api.profiles.expandPath(profileName);
         for (const layer of this.mConfig.layers) {
             if (lodash.get(layer.properties, profilePath) != null) {
