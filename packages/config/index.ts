@@ -35,4 +35,5 @@ export * from "./src/doc/IProfInfoErrParms";
 export * from "./src/doc/IProfLoc";
 export * from "./src/doc/IProfMergeArgOpts";
 export * from "./src/doc/IProfMergedArg";
+export * from "./src/doc/IProfInfoProps";
 export * from "./src/doc/IProfOpts";
