@@ -19,7 +19,7 @@ import * as lodash from "lodash";
 // for ProfileInfo structures
 import { IProfArgAttrs } from "./doc/IProfArgAttrs";
 import { IProfAttrs } from "./doc/IProfAttrs";
-import { IProfLoc, IProfLocOsLoc, ProfLocType } from "./doc/IProfLoc";
+import { IProfLoc, IProfLocOsLoc, IProfLocOsLocLayer, ProfLocType } from "./doc/IProfLoc";
 import { IProfMergeArgOpts } from "./doc/IProfMergeArgOpts";
 import { IProfMergedArg } from "./doc/IProfMergedArg";
 import { IProfOpts } from "./doc/IProfOpts";
@@ -196,7 +196,7 @@ export class ProfileInfo {
         }
 
         const mergedArgs = this.mergeArgsForProfile(desiredProfile, { getSecureVals: false });
-        if (!(await this.updateKnownProperty({ mergedArgs, property: options.property, value: options.value, setSecure: options.setSecure }))) {
+        if (!(await this.updateKnownProperty({ ...options, mergedArgs, osLocInfo: this.getOsLocInfo(desiredProfile)[0] }))) {
             if (this.usingTeamConfig) {
                 // Check to see if loadedConfig already contains the schema for the specified profile type
                 if (ImperativeConfig.instance.loadedConfig?.profiles?.find(p => p.type === options.profileType)?.schema == null ||
@@ -273,8 +273,19 @@ export class ProfileInfo {
                 break;
             }
             case ProfLocType.TEAM_CONFIG: {
+                let oldLayer: IProfLocOsLocLayer;
+                if (options.osLocInfo) {
+                    const layer = this.getTeamConfig().layerActive();
+                    oldLayer = { user: layer.user, global: layer.global };
+                    this.getTeamConfig().api.layers.activate(options.osLocInfo.user, options.osLocInfo.global);
+                }
+
                 this.getTeamConfig().set(toUpdate.argLoc.jsonLoc, options.value, { secure: options.setSecure });
                 await this.getTeamConfig().save(false);
+
+                if (oldLayer) {
+                    this.getTeamConfig().api.layers.activate(oldLayer.user, oldLayer.global);
+                }
                 break;
             }
             case ProfLocType.ENV:
@@ -899,7 +910,7 @@ export class ProfileInfo {
      * @param profile Profile attributes gathered from getAllProfiles
      */
     public getOsLocInfo(profile: IProfAttrs): IProfLocOsLoc[] {
-        const osLoc = profile.profLoc.osLoc;
+        const osLoc = profile?.profLoc.osLoc;
         if (!osLoc?.length) return undefined;
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
             const ret: IProfLocOsLoc[] = [];
