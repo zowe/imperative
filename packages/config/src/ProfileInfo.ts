@@ -48,7 +48,7 @@ import {
 } from "../../rest";
 import { IProfInfoUpdateKnownPropOpts, IProfInfoUpdatePropOpts } from "./doc/IProfInfoUpdatePropOpts";
 import { ConfigAutoStore } from "./ConfigAutoStore";
-import { IGetAllProfilesOptions } from "./doc/IProfiInfoProps";
+import { IGetAllProfilesOptions } from "./doc/IProfInfoProps";
 
 /**
  * This class provides functions to retrieve profile-related information.
