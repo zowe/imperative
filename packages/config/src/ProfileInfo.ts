@@ -196,7 +196,7 @@ export class ProfileInfo {
         }
 
         const mergedArgs = this.mergeArgsForProfile(desiredProfile, { getSecureVals: false });
-        if (!(await this.updateKnownProperty({ ...options, mergedArgs, osLocInfo: this.getOsLocInfo(desiredProfile)[0] }))) {
+        if (!(await this.updateKnownProperty({ ...options, mergedArgs, osLocInfo: this.getOsLocInfo(desiredProfile)?.[0] }))) {
             if (this.usingTeamConfig) {
                 // Check to see if loadedConfig already contains the schema for the specified profile type
                 if (ImperativeConfig.instance.loadedConfig?.profiles?.find(p => p.type === options.profileType)?.schema == null ||
@@ -910,7 +910,7 @@ export class ProfileInfo {
      * @param profile Profile attributes gathered from getAllProfiles
      */
     public getOsLocInfo(profile: IProfAttrs): IProfLocOsLoc[] {
-        const osLoc = profile?.profLoc.osLoc;
+        const osLoc = profile?.profLoc?.osLoc;
         if (!osLoc?.length) return undefined;
         if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
             const ret: IProfLocOsLoc[] = [];

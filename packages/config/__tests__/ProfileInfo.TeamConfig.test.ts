@@ -828,14 +828,15 @@ describe("TeamConfig ProfileInfo tests", () => {
             jest.spyOn(profInfo as any, "getAllProfiles").mockReturnValue([{ profName: "test" }]);
             jest.spyOn(profInfo as any, "mergeArgsForProfile").mockReturnValue({});
             const updateKnownPropertySpy = jest.spyOn(profInfo as any, "updateKnownProperty").mockResolvedValue(true);
+            const profileOptions = { profileName: "test", profileType: "base", property: "host", value: "test" };
             let caughtError;
             try {
-                await profInfo.updateProperty({ profileName: "test", profileType: "base", property: "host", value: "test" });
+                await profInfo.updateProperty(profileOptions);
             } catch (error) {
                 caughtError = error;
             }
             expect(caughtError).toBeUndefined();
-            expect(updateKnownPropertySpy).toHaveBeenCalledWith({ mergedArgs: {}, property: "host", value: "test" });
+            expect(updateKnownPropertySpy).toHaveBeenCalledWith({ ...profileOptions, mergedArgs: {}, osLocInfo: undefined });
         });
 
         it("should attempt to store session config properties without adding profile types to the loadedConfig", async () => {
