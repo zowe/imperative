@@ -26,5 +26,6 @@
     },
     "plugins": [
         "@zowe/fruit-for-imperative"
-    ]
+    ],
+    "autoStore": false
 }

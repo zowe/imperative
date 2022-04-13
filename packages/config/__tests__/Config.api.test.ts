@@ -52,7 +52,8 @@ const mergeConfig: IConfig = {
     },
     plugins: [
         "@zowe/vegetable-for-imperative"
-    ]
+    ],
+    autoStore: false
 };
 
 describe("Config API tests", () => {
@@ -505,6 +506,7 @@ describe("Config API tests", () => {
                 expect(retrievedConfig.profiles.fruit.profiles.grape).toBeDefined();
                 expect(retrievedConfig.profiles.fruit.properties.shipDate).toBeDefined();
                 expect(retrievedConfig.profiles.fruit.secure.length).toBe(1);
+                expect(retrievedConfig.autoStore).toBe(false);
 
                 // Check that old config had priority
                 expect(retrievedConfig.defaults.fruit).toBe("fruit.apple");
@@ -525,6 +527,7 @@ describe("Config API tests", () => {
                 expect(retrievedConfig.profiles.fruit.profiles.grape).toBeDefined();
                 expect(retrievedConfig.profiles.fruit.properties.shipDate).toBeDefined();
                 expect(retrievedConfig.profiles.fruit.secure.length).toBe(1);
+                expect(retrievedConfig.autoStore).toBe(false);
 
                 // Check that old config had priority
                 expect(retrievedConfig.defaults.fruit).toBe("fruit.apple");
