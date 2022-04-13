@@ -47,3 +47,25 @@ export interface IProfLoc {
      */
     jsonLoc?: string;
 }
+
+/**
+ * The extended osLoc information
+ */
+export interface IProfLocOsLoc {
+    /**
+     * The name of the profile
+     */
+    name: string;
+    /**
+     * Contains the osLoc path information
+     */
+    path: string;
+    /**
+     * Determines if the osLoc is coming from a user layer
+     */
+    user: boolean;
+    /**
+     * Determines if the osLoc is coming form a global layer
+     */
+    global: boolean;
+}
