@@ -39,5 +39,6 @@
         "fruit": "fruit.banana",
         "vegetable": "vegetable.artichoke"
     },
-    "plugins": []
+    "plugins": [],
+    "autoStore": true
 }

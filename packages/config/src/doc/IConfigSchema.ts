@@ -14,7 +14,7 @@ import { IConfigLayer } from "./IConfigLayer";
 
 export interface IConfigSchema {
     $schema: string;
-    $version: number;
+    $version: string;
     type: string;
     description: string;
     properties: { [key: string]: any };
