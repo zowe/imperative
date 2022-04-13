@@ -5,7 +5,12 @@ All notable changes to the Imperative package will be documented in this file.
 ## Recent Changes
 
 - BugFix: Fixed missing `osLoc` information from `ProfileInfo.getAllProfiles()`. [#771](https://github.com/zowe/imperative/issues/771)
+- BugFix: Fixed updateKnownProperty svaing to the active layer instead of the layer of the desired profile.
 - Enhancement: Added the ability to exclude the home directory from `ProfileInfo.getAllProfiles()`. [#787](https://github.com/zowe/imperative/issues/771)
+
+## `5.0.0-next.202204131728`
+
+- BugFix: Fixed `autoStore` property not being merged properly between team config layers.
 
 ## `5.0.0-next.202204111131`
 
@@ -299,6 +304,10 @@ All notable changes to the Imperative package will be documented in this file.
 ## `5.0.0-next.202009251501`
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
+
+## `4.18.2`
+
+- BugFix: Updated `moment` dependency.
 
 ## `4.18.1`
 

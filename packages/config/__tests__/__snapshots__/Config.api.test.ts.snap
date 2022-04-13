@@ -6,6 +6,7 @@ Object {
   "global": false,
   "path": "project.config.user.json",
   "properties": Object {
+    "autoStore": false,
     "defaults": Object {
       "fruit": "fruit.apple",
     },
@@ -41,6 +42,7 @@ Object {
 
 exports[`Config API tests layers merge - dry run should merge config layers with correct priority 1`] = `
 Object {
+  "autoStore": false,
   "defaults": Object {
     "fruit": "fruit.apple",
   },
@@ -84,6 +86,7 @@ Object {
 
 exports[`Config API tests layers merge should merge config layers with correct priority 1`] = `
 Object {
+  "autoStore": false,
   "defaults": Object {
     "fruit": "fruit.apple",
   },
@@ -176,7 +179,8 @@ exports[`Config API tests layers write should save the active config layer 1`] =
     },
     \\"plugins\\": [
         \\"@zowe/fruit-for-imperative\\"
-    ]
+    ],
+    \\"autoStore\\": false
 }"
 `;
 
