@@ -16,14 +16,14 @@
 export interface IGetAllProfilesOptions {
 
     /**
-   * Indicates if the home directory should be excluded
-   * The default is false.
-   */
+     * Indicates if the home directory should be excluded
+     * The default is false.
+     */
     excludeHomeDir?: boolean;
 
     /**
-   * Implements a custom pattern of folders that should be excluded
-   * from the getAllProfiles method call.
-   */
+     * Implements a custom pattern of folders that should be excluded
+     * from the getAllProfiles method call.
+     */
     // excludePattern?: string;
 }
