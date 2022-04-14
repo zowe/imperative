@@ -16,7 +16,7 @@
  * This class supports most of the methods / accessors log4js uses.
  */
 import { IConsole } from "./doc/IConsole";
-import { TextUtils } from "../../utilities";
+import { TextUtils } from "../../utilities/src/TextUtils";
 import { format } from "util";
 import { ImperativeError } from "../../error";
 
