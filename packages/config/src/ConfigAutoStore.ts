@@ -51,7 +51,7 @@ export class ConfigAutoStore {
         ] : opts.profileTypes || [];
 
         for (const profType of profileTypes) {
-            const profileMatch = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profType);
+            const profileMatch = ImperativeConfig.instance.loadedConfig.profiles?.find(p => p.type === profType);
             if (profileMatch != null && opts.profileProps.every(propName => propName in profileMatch.schema.properties)) {
                 return [profType, ConfigUtils.getActiveProfileName(profType, opts.params?.arguments, opts.defaultProfileName)];
             }
@@ -94,7 +94,7 @@ export class ConfigAutoStore {
         }
 
         const authConfigs: ICommandProfileAuthConfig[] = [];
-        ImperativeConfig.instance.loadedConfig.profiles.forEach((profCfg) => {
+        ImperativeConfig.instance.loadedConfig.profiles?.forEach((profCfg) => {
             if ((profCfg.type === profileType || profCfg.type === "base") && profCfg.authConfig != null) {
                 authConfigs.push(...profCfg.authConfig);
             }
@@ -156,7 +156,7 @@ export class ConfigAutoStore {
         }
 
         const profileObj = config.api.profiles.get(profileName, false);
-        const profileSchema = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profileType)?.schema;
+        const profileSchema = ImperativeConfig.instance.loadedConfig.profiles?.find(p => p.type === profileType)?.schema;
         const profileSecureProps = config.api.secure.securePropsForProfile(profileName);
 
         const baseProfileName = ConfigUtils.getActiveProfileName("base", opts.params?.arguments, opts.defaultBaseProfileName);
