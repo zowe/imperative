@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Removed `moment` dependency.
+
 ## `4.18.2`
 
 - BugFix: Updated `moment` dependency.

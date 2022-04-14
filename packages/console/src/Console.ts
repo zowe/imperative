@@ -17,8 +17,7 @@
  */
 import { IConsole } from "./doc/IConsole";
 import { TextUtils } from "../../utilities";
-import * as moment from "moment";
-import { format, isNullOrUndefined } from "util";
+import { format } from "util";
 import { ImperativeError } from "../../error";
 
 export class Console implements IConsole {
@@ -204,7 +203,7 @@ export class Console implements IConsole {
         let formatted = data;
         // TODO(Kelosky): this is not ideal, but works for simple cases of
         // .debug(%s, "sub string").
-        if (this.isFormatEnabled() && !isNullOrUndefined(args) && args.length > 0) {
+        if (this.isFormatEnabled() && args != null && args.length > 0) {
             let defined = false;
             args.forEach((arg) => {
                 arg.forEach((ntry: string[]) => {
@@ -222,7 +221,11 @@ export class Console implements IConsole {
     }
 
     private buildPrefix(type: string) {
-        return "[" + moment().format("YYYY/MM/DD HH:MM:SS") + "]" + " " + "[" + type + "]" + " ";
+        // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+        const tzOffset = new Date().getTimezoneOffset() * 60000;
+        const dateString = new Date(Date.now() - tzOffset).toISOString()
+            .replace(/(\d{4})-(\d{2})-(\d{2})T([^Z]+)Z/, "$1/$2/$3 $4");
+        return "[" + dateString + "]" + " " + "[" + type + "]" + " ";
     }
 
     set level(level: string) {
