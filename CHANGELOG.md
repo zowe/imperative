@@ -5,7 +5,7 @@ All notable changes to the Imperative package will be documented in this file.
 ## Recent Changes
 
 - BugFix: Fixed missing `osLoc` information from `ProfileInfo.getAllProfiles()`. [#771](https://github.com/zowe/imperative/issues/771)
-- BugFix: Fixed updateKnownProperty svaing to the active layer instead of the layer of the desired profile.
+- BugFix: Fixed updateKnownProperty saving to the active layer instead of the layer of the desired profile.
 - Enhancement: Added the ability to exclude the home directory from `ProfileInfo.getAllProfiles()`. [#787](https://github.com/zowe/imperative/issues/771)
 
 ## `5.0.0-next.202204131728`
