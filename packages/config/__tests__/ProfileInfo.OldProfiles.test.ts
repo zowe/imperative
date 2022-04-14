@@ -475,4 +475,26 @@ describe("Old-school ProfileInfo tests", () => {
             expect(passwordArg.argValue).toBe("somePassword");
         });
     });
+
+    describe("getOsLocInfo", () => {
+        it("should return undefined if no osLoc is present", () => {
+            const profInfo = createNewProfInfo(homeDirPath);
+            const prof = { profName: "test", profLoc: { locType: 0 }, profType: "test", isDefaultProfile: false };
+            expect(profInfo.getOsLocInfo(prof)).toBeUndefined();
+            expect(profInfo.getOsLocInfo({...prof, profLoc: {locType: 0, osLoc: []}})).toBeUndefined();
+        });
+
+        it("should return basic osLoc information for a regular v1 profile", async () => {
+            const profInfo = createNewProfInfo(homeDirPath);
+            await profInfo.readProfilesFromDisk();
+            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const osLocInfo = profInfo.getOsLocInfo(profAttrs);
+            expect(osLocInfo).toBeDefined();
+            expect(osLocInfo.length).toBe(1);
+            expect(osLocInfo[0].name).toEqual(profAttrs.profName);
+            expect(osLocInfo[0].path).toEqual(profAttrs.profLoc.osLoc[0]);
+            expect(osLocInfo[0].user).toBeUndefined();
+            expect(osLocInfo[0].global).toBeUndefined();
+        });
+    });
 });
