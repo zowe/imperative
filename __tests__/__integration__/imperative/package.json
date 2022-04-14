@@ -34,9 +34,7 @@
     "watch": "npm run build -- --watch"
   },
   "dependencies": {
-    "@zowe/imperative": "../../.."
-  },
-  "devDependencies": {
+    "@zowe/imperative": "../../..",
     "keytar": "^7.1.0"
   },
   "engines": {
