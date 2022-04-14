@@ -357,7 +357,7 @@ describe("TeamConfig ProfileInfo tests", () => {
                 expect(profileTypes).toContain(prof.profType);
                 expect(prof.profLoc.locType).toEqual(ProfLocType.TEAM_CONFIG);
                 expect(prof.profLoc.osLoc).toBeDefined();
-                expect(prof.profLoc.osLoc.length).toEqual(1);
+                expect(prof.profLoc.osLoc.length).toEqual(prof.profName === "LPAR2" ? 2 : 1);
                 const profDir = path.join(prof.profName === "LPAR2_home" ? teamHomeProjDir : teamProjDir, testAppNm + ".config.json");
                 expect(prof.profLoc.osLoc[0]).toEqual(profDir);
                 expect(prof.profLoc.jsonLoc).toBeDefined();
@@ -1074,9 +1074,24 @@ describe("TeamConfig ProfileInfo tests", () => {
             expect(osLocInfo[0].global).toBe(false);
         });
 
-        // TODO (zFernand0): Will leverage the profile added in the excludeHomeDir PR for this test
-        // it("should return osLoc information for a profile name that exists in project and global config", async () => {
+        it("should return osLoc information for a profile name that exists in project and global config", async () => {
+            const desiredProfType = "zosmf";
+            const conflictingProfile = "LPAR2";
+            const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk({homeDir: teamHomeProjDir});
+            const profAttrs = profInfo.getAllProfiles(desiredProfType).find(p => p.profName === conflictingProfile);
+            const osLocInfo = profInfo.getOsLocInfo(profAttrs);
+            expect(osLocInfo.length).toBe(2);
 
-        // });
+            expect(osLocInfo[0].global).toBe(false);
+            expect(osLocInfo[0].user).toBe(false);
+            expect(osLocInfo[0].path).toBe(path.join(teamProjDir, testAppNm + ".config.json"));
+            expect(osLocInfo[0].name).toBe(conflictingProfile);
+
+            expect(osLocInfo[1].global).toBe(true);
+            expect(osLocInfo[1].user).toBe(false);
+            expect(osLocInfo[1].path).toBe(path.join(teamHomeProjDir, testAppNm + ".config.json"));
+            expect(osLocInfo[1].name).toBe(conflictingProfile);
+        });
     });
 });

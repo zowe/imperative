@@ -9,6 +9,14 @@
                 "rejectUnauthorized": false
             }
         },
+        "LPAR2": {
+            "type": "zosmf",
+            "properties": {
+                "host": "LPAR2.your.domain.net",
+                "port": 6789,
+                "responseFormatHeader": true
+            }
+        },
         "LPAR2_home": {
             "type": "zosmf",
             "properties": {
