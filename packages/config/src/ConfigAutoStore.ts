@@ -156,7 +156,7 @@ export class ConfigAutoStore {
         }
 
         const profileObj = config.api.profiles.get(profileName, false);
-        const profileSchema = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profileType).schema;
+        const profileSchema = ImperativeConfig.instance.loadedConfig.profiles.find(p => p.type === profileType)?.schema;
         const profileSecureProps = config.api.secure.securePropsForProfile(profileName);
 
         const baseProfileName = ConfigUtils.getActiveProfileName("base", opts.params?.arguments, opts.defaultBaseProfileName);
@@ -166,16 +166,18 @@ export class ConfigAutoStore {
 
         for (const propName of profileProps) {
             let propProfilePath = profilePath;
-            let isSecureProp = profileSchema.properties[propName]?.secure || profileSecureProps.includes(propName);
+            let isSecureProp = profileSchema?.properties[propName]?.secure || profileSecureProps.includes(propName);
             /* If any of the following is true, then property should be stored in base profile:
                 (1) Service profile does not exist, but base profile does
                 (2) Property is missing from service profile properties/secure objects, but present in base profile
                 (3) Property is tokenValue and tokenType is missing from service profile, but present in base profile
+                (4) Given profile is just a base profile :yum:
             */
             if ((!config.api.profiles.exists(profileName) && config.api.profiles.exists(baseProfileName)) ||
                 (profileObj[propName] == null && !profileSecureProps.includes(propName) &&
                     (baseProfileObj[propName] != null || baseProfileSecureProps.includes(propName))) ||
-                (propName === "tokenValue" && profileObj.tokenType == null && baseProfileObj.tokenType != null)
+                (propName === "tokenValue" && profileObj.tokenType == null && baseProfileObj.tokenType != null ||
+                profileType === "base")
             ) {
                 propProfilePath = config.api.profiles.expandPath(baseProfileName);
                 isSecureProp = baseProfileSchema.properties[propName].secure || baseProfileSecureProps.includes(propName);
