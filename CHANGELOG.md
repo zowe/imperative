@@ -305,6 +305,10 @@ All notable changes to the Imperative package will be documented in this file.
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
 
+## `4.18.3`
+
+- BugFix: Removed `moment` dependency.
+
 ## `4.18.2`
 
 - BugFix: Updated `moment` dependency.
