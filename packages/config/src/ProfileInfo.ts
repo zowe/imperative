@@ -49,6 +49,7 @@ import {
 import { IProfInfoUpdateKnownPropOpts, IProfInfoUpdatePropOpts } from "./doc/IProfInfoUpdatePropOpts";
 import { ConfigAutoStore } from "./ConfigAutoStore";
 import { IGetAllProfilesOptions } from "./doc/IProfInfoProps";
+import { IConfig } from "./doc/IConfig";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -576,15 +577,24 @@ export class ProfileInfo {
                 }
             }
 
-            const baseProfile = this.mLoadedConfig.api.profiles.defaultGet("base");
+            // if using global profile, make global base default for the operation below
+            const osLoc = (this.getOsLocInfo(profile) ?? []).find(p => p.name === profile.profName);
+            let baseProfile = this.mLoadedConfig.api.profiles.defaultGet("base");
+            let realBaseProfileName: string;
+            let layerProperties: IConfig;
+            if (osLoc?.global) {
+                layerProperties = this.mLoadedConfig.findLayer(osLoc.user, osLoc.global)?.properties;
+                realBaseProfileName = layerProperties?.defaults.base;
+                if (realBaseProfileName) baseProfile = this.mLoadedConfig.api.profiles.buildProfile(realBaseProfileName, layerProperties?.profiles);
+            }
             if (baseProfile != null) {
                 // Load args from default base profile if one exists
-                const baseProfileName = this.mLoadedConfig.properties.defaults.base;
+                const baseProfileName = realBaseProfileName ?? this.mLoadedConfig.properties.defaults.base;
                 for (const [propName, propVal] of Object.entries(baseProfile)) {
                     const argName = CliUtils.getOptionFormat(propName).camelCase;
                     // Skip properties already loaded from service profile
                     if (!mergedArgs.knownArgs.find((arg) => arg.argName === argName)) {
-                        const [argLoc, secure] = this.argTeamConfigLoc(baseProfileName, propName);
+                        const [argLoc, secure] = this.argTeamConfigLoc(baseProfileName, propName, layerProperties);
                         mergedArgs.knownArgs.push({
                             argName,
                             dataType: this.argDataType(typeof propVal),
@@ -1252,13 +1262,14 @@ export class ProfileInfo {
      * object containing OS and JSON locations.
      * @param profileName Name of a team config profile (e.g., LPAR1.zosmf)
      * @param propName Name of a team config property (e.g., host)
+     * @param configProperties Optional properties object to be used for property lookup
      */
-    private argTeamConfigLoc(profileName: string, propName: string): [IProfLoc, boolean] {
+    private argTeamConfigLoc(profileName: string, propName: string, configProperties?: IConfig): [IProfLoc, boolean] {
         const segments = this.mLoadedConfig.api.profiles.expandPath(profileName).split(".profiles.");
         const secFields = this.getTeamConfig().api.secure.secureFields();
         const buildPath = (ps: string[], p: string) => `${ps.join(".profiles.")}.properties.${p}`;
         while (segments.length > 0 &&
-            lodash.get(this.mLoadedConfig.properties, buildPath(segments, propName)) === undefined &&
+            lodash.get(configProperties ?? this.mLoadedConfig.properties, buildPath(segments, propName)) === undefined &&
             secFields.indexOf(buildPath(segments, propName)) === -1) {
             // Drop segment from end of path if property not found
             segments.pop();
