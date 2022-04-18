@@ -823,8 +823,8 @@ export class CommandProcessor {
         /**
          * Append profile information
          */
-        showInputsOnly.requiredProfiles = commandParameters.definition.profile?.required ?? [];
-        showInputsOnly.optionalProfiles = commandParameters.definition.profile?.optional ?? [];
+        showInputsOnly.requiredProfiles = commandParameters.definition.profile?.required;
+        showInputsOnly.optionalProfiles = commandParameters.definition.profile?.optional;
         showInputsOnly.locations = [];
 
         const configSecureProps: string[] = [];
@@ -834,7 +834,8 @@ export class CommandProcessor {
          */
         if (useConfig) {
 
-            showInputsOnly.requiredProfiles.concat(showInputsOnly.optionalProfiles).forEach((profile) => {
+            const combinedProfiles = [ ...showInputsOnly.requiredProfiles ?? [], ...showInputsOnly.optionalProfiles ?? [] ];
+            combinedProfiles.forEach((profile) => {
                 const name = getActiveProfileName(profile, commandParameters.arguments); // get profile name
                 const props = this.mConfig.api.secure.securePropsForProfile(name); // get secure props
                 configSecureProps.push(...props); // add to list
