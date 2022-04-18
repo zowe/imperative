@@ -38,5 +38,6 @@
         "fruit": "fruit.apple",
         "vegetable": "vegetable.artichoke"
     },
-    "plugins": []
+    "plugins": [],
+    "autoStore": true
 }

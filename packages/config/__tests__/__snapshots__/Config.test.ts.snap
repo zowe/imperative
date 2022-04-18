@@ -9,6 +9,7 @@ Object {
 
 exports[`Config tests load should load global config 1`] = `
 Object {
+  "autoStore": true,
   "defaults": Object {
     "fruit": "fruit.banana",
     "vegetable": "vegetable.artichoke",
@@ -53,6 +54,7 @@ Object {
 
 exports[`Config tests load should load project config 1`] = `
 Object {
+  "autoStore": true,
   "defaults": Object {
     "fruit": "fruit.orange",
   },
@@ -85,6 +87,7 @@ Object {
 
 exports[`Config tests load should load project user config 1`] = `
 Object {
+  "autoStore": false,
   "defaults": Object {
     "fruit": "fruit.apple",
   },
@@ -118,6 +121,7 @@ Object {
 
 exports[`Config tests load should load user config 1`] = `
 Object {
+  "autoStore": true,
   "defaults": Object {
     "fruit": "fruit.apple",
     "vegetable": "vegetable.artichoke",
@@ -162,6 +166,7 @@ Object {
 
 exports[`Config tests load should merge multiple config files 1`] = `
 Object {
+  "autoStore": false,
   "defaults": Object {
     "fruit": "fruit.apple",
     "vegetable": "vegetable.artichoke",

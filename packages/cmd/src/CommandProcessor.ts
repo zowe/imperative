@@ -43,7 +43,9 @@ import { ICommandArguments } from "./doc/args/ICommandArguments";
 import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "./help/WebHelpManager";
 import { ICommandProfile } from "./doc/profiles/definition/ICommandProfile";
-import { Config, ConfigUtils, ConfigConstants } from "../../config";
+import { Config } from "../../config/src/Config";
+import { getActiveProfileName } from "../../config/src/ConfigUtils";
+import { ConfigConstants } from "../../config/src/ConfigConstants";
 import { IDaemonContext } from "../../imperative/src/doc/IDaemonContext";
 import { IHandlerResponseApi } from "../..";
 
@@ -833,7 +835,7 @@ export class CommandProcessor {
         if (useConfig) {
 
             showInputsOnly.requiredProfiles.concat(showInputsOnly.optionalProfiles).forEach((profile) => {
-                const name = ConfigUtils.getActiveProfileName(profile, commandParameters.arguments); // get profile name
+                const name = getActiveProfileName(profile, commandParameters.arguments); // get profile name
                 const props = this.mConfig.api.secure.securePropsForProfile(name); // get secure props
                 configSecureProps.push(...props); // add to list
             });

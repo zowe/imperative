@@ -45,6 +45,7 @@ describe("TeamConfig ProfileInfo tests", () => {
     const testDir = path.join(__dirname, "__resources__");
     const teamProjDir = path.join(testDir, testAppNm + "_team_config_proj");
     const userTeamProjDir = path.join(testDir, testAppNm + "_user_and_team_config_proj");
+    const teamHomeProjDir = path.join(testDir, testAppNm + "_home_team_config_proj");
     let origDir: string;
 
     const envHost = testEnvPrefix + "_OPT_HOST";
@@ -336,7 +337,40 @@ describe("TeamConfig ProfileInfo tests", () => {
         });
 
         it("should return some profiles if a type is specified", async () => {
-            const length = 3;
+            const desiredProfType = "zosmf";
+            const expectedName = "LPAR1";
+            const expectedDefaultProfiles = 1;
+            let expectedProfileNames = ["LPAR1", "LPAR2", "LPAR3", "LPAR2_home"];
+            let actualDefaultProfiles = 0;
+
+            const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk({homeDir: teamHomeProjDir});
+            const profAttrs = profInfo.getAllProfiles(desiredProfType);
+
+            expect(profAttrs.length).toEqual(expectedProfileNames.length);
+            for (const prof of profAttrs) {
+                if (prof.isDefaultProfile) {
+                    expect(prof.profName).toEqual(expectedName);
+                    actualDefaultProfiles += 1;
+                }
+                expect(expectedProfileNames).toContain(prof.profName);
+                expect(profileTypes).toContain(prof.profType);
+                expect(prof.profLoc.locType).toEqual(ProfLocType.TEAM_CONFIG);
+                expect(prof.profLoc.osLoc).toBeDefined();
+                expect(prof.profLoc.osLoc.length).toEqual(prof.profName === "LPAR2" ? 2 : 1);
+                const profDir = path.join(prof.profName === "LPAR2_home" ? teamHomeProjDir : teamProjDir, testAppNm + ".config.json");
+                expect(prof.profLoc.osLoc[0]).toEqual(profDir);
+                expect(prof.profLoc.jsonLoc).toBeDefined();
+                const propertiesJson = jsonfile.readFileSync(profDir);
+                expect(lodash.get(propertiesJson, prof.profLoc.jsonLoc)).toBeDefined();
+
+                expectedProfileNames = expectedProfileNames.filter(obj => obj !== prof.profName);
+            }
+            expect(actualDefaultProfiles).toEqual(expectedDefaultProfiles);
+            expect(expectedProfileNames.length).toEqual(0);
+        });
+
+        it("should return some profiles if a type is specified and exclude homeDir", async () => {
             const desiredProfType = "zosmf";
             const expectedName = "LPAR1";
             const expectedDefaultProfiles = 1;
@@ -344,10 +378,10 @@ describe("TeamConfig ProfileInfo tests", () => {
             let actualDefaultProfiles = 0;
 
             const profInfo = createNewProfInfo(teamProjDir);
-            await profInfo.readProfilesFromDisk();
-            const profAttrs = profInfo.getAllProfiles(desiredProfType);
+            await profInfo.readProfilesFromDisk({homeDir: teamHomeProjDir});
+            const profAttrs = profInfo.getAllProfiles(desiredProfType, {excludeHomeDir: true});
 
-            expect(profAttrs.length).toEqual(length);
+            expect(profAttrs.length).toEqual(expectedProfileNames.length);
             for (const prof of profAttrs) {
                 if (prof.isDefaultProfile) {
                     expect(prof.profName).toEqual(expectedName);
@@ -360,7 +394,6 @@ describe("TeamConfig ProfileInfo tests", () => {
                 expect(prof.profLoc.osLoc.length).toEqual(1);
                 expect(prof.profLoc.osLoc[0]).toEqual(path.join(teamProjDir, testAppNm + ".config.json"));
                 expect(prof.profLoc.jsonLoc).toBeDefined();
-
                 const propertiesJson = jsonfile.readFileSync(path.join(teamProjDir, testAppNm + ".config.json"));
                 expect(lodash.get(propertiesJson, prof.profLoc.jsonLoc)).toBeDefined();
 
@@ -828,14 +861,15 @@ describe("TeamConfig ProfileInfo tests", () => {
             jest.spyOn(profInfo as any, "getAllProfiles").mockReturnValue([{ profName: "test" }]);
             jest.spyOn(profInfo as any, "mergeArgsForProfile").mockReturnValue({});
             const updateKnownPropertySpy = jest.spyOn(profInfo as any, "updateKnownProperty").mockResolvedValue(true);
+            const profileOptions = { profileName: "test", profileType: "base", property: "host", value: "test" };
             let caughtError;
             try {
-                await profInfo.updateProperty({ profileName: "test", profileType: "base", property: "host", value: "test" });
+                await profInfo.updateProperty(profileOptions);
             } catch (error) {
                 caughtError = error;
             }
             expect(caughtError).toBeUndefined();
-            expect(updateKnownPropertySpy).toHaveBeenCalledWith({ mergedArgs: {}, property: "host", value: "test" });
+            expect(updateKnownPropertySpy).toHaveBeenCalledWith({ ...profileOptions, mergedArgs: {}, osLocInfo: undefined });
         });
 
         it("should attempt to store session config properties without adding profile types to the loadedConfig", async () => {
@@ -1016,6 +1050,48 @@ describe("TeamConfig ProfileInfo tests", () => {
 
             expect(caughtError).toBeDefined();
             expect(caughtError.message).toBe("Failed to locate the property test");
+        });
+    });
+
+    describe("getOsLocInfo", () => {
+        it("should return undefined if no osLoc is present", () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            const prof = { profName: "test", profLoc: { locType: 1 }, profType: "test", isDefaultProfile: false };
+            expect(profInfo.getOsLocInfo(prof)).toBeUndefined();
+            expect(profInfo.getOsLocInfo({...prof, profLoc: {locType: 1, osLoc: []}})).toBeUndefined();
+        });
+
+        it("should return basic osLoc information for a unique profile", async () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk();
+            const profAttrs = profInfo.getDefaultProfile("zosmf");
+            const osLocInfo = profInfo.getOsLocInfo(profAttrs);
+            expect(osLocInfo).toBeDefined();
+            expect(osLocInfo.length).toBe(1);
+            expect(osLocInfo[0].name).toEqual(profAttrs.profName);
+            expect(osLocInfo[0].path).toEqual(profAttrs.profLoc.osLoc[0]);
+            expect(osLocInfo[0].user).toBe(false);
+            expect(osLocInfo[0].global).toBe(false);
+        });
+
+        it("should return osLoc information for a profile name that exists in project and global config", async () => {
+            const desiredProfType = "zosmf";
+            const conflictingProfile = "LPAR2";
+            const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk({homeDir: teamHomeProjDir});
+            const profAttrs = profInfo.getAllProfiles(desiredProfType).find(p => p.profName === conflictingProfile);
+            const osLocInfo = profInfo.getOsLocInfo(profAttrs);
+            expect(osLocInfo.length).toBe(2);
+
+            expect(osLocInfo[0].global).toBe(false);
+            expect(osLocInfo[0].user).toBe(false);
+            expect(osLocInfo[0].path).toBe(path.join(teamProjDir, testAppNm + ".config.json"));
+            expect(osLocInfo[0].name).toBe(conflictingProfile);
+
+            expect(osLocInfo[1].global).toBe(true);
+            expect(osLocInfo[1].user).toBe(false);
+            expect(osLocInfo[1].path).toBe(path.join(teamHomeProjDir, testAppNm + ".config.json"));
+            expect(osLocInfo[1].name).toBe(conflictingProfile);
         });
     });
 });

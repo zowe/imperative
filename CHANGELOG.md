@@ -7,6 +7,24 @@ All notable changes to the Imperative package will be documented in this file.
 - Enhancement: Introduced flag `--show-inputs-only` to show the inputs of the command
 that would be used if a command were executed.
 
+## `5.0.0-next.202204142147`
+
+- BugFix: Fixed missing `osLoc` information from `ProfileInfo.getAllProfiles()`. [#771](https://github.com/zowe/imperative/issues/771)
+- BugFix: Fixed updateKnownProperty saving to the active layer instead of the layer of the desired profile.
+- Enhancement: Added the ability to exclude the home directory from `ProfileInfo.getAllProfiles()`. [#787](https://github.com/zowe/imperative/issues/771)
+
+## `5.0.0-next.202204131728`
+
+- BugFix: Fixed `autoStore` property not being merged properly between team config layers.
+
+## `5.0.0-next.202204111131`
+
+- BugFix: Updated `moment` dependency.
+
+## `5.0.0-next.202204081605`
+
+- BugFix: Fixed `config set` command not respecting the property type defined in the schema. [#772](https://github.com/zowe/imperative/issues/772)
+
 ## `5.0.0-next.202204051515`
 
 - Enhancement: Added support for profile name aliases in team config so that `--zosmf-profile lpar1` falls back to profile "zosmf_lpar1" if "lpar1" does not exist.
@@ -291,6 +309,14 @@ that would be used if a command were executed.
 ## `5.0.0-next.202009251501`
 
 - Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
+
+## `4.18.3`
+
+- BugFix: Removed `moment` dependency.
+
+## `4.18.2`
+
+- BugFix: Updated `moment` dependency.
 
 ## `4.18.1`
 

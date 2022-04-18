@@ -19,7 +19,7 @@ import * as lodash from "lodash";
 // for ProfileInfo structures
 import { IProfArgAttrs } from "./doc/IProfArgAttrs";
 import { IProfAttrs } from "./doc/IProfAttrs";
-import { IProfLoc, ProfLocType } from "./doc/IProfLoc";
+import { IProfLoc, IProfLocOsLoc, IProfLocOsLocLayer, ProfLocType } from "./doc/IProfLoc";
 import { IProfMergeArgOpts } from "./doc/IProfMergeArgOpts";
 import { IProfMergedArg } from "./doc/IProfMergedArg";
 import { IProfOpts } from "./doc/IProfOpts";
@@ -48,6 +48,7 @@ import {
 } from "../../rest";
 import { IProfInfoUpdateKnownPropOpts, IProfInfoUpdatePropOpts } from "./doc/IProfInfoUpdatePropOpts";
 import { ConfigAutoStore } from "./ConfigAutoStore";
+import { IGetAllProfilesOptions } from "./doc/IProfInfoProps";
 
 /**
  * This class provides functions to retrieve profile-related information.
@@ -196,7 +197,7 @@ export class ProfileInfo {
         }
 
         const mergedArgs = this.mergeArgsForProfile(desiredProfile, { getSecureVals: false });
-        if (!(await this.updateKnownProperty({ mergedArgs, property: options.property, value: options.value, setSecure: options.setSecure }))) {
+        if (!(await this.updateKnownProperty({ ...options, mergedArgs, osLocInfo: this.getOsLocInfo(desiredProfile)?.[0] }))) {
             if (this.usingTeamConfig) {
                 // Check to see if loadedConfig already contains the schema for the specified profile type
                 if (ImperativeConfig.instance.loadedConfig?.profiles?.find(p => p.type === options.profileType)?.schema == null ||
@@ -273,8 +274,19 @@ export class ProfileInfo {
                 break;
             }
             case ProfLocType.TEAM_CONFIG: {
+                let oldLayer: IProfLocOsLocLayer;
+                if (options.osLocInfo) {
+                    const layer = this.getTeamConfig().layerActive();
+                    oldLayer = { user: layer.user, global: layer.global };
+                    this.getTeamConfig().api.layers.activate(options.osLocInfo.user, options.osLocInfo.global);
+                }
+
                 this.getTeamConfig().set(toUpdate.argLoc.jsonLoc, options.value, { secure: options.setSecure });
                 await this.getTeamConfig().save(false);
+
+                if (oldLayer) {
+                    this.getTeamConfig().api.layers.activate(oldLayer.user, oldLayer.global);
+                }
                 break;
             }
             case ProfLocType.ENV:
@@ -307,19 +319,19 @@ export class ProfileInfo {
      *          no profiles of any kind exist), we return an empty array
      *          ie, length is zero.
      */
-    public getAllProfiles(profileType?: string): IProfAttrs[] {
+    public getAllProfiles(profileType?: string, options?: IGetAllProfilesOptions): IProfAttrs[] {
         this.ensureReadFromDisk();
         const profiles: IProfAttrs[] = [];
 
         // Do we have team config profiles?
         if (this.mUsingTeamConfig) {
-            const teamConfigProfs = this.mLoadedConfig.maskedProperties.profiles;
+            const teamConfigProfs = this.mLoadedConfig.layerMerge(true, options?.excludeHomeDir).profiles;
             // Iterate over them
             for (const prof in teamConfigProfs) {
                 // Check if the profile has a type
                 if (teamConfigProfs[prof].type && (profileType == null || teamConfigProfs[prof].type === profileType)) {
                     const jsonLocation: string = "profiles." + prof;
-                    const teamOsLocation: string[] = this.findTeamOsLocation(jsonLocation);
+                    const teamOsLocation: string[] = this.findTeamOsLocation(jsonLocation, options?.excludeHomeDir);
                     const profAttrs: IProfAttrs = {
                         profName: prof,
                         profType: teamConfigProfs[prof].type,
@@ -895,6 +907,28 @@ export class ProfileInfo {
     }
 
     /**
+     * Gather information about the paths in osLoc
+     * @param profile Profile attributes gathered from getAllProfiles
+     */
+    public getOsLocInfo(profile: IProfAttrs): IProfLocOsLoc[] {
+        const osLoc = profile?.profLoc?.osLoc;
+        if (!osLoc?.length) return undefined;
+        if (profile.profLoc.locType === ProfLocType.TEAM_CONFIG) {
+            const ret: IProfLocOsLoc[] = [];
+            for (const loc of osLoc) {
+                for (const layer of this.mLoadedConfig.layers) {
+                    if (layer.path === loc) {
+                        // we found the config layer matching osLoc
+                        ret.push({ name: profile.profName, path: loc, user: layer.user, global: layer.global });
+                    }
+                }
+            }
+            return ret;
+        }
+        return [{ name: profile.profName, path: profile.profLoc.osLoc[0], user: undefined, global: undefined }];
+    }
+
+    /**
      * Load value of secure argument from the vault.
      * @param arg Secure argument object
      */
@@ -1179,16 +1213,16 @@ export class ProfileInfo {
 
     /**
      *
-     * @param jsonPath
-     *              The long form JSON path of the profile we are searching for.
+     * @param jsonPath The long form JSON path of the profile we are searching for.
+     * @param excludeHomeDir The long form JSON path of the profile we are searching for.
      * @returns A string array containing the location of all files containing the specified team profile
      */
-    private findTeamOsLocation(jsonPath: string): string[] {
+    private findTeamOsLocation(jsonPath: string, excludeHomeDir?: boolean): string[] {
         const files: string[] = [];
         const layers = this.mLoadedConfig.layers;
         for (const layer of layers) {
-            if (lodash.get(layer.properties, jsonPath) !== undefined &&
-                this.mLoadedConfig.mActive.global === layer.global) {
+            if (excludeHomeDir && layer.global) continue;
+            if (lodash.get(layer.properties, jsonPath) !== undefined) {
                 files.push(layer.path);
             }
         }
