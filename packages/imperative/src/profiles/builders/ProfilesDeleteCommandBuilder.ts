@@ -59,7 +59,7 @@ export class ProfilesDeleteCommandBuilder extends ProfilesCommandBuilder {
             type: "command",
             handler: __dirname + "/../handlers/NewDeleteProfilesHandler",
             deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_EDIT +
-                "\n    " + ImperativeConfig.instance.config.formMainConfigPathNm({addPath: true}),
+                "\n    " + ImperativeConfig.instance.config.formMainConfigPathNm({addPath: false}),
             customize: {},
             options: [],
             positionals: [{
