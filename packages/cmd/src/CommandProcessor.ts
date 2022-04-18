@@ -43,10 +43,9 @@ import { ICommandArguments } from "./doc/args/ICommandArguments";
 import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "./help/WebHelpManager";
 import { ICommandProfile } from "./doc/profiles/definition/ICommandProfile";
-import { Config } from "../../config/src/Config";
+import { Config, ConfigUtils, ConfigConstants } from "../../config";
 import { IDaemonContext } from "../../imperative/src/doc/IDaemonContext";
 import { IHandlerResponseApi } from "../..";
-import { ConfigConstants } from "../../config/src/ConfigConstants";
 
 
 /**
@@ -802,7 +801,7 @@ export class CommandProcessor {
             showSecure = true;
         }
 
-        // if config exists and a layer exists
+        // if config exists and a layer exists, use config
         let useConfig = false;
         this.mConfig?.layers.forEach((layer) => {
             if (layer.exists) {
@@ -811,18 +810,7 @@ export class CommandProcessor {
         });
 
         /**
-         * Determine if Zowe V2 Config is in effect.  If it is, then we will construct
-         * a Set of secure fields from its API.  If it is not, then we will construct
-         * a Set of secure fields from the `ConnectionPropsForSessCfg` defaults.
-         */
-        const secureInputs: Set<string> =
-            useConfig ?
-                new Set(this.mConfig.api.secure.secureFields().map(v => v.split('.').slice(-1)[0])) :
-                new Set([...LoggerUtils.CENSORED_OPTIONS, ...LoggerUtils.SECURE_PROMPT_OPTIONS]);
-
-        /**
-         * Build a list of arguments that will be displayed to the user and note
-         * if any are censored.
+         * Begin building response object
          */
         const showInputsOnly: IResolvedArgsResponse =
         {
@@ -830,9 +818,42 @@ export class CommandProcessor {
             profileVersion: useConfig ? `v2` : `v1`,
         };
 
+        /**
+         * Append profile information
+         */
+        showInputsOnly.requiredProfiles = commandParameters.definition.profile?.required ?? [];
+        showInputsOnly.optionalProfiles = commandParameters.definition.profile?.optional ?? [];
+        showInputsOnly.locations = [];
+
+        const configSecureProps: string[] = [];
+
+        /**
+         * If using config, then we need to get the secure properties from the config
+         */
+        if (useConfig) {
+
+            showInputsOnly.requiredProfiles.concat(showInputsOnly.optionalProfiles).forEach((profile) => {
+                const name = ConfigUtils.getActiveProfileName(profile, commandParameters.arguments); // get profile name
+                const props = this.mConfig.api.secure.securePropsForProfile(name); // get secure props
+                configSecureProps.push(...props); // add to list
+            });
+        }
+
+        /**
+         * Determine if Zowe V2 Config is in effect.  If it is, then we will construct
+         * a Set of secure fields from its API.  If it is not, then we will construct
+         * a Set of secure fields from the `ConnectionPropsForSessCfg` defaults.
+         */
+        const secureInputs: Set<string> =
+        useConfig ?
+            new Set([...configSecureProps]) :
+            new Set([...LoggerUtils.CENSORED_OPTIONS, ...LoggerUtils.SECURE_PROMPT_OPTIONS]);
+
         let censored = false;
 
-        // only attempt to show the input if it is in the command definition
+        /**
+         * Only attempt to show the input if it is in the command definition
+         */
         for (let i = 0; i < commandParameters.definition.options?.length; i++) {
             const name = commandParameters.definition.options[i].name;
 
@@ -848,14 +869,9 @@ export class CommandProcessor {
         }
 
         /**
-         * Append profile information
+         * Add profile location info
          */
-        showInputsOnly.requiredProfiles = commandParameters.definition.profile?.required;
-        showInputsOnly.optionalProfiles = commandParameters.definition.profile?.optional;
-        showInputsOnly.locations = [];
-
         if (useConfig) {
-            // showInputsOnly.paths:
             this.mConfig.mLayers.forEach((layer) => {
                 if (layer.exists) {
                     showInputsOnly.locations.push(layer.path);
@@ -871,7 +887,7 @@ export class CommandProcessor {
         if (censored && !showSecure) {
             response.console.errorHeader("Some inputs are not displayed");
             response.console.error(
-                `Inputs below may be displayed as '${LoggerUtils.CENSOR_RESPONSE}'. ` +
+                `Inputs below may be displayed as '${ConfigConstants.SECURE_VALUE}'. ` +
                 `Properties identified as secure fields are not displayed by default.\n\n` +
                 `Set the environment variable ` +
                 `${SECRETS_ENV} to 'true' to display secure values in plain text.\n`);
