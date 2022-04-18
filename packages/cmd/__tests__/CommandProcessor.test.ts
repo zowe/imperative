@@ -24,8 +24,6 @@ import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "../src/help/WebHelpManager";
 import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
 import { setupConfigToLoad } from "../../../__tests__/src/TestUtil";
-import { Config } from "../../config/src/Config";
-import * as fs from "fs";
 
 jest.mock("../src/syntax/SyntaxValidator");
 jest.mock("../src/utils/SharedOptions");
@@ -691,7 +689,7 @@ describe("Command Processor", () => {
 
         let error;
         try {
-            const validateResponse: ICommandResponse = await processor.invoke({arguments: undefined});
+            const validateResponse: ICommandResponse = await processor.invoke({ arguments: undefined });
         } catch (e) {
             error = e;
         }
@@ -714,7 +712,7 @@ describe("Command Processor", () => {
 
         let error;
         try {
-            const parms: any = {arguments: {_: [], $0: ""}, responseFormat: "blah", silent: true};
+            const parms: any = { arguments: { _: [], $0: "" }, responseFormat: "blah", silent: true };
             const validateResponse: ICommandResponse = await processor.invoke(parms);
         } catch (e) {
             error = e;
@@ -738,7 +736,7 @@ describe("Command Processor", () => {
 
         let error;
         try {
-            const parms: any = {arguments: {_: undefined, $0: ""}, responseFormat: "json", silent: true};
+            const parms: any = { arguments: { _: undefined, $0: "" }, responseFormat: "json", silent: true };
             const validateResponse: ICommandResponse = await processor.invoke(parms);
         } catch (e) {
             error = e;
@@ -760,7 +758,7 @@ describe("Command Processor", () => {
             promptPhrase: "dummydummy"
         });
 
-        const parms: any = {arguments: {_: ["banana"], $0: "", valid: false}, responseFormat: "json", silent: true};
+        const parms: any = { arguments: { _: ["banana"], $0: "", valid: false }, responseFormat: "json", silent: true };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
 
         expect(commandResponse).toBeDefined();
@@ -785,7 +783,7 @@ describe("Command Processor", () => {
         });
 
         const parms: any = {
-            arguments: {_: ["check", "for", "banana"], $0: "", valid: false},
+            arguments: { _: ["check", "for", "banana"], $0: "", valid: false },
             responseFormat: "json", silent: true
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
@@ -812,7 +810,7 @@ describe("Command Processor", () => {
         });
 
         const parms: any = {
-            arguments: {_: ["check", "for", "banana"], $0: "", syntaxThrow: true},
+            arguments: { _: ["check", "for", "banana"], $0: "", syntaxThrow: true },
             responseFormat: "json", silent: true
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
@@ -834,7 +832,7 @@ describe("Command Processor", () => {
             promptPhrase: "dummydummy"
         });
 
-        const parms: any = {arguments: {_: [], $0: "", syntaxThrow: true}, responseFormat: "json", silent: true};
+        const parms: any = { arguments: { _: [], $0: "", syntaxThrow: true }, responseFormat: "json", silent: true };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
 
         expect(commandResponse).toBeDefined();
@@ -869,7 +867,7 @@ describe("Command Processor", () => {
             })
         });
 
-        const parms: any = {arguments: {_: [], $0: "", syntaxThrow: true}, responseFormat: "json", silent: true};
+        const parms: any = { arguments: { _: [], $0: "", syntaxThrow: true }, responseFormat: "json", silent: true };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
 
         expect(mockLogInfo).toHaveBeenCalled();
@@ -896,11 +894,11 @@ describe("Command Processor", () => {
 
         // Mock the profile loader
         CommandProfileLoader.loader = jest.fn((args) => {
-            throw new ImperativeError({msg: "Profile loading failed!"});
+            throw new ImperativeError({ msg: "Profile loading failed!" });
         });
 
         const parms: any = {
-            arguments: {_: ["check", "for", "banana"], $0: "", valid: true},
+            arguments: { _: ["check", "for", "banana"], $0: "", valid: true },
             responseFormat: "json", silent: true
         };
         const commandResponse: ICommandResponse = await processor.invoke(parms);
@@ -1485,15 +1483,43 @@ describe("Command Processor", () => {
         const parm1Key = `parm1`;
         const parm1Value = `value1`;
 
-        jest.spyOn(Config, "search").mockReturnValue(__dirname + "/__resources__/project.config.user.json");
-
-        jest.spyOn(fs, "existsSync")
-            .mockReturnValueOnce(true)      // Project user layer
-            .mockReturnValueOnce(false)     // Project layer
-            .mockReturnValueOnce(false)     // User layer
-            .mockReturnValueOnce(false);    // Global layer
-
-        const config = await Config.load("yippie");
+        await setupConfigToLoad({
+            "profiles": {
+                "fruit": {
+                    "properties": {
+                        "origin": "California"
+                    },
+                    "profiles": {
+                        "apple": {
+                            "type": "fruit",
+                            "properties": {
+                                "color": "red"
+                            }
+                        },
+                        "banana": {
+                            "type": "fruit",
+                            "properties": {
+                                "color": "yellow"
+                            }
+                        },
+                        "orange": {
+                            "type": "fruit",
+                            "properties": {
+                                "color": "orange"
+                            }
+                        }
+                    },
+                    "secure": []
+                }
+            },
+            "defaults": {
+                "fruit": "fruit.apple",
+                "banana": "fruit.banana"
+            },
+            "plugins": [
+                "@zowe/fruit-for-imperative"
+            ]
+        });
 
         // Allocate the command processor
         const processor: CommandProcessor = new CommandProcessor({
@@ -1526,7 +1552,7 @@ describe("Command Processor", () => {
             rootCommandName: SAMPLE_ROOT_COMMAND,
             commandLine: "",
             promptPhrase: "dummydummy",
-            config
+            config:  ImperativeConfig.instance.config
         });
 
         // Mock the profile loader
@@ -1969,7 +1995,7 @@ describe("Command Processor", () => {
             commandLine: "",
             promptPhrase: "dummydummy"
         });
-        const commandResponse: ICommandResponse = await processor.help(new CommandResponse({silent: true}));
+        const commandResponse: ICommandResponse = await processor.help(new CommandResponse({ silent: true }));
         expect(commandResponse).toBeDefined();
         expect(commandResponse).toMatchSnapshot();
     });
