@@ -27,38 +27,38 @@ export interface ICommandPositionalDefinition {
      * array of arguments. So if you specify `name = "abcd..."` and then
      * "a b c d" is specified for the positional argument, abcd = ["a", "b", "c", "d"]
      * @type {string}
-     * @memberOf ICommandPositionalDefinition
+     * @memberof ICommandPositionalDefinition
      */
     name: string;
     /**
      * The option type - used to validate that the user provided value is acceptable.
      * @type {CommandOptionType}
-     * @memberOf ICommandPositionalDefinition
+     * @memberof ICommandPositionalDefinition
      */
     type: CommandOptionType;
     /**
      * The description for the positional operand - used in the help and error messages.
      * @type {string}
-     * @memberOf ICommandPositionalDefinition
+     * @memberof ICommandPositionalDefinition
      */
     description: string;
     /**
      * True if this positional is required.
      * @type {boolean}
-     * @memberOf ICommandPositionalDefinition
+     * @memberof ICommandPositionalDefinition
      */
     required?: boolean;
 
     /**
      * A regex that will be used to match the input for this positional for validation.
      * @type {string}
-     * @memberOf ICommandPositionalDefinition
+     * @memberof ICommandPositionalDefinition
      */
     regex?: string;
     /**
      * What is an acceptable length range for your positional? e.g. between 1 and 8 characters: [1,8]
      * @type {[number, number]}
-     * @memberOf ICommandPositionalDefinition
+     * @memberof ICommandPositionalDefinition
      */
     stringLengthRange?: [number, number];
 }

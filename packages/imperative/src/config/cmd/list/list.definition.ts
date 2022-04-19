@@ -9,35 +9,57 @@
 *
 */
 
-import { ICommandDefinition } from "../../../../../cmd";
 import { join } from "path";
+import { ICommandDefinition } from "../../../../../cmd";
 
-/**
- * Definition of the list command.
- * @type {ICommandDefinition}
- */
 export const listDefinition: ICommandDefinition = {
     name: "list",
-    aliases: ["li"],
+    aliases: ["ls"],
     type: "command",
+    summary: "list config properties",
+    description: "List config properties",
     handler: join(__dirname, "list.handler"),
-    summary: "List all configuration setting options",
-    description: "List all configuration setting options.",
+    positionals: [
+        {
+            name: "property",
+            description: "The config property to list. Blank to list all properties.",
+            type: "string"
+        }
+    ],
     options: [
         {
-            name: "values",
-            type: "boolean",
-            description: "Show values for every option",
+            name: "locations",
+            description: "Separate the config properties into their respective config file locations. " +
+                "Helpful to determine where configuration value is specified.",
+            type: "boolean"
         },
+        {
+            name: "root",
+            description: "List only the root level property names. " +
+                "For example, specify in addition to '--locations' to get a list of config file paths only.",
+            type: "boolean"
+        }
     ],
     examples: [
         {
-            options: "",
-            description: "List all configuration setting options"
+            description: "List property names for a specified config property.",
+            options: `"defaults"`
         },
         {
-            options: "--values",
-            description: "List all configuration setting options with values"
+            description: "List only root level property names for a specified config property.",
+            options: `"defaults" --root`
+        },
+        {
+            description: "List config properties by separating them by their respective config file locations.",
+            options: "--locations"
+        },
+        {
+            description: "List only the root level configuration property names.",
+            options: "--root"
+        },
+        {
+            description: "List only the root level configuration properties by separating them by their respective config file locations.",
+            options: "--locations --root"
         }
-    ],
+    ]
 };

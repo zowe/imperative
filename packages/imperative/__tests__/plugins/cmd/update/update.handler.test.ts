@@ -67,10 +67,10 @@ describe("Plugin Management Facility update handler", () => {
     });
 
     /**
-   *  Create object to be passed to process function
-   *
-   * @returns {IHandlerParameters}
-   */
+     *  Create object to be passed to process function
+     *
+     * @returns {IHandlerParameters}
+     */
     const getIHandlerParametersObject = (): IHandlerParameters => {
         const x: any = {
             response: new (CommandResponse as any)(),
@@ -88,11 +88,11 @@ describe("Plugin Management Facility update handler", () => {
     });
 
     /**
-   * Validates that an update call was valid based on the parameters passed.
-   *
-   * @param {string}   packageNameParm        expected package location that install was called with.
-   * @param {string}   registry               expected registry that install was called with.
-   */
+     * Validates that an update call was valid based on the parameters passed.
+     *
+     * @param {string}   packageNameParm        expected package location that install was called with.
+     * @param {string}   registry               expected registry that install was called with.
+     */
     const wasUpdateCallValid = (
         packageNameParm: string,
         registry: string
@@ -103,30 +103,30 @@ describe("Plugin Management Facility update handler", () => {
     };
 
     /**
-   * Checks that the successful message was written.
-   *
-   * @param {IHandlerParameters} params The parameters that were passed to the
-   *                                    process function.
-   */
+     * Checks that the successful message was written.
+     *
+     * @param {IHandlerParameters} params The parameters that were passed to the
+     *                                    process function.
+     */
     const wasUpdateSuccessful = (params: IHandlerParameters) => {
         expect(params.response.console.log).toHaveBeenCalledWith(`Update of the npm package(${params.arguments.plugin}) was successful.\n`);
     };
 
     /**
-   * Validates that an npmLogin was called
-   * when login needed based on the parameters passed.
-   */
+     * Validates that an npmLogin was called
+     * when login needed based on the parameters passed.
+     */
     const wasNpmLoginCallValid = (registry: string) => {
         expect(mocks.npmLogin).toHaveBeenCalledWith(registry);
     };
 
     /**
-   * Checks that writeFileSync call was correct.
-   *
-   * @param {string} location The location of the plugins.json file
-   *
-   * @param (IPluginJson) fileJson The contents to be written to the file
-   */
+     * Checks that writeFileSync call was correct.
+     *
+     * @param {string} location The location of the plugins.json file
+     *
+     * @param (IPluginJson) fileJson The contents to be written to the file
+     */
     const wasWriteFileSyncValid = (location: string, fileJson: IPluginJson) => {
         expect(mocks.writeFileSync).toHaveBeenCalledWith(
             location, fileJson, {spaces: 2}

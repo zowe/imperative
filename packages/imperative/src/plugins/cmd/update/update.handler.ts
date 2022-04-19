@@ -26,24 +26,24 @@ import { npmLogin } from "../../utilities/NpmFunctions";
  */
 export default class UpdateHandler implements ICommandHandler {
     /**
-   * A logger for this class
-   *
-   * @private
-   * @type {Logger}
-   */
+     * A logger for this class
+     *
+     * @private
+     * @type {Logger}
+     */
     private console: Logger = Logger.getImperativeLogger();
 
     /**
-   * Process the command and input.
-   *
-   * @param {IHandlerParameters} params Parameters supplied by yargs
-   *
-   * @param {string[]} [params.arguments.plugin] This is the plugin to update.
-   *
-   * @returns {Promise<ICommandResponse>} The command response
-   *
-   * @throws {ImperativeError}
-   */
+     * Process the command and input.
+     *
+     * @param {IHandlerParameters} params Parameters supplied by yargs
+     *
+     * @param {string[]} [params.arguments.plugin] This is the plugin to update.
+     *
+     * @returns {Promise<ICommandResponse>} The command response
+     *
+     * @throws {ImperativeError}
+     */
     public async process(params: IHandlerParameters): Promise<void> {
         const iConsole = Logger.getImperativeLogger();
         const chalk = TextUtils.chalk;

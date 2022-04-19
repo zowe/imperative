@@ -13,12 +13,13 @@
  * @file Integration tests for installing plugins through the Plugin Management Facility.
  */
 
-import { join } from "path";
+import * as fs from "fs";
 import * as T from "../../../../../src/TestUtil";
+import { join, resolve } from "path";
 import { TEST_REGISTRY } from "../../../../../__src__/TestConstants";
 import { execSync, SpawnSyncReturns } from "child_process";
 
-import { config, cliBin, pluginGroup } from "../PluginManagementFacility.spec";
+import { config, cliBin, pluginGroup } from "../../__integration__/PluginManagementFacility.spec";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { IPluginJson } from "../../../../../../packages/imperative/src/plugins/doc/IPluginJson";
 
@@ -28,27 +29,27 @@ describe("Installing Plugins", () => {
      */
     interface ITestPluginStructure {
         /**
-         * The keys represent the type of plugin, so for now we have a registry and normal plugin
+         * This object describes the format of the plugins variable
          */
         [key: string]: {
-        /**
-         * The location (or path to install) of a plugin. For anything on a registry, this should be the same as the name
-         * stored in the registry.
-         */
+            /**
+             * The location (or path to install) of a plugin. For anything on a registry, this should be the same as the name
+             * stored in the registry.
+             */
             location: string,
 
             /**
-         * This is the name of the package.
-         *
-         * For local files we don't get this automatically from the file path.
-         * For registry plugins, this is the same as the plugin location.
-         */
+             * This is the name of the package.
+             *
+             * For local files we don't get this automatically from the file path.
+             * For registry plugins, this is the same as the plugin location.
+             */
             name: string,
 
             /**
-         * This is ultimately how the plugin is added to the cli. IE the top level
-         * name that gets invoked
-         */
+             * This is ultimately how the plugin is added to the cli. IE the top level
+             * name that gets invoked
+             */
             usage: string
         };
     }
@@ -56,28 +57,28 @@ describe("Installing Plugins", () => {
     const plugins: ITestPluginStructure = {
         normal: {
             location: join(__dirname, "../", "test_plugins", "normal_plugin"),
-            name    : "normal-plugin",
-            usage   : "normal-plugin"
+            name: "normal-plugin",
+            usage: "normal-plugin"
         },
         normal2: {
             location: join(__dirname, "../", "test_plugins", "normal_plugin_2"),
-            name    : "normal-plugin-2",
-            usage   : "normal-plugin-2"
+            name: "normal-plugin-2",
+            usage: "normal-plugin-2"
         },
         normal3: {
             location: join(__dirname, "../", "test_plugins", "normal_plugin_3"),
-            name    : "normal-plugin-3",
-            usage   : "normal-plugin-3"
+            name: "normal-plugin-3",
+            usage: "normal-plugin-3"
         },
         space_in_path: {
             location: join(__dirname, "../", "test_plugins", "space in path plugin"),
-            name    : "space-in-path-plugin",
-            usage   : "space-in-path-plugin"
+            name: "space-in-path-plugin",
+            usage: "space-in-path-plugin"
         },
         registry: {
             location: "imperative-sample-plugin",
-            name    : "imperative-sample-plugin",
-            usage   : "sample-plugin"
+            name: "imperative-sample-plugin",
+            usage: "sample-plugin"
         }
     };
 
@@ -121,7 +122,6 @@ describe("Installing Plugins", () => {
         T.rimraf(pluginJsonLocation);
     });
 
-
     /**
      * This test was purposely commented out. The CICD pipeline cannot synchronize two different
      * repos: imperative and imperative-plugins in master, since plugins is used to perform the
@@ -142,16 +142,28 @@ describe("Installing Plugins", () => {
     //     expect(strippedOutput).toContain("Installation of the npm package(s) was successful.");
     // });
 
-    it("should install a plugin from a file location", function(){
+    it("should install a plugin from a file location", function () {
+        const originalEnvHome = process.env.ZOWE_CLI_HOME;
+        // Not sure if this needs done for all integration tests to simulate that
+        // --global-config will point to the __results__ directory created for the test
+        process.env.ZOWE_CLI_HOME = config.defaultHome;
 
         let result = executeCommandString(this, "--help");
+        const appPrefix = resolve(config.defaultHome, config.name);
 
         // Verify that the sample plugin isn't there
         expect(result.stderr).toEqual("");
         expect(result.stdout).not.toContain(plugins.normal.usage);
 
+        result = executeCommandString(this, "config init --global-config --prompt false");
+        expect(result.stderr).toEqual("");
+        expect(result.stdout).toContain(`Saved config template to ${appPrefix + ".config.json"}`);
+
+        expect(fs.readFileSync(appPrefix + ".schema.json").toString()).not.toContain(plugins.normal.name);
+
         // Now go ahead and install the sample
         result = executeCommandString(this, `${pluginGroup} install ${plugins.normal.location}`);
+        expect(fs.readFileSync(appPrefix + ".schema.json").toString()).toContain(plugins.normal.name);
         if (peerDepWarning) {
             expect(result.stderr).toMatch(/npm.*WARN/);
             expect(result.stderr).toContain("requires a peer of @zowe/imperative");
@@ -169,9 +181,11 @@ describe("Installing Plugins", () => {
 
         expect(result.stderr).toEqual("");
         expect(result.stdout).toContain(plugins.normal.usage);
+
+        process.env.ZOWE_CLI_HOME = originalEnvHome;
     });
 
-    it("should install multiple plugins at the same time", function(){
+    it("should install multiple plugins at the same time", function () {
 
         // Verify that nothing currently exists
         let result = executeCommandString(this, "--help");
@@ -204,7 +218,7 @@ describe("Installing Plugins", () => {
         expect(result.stdout).toContain(plugins.normal2.usage);
     });
 
-    it("should re-install plugins using files in the cli home directory", function(){
+    it("should re-install plugins using files in the cli home directory", function () {
 
         // check before install, and after
         const beforeInstall = executeCommandString(this, "--help");
@@ -248,7 +262,7 @@ describe("Installing Plugins", () => {
         expect(result.stdout).toEqual(afterInstall.stdout);
     });
 
-    it("should install a plugin from a file location that contain space in it path", function(){
+    it("should install a plugin from a file location that contain space in it path", function () {
 
         let result = executeCommandString(this, "--help");
 
@@ -277,8 +291,7 @@ describe("Installing Plugins", () => {
         expect(result.stdout).toContain(plugins.space_in_path.usage);
     });
 
-    /**
-     * Again we purposely commented out this test because versioning uses a registry,
+    /* Again we purposely commented out this test because versioning uses a registry,
      * which is problematic for a CICD pipeline.
      *
      * If you want to do a quick manual test using an npm registry, you can uncomment
@@ -299,12 +312,9 @@ describe("Installing Plugins", () => {
 
     //     expect(result.stderr).toEqual("");
     //     expect(result.stdout).toContain("successful");
-
     //     result = executeCommandString(this, "--help");
-
     //     expect(result.stderr).toEqual("");
     //     expect(result.stdout).toContain(plugins.registry.usage);
-
     //     const actualJson = readFileSync(pluginJsonLocation);
     //     const expectedJson: IPluginJson = {
     //         [plugins.registry.name]: {
@@ -313,29 +323,20 @@ describe("Installing Plugins", () => {
     //         version
     //         }
     //     };
-
     //     expect(actualJson).toEqual(expectedJson);
     //     });
-
     //     it("should install preserving semver", function(){
     //     const version = "^1.0.0";
-
     //     let result = executeCommandString(this, "--help");
-
     //     expect(result.stderr).toEqual("");
     //     expect(result.stdout).not.toContain(plugins.registry.usage);
-
     //     // Install the plugin with a version
     //     result = executeCommandString(this, `${pluginGroup} install ${plugins.registry.location}@${version} --registry ${TEST_REGISTRY}`);
-
     //     expect(result.stderr).toEqual("");
     //     expect(result.stdout).toContain("successful");
-
     //     result = executeCommandString(this, "--help");
-
     //     expect(result.stderr).toEqual("");
     //     expect(result.stdout).toContain(plugins.registry.usage);
-
     //     const actualJson = readFileSync(pluginJsonLocation);
     //     const expectedJson: IPluginJson = {
     //         [plugins.registry.name]: {
@@ -344,11 +345,9 @@ describe("Installing Plugins", () => {
     //         version
     //         }
     //     };
-
     //     expect(actualJson).toEqual(expectedJson);
     //     });
     // });
-    /* eslint-enable jest/no-commented-out-tests */
 
     describe("providing a plugin json", () => {
         let testFile: string;
@@ -363,9 +362,9 @@ describe("Installing Plugins", () => {
                     version: "1.0.1"
                 },
                 [plugins.normal2.name]: {
-                    package : plugins.normal2.location,
+                    package: plugins.normal2.location,
                     registry: TEST_REGISTRY,
-                    version : "1.0.2"
+                    version: "1.0.2"
                 },
             };
 
@@ -379,7 +378,7 @@ describe("Installing Plugins", () => {
             T.rimraf(testFile);
         });
 
-        it("should install using the created plugin json file", function(){
+        it("should install using the created plugin json file", function () {
 
             // Check that the plugins aren't there
             let result = executeCommandString(this, "--help");
@@ -418,7 +417,9 @@ describe("Installing Plugins", () => {
             expect(savedPluginJson).toEqual(expectedContent);
         });
 
-        it("should merge a plugins.json provided with one that is already managed", function(){
+        it("should merge a plugins.json provided with one that is already managed", function () {
+
+            const initialVersion = "1.0.2";
 
             let result = executeCommandString(this, "--help");
 
@@ -492,7 +493,7 @@ describe("Installing Plugins", () => {
             expect(actualJson).toEqual(expectedJson);
         });
 
-        it("should error when a package and --file is specified", function(){
+        it("should error when a package and --file is specified", function () {
             expect(
                 T.stripNewLines(
                     executeCommandString(this, `${pluginGroup} install ${plugins.registry.location} --file ${testFile}`).stderr
@@ -500,7 +501,7 @@ describe("Installing Plugins", () => {
             ).toContain("Option --file can not be specified if positional package... is as well. They are mutually exclusive.");
         });
 
-        it("should error when --file and --registry are specified", function(){
+        it("should error when --file and --registry are specified", function () {
             expect(
                 T.stripNewLines(
                     executeCommandString(this,

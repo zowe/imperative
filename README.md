@@ -8,8 +8,6 @@ Imperative CLI Framework is a command processing system that lets you quickly bu
 
 - [**Install Node.js package manager**](https://nodejs.org/en/download/package-manager) on your computer. Node.js® is a JavaScript runtime environment on which we architected Imperative CLI Framework.
 
-- To build this project from source, you must have Python 2.7 and a C++ Compiler installed (both are required by a dependency named `node-gyp`). To obtain the required software, follow the [instructions in the node-gyp readme](https://github.com/nodejs/node-gyp#installation) specific to your OS. 
-
 - You must have a means to execute ".sh" (bash) scripts to run integration tests. On Windows, you can install "Git Bash", which is bundled with the standard [Git](https://git-scm.com/downloads) installation - (choose the "Use Git and Unix Tools from Windows Command Prompt" installation option). When you run the integration tests on Windows, you must have Administrative authority to enable the integration tests to create symbolic links.
 
 **Note:** Broadcom Inc. does not maintain the prerequisite software that Imperative CLI Framework requires. You are responsible for updating Node.js and other prerequisites on your computer. We recommend that you update Node.js regularly to the latest Long Term Support (LTS) version.
@@ -38,8 +36,6 @@ Issue the following commands to install Imperative CLI Framework as a dependency
 ### Build and Install Imperative CLI Framework from Source
 To build and install the Imperative CLI Framework, follow these steps:
 
-1. Install node-gyp. node-gyp is a tool that you use to build Node.js native addons. For more information, see the node-gyp installation instructions at https://github.com/nodejs/node-gyp.
-**Note:** You can skip to the next step if you installed node-gyp previously.
 1. Clone the `zowe/imperative` project to your PC.
 2. From the command line, issue `cd [relative path]/imperative`
 3. Issue `npm install`

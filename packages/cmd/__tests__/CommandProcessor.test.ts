@@ -22,9 +22,12 @@ import { SharedOptions } from "../src/utils/SharedOptions";
 import { CommandProfileLoader } from "../src/profiles/CommandProfileLoader";
 import { CliUtils } from "../../utilities/src/CliUtils";
 import { WebHelpManager } from "../src/help/WebHelpManager";
+import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
+import { setupConfigToLoad } from "../../../__tests__/src/TestUtil";
 
 jest.mock("../src/syntax/SyntaxValidator");
 jest.mock("../src/utils/SharedOptions");
+jest.mock("../../utilities/src/ImperativeConfig");
 
 // Persist the original definitions of process.write
 const ORIGINAL_STDOUT_WRITE = process.stdout.write;
@@ -244,6 +247,7 @@ describe("Command Processor", () => {
     afterEach(() => {
         process.stdout.write = ORIGINAL_STDOUT_WRITE;
         process.stderr.write = ORIGINAL_STDERR_WRITE;
+        jest.restoreAllMocks();
     });
 
     it("should allow us to create an instance", () => {
@@ -1368,6 +1372,68 @@ describe("Command Processor", () => {
         expect(commandResponse).toMatchSnapshot();
     });
 
+    it("should invoke the handler and process daemon response and then return success=true if the handler was successful", async () => {
+        // Allocate the command processor
+        const processor: CommandProcessor = new CommandProcessor({
+            envVariablePrefix: ENV_VAR_PREFIX,
+            fullDefinition: SAMPLE_COMPLEX_COMMAND,
+            definition: SAMPLE_COMMAND_REAL_HANDLER,
+            helpGenerator: FAKE_HELP_GENERATOR,
+            profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+            rootCommandName: SAMPLE_ROOT_COMMAND,
+            commandLine: "",
+            promptPhrase: "dummydummy",
+            daemonContext: {
+                response: {
+                    cwd: process.cwd(),
+                    env: { UNIT_TEST_ENV: "new" }
+                }
+            }
+        });
+
+        // Mock read stdin
+        (SharedOptions.readStdinIfRequested as any) = jest.fn((args, response, type) => {
+            // Nothing to do
+        });
+
+        // Mock the profile loader
+        (CommandProfileLoader.loader as any) = jest.fn((args) => {
+            return {
+                loadProfiles: (profArgs: any) => {
+                    // Nothing to do
+                }
+            };
+        });
+
+        jest.spyOn(process, "chdir");
+        const mockConfigReload = jest.fn();
+        jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
+            config: { reload: mockConfigReload }
+        } as any);
+
+        const parms: any = {
+            arguments: {
+                _: ["check", "for", "banana"],
+                $0: "",
+                valid: true
+            },
+            silent: true
+        };
+        process.env.UNIT_TEST_ENV = "old";
+        try {
+            const envVarCount = Object.keys(process.env).length;
+            const commandResponse: ICommandResponse = await processor.invoke(parms);
+            expect(commandResponse).toBeDefined();
+            expect(commandResponse).toMatchSnapshot();
+            expect(process.chdir).toHaveBeenCalledTimes(1);
+            expect(process.env.UNIT_TEST_ENV).toBe("new");
+            expect(Object.keys(process.env).length).toBe(envVarCount);  // Ensure that env vars were preserved
+            expect(mockConfigReload).toHaveBeenCalledTimes(1);
+        } finally {
+            delete process.env.UNIT_TEST_ENV;
+        }
+    });
+
     it("should extract arguments not specified on invoke from a profile and merge with args", async () => {
         const processor: CommandProcessor = new CommandProcessor({
             envVariablePrefix: ENV_VAR_PREFIX,
@@ -1874,6 +1940,70 @@ describe("Command Processor", () => {
             // If we've gotten here then all the important checks have passed, this
             // will just check that the syntax generated hasn't changed.
             expect(getConsoleErrorFromMock(dummyResponseObject)).toMatchSnapshot();
+        });
+    });
+
+    describe("profiles", () => {
+        let processor: CommandProcessor;
+
+        beforeEach(async () => {
+            // Create fake profile config
+            await setupConfigToLoad({
+                profiles: {
+                    fresh: {
+                        type: "banana",
+                        properties: {
+                            color: "green"
+                        }
+                    },
+                    ripe: {
+                        type: "banana",
+                        properties: {
+                            color: "yellow"
+                        }
+                    },
+                    banana_old: {
+                        type: "banana",
+                        properties: {
+                            color: "brown"
+                        }
+                    },
+                },
+                defaults: {
+                    banana: "fresh"
+                }
+            });
+
+            // Allocate the command processor
+            processor = new CommandProcessor({
+                envVariablePrefix: ENV_VAR_PREFIX,
+                definition: SAMPLE_COMMAND_REAL_HANDLER_WITH_OPT,
+                helpGenerator: FAKE_HELP_GENERATOR,
+                profileManagerFactory: FAKE_PROFILE_MANAGER_FACTORY,
+                rootCommandName: SAMPLE_ROOT_COMMAND,
+                commandLine: "",
+                promptPhrase: "dummydummy",
+                config: ImperativeConfig.instance.config
+            });
+        });
+
+        it("should find profile that matches name specified in arguments", async () => {
+            const commandPrepared = await (processor as any).prepare(null, {
+                "banana-profile": "ripe"
+            });
+            expect(commandPrepared.args.color).toBe("yellow");
+        });
+
+        it("should find profile with type prefix that matches name specified in arguments", async () => {
+            const commandPrepared = await (processor as any).prepare(null, {
+                "banana-profile": "old"
+            });
+            expect(commandPrepared.args.color).toBe("brown");
+        });
+
+        it("should find default profile that matches type", async () => {
+            const commandPrepared = await (processor as any).prepare(null, {});
+            expect(commandPrepared.args.color).toBe("green");
         });
     });
 });

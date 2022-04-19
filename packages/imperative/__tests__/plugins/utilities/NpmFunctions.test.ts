@@ -41,7 +41,7 @@ describe("NpmFunctions", () => {
             expect(npmPackageArg(pkgSpec).type).toEqual("tag");
 
             jest.spyOn(PMFConstants, "instance", "get").mockReturnValueOnce({
-                PLUGIN_NODE_MODULE_LOCATION: ""
+                PLUGIN_HOME_LOCATION: ""
             } as any);
             const actualInfo = await getPackageInfo(pkgSpec);
             expect(actualInfo).toBe(expectedInfo);

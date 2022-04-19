@@ -9,19 +9,26 @@
 *
 */
 
-import { IImperativeConfig } from "..";
+import { IImperativeConfig } from "../src/doc/IImperativeConfig";
 
 jest.mock("../../security");
+jest.mock("../../utilities/src/ImperativeConfig");
 
 import { OverridesLoader } from "../src/OverridesLoader";
 import { CredentialManagerFactory, AbstractCredentialManager } from "../../security";
-
 import * as path from "path";
+import { ImperativeConfig, Logger } from "../..";
+import { AppSettings } from "../../settings";
 
 const TEST_MANAGER_NAME = "test manager";
 
 describe("OverridesLoader", () => {
     const mainModule = process.mainModule;
+    const mockCredMgrInitialized = jest.fn().mockReturnValue(false);
+
+    beforeAll(() => {
+        Object.defineProperty(CredentialManagerFactory, "initialized", { get: mockCredMgrInitialized });
+    });
 
     beforeEach(() => {
         jest.restoreAllMocks();
@@ -33,6 +40,10 @@ describe("OverridesLoader", () => {
 
     afterEach(() => {
         process.mainModule = mainModule;
+    });
+
+    afterAll(() => {
+        jest.restoreAllMocks();
     });
 
     describe("loadCredentialManager", () => {
@@ -51,7 +62,7 @@ describe("OverridesLoader", () => {
             expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(0);
         });
 
-        it("should load the default when not passed any configuration and keytar is present in dependencies.", async () => {
+        it("should not set a credential manager for CLI if there are no overrides and keytar is present in dependencies", async () => {
             const config: IImperativeConfig = {
                 name: "ABCD",
                 overrides: {},
@@ -60,11 +71,67 @@ describe("OverridesLoader", () => {
 
             // Fake out package.json for the overrides loader
             const packageJson = {
+                name: "host-package",
                 dependencies: {
                     keytar: "1.0"
                 }
             };
 
+            jest.spyOn(AppSettings, "initialized", "get").mockReturnValue(true);
+            jest.spyOn(AppSettings, "instance", "get").mockReturnValue({
+                getNamespace: jest.fn()
+            } as any);
+            await OverridesLoader.load(config, packageJson);
+
+            // It should not have called initialize
+            expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(0);
+        });
+
+        it("should load the default for SDK if there are no overrides and keytar is present in dependencies", async () => {
+            const config: IImperativeConfig = {
+                name: "ABCD",
+                overrides: {},
+                productDisplayName: "a fake SDK"
+            };
+
+            // Fake out package.json for the overrides loader
+            const packageJson = {
+                name: "host-package",
+                dependencies: {
+                    keytar: "1.0"
+                }
+            };
+
+            await OverridesLoader.load(config, packageJson);
+
+            expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
+            expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith({
+                Manager: undefined,
+                displayName: config.productDisplayName,
+                invalidOnFailure: false,
+                service: config.name
+            });
+        });
+
+        it("should load the default when override matches host package name and keytar is present in dependencies", async () => {
+            const config: IImperativeConfig = {
+                name: "ABCD",
+                overrides: {},
+                productDisplayName: "a fake CLI"
+            };
+
+            // Fake out package.json for the overrides loader
+            const packageJson = {
+                name: "host-package",
+                dependencies: {
+                    keytar: "1.0"
+                }
+            };
+
+            jest.spyOn(AppSettings, "initialized", "get").mockReturnValue(true);
+            jest.spyOn(AppSettings, "instance", "get").mockReturnValue({
+                getNamespace: () => ({ CredentialManager: "host-package" })
+            } as any);
             await OverridesLoader.load(config, packageJson);
 
             expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
@@ -168,6 +235,160 @@ describe("OverridesLoader", () => {
                     service: config.name
                 });
             });
+        });
+
+        describe("when config JSON exists", () => {
+            beforeEach(() => {
+                jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
+                    config: {
+                        api: {
+                            secure: {
+                                load: jest.fn()
+                            }
+                        },
+                        exists: () => true
+                    }
+                } as any);
+            });
+
+            it("should not set a credential manager if keytar is not present", async () => {
+                const cliName = "ABCD";
+                const config: IImperativeConfig = {
+                    name: cliName,
+                    overrides: {}
+                };
+
+                const packageJson = {};
+
+                await OverridesLoader.load(config, packageJson);
+
+                // It should not have called initialize
+                expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(0);
+            });
+
+            it("should load the default when keytar is present in dependencies", async () => {
+                const config: IImperativeConfig = {
+                    name: "ABCD",
+                    overrides: {}
+                };
+
+                // Fake out package.json for the overrides loader
+                const packageJson = {
+                    dependencies: {
+                        keytar: "1.0"
+                    }
+                };
+
+                await OverridesLoader.load(config, packageJson);
+
+                expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
+                expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith({
+                    Manager: undefined,
+                    displayName: config.name,
+                    invalidOnFailure: false,
+                    service: config.name
+                });
+            });
+
+            it("should load the default when keytar is present in optional dependencies", async () => {
+                const config: IImperativeConfig = {
+                    name: "ABCD",
+                    overrides: {}
+                };
+
+                // Fake out package.json for the overrides loader
+                const packageJson = {
+                    optionalDependencies: {
+                        keytar: "1.0"
+                    }
+                };
+
+                await OverridesLoader.load(config, packageJson);
+
+                expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
+                expect(CredentialManagerFactory.initialize).toHaveBeenCalledWith({
+                    Manager: undefined,
+                    displayName: config.name,
+                    invalidOnFailure: false,
+                    service: config.name
+                });
+            });
+
+            it("should not fail if secure load fails", async () => {
+                const config: IImperativeConfig = {
+                    name: "ABCD",
+                    overrides: {}
+                };
+
+                // Fake out package.json for the overrides loader
+                const packageJson = {
+                    dependencies: {
+                        keytar: "1.0"
+                    }
+                };
+
+                mockCredMgrInitialized.mockReturnValueOnce(true);
+                let caughtError;
+
+                try {
+                    await OverridesLoader.load(config, packageJson);
+                } catch (error) {
+                    caughtError = error;
+                }
+
+                expect(caughtError).toBeUndefined();
+                expect(CredentialManagerFactory.initialize).toHaveBeenCalledTimes(1);
+                expect(ImperativeConfig.instance.config.api.secure.load).toHaveBeenCalledTimes(1);
+            });
+        });
+    });
+
+    describe("ensureCredentialManagerLoaded", () => {
+        const callerPackageJson = { name: "host-package" };
+        const loadedConfig = "fakeConfig";
+        const mockSecureLoad = jest.fn();
+        let loadCredMgrSpy: any;
+
+        beforeEach(() => {
+            jest.spyOn(ImperativeConfig, "instance", "get").mockReturnValue({
+                callerPackageJson, loadedConfig,
+                config: {
+                    api: {
+                        secure: { load: mockSecureLoad }
+                    }
+                }
+            } as any);
+            loadCredMgrSpy = jest.spyOn(OverridesLoader as any, "loadCredentialManager").mockImplementationOnce(async () => {
+                mockCredMgrInitialized.mockReturnValueOnce(true);
+                await (OverridesLoader as any).loadSecureConfig();
+            });
+        });
+
+        it("should load CredentialManager if not already initialized", async () => {
+            await OverridesLoader.ensureCredentialManagerLoaded();
+
+            expect(loadCredMgrSpy).toHaveBeenCalledTimes(1);
+            expect(loadCredMgrSpy).toHaveBeenCalledWith(loadedConfig, callerPackageJson, true);
+            expect(mockSecureLoad).toHaveBeenCalledTimes(1);
+        });
+
+        it("should fail to load invalid CredentialManager if not already initialized", async () => {
+            const errorMessage = "invalid credential manager";
+            mockSecureLoad.mockRejectedValueOnce(new Error(errorMessage));
+            const loggerWarnSpy = jest.spyOn(Logger.prototype, "warn");
+            await OverridesLoader.ensureCredentialManagerLoaded();
+
+            expect(loadCredMgrSpy).toHaveBeenCalledTimes(1);
+            expect(loggerWarnSpy).toHaveBeenCalled();
+            expect(loggerWarnSpy.mock.calls[0][0]).toContain(errorMessage);
+        });
+
+        it("should do nothing if CredentialManager is already initialized", async () => {
+            mockCredMgrInitialized.mockReturnValueOnce(true);
+            const loadCredMgrSpy = jest.spyOn(OverridesLoader as any, "loadCredentialManager");
+            await OverridesLoader.ensureCredentialManagerLoaded();
+
+            expect(loadCredMgrSpy).not.toHaveBeenCalled();
         });
     });
 });

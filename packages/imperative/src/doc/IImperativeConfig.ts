@@ -13,6 +13,8 @@ import { ICommandDefinition, ICommandProfileTypeConfiguration } from "../../../c
 import { IImperativeLogsConfig } from "./IImperativeLogsConfig";
 import { IImperativeOverrides } from "./IImperativeOverrides";
 import { IImperativeAuthGroupConfig } from "./IImperativeAuthGroupConfig";
+import { IApimlSvcAttrs } from "./IApimlSvcAttrs";
+import { ICommandProfileAutoInitConfig } from "../../../cmd/src/doc/profiles/definition/ICommandProfileAutoInitConfig";
 
 /**
  * All of the configuration required to set up your Imperative CLI app
@@ -175,6 +177,13 @@ export interface IImperativeConfig {
     authGroupConfig?: IImperativeAuthGroupConfig;
 
     /**
+     * Use this property to customize the command definition for the config init command.
+     * @type {ICommandProfileAutoInitConfig}
+     * @memberof IImperativeConfig
+     */
+    configAutoInitCommandConfig?: ICommandProfileAutoInitConfig;
+
+    /**
      * If you specify a list of profile configurations, you can set this to true to
      * automatically add a set of commands to your CLI to create, update, delete, and otherwise
      * manage user profiles.
@@ -214,26 +223,6 @@ export interface IImperativeConfig {
      * @memberof IImperativeConfig
      */
     overrides?: IImperativeOverrides;
-
-    /**
-     * @deprecated since version 1.0.1
-     * Imperative now finds the desired version of the base CLI from
-     * the version specified in peerDependencies of the plugin's package.json.
-     *
-     * This property contains an NPM semantic versioning comparator string that
-     * identifies the version(s) of the base CLI with which this configured plugin
-     * is compatible. For a description of this string see:
-     *     https://www.npmjs.com/package/semver
-     *
-     * This property is recommended for a plugin. The plugin's compatibility
-     * will be verified when the plugin is validated by the Imperative framework.
-     * Its absence will generate a warning.
-     *
-     * This property is unused for a base CLI.
-     * @type {string}
-     * @memberof IImperativeConfig
-     */
-    pluginBaseCliVersion?: string;
 
     /**
      * A path to a module (javascript file) that will perform a health check for a plugin.
@@ -319,4 +308,22 @@ export interface IImperativeConfig {
      * It will replace the main.css file that controls the style of the page.
      */
     webHelpCustomCssPath?: string;
+
+    /**
+     * The set of attributes used to lookup (within the API Mediation Layer)
+     * the connection properties for the REST service associated with this
+     * command group. We use an array of such attributes in case the command
+     * group is compatible with multiple versions of the associated REST service.
+     * @type {IApimlSvcAttrs[]}
+     * @memberof IImperativeConfig
+     */
+    apimlConnLookup?: IApimlSvcAttrs[];
+
+    /**
+     * If Imperative should run in Daemon mode
+     * This should only be specified for CLIs
+     * @type {boolean}
+     * @memberof IImperativeConfig
+     */
+    daemonMode?: boolean;
 }

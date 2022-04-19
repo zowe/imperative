@@ -33,7 +33,6 @@ describe("Logger tests", () => {
     beforeAll(() => {
         let configuration: ILog4jsConfig;
         (log4js.configure as any) = jest.fn((config: any) => {
-            // console.log("config passed to configure: " + require("util").inspect(config));
             configuration = config;
         });
 
@@ -64,15 +63,14 @@ describe("Logger tests", () => {
         }
         );
 
-        (os.homedir as any) = jest.fn(() => "./someHome");
-        (path.normalize as any) = jest.fn((p: string) => p);
-        (IO.createDirsSync as any) = jest.fn((myPath: string) => {
-            // do nothing
-        });
+        jest.spyOn(os, "homedir").mockImplementation(() => fakeHome);
+        jest.spyOn(path, "normalize").mockImplementation((p: string) => p);
+        jest.spyOn(IO, "createDirsSync").mockImplementation();
     });
 
     afterEach(() => {
         (LoggerManager as any).mInstance = null;
+        jest.restoreAllMocks();
     });
 
     it("Should call underlying service function", () => {

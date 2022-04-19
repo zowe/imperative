@@ -10,8 +10,11 @@
 */
 
 jest.mock("../../../src/Imperative");
+jest.mock("../../../../utilities/src/ImperativeConfig");
+
 import { IProfileLoaded } from "../../../../profiles";
 import { Imperative } from "../../../src/Imperative";
+import { ImperativeConfig } from "../../../../utilities";
 
 // "Mocked" profiles
 const FAKE_PROFS: IProfileLoaded[] = [
@@ -140,6 +143,58 @@ describe("list profiles handler", () => {
             }
             expect(error).toBeDefined();
             expect(error.message).toMatchSnapshot();
+        });
+        it("should catch profileIO errors", async () => {
+            let errorText: string = "not_yet_set";
+
+            // "Mocked" version of the handler parameters for a list profile command
+            const listProfileParms: any = {
+                arguments: {
+                    $0: "zowe",
+                    _: ["profiles", "list", "zosmf-profiles"],
+                },
+                response: {
+                    console: {
+                        error: jest.fn((msgText) => {
+                            errorText = msgText;
+                        })
+                    }
+                },
+                definition: {
+                    customize: {
+                        profileTypeIdentifier: "fakeType"
+                    }
+                }
+            };
+
+            /* Pretend that we have a team config.
+             * config is a getter of a property, so mock we the property.
+             */
+            Object.defineProperty(ImperativeConfig.instance, "config", {
+                configurable: true,
+                get: jest.fn(() => {
+                    return {
+                        exists: true
+                    };
+                })
+            });
+
+            // pretend to crash when profileManager is created
+            const fakeProfileIoError = "Pretend a ProfileIO error occurred";
+            Object.defineProperty(Imperative, "api", {
+                configurable: true,
+                value: {
+                    profileManager: (args) => {
+                        throw new Error(fakeProfileIoError);
+                    }
+                }
+            });
+
+            const handlerReq = require("../../../src/profiles/handlers/ListProfilesHandler");
+            const handler = new handlerReq.default();
+            await handler.process(listProfileParms);
+            expect(errorText).toContain("An error occurred trying to list profiles");
+            expect(errorText).toContain(fakeProfileIoError);
         });
     });
 

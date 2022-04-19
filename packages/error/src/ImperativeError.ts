@@ -11,7 +11,6 @@
 
 import { IImperativeError } from "./doc/IImperativeError";
 import { IImperativeErrorParms } from "./doc/IImperativeErrorParms";
-import chalk from "chalk";
 
 /**
  *
@@ -42,16 +41,6 @@ export class ImperativeError extends Error {
          * If parms are present, handle them, otherwise perform the default diagnostic collection
          */
         if (parms) {
-            // @DEPRECATED - Log a nice message instead of breaking plugins that might be doing stuff
-            // @TODO - REMOVE THIS BEFORE THE NEXT RELEASE
-            if (Object.prototype.hasOwnProperty.call(parms, "suppressReport")) {
-                // eslint-disable-next-line no-console
-                console.warn(chalk.yellow.bold( // I can't import console because of circular dependencies
-                    "[DEPRECATED] suppressReport property of ImperativeError has been deprecated. " +
-                    "It will be removed in a future release."
-                ));
-            }
-
             /**
              * Append a tag if present
              */
@@ -99,6 +88,16 @@ export class ImperativeError extends Error {
      */
     public get errorCode(): string {
         return this.mDetails.errorCode;
+    }
+
+    /**
+     * Return whether or not the error dump should be suppressed
+     * @readonly
+     * @type {string}
+     * @memberof ImperativeError
+     */
+    public get suppressDump(): boolean {
+        return this.mDetails.suppressDump;
     }
 
     /**

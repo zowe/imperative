@@ -22,6 +22,7 @@ import { IProfileManagerFactory } from "../../../profiles";
 import { ICommandProfileTypeConfiguration } from "../doc/profiles/definition/ICommandProfileTypeConfiguration";
 import { IHelpGeneratorFactory } from "../help/doc/IHelpGeneratorFactory";
 import { CliUtils } from "../../../utilities/src/CliUtils";
+import { ImperativeConfig } from "../../../utilities";
 import { closest } from "fastest-levenshtein";
 
 /**
@@ -58,13 +59,6 @@ export class YargsConfigurer {
             const jsonOptionName: string = Constants.JSON_OPTION;
             jsonArg[jsonOptionName] = true;
         }
-        const failedCommandHandler = __dirname + "/../handlers/FailedCommandHandler";
-        const failedCommandDefinition: ICommandDefinition = {
-            name: this.rootCommandName + " " + this.commandLine,
-            handler: failedCommandHandler,
-            type: "command",
-            description: "The command you tried to invoke failed"
-        };
         this.yargs.help(false);
         this.yargs.version(false);
         this.yargs.showHelpOnFail(false);
@@ -109,6 +103,7 @@ export class YargsConfigurer {
                     const closestCommand = this.getClosestCommand(attemptedCommand);
 
                     argv.failureMessage = this.buildFailureMessage(closestCommand);
+                    const failedCommandDefinition = this.buildFailedCommandDefinition();
 
                     // Allocate a help generator from the factory
                     const rootHelpGenerator = this.helpGeneratorFactory.getHelpGenerator({
@@ -124,7 +119,7 @@ export class YargsConfigurer {
                         helpGenerator: rootHelpGenerator,
                         profileManagerFactory: this.profileManagerFactory,
                         rootCommandName: this.rootCommandName,
-                        commandLine: this.commandLine,
+                        commandLine: ImperativeConfig.instance.commandLine,
                         envVariablePrefix: this.envVariablePrefix,
                         promptPhrase: this.promptPhrase
                     });
@@ -144,6 +139,7 @@ export class YargsConfigurer {
             process.exitCode = Constants.ERROR_EXIT_CODE;
             AbstractCommandYargs.STOP_YARGS = true; // todo: figure out a better way
             error = error || new Error(msg);
+            const failedCommandDefinition = this.buildFailedCommandDefinition();
 
             // Allocate a help generator from the factory
             const failHelpGenerator = this.helpGeneratorFactory.getHelpGenerator({
@@ -161,7 +157,8 @@ export class YargsConfigurer {
                 rootCommandName: this.rootCommandName,
                 commandLine: this.commandLine,
                 envVariablePrefix: this.envVariablePrefix,
-                promptPhrase: this.promptPhrase
+                promptPhrase: this.promptPhrase,
+                daemonContext: ImperativeConfig.instance.daemonContext
             });
 
             const failureMessage = this.buildFailureMessage();
@@ -184,6 +181,7 @@ export class YargsConfigurer {
         });
         process.on("uncaughtException", (error: Error) => {
             process.exitCode = Constants.ERROR_EXIT_CODE;
+            const failedCommandDefinition = this.buildFailedCommandDefinition();
 
             // Allocate a help generator from the factory
             const failHelpGenerator = this.helpGeneratorFactory.getHelpGenerator({
@@ -200,13 +198,13 @@ export class YargsConfigurer {
                 helpGenerator: failHelpGenerator,
                 profileManagerFactory: this.profileManagerFactory,
                 rootCommandName: this.rootCommandName,
-                commandLine: this.commandLine,
+                commandLine: ImperativeConfig.instance.commandLine,
                 envVariablePrefix: this.envVariablePrefix,
                 promptPhrase: this.promptPhrase
             });
 
-            failureMessage += `\nCommand entered: "${this.rootCommandName} ${this.commandLine}"`;
-            const groupValues = this.commandLine.split(" ", 2);
+            failureMessage += `\nCommand entered: "${this.rootCommandName} ${ImperativeConfig.instance.commandLine}"`;
+            const groupValues = ImperativeConfig.instance.commandLine.split(" ", 2);
             failureMessage += `\nUse "${this.rootCommandName} ${groupValues[0]} ${groupValues[1]} --help" to view groups, commands, and options.`;
 
             // Construct the arguments
@@ -237,7 +235,7 @@ export class YargsConfigurer {
         let commands: string = "";
         let groups: string = " "; // default to " " for proper spacing in message
         let delimiter: string = ""; // used to delimit between possible 'command' values
-        const groupValues = this.commandLine.split(" ", three);
+        const groupValues = ImperativeConfig.instance.commandLine.split(" ", three);
         const commandToCheck = groupValues.join(" ");
         const nearestCommand: string = closestCommand || this.getClosestCommand(commandToCheck);
 
@@ -249,7 +247,7 @@ export class YargsConfigurer {
         if (closestCommand != null || !commandToCheck.includes(nearestCommand)) {
             failureMessage += format("\nDid you mean: %s?\n", nearestCommand);
         }
-        failureMessage += `\nCommand entered: "${this.commandLine}"`;
+        failureMessage += `\nCommand entered: "${ImperativeConfig.instance.commandLine}"`;
         // limit to three to include two levels of group and command value, if present
 
         // loop through the top level groups
@@ -279,6 +277,19 @@ export class YargsConfigurer {
         }
         failureMessage += `\nUse "${this.rootCommandName}${groups}--help" to view groups, commands, and options.`;
         return failureMessage;
+    }
+
+    /**
+     * Define failed command with the current command line arguments.
+     * @returns Failed command definition object
+     */
+    private buildFailedCommandDefinition(): ICommandDefinition {
+        return {
+            name: this.rootCommandName + " " + ImperativeConfig.instance.commandLine,
+            handler: __dirname + "/../handlers/FailedCommandHandler",
+            type: "command",
+            description: "The command you tried to invoke failed"
+        };
     }
 
     // /**

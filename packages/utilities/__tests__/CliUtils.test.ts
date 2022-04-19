@@ -13,6 +13,9 @@ import { CliUtils } from "../src/CliUtils";
 import { CommandProfiles, ICommandOptionDefinition } from "../../cmd";
 import { IProfile } from "../../profiles";
 import { ImperativeError } from "../../error";
+import * as prompt from "readline-sync";
+
+jest.mock("readline-sync");
 
 const TEST_PREFIX = "TEST_CLI_PREFIX";
 const boolEnv = TEST_PREFIX + "_OPT_FAKE_BOOL_OPT";
@@ -124,8 +127,7 @@ describe("CliUtils", () => {
     describe("promptForInput", () => {
         it("should return the mocked value", () => {
             const mockedPromptValue = "My value is here ";
-            jest.mock("readline-sync");
-            require("readline-sync").question= jest.fn(()=>{
+            (prompt as any).question = jest.fn(() => {
                 return mockedPromptValue;
             });
             const value = CliUtils.promptForInput("my message goes here:");
@@ -134,7 +136,7 @@ describe("CliUtils", () => {
     });
 
     describe("sleep", () => {
-        it("should sleep for 1 second", async() => {
+        it("should sleep for 1 second", async () => {
             const startTime = Date.now();
             const oneSec = 1000;
             const minElapsedTime = 990; // sometimes the OS returns in slightly less than one second
@@ -151,7 +153,7 @@ describe("CliUtils", () => {
 
         beforeEach(() => {
             readlineReal = readline;
-            readline.createInterface = jest.fn(()=> {
+            readline.createInterface = jest.fn(() => {
                 return {
                     prompt: jest.fn(() => {
                         // do nothing
@@ -173,7 +175,7 @@ describe("CliUtils", () => {
                             // do nothing
                         })
                     },
-                    close: jest.fn( () => {
+                    close: jest.fn(() => {
                         // do nothing
                     })
                 };
@@ -184,17 +186,17 @@ describe("CliUtils", () => {
             readline = readlineReal;
         });
 
-        it("should return the user's answer", async() => {
+        it("should return the user's answer", async () => {
             const answer = await CliUtils.promptWithTimeout("Question to be asked: ");
             expect(answer).toEqual(mockedAnswer);
         });
 
-        it("should accept a hideText parameter", async() => {
+        it("should accept a hideText parameter", async () => {
             const answer = await CliUtils.promptWithTimeout("Should we hide your answer: ", true);
             expect(answer).toEqual(mockedAnswer);
         });
 
-        it("should accept a secToWait parameter", async() => {
+        it("should accept a secToWait parameter", async () => {
             const secToWait = 15;
             const answer = await CliUtils.promptWithTimeout("Should wait your amount of time: ",
                 false, secToWait
@@ -202,7 +204,7 @@ describe("CliUtils", () => {
             expect(answer).toEqual(mockedAnswer);
         });
 
-        it("should limit to a max secToWait", async() => {
+        it("should limit to a max secToWait", async () => {
             const tooLong = 1000;
             const answer = await CliUtils.promptWithTimeout("Should wait your amount of time: ",
                 false, tooLong
@@ -210,6 +212,134 @@ describe("CliUtils", () => {
             expect(answer).toEqual(mockedAnswer);
         });
 
+    });
+
+    describe("readPrompt", () => {
+        let readline = require("readline");
+        let readlineReal: any;
+        const mockedAnswer = "User answer";
+
+        beforeEach(() => {
+            readlineReal = readline;
+            readline.createInterface = jest.fn(() => {
+                return {
+                    prompt: jest.fn(() => {
+                        // do nothing
+                    }),
+                    setPrompt: jest.fn(),
+                    on: jest.fn((eventName: string, callback: any) => {
+                        if (eventName === "line") {
+                            callback(mockedAnswer);
+                        }
+                        return {
+                            on: jest.fn((chainedEvtNm: string, chainedCallBack: any) => {
+                                if (chainedEvtNm === "close") {
+                                    chainedCallBack();
+                                }
+                            }),
+                        };
+                    }),
+                    output: {
+                        write: jest.fn(() => {
+                            // do nothing
+                        })
+                    },
+                    close: jest.fn(() => {
+                        // do nothing
+                    })
+                };
+            });
+        });
+
+        afterEach(() => {
+            readline = readlineReal;
+        });
+
+        it("should return the user's answer", async () => {
+            const answer = await CliUtils.readPrompt("Question to be asked: ");
+            expect(answer).toEqual(mockedAnswer);
+        });
+
+        it("should accept a hideText parameter", async () => {
+            const answer = await CliUtils.readPrompt("Should we hide your answer: ", { hideText: true });
+            expect(answer).toEqual(mockedAnswer);
+        });
+
+        it("should accept a secToWait parameter", async () => {
+            const secToWait = 15;
+            const answer = await CliUtils.readPrompt("Should wait your amount of time: ",
+                { hideText: false, secToWait }
+            );
+            expect(answer).toEqual(mockedAnswer);
+        });
+
+        it("should limit to a max secToWait", async () => {
+            const tooLong = 1000;
+            const answer = await CliUtils.readPrompt("Should wait your amount of time: ",
+                { hideText: false, secToWait: tooLong }
+            );
+            expect(answer).toEqual(mockedAnswer);
+        });
+
+        it("should accept a maskChar parameter", async () => {
+            const answer = await CliUtils.readPrompt("Should we hide your answer: ",
+                { hideText: true, maskChar: "*" });
+            expect(answer).toEqual(mockedAnswer);
+        });
+    });
+
+    describe("showMsgWhenDeprecated", () => {
+        const notSetYet: string = "not_set_yet";
+        let responseErrText: string = notSetYet;
+
+        // create a fake set of command handler parameters
+        const handlerParms: any = {
+            definition: {
+                deprecatedReplacement: "Something must be better"
+            },
+            positionals: [
+                "positional_one",
+                "positional_two"
+            ],
+            response: {
+                console: {
+                    // any error response is just stored in a variable
+                    error: jest.fn((msgText) => {
+                        responseErrText = msgText;
+                    })
+                }
+            }
+        };
+
+        it("should produce a deprecated message when deprecated", () => {
+            responseErrText = notSetYet;
+            CliUtils.showMsgWhenDeprecated(handlerParms);
+            expect(responseErrText).toEqual("Recommended replacement: " +
+                handlerParms.definition.deprecatedReplacement);
+        });
+
+        it("should produce a deprecated message with only one positional", () => {
+            responseErrText = notSetYet;
+            handlerParms.positionals = ["positional_one"];
+            CliUtils.showMsgWhenDeprecated(handlerParms);
+            expect(responseErrText).toEqual("Recommended replacement: " +
+                handlerParms.definition.deprecatedReplacement);
+        });
+
+        it("should produce a deprecated message with no positionals", () => {
+            responseErrText = notSetYet;
+            handlerParms.positionals = [];
+            CliUtils.showMsgWhenDeprecated(handlerParms);
+            expect(responseErrText).toEqual("Recommended replacement: " +
+                handlerParms.definition.deprecatedReplacement);
+        });
+
+        it("should not produce a deprecated message when not deprecated", () => {
+            responseErrText = notSetYet;
+            delete handlerParms.definition.deprecatedReplacement;
+            CliUtils.showMsgWhenDeprecated(handlerParms);
+            expect(responseErrText).toEqual(notSetYet);
+        });
     });
 
     describe("buildBaseArgs", () => {
@@ -249,6 +379,12 @@ describe("CliUtils", () => {
             description: "a fake opt",
             type: "string",
             aliases: ["w"]
+        },
+        {
+            name: "user",
+            description: "a fake opt",
+            type: "string",
+            aliases: ["username"]
         }];
 
         it("should throw an imperative error if a required profile is not present", () => {
@@ -354,6 +490,20 @@ describe("CliUtils", () => {
                 { optional: ["banana"] },
                 FAKE_OPTS);
             expect(args).toMatchSnapshot();
+        });
+
+        it("should return args if extracted option from a profile is only available as an alias", () => {
+            const map = new Map<string, IProfile[]>();
+            map.set("banana", [{
+                type: "banana",
+                name: "fakebanana",
+                username: "fake"
+            }]);
+            const args = CliUtils.getOptValueFromProfiles(
+                new CommandProfiles(map),
+                { optional: ["banana"] },
+                FAKE_OPTS);
+            expect(args).toEqual({ user: "fake", username: "fake" });
         });
     });
 

@@ -101,6 +101,7 @@ export class Constants {
 
     public static readonly DEFAULT_HIGHLIGHT_COLOR = "yellow";
     public static readonly DEFAULT_PROMPT_PHRASE = "PROMPT*";
+    public static readonly DEFAULT_MASK_OUTPUT = "TRUE";
 
     public static readonly WEB_HELP_DIR = "web-help";
 
@@ -110,4 +111,9 @@ export class Constants {
     public static readonly AUTH_GROUP = "auth";
     public static readonly LOGIN_ACTION = "login";
     public static readonly LOGOUT_ACTION = "logout";
+
+    /**
+     * Auto Init constants
+     */
+    public static readonly AUTO_INIT_ACTION = "auto-init";
 }

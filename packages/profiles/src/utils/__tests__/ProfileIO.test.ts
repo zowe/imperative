@@ -15,6 +15,8 @@ jest.mock("fs");
 jest.mock("../../../../io/src/IO");
 jest.mock("js-yaml");
 jest.mock("yamljs");
+jest.mock("../../../../utilities/src/ImperativeConfig");
+
 import * as fs from "fs";
 import { IO } from "../../../../io/src/IO";
 import { ProfileIO } from "../ProfileIO";
@@ -27,6 +29,7 @@ import {
 } from "../../../__tests__/TestConstants";
 import { IMetaProfile, IProfile } from "../../../../index";
 import { IProfileTypeConfiguration } from "../../doc/config/IProfileTypeConfiguration";
+import { ImperativeConfig } from "../../../../utilities";
 
 const readYaml = require("js-yaml");
 const writeYaml = require("yamljs");
@@ -434,5 +437,168 @@ describe("Profile IO", () => {
         expect(error instanceof ImperativeError).toBe(true);
         expect(error.message).toContain("Error reading profile file");
         expect(error.message).toContain("Error Details: IO ERROR!");
+    });
+    describe("Profile operations should crash in team-config mode", () => {
+        const configModeErr = "Profile IO Error: A Zowe V1 profile operation was attempted with a Zowe V2 configuration in use.";
+
+        beforeEach(() => {
+            /* Pretend that we have a team config.
+             * config is a getter of a property, so mock we the property.
+             */
+            Object.defineProperty(ImperativeConfig.instance, "config", {
+                configurable: true,
+                get: jest.fn(() => {
+                    return {
+                        exists: true
+                    };
+                })
+            });
+        });
+
+        afterEach(() => {
+            // set us back to old-school profile mode
+            Object.defineProperty(ImperativeConfig.instance, "config", {
+                configurable: true,
+                get: jest.fn(() => {
+                    return {
+                        exists: false
+                    };
+                })
+            });
+        });
+
+        it("should crash in createProfileDirs", () => {
+            let error;
+            try {
+                ProfileIO.createProfileDirs(TEST_DIR_PATH);
+            } catch (e) {
+                error = e;
+            }
+            expect(error).toBeDefined();
+            expect(error instanceof ImperativeError).toBe(true);
+            expect(error.message).toContain(configModeErr);
+        });
+
+        it("should crash in readMetaFile", () => {
+            let error;
+            try {
+                ProfileIO.readMetaFile(TEST_DIR_PATH);
+            } catch (e) {
+                error = e;
+            }
+            expect(error).toBeDefined();
+            expect(error instanceof ImperativeError).toBe(true);
+            expect(error.message).toContain(configModeErr);
+        });
+
+        it("should crash in writeProfile", () => {
+            const prof: IProfile = {
+                name: "strawberries",
+                type: "strawberry",
+                amount: 1000
+            };
+
+            let error;
+            try {
+                ProfileIO.writeProfile(TEST_DIR_PATH, prof);
+            } catch (e) {
+                error = e;
+            }
+            expect(error).toBeDefined();
+            expect(error instanceof ImperativeError).toBe(true);
+            expect(error.message).toContain(configModeErr);
+        });
+
+        it("should crash in deleteProfile", () => {
+            let error;
+            try {
+                ProfileIO.deleteProfile("SomeName", TEST_DIR_PATH);
+            } catch (e) {
+                error = e;
+            }
+            expect(error).toBeDefined();
+            expect(error instanceof ImperativeError).toBe(true);
+            expect(error.message).toContain(configModeErr);
+        });
+
+        it("should crash in exists", () => {
+            let error;
+            try {
+                ProfileIO.exists(TEST_DIR_PATH);
+            } catch (e) {
+                error = e;
+            }
+            expect(error).toBeDefined();
+            expect(error instanceof ImperativeError).toBe(true);
+            expect(error.message).toContain(configModeErr);
+        });
+
+        it("should crash in writeMetaFile", () => {
+            const meta: IMetaProfile<IProfileTypeConfiguration> = {
+                defaultProfile: "sweet_blueberry",
+                configuration: {
+                    type: BLUEBERRY_PROFILE_TYPE,
+                    schema: BLUEBERRY_TYPE_SCHEMA
+                }
+            };
+
+            let error;
+            try {
+                ProfileIO.writeMetaFile(meta, TEST_DIR_PATH);
+            } catch (e) {
+                error = e;
+            }
+            expect(error).toBeDefined();
+            expect(error instanceof ImperativeError).toBe(true);
+            expect(error.message).toContain(configModeErr);
+        });
+
+        it("should crash in fileToProfileName", () => {
+            let error;
+            try {
+                ProfileIO.fileToProfileName(TEST_DIR_PATH, ".yaml");
+            } catch (e) {
+                error = e;
+            }
+            expect(error).toBeDefined();
+            expect(error instanceof ImperativeError).toBe(true);
+            expect(error.message).toContain(configModeErr);
+        });
+
+        it("should crash in getAllProfileDirectories", () => {
+            let error;
+            try {
+                ProfileIO.getAllProfileDirectories(TEST_DIR_PATH);
+            } catch (e) {
+                error = e;
+            }
+            expect(error).toBeDefined();
+            expect(error instanceof ImperativeError).toBe(true);
+            expect(error.message).toContain(configModeErr);
+        });
+
+        it("should crash in getAllProfileNames", () => {
+            let error;
+            try {
+                ProfileIO.getAllProfileNames(TEST_DIR_PATH, ".yaml", "apple_meta");
+            } catch (e) {
+                error = e;
+            }
+            expect(error).toBeDefined();
+            expect(error instanceof ImperativeError).toBe(true);
+            expect(error.message).toContain(configModeErr);
+        });
+
+        it("should crash in readProfileFile", () => {
+            let error;
+            try {
+                ProfileIO.readProfileFile(TEST_DIR_PATH, "strawberry");
+            } catch (e) {
+                error = e;
+            }
+            expect(error).toBeDefined();
+            expect(error instanceof ImperativeError).toBe(true);
+            expect(error.message).toContain(configModeErr);
+        });
     });
 });

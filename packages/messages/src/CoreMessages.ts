@@ -191,7 +191,7 @@ export const validateProfileCommandDesc: IMessageDefinition = {
 };
 
 export const validateProfileOptionDesc: IMessageDefinition = {
-    message: `Validate the state of a  group.`,
+    message: `Validate the state of a group.`,
 };
 
 export const detailProfileCommandDesc: IMessageDefinition = {
@@ -375,4 +375,8 @@ export const authLogoutGroupDesc: IMessageDefinition = {
 
 export const authLogoutCommandDesc: IMessageDefinition = {
     message: `Log out of {{type}} authentication service`
+};
+
+export const autoInitCommandDesc: IMessageDefinition = {
+    message: `Automatically generate a config from {{source}}`
 };

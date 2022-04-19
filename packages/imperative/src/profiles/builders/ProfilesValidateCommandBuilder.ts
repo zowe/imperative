@@ -13,7 +13,7 @@ import { ProfilesCommandBuilder } from "./ProfilesCommandBuilder";
 import { ICommandDefinition, ICommandProfileTypeConfiguration } from "../../../../cmd";
 import { Constants } from "../../../../constants";
 import { deleteProfileNameDesc, validateProfileCommandDesc } from "../../../../messages";
-import { TextUtils } from "../../../../utilities";
+import { ImperativeConfig, TextUtils } from "../../../../utilities";
 import { Logger } from "../../../../logger/index";
 import { isNullOrUndefined } from "util";
 import { ProfilesConstants, ProfileUtils, ProfileValidator } from "../../../../profiles";
@@ -67,6 +67,8 @@ export class ProfilesValidateCommandBuilder extends ProfilesCommandBuilder {
                 {type: this.mProfileType}),
             type: "command",
             handler: __dirname + "/../handlers/ValidateProfileHandler",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_EDIT +
+                "\n    " + ImperativeConfig.instance.config.formMainConfigPathNm({addPath: false}),
             customize: {},
             options: [ProfileValidator.PRINT_PLAN_OPTION],
             positionals: [{

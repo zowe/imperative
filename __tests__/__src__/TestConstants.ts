@@ -21,30 +21,30 @@ const PROJECTS_HOME = join(__dirname, "../../");
  */
 export const PROJECTS = {
     /**
-   * This is a reference to the parent project folder. This is the folder that should
-   * contain the imperative, imperative-sample, and imperative-plugins source
-   * folders.
-   * @type {string}
-   */
+     * This is a reference to the parent project folder. This is the folder that should
+     * contain the imperative, imperative-sample, and imperative-plugins source
+     * folders.
+     * @type {string}
+     */
     HOME: PROJECTS_HOME,
 
     /**
-   * The resolved directory of the imperative source
-   * @type {string}
-   */
+     * The resolved directory of the imperative source
+     * @type {string}
+     */
     IMPERATIVE_CLI: join(PROJECTS_HOME, "imperative"),
 
     /**
-   * The resolved directory of the imperative-sample source
-   * @type {string}
-   */
+     * The resolved directory of the imperative-sample source
+     * @type {string}
+     */
     IMPERATIVE_SAMPLE: join(PROJECTS_HOME, "imperative-sample"),
 
     /**
-   * The resolved directory of the imperative-plugins source
-   *
-   * @type {string}
-   */
+     * The resolved directory of the imperative-plugins source
+     *
+     * @type {string}
+     */
     IMPERATIVE_PLUGINS: join(PROJECTS_HOME, "imperative-plugins")
 };
 
@@ -59,36 +59,36 @@ const SAMPLE_CLI_PLUGIN_INSTALL = join(SAMPLE_CLI_PLUGIN_HOME, "installed");
  */
 export const SAMPLE_CLI = {
     /**
-   * The home folder for the Sample CLI
-   *
-   * @type {string}
-   */
+     * The home folder for the Sample CLI
+     *
+     * @type {string}
+     */
     HOME: SAMPLE_CLI_HOME,
 
     /**
-   * Locations used by the PMF
-   * @type {object}
-   */
-    PLUGINS: {
-    /**
-     * The plugins folder used by the PMF
-     *
-     * @type {string}
+     * Locations used by the PMF
+     * @type {object}
      */
+    PLUGINS: {
+        /**
+         * The plugins folder used by the PMF
+         *
+         * @type {string}
+         */
         HOME: SAMPLE_CLI_PLUGIN_HOME,
 
         /**
-     * The install directory of plugins
-     *
-     * @type {string}
-     */
+         * The install directory of plugins
+         *
+         * @type {string}
+         */
         INSTALL_LOCATION: SAMPLE_CLI_PLUGIN_INSTALL,
 
         /**
-     * The plugins.json file config location
-     *
-     * @type {string}
-     */
+         * The plugins.json file config location
+         *
+         * @type {string}
+         */
         JSON: SAMPLE_CLI_PLUGIN_JSON
     }
 };

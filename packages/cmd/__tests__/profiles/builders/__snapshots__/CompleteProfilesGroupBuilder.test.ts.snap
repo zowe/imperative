@@ -16,6 +16,7 @@ Object {
           "customize": Object {
             "profileTypeIdentifier": "type-a",
           },
+          "deprecatedReplacement": "The 'config init' command",
           "description": "Type A profile for builder tests",
           "name": "type-a-profile",
           "options": Array [
@@ -60,6 +61,7 @@ Object {
           "customize": Object {
             "profileTypeIdentifier": "type-b",
           },
+          "deprecatedReplacement": "The 'config init' command",
           "description": "Type B profile for builder tests",
           "name": "type-b-profile",
           "options": Array [
@@ -97,6 +99,7 @@ Object {
           "type": "command",
         },
       ],
+      "deprecatedReplacement": "The 'config init' command",
       "description": "Create new configuration profiles.",
       "name": "create",
       "summary": "Create new configuration profiles",
@@ -115,6 +118,7 @@ Object {
           "customize": Object {
             "profileTypeIdentifier": "type-a",
           },
+          "deprecatedReplacement": "The 'config set' command",
           "description": "Type A profile for builder tests",
           "name": "type-a-profile",
           "options": Array [
@@ -146,6 +150,7 @@ Object {
           "customize": Object {
             "profileTypeIdentifier": "type-b",
           },
+          "deprecatedReplacement": "The 'config set' command",
           "description": "Type B profile for builder tests",
           "name": "type-b-profile",
           "options": Array [
@@ -170,6 +175,7 @@ Object {
           "type": "command",
         },
       ],
+      "deprecatedReplacement": "The 'config set' command",
       "description": "Update a {{type}} profile. You can update any property present within the profile configuration. The updated profile will be printed so that you can review the result of the updates.",
       "name": "update",
       "summary": "Update existing profiles",
@@ -188,6 +194,8 @@ Object {
           "customize": Object {
             "profileTypeIdentifier": "type-a",
           },
+          "deprecatedReplacement": "Edit your Zowe V2 configuration
+    zowe.config.json",
           "description": "Delete a type-a profile. You must specify a profile name to be deleted. To find a list of available profiles for deletion, issue the profiles list command. By default, you will be prompted to confirm the profile removal.",
           "examples": Array [
             Object {
@@ -224,6 +232,8 @@ Object {
           "customize": Object {
             "profileTypeIdentifier": "type-b",
           },
+          "deprecatedReplacement": "Edit your Zowe V2 configuration
+    zowe.config.json",
           "description": "Delete a type-b profile. You must specify a profile name to be deleted. To find a list of available profiles for deletion, issue the profiles list command. By default, you will be prompted to confirm the profile removal.",
           "examples": Array [
             Object {
@@ -253,6 +263,7 @@ Object {
           "type": "command",
         },
       ],
+      "deprecatedReplacement": "Edit your Zowe V2 configuration zowe.config.json",
       "description": "Delete existing profiles.",
       "name": "delete",
       "summary": "Delete existing profiles",
@@ -271,6 +282,7 @@ Object {
           "customize": Object {
             "profileTypeIdentifier": "type-a",
           },
+          "deprecatedReplacement": "The 'config list' command",
           "description": "Type A profile for builder tests",
           "examples": Array [
             Object {
@@ -305,6 +317,7 @@ Object {
           "customize": Object {
             "profileTypeIdentifier": "type-b",
           },
+          "deprecatedReplacement": "The 'config list' command",
           "description": "Type B profile for builder tests",
           "examples": Array [
             Object {
@@ -332,6 +345,7 @@ Object {
           "type": "command",
         },
       ],
+      "deprecatedReplacement": "The 'config list' command",
       "description": "List profiles of the type {{type}}.",
       "name": "list",
       "summary": "List existing profiles",
@@ -350,6 +364,7 @@ Object {
           "customize": Object {
             "profileTypeIdentifier": "type-a",
           },
+          "deprecatedReplacement": "The 'config set' command",
           "description": "The type-a set default-profiles command allows you to set the default profiles for this command group. When a type-a command is issued and no profile override options are specified, the default profiles for the command group are automatically loaded for the command based on the commands profile requirements.",
           "examples": Array [
             Object {
@@ -380,6 +395,7 @@ Object {
           "customize": Object {
             "profileTypeIdentifier": "type-b",
           },
+          "deprecatedReplacement": "The 'config set' command",
           "description": "The type-b set default-profiles command allows you to set the default profiles for this command group. When a type-b command is issued and no profile override options are specified, the default profiles for the command group are automatically loaded for the command based on the commands profile requirements.",
           "examples": Array [
             Object {
@@ -403,6 +419,7 @@ Object {
           "type": "command",
         },
       ],
+      "deprecatedReplacement": "The 'config set' command",
       "description": "Set which profiles are loaded by default.",
       "name": "set-default",
       "summary": "Set which profiles are loaded by default",
@@ -421,6 +438,8 @@ Object {
           "customize": Object {
             "profileTypeIdentifier": "type-a",
           },
+          "deprecatedReplacement": "Edit your Zowe V2 configuration
+    zowe.config.json",
           "description": "Test the validity of a type-a profile.",
           "name": "type-a-profile",
           "options": Array [
@@ -446,12 +465,14 @@ Object {
           "type": "command",
         },
       ],
+      "deprecatedReplacement": "Edit your Zowe V2 configuration zowe.config.json",
       "description": "Test the validity of your profiles.",
       "name": "validate",
       "summary": "Test the validity of a profile",
       "type": "group",
     },
   ],
+  "deprecatedReplacement": "The 'config init' command",
   "description": "Create and manage configuration profiles.",
   "name": "profiles",
   "type": "group",

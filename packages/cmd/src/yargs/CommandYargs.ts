@@ -10,7 +10,7 @@
 */
 
 import { Arguments, Argv, Options } from "yargs";
-import { isNullOrUndefined } from "util";
+import { isNullOrUndefined, inspect } from "util";
 import { Constants } from "../../../constants";
 import { IYargsResponse } from "./doc/IYargsResponse";
 import { AbstractCommandYargs, YargsCommandCompleted } from "./AbstractCommandYargs";
@@ -19,6 +19,7 @@ import { ICommandDefinition } from "../doc/ICommandDefinition";
 import { CommandProcessor } from "../CommandProcessor";
 import { ICommandResponse } from "../../src/doc/response/response/ICommandResponse";
 import { CommandResponse } from "../../src/response/CommandResponse";
+import { ImperativeConfig } from "../../../utilities";
 
 /**
  * Define an Imperative Command to Yargs. A command implies that an implementation is present (differs from a "group")
@@ -146,7 +147,7 @@ export class CommandYargs extends AbstractCommandYargs {
                                     `Error in command ${this.definition.name}`,
                                     "command handler invoked", errorResponses);
                                 this.log.error(`Error in command ${this.definition.name}`);
-                                this.log.error(require("util").inspect(errorResponses));
+                                this.log.error(inspect(errorResponses, { depth: null }));
                                 commandExecuted(argsForHandler, response);
                             });
                     } else {
@@ -224,9 +225,11 @@ export class CommandYargs extends AbstractCommandYargs {
                             }),
                             profileManagerFactory: this.profileManagerFactory,
                             rootCommandName: this.rootCommandName,
-                            commandLine: this.commandLine,
+                            commandLine: ImperativeConfig.instance.commandLine,
                             envVariablePrefix: this.envVariablePrefix,
-                            promptPhrase: this.promptPhrase
+                            promptPhrase: this.promptPhrase,
+                            config: ImperativeConfig.instance.config,
+                            daemonContext: ImperativeConfig.instance.daemonContext
                         }).invoke({
                             arguments: argsForHandler,
                             silent: false,
@@ -256,7 +259,8 @@ export class CommandYargs extends AbstractCommandYargs {
                     } catch (processorError) {
                         const response = new CommandResponse({
                             silent: false,
-                            responseFormat: (printJson) ? "json" : "default"
+                            responseFormat: (printJson) ? "json" : "default",
+                            stream: ImperativeConfig.instance.daemonContext?.stream
                         });
                         response.failed();
                         response.console.errorHeader("Internal Command Error");

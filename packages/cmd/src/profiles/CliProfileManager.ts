@@ -235,12 +235,14 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             };
         }
 
-        for (const prop of Object.keys(this.profileTypeConfiguration.schema.properties)) {
-            profile[prop] = await this.findOptions(this.profileTypeConfiguration.schema.properties[prop], prop, profile[prop], securelyLoadValue);
+        if (profile != null) {
+            for (const prop of Object.keys(this.profileTypeConfiguration.schema.properties)) {
+                profile[prop] = await this.findOptions(this.profileTypeConfiguration.schema.properties[prop], prop, profile[prop], securelyLoadValue);
+            }
         }
 
         // Return the loaded profile
-        loadedProfile.profile = profile;
+        loadedProfile.profile = profile || {};
         return loadedProfile;
     }
 
@@ -328,6 +330,11 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             "  To recreate credentials, issue a 'profiles create' sub-command with the --ow flag.\n";
         if (errDetails.includes(recreateCredText)) {
             errDetails += recreateProfileText;
+        } else {
+            const additionalDetails = CredentialManagerFactory.manager.secureErrorDetails();
+            if (additionalDetails != null) {
+                errDetails += "\n\n" + additionalDetails;
+            }
         }
         return errDetails;
     }
@@ -522,7 +529,8 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     response,
                     fullDefinition: undefined,
                     definition: undefined,
-                    profiles: new CommandProfiles(new Map<string, IProfile[]>())
+                    profiles: new CommandProfiles(new Map<string, IProfile[]>()),
+                    stdin: process.stdin
                 });
             } catch (invokeErr) {
                 const errorMessage = this.log.error(`Error encountered updating profile of type ${this.profileType} ` +
@@ -585,7 +593,8 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     response,
                     fullDefinition: undefined,
                     definition: undefined,
-                    profiles: new CommandProfiles(new Map<string, IProfile[]>())
+                    profiles: new CommandProfiles(new Map<string, IProfile[]>()),
+                    stdin: process.stdin
                 });
             } catch (invokeErr) {
                 const errorMessage = this.log.error("Error encountered building new profile with custom create profile handler:" + invokeErr.message);

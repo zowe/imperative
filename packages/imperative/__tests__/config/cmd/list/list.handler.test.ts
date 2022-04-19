@@ -9,52 +9,153 @@
 *
 */
 
-import { ISettingsFile } from "../../../../../settings/src/doc/ISettingsFile";
+jest.mock("../../../../../utilities/src/ImperativeConfig");
 
-jest.mock("../../../../../settings/src/AppSettings");
+import { Config, ConfigConstants, IConfig, IConfigLayer } from "../../../../../config";
+import { ImperativeConfig } from "../../../../../utilities";
+import ListHandler from "../../../../src/config/cmd/list/list.handler";
 
-import { CommandResponse, IHandlerParameters } from "../../../../../cmd";
-import { AppSettings } from "../../../../../settings";
+let dataObj: any;
+let formatObj: any;
+let errorText: string;
+let logText: string;
 
-describe("Config management list handler", () => {
-
-    afterEach(() => {
-        // Mocks need cleared after every test for clean test runs
-        jest.resetAllMocks();
-    });
-    const defaultSettings: ISettingsFile = {
-        overrides: {
-            CredentialManager: false
+// "Mocked" version of the handler parameters for a config list command
+const handlerParms: any = {
+    response: {
+        data: {
+            setObj: jest.fn((jsonObj) => {
+                dataObj = JSON.parse(JSON.stringify(jsonObj));
+            })
+        },
+        format: {
+            output: jest.fn((formatArgs) => {
+                formatObj = JSON.parse(JSON.stringify(formatArgs.output));
+            })
+        },
+        console: {
+            log: jest.fn((msgText) => {
+                logText = msgText;
+            }),
+            error: jest.fn((msgText) => {
+                errorText = msgText;
+            })
         }
-    };
-    /**
-     *  Create object to be passed to process function
-     *
-     * @returns {IHandlerParameters}
-     */
-    const getIHandlerParametersObject = (values: boolean): IHandlerParameters => {
-        const x: any = {
-            response: new (CommandResponse as any)(),
-            arguments: {
-                values
+    }
+};
+
+const configLayers: IConfigLayer[] = [
+    {
+        exists: true,
+        path: "fakePath",
+        user: false,
+        global: false,
+        properties: {
+            profiles: {
+                email: {
+                    properties: {
+                        host: "fakeHost",
+                        port: 25,
+                        user: "admin"
+                    },
+                    secure: [
+                        "user",
+                        "password"
+                    ]
+                }
             },
-        };
-        return x as IHandlerParameters;
-    };
+            defaults: {},
+            plugins: [
+                "fakePlugin"
+            ]
+        }
+    },
+    { exists: false, properties: Config.empty() } as any,
+    { exists: false, properties: Config.empty() } as any,
+    { exists: false, properties: Config.empty() } as any
+];
 
-    it("should list all settings", async () => {
+const configMaskedProps: IConfig = configLayers[0].properties;
+configMaskedProps.profiles.email.properties.user = ConfigConstants.SECURE_VALUE;
 
-        const handlerReq = require("../../../../src/config/cmd/list/list.handler");
-        const handler = new handlerReq.default();
+describe("Configuration List command handler", () => {
+    const fakeConfig: Config = new (Config as any)();
 
-        const params = getIHandlerParametersObject(false);
+    beforeAll(() => {
+        (fakeConfig as any).mActive = { user: false, global: false };
+        Object.defineProperty(ImperativeConfig.instance, "config", {
+            get: jest.fn(() => fakeConfig)
+        });
+    });
 
-        const appSettings = AppSettings.initialize("foo",defaultSettings);
+    beforeEach(() => {
+        dataObj = null;
+        formatObj = null;
+        errorText = null;
+        logText = null;
+    });
 
-        await handler.process(params as IHandlerParameters);
+    it("should output empty object when there is no config", async () => {
+        jest.spyOn(fakeConfig, "exists", "get").mockReturnValueOnce(false);
+        handlerParms.arguments = {};
 
-        expect(appSettings.getNamespace).toHaveBeenCalledWith("overrides");
-        expect(appSettings.getNamespace("overrides")).toBeDefined();
+        await (new ListHandler()).process(handlerParms);
+        expect(errorText).toBeNull();
+        expect(dataObj).toEqual({});
+        expect(formatObj).toEqual(dataObj);
+    });
+
+    it("should output entire config", async () => {
+        (fakeConfig as any).mLayers = configLayers;
+        handlerParms.arguments = {};
+
+        await (new ListHandler()).process(handlerParms);
+        expect(errorText).toBeNull();
+        expect(dataObj).toEqual(configMaskedProps);
+        expect(dataObj.profiles.email.properties.user).toBe(ConfigConstants.SECURE_VALUE);
+        expect(dataObj.profiles.email.properties.password).toBeUndefined();
+        expect(formatObj).toEqual(dataObj);
+    });
+
+    it("should output config property", async () => {
+        (fakeConfig as any).mLayers = configLayers;
+        handlerParms.arguments = { property: "plugins" };
+
+        await (new ListHandler()).process(handlerParms);
+        expect(errorText).toBeNull();
+        expect(dataObj).toEqual(["fakePlugin"]);
+        expect(formatObj).toEqual(dataObj);
+    });
+
+    it("should output entire config listed by location", async () => {
+        (fakeConfig as any).mLayers = configLayers;
+        handlerParms.arguments = { locations: true };
+
+        await (new ListHandler()).process(handlerParms);
+        expect(errorText).toBeNull();
+        expect(dataObj.fakePath).toEqual(configMaskedProps);
+        expect(dataObj.fakePath.profiles.email.properties.user).toBe(ConfigConstants.SECURE_VALUE);
+        expect(dataObj.fakePath.profiles.email.properties.password).toBeUndefined();
+        expect(formatObj).toEqual(dataObj);
+    });
+
+    it("should output config property listed by location", async () => {
+        (fakeConfig as any).mLayers = configLayers;
+        handlerParms.arguments = { locations: true, property: "plugins" };
+
+        await (new ListHandler()).process(handlerParms);
+        expect(errorText).toBeNull();
+        expect(dataObj.fakePath).toEqual(["fakePlugin"]);
+        expect(formatObj).toEqual(dataObj);
+    });
+
+    it("should output entire config at root level", async () => {
+        (fakeConfig as any).mLayers = configLayers;
+        handlerParms.arguments = { root: true };
+
+        await (new ListHandler()).process(handlerParms);
+        expect(errorText).toBeNull();
+        expect(dataObj).toEqual(Object.keys(configLayers[0].properties));
+        expect(formatObj).toEqual(dataObj);
     });
 });
-

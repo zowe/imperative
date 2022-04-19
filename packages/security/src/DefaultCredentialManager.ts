@@ -11,6 +11,7 @@
 
 import { AbstractCredentialManager, SecureCredential } from "./abstract/AbstractCredentialManager";
 import { ImperativeError } from "../../error";
+import { Logger } from "../../logger";
 
 import * as keytar from "keytar"; // Used for typing purposes only
 
@@ -27,10 +28,10 @@ import * as keytar from "keytar"; // Used for typing purposes only
  * | macOS | Keychain |
  * | Linux | Secret Sevice API/libsecret |
  *
- * ### Optional Install of Keytar
+ * ### Keytar must be installed by the app using imperative (like zowe-cli).
  *
- * It should be noted that keytar is an optional dependency of Imperative. This is because on Linux, it will not work
- * out of the box without some additional configuration to install libsecret. Keytar provides the following
+ * On Linux, Keytar will not work out of the box without some additional
+ * configuration to install libsecret. Keytar provides the following
  * documentation for Linux users to install libsecret:
  *
  * ---
@@ -42,10 +43,14 @@ import * as keytar from "keytar"; // Used for typing purposes only
  * - Arch Linux: `sudo pacman -S libsecret`
  */
 export class DefaultCredentialManager extends AbstractCredentialManager {
+
+    /**
+     * The service name for our built-in credential manager.
+     */
+    public static readonly SVC_NAME = "Zowe";
+
     /**
      * Reference to the lazily loaded keytar module.
-     *
-     * @private
      */
     private keytar: typeof keytar;
 
@@ -61,16 +66,41 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
     private loadError: ImperativeError;
 
     /**
+     * Combined list of services that the plugin will go through
+     */
+    private allServices: string[];
+
+    /**
+     * Maximum credential length allowed by Windows 7 and newer.
+     *
+     * We don't support older versions of Windows where the limit is 512 bytes.
+     */
+    private readonly WIN32_CRED_MAX_STRING_LENGTH = 2560;
+
+    /**
      * Pass-through to the superclass constructor.
      *
      * @param {string} service The service string to send to the superclass constructor.
-     * @param {string} displayName The manager display name.
+     * @param {string} displayName The display name for this credential manager to send to the superclass constructor
      */
-    constructor(service: string) {
+    constructor(service: string, displayName: string = "default credential manager") {
         // Always ensure that a manager instantiates the super class, even if the
         // constructor doesn't do anything. Who knows what things might happen in
         // the abstract class initialization in the future.
-        super(service, "default credential manager");
+        super(service, displayName);
+
+        /* Gather all services. We will load secure properties for the first
+        * successful service found in the order that they are placed in this array.
+        */
+        this.allServices = [service || DefaultCredentialManager.SVC_NAME];
+
+        if (this.defaultService === DefaultCredentialManager.SVC_NAME) {
+            /* Previous services under which we will look for credentials.
+            * We dropped @brightside/core because we no longer support the
+            * lts-incremental version of the product.
+            */
+            this.allServices.push("@zowe/cli", "Zowe-Plugin", "Broadcom-Plugin");
+        }
     }
 
     /**
@@ -86,13 +116,30 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
      */
     public async initialize(): Promise<void> {
         try {
-            this.keytar = await import("keytar");
+            // Imperative overrides the value of process.mainModule.filename to point to
+            // our calling CLI. Since our caller must supply keytar, we search for keytar
+            // within our caller's path.
+            const requireOpts: any = {};
+            if (process.mainModule?.filename != null) {
+                requireOpts.paths = [process.mainModule.filename, ...require.resolve.paths("keytar")];
+            }
+            const keytarPath = require.resolve("keytar", requireOpts);
+            Logger.getImperativeLogger().debug("Loading Keytar module from", keytarPath);
+            this.keytar = await import(keytarPath);
         } catch (error) {
             this.loadError = new ImperativeError({
-                msg: "Keytar not Installed",
+                msg: `Failed to load Keytar module: ${error.message}`,
                 causeErrors: error
             });
+            Logger.getImperativeLogger().debug("Failed to load Keytar module:\n", error.stack);
         }
+    }
+
+    protected get possibleSolutions(): string[] {
+        return [
+            `Reinstall ${this.name}. On Linux systems, also make sure to install the prerequisites listed in ${this.name} documentation.`,
+            `Ensure ${this.name} can access secure credential storage. ${this.name} needs access to the OS to securely save credentials.`
+        ];
     }
 
     /**
@@ -104,16 +151,10 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
      * @returns {Promise<void>} A promise that the function has completed.
      *
      * @throws {@link ImperativeError} if keytar is not defined.
-     * @throws {@link ImperativeError} when keytar.deletePassword returns false.
      */
     protected async deleteCredentials(account: string): Promise<void> {
         this.checkForKeytar();
-        if (!await this.keytar.deletePassword(this.service, account)) {
-            throw new ImperativeError({
-                msg: "Unable to delete credentials.",
-                additionalDetails: this.getMissingEntryMessage(account)
-            });
-        }
+        await this.deleteCredentialsHelper(account);
     }
 
     /**
@@ -122,6 +163,7 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
      *
      * @param {string} account The account for which to get credentials
      * @param {boolean} optional Set to true if failure to find credentials should be ignored
+     *
      * @returns {Promise<SecureCredential>} A promise containing the credentials stored in keytar.
      *
      * @throws {@link ImperativeError} if keytar is not defined.
@@ -129,16 +171,30 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
      */
     protected async loadCredentials(account: string, optional?: boolean): Promise<SecureCredential> {
         this.checkForKeytar();
-        const password: string = await this.keytar.getPassword(this.service, account);
 
-        if (password == null && !optional) {
+        // load secure properties using the first successful value from our known services
+        let secureValue = null;
+        for (const nextService of this.allServices) {
+            secureValue = await this.getCredentialsHelper(nextService, account);
+            if (secureValue != null) {
+                break;
+            }
+        }
+
+        if (secureValue == null && !optional) {
             throw new ImperativeError({
                 msg: "Unable to load credentials.",
                 additionalDetails: this.getMissingEntryMessage(account)
             });
         }
 
-        return password;
+        if (secureValue != null) {
+            const impLogger = Logger.getImperativeLogger();
+            impLogger.info("Successfully loaded secure value for service = '" + this.service +
+        "' account = '" + account + "'");
+        }
+
+        return secureValue;
     }
 
     /**
@@ -154,7 +210,15 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
      */
     protected async saveCredentials(account: string, credentials: SecureCredential): Promise<void> {
         this.checkForKeytar();
-        await this.keytar.setPassword(this.service, account, credentials);
+        await this.deleteCredentialsHelper(account, true);
+        await this.setCredentialsHelper(this.service, account, credentials);
+    }
+
+    /**
+     * The default service name for storing credentials.
+     */
+    private get defaultService(): string {
+        return this.allServices[0];
     }
 
     /**
@@ -185,9 +249,99 @@ export class DefaultCredentialManager extends AbstractCredentialManager {
         }
     }
 
+    /**
+     * Helper to load credentials from vault that supports values longer than
+     * `DefaultCredentialManager.WIN32_CRED_MAX_STRING_LENGTH` on Windows.
+     * @private
+     * @param service The string service name.
+     * @param account The string account name.
+     * @returns A promise for the credential string.
+     */
+    private async getCredentialsHelper(service: string, account: string): Promise<SecureCredential> {
+        // Try to load single-field value from vault
+        let value = await this.keytar.getPassword(service, account);
+
+        // If not found, try to load multiple-field value on Windows
+        if (value == null && process.platform === "win32") {
+            let index = 1;
+            // Load multiple fields from vault and concat them
+            do {
+                const tempValue = await this.keytar.getPassword(service, `${account}-${index}`);
+                if (tempValue != null) {
+                    value = (value || "") + tempValue;
+                }
+                index++;
+                // Loop until we've finished reading null-terminated value
+            } while (value != null && !value.endsWith('\0'));
+            // Strip off trailing null char
+            if (value != null) {
+                value = value.replace(/\0$/, "");
+            }
+        }
+
+        return value;
+    }
+
+    /**
+     * Helper to save credentials to vault that supports values longer than
+     * `DefaultCredentialManager.WIN32_CRED_MAX_STRING_LENGTH` on Windows.
+     * @private
+     * @param service The string service name.
+     * @param account The string account name.
+     * @param value The string credential.
+     */
+    private async setCredentialsHelper(service: string, account: string, value: SecureCredential): Promise<void> {
+        // On Windows, save value across multiple fields if needed
+        if (process.platform === "win32" && value.length > this.WIN32_CRED_MAX_STRING_LENGTH) {
+            // First delete any fields previously used to store this value
+            await this.keytar.deletePassword(service, account);
+            value += '\0';
+            let index = 1;
+            while (value.length > 0) {
+                const tempValue = value.slice(0, this.WIN32_CRED_MAX_STRING_LENGTH);
+                await this.keytar.setPassword(service, `${account}-${index}`, tempValue);
+                value = value.slice(this.WIN32_CRED_MAX_STRING_LENGTH);
+                index++;
+            }
+        } else {
+            // Fall back to simple storage of single-field value
+            await this.keytar.setPassword(service, account, value);
+        }
+    }
+
+    private async deleteCredentialsHelper(account: string, keepCurrentSvc?: boolean): Promise<boolean> {
+        let wasDeleted = false;
+        for (const service of this.allServices) {
+            if (keepCurrentSvc && service === this.defaultService) {
+                continue;
+            }
+            if (await this.keytar.deletePassword(service, account)) {
+                wasDeleted = true;
+            }
+        }
+        if (process.platform === "win32") {
+            // Handle deletion of long values stored across multiple fields
+            let index = 1;
+            while (await this.keytar.deletePassword(this.defaultService, `${account}-${index}`)) {
+                index++;
+            }
+            if (index > 1) {
+                wasDeleted = true;
+            }
+        }
+        return wasDeleted;
+    }
+
     private getMissingEntryMessage(account: string) {
+        let listOfServices = `  Service = `;
+        for (const service of this.allServices) {
+            listOfServices += `${service}, `;
+        }
+        const commaAndSpace = 2;
+        listOfServices = listOfServices.slice(0, -1 * commaAndSpace) + `\n  Account = ${account}\n\n`;
+
         return "Could not find an entry in the credential vault for the following:\n" +
-            `  Service = ${this.service}\n  Account = ${account}\n\n` +
+            listOfServices +
             "Possible Causes:\n" +
             "  This could have been caused by any manual removal of credentials from your vault.\n\n" +
             "Resolutions: \n" +

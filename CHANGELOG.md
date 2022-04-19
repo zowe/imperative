@@ -2,6 +2,309 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## `5.0.0-next.202204142147`
+
+- BugFix: Fixed missing `osLoc` information from `ProfileInfo.getAllProfiles()`. [#771](https://github.com/zowe/imperative/issues/771)
+- BugFix: Fixed updateKnownProperty saving to the active layer instead of the layer of the desired profile.
+- Enhancement: Added the ability to exclude the home directory from `ProfileInfo.getAllProfiles()`. [#787](https://github.com/zowe/imperative/issues/771)
+
+## `5.0.0-next.202204131728`
+
+- BugFix: Fixed `autoStore` property not being merged properly between team config layers.
+
+## `5.0.0-next.202204111131`
+
+- BugFix: Updated `moment` dependency.
+
+## `5.0.0-next.202204081605`
+
+- BugFix: Fixed `config set` command not respecting the property type defined in the schema. [#772](https://github.com/zowe/imperative/issues/772)
+
+## `5.0.0-next.202204051515`
+
+- Enhancement: Added support for profile name aliases in team config so that `--zosmf-profile lpar1` falls back to profile "zosmf_lpar1" if "lpar1" does not exist.
+- BugFix: Reworded potentially misleading output of `config convert-profiles` command mentioning obsolete plug-ins.
+- BugFix: Made `--dry-run` and `--prompt` options mutually exclusive on `config init` command.
+- **Next Breaking**: The team config API method `config.api.profiles.get` now returns `null` if a profile doesn't exist unless `mustExist` is false. [#518](https://github.com/zowe/imperative/issues/518)
+- BugFix: Added the ability to read option values from aliases. Enhanced backward compatibility with V1 profiles. [#770](https://github.com/zowe/imperative/issues/770)
+
+## `5.0.0-next.202203311701`
+
+- BugFix: Allowed `ProfileCredentials.isSecured` to be insecure on teamConfig based on existing secure fields. [#762](https://github.com/zowe/imperative/issues/762)
+
+## `5.0.0-next.202203231534`
+
+- Enhancement: Added JSON property autocompletion to `secure` array in team config files. [zowe/zowe-cli#1187](https://github.com/zowe/zowe-cli/issues/1187)
+- BugFix: Fixed incorrect description for untyped profiles in team config files. [zowe/zowe-cli#1303](https://github.com/zowe/zowe-cli/issues/1303)
+- **Next Breaking**: Schema files created or updated with the above changes are not backward compatible with older versions of Imperative.
+
+## `5.0.0-next.202203222132`
+
+- BugFix: Reverted unintentional breaking change that prevented `DefaultCredentialManager` from finding Keytar outside of calling CLI's node_modules folder.
+
+## `5.0.0-next.202203211501`
+
+- Enhancement: Enhanced secure ProfileInfo APIs with user-defined secure properties. [#739](https://github.com/zowe/imperative/issues/739)
+- Enhancement: Introduced `updateKnownProperty` which will update a given property in most cases and `resolve(false)` otherwise.
+- Enhancement: Introduced `updateProperty` which takes care of special cases where the property is not found.
+- Enhancement: Allowed adding and removing properties from the ProfileInfo class.
+- Enhancement: Allowed properties to be stored securely from the ProfileInfo class. `v2 profiles only`
+- BugFix: Removed user-defined secure properties if `getSecureValues: false`. [#738](https://github.com/zowe/imperative/issues/738)
+- BugFix: Removed strict requirement of `IHandlerParameter` from the `ConfigAutoStore` class by implementing helper methods.
+- BugFix: Allowed `private loadSchema` function to return the corresponding schema for a user config. [#758](https://github.com/zowe/imperative/issues/758)
+
+## `5.0.0-next.202203181826`
+
+- BugFix: Fixed a bug where the `<APP>_EDITOR` environment variable was not being respected in a graphical environment [zowe/zowe-cli#1335](https://github.com/zowe/zowe-cli/issues/1335)
+- BugFix: Fixed AbstractRestClient returning compressed data in `causeErrors` property for streamed responses. [#753](https://github.com/zowe/imperative/issues/753)
+
+## `5.0.0-next.202203091934`
+
+- Enhancement: Added prompt for base profile host property to `zowe config init`. [zowe/zowe-cli#1219](https://github.com/zowe/zowe-cli/issues/1219)
+- **Next Breaking**
+  - The `getSecureValue` callback property has been renamed to `getValueBack` on the `IConfigBuilderOpts` interface.
+  - If your plug-in defines profile properties with `includeInTemplate` and `secure` both true, the `config init` command no longer prompts for their values.
+
+## `5.0.0-next.202203072228`
+
+- BugFix: Removed extra space in help text following option name [#745](https://github.com/zowe/imperative/issues/745).
+- BugFix: Fixed Ctrl+C (SIGINT) response to CLI prompts throwing an error rather than exiting silently.
+
+## `5.0.0-next.202202232039`
+
+- Enhancement: Added `stdin` property to `IHandlerParameters` which defaults to `process.stdin` and can be overridden with another readable stream in daemon mode.
+  - This may be a breaking change for unit tests that mock the `IHandlerParameters` interface since a required property has been added.
+- **Next Breaking**: Replaced `IYargsContext` interface with `IDaemonContext` and renamed `yargsContext` property of `ImperativeConfig.instance` to `daemonContext`. A context object is no longer supplied to `yargs` since it gets parsed as CLI arguments which is undesired behavior.
+
+## `5.0.0-next.202202111730`
+
+- **Next Breaking**: Changed the default behavior of `Config.save` and `ConfigSecure.save` APIs to save only the active config layer. [#732](https://github.com/zowe/imperative/issues/732)
+
+## `5.0.0-next.202202111433`
+
+- Enhancement: Convert previously used profile property names into V2-compliant property names during the `zowe config convert-profiles` command. Conversions are: hostname -> host, username -> user, pass -> password.
+
+## `5.0.0-next.202201311918`
+
+- BugFix: Fixed useful debugging information missing from error message when Keytar module fails to load.
+
+## `5.0.0-next.202201102100`
+
+- BugFix: Fixed ZOWE_CLI_HOME environment variable not respected by team config in daemon mode. [zowe/zowe-cli#1240](https://github.com/zowe/zowe-cli/issues/1240)
+
+## `5.0.0-next.202201071721`
+
+- Enhancement: Replaced hidden `--dcd` option used by CommandProcessor in daemon mode with IDaemonResponse object.
+- **Next Breaking**
+    - Changed the "args" type on the `Imperative.parse` method to allow a string array.
+    - Restructured the IDaemonResponse interface to provide information to CommandProcessor.
+
+## `5.0.0-next.202201061509`
+
+- Enhancement: Added `overwrite` option for `zowe config init` command to overwrite config files instead of merging new changes. [#1036](https://github.com/zowe/zowe-cli/issues/1036)
+
+## `5.0.0-next.202201051456`
+
+- BugFix: Fixed inconsistent error message when invalid CLI command is run in daemon mode. [zowe/zowe-cli#1081](https://github.com/zowe/zowe-cli/issues/1081)
+
+## `5.0.0-next.202112221912`
+
+- Enhancement: Added `delete` option to `config convert-profiles` command.
+
+## `5.0.0-next.202112201553`
+
+- BugFix: Fixed config auto-store may store secure properties in plain text if secure array is outside of subprofile in team config. [#709](https://github.com/zowe/imperative/issues/709)
+
+## `5.0.0-next.202112171553`
+
+- Enhancement: Added `config convert-profiles` command that converts v1 profiles to team config. [zowe/zowe-cli#896](https://github.com/zowe/zowe-cli/issues/896)
+- Enhancement: Added `config edit` command that opens config JSON file in default text editor. [zowe/zowe-cli#1072](https://github.com/zowe/zowe-cli/issues/1072)
+
+## `5.0.0-next.202112151934`
+
+- BugFix: Removed `@internal` methods from type declarations so they don't appear in IntelliSense. [#679](https://github.com/zowe/imperative/issues/679)
+- BugFix: Made the `ProfileInfo.initSessCfg` method public for easier instantiation of classes that extend AbstractSession.
+- Deprecated: All methods in the `IHandlerParameters.profiles` class. Use the `ConfigProfiles` API for team config instead.
+
+## `5.0.0-next.202112132158`
+
+- Enhancement: Added an environment variable to control whether or not sensitive data will be masked in the console output.<br/>
+    This behavior excludes any TRACE level logs for both, Imperative.log and AppName.log.<br/>
+    This behavior also excludes properties defined as secure by the plugin developers.<br/>
+    If the schema definition is not found, we will exclude the following properties: user, password, tokenValue, and keyPassphrase.<br/>
+    More information: [zowe/zowe-cli #1106](https://github.com/zowe/zowe-cli/issues/1106)
+
+## `5.0.0-next.202112101814`
+
+- BugFix: Fixed daemon mode not loading secure properties in team config. [zowe/zowe-cli#1232](https://github.com/zowe/zowe-cli/issues/1232)
+
+## `5.0.0-next.202112021611`
+
+- BugFix: Fixed `config import` and `config init` behaving incorrectly when config JSON exists in higher level directory. [zowe/zowe-cli#1218](https://github.com/zowe/zowe-cli/issues/1218)
+- BugFix: Fixed `config import` command not failing when positional argument "location" is missing.
+
+## `5.0.0-next.202112012301`
+
+- Enhancement: Changed CLI prompt input to be hidden for properties designated as secure in team config. [zowe/zowe-cli#1106](https://github.com/zowe/zowe-cli/issues/1106)
+- BugFix: Improved error message when Keytar module fails to load. [#27](https://github.com/zowe/imperative/issues/27)
+- **Next Breaking**
+    - Removed the `ConfigProfiles.load` API method. Use the methods `ConfigLayers.find` and `ConfigSecure.securePropsForProfile` instead. [#568](https://github.com/zowe/imperative/issues/568)
+
+## `5.0.0-next.202111301806`
+
+- Enhancement: Added a utility function to get basic system architecture and platform info
+
+## `5.0.0-next.202111292021`
+
+- **Next Breaking**: Use JSON-based communication protocol between imperative daemon server and client.
+
+## `5.0.0-next.202111192150`
+
+- BugFix: Changed credentials to be stored securely by default for v1 profiles to be consistent with the experience for v2 profiles. [zowe/zowe-cli#1128](https://github.com/zowe/zowe-cli/issues/1128)
+- **Next Breaking**
+    - Removed the `credentialServiceName` property from ImperativeConfig. The default credential manager uses the `name` property instead.
+
+## `5.0.0-next.202111101806`
+
+- Enhancement: Added `dry-run` option for `zowe config init` command to preview changes instead of saving them to disk. [#1037](https://github.com/zowe/zowe-cli/issues/1037)
+- Bugfix: Fix crashing issue related to reloading the config when `--dcd` option is specified [#943](https://github.com/zowe/zowe-cli/issues/943) [#1190](https://github.com/zowe/zowe-cli/issues/1190)
+
+## `5.0.0-next.202111032034`
+
+- Enhancement: Added `autoStore` property to config JSON files which defaults to true. When this property is enabled and the CLI prompts you to enter connection info, the values you enter will be saved to disk (or credential vault if they are secure) for future use. [zowe/zowe-cli#923](https://github.com/zowe/zowe-cli/issues/923)
+- **Next Breaking**
+    - Changed the default behavior of `Config.set` so that it no longer coerces string values to other types unless the `parseString` option is true.
+
+## `5.0.0-next.202110201735`
+
+- **LTS Breaking**
+    - Changed the return value of the public `PluginManagementFacility.requirePluginModuleCallback` function
+- BugFix: Updated the profiles list as soon as the plugin is installed.
+
+## `5.0.0-next.202110191937`
+
+- **Next Breaking**: Added the new, required, abstract method 'displayAutoInitChanges' to the 'BaseAutoInitHandler' class.
+
+## `5.0.0-next.202110071645`
+
+- Enhancement: Added `config update-schemas [--depth <value>]` command. [zowe/zowe-cli#1059](https://github.com/zowe/zowe-cli/issues/1059)
+- Enhancement: Added the ability to update the global schema file when installing a new plugin. [zowe/zowe-cli#1059](https://github.com/zowe/zowe-cli/issues/1059)
+- **Next Breaking**
+    - Renamed public static function ConfigSchemas.loadProfileSchemas to ConfigSchemas.loadSchema
+
+## `5.0.0-next.202110011948`
+
+- **LTS Breaking**: Changed default log level from DEBUG to WARN for Imperative logger and app logger to reduce the volume of logs written to disk. [#634](https://github.com/zowe/imperative/issues/634)
+
+## `5.0.0-next.202109281439`
+
+- Enhancement: Added `config import` command that imports team config files from a local path or web URL. [#1083](https://github.com/zowe/zowe-cli/issues/1083)
+- Enhancement: Added Help Doc examples for the `zowe config` group of commands. [#1061](https://github.com/zowe/zowe-cli/issues/1061)
+
+## `5.0.0-next.202109031503`
+
+- Enhancement: Log in to authentication service to obtain token value instead of prompting for it in `config secure` command.
+
+## `5.0.0-next.202108181618`
+
+- **LTS Breaking**: Make `fail-on-error` option true by default on `zowe plugins validate` command.
+
+## `5.0.0-next.202108121732`
+
+- Enhancement: Flattened the default profiles structure created by the `config init` command.
+- **Next Breaking**: Split up authToken property in team config into tokenType and tokenValue properties to be consistent with Zowe v1 profiles.
+
+## `5.0.0-next.202108062025`
+
+- BugFix: Export all Config related interfaces.
+
+## `5.0.0-next.202107122104`
+
+- BugFix: Fixed secure credentials not being stored by the `config auto-init` command.
+
+## `5.0.0-next.202107092101`
+
+- Enhancement: Adds the `config auto-init` base handler and command builder, allowing a CLI to build a configuration auto-initialization command and handler
+- Enhancement: Adds the optional `configAutoInitCommandConfig` interface to the IImperativeConfig interface, allowing for an auto-init command to be generated if a CLI supports it
+- Enhancement: Better support for comments in JSON
+- Bugfix: Revert schema changes related to additionalProperties. Re-enable IntelliSense when editing zowe.config.json files
+- **Next Breaking**
+    - Changed the schema paths and updated schema version
+
+## `5.0.0-next.202106221817`
+
+- **Next Breaking**
+    - Replaced --user with --user-config on all config command groups due to conflict with --user option during config auto-initialization
+    - Replaced --global with --global-config on all config command groups for consistency
+
+## `5.0.0-next.202106212048`
+
+- Enhancement: A new interface (IApimlSvcAttrs) was added. A property (apimlConnLookup) of that interface type was added to IImperativeConfig to enable plugins to tie themselves to an APIML service. Zowe-CLI can then ask APIML for the configuration data for the plugin to connect to that service.
+
+## `5.0.0-next.202106041929`
+
+- **LTS Breaking**: Removed the following previously deprecated items:
+    - ICliLoadProfile.ICliILoadProfile -- use ICliLoadProfile.ICliLoadProfile
+    - IImperativeErrorParms.suppressReport -- has not been used since 10/17/2018
+    - IImperativeConfig.pluginBaseCliVersion -- has not been used since version 1.0.1
+    - AbstractRestClient.performRest -- use AbstractRestClient.request
+    - AbstractSession.HTTP_PROTOCOL -- use SessConstants.HTTP_PROTOCOL
+    - AbstractSession.HTTPS_PROTOCOL -- use SessConstants.HTTPS_PROTOCOL
+    - AbstractSession.TYPE_NONE -- use SessConstants.AUTH_TYPE_NONE
+    - AbstractSession.TYPE_BASIC -- use SessConstants.AUTH_TYPE_BASIC
+    - AbstractSession.TYPE_BEARER -- use SessConstants.AUTH_TYPE_BEARER
+    - AbstractSession.TYPE_TOKEN -- use SessConstants.AUTH_TYPE_TOKEN
+
+## `5.0.0-next.202104262004`
+
+- Enhancement: Remove message about NPM peer dep warnings that no longer applies to npm@7.
+- **LTS Breaking**: Imperative no longer requires plug-ins to include CLI package as a peer dependency. It is recommended that CLI plug-ins remove their peer dependency on @zowe/cli for improved compatibility with npm@7. This is a breaking change for plug-ins, as older versions of Imperative will fail to install a plug-in that lacks the CLI peer dependency.
+
+## `5.0.0-next.202104140156`
+
+- BugFix: Allow SCS to load new securely stored credentials. [#984](https://github.com/zowe/zowe-cli/issues/984)
+
+## `5.0.0-next.202104071400`
+
+- Enhancement: Add the ProfileInfo API to provide the following functionality:
+    - Read configuration from disk.
+    - Transparently read either a new team configuration or old style profiles.
+    - Resolve order of precedence for profile argument values.
+    - Provide information to enable callers to prompt for missing profile arguments.
+    - Retain the location in which a profile or argument was found.
+    - Automatically initialize CredentialManager, including an option to specify a custom keytar module.
+    - Provide a means to postpone the loading of secure arguments until specifically requested by the calling app to delay loading sensitive data until it is needed.
+    - Provide access to the lower-level Config API to fully manipulate the team configuration file.
+
+## `5.0.0-next.202103111923`
+
+- Enhancement: Allow custom directory to be specified for project config in `Config.load` method. [#544](https://github.com/zowe/imperative/issues/544)
+- BugFix: Fixed Config object not exported at top level. [#543](https://github.com/zowe/imperative/issues/543)
+
+## `5.0.0-next.202101292016`
+
+- BugFix: Fixed error when Imperative APIs are called and "config" property of ImperativeConfig is not initialized. [#533](https://github.com/zowe/imperative/issues/533)
+
+## `5.0.0-next.202101281717`
+
+- Enhancement: Added new config API intended to replace the profiles API, and new "config" command group to manage config JSON files. The new API makes it easier for users to create, share, and switch between profile configurations.
+- Deprecated: The "profiles" command group for managing global profiles in "{cliHome}/profiles". Use the new "config" command group instead.
+- **LTS Breaking**: Removed "config" command group for managing app settings in "{cliHome}/imperative/settings.json". If app settings already exist they are still loaded for backwards compatibility. For storing app settings use the new config API instead.
+- Enhancement: Added support for secure credential storage without any plug-ins required. Include the "keytar" package as a dependency in your CLI to make use of it.
+- Enhancement: Added `deprecatedReplacement` property to `ICommandDefinition` to deprecate a command.
+
+## `5.0.0-next.202010301408`
+
+- Enhancement: Allow hidden options.
+
+## `5.0.0-next.202010161240`
+
+- Enhancement:  Allow process exit code to be passed to daemon clients.
+
+## `5.0.0-next.202009251501`
+
+- Enhancement: add support for CLIs that want to run as a persistent process (daemon mode).
+
 ## `4.18.3`
 
 - BugFix: Removed `moment` dependency.
@@ -129,7 +432,6 @@ All notable changes to the Imperative package will be documented in this file.
 ## `4.10.0`
 
 - Enhancement: Added an `arrayAllowDuplicate` option to the `ICommandOptionDefinition` interface. By default, the option value is set to `true` and duplicate values are allowed in an array. Specify `false` if you want Imperative to throw an error for duplicate array values. [#437](https://github.com/zowe/imperative/issues/437)
-
 
 ## `4.9.0`
 

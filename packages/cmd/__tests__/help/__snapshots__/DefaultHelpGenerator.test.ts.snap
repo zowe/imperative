@@ -48,11 +48,11 @@ exports[`Default Help Generator help text builder getCommandHelpText test 1`] = 
  UNDEFINED
  ---------
 
-   --aReaLOption  (boolean)
+   --aReaLOption (boolean)
 
       Part of must specify one group
 
-   --elmo  (boolean)
+   --elmo (boolean)
 
       Part of must specify one group
 
@@ -89,15 +89,15 @@ exports[`Default Help Generator help text builder getCommandHelpText test 2`] = 
  UNDEFINED
  ---------
 
-   --aReaLOption  | --aro | --real (boolean)
+   --aReaLOption | --aro | --real (boolean)
 
       Part of must specify one group
 
-   --aRequiredOption  (string)
+   --aRequiredOption (string)
 
       Part of must specify one group
 
-   --elmo  (boolean)
+   --elmo (boolean)
 
       Part of must specify one group
 
@@ -144,7 +144,7 @@ exports[`Default Help Generator help text builder getGroupHelpText test 1`] = `
  COMMANDS
  --------
 
-   hello (experimental) my command
+   hello my command (experimental)
 
  GLOBAL OPTIONS
  --------------
@@ -169,7 +169,7 @@ exports[`Default Help Generator help text builder getGroupHelpText test 2`] = `
  COMMANDS
  --------
 
-   hello (experimental) my command
+   hello my command (experimental)
 
  GLOBAL OPTIONS
  --------------
@@ -181,7 +181,7 @@ exports[`Default Help Generator help text builder getPrintedActionsOrGroups test
 " COMMANDS
  --------
 
-   hello (experimental) my command
+   hello my command (experimental)
 
 "
 `;
@@ -235,11 +235,11 @@ exports[`Default Help Generator help text builder getPrintedNonGlobalOptions tes
 " UNDEFINED
  ---------
 
-   --aReaLOption  (boolean)
+   --aReaLOption (boolean)
 
       Part of must specify one group
 
-   --elmo  (boolean)
+   --elmo (boolean)
 
       Part of must specify one group
 
@@ -250,15 +250,15 @@ exports[`Default Help Generator help text builder getPrintedNonGlobalOptions tes
 " UNDEFINED
  ---------
 
-   --aReaLOption  | --aro | --real (boolean)
+   --aReaLOption | --aro | --real (boolean)
 
       Part of must specify one group
 
-   --aRequiredOption  (string)
+   --aRequiredOption (string)
 
       Part of must specify one group
 
-   --elmo  (boolean)
+   --elmo (boolean)
 
       Part of must specify one group
 
@@ -358,11 +358,11 @@ exports[`Default Help Generator help text builder should build full help text gi
  UNDEFINED
  ---------
 
-   --aReaLOption  (boolean)
+   --aReaLOption (boolean)
 
       Part of must specify one group
 
-   --elmo  (boolean)
+   --elmo (boolean)
 
       Part of must specify one group
 
@@ -396,6 +396,29 @@ nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat\\\\
 Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu
 fugiat nulla pariatur\\\\. Excepteur sint occaecat cupidatat non proident, sunt in
 culpa qui officia deserunt mollit anim id est laborum\\\\.
+
+"
+`;
+
+exports[`Default Help Generator help text builder should getCommandHelpText without hidden option 1`] = `
+"
+ COMMAND NAME
+ ------------
+
+   hello
+
+ DESCRIPTION
+ -----------
+
+   my command
+
+ USAGE
+ -----
+
+   test-help hello [options]
+
+ GLOBAL OPTIONS
+ --------------
 
 "
 `;

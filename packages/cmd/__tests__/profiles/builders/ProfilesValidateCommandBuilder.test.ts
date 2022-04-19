@@ -9,12 +9,24 @@
 *
 */
 
+jest.mock("../../../../utilities/src/ImperativeConfig");
+
 import { deleteHandlerPaths, testBuilderProfiles } from "./ProfileBuilderTestConstants";
 import { TestLogger } from "../../../../../__tests__/TestLogger";
 import { ProfilesValidateCommandBuilder } from "../../../../imperative/src/profiles/builders/ProfilesValidateCommandBuilder";
+import { ImperativeConfig } from "../../../../utilities";
 
 describe("Profile Validate Command Builder", () => {
     const logger = TestLogger.getTestLogger();
+
+    // pretend that we have a team config
+    (ImperativeConfig.instance.config as any) = {
+        exists: true,
+        formMainConfigPathNm: jest.fn(() => {
+            return "zowe.config.json";
+        })
+    };
+
     it("should provide a valid command definition for the " +
         "profile validate command based on our test profile type", () => {
         const firstProfileType = testBuilderProfiles[0];

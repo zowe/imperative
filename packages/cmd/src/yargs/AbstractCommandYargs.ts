@@ -25,6 +25,7 @@ import { IHelpGeneratorFactory } from "../help/doc/IHelpGeneratorFactory";
 import { CommandResponse } from "../response/CommandResponse";
 import { ICommandResponse } from "../../src/doc/response/response/ICommandResponse";
 import { ICommandExampleDefinition } from "../..";
+import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
 
 /**
  * Callback that is invoked when a command defined to yargs completes execution.
@@ -107,7 +108,6 @@ export abstract class AbstractCommandYargs {
      */
     private mPromptPhrase: string;
 
-
     /**
      * Construct the yargs command instance for imperative. Provides the ability to define Imperative commands to Yargs.
      * @param {IYargsParms} yargsParms - Parameter object contains parms for Imperative/Yargs and command response objects
@@ -157,6 +157,12 @@ export abstract class AbstractCommandYargs {
         return this.mEnvVariablePrefix;
     }
 
+    /**
+     * Accessor for the CLI prompt phrase
+     * @readonly
+     * @type {string}
+     * @memberof AbstractCommandYargs
+     */
     protected get promptPhrase(): string {
         return this.mPromptPhrase;
     }
@@ -295,10 +301,12 @@ export abstract class AbstractCommandYargs {
                 rootCommandName: this.rootCommandName,
                 commandLine: this.commandLine,
                 envVariablePrefix: this.envVariablePrefix,
-                promptPhrase: this.promptPhrase
+                promptPhrase: this.promptPhrase,
+                daemonContext: ImperativeConfig.instance.daemonContext
             }).help(new CommandResponse({
                 silent: false,
                 responseFormat: (args[Constants.JSON_OPTION] || false) ? "json" : "default",
+                stream: ImperativeConfig.instance.daemonContext?.stream
             }));
         } catch (helpErr) {
             const errorResponse: IYargsResponse = this.getBrightYargsResponse(false,
@@ -405,11 +413,13 @@ export abstract class AbstractCommandYargs {
                 rootCommandName: this.rootCommandName,
                 commandLine: this.commandLine,
                 envVariablePrefix: this.envVariablePrefix,
-                promptPhrase: this.promptPhrase
+                promptPhrase: this.promptPhrase,
+                daemonContext: ImperativeConfig.instance.daemonContext
             }).webHelp(fullCommandName + "_" + this.definition.name,
                 new CommandResponse({
                     silent: false,
                     responseFormat: (args[Constants.JSON_OPTION] || false) ? "json" : "default",
+                    stream: ImperativeConfig.instance.daemonContext?.stream
                 })
             );
         } catch (helpErr) {

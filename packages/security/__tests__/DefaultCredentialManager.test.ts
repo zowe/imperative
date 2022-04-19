@@ -11,9 +11,12 @@
 
 jest.mock("keytar");
 
+import * as path from "path";
 import { DefaultCredentialManager } from "..";
 import * as keytar from "keytar";
 import { ImperativeError } from "../../error";
+
+const winMaxCredentialLength = 2560;
 
 describe("DefaultCredentialManager", () => {
     beforeEach(() => {
@@ -28,16 +31,16 @@ describe("DefaultCredentialManager", () => {
     });
 
     describe("instance methods", () => {
-        const service = "imperative-service";
+        const service = DefaultCredentialManager.SVC_NAME;
 
         /**
-     * Use this manager as classes should use it.
-     */
+         * Use this manager as classes should use it.
+         */
         let manager: DefaultCredentialManager;
 
         /**
-     * Use only to access private methods/functions of the manager
-     */
+         * Use only to access private methods/functions of the manager
+         */
         let privateManager: any;
 
         beforeEach(() => {
@@ -66,20 +69,79 @@ describe("DefaultCredentialManager", () => {
 
                 expect(privateManager.keytar).toBeUndefined();
                 expect(privateManager.loadError).toBeInstanceOf(ImperativeError);
-                expect(privateManager.loadError.message).toEqual("Keytar not Installed");
+                expect(privateManager.loadError.message).toMatch(/^Failed to load Keytar module:/);
+            });
+
+            it("should look for keytar in CLI node_modules folder", async () => {
+                // Jest doesn't let us mock require.resolve, so instead we purposely
+                // fail the import and look for module path in the error message
+                const fakeCliPath = "/root/fakeCli";
+                process.mainModule = { filename: fakeCliPath } as any;
+                const pathResolveSpy = jest.spyOn(path, "resolve").mockReturnValueOnce(path.parse(__dirname).root);
+
+                // Force enter the try catch
+                Object.defineProperty(manager, "keytar", {
+                    writable: false
+                });
+
+                try {
+                    await manager.initialize();
+
+                    expect(privateManager.keytar).toBeUndefined();
+                    expect(privateManager.loadError).toBeInstanceOf(ImperativeError);
+                    const error: Error = privateManager.loadError.causeErrors;
+                    expect(error).toBeDefined();
+                    expect(error.message).toContain("Cannot resolve module");
+                    expect(error.message).toContain(fakeCliPath);
+                } finally {
+                    delete process.mainModule;
+                    pathResolveSpy.mockRestore();
+                }
+            });
+
+            it("should look for keytar in local node_modules folder", async () => {
+                process.mainModule = { filename: "/root/fakeCli" } as any;
+
+                // Force enter the try catch
+                Object.defineProperty(manager, "keytar", {
+                    writable: false
+                });
+
+                try {
+                    await manager.initialize();
+
+                    expect(privateManager.keytar).toBeUndefined();
+                    expect(privateManager.loadError).toBeInstanceOf(ImperativeError);
+                    const error: Error = privateManager.loadError.causeErrors;
+                    expect(error).toBeDefined();
+                    expect(error.message).toContain("Cannot assign to read only property");
+                } finally {
+                    delete process.mainModule;
+                }
             });
         });
 
         describe("methods after initialize", () => {
             /**
-       * Values used by the tests below
-       *
-       * @type {{account: string; credentials: string}}
-       */
+             * Values used by the tests below
+             *
+             * @type {{account: string; credentials: string}}
+             */
             const values = {
                 account: "test",
                 credentials: "someUser:somePassword"
             };
+
+            const longValues = [
+                {
+                    account: "test-1",
+                    credentials: "someUser:"
+                },
+                {
+                    account: "test-2",
+                    credentials: "somePassword\0"
+                }
+            ];
 
             beforeEach(async () => {
                 await manager.initialize();
@@ -121,10 +183,9 @@ describe("DefaultCredentialManager", () => {
                     expect(privateManager.checkForKeytar).toHaveBeenCalledTimes(1);
                     expect(keytar.deletePassword).toHaveBeenCalledWith(privateManager.service, values.account);
                 });
-                it("should throw an error on failure", async () => {
+                it("should silently fail to delete non-existent credentials", async () => {
+                    const deleteSpy = jest.spyOn(privateManager, "deleteCredentialsHelper");
                     let caughtError: ImperativeError;
-
-                    (keytar.deletePassword as jest.Mock).mockReturnValueOnce(false);
 
                     try {
                         await privateManager.deleteCredentials(values.account);
@@ -132,9 +193,11 @@ describe("DefaultCredentialManager", () => {
                         caughtError = error;
                     }
 
-                    expect(caughtError.message).toEqual("Unable to delete credentials.");
-                    expect((caughtError as ImperativeError).additionalDetails).toContain(values.account);
-                    expect((caughtError as ImperativeError).additionalDetails).toContain(service);
+                    expect(caughtError).toBeUndefined();
+                    expect(deleteSpy).toHaveBeenCalled();
+                    await deleteSpy.mock.results[0].value.then((value: boolean) => {
+                        expect(value).toBe(false);
+                    });
                 });
             });
 
@@ -147,7 +210,14 @@ describe("DefaultCredentialManager", () => {
                     expect(await privateManager.loadCredentials(values.account)).toEqual(values.credentials);
 
                     expect(privateManager.checkForKeytar).toHaveBeenCalledTimes(1);
-                    expect(keytar.getPassword).toHaveBeenLastCalledWith(privateManager.service, values.account);
+                    expect(keytar.getPassword).toHaveBeenLastCalledWith(service, values.account);
+                });
+
+                it("should return credentials for an alternate service", async () => {
+                    (keytar.getPassword as jest.Mock).mockImplementation(async (svc, _) => svc === service ? null : values.credentials);
+
+                    expect(await privateManager.loadCredentials(values.account)).toEqual(values.credentials);
+                    expect(keytar.getPassword).toHaveBeenLastCalledWith("@zowe/cli", values.account);
                 });
 
                 it("should throw an error when required credential fails to load", async () => {
@@ -170,7 +240,7 @@ describe("DefaultCredentialManager", () => {
                     let result;
                     let caughtError: ImperativeError;
 
-                    (keytar.getPassword as jest.Mock).mockReturnValueOnce(null);
+                    (keytar.getPassword as jest.Mock).mockReturnValue(null);
 
                     try {
                         result = await privateManager.loadCredentials(values.account, true);
@@ -190,7 +260,49 @@ describe("DefaultCredentialManager", () => {
                     await privateManager.saveCredentials(values.account, values.credentials);
 
                     expect(privateManager.checkForKeytar).toHaveBeenCalledTimes(1);
+                    expect(keytar.deletePassword).toHaveBeenCalled();
                     expect(keytar.setPassword).toHaveBeenLastCalledWith(privateManager.service, values.account, values.credentials);
+                });
+            });
+
+            describe("Windows credential management", () => {
+                const realPlatform = process.platform;
+
+                beforeAll(() => {
+                    Object.defineProperty(process, "platform", { value: "win32" });
+                });
+
+                afterAll(() => {
+                    Object.defineProperty(process, "platform", { value: realPlatform });
+                });
+
+                it("should load credentials that exceed max length", async () => {
+                    (keytar.getPassword as jest.Mock).mockReturnValueOnce(null)
+                        .mockReturnValueOnce(longValues[0].credentials)
+                        .mockReturnValueOnce(longValues[1].credentials);
+
+                    expect(await privateManager.loadCredentials(values.account)).toEqual(values.credentials);
+                    expect(keytar.getPassword).toHaveBeenLastCalledWith(service, longValues[1].account);
+                });
+
+                it("should save credentials that exceed max length", async () => {
+                    const longCredentials = values.credentials.repeat(512);
+                    const numFields = Math.ceil(longCredentials.length / winMaxCredentialLength);
+
+                    await privateManager.saveCredentials(values.account, longCredentials);
+
+                    expect(keytar.deletePassword).toHaveBeenCalledWith(privateManager.service, values.account);
+                    expect(keytar.setPassword).toHaveBeenCalledTimes(numFields);
+                    expect(keytar.setPassword).toHaveBeenCalledWith(privateManager.service, `${values.account}-1`,
+                        longCredentials.slice(0, winMaxCredentialLength));
+                });
+
+                it("should delete credentials that exceed max length", async () => {
+                    (keytar.deletePassword as jest.Mock).mockImplementation((svc, acct) => acct.endsWith("-1"));
+
+                    await privateManager.deleteCredentials(values.account);
+
+                    expect(keytar.deletePassword).toHaveBeenLastCalledWith(DefaultCredentialManager.SVC_NAME, `${values.account}-2`);
                 });
             });
         });

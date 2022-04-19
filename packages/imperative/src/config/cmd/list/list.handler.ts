@@ -9,25 +9,12 @@
 *
 */
 
+import * as lodash from "lodash";
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
-import { Logger } from "../../../../../logger/";
-import { AppSettings } from "../../../../../settings/src/AppSettings";
+import { ConfigConstants } from "../../../../../config";
+import { ImperativeConfig } from "../../../../../utilities";
 
-
-/**
- * The list command group handler for cli configuration settings.
- *
- */
 export default class ListHandler implements ICommandHandler {
-
-    /**
-     * A logger for this class
-     *
-     * @private
-     * @type {Logger}
-     */
-    private log: Logger = Logger.getImperativeLogger();
-
     /**
      * Process the command and input.
      *
@@ -36,11 +23,47 @@ export default class ListHandler implements ICommandHandler {
      * @throws {ImperativeError}
      */
     public async process(params: IHandlerParameters): Promise<void> {
-        const {values} = params.arguments;
-        const overrides = AppSettings.instance.getNamespace("overrides");
+        const config = ImperativeConfig.instance.config;
+        const property = params.arguments.property;
 
-        Object.keys(overrides)
-            .map((key) =>  values ? `${key} = ${overrides[key]}` : key)
-            .forEach(params.response.console.log);
+        // Populate the print object
+        let obj: any = {};
+        if (config.exists) {
+            if (params.arguments.locations) {
+                for (const layer of config.layers) {
+                    if (layer.exists) {
+                        obj[layer.path] = layer.properties;
+                        if (property != null)
+                            obj[layer.path] = (layer.properties as any)[property];
+                        if (obj[layer.path] != null) {
+                            for (const secureProp of config.api.secure.secureFields(layer)) {
+                                if (lodash.has(obj[layer.path], secureProp)) {
+                                    lodash.set(obj[layer.path], secureProp, ConfigConstants.SECURE_VALUE);
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                obj = config.maskedProperties;
+                if (property != null)
+                    obj = (config.maskedProperties as any)[property];
+            }
+        }
+
+        // If requested, only include the root property
+        if (params.arguments.root && !Array.isArray(obj)) {
+            const root = [];
+            for (const p of Object.keys(obj))
+                root.push(p);
+            obj = root;
+        }
+
+        // output to terminal
+        params.response.data.setObj(obj);
+        params.response.format.output({
+            output: obj,
+            format: (Array.isArray(obj)) ? "list" : "object"
+        });
     }
 }

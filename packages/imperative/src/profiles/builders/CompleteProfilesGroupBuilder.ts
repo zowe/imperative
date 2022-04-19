@@ -26,8 +26,8 @@ import { ProfilesValidateCommandBuilder } from "./ProfilesValidateCommandBuilder
 import { ProfilesListCommandBuilder } from "./ProfilesListCommandBuilder";
 import { ProfilesSetCommandBuilder } from "./ProfilesSetCommandBuilder";
 import { Logger } from "../../../../logger/index";
-import { isNullOrUndefined } from "util";
-import { IProfileTypeConfiguration } from "../../../../profiles";
+import { IProfileTypeConfiguration, ProfilesConstants } from "../../../../profiles";
+import { ImperativeConfig } from "../../../../utilities";
 
 /**
  * Generate a complete group of commands for maintaining configuration profiles
@@ -48,6 +48,7 @@ export class CompleteProfilesGroupBuilder {
             name: Constants.PROFILE_GROUP,
             description: "Create and manage configuration profiles.",
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_INIT,
             children: []
         };
 
@@ -57,6 +58,7 @@ export class CompleteProfilesGroupBuilder {
             summary: createProfilesCommandSummary.message,
             aliases: ["cre"],
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_INIT,
             children: [],
         };
 
@@ -66,6 +68,8 @@ export class CompleteProfilesGroupBuilder {
             summary: deleteProfilesCommandSummary.message,
             aliases: ["rm"],
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_EDIT + " " +
+                ImperativeConfig.instance.config.formMainConfigPathNm({addPath: false}),
             children: [],
         };
 
@@ -75,6 +79,7 @@ export class CompleteProfilesGroupBuilder {
             description: setProfileActionDesc.message,
             type: "group",
             aliases: ["set"],
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_SET,
             children: [],
         };
 
@@ -84,6 +89,7 @@ export class CompleteProfilesGroupBuilder {
             summary: updateProfileCommandSummary.message,
             aliases: ["upd"],
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_SET,
             children: [],
         };
 
@@ -93,6 +99,8 @@ export class CompleteProfilesGroupBuilder {
             summary: validateProfileCommandSummary.message,
             aliases: ["val"],
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_EDIT + " " +
+                ImperativeConfig.instance.config.formMainConfigPathNm({addPath: false}),
             children: [],
         };
 
@@ -102,13 +110,11 @@ export class CompleteProfilesGroupBuilder {
             summary: listProfileCommandSummary.message,
             aliases: ["ls"],
             type: "group",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_LIST,
             children: [],
-
         };
 
         for (const profile of profiles) {
-
-
             const createCommandAction = new ProfilesCreateCommandBuilder(profile.type, logger, profile);
             const updateCommandAction = new ProfilesUpdateCommandBuilder(profile.type, logger, profile);
             const deleteCommandAction = new ProfilesDeleteCommandBuilder(profile.type, logger, profile);
@@ -119,7 +125,7 @@ export class CompleteProfilesGroupBuilder {
             deleteGroup.children.push(deleteCommandAction.build());
             // validate profile is optional depending on if the profile has a validation plan
             const validateCommandResult = validateCommandAction.build();
-            if (!isNullOrUndefined(validateCommandResult)) {
+            if (validateCommandResult != null) {
                 validateGroup.children.push(validateCommandResult);
             }
             listGroup.children.push(listCommandAction.build());
@@ -128,7 +134,7 @@ export class CompleteProfilesGroupBuilder {
         }
         profileGroup.children.push(createGroup, updateGroup, deleteGroup, listGroup, setGroup);
         if (validateGroup.children.length > 0) {
-            // don't bother to add validation commands unless some plans have been providedl
+            // don't bother to add validation commands unless some plans have been provided
             profileGroup.children.push(validateGroup);
         }
         return profileGroup;

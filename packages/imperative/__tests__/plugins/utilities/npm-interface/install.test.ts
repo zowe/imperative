@@ -18,6 +18,10 @@ jest.mock("path");
 jest.mock("fs");
 jest.mock("find-up");
 jest.mock("../../../../src/plugins/utilities/PMFConstants");
+jest.mock("../../../../src/plugins/PluginManagementFacility");
+jest.mock("../../../../src/ConfigurationLoader");
+jest.mock("../../../../src/UpdateImpConfig");
+jest.mock("../../../../../config/src/ConfigSchema");
 jest.mock("../../../../../logger");
 jest.mock("../../../../../cmd/src/response/CommandResponse");
 jest.mock("../../../../../cmd/src/response/HandlerResponse");
@@ -35,9 +39,14 @@ import { PMFConstants } from "../../../../src/plugins/utilities/PMFConstants";
 import { readFileSync, writeFileSync } from "jsonfile";
 import { sync } from "find-up";
 import { getPackageInfo, installPackages } from "../../../../src/plugins/utilities/NpmFunctions";
+import { ConfigSchema } from "../../../../../config/src/ConfigSchema";
+import { PluginManagementFacility } from "../../../../src/plugins/PluginManagementFacility";
+import { ConfigurationLoader } from "../../../../src/ConfigurationLoader";
+import { UpdateImpConfig } from "../../../../src/UpdateImpConfig";
 
 describe("PMF: Install Interface", () => {
     // Objects created so types are correct.
+    const pmfI = PluginManagementFacility.instance;
     const mocks = {
         dirname: dirname as Mock<typeof dirname>,
         installPackages: installPackages as Mock<typeof installPackages>,
@@ -50,7 +59,11 @@ describe("PMF: Install Interface", () => {
         normalize: normalize as Mock<typeof normalize>,
         lstatSync: lstatSync as Mock<typeof lstatSync>,
         sync: sync as Mock<typeof sync>,
-        getPackageInfo: getPackageInfo as Mock<typeof getPackageInfo>
+        getPackageInfo: getPackageInfo as Mock<typeof getPackageInfo>,
+        ConfigSchema_updateSchema: ConfigSchema.updateSchema as Mock<typeof ConfigSchema.updateSchema>,
+        PMF_requirePluginModuleCallback: pmfI.requirePluginModuleCallback as Mock<typeof pmfI.requirePluginModuleCallback>,
+        ConfigurationLoader_load: ConfigurationLoader.load as Mock<typeof ConfigurationLoader.load>,
+        UpdateImpConfig_addProfiles: UpdateImpConfig.addProfiles as Mock<typeof UpdateImpConfig.addProfiles>,
     };
 
     const packageName = "a";
@@ -58,44 +71,59 @@ describe("PMF: Install Interface", () => {
     const packageRegistry = "https://registry.npmjs.org/";
 
     beforeEach(() => {
-    // Mocks need cleared after every test for clean test runs
+        // Mocks need cleared after every test for clean test runs
         jest.resetAllMocks();
 
         // This needs to be mocked before running install
         (Logger.getImperativeLogger as Mock<typeof Logger.getImperativeLogger>).mockReturnValue(new Logger(new Console()));
 
         /* Since install() adds new plugins into the value returned from
-     * readFileSyc(plugins.json), we must reset readFileSync to return an empty set before each test.
-     */
+        * readFileSyc(plugins.json), we must reset readFileSync to return an empty set before each test.
+        */
         mocks.readFileSync.mockReturnValue({});
         mocks.sync.mockReturnValue("fake_find-up_sync_result");
         mocks.dirname.mockReturnValue("fake-dirname");
         mocks.resolve.mockReturnValue(packageName);
         mocks.join.mockReturnValue("/fake/join/path");
+
+        mocks.ConfigurationLoader_load.mockReturnValue({ profiles: "fake" });
     });
 
     /**
-   * Validates that an npm install call was valid based on the parameters passed.
-   *
-   * @param {string} expectedPackage The package that should be sent to npm install
-   * @param {string} expectedRegistry The registry that should be sent to npm install
-   */
+     * Validates that an npm install call was valid based on the parameters passed.
+     *
+     * @param {string} expectedPackage The package that should be sent to npm install
+     * @param {string} expectedRegistry The registry that should be sent to npm install
+     */
     const wasNpmInstallCallValid = (expectedPackage: string, expectedRegistry: string) => {
         expect(mocks.installPackages).toHaveBeenCalledWith(PMFConstants.instance.PLUGIN_INSTALL_LOCATION,
             expectedRegistry, expectedPackage);
+        shouldUpdateSchema();
     };
 
     /**
-   * Validates that the writeFileSync was called with the proper JSON object. This object is created
-   * by merging the object returned by readFileSync (should be mocked) and an object that represents
-   * the new plugin added according to the plugins.json file syntax.
-   *
-   * @param {IPluginJson} originalJson The JSON object that was returned by readFileSync
-   * @param {string} expectedName The name of the plugin that was installed
-   * @param {IPluginJsonObject} expectedNewPlugin The expected object for the new plugin
-   */
+     * Validates that plugins install call updates the global schema.
+     */
+    const shouldUpdateSchema = () => {
+        expect(mocks.PMF_requirePluginModuleCallback).toHaveBeenCalledTimes(1);
+        expect(mocks.ConfigurationLoader_load).toHaveBeenCalledTimes(1);
+        expect(mocks.UpdateImpConfig_addProfiles).toHaveBeenCalledTimes(1);
+
+        expect(mocks.ConfigSchema_updateSchema).toHaveBeenCalledTimes(1);
+        expect(mocks.ConfigSchema_updateSchema).toHaveBeenCalledWith({ layer: "global" });
+    };
+
+    /**
+     * Validates that the writeFileSync was called with the proper JSON object. This object is created
+     * by merging the object returned by readFileSync (should be mocked) and an object that represents
+     * the new plugin added according to the plugins.json file syntax.
+     *
+     * @param {IPluginJson} originalJson The JSON object that was returned by readFileSync
+     * @param {string} expectedName The name of the plugin that was installed
+     * @param {IPluginJsonObject} expectedNewPlugin The expected object for the new plugin
+     */
     const wasWriteFileSyncCallValid = (originalJson: IPluginJson, expectedName: string, expectedNewPlugin: IPluginJsonObject) => {
-    // Create the object that should be sent to the command.
+        // Create the object that should be sent to the command.
         const expectedObject = {
             ...originalJson
         };

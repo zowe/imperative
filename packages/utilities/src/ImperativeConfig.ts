@@ -14,12 +14,16 @@ import { join } from "path";
 import { IImperativeConfig } from "../../imperative/src/doc/IImperativeConfig";
 import { ImperativeError } from "../../error";
 import { EnvironmentalVariableSettings } from "../../imperative/src/env/EnvironmentalVariableSettings";
+import { IDaemonContext } from "../../imperative/src/doc/IDaemonContext";
+import { ICommandProfileSchema } from "../../cmd";
+import { Config } from "../../config";
 
 /**
  * This class is used to contain all configuration being set by Imperative.
  * It is a singleton and should be accessed via ImperativeConfig.instance.
  */
 export class ImperativeConfig {
+
     /**
      * This is the variable that stores the specific instance of Imperative Config.
      * Defined as static so that it can be accessed from anywhere.
@@ -27,10 +31,24 @@ export class ImperativeConfig {
     private static mInstance: ImperativeConfig = null;
 
     /**
+     * This is the daemon context needed to pass to `yargs.fail()` in the event that we cannot extract
+     * context through a `yargs.parse()` call.
+     * @private
+     * @type {IDaemonContext}
+     * @memberof ImperativeConfig
+     */
+    private mDaemonContext: IDaemonContext;
+
+    /**
      * This parameter is used as the container of all loaded configuration for
      * Imperative.
      */
     private mLoadedConfig: IImperativeConfig = null;
+
+    /**
+     * Current command needed for processing
+     */
+    private mCommandLine: string;
 
     /**
      * This parameter is used to contain the caller location of imperative configuration file.
@@ -58,6 +76,11 @@ export class ImperativeConfig {
     private mRootCommandName: string;
 
     /**
+     * The config object
+     */
+    private mConfig: Config;
+
+    /**
      * Gets a single instance of the PluginIssues. On the first call of
      * ImperativeConfig.instance, a new Plugin Issues object is initialized and returned.
      * Every subsequent call will use the one that was first created.
@@ -70,6 +93,14 @@ export class ImperativeConfig {
         }
 
         return this.mInstance;
+    }
+
+    /**
+     * Get the configured environmental variable prefix for the user's CLI
+     * @returns {string} - the configured or default prefix for environmental variables for use in the environmental variable service
+     */
+    public get envVariablePrefix(): string {
+        return this.loadedConfig.envVariablePrefix == null ? this.loadedConfig.name : this.loadedConfig.envVariablePrefix;
     }
 
     /**
@@ -161,7 +192,7 @@ export class ImperativeConfig {
      * @return {string} path to cli Home.
      */
     public get cliHome(): string {
-        const settings = EnvironmentalVariableSettings.read(this.loadedConfig.envVariablePrefix || this.loadedConfig.name);
+        const settings = EnvironmentalVariableSettings.read(this.envVariablePrefix);
         if (settings.cliHome.value != null) {
             return settings.cliHome.value;
         }
@@ -182,6 +213,55 @@ export class ImperativeConfig {
      */
     public get callerPackageJson(): any {
         return this.getCallerFile("package.json");
+    }
+
+    /**
+     *  Retrieve the command line.
+     *  @example
+     *  For example, in "banana a b --c", "a b --c" is the command line.
+     *  @returns {string} - command line
+     */
+    public get commandLine(): string {
+        return this.mCommandLine;
+    }
+
+    /**
+     * Set the command line (needed for daemon where command changes and is not static)
+     * @memberof Imperative
+     */
+    public set commandLine(args: string) {
+        this.mCommandLine = args;
+    }
+
+    /**
+     * Set context for daemon to retrieve if no handler is called.
+     * @type {IDaemonContext}
+     * @memberof ImperativeConfig
+     */
+    public get daemonContext(): IDaemonContext {
+        return this.mDaemonContext;
+    }
+
+    /**
+     * Context for daemon when no handler is invoked.
+     * @memberof ImperativeConfig
+     */
+    public set daemonContext(context: IDaemonContext) {
+        this.mDaemonContext = context;
+    }
+
+    /**
+     * Set the config
+     */
+    public set config(c: Config) {
+        this.mConfig = c;
+    }
+
+    /**
+     * Get the config properties
+     */
+    public get config(): Config {
+        return this.mConfig;
     }
 
     /**
@@ -211,4 +291,14 @@ export class ImperativeConfig {
         }
     }
 
+    /**
+     * @returns a key/value object where the key is the profile type and the
+     *          value is the profile type schema
+     */
+    public get profileSchemas(): { [key: string]: ICommandProfileSchema } {
+        const schemas: any = {};
+        if (ImperativeConfig.instance.loadedConfig.profiles != null)
+            ImperativeConfig.instance.loadedConfig.profiles.forEach(profile => schemas[profile.type] = profile.schema);
+        return schemas;
+    }
 }

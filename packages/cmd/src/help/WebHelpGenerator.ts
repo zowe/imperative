@@ -14,9 +14,9 @@ import * as path from "path";
 
 import { DefaultHelpGenerator } from "./DefaultHelpGenerator";
 import { ICommandDefinition } from "../doc/ICommandDefinition";
-import { ImperativeConfig } from "../../../utilities";
+import { ImperativeConfig } from "../../../utilities/src/ImperativeConfig";
 import { IHandlerResponseApi } from "../doc/response/api/handler/IHandlerResponseApi";
-import { ImperativeError } from "../../../error";
+import { ImperativeError } from "../../../error/src/ImperativeError";
 import { IWebHelpTreeNode } from "./doc/IWebHelpTreeNode";
 
 /**

@@ -12,28 +12,10 @@
 import { ImperativeError } from "../src/ImperativeError";
 
 describe("ImperativeError", () => {
-    it("should deprecate suppressReport", () => {
-        jest.spyOn(console, "warn").mockImplementation(() => { return; });
-
-        /* eslint-disable no-console */
-        new ImperativeError({msg: "test"}, {suppressReport: false });
-
-        expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("[DEPRECATED]"));
-
-        (console.warn as any).mockRestore();
-
-        jest.spyOn(console, "warn").mockImplementation(() => { return; });
-
-        new ImperativeError({msg: "test"}, {suppressReport: true });
-
-        expect(console.warn).toHaveBeenCalledWith(expect.stringContaining("[DEPRECATED]"));
-
-        (console.warn as any).mockRestore();
-    });
-
     it("should not throw any deprecation warnings", () => {
         jest.spyOn(console, "warn").mockImplementation(() => { return; });
 
+        /* eslint-disable no-console */
         new ImperativeError({msg: "test"});
 
         new ImperativeError({msg: "test"}, {

@@ -13,7 +13,6 @@ import { AbstractCredentialManager } from "./abstract/AbstractCredentialManager"
 import { ImperativeError } from "../../error";
 import { ICredentialManagerInit } from "./doc/ICredentialManagerInit";
 import { DefaultCredentialManager } from "./DefaultCredentialManager";
-import { ImperativeExpect } from "../../expect";
 
 /**
  * This is a wrapper class that controls access to the credential manager used within
@@ -77,8 +76,10 @@ export class CredentialManagerFactory {
      *         When the override is provided by a plugin, we will fall back to the {@link InvalidCredentialManager}.
      */
     public static async initialize(params: ICredentialManagerInit): Promise<void> {
-        // Perform parameter validation
-        ImperativeExpect.toBeDefinedAndNonBlank(params.service, "service", "You must supply a service name for the credential manager.");
+        // The means to override the CredMgr exists, but we only use our built-in CredMgr.
+        if (params.service == null) {
+            params.service = DefaultCredentialManager.SVC_NAME;
+        }
 
         // If the display name is not passed, use the cli name
         const displayName = (params.displayName == null) ? params.service : params.displayName;
@@ -139,7 +140,7 @@ export class CredentialManagerFactory {
 
             // Log appropriate error messages
             if (Manager !== DefaultCredentialManager) {
-                const logError = `Failed to override the credential manager with one provided by "${displayName}"`;
+                const logError = `Failed to load the credential manager named "${displayName}"`;
 
                 // Be sure to log the messages both to the console and to a file
                 // so that support can also see these messages.

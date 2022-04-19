@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         node-version: [12.x, 14.x, 16.x]
-        os: [windows-2019, ubuntu-latest, macos-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest]
 
     env:
       OS: ${{ matrix.os }}
@@ -48,7 +48,7 @@ jobs:
     - name: Unit Tests
       id: unit
       if: ${{ always() && steps.build.outcome == 'success' }}
-      run: npm run test:unit >> file.txt
+      run: npm run test:unit >> unit-tests.txt
 
     - name: Unlock Keyring
       if: ${{ always() && steps.build.outcome == 'success' && matrix.os == 'ubuntu-latest' }}
@@ -57,7 +57,7 @@ jobs:
     - name: Integration Tests
       id: integration
       if: ${{ always() && steps.build.outcome == 'success' }}
-      run: npm run test:integration >> file.txt
+      run: npm run test:integration >> integration-tests.txt
 
     - name: Archive Results
       id: upload
@@ -65,7 +65,10 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{ matrix.os }}-${{ matrix.node-version }}-results
-        path: __tests__/__results__/
+        path: |
+          __tests__/__results__/
+          unit-tests.txt
+          integration-tests.txt
 
     - name: Upload Results to Codecov
       if: ${{ always() && steps.build.outcome == 'success' }}

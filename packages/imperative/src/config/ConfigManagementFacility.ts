@@ -12,20 +12,18 @@
 import { PerfTiming } from "@zowe/perf-timing";
 import { UpdateImpConfig } from "../UpdateImpConfig";
 import { Logger } from "../../../logger";
+import { listDefinition } from "./cmd/list/list.definition";
+import { initDefinition } from "./cmd/init/init.definition";
+import { schemaDefinition } from "./cmd/schema/schema.definition";
+import { profilesDefinition } from "./cmd/profiles/profiles.definition";
+import { secureDefinition } from "./cmd/secure/secure.definition";
+import { setDefinition } from "./cmd/set/set.definition";
+import { editDefinition } from "./cmd/edit/edit.definition";
+import { importDefinition } from "./cmd/import/import.definition";
+import { convertProfilesDefinition } from "./cmd/convert-profiles/convert-profiles.definition";
+import { updateSchemasDefinition } from "./cmd/update-schemas/update-schemas.definition";
 
-/**
- * This class is the main engine for the Config Management Facility. The
- * underlying class should be treated as a singleton and should be accessed
- * via ConfigManagementFacility.instance.
- */
 export class ConfigManagementFacility {
-    /**
-     * This is the variable that stores the specific instance of the CMF. Defined
-     * as static so that it can be accessed from anywhere.
-     *
-     * @private
-     * @type {ConfigManagementFacility}
-     */
     private static mInstance: ConfigManagementFacility;
 
     /**
@@ -61,7 +59,7 @@ export class ConfigManagementFacility {
 
         if (PerfTiming.isEnabled) {
             // Marks point START
-            timingApi.mark("START_CONFIG_INIT");
+            timingApi.mark("START_CNFG_INIT");
         }
 
         this.impLogger.debug("ConfigManagementFacility.init() - Start");
@@ -70,14 +68,19 @@ export class ConfigManagementFacility {
         UpdateImpConfig.addCmdGrp({
             name: "config",
             type: "group",
-            summary: "Manage configuration and overrides",
-            description: "Manage configuration and overrides. To see all set-able options use \"list\" command.",
+            summary: "Manage JSON project and global configuration",
+            description: "Manage JSON project and global configuration",
             children: [
-                // require("./cmd/get/get.definition").getDefinition,
-                require("./cmd/set/set.definition").setDefinition,
-                require("./cmd/reset/reset.definition").resetDefinition,
-                require("./cmd/list/list.definition").listDefinition,
-                require("./cmd/get/get.definition").getDefinition,
+                listDefinition,
+                secureDefinition,
+                setDefinition,
+                initDefinition,
+                schemaDefinition,
+                profilesDefinition,
+                editDefinition,
+                importDefinition,
+                convertProfilesDefinition,
+                updateSchemasDefinition
             ]
         });
 
@@ -85,8 +88,8 @@ export class ConfigManagementFacility {
 
         if (PerfTiming.isEnabled) {
             // Marks point END
-            timingApi.mark("END_CONFIG_INIT");
-            timingApi.measure("ConfigManagementFacility.init()", "START_CONFIG_INIT", "END_CONFIG_INIT");
+            timingApi.mark("END_CNFG_INIT");
+            timingApi.measure("ConfigManagementFacility.init()", "START_CNFG_INIT", "END_CNFG_INIT");
         }
     }
 }

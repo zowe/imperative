@@ -14,12 +14,17 @@ import { LoggerConfigBuilder } from "../../logger";
 import * as os from "os";
 import * as path from "path";
 
-(os.homedir as any) = jest.fn(() => "./someHome");
-(path.normalize as any) = jest.fn( (p: string) => p);
-
 const fakeHome = "./someHome";
 
 describe("LoggerConfigBuilder tests", () => {
+    beforeAll(() => {
+        jest.spyOn(os, "homedir").mockImplementation(() => fakeHome);
+        jest.spyOn(path, "normalize").mockImplementation((p: string) => p);
+    });
+
+    afterAll(() => {
+        jest.restoreAllMocks();
+    });
 
     it("Should get a basic log4js configuration from getDefaultIConfigLogging", () => {
         expect(LoggerConfigBuilder.getDefaultIConfigLogging()).toMatchSnapshot();
@@ -47,7 +52,7 @@ describe("LoggerConfigBuilder tests", () => {
         expect(config).toMatchSnapshot();
     });
 
-    it("Should multiple appenders to basic log4js configuration", () => {
+    it("Should add multiple appenders to basic log4js configuration", () => {
         let config = LoggerConfigBuilder.getDefaultIConfigLogging();
         const file1Key = "sampleFile1";
         const file2Key = "sampleFile2";
@@ -74,4 +79,26 @@ describe("LoggerConfigBuilder tests", () => {
         expect(builtPath).toBe(result);
     });
 
+    describe("getDefaultLogLevel", () => {
+        let oldProcessEnv: any;
+
+        beforeEach(() => {
+            oldProcessEnv = { ...process.env };
+        });
+
+        afterEach(() => {
+            process.env = oldProcessEnv;
+        });
+
+        it("should default to log level DEBUG in development mode", () => {
+            process.env.NODE_ENV = "development";
+            const logLevel = LoggerConfigBuilder.getDefaultLogLevel();
+            expect(logLevel).toBe("DEBUG");
+        });
+
+        it("should default to log level WARN in production mode", () => {
+            const logLevel = LoggerConfigBuilder.getDefaultLogLevel();
+            expect(logLevel).toBe("WARN");
+        });
+    });
 });

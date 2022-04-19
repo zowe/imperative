@@ -10,16 +10,17 @@
 */
 
 import { isNullOrUndefined } from "util";
-import { Constants } from "../../constants";
+import { Constants } from "../../constants/src/Constants";
 import { ICommandDefinitionPassOn, ICommandDefinitionPassOnIgnore } from "./doc/ICommandDefinitionPassOn";
-import { ImperativeError } from "../../error";
+import { ImperativeError } from "../../error/src/ImperativeError";
 import { ICommandDefinition } from "./doc/ICommandDefinition";
-import { ICommandOptionDefinition, ICommandPositionalDefinition } from "../../index";
-import { ProfileUtils } from "../../profiles";
-import { TextUtils } from "../../utilities";
+import { ProfileUtils } from "../../profiles/src/utils/ProfileUtils";
+import { TextUtils } from "../../utilities/src/TextUtils";
 import { OptionConstants } from "./constants/OptionConstants";
 import * as DeepMerge from "deepmerge";
 import { ICommandProfileTypeConfiguration } from "./doc/profiles/definition/ICommandProfileTypeConfiguration";
+import { ICommandOptionDefinition } from "./doc/option/ICommandOptionDefinition";
+import { ICommandPositionalDefinition } from "./doc/option/ICommandPositionalDefinition";
 
 /**
  * Command preparer provides static utilities to ensure that command definitions are suitable for Imperative definition.

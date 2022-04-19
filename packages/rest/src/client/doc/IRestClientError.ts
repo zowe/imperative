@@ -21,13 +21,6 @@ export type RestErrorSource = "client" | "http";
  */
 export interface IRestClientError extends IImperativeError {
     /**
-     * If available, the HTTP error code. This field is deprecated and replaced
-     * with "httpStatus".
-     * @deprecated
-     * @type {string}
-     */
-    errorCode?: string;
-    /**
      * The HTTP status code from the request. Might not be populated if a "client"
      * error occurred (e.g. ECONNREFUSED).
      * @type {number}

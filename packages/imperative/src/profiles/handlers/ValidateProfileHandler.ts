@@ -10,7 +10,7 @@
 */
 
 import { isNullOrUndefined } from "util";
-import { ICommandHandler, IHandlerParameters } from "../../../../cmd";
+import { CliProfileManager, ICommandHandler, IHandlerParameters } from "../../../../cmd";
 import { IImperativeError, ImperativeError } from "../../../../error";
 import { Imperative } from "../../../index";
 import {
@@ -39,7 +39,18 @@ export default class ValidateProfileHandler implements ICommandHandler {
 
         const profileType = params.definition.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY];
 
-        const manager = Imperative.api.profileManager(profileType);
+        let manager: CliProfileManager;
+        try {
+            // Extract the profile manager
+            manager = Imperative.api.profileManager(profileType);
+        } catch (error) {
+            // profileIO error is thrown when calling old profile functions in team config mode.
+            params.response.console.error(
+                "An error occurred trying to validate a profile.\n" + error.message
+            );
+            return;
+        }
+
         let profileName = manager.getDefaultProfileName();
 
         // if the user specified a specific profile, we can determine the name of the profile from that

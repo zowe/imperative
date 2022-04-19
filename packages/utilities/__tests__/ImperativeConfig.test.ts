@@ -43,6 +43,12 @@ describe("ImperativeConfig", () => {
             expect(caughtError).toBeUndefined();
         });
 
+        it("should get a yargs context", () => {
+            const yargsContext = { stream: {}};
+            ImperativeConfig.instance.yargsContext = yargsContext;
+            expect(ImperativeConfig.instance.yargsContext).toBe(yargsContext);
+        });
+
         it("should set and get callerLocation", async () => {
             const mockLocation = __dirname;
             ImperativeConfig.instance.callerLocation = mockLocation;
@@ -61,6 +67,10 @@ describe("ImperativeConfig", () => {
 
         it("should get imperativePackageName", async () => {
             expect(ImperativeConfig.instance.imperativePackageName).toBe("@zowe/imperative");
+        });
+
+        it("should get envVariablePrefix", async () => {
+            expect(ImperativeConfig.instance.envVariablePrefix).toBe(mockConfig.name);
         });
 
         it("should findPackageBinName", async () => {

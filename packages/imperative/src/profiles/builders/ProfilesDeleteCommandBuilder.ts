@@ -19,7 +19,7 @@ import {
     deleteProfileForceOptionDesc,
     deleteProfileNameDesc
 } from "../../../../messages/index";
-import { TextUtils } from "../../../../utilities";
+import { ImperativeConfig, TextUtils } from "../../../../utilities";
 import { ProfilesConstants, ProfileUtils } from "../../../../profiles";
 
 /**
@@ -58,6 +58,8 @@ export class ProfilesDeleteCommandBuilder extends ProfilesCommandBuilder {
                 {type: this.mProfileType}),
             type: "command",
             handler: __dirname + "/../handlers/NewDeleteProfilesHandler",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_EDIT +
+                "\n    " + ImperativeConfig.instance.config.formMainConfigPathNm({addPath: false}),
             customize: {},
             options: [],
             positionals: [{

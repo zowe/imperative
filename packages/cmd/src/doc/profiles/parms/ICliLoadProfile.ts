@@ -15,17 +15,6 @@ import { ILoadProfile } from "../../../../../profiles";
  * Profile Manager "loadProfile" input parameters. Indicates which profile to load (named or default) and if
  * not finding the profile should be considered and error, etc.
  * @export
- * @deprecated - Use ICliLoadProfile instead because it is spelled correctly
- * @interface ICliILoadProfile
- * @extends ILoadProfile
- */
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ICliILoadProfile extends ILoadProfile {}
-
-/**
- * Profile Manager "loadProfile" input parameters. Indicates which profile to load (named or default) and if
- * not finding the profile should be considered and error, etc.
- * @export
  * @interface ICliLoadProfile
  * @extends ILoadProfile
  */

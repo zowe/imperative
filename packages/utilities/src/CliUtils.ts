@@ -14,9 +14,14 @@ import { Constants } from "../../constants";
 import { Arguments } from "yargs";
 import { TextUtils } from "./TextUtils";
 import { IOptionFormat } from "./doc/IOptionFormat";
-import { CommandProfiles, ICommandOptionDefinition, ICommandPositionalDefinition, ICommandProfile } from "../../cmd";
+import { CommandProfiles, ICommandOptionDefinition, ICommandPositionalDefinition,
+    ICommandProfile, IHandlerParameters
+} from "../../cmd";
 import { ICommandArguments } from "../../cmd/src/doc/args/ICommandArguments";
 import { IProfile } from "../../profiles";
+import * as prompt from "readline-sync";
+import * as os from "os";
+import { IPromptOptions } from "../../cmd/src/doc/response/api/handler/IPromptOptions";
 
 /**
  * Cli Utils contains a set of static methods/helpers that are CLI related (forming options, censoring args, etc.)
@@ -138,9 +143,18 @@ export class CliUtils {
             } else if (profile != null) {
                 // For each option - extract the value if that exact property exists
                 options.forEach((opt) => {
+                    let cases;
+                    if (profile[opt.name] == null && "aliases" in opt) {
+                        // Use aliases for backwards compatibility
+                        // Search for first alias available in the profile
+                        const oldOption = opt.aliases.find(o => profile[o] != null);
+                        // Get the camel an kebab case
+                        if (oldOption) cases = CliUtils.getOptionFormat(oldOption);
+                    }
 
-                    // Get the camel an kebab case
-                    const cases = CliUtils.getOptionFormat(opt.name);
+                    if (cases == null) {
+                        cases = CliUtils.getOptionFormat(opt.name);
+                    }
 
                     // We have to "deal" with the situation that the profile contains both cases - camel and kebab.
                     // This is to support where the profile options have "-", but the properties are camel case in the
@@ -205,8 +219,8 @@ export class CliUtils {
         let args: ICommandArguments["args"] = {};
         options.forEach((opt) => {
             let envValue: any = CliUtils.getEnvValForOption(envPrefix, opt.name);
-            if (envValue != null) {
 
+            if (envValue != null) {
                 // Perform the proper conversion if necessary for the type
                 // ENV vars are extracted as strings
                 switch (opt.type) {
@@ -234,20 +248,7 @@ export class CliUtils {
                     }
                     // convert to an array of strings if the type is array
                     case "array": {
-                        const regex = /(["'])(?:(?=(\\?))\2.)*?\1/g;
-                        let arr = [];
-                        let match = regex.exec(envValue);
-                        let removed = envValue;
-                        while (match != null) {
-                            removed = removed.replace(match[0], "");
-                            const replace = match[0].replace("\\'", "'");
-                            const trimmed = replace.replace(/(^')|('$)/g, "");
-                            arr.push(trimmed);
-                            match = regex.exec(envValue);
-                        }
-                        removed = removed.trim();
-                        arr = arr.concat(removed.split(/[\s\n]+/g));
-                        envValue = arr;
+                        envValue = this.extractArrayFromEnvValue(envValue);
                         break;
                     }
                     // Do nothing for other option types
@@ -263,6 +264,29 @@ export class CliUtils {
             }
         });
         return args;
+    }
+
+    /**
+     * Convert an array of strings provided as an environment variable
+     *
+     * @param envValue String form of the array
+     * @returns String[] based on environment variable
+     */
+    public static extractArrayFromEnvValue(envValue: string): string[] {
+        const regex = /(["'])(?:(?=(\\?))\2.)*?\1/g;
+        let arr = [];
+        let match = regex.exec(envValue);
+        let removed = envValue;
+        while (match != null) {
+            removed = removed.replace(match[0], "");
+            const replace = match[0].replace("\\'", "'");
+            const trimmed = replace.replace(/(^')|('$)/g, "");
+            arr.push(trimmed);
+            match = regex.exec(envValue);
+        }
+        removed = removed.trim();
+        arr = arr.concat(removed.split(/[\s\n]+/g));
+        return arr;
     }
 
     /**
@@ -282,7 +306,7 @@ export class CliUtils {
      *      myEnv-Prefix_SOME_OPTION_NAME
      *
      * @param {string} envPrefix - The prefix for environment variables for this CLI.
-     *      Our caller can use the value obtained by Imperative.envVariablePrefix(),
+     *      Our caller can use the value obtained by ImperativeConfig.instance.envVariablePrefix,
      *      which will use the envVariablePrefix from the Imperative config object,
      *      and will use the rootCommandName as a fallback value.
      *
@@ -345,6 +369,30 @@ export class CliUtils {
         return TextUtils.chalk[color](headerText);
     }
 
+    /**
+     * Display a message when the command is deprecated.
+     * @static
+     * @param {string} handlerParms - the IHandlerParameters supplied to
+     *                                a command handler's process() function.
+     * @memberof CliUtils
+     */
+    public static showMsgWhenDeprecated(handlerParms: IHandlerParameters) {
+        if (handlerParms.definition.deprecatedReplacement) {
+            // form the command that is deprecated
+            let oldCmd: string;
+            if (handlerParms.positionals.length >= 1) {
+                oldCmd = handlerParms.positionals[0];
+            }
+            if (handlerParms.positionals.length >= 2) {
+                oldCmd = oldCmd + " " + handlerParms.positionals[1];
+            }
+
+            // display the message
+            handlerParms.response.console.error("\nWarning: The command '" + oldCmd + "' is deprecated.");
+            handlerParms.response.console.error("Recommended replacement: " +
+                handlerParms.definition.deprecatedReplacement);
+        }
+    }
 
     /**
      * Accepts an option name, and array of option aliases, and their value
@@ -394,11 +442,11 @@ export class CliUtils {
      * DOES NOT WORK WITH COMMANDS THAT ALSO READ STDIN
      * Useful for prompting the user for sensitive info such as passwords
      * Synchronous
+     * @deprecated Use the asynchronous method `readPrompt` instead
      * @param message - The message to display to the user e.g. "Please enter password:"
      * @returns value - the value entered by the user
      */
     public static promptForInput(message: string): string {
-        const prompt = require("readline-sync");
         prompt.setDefaultOptions({mask: "", hideEchoBack: true});
         return prompt.question(message);
     }
@@ -421,13 +469,14 @@ export class CliUtils {
      * Prompt the user with a question and wait for an answer,
      * but only up to the specified timeout.
      *
+     * @deprecated Use `readPrompt` instead which supports more options
      * @param questionText The text with which we will prompt the user.
      *
      * @param hideText Should we hide the text. True = display stars.
      *                 False = display text. Default = false.
      *
      * @param secToWait The number of seconds that we will wait for an answer.
-     *                  If not supplied, the default is 30 seconds.
+     *                  If not supplied, the default is 600 seconds.
      *
      * @return A string containing the user's answer, or null if we timeout.
      *
@@ -442,7 +491,7 @@ export class CliUtils {
     public static async promptWithTimeout(
         questionText: string,
         hideText: boolean = false,
-        secToWait: number = 30
+        secToWait: number = 600,
     ): Promise<string> {
 
         // readline provides our interface for terminal I/O
@@ -471,7 +520,6 @@ export class CliUtils {
 
         // when asked to hide text, override output to only display stars
         if (hideText) {
-            const os = require("os");
             ttyIo._writeToOutput = function _writeToOutput(stringToWrite: string) {
                 if (stringToWrite === os.EOL) {
                     return;
@@ -507,6 +555,64 @@ export class CliUtils {
         // terminate our use of the ttyIo object
         ttyIo.close();
         return answerToReturn;
+    }
+
+    /**
+     * Prompt the user with a question and wait for an answer,
+     * but only up to the specified timeout.
+     *
+     * @param message The text with which we will prompt the user.
+     *
+     * @param opts.hideText Should we hide the text. True = display stars.
+     *        False = display text. Default = false.
+     *
+     * @param opts.secToWait The number of seconds that we will wait for an answer.
+     *        If not supplied, the default is 10 minutes.
+     *        If 0 is specified, we will never timeout.
+     *        Numbers larger than 3600 (1 hour) are not allowed.
+     *
+     * @param opts.maskChar The character that should be used to mask hidden text.
+     *        If null is specified, then no characters will be echoed back.
+     *
+     * @return A string containing the user's answer, or null if we timeout.
+     *
+     * @example
+     *      const answer = await CliUtils.readPrompt("Type your answer here: ");
+     *      if (answer === null) {
+     *          // abort the operation that you wanted to perform
+     *      } else {
+     *          // use answer in some operation
+     *      }
+     */
+    public static async readPrompt(message: string, opts?: IPromptOptions): Promise<string> {
+        // Ensure that we use a reasonable timeout
+        let secToWait = opts?.secToWait || 600;  // eslint-disable-line @typescript-eslint/no-magic-numbers
+        const maxSecToWait = 3600; // 1 hour max
+        if (secToWait > maxSecToWait || secToWait < 0) {
+            secToWait = maxSecToWait;
+        }
+
+        return new Promise((resolve, reject) => {
+            require("read")({
+                input: process.stdin,
+                output: process.stdout,
+                terminal: true,
+                prompt: message,
+                silent: opts?.hideText,
+                replace: opts?.maskChar,
+                timeout: secToWait ? (secToWait * 1000) : null  // eslint-disable-line @typescript-eslint/no-magic-numbers
+            }, (error: any, result: string) => {
+                if (error == null) {
+                    resolve(result);
+                } else if (error.message === "canceled") {
+                    process.exit(2);
+                } else if (error.message === "timed out") {
+                    resolve(null);
+                } else {
+                    reject(error);
+                }
+            });
+        });
     }
 
     /**

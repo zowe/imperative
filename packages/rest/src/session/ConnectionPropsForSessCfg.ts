@@ -9,12 +9,32 @@
 *
 */
 
-import { CliUtils } from "../../../utilities";
-import { ICommandArguments } from "../../../cmd";
+import { CliUtils, ImperativeConfig } from "../../../utilities";
+import { ICommandArguments, IHandlerParameters } from "../../../cmd";
 import { ImperativeError } from "../../../error";
 import { IOptionsForAddConnProps } from "./doc/IOptionsForAddConnProps";
 import { Logger } from "../../../logger";
 import * as SessConstants from "./SessConstants";
+import { IPromptOptions } from "../../../cmd/src/doc/response/api/handler/IPromptOptions";
+import { ISession } from "./doc/ISession";
+import { IProfileProperty } from "../../../profiles";
+import { ConfigAutoStore } from "../../../config/src/ConfigAutoStore";
+import * as ConfigUtils from "../../../config/src/ConfigUtils";
+
+/**
+ * Extend options for IPromptOptions for internal wrapper method
+ * @interface IHandlePromptOptions
+ * @extends {IPromptOptions}
+ */
+interface IHandlePromptOptions extends IPromptOptions {
+
+    /**
+     * Adds IHandlerParameters to IPromptOptions
+     * @type {IHandlerParameters}
+     * @memberof IHandlePromptOptions
+     */
+    parms?: IHandlerParameters;
+}
 
 /**
  * This class adds connection information to an existing session configuration
@@ -51,11 +71,12 @@ export class ConnectionPropsForSessCfg {
      *
      * @param cmdArgs
      *        The arguments specified by the user on the command line
-     *        (or in environment, or in profile)
+     *        (or in environment, or in profile). The contents of the
+     *        supplied cmdArgs will be modified.
      *
-     * @param options
-     *        Options that alter our actions. See IOptionsForAddConnProps.
-     *        The options parameter need not be supplied.
+     * @param connOpts
+     *        Options that alter our connection actions. See IOptionsForAddConnProps.
+     *        The connOpts parameter need not be supplied.
      *
      * @example
      *      // Within the process() function of a command handler,
@@ -73,230 +94,274 @@ export class ConnectionPropsForSessCfg {
      *          added to the initialSessCfg. Its intended use is for our
      *          caller to create a session for a REST Client.
      */
-    public static async addPropsOrPrompt<T>(
-        initialSessCfg: T,
+    public static async addPropsOrPrompt<SessCfgType extends ISession>(
+        initialSessCfg: SessCfgType,
         cmdArgs: ICommandArguments,
-        options: IOptionsForAddConnProps = {}
-    ): Promise<T> {
+        connOpts: IOptionsForAddConnProps = {}
+    ): Promise<SessCfgType> {
         const impLogger = Logger.getImperativeLogger();
 
-        const optionDefaults: IOptionsForAddConnProps = {
-            requestToken: false,
-            doPrompting: true,
-            defaultTokenType: SessConstants.TOKEN_TYPE_JWT
-        };
+        /* Create copies of our initialSessCfg and connOpts so that
+         * we can modify them without changing the caller's copy.
+         */
+        const sessCfgToUse = { ...initialSessCfg };
+        const connOptsToUse = { ...connOpts };
 
-        // override our defaults with what our caller wants.
-        const optsToUse = {...optionDefaults, ...options};
+        // resolve all values between sessCfg and cmdArgs using option choices
+        ConnectionPropsForSessCfg.resolveSessCfgProps(
+            sessCfgToUse, cmdArgs, connOptsToUse
+        );
 
-        // initialize session config object with what our caller supplied
-        const finalSessCfg: any = initialSessCfg;
+        // This function will provide all the needed properties in one array
+        const promptForValues: (keyof ISession)[] = [];
 
-        const promptForValues = [];
+        // check what properties are needed to be prompted
+        if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.hostname) === false) {
+            promptForValues.push("hostname");
+        }
 
-        /* Override properties from our caller's initialSessCfg
+        if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.port) === false) {
+            promptForValues.push("port");
+        }
+
+        if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.tokenValue) === false &&
+            ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.cert) === false) {
+            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.user) === false) {
+                promptForValues.push("user");
+            }
+
+            if (ConnectionPropsForSessCfg.propHasValue(sessCfgToUse.password) === false) {
+                promptForValues.push("password");
+            }
+        }
+
+        this.loadSecureSessCfgProps(connOptsToUse.parms, promptForValues);
+
+        if (connOptsToUse.getValuesBack == null && connOptsToUse.doPrompting) {
+            connOptsToUse.getValuesBack = this.getValuesBack(connOptsToUse);
+        }
+
+        if (connOptsToUse.getValuesBack != null) {
+            // put all the needed properties in an array and call the external function
+            const answers = await connOptsToUse.getValuesBack(promptForValues);
+
+            // validate what values are given back and move it to sessCfgToUse
+            for (const value of promptForValues) {
+                if (ConnectionPropsForSessCfg.propHasValue(answers[value])) {
+                    (sessCfgToUse as any)[value] = answers[value];
+                }
+            }
+
+            if (connOptsToUse.autoStore !== false && connOptsToUse.parms != null) {
+                await ConfigAutoStore.storeSessCfgProps(connOptsToUse.parms, sessCfgToUse, promptForValues);
+            }
+        }
+
+        impLogger.debug("Session config after any prompting for missing values:");
+        ConnectionPropsForSessCfg.logSessCfg(sessCfgToUse);
+        return sessCfgToUse;
+    }
+
+    // ***********************************************************************
+    /**
+     * Resolve the overlapping or mutually exclusive properties that can
+     * occur. Ensure that the resulting session configuration object contains
+     * only the applicable properties. The contents of the supplied sessCfg,
+     * cmdArgs, and connOpts will be modified.
+     *
+     * @param sessCfg
+     *      An initial session configuration that contains your desired
+     *      session configuration properties.
+     *
+     * @param cmdArgs
+     *      The arguments specified by the user on the command line
+     *      (or in environment, or in profile)
+     *
+     * @param connOpts
+     *      Options that alter our actions. See IOptionsForAddConnProps.
+     *      The connOpts parameter need not be supplied.
+     *      The only option values used by this function are:
+     *          connOpts.requestToken
+     *          connOpts.defaultTokenType
+     *
+     * @example
+     *      let sessCfg = YouCollectAllProfilePropertiesRelatedToSession();
+     *      let cmdArgs = YouSetPropertiesRequiredInCmdArgs();
+     *      ConnectionPropsForSessCfg.resolveSessCfgProps(sessCfg, cmdArgs);
+     *      sessionToUse = new Session(sessCfg);
+     */
+    public static resolveSessCfgProps<SessCfgType extends ISession>(
+        sessCfg: SessCfgType,
+        cmdArgs: ICommandArguments = { $0: "", _: [] },
+        connOpts: IOptionsForAddConnProps = {}
+    ) {
+        const impLogger = Logger.getImperativeLogger();
+
+        // use defaults if caller has not specified these properties.
+        if (!Object.prototype.hasOwnProperty.call(connOpts, "requestToken")) {
+            connOpts.requestToken = false;
+        }
+        if (!Object.prototype.hasOwnProperty.call(connOpts, "doPrompting")) {
+            connOpts.doPrompting = true;
+        }
+        if (!Object.prototype.hasOwnProperty.call(connOpts, "defaultTokenType")) {
+            connOpts.defaultTokenType = SessConstants.TOKEN_TYPE_JWT;
+        }
+
+        /* Override properties from our caller's sessCfg
          * with any values from the command line.
          */
         if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.host)) {
-            finalSessCfg.hostname = cmdArgs.host;
+            sessCfg.hostname = cmdArgs.host;
         }
         if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.port)) {
-            finalSessCfg.port = cmdArgs.port;
+            sessCfg.port = cmdArgs.port;
         }
         if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.user)) {
-            finalSessCfg.user = cmdArgs.user;
+            sessCfg.user = cmdArgs.user;
         }
         if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.password)) {
-            finalSessCfg.password = cmdArgs.password;
+            sessCfg.password = cmdArgs.password;
         }
 
-        if (optsToUse.requestToken) {
+        if (connOpts.requestToken) {
             // deleting any tokenValue, ensures that basic creds are used to authenticate and get token
-            delete finalSessCfg.tokenValue;
-        } else if (!ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) &&
-            !ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) &&
+            delete sessCfg.tokenValue;
+        } else if (ConnectionPropsForSessCfg.propHasValue(sessCfg.user) === false &&
+            ConnectionPropsForSessCfg.propHasValue(sessCfg.password) === false &&
             ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenValue)) {
-            // only set tokenValue if user and password were not supplied
-            finalSessCfg.tokenValue = cmdArgs.tokenValue;
+            // set tokenValue if token is in args, and user and password are NOT supplied.
+            sessCfg.tokenValue = cmdArgs.tokenValue;
         }
 
-        if (!ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) &&
-        !ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) &&
-        !ConnectionPropsForSessCfg.propHasValue(finalSessCfg.tokenValue) &&
-        ConnectionPropsForSessCfg.propHasValue(cmdArgs.certFile)) {
+        // we use a cert when none of user, password, or token are supplied
+        if (ConnectionPropsForSessCfg.propHasValue(sessCfg.user) === false &&
+            ConnectionPropsForSessCfg.propHasValue(sessCfg.password) === false &&
+            ConnectionPropsForSessCfg.propHasValue(sessCfg.tokenValue) === false &&
+            ConnectionPropsForSessCfg.propHasValue(cmdArgs.certFile)) {
             if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.certKeyFile)) {
-                finalSessCfg.cert = cmdArgs.certFile;
-                finalSessCfg.certKey = cmdArgs.certKeyFile;
+                sessCfg.cert = cmdArgs.certFile;
+                sessCfg.certKey = cmdArgs.certKeyFile;
             }
             // else if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.certFilePassphrase)) {
-            //     finalSessCfg.cert = cmdArgs.certFile;
-            //     finalSessCfg.passphrase = cmdArgs.certFilePassphrase;
+            //     sessCfg.cert = cmdArgs.certFile;
+            //     sessCfg.passphrase = cmdArgs.certFilePassphrase;
             // }
         }
 
-        // This function will provide all the needed properties in one array
-        if (optsToUse.getValuesBack) {
-
-            // set doPrompting to false if there's a value in getValuesBack
-            optionDefaults.doPrompting = false;
-
-            // check what properties are needed to be prompted
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.hostname)=== false) {
-                promptForValues.push("hostname");
-            }
-
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.port)=== false) {
-                promptForValues.push("port");
-            }
-
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.tokenValue)=== false &&
-                ConnectionPropsForSessCfg.propHasValue(finalSessCfg.cert)=== false) {
-                if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user)=== false) {
-                    promptForValues.push("user");
-                }
-
-                if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password)=== false) {
-                    promptForValues.push("password");
-                }
-            }
-
-            // put all the needed properties in an array and call the external function
-            const answer = await optsToUse.getValuesBack(promptForValues);
-
-            // validate what values are given back and move it to finalSessCfg
-            if (ConnectionPropsForSessCfg.propHasValue(answer.hostname)) {
-                finalSessCfg.hostname = answer.hostname;
-            }
-            if (ConnectionPropsForSessCfg.propHasValue(answer.port)) {
-                finalSessCfg.port = answer.port;
-            }
-            if (ConnectionPropsForSessCfg.propHasValue(answer.user)) {
-                finalSessCfg.user = answer.user;
-            }
-            if (ConnectionPropsForSessCfg.propHasValue(answer.password)) {
-                finalSessCfg.password = answer.password;
-            }
-        }
-
-        // if our caller permits, prompt for host and port as needed
-        if (optsToUse.doPrompting) {
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.hostname) === false) {
-                let answer = "";
-                while (answer === "") {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Enter the host name of your service: "
-                    );
-                    if (answer === null) {
-                        throw new ImperativeError({msg: "Timed out waiting for host name."});
-                    }
-                }
-                finalSessCfg.hostname = answer;
-            }
-
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.port) === false) {
-                let answer: any;
-                while (answer === undefined) {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Enter the port number for your service: "
-                    );
-                    if (answer === null) {
-                        throw new ImperativeError({msg: "Timed out waiting for port number."});
-                    } else {
-                        answer = Number(answer);
-                        if (isNaN(answer)) {
-                            throw new ImperativeError({msg: "Specified port was not a number."});
-                        }
-                    }
-                }
-                finalSessCfg.port = answer;
-            }
-        }
-
-        /* If tokenValue is set, we have already checked that user and password
-         * are not, so it's safe to proceed with using the token.
-         */
-        if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.tokenValue) === true)
-        {
+        if (ConnectionPropsForSessCfg.propHasValue(sessCfg.tokenValue)) {
+            // when tokenValue is set at this point, we are definitely using the token.
             impLogger.debug("Using token authentication");
-            finalSessCfg.tokenValue = cmdArgs.tokenValue;
+
+            // override any token type in sessCfg with cmdArgs value
             if (ConnectionPropsForSessCfg.propHasValue(cmdArgs.tokenType)) {
-                finalSessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
-                finalSessCfg.tokenType = cmdArgs.tokenType;
+                sessCfg.tokenType = cmdArgs.tokenType;
+            }
+
+            // set the auth type based on token type
+            if (ConnectionPropsForSessCfg.propHasValue(sessCfg.tokenType)) {
+                sessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
             } else {
                 // When no tokenType supplied, user wants bearer
-                finalSessCfg.type = SessConstants.AUTH_TYPE_BEARER;
+                sessCfg.type = SessConstants.AUTH_TYPE_BEARER;
             }
-            ConnectionPropsForSessCfg.logSessCfg(finalSessCfg);
-            return finalSessCfg;
-        }
-
-        if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.cert) === true) {
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.certKey) === true) {
+        } else if (ConnectionPropsForSessCfg.propHasValue(sessCfg.cert)) {
+            // when cert property is set at this point, we will use the certificate
+            if (ConnectionPropsForSessCfg.propHasValue(sessCfg.certKey)) {
                 impLogger.debug("Using PEM Certificate authentication");
-                finalSessCfg.cert = cmdArgs.certFile;
-                finalSessCfg.certKey = cmdArgs.certKeyFile;
-                finalSessCfg.type = SessConstants.AUTH_TYPE_CERT_PEM;
-                ConnectionPropsForSessCfg.logSessCfg(finalSessCfg);
+                sessCfg.type = SessConstants.AUTH_TYPE_CERT_PEM;
             }
-            // else if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.passphrase) === true) {
-            //     impLogger.debug("Using PFX Certificate authentication");
-            //     finalSessCfg.cert = cmdArgs.certFile;
-            //     finalSessCfg.passphrase = cmdArgs.certFilePassphrase;
-            //     finalSessCfg.type = SessConstants.AUTH_TYPE_CERT_PFX;
-            //     ConnectionPropsForSessCfg.logSessCfg(finalSessCfg);
-            //     return finalSessCfg;
+            // else if (ConnectionPropsForSessCfg.propHasValue(sessCfg.passphrase)) {
+            //  impLogger.debug("Using PFX Certificate authentication");
+            //  sessCfg.type = SessConstants.AUTH_TYPE_CERT_PFX;
             // }
+        } else {
+            // we are using basic auth
+            impLogger.debug("Using basic authentication");
+            sessCfg.type = SessConstants.AUTH_TYPE_BASIC;
         }
-
-        /* At this point we ruled out tokens and certificates, so we use user and password. If our
-         * caller permits, we prompt for any missing user name and password.
-         */
-        if (optsToUse.doPrompting) {
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.user) === false &&
-                ConnectionPropsForSessCfg.propHasValue(finalSessCfg.cert) === false) {
-                let answer = "";
-                while (answer === "") {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Enter user name: "
-                    );
-                    if (answer === null) {
-                        throw new ImperativeError({msg: "Timed out waiting for user name."});
-                    }
-                }
-                finalSessCfg.user = answer;
-            }
-
-            if (ConnectionPropsForSessCfg.propHasValue(finalSessCfg.password) === false &&
-                ConnectionPropsForSessCfg.propHasValue(finalSessCfg.cert) === false) {
-                let answer = "";
-                while (answer === "") {
-                    answer = await CliUtils.promptWithTimeout(
-                        "Enter password : ",
-                        true
-                    );
-                    if (answer === null) {
-                        throw new ImperativeError({msg: "Timed out waiting for password."});
-                    }
-                }
-                finalSessCfg.password = answer;
-            }
-        }
-
-        ConnectionPropsForSessCfg.setTypeForBasicCreds(finalSessCfg, optsToUse, cmdArgs.tokenType);
-        ConnectionPropsForSessCfg.logSessCfg(finalSessCfg);
-        return finalSessCfg;
+        ConnectionPropsForSessCfg.setTypeForTokenRequest(sessCfg, connOpts, cmdArgs.tokenType);
+        ConnectionPropsForSessCfg.logSessCfg(sessCfg);
     }
 
     /**
      * List of properties on `sessCfg` object that should be kept secret and
      * may not appear in Imperative log files.
      */
-    private static readonly secureSessCfgProps: string[] = ["user", "password", "tokenValue", "passphrase"];
+    private static secureSessCfgProps: Set<string> = new Set(["user", "password", "tokenValue", "passphrase"]);
+
+    /**
+     * List of prompt messages that is used when the CLI prompts for session
+     * config values.
+     */
+    private static readonly promptTextForValues: { [key: string]: string } = {
+        hostname: "Enter the host name of",
+        port: "Enter the port number of",
+        user: "Enter the user name for",
+        password: "Enter the password for"
+    };
+
+    /**
+     * Prompts the user to input session config values in a CLI environment.
+     * This is the default implementation of the `getValuesBack` callback when
+     * `connOpts.doPrompting` is true.
+     * @param connOpts Options for adding connection properties
+     * @returns Name-value pairs of connection properties
+     */
+    private static getValuesBack(connOpts: IOptionsForAddConnProps): (properties: string[]) => Promise<{ [key: string]: any }> {
+        return async (promptForValues: string[]) => {
+            const answers: { [key: string]: any } = {};
+            const profileSchema = this.loadSchemaForSessCfgProps(connOpts.parms, promptForValues);
+            const serviceDescription = connOpts.serviceDescription || "your service";
+
+            for (const value of promptForValues) {
+                let answer;
+                while (answer === undefined) {
+                    const hideText = profileSchema[value]?.secure || this.secureSessCfgProps.has(value);
+                    let promptText = `${this.promptTextForValues[value]} ${serviceDescription}`;
+                    if (hideText) {
+                        promptText += " (will be hidden)";
+                    }
+                    answer = await this.clientPrompt(`${promptText}: `, { hideText, parms: connOpts.parms });
+                    if (answer === null) {
+                        throw new ImperativeError({ msg: `Timed out waiting for ${value}.` });
+                    }
+                }
+                if (profileSchema[value]?.type === "number") {
+                    answer = Number(answer);
+                    if (isNaN(answer)) {
+                        throw new ImperativeError({ msg: `Specified ${value} was not a number.` });
+                    }
+                }
+                answers[value] = answer;
+            }
+
+            return answers;
+        };
+    }
+
+    /**
+     * Handle prompting for clients.  If in a CLI environment, use the IHandlerParameters.response
+     * object prompt method.
+     * @private
+     * @static
+     * @param {string} promptText
+     * @param {IHandlePromptOptions} opts
+     * @returns {Promise<string>}
+     * @memberof ConnectionPropsForSessCfg
+     */
+    private static async clientPrompt(promptText: string, opts: IHandlePromptOptions): Promise<string> {
+        if (opts.parms) {
+            return opts.parms.response.console.prompt(promptText, opts);
+        } else {
+            return CliUtils.readPrompt(promptText, opts);
+        }
+    }
 
     // ***********************************************************************
     /**
-     * Determine if we want to use a basic authentication to acquire a token.
-     * Set the session configuration accordingly.
+     * Determine if we want to request a token.
+     * Set the session's type and tokenType accordingly.
      *
      * @param sessCfg
      *       The session configuration to be updated.
@@ -307,36 +372,20 @@ export class ConnectionPropsForSessCfg {
      * @param tokenType
      *       The type of token that we expect to receive.
      */
-    private static setTypeForBasicCreds(
+    private static setTypeForTokenRequest(
         sessCfg: any,
         options: IOptionsForAddConnProps,
         tokenType: SessConstants.TOKEN_TYPE_CHOICES
     ) {
         const impLogger = Logger.getImperativeLogger();
-        let logMsgtext;
-
-        if (sessCfg.cert && sessCfg.certKey) {
-            logMsgtext = "Using PEM certificate authentication ";
-            sessCfg.type = SessConstants.AUTH_TYPE_CERT_PEM;
-        // } else if (sessCfg.cert && sessCfg.passphrase) {
-        //      logMsgtext = "Using PFX certificate authentication ";
-        //      sessCfg.type = SessConstants.AUTH_TYPE_CERT_PFX;
-        } else {
-            logMsgtext = "Using basic authentication ";
-            sessCfg.type = SessConstants.AUTH_TYPE_BASIC;
-        }
-
         if (options.requestToken) {
-            // Set our type to token to get a token from user and pass
-            logMsgtext += "to get token";
-            if (!sessCfg.cert) {
+            impLogger.debug("Requesting a token");
+            if (sessCfg.type === SessConstants.AUTH_TYPE_BASIC) {
+                // Set our type to token to get a token from user and pass
                 sessCfg.type = SessConstants.AUTH_TYPE_TOKEN;
             }
-            sessCfg.tokenType = tokenType || options.defaultTokenType;
-        } else {
-            logMsgtext += "with no request for token";
+            sessCfg.tokenType = tokenType || sessCfg.tokenType || options.defaultTokenType;
         }
-        impLogger.debug(logMsgtext);
     }
 
     // ***********************************************************************
@@ -371,10 +420,52 @@ export class ConnectionPropsForSessCfg {
      *
      * @returns true is the property exists and has a value. false otherwise.
      */
-    private static propHasValue(propToTest: string) {
-        if ((propToTest === undefined || propToTest === null) || ((typeof propToTest) === "string" && propToTest.length === 0)) {
-            return false;
+    private static propHasValue(propToTest: any) {
+        return propToTest != null && propToTest !== "";
+    }
+
+    /**
+     * Load base profile property schema for connection properties.
+     * @param params CLI handler parameters object
+     * @param promptForValues List of ISessCfg properties to prompt for
+     * @returns Key-value pairs of ISessCfg property name and profile property schema
+     */
+    private static loadSchemaForSessCfgProps(params: IHandlerParameters | undefined, promptForValues: string[]): { [key: string]: IProfileProperty } {
+        if (params == null || ImperativeConfig.instance.loadedConfig?.baseProfile == null) {
+            return {};
         }
-        return true;
+
+        const schemas: { [key: string]: IProfileProperty } = {};
+        for (const propName of promptForValues) {
+            const profilePropName = propName === "hostname" ? "host" : propName;
+            schemas[propName] = ImperativeConfig.instance.loadedConfig.baseProfile.schema.properties[profilePropName];
+        }
+        return schemas;
+    }
+
+    /**
+     * Load list of secure property names defined in team config.
+     * @param params CLI handler parameters object
+     * @param promptForValues List of ISessCfg properties to prompt for
+     */
+    private static loadSecureSessCfgProps(params: IHandlerParameters | undefined, promptForValues: string[]): void {
+        if (params == null || !ImperativeConfig.instance.config?.exists) {
+            return;
+        }
+
+        // Find profile that includes all the properties being prompted for
+        const profileProps = promptForValues.map(propName => propName === "hostname" ? "host" : propName);
+        const profileData = ConfigAutoStore.findActiveProfile(params, profileProps);
+        if (profileData == null) {
+            return;
+        }
+
+        // Load secure property names that are defined for active profiles
+        const config = ImperativeConfig.instance.config;
+        const baseProfileName = ConfigUtils.getActiveProfileName("base", params.arguments);
+        for (const secureProp of [...config.api.secure.securePropsForProfile(profileData[1]),
+            ...config.api.secure.securePropsForProfile(baseProfileName)]) {
+            this.secureSessCfgProps.add(secureProp === "host" ? "hostname" : secureProp);
+        }
     }
 }

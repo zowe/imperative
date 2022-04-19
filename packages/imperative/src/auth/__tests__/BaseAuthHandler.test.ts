@@ -9,41 +9,36 @@
 *
 */
 
-import { BaseAuthHandler } from "../handlers/BaseAuthHandler";
-import { ICommandArguments, IHandlerParameters } from "../../../../cmd";
-import { Session, ISession, AbstractSession, SessConstants } from "../../../../rest";
+import { IHandlerParameters } from "../../../../cmd";
 import { Imperative } from "../../Imperative";
-import { cloneDeep } from "lodash";
-
-class FakeAuthHandler extends BaseAuthHandler {
-    public mProfileType: string = "base";
-
-    public mDefaultTokenType: SessConstants.TOKEN_TYPE_CHOICES = SessConstants.TOKEN_TYPE_JWT;
-
-    protected createSessCfgFromArgs(args: ICommandArguments): ISession {
-        return { hostname: "fakeHost", port: 3000 };
-    }
-
-    protected async doLogin(session: AbstractSession): Promise<string> {
-        return "fakeToken";
-    }
-
-    protected async doLogout(session: AbstractSession): Promise<void> { /* Do nothing */ }
-}
+import { ImperativeConfig } from "../../../..";
+import FakeAuthHandler from "./__data__/FakeAuthHandler";
 
 describe("BaseAuthHandler", () => {
+    const mockSaveProfile = jest.fn();
+    const mockUpdateProfile = jest.fn();
+
     beforeAll(() => {
         Object.defineProperty(Imperative, "api", {
             get: () => ({
                 profileManager: (profType: string) => ({
-                    save: jest.fn(),
-                    update: jest.fn()
+                    save: mockSaveProfile,
+                    update: mockUpdateProfile
                 })
+            })
+        });
+        Object.defineProperty(ImperativeConfig, "instance", {
+            get: () => ({
+                config: { exists: false }
             })
         });
     });
 
-    it("should process login successfully - basic auth", async () => {
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it("should process login successfully and update profile", async () => {
         const handler = new FakeAuthHandler();
         const params: IHandlerParameters = {
             response: {
@@ -74,35 +69,29 @@ describe("BaseAuthHandler", () => {
 
         expect(caughtError).toBeUndefined();
         expect(doLoginSpy).toBeCalledTimes(1);
+        expect(mockUpdateProfile).toBeCalledTimes(1);
     });
 
-    it("should process login successfully - certificate auth", async () => {
+    it("should process login successfully and create profile", async () => {
         const handler = new FakeAuthHandler();
         const params: IHandlerParameters = {
             response: {
                 console: {
-                    log: jest.fn()
+                    log: jest.fn(),
+                    prompt: jest.fn(async () => "y")
                 }
             },
             arguments: {
-                certFile: "/fake/file/path.cert",
-                certKeyFile: "/fake/file/path.key"
+                user: "fakeUser",
+                password: "fakePass"
             },
             positionals: ["auth", "login"],
             profiles: {
-                getMeta: jest.fn(() => ({
-                    name: "fakeName"
-                }))
+                getMeta: jest.fn()
             }
         } as any;
 
         const doLoginSpy = jest.spyOn(handler as any, "doLogin");
-        let sessionCopy;
-
-        doLoginSpy.mockImplementation((sessCfg: Session) => {
-            sessionCopy = cloneDeep(sessCfg);
-            return "fakeToken";
-        });
         let caughtError;
 
         try {
@@ -113,38 +102,45 @@ describe("BaseAuthHandler", () => {
 
         expect(caughtError).toBeUndefined();
         expect(doLoginSpy).toBeCalledTimes(1);
-        expect(doLoginSpy).toBeCalledWith(expect.objectContaining({
-            mISession: {
-                basePath: "",
-                cert: "/fake/file/path.cert",
-                certKey: "/fake/file/path.key",
-                hostname: "fakeHost",
-                port: 3000,
-                protocol: "https",
-                rejectUnauthorized: true,
-                secureProtocol: "SSLv23_method",
-                storeCookie: false,
-                strictSSL: true,
-                tokenType: "jwtToken",
-                type: "cert-pem"
+        expect(params.response.console.prompt).toHaveBeenCalledTimes(1);
+        expect(mockSaveProfile).toBeCalledTimes(1);
+    });
+
+    it("should process login successfully without creating profile on timeout", async () => {
+        const handler = new FakeAuthHandler();
+        const params: IHandlerParameters = {
+            response: {
+                console: {
+                    log: jest.fn(),
+                    prompt: jest.fn()
+                },
+                data: {
+                    setObj: jest.fn()
+                }
+            },
+            arguments: {
+                user: "fakeUser",
+                password: "fakePass"
+            },
+            positionals: ["auth", "login"],
+            profiles: {
+                getMeta: jest.fn()
             }
-        }));
-        expect(sessionCopy).toEqual(expect.objectContaining({
-            mISession: {
-                basePath: "",
-                cert: "/fake/file/path.cert",
-                certKey: "/fake/file/path.key",
-                hostname: "fakeHost",
-                port: 3000,
-                protocol: "https",
-                rejectUnauthorized: true,
-                secureProtocol: "SSLv23_method",
-                storeCookie: true,
-                strictSSL: true,
-                tokenType: "jwtToken",
-                type: "cert-pem"
-            }
-        }));
+        } as any;
+
+        const doLoginSpy = jest.spyOn(handler as any, "doLogin");
+        let caughtError;
+
+        try {
+            await handler.process(params);
+        } catch (error) {
+            caughtError = error;
+        }
+
+        expect(caughtError).toBeUndefined();
+        expect(doLoginSpy).toBeCalledTimes(1);
+        expect(params.response.console.prompt).toHaveBeenCalledTimes(1);
+        expect(mockSaveProfile).toBeCalledTimes(0);
     });
 
     it("should process logout successfully", async () => {
@@ -210,5 +206,39 @@ describe("BaseAuthHandler", () => {
         expect(caughtError).toBeDefined();
         expect(caughtError.message).toContain(`The group name "invalid"`);
         expect(caughtError.message).toContain("is not valid");
+    });
+
+    it("should fail to login with invalid token value", async () => {
+        const handler = new FakeAuthHandler();
+        const params: IHandlerParameters = {
+            response: {
+                console: {
+                    log: jest.fn()
+                }
+            },
+            arguments: {
+                user: "fakeUser",
+                password: "fakePass"
+            },
+            positionals: ["auth", "login"],
+            profiles: {
+                getMeta: jest.fn(() => ({
+                    name: "fakeName"
+                }))
+            }
+        } as any;
+
+        const doLoginSpy = jest.spyOn(handler as any, "doLogin").mockResolvedValue(null);
+        let caughtError;
+
+        try {
+            await handler.process(params);
+        } catch (error) {
+            caughtError = error;
+        }
+
+        expect(caughtError).toBeDefined();
+        expect(caughtError.message).toContain("token value");
+        expect(doLoginSpy).toBeCalledTimes(1);
     });
 });

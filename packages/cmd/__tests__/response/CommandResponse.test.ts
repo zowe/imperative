@@ -18,6 +18,7 @@ import { inspect } from "util";
 import { TestLogger } from "../../../../__tests__/TestLogger";
 import { IO } from "../../../io";
 import { OUTPUT_FORMAT } from "../..";
+import { CliUtils, IDaemonResponse } from "../../../utilities";
 
 const EXAMPLE_LIST = [
     "banana",
@@ -136,6 +137,38 @@ describe("Command Response", () => {
         setTimeout(() => {
             // turn off the progress bar - t he details should be set
             response.progress.endBar();
+            expect((response as any).mProgressBar).toBeUndefined();
+            expect((response.progress as any).mProgressBarInterval).toBeUndefined();
+            done();
+        }, oneSecond);
+    });
+
+    it("should allow the progress bar to write directly to a socket stream", (done) => {  // eslint-disable-line jest/no-done-callback
+        const response = new CommandResponse({ silent: false, responseFormat: "default", stream });
+        const status: ITaskWithStatus = {
+            statusMessage: "Making a bar",
+            percentComplete: 10,
+            stageName: TaskStage.IN_PROGRESS
+        };
+        response.progress.startBar(
+            {
+                task: status,
+                stream
+            });
+        expect((response as any).mProgressBar).toBeDefined(); // access private fields
+        expect((response.progress as any).mProgressBarInterval).toBeDefined();
+        expect((response.progress as any).mIsDaemon).toBe(true);
+        (response.progress as any).updateProgressBar();
+        TestLogger.debug("Progress bar was created. Details:\n{{progressBar}}\nInterval identifier:\n{{interval}}",
+            {
+                progressBar: inspect((response as any).progressBar),
+                interval: inspect((response.progress as any).mProgressBarInterval)
+            });
+        const oneSecond = 1;
+        setTimeout(() => {
+            // force updateProgressBar to trigger the `endBar` call
+            (response.progress as any).mProgressTask.stageName = TaskStage.COMPLETE;
+            (response.progress as any).updateProgressBar();
             expect((response as any).mProgressBar).toBeUndefined();
             expect((response.progress as any).mProgressBarInterval).toBeUndefined();
             done();
@@ -328,6 +361,86 @@ describe("Command Response", () => {
         expect(response.buildJsonResponse()).toMatchSnapshot();
     });
 
+    it("should prompt for input when in daemon mode and give a parsed result", async () => {
+
+        // this will be the response to the prompt
+        const responseMessage = "daemon response";
+
+        // construct the response in a proper protocol header (see DaemonUtils.ts)
+        const daemonResponse: IDaemonResponse = { stdin: responseMessage };
+
+        // simulate a .on(data...) method
+        const eventStream = jest.fn((event: string, func: (data: any) => void) => {
+            func(Buffer.from(JSON.stringify(daemonResponse)));
+        });
+
+        // ignore writestream, we just make sure that it's called, it will send a request to our
+        // simulated daemon client asking for a response.
+        const writeStream = jest.fn((data) => {
+            // do nothing
+        });
+
+        const endStream = jest.fn(() => {
+            // do nothing
+        });
+
+        // build our pseudo socket object
+        const socket: any = {once: eventStream, write: writeStream, end: endStream};
+
+        // create response object
+        const response = new CommandResponse({stream: socket});
+
+        // method to simulate writing
+        const write = jest.fn((data) => {
+            // do nothing
+        });
+        process.stdout.write = write;
+
+        // prompt the daemon client
+        const msg: string = "please give me a message";
+        const answer = await response.console.prompt(msg);
+        response.endStream(); // terminate
+
+        // restore
+        process.stdout.write = ORIGINAL_STDOUT_WRITE;
+
+        expect(write).not.toHaveBeenCalled();
+        expect(writeStream).toHaveBeenCalled();
+        expect(endStream).toHaveBeenCalled();
+        expect(answer).toBe(responseMessage);
+    });
+
+    it("should prompt when not in daemon mode and give a parsed result", async () => {
+
+        // this will be the response to the prompt
+        const responseMessage = "normal response";
+
+        const response = new CommandResponse();
+
+        // method to simulate writing
+        const write = jest.fn((data) => {
+            // do nothing
+        });
+        process.stdout.write = write;
+
+        const normalPrompt = jest.fn((test, opts) => {
+            return new Promise<string>((resolve) => {
+                resolve(responseMessage);
+            });
+        });
+
+        (CliUtils as any).readPrompt = normalPrompt;
+
+        // prompt the user
+        const msg: string = "please give me a message";
+        const answer = await response.console.prompt(msg);
+
+        // restore
+        process.stdout.write = ORIGINAL_STDOUT_WRITE;
+
+        expect(normalPrompt).toHaveBeenCalled();
+    });
+
     it("should write to stdout (with newline) and buffer to the response object", () => {
         let messages: string = "";
         const response = new CommandResponse();
@@ -341,6 +454,47 @@ describe("Command Response", () => {
         expect(response.buildJsonResponse().stdout.toString()).toEqual(msg + "\n");
         expect(response.buildJsonResponse()).toMatchSnapshot();
     });
+
+    it("should write to stdout stream", () => {
+        let messages: string = "";
+        const fakeStream = {
+            write: jest.fn(),
+            end: jest.fn()
+        };
+        const response = new CommandResponse({
+            stream: fakeStream
+        });
+        process.stdout.write = jest.fn((data) => {
+            messages += data;
+        });
+        const msg: string = "hello from the tests";
+        response.console.log(msg);
+        process.stdout.write = ORIGINAL_STDOUT_WRITE;
+        expect(messages).toMatchSnapshot();
+        expect(response.buildJsonResponse().stdout.toString()).toEqual(msg + "\n");
+        expect(response.buildJsonResponse()).toMatchSnapshot();
+    });
+
+    it("should write to stderr and stream", () => {
+        let messages: string = "";
+        const fakeStream = {
+            write: jest.fn(),
+            end: jest.fn()
+        };
+        const response = new CommandResponse({
+            stream: fakeStream
+        });
+        process.stderr.write = jest.fn((data) => {
+            messages += data;
+        });
+        const msg: string = "hello from the tests";
+        response.console.error(msg);
+        process.stderr.write = ORIGINAL_STDERR_WRITE;
+        expect(messages).toMatchSnapshot();
+        expect(response.buildJsonResponse().stderr.toString()).toEqual(msg + "\n");
+        expect(response.buildJsonResponse()).toMatchSnapshot();
+    });
+
 
     it("should write to stderr (with newline) and buffer to the response object", () => {
         let messages: string = "";

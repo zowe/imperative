@@ -122,18 +122,7 @@ export class WebHelpManager implements IWebHelpManager {
 
         try {
             const htmlFile = (inContext != null) ? "launcher.html" : "index.html";
-            const openerProc = require("opener")(`file:///${this.webHelpDir}/${htmlFile}`);
-
-            if (process.platform !== "win32") {
-                /* On linux, without the following statements, the zowe
-                * command does not return until the browser is closed.
-                * Mac is untested, but for now we treat it like linux.
-                */
-                openerProc.unref();
-                openerProc.stdin.unref();
-                openerProc.stdout.unref();
-                openerProc.stderr.unref();
-            }
+            ProcessUtils.openInDefaultApp(`file:///${this.webHelpDir}/${htmlFile}`);
         } catch (e) {
             throw new ImperativeError({
                 msg: "Failed to launch web help, try running -h for console help instead",
@@ -214,7 +203,8 @@ export class WebHelpManager implements IWebHelpManager {
         const currentMetadata: IWebHelpPackageMetadata[] = this.calcPackageMetadata(myConfig.callerPackageJson,
             require(path.join(myConfig.cliHome, "plugins", "plugins.json")));
 
-        const metadataChanged: boolean = !this.eqPackageMetadata(cachedMetadata, currentMetadata);
+        const metadataChanged: boolean = process.env.NODE_ENV === "development" ||
+            !this.eqPackageMetadata(cachedMetadata, currentMetadata);
         return metadataChanged ? currentMetadata : null;
     }
 

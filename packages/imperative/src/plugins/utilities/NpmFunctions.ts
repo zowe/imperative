@@ -98,7 +98,7 @@ export async function getPackageInfo(pkgSpec: string): Promise<{ name: string, v
     const pkgInfo = npmPackageArg(pkgSpec);
     if (pkgInfo.registry) {
         // We already know package name, so read name and version from package.json
-        return readFileSync(path.join(PMFConstants.instance.PLUGIN_NODE_MODULE_LOCATION, pkgInfo.name, "package.json"));
+        return readFileSync(path.join(PMFConstants.instance.PLUGIN_HOME_LOCATION, pkgInfo.name, "package.json"));
     } else {
         // Package name is unknown, so fetch name and version with pacote (npm SDK)
         return pacote.manifest(pkgSpec);

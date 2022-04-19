@@ -20,7 +20,7 @@ exports[`cmd-cli gen-help allowable-options should display the help with allowab
  OPTIONS
  -------
 
-   --both-default-and-allowable  (string)
+   --both-default-and-allowable (string)
 
       has some allowable options and a default Lorem ipsum dolor sit amet, consectetur
       adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna
@@ -32,7 +32,7 @@ exports[`cmd-cli gen-help allowable-options should display the help with allowab
       Default value: these
       Allowed values: these, are, the, allowable, values
 
-   --just-default-value  (string)
+   --just-default-value (string)
 
       has a default option Lorem ipsum dolor sit amet, consectetur adipiscing elit,
       sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
@@ -43,7 +43,7 @@ exports[`cmd-cli gen-help allowable-options should display the help with allowab
 
       Default value: theValue
 
-   --just-allowable-values  (string)
+   --just-allowable-values (string)
 
       has allowable values Lorem ipsum dolor sit amet, consectetur adipiscing elit,
       sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
@@ -55,7 +55,7 @@ exports[`cmd-cli gen-help allowable-options should display the help with allowab
       Allowed values: these, are, the, allowable, values, that, span, past, the, word,
       wrap
 
-   --neither  (string)
+   --neither (string)
 
       has neither Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
       eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
@@ -67,19 +67,19 @@ exports[`cmd-cli gen-help allowable-options should display the help with allowab
  GLOBAL OPTIONS
  --------------
 
-   --response-format-json  | --rfj (boolean)
+   --response-format-json | --rfj (boolean)
 
       Produce JSON formatted data from a command
 
-   --help  | -h (boolean)
+   --help | -h (boolean)
 
       Display help text
 
-   --help-examples  (boolean)
+   --help-examples (boolean)
 
       Display examples for all the commands in a group
 
-   --help-web  | --hw (boolean)
+   --help-web | --hw (boolean)
 
       Display HTML help in browser
 

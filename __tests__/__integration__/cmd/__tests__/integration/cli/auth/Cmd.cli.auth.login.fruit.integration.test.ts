@@ -36,7 +36,7 @@ describe("cmd-cli auth login", () => {
     it("should load values from base profile and store token in it - basic auth", () => {
         const response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login.sh",
             TEST_ENVIRONMENT.workingDir, ["fakeUser", "fakePass"]);
-        expect(response.stderr.toString()).toBe("");
+        expect(response.stderr.toString()).toContain("command 'profiles create' is deprecated");
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
@@ -49,7 +49,7 @@ describe("cmd-cli auth login", () => {
     it("should load values from base profile and store token in it - certificate auth", () => {
         const response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_cert.sh",
             TEST_ENVIRONMENT.workingDir, [fakeCertPath, fakeCertKeyPath]);
-        expect(response.stderr.toString()).toBe("");
+        expect(response.stderr.toString()).toContain("command 'profiles create' is deprecated");
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
@@ -62,7 +62,7 @@ describe("cmd-cli auth login", () => {
     it("should load values from base profile and show token only - basic auth", () => {
         let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_token.sh",
             TEST_ENVIRONMENT.workingDir, ["fakeUser", "fakePass"]);
-        expect(response.stderr.toString()).toBe("");
+        expect(response.stderr.toString()).toContain("command 'profiles create' is deprecated");
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
@@ -71,7 +71,7 @@ describe("cmd-cli auth login", () => {
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
 
         // the output of the command should not include token value
-        expect(response.stderr.toString()).toBe("");
+        expect(response.stderr.toString()).toContain("command 'profiles list' is deprecated");
         expect(response.status).toBe(0);
         expect(response.stdout.toString()).not.toContain("tokenType:");
         expect(response.stdout.toString()).not.toContain("tokenValue:");
@@ -80,7 +80,7 @@ describe("cmd-cli auth login", () => {
     it("should load values from base profile and show token only - certificate auth", () => {
         let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_token_cert.sh",
             TEST_ENVIRONMENT.workingDir, [fakeCertPath, fakeCertKeyPath]);
-        expect(response.stderr.toString()).toBe("");
+        expect(response.stderr.toString()).toContain("command 'profiles create' is deprecated");
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
@@ -89,7 +89,7 @@ describe("cmd-cli auth login", () => {
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
 
         // the output of the command should not include token value
-        expect(response.stderr.toString()).toBe("");
+        expect(response.stderr.toString()).toContain("command 'profiles list' is deprecated");
         expect(response.status).toBe(0);
         expect(response.stdout.toString()).not.toContain("tokenType:");
         expect(response.stdout.toString()).not.toContain("tokenValue:");
@@ -98,7 +98,7 @@ describe("cmd-cli auth login", () => {
     it("should load values from base profile and show token in rfj - basic auth", () => {
         let response = runCliScript(__dirname + "/__scripts__/base_profile_create.sh",
             TEST_ENVIRONMENT.workingDir, ["fakeUser", "fakePass"]);
-        expect(response.stderr.toString()).toBe("");
+        expect(response.stderr.toString()).toContain("command 'profiles create' is deprecated");
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
@@ -110,7 +110,7 @@ describe("cmd-cli auth login", () => {
 
         // the output of the command should not include token value
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
-        expect(response.stderr.toString()).toBe("");
+        expect(response.stderr.toString()).toContain("command 'profiles list' is deprecated");
         expect(response.status).toBe(0);
         expect(response.stdout.toString()).not.toContain("tokenType:");
         expect(response.stdout.toString()).not.toContain("tokenValue:");
@@ -119,7 +119,7 @@ describe("cmd-cli auth login", () => {
     it("should load values from base profile and show token in rfj - certificate auth", () => {
         let response = runCliScript(__dirname + "/__scripts__/base_profile_create_cert.sh",
             TEST_ENVIRONMENT.workingDir, [fakeCertPath, fakeCertKeyPath]);
-        expect(response.stderr.toString()).toBe("");
+        expect(response.stderr.toString()).toContain("command 'profiles create' is deprecated");
         expect(response.status).toBe(0);
 
         // the output of the command should include token value
@@ -131,7 +131,7 @@ describe("cmd-cli auth login", () => {
 
         // the output of the command should not include token value
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
-        expect(response.stderr.toString()).toBe("");
+        expect(response.stderr.toString()).toContain("command 'profiles list' is deprecated");
         expect(response.status).toBe(0);
         expect(response.stdout.toString()).not.toContain("tokenType:");
         expect(response.stdout.toString()).not.toContain("tokenValue:");
@@ -147,7 +147,7 @@ describe("cmd-cli auth login", () => {
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
 
-        expect(response.stderr.toString()).toBe("");
+        expect(response.stderr.toString()).toContain("command 'profiles list' is deprecated");
         expect(response.status).toBe(0);
         expect(response.stdout.toString()).toContain("host:       fakeHost");
         expect(response.stdout.toString()).toContain("port:       3000");
@@ -167,7 +167,7 @@ describe("cmd-cli auth login", () => {
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
 
-        expect(response.stderr.toString()).toBe("");
+        expect(response.stderr.toString()).toContain("command 'profiles list' is deprecated");
         expect(response.status).toBe(0);
         expect(response.stdout.toString()).toContain("host:       fakeHost");
         expect(response.stdout.toString()).toContain("port:       3000");
@@ -187,7 +187,7 @@ describe("cmd-cli auth login", () => {
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
 
-        expect(response.stderr.toString()).toBe("");
+        expect(response.stderr.toString()).toContain("command 'profiles list' is deprecated");
         expect(response.status).toBe(0);
         expect(response.stdout.toString()).toContain("certFile:    " + fakeCertPath);
         expect(response.stdout.toString()).toContain("certKeyFile: " + fakeCertKeyPath);
@@ -209,7 +209,7 @@ describe("cmd-cli auth login", () => {
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
 
-        expect(response.stderr.toString()).toBe("");
+        expect(response.stderr.toString()).toContain("command 'profiles list' is deprecated");
         expect(response.status).toBe(0);
         expect(response.stdout.toString()).not.toContain("user:");
         expect(response.stdout.toString()).not.toContain("password:");
@@ -229,7 +229,7 @@ describe("cmd-cli auth login", () => {
 
         response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
 
-        expect(response.stderr.toString()).toBe("");
+        expect(response.stderr.toString()).toContain("command 'profiles list' is deprecated");
         expect(response.status).toBe(0);
         expect(response.stdout.toString()).not.toContain("user:");
         expect(response.stdout.toString()).not.toContain("password:");
@@ -239,25 +239,5 @@ describe("cmd-cli auth login", () => {
         expect(response.stdout.toString()).not.toContain("tokenValue:");
         expect(response.stdout.toString()).not.toContain("certFile:");
         expect(response.stdout.toString()).not.toContain("certKeyFile:");
-    });
-
-    it("should not create a profile, if it times out", () => {
-        let response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_create_profile_timeout.sh",
-            TEST_ENVIRONMENT.workingDir, ["fakeUser", "fakePass"]);
-        expect(response.status).toBe(0);
-        expect(response.stdout.toString()).toContain("Login successful.");
-        expect(response.stdout.toString()).toContain("will not be stored in your profile");
-        expect(response.stdout.toString()).toContain("fakeUser:fakePass@fakeToken");
-
-        response = runCliScript(__dirname + "/__scripts__/base_profile_and_auth_login_show_profiles.sh", TEST_ENVIRONMENT.workingDir);
-
-        expect(response.stderr.toString()).toBe("");
-        expect(response.status).toBe(0);
-        expect(response.stdout.toString()).not.toContain("user:");
-        expect(response.stdout.toString()).not.toContain("password:");
-        expect(response.stdout.toString()).not.toContain("host:");
-        expect(response.stdout.toString()).not.toContain("port:");
-        expect(response.stdout.toString()).not.toContain("tokenType:");
-        expect(response.stdout.toString()).not.toContain("tokenValue:");
     });
 });

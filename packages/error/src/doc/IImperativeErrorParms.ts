@@ -24,14 +24,6 @@ export interface IImperativeErrorParms {
      */
     logger?: Logger;
     /**
-     * Node report is automatically captured for diagnostic purposes, you can suppress by specifying true.
-     * @type {boolean}
-     * @memberof IImperativeErrorParms
-     *
-     * @deprecated Removed as of 10/17/2018 due to install issues.
-     */
-    suppressReport?: boolean;
-    /**
      * Message tag - prepended to the error message specified. Useful for categorizing error messages
      * (e.g. "Profile IO Error"). A ": " is appended automatically (e.g. "Profile IO Error: ")
      * @type {string}

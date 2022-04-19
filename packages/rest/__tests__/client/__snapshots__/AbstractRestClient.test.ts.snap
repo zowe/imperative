@@ -50,26 +50,6 @@ Unexpected end of JSON input"
 
 exports[`AbstractRestClient tests should error when chunking JSON data that does not parse and allow post payload 2`] = `undefined`;
 
-exports[`AbstractRestClient tests should error with request rejection when status code is not in 200 range 1`] = `"Rest API failure with HTTP(S) status 400"`;
-
-exports[`AbstractRestClient tests should error with request rejection when status code is not in 200 range 2`] = `"400"`;
-
-exports[`AbstractRestClient tests should error with request rejection when status code is not in 200 range 3`] = `"{\\"newData\\":\\"response data\\"}"`;
-
-exports[`AbstractRestClient tests should error with request rejection when status code is not in 200 range 4`] = `
-"HTTP(S) error status \\"400\\" received.
-Review request details (resource, base path, credentials, payload) and ensure correctness.
-
-Protocol:  https
-Host:      test
-Port:      443
-Base Path: 
-Resource:  /resource
-Request:   PUT
-Headers:   [{\\"My-Header\\":\\"value is here\\"}]
-Payload:   { 'my payload object': 'hello' }"
-`;
-
 exports[`AbstractRestClient tests should give an error message when error event is called 1`] = `"http(s) request error event called"`;
 
 exports[`AbstractRestClient tests should give an error when no resource URI is provided 1`] = `"Expect Error: Required parameter 'resource' must not be blank"`;

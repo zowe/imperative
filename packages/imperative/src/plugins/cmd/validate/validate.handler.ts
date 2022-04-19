@@ -22,27 +22,27 @@ import { IPluginJson } from "../../doc/IPluginJson";
 export default class ValidateHandler implements ICommandHandler {
 
     /**
-   * A class with recorded issues for each plugin for which problems were detected.
-   *
-   * @private
-   * @type {IPluginIssues}
-   */
+     * A class with recorded issues for each plugin for which problems were detected.
+     *
+     * @private
+     * @type {IPluginIssues}
+     */
     private pluginIssues = PluginIssues.instance;
 
     // __________________________________________________________________________
     /**
-   * Process the command and input.
-   *
-   * @param {IHandlerParameters} params - Parameters supplied by yargs
-   *
-   * @param {string[]} [params.arguments.plugin] - The name of
-   *        a plugin to validate. If omitted all installed plugins
-   *        will be validated.
-   *
-   * @returns {Promise<ICommandResponse>} The command response
-   *
-   * @throws {ImperativeError}
-   */
+     * Process the command and input.
+     *
+     * @param {IHandlerParameters} params - Parameters supplied by yargs
+     *
+     * @param {string[]} [params.arguments.plugin] - The name of
+     *        a plugin to validate. If omitted all installed plugins
+     *        will be validated.
+     *
+     * @returns {Promise<ICommandResponse>} The command response
+     *
+     * @throws {ImperativeError}
+     */
     public async process(params: IHandlerParameters): Promise<void> {
         let pluginName: string = null;
         let err: boolean = false;
@@ -50,9 +50,7 @@ export default class ValidateHandler implements ICommandHandler {
         const failOnWarning: boolean = params.arguments.failOnWarning || false;
         const installedPlugins: IPluginJson = this.pluginIssues.getInstalledPlugins();
 
-        if (params.arguments.plugin == null ||
-      params.arguments.plugin.length === 0 ||
-      params.arguments.plugin === "") {
+        if (params.arguments.plugin == null || params.arguments.plugin.length === 0 || params.arguments.plugin === "") {
             if (Object.keys(installedPlugins).length === 0) {
                 params.response.console.log(
                     "No plugins have been installed into your CLI application."
@@ -72,7 +70,7 @@ export default class ValidateHandler implements ICommandHandler {
             if (!Object.prototype.hasOwnProperty.call(installedPlugins, pluginName)) {
                 params.response.console.log(TextUtils.chalk.red(
                     "The specified plugin '" + pluginName +
-          "' has not been installed into your CLI application."
+                    "' has not been installed into your CLI application."
                 ));
                 err = true;
             } else {
@@ -90,12 +88,12 @@ export default class ValidateHandler implements ICommandHandler {
 
     // __________________________________________________________________________
     /**
-   * Display the issues assocated with the specified plugin.
-   *
-   * @param {string} pluginName - The name of the plugin.
-   *
-   * @param {IHandlerResponseApi} cmdResponse - Used to supply the response from the command.
-   */
+     * Display the issues assocated with the specified plugin.
+     *
+     * @param {string} pluginName - The name of the plugin.
+     *
+     * @param {IHandlerResponseApi} cmdResponse - Used to supply the response from the command.
+     */
     private displayPluginIssues(pluginName: string, cmdResponse: IHandlerResponseApi, failOnWarning: boolean = false): boolean {
         // display any plugin issues
         let valResultsMsg: string = "\n_____ " + "Validation results for plugin '" +

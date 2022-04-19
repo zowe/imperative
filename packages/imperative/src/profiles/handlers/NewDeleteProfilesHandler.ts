@@ -18,10 +18,21 @@ export default class NewDeleteProfilesHandler {
     public async process(commandParameters: IHandlerParameters) {
         const profileType = commandParameters.definition.customize[ProfilesConstants.PROFILES_COMMAND_TYPE_KEY];
         const profileName: string = commandParameters.arguments[Constants.PROFILE_NAME_OPTION];
-        const deleted: IProfileDeleted = await Imperative.api.profileManager(profileType).delete({
-            name: profileName,
-            rejectIfDependency: !commandParameters.arguments.force || false
-        });
+        let deleted: IProfileDeleted;
+
+        try {
+            deleted = await Imperative.api.profileManager(profileType).delete({
+                name: profileName,
+                rejectIfDependency: !commandParameters.arguments.force || false
+            });
+        } catch (error) {
+            // profileIO error is thrown when calling old profile functions in team config mode.
+            commandParameters.response.console.error(
+                "An error occurred trying to delete a profile.\n" + error.message
+            );
+            return;
+        }
+
         if (!deleted.defaultCleared) {
             commandParameters.response.console.log(`Your profile named ${profileName} of type ${profileType} was successfully deleted.`);
         } else {

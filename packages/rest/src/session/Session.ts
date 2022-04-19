@@ -9,8 +9,11 @@
 *
 */
 
+import { URL } from "url";
+import { AUTH_TYPE_BASIC, HTTP_PROTOCOL_CHOICES } from "./SessConstants";
 import { AbstractSession } from "./AbstractSession";
 import { ISession } from "./doc/ISession";
+
 /**
  * Non-abstract session class
  * @export
@@ -26,5 +29,37 @@ export class Session extends AbstractSession {
      */
     constructor(newSession: ISession) {
         super(newSession);
+    }
+
+    /**
+     * Creates an instance of Session from a URL object.
+     * @param {URL} url - URL object from the Node.js `url` library
+     * @param {boolean} includePath - Specifies whether session base path should be populated. Default value is true.
+     * @memberof Session
+     */
+    public static createFromUrl(url: URL, includePath?: boolean): Session {
+        const sessCfg: ISession = {
+            hostname: url.hostname,
+            user: url.username,
+            password: url.password
+        };
+
+        if (url.protocol === "http:" || url.protocol === "https:") {
+            sessCfg.protocol = url.protocol.slice(0, -1) as HTTP_PROTOCOL_CHOICES;
+        }
+
+        if (url.port) {
+            sessCfg.port = parseInt(url.port);
+        }
+
+        if (includePath !== false) {
+            sessCfg.basePath = url.pathname;
+        }
+
+        if (sessCfg.user != null && sessCfg.password != null) {
+            sessCfg.type = AUTH_TYPE_BASIC;
+        }
+
+        return new this(sessCfg);
     }
 }

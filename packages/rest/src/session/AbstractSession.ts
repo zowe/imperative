@@ -41,48 +41,11 @@ export abstract class AbstractSession {
     public static readonly BEARER_PREFIX: string = "Bearer ";
 
     /**
-     * http protocol
-     * @deprecated Use SessConstants.HTTP_PROTOCOL
-     */
-    public static readonly HTTP_PROTOCOL = SessConstants.HTTP_PROTOCOL;
-
-    /**
-     * https protocol
-     * @deprecated Use SessConstants.HTTPS_PROTOCOL
-     */
-    public static readonly HTTPS_PROTOCOL = SessConstants.HTTPS_PROTOCOL;
-
-    /**
      * Default protocol
      * @static
      * @memberof AbstractSession
      */
     public static readonly DEFAULT_PROTOCOL = SessConstants.HTTPS_PROTOCOL;
-
-    /**
-     * Session type property value for no authentication
-     * @deprecated Use SessConstants.AUTH_TYPE_NONE
-     */
-    public static readonly TYPE_NONE = SessConstants.AUTH_TYPE_NONE;
-
-    /**
-     * Session type property value for no authentication
-     * @deprecated Use SessConstants.AUTH_TYPE_BASIC
-     */
-    public static readonly TYPE_BASIC = SessConstants.AUTH_TYPE_BASIC;
-
-    /**
-     * Session type property value for bearer token authentication
-     * @deprecated Use SessConstants.AUTH_TYPE_BEARER
-     */
-    public static readonly TYPE_BEARER = SessConstants.AUTH_TYPE_BEARER;
-
-    /**
-     * Session type property value for cookie token authentication,
-     * which uses a named token type.
-     * @deprecated Use SessConstants.AUTH_TYPE_TOKEN
-     */
-    public static readonly TYPE_TOKEN = SessConstants.AUTH_TYPE_TOKEN;
 
     /**
      * Default session type

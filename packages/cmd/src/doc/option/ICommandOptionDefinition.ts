@@ -46,7 +46,7 @@ export interface ICommandOptionDefinition {
      * after parsing the command line arguments, so you would be able to access params.arguments.hyphenatedOptions
      * from your handler as well as params.arguments["hyphenated-options"]'
      * @type {string}
-     * @memberOf ICommandOptionDefinition
+     * @memberof ICommandOptionDefinition
      */
     name: string;
     /**
@@ -55,27 +55,33 @@ export interface ICommandOptionDefinition {
      * e.g.  name: "puppy", aliases: ["p", "pup"] -
      *       the user can specify --puppy, -p, or --pup
      * @type {string[]}
-     * @memberOf ICommandOptionDefinition
+     * @memberof ICommandOptionDefinition
      */
     aliases?: string[];
     /**
      * The description of your option - displayed in the help text
      * for your command.
      * @type {string}
-     * @memberOf ICommandOptionDefinition
+     * @memberof ICommandOptionDefinition
      */
     description: string;
     /**
      * What type of value will the user specify for this option?
      * @type {CommandOptionType}
-     * @memberOf ICommandOptionDefinition
+     * @memberof ICommandOptionDefinition
      */
     type: CommandOptionType;
+    /**
+     * Option is hidden from help
+     * @type {boolean}
+     * @memberof ICommandOptionDefinition
+     */
+    hidden?: boolean;
     /**
      * If the user doesn't specify this option, you can specify a default value here
      * that will be filled in automatically.
      * @type {any}
-     * @memberOf ICommandOptionDefinition
+     * @memberof ICommandOptionDefinition
      */
     defaultValue?: any;
     /**
@@ -83,7 +89,7 @@ export interface ICommandOptionDefinition {
      * Options with the same group on the same command are grouped together
      * under a heading with this text.
      * @type {string}
-     * @memberOf ICommandOptionDefinition
+     * @memberof ICommandOptionDefinition
      */
     group?: string;
 
@@ -93,8 +99,8 @@ export interface ICommandOptionDefinition {
      *
      * Note: if you give a defaultValue to an option, it will always be
      * considered to have been specified.
-     * @type boolean
-     * @memberOf ICommandOptionDefinition
+     * @type {boolean}
+     * @memberof ICommandOptionDefinition
      */
     required?: boolean;
 
@@ -110,7 +116,7 @@ export interface ICommandOptionDefinition {
      *   description
      *   conflictsWith: ["A"]
      * }
-     * @memberOf ICommandOptionDefinition
+     * @memberof ICommandOptionDefinition
      */
     conflictsWith?: string[];
     /**
@@ -119,7 +125,7 @@ export interface ICommandOptionDefinition {
      * e.g. if this option is "vacation", and ["seat", "meal"] is the value for "implies",
      * then the user will get a syntax error if they specify --vacation but not --seat and --meal
      * @type {string[]}
-     * @memberOf ICommandOptionDefinition
+     * @memberof ICommandOptionDefinition
      */
     implies?: string[];
 
@@ -129,7 +135,7 @@ export interface ICommandOptionDefinition {
      * e.g. if this option is "vacation", and ["seat", "meal"] is the value for "impliesOneOf",
      * then the user will get a syntax error if they specify --vacation but not either --seat or --meal
      * @type {string[]}
-     * @memberOf ICommandOptionDefinition
+     * @memberof ICommandOptionDefinition
      */
     impliesOneOf?: string[];
 
@@ -139,7 +145,7 @@ export interface ICommandOptionDefinition {
      *
      * e.g. if the user does not specify "vacation" then they must specify --job and --hours
      * @type {string[]}
-     * @memberOf ICommandOptionDefinition
+     * @memberof ICommandOptionDefinition
      */
     absenceImplications?: string[];
 
@@ -147,7 +153,7 @@ export interface ICommandOptionDefinition {
      * What values can be specified for this option?
      * See the type below for more details.
      * @type {ICommandOptionAllowableValues}
-     * @memberOf ICommandOptionDefinition
+     * @memberof ICommandOptionDefinition
      */
     allowableValues?: ICommandOptionAllowableValues;
 
@@ -157,7 +163,7 @@ export interface ICommandOptionDefinition {
      * So the value specified by the user must be  min <=  value <= max
      *
      * @type {[number, number]}
-     * @memberOf ICommandOptionDefinition
+     * @memberof ICommandOptionDefinition
      */
     numericValueRange?: [number, number];
     /**
@@ -166,7 +172,7 @@ export interface ICommandOptionDefinition {
      * So the length specified by the user must be  min <=  length <= max
      *
      * @type {[number, number]}
-     * @memberOf ICommandOptionDefinition
+     * @memberof ICommandOptionDefinition
      */
     stringLengthRange?: [number, number];
     /**
@@ -174,14 +180,14 @@ export interface ICommandOptionDefinition {
      * are allowed. Default is true.
      *
      * @type {boolean}
-     * @memberOf ICommandOptionDefinition
+     * @memberof ICommandOptionDefinition
      */
     arrayAllowDuplicate?: boolean;
     /**
      * If the user specifies a certain value for this option,
      * then they must also specify other options (similar to a conditional "implies")
      *  @type {{[key: string]: ICommandOptionValueImplications}}
-     * @memberOf ICommandOptionDefinition
+     * @memberof ICommandOptionDefinition
      */
     valueImplications?: {
         [key: string]: ICommandOptionValueImplications;

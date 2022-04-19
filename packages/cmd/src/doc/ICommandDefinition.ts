@@ -81,6 +81,17 @@ export interface ICommandDefinition {
      */
     stdinOptionDescription?: string;
     /**
+     * If this property exists, the command is deprecated. The property value
+     * is a string that identifies the replacement command. It is used in a
+     * deprecation message similar to the following:
+     *      This command is deprecated.
+     *      Recommended replacement: value_of_deprecatedReplacement_goes_here
+     *
+     * @type {string}
+     * @memberof ICommandDefinition
+     */
+    deprecatedReplacement?: string;
+    /**
      * The set of examples displayed in the help for this command.
      * @type {ICommandExampleDefinition[]}
      * @memberof ICommandDefinition

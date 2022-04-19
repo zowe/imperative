@@ -39,7 +39,7 @@ describe("imperative-test-cli test logging command", () => {
                 });
             });
 
-            it("should default to DEBUG", () => {
+            it("should default to WARN", () => {
                 // Log working directory to make it easier to identify the directory for this test
                 TestLogger.info(`Working directory: ${TEST_ENVIRONMENT.workingDir}`);
 
@@ -58,8 +58,8 @@ describe("imperative-test-cli test logging command", () => {
 
                 // Check for each tag
                 expect(logContents).not.toContain("[TRACE]");
-                expect(logContents).toContain("[DEBUG]");
-                expect(logContents).toContain("[INFO]");
+                expect(logContents).not.toContain("[DEBUG]");
+                expect(logContents).not.toContain("[INFO]");
                 expect(logContents).toContain("[WARN]");
                 expect(logContents).toContain("[ERROR]");
                 expect(logContents).toContain("[FATAL]");
@@ -77,7 +77,7 @@ describe("imperative-test-cli test logging command", () => {
                 });
             });
 
-            it("should default to DEBUG", () => {
+            it("should default to WARN", () => {
                 // Log working directory to make it easier to identify the directory for this test
                 TestLogger.info(`Working directory: ${TEST_ENVIRONMENT.workingDir}`);
 
@@ -96,8 +96,8 @@ describe("imperative-test-cli test logging command", () => {
 
                 // Check for each tag
                 expect(logContents).not.toContain("[TRACE]");
-                expect(logContents).toContain("[DEBUG]");
-                expect(logContents).toContain("[INFO]");
+                expect(logContents).not.toContain("[DEBUG]");
+                expect(logContents).not.toContain("[INFO]");
                 expect(logContents).toContain("[WARN]");
                 expect(logContents).toContain("[ERROR]");
                 expect(logContents).toContain("[FATAL]");
@@ -120,7 +120,7 @@ describe("imperative-test-cli test logging command", () => {
                 });
             });
 
-            it("should default to DEBUG if a blank is specified", () => {
+            it("should default to WARN if a blank is specified", () => {
                 // Log working directory to make it easier to identify the directory for this test
                 TestLogger.info(`Working directory: ${TEST_ENVIRONMENT.workingDir}`);
 
@@ -139,14 +139,14 @@ describe("imperative-test-cli test logging command", () => {
 
                 // Check for each tag
                 expect(logContents).not.toContain("[TRACE]");
-                expect(logContents).toContain("[DEBUG]");
-                expect(logContents).toContain("[INFO]");
+                expect(logContents).not.toContain("[DEBUG]");
+                expect(logContents).not.toContain("[INFO]");
                 expect(logContents).toContain("[WARN]");
                 expect(logContents).toContain("[ERROR]");
                 expect(logContents).toContain("[FATAL]");
             });
 
-            it("should default to DEBUG if an invalid level is specified and also warn user with the error", () => {
+            it("should default to WARN if an invalid level is specified and also warn user with the error", () => {
                 // Log working directory to make it easier to identify the directory for this test
                 TestLogger.info(`Working directory: ${TEST_ENVIRONMENT.workingDir}`);
 
@@ -156,7 +156,7 @@ describe("imperative-test-cli test logging command", () => {
                 const errorMsg = response.stderr.toString();
                 expect(errorMsg).toContain("AWESOME");
                 expect(errorMsg).toContain("IMPERATIVE_TEST_CLI_IMPERATIVE_LOG_LEVEL");
-                expect(errorMsg).toContain(LoggerConfigBuilder.DEFAULT_LOG_LEVEL);
+                expect(errorMsg).toContain(LoggerConfigBuilder.getDefaultLogLevel());
                 expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
@@ -168,8 +168,8 @@ describe("imperative-test-cli test logging command", () => {
 
                 // Check for each tag
                 expect(logContents).not.toContain("[TRACE]");
-                expect(logContents).toContain("[DEBUG]");
-                expect(logContents).toContain("[INFO]");
+                expect(logContents).not.toContain("[DEBUG]");
+                expect(logContents).not.toContain("[INFO]");
                 expect(logContents).toContain("[WARN]");
                 expect(logContents).toContain("[ERROR]");
                 expect(logContents).toContain("[FATAL]");
@@ -187,7 +187,7 @@ describe("imperative-test-cli test logging command", () => {
                 });
             });
 
-            it("should default to DEBUG if a blank is specified", () => {
+            it("should default to WARN if a blank is specified", () => {
                 // Log working directory to make it easier to identify the directory for this test
                 TestLogger.info(`Working directory: ${TEST_ENVIRONMENT.workingDir}`);
 
@@ -206,14 +206,14 @@ describe("imperative-test-cli test logging command", () => {
 
                 // Check for each tag
                 expect(logContents).not.toContain("[TRACE]");
-                expect(logContents).toContain("[DEBUG]");
-                expect(logContents).toContain("[INFO]");
+                expect(logContents).not.toContain("[DEBUG]");
+                expect(logContents).not.toContain("[INFO]");
                 expect(logContents).toContain("[WARN]");
                 expect(logContents).toContain("[ERROR]");
                 expect(logContents).toContain("[FATAL]");
             });
 
-            it("should default to DEBUG if an invalid level is specified also warn user with the error", () => {
+            it("should default to WARN if an invalid level is specified and also warn user with the error", () => {
                 // Log working directory to make it easier to identify the directory for this test
                 TestLogger.info(`Working directory: ${TEST_ENVIRONMENT.workingDir}`);
 
@@ -223,7 +223,7 @@ describe("imperative-test-cli test logging command", () => {
                 const errorMsg = response.stderr.toString();
                 expect(errorMsg).toContain("AWESOME");
                 expect(errorMsg).toContain("IMPERATIVE_TEST_CLI_APP_LOG_LEVEL");
-                expect(errorMsg).toContain(LoggerConfigBuilder.DEFAULT_LOG_LEVEL);
+                expect(errorMsg).toContain(LoggerConfigBuilder.getDefaultLogLevel());
                 expect(response.status).toBe(0);
                 expect(response.stdout.toString()).toMatchSnapshot();
 
@@ -235,8 +235,8 @@ describe("imperative-test-cli test logging command", () => {
 
                 // Check for each tag
                 expect(logContents).not.toContain("[TRACE]");
-                expect(logContents).toContain("[DEBUG]");
-                expect(logContents).toContain("[INFO]");
+                expect(logContents).not.toContain("[DEBUG]");
+                expect(logContents).not.toContain("[INFO]");
                 expect(logContents).toContain("[WARN]");
                 expect(logContents).toContain("[ERROR]");
                 expect(logContents).toContain("[FATAL]");

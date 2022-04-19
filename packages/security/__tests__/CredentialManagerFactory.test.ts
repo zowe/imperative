@@ -163,7 +163,7 @@ describe("CredentialManagerFactory", () => {
                 msg += msgs;
             });
             const actualError = await UnitTestUtils.catchError(CredentialManagerFactory.initialize({ Manager: classFile, service: "ijkl" }));
-            expect(msg).toContain("Failed to override the credential manager with one provided by");
+            expect(msg).toContain("Failed to load the credential manager named");
             expect(actualError.message).toContain(`Cannot find module '${classFile}'`);
             expect(() => {
                 CredentialManagerFactory.manager.initialize();

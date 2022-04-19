@@ -46,7 +46,7 @@ describe("PMF: Uninstall Interface", () => {
     const npmCmd = cmdToRun();
 
     beforeEach(() => {
-    // Mocks need cleared after every test for clean test runs
+        // Mocks need cleared after every test for clean test runs
         jest.resetAllMocks();
 
         // This needs to be mocked before running uninstall
@@ -55,10 +55,10 @@ describe("PMF: Uninstall Interface", () => {
     });
 
     /**
-   * Validates that an execSync npm uninstall call was valid based on the parameters passed.
-   *
-   * @param {string} expectedPackage The package that should be sent to npm uninstall
-   */
+     * Validates that an execSync npm uninstall call was valid based on the parameters passed.
+     *
+     * @param {string} expectedPackage The package that should be sent to npm uninstall
+     */
     const wasExecSyncCallValid = (expectedPackage: string) => {
         expect(mocks.execSync).toHaveBeenCalledWith(
             `${npmCmd} uninstall "${expectedPackage}" --prefix ${PMFConstants.instance.PLUGIN_INSTALL_LOCATION} -g`,
@@ -70,11 +70,11 @@ describe("PMF: Uninstall Interface", () => {
     };
 
     /**
-   * Validates that the writeFileSync was called with the proper JSON object. This object is created
-   * by copying all the plugins but the uninstalled plugin and writing to plugins.json.
-   */
+     * Validates that the writeFileSync was called with the proper JSON object. This object is created
+     * by copying all the plugins but the uninstalled plugin and writing to plugins.json.
+     */
     const wasWriteFileSyncCallValid = () => {
-    // Create the object that should be sent to the command.
+        // Create the object that should be sent to the command.
         const expectedObject = {
             plugin2: {
                 package: "plugin1",

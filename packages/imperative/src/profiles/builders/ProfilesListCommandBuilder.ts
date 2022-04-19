@@ -66,6 +66,7 @@ export class ProfilesListCommandBuilder extends ProfilesCommandBuilder {
             description: this.mSchema.description,
             type: "command",
             handler: __dirname + "/../handlers/ListProfilesHandler",
+            deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_LIST,
             customize: {},
             options: [
                 {

@@ -11,13 +11,14 @@
 
 import { TextUtils } from "../../../../utilities";
 import { format, isNullOrUndefined } from "util";
-import { CommandOptionType, ICommandDefinition, ICommandOptionDefinition } from "../../../";
-import { ImperativeError } from "../../../../error";
-import { Logger } from "../../../../logger";
+import { ImperativeError } from "../../../../error/src/ImperativeError";
+import { Logger } from "../../../../logger/src/Logger";
 import { IHelpGeneratorParms } from "../doc/IHelpGeneratorParms";
 import { IHelpGeneratorFactoryParms } from "../doc/IHelpGeneratorFactoryParms";
 import { IHelpGenerator } from "../doc/IHelpGenerator";
 import { Constants } from "../../../../constants";
+import { ICommandDefinition } from "../../doc/ICommandDefinition";
+import { CommandOptionType, ICommandOptionDefinition } from "../../doc/option/ICommandOptionDefinition";
 
 export abstract class AbstractHelpGenerator implements IHelpGenerator {
 
@@ -150,7 +151,7 @@ export abstract class AbstractHelpGenerator implements IHelpGenerator {
         if (caseSensitive) {
             aliasString += " {{italic}}" + this.dimGrey("(case sensitive)") + "{{italic}}";
         }
-        return this.renderHelp(format("{{codeBegin}}%s{{codeEnd}} %s", (option.name?.length === 1 ? "-" : "--") + option.name, aliasString));
+        return this.renderHelp(format("{{codeBegin}}%s{{codeEnd}}%s", (option.name?.length === 1 ? "-" : "--") + option.name, aliasString));
     }
 
     public abstract buildFullCommandHelpText(includeGlobalOptions: boolean): string;
@@ -162,7 +163,8 @@ export abstract class AbstractHelpGenerator implements IHelpGenerator {
         if (isNullOrUndefined(this.mCommandDefinition.options)) {
             return;
         }
-        for (const option of this.mCommandDefinition.options) {
+        for (const option of this.mCommandDefinition.options.filter(opt => !opt.hidden)) {
+
             const group = option.group;
             if (!this.groupToOption[group]) {
                 this.groupToOption[group] = [];
@@ -274,4 +276,21 @@ export abstract class AbstractHelpGenerator implements IHelpGenerator {
         }
         return TextUtils.chalk.grey(text);
     }
+
+    /*
+     * Highlight text in orange (disabled if producing markdown)
+     * @param {string} text - the text you would like to highlight
+     * @returns {string} the highlighted text
+     *
+     * This function is unused, but it is here in case we ever want it.
+     * It is too difficult to test uncalled private functions in jest,
+     * so this function is just commented out.
+     *
+    protected orange(text: string) {
+        if (this.mProduceMarkdown) {
+            return text;
+        }
+        return TextUtils.chalk.keyword("orange")(text);
+    }
+    */
 }

@@ -20,6 +20,7 @@ import { ICommandProfileLoaderParms } from "../doc/profiles/parms/ICommandProfil
 import { Logger } from "../../../logger";
 import { ImperativeExpect } from "../../../expect";
 import { ImperativeError } from "../../../error";
+import { ImperativeConfig } from "../../../utilities";
 
 /**
  * The command processor profile loader loads all profiles that are required (or optional) given a command
@@ -107,6 +108,11 @@ export class CommandProfileLoader {
         // Create the map that eventually will be returned
         const profileMap: Map<string, IProfile[]> = new Map<string, IProfile[]>();
         const profileMetaMap: Map<string, IProfileLoaded[]> = new Map<string, IProfileLoaded[]>();
+
+        // do not load old school profiles if we are in team-config mode
+        if (ImperativeConfig.instance.config?.exists) {
+            return new CommandProfiles(profileMap, profileMetaMap);
+        }
 
         // If there are no profile specifications on this command definition document node, then
         // we can immediately exit with an empty map

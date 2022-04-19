@@ -53,7 +53,7 @@ export class GroupCommandYargs extends AbstractCommandYargs {
                      * Otherwise, define the "child" command.
                      */
                     switch (child.type) {
-                    // case "provider":
+                        // case "provider":
                         case "group":
                             new GroupCommandYargs({
                                 yargsInstance: this.yargs,

@@ -11,6 +11,13 @@
 
 import { ConfigurationLoader } from "..";
 import { IImperativeOverrides } from "../src/doc/IImperativeOverrides";
+import { IApimlSvcAttrs } from "../src/doc/IApimlSvcAttrs";
+import { homedir } from "os";
+import * as path from "path";
+
+function getCallerFile(file: string) {
+    return require(file);
+}
 
 describe("ConfigurationLoader", () => {
     describe("overrides", () => {
@@ -41,6 +48,83 @@ describe("ConfigurationLoader", () => {
             );
 
             expect(result.overrides).toEqual(overrides);
+        });
+
+        it("should return a config with apimlConnLookup", () => {
+            const apimlConnLookup: IApimlSvcAttrs[] = [
+                {
+                    apiId: "fake_apiId_1",
+                    gatewayUrl: "fake_gatewayUrl_1",
+                    connProfType: "fake_connProfType_1"
+                },
+                {
+                    apiId: "fake_apiId_2",
+                    gatewayUrl: "fake_gatewayUrl_2",
+                    connProfType: "fake_connProfType_2"
+                }
+            ];
+
+            const result = ConfigurationLoader.load(
+                {
+                    name: "some-name",
+                    apimlConnLookup
+                },
+                {},
+                () => undefined
+            );
+
+            expect(result.apimlConnLookup).toEqual(apimlConnLookup);
+        });
+    });
+
+    describe("ConfigurationModule", () => {
+        it("should return a config", () => {
+
+            const result = ConfigurationLoader.load(
+                {
+                    configurationModule: path.join(__dirname, "__model__", "Sample.configuration.ts")
+                },
+                {},
+                getCallerFile
+            );
+
+            expect(result.productDisplayName).toEqual("Zowe");
+            expect(result.rootCommandDescription).toEqual("Sample");
+            expect(result.envVariablePrefix).toEqual("Sample");
+            expect(result.defaultHome).toEqual(homedir());
+        });
+        it("should return a config without changing the name", () => {
+
+            const result = ConfigurationLoader.load(
+                {
+                    productDisplayName: "notZowe",
+                    configurationModule: path.join(__dirname, "__model__", "Sample.configuration.ts")
+                },
+                {},
+                getCallerFile
+            );
+
+            expect(result.productDisplayName).toEqual("Zowe");
+            expect(result.rootCommandDescription).toEqual("Sample");
+            expect(result.envVariablePrefix).toEqual("Sample");
+            expect(result.defaultHome).toEqual(homedir());
+        });
+        it("should return a config with daemonMode", () => {
+
+            const result = ConfigurationLoader.load(
+                {
+                    configurationModule: path.join(__dirname, "__model__", "Sample.configuration.ts"),
+                    daemonMode: true
+                },
+                {},
+                getCallerFile
+            );
+
+            expect(result.productDisplayName).toEqual("Zowe");
+            expect(result.rootCommandDescription).toEqual("Sample");
+            expect(result.envVariablePrefix).toEqual("Sample");
+            expect(result.defaultHome).toEqual(homedir());
+            expect(result.daemonMode).toEqual(true);
         });
     });
 });

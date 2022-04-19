@@ -63,6 +63,7 @@ export class CommandProfiles {
 
     /**
      * Gets the first (or by name) meta profile in the map - automatically throws an exception (unless disabled)
+     * @deprecated
      * @template T - The expected profile mapping to be returned
      * @param {string} type - The profile type
      * @param {string} [name=""] - The name of the profile to retrieve
@@ -97,6 +98,7 @@ export class CommandProfiles {
 
     /**
      * Gets the first (or by name) profile in the map - automatically throws an exception (unless disabled)
+     * @deprecated Load profile properties from `IHandlerParameters.arguments` property instead.
      * @template T - The expected profile mapping to be returned
      * @param {string} type - The profile type
      * @param {string} [name=""] - The name of the profile to retrieve
@@ -130,6 +132,7 @@ export class CommandProfiles {
 
     /**
      * Gets all profiles for the type specified,
+     * @deprecated
      * @template T - extends IProfile
      * @param {string} type - The profile type to retrieve loaded profiles
      * @returns {T[]} - The list of profile types

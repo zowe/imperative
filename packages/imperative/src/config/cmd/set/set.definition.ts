@@ -12,37 +12,69 @@
 import { ICommandDefinition } from "../../../../../cmd";
 import { join } from "path";
 
-/**
- * Definition of the list command.
- * @type {ICommandDefinition}
- */
 export const setDefinition: ICommandDefinition = {
     name: "set",
-    aliases: ["se"],
     type: "command",
     handler: join(__dirname, "set.handler"),
-    summary: "Set a configuration setting",
-    description: "Set a configuration setting.",
+    summary: "set configuration property",
+    description: "create or update a configuration property",
     positionals: [
         {
-            name: "configName",
-            type: "string",
-            description: "Setting name. Possible values:\n" +
-            "CredentialManager - The package name of a plugin that will override the default " +
-            "credential manager to allow for different credential storage methods.",
-            required: true
+            name: "property",
+            description: "The property to set. You may specify a path using dot notation (e.g. profiles.host1.profiles.service1.properties.setting)",
+            required: true,
+            type: "string"
         },
         {
-            name: "configValue",
-            type: "string",
-            description: "Value to set",
-            required: true
+            name: "value",
+            description: "The property value to set. The value may be JSON. Use '--json' to indicate.",
+            type: "string"
+        }
+    ],
+    options: [
+        {
+            name: "global-config",
+            description: "Set the property in global config.",
+            aliases: ["gc"],
+            type: "boolean",
+            defaultValue: false
         },
+        {
+            name: "user-config",
+            description: "Set the property in user config.",
+            aliases: ["uc"],
+            type: "boolean",
+            defaultValue: false
+        },
+        {
+            name: "json",
+            description: "The property value is JSON.",
+            type: "boolean",
+            defaultValue: false
+        },
+        {
+            name: "secure",
+            description: "Store the property value securely. " +
+                "If omitted, any property named in the secure array of the config file will be saved securely.",
+            type: "boolean"
+        }
     ],
     examples: [
         {
-            options: "CredentialManager my-credential-manager",
-            description: "Set the default credential manager to my-credential-manager"
+            description: "Set the property in global config.",
+            options: `"profiles.host1.profiles.service1.properties.setting" "value" --global-config`
+        },
+        {
+            description: "Set the property in user config.",
+            options: `"profiles.host1.profiles.service2.properties.setting" "value" --user-config`
+        },
+        {
+            description: "Set property value to JSON.",
+            options: `"profiles.host1.profiles.service3.properties.setting" "{"property":"value"}" --json`
+        },
+        {
+            description: "Store the property value",
+            options: `"profiles.host1.profiles.service1.properties.setting" "value" --secure`
         }
-    ],
+    ]
 };

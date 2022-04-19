@@ -14,51 +14,58 @@
  * require("@zowe/imperative") e.g. const imperative =  require("@zowe/imperative");
  */
 import { PerfTiming } from "@zowe/perf-timing";
-import { Logger, LoggerConfigBuilder } from "../../logger";
+import { Logger} from "../../logger/src/Logger";
+import { LoggerConfigBuilder } from "../../logger/src/LoggerConfigBuilder";
 import { IImperativeConfig } from "./doc/IImperativeConfig";
-import { Arguments } from "yargs";
+import * as yargs from "yargs";
 import { ConfigurationLoader } from "./ConfigurationLoader";
 import { ConfigurationValidator } from "./ConfigurationValidator";
-import { isNullOrUndefined } from "util";
 import { ImperativeApi } from "./api/ImperativeApi";
 import { IImperativeApi } from "./api/doc/IImperativeApi";
-import { Constants } from "../../constants";
-import { ImperativeConfig, TextUtils } from "../../utilities";
-import { ImperativeReject } from "../../interfaces";
+import { Constants } from "../../constants/src/Constants";
+import { TextUtils } from "../../utilities/src/TextUtils";
+import { ImperativeConfig } from "../../utilities/src/ImperativeConfig";
+import { ImperativeReject } from "../../interfaces/src/types/ImperativeReject";
 import { LoggingConfigurer } from "./LoggingConfigurer";
 import { ImperativeError } from "../../error";
 import { PluginManagementFacility } from "./plugins/PluginManagementFacility";
-import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
-import {
-    CliProfileManager,
-    CommandPreparer,
-    CommandYargs,
-    ICommandDefinition,
-    ICommandProfileTypeConfiguration,
-    ICommandResponseParms,
-    IHelpGenerator,
-    IHelpGeneratorFactory,
-    IHelpGeneratorParms,
-    IYargsResponse,
-    WebHelpManager,
-    YargsConfigurer,
-    YargsDefiner
-} from "../../cmd";
-import { ProfileUtils, IProfileTypeConfiguration } from "../../profiles";
+// import { ConfigManagementFacility } from "./config/ConfigManagementFacility";
+
+import { AbstractCommandYargs } from "../../cmd/src/yargs/AbstractCommandYargs";
+import { CliProfileManager } from "../../cmd/src/profiles/CliProfileManager";
+import { CommandPreparer } from "../../cmd/src/CommandPreparer";
+import { CommandYargs } from "../../cmd/src/yargs/CommandYargs";
+import { ICommandDefinition } from "../../cmd/src/doc/ICommandDefinition";
+import { ICommandProfileTypeConfiguration } from "../../cmd/src/doc/profiles/definition/ICommandProfileTypeConfiguration";
+import { ICommandResponseParms } from "../../cmd/src/doc/response/parms/ICommandResponseParms";
+import { IHelpGenerator } from "../../cmd/src/help/doc/IHelpGenerator";
+import { IHelpGeneratorFactory } from "../../cmd/src/help/doc/IHelpGeneratorFactory";
+import { IHelpGeneratorParms } from "../../cmd/src/help/doc/IHelpGeneratorParms";
+import { IYargsResponse } from "../../cmd/src/yargs/doc/IYargsResponse";
+import { WebHelpManager } from "../../cmd/src/help/WebHelpManager";
+import { YargsConfigurer } from "../../cmd/src/yargs/YargsConfigurer";
+import { YargsDefiner } from "../../cmd/src/yargs/YargsDefiner";
+
+import { ProfileUtils } from "../../profiles/src/utils/ProfileUtils";
+import { IProfileTypeConfiguration } from "../../profiles/src/doc/config/IProfileTypeConfiguration";
 import { CompleteProfilesGroupBuilder } from "./profiles/builders/CompleteProfilesGroupBuilder";
 import { ImperativeHelpGeneratorFactory } from "./help/ImperativeHelpGeneratorFactory";
 import { OverridesLoader } from "./OverridesLoader";
 import { ImperativeProfileManagerFactory } from "./profiles/ImperativeProfileManagerFactory";
 import { DefinitionTreeResolver } from "./DefinitionTreeResolver";
 import { EnvironmentalVariableSettings } from "./env/EnvironmentalVariableSettings";
-import { AppSettings } from "../../settings";
+import { AppSettings } from "../../settings/src/AppSettings";
 import { dirname, join } from "path";
 
-import { Console } from "../../console";
+import { Console } from "../../console/src/Console";
 import { ISettingsFile } from "../../settings/src/doc/ISettingsFile";
-import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
+import { IDaemonContext } from "./doc/IDaemonContext";
 import { ICommandProfileAuthConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAuthConfig";
-import { ImperativeExpect } from "../../expect";
+import { ImperativeExpect } from "../../expect/src/ImperativeExpect";
+import { CompleteAuthGroupBuilder } from "./auth/builders/CompleteAuthGroupBuilder";
+import { Config } from "../../config/src/Config";
+import { CompleteAutoInitCommandBuilder } from "./config/cmd/auto-init/builders/CompleteAutoInitCommandBuilder";
+import { ICommandProfileAutoInitConfig } from "../../cmd/src/doc/profiles/definition/ICommandProfileAutoInitConfig";
 
 // Bootstrap the performance tools
 if (PerfTiming.isEnabled) {
@@ -98,6 +105,16 @@ export class Imperative {
      */
     public static get commandLine(): string {
         return this.mCommandLine;
+    }
+
+    /**
+     * Set the command line (needed for daemon where command changes and is not static)
+     * @static
+     * @memberof Imperative
+     */
+    public static set commandLine(args: string) {
+        this.mCommandLine = args;
+        ImperativeConfig.instance.commandLine = args;
     }
 
     /**
@@ -161,7 +178,7 @@ export class Imperative {
                  * If no command name exists, we will instead use the file name invoked
                  * and log a debug warning.
                  */
-                if (!isNullOrUndefined(ImperativeConfig.instance.findPackageBinName())) {
+                if (ImperativeConfig.instance.findPackageBinName() != null) {
                     this.mRootCommandName = ImperativeConfig.instance.findPackageBinName();
                 } else {
                     this.mRootCommandName = ImperativeConfig.instance.callerLocation;
@@ -173,7 +190,21 @@ export class Imperative {
 
                 // If config group is enabled add config commands
                 if (config.allowConfigGroup) {
-                    ConfigManagementFacility.instance.init();
+                    const ConfigManagementFacility = require("./config/ConfigManagementFacility"); // Delayed load req for init help text to work
+                    ConfigManagementFacility.ConfigManagementFacility.instance.init();
+                }
+
+                let delayedConfigLoadError = undefined;
+
+                // Load the base config, save any error from config load
+                const configAppName = ImperativeConfig.instance.findPackageBinName() ? this.mRootCommandName : config.name;
+
+                try {
+                    ImperativeConfig.instance.config = await Config.load(configAppName,
+                        { homeDir: ImperativeConfig.instance.cliHome }
+                    );
+                } catch (err) {
+                    delayedConfigLoadError = err;
                 }
 
                 // If plugins are allowed, enable core plugins commands
@@ -201,11 +232,34 @@ export class Imperative {
                 this.initLogging();
 
                 /**
+                 * If there was an error trying to load the user's configuration, tell them about it now.
+                 */
+                if (delayedConfigLoadError) {
+                    if (config.daemonMode) {
+                        ImperativeConfig.instance.config = await Config.load(configAppName,
+                            {
+                                homeDir: ImperativeConfig.instance.cliHome,
+                                noLoad: true
+                            }
+                        );
+                        const imperativeLogger = Logger.getImperativeLogger();
+                        imperativeLogger.error(delayedConfigLoadError);
+                    } else {
+                        throw delayedConfigLoadError;
+                    }
+                }
+
+                /**
                  * Now we should apply any overrides to default Imperative functionality. This is where CLI
                  * developers are able to really start customizing Imperative and how it operates internally.
+                 * For the "config convert-profiles" command, we skip loading the CredentialManager override
+                 * because we need to be able to uninstall the plugin that provides it.
                  */
-                await OverridesLoader.load(ImperativeConfig.instance.loadedConfig,
-                    ImperativeConfig.instance.callerPackageJson);
+                // eslint-disable-next-line @typescript-eslint/no-magic-numbers
+                if (!(process.argv.length > 3 && process.argv[2] === "config" && process.argv[3].startsWith("convert"))) {
+                    await OverridesLoader.load(ImperativeConfig.instance.loadedConfig,
+                        ImperativeConfig.instance.callerPackageJson);
+                }
 
                 /**
                  * Build API object
@@ -234,9 +288,12 @@ export class Imperative {
                 const preparedHostCliCmdTree = this.getPreparedCmdTree(resolvedHostCliCmdTree, config.baseProfile);
 
                 /**
-                 * Initialize the profile environment
+                 * Only initialize the old-school profile environment
+                 * if we are not in team-config mode.
                  */
-                this.initProfiles(config);
+                if (ImperativeConfig.instance.config.exists === false) {
+                    this.initProfiles(config);
+                }
 
                 /**
                  * Define all known commands
@@ -262,28 +319,33 @@ export class Imperative {
 
             } catch (error) {
                 const imperativeLogger = Logger.getImperativeLogger();
-                imperativeLogger.fatal(require("util").inspect(error));
-                const os = require("os");
-                imperativeLogger.fatal("Diagnostic information:\n" +
-                    "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
-                    "Node versions: '%s'" +
-                    "Environmental variables: '%s'",
-                os.platform(), os.arch(), process.argv.join(" "),
-                JSON.stringify(process.versions, null, 2),
-                JSON.stringify(process.env, null, 2));
-                Logger.writeInMemoryMessages(Imperative.DEFAULT_DEBUG_FILE);
-                if (error.report) {
-                    const {writeFileSync} = require("fs");
-                    writeFileSync(Imperative.DEFAULT_DEBUG_FILE, error.report);
-                }
-                initializationFailed(
-                    error instanceof ImperativeError ?
-                        error :
-                        new ImperativeError({
-                            msg: "UNEXPECTED ERROR ENCOUNTERED",
+                if (error?.suppressDump) {
+                    imperativeLogger.fatal(error.message); // Error generated by a bad config is printed
+                } else {
+                    imperativeLogger.fatal(require("util").inspect(error));
+                    const os = require("os");
+                    imperativeLogger.fatal("Diagnostic information:\n" +
+                        "Platform: '%s', Architecture: '%s', Process.argv: '%s'\n" +
+                        "Node versions: '%s'" +
+                        "Environmental variables: '%s'",
+                    os.platform(), os.arch(), process.argv.join(" "),
+                    JSON.stringify(process.versions, null, 2),
+                    JSON.stringify(process.env, null, 2));
+                    Logger.writeInMemoryMessages(Imperative.DEFAULT_DEBUG_FILE);
+                    if (error.report) {
+                        const {writeFileSync} = require("fs");
+                        writeFileSync(Imperative.DEFAULT_DEBUG_FILE, error.report);
+                    }
+                    if (!(error instanceof ImperativeError)) {
+                        const oldError = error;
+                        error = new ImperativeError({  // eslint-disable-line no-ex-assign
+                            msg: "Unexpected Error Encountered",
                             causeErrors: error
-                        })
-                );
+                        });
+                        error.stack = "\n" + oldError.stack;
+                    }
+                }
+                initializationFailed(error);
             }
         });
     }
@@ -298,11 +360,12 @@ export class Imperative {
         return this.constructConsoleApi();
     }
 
+
     /**
      * Parse command line arguments and issue the user's specified command
      * @returns {Imperative} this, for chaining syntax
      */
-    public static parse(): Imperative {
+    public static parse(args?: string | string[], context?: IDaemonContext): Imperative {
 
         const timingApi = PerfTiming.api;
 
@@ -311,7 +374,10 @@ export class Imperative {
             timingApi.mark("START_IMP_PARSE");
         }
 
-        Imperative.yargs.parse();
+        ImperativeConfig.instance.daemonContext = context;
+        AbstractCommandYargs.STOP_YARGS = false;
+
+        yargs.parse(args);
 
         if (PerfTiming.isEnabled) {
             // Marks point END
@@ -328,7 +394,7 @@ export class Imperative {
      */
     public static getProfileConfiguration(type: string): ICommandProfileTypeConfiguration | undefined {
         const profileConfigs = ImperativeConfig.instance.loadedConfig.profiles;
-        if (isNullOrUndefined(profileConfigs) || profileConfigs.length === 0) {
+        if (profileConfigs == null || profileConfigs.length === 0) {
             return undefined;
         }
         let foundConfig: ICommandProfileTypeConfiguration;
@@ -356,7 +422,7 @@ export class Imperative {
      * @return {ImperativeApi}: The api object.
      */
     public static get api(): ImperativeApi {
-        if (isNullOrUndefined(this.mApi)) {
+        if (this.mApi == null) {
             throw new ImperativeError(
                 {
                     msg: "Imperative API object does not exist.  The Imperative.init() promise " +
@@ -383,10 +449,10 @@ export class Imperative {
     /**
      * Get the configured environmental variable prefix for the user's CLI
      * @returns {string} - the configured or default prefix for environmental variables for use in the environmental variable service
+     * @deprecated Please use ImperativeConfig.instance.envVariablePrefix
      */
     public static get envVariablePrefix(): string {
-        return ImperativeConfig.instance.loadedConfig.envVariablePrefix == null ? ImperativeConfig.instance.loadedConfig.name :
-            ImperativeConfig.instance.loadedConfig.envVariablePrefix;
+        return ImperativeConfig.instance.envVariablePrefix;
     }
 
     /**
@@ -398,7 +464,6 @@ export class Imperative {
         return TextUtils.chalk[ImperativeConfig.instance.loadedConfig.secondaryTextColor](text);
     }
 
-    private static yargs = require("yargs");
     private static mApi: ImperativeApi;
     private static mConsoleLog: Logger;
     private static mFullCommandTree: ICommandDefinition;
@@ -423,7 +488,7 @@ export class Imperative {
 
         const defaultSettings: ISettingsFile = {
             overrides: {
-                CredentialManager: false
+                CredentialManager: ImperativeConfig.instance.hostPackageName
             }
         };
 
@@ -449,7 +514,7 @@ export class Imperative {
         /**
          * Set log levels from environmental variable settings
          */
-        const envSettings = EnvironmentalVariableSettings.read(this.envVariablePrefix);
+        const envSettings = EnvironmentalVariableSettings.read(ImperativeConfig.instance.envVariablePrefix);
         if (envSettings.imperativeLogLevel.value != null && envSettings.imperativeLogLevel.value.trim().length > 0) {
             if (Logger.isValidLevel(envSettings.imperativeLogLevel.value.trim())) {
                 // set the imperative log level based on the user's environmental variable, if any
@@ -459,7 +524,7 @@ export class Imperative {
             } else {
                 message = "Imperative log level '" + envSettings.imperativeLogLevel.value +
                     "' from environmental variable setting '" + envSettings.imperativeLogLevel.key + "' is not recognised.  " +
-                    "Logger level is set to '" + LoggerConfigBuilder.DEFAULT_LOG_LEVEL + "'.  " +
+                    "Logger level is set to '" + LoggerConfigBuilder.getDefaultLogLevel() + "'.  " +
                     "Valid levels are " + Logger.DEFAULT_VALID_LOG_LEVELS.toString();
                 new Console().warn(message);
                 this.log.warn(message);
@@ -477,7 +542,7 @@ export class Imperative {
             } else {
                 message = "Application log level '" + envSettings.appLogLevel.value +
                     "' from environmental variable setting '" + envSettings.appLogLevel.key + "' is not recognised.  " +
-                    "Logger level is set to '" + LoggerConfigBuilder.DEFAULT_LOG_LEVEL + "'.  " +
+                    "Logger level is set to '" + LoggerConfigBuilder.getDefaultLogLevel() + "'.  " +
                     "Valid levels are " + Logger.DEFAULT_VALID_LOG_LEVELS.toString();
                 new Console().warn(message);
                 this.log.warn(message);
@@ -502,7 +567,7 @@ export class Imperative {
      * @memberof Imperative
      */
     private static initProfiles(config: IImperativeConfig) {
-        if (!isNullOrUndefined(config.profiles) && config.profiles.length > 0) {
+        if (config.profiles != null && config.profiles.length > 0) {
             CliProfileManager.initialize({
                 configuration: config.profiles,
                 profileRootDirectory: ProfileUtils.constructProfilesRootDirectory(ImperativeConfig.instance.cliHome),
@@ -523,41 +588,45 @@ export class Imperative {
             progressBarSpinner: ImperativeConfig.instance.loadedConfig.progressBarSpinner
         };
 
-        this.mCommandLine = process.argv.slice(2).join(" ");
+        this.commandLine = process.argv.slice(2).join(" ");
 
         // Configure Yargs to meet the CLI's needs
         new YargsConfigurer(
             preparedHostCliCmdTree,
-            Imperative.yargs,
+            yargs,
             commandResponseParms,
             new ImperativeProfileManagerFactory(this.api),
             this.mHelpGeneratorFactory,
             ImperativeConfig.instance.loadedConfig.experimentalCommandDescription,
             Imperative.rootCommandName,
             Imperative.commandLine,
-            Imperative.envVariablePrefix,
-            EnvironmentalVariableSettings.read(this.envVariablePrefix).promptPhrase.value ||
+            ImperativeConfig.instance.envVariablePrefix,
+
+            // Default value for PROMPT phrase couls be handled in the EnvironmentalVariableSettings class
+            EnvironmentalVariableSettings.read(ImperativeConfig.instance.envVariablePrefix).promptPhrase.value ||
             Constants.DEFAULT_PROMPT_PHRASE // allow environmental variable to override the default prompt phrase
         ).configure();
 
         // Define the commands to yargs
-        CommandYargs.defineOptionsToYargs(Imperative.yargs, preparedHostCliCmdTree.options);
+        CommandYargs.defineOptionsToYargs(yargs, preparedHostCliCmdTree.options);
         const definer = new YargsDefiner(
-            Imperative.yargs,
+            yargs,
             ImperativeConfig.instance.loadedConfig.primaryTextColor,
             Imperative.rootCommandName,
             Imperative.commandLine,
-            Imperative.envVariablePrefix,
+            ImperativeConfig.instance.envVariablePrefix,
             new ImperativeProfileManagerFactory(this.api),
             this.mHelpGeneratorFactory,
             ImperativeConfig.instance.loadedConfig.experimentalCommandDescription,
-            EnvironmentalVariableSettings.read(this.envVariablePrefix).promptPhrase.value ||
+
+            // Default value for PROMPT phrase couls be handled in the EnvironmentalVariableSettings class
+            EnvironmentalVariableSettings.read(ImperativeConfig.instance.envVariablePrefix).promptPhrase.value ||
             Constants.DEFAULT_PROMPT_PHRASE // allow environmental variable to override the default prompt phrase
         );
 
         for (const child of preparedHostCliCmdTree.children) {
             definer.define(child,
-                (args: Arguments, response: IYargsResponse) => {
+                (args: yargs.Arguments, response: IYargsResponse) => {
                     if (response.success) {
                         if (response.exitCode == null) {
                             response.exitCode = 0;
@@ -620,7 +689,7 @@ export class Imperative {
      * @return {Logger}: returns the default console Logger API object
      */
     private static constructConsoleApi(): Logger {
-        if (isNullOrUndefined(Imperative.mConsoleLog)) {
+        if (Imperative.mConsoleLog == null) {
             Imperative.mConsoleLog = Logger.getConsoleLogger();
             return Imperative.mConsoleLog;
         } else {
@@ -698,6 +767,16 @@ export class Imperative {
         if (Object.keys(authConfigs).length > 0) {
             rootCommand.children.push(CompleteAuthGroupBuilder.getAuthGroup(authConfigs, this.log, loadedConfig.authGroupConfig));
         }
+
+        if (loadedConfig.configAutoInitCommandConfig) {
+            const autoInit: ICommandProfileAutoInitConfig = loadedConfig.configAutoInitCommandConfig;
+            for (const child of rootCommand.children){
+                if (child.name === 'config') {
+                    child.children.push(CompleteAutoInitCommandBuilder.getAutoInitCommand(autoInit, this.log));
+                }
+            }
+        }
+
         return rootCommand;
     }
 

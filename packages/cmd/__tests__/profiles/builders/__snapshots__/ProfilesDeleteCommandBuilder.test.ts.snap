@@ -9,6 +9,8 @@ Object {
   "customize": Object {
     "profileTypeIdentifier": "type-a",
   },
+  "deprecatedReplacement": "Edit your Zowe V2 configuration
+    zowe.config.json",
   "description": "Delete a type-a profile. You must specify a profile name to be deleted. To find a list of available profiles for deletion, issue the profiles list command. By default, you will be prompted to confirm the profile removal.",
   "examples": Array [
     Object {

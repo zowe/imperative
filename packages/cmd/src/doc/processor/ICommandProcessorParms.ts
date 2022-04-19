@@ -13,6 +13,9 @@ import { ICommandDefinition } from "../ICommandDefinition";
 import { IHelpGenerator } from "../../help/doc/IHelpGenerator";
 import { IProfileManagerFactory } from "../../../../profiles";
 import { ICommandProfileTypeConfiguration } from "../../../src/doc/profiles/definition/ICommandProfileTypeConfiguration";
+import { Config } from "../../../../config";
+import { IDaemonContext } from "../../../../imperative/src/doc/IDaemonContext";
+
 /**
  * Parameters to create an instance of the Command Processor. Contains the command definition (for the command
  * being executed) and help, profiles, etc.
@@ -70,4 +73,17 @@ export interface ICommandProcessorParms {
      * @memberof ICommandProcessorParms
      */
     promptPhrase: string;
+    /**
+     * Config object used to load profiles from active config layers.
+     * @type {Config}
+     * @memberof ICommandProcessorParms
+     */
+    // TODO Should we make this property required? (breaking change)
+    config?: Config;
+    /**
+     * The context object defined when in daemon mode.
+     * @type {IDaemonContext}
+     * @memberof ICommandProcessorParms
+     */
+    daemonContext?: IDaemonContext;
 }

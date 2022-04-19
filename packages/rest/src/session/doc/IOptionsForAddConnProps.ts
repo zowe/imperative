@@ -10,6 +10,7 @@
 */
 
 import { SessConstants } from "../../..";
+import { IHandlerParameters } from "../../../../cmd";
 
 /**
  * Interface for options supplied to ConnectionPropsForSessCfg.addPropsOrPrompt()
@@ -53,4 +54,25 @@ export interface IOptionsForAddConnProps {
      *      );
      */
     getValuesBack? (properties: string[]): { [key: string]: any };
+
+    /**
+     * Specifies full command parameter object if running in a CLI environment (versus) as
+     * a Node.js SDK
+     * @type {IHandlerParameters}
+     * @memberof IOptionsForAddConnProps
+     */
+    parms?: IHandlerParameters;
+
+    /**
+     * Specifies the description of your service to be used in CLI prompt
+     * messages. If undefined, the default value is "your service".
+     */
+    serviceDescription?: string;
+
+    /**
+     * Specifies if properties that the user was prompted for should be
+     * automatically stored in profiles. Defaults to true when team config
+     * exists.
+     */
+    autoStore?: boolean;
 }

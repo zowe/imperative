@@ -14,7 +14,7 @@ import { IHandlerResponseConsoleApi } from "../doc/response/api/handler/IHandler
 import { IHandlerResponseDataApi } from "../doc/response/api/handler/IHandlerResponseDataApi";
 import { ICommandResponseParms } from "../doc/response/parms/ICommandResponseParms";
 import { ICommandResponse } from "../doc/response/response/ICommandResponse";
-import { TextUtils } from "../../../utilities";
+import { CliUtils, TextUtils } from "../../../utilities";
 import { COMMAND_RESPONSE_FORMAT, ICommandResponseApi } from "../doc/response/api/processor/ICommandResponseApi";
 import { ITaskWithStatus, TaskProgress, TaskStage } from "../../../operations";
 import { IHandlerProgressApi } from "../doc/response/api/handler/IHandlerProgressApi";
@@ -28,8 +28,13 @@ import { ICommandDefinition } from "../../src/doc/ICommandDefinition";
 import { OptionConstants } from "../constants/OptionConstants";
 import { inspect } from "util";
 import * as DeepMerge from "deepmerge";
-import ProgressBar = require("progress");
-import WriteStream = NodeJS.WriteStream;
+import * as ProgressBar from "progress";
+import * as net from "net";
+import * as tty from "tty";
+import { IPromptOptions } from "../doc/response/api/handler/IPromptOptions";
+import { DaemonRequest } from "../../../utilities/src/DaemonRequest";
+import { IDaemonResponse } from "../../../utilities/src/doc/IDaemonResponse";
+import { Logger, LoggerUtils } from "../../../logger";
 
 const DataObjectParser = require("dataobject-parser");
 
@@ -187,6 +192,7 @@ export class CommandResponse implements ICommandResponseApi {
      * @memberof CommandResponse
      */
     private mDefinition: ICommandDefinition;
+
     /**
      * The arguments passed to the command - may be undefined/null
      * @private
@@ -194,6 +200,14 @@ export class CommandResponse implements ICommandResponseApi {
      * @memberof CommandResponse
      */
     private mArguments: Arguments;
+
+    /**
+     * The stream to write to in daemon mode
+     * @private
+     * @type {net.Socket}
+     * @memberof CommandResponse
+     */
+    private mStream: net.Socket;
 
     /**
      * Creates an instance of CommandResponse.
@@ -213,6 +227,7 @@ export class CommandResponse implements ICommandResponseApi {
             `${CommandResponse.RESPONSE_ERR_TAG} Response format invalid. Valid formats: "${formats.join(",")}"`);
         this.mSilent = (this.mControl.silent == null) ? false : this.mControl.silent;
         this.mProgressBarSpinnerChars = (this.mControl.progressBarSpinner == null) ? this.mProgressBarSpinnerChars : params.progressBarSpinner;
+        this.mStream = params ? params.stream : undefined;
     }
 
     get format(): IHandlerFormatOutputApi {
@@ -247,7 +262,7 @@ export class CommandResponse implements ICommandResponseApi {
                         formatCopy = JSON.parse(JSON.stringify(format));
                     } catch (copyErr) {
                         outer.console.errorHeader(`Non-formatted output data`);
-                        outer.console.error(`${inspect(format.output, {depth: null, compact: true} as any)}`);
+                        outer.console.error(`${inspect(format.output, { depth: null, compact: true } as any)}`);
                         throw new ImperativeError({
                             msg: `Error copying input parameters. Details: ${copyErr.message}`,
                             additionalDetails: copyErr
@@ -270,7 +285,7 @@ export class CommandResponse implements ICommandResponseApi {
                         this.formatOutput(formatCopy, outer);
                     } catch (formatErr) {
                         outer.console.errorHeader(`Non-formatted output data`);
-                        outer.console.error(`${inspect(format.output, {compact: true} as any)}`);
+                        outer.console.error(`${inspect(format.output, { compact: true } as any)}`);
                         throw formatErr;
                     }
                 }
@@ -299,7 +314,7 @@ export class CommandResponse implements ICommandResponseApi {
 
                         // Output the data as a string
                         case "string":
-                        // Stringify if not a string
+                            // Stringify if not a string
                             if (typeof params.output !== "string") {
                                 params.output = JSON.stringify(params.output);
                             }
@@ -338,7 +353,7 @@ export class CommandResponse implements ICommandResponseApi {
                                 // Build the table and catch any errors that may occur from the packages
                                 let pretty;
                                 try {
-                                // Prettify the data
+                                    // Prettify the data
                                     pretty = TextUtils.prettyJson(params.output, undefined, undefined, "");
                                 } catch (prettyErr) {
                                     throw new ImperativeError({
@@ -364,7 +379,7 @@ export class CommandResponse implements ICommandResponseApi {
                                 // Build the table and catch any errors that may occur from the packages
                                 let table;
                                 try {
-                                // Adjust if required
+                                    // Adjust if required
                                     if (!Array.isArray(params.output)) {
                                         params.output = [params.output];
                                     }
@@ -533,15 +548,12 @@ export class CommandResponse implements ICommandResponseApi {
                  * @returns {string} - The formatted data or the original data.toString() if a buffer was passed
                  */
                 public log(message: string | Buffer, ...values: any[]): string {
+                    let msg: string = LoggerUtils.censorRawData(message.toString(), Logger.DEFAULT_CONSOLE_NAME);
                     if (!Buffer.isBuffer(message)) {
-                        let msg: string = outer.formatMessage(message.toString(), ...values);
-                        msg += "\n";
-                        outer.writeAndBufferStdout(msg);
-                        return msg;
-                    } else {
-                        outer.writeAndBufferStdout(message);
-                        return message.toString();
+                        msg = outer.formatMessage(msg.toString(), ...values) + "\n";
                     }
+                    outer.writeAndBufferStdout(msg);
+                    return msg;
                 }
 
                 /**
@@ -552,16 +564,12 @@ export class CommandResponse implements ICommandResponseApi {
                  * @returns {string} - The formatted data, or the original data.toString() if a buffer was passed
                  */
                 public error(message: string | Buffer, ...values: any[]): string {
+                    let msg: string = LoggerUtils.censorRawData(message.toString(), Logger.DEFAULT_CONSOLE_NAME);
                     if (!Buffer.isBuffer(message)) {
-                        let msg: string = outer.formatMessage(message.toString(), ...values);
-                        msg += "\n";
-                        outer.writeAndBufferStderr(msg);
-                        return msg;
-                    } else {
-                        outer.writeAndBufferStderr(message);
-                        return message.toString();
+                        msg = outer.formatMessage(msg.toString(), ...values) + "\n";
                     }
-
+                    outer.writeAndBufferStderr(msg);
+                    return msg;
                 }
 
                 /**
@@ -572,9 +580,41 @@ export class CommandResponse implements ICommandResponseApi {
                  * @returns {string} - The string that is printed (including the color codes)
                  */
                 public errorHeader(message: string, delimeter = ":"): string {
-                    const msg = TextUtils.chalk.red(message + `${delimeter}\n`);
+                    let msg: string = LoggerUtils.censorRawData(message.toString(), Logger.DEFAULT_CONSOLE_NAME);
+                    msg = TextUtils.chalk.red(msg + `${delimeter}\n`);
                     outer.writeAndBufferStderr(msg);
                     return msg;
+                }
+
+                /**
+                 * Handles prompting for command input
+                 * @param {string} questionText
+                 * @param {IPromptOptions} [opts]
+                 * @returns {Promise<string>}
+                 */
+                public prompt(questionText: string, opts?: IPromptOptions): Promise<string> {
+                    const msg: string = LoggerUtils.censorRawData(questionText.toString(), Logger.DEFAULT_CONSOLE_NAME);
+
+                    if (outer.mStream) {
+                        return new Promise<string>((resolve) => {
+
+                            // send prompt content
+                            const daemonRequest = opts?.hideText ?
+                                DaemonRequest.create({ securePrompt: msg }) :
+                                DaemonRequest.create({ prompt: msg });
+
+                            outer.writeStream(daemonRequest);
+
+                            // wait for a response here
+                            outer.mStream.once("data", (data) => {
+                                // strip response header and give to content the waiting handler
+                                const response: IDaemonResponse = JSON.parse(data.toString());
+                                resolve(response.stdin.trim());
+                            });
+                        });
+                    } else {
+                        return CliUtils.readPrompt(msg, opts);
+                    }
                 }
             }();
         }
@@ -663,12 +703,15 @@ export class CommandResponse implements ICommandResponseApi {
                 private mProgressBarTemplate: string = " " + TextUtils.chalk[outer.mPrimaryTextColor](":bar|") + " :current%  " +
                     TextUtils.chalk[outer.mPrimaryTextColor](":spin") + " | :statusMessage";
                 private mProgressBarInterval: any;
+                private mIsDaemon = false;
+
                 private mProgressBarStdoutStartIndex: number;
                 private mProgressBarStderrStartIndex: number;
                 /**
                  * TODO: get from config - default value is below
                  */
                 private mProgressBarSpinnerChars: string = "-oO0)|(0Oo-";
+                private mDaemonProgressBarSpinnerChars = this.mProgressBarSpinnerChars.split("").map((char) => char + DaemonRequest.EOW_DELIMITER);
 
                 /**
                  * Start a progress bar (assuming silent mode is not enabled).
@@ -687,8 +730,28 @@ export class CommandResponse implements ICommandResponseApi {
                         this.mProgressBarStdoutStartIndex = outer.mStdout.length;
                         this.mProgressBarStderrStartIndex = outer.mStderr.length;
                         this.mProgressTask = params.task;
-                        const stream: WriteStream = (params.stream == null) ?
-                            process.stderr : params.stream;
+                        let stream: any = (params.stream == null) ? process.stderr : params.stream;
+                        const arbitraryColumnSize = 80;
+
+                        // if we have an outer stream (e.g. socket connection for daemon mode) use it
+                        if (outer.mStream) {
+                            this.mIsDaemon = true;
+                            stream = outer.mStream;
+                            // NOTE(Kelosky): see https://github.com/visionmedia/node-progress/issues/110
+                            //                progress explicitly checks for TTY before writing, so
+                            //                we add the keys force this behavior.
+                            if (!(stream as any).isTTY) {
+                                const ttyPrototype = tty.WriteStream.prototype;
+                                Object.keys(ttyPrototype).forEach((key) => {
+                                    (stream as any)[key] = (ttyPrototype as any)[key];
+                                });
+                                (stream as any).columns = arbitraryColumnSize;
+                            }
+                        }
+
+                        // send header to enable progress bar streaming
+                        // const daemonHeaders = DaemonUtils.buildHeaders({ progress: true });
+                        outer.writeStream(DaemonRequest.create({ progress: true }));
 
                         // Create the progress bar instance
                         outer.mProgressBar = new ProgressBar(this.mProgressBarTemplate, {
@@ -715,13 +778,21 @@ export class CommandResponse implements ICommandResponseApi {
                             clearInterval(this.mProgressBarInterval);
                             this.mProgressBarInterval = undefined;
                         }
+
+                        const statusMessage = "Complete";
                         outer.mProgressBar.update(1, {
-                            statusMessage: "Complete",
+                            statusMessage,
                             spin: " "
                         });
+
                         outer.mProgressBar.terminate();
-                        process.stdout.write(outer.mStdout.subarray(this.mProgressBarStdoutStartIndex));
-                        process.stderr.write(outer.mStderr.subarray(this.mProgressBarStderrStartIndex));
+
+                        // NOTE(Kelosky): ansi escape codes for progress bar cursor and line clearing are written on the socket
+                        // so we need to ensure they're emptied out before we write to the stream.
+                        if (this.mIsDaemon) outer.writeStream(DaemonRequest.EOW_DELIMITER + DaemonRequest.create({ progress: false }));
+
+                        outer.writeStdout(outer.mStdout.subarray(this.mProgressBarStdoutStartIndex));
+                        outer.writeStderr(outer.mStderr.subarray(this.mProgressBarStderrStartIndex));
                         this.mProgressTask = undefined;
 
                         // clear the progress bar field
@@ -743,10 +814,18 @@ export class CommandResponse implements ICommandResponseApi {
                         if (this.mProgressBarInterval != null) {
                             const percentRatio = this.mProgressTask.percentComplete / TaskProgress.ONE_HUNDRED_PERCENT;
                             this.mProgressBarSpinnerIndex = (this.mProgressBarSpinnerIndex + 1) % this.mProgressBarSpinnerChars.length;
-                            outer.mProgressBar.update(percentRatio, {
-                                statusMessage: this.mProgressTask.statusMessage,
-                                spin: this.mProgressBarSpinnerChars[this.mProgressBarSpinnerIndex]
-                            });
+
+                            if (this.mIsDaemon) {
+                                outer.mProgressBar.update(percentRatio, {
+                                    statusMessage: this.mProgressTask.statusMessage,
+                                    spin: this.mDaemonProgressBarSpinnerChars[this.mProgressBarSpinnerIndex]
+                                });
+                            } else {
+                                outer.mProgressBar.update(percentRatio, {
+                                    statusMessage: this.mProgressTask.statusMessage,
+                                    spin: this.mProgressBarSpinnerChars[this.mProgressBarSpinnerIndex]
+                                });
+                            }
                         }
                     }
                 }
@@ -820,14 +899,13 @@ export class CommandResponse implements ICommandResponseApi {
      */
     public buildJsonResponse(): ICommandResponse {
 
-        let exitCode = this.mExitCode;
-        if (exitCode == null) {
-            exitCode = this.mSucceeded ? 0 : Constants.ERROR_EXIT_CODE;
+        if (this.mExitCode == null) {
+            this.mExitCode = this.mSucceeded ? 0 : Constants.ERROR_EXIT_CODE;
         }
 
         return {
             success: this.mSucceeded,
-            exitCode,
+            exitCode: this.mExitCode,
             message: this.mMessage,
             stdout: this.mStdout,
             stderr: this.mStderr,
@@ -848,6 +926,10 @@ export class CommandResponse implements ICommandResponseApi {
             response = this.buildJsonResponse();
             (response.stderr as any) = response.stderr.toString();
             (response.stdout as any) = response.stdout.toString();
+            response.message = LoggerUtils.censorRawData(response.message, "json");
+            response.data =  response.data ? JSON.parse(LoggerUtils.censorRawData(JSON.stringify(response.data), "json")) : undefined;
+            response.error = response.error ? JSON.parse(LoggerUtils.censorRawData(JSON.stringify(response.error), "json")) : undefined;
+
             if (!this.mSilent) {
                 this.writeStdout(JSON.stringify(response, null, 2));
             }
@@ -880,6 +962,28 @@ export class CommandResponse implements ICommandResponseApi {
         if (this.mProgressApi != null) {
             this.mProgressApi.endBar();
         }
+    }
+
+    /**
+     * Explicitly end a stream
+     * @private
+     * @memberof CommandResponse
+     */
+    public endStream() {
+        if (this.mStream) {
+            this.setDaemonExitCode();
+            this.mStream.end();
+        }
+    }
+
+    /**
+     * Send headers to daemon client
+     * @private
+     * @param {string} headers
+     * @memberof CommandResponse
+     */
+    private setDaemonExitCode() {
+        this.writeStream(DaemonRequest.create({ exitCode: this.mExitCode }));
     }
 
     /**
@@ -921,11 +1025,24 @@ export class CommandResponse implements ICommandResponseApi {
     /**
      * Writes the data to stdout
      * @private
-     * @param {*} data - the data to write
+     * @param {(Buffer | string)} data - the data to write
      * @memberof CommandResponse
      */
-    private writeStdout(data: any) {
+    private writeStdout(data: Buffer | string) {
         process.stdout.write(data);
+        this.writeStream(DaemonRequest.create({ stdout: data.toString() }));
+    }
+
+    /**
+     * Writes data to stream if provided (for daemon mode)
+     * @private
+     * @param {(Buffer | string)} data
+     * @memberof CommandResponse
+     */
+    private writeStream(data: Buffer | string) {
+        if (this.mStream) {
+            this.mStream.write(data);
+        }
     }
 
     /**
@@ -944,11 +1061,12 @@ export class CommandResponse implements ICommandResponseApi {
     /**
      * Writes the data to stderr
      * @private
-     * @param {*} data - the data to write to stderr
+     * @param {(Buffer | string)} data - the data to write to stderr
      * @memberof CommandResponse
      */
-    private writeStderr(data: any) {
+    private writeStderr(data: Buffer | string) {
         process.stderr.write(data);
+        this.writeStream(DaemonRequest.create({ stderr: data.toString() }));
     }
 
     /**

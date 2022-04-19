@@ -16,8 +16,8 @@ import { IssueSeverity } from "../utilities/PluginIssues";
  */
 export interface IPluginIssues {
     /**
-   * The plugin name is the key into a hash of validation issues.
-   */
+     * The plugin name is the key into a hash of validation issues.
+     */
     [pluginName: string]: {
         issueList: IPluginIssue[];
     };
@@ -25,8 +25,8 @@ export interface IPluginIssues {
 
 export interface IPluginIssue {
     /**
-   * Each entry is the text of the issue and the severity of the issue.
-   */
+     * Each entry is the text of the issue and the severity of the issue.
+     */
     issueText: string;
     issueSev: IssueSeverity;   // one of PluginIssues.IssueSeverity enum
 }

@@ -15,7 +15,7 @@
  */
 
 import * as T from "../../../../../src/TestUtil";
-import { cliBin, config } from "../PluginManagementFacility.spec";
+import { cliBin, config } from "../../__integration__/PluginManagementFacility.spec";
 import { join, resolve } from "path";
 import { readFileSync, writeFileSync } from "fs";
 import { execSync } from "child_process";
@@ -149,14 +149,14 @@ describe("Using a Plugin", () => {
 
         cmd = "profiles create foo myFooProfile --duration 5";
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toBe("");
+        expect(result.stderr).toContain("command 'profiles create' is deprecated");
         expect(result.stdout).toContain("Profile created successfully!");
         expect(result.stdout.replace(/\s+/g, " ")).toContain("size: small");
         expect(result.stdout.replace(/\s+/g, " ")).toContain("duration: 5");
 
         cmd = "profiles validate foo-profile";
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toBe("");
+        expect(result.stderr).toContain("command 'profiles validate' is deprecated");
         expect(result.stdout).toContain("Check the size of the Foo");
         expect(result.stdout).toContain("Repair in time");
         expect(result.stdout).toContain("Of 2 tests, 2 succeeded, 0 failed, and 0 had warnings or undetermined results.");
@@ -248,8 +248,8 @@ describe("Using a Plugin", () => {
         const impLogLocation = join(config.defaultHome, "imperative", "logs", "imperative.log");
         const impLogContent = readFileSync(impLogLocation).toString();
         expect(result.stdout).toContain(resolve(impLogLocation));
-        expect(impLogContent).toContain(`Log message from test plugin: DEBUG: ${randomTest}`);
-        expect(impLogContent).toContain(`Log message from test plugin: INFO: ${randomTest}`);
+        expect(impLogContent).not.toContain(`Log message from test plugin: DEBUG: ${randomTest}`);
+        expect(impLogContent).not.toContain(`Log message from test plugin: INFO: ${randomTest}`);
         expect(impLogContent).toContain(`Log message from test plugin: WARN: ${randomTest}`);
         expect(impLogContent).toContain(`Log message from test plugin: ERROR: ${randomTest}`);
 
@@ -257,8 +257,8 @@ describe("Using a Plugin", () => {
         const appLogLocation = join(config.defaultHome, config.name, "logs", config.name + ".log");
         const appLogContent = readFileSync(appLogLocation).toString();
         expect(result.stdout).toContain(resolve(appLogLocation));
-        expect(appLogContent).toContain(`Log message from test plugin: DEBUG: ${randomTest}`);
-        expect(appLogContent).toContain(`Log message from test plugin: INFO: ${randomTest}`);
+        expect(appLogContent).not.toContain(`Log message from test plugin: DEBUG: ${randomTest}`);
+        expect(appLogContent).not.toContain(`Log message from test plugin: INFO: ${randomTest}`);
         expect(appLogContent).toContain(`Log message from test plugin: WARN: ${randomTest}`);
         expect(appLogContent).toContain(`Log message from test plugin: ERROR: ${randomTest}`);
     });
@@ -299,7 +299,7 @@ describe("Using a Plugin", () => {
         // Create a zosmf profile. That will trigger the CredMgr.
         cmd = "profiles create secure-pass-profile TestProfileName --password 'AnyPass' --overwrite";
         result = T.executeTestCLICommand(cliBin, this, cmd.split(" "));
-        expect(result.stderr).toBe("");
+        expect(result.stderr).toContain("command 'profiles create' is deprecated");
         expect(result.stdout).toContain("CredentialManager in sample-plugin is saving these creds:");
         expect(result.stdout).toContain("password: managed by override-plugin");
 

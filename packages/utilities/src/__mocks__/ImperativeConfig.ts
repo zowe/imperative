@@ -9,10 +9,15 @@
 *
 */
 
+
+import { Config } from "../../../config/src/__mocks__/Config";
 import { IImperativeConfig } from "../../../imperative/src/doc/IImperativeConfig";
 
 export class ImperativeConfig {
     private static mInstance: ImperativeConfig = null;
+
+    private mConfig: Config = new Config();
+
     private mLoadedConfig: IImperativeConfig = {
         name: "test-cli",
         allowConfigGroup: false,
@@ -45,6 +50,14 @@ export class ImperativeConfig {
         return "/home";
     }
 
+    public get config(): Config {
+        return this.mConfig;
+    }
+
+    public set config(c: Config) {
+        this.mConfig = c;
+    }
+
     public findPackageBinName(): string {
         return "MockCmdNameFromPkgBin";
     }
@@ -63,5 +76,9 @@ export class ImperativeConfig {
 
     public get imperativePackageName(): string {
         return this.mImperativePackageName;
+    }
+
+    public get envVariablePrefix(): string {
+        return this.loadedConfig.envVariablePrefix == null ? this.loadedConfig.name : this.loadedConfig.envVariablePrefix;
     }
 }

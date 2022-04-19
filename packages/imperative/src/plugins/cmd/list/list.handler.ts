@@ -11,10 +11,9 @@
 
 import { ICommandHandler, IHandlerParameters } from "../../../../../cmd";
 import { Logger } from "../../../../../logger/";
-import { readFileSync } from "jsonfile";
 import { IPluginJson } from "../../doc/IPluginJson";
 import { TextUtils } from "../../../../../utilities";
-import { PMFConstants } from "../../utilities/PMFConstants";
+import { PluginIssues } from "../../utilities/PluginIssues";
 
 /**
  * The install command handler for cli plugin install.
@@ -42,7 +41,7 @@ export default class ListHandler implements ICommandHandler {
     public async process(params: IHandlerParameters): Promise<void> {
         const chalk = TextUtils.chalk;
 
-        const installedPlugins: IPluginJson = readFileSync(PMFConstants.instance.PLUGIN_JSON);
+        const installedPlugins: IPluginJson = PluginIssues.instance.getInstalledPlugins();
 
         params.response.data.setObj(installedPlugins);
         let listOutput: string = "";

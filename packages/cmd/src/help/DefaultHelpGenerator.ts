@@ -136,6 +136,7 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
             if (this.mCommandDefinition.aliases != null && this.mCommandDefinition.aliases.length > 0) {
                 helpText += " | " + this.mCommandDefinition.aliases.join(" | ");
             }
+
             if (this.mCommandDefinition.experimental) {
                 helpText += this.grey(DefaultHelpGenerator.HELP_INDENT + "(experimental command)\n\n");
             } else {
@@ -218,13 +219,15 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
             let maximumLeftHandSide = 0;
             for (const command of definitions) {
                 let summaryText: string = "";
-
-                // Mark with the experimental tag if necessary
-                if (command.experimental) {
-                    summaryText += this.grey("(experimental) ");
-                }
-
                 summaryText += command.summary || command.description;
+
+                if (command.deprecatedReplacement) {
+                    // Mark with the deprecated tag
+                    summaryText += this.grey(" (deprecated)");
+                } else if (command.experimental) {
+                    // Mark with the experimental tag
+                    summaryText += this.grey(" (experimental) ");
+                }
                 const printString: string = DefaultHelpGenerator.HELP_INDENT + this.buildCommandAndAliases(command);
                 if (printString.length > maximumLeftHandSide) {
                     maximumLeftHandSide = printString.length;
@@ -353,6 +356,13 @@ export class DefaultHelpGenerator extends AbstractHelpGenerator {
         }
         let description = this.mCommandDefinition.description
             || this.mCommandDefinition.summary;
+
+        // we place the deprecated message in the DESCRIPTION help section
+        if (this.mCommandDefinition.deprecatedReplacement) {
+            const noNewlineInText = this.mCommandDefinition.deprecatedReplacement.replace("\n", " ");
+            description += this.grey("\n\nWarning: This " + this.mCommandDefinition.type +
+                " has been deprecated.\nRecommended replacement: " + noNewlineInText);
+        }
         if (this.mProduceMarkdown) {
             description = this.escapeMarkdown(description);  // escape Markdown special characters
         }
