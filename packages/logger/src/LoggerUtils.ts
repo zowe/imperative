@@ -22,9 +22,16 @@ import { IProfileSchema } from "../../profiles/src/doc/definition/IProfileSchema
 
 export class LoggerUtils {
     public static readonly CENSOR_RESPONSE = "****";
+
+    /**
+     * NOTE(Kelosky): Ideally we might have a consolidated list for secure fields, but for now we'll just
+     * make sure they're collocated within the same class.
+     */
     public static CENSORED_OPTIONS = ["auth", "p", "pass", "password", "passphrase", "credentials",
         "authentication", "basic-auth", "basicAuth", "tv", "token-value", "tokenValue",
         "cert-file-passphrase", "certFilePassphrase"];
+
+    public static SECURE_PROMPT_OPTIONS = ["user", "password", "tokenValue", "passphrase"];
 
     /**
      * Copy and censor any sensitive CLI arguments before logging/printing

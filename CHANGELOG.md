@@ -2,6 +2,11 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Introduced flag `--show-inputs-only` to show the inputs of the command
+that would be used if a command were executed.
+
 ## `5.0.0-next.202204142147`
 
 - BugFix: Fixed missing `osLoc` information from `ProfileInfo.getAllProfiles()`. [#771](https://github.com/zowe/imperative/issues/771)

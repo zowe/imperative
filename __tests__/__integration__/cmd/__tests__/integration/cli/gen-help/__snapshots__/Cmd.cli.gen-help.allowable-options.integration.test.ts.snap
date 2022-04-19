@@ -67,6 +67,10 @@ exports[`cmd-cli gen-help allowable-options should display the help with allowab
  GLOBAL OPTIONS
  --------------
 
+   --show-inputs-only (boolean)
+
+      Show command inputs and do not run the command
+
    --response-format-json | --rfj (boolean)
 
       Produce JSON formatted data from a command
