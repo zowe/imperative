@@ -741,7 +741,11 @@ export class ProfileInfo {
         // did our caller request the actual values of secure arguments?
         if (mergeOpts.getSecureVals) {
             mergedArgs.knownArgs.forEach((nextArg) => {
-                if (nextArg.secure) nextArg.argValue = this.loadSecureArg(nextArg);
+                try {
+                    if (nextArg.secure) nextArg.argValue = this.loadSecureArg(nextArg);
+                } catch(_argValueNotDefined) {
+                    nextArg.argValue = undefined;
+                }
             });
         }
 
