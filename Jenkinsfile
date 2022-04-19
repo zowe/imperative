@@ -25,8 +25,8 @@ node('zowe-jenkins-agent-dind') {
 
     // Protected branch property definitions
     pipeline.protectedBranches.addMap([
-        [name: "master", tag: "latest", aliasTags: ["zowe-v2-lts", "next"], dependencies: ["@zowe/perf-timing": "latest"], level: SemverLevel.MINOR],
-        [name: "zowe-v1-lts", tag: "zowe-v1-lts", dependencies: ["@zowe/perf-timing": "latest"], level: SemverLevel.PATCH],
+        [name: "master", tag: "latest", aliasTags: ["zowe-v2-lts", "next"], dependencies: ["@zowe/perf-timing": "zowe-v2-lts"], level: SemverLevel.MINOR],
+        [name: "zowe-v1-lts", tag: "zowe-v1-lts", dependencies: ["@zowe/perf-timing": "zowe-v1-lts"], level: SemverLevel.PATCH],
         //[name: "next", tag: "next", prerelease: "next", dependencies: ["@zowe/perf-timing": "next"]]
     ])
 
