@@ -2,7 +2,7 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
-## Recent Changes
+## `5.0.1`
 
 - BugFix: Fixed ProfileInfo API targeting default base profile instead of the operating layer's base profile. [#791](https://github.com/zowe/imperative/issues/791)
 
