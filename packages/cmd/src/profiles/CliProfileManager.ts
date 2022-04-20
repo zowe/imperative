@@ -409,7 +409,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     // don't store null values but still remove value that may have been stored previously
                     this.log.debug(`Deleting secured field with key ${propertyNamePath}` +
                         ` for profile (of type "${this.profileType}").`);
-                    
+
                     // In this particular case, do not throw an error if delete doesn't work.
                     try {
                         await CredentialManagerFactory.manager.delete(
