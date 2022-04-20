@@ -119,7 +119,7 @@ export class ConfigProfiles extends ConfigApi {
      *
      * @returns The desired profile object. An empty object if profiles is empty.
      */
-    private buildProfile(path: string, profiles: { [key: string]: IConfigProfile }): { [key: string]: string } {
+    public buildProfile(path: string, profiles: { [key: string]: IConfigProfile }): { [key: string]: string } {
         const segments: string[] = path.split(".");
         let properties = {};
         for (const [n, p] of Object.entries(profiles)) {
