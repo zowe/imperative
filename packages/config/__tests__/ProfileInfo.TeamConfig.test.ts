@@ -517,7 +517,6 @@ describe("TeamConfig ProfileInfo tests", () => {
             await profInfo.readProfilesFromDisk({homeDir: teamHomeProjDir});
 
             const profAttrs = profInfo.getAllProfiles("zosmf").find(p => p.profName === "LPAR2_home");
-            console.log(profAttrs, profInfo.getOsLocInfo(profAttrs))
             const mergedArgs = profInfo.mergeArgsForProfile(profAttrs, {getSecureVals: true});
 
             const expectedArgs = [
