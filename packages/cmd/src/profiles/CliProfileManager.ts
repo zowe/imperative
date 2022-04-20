@@ -377,7 +377,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     await this.findOptions(
                         prop.properties[childPropertyName],
                         propNamePath + "." + childPropertyName,
-                        (propValue != null) && (propValue[childPropertyName] != null)) ?
+                        ((propValue != null) && (propValue[childPropertyName] != null)) ?
                             JSON.parse(JSON.stringify(propValue[childPropertyName])) : null,
                         secureOp
                     );
