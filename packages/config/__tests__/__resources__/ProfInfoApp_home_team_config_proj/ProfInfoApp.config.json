@@ -4,8 +4,8 @@
         "base_glob_home": {
             "type": "base",
             "properties": {
-                "user": "userNameBase",
-                "password": "passwordBase",
+                "user": "globalUser",
+                "password": "globalPassword",
                 "rejectUnauthorized": false
             }
         },
