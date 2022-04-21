@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed a bug where, upon trying to create a V1 profile containing no secure properties, if the credential manager cannot access the credential vault, an error would be thrown.
+
 ## `5.0.1`
 
 - BugFix: Fixed ProfileInfo API targeting default base profile instead of the operating layer's base profile. [#791](https://github.com/zowe/imperative/issues/791)

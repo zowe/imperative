@@ -20,7 +20,7 @@ import {
 } from "../../../profiles/__tests__/TestConstants";
 import { CredentialManagerFactory, DefaultCredentialManager } from "../../../security";
 import { BasicProfileManager } from "../../../profiles/src/BasicProfileManager";
-import { ProfilesConstants, ISaveProfile } from "../../../profiles";
+import { ProfilesConstants, ISaveProfile, IProfileSaved } from "../../../profiles";
 
 jest.mock("../../../profiles/src/utils/ProfileIO");
 jest.mock("../../../security/src/DefaultCredentialManager");
@@ -176,6 +176,76 @@ describe("Cli Profile Manager", () => {
 
                 // Expect the credential manager save to have NOT been called
                 expect(dummyManager.save).toHaveBeenCalledTimes(0);
+
+                (BasicProfileManager.prototype as any).saveProfile.mockRestore();
+            });
+
+            it("should save credentials without erroring the credential manager if there are no secure credentials to save", async () => {
+                // We'll use a dummy credential manager in the test - but set initialized to "false" - this way we can use
+                // Jest expect.toHaveBeenCalledTimes(0)
+                const dummyManager = new DefaultCredentialManager("dummy");
+                dummyManager.save = jest.fn();
+                dummyManager.delete = jest.fn(() => {
+                    throw new Error("This is a dummy error that is thrown");
+                });
+                Object.defineProperty(CredentialManagerFactory, "manager", {get: jest.fn().mockReturnValue(dummyManager)});
+                Object.defineProperty(CredentialManagerFactory, "initialized", {get: jest.fn().mockReturnValue(true)});
+
+                const tempProf: any = {
+                    username: user,
+                    password: undefined,
+                    secureBox: {
+                        myCode: undefined,
+                        myFlag: undefined,
+                        myMiniBox: null,
+                        myPhone: undefined,
+                        myPhrase: undefined,
+                        mySet: undefined,
+                        myEmptyMiniBox: null,
+                    }
+                };
+
+                parms.args.phone = undefined;
+                parms.args.code = undefined;
+                parms.args.phrase = undefined;
+                parms.args.set = undefined;
+                parms.args.flag = undefined;
+                parms.args.minime = undefined;
+
+                jest.spyOn(BasicProfileManager.prototype, "saveProfile" as any).mockImplementation((tParms: ISaveProfile) => {
+                    return {
+                        overwritten: tParms.overwrite,
+                        profile: tParms.profile
+                    };
+                });
+
+                let result: IProfileSaved;
+                let errorMessage: string;
+                try {
+                    result = await prof.save(parms);
+                } catch (err) {
+                    errorMessage = err.message;
+                }
+                // Parms should be successfully deleted from memory
+                expect(parms.args).toBeUndefined();
+                expect(errorMessage).toBeUndefined();
+
+                // BasicProfileManager should be called to save the profile with the given options
+                expect((BasicProfileManager.prototype as any).saveProfile).toHaveBeenCalledWith({
+                    name,
+                    type: "secure-orange",
+                    overwrite: false,
+                    profile: tempProf
+                });
+
+                // Should have saved every secure property as a constant string
+                expect(result.profile).toMatchObject(tempProf);
+
+                // Expect the credential manager save to not have been called
+                // and delete to have been called a few (6) times, but still work
+                // even if it threw an error.
+                expect(dummyManager.save).toHaveBeenCalledTimes(0);
+                expect(dummyManager.delete).toHaveBeenCalledTimes(6);
 
                 (BasicProfileManager.prototype as any).saveProfile.mockRestore();
             });

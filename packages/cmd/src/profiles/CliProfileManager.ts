@@ -22,7 +22,7 @@ import {
     ProfilesConstants,
     ProfileUtils
 } from "../../../profiles";
-import { inspect, isNullOrUndefined } from "util";
+import { inspect } from "util";
 import { ImperativeError } from "../../../error";
 import { Arguments } from "yargs";
 import { CommandResponse } from "../response/CommandResponse";
@@ -124,7 +124,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
         const validationParms: IValidateProfileForCLI = JSON.parse(JSON.stringify(parms));
         validationParms.readyForValidation = true;
 
-        if (!isNullOrUndefined(parms.args)) {
+        if (parms.args != null) {
             this.log.trace(`Arguments supplied, constructing profile from arguments:\n${inspect(parms.args, {depth: null})}`);
             parms.profile = await this.createProfileFromCommandArguments(parms.args, parms.profile);
 
@@ -156,13 +156,13 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
         // has already been constructed and just needs to be saved.
         // When updating from the args, we do not need to run validation twice when saving the profile
         let updated: any;
-        if (!isNullOrUndefined(parms.args)) {
+        if (parms.args != null) {
             const newManagerParams: IProfileManager<ICommandProfileTypeConfiguration> = JSON.parse(JSON.stringify(this.managerParameters));
             newManagerParams.loadCounter = this.loadCounter;
             newManagerParams.logger = this.log;
             const loadedProfile = await new CliProfileManager(newManagerParams).loadProfile({name: parms.name});
             updated = await this.updateProfileFromCliArgs(parms, loadedProfile.profile,
-                isNullOrUndefined(parms.profile) ? {} : parms.profile);
+                (parms.profile == null) ? {} : parms.profile);
             delete parms.args;
             this.log.debug("Profile \"%s\" of type \"%s\" has been updated from CLI arguments. " +
                 "Validating the structure of the profile.", parms.name, this.profileType);
@@ -350,7 +350,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
      * @returns {Promise<any>} Processed version of a property
      */
     private async findOptions(prop: ICommandProfileProperty, propNamePath: string, propValue: any, secureOp?: SecureOperationFunction): Promise<any> {
-        if (!isNullOrUndefined(prop.optionDefinition)) {
+        if (prop.optionDefinition != null) {
             // once we reach a property with an option definition,
             // we now have the complete path to the property
             // so we will set the value on the property from the profile
@@ -362,7 +362,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
             }
             return propValue;
         }
-        if (!isNullOrUndefined(prop.properties)) {
+        if (prop.properties != null) {
             if (secureOp && prop.secure) {
                 if (!propValue || Object.keys(propValue).length === 0) { // prevents from performing operations on empty objects
                     return null;
@@ -377,7 +377,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                     await this.findOptions(
                         prop.properties[childPropertyName],
                         propNamePath + "." + childPropertyName,
-                        (!isNullOrUndefined(propValue) && !isNullOrUndefined(propValue[childPropertyName])) ?
+                        ((propValue != null) && (propValue[childPropertyName] != null)) ?
                             JSON.parse(JSON.stringify(propValue[childPropertyName])) : null,
                         secureOp
                     );
@@ -405,18 +405,23 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
              * @return {Promise<string>}
              */
             securelyStoreValue = async (propertyNamePath: string, propertyValue: string): Promise<string> => {
-                try {
-                    if (isNullOrUndefined(propertyValue)) {
-                        // don't store null values but still remove value that may have been stored previously
-                        this.log.debug(`Deleting secured field with key ${propertyNamePath}` +
-                            ` for profile (of type "${this.profileType}").`);
+                if (propertyValue == null) {
+                    // don't store null values but still remove value that may have been stored previously
+                    this.log.debug(`Deleting secured field with key ${propertyNamePath}` +
+                        ` for profile (of type "${this.profileType}").`);
+
+                    // In this particular case, do not throw an error if delete doesn't work.
+                    try {
                         await CredentialManagerFactory.manager.delete(
                             ProfileUtils.getProfilePropertyKey(this.profileType, name, propertyNamePath)
                         );
-
-                        return undefined;
+                    } catch (err) {
+                        // If delete did not work here, it is probably okay.
                     }
 
+                    return undefined;
+                }
+                try {
                     this.log.debug(`Associating secured field with key ${propertyNamePath}` +
                         ` for profile (of type "${this.profileType}").`);
                     // Use the Credential Manager to store the credentials
@@ -503,7 +508,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
     private async updateProfileFieldsFromCommandArguments(oldProfile: IProfile, newProfile: IProfile, newArguments: Arguments,
         merge: boolean): Promise<IProfile> {
         const profileConfig = this.profileTypeConfiguration;
-        if (!isNullOrUndefined(profileConfig.updateProfileFromArgumentsHandler)) {
+        if (profileConfig.updateProfileFromArgumentsHandler != null) {
             // if there is a custom update profile handler, they can call mergeProfile
             // from their handler, so we will not do it for them to avoid issues
             this.log.debug("Loading custom update profile handler: " + profileConfig.updateProfileFromArgumentsHandler);
@@ -570,7 +575,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
      */
     private async createProfileFromCommandArguments(profileArguments: Arguments, starterProfile: IProfile): Promise<IProfile> {
         const profileConfig = this.profileTypeConfiguration;
-        if (!isNullOrUndefined(profileConfig.createProfileFromArgumentsHandler)) {
+        if (profileConfig.createProfileFromArgumentsHandler != null) {
             const response = new CommandResponse({silent: true, args: profileArguments});
             let handler: ICommandHandler;
             try {
@@ -636,7 +641,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
          * @param {string} propertyNamePath - Dot notation path of a property (e.g. my.nested.property)
          */
         const findOptions = async (property: ICommandProfileProperty, propertyNamePath: string): Promise<any> => {
-            if (!isNullOrUndefined(property.optionDefinition)) {
+            if (property.optionDefinition != null) {
                 // once we reach a property with an option definition,
                 // we now have the complete path to the property
                 // so we will set the value on the property from the profile
@@ -644,7 +649,7 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
                 return args[property.optionDefinition.name];
             }
 
-            if (!isNullOrUndefined(property.properties)) {
+            if (property.properties != null) {
                 const tempProperties: any = {};
                 for (const childPropertyName of Object.keys(property.properties)) {
                     tempProperties[childPropertyName] =
@@ -669,11 +674,11 @@ export class CliProfileManager extends BasicProfileManager<ICommandProfileTypeCo
      * @param {IProfile} profile - the profile object so far.
      */
     private insertDependenciesIntoProfileFromCLIArguments(args: Arguments, profile: IProfile): void {
-        if (!isNullOrUndefined(this.profileTypeConfiguration.dependencies)) {
+        if (this.profileTypeConfiguration.dependencies != null) {
             const dependencies: Array<{ type: string, name: string }> = [];
             for (const dependency of this.profileTypeConfiguration.dependencies) {
                 const optionName = ProfileUtils.getProfileOption(dependency.type);
-                if (!isNullOrUndefined(args[optionName])) {
+                if (args[optionName] != null) {
                     const dependentProfileName = args[optionName];
                     this.log.debug("Inserting dependency profile named \"%s\" of type \"%s\"", dependentProfileName, dependency.type);
                     dependencies.push({
