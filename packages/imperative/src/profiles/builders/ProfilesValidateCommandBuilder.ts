@@ -68,7 +68,7 @@ export class ProfilesValidateCommandBuilder extends ProfilesCommandBuilder {
             type: "command",
             handler: __dirname + "/../handlers/ValidateProfileHandler",
             deprecatedReplacement: ProfilesConstants.DEPRECATE_TO_CONFIG_EDIT +
-                "\n    " + ImperativeConfig.instance.config.formMainConfigPathNm({addPath: true}),
+                "\n    " + ImperativeConfig.instance.config.formMainConfigPathNm({addPath: false}),
             customize: {},
             options: [ProfileValidator.PRINT_PLAN_OPTION],
             positionals: [{

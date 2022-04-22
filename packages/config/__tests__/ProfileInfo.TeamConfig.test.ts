@@ -512,6 +512,32 @@ describe("TeamConfig ProfileInfo tests", () => {
             }
         });
 
+        it("should find known args in service profile and its corresponding base", async () => {
+            const profInfo = createNewProfInfo(teamProjDir);
+            await profInfo.readProfilesFromDisk({homeDir: teamHomeProjDir});
+
+            const profAttrs = profInfo.getAllProfiles("zosmf").find(p => p.profName === "LPAR2_home");
+            const mergedArgs = profInfo.mergeArgsForProfile(profAttrs, {getSecureVals: true});
+
+            const expectedArgs = [
+                { argName: "host", dataType: "string", argValue: "LPAR2.your.domain.net" },
+                { argName: "port", dataType: "number", argValue: 6789 },
+                { argName: "responseFormatHeader", dataType: "boolean", argValue: true },
+                { argName: "user", dataType: "string", argValue: "globalUser" },
+                { argName: "password", dataType: "string", argValue: "globalPassword" },
+                { argName: "rejectUnauthorized", dataType: "boolean", argValue: false }
+            ];
+
+            expect(mergedArgs.knownArgs.length).toBe(expectedArgs.length);
+            for (const [idx, arg] of mergedArgs.knownArgs.entries()) {
+                expect(arg).toMatchObject(expectedArgs[idx]);
+                expect(arg.argValue).toEqual(expectedArgs[idx].argValue);
+                expect(arg.argLoc.locType).toBe(ProfLocType.TEAM_CONFIG);
+                expect(arg.argLoc.jsonLoc).toMatch(/^profiles\.(base_glob_home|LPAR2_home)\.properties\./);
+                expect(arg.argLoc.osLoc[0]).toMatch(new RegExp(`${testAppNm}\\.config\\.json$`));
+            }
+        });
+
         it("should override not known args in service and base profile with environment variables", async () => {
             const fakePort = 12345;
             const teamConfigHost = "LPAR4.your.domain.net";

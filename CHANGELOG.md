@@ -7,6 +7,18 @@ All notable changes to the Imperative package will be documented in this file.
 - Enhancement: Introduced flag `--show-inputs-only` to show the inputs of the command
 that would be used if a command were executed.
 
+## `5.0.2`
+
+- BugFix: Fixed a bug where, upon trying to create a V1 profile containing no secure properties, if the credential manager cannot access the credential vault, an error would be thrown.
+
+## `5.0.1`
+
+- BugFix: Fixed ProfileInfo API targeting default base profile instead of the operating layer's base profile. [#791](https://github.com/zowe/imperative/issues/791)
+
+## `5.0.0`
+
+- Major: Introduced Team Profiles, Daemon mode, and more. See the prerelease items below for more details.
+
 ## `5.0.0-next.202204142147`
 
 - BugFix: Fixed missing `osLoc` information from `ProfileInfo.getAllProfiles()`. [#771](https://github.com/zowe/imperative/issues/771)
