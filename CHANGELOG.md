@@ -2,6 +2,11 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Fixed ProfileInfo API `argTeamConfigLoc` not recognizing secure fields in multi-layer operations. [#800](https://github.com/zowe/imperative/pull/800)
+- BugFix: Fixed ProfileInfo API `updateKnownProperty` possibly storing information in the wrong location due to optional osLoc information. [#800](https://github.com/zowe/imperative/pull/800)
+
 ## `5.0.2`
 
 - BugFix: Fixed a bug where, upon trying to create a V1 profile containing no secure properties, if the credential manager cannot access the credential vault, an error would be thrown.
