@@ -596,7 +596,8 @@ export class ProfileInfo {
                     // Skip properties already loaded from service profile
                     if (!mergedArgs.knownArgs.find((arg) => arg.argName === argName)) {
                         const [argLoc, secure] = this.argTeamConfigLoc({
-                            profileName: baseProfileName, propName, osLocInfo, configProperties: layerProperties });
+                            profileName: baseProfileName, propName, osLocInfo, configProperties: layerProperties
+                        });
                         mergedArgs.knownArgs.push({
                             argName,
                             dataType: this.argDataType(typeof propVal),
@@ -677,7 +678,8 @@ export class ProfileInfo {
                             if (this.mLoadedConfig.api.profiles.defaultGet("base")) {
                                 try {
                                     [argLoc, foundInSecureArray] = this.argTeamConfigLoc({
-                                        profileName: this.mLoadedConfig.properties.defaults.base, propName, osLocInfo });
+                                        profileName: this.mLoadedConfig.properties.defaults.base, propName, osLocInfo
+                                    });
                                     argFound = true;
                                 } catch (_argNotFoundInBaseProfile) {
                                     // Do nothing
@@ -1273,7 +1275,10 @@ export class ProfileInfo {
      */
     private argTeamConfigLoc(opts: IArgTeamConfigLoc): [IProfLoc, boolean] {
         const segments = this.mLoadedConfig.api.profiles.expandPath(opts.profileName).split(".profiles.");
-        const secFields = this.getTeamConfig().api.secure.secureFields({ user: opts.osLocInfo?.user, global: opts.osLocInfo?.global });
+        let osLocInfo: IProfLocOsLocLayer;
+        if (opts.osLocInfo?.user != null || opts.osLocInfo?.global != null)
+            osLocInfo = { user: opts.osLocInfo?.user, global: opts.osLocInfo?.global };
+        const secFields = this.getTeamConfig().api.secure.secureFields(osLocInfo);
         const buildPath = (ps: string[], p: string) => `${ps.join(".profiles.")}.properties.${p}`;
         while (segments.length > 0 &&
             lodash.get(opts.configProperties ?? this.mLoadedConfig.properties, buildPath(segments, opts.propName)) === undefined &&

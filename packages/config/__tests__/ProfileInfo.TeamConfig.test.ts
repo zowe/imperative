@@ -619,7 +619,7 @@ describe("TeamConfig ProfileInfo tests", () => {
             let caughtError;
 
             try {
-                (profInfo as any).argTeamConfigLoc("doesNotExist", "fake");
+                (profInfo as any).argTeamConfigLoc({profileName: "doesNotExist", propName: "fake"});
             } catch (error) {
                 expect(error instanceof ProfInfoErr).toBe(true);
                 caughtError = error;
