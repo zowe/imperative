@@ -1270,9 +1270,7 @@ export class ProfileInfo {
     /**
      * Given a profile name and property name, compute the profile location
      * object containing OS and JSON locations.
-     * @param profileName Name of a team config profile (e.g., LPAR1.zosmf)
-     * @param propName Name of a team config property (e.g., host)
-     * @param configProperties Optional properties object to be used for property lookup
+     * @param opts Set of options that allow this method to get the profile location
      */
     private argTeamConfigLoc(opts: IArgTeamConfigLoc): [IProfLoc, boolean] {
         const segments = this.mLoadedConfig.api.profiles.expandPath(opts.profileName).split(".profiles.");
