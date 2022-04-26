@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- BugFix: Added the ability to read option values from aliases. Enhanced backward compatibility with V1 profiles.
+
 ## `4.18.3`
 
 - BugFix: Removed `moment` dependency.
