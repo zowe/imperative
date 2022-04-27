@@ -279,6 +279,15 @@ const installSampleClis: ITaskFunction = (done: any) => {
 const uninstallSampleClis: ITaskFunction = (done: any) => {
     loadDependencies();
 
+    // On Windows, npm@6 removes dependencies from node_modules when it uninstalls test CLIs.
+    // For Windows CI builds, we don't really need to uninstall the test CLIs so we skip it.
+    // TODO Remove this hack once we stop using npm@6 in CI builds
+    if (process.platform === "win32" && process.env.CI === "true") {
+        fancylog("Skipping uninstall of test CLIs in CI environment");
+        done();
+        return;
+    }
+
     const cliDirs: string[] = getDirectories(__dirname + "/../__tests__/__integration__/");
     cliDirs.forEach((dir) => {
         // Globally uninstall them all them all
