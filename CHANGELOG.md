@@ -2,6 +2,10 @@
 
 All notable changes to the Imperative package will be documented in this file.
 
+## Recent Changes
+
+- Enhancement: Added dark theme to web help that is automatically used when system-wide dark mode is enabled.
+
 ## `5.0.2`
 
 - BugFix: Fixed a bug where, upon trying to create a V1 profile containing no secure properties, if the credential manager cannot access the credential vault, an error would be thrown.
